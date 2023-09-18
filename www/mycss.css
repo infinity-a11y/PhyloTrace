@@ -1,0 +1,15 @@
+div[data-value = 'rectangular'].active, div[data-value = 'red2'].active{
+  background-color:#990000 !important;
+  color: white;
+}
+div[data-value = 'Rectangular'], div[data-value = 'red2']{
+  color: #990000;
+}
+
+div[data-value = 'green1'].active, div[data-value = 'green2'].active{
+  background-color:#009900 !important;
+  color: white;
+}
+div[data-value = 'green1'], div[data-value = 'green2']{
+  color: #009900;
+}
