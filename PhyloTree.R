@@ -60,15 +60,20 @@ ui <- dashboardPage(
     # Title 
     dashboardHeader(title = span(img(src="PhyloTree.jpg", width = 190))),
 
+# Sidebar ----   
     dashboardSidebar(
       tags$style("label{color: white;}"),
       br(), br(),
       sidebarMenu(
         id = "tabs",
         menuItem(
+          text = "Initialization",
+          tabName = "init"
+        ),
+        menuItem(
           text = "Upload Data",
           tabName = "upload",
-                 icon = icon("upload"),
+          icon = icon("upload"),
           menuSubItem(
             text = "NGS Pipeline",
             tabName = "ngs_pipeline"
