@@ -52,6 +52,9 @@ library(shinyFiles)
 if (!require(dplyr)) install.packages('dplyr')
 library(dplyr)
 
+if (!require(downloader)) install.packages('downloader')
+library(downloader)
+
 
 ################ User Interface ################
 
@@ -68,7 +71,9 @@ ui <- dashboardPage(
         id = "tabs",
         menuItem(
           text = "Initialization",
-          tabName = "init"
+          tabName = "init",
+          icon = icon("gears"),
+          selected = TRUE
         ),
         menuItem(
           text = "Upload Data",
@@ -80,8 +85,7 @@ ui <- dashboardPage(
           ),
           menuSubItem(
             text = "Tree format",
-            tabName = "tree_format",
-            selected = TRUE
+            tabName = "tree_format"
           )
           ),
         menuItem(
@@ -314,6 +318,43 @@ ui <- dashboardPage(
     tabItems(
       
 
+# Tab Initialization        ---------------------------------------------      
+
+    tabItem(
+      tabName = "init",
+      fluidRow(
+        column(
+          width = 6,
+          align = "center",
+          br(), br(), br(), br(),
+          selectInput(
+            inputId = "select_cgmlst", 
+            label = h4("Select cgMLST Database", style = "color:white"),
+            choices = list("Acinetobacter baumanii", "Bacillus anthracis",
+                           "Bordetella pertussis", "Brucella melitensis",
+                           "Brucella spp.", "Burkholderia mallei (FLI)",
+                           "Burkholderia mallei (RKI)", "Burkholderia pseudomallei",
+                           "Campylobacter jejuni/coli", "Clostridioides difficile",
+                           "Clostridium perfringens", "Corynebacterium diphtheriae",
+                           "Cronobacter sakazakii/malonaticus", "Enterococcus faecalis",
+                           "Enterococcus faecium", "Escherichia coli",
+                           "Francisella tularensis", "Klebsiella pneumoniae/variicola/quasipneumoniae",
+                           "Legionella pneumophila", "Listeria monocytogenes",
+                           "Mycobacterium tuberculosis/bovis/africanum/canettii",
+                           "Mycobacteroides abscessus", "Mycoplasma gallisepticum",
+                           "Paenibacillus larvae", "Pseudomonas aeruginosa",
+                           "Salmonella enterica", "Serratia marcescens",
+                           "Staphylococcus aureus", "Staphylococcus capitis",
+                           "Streptococcus pyogenes"),
+            selected = "Bordetella pertussis",
+            width = "300px"),
+          br(), br(), 
+          actionButton(inputId = "download_cgMLST", label = "Download Alleles")
+          )
+        )
+    ),
+      
+      
 # Tab Upload - NGS pipeline ---------------------------------------------
 
     tabItem(
@@ -2457,7 +2498,112 @@ ui <- dashboardPage(
 
 server <- function(input, output) {
   
-
+# Download cgMLST       -------------------------------------------------------
+  
+  observe(
+    if(input$select_cgmlst == "Acinetobacter baumanii") {
+      link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/3956907/alleles/"
+      folder_name <<- "Acinetobacter_baumanii_alleles"
+      } else if (input$select_cgmlst == "Bacillus anthracis") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/19008694/alleles/"
+        folder_name <<- "Bacillus_anthracis_alleles"
+      } else if (input$select_cgmlst == "Bordetella pertussis") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/29412358/alleles/"
+        folder_name <<- "Bordetella_pertussis_alleles"
+      } else if (input$select_cgmlst == "Brucella melitensis") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/6398355/alleles/"
+        folder_name <<- "Brucella_melitensis_alleles"
+      } else if (input$select_cgmlst == "Brucella spp.") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/24062474/alleles/"
+        folder_name <<- "Brucella_spp_alleles"
+      } else if (input$select_cgmlst == "Burkholderia mallei (FLI)") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/23721348/alleles/"
+        folder_name <<- "Burkholderia_mallei_FLI_alleles"
+      } else if (input$select_cgmlst == "Burkholderia mallei (RKI)") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/23643739/alleles/"
+        folder_name <<- "Burkholderia_mallei_RKI_alleles"
+      } else if (input$select_cgmlst == "Burkholderia pseudomallei") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/18876117/alleles/"
+        folder_name <<- "Burkholderia_pseudomallei_alleles"
+      } else if (input$select_cgmlst == "Campylobacter jejuni/coli") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/145039/alleles/"
+        folder_name <<- "Campylobacter_jejuni_coli_alleles"
+      } else if (input$select_cgmlst == "Clostridioides difficile") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/12556067/alleles/"
+        folder_name <<- "Clostridioides_difficile_alleles"
+      } else if (input$select_cgmlst == "Clostridium perfringens") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/15017225/alleles/"
+        folder_name <<- "Clostridium_perfringens_alleles"
+      } else if (input$select_cgmlst == "Corynebacterium diphtheriae") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/30589266/alleles/"
+        folder_name <<- "Corynebacterium_diphtheriae_alleles"
+      } else if (input$select_cgmlst == "Cronobacter sakazakii/malonaticus") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/29420227/alleles/"
+        folder_name <<- "Cronobacter_sakazakii_malonaticus_alleles"
+      } else if (input$select_cgmlst == "Enterococcus faecalis") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/3887469/alleles/"
+        folder_name <<- "Enterococcus_faecalis_alleles"
+      } else if (input$select_cgmlst == "Enterococcus faecium") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/991893/alleles/"
+        folder_name <<- "Enterococcus_faecium_alleles"
+      } else if (input$select_cgmlst == "Escherichia coli") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/5064703/alleles/"
+        folder_name <<- "Escherichia_coli_alleles"
+      } else if (input$select_cgmlst == "Francisella tularensis") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/260204/alleles/"
+        folder_name <<- "Francisella_tularensis_alleles"
+      } else if (input$select_cgmlst == "Klebsiella pneumoniae/variicola/quasipneumoniae") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/2187931/alleles/"
+        folder_name <<- "K_pneumoniae_variicola_quasipneumoniae_alleles"
+      } else if (input$select_cgmlst == "Legionella pneumophila") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/1025099/alleles/"
+        folder_name <<- "Legionella_pneumophila_alleles"
+      } else if (input$select_cgmlst == "Listeria monocytogenes") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/690488/alleles/"
+        folder_name <<- "Listeria_monocytogenes_alleles"
+      } else if (input$select_cgmlst == "Mycobacterium tuberculosis/bovis/africanum/canettii") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/741110/alleles/"
+        folder_name <<- "M_tuberculosis_bovis_africanum_canettii_alleles"
+      } else if (input$select_cgmlst == "Mycobacteroides abscessus") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/22602285/alleles/"
+        folder_name <<- "Mycobacteroides_abscessus_alleles"
+      } else if (input$select_cgmlst == "Mycoplasma gallisepticum") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/6402012/alleles/"
+        folder_name <<- "Mycoplasma_gallisepticum_alleles"
+      } else if (input$select_cgmlst == "Paenibacillus larvae") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/17414003/alleles/"
+        folder_name <<- "Paenibacillus_larvae_alleles"
+      } else if (input$select_cgmlst == "Pseudomonas aeruginosa") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/16115339/alleles/"
+        folder_name <<- "Pseudomonas_aeruginosa_alleles"
+      } else if (input$select_cgmlst == "Salmonella enterica") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/4792159/alleles/"
+        folder_name <<- "Salmonella_enterica_alleles"
+      } else if (input$select_cgmlst == "Serratia marcescens") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/24616475/alleles/"
+        folder_name <<- "Serratia_marcescens_alleles"
+      } else if (input$select_cgmlst == "Staphylococcus aureus") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/141106/alleles/"
+        folder_name <<- "Staphylococcus_aureus_alleles"
+      } else if (input$select_cgmlst == "Staphylococcus capitis") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/26824796/alleles/"
+        folder_name <<- "Staphylococcus_capitis_alleles"
+      } else if (input$select_cgmlst == "Streptococcus pyogenes") {
+        link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/30585223/alleles/"
+        folder_name <<- "Streptococcus_pyogenes_alleles"
+      } 
+    
+  )
+  
+  observeEvent(input$download_cgMLST, {
+    download(link_cgmlst, dest="dataset.zip", mode="wb") 
+    unzip(zipfile = "dataset.zip", 
+          exdir = paste0("./", folder_name))
+    unlink("dataset.zip")
+  })  
+  
+  
+  
 # Parse Slot 1 ------------------------------------------------------------
 
   
