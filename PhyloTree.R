@@ -55,6 +55,8 @@ library(dplyr)
 if (!require(downloader)) install.packages('downloader')
 library(downloader)
 
+if (!require(rvest)) install.packages('rvest')
+library(rvest)
 
 ################ User Interface ################
 
@@ -284,9 +286,9 @@ ui <- dashboardPage(
       ,tabBoxBorderRadius = 5
       
       ### inputs
-      ,buttonBackColor = "#282f38"
+      ,buttonBackColor = "#222829"
       ,buttonTextColor = "#ffffff"
-      ,buttonBorderColor = "#282f38"
+      ,buttonBorderColor = "#222829"
       ,buttonBorderRadius = 10
       
       ,buttonBackColorHover = cssGradientThreeColors(
@@ -324,12 +326,20 @@ ui <- dashboardPage(
       tabName = "init",
       fluidRow(
         column(
-          width = 6,
+          width = 3,
           align = "center",
-          br(), br(), br(), br(),
+          h3(p("Select cgMLST Scheme"), style = "color:white"),
+        )
+      ),
+      hr(),
+      fluidRow(
+        column(
+          width = 3,
+          align = "center",
+          br(), br(), br(),  
           selectInput(
             inputId = "select_cgmlst", 
-            label = h4("Select cgMLST Database", style = "color:white"),
+            label = NULL,
             choices = list("Acinetobacter baumanii", "Bacillus anthracis",
                            "Bordetella pertussis", "Brucella melitensis",
                            "Brucella spp.", "Burkholderia mallei (FLI)",
@@ -347,9 +357,45 @@ ui <- dashboardPage(
                            "Staphylococcus aureus", "Staphylococcus capitis",
                            "Streptococcus pyogenes"),
             selected = "Bordetella pertussis",
-            width = "300px"),
+            width = "300px")
+        ),
+        column(
+          width = 2,
+          align = "center",
+          br(), br(), br(), 
+          actionButton(inputId = "download_cgMLST", label = "Download")
+        ),
+        column(
+          width = 1
+        ),
+        column(
+          width = 5,
+          br(), br(), br(), 
+          align = "center",
+          h4(p("Downloaded Targets"), style = "color:white"),
+        )
+      ),
+      fluidRow(
+        column(
+          width = 5,
+          align = "center",
           br(), br(), 
-          actionButton(inputId = "download_cgMLST", label = "Download Alleles")
+          tableOutput("cgmlst_scheme")
+          ),
+        column(
+          width = 1
+        ),
+        column(
+          width = 5,
+          align = "right",
+          br(), br(),
+          conditionalPanel(
+            "input.download_cgMLST >= 1",
+            addSpinner(
+              dataTableOutput("cgmlst_targets"),
+              spin = "dots", 
+              color = "#ffffff")
+          )
           )
         )
     ),
@@ -2496,113 +2542,211 @@ ui <- dashboardPage(
 
 ################### Server ###################
 
-server <- function(input, output) {
+server <- function(input, output, session) {
+  
+  myReactives <- reactiveValues() 
   
 # Download cgMLST       -------------------------------------------------------
   
   observe(
     if(input$select_cgmlst == "Acinetobacter baumanii") {
       link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/3956907/alleles/"
+      myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/3956907/"
+      link_targets <<- "https://www.cgmlst.org/ncs/schema/3956907/locus/?content-type=csv"
       folder_name <<- "Acinetobacter_baumanii_alleles"
       } else if (input$select_cgmlst == "Bacillus anthracis") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/19008694/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/19008694/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/19008694/locus/?content-type=csv"
         folder_name <<- "Bacillus_anthracis_alleles"
       } else if (input$select_cgmlst == "Bordetella pertussis") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/29412358/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/29412358/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/29412358/locus/?content-type=csv"
         folder_name <<- "Bordetella_pertussis_alleles"
       } else if (input$select_cgmlst == "Brucella melitensis") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/6398355/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/6398355/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema//6398355/locus/?content-type=csv"
         folder_name <<- "Brucella_melitensis_alleles"
       } else if (input$select_cgmlst == "Brucella spp.") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/24062474/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/24062474/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/24062474/locus/?content-type=csv"
         folder_name <<- "Brucella_spp_alleles"
       } else if (input$select_cgmlst == "Burkholderia mallei (FLI)") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/23721348/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/23721348/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/23721348/locus/?content-type=csv"
         folder_name <<- "Burkholderia_mallei_FLI_alleles"
       } else if (input$select_cgmlst == "Burkholderia mallei (RKI)") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/23643739/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/23643739/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/23643739/locus/?content-type=csv"
         folder_name <<- "Burkholderia_mallei_RKI_alleles"
       } else if (input$select_cgmlst == "Burkholderia pseudomallei") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/18876117/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/18876117/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/18876117/locus/?content-type=csv"
         folder_name <<- "Burkholderia_pseudomallei_alleles"
       } else if (input$select_cgmlst == "Campylobacter jejuni/coli") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/145039/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/145039/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/145039/locus/?content-type=csv"
         folder_name <<- "Campylobacter_jejuni_coli_alleles"
       } else if (input$select_cgmlst == "Clostridioides difficile") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/12556067/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/12556067/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/12556067/locus/?content-type=csv"
         folder_name <<- "Clostridioides_difficile_alleles"
       } else if (input$select_cgmlst == "Clostridium perfringens") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/15017225/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/15017225/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/15017225956907/locus/?content-type=csv"
         folder_name <<- "Clostridium_perfringens_alleles"
       } else if (input$select_cgmlst == "Corynebacterium diphtheriae") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/30589266/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/30589266/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/30589266/locus/?content-type=csv"
         folder_name <<- "Corynebacterium_diphtheriae_alleles"
       } else if (input$select_cgmlst == "Cronobacter sakazakii/malonaticus") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/29420227/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/29420227/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/29420227/locus/?content-type=csv"
         folder_name <<- "Cronobacter_sakazakii_malonaticus_alleles"
       } else if (input$select_cgmlst == "Enterococcus faecalis") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/3887469/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/3887469/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/3887469/locus/?content-type=csv"
         folder_name <<- "Enterococcus_faecalis_alleles"
       } else if (input$select_cgmlst == "Enterococcus faecium") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/991893/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/991893/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/991893/locus/?content-type=csv"
         folder_name <<- "Enterococcus_faecium_alleles"
       } else if (input$select_cgmlst == "Escherichia coli") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/5064703/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/5064703/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/5064703/locus/?content-type=csv"
         folder_name <<- "Escherichia_coli_alleles"
       } else if (input$select_cgmlst == "Francisella tularensis") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/260204/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/260204/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/260204/locus/?content-type=csv"
         folder_name <<- "Francisella_tularensis_alleles"
       } else if (input$select_cgmlst == "Klebsiella pneumoniae/variicola/quasipneumoniae") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/2187931/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/2187931/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/2187931/locus/?content-type=csv"
         folder_name <<- "K_pneumoniae_variicola_quasipneumoniae_alleles"
       } else if (input$select_cgmlst == "Legionella pneumophila") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/1025099/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/1025099/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/1025099/locus/?content-type=csv"
         folder_name <<- "Legionella_pneumophila_alleles"
       } else if (input$select_cgmlst == "Listeria monocytogenes") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/690488/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/690488/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/690488/locus/?content-type=csv"
         folder_name <<- "Listeria_monocytogenes_alleles"
       } else if (input$select_cgmlst == "Mycobacterium tuberculosis/bovis/africanum/canettii") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/741110/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/741110/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/741110/locus/?content-type=csv"
         folder_name <<- "M_tuberculosis_bovis_africanum_canettii_alleles"
       } else if (input$select_cgmlst == "Mycobacteroides abscessus") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/22602285/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/22602285/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/22602285/locus/?content-type=csv"
         folder_name <<- "Mycobacteroides_abscessus_alleles"
       } else if (input$select_cgmlst == "Mycoplasma gallisepticum") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/6402012/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/6402012/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/6402012/locus/?content-type=csv"
         folder_name <<- "Mycoplasma_gallisepticum_alleles"
       } else if (input$select_cgmlst == "Paenibacillus larvae") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/17414003/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/17414003/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/17414003/locus/?content-type=csv"
         folder_name <<- "Paenibacillus_larvae_alleles"
       } else if (input$select_cgmlst == "Pseudomonas aeruginosa") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/16115339/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/16115339/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/16115339/locus/?content-type=csv"
         folder_name <<- "Pseudomonas_aeruginosa_alleles"
       } else if (input$select_cgmlst == "Salmonella enterica") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/4792159/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/4792159/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/4792159/locus/?content-type=csv"
         folder_name <<- "Salmonella_enterica_alleles"
       } else if (input$select_cgmlst == "Serratia marcescens") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/24616475/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/24616475/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/24616475/locus/?content-type=csv"
         folder_name <<- "Serratia_marcescens_alleles"
       } else if (input$select_cgmlst == "Staphylococcus aureus") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/141106/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/141106/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/141106/locus/?content-type=csv"
         folder_name <<- "Staphylococcus_aureus_alleles"
       } else if (input$select_cgmlst == "Staphylococcus capitis") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/26824796/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/26824796/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/26824796/locus/?content-type=csv"
         folder_name <<- "Staphylococcus_capitis_alleles"
       } else if (input$select_cgmlst == "Streptococcus pyogenes") {
         link_cgmlst <<- "https://www.cgmlst.org/ncs/schema/30585223/alleles/"
+        myReactives$link_scheme <<- "https://www.cgmlst.org/ncs/schema/30585223/"
+        link_targets <<- "https://www.cgmlst.org/ncs/schema/30585223/locus/?content-type=csv"
         folder_name <<- "Streptococcus_pyogenes_alleles"
       } 
     
   )
   
   observeEvent(input$download_cgMLST, {
+    
+    myReactives$target_table <- NULL
+    
     download(link_cgmlst, dest="dataset.zip", mode="wb") 
+    
     unzip(zipfile = "dataset.zip", 
           exdir = paste0("./", folder_name))
+    
     unlink("dataset.zip")
-  })  
+    
+    download(link_targets, dest=paste0(getwd(),"/", folder_name, "/targets.csv"), mode="wb") 
+    
+    myReactives$target_table <- read.csv(paste0(getwd(),"/", folder_name, "/targets.csv"),
+                                         header = TRUE, sep = "\t", row.names = NULL,
+                                         colClasses = c("NULL", "character", "character", "integer", 
+                                                        "integer", "character", "integer", "NULL"))
+    show_toast(
+      title = "Download successful",
+      type = "success",
+      position = "top-end",
+      width = "400px",
+      timer = 6000)
+    
+    })
+  
+  # Download Target Info (CSV Table)
   
   
+  output$cgmlst_scheme <- renderTable({
+    scheme_overview <- read_html(myReactives$link_scheme) %>%
+      html_table(header = FALSE) %>%
+      as.data.frame(stringsAsFactors = FALSE)
+    names(scheme_overview) <- NULL
+    scheme_overview
+  })
+
+# Display Target Table  --------------------------------------------------
+
+  output$cgmlst_targets <- renderDataTable(
+    {targets_overview <- myReactives$target_table}, 
+    options = list(pageLength = 10,
+                   columnDefs = list(list(searchable = FALSE, targets = "_all")))
+    )
   
 # Parse Slot 1 ------------------------------------------------------------
 
