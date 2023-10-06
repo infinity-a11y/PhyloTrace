@@ -100,7 +100,39 @@ ui <- dashboardPage(
            tabName = "report",
            icon = icon("download")
            ),
-        br(), br(), br(), br(), br(), 
+        br(), br(), br(), br(), 
+        conditionalPanel(
+          "input.tabs=='report'",
+          column(
+            width = 12,
+            align = "center",
+            h3(p("Save Report"), style = "color:white"),
+            br(),
+            textInput(
+              inputId = "report_dir",
+              label = "Select Directory",
+              placeholder = paste0(getwd())
+            ),
+            br(),
+            textInput(
+              inputId = "rep_name",
+              label = "Name",
+              placeholder = paste0("Report_", Sys.Date())
+            ),
+            br(),
+            awesomeRadio(
+              inputId = "report_filetype",
+              label = "Select Output Type",
+              choices = c("PDF", "HTML", "Word")
+            ),
+            br(),
+            actionButton(
+              inputId = "save_report",
+              label = "Download",
+              icon = icon("download"),
+              width = "auto")
+            )
+        ),
         conditionalPanel(
           "input.tabs=='visualization'",
           column(
@@ -2517,18 +2549,286 @@ ui <- dashboardPage(
 
     tabItem(
       tabName = "report",
-      column(
-         br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), 
-         br(), br(), br(), br(), br(), br(), br(), br(),
-         width = 12,
-         align = "center",
-         actionButton(
-            inputId = "save_report",
-            label = "Save Report",
-            icon = icon("download"),
-            width = "auto"
-         )
-         )
+      fluidRow(
+        column(
+          width = 3,
+          align = "center",
+          h2(p("Create Report"), style = "color:white"),
+        )
+      ),
+      hr(),
+      fluidRow(
+        br(), br(),
+        column(
+          width = 2,
+          align = "left",
+          h3(p("Select Elements"), style = "color:white"),
+          br(),
+          checkboxGroupInput(
+            inputId = "include_general",
+            label = "General",
+            choices = c("Analysis Date", "Author", "Experiment Info"),
+            selected = c("Analysis Date", "Author", "Experiment Info"),
+            inline = FALSE,
+            width = NULL,
+            choiceNames = NULL,
+            choiceValues = NULL
+          ),
+          br(),
+          checkboxGroupInput(
+            inputId = "include_sampleinfo",
+            label = "Sample",
+            choices = c("Sampling Date", "Sampling Location", "Taken by (Name)", "Comment"),
+            selected = c("Sampling Date", "Sampling Location"),
+            inline = FALSE,
+            width = NULL,
+            choiceNames = NULL,
+            choiceValues = NULL
+          ),
+          checkboxGroupInput(
+            inputId = "include_sequencing",
+            label = "Sequencing",
+            choices = c("Device", "Flow Cell", "Run Start", "Run Finished", 
+                        "Operator", "Output Size", "Comment"),
+            selected = c("Device", "Fow Cell", "Operator"),
+            inline = FALSE,
+            width = NULL,
+            choiceNames = NULL,
+            choiceValues = NULL
+          ),
+          checkboxGroupInput(
+            inputId = "include_analysis",
+            label = "Analysis",
+            choices = c("Analysis Date", "Assembly Parameters", "cgMLST Scheme", "Comment"),
+            selected = c("Analysis Date", "cgMLST Scheme"),
+            inline = FALSE,
+            width = NULL,
+            choiceNames = NULL,
+            choiceValues = NULL
+          )
+        ),
+        column(
+          width = 3,
+          align = 'left',
+          h3(p("Displayed Elements"), style = "color:white"),
+          br(),
+          h4(p("General"), style = "color:white"),
+          br(),
+          conditionalPanel(
+            "input.include_general.includes('Analysis Date')",
+            dateInput(
+              inputId = "report_date",
+              label = "Date",
+              value = NULL,
+              width = "40%"
+              )
+            )
+          ,
+          conditionalPanel(
+            "input.include_general.includes('Author')",
+            textInput(
+              inputId = "author",
+              label = "Name of Author",
+              placeholder = "Institute/Working group/Responsible person"
+              )
+           ),
+          conditionalPanel(
+            "input.include_general.includes('Experiment Info')",
+            textAreaInput(
+              inputId = "exp_info",
+              label = "Experiment Information",
+              value = "Comments about Experiment ...",
+              width = "100%",
+              height = NULL,
+              cols = NULL,
+              rows = NULL,
+              placeholder = NULL,
+              resize = "vertical"
+            )
+          )
+          ,
+          hr(),
+          h4(p("Sample Information"), style = "color:white"),
+          br(),
+          conditionalPanel(
+              "input.include_sampleinfo.includes('Sampling Date')",
+              dateInput(
+                inputId = "report_sampledate",
+                label = "Sampling Date",
+                width = "40%",
+                value = NULL
+              )
+          ),
+          conditionalPanel(
+            "input.include_sampleinfo.includes('Sampling Location')",
+            textInput(
+              inputId = "sample_location",
+              label = "Location",
+              width = "100%",
+              placeholder = "Place of sample collection (Country, City, Hospital, etc.)"
+            )
+          ),
+          conditionalPanel(
+              "input.include_sampleinfo.includes('Taken by (Name)')",
+              textInput(
+                inputId = "sampled_by",
+                label = "Sample acquired by",
+                width = "100%",
+                placeholder = "Institute/Working group/Responsible person"
+              )
+          ),
+          conditionalPanel(
+            "input.include_sampleinfo.includes('Comment')",
+            textAreaInput(
+              inputId = "sample_info",
+              label = "Comment",
+              value = "Comments about sample ...",
+              width = "100%",
+              height = NULL,
+              cols = NULL,
+              rows = NULL,
+              placeholder = NULL,
+              resize = "vertical"
+            )
+          )
+        ),
+        column(
+          width = 3,
+          align = "left",
+          br(), br(), br(), br(),
+          h4(p("Sequencing"), style = "color:white"),
+          br(),
+          conditionalPanel(
+            "input.include_sequencing.includes('Device')",
+            selectInput(
+              inputId = "select_device",
+              label = "Sequencing Device",
+              choices = c("MinION", "GridION"),
+              selected = "MinION",
+              width = "50%"
+            )
+          ),
+          conditionalPanel(
+            "input.include_sequencing.includes('Flow Cell')",
+            selectInput(
+              inputId = "select_flowcell",
+              label = "Flow Cell",
+              choices = c("R10.5", "R8.1"),
+              selected = "R10.5",
+              width = "50%"
+            )
+          ),
+          conditionalPanel(
+            "input.include_sequencing.includes('Run Start')",
+            dateInput(
+              inputId = "report_runstart",
+              label = "Run Start",
+              width = "40%",
+              value = NULL
+            )
+          ),
+          conditionalPanel(
+            "input.include_sequencing.includes('Run Finished')",
+            dateInput(
+              inputId = "report_runfinished",
+              label = "Run Finished",
+              width = "40%",
+              value = NULL
+            )
+          ),
+          conditionalPanel(
+            "input.include_sequencing.includes('Operator')",
+            textInput(
+              inputId = "report_seqoperator",
+              label = "Operator",
+              width = "100%",
+              placeholder = "Responsible person"
+            )
+          ),
+          conditionalPanel(
+            "input.include_sequencing.includes('Output Size')",
+            br(),
+            h5(p("Output Size"), style = "color:white"),
+            br()
+          ),
+          conditionalPanel(
+            "input.include_sequencing.includes('Comment')",
+            textAreaInput(
+              inputId = "report_seqcomment",
+              label = "Comments",
+              value = "Comments about sequencing/library preparation ...",
+              width = "100%",
+              height = NULL,
+              cols = NULL,
+              rows = NULL,
+              placeholder = NULL,
+              resize = "vertical"
+            )
+          ),
+          hr(),
+          h4(p("Analysis"), style = "color:white"),
+          br(),
+          conditionalPanel(
+            "input.include_analysis.includes('Analysis Date')",
+            dateInput(
+              inputId = "report_analysisdate",
+              label = "Analysis Date",
+              width = "40%",
+              value = NULL
+            )
+          ),
+          conditionalPanel(
+            "input.include_analysis.includes('Assembly Parameters')",
+            br(),
+            h5(p("Assembly Parameters"), style = "color:white"),
+            br(),
+          ),
+          conditionalPanel(
+            "input.include_analysis.includes('cgMLST Scheme')",
+            h5(p("cgMLST Scheme"), style = "color:white"),
+            br()
+          ),
+          conditionalPanel(
+            "input.include_analysis.includes('Comment')",
+            textAreaInput(
+              inputId = "report_analysiscomment",
+              label = "Comments",
+              value = "Comments about cgMLST Analysis ...",
+              width = "100%",
+              height = NULL,
+              cols = NULL,
+              rows = NULL,
+              placeholder = NULL,
+              resize = "vertical"
+            )
+          )
+        ),
+        column(width = 1),
+        column(
+          width = 2,
+          align = "center",
+          h3(p("Preselect Settings"), style = "color:white"),
+          br(), br(), br(),
+          selectInput(
+            inputId = "sel_rep_profile",
+            label = "Select Report Profile",
+            choices = c("None", "Profile 1", "Profile 2", "Profile 3")
+          ),
+          br(),
+          hr(),
+          br(),
+          textInput(
+            inputId = "rep_profilename",
+            label = "Save current as",
+            width = "800%"
+          ),
+          br(),
+          actionButton(
+            inputId = "save_rep_profile",
+            label = "Save New Profile"
+          )
+        )
+      )
       
       )
     
@@ -3753,6 +4053,8 @@ server <- function(input, output, session) {
 
 # Save Report -------------------------------------------------------------
 
+    
+    
    observeEvent(input$save_report, {
       ggsave(
          filename = "Tree1.png",
