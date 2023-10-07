@@ -58,6 +58,9 @@ library(downloader)
 if (!require(rvest)) install.packages('rvest')
 library(rvest)
 
+if (!require(rmarkdown)) install.packages('rmarkdown')
+library(rmarkdown)
+
 ################ User Interface ################
 
 ui <- dashboardPage(
@@ -2496,7 +2499,7 @@ ui <- dashboardPage(
                                                     selected = "#000000",
                                                     opacity = TRUE,
                                                     update = "save",
-                                                    interaction = list(hex = TRUE,                                                                        rgba = FALSE,                                                                        input = TRUE,                                                                        save = TRUE,                                                                        clear = FALSE),
+                                                    interaction = list(hex = TRUE, rgba = FALSE, input = TRUE, save = TRUE, clear = FALSE),
                                                     position = "right-start",
                                                     swatches = scales::viridis_pal()(10),
                                                     theme = "nano",
@@ -4054,6 +4057,96 @@ server <- function(input, output, session) {
 # Save Report -------------------------------------------------------------
 
     
+      # Create a reactiveValues to store selected elements and their content
+      elements_data <- reactiveValues()
+    
+      observe({
+        selected_general <- input$include_general
+        selected_sampleinfo <- input$include_sampleinfo
+        selected_sequencing <- input$include_sequencing
+        selected_analysis <- input$include_analysis
+        
+        # Store content for each selected element in reactiveValues
+        if ('Analysis Date' %in% selected_general) {
+          elements_data$general_date <- as.character(input$report_date)
+        }
+        if ('Author' %in% selected_general) {
+          elements_data$general_author <- input$author
+        }
+        if ('Experiment Info' %in% selected_general) {
+          elements_data$general_com <- input$exp_info
+        }
+        if ('Sampling Date' %in% selected_sampleinfo) {
+          elements_data$sample_date <- as.character(input$report_sampledate)
+        }
+        if ('Sampling Location' %in% selected_sampleinfo) {
+          elements_data$sample_loc <- input$sample_location
+        }
+        if ('Taken by (Name)' %in% selected_sampleinfo) {
+          elements_data$sample_op <- input$sampled_by
+        }
+        if ('Comment' %in% selected_sampleinfo) {
+          elements_data$sample_com <- input$sample_info
+        }
+        if ('Device' %in% selected_sequencing) {
+          elements_data$seq_device <- input$select_device
+        }
+        if ('Flow Cell' %in% selected_sequencing) {
+          elements_data$seq_flowcell <- input$select_flowcell
+        }
+        if ('Run Start' %in% selected_sequencing) {
+          elements_data$seq_start <- as.character(input$report_runstart)
+        }
+        if ('Run Finished' %in% selected_sequencing) {
+          elements_data$seq_end <- as.character(input$report_runfinished)
+        }
+        if ('Operator' %in% selected_sequencing) {
+          elements_data$seq_op <- input$report_seqoperator
+        }
+        if ('Comment' %in% selected_sequencing) {
+          elements_data$seq_com <- input$report_seqcomment
+        }
+        if ('Analysis Date' %in% selected_analysis) {
+          elements_data$ana_date <- input$report_analysisdate
+        }
+        if ('Comment' %in% selected_analysis) {
+          elements_data$ana_com <- input$report_analysiscomment
+        }
+        
+      })
+      
+      # Generate the RDS file when the "Save Report" button is clicked
+      observeEvent(input$save_report, {
+        
+        
+        # Filter and save data for the selected elements
+        selected_data <- list(
+          general_date = elements_data$general_date,
+          general_author = elements_data$general_author,
+          general_com = elements_data$general_com,
+          sample_date = elements_data$sample_date,
+          sample_loc = elements_data$sample_loc,
+          sample_op = elements_data$sample_op,
+          sample_com = elements_data$sample_com,
+          seq_device = elements_data$seq_device,
+          seq_flowcell = elements_data$seq_flowcell,
+          seq_start = elements_data$seq_start,
+          seq_end = elements_data$seq_end,
+          seq_op = elements_data$seq_op,
+          seq_com = elements_data$seq_com,
+          ana_date = elements_data$ana_date,
+          ana_com = elements_data$ana_com
+        )
+        
+        # Save data to an RDS file if any elements were selected
+        if (length(selected_data) > 0) {
+          saveRDS(selected_data, file = "selected_elements.rds")
+        }
+        
+        rmarkdown::render("Report.Rmd")
+        
+      })
+    }
     
    observeEvent(input$save_report, {
       ggsave(
@@ -4062,7 +4155,7 @@ server <- function(input, output, session) {
          )
    })   
 
-}
+
 
 
 ################## Shiny #####################

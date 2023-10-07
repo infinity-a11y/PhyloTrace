@@ -1,0 +1,16 @@
+---
+title: "cgMLST Report"
+author: "Marian Freisleben"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r }
+# Load the variables from the file
+my_loaded_variables <- readRDS("selected_elements.rds")
+my_loaded_variables
