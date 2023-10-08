@@ -1,7 +1,4 @@
 ---
-title: "cgMLST Report"
-author: "Marian Freisleben"
-date: "`r Sys.Date()`"
 output: html_document
 ---
 
@@ -10,7 +7,101 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r }
+```{r include=FALSE}
 # Load the variables from the file
 my_loaded_variables <- readRDS("selected_elements.rds")
-my_loaded_variables
+```
+
+## cgMLST Report
+
+
+`r my_loaded_variables$general_date`
+
+`r my_loaded_variables$general_author`  
+
+`r my_loaded_variables$general_com`
+
+
+***
+
+```{r include=FALSE}
+
+sample_df <- data.frame()
+
+if (is.null(my_loaded_variables$sample_date) && is.null(my_loaded_variables$sample_loc) && is.null(my_loaded_variables$sample_op)) {
+  sample_df <- NULL
+  
+} else if (!is.null(my_loaded_variables$sample_date) && !is.null(my_loaded_variables$sample_loc) && !is.null(my_loaded_variables$sample_op)){
+  sample_df <- data.frame(attribute = c("Acquisition date", "Acquisition location", "Operator"),
+                          value = c(my_loaded_variables$sample_date, my_loaded_variables$sample_loc,
+                                  my_loaded_variables$sample_op))
+  
+} else if (!is.null(my_loaded_variables$sample_date) && is.null(my_loaded_variables$sample_loc) && is.null(my_loaded_variables$sample_op)){
+  sample_df <- data.frame(attribute = c("Acquisition date"),
+                        value = c(my_loaded_variables$sample_date))
+  
+} else if (!is.null(my_loaded_variables$sample_date) && is.null(my_loaded_variables$sample_loc) && !is.null(my_loaded_variables$sample_op)){
+  sample_df <- data.frame(attribute = c("Acquisition date", "Operator"),
+                        value = c(my_loaded_variables$sample_date, my_loaded_variables$sample_op))
+  
+} else if (!is.null(my_loaded_variables$sample_date) && !is.null(my_loaded_variables$sample_loc) && is.null(my_loaded_variables$sample_op)){
+  sample_df <- data.frame(attribute = c("Acquisition date", "Acquisition location"),
+                        value = c(my_loaded_variables$sample_date, my_loaded_variables$sample_loc))
+  
+} else if (is.null(my_loaded_variables$sample_date) && !is.null(my_loaded_variables$sample_loc) && is.null(my_loaded_variables$sample_op)){
+  sample_df <- data.frame(attribute = c("Acquisition location"),
+                        value = c(my_loaded_variables$sample_loc))
+  
+} else if (is.null(my_loaded_variables$sample_date) && !is.null(my_loaded_variables$sample_loc) && !is.null(my_loaded_variables$sample_op)){
+  sample_df <- data.frame(attribute = c("Acquisition location", "Operator"),
+                        value = c(my_loaded_variables$sample_loc, my_loaded_variables$sample_op))
+  
+} else if (is.null(my_loaded_variables$sample_date) && is.null(my_loaded_variables$sample_loc) && !is.null(my_loaded_variables$sample_op)){
+  sample_df <- data.frame(attribute = c("Operator"),
+                        value = c(my_loaded_variables$sample_op))
+} 
+
+names(sample_df) <- NULL
+
+```
+
+```{r echo=FALSE}
+kable(sample_df) %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "left") %>%
+  pack_rows("Sample Information", 1, 1, label_row_css = "background-color: #666; color: #fff;")
+```
+
+
+`r my_loaded_variables$sample_com`
+
+***
+
+### Sequencing Information
+```{r include=FALSE}
+
+seq_df <- data.frame()
+names(seq_df) <- NULL
+
+```
+
+  |  
+------------- | -------------
+Device | `r my_loaded_variables$seq_device`
+Flow Cell | `r my_loaded_variables$seq_flowcell`
+Run Start | `r my_loaded_variables$seq_start`
+Run Finished | `r my_loaded_variables$seq_end`
+Operator | `r my_loaded_variables$seq_op`
+
+`r my_loaded_variables$seq_com`
+
+***
+
+### Analysis Information
+
+  |  
+------------- | -------------
+Date of Analysis | `r my_loaded_variables$ana_date`
+
+`r my_loaded_variables$ana_com`
+
+***
