@@ -61,6 +61,13 @@ library(rvest)
 if (!require(rmarkdown)) install.packages('rmarkdown')
 library(rmarkdown)
 
+if (!require(knitr)) install.packages('knitr')
+library(knitr)
+
+if (!require(kableExtra)) install.packages('kableExtra')
+library(kableExtra)
+
+
 ################ User Interface ################
 
 ui <- dashboardPage(
@@ -2567,16 +2574,7 @@ ui <- dashboardPage(
           align = "left",
           h3(p("Select Elements"), style = "color:white"),
           br(),
-          checkboxGroupInput(
-            inputId = "include_general",
-            label = "General",
-            choices = c("Analysis Date", "Author", "Experiment Info"),
-            selected = c("Analysis Date", "Author", "Experiment Info"),
-            inline = FALSE,
-            width = NULL,
-            choiceNames = NULL,
-            choiceValues = NULL
-          ),
+          uiOutput("include_general"),
           br(),
           checkboxGroupInput(
             inputId = "include_sampleinfo",
@@ -2706,8 +2704,8 @@ ui <- dashboardPage(
             selectInput(
               inputId = "select_device",
               label = "Sequencing Device",
-              choices = c("MinION", "GridION"),
-              selected = "MinION",
+              choices = c("MinION Mk1B", "GridION"),
+              selected = "MinION Mk1B",
               width = "50%"
             )
           ),
@@ -2716,7 +2714,7 @@ ui <- dashboardPage(
             selectInput(
               inputId = "select_flowcell",
               label = "Flow Cell",
-              choices = c("R10.5", "R8.1"),
+              choices = c("R10.4", "R8.1"),
               selected = "R10.5",
               width = "50%"
             )
@@ -2812,11 +2810,7 @@ ui <- dashboardPage(
           align = "center",
           h3(p("Preselect Settings"), style = "color:white"),
           br(), br(), br(),
-          selectInput(
-            inputId = "sel_rep_profile",
-            label = "Select Report Profile",
-            choices = c("None", "Profile 1", "Profile 2", "Profile 3")
-          ),
+          uiOutput("selProfile"),
           br(),
           hr(),
           br(),
@@ -4061,57 +4055,71 @@ server <- function(input, output, session) {
       elements_data <- reactiveValues()
     
       observe({
-        selected_general <- input$include_general
-        selected_sampleinfo <- input$include_sampleinfo
-        selected_sequencing <- input$include_sequencing
-        selected_analysis <- input$include_analysis
+        selected_general <<- input$include_general
+        selected_sampleinfo <<- input$include_sampleinfo
+        selected_sequencing <<- input$include_sequencing
+        selected_analysis <<- input$include_analysis
         
         # Store content for each selected element in reactiveValues
         if ('Analysis Date' %in% selected_general) {
           elements_data$general_date <- as.character(input$report_date)
-        }
+        } else {elements_data$general_date <- NULL}
+        
         if ('Author' %in% selected_general) {
           elements_data$general_author <- input$author
-        }
+        } else {elements_data$general_author <- NULL}
+        
         if ('Experiment Info' %in% selected_general) {
           elements_data$general_com <- input$exp_info
-        }
+        } else {elements_data$general_com <- NULL}
+        
         if ('Sampling Date' %in% selected_sampleinfo) {
           elements_data$sample_date <- as.character(input$report_sampledate)
-        }
+        } else {elements_data$sample_date <- NULL}
+        
         if ('Sampling Location' %in% selected_sampleinfo) {
           elements_data$sample_loc <- input$sample_location
-        }
+        } else {elements_data$sample_loc <- NULL}
+        
         if ('Taken by (Name)' %in% selected_sampleinfo) {
           elements_data$sample_op <- input$sampled_by
-        }
+        } else {elements_data$sample_op <- NULL}
+        
         if ('Comment' %in% selected_sampleinfo) {
           elements_data$sample_com <- input$sample_info
-        }
+        } else {elements_data$sample_com <- NULL}
+        
         if ('Device' %in% selected_sequencing) {
           elements_data$seq_device <- input$select_device
-        }
+        } else {elements_data$seq_device <- NULL}
+        
         if ('Flow Cell' %in% selected_sequencing) {
           elements_data$seq_flowcell <- input$select_flowcell
-        }
+        } else {elements_data$seq_flowcell <- NULL}
+        
         if ('Run Start' %in% selected_sequencing) {
           elements_data$seq_start <- as.character(input$report_runstart)
-        }
+        } else {elements_data$seq_start <- NULL}
+        
         if ('Run Finished' %in% selected_sequencing) {
           elements_data$seq_end <- as.character(input$report_runfinished)
-        }
+        } else {elements_data$seq_end <- NULL}
+        
         if ('Operator' %in% selected_sequencing) {
           elements_data$seq_op <- input$report_seqoperator
-        }
+        } else {elements_data$seq_op <- NULL}
+        
         if ('Comment' %in% selected_sequencing) {
           elements_data$seq_com <- input$report_seqcomment
-        }
+        } else {elements_data$seq_com <- NULL}
+        
         if ('Analysis Date' %in% selected_analysis) {
           elements_data$ana_date <- input$report_analysisdate
-        }
+        } else {elements_data$ana_date <- NULL}
+        
         if ('Comment' %in% selected_analysis) {
           elements_data$ana_com <- input$report_analysiscomment
-        }
+        } else {elements_data$ana_com <- NULL}
         
       })
       
@@ -4146,17 +4154,65 @@ server <- function(input, output, session) {
         rmarkdown::render("Report.Rmd")
         
       })
-    }
     
-   observeEvent(input$save_report, {
-      ggsave(
-         filename = "Tree1.png",
-         device = "png"
-         )
-   })   
-
-
-
+      # Save Report Profile ----------------------------------------------------  
+      
+      observeEvent(input$save_rep_profile, {
+        
+        # save profile except dates or times
+        report_profile <- list(
+          selected_general = selected_general,
+          selected_sampleinfo = selected_sampleinfo,
+          selected_sequencing = selected_sequencing,
+          selected_analysis = selected_analysis,
+          general_date = NULL,
+          general_author = elements_data$general_author,
+          general_com = elements_data$general_com,
+          sample_date = NULL,
+          sample_loc = elements_data$sample_loc,
+          sample_op = elements_data$sample_op,
+          sample_com = elements_data$sample_com,
+          seq_device = elements_data$seq_device,
+          seq_flowcell = elements_data$seq_flowcell,
+          seq_start = NULL,
+          seq_end = NULL,
+          seq_op = elements_data$seq_op,
+          seq_com = elements_data$seq_com,
+          ana_date = NULL,
+          ana_com = elements_data$ana_com
+        )
+        
+        # Save data to an RDS file 
+        if (length(report_profile) > 0) {
+          saveRDS(report_profile, file = paste0(getwd(), "/rep_profiles/", input$rep_profilename, ".rds"))
+        }
+        
+        rep_profile$profile_names <- list.files(paste0(getwd(),"/rep_profiles"))
+      })
+      
+      # Load Report Profile ----------------------------------------------------
+      rep_profile <- reactiveValues()
+      
+      observe(
+        rep_profile$profile_names <- list.files(paste0(getwd(),"/rep_profiles"), full.names = TRUE)
+       
+      )
+      
+      output$selProfile <- renderUI(
+        selectInput(
+          inputId = "sel_rep_profile",
+          label = "Select Report Profile",
+          choices = append(c("None"), gsub(".*/(.*).rds", "\\1", rep_profile$profile_names))
+        )
+      )
+      
+      
+                  
+      
+      
+      
+    } # end server
+    
 
 ################## Shiny #####################
 
