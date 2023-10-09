@@ -307,11 +307,11 @@ ui <- dashboardPage(
       ,sidebarTabRadiusHover = "0px 20px 20px 0px"
       
       ### boxes
-      ,boxBackColor = "#ffffff"
+      ,boxBackColor = "#282F38"
       ,boxBorderRadius = 7
-      ,boxShadowSize = "0px 1px 1px"
+      ,boxShadowSize = "0px 0px 0px"
       ,boxShadowColor = "#ffffff"
-      ,boxTitleSize = 16
+      ,boxTitleSize = 20
       ,boxDefaultColor = "#00a65a"
       ,boxPrimaryColor = "#00a65a"
       ,boxInfoColor = "#00a65a"
@@ -328,9 +328,9 @@ ui <- dashboardPage(
       ,tabBoxBorderRadius = 5
       
       ### inputs
-      ,buttonBackColor = "#222829"
+      ,buttonBackColor = "#282F38"
       ,buttonTextColor = "#ffffff"
-      ,buttonBorderColor = "#222829"
+      ,buttonBorderColor = "#282F38"
       ,buttonBorderRadius = 10
       
       ,buttonBackColorHover = cssGradientThreeColors(
@@ -2575,46 +2575,19 @@ ui <- dashboardPage(
           h3(p("Select Elements"), style = "color:white"),
           br(),
           uiOutput("include_general"),
-          br(),
-          checkboxGroupInput(
-            inputId = "include_sampleinfo",
-            label = "Sample",
-            choices = c("Sampling Date", "Sampling Location", "Taken by (Name)", "Comment"),
-            selected = c("Sampling Date", "Sampling Location"),
-            inline = FALSE,
-            width = NULL,
-            choiceNames = NULL,
-            choiceValues = NULL
+          uiOutput("include_sampleinfo"),
+          uiOutput("include_sequencing"),
+          uiOutput("include_analysis")
           ),
-          checkboxGroupInput(
-            inputId = "include_sequencing",
-            label = "Sequencing",
-            choices = c("Device", "Flow Cell", "Run Start", "Run Finished", 
-                        "Operator", "Output Size", "Comment"),
-            selected = c("Device", "Fow Cell", "Operator"),
-            inline = FALSE,
-            width = NULL,
-            choiceNames = NULL,
-            choiceValues = NULL
-          ),
-          checkboxGroupInput(
-            inputId = "include_analysis",
-            label = "Analysis",
-            choices = c("Analysis Date", "Assembly Parameters", "cgMLST Scheme", "Comment"),
-            selected = c("Analysis Date", "cgMLST Scheme"),
-            inline = FALSE,
-            width = NULL,
-            choiceNames = NULL,
-            choiceValues = NULL
-          )
-        ),
         column(
           width = 3,
           align = 'left',
           h3(p("Displayed Elements"), style = "color:white"),
-          br(),
-          h4(p("General"), style = "color:white"),
-          br(),
+          br(), br(),
+          box(
+            solidHeader = TRUE,
+            title = h4(p("General"), style = "color:white"),
+            width = 12,
           conditionalPanel(
             "input.include_general.includes('Analysis Date')",
             dateInput(
@@ -2646,11 +2619,13 @@ ui <- dashboardPage(
               placeholder = NULL,
               resize = "vertical"
             )
-          )
+          ))
           ,
-          hr(),
-          h4(p("Sample Information"), style = "color:white"),
-          br(),
+          br(),br(),
+          box(
+            solidHeader = TRUE,
+            title = h4(p("Sample"), style = "color:white"),
+            width = 12,
           conditionalPanel(
               "input.include_sampleinfo.includes('Sampling Date')",
               dateInput(
@@ -2691,14 +2666,16 @@ ui <- dashboardPage(
               placeholder = NULL,
               resize = "vertical"
             )
-          )
+          ))
         ),
         column(
           width = 3,
           align = "left",
-          br(), br(), br(), br(),
-          h4(p("Sequencing"), style = "color:white"),
-          br(),
+          br(), br(), br(), br(),br(),
+          box(
+            solidHeader = TRUE,
+            title = h4(p("Sequencing"), style = "color:white"),
+            width = 12,
           conditionalPanel(
             "input.include_sequencing.includes('Device')",
             selectInput(
@@ -2765,10 +2742,13 @@ ui <- dashboardPage(
               placeholder = NULL,
               resize = "vertical"
             )
+          )
           ),
-          hr(),
-          h4(p("Analysis"), style = "color:white"),
-          br(),
+          hr(), br(),
+          box(
+            solidHeader = TRUE,
+            title = h4(p("Analysis"), style = "color:white"),
+            width = 12,
           conditionalPanel(
             "input.include_analysis.includes('Analysis Date')",
             dateInput(
@@ -2802,6 +2782,7 @@ ui <- dashboardPage(
               placeholder = NULL,
               resize = "vertical"
             )
+          )
           )
         ),
         column(width = 1),
@@ -4187,10 +4168,11 @@ server <- function(input, output, session) {
           saveRDS(report_profile, file = paste0(getwd(), "/rep_profiles/", input$rep_profilename, ".rds"))
         }
         
-        rep_profile$profile_names <- list.files(paste0(getwd(),"/rep_profiles"))
+        rep_profile$profile_names <- list.files(paste0(getwd(),"/rep_profiles"), full.names = TRUE)
       })
       
       # Load Report Profile ----------------------------------------------------
+      
       rep_profile <- reactiveValues()
       
       observe(
@@ -4206,7 +4188,78 @@ server <- function(input, output, session) {
         )
       )
       
+      # General Tickbox
+      general_selected <- reactive({
+        if(input$sel_rep_profile %in% "None") {
+          c("Analysis Date", "Author")
+        } else {
+          readRDS(paste0(getwd(), "/rep_profiles/", input$sel_rep_profile, ".rds"))[[1]]
+        }
+      })
       
+      output$include_general <- renderUI(
+        checkboxGroupInput(
+          inputId = "include_general",
+          label = "General",
+          choices = c("Analysis Date", "Author", "Experiment Info"),
+          selected = general_selected()
+        )
+      )
+      
+      # Sample Info Tickbox
+      sampleinfo_selected <- reactive({
+        if(input$sel_rep_profile %in% "None") {
+          c("Sampling Date", "Sampling Location") 
+        } else {
+          readRDS(paste0(getwd(), "/rep_profiles/", input$sel_rep_profile, ".rds"))[[2]]
+        }
+      })
+      
+      output$include_sampleinfo <- renderUI(
+        checkboxGroupInput(
+          inputId = "include_sampleinfo",
+          label = "Sample",
+          choices = c("Sampling Date", "Sampling Location", "Taken by (Name)", "Comment"),
+          selected = sampleinfo_selected()
+        )
+      )
+      
+      # Sequencing Tickbox
+      sequencing_selected <- reactive({
+        if(input$sel_rep_profile %in% "None") {
+          c("Device", "Fow Cell", "Operator") 
+        } else {
+          readRDS(paste0(getwd(), "/rep_profiles/", input$sel_rep_profile, ".rds"))[[3]]
+        }
+      })
+      
+      output$include_sequencing <- renderUI(
+        checkboxGroupInput(
+          inputId = "include_sequencing",
+          label = "Sequencing",
+          choices = c("Device", "Flow Cell", "Run Start", "Run Finished", 
+                      "Operator", "Output Size", "Comment"),
+          selected = sequencing_selected()
+        )
+      )
+      
+      # Analysis Tickbox
+      analysis_selected <- reactive({
+        if(input$sel_rep_profile %in% "None") {
+          c("Analysis Date", "cgMLST Scheme") 
+        } else {
+          readRDS(paste0(getwd(), "/rep_profiles/", input$sel_rep_profile, ".rds"))[[4]]
+        }
+      })
+      
+      output$include_analysis <- renderUI(
+        checkboxGroupInput(
+          inputId = "include_analysis",
+          label = "Analysis",
+          choices = c("Analysis Date", "Assembly Parameters", "cgMLST Scheme", "Comment"),
+          selected = analysis_selected()
+        )
+      )
                   
       
       
