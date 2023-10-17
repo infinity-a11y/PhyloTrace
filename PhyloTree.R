@@ -67,6 +67,9 @@ library(knitr)
 if (!require(kableExtra)) install.packages('kableExtra')
 library(kableExtra)
 
+if (!require(fs)) install.packages('fs')
+library(fs)
+
 
 ################ User Interface ################
 
@@ -82,24 +85,25 @@ ui <- dashboardPage(
       sidebarMenu(
         id = "tabs",
         menuItem(
+          text = "Upload Data",
+          tabName = "upload",
+          icon = icon("upload"),
+          menuSubItem(
+            text = "Tree format",
+            tabName = "tree_format"
+          )
+        ),
+        menuItem(
           text = "Initialization",
           tabName = "init",
           icon = icon("gears"),
           selected = TRUE
         ),
         menuItem(
-          text = "Upload Data",
-          tabName = "upload",
-          icon = icon("upload"),
-          menuSubItem(
-            text = "NGS Pipeline",
-            tabName = "ngs_pipeline"
-          ),
-          menuSubItem(
-            text = "Tree format",
-            tabName = "tree_format"
-          )
-          ),
+          text = "Allelic Typing",
+          tabName = "typing",
+          icon = icon("gears")
+        ),
         menuItem(
           text = "Visualization",
           tabName = "visualization",
@@ -443,18 +447,87 @@ ui <- dashboardPage(
     ),
       
       
-# Tab Upload - NGS pipeline ---------------------------------------------
 
-    tabItem(
-      tabName = "ngs_pipeline",
-      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-      column(
-        width = 12,
-        align = "center",
-        h2(p("Still in work ..."), style = "color:white")
-        )
-    ),
-      
+# Tab Allelic Typing ----------------------------------------------
+
+
+tabItem(
+  tabName = "typing",
+  fluidRow(
+    column(
+      width = 4,
+      align = "center",
+      h2(p("Generate Allelic Profile"), style = "color:white"),
+    )
+  ),
+  hr(),
+  fluidRow(
+    column(
+      width = 2,
+      align = "left",
+      br(), br(),
+      h3(p("Select Components"), style = "color:white"),
+      br(), br(),
+      shinyFilesButton("genome_file", "Select Genome" ,
+                       title = "Please select the genome in .fasta format:", multiple = FALSE,
+                       buttonType = "default", class = NULL),
+      br(), br(),
+      verbatimTextOutput("genome_path", placeholder = TRUE),
+      br(), br(), 
+      selectInput(
+        inputId = "cgmlst_typing", 
+        label = "Select cgMLST Scheme",
+        choices = list("Acinetobacter baumanii", "Bacillus anthracis",
+                       "Bordetella pertussis", "Brucella melitensis",
+                       "Brucella spp.", "Burkholderia mallei (FLI)",
+                       "Burkholderia mallei (RKI)", "Burkholderia pseudomallei",
+                       "Campylobacter jejuni/coli", "Clostridioides difficile",
+                       "Clostridium perfringens", "Corynebacterium diphtheriae",
+                       "Cronobacter sakazakii/malonaticus", "Enterococcus faecalis",
+                       "Enterococcus faecium", "Escherichia coli",
+                       "Francisella tularensis", "Klebsiella pneumoniae/variicola/quasipneumoniae",
+                       "Legionella pneumophila", "Listeria monocytogenes",
+                       "Mycobacterium tuberculosis/bovis/africanum/canettii",
+                       "Mycobacteroides abscessus", "Mycoplasma gallisepticum",
+                       "Paenibacillus larvae", "Pseudomonas aeruginosa",
+                       "Salmonella enterica", "Serratia marcescens",
+                       "Staphylococcus aureus", "Staphylococcus capitis",
+                       "Streptococcus pyogenes"),
+        selected = "Bordetella pertussis",
+        width = "300px"),
+      br(), hr(), br(), br(),
+      actionButton(
+        inputId = "typing_init",
+        label = "Initialize Typing"
+      )
+      ),
+    column(width = 1),
+    column(
+      width = 4,
+      align = "left",
+      br(), br(),
+      h3(p("Start Typing"), style = "color:white"),
+      br(), br(),
+      actionButton(
+        inputId = "typing_start",
+        label = "Start"
+      ),
+      actionButton(
+        inputId = "test",
+        label = "progress"
+      ),
+      br(), br(),
+      progressBar(
+        "progress_bar",
+        value = 0,
+        display_pct = TRUE,
+        title = "",
+        status =  "primary"
+      )
+    )
+  )
+  ),
+
       
 # Tab Upload - Tree format ----------------------------------------------
 
@@ -4261,6 +4334,123 @@ server <- function(input, output, session) {
         )
       )
                   
+      
+      
+      # Produce Allelic Profile ----------------------------------------------------
+      
+      
+      # Get genome datapath
+      
+      volumes = getVolumes()
+      observe({  
+        shinyFileChoose(input, "genome_file", roots = volumes, session = session)
+        
+        if(!is.null(input$genome_file)){
+          # browser()
+          selected_genome <<- parseFilePaths(volumes, input$genome_file)
+          output$genome_path <- renderPrint(as.character(selected_genome$datapath))
+        }
+      })
+      
+      #################### Create the kma index script #########################
+      
+      observeEvent(input$typing_init, {
+        
+        selected_organism <<- input$cgmlst_typing
+        
+        # Locate folder containing cgMLST scheme
+        
+        search_string <- paste0(gsub(" ", "_", selected_organism), "_alleles")
+        
+        scheme_folders <- dir_ls()
+        
+        if(any(scheme_folders %in% search_string)) {
+          
+          scheme_select <<- as.character(scheme_folders[which(scheme_folders %in% search_string)])
+          
+          show_toast(
+            title = "Typing Initiated",
+            type = "success",
+            position = "bottom-end",
+            width = "400px",
+            timer = 4000)
+          
+          index_kma <- paste0(
+            "#!/bin/bash\n",
+            "database_name=", shQuote(selected_organism), "\n",
+            "genome=", shQuote(selected_genome$datapath), "\n",
+            '/home/marian/miniconda3/bin/kma index -i "$genome" -o "$database_name"'
+          )
+          
+          # Specify the path to save the script
+          index_kma_path <- paste0("/home/marian/Documents/Projects/Masterthesis", "/index_kma.sh")
+          
+          # Write the script to a file
+          cat(index_kma, file = index_kma_path)
+          
+          # Make the script executable
+          system(paste("chmod +x", index_kma_path))
+          
+          # Execute the script
+          system(paste(index_kma_path))
+          
+        } else {
+          
+          show_alert(
+            title = "Error",
+            text = paste0("Folder containing cgMLST alleles not in working directory.", "\n", 
+                          "Download cgMLST Scheme for selected Organism first."),
+            type = "error"
+          )
+        }
+                   
+      
+      
+      }
+      )
+      
+      ############## Create the bash script for kma typing algorithm ###########
+      
+    
+      observeEvent(input$typing_start, {
+        
+        kma_run <- paste0(
+          "#!/bin/bash\n",
+          "database=", shQuote(selected_organism), "\n",
+          "query_folder=", shQuote(paste0(getwd(), "/", scheme_select)), "\n",
+          "tmp_dir=", shQuote(tempdir()), "\n",
+          'mkdir $tmp_dir/results', "\n",
+          'output_folder="$tmp_dir/results"', "\n",
+          'count=0', "\n",
+          'for query_file in "$query_folder"/*.fasta; do', "\n",
+          'if [ -f "$query_file" ]; then', "\n",
+          'query_filename=$(basename "$query_file")', "\n",
+          'query_filename_noext="${query_filename%.*}"', "\n",
+          'output_file="$output_folder/$query_filename_noext"', "\n",
+          '/home/marian/miniconda3/bin/kma -i "$query_file" -o "$output_file" -t_db "$database" -nc -status', "\n",
+          '((count++))', "\n",
+          'echo $count > ', shQuote(paste0(getwd(), "/execute/progress.fifo")), "\n",
+          'fi', "\n",
+          'done'
+        )
+        
+        # Specify the path to save the script
+        kma_run_path <- paste0(getwd(), "/execute", "/kma_run.sh")
+        
+        # Write the script to a file
+        cat(kma_run, file = kma_run_path)
+        
+        # Make the script executable
+        system(paste("chmod +x", kma_run_path))
+        
+        # Execute the script
+        system(paste(kma_run_path))
+        
+        
+      }
+      )
+      
+      
       
       
       
