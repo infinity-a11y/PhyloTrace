@@ -81,6 +81,7 @@ ui <- dashboardPage(
 # Sidebar ----   
     dashboardSidebar(
       tags$style("label{color: white;}"),
+      tags$style("file.select{background-color: white;}"),
       br(), br(),
       sidebarMenu(
         id = "tabs",
@@ -221,11 +222,23 @@ ui <- dashboardPage(
       ),
 
     dashboardBody(
+      tags$style(HTML("
+
+
+                .box.box-solid.box-primary>.box-header {
+                background:#282F38
+                }
+
+                .box.box-solid.box-primary{
+                background:#282F38
+                }
+
+                ")),
       shinyDashboardThemeDIY(
       ### general
       appFontFamily = "Tahoma"
       ,appFontColor = "#000000"
-      ,primaryFontColor = "rgb(0,0,0)"
+      ,primaryFontColor = "#ffffff"
       ,infoFontColor = "rgb(0,0,0)"
       ,successFontColor = "rgb(0,0,0)"
       ,warningFontColor = "rgb(0,0,0)"
@@ -311,13 +324,13 @@ ui <- dashboardPage(
       ,sidebarTabRadiusHover = "0px 20px 20px 0px"
       
       ### boxes
-      ,boxBackColor = "#282F38"
+      ,boxBackColor = "#ffffff"
       ,boxBorderRadius = 7
       ,boxShadowSize = "0px 0px 0px"
       ,boxShadowColor = "#ffffff"
       ,boxTitleSize = 20
       ,boxDefaultColor = "#00a65a"
-      ,boxPrimaryColor = "#00a65a"
+      ,boxPrimaryColor = "#ffffff"
       ,boxInfoColor = "#00a65a"
       ,boxSuccessColor = "#00a65a"
       ,boxWarningColor = "#ffffff"
@@ -503,18 +516,15 @@ tabItem(
       ),
     column(width = 1),
     column(
-      width = 4,
+      width = 3,
       align = "left",
       br(), br(),
       h3(p("Start Typing"), style = "color:white"),
       br(), br(),
       actionButton(
         inputId = "typing_start",
-        label = "Start"
-      ),
-      actionButton(
-        inputId = "test",
-        label = "progress"
+        label = "Start",
+        width = "100px"
       ),
       br(), br(),
       progressBar(
@@ -522,7 +532,21 @@ tabItem(
         value = 0,
         display_pct = TRUE,
         title = "",
-        status =  "primary"
+        status =  "custom"
+      ),
+      tags$style(".progress-bar-custom {font-color: #ffffff;background-color: #25c484;}"),
+    ),
+    column(width = 1),
+    column(
+      width = 3,
+      align = "left",
+      br(), br(),
+      h3(p("Generate Allelic Profile"), style = "color:white"),
+      br(), br(),
+      actionButton(
+        inputId = "typing_start",
+        label = "Start",
+        width = "100px"
       )
     )
   )
@@ -2659,6 +2683,7 @@ tabItem(
           br(), br(),
           box(
             solidHeader = TRUE,
+            status = "primary",
             title = h4(p("General"), style = "color:white"),
             width = 12,
           conditionalPanel(
@@ -4105,234 +4130,234 @@ server <- function(input, output, session) {
 # Save Report -------------------------------------------------------------
 
     
-      # Create a reactiveValues to store selected elements and their content
-      elements_data <- reactiveValues()
+    # Create a reactiveValues to store selected elements and their content
+    elements_data <- reactiveValues()
     
-      observe({
-        selected_general <<- input$include_general
-        selected_sampleinfo <<- input$include_sampleinfo
-        selected_sequencing <<- input$include_sequencing
-        selected_analysis <<- input$include_analysis
-        
-        # Store content for each selected element in reactiveValues
-        if ('Analysis Date' %in% selected_general) {
-          elements_data$general_date <- as.character(input$report_date)
-        } else {elements_data$general_date <- NULL}
-        
-        if ('Author' %in% selected_general) {
-          elements_data$general_author <- input$author
-        } else {elements_data$general_author <- NULL}
-        
-        if ('Experiment Info' %in% selected_general) {
-          elements_data$general_com <- input$exp_info
-        } else {elements_data$general_com <- NULL}
-        
-        if ('Sampling Date' %in% selected_sampleinfo) {
-          elements_data$sample_date <- as.character(input$report_sampledate)
-        } else {elements_data$sample_date <- NULL}
-        
-        if ('Sampling Location' %in% selected_sampleinfo) {
-          elements_data$sample_loc <- input$sample_location
-        } else {elements_data$sample_loc <- NULL}
-        
-        if ('Taken by (Name)' %in% selected_sampleinfo) {
-          elements_data$sample_op <- input$sampled_by
-        } else {elements_data$sample_op <- NULL}
-        
-        if ('Comment' %in% selected_sampleinfo) {
-          elements_data$sample_com <- input$sample_info
-        } else {elements_data$sample_com <- NULL}
-        
-        if ('Device' %in% selected_sequencing) {
-          elements_data$seq_device <- input$select_device
-        } else {elements_data$seq_device <- NULL}
-        
-        if ('Flow Cell' %in% selected_sequencing) {
-          elements_data$seq_flowcell <- input$select_flowcell
-        } else {elements_data$seq_flowcell <- NULL}
-        
-        if ('Run Start' %in% selected_sequencing) {
-          elements_data$seq_start <- as.character(input$report_runstart)
-        } else {elements_data$seq_start <- NULL}
-        
-        if ('Run Finished' %in% selected_sequencing) {
-          elements_data$seq_end <- as.character(input$report_runfinished)
-        } else {elements_data$seq_end <- NULL}
-        
-        if ('Operator' %in% selected_sequencing) {
-          elements_data$seq_op <- input$report_seqoperator
-        } else {elements_data$seq_op <- NULL}
-        
-        if ('Comment' %in% selected_sequencing) {
-          elements_data$seq_com <- input$report_seqcomment
-        } else {elements_data$seq_com <- NULL}
-        
-        if ('Analysis Date' %in% selected_analysis) {
-          elements_data$ana_date <- input$report_analysisdate
-        } else {elements_data$ana_date <- NULL}
-        
-        if ('Comment' %in% selected_analysis) {
-          elements_data$ana_com <- input$report_analysiscomment
-        } else {elements_data$ana_com <- NULL}
-        
-      })
+    observe({
+      selected_general <<- input$include_general
+      selected_sampleinfo <<- input$include_sampleinfo
+      selected_sequencing <<- input$include_sequencing
+      selected_analysis <<- input$include_analysis
       
-      # Generate the RDS file when the "Save Report" button is clicked
-      observeEvent(input$save_report, {
-        
-        
-        # Filter and save data for the selected elements
-        selected_data <- list(
-          general_date = elements_data$general_date,
-          general_author = elements_data$general_author,
-          general_com = elements_data$general_com,
-          sample_date = elements_data$sample_date,
-          sample_loc = elements_data$sample_loc,
-          sample_op = elements_data$sample_op,
-          sample_com = elements_data$sample_com,
-          seq_device = elements_data$seq_device,
-          seq_flowcell = elements_data$seq_flowcell,
-          seq_start = elements_data$seq_start,
-          seq_end = elements_data$seq_end,
-          seq_op = elements_data$seq_op,
-          seq_com = elements_data$seq_com,
-          ana_date = elements_data$ana_date,
-          ana_com = elements_data$ana_com
-        )
-        
-        # Save data to an RDS file if any elements were selected
-        if (length(selected_data) > 0) {
-          saveRDS(selected_data, file = "selected_elements.rds")
-        }
-        
-        rmarkdown::render("Report.Rmd")
-        
-      })
+      # Store content for each selected element in reactiveValues
+      if ('Analysis Date' %in% selected_general) {
+        elements_data$general_date <- as.character(input$report_date)
+      } else {elements_data$general_date <- NULL}
+      
+      if ('Author' %in% selected_general) {
+        elements_data$general_author <- input$author
+      } else {elements_data$general_author <- NULL}
+      
+      if ('Experiment Info' %in% selected_general) {
+        elements_data$general_com <- input$exp_info
+      } else {elements_data$general_com <- NULL}
+      
+      if ('Sampling Date' %in% selected_sampleinfo) {
+        elements_data$sample_date <- as.character(input$report_sampledate)
+      } else {elements_data$sample_date <- NULL}
+      
+      if ('Sampling Location' %in% selected_sampleinfo) {
+        elements_data$sample_loc <- input$sample_location
+      } else {elements_data$sample_loc <- NULL}
+      
+      if ('Taken by (Name)' %in% selected_sampleinfo) {
+        elements_data$sample_op <- input$sampled_by
+      } else {elements_data$sample_op <- NULL}
+      
+      if ('Comment' %in% selected_sampleinfo) {
+        elements_data$sample_com <- input$sample_info
+      } else {elements_data$sample_com <- NULL}
+      
+      if ('Device' %in% selected_sequencing) {
+        elements_data$seq_device <- input$select_device
+      } else {elements_data$seq_device <- NULL}
+      
+      if ('Flow Cell' %in% selected_sequencing) {
+        elements_data$seq_flowcell <- input$select_flowcell
+      } else {elements_data$seq_flowcell <- NULL}
+      
+      if ('Run Start' %in% selected_sequencing) {
+        elements_data$seq_start <- as.character(input$report_runstart)
+      } else {elements_data$seq_start <- NULL}
+      
+      if ('Run Finished' %in% selected_sequencing) {
+        elements_data$seq_end <- as.character(input$report_runfinished)
+      } else {elements_data$seq_end <- NULL}
+      
+      if ('Operator' %in% selected_sequencing) {
+        elements_data$seq_op <- input$report_seqoperator
+      } else {elements_data$seq_op <- NULL}
+      
+      if ('Comment' %in% selected_sequencing) {
+        elements_data$seq_com <- input$report_seqcomment
+      } else {elements_data$seq_com <- NULL}
+      
+      if ('Analysis Date' %in% selected_analysis) {
+        elements_data$ana_date <- input$report_analysisdate
+      } else {elements_data$ana_date <- NULL}
+      
+      if ('Comment' %in% selected_analysis) {
+        elements_data$ana_com <- input$report_analysiscomment
+      } else {elements_data$ana_com <- NULL}
+      
+    })
     
-      # Save Report Profile ----------------------------------------------------  
+    # Generate the RDS file when the "Save Report" button is clicked
+    observeEvent(input$save_report, {
       
-      observeEvent(input$save_rep_profile, {
-        
-        # save profile except dates or times
-        report_profile <- list(
-          selected_general = selected_general,
-          selected_sampleinfo = selected_sampleinfo,
-          selected_sequencing = selected_sequencing,
-          selected_analysis = selected_analysis,
-          general_date = NULL,
-          general_author = elements_data$general_author,
-          general_com = elements_data$general_com,
-          sample_date = NULL,
-          sample_loc = elements_data$sample_loc,
-          sample_op = elements_data$sample_op,
-          sample_com = elements_data$sample_com,
-          seq_device = elements_data$seq_device,
-          seq_flowcell = elements_data$seq_flowcell,
-          seq_start = NULL,
-          seq_end = NULL,
-          seq_op = elements_data$seq_op,
-          seq_com = elements_data$seq_com,
-          ana_date = NULL,
-          ana_com = elements_data$ana_com
-        )
-        
-        # Save data to an RDS file 
-        if (length(report_profile) > 0) {
-          saveRDS(report_profile, file = paste0(getwd(), "/rep_profiles/", input$rep_profilename, ".rds"))
-        }
-        
-        rep_profile$profile_names <- list.files(paste0(getwd(),"/rep_profiles"), full.names = TRUE)
-      })
       
-      # Load Report Profile ----------------------------------------------------
-      
-      rep_profile <- reactiveValues()
-      
-      observe(
-        rep_profile$profile_names <- list.files(paste0(getwd(),"/rep_profiles"), full.names = TRUE)
-       
+      # Filter and save data for the selected elements
+      selected_data <- list(
+        general_date = elements_data$general_date,
+        general_author = elements_data$general_author,
+        general_com = elements_data$general_com,
+        sample_date = elements_data$sample_date,
+        sample_loc = elements_data$sample_loc,
+        sample_op = elements_data$sample_op,
+        sample_com = elements_data$sample_com,
+        seq_device = elements_data$seq_device,
+        seq_flowcell = elements_data$seq_flowcell,
+        seq_start = elements_data$seq_start,
+        seq_end = elements_data$seq_end,
+        seq_op = elements_data$seq_op,
+        seq_com = elements_data$seq_com,
+        ana_date = elements_data$ana_date,
+        ana_com = elements_data$ana_com
       )
       
-      output$selProfile <- renderUI(
-        selectInput(
-          inputId = "sel_rep_profile",
-          label = "Select Report Profile",
-          choices = append(c("None"), gsub(".*/(.*).rds", "\\1", rep_profile$profile_names))
-        )
+      # Save data to an RDS file if any elements were selected
+      if (length(selected_data) > 0) {
+        saveRDS(selected_data, file = "selected_elements.rds")
+      }
+      
+      rmarkdown::render("Report.Rmd")
+      
+    })
+    
+    # Save Report Profile ----------------------------------------------------  
+    
+    observeEvent(input$save_rep_profile, {
+      
+      # save profile except dates or times
+      report_profile <- list(
+        selected_general = selected_general,
+        selected_sampleinfo = selected_sampleinfo,
+        selected_sequencing = selected_sequencing,
+        selected_analysis = selected_analysis,
+        general_date = NULL,
+        general_author = elements_data$general_author,
+        general_com = elements_data$general_com,
+        sample_date = NULL,
+        sample_loc = elements_data$sample_loc,
+        sample_op = elements_data$sample_op,
+        sample_com = elements_data$sample_com,
+        seq_device = elements_data$seq_device,
+        seq_flowcell = elements_data$seq_flowcell,
+        seq_start = NULL,
+        seq_end = NULL,
+        seq_op = elements_data$seq_op,
+        seq_com = elements_data$seq_com,
+        ana_date = NULL,
+        ana_com = elements_data$ana_com
       )
       
-      # General Tickbox
-      general_selected <- reactive({
-        if(input$sel_rep_profile %in% "None") {
-          c("Analysis Date", "Author")
-        } else {
-          readRDS(paste0(getwd(), "/rep_profiles/", input$sel_rep_profile, ".rds"))[[1]]
-        }
-      })
+      # Save data to an RDS file 
+      if (length(report_profile) > 0) {
+        saveRDS(report_profile, file = paste0(getwd(), "/rep_profiles/", input$rep_profilename, ".rds"))
+      }
       
-      output$include_general <- renderUI(
-        checkboxGroupInput(
-          inputId = "include_general",
-          label = "General",
-          choices = c("Analysis Date", "Author", "Experiment Info"),
-          selected = general_selected()
-        )
+      rep_profile$profile_names <- list.files(paste0(getwd(),"/rep_profiles"), full.names = TRUE)
+    })
+    
+    # Load Report Profile ----------------------------------------------------
+    
+    rep_profile <- reactiveValues()
+    
+    observe(
+      rep_profile$profile_names <- list.files(paste0(getwd(),"/rep_profiles"), full.names = TRUE)
+      
+    )
+    
+    output$selProfile <- renderUI(
+      selectInput(
+        inputId = "sel_rep_profile",
+        label = "Select Report Profile",
+        choices = append(c("None"), gsub(".*/(.*).rds", "\\1", rep_profile$profile_names))
       )
-      
-      # Sample Info Tickbox
-      sampleinfo_selected <- reactive({
-        if(input$sel_rep_profile %in% "None") {
-          c("Sampling Date", "Sampling Location") 
-        } else {
-          readRDS(paste0(getwd(), "/rep_profiles/", input$sel_rep_profile, ".rds"))[[2]]
-        }
-      })
-      
-      output$include_sampleinfo <- renderUI(
-        checkboxGroupInput(
-          inputId = "include_sampleinfo",
-          label = "Sample",
-          choices = c("Sampling Date", "Sampling Location", "Taken by (Name)", "Comment"),
-          selected = sampleinfo_selected()
-        )
+    )
+    
+    # General Tickbox
+    general_selected <- reactive({
+      if(input$sel_rep_profile %in% "None") {
+        c("Analysis Date", "Author")
+      } else {
+        readRDS(paste0(getwd(), "/rep_profiles/", input$sel_rep_profile, ".rds"))[[1]]
+      }
+    })
+    
+    output$include_general <- renderUI(
+      checkboxGroupInput(
+        inputId = "include_general",
+        label = "General",
+        choices = c("Analysis Date", "Author", "Experiment Info"),
+        selected = general_selected()
       )
-      
-      # Sequencing Tickbox
-      sequencing_selected <- reactive({
-        if(input$sel_rep_profile %in% "None") {
-          c("Device", "Fow Cell", "Operator") 
-        } else {
-          readRDS(paste0(getwd(), "/rep_profiles/", input$sel_rep_profile, ".rds"))[[3]]
-        }
-      })
-      
-      output$include_sequencing <- renderUI(
-        checkboxGroupInput(
-          inputId = "include_sequencing",
-          label = "Sequencing",
-          choices = c("Device", "Flow Cell", "Run Start", "Run Finished", 
-                      "Operator", "Output Size", "Comment"),
-          selected = sequencing_selected()
-        )
+    )
+    
+    # Sample Info Tickbox
+    sampleinfo_selected <- reactive({
+      if(input$sel_rep_profile %in% "None") {
+        c("Sampling Date", "Sampling Location") 
+      } else {
+        readRDS(paste0(getwd(), "/rep_profiles/", input$sel_rep_profile, ".rds"))[[2]]
+      }
+    })
+    
+    output$include_sampleinfo <- renderUI(
+      checkboxGroupInput(
+        inputId = "include_sampleinfo",
+        label = "Sample",
+        choices = c("Sampling Date", "Sampling Location", "Taken by (Name)", "Comment"),
+        selected = sampleinfo_selected()
       )
-      
-      # Analysis Tickbox
-      analysis_selected <- reactive({
-        if(input$sel_rep_profile %in% "None") {
-          c("Analysis Date", "cgMLST Scheme") 
-        } else {
-          readRDS(paste0(getwd(), "/rep_profiles/", input$sel_rep_profile, ".rds"))[[4]]
-        }
-      })
-      
-      output$include_analysis <- renderUI(
-        checkboxGroupInput(
-          inputId = "include_analysis",
-          label = "Analysis",
-          choices = c("Analysis Date", "Assembly Parameters", "cgMLST Scheme", "Comment"),
-          selected = analysis_selected()
-        )
+    )
+    
+    # Sequencing Tickbox
+    sequencing_selected <- reactive({
+      if(input$sel_rep_profile %in% "None") {
+        c("Device", "Fow Cell", "Operator") 
+      } else {
+        readRDS(paste0(getwd(), "/rep_profiles/", input$sel_rep_profile, ".rds"))[[3]]
+      }
+    })
+    
+    output$include_sequencing <- renderUI(
+      checkboxGroupInput(
+        inputId = "include_sequencing",
+        label = "Sequencing",
+        choices = c("Device", "Flow Cell", "Run Start", "Run Finished", 
+                    "Operator", "Output Size", "Comment"),
+        selected = sequencing_selected()
       )
+    )
+    
+    # Analysis Tickbox
+    analysis_selected <- reactive({
+      if(input$sel_rep_profile %in% "None") {
+        c("Analysis Date", "cgMLST Scheme") 
+      } else {
+        readRDS(paste0(getwd(), "/rep_profiles/", input$sel_rep_profile, ".rds"))[[4]]
+      }
+    })
+    
+    output$include_analysis <- renderUI(
+      checkboxGroupInput(
+        inputId = "include_analysis",
+        label = "Analysis",
+        choices = c("Analysis Date", "Assembly Parameters", "cgMLST Scheme", "Comment"),
+        selected = analysis_selected()
+      )
+    )
                   
       
       
@@ -4342,6 +4367,7 @@ server <- function(input, output, session) {
       # Get genome datapath
       
       volumes = getVolumes()
+      
       observe({  
         shinyFileChoose(input, "genome_file", roots = volumes, session = session)
         
@@ -4420,6 +4446,7 @@ server <- function(input, output, session) {
           "query_folder=", shQuote(paste0(getwd(), "/", scheme_select)), "\n",
           "tmp_dir=", shQuote(tempdir()), "\n",
           'mkdir $tmp_dir/results', "\n",
+          'echo 0 > ', shQuote(paste0(getwd(), "/execute/progress.fifo")), "\n",
           'output_folder="$tmp_dir/results"', "\n",
           'count=0', "\n",
           'for query_file in "$query_folder"/*.fasta; do', "\n",
@@ -4444,8 +4471,25 @@ server <- function(input, output, session) {
         system(paste("chmod +x", kma_run_path))
         
         # Execute the script
-        system(paste(kma_run_path))
+        system(paste(kma_run_path), wait = FALSE)
         
+        Sys.sleep(2)
+        
+        progress <- 0
+        
+        scheme_loci <- list.files(path = paste0(getwd(), "/", scheme_select), full.names = TRUE)
+        
+        # Filter the files that have the ".fasta" extension
+        scheme_loci_f <- scheme_loci[grep(".fasta$", scheme_loci, ignore.case = TRUE)]
+        
+        while (progress < length(scheme_loci_f)) {
+          progress <- readLines(paste0(getwd(), "/execute", "/progress.fifo"))
+          progress <- as.numeric(progress)
+          progress_pct <- round((as.numeric(progress)/length(scheme_loci_f))*100)
+          updateProgressBar(session = session, id = "progress_bar", value = progress_pct, 
+                            total = 100, title = paste0(as.character(progress),"/", length(scheme_loci_f)))
+          Sys.sleep(0.5)
+        }
         
       }
       )
