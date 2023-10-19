@@ -70,6 +70,12 @@ library(kableExtra)
 if (!require(fs)) install.packages('fs')
 library(fs)
 
+if (!require(data.table)) install.packages('data.table')
+library(data.table)
+
+if (!require(zoo)) install.packages('zoo')
+library(zoo)
+
 
 ################ User Interface ################
 
@@ -527,26 +533,62 @@ tabItem(
         width = "100px"
       ),
       br(), br(),
-      progressBar(
-        "progress_bar",
-        value = 0,
-        display_pct = TRUE,
-        title = "",
-        status =  "custom"
-      ),
-      tags$style(".progress-bar-custom {font-color: #ffffff;background-color: #25c484;}"),
+      conditionalPanel(
+        "input.typing_start",
+        progressBar(
+          "progress_bar",
+          value = 0,
+          display_pct = TRUE,
+          title = "")
+        )
     ),
     column(width = 1),
     column(
-      width = 3,
+      width = 4,
       align = "left",
       br(), br(),
       h3(p("Generate Allelic Profile"), style = "color:white"),
       br(), br(),
       actionButton(
-        inputId = "typing_start",
-        label = "Start",
-        width = "100px"
+        inputId = "get_allele_profile",
+        label = "Get Allelic Profile"
+      ),
+      br(), br(),
+      conditionalPanel(
+        "input.get_allele_profile",
+        progressBar(
+          "progress_profile",
+          value = 0,
+          display_pct = TRUE,
+          title = "")
+        ),
+      htmlOutput("typing_fin"),
+      br(), hr(), br(), 
+      h5(p("Produce Detailed Results Table (Optional)"), style = "color:white"),
+      br(), 
+      actionButton(
+        inputId = "typing_results",
+        label = "Get Results Table"
+      ),
+      br(), br(),
+      conditionalPanel(
+        "input.typing_results",
+        progressBar(
+          "progress_res_tab",
+          value = 0,
+          display_pct = TRUE,
+          title = ""
+        )
+      ),
+      br(), br(),
+      uiOutput("sel_result"),
+      br(),
+      conditionalPanel(
+        "input.typing_results",
+        addSpinner(
+          tableOutput("typ_res_tab"),
+          spin = "dots", 
+          color = "#ffffff")
       )
     )
   )
@@ -4494,8 +4536,94 @@ server <- function(input, output, session) {
       }
       )
       
+      ############## Get Allelic Profile  ######################################
+      
+      observeEvent(input$get_allele_profile, {
+        
+        # List all the .frag.gz files in the folder
+        frag_files <- list.files("/home/marian/Documents/Projects/Masterthesis/kma_results", pattern = "\\.frag\\.gz$", full.names = TRUE)
+        
+        # Initialize an empty vector to store the results
+        results <- integer(length(frag_files))
+        
+        # Loop through each .frag.gz file
+        for (i in 1:length(frag_files)) {
+          
+          file <- frag_files[i]
+          
+            # Read the file using data.table
+            data <- fread(file, header = FALSE, sep = "\t")
+            
+            # Find the row with the highest value in the third field
+            max_row <- which.max(data$V3)
+            
+            # Extract the value from the seventh field in the max row
+            results[i]<- data$V7[max_row]
+          
+          prog_typ <- round(i/length(frag_files)*100)
+          
+          updateProgressBar(session = session, id = "progress_profile", value = prog_typ, 
+                            total = 100)
+          
+        }
+        output$typing_fin <- renderUI({
+          length <- paste(length(results), "alleles computed.")
+          int <- paste(sum(sapply(results, is.integer)), "successful attributions.")
+          error <- paste(sum(sapply(results, is.na)), "unsuccessful attributions (NA).")
+          HTML(paste("<span style='color: white;'>", length, int, error, sep = '<br/>'))
+          
+        })
+      }
+      )
+      
+      ############## Get Det. Typing Results ###################################
       
       
+      observeEvent(input$typing_results, {
+        
+        
+        # List to store data frames
+        frag_data_list <- list()
+        
+        # Get a list of .frag.gz files in the output folder
+        frag_files <- list.files("/home/marian/Documents/Projects/Masterthesis/kma_results", pattern = ".frag.gz", full.names = TRUE)
+        
+        count <- 0
+        
+        for (frag_file in frag_files) {
+          # Extract the base filename without extension
+          frag_filename <- tools::file_path_sans_ext(basename(frag_file))
+          
+          # Read the .frag.gz file into a data table
+          frag_data <- fread(frag_file, sep = "\t", header = FALSE)
+          
+          # Extract the second, third, and seventh columns
+          frag_data <- frag_data[, .(V3, V7)]
+          
+          # Set column names
+          setnames(frag_data, c("score", "variant"))
+          
+          # Store the data frame in the list with the filename as the name
+          frag_data_list[[frag_filename]] <- frag_data
+          
+          prog_res_tab <- round(count/length(frag_files)*100)
+          
+          updateProgressBar(session = session, id = "progress_res_tab", value = prog_res_tab, 
+                            total = 100)
+          count <- count + 1
+          
+        }
+        
+        output$sel_result <- renderUI(selectInput("sel_result", label = "Select Locus",
+                                           choices = names(frag_data_list), 
+                                           selected = names(frag_data_list)[1]))
+          
+        
+      })
+      
+      output$typ_res_tab <- renderTable({
+        frag_data_list[[input$sel_result]]
+      })
       
       
     } # end server
