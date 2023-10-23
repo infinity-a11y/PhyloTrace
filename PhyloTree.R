@@ -76,8 +76,35 @@ library(data.table)
 if (!require(zoo)) install.packages('zoo')
 library(zoo)
 
-if (!require(shinyjs)) install.packages('shinyjs')
-library(shinyjs)
+country_names <- c(
+  "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", 
+  "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", 
+  "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", 
+  "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Côte d'Ivoire", "Cabo Verde", "Cambodia", "Cameroon", 
+  "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (Congo-Brazzaville)", 
+  "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia (Czech Republic)", "Democratic Republic of the Congo (Congo-Kinshasa)", 
+  "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", 
+  "Eritrea", "Estonia", 'Eswatini (fmr. "Swaziland")', "Ethiopia", "Fiji", "Finland", "France", "Gabon", 
+  "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", 
+  "Guyana", "Haiti", "Holy See", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", 
+  "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", 
+  "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", 
+  "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", 
+  "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", 
+  "Morocco", "Mozambique", "Myanmar (formerly Burma)", "Namibia", "Nauru", "Nepal", "Netherlands", 
+  "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia (formerly Macedonia)", 
+  "Norway", "Oman", "Pakistan", "Palau", "Palestine State", "Panama", "Papua New Guinea", "Paraguay", 
+  "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", 
+  "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", 
+  "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", 
+  "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", 
+  "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", 
+  "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", 
+  "United Arab Emirates", "United Kingdom", "United States of America", "Uruguay", "Uzbekistan", "Vanuatu", 
+  "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
+)
+
+sel_countries <- c("Austria", "Germany", "Switzerland", "United Kingdom", "United States of America")
 
 ################ User Interface ################
 
@@ -120,7 +147,7 @@ ui <- dashboardPage(
       ),
       hr(), br(),  
       conditionalPanel(
-        "input.tabs=='database'",
+        "input.tabs==='database'",
         column(
           width = 12,
           align = "left",
@@ -128,7 +155,15 @@ ui <- dashboardPage(
           )
       ),
       conditionalPanel(
-        "input.tabs=='report'",
+        "input.tabs==='typing'",
+        column(
+          width = 12,
+          align = "left",
+          uiOutput("cgmlst_typing")
+        )
+      ),
+      conditionalPanel(
+        "input.tabs==='report'",
         column(
           width = 12,
           align = "left",
@@ -160,7 +195,7 @@ ui <- dashboardPage(
         )
       ),
       conditionalPanel(
-        "input.tabs=='visualization'",
+        "input.tabs==='visualization'",
         column(
           width = 12,
           awesomeRadio(
@@ -205,9 +240,11 @@ ui <- dashboardPage(
   ),
   
   dashboardBody(
-    tags$style(HTML("
-
-
+    tags$style(HTML('
+                .shiny-input-container input[type="text"] {
+                border-radius: 5px; 
+                } 
+      
                 .box.box-solid.box-primary>.box-header {
                 background:#282F38
                 }
@@ -216,7 +253,8 @@ ui <- dashboardPage(
                 background:#282F38
                 }
 
-                ")),
+                ')
+               ),
     shinyDashboardThemeDIY(
       ### general
       appFontFamily = "Tahoma"
@@ -331,7 +369,7 @@ ui <- dashboardPage(
       ,buttonBackColor = "#282F38"
       ,buttonTextColor = "#ffffff"
       ,buttonBorderColor = "#282F38"
-      ,buttonBorderRadius = 10
+      ,buttonBorderRadius = 5
       
       ,buttonBackColorHover = cssGradientThreeColors(
         direction = "right"
@@ -360,6 +398,7 @@ ui <- dashboardPage(
     
     
     tabItems(
+      
       
       # Tab Database        ---------------------------------------------
       
@@ -508,76 +547,39 @@ ui <- dashboardPage(
         ),
         hr(),
         fluidRow(
-          column(width = 1),
           column(
-            width = 2,
+            width = 3,
             align = "center",
             br(), br(),
-            h3(p("Select Components"), style = "color:white"),
+            h3(p("Initiate Typing"), style = "color:white"),
             br(), br(),
             shinyFilesButton("genome_file", "Select Genome" ,
                              title = "Please select the genome in .fasta format:", multiple = FALSE,
                              buttonType = "default", class = NULL),
             br(), br(),
-            uiOutput("genome_path")
-            br(), br(), 
-            selectInput(
-              inputId = "cgmlst_typing", 
-              label = "Select cgMLST Scheme",
-              choices = list("Acinetobacter baumanii", "Bacillus anthracis",
-                             "Bordetella pertussis", "Brucella melitensis",
-                             "Brucella spp.", "Burkholderia mallei (FLI)",
-                             "Burkholderia mallei (RKI)", "Burkholderia pseudomallei",
-                             "Campylobacter jejuni/coli", "Clostridioides difficile",
-                             "Clostridium perfringens", "Corynebacterium diphtheriae",
-                             "Cronobacter sakazakii/malonaticus", "Enterococcus faecalis",
-                             "Enterococcus faecium", "Escherichia coli",
-                             "Francisella tularensis", "Klebsiella pneumoniae/variicola/quasipneumoniae",
-                             "Legionella pneumophila", "Listeria monocytogenes",
-                             "Mycobacterium tuberculosis/bovis/africanum/canettii",
-                             "Mycobacteroides abscessus", "Mycoplasma gallisepticum",
-                             "Paenibacillus larvae", "Pseudomonas aeruginosa",
-                             "Salmonella enterica", "Serratia marcescens",
-                             "Staphylococcus aureus", "Staphylococcus capitis",
-                             "Streptococcus pyogenes"),
-              selected = "Bordetella pertussis",
-              width = "300px"),
-            br(), hr(), br(), br(),
-            actionButton(
-              inputId = "typing_init",
-              label = "Initialize Typing"
-            )
-          ),
-          column(width = 1),
-          column(
-            width = 3,
-            align = "center",
+            uiOutput("genome_path"),
+            uiOutput("selected_scheme"),
             br(), br(),
-            h3(p("Start Typing"), style = "color:white"),
-            br(), br(),
-            actionButton(
-              inputId = "typing_start",
-              label = "Start",
-              width = "100px"
-            ),
-            br(), br(),
+            uiOutput("arrow_start"),
+            br(),
+            uiOutput("typing_start"),
             conditionalPanel(
               "input.typing_start",
+              br(),
               progressBar(
                 "progress_bar",
                 value = 0,
                 display_pct = TRUE,
-                title = "")
-            ),
-            hr(), br(),
-            br(),
-            actionButton(
-              inputId = "get_allele_profile",
-              label = "Get Allelic Profile"
+                title = ""
+                )
             ),
             br(), br(),
+            uiOutput("arrow_profile"),
+            br(),
+            uiOutput("get_allele_profile"),
             conditionalPanel(
               "input.get_allele_profile",
+              br(),
               progressBar(
                 "progress_profile",
                 value = 0,
@@ -585,76 +587,74 @@ ui <- dashboardPage(
                 title = "")
             ),
             htmlOutput("typing_fin"),
-            br(), 
-            h5(p("Produce Detailed Results Table (Optional)"), style = "color:white"),
-            br(), 
-            actionButton(
-              inputId = "typing_results",
-              label = "Get Results Table"
             ),
+          column(
+            width = 1
+            ),
+          column(
+            width = 2,
+            align = "center",
             br(), br(),
-            conditionalPanel(
-              "input.typing_results",
-              progressBar(
-                "progress_res_tab",
-                value = 0,
-                display_pct = TRUE,
-                title = ""
-              )
+            h3(p("Typing Results"), style = "color:white"),
+            br(), br(),
+            uiOutput("sel_result"),
+            addSpinner(
+              tableOutput("typ_res_tab"),
+              spin = "dots", 
+              color = "#ffffff")
             ),
-          ),
           column(width = 1),
           column(
             width = 4,
-            align = "left",
+            align = "center",
             br(), br(),
             h3(p("Append to Database"), style = "color:white"),
             br(), br(),
-              box(
-                solidHeader = TRUE,
-                status = "primary",
-                textInput(
-                  "append_index",
-                  label = "Index"
-                ),
-                dateInput(
-                  "append_isodate",
-                  label = "Isolation Date"
-                ),
-                textInput(
-                  "append_host",
-                  label = "Host"
-                ),
-                       selectInput(
-                  "append_country",
-                  label = "Country",
-                  choices = c("Germany", "Austria", "Switzerland"),
-                  selected = "Germany"
-                ),
-                textInput(
-                  "append_city",
-                  label = "City"
-                ),
-                dateInput(
-                  "append_analysisdate",
-                  label = "Analysis Date",
-                  value = Sys.Date()
-                )
-              ),
-            actionButton(
+            column(width = 1),
+            column(width = 6,
+                   box(solidHeader = TRUE,
+                       status = "primary",
+                       width = "100%",
+                       dateInput(
+                         "append_isodate",
+                         label = "Isolation Date",
+                         width = "50%"
+                       ),
+                       textInput(
+                         "append_host",
+                         label = "Host"
+                       ),
+                       pickerInput("append_country", "Country",
+                                   choices = list(
+                                     "Common" = sel_countries,
+                                     "All Countries" = country_names
+                                   ),
+                                   options = list(
+                                     `live-search` = TRUE,
+                                     `actions-box` = TRUE,
+                                     size = 10,
+                                     style = "background-color: white; border-radius: 5px;"
+                                   )
+                       ),
+                       textInput(
+                         "append_city",
+                         label = "City"
+                       ),
+                       dateInput(
+                         "append_analysisdate",
+                         label = "Typing Date",
+                         value = Sys.Date(),
+                         width = "50%"
+                       )
+                   )
+                   ),
+            column(width = 4,
+                   br(), br(), br(), br(), br(), br(), br(), br(), br(),
+                   actionButton(
                      inputId = "append",
                      label = "Append"
-                     ),          
-            br(), br(),
-            uiOutput("sel_result"),
-            br(),
-            conditionalPanel(
-              "input.typing_results",
-              addSpinner(
-                tableOutput("typ_res_tab"),
-                spin = "dots", 
-                color = "#ffffff")
-            )
+                   )
+                   )
           )
         )
       ),
@@ -2854,7 +2854,7 @@ server <- function(input, output, session) {
   if(!any(grepl("Typing.rds", dir_ls(paste0(getwd(), "/Database/", gsub(" ", "_", input$scheme_db)))))) {
     output$db_no_entries <- renderUI(
       HTML(paste("<span style='color: white;'>", "No Entries for this scheme available.",
-                 "Type a genome in the section 'Allelic Typing' and append the result to the local database.", sep = '<br/>')))
+                 "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.", sep = '<br/>')))
     } else {
     output$db_entries <- renderTable({
       Database <- readRDS(paste0(getwd(), "/Database/", gsub(" ", "_", input$scheme_db), "/Typing.rds"))
@@ -2869,7 +2869,7 @@ server <- function(input, output, session) {
   } else if (database$exist) {
     output$no_db <- renderUI(
       HTML(paste("<span style='color: white;'>", "No local Schemes or Entries available.",
-                 "Download a cgMLST Scheme in the Section 'Add Scheme'.", sep = '<br/>'))
+                 "Download a cgMLST Scheme in the Section <strong>Add Scheme</strong>.", sep = '<br/>'))
     )
   }
     
@@ -4043,32 +4043,61 @@ server <- function(input, output, session) {
   
   
   
-  # Produce Allelic Profile ----------------------------------------------------
+  # Initiate Typing  ----------------------------------------------------
   
+  # Render Scheme Selector 
+  
+  observe({
+    if(!database$exist) {
+      output$cgmlst_typing <- renderUI(
+        prettyRadioButtons(
+          "cgmlst_typing",
+          choices = database$available,
+          label = "Local schemes")
+      )
+    } 
+  })
   
   # Get genome datapath
   
   volumes = getVolumes()
   
+  
   observe({  
     shinyFileChoose(input, "genome_file", roots = volumes, session = session)
+    selected_genome <<- parseFilePaths(volumes, input$genome_file)
     
-    if(!is.null(input$genome_file)){
-      # browser()
-      selected_genome <<- parseFilePaths(volumes, input$genome_file)
-      output$genome_path <- renderUI(
-        HTML(paste("<span style='color: white;'>", as.character(selected_genome$datapath)))
-      )
-    } else {
+    if (!nrow(selected_genome) > 0) {
       output$genome_path <- renderUI(
         HTML(paste("<span style='color: white;'>", "No file selected."))
       )
-    }
+      output$arrow_start <- NULL
+    } else if (nrow(selected_genome) > 0) {
+      output$genome_path <- renderUI(
+        HTML(paste("<span style='color: white;'>", as.character(selected_genome$name)))
+      )
+      output$selected_scheme <- renderUI({
+        HTML(paste("<span style='color: white;'>", "Typing by <strong>", input$cgmlst_typing, "</strong> scheme."))
+      })
+      output$typing_start <- renderUI(
+        actionButton(
+          inputId = "typing_start",
+          label = "Start",
+          width = "100px"
+        )
+      )
+      output$arrow_start <- renderUI(HTML('<i class="fa-solid fa-arrow-down fa-beat-fade fa-xl" style="color: #ffffff;"></i>'))
+      
+    } 
+    
   })
   
-  #################### Create the kma index script #########################
   
-  observeEvent(input$typing_init, {
+  #################### Run KMA  index script #########################
+  
+  
+  observeEvent(input$typing_start, {
+    
     
     selected_organism <<- input$cgmlst_typing
     
@@ -4080,6 +4109,8 @@ server <- function(input, output, session) {
     
     if(any(scheme_folders %in% search_string)) {
       
+      # KMA initiate index
+      
       scheme_select <<- as.character(scheme_folders[which(scheme_folders %in% search_string)])
       
       show_toast(
@@ -4087,7 +4118,7 @@ server <- function(input, output, session) {
         type = "success",
         position = "bottom-end",
         width = "400px",
-        timer = 4000)
+        timer = 12000)
       
       index_kma <- paste0(
         "#!/bin/bash\n",
@@ -4108,6 +4139,59 @@ server <- function(input, output, session) {
       # Execute the script
       system(paste(index_kma_path))
       
+      # KMA Run
+      
+      kma_run <- paste0(
+        "#!/bin/bash\n",
+        "database=", shQuote(selected_organism), "\n",
+        "query_folder=", shQuote(paste0(getwd(), "/", scheme_select)), "\n",
+        "tmp_dir=", shQuote(tempdir()), "\n",
+        'mkdir $tmp_dir/results', "\n",
+        'echo 0 > ', shQuote(paste0(getwd(), "/execute/progress.fifo")), "\n",
+        'output_folder="$tmp_dir/results"', "\n",
+        'count=0', "\n",
+        'for query_file in "$query_folder"/*.fasta; do', "\n",
+        'if [ -f "$query_file" ]; then', "\n",
+        'query_filename=$(basename "$query_file")', "\n",
+        'query_filename_noext="${query_filename%.*}"', "\n",
+        'output_file="$output_folder/$query_filename_noext"', "\n",
+        '/home/marian/miniconda3/bin/kma -i "$query_file" -o "$output_file" -t_db "$database" -nc -status', "\n",
+        '((count++))', "\n",
+        'echo $count > ', shQuote(paste0(getwd(), "/execute/progress.fifo")), "\n",
+        'fi', "\n",
+        'done'
+      )
+      
+      # Specify the path to save the script
+      kma_run_path <- paste0(getwd(), "/execute", "/kma_run.sh")
+      
+      # Write the script to a file
+      cat(kma_run, file = kma_run_path)
+      
+      # Make the script executable
+      system(paste("chmod +x", kma_run_path))
+      
+      # Execute the script
+      system(paste(kma_run_path), wait = FALSE)
+      
+      Sys.sleep(2)
+      
+      progress <- 0
+      
+      scheme_loci <- list.files(path = paste0(getwd(), "/", scheme_select), full.names = TRUE)
+      
+      # Filter the files that have the ".fasta" extension
+      scheme_loci_f <- scheme_loci[grep(".fasta$", scheme_loci, ignore.case = TRUE)]
+      
+      while (progress < length(scheme_loci_f)) {
+        progress <- readLines(paste0(getwd(), "/execute", "/progress.fifo"))
+        progress <- as.numeric(progress)
+        progress_pct <- floor((as.numeric(progress)/length(scheme_loci_f))*100)
+        updateProgressBar(session = session, id = "progress_bar", value = progress_pct, 
+                          total = 100, title = paste0(as.character(progress),"/", length(scheme_loci_f)))
+        Sys.sleep(0.5)
+      }
+      
     } else {
       
       show_alert(
@@ -4118,109 +4202,97 @@ server <- function(input, output, session) {
       )
     }
     
+    output$arrow_start <- NULL
     
+    output$arrow_profile <- renderUI(HTML('<i class="fa-solid fa-arrow-down fa-beat-fade fa-xl" style="color: #ffffff;"></i>'))
     
+    output$get_allele_profile <- renderUI(
+      actionButton(
+        "get_allele_profile",
+        "Get Allelic Profile"
+      )
+    )  
   }
   )
   
-  ############## Create the bash script for kma typing algorithm ###########
+ 
   
   
-  observeEvent(input$typing_start, {
-    
-    kma_run <- paste0(
-      "#!/bin/bash\n",
-      "database=", shQuote(selected_organism), "\n",
-      "query_folder=", shQuote(paste0(getwd(), "/", scheme_select)), "\n",
-      "tmp_dir=", shQuote(tempdir()), "\n",
-      'mkdir $tmp_dir/results', "\n",
-      'echo 0 > ', shQuote(paste0(getwd(), "/execute/progress.fifo")), "\n",
-      'output_folder="$tmp_dir/results"', "\n",
-      'count=0', "\n",
-      'for query_file in "$query_folder"/*.fasta; do', "\n",
-      'if [ -f "$query_file" ]; then', "\n",
-      'query_filename=$(basename "$query_file")', "\n",
-      'query_filename_noext="${query_filename%.*}"', "\n",
-      'output_file="$output_folder/$query_filename_noext"', "\n",
-      '/home/marian/miniconda3/bin/kma -i "$query_file" -o "$output_file" -t_db "$database" -nc -status', "\n",
-      '((count++))', "\n",
-      'echo $count > ', shQuote(paste0(getwd(), "/execute/progress.fifo")), "\n",
-      'fi', "\n",
-      'done'
-    )
-    
-    # Specify the path to save the script
-    kma_run_path <- paste0(getwd(), "/execute", "/kma_run.sh")
-    
-    # Write the script to a file
-    cat(kma_run, file = kma_run_path)
-    
-    # Make the script executable
-    system(paste("chmod +x", kma_run_path))
-    
-    # Execute the script
-    system(paste(kma_run_path), wait = FALSE)
-    
-    Sys.sleep(2)
-    
-    progress <- 0
-    
-    scheme_loci <- list.files(path = paste0(getwd(), "/", scheme_select), full.names = TRUE)
-    
-    # Filter the files that have the ".fasta" extension
-    scheme_loci_f <- scheme_loci[grep(".fasta$", scheme_loci, ignore.case = TRUE)]
-    
-    while (progress < length(scheme_loci_f)) {
-      progress <- readLines(paste0(getwd(), "/execute", "/progress.fifo"))
-      progress <- as.numeric(progress)
-      progress_pct <- round((as.numeric(progress)/length(scheme_loci_f))*100)
-      updateProgressBar(session = session, id = "progress_bar", value = progress_pct, 
-                        total = 100, title = paste0(as.character(progress),"/", length(scheme_loci_f)))
-      Sys.sleep(0.5)
-    }
-    
-  }
-  )
   
   ############## Get Allelic Profile  ######################################
   
   observeEvent(input$get_allele_profile, {
     
+    output$arrow_profile <- NULL
+    
     # List all the .frag.gz files in the folder
     frag_files <- list.files(paste0(tempdir(), "/results"), pattern = "\\.frag\\.gz$", full.names = TRUE)
     
-    # Initialize an empty vector to store the results
-    results <<- integer(length(frag_files))
+    # List to store data frames
+    frag_data_list <- list()
     
-    # Loop through each .frag.gz file
+    # Initialize an empty vector to store the results
+    allele_vector <- integer(length(frag_files))
+    
     for (i in 1:length(frag_files)) {
+      # Extract the base filename without extension
+      frag_filename <- gsub(".frag", "", tools::file_path_sans_ext(basename(frag_files[i])))
       
-      file <- frag_files[i]
+      # Read the .frag.gz file into a data table
+      frag_data <- fread(frag_files[i], sep = "\t", header = FALSE)
       
-      # Read the file using data.table
-      data <- fread(file, header = FALSE, sep = "\t")
+      # Extract the third, and seventh columns
+      frag_data <- frag_data[, .(V3, V7)]
       
       # Find the row with the highest value in the third field
-      max_row <- which.max(data$V3)
+      max_row <- which.max(frag_data$V3)
       
       # Extract the value from the seventh field in the max row
-      results[i]<<- data$V7[max_row]
+      allele_vector[i] <- frag_data$V7[max_row]
+      
+      # Set column names
+      setnames(frag_data, c("Score", "Variant"))
+      
+      # Store the data frame in the list with the filename as the name
+      frag_data_list[[frag_filename]] <- frag_data 
       
       prog_typ <- round(i/length(frag_files)*100)
       
       updateProgressBar(session = session, id = "progress_profile", value = prog_typ, 
                         total = 100)
-      
     }
+    
     output$typing_fin <- renderUI({
-      length <- paste(length(results), "alleles computed.")
-      int <- paste(sum(sapply(results, is.integer)), "successful attributions.")
-      error <- paste(sum(sapply(results, is.na)), "unsuccessful attributions (NA).")
+      length <- paste(length(allele_vector), "alleles computed.")
+      int <- paste(sum(sapply(allele_vector, is.integer)), "successful attributions.")
+      error <- paste(sum(sapply(allele_vector, is.na)), "unsuccessful attributions (NA).")
       HTML(paste("<span style='color: white;'>", length, int, error, sep = '<br/>'))
-        
+      })
+    
+    output$sel_result <- renderUI({
+      pickerInput("sel_result", label = "Select Locus",
+                  choices = names(frag_data_list),
+                  selected = names(frag_data_list)[1],
+                  options = list(
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE,
+                    size = 10,
+                    style = "background-color: white; border-radius: 5px;")
+      )
     })
-  }
-  )
+    
+    output$typ_res_tab <- renderTable({
+      frag_data_list[[input$sel_result]]
+    })
+    
+  })
+  
+  
+  
+  
+  
+  
+  ############## Append Allelic Profile  ######################################
   
   # Append as entry to local database
   
@@ -4241,17 +4313,17 @@ server <- function(input, output, session) {
       
       Database <- list(Typing = data.frame())
       
-      Typing <- data.frame(matrix(NA, nrow = 0, ncol = 9 + length(list.files(paste0(getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing), paste0("/", gsub(" ", "_", input$cgmlst_typing), "_alleles"))))))
+      Typing <- data.frame(matrix(NA, nrow = 0, ncol = 8 + length(list.files(paste0(getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing), paste0("/", gsub(" ", "_", input$cgmlst_typing), "_alleles"))))))
       
-      metadata <- c(input$append_index, input$cgmlst_typing, as.character(input$append_isodate), 
+      metadata <- c(input$cgmlst_typing, as.character(input$append_isodate), 
                     input$append_host, input$append_country, input$append_city, 
                     as.character(input$append_analysisdate), sum(sapply(results, is.integer)), sum(sapply(results, is.na)))
       
-      new_row <- c(metadata, results)
+      new_row <- c(metadata, allele_vector)
       
       Typing <- rbind(Typing, new_row)
       
-      colnames(Typing) <- append(c("Index", "Scheme_date", "Isolation_Time", "Host", "Country", "City", "Analysis_Time", "Successes", "Errors"), 
+      colnames(Typing) <- append(c("Scheme", "Isolation Date", "Host", "Country", "City", "Typing Date", "Successes", "Errors"), 
                                  gsub(".fasta", "", basename(list.files(paste0(getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing), paste0("/", gsub(" ", "_", input$cgmlst_typing), "_alleles"))))))
       
       Database[["Typing"]] <- Typing
@@ -4262,11 +4334,11 @@ server <- function(input, output, session) {
       
       Database <- readRDS(paste0(getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing), "/Typing.rds"))
       
-      metadata <- c(input$append_index, input$cgmlst_typing, as.character(input$append_isodate), 
+      metadata <- c(input$cgmlst_typing, as.character(input$append_isodate), 
                     input$append_host, input$append_country, input$append_city, 
                     as.character(input$append_analysisdate), sum(sapply(results, is.integer)), sum(sapply(results, is.na)))
       
-      new_row <- c(metadata, results)
+      new_row <- c(metadata, allele_vector)
       
       Database$Typing <- rbind(Database$Typing, new_row)
       
@@ -4274,55 +4346,7 @@ server <- function(input, output, session) {
     }
   })
   
-  ############## Get Detail  Typing Results ###################################
-  
-  
-  observeEvent(input$typing_results, {
-    
-    
-    # List to store data frames
-    frag_data_list <- list()
-    
-    # Get a list of .frag.gz files in the output folder
-    frag_files <- list.files("/home/marian/Documents/Projects/Masterthesis/kma_results", pattern = ".frag.gz", full.names = TRUE)
-    
-    count <- 0
-    
-    for (frag_file in frag_files) {
-      # Extract the base filename without extension
-      frag_filename <- tools::file_path_sans_ext(basename(frag_file))
-      
-      # Read the .frag.gz file into a data table
-      frag_data <- fread(frag_file, sep = "\t", header = FALSE)
-      
-      # Extract the second, third, and seventh columns
-      frag_data <- frag_data[, .(V3, V7)]
-      
-      # Set column names
-      setnames(frag_data, c("score", "variant"))
-      
-      # Store the data frame in the list with the filename as the name
-      frag_data_list[[frag_filename]] <- frag_data
-      
-      prog_res_tab <- round(count/length(frag_files)*100)
-      
-      updateProgressBar(session = session, id = "progress_res_tab", value = prog_res_tab, 
-                        total = 100)
-      count <- count + 1
-      
-    }
-    
-    output$sel_result <- renderUI(selectInput("sel_result", label = "Select Locus",
-                                              choices = names(frag_data_list), 
-                                              selected = names(frag_data_list)[1]))
-    
-    
-  })
-  
-  output$typ_res_tab <- renderTable({
-    frag_data_list[[input$sel_result]]
-  })
-  
+ 
   
 } # end server
 
