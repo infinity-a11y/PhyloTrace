@@ -200,7 +200,7 @@ ui <- dashboardPage(
           width = 12,
           awesomeRadio(
             inputId = "generate_tree",
-            label = "",
+            label = "Source",
             choices = c("Random", "Local")
           ),
           conditionalPanel(
@@ -221,12 +221,13 @@ ui <- dashboardPage(
           conditionalPanel(
             "input.generate_tree=='Local'",
             br(),
-            h4(p("Choose Tree Algorithm"), style = "color:white"),
+            uiOutput("scheme_vis"),
+            br(),
             selectInput(
               "tree_algo",
-              label = "",
-              choices = c("Neighbour-Joining", "Minimum-Spanning", "UPGMA"),
-              selected = "Minimum-Spanning"
+              label = "Tree-building Algorithm",
+              choices = c("Neighbour-Joining", "Minimum-Spanning"),
+              selected = "Neighbour-Joining"
             ),
             br(),
             actionButton(
@@ -459,7 +460,7 @@ ui <- dashboardPage(
           column(
             width = 3,
             align = "center",
-            h3(p("Select cgMLST Scheme"), style = "color:white"),
+            h2(p("Select cgMLST Scheme"), style = "color:white"),
           )
         ),
         hr(),
@@ -540,7 +541,7 @@ ui <- dashboardPage(
         tabName = "typing",
         fluidRow(
           column(
-            width = 4,
+            width = 3,
             align = "center",
             h2(p("Generate Allelic Profile"), style = "color:white"),
           )
@@ -559,7 +560,7 @@ ui <- dashboardPage(
             br(), br(),
             uiOutput("genome_path"),
             uiOutput("selected_scheme"),
-            br(), br(),
+            br(), br(), br(),
             uiOutput("arrow_start"),
             br(),
             uiOutput("typing_start"),
@@ -615,6 +616,10 @@ ui <- dashboardPage(
                    box(solidHeader = TRUE,
                        status = "primary",
                        width = "100%",
+                       textInput("assembly_id",
+                                 "Assembly ID"),
+                       textInput("assembly_name",
+                                 "Assembly Name"),
                        dateInput(
                          "append_isodate",
                          label = "Isolation Date",
@@ -674,6 +679,13 @@ ui <- dashboardPage(
                     "input.generate_tree=='Random'",
                     addSpinner(
                       plotOutput("tree_random"),
+                      spin = "dots", 
+                      color = "#ffffff")
+                  ),
+                  conditionalPanel(
+                    "input.generate_tree=='Local'",
+                    addSpinner(
+                      plotOutput("tree_local"),
                       spin = "dots", 
                       color = "#ffffff")
                   )
@@ -2155,7 +2167,7 @@ ui <- dashboardPage(
                 )
               ),
               conditionalPanel(
-                "input.generate_tree=='Random'",    
+                "input.generate_tree=='Random'||input.generate_tree=='Local'",    
                 fluidRow(
                   column(width = 2,
                          h3(p("Layout"), style = "color:white"),
@@ -2855,14 +2867,14 @@ server <- function(input, output, session) {
     output$db_no_entries <- renderUI(
       HTML(paste("<span style='color: white;'>", "No Entries for this scheme available.",
                  "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.", sep = '<br/>')))
+    output$db_entries <- NULL
     } else {
     output$db_entries <- renderTable({
       Database <- readRDS(paste0(getwd(), "/Database/", gsub(" ", "_", input$scheme_db), "/Typing.rds"))
-      select(Database[["Typing"]], 1:9)
-    })
-      
-    
-  }
+      select(Database[["Typing"]], 1:10)
+      })
+    output$db_no_entries <- NULL 
+    }
   
   output$no_db <- NULL
     
@@ -3103,6 +3115,78 @@ server <- function(input, output, session) {
     options = list(pageLength = 10,
                    columnDefs = list(list(searchable = FALSE, targets = "_all")))
   )
+  
+  
+  # Visualization   ---------------------------------------------------------
+  
+  # Render local database choice input
+  observe({
+    if(!database$exist) {
+      output$scheme_vis <- renderUI(
+        prettyRadioButtons(
+          "scheme_vis",
+          choices = database$available,
+          label = "Local schemes")
+      )
+    } 
+  })
+  
+  observeEvent(input$create_tree, {
+    # Load local database
+    Database <- readRDS(paste0(getwd(), "/Database/", gsub(" ", "_", input$scheme_vis), "/Typing.rds"))
+    
+    allelic_profile <- dplyr::select(Database$Typing, -(1:10))
+    
+    metadata <- dplyr::select(Database$Typing, 1:8)
+    
+    colnames(metadata) <- c("assembly_id", "assembly_name", "scheme", "isolation_date",
+                            "host", "country", "city", "typing_date")
+    
+    metadata$taxa <- rownames(metadata)
+    
+    metadata <- relocate(metadata, taxa)
+    
+    # Calculate distance matrix
+    dist_matrix <- dist(allelic_profile)
+    
+    # Create phylogenetic tree
+    eigen_tree <- ape::nj(dist_matrix)
+    
+    # Visualize the tree with metadata annotations
+    ggtree(eigen_tree, layout = "daylight") %<+% metadata + 
+      geom_tiplab(aes(label = assembly_id), offset = 2) +
+      geom_label(aes(x=branch, label=host), fill='lightgreen', nudge_x = -1) +
+      geom_label(aes(x=branch, label= country), fill='lightblue', nudge_x = 2) 
+    
+    output$tree_local <- renderPlot({
+      
+      as.ggplot(
+        ggtree(
+          eigen_tree,
+          aes(color = I(color_r())),
+          layout = input$layout_r) %<+% metadata + 
+          geom_tiplab(aes(label = assembly_id), offset = 2) +
+          geom_label(aes(x=branch, label=host), fill='lightgreen', nudge_x = -1) +
+          geom_label(aes(x=branch, label= country), fill='lightblue', nudge_x = 2) +
+          revx_r() +
+          revy_r() +
+          treescale_x_r() +
+          tip_r() +
+          label_r() +
+          node_r() +
+          theme(plot.background = element_rect(fill = b_color_r(),
+                                               color = b_color_r()),
+                panel.background = element_rect(fill = b_color_r(),
+                                                color = b_color_r())
+                ), 
+        angle = input$rotate_r)
+      })
+    
+  })
+  
+  
+  
+  
   
   # Reverse X Scale ---------------------------------------------------------
   
@@ -3727,86 +3811,7 @@ server <- function(input, output, session) {
                })
                })
   
-  # Make Phylogram Plot
-  observeEvent(input$make_tree1,
-               {output$tree1 <- renderPlot({
-                 
-                 as.ggplot(ggtree(tr = phylo1,
-                                  aes(color = I(color1())),
-                                  layout = input$layout1) +
-                             revx1() +
-                             revy1() +
-                             treescale_x1() +
-                             tip1() +
-                             label1() +
-                             node1() +
-                             theme(plot.background = element_rect(fill = b_color1(),
-                                                                  color = b_color1()),
-                                   panel.background = element_rect(fill = b_color1(),
-                                                                   color = b_color1())), 
-                           angle = input$rotate1)
-               })
-               })
   
-  observeEvent(input$make_tree2,
-               {output$tree2 <- renderPlot({
-                 
-                 as.ggplot(ggtree(tr = phylo2,
-                                  aes(color = I(color2())),
-                                  layout = input$layout2) +
-                             revx2() +
-                             revy2() +
-                             treescale_x2() +
-                             tip2() +
-                             label2() +
-                             node2() +
-                             theme(plot.background = element_rect(fill = b_color2(),
-                                                                  color = b_color2()),
-                                   panel.background = element_rect(fill = b_color2(),
-                                                                   color = b_color2())), 
-                           angle = input$rotate2)
-               })
-               })
-  
-  observeEvent(input$make_tree3,
-               {output$tree3 <- renderPlot({
-                 
-                 as.ggplot(ggtree(tr = phylo3,
-                                  aes(color = I(color3())),
-                                  layout = input$layout3) +
-                             revx3() +
-                             revy3() +
-                             treescale_x3() +
-                             tip3() +
-                             label3() +
-                             node3() +
-                             theme(plot.background = element_rect(fill = b_color3(),
-                                                                  color = b_color3()),
-                                   panel.background = element_rect(fill = b_color3(),
-                                                                   color = b_color3())), 
-                           angle = input$rotate3)
-               })
-               })
-  
-  observeEvent(input$make_tree4,
-               {output$tree4 <- renderPlot({
-                 
-                 as.ggplot(ggtree(tr = phylo4,
-                                  aes(color = I(color4())),
-                                  layout = input$layout4) +
-                             revx4() +
-                             revy4() +
-                             treescale_x4() +
-                             tip4() +
-                             label4() +
-                             node4() +
-                             theme(plot.background = element_rect(fill = b_color4(),
-                                                                  color = b_color4()),
-                                   panel.background = element_rect(fill = b_color4(),
-                                                                   color = b_color4())), 
-                           angle = input$rotate4)
-               })
-               })
   
   
   # Save Report -------------------------------------------------------------
@@ -4105,13 +4110,13 @@ server <- function(input, output, session) {
     
     search_string <- paste0(gsub(" ", "_", selected_organism), "_alleles")
     
-    scheme_folders <- dir_ls()
+    scheme_folders <- dir_ls(paste0(getwd(), "/Database/", gsub(" ", "_", selected_organism)))
     
-    if(any(scheme_folders %in% search_string)) {
+    if(any(grepl(search_string, scheme_folders))) {
       
       # KMA initiate index
       
-      scheme_select <<- as.character(scheme_folders[which(scheme_folders %in% search_string)])
+      scheme_select <<- as.character(scheme_folders[which(grepl(search_string, scheme_folders))])
       
       show_toast(
         title = "Typing Initiated",
@@ -4144,9 +4149,9 @@ server <- function(input, output, session) {
       kma_run <- paste0(
         "#!/bin/bash\n",
         "database=", shQuote(selected_organism), "\n",
-        "query_folder=", shQuote(paste0(getwd(), "/", scheme_select)), "\n",
+        "query_folder=", shQuote(paste0(getwd(), "/Database/", gsub(" ", "_", selected_organism), "/", search_string)), "\n",
         "tmp_dir=", shQuote(tempdir()), "\n",
-        'mkdir $tmp_dir/results', "\n",
+        'mkdir $tmp_dir/results -p', "\n",
         'echo 0 > ', shQuote(paste0(getwd(), "/execute/progress.fifo")), "\n",
         'output_folder="$tmp_dir/results"', "\n",
         'count=0', "\n",
@@ -4174,11 +4179,11 @@ server <- function(input, output, session) {
       # Execute the script
       system(paste(kma_run_path), wait = FALSE)
       
-      Sys.sleep(2)
+      Sys.sleep(1)
       
       progress <- 0
       
-      scheme_loci <- list.files(path = paste0(getwd(), "/", scheme_select), full.names = TRUE)
+      scheme_loci <- list.files(path = scheme_select, full.names = TRUE)
       
       # Filter the files that have the ".fasta" extension
       scheme_loci_f <- scheme_loci[grep(".fasta$", scheme_loci, ignore.case = TRUE)]
@@ -4229,32 +4234,40 @@ server <- function(input, output, session) {
     frag_files <- list.files(paste0(tempdir(), "/results"), pattern = "\\.frag\\.gz$", full.names = TRUE)
     
     # List to store data frames
-    frag_data_list <- list()
+    frag_data_list <<- list()
     
     # Initialize an empty vector to store the results
-    allele_vector <- integer(length(frag_files))
+    allele_vector <<- integer(length(frag_files))
     
     for (i in 1:length(frag_files)) {
       # Extract the base filename without extension
       frag_filename <- gsub(".frag", "", tools::file_path_sans_ext(basename(frag_files[i])))
       
-      # Read the .frag.gz file into a data table
-      frag_data <- fread(frag_files[i], sep = "\t", header = FALSE)
-      
-      # Extract the third, and seventh columns
-      frag_data <- frag_data[, .(V3, V7)]
-      
-      # Find the row with the highest value in the third field
-      max_row <- which.max(frag_data$V3)
-      
-      # Extract the value from the seventh field in the max row
-      allele_vector[i] <- frag_data$V7[max_row]
-      
-      # Set column names
-      setnames(frag_data, c("Score", "Variant"))
+      # Check if the file is empty
+      if (file.info(frag_files[i])$size < 100) {
+        # Handle empty file: Insert NA in the allele_vector and create an empty data frame
+        allele_vector[i] <<- NA
+        frag_data <- data.frame(Score = numeric(0), Variant = character(0))
+      } else {
+        # Read the .frag.gz file into a data table
+        frag_data <- fread(frag_files[i], sep = "\t", header = FALSE)
+        
+        # Extract the third, and seventh columns
+        frag_data <- frag_data[, .(V3, V7)]
+        
+        # Find the row with the highest value in the third field
+        max_row <- which.max(frag_data$V3)
+        
+        # Extract the value from the seventh field in the max row
+        allele_vector[i] <<- frag_data$V7[max_row]
+        
+        # Set column names
+        setnames(frag_data, c("Score", "Variant"))
+      }
       
       # Store the data frame in the list with the filename as the name
-      frag_data_list[[frag_filename]] <- frag_data 
+      frag_data_list[[frag_filename]] <<- frag_data
+    
       
       prog_typ <- round(i/length(frag_files)*100)
       
@@ -4264,8 +4277,8 @@ server <- function(input, output, session) {
     
     output$typing_fin <- renderUI({
       length <- paste(length(allele_vector), "alleles computed.")
-      int <- paste(sum(sapply(allele_vector, is.integer)), "successful attributions.")
-      error <- paste(sum(sapply(allele_vector, is.na)), "unsuccessful attributions (NA).")
+      int <- paste(length(allele_vector)-sum(sapply(allele_vector, is.na)), "successful attributions.")
+      error <- paste(sum(sapply(allele_vector, is.na)), "unsuccessful attribution(s) (NA).")
       HTML(paste("<span style='color: white;'>", length, int, error, sep = '<br/>'))
       })
     
@@ -4313,17 +4326,17 @@ server <- function(input, output, session) {
       
       Database <- list(Typing = data.frame())
       
-      Typing <- data.frame(matrix(NA, nrow = 0, ncol = 8 + length(list.files(paste0(getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing), paste0("/", gsub(" ", "_", input$cgmlst_typing), "_alleles"))))))
+      Typing <- data.frame(matrix(NA, nrow = 0, ncol = 10 + length(list.files(paste0(getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing), paste0("/", gsub(" ", "_", input$cgmlst_typing), "_alleles"))))))
       
-      metadata <- c(input$cgmlst_typing, as.character(input$append_isodate), 
+      metadata <- c(input$assembly_id, input$assembly_name, input$cgmlst_typing, as.character(input$append_isodate), 
                     input$append_host, input$append_country, input$append_city, 
-                    as.character(input$append_analysisdate), sum(sapply(results, is.integer)), sum(sapply(results, is.na)))
+                    as.character(input$append_analysisdate), length(allele_vector)-sum(sapply(allele_vector, is.na)), sum(sapply(allele_vector, is.na)))
       
       new_row <- c(metadata, allele_vector)
       
       Typing <- rbind(Typing, new_row)
       
-      colnames(Typing) <- append(c("Scheme", "Isolation Date", "Host", "Country", "City", "Typing Date", "Successes", "Errors"), 
+      colnames(Typing) <- append(c("Assembly ID", "Assembly Name", "Scheme", "Isolation Date", "Host", "Country", "City", "Typing Date", "Successes", "Errors"), 
                                  gsub(".fasta", "", basename(list.files(paste0(getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing), paste0("/", gsub(" ", "_", input$cgmlst_typing), "_alleles"))))))
       
       Database[["Typing"]] <- Typing
@@ -4334,9 +4347,9 @@ server <- function(input, output, session) {
       
       Database <- readRDS(paste0(getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing), "/Typing.rds"))
       
-      metadata <- c(input$cgmlst_typing, as.character(input$append_isodate), 
+      metadata <- c(input$assembly_id, input$assembly_name, input$cgmlst_typing, as.character(input$append_isodate), 
                     input$append_host, input$append_country, input$append_city, 
-                    as.character(input$append_analysisdate), sum(sapply(results, is.integer)), sum(sapply(results, is.na)))
+                    as.character(input$append_analysisdate), length(allele_vector)-sum(sapply(allele_vector, is.na)), sum(sapply(allele_vector, is.na)))
       
       new_row <- c(metadata, allele_vector)
       
