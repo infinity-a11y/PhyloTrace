@@ -76,6 +76,7 @@ library(data.table)
 if (!require(zoo)) install.packages('zoo')
 library(zoo)
 
+
 country_names <- c(
   "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", 
   "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", 
@@ -151,7 +152,12 @@ ui <- dashboardPage(
         column(
           width = 12,
           align = "left",
-          uiOutput("scheme_db")
+          uiOutput("scheme_db"),
+          br(),
+          actionButton(
+            "load",
+            "Load Database"
+          )
           )
       ),
       conditionalPanel(
@@ -446,7 +452,30 @@ ui <- dashboardPage(
             conditionalPanel(
               "input.browse_what=='Entries'",
               uiOutput("db_no_entries"),
-              tableOutput("db_entries")
+              dataTableOutput("db_entries"),
+              fluidRow(
+                column(
+                  width = 3,
+                  align = "left",
+                  uiOutput("edit_entries")
+                )
+              ),
+              fluidRow(
+                column(width = 1,
+                       uiOutput("edit_index")),
+                column(width = 2,
+                       uiOutput("edit_scheme_d")),
+                column(width = 2,
+                       uiOutput("edit_isolation_t")),
+                column(
+                  width = 1,
+                  br(),
+                  actionButton(
+                    "edit",
+                    label = "Edit"
+                  )
+                )
+              )
             )
           )
         )
@@ -2167,7 +2196,43 @@ ui <- dashboardPage(
                 )
               ),
               conditionalPanel(
-                "input.generate_tree=='Random'||input.generate_tree=='Local'",    
+                "input.generate_tree=='Random'||input.generate_tree=='Local'",
+                conditionalPanel(
+                  "input.tree_algo=='Minimum-Spanning'",
+                  fluidRow(
+                    column(
+                      width = 2,
+                      radioGroupButtons(
+                        inputId = "graph_mst",
+                        choiceNames = c("NSCA", "Circle"),
+                        choiceValues = c("nsca", "circle"),
+                        checkIcon = list(yes = icon("check"))
+                        )
+                      )
+                    ),
+                  hr()
+                ),
+                conditionalPanel(
+                  "input.tree_algo=='Neighbour-Joining'",
+                  fluidRow(
+                    column(
+                      width = 2,
+                      dropdownButton(
+                        label = "Edit Labels",
+                        right = TRUE,
+                        virtualSelectInput(
+                          "label_select",
+                          label = "Select Labels",
+                          multiple = TRUE,
+                          choices = c("Host", "Country", "City")
+                          #choices = metadata_cols
+                          ),
+                        circle = FALSE
+                      )
+                    )
+                  ),
+                  hr()
+                ),
                 fluidRow(
                   column(width = 2,
                          h3(p("Layout"), style = "color:white"),
@@ -2820,12 +2885,13 @@ ui <- dashboardPage(
 server <- function(input, output, session) {
   
   # Database       -------------------------------------------------------
-  
+  DF1 <- reactiveValues()
   database <- reactiveValues()
   
   observe({
     database$available <- gsub("_", " ", basename(dir_ls(paste0(getwd(), "/Database"))))
     database$exist <- (length(dir_ls(paste0(getwd(), "/Database/"))) == 0)
+    
     })
   
   observe({
@@ -2846,13 +2912,11 @@ server <- function(input, output, session) {
         color = "#ffffff")
     )
     
-  output$scheme_info <- renderTable({
-    scheme_info <- read_html(paste0(getwd(), "/Database/", gsub(" ", "_", input$scheme_db), "/scheme_info.html")) %>%
-      html_table(header = FALSE) %>%
-      as.data.frame(stringsAsFactors = FALSE)
-    names(scheme_info) <- NULL
-    scheme_info
-  })
+  if(!class(DF1$schemeinfo) == "NULL") {
+    output$scheme_info <- renderTable({
+      DF1$schemeinfo
+    })
+  } else {output$scheme_info <- NULL}
  
   output$db_loci <- renderDataTable(
     read.csv(paste0(getwd(), "/Database/", gsub(" ", "_", input$scheme_db), "/targets.csv"),
@@ -2868,12 +2932,43 @@ server <- function(input, output, session) {
       HTML(paste("<span style='color: white;'>", "No Entries for this scheme available.",
                  "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.", sep = '<br/>')))
     output$db_entries <- NULL
-    } else {
-    output$db_entries <- renderTable({
-      Database <- readRDS(paste0(getwd(), "/Database/", gsub(" ", "_", input$scheme_db), "/Typing.rds"))
-      select(Database[["Typing"]], 1:10)
-      })
+    output$edit_index <- NULL
+    output$edit_scheme_d <- NULL
+    output$edit_entries <- NULL
+    
+    } else if (!class(DF1$data) == "NULL") {
+      
+    output$db_entries <- renderDataTable({
+      select(DF1$data, 1:11)},
+      options = list(pageLength = 25,
+                     columnDefs = list(list(searchable = FALSE, targets = "_all")))
+                
+      )
+    
     output$db_no_entries <- NULL 
+    
+    # Edit Database Elements    
+    
+    output$edit_index <- renderUI({
+      typing <- DF1$data
+      numericInput(
+        "edit_index",
+        label = "",
+        value = 1,
+        min = 1,
+        step = 1,
+        max = nrow(typing))
+    })
+    
+    output$edit_scheme_d <- renderUI({
+      typing <- DF1$data
+      textInput(
+        "edit_assembly_id",
+        label = "",
+        value = typing$`Assembly ID`[input$edit_index]
+      )
+    })
+    
     }
   
   output$no_db <- NULL
@@ -2887,7 +2982,27 @@ server <- function(input, output, session) {
     
   })
   
-  # Render UI (dependent on datbase availability)
+  # Reload database
+  observeEvent(input$load, {
+    
+    if(any(grepl("Typing.rds", dir_ls(paste0(getwd(), "/Database/", gsub(" ", "_", input$scheme_db)))))) {
+    Data <- readRDS(paste0(getwd(), "/Database/", gsub(" ", "_", input$scheme_db), "/Typing.rds"))
+    typing <- Data[["Typing"]]
+    typing <- select(typing, 1:11)
+    DF1$data <- typing
+    output$edit_entries <- renderUI(
+      h4(p("Edit Entries"), style = "color:white")
+    )
+    }
+    
+    schemeinfo <- read_html(paste0(getwd(), "/Database/", gsub(" ", "_", input$scheme_db), "/scheme_info.html")) %>%
+      html_table(header = FALSE) %>%
+      as.data.frame(stringsAsFactors = FALSE)
+    names(schemeinfo) <- NULL
+    DF1$schemeinfo <- schemeinfo
+  })
+  
+  # Render UI (dependent on database availability)
   
   observe({
     if(!database$exist) {
@@ -2897,8 +3012,22 @@ server <- function(input, output, session) {
           choices = database$available,
           label = "Local schemes")
       )
-    } 
+      
+      } 
   })
+  
+  # Save Edits Button
+  
+  observeEvent(input$edit, {
+    Data <- readRDS(paste0(getwd(), "/Database/", gsub(" ", "_", input$scheme_db), "/Typing.rds"))
+    typing <- Data[["Typing"]]
+    typing$`Assembly ID`[input$edit_index] <- input$edit_assembly_id
+    DF1$data <- typing
+    Data[["Typing"]] <- typing
+    saveRDS(Data, paste0(getwd(), "/Database/", gsub(" ", "_", input$scheme_db), "/Typing.rds"))
+  })
+  
+  
   
   
   # Download cgMLST       -------------------------------------------------------
@@ -3146,47 +3275,64 @@ server <- function(input, output, session) {
     
     metadata <- relocate(metadata, taxa)
     
+    # Make metadata colnames available
+    metadata_cols <<- colnames(metadata)
+    
     # Calculate distance matrix
     dist_matrix <- dist(allelic_profile)
     
-    # Create phylogenetic tree
-    eigen_tree <- ape::nj(dist_matrix)
-    
-    # Visualize the tree with metadata annotations
-    ggtree(eigen_tree, layout = "daylight") %<+% metadata + 
-      geom_tiplab(aes(label = assembly_id), offset = 2) +
-      geom_label(aes(x=branch, label=host), fill='lightgreen', nudge_x = -1) +
-      geom_label(aes(x=branch, label= country), fill='lightblue', nudge_x = 2) 
-    
-    output$tree_local <- renderPlot({
+    if (input$tree_algo == "Neighbour-Joining") {
       
-      as.ggplot(
-        ggtree(
-          eigen_tree,
-          aes(color = I(color_r())),
-          layout = input$layout_r) %<+% metadata + 
-          geom_tiplab(aes(label = assembly_id), offset = 2) +
-          geom_label(aes(x=branch, label=host), fill='lightgreen', nudge_x = -1) +
-          geom_label(aes(x=branch, label= country), fill='lightblue', nudge_x = 2) +
-          revx_r() +
-          revy_r() +
-          treescale_x_r() +
-          tip_r() +
-          label_r() +
-          node_r() +
-          theme(plot.background = element_rect(fill = b_color_r(),
-                                               color = b_color_r()),
-                panel.background = element_rect(fill = b_color_r(),
-                                                color = b_color_r())
-                ), 
-        angle = input$rotate_r)
+      # Create phylogenetic tree
+      eigen_tree <- ape::nj(dist_matrix)
+      
+      # Visualize the tree with metadata annotations
+      ggtree(eigen_tree, layout = "daylight") %<+% metadata + 
+        geom_tiplab(aes(label = assembly_id), offset = 2) +
+        geom_label(aes(x=branch, label=host), fill='lightgreen', nudge_x = -1) +
+        geom_label(aes(x=branch, label= country), fill='lightblue', nudge_x = 2) 
+      
+      output$tree_local <- renderPlot({
+        
+        as.ggplot(
+          ggtree(
+            eigen_tree,
+            aes(color = I(color_r())),
+            layout = input$layout_r) %<+% metadata + 
+            geom_tiplab(aes(label = assembly_id), offset = 2) +
+            #label() +
+            geom_label(aes(x=branch, label=host), fill='lightgreen', nudge_x = -1) +
+            geom_label(aes(x=branch, label= country), fill='lightblue', nudge_x = 2) +
+            revx_r() +
+            revy_r() +
+            treescale_x_r() +
+            tip_r() +
+            label_r() +
+            node_r() +
+            theme(plot.background = element_rect(fill = b_color_r(),
+                                                 color = b_color_r()),
+                  panel.background = element_rect(fill = b_color_r(),
+                                                  color = b_color_r())
+            ), 
+          angle = input$rotate_r)
       })
+      
+    } else {
+      
+      output$tree_local <- renderPlot({
+        plot(mst(dist_matrix), graph = graph_mst())
+      })
+    }
     
   })
   
   
+  # Set Minimum-Spanning Tree Appearance
+  graph_mst <- reactive({input$graph_mst})
   
-  
+  label <- reactive({
+    geom_label(aes(x=branch, label=input$label_select), fill='lightgreen') 
+  })
   
   # Reverse X Scale ---------------------------------------------------------
   
@@ -4167,6 +4313,7 @@ server <- function(input, output, session) {
         'done'
       )
       
+      
       # Specify the path to save the script
       kma_run_path <- paste0(getwd(), "/execute", "/kma_run.sh")
       
@@ -4194,7 +4341,7 @@ server <- function(input, output, session) {
         progress_pct <- floor((as.numeric(progress)/length(scheme_loci_f))*100)
         updateProgressBar(session = session, id = "progress_bar", value = progress_pct, 
                           total = 100, title = paste0(as.character(progress),"/", length(scheme_loci_f)))
-        Sys.sleep(0.5)
+        Sys.sleep(2.5)
       }
       
     } else {
@@ -4326,9 +4473,9 @@ server <- function(input, output, session) {
       
       Database <- list(Typing = data.frame())
       
-      Typing <- data.frame(matrix(NA, nrow = 0, ncol = 10 + length(list.files(paste0(getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing), paste0("/", gsub(" ", "_", input$cgmlst_typing), "_alleles"))))))
+      Typing <- data.frame(matrix(NA, nrow = 0, ncol = 11 + length(list.files(paste0(getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing), paste0("/", gsub(" ", "_", input$cgmlst_typing), "_alleles"))))))
       
-      metadata <- c(input$assembly_id, input$assembly_name, input$cgmlst_typing, as.character(input$append_isodate), 
+      metadata <- c(1, input$assembly_id, input$assembly_name, input$cgmlst_typing, as.character(input$append_isodate), 
                     input$append_host, input$append_country, input$append_city, 
                     as.character(input$append_analysisdate), length(allele_vector)-sum(sapply(allele_vector, is.na)), sum(sapply(allele_vector, is.na)))
       
@@ -4336,8 +4483,10 @@ server <- function(input, output, session) {
       
       Typing <- rbind(Typing, new_row)
       
-      colnames(Typing) <- append(c("Assembly ID", "Assembly Name", "Scheme", "Isolation Date", "Host", "Country", "City", "Typing Date", "Successes", "Errors"), 
+      colnames(Typing) <- append(c("Index", "Assembly ID", "Assembly Name", "Scheme", "Isolation Date", "Host", "Country", "City", "Typing Date", "Successes", "Errors"), 
                                  gsub(".fasta", "", basename(list.files(paste0(getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing), paste0("/", gsub(" ", "_", input$cgmlst_typing), "_alleles"))))))
+      
+      DF1$data <- Typing
       
       Database[["Typing"]] <- Typing
       
@@ -4347,11 +4496,13 @@ server <- function(input, output, session) {
       
       Database <- readRDS(paste0(getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing), "/Typing.rds"))
       
-      metadata <- c(input$assembly_id, input$assembly_name, input$cgmlst_typing, as.character(input$append_isodate), 
+      metadata <- c(nrow(Database[["Typing"]]) + 1, input$assembly_id, input$assembly_name, input$cgmlst_typing, as.character(input$append_isodate), 
                     input$append_host, input$append_country, input$append_city, 
                     as.character(input$append_analysisdate), length(allele_vector)-sum(sapply(allele_vector, is.na)), sum(sapply(allele_vector, is.na)))
       
       new_row <- c(metadata, allele_vector)
+      
+      DF1$data <- rbind(Database$Typing, new_row)
       
       Database$Typing <- rbind(Database$Typing, new_row)
       
