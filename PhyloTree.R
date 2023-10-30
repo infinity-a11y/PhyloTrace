@@ -434,6 +434,17 @@ ui <- dashboardPage(
               selected = "Neighbour-Joining"
             ),
             br(),
+            conditionalPanel(
+              "input.tree_algo=='Minimum-Spanning'",
+              selectInput(
+                "ggnetwork_layout",
+                label = "Layout Algorithm",
+                choices = c("Davidson-Harel", "DrL", "Fruchterman-Reingold",
+                            "GEM", "Graphopt", "Kamada-Kawai", "Large Graph Layout",
+                            "Multidimensional Scaling", "Sugiyama")
+              ),
+              br(),
+            ),
             actionButton("create_tree",
                          "Create Tree")
           )
@@ -1052,21 +1063,15 @@ ui <- dashboardPage(
         hr(),
         ##### Control Panels
         
+        ####### Show Control for Trees generated from Local
         
         conditionalPanel(
-          "input.generate_tree=='Random'||input.generate_tree=='Local'",
+          "input.generate_tree=='Local'",
           conditionalPanel(
             "input.tree_algo=='Minimum-Spanning'",
             fluidRow(column(
-              width = 2,
-              radioGroupButtons(
-                inputId = "graph_mst",
-                choiceNames = c("NSCA", "Circle"),
-                choiceValues = c("nsca", "circle"),
-                checkIcon = list(yes = icon("check"))
-              )
-            )),
-            hr()
+              width = 2
+            ))
           ),
           conditionalPanel(
             "input.tree_algo=='Neighbour-Joining'",
@@ -1209,9 +1214,14 @@ ui <- dashboardPage(
                   ))
                 )
               )
-            ),
-            hr()
+            )
           ),
+        ),
+        
+        
+        ####### Show COntrol for Random Trees
+        conditionalPanel(
+          "input.generate_tree=='Random'",
           fluidRow(
             column(
               width = 2,
@@ -1721,33 +1731,6 @@ ui <- dashboardPage(
             ),
             
           )
-        ),
-        hr(),
-        br(),
-        br(),
-        br(),
-        br(),
-        br(),
-        br(),
-        fluidRow(
-          br(),
-          br(),
-          br(),
-          br(),
-          br(),
-          column(
-            width = 4,
-            tags$a(href = "https://github.com/infinity-a11y/phylo_tree", "Github Repository (Instructions, Source Code, etc.)")
-          ),
-          column(width = 4,
-                 h5(
-                   p("Hochschule Furtwangen University"), style = "color:white"
-                 )),
-          column(width = 4,
-                 h5(
-                   p("Marian Freisleben, Jonathan Simantzik, Prof. Dr. Matthias Kohl "),
-                   style = "color:white"
-                 ))
         )
       ),
       
@@ -2707,12 +2690,13 @@ server <- function(input, output, session) {
         "/Typing.rds"
       ))
     
-    allelic_profile <- dplyr::select(Database$Typing,-(1:10))
+    allelic_profile <- dplyr::select(Database$Typing,-(1:11))
     
-    metadata <- dplyr::select(Database$Typing, 1:8)
+    metadata <- dplyr::select(Database$Typing, 1:11)
     
     colnames(metadata) <-
       c(
+        "index",
         "assembly_id",
         "assembly_name",
         "scheme",
@@ -2720,14 +2704,11 @@ server <- function(input, output, session) {
         "host",
         "country",
         "city",
-        "typing_date"
+        "typing_date",
+        "successes",
+        "errors"
       )
     
-    metadata$taxa <- rownames(metadata)
-    
-    metadata <- relocate(metadata, taxa)
-    
-    # Make metadata colnames available
     metadata_cols <<- colnames(metadata)
     
     # Calculate distance matrix
@@ -2782,24 +2763,65 @@ server <- function(input, output, session) {
       })
       
     } else {
+      
+      mst <- ape::mst(dist_matrix)
+      
+      gr_adj <- graph.adjacency(mst, mode = "undirected")
+      
+      gg <- ggnetwork(gr_adj, arrow.gap = 0, layout = ggnet_layout())
+      
+      ## add metadata
+      
+      gg <- gg %>%
+        mutate(assembly_id = metadata[gg$name,"assembly_id"],
+               assembly_name = metadata[gg$name, "assembly_name"],
+               scheme = metadata[gg$name,"scheme"],
+               isolation_date = metadata[gg$name,"isolation_date"],
+               host = metadata[gg$name,"host"],
+               country = metadata[gg$name,"country"],
+               city = metadata[gg$name,"city"],
+               typing_date = metadata[gg$name,"typing_date"],
+               successes = metadata[gg$name,"successes"],
+               errors = metadata[gg$name,"errors"])
+      
+      
       output$tree_local <- renderPlot({
-        plot(mst(dist_matrix), graph = graph_mst())
-      })
+        
+        ggplot(gg, aes(x = x, y = y, xend = xend, yend = yend)) +
+          geom_edges(color = "darkgrey", alpha = 0.5) +
+          geom_nodes(color = "red", size = 3) + 
+          theme_blank() +
+          geom_nodetext_repel(aes(label = assembly_name), color = "black", 
+                              size = 3, max.overlaps = 18) 
+        
+        })
     }
     
   })
   
   
   # Set Minimum-Spanning Tree Appearance
-  graph_mst <- reactive({
-    input$graph_mst
+  ggnet_layout <- reactive({
+    if(input$ggnetwork_layout == "Davidson-Harel") {
+      layout_with_dh(gr_adj)
+    } else if(input$ggnetwork_layout == "DrL") {
+      layout_with_drl(gr_adj)
+    } else if(input$ggnetwork_layout == "Fruchterman-Reingold") {
+      layout_with_fr(gr_adj)
+    } else if(input$ggnetwork_layout == "GEM") {
+      layout_with_gem(gr_adj)
+    } else if(input$ggnetwork_layout == "Graphopt") {
+      layout_with_graphopt(gr_adj)
+    } else if(input$ggnetwork_layout == "Kamada-Kawai") {
+      layout_with_kk(gr_adj)
+    } else if(input$ggnetwork_layout == "Large Graph Layout") {
+      layout_with_lgl(gr_adj)
+    } else if(input$ggnetwork_layout == "Multidimensional Scaling") {
+      layout_with_mds(gr_adj)
+    } else if(input$ggnetwork_layout == "Sugiyama") {
+      layout_with_sugiyama(gr_adj)
+    }
   })
-  
-  label <- reactive({
-    geom_label(aes(x = branch, label = input$label_select),
-               fill = 'lightgreen')
-  })
-  
   
   # Reverse X Scale ---------------------------------------------------------
   
@@ -3518,7 +3540,7 @@ server <- function(input, output, session) {
           total = 100,
           title = paste0(as.character(progress), "/", length(scheme_loci_f))
         )
-        Sys.sleep(2.5)
+        Sys.sleep(3)
       }
       
     } else {
