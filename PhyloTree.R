@@ -1166,7 +1166,6 @@ ui <- dashboardPage(
                   width = "70%"
                 )
               ),
-              column(width = 1),
               column(
                 width = 2,
                 align = "center",
@@ -1308,7 +1307,6 @@ ui <- dashboardPage(
                   )
                 )
               ),
-              column(width = 1),
               column(
                 width = 2,
                 align = "center",
@@ -1456,9 +1454,39 @@ ui <- dashboardPage(
                   )
                 )
               ),
-              column(width = 1),
+              column(
+                width = 2,
+                align = "center",
+                h3(p("Add Metadata"), style = "color:white"),
+                selectInput(
+                  "which_metadata",
+                  label = "",
+                  choices = c(
+                    Index = "index",
+                    `Assembly ID` = "assembly_id",
+                    `Assembly Name` = "assembly_name",
+                    Scheme = "scheme",
+                    `Isolation Date` = "isolation_date",
+                    Host = "host",
+                    Country = "country",
+                    City = "city"
+                  ),
+                  selected = c(Host = "host"),
+                  width = "50%"
+                ),
+                selectInput(
+                  "element_metadata",
+                  label = h5("Select Element", style = "color:white; margin-bottom: 0px;"),
+                  choices = c("Node Shape", "Node Size", "Node Color")
+                ),
+                actionButton(
+                  "add_metadata",
+                  "Add"
+                )
+              ),
               column(
                 width = 1,
+                align = "center",
                 h3(p("Other"), style = "color:white"),
                 colorPickr(
                   inputId = "color_bg",
@@ -1472,10 +1500,8 @@ ui <- dashboardPage(
                   ),
                   position = "right-start"
                 ),
-                actionButton(
-                  "cluster_start",
-                  "Add Clusters"
-                )
+                br(),
+                uiOutput("cluster_start")
               )
             )
           ),
@@ -2422,6 +2448,9 @@ ui <- dashboardPage(
 ################### Server ###################
 
 server <- function(input, output, session) {
+  
+  set.seed(1)
+  
   # Database       -------------------------------------------------------
   DF1 <- reactiveValues()
   database <- reactiveValues()
@@ -3075,10 +3104,25 @@ server <- function(input, output, session) {
   
   # Visualization   ---------------------------------------------------------
   
-  plot_loc <- reactiveVal()
+  plot_loc <- reactiveValues(cluster = NULL, metadata = list())
   
- 
+  output$tree_local <- renderPlot({plot_loc$plot})
   
+  observe({
+    plot_loc$plot <- 
+      ggplot(plot_loc$gg, aes(x = x, y = y, xend = xend, yend = yend)) +
+      geom_edges(color = edge_color(), 
+                 size = edge_size(),
+                 alpha = edge_alpha(),
+                 curvature = edge_curvature()) +
+      nodes() +
+      label_edge() +
+      label_node() +
+      theme_blank() +
+      theme(
+        panel.background = element_rect(fill = bg_color()),
+        plot.background = element_rect(fill = bg_color()))
+  })
   
   # Render local database choice input
   observe({
@@ -3094,6 +3138,9 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$create_tree, {
+    
+    set.seed(1)
+    
     # Load local database
     Database <-
       readRDS(paste0(
@@ -3160,17 +3207,17 @@ server <- function(input, output, session) {
       
     } else {
       
-      set.seed(1)
       
-      mst <- ape::mst(dist)
       
-      gr_adj <- graph.adjacency(mst, mode = mode_algo())
+      mst <- ape::mst(dist_matrix)
       
-      gg <- ggnetwork(gr_adj, arrow.gap = 0, layout = ggnet_layout())
+      gr_adj <<- graph.adjacency(mst, mode = mode_algo())
+      
+      gg <<- ggnetwork(gr_adj, arrow.gap = 0, layout = ggnet_layout())
       
       
       ## add metadata
-      gg <- gg %>% mutate(
+      plot_loc$gg <<- gg %>% mutate(
         index = metadata[gg$name, "Index"],
         assembly_id = metadata[gg$name, "Assembly ID"],
         assembly_name = metadata[gg$name, "Assembly Name"],
@@ -3183,24 +3230,14 @@ server <- function(input, output, session) {
         successes = metadata[gg$name, "Successes"],
         errors = metadata[gg$name, "Errors"])
       
-      plot_loc <- 
-        ggplot(gg, aes(x = x, y = y, xend = xend, yend = yend)) +
-        geom_edges(color = edge_color(), 
-                   size = edge_size(),
-                   alpha = edge_alpha(),
-                   curvature = edge_curvature()) +
-        geom_nodes(color = node_color(),
-                   size = node_size(),
-                   alpha = node_alpha()) + 
-        label_edge() +
-        label_node() +
-        theme_blank() +
-        theme(
-          panel.background = element_rect(fill = bg_color()),
-          plot.background = element_rect(fill = bg_color()))
       
-      output$tree_local <- renderPlot(plot_loc)
-      
+     output$cluster_start <- renderUI(
+       actionButton(
+         "cluster_start",
+         "Add Clusters"
+       )
+     )
+     
     }
     
   })
@@ -3335,10 +3372,68 @@ server <- function(input, output, session) {
     } else {NULL}
   })
   
+  # Set Node Appearance
+  
+  nodes <- reactive({
+    if (is.null(plot_loc$gg$cluster) & length(plot_loc$metadata[["which"]]) < 1) {
+      geom_nodes(color = node_color(),
+                 size = node_size(),
+                 alpha = node_alpha()) 
+    } else if (is.null(plot_loc$gg$cluster) & length(plot_loc$metadata[["which"]]) == 1 & plot_loc$metadata[["element"]] == "Node Shape"){
+      geom_nodes(aes_string(shape = plot_loc$metadata[["which"]][1]),
+                 color = node_color(),
+                 size = node_size(),
+                 alpha = node_alpha()) 
+    } else if (is.null(plot_loc$gg$cluster) & length(plot_loc$metadata[["which"]]) == 1 & plot_loc$metadata[["element"]] == "Node Size"){
+      geom_nodes(aes_string(size = plot_loc$metadata[["which"]][1]),
+                 color = node_color(),
+                 alpha = node_alpha()) 
+    } else if (!is.null(plot_loc$gg$cluster) & length(plot_loc$metadata[["which"]]) < 1){
+      geom_nodes(aes_string(color = "cluster"),
+                 size = node_size(),
+                 alpha = node_alpha()) 
+    } else if (!is.null(plot_loc$gg$cluster) & length(plot_loc$metadata[["which"]]) == 1 & plot_loc$metadata[["element"]] == "Node Shape"){
+      geom_nodes(aes_string(color = "cluster",
+                            shape = plot_loc$metadata[["which"]][1]),
+                 size = node_size(),
+                 alpha = node_alpha()) 
+    } else if (!is.null(plot_loc$gg$cluster) & length(plot_loc$metadata[["which"]]) == 1 & plot_loc$metadata[["element"]] == "Node Size"){
+      geom_nodes(aes_string(color = "cluster",
+                            size = plot_loc$metadata[["which"]][1]),
+                 size = node_size(),
+                 alpha = node_alpha()) 
+    } 
+  })
+  
+  # Add Metadata
+  
+  observeEvent(input$add_metadata, {
+    if (length(plot_loc$metadata) == 0) {
+    plot_loc$metadata <- list(which = input$which_metadata,
+                              element = input$element_metadata)
+#    } else if (length(plot_loc$metadata[["which"]]) == 1){
+#      plot_loc$metadata[["which"]] <- append(plot_loc$metadata[["which"]], input$which_metadata)
+#      plot_loc$metadata[["element"]] <- append(plot_loc$metadata[["element"]], input$element_metadata)
+    } else {
+      show_toast(
+        "Error",
+        text = "Maximum number of attached metadata is reached.",
+        type = "error",
+        timer = 3000,
+        timerProgressBar = TRUE,
+        position = "bottom-end"
+      )
+    }
+
+  })
+  
   # Cluster Analysis ---------------------------------------------------------
   
   observeEvent(input$cluster_start, {
+    
     # Create a function to calculate total within-cluster sum of squares
+    set.seed(8)
+    
     wss <- function(k) {
       kmeans_result <- kmeans(dist_matrix, centers = k)
       return(kmeans_result$tot.withinss)
@@ -3370,25 +3465,10 @@ server <- function(input, output, session) {
     
     cluster_add(gg$name)
     
-    gg <- gg %>% mutate(cluster = cluster)
+    plot_loc$gg <- plot_loc$gg %>% mutate(cluster = as.character(cluster))
     
-    plot_loc <- ggplot(gg, aes(x = x, y = y, xend = xend, yend = yend)) +
-      geom_edges(color = edge_color(), 
-                 size = edge_size(),
-                 alpha = edge_alpha(),
-                 curvature = edge_curvature()) +
-      geom_nodes(aes(color = as.character(cluster)),
-                 size = node_size(),
-                 alpha = node_alpha()) + 
-      labs(color = "Clusters") +
-      label_edge() +
-      label_node() +
-      theme_blank() +
-      theme(
-        panel.background = element_rect(fill = bg_color()),
-        plot.background = element_rect(fill = bg_color())) 
     
-    output$tree_local <- renderPlot(plot_loc)
+    
   })
   
   # Reverse X Scale ---------------------------------------------------------
