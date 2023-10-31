@@ -100,6 +100,17 @@ if (!require(zoo))
   install.packages('zoo')
 library(zoo)
 
+if (!require(ggnetwork))
+  install.packages('ggnetwork')
+library(ggnetwork)
+
+if (!require(igraph))
+  install.packages('igraph')
+library(igraph)
+
+if (!require(KneeArrower))
+  install.packages('KneeArrower')
+library(KneeArrower)
 
 country_names <- c(
   "Afghanistan",
@@ -348,7 +359,6 @@ ui <- dashboardPage(
         icon = icon("download")
       ),
       hr(),
-      br(),
       conditionalPanel(
         "input.tabs==='database'",
         column(
@@ -407,7 +417,8 @@ ui <- dashboardPage(
           awesomeRadio(
             inputId = "generate_tree",
             label = "Source",
-            choices = c("Random", "Local")
+            choices = c("Random", "Local"),
+            selected = "Local"
           ),
           conditionalPanel(
             "input.generate_tree=='Random'",
@@ -431,17 +442,23 @@ ui <- dashboardPage(
               "tree_algo",
               label = "Tree-building Algorithm",
               choices = c("Neighbour-Joining", "Minimum-Spanning"),
-              selected = "Neighbour-Joining"
+              selected = "Minimum-Spanning"
             ),
-            br(),
             conditionalPanel(
               "input.tree_algo=='Minimum-Spanning'",
+              selectInput(
+                "algo_mode",
+                label = "Interpretation Mode",
+                choices = c("directed", "undirected", "max", "min", "upper", "lower", "plus"),
+                selected = "undirected"
+                ),
               selectInput(
                 "ggnetwork_layout",
                 label = "Layout Algorithm",
                 choices = c("Davidson-Harel", "DrL", "Fruchterman-Reingold",
                             "GEM", "Graphopt", "Kamada-Kawai", "Large Graph Layout",
-                            "Multidimensional Scaling", "Sugiyama")
+                            "Multidimensional Scaling", "Sugiyama"),
+                selected = "Fruchterman-Reingold"
               ),
               br(),
             ),
@@ -1050,7 +1067,7 @@ ui <- dashboardPage(
             conditionalPanel(
               "input.generate_tree=='Local'",
               addSpinner(
-                plotOutput("tree_local"),
+                plotOutput("tree_local", width = "100%", height = "600px"),
                 spin = "dots",
                 color = "#ffffff"
               )
@@ -1069,10 +1086,401 @@ ui <- dashboardPage(
           "input.generate_tree=='Local'",
           conditionalPanel(
             "input.tree_algo=='Minimum-Spanning'",
-            fluidRow(column(
-              width = 2
-            ))
+            fluidRow(
+              column(
+                align = "center",
+                width = 1,
+                h3(p("Edges"), style = "color:white"),
+                colorPickr(
+                  inputId = "color_edge",
+                  width = "70%",
+                  selected = "#000000",
+                  label = "",
+                  update = "changestop",
+                  interaction = list(
+                    clear = FALSE,
+                    save = FALSE
+                  ),
+                  position = "right-start"
+                ),
+                numericInput(
+                  "size_edge",
+                  label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                  value = 0.7,
+                  step = 0.1,
+                  min = 0.5,
+                  max = 1.5,
+                  width = "70%"
+                ),
+                numericInput(
+                  "alpha_edge",
+                  label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
+                  value = 0.7,
+                  step = 0.1,
+                  min = 0,
+                  max = 1,
+                  width = "70%"
+                ),
+                numericInput(
+                  "curvature_edge",
+                  label = h5("Curves", style = "color:white; margin-bottom: 0px;"),
+                  value = 0,
+                  step = 0.1,
+                  min = -0.5,
+                  max = 0.5,
+                  width = "70%"
+                )
+              ),
+              column(
+                width = 1,
+                align = "center",
+                h3(p("Nodes"), style = "color:white"),
+                colorPickr(
+                  inputId = "color_node",
+                  width = "70%",
+                  selected = "#058C31",
+                  label = "",
+                  update = "changestop",
+                  interaction = list(
+                    clear = FALSE,
+                    save = FALSE
+                  ),
+                  position = "right-start"
+                ),
+                numericInput(
+                  "alpha_node",
+                  label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
+                  value = 0.5,
+                  step = 0.1,
+                  min = 0,
+                  max = 1,
+                  width = "70%"
+                ),
+                numericInput(
+                  inputId = "size_node",
+                  label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                  value = 5,
+                  min = 1,
+                  max = 10,
+                  step = 1,
+                  width = "70%"
+                )
+              ),
+              column(width = 1),
+              column(
+                width = 2,
+                align = "center",
+                h3(p("Label Node"), style = "color:white"),
+                selectInput(
+                  "node_label",
+                  label = "",
+                  choices = c(
+                    Index = "index",
+                    `Assembly ID` = "assembly_id",
+                    `Assembly Name` = "assembly_name",
+                    Scheme = "scheme",
+                    `Isolation Date` = "isolation_date",
+                    Host = "host",
+                    Country = "country",
+                    City = "city"
+                  ),
+                  selected = c(`Assembly Name` = "assembly_name"),
+                  width = "80%"
+                ),
+                column(
+                  width = 6,
+                  colorPickr(
+                    inputId = "label_color",
+                    width = "90%",
+                    selected = "#000000",
+                    label = h5("Label", style = "color:white; margin-bottom: 0px;"),
+                    update = "changestop",
+                    interaction = list(
+                      clear = FALSE,
+                      save = FALSE
+                    ),
+                    position = "right-start"
+                  ),
+                  numericInput(
+                    "label_size",
+                    label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                    value = 4,
+                    min = 2,
+                    max = 10,
+                    step = 0.5,
+                    width = "70%"
+                  ),
+                  numericInput(
+                    "x_nudge",
+                    label = h5("X Position", style = "color:white; margin-bottom: 0px;"),
+                    value = 0,
+                    min = -10,
+                    max = 10,
+                    step = 0.5,
+                    width = "70%"
+                  ),
+                  numericInput(
+                    "y_nudge",
+                    label = h5("Y Position", style = "color:white; margin-bottom: 0px;"),
+                    value = 0,
+                    min = -10,
+                    max = 10,
+                    step = 0.5,
+                    width = "70%"
+                  ),
+                  br(),
+                ),
+                column(
+                  width = 6,
+                  numericInput(
+                    "label_alpha",
+                    label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
+                    value = 0.7,
+                    step = 0.1,
+                    min = 0,
+                    max = 1,
+                    width = "70%"
+                  ),
+                  numericInput(
+                    "box_padding",
+                    label = h5("Box Padding", style = "color:white; margin-bottom: 0px;"),
+                    value = 0.25,
+                    min = 0,
+                    max = 1,
+                    step = 0.05
+                  ),
+                  numericInput(
+                    "point_padding",
+                    label = h5("Point Padding", style = "color:white; margin-bottom: 0px;"),
+                    value = 0.25,
+                    min = 0,
+                    max = 1,
+                    step = 0.05
+                  )
+                )
+              ),
+              column(
+                width = 1,
+                align = "center",
+                br(), br(), br(), 
+                checkboxInput(
+                  "label_rect",
+                  label = "Show Panel",
+                  value = TRUE
+                ),
+                conditionalPanel(
+                  "input.label_rect==true",
+                  colorPickr(
+                    inputId = "label_fillcolor",
+                    width = "85%",
+                    selected = "#ffffff",
+                    label = h5("Panel", style = "color:white; margin-bottom: 0px;"),
+                    update = "changestop",
+                    interaction = list(
+                      clear = FALSE,
+                      save = FALSE
+                    ),
+                    position = "right-start"
+                  ),
+                  numericInput(
+                    "panel_padding",
+                    label = h5("Label Padding", style = "color:white; margin-bottom: 0px;"),
+                    value = 0.3,
+                    min = 0.2,
+                    max = 1,
+                    step = 0.1
+                  ),
+                  numericInput(
+                    "panel_radius",
+                    label = h5("Radius", style = "color:white; margin-bottom: 0px;"),
+                    value = 0.2,
+                    min = 0,
+                    max = 1,
+                    step = 0.1
+                  ),
+                  numericInput(
+                    "panel_bordersize",
+                    label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                    value = 0.5,
+                    min = 0,
+                    max = 4,
+                    step = 0.25
+                  )
+                )
+              ),
+              column(width = 1),
+              column(
+                width = 2,
+                align = "center",
+                h3(p("Label Edge"), style = "color:white"),
+                br(),
+                checkboxInput(
+                  "include_edge",
+                  label = "Show Label",
+                  value = FALSE
+                ),
+                selectInput(
+                  "edge_label",
+                  label = "",
+                  choices = c(
+                    Index = "index",
+                    `Assembly ID` = "assembly_id",
+                    `Assembly Name` = "assembly_name",
+                    Scheme = "scheme",
+                    `Isolation Date` = "isolation_date",
+                    Host = "host",
+                    Country = "country",
+                    City = "city"
+                  ),
+                  selected = c(City = "city"),
+                  width = "80%"
+                ),
+                column(
+                  width = 6,
+                  colorPickr(
+                    inputId = "edgelabel_color",
+                    width = "90%",
+                    selected = "#000000",
+                    label = h5("Label", style = "color:white; margin-bottom: 0px;"),
+                    update = "changestop",
+                    interaction = list(
+                      clear = FALSE,
+                      save = FALSE
+                    ),
+                    position = "right-start"
+                  ),
+                  numericInput(
+                    "edgelabel_size",
+                    label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                    value = 3,
+                    min = 2,
+                    max = 10,
+                    step = 0.5,
+                    width = "70%"
+                  ),
+                  numericInput(
+                    "edge_x_nudge",
+                    label = h5("X Position", style = "color:white; margin-bottom: 0px;"),
+                    value = 0,
+                    min = -10,
+                    max = 10,
+                    step = 0.5,
+                    width = "70%"
+                  ),
+                  numericInput(
+                    "edge_y_nudge",
+                    label = h5("Y Position", style = "color:white; margin-bottom: 0px;"),
+                    value = 0,
+                    min = -10,
+                    max = 10,
+                    step = 0.5,
+                    width = "70%"
+                  ),
+                  br(),
+                ),
+                column(
+                  width = 6,
+                  numericInput(
+                    "edgelabel_alpha",
+                    label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
+                    value = 0.7,
+                    step = 0.1,
+                    min = 0,
+                    max = 1,
+                    width = "70%"
+                  ),
+                  numericInput(
+                    "edge_box_padding",
+                    label = h5("Box Padding", style = "color:white; margin-bottom: 0px;"),
+                    value = 0.25,
+                    min = 0,
+                    max = 1,
+                    step = 0.05
+                  ),
+                  numericInput(
+                    "edge_point_padding",
+                    label = h5("Point Padding", style = "color:white; margin-bottom: 0px;"),
+                    value = 0.25,
+                    min = 0,
+                    max = 1,
+                    step = 0.05
+                  )
+                )
+              ),
+              column(
+                width = 1,
+                align = "center",
+                br(), br(), br(), 
+                checkboxInput(
+                  "edge_rect",
+                  label = "Show Panel",
+                  value = TRUE
+                ),
+                conditionalPanel(
+                  "input.edge_rect==true",
+                  colorPickr(
+                    inputId = "edgelabel_fillcolor",
+                    width = "85%",
+                    selected = "#A5A315",
+                    label = h5("Panel", style = "color:white; margin-bottom: 0px;"),
+                    update = "changestop",
+                    interaction = list(
+                      clear = FALSE,
+                      save = FALSE
+                    ),
+                    position = "right-start"
+                  ),
+                  numericInput(
+                    "edge_panel_padding",
+                    label = h5("Label Padding", style = "color:white; margin-bottom: 0px;"),
+                    value = 0.3,
+                    min = 0.2,
+                    max = 1,
+                    step = 0.1
+                  ),
+                  numericInput(
+                    "edge_panel_radius",
+                    label = h5("Radius", style = "color:white; margin-bottom: 0px;"),
+                    value = 0.2,
+                    min = 0,
+                    max = 1,
+                    step = 0.1
+                  ),
+                  numericInput(
+                    "edge_panel_bordersize",
+                    label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                    value = 0.5,
+                    min = 0,
+                    max = 4,
+                    step = 0.25
+                  )
+                )
+              ),
+              column(width = 1),
+              column(
+                width = 1,
+                h3(p("Other"), style = "color:white"),
+                colorPickr(
+                  inputId = "color_bg",
+                  width = "70%",
+                  selected = "#ffffff",
+                  label = h5("Background", style = "color:white; margin-bottom: 0px;"),
+                  update = "changestop",
+                  interaction = list(
+                    clear = FALSE,
+                    save = FALSE
+                  ),
+                  position = "right-start"
+                ),
+                actionButton(
+                  "cluster_start",
+                  "Add Clusters"
+                )
+              )
+            )
           ),
+          
+          # Plot Control Neighbor Joining
           conditionalPanel(
             "input.tree_algo=='Neighbour-Joining'",
             fluidRow(
@@ -2667,6 +3075,11 @@ server <- function(input, output, session) {
   
   # Visualization   ---------------------------------------------------------
   
+  plot_loc <- reactiveVal()
+  
+ 
+  
+  
   # Render local database choice input
   observe({
     if (!database$exist) {
@@ -2694,25 +3107,8 @@ server <- function(input, output, session) {
     
     metadata <- dplyr::select(Database$Typing, 1:11)
     
-    colnames(metadata) <-
-      c(
-        "index",
-        "assembly_id",
-        "assembly_name",
-        "scheme",
-        "isolation_date",
-        "host",
-        "country",
-        "city",
-        "typing_date",
-        "successes",
-        "errors"
-      )
-    
-    metadata_cols <<- colnames(metadata)
-    
     # Calculate distance matrix
-    dist_matrix <- dist(allelic_profile)
+    dist_matrix <<- dist(allelic_profile)
     
     if (input$tree_algo == "Neighbour-Joining") {
       # Create phylogenetic tree
@@ -2764,37 +3160,47 @@ server <- function(input, output, session) {
       
     } else {
       
-      mst <- ape::mst(dist_matrix)
+      set.seed(1)
       
-      gr_adj <- graph.adjacency(mst, mode = "undirected")
+      mst <- ape::mst(dist)
+      
+      gr_adj <- graph.adjacency(mst, mode = mode_algo())
       
       gg <- ggnetwork(gr_adj, arrow.gap = 0, layout = ggnet_layout())
       
+      
       ## add metadata
+      gg <- gg %>% mutate(
+        index = metadata[gg$name, "Index"],
+        assembly_id = metadata[gg$name, "Assembly ID"],
+        assembly_name = metadata[gg$name, "Assembly Name"],
+        scheme = metadata[gg$name, "Scheme"],
+        isolation_date = metadata[gg$name,"Isolation Date"],
+        host = metadata[gg$name, "Host"],
+        country = metadata[gg$name, "Country"],
+        city = metadata[gg$name, "City"],
+        typing_date = metadata[gg$name, "Typing Date"],
+        successes = metadata[gg$name, "Successes"],
+        errors = metadata[gg$name, "Errors"])
       
-      gg <- gg %>%
-        mutate(assembly_id = metadata[gg$name,"assembly_id"],
-               assembly_name = metadata[gg$name, "assembly_name"],
-               scheme = metadata[gg$name,"scheme"],
-               isolation_date = metadata[gg$name,"isolation_date"],
-               host = metadata[gg$name,"host"],
-               country = metadata[gg$name,"country"],
-               city = metadata[gg$name,"city"],
-               typing_date = metadata[gg$name,"typing_date"],
-               successes = metadata[gg$name,"successes"],
-               errors = metadata[gg$name,"errors"])
-      
-      
-      output$tree_local <- renderPlot({
-        
+      plot_loc <- 
         ggplot(gg, aes(x = x, y = y, xend = xend, yend = yend)) +
-          geom_edges(color = "darkgrey", alpha = 0.5) +
-          geom_nodes(color = "red", size = 3) + 
-          theme_blank() +
-          geom_nodetext_repel(aes(label = assembly_name), color = "black", 
-                              size = 3, max.overlaps = 18) 
-        
-        })
+        geom_edges(color = edge_color(), 
+                   size = edge_size(),
+                   alpha = edge_alpha(),
+                   curvature = edge_curvature()) +
+        geom_nodes(color = node_color(),
+                   size = node_size(),
+                   alpha = node_alpha()) + 
+        label_edge() +
+        label_node() +
+        theme_blank() +
+        theme(
+          panel.background = element_rect(fill = bg_color()),
+          plot.background = element_rect(fill = bg_color()))
+      
+      output$tree_local <- renderPlot(plot_loc)
+      
     }
     
   })
@@ -2821,6 +3227,168 @@ server <- function(input, output, session) {
     } else if(input$ggnetwork_layout == "Sugiyama") {
       layout_with_sugiyama(gr_adj)
     }
+  })
+  
+  # Set Interpretation Mode
+  mode_algo <- reactive({
+    input$algo_mode
+  })
+  
+  # Set edge color
+  edge_color <- reactive({
+    input$color_edge
+  })
+  
+  # Set edge color
+  edge_size <- reactive({
+    input$size_edge
+  })
+  
+  # Set edge transparency
+  edge_alpha <- reactive({
+    input$alpha_edge
+  })
+  
+  # Set edge curvature
+  edge_curvature <- reactive({
+    input$curvature_edge
+  })
+  
+  # Set node color
+  node_color <- reactive({
+    input$color_node
+  })
+  
+  # Set node transparency
+  node_alpha <- reactive({
+    input$alpha_node
+  })
+  
+  # Set node size
+  node_size <- reactive({
+    input$size_node
+  })
+  
+  # Set Background
+  bg_color <- reactive({
+    input$color_bg
+  })
+  
+  # Set Node Label
+  label_node <- reactive({
+    
+    if (input$label_rect == FALSE) {
+      geom_nodetext_repel(aes_string(label = input$node_label), 
+                          color = input$label_color, 
+                          size = input$label_size, 
+                          alpha = input$label_alpha,
+                          box.padding = input$box_padding,
+                          point.padding = input$point_padding,
+                          nudge_x = input$x_nudge,
+                          nudge_y = input$y_nudge,
+                          max.overlaps = 18)
+    } else {
+      geom_nodelabel_repel(aes_string(label = input$node_label), 
+                           color = input$label_color,
+                           fill = input$label_fillcolor,
+                           size = input$label_size,
+                           alpha = input$label_alpha,
+                           box.padding = input$box_padding,
+                           point.padding = input$point_padding,
+                           nudge_x = input$x_nudge,
+                           nudge_y = input$y_nudge,
+                           label.padding = input$panel_padding,
+                           label.r = input$panel_radius,
+                           label.size = input$panel_bordersize,
+                           max.overlaps = 18)
+    }
+  
+  })
+  
+  # Set Edge Label
+  
+  label_edge <- reactive({
+    if (input$include_edge) {
+      if (input$edge_rect == TRUE) {
+        geom_edgelabel_repel(aes_string(label = input$edge_label),
+                             color = input$edgelabel_color,
+                             fill = input$edgelabel_fillcolor,
+                             size = input$edgelabel_size,
+                             alpha = input$edgelabel_alpha,
+                             box.padding = input$edge_box_padding,
+                             point.padding = input$edge_point_padding,
+                             nudge_x = input$edge_x_nudge,
+                             nudge_y = input$edge_y_nudge,
+                             label.padding = input$edge_panel_padding,
+                             label.r = input$edge_panel_radius,
+                             label.size = input$edge_panel_bordersize)
+      } else {
+        geom_edgetext_repel(aes_string(label = input$edge_label),
+                            color = input$edgelabel_color, 
+                            size = input$edgelabel_size, 
+                            alpha = input$edgelabel_alpha,
+                            box.padding = input$edge_box_padding,
+                            point.padding = input$edge_point_padding,
+                            nudge_x = input$edge_x_nudge,
+                            nudge_y = input$edge_y_nudge)
+      }
+    } else {NULL}
+  })
+  
+  # Cluster Analysis ---------------------------------------------------------
+  
+  observeEvent(input$cluster_start, {
+    # Create a function to calculate total within-cluster sum of squares
+    wss <- function(k) {
+      kmeans_result <- kmeans(dist_matrix, centers = k)
+      return(kmeans_result$tot.withinss)
+    }
+    
+    # Determine a suitable number of clusters using the elbow method
+    k_values <- 1:20  # You can adjust the range as needed
+    wss_values <- sapply(k_values, wss)
+    
+    # Use the elbow method to select the number of clusters
+    elbow_point <- findCutoff(k_values, wss_values, method = "first", frac.of.steepest.slope = 0.5)
+    
+    # Perform K-Means clustering with the recommended number of clusters
+    kmeans_opt <- kmeans(dist_matrix, centers = round(as.numeric(elbow_point$x)))
+    
+    
+    cluster_add <- function(vector) {
+      
+      cluster <<- numeric()
+      
+      for(i in 1:length(vector)) {
+        if(length(unname(kmeans_opt$cluster[which(names(kmeans_opt$cluster) == vector[i])])) > 0) {
+          cluster[i] <<- unname(kmeans_opt$cluster[which(names(kmeans_opt$cluster) == vector[i])])
+        } else {
+          cluster[i] <<- 0
+        }
+      }
+    }
+    
+    cluster_add(gg$name)
+    
+    gg <- gg %>% mutate(cluster = cluster)
+    
+    plot_loc <- ggplot(gg, aes(x = x, y = y, xend = xend, yend = yend)) +
+      geom_edges(color = edge_color(), 
+                 size = edge_size(),
+                 alpha = edge_alpha(),
+                 curvature = edge_curvature()) +
+      geom_nodes(aes(color = as.character(cluster)),
+                 size = node_size(),
+                 alpha = node_alpha()) + 
+      labs(color = "Clusters") +
+      label_edge() +
+      label_node() +
+      theme_blank() +
+      theme(
+        panel.background = element_rect(fill = bg_color()),
+        plot.background = element_rect(fill = bg_color())) 
+    
+    output$tree_local <- renderPlot(plot_loc)
   })
   
   # Reverse X Scale ---------------------------------------------------------
