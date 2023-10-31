@@ -329,6 +329,7 @@ ui <- dashboardPage(
   dashboardSidebar(
     tags$style("label{color: white;}"),
     tags$style("file.select{background-color: white;}"),
+    tags$style(HTML("#include_edge {width: 20px; height: 20px; margin-top: 13px}")),
     br(),
     br(),
     sidebarMenu(
@@ -1103,32 +1104,44 @@ ui <- dashboardPage(
                   ),
                   position = "right-start"
                 ),
-                numericInput(
-                  "size_edge",
-                  label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                  value = 0.7,
-                  step = 0.1,
-                  min = 0.5,
-                  max = 1.5,
-                  width = "70%"
-                ),
-                numericInput(
-                  "alpha_edge",
-                  label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
-                  value = 0.7,
-                  step = 0.1,
-                  min = 0,
-                  max = 1,
-                  width = "70%"
-                ),
-                numericInput(
-                  "curvature_edge",
-                  label = h5("Curves", style = "color:white; margin-bottom: 0px;"),
-                  value = 0,
-                  step = 0.1,
-                  min = -0.5,
-                  max = 0.5,
-                  width = "70%"
+                br(), br(),
+                dropMenu(
+                  actionBttn(
+                    "edge_menu",
+                    label = "",
+                    color = "default",
+                    size = "sm",
+                    style = "material-flat",
+                    icon = icon("sliders")
+                  ),
+                  theme = "translucent",
+                  numericInput(
+                    "size_edge",
+                    label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                    value = 0.7,
+                    step = 0.1,
+                    min = 0.5,
+                    max = 1.5,
+                    width = "70%"
+                  ),
+                  numericInput(
+                    "alpha_edge",
+                    label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
+                    value = 0.7,
+                    step = 0.1,
+                    min = 0,
+                    max = 1,
+                    width = "70%"
+                  ),
+                  numericInput(
+                    "curvature_edge",
+                    label = h5("Curves", style = "color:white; margin-bottom: 0px;"),
+                    value = 0,
+                    step = 0.1,
+                    min = -0.5,
+                    max = 0.5,
+                    width = "70%"
+                  )
                 )
               ),
               column(
@@ -1147,23 +1160,35 @@ ui <- dashboardPage(
                   ),
                   position = "right-start"
                 ),
-                numericInput(
-                  "alpha_node",
-                  label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
-                  value = 0.5,
-                  step = 0.1,
-                  min = 0,
-                  max = 1,
-                  width = "70%"
-                ),
-                numericInput(
-                  inputId = "size_node",
-                  label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                  value = 5,
-                  min = 1,
-                  max = 10,
-                  step = 1,
-                  width = "70%"
+                br(), br(),
+                dropMenu(
+                  actionBttn(
+                    "node_menu",
+                    label = "",
+                    color = "default",
+                    size = "sm",
+                    style = "material-flat",
+                    icon = icon("sliders")
+                  ),
+                  theme = "translucent",
+                  numericInput(
+                    "alpha_node",
+                    label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
+                    value = 0.5,
+                    step = 0.1,
+                    min = 0,
+                    max = 1,
+                    width = "70%"
+                  ),
+                  numericInput(
+                    inputId = "size_node",
+                    label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                    value = 8,
+                    min = 1,
+                    max = 10,
+                    step = 1,
+                    width = "70%"
+                  )
                 )
               ),
               column(
@@ -1184,138 +1209,192 @@ ui <- dashboardPage(
                     City = "city"
                   ),
                   selected = c(`Assembly Name` = "assembly_name"),
-                  width = "80%"
+                  width = "65%"
                 ),
-                column(
-                  width = 6,
-                  colorPickr(
-                    inputId = "label_color",
-                    width = "90%",
-                    selected = "#000000",
-                    label = h5("Label", style = "color:white; margin-bottom: 0px;"),
-                    update = "changestop",
-                    interaction = list(
-                      clear = FALSE,
-                      save = FALSE
-                    ),
-                    position = "right-start"
+                fluidRow(
+                  column(width = 2),
+                  column(
+                    width = 5,
+                    align = "center",
+                    colorPickr(
+                      inputId = "label_color",
+                      width = "95%",
+                      selected = "#000000",
+                      label = "",
+                      update = "changestop",
+                      interaction = list(
+                        clear = FALSE,
+                        save = FALSE
+                      ),
+                      position = "right-start"
+                    )
                   ),
-                  numericInput(
-                    "label_size",
-                    label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                    value = 4,
-                    min = 2,
-                    max = 10,
-                    step = 0.5,
-                    width = "70%"
+                  column(
+                    width = 3,
+                    align = "center",
+                    br(),
+                    dropMenu(
+                      actionBttn(
+                        "nodelabel_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("sliders")
+                      ),
+                      theme = "translucent",
+                      maxWidth = "250px",
+                      column(
+                        width = 6,
+                        numericInput(
+                          "label_size",
+                          label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                          value = 4,
+                          min = 2,
+                          max = 10,
+                          step = 0.5
+                        ),
+                        numericInput(
+                          "x_nudge",
+                          label = h5("X Position", style = "color:white; margin-bottom: 0px;"),
+                          value = 0,
+                          min = -10,
+                          max = 10,
+                          step = 0.5
+                        ),
+                        numericInput(
+                          "y_nudge",
+                          label = h5("Y Position", style = "color:white; margin-bottom: 0px;"),
+                          value = 0,
+                          min = -10,
+                          max = 10,
+                          step = 0.5
+                        ),
+                      ),
+                      column(
+                        width = 6,
+                        numericInput(
+                          "label_alpha",
+                          label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.7,
+                          step = 0.1,
+                          min = 0,
+                          max = 1
+                        ),
+                        numericInput(
+                          "box_padding",
+                          label = h5("Box Padding", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.25,
+                          min = 0,
+                          max = 1,
+                          step = 0.05
+                        ),
+                        numericInput(
+                          "point_padding",
+                          label = h5("Point Padding", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.25,
+                          min = 0,
+                          max = 1,
+                          step = 0.05
+                        )
+                      ),
+                      h5(".", style = "color:black; font-size: 1px; margin-bottom: 0px;")
+                    )
                   ),
-                  numericInput(
-                    "x_nudge",
-                    label = h5("X Position", style = "color:white; margin-bottom: 0px;"),
-                    value = 0,
-                    min = -10,
-                    max = 10,
-                    step = 0.5,
-                    width = "70%"
-                  ),
-                  numericInput(
-                    "y_nudge",
-                    label = h5("Y Position", style = "color:white; margin-bottom: 0px;"),
-                    value = 0,
-                    min = -10,
-                    max = 10,
-                    step = 0.5,
-                    width = "70%"
-                  ),
-                  br(),
+                  column(width = 2)
                 ),
-                column(
-                  width = 6,
-                  numericInput(
-                    "label_alpha",
-                    label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
-                    value = 0.7,
-                    step = 0.1,
-                    min = 0,
-                    max = 1,
-                    width = "70%"
-                  ),
-                  numericInput(
-                    "box_padding",
-                    label = h5("Box Padding", style = "color:white; margin-bottom: 0px;"),
-                    value = 0.25,
-                    min = 0,
-                    max = 1,
-                    step = 0.05
-                  ),
-                  numericInput(
-                    "point_padding",
-                    label = h5("Point Padding", style = "color:white; margin-bottom: 0px;"),
-                    value = 0.25,
-                    min = 0,
-                    max = 1,
-                    step = 0.05
+                fluidRow(
+                  column(
+                    width = 12,
+                    br(),
+                    checkboxInput(
+                      "label_rect",
+                      label = "Show Panel",
+                      value = TRUE
+                    )
                   )
-                )
-              ),
-              column(
-                width = 1,
-                align = "center",
-                br(), br(), br(), 
-                checkboxInput(
-                  "label_rect",
-                  label = "Show Panel",
-                  value = TRUE
                 ),
                 conditionalPanel(
                   "input.label_rect==true",
-                  colorPickr(
-                    inputId = "label_fillcolor",
-                    width = "85%",
-                    selected = "#ffffff",
-                    label = h5("Panel", style = "color:white; margin-bottom: 0px;"),
-                    update = "changestop",
-                    interaction = list(
-                      clear = FALSE,
-                      save = FALSE
+                  fluidRow(
+                    column(width = 2),
+                    column(
+                      width = 5,
+                      colorPickr(
+                        inputId = "label_fillcolor",
+                        width = "95%",
+                        selected = "#ffffff",
+                        label = "",
+                        update = "changestop",
+                        interaction = list(
+                          clear = FALSE,
+                          save = FALSE
+                        ),
+                        position = "right-start"
+                      )
                     ),
-                    position = "right-start"
-                  ),
-                  numericInput(
-                    "panel_padding",
-                    label = h5("Label Padding", style = "color:white; margin-bottom: 0px;"),
-                    value = 0.3,
-                    min = 0.2,
-                    max = 1,
-                    step = 0.1
-                  ),
-                  numericInput(
-                    "panel_radius",
-                    label = h5("Radius", style = "color:white; margin-bottom: 0px;"),
-                    value = 0.2,
-                    min = 0,
-                    max = 1,
-                    step = 0.1
-                  ),
-                  numericInput(
-                    "panel_bordersize",
-                    label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                    value = 0.5,
-                    min = 0,
-                    max = 4,
-                    step = 0.25
+                    column(
+                      width = 3,
+                      br(),
+                      dropMenu(
+                        actionBttn(
+                          "nodepanel_menu",
+                          label = "",
+                          color = "default",
+                          size = "sm",
+                          style = "material-flat",
+                          icon = icon("sliders")
+                        ),
+                        theme = "translucent",
+                        maxWidth = "100px",
+                        numericInput(
+                          "panel_padding",
+                          label = h5("Label Padding", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.3,
+                          min = 0.2,
+                          max = 1,
+                          step = 0.1
+                        ),
+                        numericInput(
+                          "panel_radius",
+                          label = h5("Radius", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.2,
+                          min = 0,
+                          max = 1,
+                          step = 0.1
+                        ),
+                        numericInput(
+                          "panel_bordersize",
+                          label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.5,
+                          min = 0,
+                          max = 4,
+                          step = 0.25
+                        )
+                      )
+                    )
                   )
                 )
               ),
               column(
                 width = 2,
                 align = "center",
-                h3(p("Label Edge"), style = "color:white"),
-                br(),
-                checkboxInput(
-                  "include_edge",
-                  label = "Show Label",
-                  value = FALSE
+                fluidRow(
+                  column(width = 1),
+                  column(
+                    width = 7,
+                    align = "right",
+                    h3(p("Label Edge"), style = "color:white")
+                  ),
+                  column(
+                    width = 1,
+                    align = "left",
+                    checkboxInput(
+                      "include_edge",
+                      label = "",
+                      value = FALSE
+                    )
+                  )
                 ),
                 selectInput(
                   "edge_label",
@@ -1331,128 +1410,178 @@ ui <- dashboardPage(
                     City = "city"
                   ),
                   selected = c(City = "city"),
-                  width = "80%"
+                  width = "65%"
                 ),
-                column(
-                  width = 6,
-                  colorPickr(
-                    inputId = "edgelabel_color",
-                    width = "90%",
-                    selected = "#000000",
-                    label = h5("Label", style = "color:white; margin-bottom: 0px;"),
-                    update = "changestop",
-                    interaction = list(
-                      clear = FALSE,
-                      save = FALSE
+                fluidRow(
+                  column(width = 2),
+                  column(
+                    width = 5,
+                    align = "center",
+                    colorPickr(
+                      inputId = "edgelabel_color",
+                      width = "95%",
+                      selected = "#000000",
+                      label = "",
+                      update = "changestop",
+                      interaction = list(
+                        clear = FALSE,
+                        save = FALSE
+                      ),
+                      position = "right-start"
                     ),
-                    position = "right-start"
                   ),
-                  numericInput(
-                    "edgelabel_size",
-                    label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                    value = 3,
-                    min = 2,
-                    max = 10,
-                    step = 0.5,
-                    width = "70%"
-                  ),
-                  numericInput(
-                    "edge_x_nudge",
-                    label = h5("X Position", style = "color:white; margin-bottom: 0px;"),
-                    value = 0,
-                    min = -10,
-                    max = 10,
-                    step = 0.5,
-                    width = "70%"
-                  ),
-                  numericInput(
-                    "edge_y_nudge",
-                    label = h5("Y Position", style = "color:white; margin-bottom: 0px;"),
-                    value = 0,
-                    min = -10,
-                    max = 10,
-                    step = 0.5,
-                    width = "70%"
-                  ),
-                  br(),
-                ),
-                column(
-                  width = 6,
-                  numericInput(
-                    "edgelabel_alpha",
-                    label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
-                    value = 0.7,
-                    step = 0.1,
-                    min = 0,
-                    max = 1,
-                    width = "70%"
-                  ),
-                  numericInput(
-                    "edge_box_padding",
-                    label = h5("Box Padding", style = "color:white; margin-bottom: 0px;"),
-                    value = 0.25,
-                    min = 0,
-                    max = 1,
-                    step = 0.05
-                  ),
-                  numericInput(
-                    "edge_point_padding",
-                    label = h5("Point Padding", style = "color:white; margin-bottom: 0px;"),
-                    value = 0.25,
-                    min = 0,
-                    max = 1,
-                    step = 0.05
+                  column(
+                    width = 3,
+                    br(),
+                    dropMenu(
+                      actionBttn(
+                        "edgelabel_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("sliders")
+                      ),
+                      theme = "translucent",
+                      maxWidth = "250px",
+                      fluidRow(
+                        column(
+                          width = 6,
+                          numericInput(
+                            "edgelabel_size",
+                            label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                            value = 3,
+                            min = 2,
+                            max = 10,
+                            step = 0.5,
+                            width = "70%"
+                          ),
+                          numericInput(
+                            "edge_x_nudge",
+                            label = h5("X Position", style = "color:white; margin-bottom: 0px;"),
+                            value = 0,
+                            min = -10,
+                            max = 10,
+                            step = 0.5,
+                            width = "70%"
+                          ),
+                          numericInput(
+                            "edge_y_nudge",
+                            label = h5("Y Position", style = "color:white; margin-bottom: 0px;"),
+                            value = 0,
+                            min = -10,
+                            max = 10,
+                            step = 0.5,
+                            width = "70%"
+                          )
+                        ),
+                        column(
+                          width = 6,
+                          numericInput(
+                            "edgelabel_alpha",
+                            label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
+                            value = 0.7,
+                            step = 0.1,
+                            min = 0,
+                            max = 1,
+                            width = "70%"
+                          ),
+                          numericInput(
+                            "edge_box_padding",
+                            label = h5("Box Padding", style = "color:white; margin-bottom: 0px;"),
+                            value = 0.25,
+                            min = 0,
+                            max = 1,
+                            step = 0.05
+                          ),
+                          numericInput(
+                            "edge_point_padding",
+                            label = h5("Point Padding", style = "color:white; margin-bottom: 0px;"),
+                            value = 0.25,
+                            min = 0,
+                            max = 1,
+                            step = 0.05
+                          )
+                        )
+                      ),
+                      label = h5(".", style = "color:white; font-size: 1px; margin-bottom: 0px;")
+                    )
                   )
-                )
-              ),
-              column(
-                width = 1,
-                align = "center",
-                br(), br(), br(), 
-                checkboxInput(
-                  "edge_rect",
-                  label = "Show Panel",
-                  value = TRUE
+                ),
+                fluidRow(
+                  column(
+                    width = 12,
+                    br(),
+                    checkboxInput(
+                      "edge_rect",
+                      label = "Show Panel",
+                      value = TRUE
+                    )
+                  )
                 ),
                 conditionalPanel(
                   "input.edge_rect==true",
-                  colorPickr(
-                    inputId = "edgelabel_fillcolor",
-                    width = "85%",
-                    selected = "#A5A315",
-                    label = h5("Panel", style = "color:white; margin-bottom: 0px;"),
-                    update = "changestop",
-                    interaction = list(
-                      clear = FALSE,
-                      save = FALSE
+                  fluidRow(
+                    column(width = 2),
+                    column(
+                      width = 5,
+                      align = "center",
+                      colorPickr(
+                        inputId = "edgelabel_fillcolor",
+                        width = "95%",
+                        selected = "#A5A315",
+                        label = "",
+                        update = "changestop",
+                        interaction = list(
+                          clear = FALSE,
+                          save = FALSE
+                        ),
+                        position = "right-start"
+                      ),
                     ),
-                    position = "right-start"
-                  ),
-                  numericInput(
-                    "edge_panel_padding",
-                    label = h5("Label Padding", style = "color:white; margin-bottom: 0px;"),
-                    value = 0.3,
-                    min = 0.2,
-                    max = 1,
-                    step = 0.1
-                  ),
-                  numericInput(
-                    "edge_panel_radius",
-                    label = h5("Radius", style = "color:white; margin-bottom: 0px;"),
-                    value = 0.2,
-                    min = 0,
-                    max = 1,
-                    step = 0.1
-                  ),
-                  numericInput(
-                    "edge_panel_bordersize",
-                    label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                    value = 0.5,
-                    min = 0,
-                    max = 4,
-                    step = 0.25
+                    column(
+                      width = 3,
+                      align = "center",
+                      br(),
+                      dropMenu(
+                        actionBttn(
+                          "edgepanel_menu",
+                          label = "",
+                          color = "default",
+                          size = "sm",
+                          style = "material-flat",
+                          icon = icon("sliders")
+                        ),
+                        theme = "translucent",
+                        maxWidth = "100px",
+                        numericInput(
+                          "edge_panel_padding",
+                          label = h5("Label Padding", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.3,
+                          min = 0.2,
+                          max = 1,
+                          step = 0.1
+                        ),
+                        numericInput(
+                          "edge_panel_radius",
+                          label = h5("Radius", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.2,
+                          min = 0,
+                          max = 1,
+                          step = 0.1
+                        ),
+                        numericInput(
+                          "edge_panel_bordersize",
+                          label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.5,
+                          min = 0,
+                          max = 4,
+                          step = 0.25
+                        )
+                      )
+                    )
                   )
-                )
+                )  
               ),
               column(
                 width = 2,
