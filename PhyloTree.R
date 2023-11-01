@@ -416,7 +416,7 @@ ui <- dashboardPage(
         "input.tabs==='visualization'",
         column(
           width = 12,
-          awesomeRadio(
+          prettyRadioButtons(
             inputId = "generate_tree",
             label = "Source",
             choices = c("Random", "Local"),
@@ -437,14 +437,11 @@ ui <- dashboardPage(
           ),
           conditionalPanel(
             "input.generate_tree=='Local'",
-            br(),
             uiOutput("scheme_vis"),
-            br(),
-            selectInput(
+            prettyRadioButtons(
               "tree_algo",
-              label = "Tree-building Algorithm",
-              choices = c("Neighbour-Joining", "Minimum-Spanning"),
-              selected = "Minimum-Spanning"
+              choices = c("Minimum-Spanning", "Neighbour-Joining"),
+              label = "Tree Type"
             ),
             conditionalPanel(
               "input.tree_algo=='Minimum-Spanning'",
@@ -464,8 +461,27 @@ ui <- dashboardPage(
               ),
               br(),
             ),
-            actionButton("create_tree",
-                         "Create Tree")
+            fluidRow(
+              column(
+                width = 6,
+                actionButton("create_tree",
+                             "Create Tree")
+              ),
+              column(
+                width = 6,
+                align = "center",
+                conditionalPanel(
+                  "input.create_tree > 0",
+                  downloadButton(
+                    "download_plot", 
+                    label = "",
+                    icon = icon("download"),
+                    width = "20px",
+                    style = "margin-top: 6px;"
+                  )
+                )
+              )
+            )
           )
         )
       )
@@ -491,6 +507,7 @@ ui <- dashboardPage(
                 '
       )
     ),
+    
     shinyDashboardThemeDIY(
       ### general
       appFontFamily = "Tahoma"
@@ -615,7 +632,7 @@ ui <- dashboardPage(
       ,
       sidebarTabTextColorSelected = "rgb(0,0,0)"
       ,
-      sidebarTabRadiusSelected = "0px 20px 20px 0px"
+      sidebarTabRadiusSelected = "0px 0px 0px 0px"
       
       ,
       sidebarTabBackColorHover = cssGradientThreeColors(
@@ -642,7 +659,7 @@ ui <- dashboardPage(
       ,
       sidebarTabBorderWidthHover = 1
       ,
-      sidebarTabRadiusHover = "0px 20px 20px 0px"
+      sidebarTabRadiusHover = "0px 0px 0px 0px"
       
       ### boxes
       ,
@@ -998,14 +1015,17 @@ ui <- dashboardPage(
                 status = "primary",
                 width = "100%",
                 textInput("assembly_id",
-                          "Assembly ID"),
+                          "Assembly ID",
+                          width = "80%"),
                 textInput("assembly_name",
-                          "Assembly Name"),
+                          "Assembly Name",
+                          width = "80%"),
                 dateInput("append_isodate",
                           label = "Isolation Date",
                           width = "50%"),
                 textInput("append_host",
-                          label = "Host"),
+                          label = "Host",
+                          width = "80%"),
                 pickerInput(
                   "append_country",
                   "Country",
@@ -1016,10 +1036,12 @@ ui <- dashboardPage(
                     `actions-box` = TRUE,
                     size = 10,
                     style = "background-color: white; border-radius: 5px;"
-                  )
+                  ),
+                  width = "90%"
                 ),
                 textInput("append_city",
-                          label = "City"),
+                          label = "City",
+                          width = "80%"),
                 dateInput(
                   "append_analysisdate",
                   label = "Typing Date",
@@ -1127,7 +1149,7 @@ ui <- dashboardPage(
                         numericInput(
                           "alpha_node",
                           label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
-                          value = 0.5,
+                          value = 1,
                           step = 0.1,
                           min = 0,
                           max = 1,
@@ -1352,7 +1374,7 @@ ui <- dashboardPage(
                           numericInput(
                             "label_alpha",
                             label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
-                            value = 0.7,
+                            value = 1,
                             step = 0.1,
                             min = 0,
                             max = 1,
@@ -1738,153 +1760,88 @@ ui <- dashboardPage(
           ),
           
           # Plot Control Neighbor Joining
-          conditionalPanel(
-            "input.tree_algo=='Neighbour-Joining'",
-            fluidRow(
-              column(
-                width = 2,
-                dropdownButton(
-                  label = "Edit Labels",
-                  right = TRUE,
-                  virtualSelectInput(
-                    "label_select",
-                    label = "Select Labels",
-                    multiple = TRUE,
-                    choices = c("Host", "Country", "City")
-                    #choices = metadata_cols
+          
+        
+        conditionalPanel(
+          "input.tree_algo=='Neighbour-Joining'",
+          fluidRow(
+            column(
+              width = 2,
+              align = "center",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                h3(p("Layout"), style = "color:white"),
+                selectInput(
+                  inputId = "nj_layout",
+                  h5("Select Theme", style = "color:white"),
+                  choices = list(
+                    Linear = list(
+                      "Rectangular" = "rectangular",
+                      "Roundrect" = "roundrect",
+                      "Slanted" = "slanted",
+                      "Ellipse" = "ellipse"),
+                    Circular = list(
+                      "Circular" = "circular",
+                      "Fan" = "fan"),
+                    Unrooted = list(
+                      "Daylight" = "daylight",
+                      "Equal Angle" = "equal_angle")
                   ),
-                  circle = FALSE
+                  selected = "rectangular",
+                  width = "70%"
+                ),
+                br(),
+                conditionalPanel(
+                  "input.nj_layout=='circular' | input.nj_layout=='fan'",
+                  checkboxInput(
+                    "circ_inward",
+                    label = "Inward Layout",
+                    value = FALSE
+                  )
                 )
-              ),
-              column(
-                width = 2,
-                dropdownButton(
-                  label = "Layout",
-                  right = TRUE,
-                  circle = FALSE,
-                  radioButtons(
-                    inputId = "tree_type_r",
-                    label = h5("Tree Type", style = "color:white"),
-                    choices = list("Phylogram", "Chronogram", "Cladogram"),
-                    selected = "Phylogram"
+              )
+            ),
+            column(
+              width = 2,
+              align = "center",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                h3(p("Tip Label"), style = "color:white"),
+                selectInput(
+                  "nj_tiplab",
+                  label = "",
+                  choices = c(
+                    Index = "index",
+                    `Assembly ID` = "assembly_id",
+                    `Assembly Name` = "assembly_name",
+                    `Isolation Date` = "isolation_date",
+                    Host = "host",
+                    Country = "country",
+                    City = "city"
                   ),
-                  br(),
-                  fluidRow(
-                    column(
-                      width = 10,
-                      conditionalPanel(
-                        "input.tree_type_r=='Phylogram'",
-                        selectInput(
-                          inputId = "layout_r",
-                          h5("Select Theme", style = "color:white"),
-                          choices = list(
-                            linear = list(
-                              "Rectangular" = "rectangular",
-                              "Roundrect" = "roundrect",
-                              "Slanted" = "slanted",
-                              "Ellipse" = "ellipse"
-                            ),
-                            circular = list("Circular" = "circular",
-                                            "Fan" = "fan"),
-                            unrooted = list("Daylight" = "daylight",
-                                            "Equal Angle" = "equal_angle")
-                          ),
-                          selected = "roundrect",
-                          width = "200px"
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.tree_type_r=='Chronogram'",
-                        selectInput(
-                          "layout_r",
-                          h5("Select Theme", style = "color:white"),
-                          choices = list(
-                            linear = list(
-                              "Rectangular" = "rectangular",
-                              "Roundrect" = "roundrect",
-                              "Ellipse" = "ellipse"
-                            )
-                          ),
-                          selected = "roundrect",
-                          width = "200px"
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.tree_type_r=='Cladogram'",
-                        selectInput(
-                          "layout_r",
-                          h5("Select Theme", style = "color:white"),
-                          choices = list(
-                            linear = list(
-                              "Rectangular" = "rectangular",
-                              "Roundrect" = "roundrect",
-                              "Slanted" = "slanted",
-                              "Ellipse" = "ellipse"
-                            ),
-                            circular = list("Circular" = "circular",
-                                            "Fan" = "fan"),
-                            unrooted = list("Daylight" = "daylight",
-                                            "Equal Angle" = "equal_angle")
-                          ),
-                          selected = "roundrect",
-                          width = "200px"
-                        )
-                      ),
-                    ),
-                  ),
-                  br(),
-                  fluidRow(column(
-                    width = 6,
-                    colorPickr(
-                      inputId = "background_color_r",
-                      label = h5("Background", style = "color:white"),
-                      selected = "#ffffff",
-                      opacity = FALSE,
-                      update = "save",
-                      interaction = list(
-                        hex = TRUE,
-                        rgba = FALSE,
-                        input = TRUE,
-                        save = TRUE,
-                        clear = FALSE
-                      ),
-                      position = "right-start",
-                      swatches = scales::viridis_pal()(10),
-                      theme = "nano",
-                      useAsButton = TRUE,
-                      width = "100%"
-                    )
-                  ),
-                  column(
-                    width = 6,
-                    colorPickr(
-                      inputId = "branch_color_r",
-                      label = h5("Branches", style = "color:white"),
-                      selected = "#000000",
-                      opacity = TRUE,
-                      update = "save",
-                      interaction = list(
-                        hex = TRUE,
-                        rgba = FALSE,
-                        input = TRUE,
-                        save = TRUE,
-                        clear = FALSE
-                      ),
-                      position = "right-start",
-                      swatches = scales::viridis_pal()(10),
-                      theme = "nano",
-                      useAsButton = TRUE,
-                      width = "100%"
-                    )
-                  ))
+                  selected = c(`Assembly Name` = "assembly_name"),
+                  width = "75%"
+                ),
+                numericInput(
+                  "nj_tip_offset",
+                  label = h5("Offset", style = "color:white"),
+                  min = -5,
+                  max = 5,
+                  step = 0.25,
+                  value = 0,
+                  width = "35%"
                 )
               )
             )
-          ),
-        ),
+          )  
+        )
+      ),
         
-        
-        ####### Show COntrol for Random Trees
+        ####### Show Control for Random Trees
         conditionalPanel(
           "input.generate_tree=='Random'",
           fluidRow(
@@ -2850,7 +2807,6 @@ server <- function(input, output, session) {
           "edit_which",
           label = "Variable",
           choices = names(select(DF1$data, 2:9)),
-          width = "auto",
           options = list(size = 10,
                          style = "background-color: white; border-radius: 5px;")
         )
@@ -3337,8 +3293,6 @@ server <- function(input, output, session) {
   
   plot_loc <- reactiveValues(cluster = NULL, metadata = list())
   
-  output$tree_local <- renderPlot({plot_loc$plot})
-  
   observe({
     plot_loc$plot <- 
       ggplot(plot_loc$gg, aes(x = x, y = y, xend = xend, yend = yend)) +
@@ -3370,6 +3324,8 @@ server <- function(input, output, session) {
   
   observeEvent(input$create_tree, {
     
+    
+    
     set.seed(1)
     
     # Load local database
@@ -3383,62 +3339,46 @@ server <- function(input, output, session) {
     
     allelic_profile <- dplyr::select(Database$Typing,-(1:11))
     
-    metadata <- dplyr::select(Database$Typing, 1:11)
+    meta <<- dplyr::select(Database$Typing, 1:11)
     
     # Calculate distance matrix
     dist_matrix <<- dist(allelic_profile)
     
     if (input$tree_algo == "Neighbour-Joining") {
+      
+      meta_nj <- meta
+      
+      colnames(meta_nj) <-
+        c(
+          "index",
+          "assembly_id",
+          "assembly_name",
+          "scheme",
+          "isolation_date",
+          "host",
+          "country",
+          "city",
+          "typing_date",
+          "successes",
+          "errors"
+        )
+      
+      meta_nj$taxa <- rownames(meta_nj)
+      
+      
       # Create phylogenetic tree
       eigen_tree <- ape::nj(dist_matrix)
       
       # Visualize the tree with metadata annotations
-      ggtree(eigen_tree, layout = "daylight") %<+% metadata +
-        geom_tiplab(aes(label = assembly_id), offset = 2) +
-        geom_label(aes(x = branch, label = host),
-                   fill = 'lightgreen',
-                   nudge_x = -1) +
-        geom_label(aes(x = branch, label = country),
-                   fill = 'lightblue',
-                   nudge_x = 2)
-      
       output$tree_local <- renderPlot({
-        as.ggplot(
-          ggtree(eigen_tree,
-                 aes(color = I(color_r(
-                 ))),
-                 layout = input$layout_r) %<+% metadata +
-            geom_tiplab(aes(label = assembly_id), offset = 2) +
-            #label() +
-            geom_label(
-              aes(x = branch, label = host),
-              fill = 'lightgreen',
-              nudge_x = -1
-            ) +
-            geom_label(
-              aes(x = branch, label = country),
-              fill = 'lightblue',
-              nudge_x = 2
-            ) +
-            revx_r() +
-            revy_r() +
-            treescale_x_r() +
-            tip_r() +
-            label_r() +
-            node_r() +
-            theme(
-              plot.background = element_rect(fill = b_color_r(),
-                                             color = b_color_r()),
-              panel.background = element_rect(fill = b_color_r(),
-                                              color = b_color_r())
-            ),
-          angle = input$rotate_r
-        )
+        ggtree(eigen_tree, layout = layout_nj()) %<+% meta_nj +
+          tiplab_nj() +
+          inward()
       })
       
     } else {
       
-      
+      output$tree_local <- renderPlot({plot_loc$plot})
       
       mst <- ape::mst(dist_matrix)
       
@@ -3449,17 +3389,17 @@ server <- function(input, output, session) {
       
       ## add metadata
       plot_loc$gg <<- gg %>% mutate(
-        index = metadata[gg$name, "Index"],
-        assembly_id = metadata[gg$name, "Assembly ID"],
-        assembly_name = metadata[gg$name, "Assembly Name"],
-        scheme = metadata[gg$name, "Scheme"],
-        isolation_date = metadata[gg$name,"Isolation Date"],
-        host = metadata[gg$name, "Host"],
-        country = metadata[gg$name, "Country"],
-        city = metadata[gg$name, "City"],
-        typing_date = metadata[gg$name, "Typing Date"],
-        successes = metadata[gg$name, "Successes"],
-        errors = metadata[gg$name, "Errors"])
+        index = meta[gg$name, "Index"],
+        assembly_id = meta[gg$name, "Assembly ID"],
+        assembly_name = meta[gg$name, "Assembly Name"],
+        scheme = meta[gg$name, "Scheme"],
+        isolation_date = meta[gg$name,"Isolation Date"],
+        host = meta[gg$name, "Host"],
+        country = meta[gg$name, "Country"],
+        city = meta[gg$name, "City"],
+        typing_date = meta[gg$name, "Typing Date"],
+        successes = meta[gg$name, "Successes"],
+        errors = meta[gg$name, "Errors"])
       
       
      output$cluster_start <- renderUI(
@@ -3473,6 +3413,42 @@ server <- function(input, output, session) {
     
   })
   
+  # NJ Tree Layout
+  layout_nj <- reactive({
+    input$nj_layout
+  })
+  
+  # NJ inward circular
+  inward <- reactive({
+    if (input$circ_inward == TRUE) {
+      layout_inward_circular()
+    } else {NULL}
+  })
+  
+  # NJ Tip Labs
+  tiplab_nj <- reactive({
+      if (input$nj_tiplab == "index") {
+        geom_tiplab(aes(label = taxa), offset = tiplab_offset())
+      } else if (input$nj_tiplab == "assembly_id") {
+        geom_tiplab(aes(label = assembly_id), offset = tiplab_offset())
+      } else if (input$nj_tiplab == "assembly_name") {
+        geom_tiplab(aes(label = assembly_name), offset = tiplab_offset())
+      } else if (input$nj_tiplab == "host") {
+        geom_tiplab(aes(label = host), offset = tiplab_offset())
+      } else if (input$nj_tiplab == "country") {
+        geom_tiplab(aes(label = country), offset = tiplab_offset())
+      } else if (input$nj_tiplab == "city") {
+        geom_tiplab(aes(label = city), offset = tiplab_offset())
+      } else if (input$nj_tiplab == "isolation_date") {
+        geom_tiplab(aes(label = isolation_date), offset = tiplab_offset())
+      }
+  })
+  
+  # NJ Tip Lab Offset
+  
+  tiplab_offset <- reactive({
+    input$nj_tip_offset
+  })
   
   # Set Minimum-Spanning Tree Appearance
   ggnet_layout <- reactive({
@@ -3677,6 +3653,21 @@ server <- function(input, output, session) {
       )
     }
   })
+  
+  
+  # Save Tree Plot ---------------------------------------------------------
+  
+  # Define download handler to save the plot
+  output$download_plot <- downloadHandler(
+    filename = function() {
+      paste("plot",".png", sep = "")
+    },
+    content = function(file) {
+      png(file, width = 1200, height = 600)
+      print(plot_loc$plot)
+      dev.off()
+    }
+  )
   
   # Cluster Analysis ---------------------------------------------------------
   
