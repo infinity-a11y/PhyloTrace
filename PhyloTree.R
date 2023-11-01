@@ -1090,136 +1090,183 @@ ui <- dashboardPage(
             "input.tree_algo=='Minimum-Spanning'",
             fluidRow(
               column(
-                align = "center",
-                width = 1,
-                box(
-                  solidHeader = TRUE,
-                  status = "primary",
-                  width = "100%",
-                  h3(p("Edges"), style = "color:white"),
-                  colorPickr(
-                    inputId = "color_edge",
-                    width = "70%",
-                    selected = "#000000",
-                    label = "",
-                    update = "changestop",
-                    interaction = list(
-                      clear = FALSE,
-                      save = FALSE
-                    ),
-                    position = "right-start"
-                  ),
-                  br(), br(),
-                  dropMenu(
-                    actionBttn(
-                      "edge_menu",
-                      label = "",
-                      color = "default",
-                      size = "sm",
-                      style = "material-flat",
-                      icon = icon("sliders")
-                    ),
-                    theme = "translucent",
-                    numericInput(
-                      "size_edge",
-                      label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                      value = 0.7,
-                      step = 0.1,
-                      min = 0.5,
-                      max = 1.5,
-                      width = "70%"
-                    ),
-                    numericInput(
-                      "alpha_edge",
-                      label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
-                      value = 0.7,
-                      step = 0.1,
-                      min = 0,
-                      max = 1,
-                      width = "70%"
-                    ),
-                    numericInput(
-                      "curvature_edge",
-                      label = h5("Curves", style = "color:white; margin-bottom: 0px;"),
-                      value = 0,
-                      step = 0.1,
-                      min = -0.5,
-                      max = 0.5,
-                      width = "70%"
+                width = 2,
+                fluidRow(
+                  column(
+                    width = 6,
+                    align = "center",
+                    box(
+                      solidHeader = TRUE,
+                      status = "primary",
+                      width = "100%",
+                      h3(p("Nodes"), style = "color:white"),
+                      colorPickr(
+                        inputId = "color_node",
+                        width = "100%",
+                        selected = "#058C31",
+                        label = "",
+                        update = "changestop",
+                        interaction = list(
+                          clear = FALSE,
+                          save = FALSE
+                        ),
+                        position = "right-start"
+                      ),
+                      br(), 
+                      dropMenu(
+                        actionBttn(
+                          "node_menu",
+                          label = "",
+                          color = "default",
+                          size = "sm",
+                          style = "material-flat",
+                          icon = icon("sliders")
+                        ),
+                        placement = "top-start",
+                        theme = "translucent",
+                        numericInput(
+                          "alpha_node",
+                          label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.5,
+                          step = 0.1,
+                          min = 0,
+                          max = 1,
+                          width = "90%"
+                        ),
+                        numericInput(
+                          inputId = "size_node",
+                          label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                          value = 10,
+                          min = 1,
+                          max = 20,
+                          step = 1,
+                          width = "90%"
+                        )
+                      ),
+                      br()
                     )
                   ),
-                  br(), br()
-                )
-              ),
-              column(
-                width = 1,
-                align = "center",
-                h3(p("Nodes"), style = "color:white"),
-                colorPickr(
-                  inputId = "color_node",
-                  width = "70%",
-                  selected = "#058C31",
-                  label = "",
-                  update = "changestop",
-                  interaction = list(
-                    clear = FALSE,
-                    save = FALSE
-                  ),
-                  position = "right-start"
+                  column(
+                    align = "center",
+                    width = 6,
+                    box(
+                      solidHeader = TRUE,
+                      status = "primary",
+                      width = "100%",
+                      h3(p("Edges"), style = "color:white"),
+                      colorPickr(
+                        inputId = "color_edge",
+                        width = "100%",
+                        selected = "#000000",
+                        label = "",
+                        update = "changestop",
+                        interaction = list(
+                          clear = FALSE,
+                          save = FALSE
+                        ),
+                        position = "right-start"
+                      ),
+                      br(), 
+                      dropMenu(
+                        actionBttn(
+                          "edge_menu",
+                          label = "",
+                          color = "default",
+                          size = "sm",
+                          style = "material-flat",
+                          icon = icon("sliders")
+                        ),
+                        theme = "translucent",
+                        placement = "top-start",
+                        numericInput(
+                          "size_edge",
+                          label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.7,
+                          step = 0.1,
+                          min = 0.5,
+                          max = 1.5,
+                          width = "90%"
+                        ),
+                        numericInput(
+                          "alpha_edge",
+                          label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.7,
+                          step = 0.1,
+                          min = 0,
+                          max = 1,
+                          width = "90%"
+                        ),
+                        numericInput(
+                          "curvature_edge",
+                          label = h5("Curves", style = "color:white; margin-bottom: 0px;"),
+                          value = 0,
+                          step = 0.1,
+                          min = -0.5,
+                          max = 0.5,
+                          width = "90%"
+                        )
+                      ),
+                      br()
+                    )
+                  )
                 ),
-                br(), br(),
-                dropMenu(
-                  actionBttn(
-                    "node_menu",
-                    label = "",
-                    color = "default",
-                    size = "sm",
-                    style = "material-flat",
-                    icon = icon("sliders")
-                  ),
-                  theme = "translucent",
-                  numericInput(
-                    "alpha_node",
-                    label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
-                    value = 0.5,
-                    step = 0.1,
-                    min = 0,
-                    max = 1,
-                    width = "70%"
-                  ),
-                  numericInput(
-                    inputId = "size_node",
-                    label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                    value = 10,
-                    min = 1,
-                    max = 20,
-                    step = 1,
-                    width = "70%"
+                fluidRow(
+                  column(
+                    width = 12,
+                    align = "center",
+                    box(
+                      solidHeader = TRUE,
+                      status = "primary",
+                      width = "100%",
+                      h3(p("Other"), style = "color:white"),
+                      column(
+                        width = 6,
+                        colorPickr(
+                          inputId = "color_bg",
+                          width = "100%",
+                          selected = "#ffffff",
+                          label = h5("Background", style = "color:white; margin-bottom: 0px;"),
+                          update = "changestop",
+                          interaction = list(
+                            clear = FALSE,
+                            save = FALSE
+                          ),
+                          position = "right-start"
+                        )
+                      ),
+                      column(
+                        width = 6,
+                        br(),
+                        uiOutput("cluster_start")
+                      )
+                    )
                   )
                 )
               ),
               column(
                 width = 2,
                 align = "center",
-                fluidRow(
-                  column(width = 1),
-                  column(
-                    width = 7,
-                    align = "right",
-                    h3(p("Label Node"), style = "color:white"),
-                  ),
-                  column(
-                    width = 1,
-                    align = "left",
-                    checkboxInput(
-                      "include_node",
-                      label = "",
-                      value = TRUE
+                box(
+                  solidHeader = TRUE,
+                  status = "primary",
+                  width = "100%",
+                  fluidRow(
+                    column(width = 1),
+                    column(
+                      width = 7,
+                      align = "right",
+                      h3(p("Label Node"), style = "color:white"),
+                    ),
+                    column(
+                      width = 1,
+                      align = "left",
+                      checkboxInput(
+                        "include_node",
+                        label = "",
+                        value = TRUE
+                      )
                     )
-                  )
-                ),
-                conditionalPanel(
-                  "input.include_node==true",
+                  ),
                   selectInput(
                     "node_label",
                     label = "",
@@ -1237,9 +1284,9 @@ ui <- dashboardPage(
                     width = "65%"
                   ),
                   fluidRow(
-                    column(width = 2),
+                    column(width = 1),
                     column(
-                      width = 5,
+                      width = 6,
                       align = "center",
                       colorPickr(
                         inputId = "label_color",
@@ -1268,7 +1315,8 @@ ui <- dashboardPage(
                           icon = icon("sliders")
                         ),
                         theme = "translucent",
-                        maxWidth = "250px",
+                        placement = "top-start",
+                        maxWidth = "1000px",
                         column(
                           width = 6,
                           numericInput(
@@ -1277,7 +1325,8 @@ ui <- dashboardPage(
                             value = 4,
                             min = 2,
                             max = 10,
-                            step = 0.5
+                            step = 0.5,
+                            width = "170px"
                           ),
                           numericInput(
                             "x_nudge",
@@ -1285,7 +1334,8 @@ ui <- dashboardPage(
                             value = 0,
                             min = -10,
                             max = 10,
-                            step = 0.5
+                            step = 0.5,
+                            width = "170px"
                           ),
                           numericInput(
                             "y_nudge",
@@ -1293,7 +1343,8 @@ ui <- dashboardPage(
                             value = 0,
                             min = -10,
                             max = 10,
-                            step = 0.5
+                            step = 0.5,
+                            width = "170px"
                           ),
                         ),
                         column(
@@ -1304,7 +1355,8 @@ ui <- dashboardPage(
                             value = 0.7,
                             step = 0.1,
                             min = 0,
-                            max = 1
+                            max = 1,
+                            width = "170px"
                           ),
                           numericInput(
                             "box_padding",
@@ -1312,7 +1364,8 @@ ui <- dashboardPage(
                             value = 0.25,
                             min = 0,
                             max = 1,
-                            step = 0.05
+                            step = 0.05,
+                            width = "170px"
                           ),
                           numericInput(
                             "point_padding",
@@ -1320,7 +1373,8 @@ ui <- dashboardPage(
                             value = 0.25,
                             min = 0,
                             max = 1,
-                            step = 0.05
+                            step = 0.05,
+                            width = "170px"
                           )
                         ),
                         h5(".", style = "color:black; font-size: 1px; margin-bottom: 0px;")
@@ -1339,91 +1393,95 @@ ui <- dashboardPage(
                       )
                     )
                   ),
-                  conditionalPanel(
-                    "input.label_rect==true",
-                    fluidRow(
-                      column(width = 2),
-                      column(
-                        width = 5,
-                        colorPickr(
-                          inputId = "label_fillcolor",
-                          width = "95%",
-                          selected = "#ffffff",
+                  fluidRow(
+                    column(width = 1),
+                    column(
+                      width = 6,
+                      colorPickr(
+                        inputId = "label_fillcolor",
+                        width = "95%",
+                        selected = "#ffffff",
+                        label = "",
+                        update = "changestop",
+                        interaction = list(
+                          clear = FALSE,
+                          save = FALSE
+                        ),
+                        position = "right-start"
+                      )
+                    ),
+                    column(
+                      width = 3,
+                      br(),
+                      dropMenu(
+                        actionBttn(
+                          "nodepanel_menu",
                           label = "",
-                          update = "changestop",
-                          interaction = list(
-                            clear = FALSE,
-                            save = FALSE
-                          ),
-                          position = "right-start"
-                        )
-                      ),
-                      column(
-                        width = 3,
-                        br(),
-                        dropMenu(
-                          actionBttn(
-                            "nodepanel_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          theme = "translucent",
-                          maxWidth = "100px",
-                          numericInput(
-                            "panel_padding",
-                            label = h5("Label Padding", style = "color:white; margin-bottom: 0px;"),
-                            value = 0.3,
-                            min = 0.2,
-                            max = 1,
-                            step = 0.1
-                          ),
-                          numericInput(
-                            "panel_radius",
-                            label = h5("Radius", style = "color:white; margin-bottom: 0px;"),
-                            value = 0.2,
-                            min = 0,
-                            max = 1,
-                            step = 0.1
-                          ),
-                          numericInput(
-                            "panel_bordersize",
-                            label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                            value = 0.5,
-                            min = 0,
-                            max = 4,
-                            step = 0.25
-                          )
+                          color = "default",
+                          size = "sm",
+                          style = "material-flat",
+                          icon = icon("sliders")
+                        ),
+                        theme = "translucent",
+                        placement = "top-start",
+                        maxWidth = "200px",
+                        numericInput(
+                          "panel_padding",
+                          label = h5("Label Padding", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.3,
+                          min = 0.2,
+                          max = 1,
+                          step = 0.1,
+                          width = "70px"
+                        ),
+                        numericInput(
+                          "panel_radius",
+                          label = h5("Radius", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.2,
+                          min = 0,
+                          max = 1,
+                          step = 0.1,
+                          width = "70px"
+                        ),
+                        numericInput(
+                          "panel_bordersize",
+                          label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.5,
+                          min = 0,
+                          max = 4,
+                          step = 0.25,
+                          width = "70px"
                         )
                       )
                     )
-                  )
+                  ),
+                  br(), br()
                 )
               ),
               column(
                 width = 2,
                 align = "center",
-                fluidRow(
-                  column(width = 1),
-                  column(
-                    width = 7,
-                    align = "right",
-                    h3(p("Label Edge"), style = "color:white")
-                  ),
-                  column(
-                    width = 1,
-                    align = "left",
-                    checkboxInput(
-                      "include_edge",
-                      label = "",
-                      value = FALSE
+                box(
+                  solidHeader = TRUE,
+                  status = "primary",
+                  width = "100%",
+                  fluidRow(
+                    column(width = 1),
+                    column(
+                      width = 7,
+                      align = "right",
+                      h3(p("Label Edge"), style = "color:white")
+                    ),
+                    column(
+                      width = 1,
+                      align = "left",
+                      checkboxInput(
+                        "include_edge",
+                        label = "",
+                        value = FALSE
+                      )
                     )
-                  )
-                ),
-                conditionalPanel(
-                  "input.include_edge==true",
+                  ),
                   selectInput(
                     "edge_label",
                     label = "",
@@ -1441,9 +1499,9 @@ ui <- dashboardPage(
                     width = "65%"
                   ),
                   fluidRow(
-                    column(width = 2),
+                    column(width = 1),
                     column(
-                      width = 5,
+                      width = 6,
                       align = "center",
                       colorPickr(
                         inputId = "edgelabel_color",
@@ -1471,6 +1529,7 @@ ui <- dashboardPage(
                           icon = icon("sliders")
                         ),
                         theme = "translucent",
+                        placement = "top-start",
                         maxWidth = "250px",
                         fluidRow(
                           column(
@@ -1482,7 +1541,7 @@ ui <- dashboardPage(
                               min = 2,
                               max = 10,
                               step = 0.5,
-                              width = "70%"
+                              width = "170px"
                             ),
                             numericInput(
                               "edge_x_nudge",
@@ -1491,7 +1550,7 @@ ui <- dashboardPage(
                               min = -10,
                               max = 10,
                               step = 0.5,
-                              width = "70%"
+                              width = "170px"
                             ),
                             numericInput(
                               "edge_y_nudge",
@@ -1500,7 +1559,7 @@ ui <- dashboardPage(
                               min = -10,
                               max = 10,
                               step = 0.5,
-                              width = "70%"
+                              width = "170px"
                             )
                           ),
                           column(
@@ -1512,7 +1571,7 @@ ui <- dashboardPage(
                               step = 0.1,
                               min = 0,
                               max = 1,
-                              width = "70%"
+                              width = "170px"
                             ),
                             numericInput(
                               "edge_box_padding",
@@ -1520,7 +1579,8 @@ ui <- dashboardPage(
                               value = 0.25,
                               min = 0,
                               max = 1,
-                              step = 0.05
+                              step = 0.05,
+                              width = "170px"
                             ),
                             numericInput(
                               "edge_point_padding",
@@ -1528,7 +1588,8 @@ ui <- dashboardPage(
                               value = 0.25,
                               min = 0,
                               max = 1,
-                              step = 0.05
+                              step = 0.05,
+                              width = "170px"
                             )
                           )
                         ),
@@ -1547,140 +1608,132 @@ ui <- dashboardPage(
                       )
                     )
                   ),
-                  conditionalPanel(
-                    "input.edge_rect==true",
-                    fluidRow(
-                      column(width = 2),
-                      column(
-                        width = 5,
-                        align = "center",
-                        colorPickr(
-                          inputId = "edgelabel_fillcolor",
-                          width = "95%",
-                          selected = "#A5A315",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(
-                            clear = FALSE,
-                            save = FALSE
-                          ),
-                          position = "right-start"
+                  fluidRow(
+                    column(width = 1),
+                    column(
+                      width = 6,
+                      align = "center",
+                      colorPickr(
+                        inputId = "edgelabel_fillcolor",
+                        width = "95%",
+                        selected = "#A5A315",
+                        label = "",
+                        update = "changestop",
+                        interaction = list(
+                          clear = FALSE,
+                          save = FALSE
                         ),
+                        position = "right-start"
                       ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        br(),
-                        dropMenu(
-                          actionBttn(
-                            "edgepanel_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          theme = "translucent",
-                          maxWidth = "100px",
-                          numericInput(
-                            "edge_panel_padding",
-                            label = h5("Label Padding", style = "color:white; margin-bottom: 0px;"),
-                            value = 0.3,
-                            min = 0.2,
-                            max = 1,
-                            step = 0.1
-                          ),
-                          numericInput(
-                            "edge_panel_radius",
-                            label = h5("Radius", style = "color:white; margin-bottom: 0px;"),
-                            value = 0.2,
-                            min = 0,
-                            max = 1,
-                            step = 0.1
-                          ),
-                          numericInput(
-                            "edge_panel_bordersize",
-                            label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                            value = 0.5,
-                            min = 0,
-                            max = 4,
-                            step = 0.25
-                          )
+                    ),
+                    column(
+                      width = 3,
+                      align = "center",
+                      br(),
+                      dropMenu(
+                        actionBttn(
+                          "edgepanel_menu",
+                          label = "",
+                          color = "default",
+                          size = "sm",
+                          style = "material-flat",
+                          icon = icon("sliders")
+                        ),
+                        theme = "translucent",
+                        maxWidth = "100px",
+                        placement = "top-start",
+                        numericInput(
+                          "edge_panel_padding",
+                          label = h5("Label Padding", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.3,
+                          min = 0.2,
+                          max = 1,
+                          step = 0.1,
+                          width = "70px"
+                        ),
+                        numericInput(
+                          "edge_panel_radius",
+                          label = h5("Radius", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.2,
+                          min = 0,
+                          max = 1,
+                          step = 0.1,
+                          width = "70px"
+                        ),
+                        numericInput(
+                          "edge_panel_bordersize",
+                          label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.5,
+                          min = 0,
+                          max = 4,
+                          step = 0.25,
+                          width = "70px"
                         )
                       )
                     )
-                  )  
+                  ),
+                  br(), br()
                 )
               ),
               column(
                 width = 2,
                 align = "center",
-                h3(p("Add Metadata"), style = "color:white"),
-                selectInput(
-                  "which_metadata",
-                  label = "",
-                  choices = c(
-                    Index = "index",
-                    `Assembly ID` = "assembly_id",
-                    `Assembly Name` = "assembly_name",
-                    Scheme = "scheme",
-                    `Isolation Date` = "isolation_date",
-                    Host = "host",
-                    Country = "country",
-                    City = "city"
+                box(
+                  solidHeader = TRUE,
+                  status = "primary",
+                  width = "100%",
+                  h3(p("Add Metadata"), style = "color:white"),
+                  selectInput(
+                    "which_metadata",
+                    label = "",
+                    choices = c(
+                      Index = "index",
+                      `Assembly ID` = "assembly_id",
+                      `Assembly Name` = "assembly_name",
+                      Scheme = "scheme",
+                      `Isolation Date` = "isolation_date",
+                      Host = "host",
+                      Country = "country",
+                      City = "city"
+                    ),
+                    selected = c(Host = "host"),
+                    width = "65%"
                   ),
-                  selected = c(Host = "host"),
-                  width = "65%"
-                ),
-                selectInput(
-                  "element_metadata",
-                  label = h5("Select Element", style = "color:white; margin-bottom: 0px;"),
-                  choices = c("Node Shape", "Node Size"),
-                  width = "65%"
-                ),
-                br(),
-                fluidRow(
-                  column(width = 3),
-                  column(
-                    width = 2,
-                    actionButton(
-                      "add_metadata",
-                      "Add"
+                  selectInput(
+                    "element_metadata",
+                    label = h5("Select Element", style = "color:white; margin-bottom: 0px;"),
+                    choices = c("Node Shape", "Node Size"),
+                    width = "65%"
+                  ),
+                  br(),
+                  fluidRow(
+                    column(width = 3),
+                    column(
+                      width = 2,
+                      actionBttn(
+                        "add_metadata",
+                        label = "Add",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat"
+                      )
+                    ),
+                    column(width = 1),
+                    column(
+                      width = 2,
+                      actionBttn(
+                        "delete_meta",
+                        label = "",
+                        color = "danger",
+                        size = "sm",
+                        style = "material-circle",
+                        icon = icon("xmark")
+                      )
                     )
                   ),
-                  column(width = 1),
-                  column(
-                    width = 2,
-                    actionBttn(
-                      "delete_meta",
-                      label = "",
-                      color = "danger",
-                      size = "sm",
-                      style = "material-circle",
-                      icon = icon("xmark")
-                    )
-                  )
+                  br(), br(), br(), br(), br()
                 )
               ),
-              column(
-                width = 1,
-                align = "center",
-                h3(p("Other"), style = "color:white"),
-                colorPickr(
-                  inputId = "color_bg",
-                  width = "70%",
-                  selected = "#ffffff",
-                  label = h5("Background", style = "color:white; margin-bottom: 0px;"),
-                  update = "changestop",
-                  interaction = list(
-                    clear = FALSE,
-                    save = FALSE
-                  ),
-                  position = "right-start"
-                ),
-                br(),
-                uiOutput("cluster_start")
-              )
             )
           ),
           
@@ -3491,32 +3544,34 @@ server <- function(input, output, session) {
   
   # Set Node Label
   label_node <- reactive({
-    
-    if (input$label_rect == FALSE) {
-      geom_nodetext_repel(aes_string(label = input$node_label), 
-                          color = input$label_color, 
-                          size = input$label_size, 
-                          alpha = input$label_alpha,
-                          box.padding = input$box_padding,
-                          point.padding = input$point_padding,
-                          nudge_x = input$x_nudge,
-                          nudge_y = input$y_nudge,
-                          max.overlaps = 18)
-    } else {
-      geom_nodelabel_repel(aes_string(label = input$node_label), 
-                           color = input$label_color,
-                           fill = input$label_fillcolor,
-                           size = input$label_size,
-                           alpha = input$label_alpha,
-                           box.padding = input$box_padding,
-                           point.padding = input$point_padding,
-                           nudge_x = input$x_nudge,
-                           nudge_y = input$y_nudge,
-                           label.padding = input$panel_padding,
-                           label.r = input$panel_radius,
-                           label.size = input$panel_bordersize,
-                           max.overlaps = 18)
+    if (input$include_node) {
+      if (input$label_rect == FALSE) {
+        geom_nodetext_repel(aes_string(label = input$node_label), 
+                            color = input$label_color, 
+                            size = input$label_size, 
+                            alpha = input$label_alpha,
+                            box.padding = input$box_padding,
+                            point.padding = input$point_padding,
+                            nudge_x = input$x_nudge,
+                            nudge_y = input$y_nudge,
+                            max.overlaps = 18)
+      } else {
+        geom_nodelabel_repel(aes_string(label = input$node_label), 
+                             color = input$label_color,
+                             fill = input$label_fillcolor,
+                             size = input$label_size,
+                             alpha = input$label_alpha,
+                             box.padding = input$box_padding,
+                             point.padding = input$point_padding,
+                             nudge_x = input$x_nudge,
+                             nudge_y = input$y_nudge,
+                             label.padding = input$panel_padding,
+                             label.r = input$panel_radius,
+                             label.size = input$panel_bordersize,
+                             max.overlaps = 18)
+      }
     }
+    
   
   })
   
@@ -3536,7 +3591,8 @@ server <- function(input, output, session) {
                              nudge_y = input$edge_y_nudge,
                              label.padding = input$edge_panel_padding,
                              label.r = input$edge_panel_radius,
-                             label.size = input$edge_panel_bordersize)
+                             label.size = input$edge_panel_bordersize,
+                             max.overlaps = 18)
       } else {
         geom_edgetext_repel(aes_string(label = input$edge_label),
                             color = input$edgelabel_color, 
@@ -3545,7 +3601,8 @@ server <- function(input, output, session) {
                             box.padding = input$edge_box_padding,
                             point.padding = input$edge_point_padding,
                             nudge_x = input$edge_x_nudge,
-                            nudge_y = input$edge_y_nudge)
+                            nudge_y = input$edge_y_nudge,
+                            max.overlaps = 18)
       }
     } else {NULL}
   })
