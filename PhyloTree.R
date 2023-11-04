@@ -368,7 +368,13 @@ ui <- dashboardPage(
           align = "left",
           uiOutput("scheme_db"),
           br(),
-          uiOutput("load")
+          column(
+            width = 12,
+            align = "center",
+            uiOutput("load"),
+            br(),
+            uiOutput("edit_button")
+          )
         )
       ),
       conditionalPanel(
@@ -767,23 +773,31 @@ ui <- dashboardPage(
         hr(),
         br(),
         fluidRow(
-          column(width = 4,
-                 align = "center",
-                 br()),
           column(
-            width = 8,
-            align = "right",
-            uiOutput("compare_select")
-          )
-        ),
-        fluidRow(
-          column(
-            width = 12,
-            align = "center",
+            width = 9,
             uiOutput("db_no_entries"),
             uiOutput("no_db"),
-            dataTableOutput("db_entries")
-          )
+            rHandsontableOutput("db_entries")
+          ),
+          column(width = 3,
+                 align = "center",
+                 uiOutput("compare_select"),
+                 br(), br(), br(),
+                 uiOutput("del_text"),
+                 br(),
+                 fluidRow(
+                   column(width = 3),
+                   column(
+                     width = 3,
+                     uiOutput("delete_button")
+                   ),
+                   column(
+                     width = 3,
+                     br(),
+                     uiOutput("del_bttn")
+                   )
+                 )
+                 )
         ),
         fluidRow(
           br(),
@@ -2707,30 +2721,45 @@ server <- function(input, output, session) {
       
       output$compare_select <- renderUI({
         pickerInput(
-          "compare_select",
-          label = "Select Locus",
-          choices = names(select(typing,-(1:11))),
-          selected = names(select(typing,-(1:11)))[1],
-          width = "fit",
+          inputId = "compare_select",
+          label = h4("Select loci to display", style = "color:white; margin-bottom: 10px;"),
+          choices = names(select(typing,-(1:12))),
+          selected = names(select(typing,-(1:12)))[1],
           options = list(
             `live-search` = TRUE,
             `actions-box` = TRUE,
             size = 10,
-            style = "background-color: white; border-radius: 5px;"
-          )
+            style = "background-color: white; border-radius: 5px;"), 
+          multiple = TRUE
         )
       })
       
+      
+      
       # Render Entry Data Table
       if (!class(DF1$data) == "NULL") {
-        output$db_entries <- renderDataTable({
-          select(DF1$data, 1:11, input$compare_select)
-        },
-        options = list(pageLength = 25,
-                       columnDefs = list(
-                         list(searchable = FALSE,
-                              targets = "_all")
-                       )))
+        
+        observe({
+        if(length(input$compare_select) > 0) {
+          output$db_entries <- renderRHandsontable({
+            rhandsontable(select(DF1$data, 1:12, input$compare_select), rowHeaders = NULL) %>%
+              hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+              hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+              hot_rows(rowHeights = 25, fixedRowsTop = 1) %>%
+              hot_col(2, halign = "htCenter", valign = "htTop", width = "auto") %>%
+              hot_col(1, width = "auto")
+          })
+        } else {
+          output$db_entries <- renderRHandsontable({
+            rhandsontable(select(DF1$data, 1:12), rowHeaders = NULL) %>%
+              hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+              hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+              hot_rows(rowHeights = 25, fixedRowsTop = 1) %>%
+              hot_col(2, halign = "htCenter", valign = "htTop", width = "auto") %>%
+              hot_col(1, width = "auto")
+          })
+        }
+        })
         
         output$db_no_entries <- NULL
         
@@ -2738,84 +2767,27 @@ server <- function(input, output, session) {
       
       # Edit Database Elements
       
-      output$edit_field <- renderUI({
-        box(
-          solidHeader = TRUE,
-          status = "primary",
-          width = 7,
-          column(width = 1),
-          column(
-            width = 2,
-            align = "left",
-            uiOutput("edit_index")
-          ),
-          column(
-            width = 3,
-            align = "center",
-            uiOutput("edit_which")
-          ),
-          column(width = 3,
-                 align = "center",
-                 uiOutput("edit")),
-          column(
-            width = 3,
-            align = "center",
-            br(),
-            column(
-              width = 5,
-              actionBttn(
-                "edit_button",
-                label = "",
-                size = "sm",
-                style = "material-circle",
-                icon = icon("pen")
-              )
-            ),
-            column(width = 1),
-            column(
-              width = 5,
-              actionBttn(
-                "delete_button",
-                label = "",
-                color = "danger",
-                size = "sm",
-                style = "material-circle",
-                icon = icon("xmark")
-              )
-            )
-          )
-        )
+      output$del_text <- renderUI({
+        h4(p("Delete Entries"), style = "color:white")  
       })
       
-      output$edit_index <- renderUI({
-        pickerInput(
-          "edit_index",
-          label = "Entry no.",
-          choices = DF1$data[, "Index"],
-          width = "auto",
-          options = list(
-            `live-search` = TRUE,
-            `actions-box` = TRUE,
-            size = 10,
-            style = "background-color: white; border-radius: 5px;"
-          )
-        )
+      output$delete_button <- renderUI({
+        selectInput(
+          "select_delete",
+          label = "Index",
+          choices = DF1$data[, "Index"]
+        )    
       })
       
-      output$edit_which <- renderUI({
-        pickerInput(
-          "edit_which",
-          label = "Variable",
-          choices = names(select(DF1$data, 2:9)),
-          options = list(size = 10,
-                         style = "background-color: white; border-radius: 5px;")
+      output$del_bttn <- renderUI({
+        actionBttn(
+          "del_button",
+          label = "",
+          color = "danger",
+          size = "sm",
+          style = "material-circle",
+          icon = icon("xmark")
         )
-      })
-      
-      output$edit <- renderUI({
-        textInput("edit",
-                  value = DF1$data[as.numeric(input$edit_index), input$edit_which],
-                  label = input$edit_which)
       })
       
     } else if (!any(grepl("Typing.rds", dir_ls(paste0(
@@ -2895,6 +2867,11 @@ server <- function(input, output, session) {
       # Show Load Database Button
       output$load <- renderUI(actionButton("load",
                                            "Load Database"))
+      
+      output$edit_button <- renderUI(actionButton(
+        "edit_button",
+        "Save"
+      ))
       
       
     } else {
@@ -4593,7 +4570,7 @@ server <- function(input, output, session) {
         data.frame(matrix(
           NA,
           nrow = 0,
-          ncol = 11 + length(list.files(
+          ncol = 12 + length(list.files(
             paste0(
               getwd(),
               "/Database/",
@@ -4606,6 +4583,7 @@ server <- function(input, output, session) {
       metadata <-
         c(
           1,
+          TRUE,
           input$assembly_id,
           input$assembly_name,
           input$cgmlst_typing,
@@ -4626,6 +4604,7 @@ server <- function(input, output, session) {
         append(
           c(
             "Index",
+            "Include",
             "Assembly ID",
             "Assembly Name",
             "Scheme",
@@ -4668,6 +4647,7 @@ server <- function(input, output, session) {
       metadata <-
         c(
           nrow(Database[["Typing"]]) + 1,
+          TRUE,
           input$assembly_id,
           input$assembly_name,
           input$cgmlst_typing,
@@ -4692,7 +4672,8 @@ server <- function(input, output, session) {
                 "/Database/",
                 gsub(" ", "_", input$cgmlst_typing),
                 "/Typing.rds"
-              ))
+                )
+              )
     }
   })
   
