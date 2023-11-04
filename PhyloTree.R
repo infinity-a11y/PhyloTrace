@@ -3296,17 +3296,19 @@ server <- function(input, output, session) {
   observe({
     plot_loc$plot <- 
       ggplot(plot_loc$gg, aes(x = x, y = y, xend = xend, yend = yend)) +
-      geom_edges(color = edge_color(), 
-                 size = edge_size(),
-                 alpha = edge_alpha(),
-                 curvature = edge_curvature()) +
-      nodes() +
-      label_edge() +
-      label_node() +
-      theme_blank() +
-      theme(
-        panel.background = element_rect(fill = bg_color()),
-        plot.background = element_rect(fill = bg_color()))
+        geom_edges(
+          color = edge_color(), 
+          linewidth = edge_size(),
+          alpha = edge_alpha(),
+          curvature = edge_curvature()) +
+        nodes() +
+        label_edge() +
+        label_node() +
+        theme_blank() +
+        theme(
+          panel.background = element_rect(fill = bg_color()),
+          plot.background = element_rect(fill = bg_color()))
+    
   })
   
   # Render local database choice input
@@ -3323,8 +3325,6 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$create_tree, {
-    
-    
     
     set.seed(1)
     
@@ -3346,9 +3346,9 @@ server <- function(input, output, session) {
     
     if (input$tree_algo == "Neighbour-Joining") {
       
-      meta_nj <- meta
+      plot_loc$meta_nj <- meta
       
-      colnames(meta_nj) <-
+      colnames(plot_loc$meta_nj) <-
         c(
           "index",
           "assembly_id",
@@ -3363,18 +3363,19 @@ server <- function(input, output, session) {
           "errors"
         )
       
-      meta_nj$taxa <- rownames(meta_nj)
+      plot_loc$meta_nj$taxa <- rownames(plot_loc$meta_nj)
       
       
       # Create phylogenetic tree
-      eigen_tree <- ape::nj(dist_matrix)
+      plot_loc$nj <- ape::nj(dist_matrix)
+      
+      plot_loc$nj_plot <- 
+        ggtree(plot_loc$nj, layout = layout_nj()) %<+% plot_loc$meta_nj +
+        tiplab_nj() +
+        inward()
       
       # Visualize the tree with metadata annotations
-      output$tree_local <- renderPlot({
-        ggtree(eigen_tree, layout = layout_nj()) %<+% meta_nj +
-          tiplab_nj() +
-          inward()
-      })
+      output$tree_local <- renderPlot({plot_loc$nj_plot})
       
     } else {
       
@@ -3664,7 +3665,11 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       png(file, width = 1200, height = 600)
-      print(plot_loc$plot)
+      if (input$tree_algo == "Minimum-Spanning") {
+        print(plot_loc$plot)
+      } else if (input$tree_algo == "Neighbour-Joining") {
+        print(plot_loc$nj_plot)
+      }
       dev.off()
     }
   )
@@ -4291,7 +4296,7 @@ server <- function(input, output, session) {
   })
   
   
-  #################### Run KMA  index script #########################
+  #################### Run KMA index script #########################
   
   
   observeEvent(input$typing_start, {
@@ -4456,6 +4461,7 @@ server <- function(input, output, session) {
     
     output$get_allele_profile <- renderUI(actionButton("get_allele_profile",
                                                        "Get Allelic Profile"))
+    
   })
   
   
@@ -4646,7 +4652,7 @@ server <- function(input, output, session) {
       Database[["Typing"]] <- Typing
       
       saveRDS(Database,
-              paste0(getwd(), "/Database/", folder_name, "/Typing.rds"))
+              paste0(getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing), "/Typing.rds"))
       
     } else {
       # If not first Typing Entry
