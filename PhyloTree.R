@@ -382,7 +382,14 @@ ui <- dashboardPage(
         column(
           width = 12,
           align = "left",
-          uiOutput("cgmlst_typing")
+          prettyRadioButtons(
+            inputId = "typing_mode",
+            label = "Typing Mode",
+            choices = c("Single", "Multi"),
+            selected = "Single"
+          ),
+          br(),
+          uiOutput("cgmlst_typing"),
         )
       ),
       conditionalPanel(
@@ -942,141 +949,174 @@ ui <- dashboardPage(
           h2(p("Generate Allelic Profile"), style = "color:white"),
         )),
         hr(),
-        fluidRow(
-          column(
-            width = 3,
-            align = "center",
-            br(),
-            br(),
-            h3(p("Initiate Typing"), style = "color:white"),
-            br(),
-            br(),
-            shinyFilesButton(
-              "genome_file",
-              "Select Genome" ,
-              title = "Please select the genome in .fasta format:",
-              multiple = FALSE,
-              buttonType = "default",
-              class = NULL
-            ),
-            br(),
-            br(),
-            uiOutput("genome_path"),
-            uiOutput("selected_scheme"),
-            br(),
-            br(),
-            br(),
-            uiOutput("arrow_start"),
-            br(),
-            uiOutput("typing_start"),
-            conditionalPanel(
-              "input.typing_start",
+        conditionalPanel(
+          "input.typing_mode == 'Single'",
+          fluidRow(
+            column(
+              width = 3,
+              align = "center",
               br(),
-              progressBar(
-                "progress_bar",
-                value = 0,
-                display_pct = TRUE,
-                title = ""
-              )
-            ),
-            br(),
-            br(),
-            uiOutput("arrow_profile"),
-            br(),
-            uiOutput("get_allele_profile"),
-            conditionalPanel(
-              "input.get_allele_profile",
               br(),
-              progressBar(
-                "progress_profile",
-                value = 0,
-                display_pct = TRUE,
-                title = ""
-              )
+              h3(p("Initiate Typing"), style = "color:white"),
+              br(),
+              br(),
+              shinyFilesButton(
+                "genome_file",
+                "Select Genome" ,
+                title = "Please select the genome in .fasta format:",
+                multiple = FALSE,
+                buttonType = "default",
+                class = NULL
+              ),
+              br(),
+              br(),
+              uiOutput("genome_path"),
+              uiOutput("selected_scheme"),
+              br(),
+              br(),
+              br(),
+              uiOutput("arrow_start"),
+              br(),
+              uiOutput("typing_start"),
+              conditionalPanel(
+                "input.typing_start",
+                br(),
+                progressBar(
+                  "progress_bar",
+                  value = 0,
+                  display_pct = TRUE,
+                  title = ""
+                )
+              ),
+              br(),
+              br(),
+              uiOutput("arrow_profile"),
+              br(),
+              uiOutput("get_allele_profile"),
+              conditionalPanel(
+                "input.get_allele_profile",
+                br(),
+                progressBar(
+                  "progress_profile",
+                  value = 0,
+                  display_pct = TRUE,
+                  title = ""
+                )
+              ),
+              htmlOutput("typing_fin"),
             ),
-            htmlOutput("typing_fin"),
-          ),
-          column(width = 1),
-          column(
-            width = 2,
-            align = "center",
-            br(),
-            br(),
-            h3(p("Typing Results"), style = "color:white"),
-            br(),
-            br(),
-            uiOutput("sel_result"),
-            addSpinner(
-              tableOutput("typ_res_tab"),
-              spin = "dots",
-              color = "#ffffff"
-            )
-          ),
-          column(width = 1),
-          column(
-            width = 4,
-            align = "center",
-            br(),
-            br(),
-            h3(p("Append to Database"), style = "color:white"),
-            br(),
-            br(),
             column(width = 1),
             column(
-              width = 6,
-              box(
-                solidHeader = TRUE,
-                status = "primary",
-                width = "100%",
-                textInput("assembly_id",
-                          "Assembly ID",
-                          width = "80%"),
-                textInput("assembly_name",
-                          "Assembly Name",
-                          width = "80%"),
-                dateInput("append_isodate",
-                          label = "Isolation Date",
-                          width = "50%"),
-                textInput("append_host",
-                          label = "Host",
-                          width = "80%"),
-                pickerInput(
-                  "append_country",
-                  "Country",
-                  choices = list("Common" = sel_countries,
-                                 "All Countries" = country_names),
-                  options = list(
-                    `live-search` = TRUE,
-                    `actions-box` = TRUE,
-                    size = 10,
-                    style = "background-color: white; border-radius: 5px;"
-                  ),
-                  width = "90%"
-                ),
-                textInput("append_city",
-                          label = "City",
-                          width = "80%"),
-                dateInput(
-                  "append_analysisdate",
-                  label = "Typing Date",
-                  value = Sys.Date(),
-                  width = "50%"
-                )
+              width = 2,
+              align = "center",
+              br(),
+              br(),
+              h3(p("Typing Results"), style = "color:white"),
+              br(),
+              br(),
+              uiOutput("sel_result"),
+              addSpinner(
+                tableOutput("typ_res_tab"),
+                spin = "dots",
+                color = "#ffffff"
               )
             ),
+            column(width = 1),
             column(
               width = 4,
+              align = "center",
               br(),
               br(),
+              h3(p("Append to Database"), style = "color:white"),
               br(),
               br(),
+              column(width = 1),
+              column(
+                width = 6,
+                box(
+                  solidHeader = TRUE,
+                  status = "primary",
+                  width = "100%",
+                  textInput("assembly_id",
+                            "Assembly ID",
+                            width = "80%"),
+                  textInput("assembly_name",
+                            "Assembly Name",
+                            width = "80%"),
+                  dateInput("append_isodate",
+                            label = "Isolation Date",
+                            width = "50%"),
+                  textInput("append_host",
+                            label = "Host",
+                            width = "80%"),
+                  pickerInput(
+                    "append_country",
+                    "Country",
+                    choices = list("Common" = sel_countries,
+                                   "All Countries" = country_names),
+                    options = list(
+                      `live-search` = TRUE,
+                      `actions-box` = TRUE,
+                      size = 10,
+                      style = "background-color: white; border-radius: 5px;"
+                    ),
+                    width = "90%"
+                  ),
+                  textInput("append_city",
+                            label = "City",
+                            width = "80%"),
+                  dateInput(
+                    "append_analysisdate",
+                    label = "Typing Date",
+                    value = Sys.Date(),
+                    width = "50%"
+                  )
+                )
+              ),
+              column(
+                width = 4,
+                br(),
+                br(),
+                br(),
+                br(),
+                br(),
+                br(),
+                br(),
+                br(),
+                br(),
+                actionButton(inputId = "append",
+                             label = "Append")
+              )
+            )
+          )
+        ),
+        conditionalPanel(
+          "input.typing_mode == 'Multi'",
+          fluidRow(
+            column(
+              width = 4,
+              align = "center",
               br(),
               br(),
+              h3(p("Initiate Typing"), style = "color:white"),
               br(),
               br(),
-              br(),
-              actionButton(inputId = "append",
-                           label = "Append")
+              column(
+                width = 12,
+                align = "center",
+                shinyDirButton(
+                  "genome_file_multi",
+                  "Select Genome" ,
+                  title = "Please select the folder containing the genome assemblies in .fasta format",
+                  buttonType = "default"
+                ),
+                br(), br()
+              ),
+              column(
+                width = 12,
+                align = "left",
+                rHandsontableOutput("multi_select_table")
+              )
             )
           )
         )
@@ -2713,6 +2753,13 @@ server <- function(input, output, session) {
           "/Typing.rds"
         ))
       
+      output$edit_button <- renderUI({
+        actionButton(
+          "edit_button",
+          "Save"
+        )
+      })
+      
       typing <- Data[["Typing"]]
       
       output$db_line <- renderUI(hr())
@@ -2742,21 +2789,25 @@ server <- function(input, output, session) {
         observe({
         if(length(input$compare_select) > 0) {
           output$db_entries <- renderRHandsontable({
-            rhandsontable(select(DF1$data, 1:12, input$compare_select), rowHeaders = NULL) %>%
+            DF1$new <- rhandsontable(select(DF1$data, 1:12, input$compare_select), rowHeaders = NULL) %>%
               hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
               hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
               hot_rows(rowHeights = 25, fixedRowsTop = 1) %>%
               hot_col(2, halign = "htCenter", valign = "htTop", width = "auto") %>%
               hot_col(1, width = "auto")
+            
+            DF1$new
           })
         } else {
           output$db_entries <- renderRHandsontable({
-            rhandsontable(select(DF1$data, 1:12), rowHeaders = NULL) %>%
+            DF1$new <- rhandsontable(select(DF1$data, 1:12), rowHeaders = NULL) %>%
               hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
               hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
               hot_rows(rowHeights = 25, fixedRowsTop = 1) %>%
               hot_col(2, halign = "htCenter", valign = "htTop", width = "auto") %>%
               hot_col(1, width = "auto")
+            
+            DF1$new
           })
         }
         })
@@ -2868,11 +2919,6 @@ server <- function(input, output, session) {
       output$load <- renderUI(actionButton("load",
                                            "Load Database"))
       
-      output$edit_button <- renderUI(actionButton(
-        "edit_button",
-        "Save"
-      ))
-      
       
     } else {
       output$no_db <- renderUI(HTML(
@@ -2895,24 +2941,46 @@ server <- function(input, output, session) {
   # Save Edits Button
   
   observeEvent(input$edit_button, {
-    Data <-
-      readRDS(paste0(
+    showModal(
+      modalDialog(
+        paste0("Overwriting previous metadata of local ",
+               input$scheme_db,
+               " Database.",
+               " Continue?"
+        ),  
+        title = "Save Database",
+        fade = TRUE,
+        easyClose = TRUE,
+        footer = tagList(
+          modalButton("Cancel"),
+          actionButton("conf_db_save", "Save", class = "btn btn-default")
+        )
+      )
+    )
+  })
+  
+  observeEvent(input$Cancel, {removeModal()})
+  
+  observeEvent(input$conf_db_save, {
+    Data <- readRDS(
+      paste0(
         getwd(),
         "/Database/",
         gsub(" ", "_", input$scheme_db),
-        "/Typing.rds"
-      ))
-    typing <- Data[["Typing"]]
-    typing[as.numeric(input$edit_index), input$edit_which] <-
-      input$edit
-    DF1$data <- typing
-    Data[["Typing"]] <- typing
+        "/Typing.rds")
+      )
+    
+    attach_meta <- hot_to_r(input$db_entries) %>% select(1:12)
+    
+    Data[["Typing"]][, 1:12] <- attach_meta
     saveRDS(Data, paste0(
       getwd(),
       "/Database/",
       gsub(" ", "_", input$scheme_db),
       "/Typing.rds"
     ))
+    
+    removeModal()
   })
   
   observeEvent(input$delete_button, {
@@ -2929,6 +2997,7 @@ server <- function(input, output, session) {
         "Are you sure you want to continue?",
         title = "Deleting Entry",
         fade = TRUE,
+        easyClose = TRUE,
         footer = tagList(
           modalButton("Cancel"),
           actionButton("ok", "Delete", class = "btn btn-danger")
@@ -3314,9 +3383,15 @@ server <- function(input, output, session) {
         "/Typing.rds"
       ))
     
-    allelic_profile <- dplyr::select(Database$Typing,-(1:11))
     
-    meta <<- dplyr::select(Database$Typing, 1:11)
+    
+    # get allele profile of included entries
+    allelic_profile <- dplyr::select(Database$Typing,-(1:12))
+    allelic_profile <- allelic_profile[which(Database[["Typing"]]$Include == TRUE), ]
+    
+    # get metadata without include boolean variable
+    meta <<- dplyr::select(Database$Typing, 1, 3:12)
+    meta <<- meta[which(Database[["Typing"]]$Include == TRUE), ]
     
     # Calculate distance matrix
     dist_matrix <<- dist(allelic_profile)
@@ -4210,6 +4285,8 @@ server <- function(input, output, session) {
   
   # Initiate Typing  ----------------------------------------------------
   
+  typing_reactive <- reactiveValues(table = data.frame())
+  
   # Render Scheme Selector
   
   observe({
@@ -4230,11 +4307,34 @@ server <- function(input, output, session) {
   
   
   observe({
+    
+    # Get selected Genome in Single Mode
     shinyFileChoose(input,
                     "genome_file",
-                    roots = volumes,
+                    roots = c(wd = "/home"),
                     session = session)
-    selected_genome <<- parseFilePaths(volumes, input$genome_file)
+    selected_genome <<- parseFilePaths(roots = c(wd = "/home"), input$genome_file)
+    
+    # Get selected Genome in Multi Mode
+    shinyDirChoose(input,
+                    "genome_file_multi",
+                    roots = c(wd = "/home"),
+                    session = session)
+    
+    typing_reactive$table <- data.frame(Include = rep(TRUE, length(list.files(as.character(parseDirPath(roots = c(wd = "/home"), input$genome_file_multi))))),
+                                        Files = list.files(as.character(parseDirPath(roots = c(wd = "/home"), input$genome_file_multi))))
+    
+    if (nrow(typing_reactive$table) > 0) {
+      output$multi_select_table <- renderRHandsontable({
+        rhandsontable(typing_reactive$table) %>%
+          hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+          hot_cols(columnSorting = TRUE) %>%
+          hot_rows(rowHeights = 25, fixedRowsTop = 1) %>%
+          hot_col(1, halign = "htCenter", valign = "htTop", width = "auto")
+      })
+    } else {
+      output$multi_select_table <- NULL
+    }
     
     if (!nrow(selected_genome) > 0) {
       output$genome_path <- renderUI(HTML(
