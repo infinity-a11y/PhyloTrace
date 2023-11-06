@@ -1094,7 +1094,7 @@ ui <- dashboardPage(
           "input.typing_mode == 'Multi'",
           fluidRow(
             column(
-              width = 4,
+              width = 3,
               align = "center",
               br(),
               br(),
@@ -1116,6 +1116,38 @@ ui <- dashboardPage(
                 width = 12,
                 align = "left",
                 rHandsontableOutput("multi_select_table")
+              )
+            ),
+            column(
+              width = 4,
+              align = "center",
+              br(), br(),
+              h3(p("Declare Metadata"), style = "color:white"),
+              br(), 
+              fluidRow(
+                column(width = 3),
+                column(
+                  width = 9,
+                  align = "left",
+                  prettyRadioButtons(
+                    inputId = "metadata_mode",
+                    label = "",
+                    choices = c("Automatic", "Manual"),
+                    selected = "Automatic"
+                  )
+                )
+              ),
+              br()
+            ),
+            column(
+              width = 4,
+              align = "center",
+              br(), br(),
+              h3(p("Start Typing"), style = "color:white"),
+              br(), br(),
+              actionButton(
+                "start_typ_multi",
+                "Start Typing"
               )
             )
           )
@@ -2789,9 +2821,22 @@ server <- function(input, output, session) {
         observe({
         if(length(input$compare_select) > 0) {
           output$db_entries <- renderRHandsontable({
-            DF1$new <- rhandsontable(select(DF1$data, 1:12, input$compare_select), rowHeaders = NULL) %>%
+            DF1$new <- rhandsontable(select(DF1$data, 1:12, input$compare_select), 
+                                     col_highlight = diff_allele(), rowHeaders = NULL) %>%
               hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
-              hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+              hot_col(13:(12+length(input$compare_select)), renderer = "
+                function(instance, td, row, col, prop, value, cellProperties) {
+                  Handsontable.renderers.NumericRenderer.apply(this, arguments);
+            
+                  if (instance.params) {
+                        hcols = instance.params.col_highlight;
+                        hcols = hcols instanceof Array ? hcols : [hcols];
+                      }
+            
+                  if (instance.params && hcols.includes(col)) {
+                    td.style.background = '#FF8F8F';
+                  }
+              }") %>%
               hot_rows(rowHeights = 25, fixedRowsTop = 1) %>%
               hot_col(2, halign = "htCenter", valign = "htTop", width = "auto") %>%
               hot_col(1, width = "auto")
@@ -3005,6 +3050,32 @@ server <- function(input, output, session) {
       )
     )
   })
+  
+  ##### Render Allele Differences as Highlights ####
+  
+  
+  diff_allele <- reactive({
+    if (!class(DF1$data) == "NULL") {
+      # Function to find columns with varying values
+      var_alleles <- function(dataframe) {
+        varying_columns <- c()
+        
+        for (col in 1:ncol(dataframe)) {
+          unique_values <- unique(dataframe[, col])
+          
+          if (length(unique_values) > 1) {
+            varying_columns <- c(varying_columns, col)
+          }
+        }
+        
+        return(varying_columns)
+      }
+      
+      df <- select(DF1$data, 13:(ncol(DF1$data)))
+      var_alleles(df) + 11
+      }
+    })
+  
   
   
   # Download cgMLST       -------------------------------------------------------
@@ -4326,7 +4397,7 @@ server <- function(input, output, session) {
     
     if (nrow(typing_reactive$table) > 0) {
       output$multi_select_table <- renderRHandsontable({
-        rhandsontable(typing_reactive$table) %>%
+        rhandsontable(typing_reactive$table, height = 500) %>%
           hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
           hot_cols(columnSorting = TRUE) %>%
           hot_rows(rowHeights = 25, fixedRowsTop = 1) %>%
