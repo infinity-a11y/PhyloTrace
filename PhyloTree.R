@@ -112,6 +112,10 @@ if (!require(KneeArrower))
   install.packages('KneeArrower')
 library(KneeArrower)
 
+if (!require(rhandsontable))
+  install.packages('rhandsontable')
+library(rhandsontable)
+
 country_names <- c(
   "Afghanistan",
   "Albania",
@@ -329,8 +333,12 @@ ui <- dashboardPage(
   dashboardSidebar(
     tags$style("label{color: white;}"),
     tags$style("file.select{background-color: white;}"),
-    tags$style(HTML("#include_edge {width: 20px; height: 20px; margin-top: 13px}")),
-    tags$style(HTML("#include_node {width: 20px; height: 20px; margin-top: 13px}")),
+    tags$style(
+      HTML("#include_edge {width: 20px; height: 20px; margin-top: 13px}")
+    ),
+    tags$style(
+      HTML("#include_node {width: 20px; height: 20px; margin-top: 13px}")
+    ),
     br(),
     br(),
     sidebarMenu(
@@ -463,30 +471,36 @@ ui <- dashboardPage(
                 label = "Interpretation Mode",
                 choices = c("directed", "undirected", "max", "min", "upper", "lower", "plus"),
                 selected = "undirected"
-                ),
+              ),
               selectInput(
                 "ggnetwork_layout",
                 label = "Layout Algorithm",
-                choices = c("Davidson-Harel", "DrL", "Fruchterman-Reingold",
-                            "GEM", "Graphopt", "Kamada-Kawai", "Large Graph Layout",
-                            "Multidimensional Scaling", "Sugiyama"),
+                choices = c(
+                  "Davidson-Harel",
+                  "DrL",
+                  "Fruchterman-Reingold",
+                  "GEM",
+                  "Graphopt",
+                  "Kamada-Kawai",
+                  "Large Graph Layout",
+                  "Multidimensional Scaling",
+                  "Sugiyama"
+                ),
                 selected = "Fruchterman-Reingold"
               ),
               br(),
             ),
             fluidRow(
-              column(
-                width = 6,
-                actionButton("create_tree",
-                             "Create Tree")
-              ),
+              column(width = 6,
+                     actionButton("create_tree",
+                                  "Create Tree")),
               column(
                 width = 6,
                 align = "center",
                 conditionalPanel(
                   "input.create_tree > 0",
                   downloadButton(
-                    "download_plot", 
+                    "download_plot",
                     label = "",
                     icon = icon("download"),
                     width = "20px",
@@ -786,25 +800,24 @@ ui <- dashboardPage(
             uiOutput("no_db"),
             rHandsontableOutput("db_entries")
           ),
-          column(width = 3,
-                 align = "center",
-                 uiOutput("compare_select"),
-                 br(), br(), br(),
-                 uiOutput("del_text"),
-                 br(),
-                 fluidRow(
-                   column(width = 3),
-                   column(
-                     width = 3,
-                     uiOutput("delete_button")
-                   ),
-                   column(
-                     width = 3,
+          column(
+            width = 3,
+            align = "center",
+            uiOutput("compare_select"),
+            br(),
+            br(),
+            br(),
+            uiOutput("del_text"),
+            br(),
+            fluidRow(
+              column(width = 3),
+              column(width = 3,
+                     uiOutput("delete_button")),
+              column(width = 3,
                      br(),
-                     uiOutput("del_bttn")
-                   )
-                 )
-                 )
+                     uiOutput("del_bttn"))
+            )
+          )
         ),
         fluidRow(
           br(),
@@ -1110,7 +1123,8 @@ ui <- dashboardPage(
                   title = "Please select the folder containing the genome assemblies in .fasta format",
                   buttonType = "default"
                 ),
-                br(), br()
+                br(),
+                br()
               ),
               column(
                 width = 12,
@@ -1121,9 +1135,10 @@ ui <- dashboardPage(
             column(
               width = 4,
               align = "center",
-              br(), br(),
+              br(),
+              br(),
               h3(p("Declare Metadata"), style = "color:white"),
-              br(), 
+              br(),
               fluidRow(
                 column(width = 3),
                 column(
@@ -1137,18 +1152,66 @@ ui <- dashboardPage(
                   )
                 )
               ),
-              br()
+              br(),
+              fluidRow(
+                column(width = 2),
+                column(
+                  width = 6,
+                  box(
+                    solidHeader = TRUE,
+                    status = "primary",
+                    width = "100%",
+                    dateInput("append_isodate_multi",
+                              label = "Isolation Date",
+                              width = "50%"),
+                    textInput("append_host_multi",
+                              label = "Host",
+                              width = "80%"),
+                    pickerInput(
+                      "append_country_multi",
+                      "Country",
+                      choices = list("Common" = sel_countries,
+                                     "All Countries" = country_names),
+                      options = list(
+                        `live-search` = TRUE,
+                        `actions-box` = TRUE,
+                        size = 10,
+                        style = "background-color: white; border-radius: 5px;"
+                      ),
+                      width = "90%"
+                    ),
+                    textInput("append_city_multi",
+                              label = "City",
+                              width = "80%"),
+                    dateInput(
+                      "append_analysisdate_multi",
+                      label = "Typing Date",
+                      value = Sys.Date(),
+                      width = "50%"
+                    )
+                  )
+                ),
+                column(
+                  width = 3,
+                  br(), br(), br(), br(), br(), br(), br(), br(), br(),
+                  actionButton(
+                    "conf_meta_multi",
+                    "Confirm"
+                  )
+                  
+                )
+              )
             ),
             column(
               width = 4,
               align = "center",
-              br(), br(),
+              br(),
+              br(),
               h3(p("Start Typing"), style = "color:white"),
-              br(), br(),
-              actionButton(
-                "start_typ_multi",
-                "Start Typing"
-              )
+              br(),
+              br(),
+              actionButton("start_typ_multi",
+                           "Start Typing")
             )
           )
         )
@@ -1197,160 +1260,148 @@ ui <- dashboardPage(
           conditionalPanel(
             "input.tree_algo=='Minimum-Spanning'",
             fluidRow(
-              column(
-                width = 2,
-                fluidRow(
-                  column(
-                    width = 6,
-                    align = "center",
-                    box(
-                      solidHeader = TRUE,
-                      status = "primary",
-                      width = "100%",
-                      h3(p("Nodes"), style = "color:white"),
-                      colorPickr(
-                        inputId = "color_node",
-                        width = "100%",
-                        selected = "#058C31",
-                        label = "",
-                        update = "changestop",
-                        interaction = list(
-                          clear = FALSE,
-                          save = FALSE
-                        ),
-                        position = "right-start"
-                      ),
-                      br(), 
-                      dropMenu(
-                        actionBttn(
-                          "node_menu",
-                          label = "",
-                          color = "default",
-                          size = "sm",
-                          style = "material-flat",
-                          icon = icon("sliders")
-                        ),
-                        placement = "top-start",
-                        theme = "translucent",
-                        numericInput(
-                          "alpha_node",
-                          label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
-                          value = 1,
-                          step = 0.1,
-                          min = 0,
-                          max = 1,
-                          width = "90%"
-                        ),
-                        numericInput(
-                          inputId = "size_node",
-                          label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                          value = 10,
-                          min = 1,
-                          max = 20,
-                          step = 1,
-                          width = "90%"
-                        )
-                      ),
-                      br()
-                    )
-                  ),
-                  column(
-                    align = "center",
-                    width = 6,
-                    box(
-                      solidHeader = TRUE,
-                      status = "primary",
-                      width = "100%",
-                      h3(p("Edges"), style = "color:white"),
-                      colorPickr(
-                        inputId = "color_edge",
-                        width = "100%",
-                        selected = "#000000",
-                        label = "",
-                        update = "changestop",
-                        interaction = list(
-                          clear = FALSE,
-                          save = FALSE
-                        ),
-                        position = "right-start"
-                      ),
-                      br(), 
-                      dropMenu(
-                        actionBttn(
-                          "edge_menu",
-                          label = "",
-                          color = "default",
-                          size = "sm",
-                          style = "material-flat",
-                          icon = icon("sliders")
-                        ),
-                        theme = "translucent",
-                        placement = "top-start",
-                        numericInput(
-                          "size_edge",
-                          label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                          value = 0.7,
-                          step = 0.1,
-                          min = 0.5,
-                          max = 1.5,
-                          width = "90%"
-                        ),
-                        numericInput(
-                          "alpha_edge",
-                          label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
-                          value = 0.7,
-                          step = 0.1,
-                          min = 0,
-                          max = 1,
-                          width = "90%"
-                        ),
-                        numericInput(
-                          "curvature_edge",
-                          label = h5("Curves", style = "color:white; margin-bottom: 0px;"),
-                          value = 0,
-                          step = 0.1,
-                          min = -0.5,
-                          max = 0.5,
-                          width = "90%"
-                        )
-                      ),
-                      br()
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 12,
-                    align = "center",
-                    box(
-                      solidHeader = TRUE,
-                      status = "primary",
-                      width = "100%",
-                      h3(p("Other"), style = "color:white"),
-                      column(
-                        width = 6,
-                        colorPickr(
-                          inputId = "color_bg",
-                          width = "100%",
-                          selected = "#ffffff",
-                          label = h5("Background", style = "color:white; margin-bottom: 0px;"),
-                          update = "changestop",
-                          interaction = list(
-                            clear = FALSE,
-                            save = FALSE
-                          ),
-                          position = "right-start"
-                        )
-                      ),
-                      column(
-                        width = 6,
-                        br(),
-                        uiOutput("cluster_start")
-                      )
-                    )
-                  )
-                )
-              ),
+              column(width = 2,
+                     fluidRow(
+                       column(
+                         width = 6,
+                         align = "center",
+                         box(
+                           solidHeader = TRUE,
+                           status = "primary",
+                           width = "100%",
+                           h3(p("Nodes"), style = "color:white"),
+                           colorPickr(
+                             inputId = "color_node",
+                             width = "100%",
+                             selected = "#058C31",
+                             label = "",
+                             update = "changestop",
+                             interaction = list(clear = FALSE,
+                                                save = FALSE),
+                             position = "right-start"
+                           ),
+                           br(),
+                           dropMenu(
+                             actionBttn(
+                               "node_menu",
+                               label = "",
+                               color = "default",
+                               size = "sm",
+                               style = "material-flat",
+                               icon = icon("sliders")
+                             ),
+                             placement = "top-start",
+                             theme = "translucent",
+                             numericInput(
+                               "alpha_node",
+                               label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
+                               value = 1,
+                               step = 0.1,
+                               min = 0,
+                               max = 1,
+                               width = "90%"
+                             ),
+                             numericInput(
+                               inputId = "size_node",
+                               label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                               value = 10,
+                               min = 1,
+                               max = 20,
+                               step = 1,
+                               width = "90%"
+                             )
+                           ),
+                           br()
+                         )
+                       ),
+                       column(
+                         align = "center",
+                         width = 6,
+                         box(
+                           solidHeader = TRUE,
+                           status = "primary",
+                           width = "100%",
+                           h3(p("Edges"), style = "color:white"),
+                           colorPickr(
+                             inputId = "color_edge",
+                             width = "100%",
+                             selected = "#000000",
+                             label = "",
+                             update = "changestop",
+                             interaction = list(clear = FALSE,
+                                                save = FALSE),
+                             position = "right-start"
+                           ),
+                           br(),
+                           dropMenu(
+                             actionBttn(
+                               "edge_menu",
+                               label = "",
+                               color = "default",
+                               size = "sm",
+                               style = "material-flat",
+                               icon = icon("sliders")
+                             ),
+                             theme = "translucent",
+                             placement = "top-start",
+                             numericInput(
+                               "size_edge",
+                               label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                               value = 0.7,
+                               step = 0.1,
+                               min = 0.5,
+                               max = 1.5,
+                               width = "90%"
+                             ),
+                             numericInput(
+                               "alpha_edge",
+                               label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
+                               value = 0.7,
+                               step = 0.1,
+                               min = 0,
+                               max = 1,
+                               width = "90%"
+                             ),
+                             numericInput(
+                               "curvature_edge",
+                               label = h5("Curves", style = "color:white; margin-bottom: 0px;"),
+                               value = 0,
+                               step = 0.1,
+                               min = -0.5,
+                               max = 0.5,
+                               width = "90%"
+                             )
+                           ),
+                           br()
+                         )
+                       )
+                     ),
+                     fluidRow(column(
+                       width = 12,
+                       align = "center",
+                       box(
+                         solidHeader = TRUE,
+                         status = "primary",
+                         width = "100%",
+                         h3(p("Other"), style = "color:white"),
+                         column(
+                           width = 6,
+                           colorPickr(
+                             inputId = "color_bg",
+                             width = "100%",
+                             selected = "#ffffff",
+                             label = h5("Background", style = "color:white; margin-bottom: 0px;"),
+                             update = "changestop",
+                             interaction = list(clear = FALSE,
+                                                save = FALSE),
+                             position = "right-start"
+                           )
+                         ),
+                         column(width = 6,
+                                br(),
+                                uiOutput("cluster_start"))
+                       )
+                     ))),
               column(
                 width = 2,
                 align = "center",
@@ -1368,11 +1419,9 @@ ui <- dashboardPage(
                     column(
                       width = 1,
                       align = "left",
-                      checkboxInput(
-                        "include_node",
-                        label = "",
-                        value = TRUE
-                      )
+                      checkboxInput("include_node",
+                                    label = "",
+                                    value = TRUE)
                     )
                   ),
                   selectInput(
@@ -1402,10 +1451,8 @@ ui <- dashboardPage(
                         selected = "#000000",
                         label = "",
                         update = "changestop",
-                        interaction = list(
-                          clear = FALSE,
-                          save = FALSE
-                        ),
+                        interaction = list(clear = FALSE,
+                                           save = FALSE),
                         position = "right-start"
                       )
                     ),
@@ -1490,17 +1537,13 @@ ui <- dashboardPage(
                     ),
                     column(width = 2)
                   ),
-                  fluidRow(
-                    column(
-                      width = 12,
-                      br(),
-                      checkboxInput(
-                        "label_rect",
-                        label = "Show Panel",
-                        value = TRUE
-                      )
-                    )
-                  ),
+                  fluidRow(column(
+                    width = 12,
+                    br(),
+                    checkboxInput("label_rect",
+                                  label = "Show Panel",
+                                  value = TRUE)
+                  )),
                   fluidRow(
                     column(width = 1),
                     column(
@@ -1511,10 +1554,8 @@ ui <- dashboardPage(
                         selected = "#ffffff",
                         label = "",
                         update = "changestop",
-                        interaction = list(
-                          clear = FALSE,
-                          save = FALSE
-                        ),
+                        interaction = list(clear = FALSE,
+                                           save = FALSE),
                         position = "right-start"
                       )
                     ),
@@ -1563,7 +1604,8 @@ ui <- dashboardPage(
                       )
                     )
                   ),
-                  br(), br()
+                  br(),
+                  br()
                 )
               ),
               column(
@@ -1583,11 +1625,9 @@ ui <- dashboardPage(
                     column(
                       width = 1,
                       align = "left",
-                      checkboxInput(
-                        "include_edge",
-                        label = "",
-                        value = FALSE
-                      )
+                      checkboxInput("include_edge",
+                                    label = "",
+                                    value = FALSE)
                     )
                   ),
                   selectInput(
@@ -1617,10 +1657,8 @@ ui <- dashboardPage(
                         selected = "#000000",
                         label = "",
                         update = "changestop",
-                        interaction = list(
-                          clear = FALSE,
-                          save = FALSE
-                        ),
+                        interaction = list(clear = FALSE,
+                                           save = FALSE),
                         position = "right-start"
                       ),
                     ),
@@ -1705,17 +1743,13 @@ ui <- dashboardPage(
                       )
                     )
                   ),
-                  fluidRow(
-                    column(
-                      width = 12,
-                      br(),
-                      checkboxInput(
-                        "edge_rect",
-                        label = "Show Panel",
-                        value = TRUE
-                      )
-                    )
-                  ),
+                  fluidRow(column(
+                    width = 12,
+                    br(),
+                    checkboxInput("edge_rect",
+                                  label = "Show Panel",
+                                  value = TRUE)
+                  )),
                   fluidRow(
                     column(width = 1),
                     column(
@@ -1727,10 +1761,8 @@ ui <- dashboardPage(
                         selected = "#A5A315",
                         label = "",
                         update = "changestop",
-                        interaction = list(
-                          clear = FALSE,
-                          save = FALSE
-                        ),
+                        interaction = list(clear = FALSE,
+                                           save = FALSE),
                         position = "right-start"
                       ),
                     ),
@@ -1780,7 +1812,8 @@ ui <- dashboardPage(
                       )
                     )
                   ),
-                  br(), br()
+                  br(),
+                  br()
                 )
               ),
               column(
@@ -1839,7 +1872,11 @@ ui <- dashboardPage(
                       )
                     )
                   ),
-                  br(), br(), br(), br(), br()
+                  br(),
+                  br(),
+                  br(),
+                  br(),
+                  br()
                 )
               ),
             )
@@ -1847,85 +1884,82 @@ ui <- dashboardPage(
           
           # Plot Control Neighbor Joining
           
-        
-        conditionalPanel(
-          "input.tree_algo=='Neighbour-Joining'",
-          fluidRow(
-            column(
-              width = 2,
-              align = "center",
-              box(
-                solidHeader = TRUE,
-                status = "primary",
-                width = "100%",
-                h3(p("Layout"), style = "color:white"),
-                selectInput(
-                  inputId = "nj_layout",
-                  h5("Select Theme", style = "color:white"),
-                  choices = list(
-                    Linear = list(
-                      "Rectangular" = "rectangular",
-                      "Roundrect" = "roundrect",
-                      "Slanted" = "slanted",
-                      "Ellipse" = "ellipse"),
-                    Circular = list(
-                      "Circular" = "circular",
-                      "Fan" = "fan"),
-                    Unrooted = list(
-                      "Daylight" = "daylight",
-                      "Equal Angle" = "equal_angle")
+          
+          conditionalPanel(
+            "input.tree_algo=='Neighbour-Joining'",
+            fluidRow(
+              column(
+                width = 2,
+                align = "center",
+                box(
+                  solidHeader = TRUE,
+                  status = "primary",
+                  width = "100%",
+                  h3(p("Layout"), style = "color:white"),
+                  selectInput(
+                    inputId = "nj_layout",
+                    h5("Select Theme", style = "color:white"),
+                    choices = list(
+                      Linear = list(
+                        "Rectangular" = "rectangular",
+                        "Roundrect" = "roundrect",
+                        "Slanted" = "slanted",
+                        "Ellipse" = "ellipse"
+                      ),
+                      Circular = list("Circular" = "circular",
+                                      "Fan" = "fan"),
+                      Unrooted = list("Daylight" = "daylight",
+                                      "Equal Angle" = "equal_angle")
+                    ),
+                    selected = "rectangular",
+                    width = "70%"
                   ),
-                  selected = "rectangular",
-                  width = "70%"
-                ),
-                br(),
-                conditionalPanel(
-                  "input.nj_layout=='circular' | input.nj_layout=='fan'",
-                  checkboxInput(
-                    "circ_inward",
-                    label = "Inward Layout",
-                    value = FALSE
+                  br(),
+                  conditionalPanel(
+                    "input.nj_layout=='circular' | input.nj_layout=='fan'",
+                    checkboxInput("circ_inward",
+                                  label = "Inward Layout",
+                                  value = FALSE)
+                  )
+                )
+              ),
+              column(
+                width = 2,
+                align = "center",
+                box(
+                  solidHeader = TRUE,
+                  status = "primary",
+                  width = "100%",
+                  h3(p("Tip Label"), style = "color:white"),
+                  selectInput(
+                    "nj_tiplab",
+                    label = "",
+                    choices = c(
+                      Index = "index",
+                      `Assembly ID` = "assembly_id",
+                      `Assembly Name` = "assembly_name",
+                      `Isolation Date` = "isolation_date",
+                      Host = "host",
+                      Country = "country",
+                      City = "city"
+                    ),
+                    selected = c(`Assembly Name` = "assembly_name"),
+                    width = "75%"
+                  ),
+                  numericInput(
+                    "nj_tip_offset",
+                    label = h5("Offset", style = "color:white"),
+                    min = -5,
+                    max = 5,
+                    step = 0.25,
+                    value = 0,
+                    width = "35%"
                   )
                 )
               )
-            ),
-            column(
-              width = 2,
-              align = "center",
-              box(
-                solidHeader = TRUE,
-                status = "primary",
-                width = "100%",
-                h3(p("Tip Label"), style = "color:white"),
-                selectInput(
-                  "nj_tiplab",
-                  label = "",
-                  choices = c(
-                    Index = "index",
-                    `Assembly ID` = "assembly_id",
-                    `Assembly Name` = "assembly_name",
-                    `Isolation Date` = "isolation_date",
-                    Host = "host",
-                    Country = "country",
-                    City = "city"
-                  ),
-                  selected = c(`Assembly Name` = "assembly_name"),
-                  width = "75%"
-                ),
-                numericInput(
-                  "nj_tip_offset",
-                  label = h5("Offset", style = "color:white"),
-                  min = -5,
-                  max = 5,
-                  step = 0.25,
-                  value = 0,
-                  width = "35%"
-                )
-              )
             )
-          )  
-        )
-      ),
+          )
+        ),
         
         ####### Show Control for Random Trees
         conditionalPanel(
@@ -2264,7 +2298,7 @@ ui <- dashboardPage(
                     selected = 16
                   )
                   
-                ),),
+                ), ),
                 fluidRow(
                   column(
                     width = 7,
@@ -2359,7 +2393,7 @@ ui <- dashboardPage(
                     selected = 4
                   )
                   
-                ),),
+                ), ),
                 fluidRow(
                   column(
                     width = 7,
@@ -2722,7 +2756,6 @@ ui <- dashboardPage(
 ################### Server ###################
 
 server <- function(input, output, session) {
-  
   set.seed(1)
   
   # Database       -------------------------------------------------------
@@ -2748,7 +2781,8 @@ server <- function(input, output, session) {
           DF1$schemeinfo
         })
         
-        output$scheme_header <- renderUI(h3(p("cgMLST Scheme"), style = "color:white"))
+        output$scheme_header <-
+          renderUI(h3(p("cgMLST Scheme"), style = "color:white"))
       } else {
         output$scheme_info <- NULL
         output$scheme_header <- NULL
@@ -2762,7 +2796,8 @@ server <- function(input, output, session) {
                                                                 targets = "_all")
                                                          )))
         
-        output$loci_header <- renderUI(h3(p("Loci"), style = "color:white"))
+        output$loci_header <-
+          renderUI(h3(p("Loci"), style = "color:white"))
       } else {
         output$db_loci <- NULL
         output$loci_header <- NULL
@@ -2786,10 +2821,8 @@ server <- function(input, output, session) {
         ))
       
       output$edit_button <- renderUI({
-        actionButton(
-          "edit_button",
-          "Save"
-        )
+        actionButton("edit_button",
+                     "Save")
       })
       
       typing <- Data[["Typing"]]
@@ -2802,59 +2835,83 @@ server <- function(input, output, session) {
         pickerInput(
           inputId = "compare_select",
           label = h4("Select loci to display", style = "color:white; margin-bottom: 10px;"),
-          choices = names(select(typing,-(1:12))),
-          selected = names(select(typing,-(1:12)))[1],
+          choices = names(select(typing, -(1:12))),
+          selected = names(select(typing, -(1:12)))[1],
           options = list(
             `live-search` = TRUE,
             `actions-box` = TRUE,
             size = 10,
-            style = "background-color: white; border-radius: 5px;"), 
+            style = "background-color: white; border-radius: 5px;"
+          ),
           multiple = TRUE
         )
       })
       
-      
+      test <- reactive({
+        length(input$compare_select)
+      })
       
       # Render Entry Data Table
       if (!class(DF1$data) == "NULL") {
-        
         observe({
-        if(length(input$compare_select) > 0) {
-          output$db_entries <- renderRHandsontable({
-            DF1$new <- rhandsontable(select(DF1$data, 1:12, input$compare_select), 
-                                     col_highlight = diff_allele(), rowHeaders = NULL) %>%
-              hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
-              hot_col(13:(12+length(input$compare_select)), renderer = "
+          
+          
+          
+          if (test() > 0) {
+            output$db_entries <- renderRHandsontable({
+              DF1$new <-
+                rhandsontable(
+                  select(DF1$data, 1:12, input$compare_select),
+                  col_highlight = diff_allele(),
+                  rowHeaders = NULL
+                ) %>%
+                hot_context_menu(allowRowEdit = FALSE,
+                                 allowColEdit = FALSE) %>%
+                hot_col(
+                  13:(12 + test()),
+                  renderer = "
                 function(instance, td, row, col, prop, value, cellProperties) {
                   Handsontable.renderers.NumericRenderer.apply(this, arguments);
-            
+
                   if (instance.params) {
                         hcols = instance.params.col_highlight;
                         hcols = hcols instanceof Array ? hcols : [hcols];
                       }
-            
+
                   if (instance.params && hcols.includes(col)) {
                     td.style.background = '#FF8F8F';
                   }
-              }") %>%
-              hot_rows(rowHeights = 25, fixedRowsTop = 1) %>%
-              hot_col(2, halign = "htCenter", valign = "htTop", width = "auto") %>%
-              hot_col(1, width = "auto")
-            
-            DF1$new
-          })
-        } else {
-          output$db_entries <- renderRHandsontable({
-            DF1$new <- rhandsontable(select(DF1$data, 1:12), rowHeaders = NULL) %>%
-              hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
-              hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-              hot_rows(rowHeights = 25, fixedRowsTop = 1) %>%
-              hot_col(2, halign = "htCenter", valign = "htTop", width = "auto") %>%
-              hot_col(1, width = "auto")
-            
-            DF1$new
-          })
-        }
+              }"
+                ) %>%
+                hot_rows(rowHeights = 25,
+                         fixedRowsTop = 1) %>%
+                hot_col(2,
+                        halign = "htCenter",
+                        valign = "htTop",
+                        width = "auto") %>%
+                hot_col(1, width = "auto")
+              
+              DF1$new
+            })
+          } else {
+            output$db_entries <- renderRHandsontable({
+              DF1$new <-
+                rhandsontable(select(DF1$data, 1:12), rowHeaders = NULL) %>%
+                hot_context_menu(allowRowEdit = FALSE,
+                                 allowColEdit = FALSE) %>%
+                hot_cols(columnSorting = TRUE,
+                         fixedColumnsLeft = 1) %>%
+                hot_rows(rowHeights = 25,
+                         fixedRowsTop = 1) %>%
+                hot_col(2,
+                        halign = "htCenter",
+                        valign = "htTop",
+                        width = "auto") %>%
+                hot_col(1, width = "auto")
+              
+              DF1$new
+            })
+          }
         })
         
         output$db_no_entries <- NULL
@@ -2864,15 +2921,13 @@ server <- function(input, output, session) {
       # Edit Database Elements
       
       output$del_text <- renderUI({
-        h4(p("Delete Entries"), style = "color:white")  
+        h4(p("Delete Entries"), style = "color:white")
       })
       
       output$delete_button <- renderUI({
-        selectInput(
-          "select_delete",
-          label = "Index",
-          choices = DF1$data[, "Index"]
-        )    
+        selectInput("select_delete",
+                    label = "Index",
+                    choices = DF1$data[, "Index"])
       })
       
       output$del_bttn <- renderUI({
@@ -2988,11 +3043,12 @@ server <- function(input, output, session) {
   observeEvent(input$edit_button, {
     showModal(
       modalDialog(
-        paste0("Overwriting previous metadata of local ",
-               input$scheme_db,
-               " Database.",
-               " Continue?"
-        ),  
+        paste0(
+          "Overwriting previous metadata of local ",
+          input$scheme_db,
+          " Database.",
+          " Continue?"
+        ),
         title = "Save Database",
         fade = TRUE,
         easyClose = TRUE,
@@ -3004,16 +3060,17 @@ server <- function(input, output, session) {
     )
   })
   
-  observeEvent(input$Cancel, {removeModal()})
+  observeEvent(input$Cancel, {
+    removeModal()
+  })
   
   observeEvent(input$conf_db_save, {
-    Data <- readRDS(
-      paste0(
-        getwd(),
-        "/Database/",
-        gsub(" ", "_", input$scheme_db),
-        "/Typing.rds")
-      )
+    Data <- readRDS(paste0(
+      getwd(),
+      "/Database/",
+      gsub(" ", "_", input$scheme_db),
+      "/Typing.rds"
+    ))
     
     attach_meta <- hot_to_r(input$db_entries) %>% select(1:12)
     
@@ -3073,8 +3130,8 @@ server <- function(input, output, session) {
       
       df <- select(DF1$data, 13:(ncol(DF1$data)))
       var_alleles(df) + 11
-      }
-    })
+    }
+  })
   
   
   
@@ -3411,20 +3468,27 @@ server <- function(input, output, session) {
   plot_loc <- reactiveValues(cluster = NULL, metadata = list())
   
   observe({
-    plot_loc$plot <- 
-      ggplot(plot_loc$gg, aes(x = x, y = y, xend = xend, yend = yend)) +
-        geom_edges(
-          color = edge_color(), 
-          linewidth = edge_size(),
-          alpha = edge_alpha(),
-          curvature = edge_curvature()) +
-        nodes() +
-        label_edge() +
-        label_node() +
-        theme_blank() +
-        theme(
-          panel.background = element_rect(fill = bg_color()),
-          plot.background = element_rect(fill = bg_color()))
+    plot_loc$plot <-
+      ggplot(plot_loc$gg, aes(
+        x = x,
+        y = y,
+        xend = xend,
+        yend = yend
+      )) +
+      geom_edges(
+        color = edge_color(),
+        linewidth = edge_size(),
+        alpha = edge_alpha(),
+        curvature = edge_curvature()
+      ) +
+      nodes() +
+      label_edge() +
+      label_node() +
+      theme_blank() +
+      theme(
+        panel.background = element_rect(fill = bg_color()),
+        plot.background = element_rect(fill = bg_color())
+      )
     
   })
   
@@ -3442,7 +3506,6 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$create_tree, {
-    
     set.seed(1)
     
     # Load local database
@@ -3457,18 +3520,18 @@ server <- function(input, output, session) {
     
     
     # get allele profile of included entries
-    allelic_profile <- dplyr::select(Database$Typing,-(1:12))
-    allelic_profile <- allelic_profile[which(Database[["Typing"]]$Include == TRUE), ]
+    allelic_profile <- dplyr::select(Database$Typing, -(1:12))
+    allelic_profile <-
+      allelic_profile[which(Database[["Typing"]]$Include == TRUE),]
     
     # get metadata without include boolean variable
     meta <<- dplyr::select(Database$Typing, 1, 3:12)
-    meta <<- meta[which(Database[["Typing"]]$Include == TRUE), ]
+    meta <<- meta[which(Database[["Typing"]]$Include == TRUE),]
     
     # Calculate distance matrix
     dist_matrix <<- dist(allelic_profile)
     
     if (input$tree_algo == "Neighbour-Joining") {
-      
       plot_loc$meta_nj <- meta
       
       colnames(plot_loc$meta_nj) <-
@@ -3492,23 +3555,27 @@ server <- function(input, output, session) {
       # Create phylogenetic tree
       plot_loc$nj <- ape::nj(dist_matrix)
       
-      plot_loc$nj_plot <- 
+      plot_loc$nj_plot <-
         ggtree(plot_loc$nj, layout = layout_nj()) %<+% plot_loc$meta_nj +
         tiplab_nj() +
         inward()
       
       # Visualize the tree with metadata annotations
-      output$tree_local <- renderPlot({plot_loc$nj_plot})
+      output$tree_local <- renderPlot({
+        plot_loc$nj_plot
+      })
       
     } else {
-      
-      output$tree_local <- renderPlot({plot_loc$plot})
+      output$tree_local <- renderPlot({
+        plot_loc$plot
+      })
       
       mst <- ape::mst(dist_matrix)
       
       gr_adj <<- graph.adjacency(mst, mode = mode_algo())
       
-      gg <<- ggnetwork(gr_adj, arrow.gap = 0, layout = ggnet_layout())
+      gg <<-
+        ggnetwork(gr_adj, arrow.gap = 0, layout = ggnet_layout())
       
       
       ## add metadata
@@ -3517,22 +3584,19 @@ server <- function(input, output, session) {
         assembly_id = meta[gg$name, "Assembly ID"],
         assembly_name = meta[gg$name, "Assembly Name"],
         scheme = meta[gg$name, "Scheme"],
-        isolation_date = meta[gg$name,"Isolation Date"],
+        isolation_date = meta[gg$name, "Isolation Date"],
         host = meta[gg$name, "Host"],
         country = meta[gg$name, "Country"],
         city = meta[gg$name, "City"],
         typing_date = meta[gg$name, "Typing Date"],
         successes = meta[gg$name, "Successes"],
-        errors = meta[gg$name, "Errors"])
+        errors = meta[gg$name, "Errors"]
+      )
       
       
-     output$cluster_start <- renderUI(
-       actionButton(
-         "cluster_start",
-         "Add Clusters"
-       )
-     )
-     
+      output$cluster_start <- renderUI(actionButton("cluster_start",
+                                                    "Add Clusters"))
+      
     }
     
   })
@@ -3546,26 +3610,28 @@ server <- function(input, output, session) {
   inward <- reactive({
     if (input$circ_inward == TRUE) {
       layout_inward_circular()
-    } else {NULL}
+    } else {
+      NULL
+    }
   })
   
   # NJ Tip Labs
   tiplab_nj <- reactive({
-      if (input$nj_tiplab == "index") {
-        geom_tiplab(aes(label = taxa), offset = tiplab_offset())
-      } else if (input$nj_tiplab == "assembly_id") {
-        geom_tiplab(aes(label = assembly_id), offset = tiplab_offset())
-      } else if (input$nj_tiplab == "assembly_name") {
-        geom_tiplab(aes(label = assembly_name), offset = tiplab_offset())
-      } else if (input$nj_tiplab == "host") {
-        geom_tiplab(aes(label = host), offset = tiplab_offset())
-      } else if (input$nj_tiplab == "country") {
-        geom_tiplab(aes(label = country), offset = tiplab_offset())
-      } else if (input$nj_tiplab == "city") {
-        geom_tiplab(aes(label = city), offset = tiplab_offset())
-      } else if (input$nj_tiplab == "isolation_date") {
-        geom_tiplab(aes(label = isolation_date), offset = tiplab_offset())
-      }
+    if (input$nj_tiplab == "index") {
+      geom_tiplab(aes(label = taxa), offset = tiplab_offset())
+    } else if (input$nj_tiplab == "assembly_id") {
+      geom_tiplab(aes(label = assembly_id), offset = tiplab_offset())
+    } else if (input$nj_tiplab == "assembly_name") {
+      geom_tiplab(aes(label = assembly_name), offset = tiplab_offset())
+    } else if (input$nj_tiplab == "host") {
+      geom_tiplab(aes(label = host), offset = tiplab_offset())
+    } else if (input$nj_tiplab == "country") {
+      geom_tiplab(aes(label = country), offset = tiplab_offset())
+    } else if (input$nj_tiplab == "city") {
+      geom_tiplab(aes(label = city), offset = tiplab_offset())
+    } else if (input$nj_tiplab == "isolation_date") {
+      geom_tiplab(aes(label = isolation_date), offset = tiplab_offset())
+    }
   })
   
   # NJ Tip Lab Offset
@@ -3576,23 +3642,23 @@ server <- function(input, output, session) {
   
   # Set Minimum-Spanning Tree Appearance
   ggnet_layout <- reactive({
-    if(input$ggnetwork_layout == "Davidson-Harel") {
+    if (input$ggnetwork_layout == "Davidson-Harel") {
       layout_with_dh(gr_adj)
-    } else if(input$ggnetwork_layout == "DrL") {
+    } else if (input$ggnetwork_layout == "DrL") {
       layout_with_drl(gr_adj)
-    } else if(input$ggnetwork_layout == "Fruchterman-Reingold") {
+    } else if (input$ggnetwork_layout == "Fruchterman-Reingold") {
       layout_with_fr(gr_adj)
-    } else if(input$ggnetwork_layout == "GEM") {
+    } else if (input$ggnetwork_layout == "GEM") {
       layout_with_gem(gr_adj)
-    } else if(input$ggnetwork_layout == "Graphopt") {
+    } else if (input$ggnetwork_layout == "Graphopt") {
       layout_with_graphopt(gr_adj)
-    } else if(input$ggnetwork_layout == "Kamada-Kawai") {
+    } else if (input$ggnetwork_layout == "Kamada-Kawai") {
       layout_with_kk(gr_adj)
-    } else if(input$ggnetwork_layout == "Large Graph Layout") {
+    } else if (input$ggnetwork_layout == "Large Graph Layout") {
       layout_with_lgl(gr_adj)
-    } else if(input$ggnetwork_layout == "Multidimensional Scaling") {
+    } else if (input$ggnetwork_layout == "Multidimensional Scaling") {
       layout_with_mds(gr_adj)
-    } else if(input$ggnetwork_layout == "Sugiyama") {
+    } else if (input$ggnetwork_layout == "Sugiyama") {
       layout_with_sugiyama(gr_adj)
     }
   })
@@ -3646,33 +3712,37 @@ server <- function(input, output, session) {
   label_node <- reactive({
     if (input$include_node) {
       if (input$label_rect == FALSE) {
-        geom_nodetext_repel(aes_string(label = input$node_label), 
-                            color = input$label_color, 
-                            size = input$label_size, 
-                            alpha = input$label_alpha,
-                            box.padding = input$box_padding,
-                            point.padding = input$point_padding,
-                            nudge_x = input$x_nudge,
-                            nudge_y = input$y_nudge,
-                            max.overlaps = 18)
+        geom_nodetext_repel(
+          aes_string(label = input$node_label),
+          color = input$label_color,
+          size = input$label_size,
+          alpha = input$label_alpha,
+          box.padding = input$box_padding,
+          point.padding = input$point_padding,
+          nudge_x = input$x_nudge,
+          nudge_y = input$y_nudge,
+          max.overlaps = 18
+        )
       } else {
-        geom_nodelabel_repel(aes_string(label = input$node_label), 
-                             color = input$label_color,
-                             fill = input$label_fillcolor,
-                             size = input$label_size,
-                             alpha = input$label_alpha,
-                             box.padding = input$box_padding,
-                             point.padding = input$point_padding,
-                             nudge_x = input$x_nudge,
-                             nudge_y = input$y_nudge,
-                             label.padding = input$panel_padding,
-                             label.r = input$panel_radius,
-                             label.size = input$panel_bordersize,
-                             max.overlaps = 18)
+        geom_nodelabel_repel(
+          aes_string(label = input$node_label),
+          color = input$label_color,
+          fill = input$label_fillcolor,
+          size = input$label_size,
+          alpha = input$label_alpha,
+          box.padding = input$box_padding,
+          point.padding = input$point_padding,
+          nudge_x = input$x_nudge,
+          nudge_y = input$y_nudge,
+          label.padding = input$panel_padding,
+          label.r = input$panel_radius,
+          label.size = input$panel_bordersize,
+          max.overlaps = 18
+        )
       }
     }
     
-  
+    
   })
   
   # Set Edge Label
@@ -3680,75 +3750,99 @@ server <- function(input, output, session) {
   label_edge <- reactive({
     if (input$include_edge) {
       if (input$edge_rect == TRUE) {
-        geom_edgelabel_repel(aes_string(label = input$edge_label),
-                             color = input$edgelabel_color,
-                             fill = input$edgelabel_fillcolor,
-                             size = input$edgelabel_size,
-                             alpha = input$edgelabel_alpha,
-                             box.padding = input$edge_box_padding,
-                             point.padding = input$edge_point_padding,
-                             nudge_x = input$edge_x_nudge,
-                             nudge_y = input$edge_y_nudge,
-                             label.padding = input$edge_panel_padding,
-                             label.r = input$edge_panel_radius,
-                             label.size = input$edge_panel_bordersize,
-                             max.overlaps = 18)
+        geom_edgelabel_repel(
+          aes_string(label = input$edge_label),
+          color = input$edgelabel_color,
+          fill = input$edgelabel_fillcolor,
+          size = input$edgelabel_size,
+          alpha = input$edgelabel_alpha,
+          box.padding = input$edge_box_padding,
+          point.padding = input$edge_point_padding,
+          nudge_x = input$edge_x_nudge,
+          nudge_y = input$edge_y_nudge,
+          label.padding = input$edge_panel_padding,
+          label.r = input$edge_panel_radius,
+          label.size = input$edge_panel_bordersize,
+          max.overlaps = 18
+        )
       } else {
-        geom_edgetext_repel(aes_string(label = input$edge_label),
-                            color = input$edgelabel_color, 
-                            size = input$edgelabel_size, 
-                            alpha = input$edgelabel_alpha,
-                            box.padding = input$edge_box_padding,
-                            point.padding = input$edge_point_padding,
-                            nudge_x = input$edge_x_nudge,
-                            nudge_y = input$edge_y_nudge,
-                            max.overlaps = 18)
+        geom_edgetext_repel(
+          aes_string(label = input$edge_label),
+          color = input$edgelabel_color,
+          size = input$edgelabel_size,
+          alpha = input$edgelabel_alpha,
+          box.padding = input$edge_box_padding,
+          point.padding = input$edge_point_padding,
+          nudge_x = input$edge_x_nudge,
+          nudge_y = input$edge_y_nudge,
+          max.overlaps = 18
+        )
       }
-    } else {NULL}
+    } else {
+      NULL
+    }
   })
   
   # Set Node Appearance
   
   nodes <- reactive({
-    if (is.null(plot_loc$gg$cluster) & length(plot_loc$metadata[["which"]]) < 1) {
+    if (is.null(plot_loc$gg$cluster) &
+        length(plot_loc$metadata[["which"]]) < 1) {
       geom_nodes(color = node_color(),
                  size = node_size(),
-                 alpha = node_alpha()) 
-    } else if (is.null(plot_loc$gg$cluster) & length(plot_loc$metadata[["which"]]) == 1 & plot_loc$metadata[["element"]] == "Node Shape"){
-      geom_nodes(aes_string(shape = plot_loc$metadata[["which"]][1]),
-                 color = node_color(),
-                 size = node_size(),
-                 alpha = node_alpha()) 
-    } else if (is.null(plot_loc$gg$cluster) & length(plot_loc$metadata[["which"]]) == 1 & plot_loc$metadata[["element"]] == "Node Size"){
-      geom_nodes(aes_string(size = plot_loc$metadata[["which"]][1]),
-                 color = node_color(),
-                 alpha = node_alpha()) 
-    } else if (!is.null(plot_loc$gg$cluster) & length(plot_loc$metadata[["which"]]) < 1){
+                 alpha = node_alpha())
+    } else if (is.null(plot_loc$gg$cluster) &
+               length(plot_loc$metadata[["which"]]) == 1 &
+               plot_loc$metadata[["element"]] == "Node Shape") {
+      geom_nodes(
+        aes_string(shape = plot_loc$metadata[["which"]][1]),
+        color = node_color(),
+        size = node_size(),
+        alpha = node_alpha()
+      )
+    } else if (is.null(plot_loc$gg$cluster) &
+               length(plot_loc$metadata[["which"]]) == 1 &
+               plot_loc$metadata[["element"]] == "Node Size") {
+      geom_nodes(
+        aes_string(size = plot_loc$metadata[["which"]][1]),
+        color = node_color(),
+        alpha = node_alpha()
+      )
+    } else if (!is.null(plot_loc$gg$cluster) &
+               length(plot_loc$metadata[["which"]]) < 1) {
       geom_nodes(aes_string(color = "cluster"),
                  size = node_size(),
-                 alpha = node_alpha()) 
-    } else if (!is.null(plot_loc$gg$cluster) & length(plot_loc$metadata[["which"]]) == 1 & plot_loc$metadata[["element"]] == "Node Shape"){
-      geom_nodes(aes_string(color = "cluster",
-                            shape = plot_loc$metadata[["which"]][1]),
-                 size = node_size(),
-                 alpha = node_alpha()) 
-    } else if (!is.null(plot_loc$gg$cluster) & length(plot_loc$metadata[["which"]]) == 1 & plot_loc$metadata[["element"]] == "Node Size"){
-      geom_nodes(aes_string(color = "cluster",
-                            size = plot_loc$metadata[["which"]][1]),
-                 size = node_size(),
-                 alpha = node_alpha()) 
-    } 
+                 alpha = node_alpha())
+    } else if (!is.null(plot_loc$gg$cluster) &
+               length(plot_loc$metadata[["which"]]) == 1 &
+               plot_loc$metadata[["element"]] == "Node Shape") {
+      geom_nodes(
+        aes_string(color = "cluster",
+                   shape = plot_loc$metadata[["which"]][1]),
+        size = node_size(),
+        alpha = node_alpha()
+      )
+    } else if (!is.null(plot_loc$gg$cluster) &
+               length(plot_loc$metadata[["which"]]) == 1 &
+               plot_loc$metadata[["element"]] == "Node Size") {
+      geom_nodes(
+        aes_string(color = "cluster",
+                   size = plot_loc$metadata[["which"]][1]),
+        size = node_size(),
+        alpha = node_alpha()
+      )
+    }
   })
   
   # Add Metadata
   
   observeEvent(input$add_metadata, {
     if (length(plot_loc$metadata) == 0) {
-    plot_loc$metadata <- list(which = input$which_metadata,
-                              element = input$element_metadata)
-#    } else if (length(plot_loc$metadata[["which"]]) == 1){
-#      plot_loc$metadata[["which"]] <- append(plot_loc$metadata[["which"]], input$which_metadata)
-#      plot_loc$metadata[["element"]] <- append(plot_loc$metadata[["element"]], input$element_metadata)
+      plot_loc$metadata <- list(which = input$which_metadata,
+                                element = input$element_metadata)
+      #    } else if (length(plot_loc$metadata[["which"]]) == 1){
+      #      plot_loc$metadata[["which"]] <- append(plot_loc$metadata[["which"]], input$which_metadata)
+      #      plot_loc$metadata[["element"]] <- append(plot_loc$metadata[["element"]], input$element_metadata)
     } else {
       show_toast(
         "Error",
@@ -3759,7 +3853,7 @@ server <- function(input, output, session) {
         position = "bottom-end"
       )
     }
-
+    
   })
   
   # Delete Metadata
@@ -3784,7 +3878,7 @@ server <- function(input, output, session) {
   # Define download handler to save the plot
   output$download_plot <- downloadHandler(
     filename = function() {
-      paste("plot",".png", sep = "")
+      paste("plot", ".png", sep = "")
     },
     content = function(file) {
       png(file, width = 1200, height = 600)
@@ -3800,7 +3894,6 @@ server <- function(input, output, session) {
   # Cluster Analysis ---------------------------------------------------------
   
   observeEvent(input$cluster_start, {
-    
     # Create a function to calculate total within-cluster sum of squares
     set.seed(8)
     
@@ -3814,19 +3907,24 @@ server <- function(input, output, session) {
     wss_values <- sapply(k_values, wss)
     
     # Use the elbow method to select the number of clusters
-    elbow_point <- findCutoff(k_values, wss_values, method = "first", frac.of.steepest.slope = 0.5)
+    elbow_point <-
+      findCutoff(k_values,
+                 wss_values,
+                 method = "first",
+                 frac.of.steepest.slope = 0.5)
     
     # Perform K-Means clustering with the recommended number of clusters
-    kmeans_opt <- kmeans(dist_matrix, centers = round(as.numeric(elbow_point$x)))
+    kmeans_opt <-
+      kmeans(dist_matrix, centers = round(as.numeric(elbow_point$x)))
     
     
     cluster_add <- function(vector) {
-      
       cluster <<- numeric()
       
-      for(i in 1:length(vector)) {
-        if(length(unname(kmeans_opt$cluster[which(names(kmeans_opt$cluster) == vector[i])])) > 0) {
-          cluster[i] <<- unname(kmeans_opt$cluster[which(names(kmeans_opt$cluster) == vector[i])])
+      for (i in 1:length(vector)) {
+        if (length(unname(kmeans_opt$cluster[which(names(kmeans_opt$cluster) == vector[i])])) > 0) {
+          cluster[i] <<-
+            unname(kmeans_opt$cluster[which(names(kmeans_opt$cluster) == vector[i])])
         } else {
           cluster[i] <<- 0
         }
@@ -3835,7 +3933,8 @@ server <- function(input, output, session) {
     
     cluster_add(gg$name)
     
-    plot_loc$gg <- plot_loc$gg %>% mutate(cluster = as.character(cluster))
+    plot_loc$gg <-
+      plot_loc$gg %>% mutate(cluster = as.character(cluster))
     
     
     
@@ -4378,22 +4477,29 @@ server <- function(input, output, session) {
   
   
   observe({
-    
     # Get selected Genome in Single Mode
     shinyFileChoose(input,
                     "genome_file",
                     roots = c(wd = "/home"),
                     session = session)
-    selected_genome <<- parseFilePaths(roots = c(wd = "/home"), input$genome_file)
+    selected_genome <<-
+      parseFilePaths(roots = c(wd = "/home"), input$genome_file)
     
     # Get selected Genome in Multi Mode
     shinyDirChoose(input,
-                    "genome_file_multi",
-                    roots = c(wd = "/home"),
-                    session = session)
+                   "genome_file_multi",
+                   roots = c(wd = "/home"),
+                   session = session)
     
-    typing_reactive$table <- data.frame(Include = rep(TRUE, length(list.files(as.character(parseDirPath(roots = c(wd = "/home"), input$genome_file_multi))))),
-                                        Files = list.files(as.character(parseDirPath(roots = c(wd = "/home"), input$genome_file_multi))))
+    typing_reactive$table <-
+      data.frame(Include = rep(TRUE, length(list.files(
+        as.character(parseDirPath(
+          roots = c(wd = "/home"), input$genome_file_multi
+        ))
+      ))),
+      Files = list.files(as.character(
+        parseDirPath(roots = c(wd = "/home"), input$genome_file_multi)
+      )))
     
     if (nrow(typing_reactive$table) > 0) {
       output$multi_select_table <- renderRHandsontable({
@@ -4401,7 +4507,10 @@ server <- function(input, output, session) {
           hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
           hot_cols(columnSorting = TRUE) %>%
           hot_rows(rowHeights = 25, fixedRowsTop = 1) %>%
-          hot_col(1, halign = "htCenter", valign = "htTop", width = "auto")
+          hot_col(1,
+                  halign = "htCenter",
+                  valign = "htTop",
+                  width = "auto")
       })
     } else {
       output$multi_select_table <- NULL
@@ -4607,8 +4716,9 @@ server <- function(input, output, session) {
         )
       )
     
-    output$get_allele_profile <- renderUI(actionButton("get_allele_profile",
-                                                       "Get Allelic Profile"))
+    output$get_allele_profile <-
+      renderUI(actionButton("get_allele_profile",
+                            "Get Allelic Profile"))
     
   })
   
@@ -4619,6 +4729,7 @@ server <- function(input, output, session) {
   ############## Get Allelic Profile  ######################################
   
   observeEvent(input$get_allele_profile, {
+    
     output$arrow_profile <- NULL
     
     # List all the .frag.gz files in the folder
@@ -4802,7 +4913,12 @@ server <- function(input, output, session) {
       Database[["Typing"]] <- Typing
       
       saveRDS(Database,
-              paste0(getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing), "/Typing.rds"))
+              paste0(
+                getwd(),
+                "/Database/",
+                gsub(" ", "_", input$cgmlst_typing),
+                "/Typing.rds"
+              ))
       
     } else {
       # If not first Typing Entry
@@ -4843,11 +4959,90 @@ server <- function(input, output, session) {
                 "/Database/",
                 gsub(" ", "_", input$cgmlst_typing),
                 "/Typing.rds"
-                )
-              )
+              ))
     }
   })
   
+  #### Automatic Allelic Typing ################################################
+  
+  observeEvent(input$conf_meta_multi, {
+    meta_info <- data.frame(cgmlst_typing = input$cgmlst_typing,
+                            append_isodate = input$append_isodate_multi,
+                            append_host = input$append_host_multi,
+                            append_country = input$append_country_multi,
+                            append_city = input$append_city_multi,
+                            append_analysisdate = input$append_analysisdate_multi,
+                            db_directory = paste0(getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing)))
+    
+    saveRDS(meta_info, paste0(
+      getwd(),
+      "/execute/meta_info.rds"
+    ))
+  })
+  
+  observeEvent(input$start_typ_multi, {
+    kma_multi <- paste0(
+      '#!/bin/bash', '\n',
+      'cd execute', '\n',
+      '# Directory name', '\n',
+      'results=', shQuote(paste0(getwd(),
+                                 "/Database/",
+                                 gsub(" ", "_", input$cgmlst_typing), 
+                                 "/results")), '\n',
+      '# Remove the existing directory (if it exists)', '\n',
+      'if [ -d "$results" ]; then', '\n',
+      '    rm -r "$results"', '\n',
+      'fi', '\n',
+      '# Create a new directory', '\n', 
+      'mkdir "$results"', '\n',
+      '#INDEXING GENOME AS DATABASE', '\n',
+      'database_name=', shQuote(gsub(" ", "_", input$cgmlst_typing)), '\n',
+      'genome_folder=', shQuote(as.character(parseDirPath(roots = c(wd = "/home"), 
+                                                          input$genome_file_multi))), '\n',
+      '#RUNNING KMA', '\n',
+      'query_folder=', shQuote(paste0(getwd(), 
+                                      "/Database/", 
+                                      gsub(" ", "_", input$cgmlst_typing), 
+                                      "/",
+                                      gsub(" ", "_", input$cgmlst_typing), 
+                                      "_alleles")), '\n',
+      'genome_filename_noext=""', '\n',
+      '#Indexing Loop', '\n',
+      'for genome in "$genome_folder"/*; do', '\n',
+      '    if [ -f "$genome" ]; then', '\n',
+      '    genome_filename=$(basename "$genome")', '\n',
+      '    genome_filename_noext="${genome_filename%.*}"', '\n',
+      '    /home/marian/miniconda3/bin/kma index -i "$genome" -o "$database_name"', '\n',
+      '    fi', '\n',
+      '    mkdir "$results/$genome_filename_noext"', '\n',
+      '#Running Loop', '\n',
+      '    for query_file in "$query_folder"/*.fasta; do', '\n',
+      '        if [ -f "$query_file" ]; then', '\n',
+      '        query_filename=$(basename "$query_file")', '\n',
+      '        query_filename_noext="${query_filename%.*}"', '\n',
+      '        output_file="$results/$genome_filename_noext/$query_filename_noext"', '\n',
+      '        /home/marian/miniconda3/bin/kma -i "$query_file" -o "$output_file" -t_db "$database_name" -nc -status', '\n',
+      '        fi', '\n',
+      '    done', '\n',
+      '    Rscript ', shQuote(paste0(getwd(), "/execute/automatic_typing_init.R")), '\n',
+      'done', '\n'
+    )
+    
+    # Specify the path to save the script
+    kma_multi_path <-
+      paste0(getwd(), "/execute/kma_multi.sh")
+    
+    # Write the script to a file
+    cat(kma_multi, file = kma_multi_path)
+    
+    # Make the script executable
+    system(paste("chmod +x", kma_multi_path))
+    
+    # Execute the script
+    system(paste(kma_multi_path))
+  })
+  
+    
   
   
 } # end server
