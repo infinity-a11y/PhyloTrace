@@ -798,7 +798,11 @@ ui <- dashboardPage(
             width = 9,
             uiOutput("db_no_entries"),
             uiOutput("no_db"),
-            rHandsontableOutput("db_entries")
+            addSpinner(
+              rHandsontableOutput("db_entries"),
+              spin = "dots",
+              color = "#ffffff"
+            )
           ),
           column(
             width = 3,
@@ -1119,7 +1123,7 @@ ui <- dashboardPage(
                 align = "center",
                 shinyDirButton(
                   "genome_file_multi",
-                  "Select Genome" ,
+                  "Select Genomes" ,
                   title = "Please select the folder containing the genome assemblies in .fasta format",
                   buttonType = "default"
                 ),
@@ -1137,68 +1141,18 @@ ui <- dashboardPage(
               align = "center",
               br(),
               br(),
-              h3(p("Declare Metadata"), style = "color:white"),
-              br(),
-              fluidRow(
-                column(width = 3),
-                column(
-                  width = 9,
-                  align = "left",
-                  prettyRadioButtons(
-                    inputId = "metadata_mode",
-                    label = "",
-                    choices = c("Automatic", "Manual"),
-                    selected = "Automatic"
-                  )
-                )
-              ),
-              br(),
+              uiOutput("header_declare_metadata"),
+              br(), br(),
               fluidRow(
                 column(width = 2),
                 column(
                   width = 6,
-                  box(
-                    solidHeader = TRUE,
-                    status = "primary",
-                    width = "100%",
-                    dateInput("append_isodate_multi",
-                              label = "Isolation Date",
-                              width = "50%"),
-                    textInput("append_host_multi",
-                              label = "Host",
-                              width = "80%"),
-                    pickerInput(
-                      "append_country_multi",
-                      "Country",
-                      choices = list("Common" = sel_countries,
-                                     "All Countries" = country_names),
-                      options = list(
-                        `live-search` = TRUE,
-                        `actions-box` = TRUE,
-                        size = 10,
-                        style = "background-color: white; border-radius: 5px;"
-                      ),
-                      width = "90%"
-                    ),
-                    textInput("append_city_multi",
-                              label = "City",
-                              width = "80%"),
-                    dateInput(
-                      "append_analysisdate_multi",
-                      label = "Typing Date",
-                      value = Sys.Date(),
-                      width = "50%"
-                    )
-                  )
+                  uiOutput("metadata_multi_box")
                 ),
                 column(
                   width = 3,
                   br(), br(), br(), br(), br(), br(), br(), br(), br(),
-                  actionButton(
-                    "conf_meta_multi",
-                    "Confirm"
-                  )
-                  
+                  uiOutput("conf_meta_multi_button")
                 )
               )
             ),
@@ -1207,11 +1161,10 @@ ui <- dashboardPage(
               align = "center",
               br(),
               br(),
-              h3(p("Start Typing"), style = "color:white"),
+              uiOutput("header_start_multi"),
               br(),
               br(),
-              actionButton("start_typ_multi",
-                           "Start Typing")
+              uiOutput("multi_start_button")
             )
           )
         )
@@ -2851,18 +2804,17 @@ server <- function(input, output, session) {
         length(input$compare_select)
       })
       
-      # Render Entry Data Table
+      #### Render Entry Data Table----
+      
       if (!class(DF1$data) == "NULL") {
         observe({
-          
-          
           
           if (test() > 0) {
             output$db_entries <- renderRHandsontable({
               DF1$new <-
                 rhandsontable(
                   select(DF1$data, 1:12, input$compare_select),
-                  col_highlight = diff_allele(),
+                  col_highlight = diff_allele()+(test()-(ncol(DF1$data)-12)),
                   rowHeaders = NULL
                 ) %>%
                 hot_context_menu(allowRowEdit = FALSE,
@@ -3108,7 +3060,7 @@ server <- function(input, output, session) {
     )
   })
   
-  ##### Render Allele Differences as Highlights ####
+  ##### Render Allele Differences as Highlights ----
   
   
   diff_allele <- reactive({
@@ -4978,12 +4930,59 @@ server <- function(input, output, session) {
       getwd(),
       "/execute/meta_info.rds"
     ))
+    
+    show_toast(
+      title = "Metadata declared",
+      type = "success",
+      position = "bottom-end",
+      width = "400px",
+      timer = 6000
+    )
+    
+    Sys.sleep(1)
+    
+    output$multi_start_button <- renderUI({
+      actionButton(
+        "start_typ_multi",
+        "Start Typing")
+    })
+    
+    output$header_start_multi <- renderUI({
+      h3(p("Start Typing"), style = "color:white")
+    })
+    
   })
   
   observeEvent(input$start_typ_multi, {
+    
+    # List Genome Assemblies Included in Analysis in Vector
+    genome_selected <- hot_to_r(input$multi_select_table)
+    
+    genome_names <<- genome_selected$Files[which(genome_selected$Include == TRUE)]
+    
     kma_multi <- paste0(
       '#!/bin/bash', '\n',
       'cd execute', '\n',
+      '# Get Genome Folder', '\n',
+      'genome_folder=', shQuote(as.character(parseDirPath(roots = c(wd = "/home"), 
+                                                          input$genome_file_multi))), '\n',
+      'selected_genomes=', shQuote(paste0(getwd(), "/execute/selected_genomes")), '\n',
+      '# Remove the existing directory (if it exists)', '\n',
+      'if [ -d "$selected_genomes" ]; then', '\n',
+      '    rm -r "$selected_genomes"', '\n',
+      'fi', '\n',
+      'mkdir $selected_genomes', '\n',
+      '# List of file names to copy', '\n',
+      'file_names=(', paste(shQuote(genome_names), collapse= " "), ')', '\n',
+      '# Loop through the list of file names and copy them to the new folder', '\n',
+      'for file in "${file_names[@]}"; do', '\n',
+      '    if [ -f "$genome_folder/$file" ]; then', '\n',
+      '        cp "$genome_folder/$file" "$selected_genomes/"', '\n',
+      '        echo "Copied $file to $selected_genomes/"', '\n',
+      '    else', '\n', 
+      '        echo "$file not found in $genome_folder."', '\n',
+      '    fi', '\n',
+      'done', '\n',
       '# Directory name', '\n',
       'results=', shQuote(paste0(getwd(),
                                  "/Database/",
@@ -4997,8 +4996,6 @@ server <- function(input, output, session) {
       'mkdir "$results"', '\n',
       '#INDEXING GENOME AS DATABASE', '\n',
       'database_name=', shQuote(gsub(" ", "_", input$cgmlst_typing)), '\n',
-      'genome_folder=', shQuote(as.character(parseDirPath(roots = c(wd = "/home"), 
-                                                          input$genome_file_multi))), '\n',
       '#RUNNING KMA', '\n',
       'query_folder=', shQuote(paste0(getwd(), 
                                       "/Database/", 
@@ -5008,7 +5005,7 @@ server <- function(input, output, session) {
                                       "_alleles")), '\n',
       'genome_filename_noext=""', '\n',
       '#Indexing Loop', '\n',
-      'for genome in "$genome_folder"/*; do', '\n',
+      'for genome in "$selected_genomes"/*; do', '\n',
       '    if [ -f "$genome" ]; then', '\n',
       '    genome_filename=$(basename "$genome")', '\n',
       '    genome_filename_noext="${genome_filename%.*}"', '\n',
@@ -5024,7 +5021,7 @@ server <- function(input, output, session) {
       '        /home/marian/miniconda3/bin/kma -i "$query_file" -o "$output_file" -t_db "$database_name" -nc -status', '\n',
       '        fi', '\n',
       '    done', '\n',
-      '    Rscript ', shQuote(paste0(getwd(), "/execute/automatic_typing_init.R")), '\n',
+      '    Rscript ', shQuote(paste0(getwd(), "/execute/automatic_typing.R")), '\n',
       'done', '\n'
     )
     
@@ -5035,14 +5032,73 @@ server <- function(input, output, session) {
     # Write the script to a file
     cat(kma_multi, file = kma_multi_path)
     
-    # Make the script executable
+    # Make the script executable  
     system(paste("chmod +x", kma_multi_path))
     
-    # Execute the script
-    system(paste(kma_multi_path))
+        # Execute the script
+    system(paste(kma_multi_path, "> script.log 2>&1"), wait = FALSE)
   })
   
-    
+  ### Render Elements in order ----
+  
+  observe({
+    if (nrow(typing_reactive$table) > 0) {
+      output$header_declare_metadata <- renderUI({
+        h3(p("Declare Metadata"), style = "color:white")
+      })
+      
+      output$metadata_multi_box <- renderUI({
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          dateInput("append_isodate_multi",
+                    label = "Isolation Date",
+                    width = "50%"),
+          textInput("append_host_multi",
+                    label = "Host",
+                    width = "80%"),
+          pickerInput(
+            "append_country_multi",
+            "Country",
+            choices = list("Common" = sel_countries,
+                           "All Countries" = country_names),
+            options = list(
+              `live-search` = TRUE,
+              `actions-box` = TRUE,
+              size = 10,
+              style = "background-color: white; border-radius: 5px;"
+            ),
+            width = "90%"
+          ),
+          textInput("append_city_multi",
+                    label = "City",
+                    width = "80%"),
+          dateInput(
+            "append_analysisdate_multi",
+            label = "Typing Date",
+            value = Sys.Date(),
+            width = "50%"
+          )
+        )
+      })
+      
+      output$conf_meta_multi_button <- renderUI({
+        actionButton(
+          "conf_meta_multi",
+          "Confirm"
+        )
+      })
+    } else {
+      output$header_declare_metadata <- NULL
+      output$metadata_multi_box <- NULL
+      output$conf_meta_multi_button <- NULL
+      output$multi_start_button <- NULL
+      output$header_start_multi <- NULL
+    }
+  })
+  
+  
   
   
 } # end server
