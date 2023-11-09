@@ -822,7 +822,7 @@ ui <- dashboardPage(
             uiOutput("db_no_entries"),
             uiOutput("no_db"),
             rHandsontableOutput("db_entries_meta")
-            ),
+          ),
           column(
             width = 7,
             rHandsontableOutput("db_entries_profile")
@@ -2829,21 +2829,21 @@ server <- function(input, output, session) {
               hot_col(10, width = 90)
           })
           
-          output$db_entries_profile <- renderRHandsontable({
-            DF1$profile <- rhandsontable(
-              select(DF1$data, input$compare_select),
-              col_highlight = diff_allele(),
-              rowHeaders = NULL,
-              readOnly = TRUE
-            ) %>%
-              hot_context_menu(allowRowEdit = FALSE,
-                               allowColEdit = FALSE,
-                               allowReadOnly = TRUE) %>%
-              hot_rows(rowHeights = 25,
-                       fixedRowsTop = 1) %>%
-              hot_col(
-                1:(test()),
-                renderer = "
+          if (length(input$compare_select) > 0) {
+            output$db_entries_profile <- renderRHandsontable({
+              rhandsontable(
+                select(DF1$data, input$compare_select),
+                col_highlight = diff_allele()-1,
+                rowHeaders = NULL,
+                readOnly = TRUE
+              ) %>%
+                hot_context_menu(allowRowEdit = FALSE,
+                                 allowColEdit = FALSE,
+                                 allowReadOnly = TRUE) %>%
+                hot_rows(rowHeights = 25,
+                         fixedRowsTop = 1) %>%
+                hot_cols(
+                  renderer = "
                 function(instance, td, row, col, prop, value, cellProperties) {
                   Handsontable.renderers.NumericRenderer.apply(this, arguments);
 
@@ -2856,9 +2856,11 @@ server <- function(input, output, session) {
                     td.style.background = '#FF8F8F';
                   }
               }"
-              ) 
-            DF1$profile
-          })
+                ) 
+            })
+          } else {
+            output$db_entries_profile <- NULL
+          }
           
         })
         
@@ -3056,7 +3058,7 @@ server <- function(input, output, session) {
     )
   })
   
-  ##### Render Allele Differences as Highlights ----
+  #### Render Allele Differences as Highlights ----
   
   
   diff_allele <- reactive({
@@ -3077,9 +3079,8 @@ server <- function(input, output, session) {
         
         return(varying_columns)
       }
-      df <- hot_to_r(DF1$profile)
-      var_alleles(df)
-    }
+      var_alleles(select(DF1$data, input$compare_select))
+      }
   })
   
   
@@ -5033,7 +5034,7 @@ server <- function(input, output, session) {
     # Make the script executable  
     system(paste("chmod +x", kma_multi_path))
     
-        # Execute the script
+    # Execute the script
     system(paste(kma_multi_path, "> script.log 2>&1"), wait = FALSE)
   })
   
