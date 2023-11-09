@@ -791,41 +791,58 @@ ui <- dashboardPage(
           align = "center",
           h2(p("Browse Local Database"), style = "color:white"),
         )),
-        hr(),
+        hr(), br(),
+        br(),
         br(),
         fluidRow(
           column(
-            width = 3,
-            align = "center",
-            uiOutput("compare_select"),
-            br(),
-            br(),
-            br(),
-          ),
-          column(
-            width = 3,
-            uiOutput("del_text"),
-            br(),
-            fluidRow(
-              column(width = 3),
-              column(width = 3,
-                     uiOutput("delete_button")),
-              column(width = 3,
-                     br(),
-                     uiOutput("del_bttn"))
+            width = 8,
+            addSpinner(
+              rHandsontableOutput("db_entries"),
+              spin = "dots",
+              color = "#ffffff"
             )
-          )
-        ),
-        fluidRow(
-          column(
-            width = 5,
-            uiOutput("db_no_entries"),
-            uiOutput("no_db"),
-            rHandsontableOutput("db_entries_meta")
           ),
+          column(width = 1),
           column(
-            width = 7,
-            rHandsontableOutput("db_entries_profile")
+            width = 2,
+            align = "left",
+            box(
+              solidHeader = TRUE,
+              status = "primary",
+              width = "100%",
+              column(
+                width = 12,
+                align = "center",
+                uiOutput("del_text")
+              ),
+              fluidRow(
+                br(),
+                column(width = 1),
+                column(
+                  width = 2,
+                  align = "left",
+                  br(),
+                  h5("Index", style = "color:white; margin-bottom: 0px;")
+                ),
+                column(width = 5,
+                       align = "center",
+                       uiOutput("delete_select")),
+                column(width = 3,
+                       br(),
+                       uiOutput("del_bttn")),
+              )
+            ),
+            box(
+              solidHeader = TRUE,
+              status = "primary",
+              width = "100%",
+              column(
+                width = 12,
+                align = "center",
+                uiOutput("compare_select")
+              )
+            )
           )
         ),
         fluidRow(
@@ -2792,7 +2809,7 @@ server <- function(input, output, session) {
       output$compare_select <- renderUI({
         pickerInput(
           inputId = "compare_select",
-          label = h4("Select loci to display", style = "color:white; margin-bottom: 10px;"),
+          label = h4("Display Locus", style = "color:white; margin-bottom: 10px;"),
           choices = names(select(typing, -(1:12))),
           selected = names(select(typing, -(1:12)))[1:20],
           options = list(
@@ -2814,35 +2831,21 @@ server <- function(input, output, session) {
       if (!class(DF1$data) == "NULL") {
         observe({
           
-          output$db_entries_meta <- renderRHandsontable({
-            rhandsontable(
-              select(DF1$data, 1:12),
-              rowHeaders = NULL
-            ) %>%
-              hot_context_menu(allowRowEdit = FALSE,
-                               allowColEdit = FALSE) %>%
-              hot_rows(rowHeights = 25,
-                       fixedRowsTop = 1) %>%
-              hot_col(2,
-                      halign = "htCenter",
-                      valign = "htTop") %>%
-              hot_col(10, width = 90)
-          })
-          
           if (length(input$compare_select) > 0) {
-            output$db_entries_profile <- renderRHandsontable({
+            output$db_entries <- renderRHandsontable({
               rhandsontable(
-                select(DF1$data, input$compare_select),
+                select(DF1$data, 1:12, input$compare_select),
                 col_highlight = diff_allele()-1,
                 rowHeaders = NULL,
-                readOnly = TRUE
+                height = 800
               ) %>%
                 hot_context_menu(allowRowEdit = FALSE,
                                  allowColEdit = FALSE,
-                                 allowReadOnly = TRUE) %>%
+                                 allowReadOnly = FALSE) %>%
+                hot_cols(fixedColumnsLeft = 1) %>%
                 hot_rows(rowHeights = 25,
-                         fixedRowsTop = 1) %>%
-                hot_cols(
+                         fixedRowsTop = 0) %>%
+                hot_col(diff_allele(),
                   renderer = "
                 function(instance, td, row, col, prop, value, cellProperties) {
                   Handsontable.renderers.NumericRenderer.apply(this, arguments);
@@ -2859,7 +2862,18 @@ server <- function(input, output, session) {
                 ) 
             })
           } else {
-            output$db_entries_profile <- NULL
+            output$db_entries <- renderRHandsontable({
+              rhandsontable(
+                select(DF1$data, 1:12),
+                rowHeaders = NULL,
+                height = 800
+              ) %>%
+                hot_context_menu(allowRowEdit = FALSE,
+                                 allowColEdit = FALSE,
+                                 allowReadOnly = FALSE) %>%
+                hot_rows(rowHeights = 25,
+                         fixedRowsTop = 1)
+            })
           }
           
         })
@@ -2874,10 +2888,16 @@ server <- function(input, output, session) {
         h4(p("Delete Entries"), style = "color:white")
       })
       
-      output$delete_button <- renderUI({
-        selectInput("select_delete",
-                    label = "Index",
-                    choices = DF1$data[, "Index"])
+      output$delete_select <- renderUI({
+        pickerInput("select_delete",
+                    label = "",
+                    choices = DF1$data[, "Index"],
+                    options = list(
+                      `live-search` = TRUE,
+                      `actions-box` = TRUE,
+                      size = 10,
+                      style = "background-color: white; border-radius: 5px;"
+                    ))
       })
       
       output$del_bttn <- renderUI({
@@ -2996,7 +3016,7 @@ server <- function(input, output, session) {
         paste0(
           "Overwriting previous metadata of local ",
           input$scheme_db,
-          " Database.",
+          " database.",
           " Continue?"
         ),
         title = "Save Database",
@@ -3022,9 +3042,11 @@ server <- function(input, output, session) {
       "/Typing.rds"
     ))
     
-    attach_meta <- hot_to_r(input$db_entries_meta)
+    attach_meta <- hot_to_r(input$db_entries)
+    attach_meta <- select(attach_meta, 1:12)
     
-    Data[["Typing"]][, 1:12] <- attach_meta
+    
+    Data[["Typing"]] <- cbind(attach_meta, DF1$delete)
     saveRDS(Data, paste0(
       getwd(),
       "/Database/",
@@ -3035,15 +3057,15 @@ server <- function(input, output, session) {
     removeModal()
   })
   
-  observeEvent(input$delete_button, {
+  observeEvent(input$del_button, {
     showModal(
       modalDialog(
         paste0(
-          "Confirmation will lead to removal of entry number ",
-          input$edit_index,
-          " (",
-          input$edit_assembly_name,
-          ")."
+          "Confirmation will lead to removal of entry Index ",
+          input$select_delete,
+          ", ",
+          DF1$data[as.integer(input$select_delete), 3],
+          "."
         ),
         "\n",
         "Are you sure you want to continue?",
@@ -3052,10 +3074,20 @@ server <- function(input, output, session) {
         easyClose = TRUE,
         footer = tagList(
           modalButton("Cancel"),
-          actionButton("ok", "Delete", class = "btn btn-danger")
+          actionButton(
+            "conf_delete", 
+            "Delete", 
+            class = "btn btn-danger")
         )
       )
     )
+  })
+  
+  observeEvent(input$conf_delete, {
+    delete <- select(DF1$data, -(1:12))
+    DF1$delete <-  delete[-as.integer(input$select_delete),]
+    DF1$data <- DF1$data[-as.integer(input$select_delete),]
+    removeModal()
   })
   
   #### Render Allele Differences as Highlights ----
@@ -3079,7 +3111,7 @@ server <- function(input, output, session) {
         
         return(varying_columns)
       }
-      var_alleles(select(DF1$data, input$compare_select))
+      var_alleles(select(DF1$data, input$compare_select)) + 12
       }
   })
   
@@ -4829,7 +4861,7 @@ server <- function(input, output, session) {
           sum(sapply(allele_vector, is.na))
         )
       
-      new_row <- c(metadata, allele_vector)
+      new_row <- c(metadata, as.integer(allele_vector))
       
       Typing <- rbind(Typing, new_row)
       
@@ -4898,7 +4930,7 @@ server <- function(input, output, session) {
           sum(sapply(allele_vector, is.na))
         )
       
-      new_row <- c(metadata, allele_vector)
+      new_row <- c(metadata, as.integer(allele_vector))
       
       DF1$data <- rbind(Database$Typing, new_row)
       
