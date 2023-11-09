@@ -2842,8 +2842,12 @@ server <- function(input, output, session) {
                 hot_context_menu(allowRowEdit = FALSE,
                                  allowColEdit = FALSE,
                                  allowReadOnly = FALSE) %>%
+                hot_col(2,
+                        halign = "htCenter",
+                        valign = "htTop",
+                        width = "auto") %>%
                 hot_cols(fixedColumnsLeft = 1) %>%
-                hot_rows(rowHeights = 25,
+                hot_rows(rowHeights = 30,
                          fixedRowsTop = 0) %>%
                 hot_col(diff_allele(),
                   renderer = "
@@ -2868,10 +2872,14 @@ server <- function(input, output, session) {
                 rowHeaders = NULL,
                 height = 800
               ) %>%
+                hot_col(2,
+                        halign = "htCenter",
+                        valign = "htTop",
+                        width = "auto") %>%
                 hot_context_menu(allowRowEdit = FALSE,
                                  allowColEdit = FALSE,
                                  allowReadOnly = FALSE) %>%
-                hot_rows(rowHeights = 25,
+                hot_rows(rowHeights = 30,
                          fixedRowsTop = 1)
             })
           }
@@ -3087,6 +3095,8 @@ server <- function(input, output, session) {
     delete <- select(DF1$data, -(1:12))
     DF1$delete <-  delete[-as.integer(input$select_delete),]
     DF1$data <- DF1$data[-as.integer(input$select_delete),]
+    rownames(DF1$data) <- 1:nrow(DF1$data)
+    DF1$data <- mutate(DF1$data, Index = as.character(rownames(DF1$data)))
     removeModal()
   })
   
@@ -4906,17 +4916,10 @@ server <- function(input, output, session) {
     } else {
       # If not first Typing Entry
       
-      Database <-
-        readRDS(paste0(
-          getwd(),
-          "/Database/",
-          gsub(" ", "_", input$cgmlst_typing),
-          "/Typing.rds"
-        ))
       
       metadata <-
         c(
-          nrow(Database[["Typing"]]) + 1,
+          nrow(DF1$data) + 1,
           TRUE,
           input$assembly_id,
           input$assembly_name,
@@ -4932,9 +4935,11 @@ server <- function(input, output, session) {
       
       new_row <- c(metadata, as.integer(allele_vector))
       
-      DF1$data <- rbind(Database$Typing, new_row)
+      DF1$data <- rbind(DF1$data, new_row)
       
-      Database$Typing <- rbind(Database$Typing, new_row)
+      Database <- list(Typing = data.frame())
+      
+      Database$Typing <- DF1$data
       
       saveRDS(Database,
               paste0(
