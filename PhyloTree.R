@@ -795,22 +795,15 @@ ui <- dashboardPage(
         br(),
         fluidRow(
           column(
-            width = 9,
-            uiOutput("db_no_entries"),
-            uiOutput("no_db"),
-            addSpinner(
-              rHandsontableOutput("db_entries"),
-              spin = "dots",
-              color = "#ffffff"
-            )
-          ),
-          column(
             width = 3,
             align = "center",
             uiOutput("compare_select"),
             br(),
             br(),
             br(),
+          ),
+          column(
+            width = 3,
             uiOutput("del_text"),
             br(),
             fluidRow(
@@ -821,6 +814,18 @@ ui <- dashboardPage(
                      br(),
                      uiOutput("del_bttn"))
             )
+          )
+        ),
+        fluidRow(
+          column(
+            width = 5,
+            uiOutput("db_no_entries"),
+            uiOutput("no_db"),
+            rHandsontableOutput("db_entries_meta")
+            ),
+          column(
+            width = 7,
+            rHandsontableOutput("db_entries_profile")
           )
         ),
         fluidRow(
@@ -2789,7 +2794,7 @@ server <- function(input, output, session) {
           inputId = "compare_select",
           label = h4("Select loci to display", style = "color:white; margin-bottom: 10px;"),
           choices = names(select(typing, -(1:12))),
-          selected = names(select(typing, -(1:12)))[1],
+          selected = names(select(typing, -(1:12)))[1:20],
           options = list(
             `live-search` = TRUE,
             `actions-box` = TRUE,
@@ -2809,19 +2814,36 @@ server <- function(input, output, session) {
       if (!class(DF1$data) == "NULL") {
         observe({
           
-          if (test() > 0) {
-            output$db_entries <- renderRHandsontable({
-              DF1$new <-
-                rhandsontable(
-                  select(DF1$data, 1:12, input$compare_select),
-                  col_highlight = diff_allele()+(test()-(ncol(DF1$data)-12)),
-                  rowHeaders = NULL
-                ) %>%
-                hot_context_menu(allowRowEdit = FALSE,
-                                 allowColEdit = FALSE) %>%
-                hot_col(
-                  13:(12 + test()),
-                  renderer = "
+          output$db_entries_meta <- renderRHandsontable({
+            rhandsontable(
+              select(DF1$data, 1:12),
+              rowHeaders = NULL
+            ) %>%
+              hot_context_menu(allowRowEdit = FALSE,
+                               allowColEdit = FALSE) %>%
+              hot_rows(rowHeights = 25,
+                       fixedRowsTop = 1) %>%
+              hot_col(2,
+                      halign = "htCenter",
+                      valign = "htTop") %>%
+              hot_col(10, width = 90)
+          })
+          
+          output$db_entries_profile <- renderRHandsontable({
+            DF1$profile <- rhandsontable(
+              select(DF1$data, input$compare_select),
+              col_highlight = diff_allele(),
+              rowHeaders = NULL,
+              readOnly = TRUE
+            ) %>%
+              hot_context_menu(allowRowEdit = FALSE,
+                               allowColEdit = FALSE,
+                               allowReadOnly = TRUE) %>%
+              hot_rows(rowHeights = 25,
+                       fixedRowsTop = 1) %>%
+              hot_col(
+                1:(test()),
+                renderer = "
                 function(instance, td, row, col, prop, value, cellProperties) {
                   Handsontable.renderers.NumericRenderer.apply(this, arguments);
 
@@ -2834,36 +2856,10 @@ server <- function(input, output, session) {
                     td.style.background = '#FF8F8F';
                   }
               }"
-                ) %>%
-                hot_rows(rowHeights = 25,
-                         fixedRowsTop = 1) %>%
-                hot_col(2,
-                        halign = "htCenter",
-                        valign = "htTop",
-                        width = "auto") %>%
-                hot_col(1, width = "auto")
-              
-              DF1$new
-            })
-          } else {
-            output$db_entries <- renderRHandsontable({
-              DF1$new <-
-                rhandsontable(select(DF1$data, 1:12), rowHeaders = NULL) %>%
-                hot_context_menu(allowRowEdit = FALSE,
-                                 allowColEdit = FALSE) %>%
-                hot_cols(columnSorting = TRUE,
-                         fixedColumnsLeft = 1) %>%
-                hot_rows(rowHeights = 25,
-                         fixedRowsTop = 1) %>%
-                hot_col(2,
-                        halign = "htCenter",
-                        valign = "htTop",
-                        width = "auto") %>%
-                hot_col(1, width = "auto")
-              
-              DF1$new
-            })
-          }
+              ) 
+            DF1$profile
+          })
+          
         })
         
         output$db_no_entries <- NULL
@@ -3024,7 +3020,7 @@ server <- function(input, output, session) {
       "/Typing.rds"
     ))
     
-    attach_meta <- hot_to_r(input$db_entries) %>% select(1:12)
+    attach_meta <- hot_to_r(input$db_entries_meta)
     
     Data[["Typing"]][, 1:12] <- attach_meta
     saveRDS(Data, paste0(
@@ -3070,18 +3066,19 @@ server <- function(input, output, session) {
         varying_columns <- c()
         
         for (col in 1:ncol(dataframe)) {
-          unique_values <- unique(dataframe[, col])
-          
-          if (length(unique_values) > 1) {
-            varying_columns <- c(varying_columns, col)
+          if(class(dataframe[, col]) == "integer") {
+            unique_values <- unique(dataframe[, col])
+            
+            if (length(unique_values) > 1) {
+              varying_columns <- c(varying_columns, col)
+            }
           }
         }
         
         return(varying_columns)
       }
-      
-      df <- select(DF1$data, 13:(ncol(DF1$data)))
-      var_alleles(df) + 11
+      df <- hot_to_r(DF1$profile)
+      var_alleles(df)
     }
   })
   
@@ -4768,6 +4765,7 @@ server <- function(input, output, session) {
       frag_data_list[[input$sel_result]]
     })
     
+    allele_vector <- as.integer(allele_vector)
   })
   
   
