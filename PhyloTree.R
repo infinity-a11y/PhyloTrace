@@ -807,42 +807,8 @@ ui <- dashboardPage(
           column(
             width = 2,
             align = "left",
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = "100%",
-              column(
-                width = 12,
-                align = "center",
-                uiOutput("del_text")
-              ),
-              fluidRow(
-                br(),
-                column(width = 1),
-                column(
-                  width = 2,
-                  align = "left",
-                  br(),
-                  h5("Index", style = "color:white; margin-bottom: 0px;")
-                ),
-                column(width = 5,
-                       align = "center",
-                       uiOutput("delete_select")),
-                column(width = 3,
-                       br(),
-                       uiOutput("del_bttn")),
-              )
-            ),
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = "100%",
-              column(
-                width = 12,
-                align = "center",
-                uiOutput("compare_select")
-              )
-            )
+            uiOutput("delete_box"),
+            uiOutput("compare_allele_box")
           )
         ),
         fluidRow(
@@ -2892,6 +2858,49 @@ server <- function(input, output, session) {
       
       # Edit Database Elements
       
+      output$delete_box <- renderUI({
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          column(
+            width = 12,
+            align = "center",
+            uiOutput("del_text")
+          ),
+          fluidRow(
+            br(),
+            column(width = 1),
+            column(
+              width = 2,
+              align = "right",
+              br(),
+              h5("Index", style = "color:white; margin-bottom: 0px;")
+            ),
+            column(width = 5,
+                   align = "center",
+                   uiOutput("delete_select")),
+            column(width = 2,
+                   align = "center",
+                   br(),
+                   uiOutput("del_bttn"))
+          )
+        )
+      })
+      
+      output$compare_allele_box <- renderUI({
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          column(
+            width = 12,
+            align = "center",
+            uiOutput("compare_select")
+          )
+        )
+      })
+      
       output$del_text <- renderUI({
         h4(p("Delete Entries"), style = "color:white")
       })
@@ -2900,12 +2909,13 @@ server <- function(input, output, session) {
         pickerInput("select_delete",
                     label = "",
                     choices = DF1$data[, "Index"],
+                    selected = DF1$data[1, "Index"],
                     options = list(
                       `live-search` = TRUE,
-                      `actions-box` = TRUE,
                       size = 10,
                       style = "background-color: white; border-radius: 5px;"
-                    ))
+                    ),
+                    multiple = TRUE)
       })
       
       output$del_bttn <- renderUI({
@@ -3069,14 +3079,8 @@ server <- function(input, output, session) {
     showModal(
       modalDialog(
         paste0(
-          "Confirmation will lead to removal of entry Index ",
-          input$select_delete,
-          ", ",
-          DF1$data[as.integer(input$select_delete), 3],
-          "."
+          "Confirmation will lead to irreversible removal of selected entries. Continue?"
         ),
-        "\n",
-        "Are you sure you want to continue?",
         title = "Deleting Entry",
         fade = TRUE,
         easyClose = TRUE,
@@ -3098,6 +3102,24 @@ server <- function(input, output, session) {
     rownames(DF1$data) <- 1:nrow(DF1$data)
     DF1$data <- mutate(DF1$data, Index = as.character(rownames(DF1$data)))
     removeModal()
+    if(length(input$select_delete) > 1) {
+      show_toast(
+        title = "Entries successfully deleted",
+        type = "success",
+        position = "top-end",
+        width = "400px",
+        timer = 6000
+      )
+    } else {
+      show_toast(
+        title = "Entry successfully deleted",
+        type = "success",
+        position = "top-end",
+        width = "400px",
+        timer = 6000
+      )
+    }
+    
   })
   
   #### Render Allele Differences as Highlights ----
@@ -3859,7 +3881,7 @@ server <- function(input, output, session) {
         type = "error",
         timer = 3000,
         timerProgressBar = TRUE,
-        position = "bottom-end"
+        position = "top-end"
       )
     }
   })
@@ -4568,7 +4590,7 @@ server <- function(input, output, session) {
       show_toast(
         title = "Typing Initiated",
         type = "success",
-        position = "bottom-end",
+        position = "top-end",
         width = "400px",
         timer = 12000
       )
@@ -4916,7 +4938,6 @@ server <- function(input, output, session) {
     } else {
       # If not first Typing Entry
       
-      
       metadata <-
         c(
           nrow(DF1$data) + 1,
@@ -4933,9 +4954,50 @@ server <- function(input, output, session) {
           sum(sapply(allele_vector, is.na))
         )
       
-      new_row <- c(metadata, as.integer(allele_vector))
+      df_meta <- data.frame(nrow(DF1$data) + 1,
+                       TRUE,
+                       input$assembly_id,
+                       input$assembly_name,
+                       input$cgmlst_typing,
+                       as.character(input$append_isodate),
+                       input$append_host,
+                       input$append_country,
+                       input$append_city,
+                       as.character(input$append_analysisdate),
+                       length(allele_vector) - sum(sapply(allele_vector, is.na)),
+                       sum(sapply(allele_vector, is.na)))
       
-      DF1$data <- rbind(DF1$data, new_row)
+      df_profile <- data.frame(matrix(allele_vector, ncol = length(allele_vector)))
+      
+      merged <- cbind(df_meta, df_profile)
+      
+      colnames(merged) <-
+        append(
+          c(
+            "Index",
+            "Include",
+            "Assembly ID",
+            "Assembly Name",
+            "Scheme",
+            "Isolation Date",
+            "Host",
+            "Country",
+            "City",
+            "Typing Date",
+            "Successes",
+            "Errors"
+          ),
+          gsub(".fasta", "", basename(list.files(
+            paste0(
+              getwd(),
+              "/Database/",
+              gsub(" ", "_", input$cgmlst_typing),
+              paste0("/", gsub(" ", "_", input$cgmlst_typing), "_alleles")
+            )
+          )))
+        )
+      
+      DF1$data <- rbind(DF1$data, merged)
       
       Database <- list(Typing = data.frame())
       
