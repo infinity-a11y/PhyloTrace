@@ -797,11 +797,12 @@ ui <- dashboardPage(
         fluidRow(
           column(
             width = 8,
-            addSpinner(
-              rHandsontableOutput("db_entries"),
-              spin = "dots",
-              color = "#ffffff"
-            )
+            column(
+              width = 12,
+              align = "center",
+              uiOutput("db_no_entries")
+            ),
+            uiOutput("db_entries_table")
           ),
           column(width = 1),
           column(
@@ -2788,35 +2789,87 @@ server <- function(input, output, session) {
         )
       })
       
-      test <- reactive({
-        length(input$compare_select)
-      })
       
       #### Render Entry Data Table----
       
+      output$db_entries_table <- renderUI({
+        addSpinner(
+          rHandsontableOutput("db_entries"),
+          spin = "dots",
+          color = "#ffffff"
+        )
+      })
+      
+      # Determine Entry Table Height 
+      height_table <- reactive({
+        if (nrow(DF1$data > 25)) {
+          800
+        } else {
+          nrow(DF1$data) * 50 + 75
+        }
+      })
+      
       if (!class(DF1$data) == "NULL") {
+        
         observe({
           
-          if (length(input$compare_select) > 0) {
-            output$db_entries <- renderRHandsontable({
-              rhandsontable(
-                select(DF1$data, 1:12, input$compare_select),
-                col_highlight = diff_allele()-1,
-                rowHeaders = NULL,
-                height = 800
-              ) %>%
-                hot_context_menu(allowRowEdit = FALSE,
-                                 allowColEdit = FALSE,
-                                 allowReadOnly = FALSE) %>%
-                hot_col(2,
-                        halign = "htCenter",
-                        valign = "htTop",
-                        width = "auto") %>%
-                hot_cols(fixedColumnsLeft = 1) %>%
-                hot_rows(rowHeights = 30,
-                         fixedRowsTop = 0) %>%
-                hot_col(diff_allele(),
-                  renderer = "
+          if (nrow(DF1$data) == 1) {
+            if (length(input$compare_select) > 0) {
+              output$db_entries <- renderRHandsontable({
+                rhandsontable(
+                  select(DF1$data, 1:12, input$compare_select),
+                  rowHeaders = NULL,
+                  height = height_table()
+                ) %>%
+                  hot_col(2,
+                          halign = "htCenter",
+                          valign = "htTop",
+                          width = "auto") %>%
+                  hot_context_menu(allowRowEdit = FALSE,
+                                   allowColEdit = FALSE,
+                                   allowReadOnly = FALSE) %>%
+                  hot_rows(rowHeights = 30,
+                           fixedRowsTop = 1)
+              })
+            } else {
+              output$db_entries <- renderRHandsontable({
+                rhandsontable(
+                  select(DF1$data, 1:12),
+                  rowHeaders = NULL,
+                  height = height_table()
+                ) %>%
+                  hot_col(2,
+                          halign = "htCenter",
+                          valign = "htTop",
+                          width = "auto") %>%
+                  hot_context_menu(allowRowEdit = FALSE,
+                                   allowColEdit = FALSE,
+                                   allowReadOnly = FALSE) %>%
+                  hot_rows(rowHeights = 30,
+                           fixedRowsTop = 1)
+              })
+            }
+          } else {
+            if (length(input$compare_select) > 0) {
+              output$db_entries <- renderRHandsontable({
+                rhandsontable(
+                  select(DF1$data, 1:12, input$compare_select),
+                  col_highlight = diff_allele()-1,
+                  rowHeaders = NULL,
+                  height = height_table()
+                ) %>%
+                  hot_col(1:(12+length(input$compare_select)), valign = "htMiddle") %>%
+                  hot_context_menu(allowRowEdit = FALSE,
+                                   allowColEdit = FALSE,
+                                   allowReadOnly = FALSE) %>%
+                  hot_col(2,
+                          halign = "htCenter",
+                          valign = "htTop",
+                          width = "auto") %>%
+                  hot_cols(fixedColumnsLeft = 1) %>%
+                  hot_rows(fixedRowsTop = 0) %>%
+                  hot_col(diff_allele(),
+                          renderer = "
                 function(instance, td, row, col, prop, value, cellProperties) {
                   Handsontable.renderers.NumericRenderer.apply(this, arguments);
 
@@ -2829,27 +2882,28 @@ server <- function(input, output, session) {
                     td.style.background = '#FF8F8F';
                   }
               }"
-                ) 
-            })
-          } else {
-            output$db_entries <- renderRHandsontable({
-              rhandsontable(
-                select(DF1$data, 1:12),
-                rowHeaders = NULL,
-                height = 800
-              ) %>%
-                hot_col(2,
-                        halign = "htCenter",
-                        valign = "htTop",
-                        width = "auto") %>%
-                hot_context_menu(allowRowEdit = FALSE,
-                                 allowColEdit = FALSE,
-                                 allowReadOnly = FALSE) %>%
-                hot_rows(rowHeights = 30,
-                         fixedRowsTop = 1)
-            })
+                  ) 
+              })
+            } else {
+              output$db_entries <- renderRHandsontable({
+                rhandsontable(
+                  select(DF1$data, 1:12),
+                  rowHeaders = NULL,
+                  height = height_table()
+                ) %>%
+                  hot_col(1:12, valign = "htMiddle") %>%
+                  hot_col(2,
+                          halign = "htCenter",
+                          valign = "htTop",
+                          width = "auto") %>%
+                  hot_context_menu(allowRowEdit = FALSE,
+                                   allowColEdit = FALSE,
+                                   allowReadOnly = FALSE) %>%
+                  hot_rows(rowHeights = 30,
+                           fixedRowsTop = 1)
+              })
+            }
           }
-          
         })
         
         output$db_no_entries <- NULL
@@ -2946,6 +3000,10 @@ server <- function(input, output, session) {
       output$edit_entries <- NULL
       output$edit_field <- NULL
       output$compare_select <- NULL
+      output$delete_select <- NULL
+      output$del_bttn <- NULL
+      output$compare_allele_box <- NULL
+      output$delete_box <- NULL
       
     }
     
@@ -3063,8 +3121,12 @@ server <- function(input, output, session) {
     attach_meta <- hot_to_r(input$db_entries)
     attach_meta <- select(attach_meta, 1:12)
     
+    if(!is.null(DF1$delete)) {
+      Data[["Typing"]] <- cbind(attach_meta, DF1$delete)
+    } else {
+      Data[["Typing"]][, 1:12] <- attach_meta
+    }
     
-    Data[["Typing"]] <- cbind(attach_meta, DF1$delete)
     saveRDS(Data, paste0(
       getwd(),
       "/Database/",
@@ -3073,6 +3135,13 @@ server <- function(input, output, session) {
     ))
     
     removeModal()
+    
+    show_toast(
+      title = "Database successfully saved",
+      type = "success",
+      position = "top-end",
+      timer = 6000
+    )
   })
   
   observeEvent(input$del_button, {
@@ -3107,7 +3176,6 @@ server <- function(input, output, session) {
         title = "Entries successfully deleted",
         type = "success",
         position = "top-end",
-        width = "400px",
         timer = 6000
       )
     } else {
@@ -3115,7 +3183,6 @@ server <- function(input, output, session) {
         title = "Entry successfully deleted",
         type = "success",
         position = "top-end",
-        width = "400px",
         timer = 6000
       )
     }
@@ -3449,7 +3516,6 @@ server <- function(input, output, session) {
       title = "Download successful",
       type = "success",
       position = "top-end",
-      width = "400px",
       timer = 6000
     )
     
@@ -4591,7 +4657,6 @@ server <- function(input, output, session) {
         title = "Typing Initiated",
         type = "success",
         position = "top-end",
-        width = "400px",
         timer = 12000
       )
       
@@ -5032,8 +5097,7 @@ server <- function(input, output, session) {
     show_toast(
       title = "Metadata declared",
       type = "success",
-      position = "bottom-end",
-      width = "400px",
+      position = "top-end",
       timer = 6000
     )
     
@@ -5134,7 +5198,7 @@ server <- function(input, output, session) {
     system(paste("chmod +x", kma_multi_path))
     
     # Execute the script
-    system(paste(kma_multi_path, "> script.log 2>&1"), wait = FALSE)
+    system(paste("nohup", kma_multi_path, "> script.log 2>&1"), wait = FALSE)
   })
   
   ### Render Elements in order ----
