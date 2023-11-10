@@ -800,7 +800,8 @@ ui <- dashboardPage(
             column(
               width = 12,
               align = "center",
-              uiOutput("db_no_entries")
+              uiOutput("db_no_entries"),
+              uiOutput("no_db")
             ),
             uiOutput("db_entries_table")
           ),
@@ -1104,25 +1105,20 @@ ui <- dashboardPage(
               align = "center",
               br(),
               br(),
-              h3(p("Initiate Typing"), style = "color:white"),
+              uiOutput("initiate_typing_header"),
               br(),
               br(),
               column(
                 width = 12,
                 align = "center",
-                shinyDirButton(
-                  "genome_file_multi",
-                  "Select Genomes" ,
-                  title = "Please select the folder containing the genome assemblies in .fasta format",
-                  buttonType = "default"
-                ),
+                uiOutput("genome_file_multi_bttn"),
                 br(),
                 br()
               ),
               column(
                 width = 12,
                 align = "left",
-                rHandsontableOutput("multi_select_table")
+                uiOutput("assembly_files_table")
               )
             ),
             column(
@@ -2716,18 +2712,40 @@ server <- function(input, output, session) {
     
   })
   
+  ### Conditional Rendering of Database UI Elements ----
+  
   observe({
     if (!database$exist) {
+      
+      output$scheme_db <- renderUI(
+        prettyRadioButtons(
+          "scheme_db",
+          choices = database$available,
+          label = "Local schemes"
+        )
+      )
+      
+      # Dont Show 'No Database' message
+      output$no_db <- NULL
+      
+      # Show Load Database Button
+      output$load <- renderUI(actionButton("load",
+                                           "Load Database"))
+      
       if (!class(DF1$schemeinfo) == "NULL") {
+        
         output$scheme_info <- renderTable({
           DF1$schemeinfo
         })
         
         output$scheme_header <-
           renderUI(h3(p("cgMLST Scheme"), style = "color:white"))
+        
       } else {
+        
         output$scheme_info <- NULL
         output$scheme_header <- NULL
+      
       }
       
       if (!class(DF1$loci_info) == "NULL") {
@@ -2745,11 +2763,26 @@ server <- function(input, output, session) {
         output$loci_header <- NULL
       }
       
+    } else {
+      output$no_db <- renderUI(HTML(
+        paste(
+          "<span style='color: white;'>",
+          "No local Schemes or Entries available.",
+          "Download a cgMLST Scheme in the Section <strong>Add Scheme</strong>.",
+          sep = '<br/>'
+        )
+      ))
+      
+      # Dont show Database Selector if no Database available
+      output$scheme_db <- NULL
+      
+      # Dont show Load Database Button if no Database available
+      output$load <- NULL
     }
     
   })
   
-  # Reload database
+  ### Load database Event ----
   observeEvent(input$load, {
     if (any(grepl("Typing.rds", dir_ls(paste0(
       getwd(), "/Database/", gsub(" ", "_", input$scheme_db)
@@ -2769,7 +2802,6 @@ server <- function(input, output, session) {
       
       typing <- Data[["Typing"]]
       
-      output$db_line <- renderUI(hr())
       
       DF1$data <- typing
       
@@ -2788,6 +2820,9 @@ server <- function(input, output, session) {
           multiple = TRUE
         )
       })
+      
+      # Render Separating hr() line
+      output$db_line <- renderUI(hr())
       
       
       #### Render Entry Data Table----
@@ -2908,9 +2943,38 @@ server <- function(input, output, session) {
         
         output$db_no_entries <- NULL
         
+      } else {
+        output$db_entries_table <- NULL
       }
       
-      # Edit Database Elements
+      
+      ### Render Allele Differences as Highlights ----
+      
+      
+      diff_allele <- reactive({
+        if (!class(DF1$data) == "NULL") {
+          # Function to find columns with varying values
+          var_alleles <- function(dataframe) {
+            varying_columns <- c()
+            
+            for (col in 1:ncol(dataframe)) {
+              if(class(dataframe[, col]) == "integer") {
+                unique_values <- unique(dataframe[, col])
+                
+                if (length(unique_values) > 1) {
+                  varying_columns <- c(varying_columns, col)
+                }
+              }
+            }
+            
+            return(varying_columns)
+          }
+          var_alleles(select(DF1$data, input$compare_select)) + 12
+        }
+      })
+      
+      
+      ### Edit Entry Editing Elements ----
       
       output$delete_box <- renderUI({
         box(
@@ -2994,6 +3058,8 @@ server <- function(input, output, session) {
           sep = '<br/>'
         )
       ))
+      
+      output$db_line <- renderUI(hr())
       output$db_entries <- NULL
       output$edit_index <- NULL
       output$edit_scheme_d <- NULL
@@ -3045,44 +3111,7 @@ server <- function(input, output, session) {
     
   })
   
-  
-  # Render UI (dependent on database availability)
-  
-  observe({
-    if (!database$exist) {
-      output$scheme_db <- renderUI(
-        prettyRadioButtons(
-          "scheme_db",
-          choices = database$available,
-          label = "Local schemes"
-        )
-      )
-      
-      # Dont Show 'No Database' message
-      output$no_db <- NULL
-      
-      # Show Load Database Button
-      output$load <- renderUI(actionButton("load",
-                                           "Load Database"))
-      
-      
-    } else {
-      output$no_db <- renderUI(HTML(
-        paste(
-          "<span style='color: white;'>",
-          "No local Schemes or Entries available.",
-          "Download a cgMLST Scheme in the Section <strong>Add Scheme</strong>.",
-          sep = '<br/>'
-        )
-      ))
-      
-      # Dont show Database Selector if no Database available
-      output$scheme_db <- NULL
-      
-      # Dont show Load Database Button if no Database available
-      output$load <- NULL
-    }
-  })
+  ### Other Database Events ----
   
   # Save Edits Button
   
@@ -3140,7 +3169,7 @@ server <- function(input, output, session) {
       title = "Database successfully saved",
       type = "success",
       position = "top-end",
-      timer = 6000
+      timer = 4000
     )
   })
   
@@ -3176,43 +3205,19 @@ server <- function(input, output, session) {
         title = "Entries successfully deleted",
         type = "success",
         position = "top-end",
-        timer = 6000
+        timer = 4000
       )
     } else {
       show_toast(
         title = "Entry successfully deleted",
         type = "success",
         position = "top-end",
-        timer = 6000
+        timer = 4000
       )
     }
     
   })
   
-  #### Render Allele Differences as Highlights ----
-  
-  
-  diff_allele <- reactive({
-    if (!class(DF1$data) == "NULL") {
-      # Function to find columns with varying values
-      var_alleles <- function(dataframe) {
-        varying_columns <- c()
-        
-        for (col in 1:ncol(dataframe)) {
-          if(class(dataframe[, col]) == "integer") {
-            unique_values <- unique(dataframe[, col])
-            
-            if (length(unique_values) > 1) {
-              varying_columns <- c(varying_columns, col)
-            }
-          }
-        }
-        
-        return(varying_columns)
-      }
-      var_alleles(select(DF1$data, input$compare_select)) + 12
-      }
-  })
   
   
   
@@ -3516,7 +3521,7 @@ server <- function(input, output, session) {
       title = "Download successful",
       type = "success",
       position = "top-end",
-      timer = 6000
+      timer = 5000
     )
     
   })
@@ -5078,7 +5083,24 @@ server <- function(input, output, session) {
     }
   })
   
-  #### Automatic Allelic Typing ################################################
+  ######## Multi Typing ----
+  
+  ### Render Multi Typing UI Elements ----
+  
+  output$assembly_files_table <- renderUI({
+    rHandsontableOutput("multi_select_table")
+  })
+  
+  output$genome_file_multi_bttn <- renderUI({
+    shinyDirButton(
+      "genome_file_multi",
+      "Select Genomes" ,
+      title = "Please select the folder containing the genome assemblies in .fasta format",
+      buttonType = "default"
+    )
+  })
+  
+  output$initiate_typing_header <- renderUI(h3(p("Initiate Typing"), style = "color:white"))
   
   observeEvent(input$conf_meta_multi, {
     meta_info <- data.frame(cgmlst_typing = input$cgmlst_typing,
@@ -5098,7 +5120,7 @@ server <- function(input, output, session) {
       title = "Metadata declared",
       type = "success",
       position = "top-end",
-      timer = 6000
+      timer = 3000
     )
     
     Sys.sleep(1)
@@ -5115,7 +5137,57 @@ server <- function(input, output, session) {
     
   })
   
+  ### Events Multi Typing ----
+  
   observeEvent(input$start_typ_multi, {
+      showModal(
+        modalDialog(
+          paste0(
+            "Typing multiple assemblies will take a while. Once this process starts, no further Multi Typing queries can be initiated.  The progress can be observed in this tab. Continue?"
+          ),
+          title = "Start Multi Typing",
+          fade = TRUE,
+          easyClose = TRUE,
+          footer = tagList(
+            modalButton("Cancel"),
+            actionButton("conf_start_multi", "Start", class = "btn btn-default")
+          )
+        )
+      )
+    
+    observeEvent(input$Cancel, {
+      removeModal()
+    })
+  })
+  
+  observeEvent(input$conf_start_multi, {
+    
+    removeModal()
+    
+    Sys.sleep(1)
+    
+    show_toast(
+      title = "Multi Typing started ...",
+      type = "success",
+      position = "top-end",
+      timer = 6000
+    )
+    
+    # Remove Allelic Typing Controls
+    
+    output$genome_file_multi_bttn <- NULL
+    output$initiate_typing_header <- NULL
+    output$assembly_files_table <- NULL
+    output$header_declare_metadata <- NULL
+    output$metadata_multi_box <- NULL
+    output$conf_meta_multi_button <- NULL
+    output$header_start_multi <- NULL
+    output$multi_start_button <- NULL
+    
+    # Render Multi Typing Progress
+    ######
+    ######
+    ######
     
     # List Genome Assemblies Included in Analysis in Vector
     genome_selected <- hot_to_r(input$multi_select_table)
@@ -5199,6 +5271,7 @@ server <- function(input, output, session) {
     
     # Execute the script
     system(paste("nohup", kma_multi_path, "> script.log 2>&1"), wait = FALSE)
+    
   })
   
   ### Render Elements in order ----
