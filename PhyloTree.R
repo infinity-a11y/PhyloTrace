@@ -437,75 +437,53 @@ ui <- dashboardPage(
         "input.tabs==='visualization'",
         column(
           width = 12,
+          uiOutput("scheme_vis"),
           prettyRadioButtons(
-            inputId = "generate_tree",
-            label = "Source",
-            choices = c("Random", "Local"),
-            selected = "Local"
+            "tree_algo",
+            choices = c("Minimum-Spanning", "Neighbour-Joining"),
+            label = "Tree Type"
           ),
           conditionalPanel(
-            "input.generate_tree=='Random'",
-            numericInput(
-              "ntree",
-              label = h5("# branches", style = "color:white"),
-              value = 30,
-              max = 500,
-              width = "110px"
+            "input.tree_algo=='Minimum-Spanning'",
+            selectInput(
+              "algo_mode",
+              label = "Interpretation Mode",
+              choices = c("directed", "undirected", "max", "min", "upper", "lower", "plus"),
+              selected = "undirected"
+            ),
+            selectInput(
+              "ggnetwork_layout",
+              label = "Layout Algorithm",
+              choices = c(
+                "Davidson-Harel",
+                "DrL",
+                "Fruchterman-Reingold",
+                "GEM",
+                "Graphopt",
+                "Kamada-Kawai",
+                "Large Graph Layout",
+                "Multidimensional Scaling",
+                "Sugiyama"
+              ),
+              selected = "Fruchterman-Reingold"
             ),
             br(),
-            actionButton("random_tree",
-                         "Create Tree")
           ),
-          conditionalPanel(
-            "input.generate_tree=='Local'",
-            uiOutput("scheme_vis"),
-            prettyRadioButtons(
-              "tree_algo",
-              choices = c("Minimum-Spanning", "Neighbour-Joining"),
-              label = "Tree Type"
-            ),
-            conditionalPanel(
-              "input.tree_algo=='Minimum-Spanning'",
-              selectInput(
-                "algo_mode",
-                label = "Interpretation Mode",
-                choices = c("directed", "undirected", "max", "min", "upper", "lower", "plus"),
-                selected = "undirected"
-              ),
-              selectInput(
-                "ggnetwork_layout",
-                label = "Layout Algorithm",
-                choices = c(
-                  "Davidson-Harel",
-                  "DrL",
-                  "Fruchterman-Reingold",
-                  "GEM",
-                  "Graphopt",
-                  "Kamada-Kawai",
-                  "Large Graph Layout",
-                  "Multidimensional Scaling",
-                  "Sugiyama"
-                ),
-                selected = "Fruchterman-Reingold"
-              ),
-              br(),
-            ),
-            fluidRow(
-              column(width = 6,
-                     actionButton("create_tree",
-                                  "Create Tree")),
-              column(
-                width = 6,
-                align = "center",
-                conditionalPanel(
-                  "input.create_tree > 0",
-                  downloadButton(
-                    "download_plot",
-                    label = "",
-                    icon = icon("download"),
-                    width = "20px",
-                    style = "margin-top: 6px;"
-                  )
+          fluidRow(
+            column(width = 6,
+                   actionButton("create_tree",
+                                "Create Tree")),
+            column(
+              width = 6,
+              align = "center",
+              conditionalPanel(
+                "input.create_tree > 0",
+                downloadButton(
+                  "download_plot",
+                  label = "",
+                  icon = icon("download"),
+                  width = "20px",
+                  style = "margin-top: 6px;"
                 )
               )
             )
@@ -1105,9 +1083,12 @@ ui <- dashboardPage(
               align = "center",
               br(),
               br(),
+              uiOutput("multi_typing_progress_header"),
               uiOutput("initiate_typing_header"),
               br(),
+              uiOutput("multi_typing_progress_symbol"),
               br(),
+              uiOutput("multi_typing_progress"),
               column(
                 width = 12,
                 align = "center",
@@ -1167,22 +1148,11 @@ ui <- dashboardPage(
           column(
             width = 10,
             br(),
-            conditionalPanel(
-              "input.generate_tree=='Random'",
-              addSpinner(
-                plotOutput("tree_random"),
-                spin = "dots",
-                color = "#ffffff"
-              )
-            ),
-            conditionalPanel(
-              "input.generate_tree=='Local'",
-              addSpinner(
-                plotOutput("tree_local", width = "100%", height = "600px"),
-                spin = "dots",
-                color = "#ffffff"
-              )
-            )
+            addSpinner(
+              plotOutput("tree_local", width = "100%", height = "600px"),
+              spin = "dots",
+              color = "#ffffff"
+            )  
           ),
           column(width = 1)
         ),
@@ -1194,235 +1164,439 @@ ui <- dashboardPage(
         ####### Show Control for Trees generated from Local
         
         conditionalPanel(
-          "input.generate_tree=='Local'",
-          conditionalPanel(
-            "input.tree_algo=='Minimum-Spanning'",
-            fluidRow(
-              column(width = 2,
-                     fluidRow(
-                       column(
-                         width = 6,
-                         align = "center",
-                         box(
-                           solidHeader = TRUE,
-                           status = "primary",
-                           width = "100%",
-                           h3(p("Nodes"), style = "color:white"),
-                           colorPickr(
-                             inputId = "color_node",
-                             width = "100%",
-                             selected = "#058C31",
-                             label = "",
-                             update = "changestop",
-                             interaction = list(clear = FALSE,
-                                                save = FALSE),
-                             position = "right-start"
-                           ),
-                           br(),
-                           dropMenu(
-                             actionBttn(
-                               "node_menu",
-                               label = "",
-                               color = "default",
-                               size = "sm",
-                               style = "material-flat",
-                               icon = icon("sliders")
-                             ),
-                             placement = "top-start",
-                             theme = "translucent",
-                             numericInput(
-                               "alpha_node",
-                               label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
-                               value = 1,
-                               step = 0.1,
-                               min = 0,
-                               max = 1,
-                               width = "90%"
-                             ),
-                             numericInput(
-                               inputId = "size_node",
-                               label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                               value = 10,
-                               min = 1,
-                               max = 20,
-                               step = 1,
-                               width = "90%"
-                             )
-                           ),
-                           br()
-                         )
-                       ),
-                       column(
-                         align = "center",
-                         width = 6,
-                         box(
-                           solidHeader = TRUE,
-                           status = "primary",
-                           width = "100%",
-                           h3(p("Edges"), style = "color:white"),
-                           colorPickr(
-                             inputId = "color_edge",
-                             width = "100%",
-                             selected = "#000000",
-                             label = "",
-                             update = "changestop",
-                             interaction = list(clear = FALSE,
-                                                save = FALSE),
-                             position = "right-start"
-                           ),
-                           br(),
-                           dropMenu(
-                             actionBttn(
-                               "edge_menu",
-                               label = "",
-                               color = "default",
-                               size = "sm",
-                               style = "material-flat",
-                               icon = icon("sliders")
-                             ),
-                             theme = "translucent",
-                             placement = "top-start",
-                             numericInput(
-                               "size_edge",
-                               label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                               value = 0.7,
-                               step = 0.1,
-                               min = 0.5,
-                               max = 1.5,
-                               width = "90%"
-                             ),
-                             numericInput(
-                               "alpha_edge",
-                               label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
-                               value = 0.7,
-                               step = 0.1,
-                               min = 0,
-                               max = 1,
-                               width = "90%"
-                             ),
-                             numericInput(
-                               "curvature_edge",
-                               label = h5("Curves", style = "color:white; margin-bottom: 0px;"),
-                               value = 0,
-                               step = 0.1,
-                               min = -0.5,
-                               max = 0.5,
-                               width = "90%"
-                             )
-                           ),
-                           br()
-                         )
-                       )
-                     ),
-                     fluidRow(column(
-                       width = 12,
+          "input.tree_algo=='Minimum-Spanning'",
+          fluidRow(
+            column(width = 2,
+                   fluidRow(
+                     column(
+                       width = 6,
                        align = "center",
                        box(
                          solidHeader = TRUE,
                          status = "primary",
                          width = "100%",
-                         h3(p("Other"), style = "color:white"),
-                         column(
-                           width = 6,
-                           colorPickr(
-                             inputId = "color_bg",
-                             width = "100%",
-                             selected = "#ffffff",
-                             label = h5("Background", style = "color:white; margin-bottom: 0px;"),
-                             update = "changestop",
-                             interaction = list(clear = FALSE,
-                                                save = FALSE),
-                             position = "right-start"
+                         h3(p("Nodes"), style = "color:white"),
+                         colorPickr(
+                           inputId = "color_node",
+                           width = "100%",
+                           selected = "#058C31",
+                           label = "",
+                           update = "changestop",
+                           interaction = list(clear = FALSE,
+                                              save = FALSE),
+                           position = "right-start"
+                         ),
+                         br(),
+                         dropMenu(
+                           actionBttn(
+                             "node_menu",
+                             label = "",
+                             color = "default",
+                             size = "sm",
+                             style = "material-flat",
+                             icon = icon("sliders")
+                           ),
+                           placement = "top-start",
+                           theme = "translucent",
+                           numericInput(
+                             "alpha_node",
+                             label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
+                             value = 1,
+                             step = 0.1,
+                             min = 0,
+                             max = 1,
+                             width = "90%"
+                           ),
+                           numericInput(
+                             inputId = "size_node",
+                             label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                             value = 10,
+                             min = 1,
+                             max = 20,
+                             step = 1,
+                             width = "90%"
                            )
                          ),
-                         column(width = 6,
-                                br(),
-                                uiOutput("cluster_start"))
+                         br()
                        )
-                     ))),
-              column(
-                width = 2,
-                align = "center",
-                box(
-                  solidHeader = TRUE,
-                  status = "primary",
-                  width = "100%",
-                  fluidRow(
-                    column(width = 1),
-                    column(
-                      width = 7,
-                      align = "right",
-                      h3(p("Label Node"), style = "color:white"),
-                    ),
-                    column(
-                      width = 1,
-                      align = "left",
-                      checkboxInput("include_node",
-                                    label = "",
-                                    value = TRUE)
+                     ),
+                     column(
+                       align = "center",
+                       width = 6,
+                       box(
+                         solidHeader = TRUE,
+                         status = "primary",
+                         width = "100%",
+                         h3(p("Edges"), style = "color:white"),
+                         colorPickr(
+                           inputId = "color_edge",
+                           width = "100%",
+                           selected = "#000000",
+                           label = "",
+                           update = "changestop",
+                           interaction = list(clear = FALSE,
+                                              save = FALSE),
+                           position = "right-start"
+                         ),
+                         br(),
+                         dropMenu(
+                           actionBttn(
+                             "edge_menu",
+                             label = "",
+                             color = "default",
+                             size = "sm",
+                             style = "material-flat",
+                             icon = icon("sliders")
+                           ),
+                           theme = "translucent",
+                           placement = "top-start",
+                           numericInput(
+                             "size_edge",
+                             label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                             value = 0.7,
+                             step = 0.1,
+                             min = 0.5,
+                             max = 1.5,
+                             width = "90%"
+                           ),
+                           numericInput(
+                             "alpha_edge",
+                             label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
+                             value = 0.7,
+                             step = 0.1,
+                             min = 0,
+                             max = 1,
+                             width = "90%"
+                           ),
+                           numericInput(
+                             "curvature_edge",
+                             label = h5("Curves", style = "color:white; margin-bottom: 0px;"),
+                             value = 0,
+                             step = 0.1,
+                             min = -0.5,
+                             max = 0.5,
+                             width = "90%"
+                           )
+                         ),
+                         br()
+                       )
+                     )
+                   ),
+                   fluidRow(column(
+                     width = 12,
+                     align = "center",
+                     box(
+                       solidHeader = TRUE,
+                       status = "primary",
+                       width = "100%",
+                       h3(p("Other"), style = "color:white"),
+                       column(
+                         width = 6,
+                         colorPickr(
+                           inputId = "color_bg",
+                           width = "100%",
+                           selected = "#ffffff",
+                           label = h5("Background", style = "color:white; margin-bottom: 0px;"),
+                           update = "changestop",
+                           interaction = list(clear = FALSE,
+                                              save = FALSE),
+                           position = "right-start"
+                         )
+                       ),
+                       column(width = 6,
+                              br(),
+                              uiOutput("cluster_start"))
+                     )
+                   ))),
+            column(
+              width = 2,
+              align = "center",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                fluidRow(
+                  column(width = 1),
+                  column(
+                    width = 7,
+                    align = "right",
+                    h3(p("Label Node"), style = "color:white"),
+                  ),
+                  column(
+                    width = 1,
+                    align = "left",
+                    checkboxInput("include_node",
+                                  label = "",
+                                  value = TRUE)
+                  )
+                ),
+                selectInput(
+                  "node_label",
+                  label = "",
+                  choices = c(
+                    Index = "index",
+                    `Assembly ID` = "assembly_id",
+                    `Assembly Name` = "assembly_name",
+                    Scheme = "scheme",
+                    `Isolation Date` = "isolation_date",
+                    Host = "host",
+                    Country = "country",
+                    City = "city"
+                  ),
+                  selected = c(`Assembly Name` = "assembly_name"),
+                  width = "65%"
+                ),
+                fluidRow(
+                  column(width = 1),
+                  column(
+                    width = 6,
+                    align = "center",
+                    colorPickr(
+                      inputId = "label_color",
+                      width = "95%",
+                      selected = "#000000",
+                      label = "",
+                      update = "changestop",
+                      interaction = list(clear = FALSE,
+                                         save = FALSE),
+                      position = "right-start"
                     )
                   ),
-                  selectInput(
-                    "node_label",
-                    label = "",
-                    choices = c(
-                      Index = "index",
-                      `Assembly ID` = "assembly_id",
-                      `Assembly Name` = "assembly_name",
-                      Scheme = "scheme",
-                      `Isolation Date` = "isolation_date",
-                      Host = "host",
-                      Country = "country",
-                      City = "city"
-                    ),
-                    selected = c(`Assembly Name` = "assembly_name"),
-                    width = "65%"
-                  ),
-                  fluidRow(
-                    column(width = 1),
-                    column(
-                      width = 6,
-                      align = "center",
-                      colorPickr(
-                        inputId = "label_color",
-                        width = "95%",
-                        selected = "#000000",
+                  column(
+                    width = 3,
+                    align = "center",
+                    br(),
+                    dropMenu(
+                      actionBttn(
+                        "nodelabel_menu",
                         label = "",
-                        update = "changestop",
-                        interaction = list(clear = FALSE,
-                                           save = FALSE),
-                        position = "right-start"
-                      )
-                    ),
-                    column(
-                      width = 3,
-                      align = "center",
-                      br(),
-                      dropMenu(
-                        actionBttn(
-                          "nodelabel_menu",
-                          label = "",
-                          color = "default",
-                          size = "sm",
-                          style = "material-flat",
-                          icon = icon("sliders")
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("sliders")
+                      ),
+                      theme = "translucent",
+                      placement = "top-start",
+                      maxWidth = "1000px",
+                      column(
+                        width = 6,
+                        numericInput(
+                          "label_size",
+                          label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                          value = 4,
+                          min = 2,
+                          max = 10,
+                          step = 0.5,
+                          width = "170px"
                         ),
-                        theme = "translucent",
-                        placement = "top-start",
-                        maxWidth = "1000px",
+                        numericInput(
+                          "x_nudge",
+                          label = h5("X Position", style = "color:white; margin-bottom: 0px;"),
+                          value = 0,
+                          min = -10,
+                          max = 10,
+                          step = 0.5,
+                          width = "170px"
+                        ),
+                        numericInput(
+                          "y_nudge",
+                          label = h5("Y Position", style = "color:white; margin-bottom: 0px;"),
+                          value = 0,
+                          min = -10,
+                          max = 10,
+                          step = 0.5,
+                          width = "170px"
+                        ),
+                      ),
+                      column(
+                        width = 6,
+                        numericInput(
+                          "label_alpha",
+                          label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
+                          value = 1,
+                          step = 0.1,
+                          min = 0,
+                          max = 1,
+                          width = "170px"
+                        ),
+                        numericInput(
+                          "box_padding",
+                          label = h5("Box Padding", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.25,
+                          min = 0,
+                          max = 1,
+                          step = 0.05,
+                          width = "170px"
+                        ),
+                        numericInput(
+                          "point_padding",
+                          label = h5("Point Padding", style = "color:white; margin-bottom: 0px;"),
+                          value = 0.25,
+                          min = 0,
+                          max = 1,
+                          step = 0.05,
+                          width = "170px"
+                        )
+                      ),
+                      h5(".", style = "color:black; font-size: 1px; margin-bottom: 0px;")
+                    )
+                  ),
+                  column(width = 2)
+                ),
+                fluidRow(column(
+                  width = 12,
+                  br(),
+                  checkboxInput("label_rect",
+                                label = "Show Panel",
+                                value = TRUE)
+                )),
+                fluidRow(
+                  column(width = 1),
+                  column(
+                    width = 6,
+                    colorPickr(
+                      inputId = "label_fillcolor",
+                      width = "95%",
+                      selected = "#ffffff",
+                      label = "",
+                      update = "changestop",
+                      interaction = list(clear = FALSE,
+                                         save = FALSE),
+                      position = "right-start"
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    br(),
+                    dropMenu(
+                      actionBttn(
+                        "nodepanel_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("sliders")
+                      ),
+                      theme = "translucent",
+                      placement = "top-start",
+                      maxWidth = "200px",
+                      numericInput(
+                        "panel_padding",
+                        label = h5("Label Padding", style = "color:white; margin-bottom: 0px;"),
+                        value = 0.3,
+                        min = 0.2,
+                        max = 1,
+                        step = 0.1,
+                        width = "70px"
+                      ),
+                      numericInput(
+                        "panel_radius",
+                        label = h5("Radius", style = "color:white; margin-bottom: 0px;"),
+                        value = 0.2,
+                        min = 0,
+                        max = 1,
+                        step = 0.1,
+                        width = "70px"
+                      ),
+                      numericInput(
+                        "panel_bordersize",
+                        label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                        value = 0.5,
+                        min = 0,
+                        max = 4,
+                        step = 0.25,
+                        width = "70px"
+                      )
+                    )
+                  )
+                ),
+                br(),
+                br()
+              )
+            ),
+            column(
+              width = 2,
+              align = "center",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                fluidRow(
+                  column(width = 1),
+                  column(
+                    width = 7,
+                    align = "right",
+                    h3(p("Label Edge"), style = "color:white")
+                  ),
+                  column(
+                    width = 1,
+                    align = "left",
+                    checkboxInput("include_edge",
+                                  label = "",
+                                  value = FALSE)
+                  )
+                ),
+                selectInput(
+                  "edge_label",
+                  label = "",
+                  choices = c(
+                    Index = "index",
+                    `Assembly ID` = "assembly_id",
+                    `Assembly Name` = "assembly_name",
+                    Scheme = "scheme",
+                    `Isolation Date` = "isolation_date",
+                    Host = "host",
+                    Country = "country",
+                    City = "city"
+                  ),
+                  selected = c(City = "city"),
+                  width = "65%"
+                ),
+                fluidRow(
+                  column(width = 1),
+                  column(
+                    width = 6,
+                    align = "center",
+                    colorPickr(
+                      inputId = "edgelabel_color",
+                      width = "95%",
+                      selected = "#000000",
+                      label = "",
+                      update = "changestop",
+                      interaction = list(clear = FALSE,
+                                         save = FALSE),
+                      position = "right-start"
+                    ),
+                  ),
+                  column(
+                    width = 3,
+                    br(),
+                    dropMenu(
+                      actionBttn(
+                        "edgelabel_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("sliders")
+                      ),
+                      theme = "translucent",
+                      placement = "top-start",
+                      maxWidth = "250px",
+                      fluidRow(
                         column(
                           width = 6,
                           numericInput(
-                            "label_size",
+                            "edgelabel_size",
                             label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                            value = 4,
+                            value = 3,
                             min = 2,
                             max = 10,
                             step = 0.5,
                             width = "170px"
                           ),
                           numericInput(
-                            "x_nudge",
+                            "edge_x_nudge",
                             label = h5("X Position", style = "color:white; margin-bottom: 0px;"),
                             value = 0,
                             min = -10,
@@ -1431,28 +1605,28 @@ ui <- dashboardPage(
                             width = "170px"
                           ),
                           numericInput(
-                            "y_nudge",
+                            "edge_y_nudge",
                             label = h5("Y Position", style = "color:white; margin-bottom: 0px;"),
                             value = 0,
                             min = -10,
                             max = 10,
                             step = 0.5,
                             width = "170px"
-                          ),
+                          )
                         ),
                         column(
                           width = 6,
                           numericInput(
-                            "label_alpha",
+                            "edgelabel_alpha",
                             label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
-                            value = 1,
+                            value = 0.7,
                             step = 0.1,
                             min = 0,
                             max = 1,
                             width = "170px"
                           ),
                           numericInput(
-                            "box_padding",
+                            "edge_box_padding",
                             label = h5("Box Padding", style = "color:white; margin-bottom: 0px;"),
                             value = 0.25,
                             min = 0,
@@ -1461,7 +1635,7 @@ ui <- dashboardPage(
                             width = "170px"
                           ),
                           numericInput(
-                            "point_padding",
+                            "edge_point_padding",
                             label = h5("Point Padding", style = "color:white; margin-bottom: 0px;"),
                             value = 0.25,
                             min = 0,
@@ -1469,951 +1643,229 @@ ui <- dashboardPage(
                             step = 0.05,
                             width = "170px"
                           )
-                        ),
-                        h5(".", style = "color:black; font-size: 1px; margin-bottom: 0px;")
-                      )
-                    ),
-                    column(width = 2)
-                  ),
-                  fluidRow(column(
-                    width = 12,
-                    br(),
-                    checkboxInput("label_rect",
-                                  label = "Show Panel",
-                                  value = TRUE)
-                  )),
-                  fluidRow(
-                    column(width = 1),
-                    column(
-                      width = 6,
-                      colorPickr(
-                        inputId = "label_fillcolor",
-                        width = "95%",
-                        selected = "#ffffff",
-                        label = "",
-                        update = "changestop",
-                        interaction = list(clear = FALSE,
-                                           save = FALSE),
-                        position = "right-start"
-                      )
-                    ),
-                    column(
-                      width = 3,
-                      br(),
-                      dropMenu(
-                        actionBttn(
-                          "nodepanel_menu",
-                          label = "",
-                          color = "default",
-                          size = "sm",
-                          style = "material-flat",
-                          icon = icon("sliders")
-                        ),
-                        theme = "translucent",
-                        placement = "top-start",
-                        maxWidth = "200px",
-                        numericInput(
-                          "panel_padding",
-                          label = h5("Label Padding", style = "color:white; margin-bottom: 0px;"),
-                          value = 0.3,
-                          min = 0.2,
-                          max = 1,
-                          step = 0.1,
-                          width = "70px"
-                        ),
-                        numericInput(
-                          "panel_radius",
-                          label = h5("Radius", style = "color:white; margin-bottom: 0px;"),
-                          value = 0.2,
-                          min = 0,
-                          max = 1,
-                          step = 0.1,
-                          width = "70px"
-                        ),
-                        numericInput(
-                          "panel_bordersize",
-                          label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                          value = 0.5,
-                          min = 0,
-                          max = 4,
-                          step = 0.25,
-                          width = "70px"
                         )
-                      )
-                    )
-                  ),
-                  br(),
-                  br()
-                )
-              ),
-              column(
-                width = 2,
-                align = "center",
-                box(
-                  solidHeader = TRUE,
-                  status = "primary",
-                  width = "100%",
-                  fluidRow(
-                    column(width = 1),
-                    column(
-                      width = 7,
-                      align = "right",
-                      h3(p("Label Edge"), style = "color:white")
-                    ),
-                    column(
-                      width = 1,
-                      align = "left",
-                      checkboxInput("include_edge",
-                                    label = "",
-                                    value = FALSE)
-                    )
-                  ),
-                  selectInput(
-                    "edge_label",
-                    label = "",
-                    choices = c(
-                      Index = "index",
-                      `Assembly ID` = "assembly_id",
-                      `Assembly Name` = "assembly_name",
-                      Scheme = "scheme",
-                      `Isolation Date` = "isolation_date",
-                      Host = "host",
-                      Country = "country",
-                      City = "city"
-                    ),
-                    selected = c(City = "city"),
-                    width = "65%"
-                  ),
-                  fluidRow(
-                    column(width = 1),
-                    column(
-                      width = 6,
-                      align = "center",
-                      colorPickr(
-                        inputId = "edgelabel_color",
-                        width = "95%",
-                        selected = "#000000",
-                        label = "",
-                        update = "changestop",
-                        interaction = list(clear = FALSE,
-                                           save = FALSE),
-                        position = "right-start"
                       ),
-                    ),
-                    column(
-                      width = 3,
-                      br(),
-                      dropMenu(
-                        actionBttn(
-                          "edgelabel_menu",
-                          label = "",
-                          color = "default",
-                          size = "sm",
-                          style = "material-flat",
-                          icon = icon("sliders")
-                        ),
-                        theme = "translucent",
-                        placement = "top-start",
-                        maxWidth = "250px",
-                        fluidRow(
-                          column(
-                            width = 6,
-                            numericInput(
-                              "edgelabel_size",
-                              label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                              value = 3,
-                              min = 2,
-                              max = 10,
-                              step = 0.5,
-                              width = "170px"
-                            ),
-                            numericInput(
-                              "edge_x_nudge",
-                              label = h5("X Position", style = "color:white; margin-bottom: 0px;"),
-                              value = 0,
-                              min = -10,
-                              max = 10,
-                              step = 0.5,
-                              width = "170px"
-                            ),
-                            numericInput(
-                              "edge_y_nudge",
-                              label = h5("Y Position", style = "color:white; margin-bottom: 0px;"),
-                              value = 0,
-                              min = -10,
-                              max = 10,
-                              step = 0.5,
-                              width = "170px"
-                            )
-                          ),
-                          column(
-                            width = 6,
-                            numericInput(
-                              "edgelabel_alpha",
-                              label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
-                              value = 0.7,
-                              step = 0.1,
-                              min = 0,
-                              max = 1,
-                              width = "170px"
-                            ),
-                            numericInput(
-                              "edge_box_padding",
-                              label = h5("Box Padding", style = "color:white; margin-bottom: 0px;"),
-                              value = 0.25,
-                              min = 0,
-                              max = 1,
-                              step = 0.05,
-                              width = "170px"
-                            ),
-                            numericInput(
-                              "edge_point_padding",
-                              label = h5("Point Padding", style = "color:white; margin-bottom: 0px;"),
-                              value = 0.25,
-                              min = 0,
-                              max = 1,
-                              step = 0.05,
-                              width = "170px"
-                            )
-                          )
-                        ),
-                        label = h5(".", style = "color:white; font-size: 1px; margin-bottom: 0px;")
-                      )
+                      label = h5(".", style = "color:white; font-size: 1px; margin-bottom: 0px;")
                     )
+                  )
+                ),
+                fluidRow(column(
+                  width = 12,
+                  br(),
+                  checkboxInput("edge_rect",
+                                label = "Show Panel",
+                                value = TRUE)
+                )),
+                fluidRow(
+                  column(width = 1),
+                  column(
+                    width = 6,
+                    align = "center",
+                    colorPickr(
+                      inputId = "edgelabel_fillcolor",
+                      width = "95%",
+                      selected = "#A5A315",
+                      label = "",
+                      update = "changestop",
+                      interaction = list(clear = FALSE,
+                                         save = FALSE),
+                      position = "right-start"
+                    ),
                   ),
-                  fluidRow(column(
-                    width = 12,
+                  column(
+                    width = 3,
+                    align = "center",
                     br(),
-                    checkboxInput("edge_rect",
-                                  label = "Show Panel",
-                                  value = TRUE)
-                  )),
-                  fluidRow(
-                    column(width = 1),
-                    column(
-                      width = 6,
-                      align = "center",
-                      colorPickr(
-                        inputId = "edgelabel_fillcolor",
-                        width = "95%",
-                        selected = "#A5A315",
-                        label = "",
-                        update = "changestop",
-                        interaction = list(clear = FALSE,
-                                           save = FALSE),
-                        position = "right-start"
-                      ),
-                    ),
-                    column(
-                      width = 3,
-                      align = "center",
-                      br(),
-                      dropMenu(
-                        actionBttn(
-                          "edgepanel_menu",
-                          label = "",
-                          color = "default",
-                          size = "sm",
-                          style = "material-flat",
-                          icon = icon("sliders")
-                        ),
-                        theme = "translucent",
-                        maxWidth = "100px",
-                        placement = "top-start",
-                        numericInput(
-                          "edge_panel_padding",
-                          label = h5("Label Padding", style = "color:white; margin-bottom: 0px;"),
-                          value = 0.3,
-                          min = 0.2,
-                          max = 1,
-                          step = 0.1,
-                          width = "70px"
-                        ),
-                        numericInput(
-                          "edge_panel_radius",
-                          label = h5("Radius", style = "color:white; margin-bottom: 0px;"),
-                          value = 0.2,
-                          min = 0,
-                          max = 1,
-                          step = 0.1,
-                          width = "70px"
-                        ),
-                        numericInput(
-                          "edge_panel_bordersize",
-                          label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                          value = 0.5,
-                          min = 0,
-                          max = 4,
-                          step = 0.25,
-                          width = "70px"
-                        )
-                      )
-                    )
-                  ),
-                  br(),
-                  br()
-                )
-              ),
-              column(
-                width = 2,
-                align = "center",
-                box(
-                  solidHeader = TRUE,
-                  status = "primary",
-                  width = "100%",
-                  h3(p("Add Metadata"), style = "color:white"),
-                  selectInput(
-                    "which_metadata",
-                    label = "",
-                    choices = c(
-                      Index = "index",
-                      `Assembly ID` = "assembly_id",
-                      `Assembly Name` = "assembly_name",
-                      Scheme = "scheme",
-                      `Isolation Date` = "isolation_date",
-                      Host = "host",
-                      Country = "country",
-                      City = "city"
-                    ),
-                    selected = c(Host = "host"),
-                    width = "65%"
-                  ),
-                  selectInput(
-                    "element_metadata",
-                    label = h5("Select Element", style = "color:white; margin-bottom: 0px;"),
-                    choices = c("Node Shape", "Node Size"),
-                    width = "65%"
-                  ),
-                  br(),
-                  fluidRow(
-                    column(width = 3),
-                    column(
-                      width = 2,
+                    dropMenu(
                       actionBttn(
-                        "add_metadata",
-                        label = "Add",
+                        "edgepanel_menu",
+                        label = "",
                         color = "default",
                         size = "sm",
-                        style = "material-flat"
-                      )
-                    ),
-                    column(width = 1),
-                    column(
-                      width = 2,
-                      actionBttn(
-                        "delete_meta",
-                        label = "",
-                        color = "danger",
-                        size = "sm",
-                        style = "material-circle",
-                        icon = icon("xmark")
+                        style = "material-flat",
+                        icon = icon("sliders")
+                      ),
+                      theme = "translucent",
+                      maxWidth = "100px",
+                      placement = "top-start",
+                      numericInput(
+                        "edge_panel_padding",
+                        label = h5("Label Padding", style = "color:white; margin-bottom: 0px;"),
+                        value = 0.3,
+                        min = 0.2,
+                        max = 1,
+                        step = 0.1,
+                        width = "70px"
+                      ),
+                      numericInput(
+                        "edge_panel_radius",
+                        label = h5("Radius", style = "color:white; margin-bottom: 0px;"),
+                        value = 0.2,
+                        min = 0,
+                        max = 1,
+                        step = 0.1,
+                        width = "70px"
+                      ),
+                      numericInput(
+                        "edge_panel_bordersize",
+                        label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                        value = 0.5,
+                        min = 0,
+                        max = 4,
+                        step = 0.25,
+                        width = "70px"
                       )
                     )
-                  ),
-                  br(),
-                  br(),
-                  br(),
-                  br(),
-                  br()
-                )
-              ),
-            )
-          ),
-          
-          # Plot Control Neighbor Joining
-          
-          
-          conditionalPanel(
-            "input.tree_algo=='Neighbour-Joining'",
-            fluidRow(
-              column(
-                width = 2,
-                align = "center",
-                box(
-                  solidHeader = TRUE,
-                  status = "primary",
-                  width = "100%",
-                  h3(p("Layout"), style = "color:white"),
-                  selectInput(
-                    inputId = "nj_layout",
-                    h5("Select Theme", style = "color:white"),
-                    choices = list(
-                      Linear = list(
-                        "Rectangular" = "rectangular",
-                        "Roundrect" = "roundrect",
-                        "Slanted" = "slanted",
-                        "Ellipse" = "ellipse"
-                      ),
-                      Circular = list("Circular" = "circular",
-                                      "Fan" = "fan"),
-                      Unrooted = list("Daylight" = "daylight",
-                                      "Equal Angle" = "equal_angle")
-                    ),
-                    selected = "rectangular",
-                    width = "70%"
-                  ),
-                  br(),
-                  conditionalPanel(
-                    "input.nj_layout=='circular' | input.nj_layout=='fan'",
-                    checkboxInput("circ_inward",
-                                  label = "Inward Layout",
-                                  value = FALSE)
                   )
-                )
-              ),
-              column(
-                width = 2,
-                align = "center",
-                box(
-                  solidHeader = TRUE,
-                  status = "primary",
-                  width = "100%",
-                  h3(p("Tip Label"), style = "color:white"),
-                  selectInput(
-                    "nj_tiplab",
-                    label = "",
-                    choices = c(
-                      Index = "index",
-                      `Assembly ID` = "assembly_id",
-                      `Assembly Name` = "assembly_name",
-                      `Isolation Date` = "isolation_date",
-                      Host = "host",
-                      Country = "country",
-                      City = "city"
-                    ),
-                    selected = c(`Assembly Name` = "assembly_name"),
-                    width = "75%"
-                  ),
-                  numericInput(
-                    "nj_tip_offset",
-                    label = h5("Offset", style = "color:white"),
-                    min = -5,
-                    max = 5,
-                    step = 0.25,
-                    value = 0,
-                    width = "35%"
-                  )
-                )
+                ),
+                br(),
+                br()
               )
-            )
+            ),
+            column(
+              width = 2,
+              align = "center",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                h3(p("Add Metadata"), style = "color:white"),
+                selectInput(
+                  "which_metadata",
+                  label = "",
+                  choices = c(
+                    Index = "index",
+                    `Assembly ID` = "assembly_id",
+                    `Assembly Name` = "assembly_name",
+                    Scheme = "scheme",
+                    `Isolation Date` = "isolation_date",
+                    Host = "host",
+                    Country = "country",
+                    City = "city"
+                  ),
+                  selected = c(Host = "host"),
+                  width = "65%"
+                ),
+                selectInput(
+                  "element_metadata",
+                  label = h5("Select Element", style = "color:white; margin-bottom: 0px;"),
+                  choices = c("Node Shape", "Node Size"),
+                  width = "65%"
+                ),
+                br(),
+                fluidRow(
+                  column(width = 3),
+                  column(
+                    width = 2,
+                    actionBttn(
+                      "add_metadata",
+                      label = "Add",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat"
+                    )
+                  ),
+                  column(width = 1),
+                  column(
+                    width = 2,
+                    actionBttn(
+                      "delete_meta",
+                      label = "",
+                      color = "danger",
+                      size = "sm",
+                      style = "material-circle",
+                      icon = icon("xmark")
+                    )
+                  )
+                ),
+                br(),
+                br(),
+                br(),
+                br(),
+                br()
+              )
+            ),
           )
         ),
         
-        ####### Show Control for Random Trees
+        # Plot Control Neighbor Joining
+        
+        
         conditionalPanel(
-          "input.generate_tree=='Random'",
+          "input.tree_algo=='Neighbour-Joining'",
           fluidRow(
             column(
               width = 2,
-              h3(p("Layout"), style = "color:white"),
-              br(),
-              fluidRow(column(
-                width = 12,
-                checkboxInput(
-                  inputId = "show_layout_r",
-                  label = "Show layout options",
-                  value = TRUE
-                )
-              )),
-              br(),
-              conditionalPanel(
-                "input.show_layout_r==true",
-                radioButtons(
-                  inputId = "tree_type_r",
-                  label = h5("Tree Type", style = "color:white"),
-                  choices = list("Phylogram", "Chronogram", "Cladogram"),
-                  selected = "Phylogram"
+              align = "center",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                h3(p("Layout"), style = "color:white"),
+                selectInput(
+                  inputId = "nj_layout",
+                  h5("Select Theme", style = "color:white"),
+                  choices = list(
+                    Linear = list(
+                      "Rectangular" = "rectangular",
+                      "Roundrect" = "roundrect",
+                      "Slanted" = "slanted",
+                      "Ellipse" = "ellipse"
+                    ),
+                    Circular = list("Circular" = "circular",
+                                    "Fan" = "fan"),
+                    Unrooted = list("Daylight" = "daylight",
+                                    "Equal Angle" = "equal_angle")
+                  ),
+                  selected = "rectangular",
+                  width = "70%"
                 ),
                 br(),
-                fluidRow(
-                  column(
-                    width = 10,
-                    conditionalPanel(
-                      "input.tree_type_r=='Phylogram'",
-                      selectInput(
-                        inputId = "layout_r",
-                        h5("Select Theme", style = "color:white"),
-                        choices = list(
-                          linear = list(
-                            "Rectangular" = "rectangular",
-                            "Roundrect" = "roundrect",
-                            "Slanted" = "slanted",
-                            "Ellipse" = "ellipse"
-                          ),
-                          circular = list("Circular" = "circular",
-                                          "Fan" = "fan"),
-                          unrooted = list("Daylight" = "daylight",
-                                          "Equal Angle" = "equal_angle")
-                        ),
-                        selected = "roundrect",
-                        width = "200px"
-                      )
-                    ),
-                    conditionalPanel(
-                      "input.tree_type_r=='Chronogram'",
-                      selectInput(
-                        "layout_r",
-                        h5("Select Theme", style = "color:white"),
-                        choices = list(
-                          linear = list(
-                            "Rectangular" = "rectangular",
-                            "Roundrect" = "roundrect",
-                            "Ellipse" = "ellipse"
-                          )
-                        ),
-                        selected = "roundrect",
-                        width = "200px"
-                      )
-                    ),
-                    conditionalPanel(
-                      "input.tree_type_r=='Cladogram'",
-                      selectInput(
-                        "layout_r",
-                        h5("Select Theme", style = "color:white"),
-                        choices = list(
-                          linear = list(
-                            "Rectangular" = "rectangular",
-                            "Roundrect" = "roundrect",
-                            "Slanted" = "slanted",
-                            "Ellipse" = "ellipse"
-                          ),
-                          circular = list("Circular" = "circular",
-                                          "Fan" = "fan"),
-                          unrooted = list("Daylight" = "daylight",
-                                          "Equal Angle" = "equal_angle")
-                        ),
-                        selected = "roundrect",
-                        width = "200px"
-                      )
-                    ),
-                  ),
-                ),
-                br(),
-                fluidRow(column(
-                  width = 6,
-                  colorPickr(
-                    inputId = "background_color_r",
-                    label = h5("Background", style = "color:white"),
-                    selected = "#ffffff",
-                    opacity = FALSE,
-                    update = "save",
-                    interaction = list(
-                      hex = TRUE,
-                      rgba = FALSE,
-                      input = TRUE,
-                      save = TRUE,
-                      clear = FALSE
-                    ),
-                    position = "right-start",
-                    swatches = scales::viridis_pal()(10),
-                    theme = "nano",
-                    useAsButton = TRUE,
-                    width = "100%"
-                  )
-                ),
-                column(
-                  width = 6,
-                  colorPickr(
-                    inputId = "branch_color_r",
-                    label = h5("Branches", style = "color:white"),
-                    selected = "#000000",
-                    opacity = TRUE,
-                    update = "save",
-                    interaction = list(
-                      hex = TRUE,
-                      rgba = FALSE,
-                      input = TRUE,
-                      save = TRUE,
-                      clear = FALSE
-                    ),
-                    position = "right-start",
-                    swatches = scales::viridis_pal()(10),
-                    theme = "nano",
-                    useAsButton = TRUE,
-                    width = "100%"
-                  )
-                ))
-              )
-            ),
-            column(
-              width = 2,
-              h3(p("Tip Labels"), style = "color:white"),
-              br(),
-              fluidRow(column(
-                width = 12,
-                checkboxInput(
-                  inputId = "label_r",
-                  label = "Show Tip Labels",
-                  value = TRUE
-                )
-              )),
-              br(),
-              conditionalPanel("input.label_r==true",
-                               fluidRow(
-                                 column(
-                                   width = 12,
-                                   checkboxInput(
-                                     inputId = "label_angle_r",
-                                     label = "Correct Label Angle",
-                                     value = FALSE
-                                   ),
-                                   numericInput(
-                                     inputId = "label_size_r",
-                                     label = h5("Size", style = "color:white"),
-                                     value = 4,
-                                     min = 1,
-                                     max = 10,
-                                     step = 1,
-                                     width = "60px"
-                                   ),
-                                   colorPickr(
-                                     inputId = "label_color_r",
-                                     label = h5("Color", style = "color:white"),
-                                     selected = "#ff0000",
-                                     opacity = TRUE,
-                                     update = "save",
-                                     interaction = list(
-                                       hex = TRUE,
-                                       rgba = FALSE,
-                                       input = TRUE,
-                                       save = TRUE,
-                                       clear = FALSE
-                                     ),
-                                     position = "right-start",
-                                     swatches = scales::viridis_pal()(10),
-                                     theme = "nano",
-                                     useAsButton = TRUE,
-                                     width = "30%"
-                                   )
-                                 )
-                               ))
-            ),
-            column(
-              width = 2,
-              h3(p("Scale"), style = "color:white"),
-              br(),
-              fluidRow(column(
-                width = 12,
-                checkboxInput(
-                  inputId = "show_scale_r",
-                  label = "Show scale",
-                  value = TRUE
-                )
-              )),
-              br(),
-              conditionalPanel(
-                "input.show_scale_r==true",
-                fluidRow(
-                  column(
-                    width = 7,
-                    radioButtons(
-                      inputId = "scale_r",
-                      label = h5("Type", style = "color:white"),
-                      choices = list("Branch Scale" = 1, "X Scale" = 2),
-                      selected = 1
-                    )
-                  ),
-                  column(
-                    width = 5,
-                    h5(p("Color"), style = "color:white"),
-                    colorPickr(
-                      inputId = "scale_color_r",
-                      label = NULL,
-                      selected = "#000000",
-                      opacity = TRUE,
-                      update = "save",
-                      interaction = list(
-                        hex = TRUE,
-                        rgba = FALSE,
-                        input = TRUE,
-                        save = TRUE,
-                        clear = FALSE
-                      ),
-                      position = "right-start",
-                      swatches = scales::viridis_pal()(10),
-                      theme = "nano",
-                      useAsButton = TRUE,
-                      width = "30%"
-                    )
-                  )
-                ),
-                br(),
-                fluidRow(
-                  column(
-                    width = 5,
-                    numericInput(
-                      inputId = "scale_x_r",
-                      label = h5("X", style = "color:white"),
-                      value = 4,
-                      min = 0,
-                      max = 5,
-                      step = 0.5,
-                      width = "70px"
-                    ),
-                    numericInput(
-                      inputId = "scale_line_r",
-                      label = h5("Line size", style = "color:white"),
-                      value = 0.5,
-                      step = 0.2,
-                      width = "70px"
-                    ),
-                    numericInput(
-                      inputId = "scale_text_r",
-                      label = h5("Font size", style = "color:white"),
-                      value = 6.5,
-                      step = 0.5,
-                      max = 12,
-                      min = 4,
-                      width = "70px"
-                    )
-                  ),
-                  column(
-                    width = 5,
-                    numericInput(
-                      inputId = "scale_y_r",
-                      label = h5("Y", style = "color:white"),
-                      value = 0,
-                      step = 1,
-                      min = 0,
-                      max = 30,
-                      width = "70px"
-                    ),
-                    numericInput(
-                      inputId = "scale_width_r",
-                      label = h5("Width", style = "color:white"),
-                      value = 0.3,
-                      step = 0.1,
-                      width = "70px"
-                    )
-                    
-                  ),
+                conditionalPanel(
+                  "input.nj_layout=='circular' | input.nj_layout=='fan'",
+                  checkboxInput("circ_inward",
+                                label = "Inward Layout",
+                                value = FALSE)
                 )
               )
             ),
             column(
               width = 2,
-              h3(p("Nodes"), style = "color:white"),
-              br(),
-              column(width = 12,
-                     fluidRow(
-                       checkboxInput(
-                         inputId = "node_highlight_r",
-                         label = "Highlight nodes",
-                         value = TRUE
-                       )
-                     )),
-              br(),
-              conditionalPanel(
-                "input.node_highlight_r==true",
-                fluidRow(column(
-                  width = 10,
-                  selectInput(
-                    inputId = "node_shape_r",
-                    label = h5("Shape", style = "color:white"),
-                    choices = c(
-                      "Square" = 0,
-                      "Circle" = 1,
-                      "Triangle Point Up" = 2,
-                      "Plus" = 3,
-                      "Cross" = 4,
-                      "Diamond" = 5,
-                      "Triangle Point Down" = 6,
-                      "Square Cross" = 7,
-                      "Star" = 8,
-                      "Diamond Plus" = 9,
-                      "Circle Plus" = 10,
-                      "Triangles Up Down" = 11,
-                      "Square Plus" = 12,
-                      "Circle Cross" = 13,
-                      "Square Triangle Down" = 14,
-                      "Filled Square" = 15,
-                      "Filled Circle" = 16,
-                      "Filled Triangle Up" = 17,
-                      "Filled Diamond" = 18,
-                      "Solid Circle" = 19,
-                      "Bullet" = 20
-                    ),
-                    selected = 16
-                  )
-                  
-                ), ),
-                fluidRow(
-                  column(
-                    width = 7,
-                    numericInput(
-                      inputId = "node_size_r",
-                      label = h5("Size", style = "color:white"),
-                      value = 3,
-                      min = 1,
-                      max = 20,
-                      step = 1,
-                      width = "70px"
-                    ),
-                    numericInput(
-                      inputId = "node_alpha_r",
-                      label = h5("Opacity", style = "color:white"),
-                      value = 1,
-                      min = 0,
-                      max = 1,
-                      step = 0.1,
-                      width = "70px"
-                    )
-                    
+              align = "center",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                h3(p("Tip Label"), style = "color:white"),
+                selectInput(
+                  "nj_tiplab",
+                  label = "",
+                  choices = c(
+                    Index = "index",
+                    `Assembly ID` = "assembly_id",
+                    `Assembly Name` = "assembly_name",
+                    `Isolation Date` = "isolation_date",
+                    Host = "host",
+                    Country = "country",
+                    City = "city"
                   ),
-                  column(
-                    width = 2,
-                    colorPickr(
-                      inputId = "node_color_r",
-                      label = h5("Color", style = "color:white"),
-                      selected = "#35B779",
-                      opacity = TRUE,
-                      update = "save",
-                      interaction = list(
-                        hex = TRUE,
-                        rgba = FALSE,
-                        input = TRUE,
-                        save = TRUE,
-                        clear = FALSE
-                      ),
-                      position = "right-start",
-                      swatches = scales::viridis_pal()(10),
-                      theme = "nano",
-                      useAsButton = TRUE,
-                      width = "30%"
-                    )
-                  )
-                )
-              )
-            ),
-            column(
-              width = 2,
-              h3(p("Tips"), style = "color:white"),
-              br(),
-              column(width = 12,
-                     fluidRow(
-                       checkboxInput(
-                         inputId = "tip_highlight_r",
-                         label = "Highlight tips",
-                         value = FALSE
-                       )
-                     )),
-              br(),
-              conditionalPanel(
-                "input.tip_highlight_r==true",
-                fluidRow(column(
-                  width = 10,
-                  selectInput(
-                    inputId = "tip_shape_r",
-                    label = h5("Shape", style = "color:white"),
-                    choices = c(
-                      "Square" = 0,
-                      "Circle" = 1,
-                      "Triangle Point Up" = 2,
-                      "Plus" = 3,
-                      "Cross" = 4,
-                      "Diamond" = 5,
-                      "Triangle Point Down" = 6,
-                      "Square Cross" = 7,
-                      "Star" = 8,
-                      "Diamond Plus" = 9,
-                      "Circle Plus" = 10,
-                      "Triangles Up Down" = 11,
-                      "Square Plus" = 12,
-                      "Circle Cross" = 13,
-                      "Square Triangle Down" = 14,
-                      "Filled Square" = 15,
-                      "Filled Circle" = 16,
-                      "Filled Triangle Up" = 17,
-                      "Filled Diamond" = 18,
-                      "Solid Circle" = 19,
-                      "Bullet" = 20
-                    ),
-                    selected = 4
-                  )
-                  
-                ), ),
-                fluidRow(
-                  column(
-                    width = 7,
-                    numericInput(
-                      inputId = "tip_size_r",
-                      label = h5("Size", style = "color:white"),
-                      value = 4,
-                      min = 0,
-                      max = 10,
-                      step = 1,
-                      width = "70px"
-                    ),
-                    numericInput(
-                      inputId = "tip_alpha_r",
-                      label = h5("Opacity", style = "color:white"),
-                      value = 1,
-                      min = 0,
-                      max = 1,
-                      step = 0.1,
-                      width = "70px"
-                    )
-                  ),
-                  column(
-                    width = 2,
-                    colorPickr(
-                      inputId = "tip_color_r",
-                      label = h5("Color", style = "color:white"),
-                      selected = "#000000",
-                      opacity = TRUE,
-                      update = "save",
-                      interaction = list(
-                        hex = TRUE,
-                        rgba = FALSE,
-                        input = TRUE,
-                        save = TRUE,
-                        clear = FALSE
-                      ),
-                      position = "right-start",
-                      swatches = scales::viridis_pal()(10),
-                      theme = "nano",
-                      useAsButton = TRUE,
-                      width = "30%"
-                    )
-                  )
-                )
-              )
-            ),
-            column(
-              width = 2,
-              h3(p("Orientation"), style = "color:white"),
-              br(),
-              column(
-                width = 6,
-                checkboxInput(
-                  inputId = "rev_x_axis_r",
-                  label = "Reverse x-Axis",
-                  value = FALSE
+                  selected = c(`Assembly Name` = "assembly_name"),
+                  width = "75%"
                 ),
-                checkboxInput(
-                  inputId = "rev_y_axis_r",
-                  label = "Reverse y-Axis",
-                  value = FALSE
-                )
-              ),
-              column(
-                width = 6,
                 numericInput(
-                  inputId = "rotate_r",
-                  label = h5("Angle", style = "color:white"),
+                  "nj_tip_offset",
+                  label = h5("Offset", style = "color:white"),
+                  min = -5,
+                  max = 5,
+                  step = 0.25,
                   value = 0,
-                  min = -180,
-                  max = 180,
-                  step = 1,
-                  width = "75px"
+                  width = "35%"
                 )
               )
-            ),
-            
+            )
           )
         )
       ),
-      
       
       # Tab Report --------------------------------------------------------------
       
@@ -4025,211 +3477,6 @@ server <- function(input, output, session) {
     
   })
   
-  # Reverse X Scale ---------------------------------------------------------
-  
-  revx_r <- reactive({
-    if (input$rev_x_axis_r == FALSE) {
-      NULL
-    } else if (input$rev_x_axis_r == TRUE) {
-      scale_x_reverse()
-    }
-  })
-  
-  # Reverse Y Scale ---------------------------------------------------------
-  
-  revy_r <- reactive({
-    if (input$rev_y_axis_r == FALSE) {
-      NULL
-    } else if (input$rev_y_axis_r == TRUE) {
-      scale_y_reverse()
-    }
-  })
-  
-  
-  # Treescale ---------------------------------------------------------------
-  
-  
-  treescale_x_r <- reactive({
-    if (input$scale_r == 1 & input$show_scale_r == TRUE) {
-      geom_treescale(
-        color = color_scale_r(),
-        y = y_scale_r(),
-        x = x_scale_r(),
-        linesize = line_scale_r(),
-        fontsize = text_scale_r(),
-        width = width_scale_r()
-      )
-      
-    } else if (input$scale_r == 2 & input$show_scale_r == TRUE) {
-      theme_tree2()
-      
-    } else if (input$show_scale_r == FALSE) {
-      NULL
-      
-    }
-  })
-  
-  
-  # Scale Color -------------------------------------------------------------
-  
-  color_scale_r <- reactive({
-    input$scale_color_r
-  })
-  
-  
-  # Scale Y Position --------------------------------------------------------
-  
-  y_scale_r <- reactive({
-    input$scale_y_r
-  })
-  
-  
-  # Scale X Position --------------------------------------------------------
-  
-  x_scale_r <- reactive({
-    input$scale_x_r
-  })
-  
-  
-  # Scale Line Size ---------------------------------------------------------
-  
-  line_scale_r <- reactive({
-    input$scale_line_r
-  })
-  
-  
-  # Scale Text Size ---------------------------------------------------------
-  
-  text_scale_r <- reactive({
-    input$scale_text_r
-  })
-  
-  
-  # Scale Line Width --------------------------------------------------------
-  
-  width_scale_r <- reactive({
-    input$scale_width_r
-  })
-  
-  
-  # Tips Highlight ----------------------------------------------------------
-  
-  tip_r <- reactive({
-    if (input$tip_highlight_r == FALSE) {
-      NULL
-      
-    } else if (input$tip_highlight_r == TRUE) {
-      geom_tippoint(
-        shape =  as.numeric(input$tip_shape_r),
-        color = input$tip_color_r,
-        size = input$tip_size_r,
-        alpha = input$tip_alpha_r
-      )
-      
-    }
-    
-  })
-  
-  # Nodes Highlight ----------------------------------------------------------
-  
-  
-  node_r <- reactive({
-    if (input$node_highlight_r == FALSE) {
-      NULL
-      
-    } else if (input$node_highlight_r == TRUE) {
-      geom_nodepoint(
-        shape = as.numeric(input$node_shape_r),
-        color = input$node_color_r,
-        size = input$node_size_r,
-        alpha = input$node_alpha_r
-      )
-      
-    }
-    
-  })
-  
-  # Tip Labels ----------------------------------------------------------
-  
-  
-  label_r <- reactive ({
-    if (input$label_r == FALSE) {
-      NULL
-      
-    } else if (input$label_r) {
-      geom_tiplab(
-        size = input$label_size_r,
-        color = input$label_color_r,
-        mapping = aes(angle = angle_r())
-      )
-      
-    }
-    
-  })
-  
-  # Label Angle ----------------------------------------------------------
-  
-  angle_r <- reactive({
-    if (input$label_angle_r == FALSE) {
-      NULL
-      
-    } else {
-      angle
-      
-    }
-    
-  })
-  
-  # Branch Color ----------------------------------------------------------
-  
-  color_r <- reactive({
-    input$branch_color_r
-  })
-  
-  # Background Color ----------------------------------------------------------
-  
-  b_color_r <- reactive({
-    input$background_color_r
-  })
-  
-  
-  # Generating Plots --------------------------------------------------------
-  
-  # Generate Random Plot
-  randomtree <- reactive({
-    rtree <- rtree(input$ntree)
-    
-  })
-  
-  observeEvent(input$random_tree,
-               {
-                 output$tree_random <- renderPlot({
-                   as.ggplot(
-                     ggtree(
-                       tr = randomtree(),
-                       aes(color = I(color_r())),
-                       layout = input$layout_r
-                     ) +
-                       revx_r() +
-                       revy_r() +
-                       treescale_x_r() +
-                       tip_r() +
-                       label_r() +
-                       node_r() +
-                       theme(
-                         plot.background = element_rect(fill = b_color_r(),
-                                                        color = b_color_r()),
-                         panel.background = element_rect(fill = b_color_r(),
-                                                         color = b_color_r())
-                       ),
-                     angle = input$rotate_r
-                   )
-                 })
-               })
-  
-  
-  
-  
   # Save Report -------------------------------------------------------------
   
   
@@ -4567,73 +3814,7 @@ server <- function(input, output, session) {
                     "genome_file",
                     roots = c(wd = "/home"),
                     session = session)
-    selected_genome <<-
-      parseFilePaths(roots = c(wd = "/home"), input$genome_file)
-    
-    # Get selected Genome in Multi Mode
-    shinyDirChoose(input,
-                   "genome_file_multi",
-                   roots = c(wd = "/home"),
-                   session = session)
-    
-    typing_reactive$table <-
-      data.frame(Include = rep(TRUE, length(list.files(
-        as.character(parseDirPath(
-          roots = c(wd = "/home"), input$genome_file_multi
-        ))
-      ))),
-      Files = list.files(as.character(
-        parseDirPath(roots = c(wd = "/home"), input$genome_file_multi)
-      )))
-    
-    if (nrow(typing_reactive$table) > 0) {
-      output$multi_select_table <- renderRHandsontable({
-        rhandsontable(typing_reactive$table, height = 500) %>%
-          hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
-          hot_cols(columnSorting = TRUE) %>%
-          hot_rows(rowHeights = 25, fixedRowsTop = 1) %>%
-          hot_col(1,
-                  halign = "htCenter",
-                  valign = "htTop",
-                  width = "auto")
-      })
-    } else {
-      output$multi_select_table <- NULL
-    }
-    
-    if (!nrow(selected_genome) > 0) {
-      output$genome_path <- renderUI(HTML(
-        paste("<span style='color: white;'>", "No file selected.")
-      ))
-      output$arrow_start <- NULL
-    } else if (nrow(selected_genome) > 0) {
-      output$genome_path <- renderUI(HTML(paste(
-        "<span style='color: white;'>",
-        as.character(selected_genome$name)
-      )))
-      output$selected_scheme <- renderUI({
-        HTML(
-          paste(
-            "<span style='color: white;'>",
-            "Typing by <strong>",
-            input$cgmlst_typing,
-            "</strong> scheme."
-          )
-        )
-      })
-      output$typing_start <- renderUI(actionButton(
-        inputId = "typing_start",
-        label = "Start",
-        width = "100px"
-      ))
-      output$arrow_start <-
-        renderUI(
-          HTML(
-            '<i class="fa-solid fa-arrow-down fa-beat-fade fa-xl" style="color: #ffffff;"></i>'
-          )
-        )
-      
-    }
+    typing_reactive$single_path <- parseFilePaths(roots = c(wd = "/home"), input$genome_file)
     
   })
   
@@ -4667,19 +3848,17 @@ server <- function(input, output, session) {
       
       index_kma <- paste0(
         "#!/bin/bash\n",
-        "database_name=",
-        shQuote(selected_organism),
-        "\n",
+        'base_path="/home/marian/Documents/Projects/Masterthesis"', '\n',
+        'kma_database="$base_path/PhyloTree/execute/kma_database/"', shQuote(paste0(gsub(" ", "_", selected_organism))), '\n',
         "genome=",
-        shQuote(selected_genome$datapath),
+        shQuote(typing_reactive$single_path$datapath),
         "\n",
-        '/home/marian/miniconda3/bin/kma index -i "$genome" -o "$database_name"'
+        '/home/marian/miniconda3/bin/kma index -i "$genome" -o "$kma_database"'
       )
       
       # Specify the path to save the script
       index_kma_path <-
-        paste0("/home/marian/Documents/Projects/Masterthesis",
-               "/index_kma.sh")
+        paste0(getwd(), "/execute/index_kma.sh")
       
       # Write the script to a file
       cat(index_kma, file = index_kma_path)
@@ -4694,9 +3873,8 @@ server <- function(input, output, session) {
       
       kma_run <- paste0(
         "#!/bin/bash\n",
-        "database=",
-        shQuote(selected_organism),
-        "\n",
+        'base_path="/home/marian/Documents/Projects/Masterthesis"', '\n',
+        'kma_database="$base_path/PhyloTree/execute/kma_database/"', shQuote(paste0(gsub(" ", "_", selected_organism))), '\n',
         "query_folder=",
         shQuote(paste0(
           getwd(),
@@ -4728,7 +3906,7 @@ server <- function(input, output, session) {
         "\n",
         'output_file="$output_folder/$query_filename_noext"',
         "\n",
-        '/home/marian/miniconda3/bin/kma -i "$query_file" -o "$output_file" -t_db "$database" -nc -status',
+        '/home/marian/miniconda3/bin/kma -i "$query_file" -o "$output_file" -t_db "$kma_database" -nc -status',
         "\n",
         '((count++))',
         "\n",
@@ -5087,6 +4265,73 @@ server <- function(input, output, session) {
   
   ### Render Multi Typing UI Elements ----
   
+  observe({
+    # Get selected Genome in Multi Mode
+    shinyDirChoose(input,
+                   "genome_file_multi",
+                   roots = c(wd = "/home"),
+                   session = session)
+    
+    typing_reactive$table <-
+      data.frame(Include = rep(TRUE, length(list.files(
+        as.character(parseDirPath(
+          roots = c(wd = "/home"), input$genome_file_multi
+        ))
+      ))),
+      Files = list.files(as.character(
+        parseDirPath(roots = c(wd = "/home"), input$genome_file_multi)
+      )))
+    
+    if (nrow(typing_reactive$table) > 0) {
+      output$multi_select_table <- renderRHandsontable({
+        rhandsontable(typing_reactive$table, height = 500) %>%
+          hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+          hot_cols(columnSorting = TRUE) %>%
+          hot_rows(rowHeights = 25, fixedRowsTop = 1) %>%
+          hot_col(1,
+                  halign = "htCenter",
+                  valign = "htTop",
+                  width = "auto")
+      })
+    } else {
+      output$multi_select_table <- NULL
+    }
+    
+    if (!nrow(typing_reactive$single_path) > 0) {
+      output$genome_path <- renderUI(HTML(
+        paste("<span style='color: white;'>", "No file selected.")
+      ))
+      output$arrow_start <- NULL
+    } else if (nrow(typing_reactive$single_path) > 0) {
+      output$genome_path <- renderUI(HTML(paste(
+        "<span style='color: white;'>",
+        as.character(typing_reactive$single_path$name)
+      )))
+      output$selected_scheme <- renderUI({
+        HTML(
+          paste(
+            "<span style='color: white;'>",
+            "Typing by <strong>",
+            input$cgmlst_typing,
+            "</strong> scheme."
+          )
+        )
+      })
+      output$typing_start <- renderUI(actionButton(
+        inputId = "typing_start",
+        label = "Start",
+        width = "100px"
+      ))
+      output$arrow_start <-
+        renderUI(
+          HTML(
+            '<i class="fa-solid fa-arrow-down fa-beat-fade fa-xl" style="color: #ffffff;"></i>'
+          )
+        )
+      
+    }
+  })
+  
   output$assembly_files_table <- renderUI({
     rHandsontableOutput("multi_select_table")
   })
@@ -5139,6 +4384,13 @@ server <- function(input, output, session) {
   
   ### Events Multi Typing ----
   
+  # Function to periodically update the variable
+  auto_update_data <- function() {
+    # Reload the external .rds file and update the reactiveValues
+    Database <- readRDS(paste0(getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing), "/Typing.rds"))
+    typing_reactive$check_presence <- Database$Typing
+  }
+  
   observeEvent(input$start_typ_multi, {
       showModal(
         modalDialog(
@@ -5164,8 +4416,6 @@ server <- function(input, output, session) {
     
     removeModal()
     
-    Sys.sleep(1)
-    
     show_toast(
       title = "Multi Typing started ...",
       type = "success",
@@ -5184,10 +4434,47 @@ server <- function(input, output, session) {
     output$header_start_multi <- NULL
     output$multi_start_button <- NULL
     
-    # Render Multi Typing Progress
-    ######
-    ######
-    ######
+    # Typing UI during Multi Typing
+    
+    output$multi_typing_progress_header <- renderUI(
+      h3(p("Multi Typing Progress"), style = "color:white"))
+    
+    output$multi_typing_progress_symbol <- renderUI(
+      HTML(paste('<i class="fa-solid fa-arrow-rotate-right fa-beat-fade" style="color: #ffffff;"></i>'))
+    )
+    
+    observe({
+      
+      output$multi_typing_progress <- renderUI({
+        
+        # Create a list of HTML elements for each element in the typing_reactive$table
+        elements <- lapply(typing_reactive$table$File, function(element) {
+          
+          # Your condition for displaying the checkmark
+          if (any(grepl("Typing.rds", dir_ls(paste0(
+            getwd(), "/Database/", gsub(" ", "_", input$cgmlst_scheme)
+          ))))) {
+            auto_update_data()
+            condition_met <- any(grepl(gsub(".fasta", "", element), typing_reactive$check_presence))
+          } else {
+            condition_met <- FALSE
+          }
+          
+          # Conditionally include the checkmark based on the condition
+          checkmark_html <- if (condition_met) {
+            '<i class="fa-solid fa-check" style="color: #ffffff;"></i>'
+          } else {
+            ''  # An empty string if the condition is not met
+          }
+          
+          HTML(paste("<div style='color: white;'>", as.character(element), "  ", checkmark_html, "</div><br>"))
+        })
+        
+        # Combine the list of elements into a single HTML output
+        do.call(tagList, elements)
+      })
+    })
+    
     
     # List Genome Assemblies Included in Analysis in Vector
     genome_selected <- hot_to_r(input$multi_select_table)
