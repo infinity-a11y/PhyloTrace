@@ -1,15 +1,33 @@
 ---
-output: html_document
+output:
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r include=FALSE}
+library(dplyr)
+library(kableExtra)
+```
 
 ```{r include=FALSE}
 # Load the variables from the file
 my_loaded_variables <- readRDS("selected_elements.rds")
+```
+
+```{=html}
+<style type="text/css">
+  .figure {
+    float: right;
+    text-align: center;
+  }
+</style>
+```
+
+```{r pressure, echo=FALSE, fig.align = "right", out.width = '30%', out.extra='style="float: right; margin-right: 10px; margin-top: 20px"'}
+knitr::include_graphics("/home/marian/Documents/Projects/Masterthesis/PhyloTree/www/PhyloTree.jpg")
 ```
 
 ## cgMLST Report
@@ -21,6 +39,14 @@ my_loaded_variables <- readRDS("selected_elements.rds")
 
 `r my_loaded_variables$general_com`
 
+
+***
+
+```{r echo=FALSE}
+if(my_loaded_variables$plot) {
+  knitr::include_graphics("/home/marian/Documents/Projects/Masterthesis/PhyloTree/Report/plot.jpeg")
+}
+```
 
 ***
 
@@ -76,6 +102,7 @@ kable(sample_df) %>%
 
 ***
 
+
 ### Sequencing Information
 ```{r include=FALSE}
 
@@ -104,4 +131,4 @@ Date of Analysis | `r my_loaded_variables$ana_date`
 
 `r my_loaded_variables$ana_com`
 
-***
+

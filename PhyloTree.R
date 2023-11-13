@@ -487,6 +487,19 @@ ui <- dashboardPage(
                 )
               )
             )
+          ),
+          fluidRow(
+            br(),
+            column(
+              width = 6,
+              conditionalPanel(
+                "input.create_tree > 0",
+                actionButton(
+                  "send_plot_rep",
+                  "Send Report"
+                )
+              )
+            )
           )
         )
       )
@@ -1077,60 +1090,96 @@ ui <- dashboardPage(
         ),
         conditionalPanel(
           "input.typing_mode == 'Multi'",
-          fluidRow(
-            column(
-              width = 3,
-              align = "center",
-              br(),
-              br(),
-              uiOutput("multi_typing_progress_header"),
-              uiOutput("initiate_typing_header"),
-              br(),
-              uiOutput("multi_typing_progress_symbol"),
-              br(),
-              uiOutput("multi_typing_progress"),
+          conditionalPanel(
+            condition = "output.pending_multi=='no'",
+            fluidRow(
               column(
-                width = 12,
+                width = 3,
                 align = "center",
-                uiOutput("genome_file_multi_bttn"),
                 br(),
-                br()
-              ),
-              column(
-                width = 12,
-                align = "left",
-                uiOutput("assembly_files_table")
-              )
-            ),
-            column(
-              width = 4,
-              align = "center",
-              br(),
-              br(),
-              uiOutput("header_declare_metadata"),
-              br(), br(),
-              fluidRow(
-                column(width = 2),
+                br(),
+                uiOutput("initiate_typing_header"),
+                br(),
+                br(),
                 column(
-                  width = 6,
-                  uiOutput("metadata_multi_box")
+                  width = 12,
+                  align = "center",
+                  uiOutput("genome_file_multi_bttn"),
+                  br(),
+                  br()
                 ),
                 column(
-                  width = 3,
-                  br(), br(), br(), br(), br(), br(), br(), br(), br(),
-                  uiOutput("conf_meta_multi_button")
+                  width = 12,
+                  align = "left",
+                  uiOutput("assembly_files_table")
+                )
+              ),
+              column(
+                width = 4,
+                align = "center",
+                br(),
+                br(),
+                uiOutput("header_declare_metadata"),
+                br(), br(),
+                fluidRow(
+                  column(width = 2),
+                  column(
+                    width = 6,
+                    uiOutput("metadata_multi_box")
+                  ),
+                  column(
+                    width = 3,
+                    br(), br(), br(), br(), br(), br(), br(), br(), br(),
+                    uiOutput("conf_meta_multi_button")
+                  )
+                )
+              ),
+              column(
+                width = 4,
+                align = "center",
+                br(),
+                br(),
+                uiOutput("header_start_multi"),
+                br(),
+                br(),
+                uiOutput("multi_start_button"),
+                br(), br()
+              )
+            )
+          ),
+          conditionalPanel(
+            condition = "output.pending_multi=='yes'",
+            fluidRow(
+              br(), br(),
+              column(width = 1),
+              column(
+                width = 2,
+                uiOutput("multi_typing_progress_header")
+              ),
+              column(
+                width = 2,
+                br(),
+                uiOutput("multi_typing_progress_symbol") 
+              )
+            ),
+            fluidRow(
+              column(width = 1),
+              column(
+                width = 2,
+                br(), br(),
+                actionButton(
+                  "reset_multi",
+                  "Cancel"
                 )
               )
             ),
-            column(
-              width = 4,
-              align = "center",
-              br(),
-              br(),
-              uiOutput("header_start_multi"),
-              br(),
-              br(),
-              uiOutput("multi_start_button")
+            br(), br(),
+            fluidRow(
+              column(width = 1),
+              column(
+                width = 6,
+                verbatimTextOutput("logText")
+              )  
             )
           )
         )
@@ -1900,13 +1949,23 @@ ui <- dashboardPage(
             box(
               solidHeader = TRUE,
               status = "primary",
-              title = h4(p("General"), style = "color:white"),
               width = 12,
+              title = h4(p("General"), style = "color:white; margin-top: -20px; font-size: 20px"),
+              conditionalPanel(
+                "input.send_plot_rep > 0",
+                HTML(
+                  paste(
+                    "<span style='color: white; font-size: 15px;'>",
+                    '<i class="fa-solid fa-check" style="color: #ffffff;"></i> Plot included '
+                  )
+                ),
+                br(), br(),
+              ),
               conditionalPanel(
                 "input.include_general.includes('Analysis Date')",
                 dateInput(
                   inputId = "report_date",
-                  label = "Date",
+                  label = h5("Date", style = "color:white; margin-bottom: 0px;"),
                   value = NULL,
                   width = "40%"
                 )
@@ -1916,7 +1975,7 @@ ui <- dashboardPage(
                 "input.include_general.includes('Author')",
                 textInput(
                   inputId = "author",
-                  label = "Name of Author",
+                  label = h5("Name of Author", style = "color:white; margin-bottom: 0px;"),
                   placeholder = "Institute/Working group/Responsible person"
                 )
               ),
@@ -1924,7 +1983,7 @@ ui <- dashboardPage(
                 "input.include_general.includes('Experiment Info')",
                 textAreaInput(
                   inputId = "exp_info",
-                  label = "Experiment Information",
+                  label = h5("Experiment Information", style = "color:white; margin-bottom: 0px;"),
                   value = "Comments about Experiment ...",
                   width = "100%",
                   height = NULL,
@@ -3004,14 +3063,13 @@ server <- function(input, output, session) {
   
   plot_loc <- reactiveValues(cluster = NULL, metadata = list())
   
-  observe({
-    plot_loc$plot <-
-      ggplot(plot_loc$gg, aes(
-        x = x,
-        y = y,
-        xend = xend,
-        yend = yend
-      )) +
+  plot_input <- reactive({
+    ggplot(plot_loc$gg, aes(
+      x = x,
+      y = y,
+      xend = xend,
+      yend = yend
+    )) +
       geom_edges(
         color = edge_color(),
         linewidth = edge_size(),
@@ -3026,8 +3084,9 @@ server <- function(input, output, session) {
         panel.background = element_rect(fill = bg_color()),
         plot.background = element_rect(fill = bg_color())
       )
-    
   })
+      
+    
   
   # Render local database choice input
   observe({
@@ -3099,12 +3158,12 @@ server <- function(input, output, session) {
       
       # Visualize the tree with metadata annotations
       output$tree_local <- renderPlot({
-        plot_loc$nj_plot
+        print(plot_input())
       })
       
     } else {
       output$tree_local <- renderPlot({
-        plot_loc$plot
+        print(plot_input())
       })
       
       mst <- ape::mst(dist_matrix)
@@ -3418,9 +3477,9 @@ server <- function(input, output, session) {
       paste("plot", ".png", sep = "")
     },
     content = function(file) {
-      png(file, width = 1200, height = 600)
+      png(file, width = 1365, height = 600)
       if (input$tree_algo == "Minimum-Spanning") {
-        print(plot_loc$plot)
+        print(plot_input())
       } else if (input$tree_algo == "Neighbour-Joining") {
         print(plot_loc$nj_plot)
       }
@@ -3479,9 +3538,22 @@ server <- function(input, output, session) {
   
   # Save Report -------------------------------------------------------------
   
+  # Send Plot to Report
+  
+  observeEvent(input$send_plot_rep, {
+    
+    jpeg(paste0(getwd(), "/Report", "/plot.jpeg"), width = 1365, height = 600,
+         quality = 100)
+    print(plot_input())
+    dev.off()
+    
+    elements_data$plot <- TRUE
+    
+  })
+  
   
   # Create a reactiveValues to store selected elements and their content
-  elements_data <- reactiveValues()
+  elements_data <- reactiveValues(plot = FALSE)
   
   observe({
     selected_general <<- input$include_general
@@ -3600,7 +3672,8 @@ server <- function(input, output, session) {
       seq_op = elements_data$seq_op,
       seq_com = elements_data$seq_com,
       ana_date = elements_data$ana_date,
-      ana_com = elements_data$ana_com
+      ana_com = elements_data$ana_com,
+      plot = elements_data$plot
     )
     
     # Save data to an RDS file if any elements were selected
@@ -3609,6 +3682,8 @@ server <- function(input, output, session) {
     }
     
     rmarkdown::render("Report.Rmd")
+    
+    system(paste("open", paste0(getwd(), "/Report.html")))
     
   })
   
@@ -4259,11 +4334,32 @@ server <- function(input, output, session) {
                 "/Typing.rds"
               ))
     }
+    
+    show_toast(
+      title = "Entry Added",
+      type = "success",
+      position = "top-end",
+      timer = 4000
+    )
+    
   })
   
   ######## Multi Typing ----
   
   ### Render Multi Typing UI Elements ----
+  
+  # Check if ongoing Multi Typing - Render accordingly
+  
+  output$pending_multi <- reactive({
+    invalidateLater(3000, session)
+    if(grepl("Multi Typing", tail(readLines(paste0(getwd(),"/execute/script_log.txt")), n = 1))) {
+      return('no') 
+    } else if(!grepl("Multi Typing", tail(readLines(paste0(getwd(),"/execute/script_log.txt")), n = 1))) {
+        return('yes')
+      } 
+  })
+  
+  outputOptions(output, "pending_multi", suspendWhenHidden = FALSE) 
   
   observe({
     # Get selected Genome in Multi Mode
@@ -4296,40 +4392,7 @@ server <- function(input, output, session) {
     } else {
       output$multi_select_table <- NULL
     }
-    
-    if (!nrow(typing_reactive$single_path) > 0) {
-      output$genome_path <- renderUI(HTML(
-        paste("<span style='color: white;'>", "No file selected.")
-      ))
-      output$arrow_start <- NULL
-    } else if (nrow(typing_reactive$single_path) > 0) {
-      output$genome_path <- renderUI(HTML(paste(
-        "<span style='color: white;'>",
-        as.character(typing_reactive$single_path$name)
-      )))
-      output$selected_scheme <- renderUI({
-        HTML(
-          paste(
-            "<span style='color: white;'>",
-            "Typing by <strong>",
-            input$cgmlst_typing,
-            "</strong> scheme."
-          )
-        )
-      })
-      output$typing_start <- renderUI(actionButton(
-        inputId = "typing_start",
-        label = "Start",
-        width = "100px"
-      ))
-      output$arrow_start <-
-        renderUI(
-          HTML(
-            '<i class="fa-solid fa-arrow-down fa-beat-fade fa-xl" style="color: #ffffff;"></i>'
-          )
-        )
-      
-    }
+
   })
   
   output$assembly_files_table <- renderUI({
@@ -4368,7 +4431,7 @@ server <- function(input, output, session) {
       timer = 3000
     )
     
-    Sys.sleep(1)
+    Sys.sleep(0.5)
     
     output$multi_start_button <- renderUI({
       actionButton(
@@ -4384,18 +4447,76 @@ server <- function(input, output, session) {
   
   ### Events Multi Typing ----
   
-  # Function to periodically update the variable
-  auto_update_data <- function() {
-    # Reload the external .rds file and update the reactiveValues
-    Database <- readRDS(paste0(getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing), "/Typing.rds"))
-    typing_reactive$check_presence <- Database$Typing
-  }
+  observeEvent(input$reset_multi, {
+    if(!grepl("Multi Typing", tail(readLines(paste0(getwd(),"/execute/script_log.txt")), n = 1))) {
+      showModal(
+        modalDialog(
+          paste0(
+            "A Multi Typing process is still pending. Stopping this process will cancel the processing."
+          ),
+          title = "Reset Multi Typing",
+          fade = TRUE,
+          easyClose = TRUE,
+          footer = tagList(
+            modalButton("Cancel"),
+            actionButton("conf_multi_kill", "Stop", class = "btn btn-danger")
+          )
+        )
+      )
+    }
+  })
+  
+  # Confirm Reset after 
+  observeEvent(input$conf_multi_kill, {
+    removeModal()
+    
+    show_toast(
+      title = "Execution cancelled",
+      type = "warning",
+      position = "top-end",
+      timer = 6000
+    )
+    kill_multi <- paste0(
+      '#!/bin/bash', '\n',
+      'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
+      'TARGET_SCRIPT=', shQuote(paste0(getwd(), "/execute/kma_multi.sh")), '\n',
+      '# Function to log messages to the file', '\n',
+      'log_message() {', '\n',
+      '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
+      '}', '\n',
+      '# Find the process ID (PID) of the script', '\n',
+      'PID=$(pgrep -f "$TARGET_SCRIPT")', '\n',
+      'if [ -z "$PID" ]; then', '\n',
+      '  echo "No process found for $TARGET_SCRIPT"', '\n',
+      'else', '\n',
+      '  # Kill the process', '\n',
+      '  echo "Killing process $PID for $TARGET_SCRIPT"', '\n',
+      '  kill "$PID"', '\n',
+      'fi', '\n',
+      'log_message "Multi Typing cancelled"'
+    )
+    
+    # Specify the path to save the script
+    kill_multi_path <-
+      paste0(getwd(), "/execute/kill_multi.sh")
+    
+    # Write the script to a file
+    cat(kill_multi, file = kill_multi_path)
+    
+    # Make the script executable  
+    system(paste("chmod +x", kill_multi_path))
+    
+    # Execute the script
+    system(paste(kill_multi_path), wait = FALSE)
+    
+    
+  })
   
   observeEvent(input$start_typ_multi, {
       showModal(
         modalDialog(
           paste0(
-            "Typing multiple assemblies will take a while. Once this process starts, no further Multi Typing queries can be initiated.  The progress can be observed in this tab. Continue?"
+            "Typing multiple assemblies will take a while. Continue?"
           ),
           title = "Start Multi Typing",
           fade = TRUE,
@@ -4417,7 +4538,7 @@ server <- function(input, output, session) {
     removeModal()
     
     show_toast(
-      title = "Multi Typing started ...",
+      title = "Multi Typing started",
       type = "success",
       position = "top-end",
       timer = 6000
@@ -4434,48 +4555,6 @@ server <- function(input, output, session) {
     output$header_start_multi <- NULL
     output$multi_start_button <- NULL
     
-    # Typing UI during Multi Typing
-    
-    output$multi_typing_progress_header <- renderUI(
-      h3(p("Multi Typing Progress"), style = "color:white"))
-    
-    output$multi_typing_progress_symbol <- renderUI(
-      HTML(paste('<i class="fa-solid fa-arrow-rotate-right fa-beat-fade" style="color: #ffffff;"></i>'))
-    )
-    
-    observe({
-      
-      output$multi_typing_progress <- renderUI({
-        
-        # Create a list of HTML elements for each element in the typing_reactive$table
-        elements <- lapply(typing_reactive$table$File, function(element) {
-          
-          # Your condition for displaying the checkmark
-          if (any(grepl("Typing.rds", dir_ls(paste0(
-            getwd(), "/Database/", gsub(" ", "_", input$cgmlst_scheme)
-          ))))) {
-            auto_update_data()
-            condition_met <- any(grepl(gsub(".fasta", "", element), typing_reactive$check_presence))
-          } else {
-            condition_met <- FALSE
-          }
-          
-          # Conditionally include the checkmark based on the condition
-          checkmark_html <- if (condition_met) {
-            '<i class="fa-solid fa-check" style="color: #ffffff;"></i>'
-          } else {
-            ''  # An empty string if the condition is not met
-          }
-          
-          HTML(paste("<div style='color: white;'>", as.character(element), "  ", checkmark_html, "</div><br>"))
-        })
-        
-        # Combine the list of elements into a single HTML output
-        do.call(tagList, elements)
-      })
-    })
-    
-    
     # List Genome Assemblies Included in Analysis in Vector
     genome_selected <- hot_to_r(input$multi_select_table)
     
@@ -4488,6 +4567,13 @@ server <- function(input, output, session) {
       'genome_folder=', shQuote(as.character(parseDirPath(roots = c(wd = "/home"), 
                                                           input$genome_file_multi))), '\n',
       'selected_genomes=', shQuote(paste0(getwd(), "/execute/selected_genomes")), '\n',
+      'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
+      '# Function to log messages to the file', '\n',
+      'log_message() {', '\n',
+      '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
+      '}', '\n',
+      '# Create a log file or truncate if it exists', '\n',
+      'echo "Script Log" > "$log_file"', '\n',
       '# Remove the existing directory (if it exists)', '\n',
       'if [ -d "$selected_genomes" ]; then', '\n',
       '    rm -r "$selected_genomes"', '\n',
@@ -4499,9 +4585,9 @@ server <- function(input, output, session) {
       'for file in "${file_names[@]}"; do', '\n',
       '    if [ -f "$genome_folder/$file" ]; then', '\n',
       '        cp "$genome_folder/$file" "$selected_genomes/"', '\n',
-      '        echo "Copied $file to $selected_genomes/"', '\n',
+      '        log_message "Initiated $file"', '\n',
       '    else', '\n', 
-      '        echo "$file not found in $genome_folder."', '\n',
+      '        log_message "$file not found in $genome_folder"', '\n',
       '    fi', '\n',
       'done', '\n',
       '# Directory name', '\n',
@@ -4530,6 +4616,7 @@ server <- function(input, output, session) {
       '    if [ -f "$genome" ]; then', '\n',
       '    genome_filename=$(basename "$genome")', '\n',
       '    genome_filename_noext="${genome_filename%.*}"', '\n',
+      '    log_message "Processing $genome_filename"', '\n',
       '    /home/marian/miniconda3/bin/kma index -i "$genome" -o "$database_name"', '\n',
       '    fi', '\n',
       '    mkdir "$results/$genome_filename_noext"', '\n',
@@ -4543,7 +4630,9 @@ server <- function(input, output, session) {
       '        fi', '\n',
       '    done', '\n',
       '    Rscript ', shQuote(paste0(getwd(), "/execute/automatic_typing.R")), '\n',
-      'done', '\n'
+      '    log_message "Successful typing of $genome_filename"', '\n',
+      'done', '\n',
+      'log_message "Multi Typing finalized."'
     )
     
     # Specify the path to save the script
@@ -4620,8 +4709,24 @@ server <- function(input, output, session) {
     }
   })
   
+  ### User Feedback ----
   
+  readLogFile <- reactive({
+    invalidateLater(5000, session)
+    readLines(paste0(getwd(), "/execute/script_log.txt"))
+  })
+
+  # Render log content
+  output$logText <- renderPrint({
+    readLogFile()
+  })
   
+  output$multi_typing_progress_header <- renderUI(
+    h3(p("Pending Multi Typing ..."), style = "color:white"))
+  
+  output$multi_typing_progress_symbol <- renderUI(
+    HTML(paste('<i class="fa-solid fa-arrow-rotate-right fa-beat-fade fa-lg" style="color: #ffffff;"></i>'))
+  )  
   
 } # end server
 
