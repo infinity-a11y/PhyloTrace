@@ -1931,14 +1931,104 @@ ui <- dashboardPage(
           br(),
           br(),
           column(
-            width = 2,
+            width = 3,
             align = "left",
-            h3(p("Select Elements"), style = "color:white"),
+            br(),
+            HTML(
+              paste(
+                tags$span(style='color: white; font-size: 24px;', 'General'),
+                '<i class="fa-solid fa-square-check fa-lg" style="color: #ffffff; margin-left:10px; position: relative; top: -2px;"></i>'
+              )
+            ),
+            br(),
+            fluidRow(
+              tags$style("#date_general_select .form-control  {height: 28px;position: relative; top: 5px; } .form-group {
+            margin-bottom: 0px;}"),
+              tags$style("#date_general {position: relative; top: 18px; bottom: 0px} .form-group {margin-bottom: 0px;}"),
+              column(
+                width = 3,
+                checkboxInput(
+                  "date_general", 
+                  label = h5("Date", style = "color:white; font-size: 17px; position: relative; top: -13px;"),
+                  value = TRUE
+                )
+              ),
+              column(
+                width = 7,
+                dateInput(
+                  "date_general_select",
+                  "",
+                  width = "50%"
+                )
+              )
+            ),
+            fluidRow(
+              tags$style("#author_general_select {height: 28px;position: relative; top: -25px;}"),
+              tags$style("#author_general {position: relative; top: -12px; bottom: 0px} .form-group {margin-bottom: 0px;}"),
+              column(
+                width = 3,
+                checkboxInput(
+                  "author_general", 
+                  label = h5("Author", style = "color:white; font-size: 17px; position: relative; top: -43px;"),
+                  value = TRUE
+                )
+              ),
+              column(
+                width = 7,
+                textInput(
+                  "author_general_select",
+                  ""
+                ) 
+              )
+            ),
+            fluidRow(
+              tags$style("#comm_general_select {position: relative; top: -55px; border-radius: 5px}"),
+              tags$style("#comment_general {position: relative; top: -42px; bottom: 0px} .form-group {margin-bottom: 0px;}"),
+              column(
+                width = 3,
+                checkboxInput(
+                  "comment_general", 
+                  label = h5("Comment", style = "color:white; font-size: 17px; position: relative; top: -72px;")
+                )
+              ),
+              column(
+                width = 7,
+                textAreaInput(
+                  inputId = "comm_general_select",
+                  label = "",
+                  width = "100%",
+                  height = NULL,
+                  cols = NULL,
+                  rows = NULL,
+                  placeholder = NULL,
+                  resize = "vertical"
+                ) 
+              )
+            ),
+            br(),
+            HTML(
+              paste(
+                tags$span(style='color: white; font-size: 20px;', 'Analysis')
+              )
+            ),
+            br(),
+            HTML(
+              paste(
+                tags$span(style='color: white; font-size: 20px;', 'Sample')
+                )
+            ),
+            br(),
+            HTML(
+              paste(
+                tags$span(style='color: white; font-size: 20px;', 'Sequencing')
+              )
+            ),
             br(),
             uiOutput("include_general"),
+            uiOutput("include_analysis"),
             uiOutput("include_sampleinfo"),
-            uiOutput("include_sequencing"),
-            uiOutput("include_analysis")
+            uiOutput("include_sequencing")
+            
           ),
           column(
             width = 3,
@@ -2169,9 +2259,8 @@ ui <- dashboardPage(
               )
             )
           ),
-          column(width = 1),
           column(
-            width = 2,
+            width = 1,
             align = "center",
             h3(p("Preselect Settings"), style = "color:white"),
             br(),
@@ -2367,6 +2456,7 @@ server <- function(input, output, session) {
                   rowHeaders = NULL,
                   height = height_table()
                 ) %>%
+                  hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                   hot_col(2,
                           halign = "htCenter",
                           valign = "htTop",
@@ -2384,6 +2474,7 @@ server <- function(input, output, session) {
                   rowHeaders = NULL,
                   height = height_table()
                 ) %>%
+                  hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                   hot_col(2,
                           halign = "htCenter",
                           valign = "htTop",
@@ -2412,7 +2503,7 @@ server <- function(input, output, session) {
                           halign = "htCenter",
                           valign = "htTop",
                           width = "auto") %>%
-                  hot_cols(fixedColumnsLeft = 1) %>%
+                  hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                   hot_rows(fixedRowsTop = 0) %>%
                   hot_col(diff_allele(),
                           renderer = "
@@ -2437,6 +2528,7 @@ server <- function(input, output, session) {
                   rowHeaders = NULL,
                   height = height_table()
                 ) %>%
+                  hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                   hot_col(1:12, valign = "htMiddle") %>%
                   hot_col(2,
                           halign = "htCenter",
@@ -3536,9 +3628,10 @@ server <- function(input, output, session) {
     
   })
   
-  # Save Report -------------------------------------------------------------
+  # Report -------------------------------------------------------------
   
-  # Send Plot to Report
+  
+  ## Send Plot to Report ----
   
   observeEvent(input$send_plot_rep, {
     
@@ -3687,7 +3780,7 @@ server <- function(input, output, session) {
     
   })
   
-  # Save Report Profile ----------------------------------------------------
+  ## Save Report Profile ----
   
   observeEvent(input$save_rep_profile, {
     # save profile except dates or times
@@ -3730,7 +3823,7 @@ server <- function(input, output, session) {
       list.files(paste0(getwd(), "/rep_profiles"), full.names = TRUE)
   })
   
-  # Load Report Profile ----------------------------------------------------
+  ## Load Report Profile ----
   
   rep_profile <- reactiveValues()
   
@@ -3765,7 +3858,7 @@ server <- function(input, output, session) {
   output$include_general <- renderUI(
     checkboxGroupInput(
       inputId = "include_general",
-      label = "General",
+      label = "",
       choices = c("Analysis Date", "Author", "Experiment Info"),
       selected = general_selected()
     )
@@ -3788,7 +3881,7 @@ server <- function(input, output, session) {
   output$include_sampleinfo <- renderUI(
     checkboxGroupInput(
       inputId = "include_sampleinfo",
-      label = "Sample",
+      label = "",
       choices = c(
         "Sampling Date",
         "Sampling Location",
@@ -3816,7 +3909,7 @@ server <- function(input, output, session) {
   output$include_sequencing <- renderUI(
     checkboxGroupInput(
       inputId = "include_sequencing",
-      label = "Sequencing",
+      label = "",
       choices = c(
         "Device",
         "Flow Cell",
@@ -3847,7 +3940,7 @@ server <- function(input, output, session) {
   output$include_analysis <- renderUI(
     checkboxGroupInput(
       inputId = "include_analysis",
-      label = "Analysis",
+      label = "",
       choices = c(
         "Analysis Date",
         "Assembly Parameters",
@@ -3860,11 +3953,13 @@ server <- function(input, output, session) {
   
   
   
-  # Initiate Typing  ----------------------------------------------------
+  # Typing  ----
+  
+  ## Single Typing ----
   
   typing_reactive <- reactiveValues(table = data.frame())
   
-  # Render Scheme Selector
+  ### Render Scheme Selector ----
   
   observe({
     if (!database$exist) {
@@ -3894,7 +3989,7 @@ server <- function(input, output, session) {
   })
   
   
-  #################### Run KMA index script #########################
+  ### Run KMA index script ----
   
   
   observeEvent(input$typing_start, {
@@ -4063,7 +4158,7 @@ server <- function(input, output, session) {
   
   
   
-  ############## Get Allelic Profile  ######################################
+  ### Get Allelic Profile  ----
   
   observeEvent(input$get_allele_profile, {
     
@@ -4161,7 +4256,7 @@ server <- function(input, output, session) {
   
   
   
-  ############## Append Allelic Profile  ######################################
+  ### Append Allelic Profile  ----
   
   # Append as entry to local database
   
@@ -4344,7 +4439,7 @@ server <- function(input, output, session) {
     
   })
   
-  ######## Multi Typing ----
+  ## Multi Typing ----
   
   ### Render Multi Typing UI Elements ----
   
@@ -4725,7 +4820,7 @@ server <- function(input, output, session) {
     h3(p("Pending Multi Typing ..."), style = "color:white"))
   
   output$multi_typing_progress_symbol <- renderUI(
-    HTML(paste('<i class="fa-solid fa-arrow-rotate-right fa-beat-fade fa-lg" style="color: #ffffff;"></i>'))
+    HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:24px;color:white"></i>'))
   )  
   
 } # end server
