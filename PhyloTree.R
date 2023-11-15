@@ -374,6 +374,7 @@ ui <- dashboardPage(
         column(
           width = 12,
           align = "left",
+          br(),
           uiOutput("scheme_db"),
           br(),
           column(
@@ -390,6 +391,7 @@ ui <- dashboardPage(
         column(
           width = 12,
           align = "left",
+          br(),
           prettyRadioButtons(
             inputId = "typing_mode",
             label = "Typing Mode",
@@ -405,31 +407,22 @@ ui <- dashboardPage(
         column(
           width = 12,
           align = "left",
-          h3(p("Save Report"), style = "color:white"),
           br(),
+          uiOutput("selProfile"),
+          hr(),
           textInput(
-            inputId = "report_dir",
-            label = "Select Directory",
-            placeholder = paste0(getwd())
+            inputId = "rep_profilename",
+            label = "Save current settings as",
+            width = "800%"
           ),
-          br(),
-          textInput(
-            inputId = "rep_name",
-            label = "Name",
-            placeholder = paste0("Report_", Sys.Date())
-          ),
-          br(),
-          awesomeRadio(
-            inputId = "report_filetype",
-            label = "Select Output Type",
-            choices = c("PDF", "HTML")
-          ),
-          br(),
+          br()
+        ),
+        column(
+          width = 12,
+          align = "center",
           actionButton(
-            inputId = "save_report",
-            label = "Download",
-            icon = icon("download"),
-            width = "auto"
+            "save_rep_profile",
+            label = "Save Profile"
           )
         )
       ),
@@ -437,6 +430,7 @@ ui <- dashboardPage(
         "input.tabs==='visualization'",
         column(
           width = 12,
+          br(),
           uiOutput("scheme_vis"),
           prettyRadioButtons(
             "tree_algo",
@@ -467,36 +461,81 @@ ui <- dashboardPage(
               ),
               selected = "Fruchterman-Reingold"
             ),
-            br(),
+            br()
           ),
           fluidRow(
-            column(width = 6,
-                   actionButton("create_tree",
-                                "Create Tree")),
             column(
               width = 6,
-              align = "center",
-              conditionalPanel(
-                "input.create_tree > 0",
-                downloadButton(
-                  "download_plot",
-                  label = "",
-                  icon = icon("download"),
-                  width = "20px",
-                  style = "margin-top: 6px;"
-                )
+              actionButton("create_tree",
+                           "Create Tree")
+            ),
+            column(
+              width = 6,
+              downloadBttn(
+                "download_plot",
+                style = "simple",
+                label = "",
+                size = "sm"
               )
             )
           ),
           fluidRow(
             br(),
             column(
-              width = 6,
+              width = 12,
               conditionalPanel(
-                "input.create_tree > 0",
-                actionButton(
-                  "send_plot_rep",
-                  "Send Report"
+                "input.create_tree>0",
+                box(
+                  solidHeader = TRUE,
+                  status = "primary",
+                  width = "100%",
+                  fluidRow(
+                    column(
+                      width = 3,
+                      tags$style("#slot_select {margin-top: -25px; margin-left: -5px;}"),
+                      prettyRadioButtons(
+                        "slot_select",
+                        choices = c("Slot 1", "Slot 2", "Slot 3", "Slot 4"),
+                        label = ""
+                      )  
+                    ),
+                    column(2),
+                    column(
+                      width = 5,
+                      align = "right",
+                      uiOutput("slot1_status"),
+                      uiOutput("slot2_status"),
+                      uiOutput("slot3_status"),
+                      uiOutput("slot4_status"),
+                    )
+                  ),
+                  br(),
+                  fluidRow(
+                    column(width = 1),
+                    column(
+                      width = 1,
+                      align = "left",
+                      actionBttn(
+                        "add_slot",
+                        style = "simple",
+                        size = "sm",
+                        icon = icon("plus"),
+                        color = "primary"
+                      )
+                    ),
+                    column(1),
+                    column(
+                      width = 2,
+                      align = "left",
+                      actionBttn(
+                        "delete_slot",
+                        style = "simple",
+                        size = "sm",
+                        icon = icon("trash"),
+                        color = "danger"
+                      )
+                    )
+                  )
                 )
               )
             )
@@ -752,9 +791,9 @@ ui <- dashboardPage(
       ,
       textboxBackColor = "#ffffff"
       ,
-      textboxBorderColor = "transparent"
+      textboxBorderColor = "#000000"
       ,
-      textboxBorderRadius = 10
+      textboxBorderRadius = 5
       ,
       textboxBackColorSelect = "#ffffff"
       ,
@@ -834,7 +873,7 @@ ui <- dashboardPage(
         )
       ),
       
-      # Tab Initialization        ---------------------------------------------
+      # Tab Add Scheme  ----  
       
       tabItem(
         tabName = "init",
@@ -1934,101 +1973,200 @@ ui <- dashboardPage(
             width = 3,
             align = "left",
             br(),
-            HTML(
-              paste(
-                tags$span(style='color: white; font-size: 24px;', 'General'),
-                '<i class="fa-solid fa-square-check fa-lg" style="color: #ffffff; margin-left:10px; position: relative; top: -2px;"></i>'
-              )
-            ),
-            br(),
-            fluidRow(
-              tags$style("#date_general_select .form-control  {height: 28px;position: relative; top: 5px; } .form-group {
-            margin-bottom: 0px;}"),
-              tags$style("#date_general {position: relative; top: 18px; bottom: 0px} .form-group {margin-bottom: 0px;}"),
-              column(
-                width = 3,
-                checkboxInput(
-                  "date_general", 
-                  label = h5("Date", style = "color:white; font-size: 17px; position: relative; top: -13px;"),
-                  value = TRUE
+            box(
+              solidHeader = TRUE,
+              status = "primary",
+              width = 12,
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 24px;', 'General')
                 )
               ),
-              column(
-                width = 7,
-                dateInput(
-                  "date_general_select",
-                  "",
-                  width = "50%"
-                )
-              )
-            ),
-            fluidRow(
-              tags$style("#author_general_select {height: 28px;position: relative; top: -25px;}"),
-              tags$style("#author_general {position: relative; top: -12px; bottom: 0px} .form-group {margin-bottom: 0px;}"),
-              column(
-                width = 3,
-                checkboxInput(
-                  "author_general", 
-                  label = h5("Author", style = "color:white; font-size: 17px; position: relative; top: -43px;"),
-                  value = TRUE
-                )
-              ),
-              column(
-                width = 7,
-                textInput(
-                  "author_general_select",
-                  ""
-                ) 
-              )
-            ),
-            fluidRow(
-              tags$style("#comm_general_select {position: relative; top: -55px; border-radius: 5px}"),
-              tags$style("#comment_general {position: relative; top: -42px; bottom: 0px} .form-group {margin-bottom: 0px;}"),
-              column(
-                width = 3,
-                checkboxInput(
-                  "comment_general", 
-                  label = h5("Comment", style = "color:white; font-size: 17px; position: relative; top: -72px;")
+              br(),
+              fluidRow(
+                tags$style("#date_general_select .form-control {height: 28px; position: relative; right: -22px} "),
+                tags$style("#date_general {margin-top: 17px} .form-group {margin-bottom: 0px;}"),
+                column(
+                  width = 3,
+                  checkboxInput(
+                    "date_general", 
+                    label = h5("Date", style = "color:white; font-size: 17px; margin-top: 16px;"),
+                    value = TRUE
+                  )
+                ),
+                column(
+                  width = 7,
+                  dateInput(
+                    "date_general_select",
+                    "",
+                    width = "50%"
+                  )
                 )
               ),
-              column(
-                width = 7,
-                textAreaInput(
-                  inputId = "comm_general_select",
-                  label = "",
-                  width = "100%",
-                  height = NULL,
-                  cols = NULL,
-                  rows = NULL,
-                  placeholder = NULL,
-                  resize = "vertical"
-                ) 
-              )
-            ),
-            br(),
-            HTML(
-              paste(
-                tags$span(style='color: white; font-size: 20px;', 'Analysis')
-              )
-            ),
-            br(),
-            HTML(
-              paste(
-                tags$span(style='color: white; font-size: 20px;', 'Sample')
+              fluidRow(
+                tags$style("#operator_general_select {height: 28px; margin-top: -15px; position: relative; right: -22px}"),
+                tags$style("#operator_general {margin-top: 0px;}"),
+                column(
+                  width = 3,
+                  checkboxInput(
+                    "operator_general", 
+                    label = h5("Operator", style = "color:white; font-size: 17px; margin-top: -1px;"),
+                    value = TRUE
+                  )
+                ),
+                column(
+                  width = 8,
+                  textInput(
+                    "operator_general_select",
+                    ""
+                  ) 
                 )
-            ),
-            br(),
-            HTML(
-              paste(
-                tags$span(style='color: white; font-size: 20px;', 'Sequencing')
+              ),
+              fluidRow(
+                tags$style("#institute_general_select {height: 28px; margin-top: -15px; position: relative; right: -22px}"),
+                tags$style("#institute_general {margin-top: 0px;}"),
+                column(
+                  width = 3,
+                  checkboxInput(
+                    "institute_general", 
+                    label = h5("Institute", style = "color:white; font-size: 17px; margin-top: -1px;"),
+                    value = TRUE
+                  )
+                ),
+                column(
+                  width = 8,
+                  textInput(
+                    "institute_general_select",
+                    ""
+                  ) 
+                )
+              ),
+              fluidRow(
+                tags$style("#comm_general_select {margin-top: -15px; border-radius: 5px; position: relative; right: -22px}"),
+                tags$style("#comm_general {margin-top: 0px;}"),
+                column(
+                  width = 3,
+                  checkboxInput(
+                    "comm_general", 
+                    label = h5("Comment", style = "color:white; font-size: 17px; margin-top: -1px;")
+                  )
+                ),
+                column(
+                  width = 8,
+                  textAreaInput(
+                    inputId = "comm_general_select",
+                    label = "",
+                    width = "100%",
+                    height = "60px",
+                    cols = NULL,
+                    rows = NULL,
+                    placeholder = NULL,
+                    resize = "vertical"
+                  ) 
+                )
               )
             ),
             br(),
+            box(
+              solidHeader = TRUE,
+              status = "primary",
+              width = 12,
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 24px;', 'Analysis')
+                )
+              ),
+              br(),
+              fluidRow(
+                tags$style(".choosechannel .btn {height: 31px;}"),
+                tags$style("#cgmlst_analysis {margin-top: 19px}"),
+                column(
+                  width = 3,
+                  checkboxInput(
+                    "cgmlst_analysis",
+                    label = h5("Scheme", style = "color:white; font-size: 17px; margin-top: 18px"),
+                    value = TRUE
+                  )
+                ),
+                column(
+                  width = 8,
+                  align = "right",
+                  div(
+                    class = "choosechannel",
+                    uiOutput("cgmlst_select_analysis")
+                  )
+                )
+              ),
+              fluidRow(
+                tags$style("#tree_analysis {margin-top: 0px}"),
+                column(
+                  width = 3,
+                  checkboxInput(
+                    "tree_analysis",
+                    label = h5("Tree", style = "color:white; font-size: 17px; margin-top: -1px")
+                  )
+                ),
+                column(
+                  width = 8,
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 15px; position: relative; top: 9px; right: -23px', 'Tree Algorithm & Layout Info')
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                tags$style("#kma_analysis {margin-top: 0px}"),
+                column(
+                  width = 3,
+                  checkboxInput(
+                    "kma_analysis",
+                    label = h5("Typing", style = "color:white; font-size: 17px; margin-top: -1px")
+                  )
+                ),
+                column(
+                  width = 8,
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 15px; position: relative; top: 9px; right: -23px', 'Typing Algorithm Parameters')
+                    )
+                  )
+                )
+              )
+            ),
+            br(),
+          ),
+          column(1),
+          column(
+            width = 2,
+            br(),
+            tags$style("#slot1_legend {margin-top: 17px;}"),
+            tags$style(".choosechannel .btn {height: 31px;}"),
+            uiOutput("slot1_box"),
+            uiOutput("slot2_box"),
+          ),
+          column(
+            width = 2,
+            br(),
+            tags$style(".choosechannel .btn {height: 31px;}"),
+            uiOutput("slot3_box"),
+            uiOutput("slot4_box")
+          ),
+          column(1),
+          column(
+            width = 2,
+            br(),
+            uiOutput("save_rep"),
+          )
+        ),
+        hr(), 
+        fluidRow(
+          column(
+            width = 2,
             uiOutput("include_general"),
             uiOutput("include_analysis"),
             uiOutput("include_sampleinfo"),
             uiOutput("include_sequencing")
-            
           ),
           column(
             width = 3,
@@ -2042,7 +2180,7 @@ ui <- dashboardPage(
               width = 12,
               title = h4(p("General"), style = "color:white; margin-top: -20px; font-size: 20px"),
               conditionalPanel(
-                "input.send_plot_rep > 0",
+                "input.add_slot > 0",
                 HTML(
                   paste(
                     "<span style='color: white; font-size: 15px;'>",
@@ -2258,26 +2396,6 @@ ui <- dashboardPage(
                 )
               )
             )
-          ),
-          column(
-            width = 1,
-            align = "center",
-            h3(p("Preselect Settings"), style = "color:white"),
-            br(),
-            br(),
-            br(),
-            uiOutput("selProfile"),
-            br(),
-            hr(),
-            br(),
-            textInput(
-              inputId = "rep_profilename",
-              label = "Save current as",
-              width = "800%"
-            ),
-            br(),
-            actionButton(inputId = "save_rep_profile",
-                         label = "Save New Profile")
           )
         )
         
@@ -2465,7 +2583,7 @@ server <- function(input, output, session) {
                                    allowColEdit = FALSE,
                                    allowReadOnly = FALSE) %>%
                   hot_rows(rowHeights = 30,
-                           fixedRowsTop = 1)
+                           fixedRowsTop = 0)
               })
             } else {
               output$db_entries <- renderRHandsontable({
@@ -2483,7 +2601,7 @@ server <- function(input, output, session) {
                                    allowColEdit = FALSE,
                                    allowReadOnly = FALSE) %>%
                   hot_rows(rowHeights = 30,
-                           fixedRowsTop = 1)
+                           fixedRowsTop = 0)
               })
             }
           } else {
@@ -2538,7 +2656,7 @@ server <- function(input, output, session) {
                                    allowColEdit = FALSE,
                                    allowReadOnly = FALSE) %>%
                   hot_rows(rowHeights = 30,
-                           fixedRowsTop = 1)
+                           fixedRowsTop = 0)
               })
             }
           }
@@ -3153,6 +3271,41 @@ server <- function(input, output, session) {
   
   # Visualization   ---------------------------------------------------------
   
+  ## Render Slot Allocation Elements ----
+  
+  output$slot1_status <- renderUI({
+    if(is.null(plot_loc$slot1_getname)) {
+      h5("Empty", style = "color:white; margin-top: 6px")
+    } else {
+        h5(plot_loc$slot1_getname, style = "color:white; margin-top: 6px")
+      }
+  })
+  
+  output$slot2_status <- renderUI({
+    if(is.null(plot_loc$slot2_getname)) {
+      h5("Empty", style = "color:white; margin-top: -2px")
+    } else {
+      h5(plot_loc$slot2_getname, style = "color:white; margin-top: -2px")
+    }
+  })
+  
+  output$slot3_status <- renderUI({
+    if(is.null(plot_loc$slot3_getname)) {
+      h5("Empty", style = "color:white; margin-top: -2px")
+    } else {
+      h5(plot_loc$slot3_getname, style = "color:white; margin-top: -2px")
+    }
+  })
+  
+  output$slot4_status <- renderUI({
+    if(is.null(plot_loc$slot4_getname)) {
+      h5("Empty", style = "color:white; margin-top: -2px")
+    } else {
+      h5(plot_loc$slot4_getname, style = "color:white; margin-top: -2px")
+    }
+  })
+  
+  # Plot Reactive
   plot_loc <- reactiveValues(cluster = NULL, metadata = list())
   
   plot_input <- reactive({
@@ -3631,11 +3784,261 @@ server <- function(input, output, session) {
   # Report -------------------------------------------------------------
   
   
+  ## Report UI Elements ----
+  
+  output$cgmlst_select_analysis <- renderUI({
+    pickerInput(
+      "cgmlst_select_analysis",
+      label = "",
+      choices = DF1$schemeinfo[,1][DF1$schemeinfo[,1] != ""],
+      selected = DF1$schemeinfo[,1][DF1$schemeinfo[,1] != ""],
+      options = list(
+        `actions-box` = TRUE,
+        size = 10,
+        style = "background-color: white; border-radius: 5px;"
+      ),
+      multiple = TRUE,
+      width = "190px"
+    )
+  })
+  
+  # Render Profile Selection Box
+  
+  output$save_rep <- renderUI({
+    box(
+      solidHeader = TRUE,
+      status = "primary",
+      width = "100%",
+      column(
+        width = 12,
+        align = "left",
+        HTML(
+          paste(
+            tags$span(style='color: white; font-size: 24px;', 'Save Report')
+          )
+        ),
+        br(), br(),
+        textInput(
+          inputId = "report_dir",
+          label = h5("Open after download", style = "color:white; font-size: 15px; margin-top: 0px; margin-bottom: 0px"),
+          placeholder = paste0(getwd())
+        ),
+        br(),
+        textInput(
+          inputId = "rep_name",
+          label = h5("Name", style = "color:white; font-size: 15px; margin-top: 0px; margin-bottom: 0px"),
+          placeholder = paste0("Report_", Sys.Date())
+        ),
+        br(),
+        checkboxInput(
+          "open_report", 
+          label = h5("Open after download", style = "color:white; font-size: 15px; margin-top: 2px")
+        ),
+        column(
+          width = 12,
+          align = "center",
+          br(),
+          actionBttn(
+            "save_report",
+            style = "simple",
+            label = "Download",
+            icon = icon("download"),
+            size = "sm",
+            color = "primary" 
+          ),
+          br()
+        )
+      )
+    )
+  })
+  
+  ### Render Slot Boxes ----
+  
+  observe({
+    if(is.null(plot_loc$slot1_getname)) {
+      output$slot1_box <- NULL
+    } else {
+      output$slot1_box <- renderUI({
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          HTML(
+            paste(
+              tags$span(style='color: white; font-size: 24px;', 
+                        paste('Slot 1 -', plot_loc$slot1_getname))
+            )
+          ),
+          br(),
+          checkboxInput(
+            "slot1_legend", 
+            label = h5("Include entry legend", style = "color:white; font-size: 17px; margin-top: 15px"),
+            value = TRUE
+          ),
+          div(
+            class = "choosechannel",
+            pickerInput(
+              inputId = "slot1_legend_sel",
+              label = h4("Display metadata", style = "color:white; margin-bottom: 5px; font-size: 14px"),
+              choices = names(select(DF1$data, 1:12)),
+              selected = names(select(DF1$data, 1:12)),
+              options = list(
+                `actions-box` = TRUE,
+                size = 10,
+                style = "background-color: white; border-radius: 5px;"
+              ),
+              multiple = TRUE
+            )
+          )
+        )
+      })
+    }
+    
+    if(is.null(plot_loc$slot2_getname)) {
+      output$slot2_box <- NULL
+    } else {
+      output$slot2_box <- renderUI({
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          HTML(
+            paste(
+              tags$span(style='color: white; font-size: 24px;', 
+                        paste('Slot 2 -', plot_loc$slot2_getname))
+            )
+          ),
+          br(),
+          checkboxInput(
+            "date_general", 
+            label = h5("Include entry legend", style = "color:white; font-size: 17px; margin-top: 15px;"),
+            value = TRUE
+          ),
+          div(
+            class = "choosechannel",
+            pickerInput(
+              inputId = "slot2_legend",
+              label = h4("Display metadata", style = "color:white; margin-bottom: 5px; font-size: 14px"),
+              choices = names(select(DF1$data, 1:12)),
+              selected = names(select(DF1$data, 1:12)),
+              options = list(
+                `actions-box` = TRUE,
+                size = 10,
+                style = "background-color: white; border-radius: 5px;"
+              ),
+              multiple = TRUE
+            )
+          )
+        )
+      })
+    }
+    
+    if(is.null(plot_loc$slot3_getname)) {
+      output$slot3_box <- NULL
+    } else {
+      output$slot3_box <- renderUI({
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          HTML(
+            paste(
+              tags$span(style='color: white; font-size: 24px;', 
+                        paste('Slot 3 -', plot_loc$slot3_getname))
+            )
+          ),
+          br(),
+          checkboxInput(
+            "date_general", 
+            label = h5("Include entry legend", style = "color:white; font-size: 17px; margin-top: 15px;"),
+            value = TRUE
+          ),
+          div(
+            class = "choosechannel",
+            pickerInput(
+              inputId = "slot3_legend",
+              label = h4("Display metadata", style = "color:white; margin-bottom: 5px; font-size: 14px"),
+              choices = names(select(DF1$data, 1:12)),
+              selected = names(select(DF1$data, 1:12)),
+              options = list(
+                `actions-box` = TRUE,
+                size = 10,
+                style = "background-color: white; border-radius: 5px;"
+              ),
+              multiple = TRUE
+            )
+          )
+        )
+      })
+    }
+    
+    if(is.null(plot_loc$slot4_getname)) {
+      output$slot4_box <- NULL
+    } else {
+      output$slot4_box <- renderUI({
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          br(),
+          HTML(
+            paste(
+              tags$span(style='color: white; font-size: 24px;', 
+                        paste('Slot 4 -', plot_loc$slot4_getname))
+            )
+          ),
+          br(),
+          checkboxInput(
+            "date_general", 
+            label = h5("Include entry legend", style = "color:white; font-size: 17px; margin-top: 15px;"),
+            value = TRUE
+          ),
+          div(
+            class = "choosechannel",
+            pickerInput(
+              inputId = "slot4_legend",
+              label = h4("Display metadata", style = "color:white; margin-bottom: 5px; font-size: 14px"),
+              choices = names(select(DF1$data, 1:12)),
+              selected = names(select(DF1$data, 1:12)),
+              options = list(
+                `actions-box` = TRUE,
+                size = 10,
+                style = "background-color: white; border-radius: 5px;"
+              ),
+              multiple = TRUE
+            )
+          )
+        )
+      })
+    }
+  })
+  
+  
   ## Send Plot to Report ----
   
-  observeEvent(input$send_plot_rep, {
+  # Add to Slot
+  observeEvent(input$add_slot, {
+    showModal(
+      modalDialog(
+        paste0(
+         "Adding plot to ", input$slot_select, ". Name the slot content and confirm (max. 10 characters)."
+        ),
+        textInput(
+          "slot_name",
+          label = "",
+          placeholder = "Plot name"
+        ),
+        title = "Add to Slot",
+        fade = TRUE,
+        easyClose = TRUE,
+        footer = tagList(
+          modalButton("Cancel"),
+          actionButton("conf_slot", "Confirm")
+        )
+      )
+    )
     
-    jpeg(paste0(getwd(), "/Report", "/plot.jpeg"), width = 1365, height = 600,
+    jpeg(paste0(getwd(), "/Report.jpeg"), width = 1365, height = 600,
          quality = 100)
     print(plot_input())
     dev.off()
@@ -3644,6 +4047,49 @@ server <- function(input, output, session) {
     
   })
   
+  observeEvent(input$conf_slot, {
+    if(input$slot_select == "Slot 1") {
+      plot_loc$slot1_getname <- substr(input$slot_name, 1, 10)
+    } else if(input$slot_select == "Slot 2") {
+      plot_loc$slot2_getname <- substr(input$slot_name, 1, 10)
+    } else if(input$slot_select == "Slot 3") {
+      plot_loc$slot3_getname <- substr(input$slot_name, 1, 10)
+    } else if(input$slot_select == "Slot 4") {
+      plot_loc$slot4_getname <- substr(input$slot_name, 1, 10)
+    }
+    removeModal()
+  })
+  
+  # Delete Slot
+  observeEvent(input$delete_slot, {
+    showModal(
+      modalDialog(
+        paste0(
+          "Delete content of ", input$slot_select, ". Name the slot content and confirm."
+        ),
+        title = "Delete Slot",
+        fade = TRUE,
+        easyClose = TRUE,
+        footer = tagList(
+          modalButton("Cancel"),
+          actionButton("conf_slot_del", "Delete")
+        )
+      )
+    )
+  })
+  
+  observeEvent(input$conf_slot_del, {
+    if(input$slot_select == "Slot 1") {
+      plot_loc$slot1_getname <- NULL
+    } else if(input$slot_select == "Slot 2") {
+      plot_loc$slot2_getname <- NULL
+    } else if(input$slot_select == "Slot 3") {
+      plot_loc$slot3_getname <- NULL
+    } else if(input$slot_select == "Slot 4") {
+      plot_loc$slot4_getname <- NULL
+    }
+    removeModal()
+  })
   
   # Create a reactiveValues to store selected elements and their content
   elements_data <- reactiveValues(plot = FALSE)
@@ -3833,7 +4279,7 @@ server <- function(input, output, session) {
   output$selProfile <- renderUI(
     selectInput(
       inputId = "sel_rep_profile",
-      label = "Select Report Profile",
+      label = "Select report profile",
       choices = append(
         c("None"),
         gsub(".*/(.*).rds", "\\1", rep_profile$profile_names)
@@ -4478,7 +4924,7 @@ server <- function(input, output, session) {
         rhandsontable(typing_reactive$table, height = 500) %>%
           hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
           hot_cols(columnSorting = TRUE) %>%
-          hot_rows(rowHeights = 25, fixedRowsTop = 1) %>%
+          hot_rows(rowHeights = 25) %>%
           hot_col(1,
                   halign = "htCenter",
                   valign = "htTop",
