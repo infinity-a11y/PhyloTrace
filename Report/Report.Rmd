@@ -1,0 +1,76 @@
+---
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
+library(dplyr)
+library(kableExtra)
+```
+
+
+```{r include=FALSE}
+# Load the variables from the file
+my_loaded_variables <- readRDS(paste0(getwd(), "/selected_elements.rds"))
+```
+
+```{=html}
+<style type="text/css">
+  .figure {
+    float: right;
+    text-align: center;
+  }
+</style>
+```
+
+```{r pressure, echo=FALSE, fig.align = "right", out.width = '35%', out.extra='style="float: right; margin-right: 10px; margin-top: 20px"'}
+knitr::include_graphics("/home/marian/Documents/Projects/Masterthesis/PhyloTree/www/PhyloTree.jpg")
+```
+
+## cgMLST Report
+
+
+`r my_loaded_variables$general_date`
+
+`r my_loaded_variables$general_operator` 
+
+`r my_loaded_variables$general_institute` 
+
+
+```{r echo=FALSE}
+#if(my_loaded_variables$plot) {
+#  knitr::include_graphics("/home/marian/Documents/Projects/Masterthesis/PhyloTree/Report/plot.jpeg")
+#}
+```
+
+
+```{r echo=FALSE}
+#kable(sample_df) %>%
+#  kable_styling(bootstrap_options = "striped", full_width = F, position = "left") %>%
+#  pack_rows("Sample Information", 1, 1, label_row_css = "background-color: #666; color: #fff;")
+```
+
+***
+
+### Comment
+
+`r my_loaded_variables$general_comm`
+
+### cgMLST Scheme
+
+***
+
+### Analysis
+
+  |  
+------------- | -------------
+Tree construction | `r my_loaded_variables$analysis_tree`
+Typing parameter | `r my_loaded_variables$analysis_kma`
+
+***
+
+

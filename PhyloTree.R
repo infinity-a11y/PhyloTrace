@@ -321,7 +321,7 @@ sel_countries <-
     "United Kingdom",
     "United States of America")
 
-################ User Interface ################
+# User Interface ----
 
 ui <- dashboardPage(
   # Title
@@ -329,7 +329,7 @@ ui <- dashboardPage(
     src = "PhyloTree.jpg", width = 190
   ))),
   
-  # Sidebar ----
+  ## Sidebar ----
   dashboardSidebar(
     tags$style("label{color: white;}"),
     tags$style("file.select{background-color: white;}"),
@@ -413,7 +413,7 @@ ui <- dashboardPage(
           textInput(
             inputId = "rep_profilename",
             label = "Save current settings as",
-            width = "800%"
+            width = "100%"
           ),
           br()
         ),
@@ -812,7 +812,7 @@ ui <- dashboardPage(
     
     
     tabItems(
-      # Tab Database        ---------------------------------------------
+      ## Tab Database        ---------------------------------------------
       
       tabItem(
         tabName = "database",
@@ -873,7 +873,7 @@ ui <- dashboardPage(
         )
       ),
       
-      # Tab Add Scheme  ----  
+      ## Tab Add Scheme  ----  
       
       tabItem(
         tabName = "init",
@@ -975,7 +975,7 @@ ui <- dashboardPage(
       
       
       
-      # Tab Allelic Typing ----------------------------------------------
+      ## Tab Allelic Typing ----------------------------------------------
       
       
       tabItem(
@@ -1225,7 +1225,7 @@ ui <- dashboardPage(
       ),
       
       
-      # Tab Visualization -------------------------------------------------------
+      ## Tab Visualization -------------------------------------------------------
       
       
       tabItem(
@@ -1955,7 +1955,7 @@ ui <- dashboardPage(
         )
       ),
       
-      # Tab Report --------------------------------------------------------------
+      ## Tab Report --------------------------------------------------------------
       
       
       tabItem(
@@ -2158,263 +2158,21 @@ ui <- dashboardPage(
             br(),
             uiOutput("save_rep"),
           )
-        ),
-        hr(), 
-        fluidRow(
-          column(
-            width = 2,
-            uiOutput("include_general"),
-            uiOutput("include_analysis"),
-            uiOutput("include_sampleinfo"),
-            uiOutput("include_sequencing")
-          ),
-          column(
-            width = 3,
-            align = 'left',
-            h3(p("Displayed Elements"), style = "color:white"),
-            br(),
-            br(),
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = 12,
-              title = h4(p("General"), style = "color:white; margin-top: -20px; font-size: 20px"),
-              conditionalPanel(
-                "input.add_slot > 0",
-                HTML(
-                  paste(
-                    "<span style='color: white; font-size: 15px;'>",
-                    '<i class="fa-solid fa-check" style="color: #ffffff;"></i> Plot included '
-                  )
-                ),
-                br(), br(),
-              ),
-              conditionalPanel(
-                "input.include_general.includes('Analysis Date')",
-                dateInput(
-                  inputId = "report_date",
-                  label = h5("Date", style = "color:white; margin-bottom: 0px;"),
-                  value = NULL,
-                  width = "40%"
-                )
-              )
-              ,
-              conditionalPanel(
-                "input.include_general.includes('Author')",
-                textInput(
-                  inputId = "author",
-                  label = h5("Name of Author", style = "color:white; margin-bottom: 0px;"),
-                  placeholder = "Institute/Working group/Responsible person"
-                )
-              ),
-              conditionalPanel(
-                "input.include_general.includes('Experiment Info')",
-                textAreaInput(
-                  inputId = "exp_info",
-                  label = h5("Experiment Information", style = "color:white; margin-bottom: 0px;"),
-                  value = "Comments about Experiment ...",
-                  width = "100%",
-                  height = NULL,
-                  cols = NULL,
-                  rows = NULL,
-                  placeholder = NULL,
-                  resize = "vertical"
-                )
-              )
-            )
-            ,
-            br(),
-            br(),
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              title = h4(p("Sample"), style = "color:white"),
-              width = 12,
-              conditionalPanel(
-                "input.include_sampleinfo.includes('Sampling Date')",
-                dateInput(
-                  inputId = "report_sampledate",
-                  label = "Sampling Date",
-                  width = "40%",
-                  value = NULL
-                )
-              ),
-              conditionalPanel(
-                "input.include_sampleinfo.includes('Sampling Location')",
-                textInput(
-                  inputId = "sample_location",
-                  label = "Location",
-                  width = "100%",
-                  placeholder = "Place of sample collection (Country, City, Hospital, etc.)"
-                )
-              ),
-              conditionalPanel(
-                "input.include_sampleinfo.includes('Taken by (Name)')",
-                textInput(
-                  inputId = "sampled_by",
-                  label = "Sample acquired by",
-                  width = "100%",
-                  placeholder = "Institute/Working group/Responsible person"
-                )
-              ),
-              conditionalPanel(
-                "input.include_sampleinfo.includes('Comment')",
-                textAreaInput(
-                  inputId = "sample_info",
-                  label = "Comment",
-                  value = "Comments about sample ...",
-                  width = "100%",
-                  height = NULL,
-                  cols = NULL,
-                  rows = NULL,
-                  placeholder = NULL,
-                  resize = "vertical"
-                )
-              )
-            )
-          ),
-          column(
-            width = 3,
-            align = "left",
-            br(),
-            br(),
-            br(),
-            br(),
-            br(),
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              title = h4(p("Sequencing"), style = "color:white"),
-              width = 12,
-              conditionalPanel(
-                "input.include_sequencing.includes('Device')",
-                selectInput(
-                  inputId = "select_device",
-                  label = "Sequencing Device",
-                  choices = c("MinION Mk1B", "GridION"),
-                  selected = "MinION Mk1B",
-                  width = "50%"
-                )
-              ),
-              conditionalPanel(
-                "input.include_sequencing.includes('Flow Cell')",
-                selectInput(
-                  inputId = "select_flowcell",
-                  label = "Flow Cell",
-                  choices = c("R10.4", "R8.1"),
-                  selected = "R10.5",
-                  width = "50%"
-                )
-              ),
-              conditionalPanel(
-                "input.include_sequencing.includes('Run Start')",
-                dateInput(
-                  inputId = "report_runstart",
-                  label = "Run Start",
-                  width = "40%",
-                  value = NULL
-                )
-              ),
-              conditionalPanel(
-                "input.include_sequencing.includes('Run Finished')",
-                dateInput(
-                  inputId = "report_runfinished",
-                  label = "Run Finished",
-                  width = "40%",
-                  value = NULL
-                )
-              ),
-              conditionalPanel(
-                "input.include_sequencing.includes('Operator')",
-                textInput(
-                  inputId = "report_seqoperator",
-                  label = "Operator",
-                  width = "100%",
-                  placeholder = "Responsible person"
-                )
-              ),
-              conditionalPanel(
-                "input.include_sequencing.includes('Output Size')",
-                br(),
-                h5(p("Output Size"), style = "color:white"),
-                br()
-              ),
-              conditionalPanel(
-                "input.include_sequencing.includes('Comment')",
-                textAreaInput(
-                  inputId = "report_seqcomment",
-                  label = "Comments",
-                  value = "Comments about sequencing/library preparation ...",
-                  width = "100%",
-                  height = NULL,
-                  cols = NULL,
-                  rows = NULL,
-                  placeholder = NULL,
-                  resize = "vertical"
-                )
-              )
-            ),
-            hr(),
-            br(),
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              title = h4(p("Analysis"), style = "color:white"),
-              width = 12,
-              conditionalPanel(
-                "input.include_analysis.includes('Analysis Date')",
-                dateInput(
-                  inputId = "report_analysisdate",
-                  label = "Analysis Date",
-                  width = "40%",
-                  value = NULL
-                )
-              ),
-              conditionalPanel(
-                "input.include_analysis.includes('Assembly Parameters')",
-                br(),
-                h5(p("Assembly Parameters"), style = "color:white"),
-                br(),
-              ),
-              conditionalPanel(
-                "input.include_analysis.includes('cgMLST Scheme')",
-                h5(p("cgMLST Scheme"), style = "color:white"),
-                br()
-              ),
-              conditionalPanel(
-                "input.include_analysis.includes('Comment')",
-                textAreaInput(
-                  inputId = "report_analysiscomment",
-                  label = "Comments",
-                  value = "Comments about cgMLST Analysis ...",
-                  width = "100%",
-                  height = NULL,
-                  cols = NULL,
-                  rows = NULL,
-                  placeholder = NULL,
-                  resize = "vertical"
-                )
-              )
-            )
-          )
         )
-        
       )
-      
     ) # End tabItems
-    
   ) # End dashboardPage
-  
 ) # end UI
 
 
 
-################### Server ###################
+# Server ----
 
 server <- function(input, output, session) {
+  
   set.seed(1)
   
-  # Database       -------------------------------------------------------
+  ## Database ----
   DF1 <- reactiveValues()
   database <- reactiveValues()
   
@@ -2543,7 +2301,7 @@ server <- function(input, output, session) {
       output$db_line <- renderUI(hr())
       
       
-      #### Render Entry Data Table----
+      #### Render Entry Data Table ----
       
       output$db_entries_table <- renderUI({
         addSpinner(
@@ -2668,7 +2426,6 @@ server <- function(input, output, session) {
         output$db_entries_table <- NULL
       }
       
-      
       ### Render Allele Differences as Highlights ----
       
       
@@ -2723,7 +2480,8 @@ server <- function(input, output, session) {
                    align = "center",
                    br(),
                    uiOutput("del_bttn"))
-          )
+          ),
+          br()
         )
       })
       
@@ -2735,8 +2493,10 @@ server <- function(input, output, session) {
           column(
             width = 12,
             align = "center",
-            uiOutput("compare_select")
-          )
+            uiOutput("compare_select"),
+            br()
+          ),
+          br()
         )
       })
       
@@ -2942,7 +2702,7 @@ server <- function(input, output, session) {
   
   
   
-  # Download cgMLST       -------------------------------------------------------
+  ## Download cgMLST ----
   
   myReactives <- reactiveValues()
   
@@ -3258,7 +3018,7 @@ server <- function(input, output, session) {
     scheme_overview
   })
   
-  # Display Target Table  --------------------------------------------------
+  ### Display Target Table ----
   
   output$cgmlst_targets <- renderDataTable({
     targets_overview <- myReactives$target_table
@@ -3269,9 +3029,9 @@ server <- function(input, output, session) {
                  )))
   
   
-  # Visualization   ---------------------------------------------------------
+  ## Visualization ----
   
-  ## Render Slot Allocation Elements ----
+  ### Render Slot Allocation Elements ----
   
   output$slot1_status <- renderUI({
     if(is.null(plot_loc$slot1_getname)) {
@@ -3714,7 +3474,7 @@ server <- function(input, output, session) {
   })
   
   
-  # Save Tree Plot ---------------------------------------------------------
+  ### Save Tree Plot ----
   
   # Define download handler to save the plot
   output$download_plot <- downloadHandler(
@@ -3732,7 +3492,7 @@ server <- function(input, output, session) {
     }
   )
   
-  # Cluster Analysis ---------------------------------------------------------
+  ### Cluster Analysis ----
   
   observeEvent(input$cluster_start, {
     # Create a function to calculate total within-cluster sum of squares
@@ -3781,10 +3541,10 @@ server <- function(input, output, session) {
     
   })
   
-  # Report -------------------------------------------------------------
+  ## Report ----
   
   
-  ## Report UI Elements ----
+  ### Report UI Elements ----
   
   output$cgmlst_select_analysis <- renderUI({
     pickerInput(
@@ -3852,7 +3612,7 @@ server <- function(input, output, session) {
     )
   })
   
-  ### Render Slot Boxes ----
+  #### Render Slot Boxes ----
   
   observe({
     if(is.null(plot_loc$slot1_getname)) {
@@ -3980,7 +3740,6 @@ server <- function(input, output, session) {
           solidHeader = TRUE,
           status = "primary",
           width = "100%",
-          br(),
           HTML(
             paste(
               tags$span(style='color: white; font-size: 24px;', 
@@ -4014,7 +3773,7 @@ server <- function(input, output, session) {
   })
   
   
-  ## Send Plot to Report ----
+  ### Send Plot to Report ----
   
   # Add to Slot
   observeEvent(input$add_slot, {
@@ -4037,25 +3796,54 @@ server <- function(input, output, session) {
         )
       )
     )
-    
-    jpeg(paste0(getwd(), "/Report.jpeg"), width = 1365, height = 600,
-         quality = 100)
-    print(plot_input())
-    dev.off()
-    
-    elements_data$plot <- TRUE
-    
   })
   
   observeEvent(input$conf_slot, {
     if(input$slot_select == "Slot 1") {
-      plot_loc$slot1_getname <- substr(input$slot_name, 1, 10)
+      if (length(input$slot_name) > 0) {
+        plot_loc$slot1_getname <- substr(input$slot_name, 1, 10)
+      } else {
+        plot_loc$slot1_getname <- "Slot 1"
+      }
+      jpeg(paste0(getwd(), "/Report/slot1_plot.jpeg"), width = 1365, height = 600,
+           quality = 100)
+      print(plot_input())
+      dev.off()
+      elements_data$slot1_include <- TRUE
     } else if(input$slot_select == "Slot 2") {
-      plot_loc$slot2_getname <- substr(input$slot_name, 1, 10)
+      if (length(input$slot_name) > 0) {
+        plot_loc$slot2_getname <- substr(input$slot_name, 1, 10)
+      } else {
+        plot_loc$slot2_getname <- "Slot 2"
+      }
+      jpeg(paste0(getwd(), "/Report/slot2_plot.jpeg"), width = 1365, height = 600,
+           quality = 100)
+      print(plot_input())
+      dev.off()
+      elements_data$slot2_include <- TRUE
     } else if(input$slot_select == "Slot 3") {
+      if (length(input$slot_name) > 0) {
+        plot_loc$slot3_getname <- substr(input$slot_name, 1, 10)
+      } else {
+        plot_loc$slot3_getname <- "Slot 3"
+      }
       plot_loc$slot3_getname <- substr(input$slot_name, 1, 10)
+      jpeg(paste0(getwd(), "/Report/slot3_plot.jpeg"), width = 1365, height = 600,
+           quality = 100)
+      print(plot_input())
+      dev.off()
+      elements_data$slot3_include <- TRUE
     } else if(input$slot_select == "Slot 4") {
-      plot_loc$slot4_getname <- substr(input$slot_name, 1, 10)
+      if (length(input$slot_name) > 0) {
+        plot_loc$slot4_getname <- substr(input$slot_name, 1, 10)
+      } else {
+        plot_loc$slot4_getname <- "Slot 4"
+      }
+      jpeg(paste0(getwd(), "/Report/slot4_plot.jpeg"), width = 1365, height = 600,
+           quality = 100)
+      print(plot_input())
+      dev.off()
+      elements_data$slot4_include <- TRUE
     }
     removeModal()
   })
@@ -4091,144 +3879,95 @@ server <- function(input, output, session) {
     removeModal()
   })
   
+  
+  
+  ### Save Report ----
+  
   # Create a reactiveValues to store selected elements and their content
-  elements_data <- reactiveValues(plot = FALSE)
+  elements_data <- reactiveValues(slot1_include = FALSE, slot2_include = FALSE, 
+                                  slot3_include = FALSE, slot4_include = FALSE)
+  
+  #### Get Report values ----
   
   observe({
-    selected_general <<- input$include_general
-    selected_sampleinfo <<- input$include_sampleinfo
-    selected_sequencing <<- input$include_sequencing
-    selected_analysis <<- input$include_analysis
-    
-    # Store content for each selected element in reactiveValues
-    if ('Analysis Date' %in% selected_general) {
-      elements_data$general_date <- as.character(input$report_date)
+    if(input$date_general == TRUE) {
+      elements_data$general_date <- input$date_general_select
     } else {
       elements_data$general_date <- NULL
     }
     
-    if ('Author' %in% selected_general) {
-      elements_data$general_author <- input$author
+    if(input$operator_general == TRUE) {
+      elements_data$general_operator <- input$operator_general_select
     } else {
-      elements_data$general_author <- NULL
+      elements_data$general_operator <- NULL
     }
     
-    if ('Experiment Info' %in% selected_general) {
-      elements_data$general_com <- input$exp_info
+    if(input$institute_general == TRUE) {
+      elements_data$general_institute <- input$institute_general_select
     } else {
-      elements_data$general_com <- NULL
+      elements_data$general_institute <- NULL
     }
     
-    if ('Sampling Date' %in% selected_sampleinfo) {
-      elements_data$sample_date <- as.character(input$report_sampledate)
+    if(input$comm_general == TRUE) {
+      elements_data$general_comm <- input$comm_general_select
     } else {
-      elements_data$sample_date <- NULL
+      elements_data$general_comm <- NULL
     }
     
-    if ('Sampling Location' %in% selected_sampleinfo) {
-      elements_data$sample_loc <- input$sample_location
+    if(input$cgmlst_analysis == TRUE) {
+      elements_data$analysis_cgmlst <- input$cgmlst_select_analysis
     } else {
-      elements_data$sample_loc <- NULL
+      elements_data$analysis_cgmlst <- NULL
     }
     
-    if ('Taken by (Name)' %in% selected_sampleinfo) {
-      elements_data$sample_op <- input$sampled_by
+    if(input$tree_analysis == TRUE) {
+      elements_data$analysis_tree <- TRUE
     } else {
-      elements_data$sample_op <- NULL
+      elements_data$analysis_tree <- NULL
     }
     
-    if ('Comment' %in% selected_sampleinfo) {
-      elements_data$sample_com <- input$sample_info
+    if(input$kma_analysis == TRUE) {
+      elements_data$analysis_kma <- TRUE
     } else {
-      elements_data$sample_com <- NULL
+      elements_data$analysis_kma <- NULL
     }
-    
-    if ('Device' %in% selected_sequencing) {
-      elements_data$seq_device <- input$select_device
-    } else {
-      elements_data$seq_device <- NULL
-    }
-    
-    if ('Flow Cell' %in% selected_sequencing) {
-      elements_data$seq_flowcell <- input$select_flowcell
-    } else {
-      elements_data$seq_flowcell <- NULL
-    }
-    
-    if ('Run Start' %in% selected_sequencing) {
-      elements_data$seq_start <- as.character(input$report_runstart)
-    } else {
-      elements_data$seq_start <- NULL
-    }
-    
-    if ('Run Finished' %in% selected_sequencing) {
-      elements_data$seq_end <- as.character(input$report_runfinished)
-    } else {
-      elements_data$seq_end <- NULL
-    }
-    
-    if ('Operator' %in% selected_sequencing) {
-      elements_data$seq_op <- input$report_seqoperator
-    } else {
-      elements_data$seq_op <- NULL
-    }
-    
-    if ('Comment' %in% selected_sequencing) {
-      elements_data$seq_com <- input$report_seqcomment
-    } else {
-      elements_data$seq_com <- NULL
-    }
-    
-    if ('Analysis Date' %in% selected_analysis) {
-      elements_data$ana_date <- input$report_analysisdate
-    } else {
-      elements_data$ana_date <- NULL
-    }
-    
-    if ('Comment' %in% selected_analysis) {
-      elements_data$ana_com <- input$report_analysiscomment
-    } else {
-      elements_data$ana_com <- NULL
-    }
-    
   })
   
-  # Generate the RDS file when the "Save Report" button is clicked
+  #### Event Save Report ----
+  
   observeEvent(input$save_report, {
     # Filter and save data for the selected elements
     selected_data <- list(
       general_date = elements_data$general_date,
-      general_author = elements_data$general_author,
-      general_com = elements_data$general_com,
-      sample_date = elements_data$sample_date,
-      sample_loc = elements_data$sample_loc,
-      sample_op = elements_data$sample_op,
-      sample_com = elements_data$sample_com,
-      seq_device = elements_data$seq_device,
-      seq_flowcell = elements_data$seq_flowcell,
-      seq_start = elements_data$seq_start,
-      seq_end = elements_data$seq_end,
-      seq_op = elements_data$seq_op,
-      seq_com = elements_data$seq_com,
-      ana_date = elements_data$ana_date,
-      ana_com = elements_data$ana_com,
-      plot = elements_data$plot
+      general_operator = elements_data$general_operator,
+      general_institute = elements_data$general_institute,
+      general_comm = elements_data$general_comm,
+      analysis_cgmlst = elements_data$analysis_cgmlst,
+      analysis_tree = elements_data$analysis_tree,
+      analysis_kma = elements_data$analysis_kma,
+      slot1 = elements_data$slot1_include,
+      slot2 = elements_data$slot2_include,
+      slot3 = elements_data$slot3_include,
+      slot4 = elements_data$slot4_include
     )
     
     # Save data to an RDS file if any elements were selected
     if (length(selected_data) > 0) {
-      saveRDS(selected_data, file = "selected_elements.rds")
+      saveRDS(selected_data, file = paste0(getwd(), "/Report/selected_elements.rds"))
     }
     
-    rmarkdown::render("Report.Rmd")
+    rmarkdown::render(paste0(getwd(), "/Report/Report.Rmd"))
     
-    system(paste("open", paste0(getwd(), "/Report.html")))
+    if (isTRUE(input$open_report)) {
+      system(paste("open", paste0(getwd(), "/Report/Report.html")))
+    }
     
   })
   
-  ## Save Report Profile ----
+  ### Save Report Profile ----
   
   observeEvent(input$save_rep_profile, {
+    
     # save profile except dates or times
     report_profile <- list(
       selected_general = selected_general,
@@ -4266,15 +4005,15 @@ server <- function(input, output, session) {
     }
     
     rep_profile$profile_names <-
-      list.files(paste0(getwd(), "/rep_profiles"), full.names = TRUE)
+      list.files(paste0(getwd(), "/Report/rep_profiles"), full.names = TRUE)
   })
   
-  ## Load Report Profile ----
+  ### Load Report Profile ----
   
   rep_profile <- reactiveValues()
   
   observe(rep_profile$profile_names <-
-            list.files(paste0(getwd(), "/rep_profiles"), full.names = TRUE))
+            list.files(paste0(getwd(), "/Report/rep_profiles"), full.names = TRUE))
   
   output$selProfile <- renderUI(
     selectInput(
@@ -4399,13 +4138,13 @@ server <- function(input, output, session) {
   
   
   
-  # Typing  ----
+  ## Typing  ----
   
-  ## Single Typing ----
+  ### Single Typing ----
   
   typing_reactive <- reactiveValues(table = data.frame())
   
-  ### Render Scheme Selector ----
+  #### Render Scheme Selector ----
   
   observe({
     if (!database$exist) {
@@ -4435,7 +4174,7 @@ server <- function(input, output, session) {
   })
   
   
-  ### Run KMA index script ----
+  #### Run KMA index script ----
   
   
   observeEvent(input$typing_start, {
@@ -4604,7 +4343,7 @@ server <- function(input, output, session) {
   
   
   
-  ### Get Allelic Profile  ----
+  #### Get Allelic Profile  ----
   
   observeEvent(input$get_allele_profile, {
     
@@ -4702,7 +4441,7 @@ server <- function(input, output, session) {
   
   
   
-  ### Append Allelic Profile  ----
+  #### Append Allelic Profile  ----
   
   # Append as entry to local database
   
@@ -4885,9 +4624,9 @@ server <- function(input, output, session) {
     
   })
   
-  ## Multi Typing ----
+  ### Multi Typing ----
   
-  ### Render Multi Typing UI Elements ----
+  #### Render Multi Typing UI Elements ----
   
   # Check if ongoing Multi Typing - Render accordingly
   
@@ -4986,7 +4725,7 @@ server <- function(input, output, session) {
     
   })
   
-  ### Events Multi Typing ----
+  #### Events Multi Typing ----
   
   observeEvent(input$reset_multi, {
     if(!grepl("Multi Typing", tail(readLines(paste0(getwd(),"/execute/script_log.txt")), n = 1))) {
@@ -5191,7 +4930,7 @@ server <- function(input, output, session) {
     
   })
   
-  ### Render Elements in order ----
+  #### Render Elements in order ----
   
   observe({
     if (nrow(typing_reactive$table) > 0) {
@@ -5250,7 +4989,7 @@ server <- function(input, output, session) {
     }
   })
   
-  ### User Feedback ----
+  #### User Feedback ----
   
   readLogFile <- reactive({
     invalidateLater(5000, session)
@@ -5272,6 +5011,6 @@ server <- function(input, output, session) {
 } # end server
 
 
-################## Shiny #####################
+# Shiny ----
 
 shinyApp(ui = ui, server = server)
