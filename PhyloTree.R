@@ -3065,7 +3065,7 @@ server <- function(input, output, session) {
     }
   })
   
-  # Plot Reactive
+  ### Render Plot Reactive ----
   plot_loc <- reactiveValues(cluster = NULL, metadata = list())
   
   plot_input <- reactive({
@@ -3110,7 +3110,7 @@ server <- function(input, output, session) {
     set.seed(1)
     
     # Load local database
-    Database <-
+    Database <<-
       readRDS(paste0(
         getwd(),
         "/Database/",
@@ -3640,8 +3640,8 @@ server <- function(input, output, session) {
             pickerInput(
               inputId = "slot1_legend_sel",
               label = h4("Display metadata", style = "color:white; margin-bottom: 5px; font-size: 14px"),
-              choices = names(select(DF1$data, 1:12)),
-              selected = names(select(DF1$data, 1:12)),
+              choices = names(select(DF1$data, 3:12)),
+              selected = c("Assembly Name", "Isolation Date", "Host", "Country", "City", "Typing Date"),
               options = list(
                 `actions-box` = TRUE,
                 size = 10,
@@ -3785,6 +3785,7 @@ server <- function(input, output, session) {
         textInput(
           "slot_name",
           label = "",
+          value = "",
           placeholder = "Plot name"
         ),
         title = "Add to Slot",
@@ -3803,7 +3804,8 @@ server <- function(input, output, session) {
       if (length(input$slot_name) > 0) {
         plot_loc$slot1_getname <- substr(input$slot_name, 1, 10)
       } else {
-        plot_loc$slot1_getname <- "Slot 1"
+        plot_loc$slot1_getname <- paste("Number One")
+        test <<- "Number One"
       }
       jpeg(paste0(getwd(), "/Report/slot1_plot.jpeg"), width = 1365, height = 600,
            quality = 100)
@@ -3931,7 +3933,41 @@ server <- function(input, output, session) {
     } else {
       elements_data$analysis_kma <- NULL
     }
+    
+    if(elements_data$slot1_include == TRUE) {
+      meta <- select(Database$Typing, 1:12)
+      meta <- select(meta[which(meta$Include == TRUE),], -2)
+      elements_data$slot1_meta <- meta
+      elements_data$slot1_legend_sel <- input$slot1_legend_sel
+      elements_data$slot1_legend <- input$slot1_legend
+    }
+    
+    if(elements_data$slot2_include == TRUE) {
+      meta <- select(Database$Typing, 1:12)
+      meta <- select(meta[which(meta$Include == TRUE),], -2)
+      elements_data$slot2_meta <- meta
+      elements_data$slot2_legend_sel <- input$slot2_legend_sel
+      elements_data$slot2_legend <- input$slot2_legend
+    }
+    
+    if(elements_data$slot3_include == TRUE) {
+      meta <- select(Database$Typing, 1:12)
+      meta <- select(meta[which(meta$Include == TRUE),], -2)
+      elements_data$slot3_meta <- meta
+      elements_data$slot3_legend_sel <- input$slot3_legend_sel
+      elements_data$slot3_legend <- input$slot3_legend
+    }
+    
+    if(elements_data$slot4_include == TRUE) {
+      meta <- select(Database$Typing, 1:12)
+      meta <- select(meta[which(meta$Include == TRUE),], -2)
+      elements_data$slot4_meta <- meta
+      elements_data$slot4_legend_sel <- input$slot4_legend_sel
+      elements_data$slot4_legend <- input$slot4_legend
+    }
+    
   })
+  
   
   #### Event Save Report ----
   
@@ -3946,9 +3982,21 @@ server <- function(input, output, session) {
       analysis_tree = elements_data$analysis_tree,
       analysis_kma = elements_data$analysis_kma,
       slot1 = elements_data$slot1_include,
+      slot1_meta = elements_data$slot1_meta,
+      slot1_legend = elements_data$slot1_legend,
+      slot1_legend_sel = elements_data$slot1_legend_sel,
       slot2 = elements_data$slot2_include,
+      slot2_meta = elements_data$slot2_meta,
+      slot2_legend = elements_data$slot2_legend,
+      slot2_legend_sel = elements_data$slot2_legend_sel,
       slot3 = elements_data$slot3_include,
-      slot4 = elements_data$slot4_include
+      slot3_meta = elements_data$slot3_meta,
+      slot3_legend = elements_data$slot3_legend,
+      slot3_legend_sel = elements_data$slot3_legend_sel,
+      slot4 = elements_data$slot4_include,
+      slot4_meta = elements_data$slot4_meta,
+      slot4_legend = elements_data$slot4_legend,
+      slot4_legend_sel = elements_data$slot4_legend_sel
     )
     
     # Save data to an RDS file if any elements were selected
@@ -3958,7 +4006,8 @@ server <- function(input, output, session) {
     
     rmarkdown::render(paste0(getwd(), "/Report/Report.Rmd"))
     
-    if (isTRUE(input$open_report)) {
+    
+    if (input$open_report == TRUE) {
       system(paste("open", paste0(getwd(), "/Report/Report.html")))
     }
     
