@@ -471,11 +471,13 @@ ui <- dashboardPage(
             ),
             column(
               width = 6,
-              downloadBttn(
-                "download_plot",
+              actionBttn(
+                "save_plot",
                 style = "simple",
                 label = "",
-                size = "sm"
+                size = "sm",
+                icon = icon("download"),
+                color = "primary"
               )
             )
           ),
@@ -997,9 +999,16 @@ ui <- dashboardPage(
               h3(p("Initiate Typing"), style = "color:white"),
               br(),
               br(),
+              p(
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File (.fasta)')
+                  )
+                )
+              ),
               shinyFilesButton(
                 "genome_file",
-                "Select Genome" ,
+                "Browse" ,
                 title = "Please select the genome in .fasta format:",
                 multiple = FALSE,
                 buttonType = "default",
@@ -1007,10 +1016,11 @@ ui <- dashboardPage(
               ),
               br(),
               br(),
+              br(),
               uiOutput("genome_path"),
+              br(),
+              br(),
               uiOutput("selected_scheme"),
-              br(),
-              br(),
               br(),
               uiOutput("arrow_start"),
               br(),
@@ -1140,6 +1150,13 @@ ui <- dashboardPage(
                 uiOutput("initiate_typing_header"),
                 br(),
                 br(),
+                p(
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly Folder')
+                    )
+                  )
+                ),
                 column(
                   width = 12,
                   align = "center",
@@ -2132,7 +2149,8 @@ ui <- dashboardPage(
                     )
                   )
                 )
-              )
+              ),
+              br()
             ),
             br(),
           ),
@@ -2141,6 +2159,7 @@ ui <- dashboardPage(
             width = 2,
             br(),
             tags$style("#slot1_legend {margin-top: 17px;}"),
+            tags$style("#slot2_legend {margin-top: 17px;}"),
             tags$style(".choosechannel .btn {height: 31px;}"),
             uiOutput("slot1_box"),
             uiOutput("slot2_box"),
@@ -2148,6 +2167,8 @@ ui <- dashboardPage(
           column(
             width = 2,
             br(),
+            tags$style("#slot3_legend {margin-top: 17px;}"),
+            tags$style("#slot4_legend {margin-top: 17px;}"),
             tags$style(".choosechannel .btn {height: 31px;}"),
             uiOutput("slot3_box"),
             uiOutput("slot4_box")
@@ -3111,7 +3132,7 @@ server <- function(input, output, session) {
     set.seed(1)
     
     # Load local database
-    Database <-
+    Database <<-
       readRDS(paste0(
         getwd(),
         "/Database/",
@@ -3476,20 +3497,74 @@ server <- function(input, output, session) {
   ### Save Tree Plot ----
   
   # Define download handler to save the plot
+  
   output$download_plot <- downloadHandler(
     filename = function() {
-      paste("plot", ".png", sep = "")
+      paste0(input$plot_filename, ".", input$filetype_plot)
     },
     content = function(file) {
-      png(file, width = 1365, height = 600)
-      if (input$tree_algo == "Minimum-Spanning") {
-        print(plot_input())
-      } else if (input$tree_algo == "Neighbour-Joining") {
-        print(plot_loc$nj_plot)
+      if (input$filetype_plot == "png") {
+        png(file, width = 1365, height = 600)
+        if (input$tree_algo == "Minimum-Spanning") {
+          print(plot_input())
+        } else if (input$tree_algo == "Neighbour-Joining") {
+          print(plot_loc$nj_plot)
+        }
+        dev.off()
+      } else if (input$filetype_plot == "jpeg") {
+        jpeg(file, width = 2730, height = 1200, quality = 100)
+        if (input$tree_algo == "Minimum-Spanning") {
+          print(plot_input())
+        } else if (input$tree_algo == "Neighbour-Joining") {
+          print(plot_loc$nj_plot)
+        }
+        dev.off()
+      } else if (input$filetype_plot == "svg") {
+        plot <- print(plot_input())
+        ggsave(file=file, plot=plot, device = svg(), width = 50, height = 22, units = "cm")
       }
-      dev.off()
     }
   )
+  
+  
+  ### Reactive Events ----
+  
+  # Download plot as picture
+  observeEvent(input$save_plot, {
+    showModal(
+      modalDialog(
+        textInput(
+          "plot_filename",
+          label = "",
+          placeholder = "Plot1"
+        ),
+        radioGroupButtons(
+          "filetype_plot",
+          label = "",
+          choices = c("png", "jpeg", "svg")
+        ),
+        title = "Save plot",
+        fade = TRUE,
+        easyClose = TRUE,
+        footer = tagList(
+          modalButton("Cancel"),
+            downloadBttn(
+              "download_plot",
+              style = "simple",
+              label = "",
+              size = "sm",
+              icon = icon("download")
+            )
+          
+        )
+      )
+    )
+  })
+  
+  observeEvent(input$download_plot, {
+    removeModal()
+  })
+  
   
   ### Cluster Analysis ----
   
@@ -3667,7 +3742,7 @@ server <- function(input, output, session) {
                         paste('Slot 2 -', plot_loc$slot2_getname))
             )
           ),
-          br(),
+          br(), br(),
           checkboxInput(
             "slot2_legend", 
             label = h5("Include entry legend", style = "color:white; font-size: 17px; margin-top: 15px;"),
@@ -3745,7 +3820,7 @@ server <- function(input, output, session) {
                         paste('Slot 4 -', plot_loc$slot4_getname))
             )
           ),
-          br(),
+          br(), 
           checkboxInput(
             "slot4_legend", 
             label = h5("Include entry legend", style = "color:white; font-size: 17px; margin-top: 15px;"),
@@ -3971,6 +4046,20 @@ server <- function(input, output, session) {
   #### Event Save Report ----
   
   observeEvent(input$save_report, {
+    
+    # Get Scheme Info
+    
+    schemeinfo <-
+      read_html(paste0(
+        getwd(),
+        "/Database/",
+        gsub(" ", "_", input$scheme_db),
+        "/scheme_info.html"
+      )) %>%
+      html_table(header = FALSE) %>%
+      as.data.frame(stringsAsFactors = FALSE)
+    names(schemeinfo) <- NULL
+    
     # Filter and save data for the selected elements
     selected_data <- list(
       general_date = elements_data$general_date,
@@ -3978,6 +4067,8 @@ server <- function(input, output, session) {
       general_institute = elements_data$general_institute,
       general_comm = elements_data$general_comm,
       analysis_cgmlst = elements_data$analysis_cgmlst,
+      cgmlst_info = schemeinfo,
+      scheme = input$scheme_db,
       analysis_tree = elements_data$analysis_tree,
       analysis_kma = elements_data$analysis_kma,
       slot1 = elements_data$slot1_include,
@@ -4190,11 +4281,12 @@ server <- function(input, output, session) {
   
   ### Single Typing ----
   
-  typing_reactive <- reactiveValues(table = data.frame())
+  typing_reactive <- reactiveValues(table = data.frame(), single_path = data.frame())
   
-  #### Render Scheme Selector ----
+  #### Render UI Elements ----
   
   observe({
+    
     if (!database$exist) {
       output$cgmlst_typing <- renderUI(
         prettyRadioButtons(
@@ -4204,7 +4296,52 @@ server <- function(input, output, session) {
         )
       )
     }
+    
+    if (nrow(typing_reactive$single_path) < 1) {
+      output$genome_path <- renderUI(HTML(
+        paste("<span style='color: white;'>", "No file selected.")
+      ))
+      output$arrow_start <- NULL
+      
+    } else if (nrow(typing_reactive$single_path) > 0) {
+      output$genome_path <- renderUI({
+        HTML(
+          paste(
+          "<span style='color: white;'>",
+          as.character(typing_reactive$single_path$name)
+          )
+        )
+      })
+      
+      output$selected_scheme <- renderUI({
+        HTML(
+          paste(
+            "<span style='color: white;'>",
+            "Typing by <strong>",
+            input$cgmlst_typing,
+            "</strong> scheme."
+          )
+        )
+      })
+      
+      output$typing_start <- renderUI(actionButton(
+        inputId = "typing_start",
+        label = "Start",
+        width = "100px"
+      ))
+      
+      output$arrow_start <-
+        renderUI(
+          HTML(
+            '<i class="fa-solid fa-arrow-down fa-beat-fade fa-xl" style="color: #ffffff;"></i>'
+          )
+        )
+      
+    }
+    
   })
+  
+  
   
   # Get genome datapath
   
@@ -4220,7 +4357,6 @@ server <- function(input, output, session) {
     typing_reactive$single_path <- parseFilePaths(roots = c(wd = "/home"), input$genome_file)
     
   })
-  
   
   #### Run KMA index script ----
   
@@ -4730,7 +4866,7 @@ server <- function(input, output, session) {
   output$genome_file_multi_bttn <- renderUI({
     shinyDirButton(
       "genome_file_multi",
-      "Select Genomes" ,
+      "Browse" ,
       title = "Please select the folder containing the genome assemblies in .fasta format",
       buttonType = "default"
     )
