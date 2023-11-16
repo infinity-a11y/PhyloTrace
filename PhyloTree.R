@@ -3107,10 +3107,11 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$create_tree, {
+    
     set.seed(1)
     
     # Load local database
-    Database <<-
+    Database <-
       readRDS(paste0(
         getwd(),
         "/Database/",
@@ -3126,11 +3127,11 @@ server <- function(input, output, session) {
       allelic_profile[which(Database[["Typing"]]$Include == TRUE),]
     
     # get metadata without include boolean variable
-    meta <<- dplyr::select(Database$Typing, 1, 3:12)
-    meta <<- meta[which(Database[["Typing"]]$Include == TRUE),]
+    meta <- dplyr::select(Database$Typing, 1, 3:12)
+    meta <- meta[which(Database[["Typing"]]$Include == TRUE),]
     
     # Calculate distance matrix
-    dist_matrix <<- dist(allelic_profile)
+    dist_matrix <- dist(allelic_profile)
     
     if (input$tree_algo == "Neighbour-Joining") {
       plot_loc$meta_nj <- meta
@@ -3167,33 +3168,31 @@ server <- function(input, output, session) {
       })
       
     } else {
-      output$tree_local <- renderPlot({
-        print(plot_input())
-      })
       
       mst <- ape::mst(dist_matrix)
       
-      gr_adj <<- graph.adjacency(mst, mode = mode_algo())
+      plot_loc$gr_adj <- graph.adjacency(mst, mode = mode_algo())
       
-      gg <<-
-        ggnetwork(gr_adj, arrow.gap = 0, layout = ggnet_layout())
-      
+      plot_loc$netw <- ggnetwork(plot_loc$gr_adj, arrow.gap = 0, layout = ggnet_layout())
       
       ## add metadata
-      plot_loc$gg <<- gg %>% mutate(
-        index = meta[gg$name, "Index"],
-        assembly_id = meta[gg$name, "Assembly ID"],
-        assembly_name = meta[gg$name, "Assembly Name"],
-        scheme = meta[gg$name, "Scheme"],
-        isolation_date = meta[gg$name, "Isolation Date"],
-        host = meta[gg$name, "Host"],
-        country = meta[gg$name, "Country"],
-        city = meta[gg$name, "City"],
-        typing_date = meta[gg$name, "Typing Date"],
-        successes = meta[gg$name, "Successes"],
-        errors = meta[gg$name, "Errors"]
+      plot_loc$gg <- plot_loc$netw %>% mutate(
+        index = meta[plot_loc$netw$name, "Index"],
+        assembly_id = meta[plot_loc$netw$name, "Assembly ID"],
+        assembly_name = meta[plot_loc$netw$name, "Assembly Name"],
+        scheme = meta[plot_loc$netw$name, "Scheme"],
+        isolation_date = meta[plot_loc$netw$name, "Isolation Date"],
+        host = meta[plot_loc$netw$name, "Host"],
+        country = meta[plot_loc$netw$name, "Country"],
+        city = meta[plot_loc$netw$name, "City"],
+        typing_date = meta[plot_loc$netw$name, "Typing Date"],
+        successes = meta[plot_loc$netw$name, "Successes"],
+        errors = meta[plot_loc$netw$name, "Errors"]
       )
       
+      output$tree_local <- renderPlot({
+        print(plot_input())
+      })
       
       output$cluster_start <- renderUI(actionButton("cluster_start",
                                                     "Add Clusters"))
@@ -3244,23 +3243,23 @@ server <- function(input, output, session) {
   # Set Minimum-Spanning Tree Appearance
   ggnet_layout <- reactive({
     if (input$ggnetwork_layout == "Davidson-Harel") {
-      layout_with_dh(gr_adj)
+      layout_with_dh(plot_loc$gr_adj)
     } else if (input$ggnetwork_layout == "DrL") {
-      layout_with_drl(gr_adj)
+      layout_with_drl(plot_loc$gr_adj)
     } else if (input$ggnetwork_layout == "Fruchterman-Reingold") {
-      layout_with_fr(gr_adj)
+      layout_with_fr(plot_loc$gr_adj)
     } else if (input$ggnetwork_layout == "GEM") {
-      layout_with_gem(gr_adj)
+      layout_with_gem(plot_loc$gr_adj)
     } else if (input$ggnetwork_layout == "Graphopt") {
-      layout_with_graphopt(gr_adj)
+      layout_with_graphopt(plot_loc$gr_adj)
     } else if (input$ggnetwork_layout == "Kamada-Kawai") {
-      layout_with_kk(gr_adj)
+      layout_with_kk(plot_loc$gr_adj)
     } else if (input$ggnetwork_layout == "Large Graph Layout") {
-      layout_with_lgl(gr_adj)
+      layout_with_lgl(plot_loc$gr_adj)
     } else if (input$ggnetwork_layout == "Multidimensional Scaling") {
-      layout_with_mds(gr_adj)
+      layout_with_mds(plot_loc$gr_adj)
     } else if (input$ggnetwork_layout == "Sugiyama") {
-      layout_with_sugiyama(gr_adj)
+      layout_with_sugiyama(plot_loc$gr_adj)
     }
   })
   
@@ -3670,17 +3669,17 @@ server <- function(input, output, session) {
           ),
           br(),
           checkboxInput(
-            "date_general", 
+            "slot2_legend", 
             label = h5("Include entry legend", style = "color:white; font-size: 17px; margin-top: 15px;"),
             value = TRUE
           ),
           div(
             class = "choosechannel",
             pickerInput(
-              inputId = "slot2_legend",
+              inputId = "slot2_legend_sel",
               label = h4("Display metadata", style = "color:white; margin-bottom: 5px; font-size: 14px"),
-              choices = names(select(DF1$data, 1:12)),
-              selected = names(select(DF1$data, 1:12)),
+              choices = names(select(DF1$data, 3:12)),
+              selected = c("Assembly Name", "Isolation Date", "Host", "Country", "City", "Typing Date"),
               options = list(
                 `actions-box` = TRUE,
                 size = 10,
@@ -3709,17 +3708,17 @@ server <- function(input, output, session) {
           ),
           br(),
           checkboxInput(
-            "date_general", 
+            "slot3_legend", 
             label = h5("Include entry legend", style = "color:white; font-size: 17px; margin-top: 15px;"),
             value = TRUE
           ),
           div(
             class = "choosechannel",
             pickerInput(
-              inputId = "slot3_legend",
+              inputId = "slot3_legend_sel",
               label = h4("Display metadata", style = "color:white; margin-bottom: 5px; font-size: 14px"),
-              choices = names(select(DF1$data, 1:12)),
-              selected = names(select(DF1$data, 1:12)),
+              choices = names(select(DF1$data, 3:12)),
+              selected = c("Assembly Name", "Isolation Date", "Host", "Country", "City", "Typing Date"),
               options = list(
                 `actions-box` = TRUE,
                 size = 10,
@@ -3748,17 +3747,17 @@ server <- function(input, output, session) {
           ),
           br(),
           checkboxInput(
-            "date_general", 
+            "slot4_legend", 
             label = h5("Include entry legend", style = "color:white; font-size: 17px; margin-top: 15px;"),
             value = TRUE
           ),
           div(
             class = "choosechannel",
             pickerInput(
-              inputId = "slot4_legend",
+              inputId = "slot4_legend_sel",
               label = h4("Display metadata", style = "color:white; margin-bottom: 5px; font-size: 14px"),
-              choices = names(select(DF1$data, 1:12)),
-              selected = names(select(DF1$data, 1:12)),
+              choices = names(select(DF1$data, 3:12)),
+              selected = c("Assembly Name", "Isolation Date", "Host", "Country", "City", "Typing Date"),
               options = list(
                 `actions-box` = TRUE,
                 size = 10,
