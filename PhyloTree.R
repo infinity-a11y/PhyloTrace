@@ -347,8 +347,6 @@ ui <- dashboardPage(
     ),
     tags$style(".selectize-control.single .selectize-input:after {right: 10px}"),
     tags$style("#scheme_db .selectize-control {font-size: 12px, }"),
-    tags$style("#cgmlst_typing .selectize-control {font-size: 12px}"),
-    tags$style("#scheme_vis .selectize-control {font-size: 12px}"),
     tags$style(".scheme_start {margin-left: -20px}"),
     tags$style("i.fas.fa-rotate {position: relative; left: -5px;}"),
     tags$style("button#reload_db.btn.btn-default.action-button.shiny-bound-input {height: 30px; width: 30px; position: relative; left: -20px}"),
@@ -388,8 +386,7 @@ ui <- dashboardPage(
             choices = c("Single", "Multi"),
             selected = "Single"
           ),
-          br(),
-          uiOutput("cgmlst_typing"),
+          br()
         )
       ),
       conditionalPanel(
@@ -421,7 +418,6 @@ ui <- dashboardPage(
         column(
           width = 12,
           br(),
-          uiOutput("scheme_vis"),
           prettyRadioButtons(
             "tree_algo",
             choices = c("Minimum-Spanning", "Neighbour-Joining"),
@@ -989,150 +985,14 @@ ui <- dashboardPage(
         conditionalPanel(
           "input.typing_mode == 'Single'",
           fluidRow(
-            column(
-              width = 3,
-              align = "center",
-              br(),
-              br(),
-              h3(p("Initiate Typing"), style = "color:white"),
-              br(),
-              br(),
-              p(
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File (.fasta)')
-                  )
-                )
-              ),
-              shinyFilesButton(
-                "genome_file",
-                "Browse" ,
-                title = "Please select the genome in .fasta format:",
-                multiple = FALSE,
-                buttonType = "default",
-                class = NULL
-              ),
-              br(),
-              br(),
-              br(),
-              uiOutput("genome_path"),
-              br(),
-              br(),
-              uiOutput("selected_scheme"),
-              br(),
-              uiOutput("arrow_start"),
-              br(),
-              uiOutput("typing_start"),
-              conditionalPanel(
-                "input.typing_start",
-                br(),
-                progressBar(
-                  "progress_bar",
-                  value = 0,
-                  display_pct = TRUE,
-                  title = ""
-                )
-              ),
-              br(),
-              br(),
-              uiOutput("arrow_profile"),
-              br(),
-              uiOutput("get_allele_profile"),
-              conditionalPanel(
-                "input.get_allele_profile",
-                br(),
-                progressBar(
-                  "progress_profile",
-                  value = 0,
-                  display_pct = TRUE,
-                  title = ""
-                )
-              ),
-              htmlOutput("typing_fin"),
-            ),
+            tags$style("span#progress_bar-title.progress-text {color: white; font-size: 13px; font-weight: normal;}"),
+            tags$style("div#progress_bar.progress-bar {font-size:13px; line-height: 30px;}"),
+            tags$style(".progress {border-radius: 5px; height: 30px; line-height: 30px}"),
+            uiOutput("initiate_typing_ui"),
+            column(1),
+            uiOutput("metadata_single_box"),
             column(width = 1),
-            column(
-              width = 2,
-              align = "center",
-              br(),
-              br(),
-              h3(p("Typing Results"), style = "color:white"),
-              br(),
-              br(),
-              uiOutput("sel_result"),
-              addSpinner(
-                tableOutput("typ_res_tab"),
-                spin = "dots",
-                color = "#ffffff"
-              )
-            ),
-            column(width = 1),
-            column(
-              width = 4,
-              align = "center",
-              br(),
-              br(),
-              h3(p("Append to Database"), style = "color:white"),
-              br(),
-              br(),
-              column(width = 1),
-              column(
-                width = 6,
-                box(
-                  solidHeader = TRUE,
-                  status = "primary",
-                  width = "100%",
-                  textInput("assembly_id",
-                            "Assembly ID",
-                            width = "80%"),
-                  textInput("assembly_name",
-                            "Assembly Name",
-                            width = "80%"),
-                  dateInput("append_isodate",
-                            label = "Isolation Date",
-                            width = "50%"),
-                  textInput("append_host",
-                            label = "Host",
-                            width = "80%"),
-                  pickerInput(
-                    "append_country",
-                    "Country",
-                    choices = list("Common" = sel_countries,
-                                   "All Countries" = country_names),
-                    options = list(
-                      `live-search` = TRUE,
-                      `actions-box` = TRUE,
-                      size = 10,
-                      style = "background-color: white; border-radius: 5px;"
-                    ),
-                    width = "90%"
-                  ),
-                  textInput("append_city",
-                            label = "City",
-                            width = "80%"),
-                  dateInput(
-                    "append_analysisdate",
-                    label = "Typing Date",
-                    value = Sys.Date(),
-                    width = "50%"
-                  )
-                )
-              ),
-              column(
-                width = 4,
-                br(),
-                br(),
-                br(),
-                br(),
-                br(),
-                br(),
-                br(),
-                br(),
-                br(),
-                actionButton(inputId = "append",
-                             label = "Append")
-              )
-            )
+            uiOutput("start_typing_ui")
           )
         ),
         conditionalPanel(
@@ -1168,28 +1028,21 @@ ui <- dashboardPage(
                   uiOutput("assembly_files_table")
                 )
               ),
+              column(1),
               column(
-                width = 4,
+                width = 2,
                 align = "center",
+                tags$style(".append_table {margin-bottom: 12px}"),
+                tags$style("button#conf_meta_multi {background: #20e6e5; color: black}"),
                 br(),
                 br(),
                 uiOutput("header_declare_metadata"),
                 br(), br(),
-                fluidRow(
-                  column(width = 2),
-                  column(
-                    width = 6,
-                    uiOutput("metadata_multi_box")
-                  ),
-                  column(
-                    width = 3,
-                    br(), br(), br(), br(), br(), br(), br(), br(), br(),
-                    uiOutput("conf_meta_multi_button")
-                  )
-                )
+                uiOutput("metadata_multi_box")
               ),
+              column(1),
               column(
-                width = 4,
+                width = 3,
                 align = "center",
                 br(),
                 br(),
@@ -1278,7 +1131,7 @@ ui <- dashboardPage(
             tags$style("button#add_metadata {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px}"),
             tags$style("button#delete_meta {height: 34px; font-size: 19px}"),
             tags$style("i.fas.fa-xmark {vertical-align: text-top;}"),
-            tags$style(".form-control {font-size: 11px;}"),
+            tags$style("input.form-control.pickr-color {text-align: center; font-size: 11px;}"),
             column(width = 2,
                    fluidRow(
                      column(
@@ -2297,7 +2150,7 @@ server <- function(input, output, session) {
             p(
               HTML(
                 paste(
-                  tags$span(style='color: white; font-size: 15px; font-style: italic', input$scheme_db)
+                  tags$span(style='color: white; font-size: 15px; font-style: italic', DF1$scheme)
                 )
               )
             )
@@ -2479,8 +2332,9 @@ server <- function(input, output, session) {
       
       typing <- Data[["Typing"]]
       
-      
       DF1$data <- typing
+      
+      DF1$scheme <- input$scheme_db
       
       output$compare_select <- renderUI({
         pickerInput(
@@ -2709,7 +2563,6 @@ server <- function(input, output, session) {
         pickerInput("select_delete",
                     label = "",
                     choices = DF1$data[, "Index"],
-                    selected = DF1$data[1, "Index"],
                     options = list(
                       `live-search` = TRUE,
                       size = 10,
@@ -2730,7 +2583,7 @@ server <- function(input, output, session) {
       })
       
     } else if (!any(grepl("Typing.rds", dir_ls(paste0(
-      getwd(), "/Database/", gsub(" ", "_", input$scheme_db)
+      getwd(), "/Database/", gsub(" ", "_", DF1$scheme)
     ))))) {
       output$db_no_entries <- renderUI(HTML(
         paste(
@@ -2760,7 +2613,7 @@ server <- function(input, output, session) {
       read_html(paste0(
         getwd(),
         "/Database/",
-        gsub(" ", "_", input$scheme_db),
+        gsub(" ", "_", DF1$scheme),
         "/scheme_info.html"
       )) %>%
       html_table(header = FALSE) %>%
@@ -2773,7 +2626,7 @@ server <- function(input, output, session) {
       paste0(
         getwd(),
         "/Database/",
-        gsub(" ", "_", input$scheme_db),
+        gsub(" ", "_", DF1$scheme),
         "/targets.csv"
       ),
       header = TRUE,
@@ -2802,7 +2655,7 @@ server <- function(input, output, session) {
       modalDialog(
         paste0(
           "Overwriting previous metadata of local ",
-          input$scheme_db,
+          DF1$scheme,
           " database.",
           " Continue?"
         ),
@@ -2825,7 +2678,7 @@ server <- function(input, output, session) {
     Data <- readRDS(paste0(
       getwd(),
       "/Database/",
-      gsub(" ", "_", input$scheme_db),
+      gsub(" ", "_", DF1$scheme),
       "/Typing.rds"
     ))
     
@@ -2841,7 +2694,7 @@ server <- function(input, output, session) {
     saveRDS(Data, paste0(
       getwd(),
       "/Database/",
-      gsub(" ", "_", input$scheme_db),
+      gsub(" ", "_", DF1$scheme),
       "/Typing.rds"
     ))
     
@@ -3292,29 +3145,6 @@ server <- function(input, output, session) {
       )
   })
       
-    
-  
-  # Render local database choice input
-  observe({
-    if (!database$exist) {
-      output$scheme_vis <- renderUI({
-        if (length(database$available) > 5) {
-          selectInput(
-            "scheme_vis",
-            choices = database$available,
-            label = "Local schemes"
-          )
-        } else {
-          prettyRadioButtons(
-            "scheme_vis",
-            choices = database$available,
-            label = "Local schemes"
-          )
-        }
-      })
-    }
-  })
-  
   observeEvent(input$create_tree, {
     
     set.seed(1)
@@ -3324,7 +3154,7 @@ server <- function(input, output, session) {
       readRDS(paste0(
         getwd(),
         "/Database/",
-        gsub(" ", "_", input$scheme_vis),
+        gsub(" ", "_", DF1$scheme),
         "/Typing.rds"
       ))
     
@@ -4241,7 +4071,7 @@ server <- function(input, output, session) {
       read_html(paste0(
         getwd(),
         "/Database/",
-        gsub(" ", "_", input$scheme_db),
+        gsub(" ", "_", DF1$scheme),
         "/scheme_info.html"
       )) %>%
       html_table(header = FALSE) %>%
@@ -4256,7 +4086,7 @@ server <- function(input, output, session) {
       general_comm = elements_data$general_comm,
       analysis_cgmlst = elements_data$analysis_cgmlst,
       cgmlst_info = schemeinfo,
-      scheme = input$scheme_db,
+      scheme = DF1$scheme,
       analysis_tree = elements_data$analysis_tree,
       analysis_kma = elements_data$analysis_kma,
       slot1 = elements_data$slot1_include,
@@ -4473,70 +4303,171 @@ server <- function(input, output, session) {
   
   #### Render UI Elements ----
   
+  # Render Initiate Typing UI
+  output$initiate_typing_ui <- renderUI({
+    column(
+      width = 3,
+      align = "center",
+      br(),
+      br(),
+      h3(p("Initiate Typing"), style = "color:white"),
+      br(),
+      br(),
+      p(
+        HTML(
+          paste(
+            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File (.fasta)')
+          )
+        )
+      ),
+      shinyFilesButton(
+        "genome_file",
+        "Browse" ,
+        title = "Please select the genome in .fasta format:",
+        multiple = FALSE,
+        buttonType = "default",
+        class = NULL
+      ),
+      br(),
+      br(),
+      br(),
+      uiOutput("genome_path")
+    )
+  })
+  
+  # Render Declare Metadata UI
+  
   observe({
-    
-    if (!database$exist) {
-      output$cgmlst_typing <- renderUI({
-        if (length(database$available) > 5) {
-          selectInput(
-            "cgmlst_typing",
-            choices = database$available,
-            label = "Local schemes"
-          )
-        } else {
-          prettyRadioButtons(
-            "cgmlst_typing",
-            choices = database$available,
-            label = "Local schemes"
-          )
-        }
-      })
-    }
-    
     if (nrow(typing_reactive$single_path) < 1) {
       output$genome_path <- renderUI(HTML(
         paste("<span style='color: white;'>", "No file selected.")
       ))
-      output$arrow_start <- NULL
+      
+      output$metadata_single_box <- NULL
       
     } else if (nrow(typing_reactive$single_path) > 0) {
+      
+      # Render selected assembly path
       output$genome_path <- renderUI({
         HTML(
           paste(
-          "<span style='color: white;'>",
-          as.character(typing_reactive$single_path$name)
+            "<span style='color: white; font-weight: bolder'>",
+            as.character(typing_reactive$single_path$name)
           )
         )
       })
       
-      output$selected_scheme <- renderUI({
-        HTML(
-          paste(
-            "<span style='color: white;'>",
-            "Typing by <strong>",
-            input$cgmlst_typing,
-            "</strong> scheme."
+      # Render metadata declaration box
+      output$metadata_single_box <- renderUI({
+        column(
+          width = 2,
+          align = "center",
+          tags$style(".append_table {margin-bottom: 12px}"),
+          tags$style("button#conf_meta_single {background: #20e6e5; color: black}"),
+          br(),
+          br(),
+          h3(p("Declare Metadata"), style = "color:white"),
+          br(),
+          br(),
+          box(
+            solidHeader = TRUE,
+            status = "primary",
+            width = "50%",
+            div(
+              class = "append_table",
+              textInput("assembly_id",
+                        label = h5("Assembly ID", style = "color:white; margin-bottom: 0px;"),
+                        width = "80%")
+            ),
+            div(
+              class = "append_table",
+              textInput("assembly_name",
+                        label = h5("Assembly Name", style = "color:white; margin-bottom: 0px;"),
+                        width = "80%")
+            ),
+            div(
+              class = "append_table",
+              dateInput("append_isodate",
+                        label = h5("Isolation Date", style = "color:white; margin-bottom: 0px;"),
+                        width = "50%")
+            ),
+            div(
+              class = "append_table",
+              textInput("append_host",
+                        label = h5("Host", style = "color:white; margin-bottom: 0px;"),
+                        width = "80%")
+            ),
+            div(
+              class = "append_table",
+              pickerInput(
+                "append_country",
+                label = h5("Country", style = "color:white; margin-bottom: 0px;"),
+                choices = list("Common" = sel_countries,
+                               "All Countries" = country_names),
+                options = list(
+                  `live-search` = TRUE,
+                  `actions-box` = TRUE,
+                  size = 10,
+                  style = "background-color: white; border-radius: 5px;"
+                ),
+                width = "90%"
+              )
+            ),
+            div(
+              class = "append_table",
+              textInput(
+                "append_city",
+                label = h5("City", style = "color:white; margin-bottom: 0px;"),
+                width = "80%"
+              )
+            ),
+            div(
+              class = "append_table",
+              dateInput(
+                "append_analysisdate",
+                label = h5("Typing Date", style = "color:white; margin-bottom: 0px;"),
+                value = Sys.Date(),
+                width = "50%"
+              )
+            ),
+            br(),
+            actionButton(
+              inputId = "conf_meta_single",
+              label = "Add"
+            )
           )
         )
       })
-      
-      output$typing_start <- renderUI(actionButton(
-        inputId = "typing_start",
-        label = "Start",
-        width = "100px"
-      ))
-      
-      output$arrow_start <-
-        renderUI(
-          HTML(
-            '<i class="fa-solid fa-arrow-down fa-beat-fade fa-xl" style="color: #ffffff;"></i>'
-          )
-        )
-      
     }
-    
   })
   
+  # Render Start Typing UI
+  
+  output$start_typing_ui <- renderUI({
+    column(
+      width = 3,
+      align = "center",
+      br(),
+      br(),
+      uiOutput("header_start_single"),
+      br(),
+      br(),
+      uiOutput("selected_scheme"),
+      br(),
+      uiOutput("typing_start"),
+      br(), br(),
+      conditionalPanel(
+        "input.typing_start",
+        br(),
+        progressBar(
+          "progress_bar",
+          value = 0,
+          display_pct = TRUE,
+          title = ""
+        )
+      ),
+    )
+  })
   
   
   # Get genome datapath
@@ -4558,15 +4489,14 @@ server <- function(input, output, session) {
   
   
   observeEvent(input$typing_start, {
-    selected_organism <<- input$cgmlst_typing
     
     # Locate folder containing cgMLST scheme
     
-    search_string <-
-      paste0(gsub(" ", "_", selected_organism), "_alleles")
+    search_string <<-
+      paste0(gsub(" ", "_", DF1$scheme), "_alleles")
     
-    scheme_folders <-
-      dir_ls(paste0(getwd(), "/Database/", gsub(" ", "_", selected_organism)))
+    scheme_folders <<-
+      dir_ls(paste0(getwd(), "/Database/", gsub(" ", "_", DF1$scheme)))
     
     if (any(grepl(search_string, scheme_folders))) {
       # KMA initiate index
@@ -4584,11 +4514,19 @@ server <- function(input, output, session) {
       index_kma <- paste0(
         "#!/bin/bash\n",
         'base_path="/home/marian/Documents/Projects/Masterthesis"', '\n',
-        'kma_database="$base_path/PhyloTree/execute/kma_database/"', shQuote(paste0(gsub(" ", "_", selected_organism))), '\n',
+        'kma_database="$base_path/PhyloTree/execute/kma_database/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
         "genome=",
         shQuote(typing_reactive$single_path$datapath),
         "\n",
-        '/home/marian/miniconda3/bin/kma index -i "$genome" -o "$kma_database"'
+        'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
+        '# Function to log messages to the file', '\n',
+        'log_message() {', '\n',
+        '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
+        '}', '\n',
+        '# Create a log file or truncate if it exists', '\n',
+        'echo "Script Log" > "$log_file"', '\n',
+        '/home/marian/miniconda3/bin/kma index -i "$genome" -o "$kma_database"', '\n',
+        'log_message "Initiated $genome"'
       )
       
       # Specify the path to save the script
@@ -4608,22 +4546,29 @@ server <- function(input, output, session) {
       
       kma_run <- paste0(
         "#!/bin/bash\n",
+        'cd execute', '\n',
         'base_path="/home/marian/Documents/Projects/Masterthesis"', '\n',
-        'kma_database="$base_path/PhyloTree/execute/kma_database/"', shQuote(paste0(gsub(" ", "_", selected_organism))), '\n',
+        'kma_database="$base_path/PhyloTree/execute/kma_database/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
         "query_folder=",
         shQuote(paste0(
           getwd(),
           "/Database/",
-          gsub(" ", "_", selected_organism),
+          gsub(" ", "_", DF1$scheme),
           "/",
           search_string
         )),
         "\n",
-        "tmp_dir=",
-        shQuote(tempdir()),
-        "\n",
-        'mkdir $tmp_dir/results -p',
-        "\n",
+        '# Directory name', '\n',
+        'results=', shQuote(paste0(getwd(),
+                                   "/Database/",
+                                   gsub(" ", "_", DF1$scheme), 
+                                   "/results")), '\n',
+        '# Remove the existing directory (if it exists)', '\n',
+        'if [ -d "$results" ]; then', '\n',
+        '    rm -r "$results"', '\n',
+        'fi', '\n',
+        '# Create a new directory', '\n', 
+        'mkdir "$results"', '\n',
         'echo 0 > ',
         shQuote(paste0(getwd(), "/execute/progress.fifo")),
         "\n",
@@ -4639,7 +4584,7 @@ server <- function(input, output, session) {
         "\n",
         'query_filename_noext="${query_filename%.*}"',
         "\n",
-        'output_file="$output_folder/$query_filename_noext"',
+        'output_file="$results/$query_filename_noext"',
         "\n",
         '/home/marian/miniconda3/bin/kma -i "$query_file" -o "$output_file" -t_db "$kma_database" -nc -status',
         "\n",
@@ -4650,7 +4595,8 @@ server <- function(input, output, session) {
         "\n",
         'fi',
         "\n",
-        'done'
+        'done', '\n',
+        'Rscript ', shQuote(paste0(getwd(), "/execute/single_typing.R"))
       )
       
       
@@ -4692,6 +4638,22 @@ server <- function(input, output, session) {
         Sys.sleep(3)
       }
       
+      output$typing_fin <- renderUI({
+        column(
+          width = 12,
+          br(), 
+          HTML(paste("<span style='color: white;'>", "Typing finalized.", "Reload the database too see result", sep = '<br/>')),
+          br()
+        )
+      })
+      
+      output$reset_single_typing <- renderUI({
+        actionButton(
+          "reset_single_typing",
+          "Reset",
+          icon = icon("arrows-rotate")
+        )
+      })
     } else {
       show_alert(
         title = "Error",
@@ -4703,304 +4665,65 @@ server <- function(input, output, session) {
         type = "error"
       )
     }
+  })
+  
+  #### Declare Metadata  ----
+  
+  observeEvent(input$conf_meta_single, {
     
-    output$arrow_start <- NULL
-    
-    output$arrow_profile <-
-      renderUI(
+      meta_info <- data.frame(assembly_id = input$assembly_id,
+                              assembly_name = input$assembly_name,
+                              cgmlst_typing = DF1$scheme,
+                              append_isodate = input$append_isodate,
+                              append_host = input$append_host,
+                              append_country = input$append_country,
+                              append_city = input$append_city,
+                              append_analysisdate = input$append_analysisdate,
+                              db_directory = paste0(getwd(), "/Database/", gsub(" ", "_", DF1$scheme)))
+      
+      saveRDS(meta_info, paste0(
+        getwd(),
+        "/execute/meta_info_single.rds"
+      ))
+      
+      show_toast(
+        title = "Metadata declared",
+        type = "success",
+        position = "top-end",
+        timer = 3000
+      )
+      
+      Sys.sleep(0.5)
+      
+      output$typing_start <- renderUI(
+        actionButton(
+          inputId = "typing_start",
+          label = "Start",
+          icon = icon("circle-play")
+        )
+      )
+      
+      output$selected_scheme <- renderUI({
         HTML(
-          '<i class="fa-solid fa-arrow-down fa-beat-fade fa-xl" style="color: #ffffff;"></i>'
+          paste(
+            "<span style='color: white;'>",
+            "Typing by <strong>",
+            DF1$scheme,
+            "</strong> scheme."
+          )
         )
-      )
-    
-    output$get_allele_profile <-
-      renderUI(actionButton("get_allele_profile",
-                            "Get Allelic Profile"))
+      })
+      
+      output$header_start_single <- renderUI({
+        h3(p("Start Typing"), style = "color:white")
+      })
+      
     
   })
   
+  ####  Events Single Typing ----
   
-  
-  
-  
-  #### Get Allelic Profile  ----
-  
-  observeEvent(input$get_allele_profile, {
-    
-    output$arrow_profile <- NULL
-    
-    # List all the .frag.gz files in the folder
-    frag_files <-
-      list.files(paste0(tempdir(), "/results"),
-                 pattern = "\\.frag\\.gz$",
-                 full.names = TRUE)
-    
-    # List to store data frames
-    frag_data_list <<- list()
-    
-    # Initialize an empty vector to store the results
-    allele_vector <<- integer(length(frag_files))
-    
-    for (i in 1:length(frag_files)) {
-      # Extract the base filename without extension
-      frag_filename <-
-        gsub(".frag", "", tools::file_path_sans_ext(basename(frag_files[i])))
-      
-      # Check if the file is empty
-      if (file.info(frag_files[i])$size < 100) {
-        # Handle empty file: Insert NA in the allele_vector and create an empty data frame
-        allele_vector[i] <<- NA
-        frag_data <-
-          data.frame(Score = numeric(0), Variant = character(0))
-      } else {
-        # Read the .frag.gz file into a data table
-        frag_data <-
-          fread(frag_files[i], sep = "\t", header = FALSE)
-        
-        # Extract the third, and seventh columns
-        frag_data <- frag_data[, .(V3, V7)]
-        
-        # Find the row with the highest value in the third field
-        max_row <- which.max(frag_data$V3)
-        
-        # Extract the value from the seventh field in the max row
-        allele_vector[i] <<- frag_data$V7[max_row]
-        
-        # Set column names
-        setnames(frag_data, c("Score", "Variant"))
-      }
-      
-      # Store the data frame in the list with the filename as the name
-      frag_data_list[[frag_filename]] <<- frag_data
-      
-      
-      prog_typ <- round(i / length(frag_files) * 100)
-      
-      updateProgressBar(
-        session = session,
-        id = "progress_profile",
-        value = prog_typ,
-        total = 100
-      )
-    }
-    
-    output$typing_fin <- renderUI({
-      length <- paste(length(allele_vector), "alleles computed.")
-      int <-
-        paste(length(allele_vector) - sum(sapply(allele_vector, is.na)),
-              "successful attributions.")
-      error <-
-        paste(sum(sapply(allele_vector, is.na)), "unsuccessful attribution(s) (NA).")
-      HTML(paste("<span style='color: white;'>", length, int, error, sep = '<br/>'))
-    })
-    
-    output$sel_result <- renderUI({
-      pickerInput(
-        "sel_result",
-        label = "Select Locus",
-        choices = names(frag_data_list),
-        selected = names(frag_data_list)[1],
-        options = list(
-          `live-search` = TRUE,
-          `actions-box` = TRUE,
-          size = 10,
-          style = "background-color: white; border-radius: 5px;"
-        )
-      )
-    })
-    
-    output$typ_res_tab <- renderTable({
-      frag_data_list[[input$sel_result]]
-    })
-    
-    allele_vector <- as.integer(allele_vector)
-  })
-  
-  
-  
-  
-  
-  
-  #### Append Allelic Profile  ----
-  
-  # Append as entry to local database
-  
-  observeEvent(input$append, {
-    confirmSweetAlert(
-      inputId = "append_conf",
-      type = "info",
-      btn_colors = c("grey", "green"),
-      text = paste(
-        "Do you want to append the typed allelic profile to local",
-        input$cgmlst_typing,
-        "database?"
-      )
-    )
-  })
-  
-  
-  observeEvent(input$append_conf, {
-    # If first Typing Entry
-    if (!any(grepl("Typing", dir_ls(paste0(
-      getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing)
-    ))))) {
-      Database <- list(Typing = data.frame())
-      
-      Typing <-
-        data.frame(matrix(
-          NA,
-          nrow = 0,
-          ncol = 12 + length(list.files(
-            paste0(
-              getwd(),
-              "/Database/",
-              gsub(" ", "_", input$cgmlst_typing),
-              paste0("/", gsub(" ", "_", input$cgmlst_typing), "_alleles")
-            )
-          ))
-        ))
-      
-      metadata <-
-        c(
-          1,
-          TRUE,
-          input$assembly_id,
-          input$assembly_name,
-          input$cgmlst_typing,
-          as.character(input$append_isodate),
-          input$append_host,
-          input$append_country,
-          input$append_city,
-          as.character(input$append_analysisdate),
-          length(allele_vector) - sum(sapply(allele_vector, is.na)),
-          sum(sapply(allele_vector, is.na))
-        )
-      
-      new_row <- c(metadata, as.integer(allele_vector))
-      
-      Typing <- rbind(Typing, new_row)
-      
-      colnames(Typing) <-
-        append(
-          c(
-            "Index",
-            "Include",
-            "Assembly ID",
-            "Assembly Name",
-            "Scheme",
-            "Isolation Date",
-            "Host",
-            "Country",
-            "City",
-            "Typing Date",
-            "Successes",
-            "Errors"
-          ),
-          gsub(".fasta", "", basename(list.files(
-            paste0(
-              getwd(),
-              "/Database/",
-              gsub(" ", "_", input$cgmlst_typing),
-              paste0("/", gsub(" ", "_", input$cgmlst_typing), "_alleles")
-            )
-          )))
-        )
-      
-      DF1$data <- Typing
-      
-      Database[["Typing"]] <- Typing
-      
-      saveRDS(Database,
-              paste0(
-                getwd(),
-                "/Database/",
-                gsub(" ", "_", input$cgmlst_typing),
-                "/Typing.rds"
-              ))
-      
-    } else {
-      # If not first Typing Entry
-      
-      metadata <-
-        c(
-          nrow(DF1$data) + 1,
-          TRUE,
-          input$assembly_id,
-          input$assembly_name,
-          input$cgmlst_typing,
-          as.character(input$append_isodate),
-          input$append_host,
-          input$append_country,
-          input$append_city,
-          as.character(input$append_analysisdate),
-          length(allele_vector) - sum(sapply(allele_vector, is.na)),
-          sum(sapply(allele_vector, is.na))
-        )
-      
-      df_meta <- data.frame(nrow(DF1$data) + 1,
-                       TRUE,
-                       input$assembly_id,
-                       input$assembly_name,
-                       input$cgmlst_typing,
-                       as.character(input$append_isodate),
-                       input$append_host,
-                       input$append_country,
-                       input$append_city,
-                       as.character(input$append_analysisdate),
-                       length(allele_vector) - sum(sapply(allele_vector, is.na)),
-                       sum(sapply(allele_vector, is.na)))
-      
-      df_profile <- data.frame(matrix(allele_vector, ncol = length(allele_vector)))
-      
-      merged <- cbind(df_meta, df_profile)
-      
-      colnames(merged) <-
-        append(
-          c(
-            "Index",
-            "Include",
-            "Assembly ID",
-            "Assembly Name",
-            "Scheme",
-            "Isolation Date",
-            "Host",
-            "Country",
-            "City",
-            "Typing Date",
-            "Successes",
-            "Errors"
-          ),
-          gsub(".fasta", "", basename(list.files(
-            paste0(
-              getwd(),
-              "/Database/",
-              gsub(" ", "_", input$cgmlst_typing),
-              paste0("/", gsub(" ", "_", input$cgmlst_typing), "_alleles")
-            )
-          )))
-        )
-      
-      DF1$data <- rbind(DF1$data, merged)
-      
-      Database <- list(Typing = data.frame())
-      
-      Database$Typing <- DF1$data
-      
-      saveRDS(Database,
-              paste0(
-                getwd(),
-                "/Database/",
-                gsub(" ", "_", input$cgmlst_typing),
-                "/Typing.rds"
-              ))
-    }
-    
-    show_toast(
-      title = "Entry Added",
-      type = "success",
-      position = "top-end",
-      timer = 4000
-    )
+  observeEvent(input$reset_single_typing, {
     
   })
   
@@ -5071,13 +4794,13 @@ server <- function(input, output, session) {
   output$initiate_typing_header <- renderUI(h3(p("Initiate Typing"), style = "color:white"))
   
   observeEvent(input$conf_meta_multi, {
-    meta_info <- data.frame(cgmlst_typing = input$cgmlst_typing,
+    meta_info <- data.frame(cgmlst_typing = DF1$scheme,
                             append_isodate = input$append_isodate_multi,
                             append_host = input$append_host_multi,
                             append_country = input$append_country_multi,
                             append_city = input$append_city_multi,
                             append_analysisdate = input$append_analysisdate_multi,
-                            db_directory = paste0(getwd(), "/Database/", gsub(" ", "_", input$cgmlst_typing)))
+                            db_directory = paste0(getwd(), "/Database/", gsub(" ", "_", DF1$scheme)))
     
     saveRDS(meta_info, paste0(
       getwd(),
@@ -5096,7 +4819,9 @@ server <- function(input, output, session) {
     output$multi_start_button <- renderUI({
       actionButton(
         "start_typ_multi",
-        "Start Typing")
+        "Start",
+        icon = icon("circle-play")
+      )
     })
     
     output$header_start_multi <- renderUI({
@@ -5253,7 +4978,7 @@ server <- function(input, output, session) {
       '# Directory name', '\n',
       'results=', shQuote(paste0(getwd(),
                                  "/Database/",
-                                 gsub(" ", "_", input$cgmlst_typing), 
+                                 gsub(" ", "_", DF1$scheme), 
                                  "/results")), '\n',
       '# Remove the existing directory (if it exists)', '\n',
       'if [ -d "$results" ]; then', '\n',
@@ -5262,13 +4987,13 @@ server <- function(input, output, session) {
       '# Create a new directory', '\n', 
       'mkdir "$results"', '\n',
       '#INDEXING GENOME AS DATABASE', '\n',
-      'database_name=', shQuote(gsub(" ", "_", input$cgmlst_typing)), '\n',
+      'database_name=', shQuote(gsub(" ", "_", DF1$scheme)), '\n',
       '#RUNNING KMA', '\n',
       'query_folder=', shQuote(paste0(getwd(), 
                                       "/Database/", 
-                                      gsub(" ", "_", input$cgmlst_typing), 
+                                      gsub(" ", "_", DF1$scheme), 
                                       "/",
-                                      gsub(" ", "_", input$cgmlst_typing), 
+                                      gsub(" ", "_", DF1$scheme), 
                                       "_alleles")), '\n',
       'genome_filename_noext=""', '\n',
       '#Indexing Loop', '\n',
@@ -5323,34 +5048,51 @@ server <- function(input, output, session) {
           solidHeader = TRUE,
           status = "primary",
           width = "100%",
-          dateInput("append_isodate_multi",
-                    label = "Isolation Date",
-                    width = "50%"),
-          textInput("append_host_multi",
-                    label = "Host",
-                    width = "80%"),
-          pickerInput(
-            "append_country_multi",
-            "Country",
-            choices = list("Common" = sel_countries,
-                           "All Countries" = country_names),
-            options = list(
-              `live-search` = TRUE,
-              `actions-box` = TRUE,
-              size = 10,
-              style = "background-color: white; border-radius: 5px;"
-            ),
-            width = "90%"
+          div(
+            class = "append_table",
+            dateInput("append_isodate_multi",
+                      label = h5("Isolation Date", style = "color:white; margin-bottom: 0px;"),
+                      width = "50%")
           ),
-          textInput("append_city_multi",
-                    label = "City",
-                    width = "80%"),
-          dateInput(
-            "append_analysisdate_multi",
-            label = "Typing Date",
-            value = Sys.Date(),
-            width = "50%"
-          )
+          div(
+            class = "append_table",
+            textInput("append_host_multi",
+                      label = h5("Host", style = "color:white; margin-bottom: 0px;"),
+                      width = "80%")
+          ),
+          div(
+            class = "append_table",
+            pickerInput(
+              "append_country_multi",
+              label = h5("Country", style = "color:white; margin-bottom: 0px;"),
+              choices = list("Common" = sel_countries,
+                             "All Countries" = country_names),
+              options = list(
+                `live-search` = TRUE,
+                `actions-box` = TRUE,
+                size = 10,
+                style = "background-color: white; border-radius: 5px;"
+              ),
+              width = "90%"
+            )
+          ),
+          div(
+            class = "append_table",
+            textInput("append_city_multi",
+                      label = h5("City", style = "color:white; margin-bottom: 0px;"),
+                      width = "80%")
+          ),
+          div(
+            class = "append_table",
+            dateInput(
+              "append_analysisdate_multi",
+              label = h5("Typing Date", style = "color:white; margin-bottom: 0px;"),
+              value = Sys.Date(),
+              width = "50%"
+            )
+          ),
+          br(),
+          uiOutput("conf_meta_multi_button")
         )
       })
       
