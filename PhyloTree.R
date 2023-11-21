@@ -360,19 +360,19 @@ ui <- dashboardPage(
       uiOutput("menu_sep2"),
       conditionalPanel(
         "input.tabs==='database'",
-          column(
-            width = 12,
-            align = "center",
-            br(), br(),
-            p(
-              HTML(
-                paste(
-                  tags$span(style='color: white; font-size: 18px; margin-bottom: 0px', 'Save database changes')
-                )
+        column(
+          width = 12,
+          align = "center",
+          br(), br(),
+          p(
+            HTML(
+              paste(
+                tags$span(style='color: white; font-size: 18px; margin-bottom: 0px', 'Save database changes')
               )
-            ),
-            uiOutput("edit_button")
-          )
+            )
+          ),
+          uiOutput("edit_button")
+        )
       ),
       conditionalPanel(
         "input.tabs==='typing'",
@@ -458,13 +458,13 @@ ui <- dashboardPage(
             ),
             column(
               width = 6,
-                actionBttn(
-                  "save_plot",
-                  style = "simple",
-                  label = "",
-                  size = "sm",
-                  icon = icon("download"),
-                  color = "primary"
+              actionBttn(
+                "save_plot",
+                style = "simple",
+                label = "",
+                size = "sm",
+                icon = icon("download"),
+                color = "primary"
                 
               )
             )
@@ -864,7 +864,7 @@ ui <- dashboardPage(
             uiOutput("loci_header"),
             br(),
             div(class = "test",
-            dataTableOutput("db_loci"))
+                dataTableOutput("db_loci"))
           )
         )
       ),
@@ -989,6 +989,7 @@ ui <- dashboardPage(
             tags$style("div#progress_bar.progress-bar {font-size:13px; line-height: 30px;}"),
             tags$style(".progress {border-radius: 5px; height: 30px; line-height: 30px}"),
             uiOutput("initiate_typing_ui"),
+            uiOutput("single_typing_progress"),
             column(1),
             uiOutput("metadata_single_box"),
             column(width = 1),
@@ -2274,7 +2275,7 @@ server <- function(input, output, session) {
         
         output$scheme_info <- NULL
         output$scheme_header <- NULL
-      
+        
       }
       
       if (!class(DF1$loci_info) == "NULL") {
@@ -3091,8 +3092,8 @@ server <- function(input, output, session) {
     if(is.null(plot_loc$slot1_getname)) {
       h5("Empty", style = "color:white; margin-top: 6px")
     } else {
-        h5(plot_loc$slot1_getname, style = "color:white; margin-top: 6px")
-      }
+      h5(plot_loc$slot1_getname, style = "color:white; margin-top: 6px")
+    }
   })
   
   output$slot2_status <- renderUI({
@@ -3144,7 +3145,7 @@ server <- function(input, output, session) {
         plot.background = element_rect(fill = bg_color())
       )
   })
-      
+  
   observeEvent(input$create_tree, {
     
     set.seed(1)
@@ -3566,13 +3567,13 @@ server <- function(input, output, session) {
         easyClose = TRUE,
         footer = tagList(
           modalButton("Cancel"),
-            downloadBttn(
-              "download_plot",
-              style = "simple",
-              label = "",
-              size = "sm",
-              icon = icon("download")
-            )
+          downloadBttn(
+            "download_plot",
+            style = "simple",
+            label = "",
+            size = "sm",
+            icon = icon("download")
+          )
           
         )
       )
@@ -3872,7 +3873,7 @@ server <- function(input, output, session) {
     showModal(
       modalDialog(
         paste0(
-         "Adding plot to ", input$slot_select, ". Name the slot content and confirm (max. 10 characters)."
+          "Adding plot to ", input$slot_select, ". Name the slot content and confirm (max. 10 characters)."
         ),
         textInput(
           "slot_name",
@@ -4299,7 +4300,7 @@ server <- function(input, output, session) {
   
   ### Single Typing ----
   
-  typing_reactive <- reactiveValues(table = data.frame(), single_path = data.frame())
+  typing_reactive <- reactiveValues(table = data.frame(), single_path = data.frame(), progress = 0, progress_pct = 0)
   
   #### Render UI Elements ----
   
@@ -4441,39 +4442,9 @@ server <- function(input, output, session) {
     }
   })
   
-  # Render Start Typing UI
-  
-  output$start_typing_ui <- renderUI({
-    column(
-      width = 3,
-      align = "center",
-      br(),
-      br(),
-      uiOutput("header_start_single"),
-      br(),
-      br(),
-      uiOutput("selected_scheme"),
-      br(),
-      uiOutput("typing_start"),
-      br(), br(),
-      conditionalPanel(
-        "input.typing_start",
-        br(),
-        progressBar(
-          "progress_bar",
-          value = 0,
-          display_pct = TRUE,
-          title = ""
-        )
-      ),
-    )
-  })
-  
-  
   # Get genome datapath
   
   volumes = getVolumes()
-  
   
   observe({
     # Get selected Genome in Single Mode
@@ -4482,26 +4453,30 @@ server <- function(input, output, session) {
                     roots = c(wd = "/home"),
                     session = session)
     typing_reactive$single_path <- parseFilePaths(roots = c(wd = "/home"), input$genome_file)
-    
   })
   
-  #### Run KMA index script ----
-  
+  #### Run KMA ----
   
   observeEvent(input$typing_start, {
     
+    # Remove UI 
+    
+    output$initiate_typing_ui <- NULL
+    output$metadata_single_box <- NULL
+    output$start_typing_ui <- NULL
+    
     # Locate folder containing cgMLST scheme
     
-    search_string <<-
+    search_string <-
       paste0(gsub(" ", "_", DF1$scheme), "_alleles")
     
-    scheme_folders <<-
+    scheme_folders <-
       dir_ls(paste0(getwd(), "/Database/", gsub(" ", "_", DF1$scheme)))
     
     if (any(grepl(search_string, scheme_folders))) {
       # KMA initiate index
       
-      scheme_select <<-
+      scheme_select <-
         as.character(scheme_folders[which(grepl(search_string, scheme_folders))])
       
       show_toast(
@@ -4511,8 +4486,11 @@ server <- function(input, output, session) {
         timer = 12000
       )
       
-      index_kma <- paste0(
+      ### Run KMA Typing
+      
+      kma_run <- paste0(
         "#!/bin/bash\n",
+        'cd execute', '\n',
         'base_path="/home/marian/Documents/Projects/Masterthesis"', '\n',
         'kma_database="$base_path/PhyloTree/execute/kma_database/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
         "genome=",
@@ -4526,29 +4504,7 @@ server <- function(input, output, session) {
         '# Create a log file or truncate if it exists', '\n',
         'echo "Script Log" > "$log_file"', '\n',
         '/home/marian/miniconda3/bin/kma index -i "$genome" -o "$kma_database"', '\n',
-        'log_message "Initiated $genome"'
-      )
-      
-      # Specify the path to save the script
-      index_kma_path <-
-        paste0(getwd(), "/execute/index_kma.sh")
-      
-      # Write the script to a file
-      cat(index_kma, file = index_kma_path)
-      
-      # Make the script executable
-      system(paste("chmod +x", index_kma_path))
-      
-      # Execute the script
-      system(paste(index_kma_path))
-      
-      # KMA Run
-      
-      kma_run <- paste0(
-        "#!/bin/bash\n",
-        'cd execute', '\n',
-        'base_path="/home/marian/Documents/Projects/Masterthesis"', '\n',
-        'kma_database="$base_path/PhyloTree/execute/kma_database/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
+        'log_message "Initiated $genome"', '\n',
         "query_folder=",
         shQuote(paste0(
           getwd(),
@@ -4596,9 +4552,10 @@ server <- function(input, output, session) {
         'fi',
         "\n",
         'done', '\n',
-        'Rscript ', shQuote(paste0(getwd(), "/execute/single_typing.R"))
+        'log_message "Formatting $genome."', '\n',
+        'Rscript ', shQuote(paste0(getwd(), "/execute/single_typing.R")), '\n',
+        'log_message "Finalized $genome."', '\n'
       )
-      
       
       # Specify the path to save the script
       kma_run_path <- paste0(getwd(), "/execute", "/kma_run.sh")
@@ -4612,48 +4569,45 @@ server <- function(input, output, session) {
       # Execute the script
       system(paste(kma_run_path), wait = FALSE)
       
-      Sys.sleep(1)
-      
-      progress <- 0
-      
       scheme_loci <-
         list.files(path = scheme_select, full.names = TRUE)
       
       # Filter the files that have the ".fasta" extension
-      scheme_loci_f <-
+      typing_reactive$scheme_loci_f <-
         scheme_loci[grep(".fasta$", scheme_loci, ignore.case = TRUE)]
       
-      while (progress < length(scheme_loci_f)) {
-        progress <- readLines(paste0(getwd(), "/execute", "/progress.fifo"))
-        progress <- as.numeric(progress)
-        progress_pct <-
-          floor((as.numeric(progress) / length(scheme_loci_f)) * 100)
-        updateProgressBar(
-          session = session,
-          id = "progress_bar",
-          value = progress_pct,
-          total = 100,
-          title = paste0(as.character(progress), "/", length(scheme_loci_f))
-        )
-        Sys.sleep(3)
-      }
-      
-      output$typing_fin <- renderUI({
-        column(
-          width = 12,
-          br(), 
-          HTML(paste("<span style='color: white;'>", "Typing finalized.", "Reload the database too see result", sep = '<br/>')),
-          br()
+      output$single_typing_progress <- renderUI({
+        fluidRow(
+          br(), br(),
+          column(width = 1),
+          column(
+            width = 2,
+            h3(p("Pending Single Typing ..."), style = "color:white")
+          ),
+          column(
+            width = 2,
+            br(),
+            HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:24px;color:white"></i>'))
+          ),
+          br(), br(), br(),
+          fluidRow(
+            column(width = 1),
+            uiOutput("typing_fin"),
+            column(
+              width = 4,
+              br(), br(),
+              uiOutput("reset_single_typing"),
+              progressBar(
+                "progress_bar",
+                value = 0,
+                display_pct = TRUE,
+                title = ""
+              )
+            )
+          )
         )
       })
       
-      output$reset_single_typing <- renderUI({
-        actionButton(
-          "reset_single_typing",
-          "Reset",
-          icon = icon("arrows-rotate")
-        )
-      })
     } else {
       show_alert(
         title = "Error",
@@ -4667,43 +4621,89 @@ server <- function(input, output, session) {
     }
   })
   
+  # Function to update Progress Bar
+  update <- reactive({
+    invalidateLater(3000, session)
+    progress <- readLines(paste0(getwd(), "/execute", "/progress.fifo"))
+    progress <- as.numeric(progress)
+    typing_reactive$progress <- progress
+    typing_reactive$progress_pct <-
+      floor((as.numeric(progress) / length(typing_reactive$scheme_loci_f)) * 100)
+    progress_pct <-
+      floor((as.numeric(progress) / length(typing_reactive$scheme_loci_f)) * 100)
+  })
+  
+  # Observe Typing Progress
+  observe({
+    
+    # Update Progress Bar
+    updateProgressBar(
+      session = session,
+      id = "progress_bar",
+      value = update(),
+      total = 100,
+      title = paste0(as.character(typing_reactive$progress), "/", length(typing_reactive$scheme_loci_f))
+    )
+    
+    # Render when finalized  
+    if(typing_reactive$progress_pct == 100) {
+      output$typing_fin <- renderUI({
+        column(
+          width = 2,
+          br(), br(),
+          HTML(paste("<span style='color: white;'>", "Typing finalized.", "Reload the database too see result", sep = '<br/>')),
+          br(),
+          actionButton(
+            "reset_single_typing",
+            "Reset",
+            icon = icon("arrows-rotate")
+          )
+        )
+      })
+      
+    } else {
+      output$typing_fin <- NULL
+    }
+    
+  })
+  
   #### Declare Metadata  ----
   
   observeEvent(input$conf_meta_single, {
     
-      meta_info <- data.frame(assembly_id = input$assembly_id,
-                              assembly_name = input$assembly_name,
-                              cgmlst_typing = DF1$scheme,
-                              append_isodate = input$append_isodate,
-                              append_host = input$append_host,
-                              append_country = input$append_country,
-                              append_city = input$append_city,
-                              append_analysisdate = input$append_analysisdate,
-                              db_directory = paste0(getwd(), "/Database/", gsub(" ", "_", DF1$scheme)))
-      
-      saveRDS(meta_info, paste0(
-        getwd(),
-        "/execute/meta_info_single.rds"
-      ))
-      
-      show_toast(
-        title = "Metadata declared",
-        type = "success",
-        position = "top-end",
-        timer = 3000
-      )
-      
-      Sys.sleep(0.5)
-      
-      output$typing_start <- renderUI(
-        actionButton(
-          inputId = "typing_start",
-          label = "Start",
-          icon = icon("circle-play")
-        )
-      )
-      
-      output$selected_scheme <- renderUI({
+    meta_info <- data.frame(assembly_id = input$assembly_id,
+                            assembly_name = input$assembly_name,
+                            cgmlst_typing = DF1$scheme,
+                            append_isodate = input$append_isodate,
+                            append_host = input$append_host,
+                            append_country = input$append_country,
+                            append_city = input$append_city,
+                            append_analysisdate = input$append_analysisdate,
+                            db_directory = paste0(getwd(), "/Database/", gsub(" ", "_", DF1$scheme)))
+    
+    saveRDS(meta_info, paste0(
+      getwd(),
+      "/execute/meta_info_single.rds"
+    ))
+    
+    show_toast(
+      title = "Metadata declared",
+      type = "success",
+      position = "top-end",
+      timer = 3000
+    )
+    
+    # Render Start Typing UI
+    
+    output$start_typing_ui <- renderUI({
+      column(
+        width = 3,
+        align = "center",
+        br(),
+        br(),
+        h3(p("Start Typing"), style = "color:white"),
+        br(),
+        br(),
         HTML(
           paste(
             "<span style='color: white;'>",
@@ -4711,13 +4711,15 @@ server <- function(input, output, session) {
             DF1$scheme,
             "</strong> scheme."
           )
+        ),
+        br(), br(),
+        actionButton(
+          inputId = "typing_start",
+          label = "Start",
+          icon = icon("circle-play")
         )
-      })
-      
-      output$header_start_single <- renderUI({
-        h3(p("Start Typing"), style = "color:white")
-      })
-      
+      )
+    })
     
   })
   
@@ -4725,6 +4727,46 @@ server <- function(input, output, session) {
   
   observeEvent(input$reset_single_typing, {
     
+    typing_reactive$progress <- 0
+    
+    typing_reactive$progress_pct <- 0
+    
+    output$single_typing_progress <- NULL
+    
+    output$typing_fin <- NULL
+    
+    typing_reactive$single_path <- data.frame()
+    
+    output$initiate_typing_ui <- renderUI({
+      column(
+        width = 3,
+        align = "center",
+        br(),
+        br(),
+        h3(p("Initiate Typing"), style = "color:white"),
+        br(),
+        br(),
+        p(
+          HTML(
+            paste(
+              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File (.fasta)')
+            )
+          )
+        ),
+        shinyFilesButton(
+          "genome_file",
+          "Browse" ,
+          title = "Please select the genome in .fasta format:",
+          multiple = FALSE,
+          buttonType = "default",
+          class = NULL
+        ),
+        br(),
+        br(),
+        br(),
+        uiOutput("genome_path")
+      )
+    })
   })
   
   ### Multi Typing ----
@@ -4738,8 +4780,8 @@ server <- function(input, output, session) {
     if(grepl("Multi Typing", tail(readLines(paste0(getwd(),"/execute/script_log.txt")), n = 1))) {
       return('no') 
     } else if(!grepl("Multi Typing", tail(readLines(paste0(getwd(),"/execute/script_log.txt")), n = 1))) {
-        return('yes')
-      } 
+      return('yes')
+    } 
   })
   
   outputOptions(output, "pending_multi", suspendWhenHidden = FALSE) 
@@ -4775,7 +4817,7 @@ server <- function(input, output, session) {
     } else {
       output$multi_select_table <- NULL
     }
-
+    
   })
   
   output$assembly_files_table <- renderUI({
@@ -4898,20 +4940,20 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$start_typ_multi, {
-      showModal(
-        modalDialog(
-          paste0(
-            "Typing multiple assemblies will take a while. Continue?"
-          ),
-          title = "Start Multi Typing",
-          fade = TRUE,
-          easyClose = TRUE,
-          footer = tagList(
-            modalButton("Cancel"),
-            actionButton("conf_start_multi", "Start", class = "btn btn-default")
-          )
+    showModal(
+      modalDialog(
+        paste0(
+          "Typing multiple assemblies will take a while. Continue?"
+        ),
+        title = "Start Multi Typing",
+        fade = TRUE,
+        easyClose = TRUE,
+        footer = tagList(
+          modalButton("Cancel"),
+          actionButton("conf_start_multi", "Start", class = "btn btn-default")
         )
       )
+    )
     
     observeEvent(input$Cancel, {
       removeModal()
@@ -5117,7 +5159,7 @@ server <- function(input, output, session) {
     invalidateLater(5000, session)
     readLines(paste0(getwd(), "/execute/script_log.txt"))
   })
-
+  
   # Render log content
   output$logText <- renderPrint({
     readLogFile()
