@@ -1031,9 +1031,13 @@ ui <- dashboardPage(
               ),
               column(1),
               column(
-                width = 2,
+                width = 3,
                 align = "center",
-                tags$style(".append_table {margin-bottom: 12px}"),
+                tags$style(".append_table {margin-top: 0px; margin-left: 3px}"),
+                tags$style("div#append_isodate_multi.shiny-date-input.form-group.shiny-input-container.shiny-bound-input input.form-control.shinyjs-resettable {text-align: center}"),
+                tags$style("div#append_analysisdate_multi.shiny-date-input.form-group.shiny-input-container.shiny-bound-input input.form-control.shinyjs-resettable {text-align: center}"),
+                tags$style(".append_table_country .btn {height: 32px}"),
+                tags$style(".append_table_country {margin-top: 23px; margin-bottom: 5px}"),
                 tags$style("button#conf_meta_multi {background: #20e6e5; color: black}"),
                 br(),
                 br(),
@@ -1042,17 +1046,7 @@ ui <- dashboardPage(
                 uiOutput("metadata_multi_box")
               ),
               column(1),
-              column(
-                width = 3,
-                align = "center",
-                br(),
-                br(),
-                uiOutput("header_start_multi"),
-                br(),
-                br(),
-                uiOutput("multi_start_button"),
-                br(), br()
-              )
+              uiOutput("start_multi_typing_ui")
             )
           ),
           conditionalPanel(
@@ -4300,7 +4294,8 @@ server <- function(input, output, session) {
   
   ### Single Typing ----
   
-  typing_reactive <- reactiveValues(table = data.frame(), single_path = data.frame(), progress = 0, progress_pct = 0)
+  typing_reactive <- reactiveValues(table = data.frame(), single_path = data.frame(), progress = 0, progress_pct = 0, progress_format_start = 0, progress_format_end = 0)
+  
   
   #### Render UI Elements ----
   
@@ -4361,9 +4356,13 @@ server <- function(input, output, session) {
       # Render metadata declaration box
       output$metadata_single_box <- renderUI({
         column(
-          width = 2,
+          width = 3,
           align = "center",
-          tags$style(".append_table {margin-bottom: 12px}"),
+          tags$style(".append_table {margin-top: 0px; margin-left: 3px}"),
+          tags$style("div#append_isodate.shiny-date-input.form-group.shiny-input-container.shiny-bound-input input.form-control.shinyjs-resettable {text-align: center}"),
+          tags$style("div#append_analysisdate.shiny-date-input.form-group.shiny-input-container.shiny-bound-input input.form-control.shinyjs-resettable {text-align: center}"),
+          tags$style(".append_table_country .btn {height: 32px}"),
+          tags$style(".append_table_country {margin-top: 23px; margin-bottom: 5px}"),
           tags$style("button#conf_meta_single {background: #20e6e5; color: black}"),
           br(),
           br(),
@@ -4373,69 +4372,154 @@ server <- function(input, output, session) {
           box(
             solidHeader = TRUE,
             status = "primary",
-            width = "50%",
-            div(
-              class = "append_table",
-              textInput("assembly_id",
-                        label = h5("Assembly ID", style = "color:white; margin-bottom: 0px;"),
-                        width = "80%")
+            width = "90%",
+            fluidRow(
+              column(
+                width = 5,
+                align = "left",
+                h5("Assembly ID", style = "color:white; margin-top: 30px; margin-left: 15px")
+              ),
+              column(
+                width = 7,
+                align = "left",
+                div(
+                  class = "append_table",
+                  textInput("assembly_id",
+                            label = "",
+                            width = "80%")
+                )
+              )
             ),
-            div(
-              class = "append_table",
-              textInput("assembly_name",
-                        label = h5("Assembly Name", style = "color:white; margin-bottom: 0px;"),
-                        width = "80%")
+            fluidRow(
+              column(
+                width = 5,
+                align = "left",
+                h5("Assembly Name", style = "color:white; margin-top: 30px; margin-left: 15px")
+              ),
+              column(
+                width = 7,
+                align = "left",
+                div(
+                  class = "append_table",
+                  textInput("assembly_name",
+                            label = "",
+                            width = "80%")
+                )
+              )
             ),
-            div(
-              class = "append_table",
-              dateInput("append_isodate",
-                        label = h5("Isolation Date", style = "color:white; margin-bottom: 0px;"),
-                        width = "50%")
+            fluidRow(
+              column(
+                width = 5,
+                align = "left",
+                h5("Isolation Date", style = "color:white; margin-top: 30px; margin-left: 15px")
+              ),
+              column(
+                width = 7,
+                align = "left",
+                div(
+                  class = "append_table",
+                  dateInput("append_isodate",
+                            label = "",
+                            width = "60%")
+                )
+              )
             ),
-            div(
-              class = "append_table",
-              textInput("append_host",
-                        label = h5("Host", style = "color:white; margin-bottom: 0px;"),
-                        width = "80%")
+            fluidRow(
+              column(
+                width = 5,
+                align = "left",
+                h5("Host", style = "color:white; margin-top: 30px; margin-left: 15px")
+              ),
+              column(
+                width = 7,
+                align = "left",
+                div(
+                  class = "append_table",
+                  textInput("append_host",
+                            label = "",
+                            width = "80%")
+                )
+              )
             ),
-            div(
-              class = "append_table",
-              pickerInput(
-                "append_country",
-                label = h5("Country", style = "color:white; margin-bottom: 0px;"),
-                choices = list("Common" = sel_countries,
-                               "All Countries" = country_names),
-                options = list(
-                  `live-search` = TRUE,
-                  `actions-box` = TRUE,
-                  size = 10,
-                  style = "background-color: white; border-radius: 5px;"
+            fluidRow(
+              column(
+                width = 5,
+                align = "left",
+                h5("Country", style = "color:white; margin-top: 30px; margin-left: 15px")
+              ),
+              column(
+                width = 7,
+                align = "left",
+                div(
+                  class = "append_table_country",
+                  pickerInput(
+                    "append_country",
+                    label = "",
+                    choices = list("Common" = sel_countries,
+                                   "All Countries" = country_names),
+                    options = list(
+                      `live-search` = TRUE,
+                      `actions-box` = TRUE,
+                      size = 10,
+                      style = "background-color: white; border-radius: 5px;"
+                    ),
+                    width = "90%"
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 5,
+                align = "left",
+                h5("City", style = "color:white; margin-top: 30px; margin-left: 15px")
+              ),
+              column(
+                width = 7,
+                align = "left",
+                div(
+                  class = "append_table",
+                  textInput(
+                    "append_city",
+                    label = "",
+                    width = "80%"
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 5,
+                align = "left",
+                h5("Typing Date", style = "color:white; margin-top: 30px; margin-left: 15px")
+              ),
+              column(
+                width = 7,
+                align = "left",
+                div(
+                  class = "append_table",
+                  dateInput(
+                    "append_analysisdate",
+                    label = "",
+                    value = Sys.Date(),
+                    width = "60%"
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 12,
+                align = "center",
+                br(), br(),
+                actionButton(
+                  inputId = "conf_meta_single",
+                  label = "Confirm"
                 ),
-                width = "90%"
+                br()
               )
             ),
-            div(
-              class = "append_table",
-              textInput(
-                "append_city",
-                label = h5("City", style = "color:white; margin-bottom: 0px;"),
-                width = "80%"
-              )
-            ),
-            div(
-              class = "append_table",
-              dateInput(
-                "append_analysisdate",
-                label = h5("Typing Date", style = "color:white; margin-bottom: 0px;"),
-                value = Sys.Date(),
-                width = "50%"
-              )
-            ),
-            br(),
-            actionButton(
-              inputId = "conf_meta_single",
-              label = "Add"
-            )
+            br()
           )
         )
       })
@@ -4460,13 +4544,11 @@ server <- function(input, output, session) {
   observeEvent(input$typing_start, {
     
     # Remove UI 
-    
     output$initiate_typing_ui <- NULL
     output$metadata_single_box <- NULL
     output$start_typing_ui <- NULL
     
     # Locate folder containing cgMLST scheme
-    
     search_string <-
       paste0(gsub(" ", "_", DF1$scheme), "_alleles")
     
@@ -4491,20 +4573,15 @@ server <- function(input, output, session) {
       kma_run <- paste0(
         "#!/bin/bash\n",
         'cd execute', '\n',
+        'echo 0 > ',
+        shQuote(paste0(getwd(), "/execute/progress.fifo")),
+        "\n",
         'base_path="/home/marian/Documents/Projects/Masterthesis"', '\n',
         'kma_database="$base_path/PhyloTree/execute/kma_database/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
         "genome=",
         shQuote(typing_reactive$single_path$datapath),
         "\n",
-        'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
-        '# Function to log messages to the file', '\n',
-        'log_message() {', '\n',
-        '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
-        '}', '\n',
-        '# Create a log file or truncate if it exists', '\n',
-        'echo "Script Log" > "$log_file"', '\n',
         '/home/marian/miniconda3/bin/kma index -i "$genome" -o "$kma_database"', '\n',
-        'log_message "Initiated $genome"', '\n',
         "query_folder=",
         shQuote(paste0(
           getwd(),
@@ -4525,11 +4602,6 @@ server <- function(input, output, session) {
         'fi', '\n',
         '# Create a new directory', '\n', 
         'mkdir "$results"', '\n',
-        'echo 0 > ',
-        shQuote(paste0(getwd(), "/execute/progress.fifo")),
-        "\n",
-        'output_folder="$tmp_dir/results"',
-        "\n",
         'count=0',
         "\n",
         'for query_file in "$query_folder"/*.fasta; do',
@@ -4552,9 +4624,11 @@ server <- function(input, output, session) {
         'fi',
         "\n",
         'done', '\n',
-        'log_message "Formatting $genome."', '\n',
+        'echo 888888 >> ',
+        shQuote(paste0(getwd(), "/execute/progress.fifo")), '\n',
         'Rscript ', shQuote(paste0(getwd(), "/execute/single_typing.R")), '\n',
-        'log_message "Finalized $genome."', '\n'
+        'echo 999999 >> ',
+        shQuote(paste0(getwd(), "/execute/progress.fifo")) 
       )
       
       # Specify the path to save the script
@@ -4578,7 +4652,7 @@ server <- function(input, output, session) {
       
       output$single_typing_progress <- renderUI({
         fluidRow(
-          br(), br(),
+          br(), br(), 
           column(width = 1),
           column(
             width = 2,
@@ -4592,10 +4666,9 @@ server <- function(input, output, session) {
           br(), br(), br(),
           fluidRow(
             column(width = 1),
-            uiOutput("typing_fin"),
             column(
               width = 4,
-              br(), br(),
+              br(), br(), br(),
               uiOutput("reset_single_typing"),
               progressBar(
                 "progress_bar",
@@ -4604,6 +4677,11 @@ server <- function(input, output, session) {
                 title = ""
               )
             )
+          ),
+          fluidRow(
+            column(width = 1),
+            uiOutput("typing_formatting"),
+            uiOutput("typing_fin")
           )
         )
       })
@@ -4624,7 +4702,13 @@ server <- function(input, output, session) {
   # Function to update Progress Bar
   update <- reactive({
     invalidateLater(3000, session)
-    progress <- readLines(paste0(getwd(), "/execute", "/progress.fifo"))
+    progress <- readLines(paste0(getwd(), "/execute", "/progress.fifo"))[1]
+    if(!is.na(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[2])) {
+      typing_reactive$progress_format_start <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[2])
+    }
+    if(!is.na(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[3])) {
+      typing_reactive$progress_format_end <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[3])
+    }
     progress <- as.numeric(progress)
     typing_reactive$progress <- progress
     typing_reactive$progress_pct <-
@@ -4645,14 +4729,29 @@ server <- function(input, output, session) {
       title = paste0(as.character(typing_reactive$progress), "/", length(typing_reactive$scheme_loci_f))
     )
     
+    if (typing_reactive$progress_format_start == 888888) {
+      output$typing_formatting <- renderUI({
+        column(
+          width = 2,
+          align = "center",
+          HTML(paste("Transforming data...", '<i class="fa-solid fa-spinner fa-spin-pulse fa-lg" style="color: #ffffff;"></i>'))
+        )
+      })
+    } else {
+      output$typing_formatting <- NULL
+    }
+    
     # Render when finalized  
-    if(typing_reactive$progress_pct == 100) {
+    if (typing_reactive$progress_format_end == 999999) {
+      output$typing_formatting <- NULL
+      
       output$typing_fin <- renderUI({
         column(
           width = 2,
+          align = "center",
           br(), br(),
-          HTML(paste("<span style='color: white;'>", "Typing finalized.", "Reload the database too see result", sep = '<br/>')),
-          br(),
+          HTML(paste("<span style='color: white;'>", "Typing finalized.", "Reset to start another typing process.", sep = '<br/>')),
+          br(), br(),
           actionButton(
             "reset_single_typing",
             "Reset",
@@ -4731,11 +4830,36 @@ server <- function(input, output, session) {
     
     typing_reactive$progress_pct <- 0
     
+    typing_reactive$progress_format <- 900000
+    
     output$single_typing_progress <- NULL
     
     output$typing_fin <- NULL
     
+    output$typing_formatting <- NULL
+    
     typing_reactive$single_path <- data.frame()
+    
+    # Resetting Progress.fifo 
+    
+    reset_kma <- paste0(
+      "#!/bin/bash\n",
+      'cd execute', '\n',
+      'echo 0 > ',
+      shQuote(paste0(getwd(), "/execute/progress.fifo"))
+      )
+    
+    # Specify the path to save the script
+    reset_kma_path <- paste0(getwd(), "/execute", "/reset_kma.sh")
+    
+    # Write the script to a file
+    cat(reset_kma, file = reset_kma_path)
+    
+    # Make the script executable
+    system(paste("chmod +x", reset_kma_path))
+    
+    # Execute the script
+    system(paste(reset_kma_path), wait = FALSE)
     
     output$initiate_typing_ui <- renderUI({
       column(
@@ -4858,16 +4982,30 @@ server <- function(input, output, session) {
     
     Sys.sleep(0.5)
     
-    output$multi_start_button <- renderUI({
-      actionButton(
-        "start_typ_multi",
-        "Start",
-        icon = icon("circle-play")
+    output$start_multi_typing_ui <- renderUI({
+      column(
+        width = 3,
+        align = "center",
+        br(),
+        br(),
+        h3(p("Start Typing"), style = "color:white"),
+        br(),
+        br(),
+        HTML(
+          paste(
+            "<span style='color: white;'>",
+            "Typing by <strong>",
+            DF1$scheme,
+            "</strong> scheme."
+          )
+        ),
+        br(), br(),
+        actionButton(
+          "start_typ_multi",
+          "Start",
+          icon = icon("circle-play")
+        )
       )
-    })
-    
-    output$header_start_multi <- renderUI({
-      h3(p("Start Typing"), style = "color:white")
     })
     
   })
@@ -4978,9 +5116,7 @@ server <- function(input, output, session) {
     output$assembly_files_table <- NULL
     output$header_declare_metadata <- NULL
     output$metadata_multi_box <- NULL
-    output$conf_meta_multi_button <- NULL
-    output$header_start_multi <- NULL
-    output$multi_start_button <- NULL
+    output$start_multi_typing_ui <-NULL
     
     # List Genome Assemblies Included in Analysis in Vector
     genome_selected <- hot_to_r(input$multi_select_table)
@@ -5089,67 +5225,149 @@ server <- function(input, output, session) {
         box(
           solidHeader = TRUE,
           status = "primary",
-          width = "100%",
-          div(
-            class = "append_table",
-            dateInput("append_isodate_multi",
-                      label = h5("Isolation Date", style = "color:white; margin-bottom: 0px;"),
-                      width = "50%")
+          width = "90%",
+          fluidRow(
+            column(
+              width = 5,
+              align = "left",
+              h5("Assembly ID", style = "color:white; margin-top: 30px; margin-left: 15px")
+            ),
+            column(
+              width = 7,
+              align = "left",
+              h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
+            )
           ),
-          div(
-            class = "append_table",
-            textInput("append_host_multi",
-                      label = h5("Host", style = "color:white; margin-bottom: 0px;"),
-                      width = "80%")
+          fluidRow(
+            column(
+              width = 5,
+              align = "left",
+              h5("Assembly Name", style = "color:white; margin-top: 30px; margin-left: 15px")
+            ),
+            column(
+              width = 7,
+              align = "left",
+              h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
+            )
           ),
-          div(
-            class = "append_table",
-            pickerInput(
-              "append_country_multi",
-              label = h5("Country", style = "color:white; margin-bottom: 0px;"),
-              choices = list("Common" = sel_countries,
-                             "All Countries" = country_names),
-              options = list(
-                `live-search` = TRUE,
-                `actions-box` = TRUE,
-                size = 10,
-                style = "background-color: white; border-radius: 5px;"
+          fluidRow(
+            column(
+              width = 5,
+              align = "left",
+              h5("Isolation Date", style = "color:white; margin-top: 30px; margin-left: 15px")
+            ),
+            column(
+              width = 7,
+              align = "left",
+              div(
+                class = "append_table",
+                dateInput("append_isodate_multi",
+                          label = "",
+                          width = "60%")
+              )
+            )
+          ),
+          fluidRow(
+            column(
+              width = 5,
+              align = "left",
+              h5("Host", style = "color:white; margin-top: 30px; margin-left: 15px")
+            ),
+            column(
+              width = 7,
+              align = "left",
+              div(
+                class = "append_table",
+                textInput("append_host_multi",
+                          label = "",
+                          width = "80%")
+              )
+            )
+          ),
+          fluidRow(
+            column(
+              width = 5,
+              align = "left",
+              h5("Country", style = "color:white; margin-top: 30px; margin-left: 15px")
+            ),
+            column(
+              width = 7,
+              align = "left",
+              div(
+                class = "append_table_country",
+                pickerInput(
+                  "append_country_multi",
+                  label = "",
+                  choices = list("Common" = sel_countries,
+                                 "All Countries" = country_names),
+                  options = list(
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE,
+                    size = 10,
+                    style = "background-color: white; border-radius: 5px;"
+                  ),
+                  width = "90%"
+                )
+              )  
+            )
+          ),
+          fluidRow(
+            column(
+              width = 5,
+              align = "left",
+              h5("City", style = "color:white; margin-top: 30px; margin-left: 15px")
+            ),
+            column(
+              width = 7,
+              align = "left",
+              div(
+                class = "append_table",
+                textInput("append_city_multi",
+                          label = "",
+                          width = "80%")
+              )
+            )
+          ),
+          fluidRow(
+            column(
+              width = 5,
+              align = "left",
+              h5("Typing Date", style = "color:white; margin-top: 30px; margin-left: 15px")
+            ),
+            column(
+              width = 7,
+              align = "left",
+              div(
+                class = "append_table",
+                dateInput(
+                  "append_analysisdate_multi",
+                  label = "",
+                  value = Sys.Date(),
+                  width = "60%"
+                )
+              )
+            )
+          ),
+          fluidRow(
+            column(
+              width = 12,
+              align = "center",
+              br(), br(),
+              actionButton(
+                inputId = "conf_meta_multi",
+                label = "Confirm"
               ),
-              width = "90%"
+              br()
             )
           ),
-          div(
-            class = "append_table",
-            textInput("append_city_multi",
-                      label = h5("City", style = "color:white; margin-bottom: 0px;"),
-                      width = "80%")
-          ),
-          div(
-            class = "append_table",
-            dateInput(
-              "append_analysisdate_multi",
-              label = h5("Typing Date", style = "color:white; margin-bottom: 0px;"),
-              value = Sys.Date(),
-              width = "50%"
-            )
-          ),
-          br(),
-          uiOutput("conf_meta_multi_button")
+          br()
         )
       })
       
-      output$conf_meta_multi_button <- renderUI({
-        actionButton(
-          "conf_meta_multi",
-          "Confirm"
-        )
-      })
     } else {
       output$header_declare_metadata <- NULL
       output$metadata_multi_box <- NULL
-      output$conf_meta_multi_button <- NULL
-      output$multi_start_button <- NULL
-      output$header_start_multi <- NULL
+      output$start_multi_typing_ui <- NULL
     }
   })
   
