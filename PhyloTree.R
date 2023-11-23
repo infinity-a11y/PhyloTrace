@@ -338,6 +338,11 @@ ui <- dashboardPage(
   ## Sidebar ----
   dashboardSidebar(
     tags$style("label{color: white;}"),
+    tags$style(".main-sidebar .sidebar .sidebar-menu .treeview-menu a {color: #ffffff !important; margin-left: 25px; border-radius: 20px; margin-top: 7px; margin-bottom: 7px}"),
+    tags$style(".main-sidebar .sidebar .sidebar-menu a {border: none}"),
+    tags$style(".main-sidebar .sidebar .sidebar-menu .treeview-menu li.active a {color: #000000 !important; border-radius: 20px; margin-top: 7px; margin-bottom: 7px}"),
+    tags$style(".main-sidebar .sidebar .sidebar-menu .treeview-menu li:hover a {color: #000000 !important; border-radius: 20px; margin-top: 7px; margin-bottom: 7px}"),
+    tags$style(".main-sidebar .sidebar .sidebar-menu li:hover a {color: #000000; border: none}"),
     tags$style("file.select{background-color: white;}"),
     tags$style(
       HTML("#include_edge {width: 20px; height: 20px; margin-top: 13px}")
@@ -822,10 +827,13 @@ ui <- dashboardPage(
     uiOutput("start_message"),
     
     tabItems(
+      
       ## Tab Database ----
       
+      ### Tab Browse Entries ----
+      
       tabItem(
-        tabName = "database",
+        tabName = "db_browse_entries",
         fluidRow(column(
           width = 3,
           align = "center",
@@ -862,8 +870,21 @@ ui <- dashboardPage(
                  uiOutput("edit_field"))
         ),
         br(),
-        uiOutput("db_line"),
-        br(),
+        uiOutput("db_line")
+      ),
+      
+      ### Tab Scheme Info  ----  
+      
+      tabItem(
+        tabName = "db_schemeinfo",
+        fluidRow(
+          column(
+          width = 3,
+          align = "center",
+          h2(p("Browse Local Database"), style = "color:white")
+          )
+        ),
+        hr(), br(), br(), br(),
         fluidRow(
           tags$style(".test .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_processing, .dataTables_wrapper .dataTables_paginate {
     color: #ffffff !important;}"),
@@ -884,6 +905,12 @@ ui <- dashboardPage(
                 dataTableOutput("db_loci"))
           )
         )
+      ),
+      
+      ### Tab Distance Matrix  ----  
+      
+      tabItem(
+        tabName = "db_distmatrix"
       ),
       
       ## Tab Add Scheme  ----  
@@ -2110,7 +2137,21 @@ server <- function(input, output, session) {
         menuItem(
           text = "Database Browser",
           tabName = "database",
-          icon = icon("database")
+          icon = icon("database"),
+          startExpanded = TRUE,
+          selected = TRUE,
+          menuSubItem(
+            text = "Browse Entries",
+            tabName = "db_browse_entries"
+          ),
+          menuSubItem(
+            text = "Scheme Info",
+            tabName = "db_schemeinfo"
+          ),
+          menuSubItem(
+            text = "Distance Matrix",
+            tabName = "db_distmatrix"
+          )
         ),
         menuItem(
           text = "Add Scheme",
@@ -4409,9 +4450,12 @@ server <- function(input, output, session) {
                     label = "",
                     choices = list("Common" = sel_countries,
                                    "All Countries" = country_names),
+                    selected = NULL,
+                    multiple = TRUE,
                     options = list(
                       `live-search` = TRUE,
                       `actions-box` = TRUE,
+                      maxOptions = 1,
                       size = 10,
                       style = "background-color: white; border-radius: 5px;"
                     ),
@@ -5001,9 +5045,12 @@ server <- function(input, output, session) {
                     label = "",
                     choices = list("Common" = sel_countries,
                                    "All Countries" = country_names),
+                    multiple = TRUE,
+                    selected = NULL,
                     options = list(
                       `live-search` = TRUE,
                       `actions-box` = TRUE,
+                      maxOptions = 1,
                       size = 10,
                       style = "background-color: white; border-radius: 5px;"
                     ),
