@@ -348,7 +348,14 @@ ui <- dashboardPage(
     tags$style(".selectize-control.single .selectize-input:after {right: 10px}"),
     tags$style("#scheme_db .selectize-control {font-size: 12px, }"),
     tags$style(".scheme_start {margin-left: -20px}"),
+    tags$style("i.fas {margin-right: 5px;}"),
     tags$style("i.fas.fa-rotate {position: relative; left: -5px;}"),
+    tags$style("i.far {margin-right: 5px}"),
+    tags$style("i.fas.fa-sliders {margin-right: 0px}"),
+    tags$style("i.fas.fa-xmark {margin-right: 0px}"),
+    tags$style("i.fas.fa-download {margin-right: 0px}"),
+    tags$style("i.far.fa-bookmark {margin-right: 0px}"),
+    tags$style("i.far.fa-file-lines {margin-left: 2px; margin-right: 8px;}"),
     tags$style("button#reload_db.btn.btn-default.action-button.shiny-bound-input {height: 30px; width: 30px; position: relative; left: -20px}"),
     tags$style("button#edit_button.btn.btn-default.action-button.shiny-bound-input {background: #20E6E5; color: #000000}"),
     br(), br(),
@@ -378,13 +385,23 @@ ui <- dashboardPage(
         "input.tabs==='typing'",
         column(
           width = 12,
-          align = "left",
-          br(),
-          prettyRadioButtons(
+          align = "center",
+          br(), br(),
+          p(
+            HTML(
+              paste(
+                tags$span(style='color: white; font-size: 18px; margin-bottom: 0px', 'Typing mode')
+              )
+            )
+          ),
+          radioGroupButtons(
             inputId = "typing_mode",
-            label = "Typing Mode",
             choices = c("Single", "Multi"),
-            selected = "Single"
+            selected = "Single",
+            checkIcon = list(
+              yes = icon("square-check"),
+              no = icon("square")
+            )
           ),
           br()
         )
@@ -998,91 +1015,14 @@ ui <- dashboardPage(
         ),
         conditionalPanel(
           "input.typing_mode == 'Multi'",
-          conditionalPanel(
-            condition = "output.pending_multi=='no'",
-            fluidRow(
-              column(
-                width = 3,
-                align = "center",
-                br(),
-                br(),
-                uiOutput("initiate_typing_header"),
-                br(),
-                br(),
-                p(
-                  HTML(
-                    paste(
-                      tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly Folder')
-                    )
-                  )
-                ),
-                column(
-                  width = 12,
-                  align = "center",
-                  uiOutput("genome_file_multi_bttn"),
-                  br(),
-                  br()
-                ),
-                column(
-                  width = 12,
-                  align = "left",
-                  uiOutput("assembly_files_table")
-                )
-              ),
-              column(1),
-              column(
-                width = 3,
-                align = "center",
-                tags$style(".append_table {margin-top: 0px; margin-left: 3px}"),
-                tags$style("div#append_isodate_multi.shiny-date-input.form-group.shiny-input-container.shiny-bound-input input.form-control.shinyjs-resettable {text-align: center}"),
-                tags$style("div#append_analysisdate_multi.shiny-date-input.form-group.shiny-input-container.shiny-bound-input input.form-control.shinyjs-resettable {text-align: center}"),
-                tags$style(".append_table_country .btn {height: 32px}"),
-                tags$style(".append_table_country {margin-top: 23px; margin-bottom: 5px}"),
-                tags$style("button#conf_meta_multi {background: #20e6e5; color: black}"),
-                br(),
-                br(),
-                uiOutput("header_declare_metadata"),
-                br(), br(),
-                uiOutput("metadata_multi_box")
-              ),
-              column(1),
-              uiOutput("start_multi_typing_ui")
-            )
-          ),
-          conditionalPanel(
-            condition = "output.pending_multi=='yes'",
-            fluidRow(
-              br(), br(),
-              column(width = 1),
-              column(
-                width = 2,
-                uiOutput("multi_typing_progress_header")
-              ),
-              column(
-                width = 2,
-                br(),
-                uiOutput("multi_typing_progress_symbol") 
-              )
-            ),
-            fluidRow(
-              column(width = 1),
-              column(
-                width = 2,
-                br(), br(),
-                actionButton(
-                  "reset_multi",
-                  "Cancel"
-                )
-              )
-            ),
-            br(), br(),
-            fluidRow(
-              column(width = 1),
-              column(
-                width = 6,
-                verbatimTextOutput("logText")
-              )  
-            )
+          fluidRow(
+            uiOutput("initiate_multi_typing_ui"),
+            uiOutput("test_yes_pending"),
+            uiOutput("multi_stop"),
+            column(1),
+            uiOutput("metadata_multi_box"),
+            column(1),
+            uiOutput("start_multi_typing_ui")
           )
         )
       ),
@@ -2188,9 +2128,9 @@ server <- function(input, output, session) {
           icon = icon("chart-line")
         ),
         menuItem(
-          text = "Download Report",
+          text = "Report",
           tabName = "report",
-          icon = icon("download")
+          icon = icon("file-lines")
         )
       )
     )
@@ -4292,10 +4232,21 @@ server <- function(input, output, session) {
   
   ## Typing  ----
   
+  # Typing reactive values
+  typing_reactive <- reactiveValues(table = data.frame(), single_path = data.frame(), 
+                                    progress = 0, progress_pct = 0, progress_format_start = 0, 
+                                    progress_format_end = 0)
+  
+  # Render Single/Multi Switch
+  
+  readLogFile <- reactive({
+    invalidateLater(5000, session)
+    readLines(paste0(getwd(), "/execute/script_log.txt"))
+  })
+  
+    
+  
   ### Single Typing ----
-  
-  typing_reactive <- reactiveValues(table = data.frame(), single_path = data.frame(), progress = 0, progress_pct = 0, progress_format_start = 0, progress_format_end = 0)
-  
   
   #### Render UI Elements ----
   
@@ -4319,6 +4270,7 @@ server <- function(input, output, session) {
       shinyFilesButton(
         "genome_file",
         "Browse" ,
+        icon = icon("folder-open"),
         title = "Please select the genome in .fasta format:",
         multiple = FALSE,
         buttonType = "default",
@@ -4543,6 +4495,9 @@ server <- function(input, output, session) {
   
   observeEvent(input$typing_start, {
     
+    typing_reactive$progress_format_start <- 0
+    typing_reactive$progress_format_end <- 0
+    
     # Remove UI 
     output$initiate_typing_ui <- NULL
     output$metadata_single_box <- NULL
@@ -4573,11 +4528,17 @@ server <- function(input, output, session) {
       kma_run <- paste0(
         "#!/bin/bash\n",
         'cd execute', '\n',
+        'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
+        '# Function to log messages to the file', '\n',
+        'log_message() {', '\n',
+        '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
+        '}', '\n',
+        '# Create a log file or truncate if it exists', '\n',
         'echo 0 > ',
         shQuote(paste0(getwd(), "/execute/progress.fifo")),
         "\n",
         'base_path="/home/marian/Documents/Projects/Masterthesis"', '\n',
-        'kma_database="$base_path/PhyloTree/execute/kma_database/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
+        'kma_database="$base_path/PhyloTree/execute/kma_single/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
         "genome=",
         shQuote(typing_reactive$single_path$datapath),
         "\n",
@@ -4592,10 +4553,7 @@ server <- function(input, output, session) {
         )),
         "\n",
         '# Directory name', '\n',
-        'results=', shQuote(paste0(getwd(),
-                                   "/Database/",
-                                   gsub(" ", "_", DF1$scheme), 
-                                   "/results")), '\n',
+        'results=', shQuote(paste0(getwd(),"/execute/kma_single/results")), '\n',
         '# Remove the existing directory (if it exists)', '\n',
         'if [ -d "$results" ]; then', '\n',
         '    rm -r "$results"', '\n',
@@ -4628,7 +4586,7 @@ server <- function(input, output, session) {
         shQuote(paste0(getwd(), "/execute/progress.fifo")), '\n',
         'Rscript ', shQuote(paste0(getwd(), "/execute/single_typing.R")), '\n',
         'echo 999999 >> ',
-        shQuote(paste0(getwd(), "/execute/progress.fifo")) 
+        shQuote(paste0(getwd(), "/execute/progress.fifo")), '\n'
       )
       
       # Specify the path to save the script
@@ -4658,11 +4616,6 @@ server <- function(input, output, session) {
             width = 2,
             h3(p("Pending Single Typing ..."), style = "color:white")
           ),
-          column(
-            width = 2,
-            br(),
-            HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:24px;color:white"></i>'))
-          ),
           br(), br(), br(),
           fluidRow(
             column(width = 1),
@@ -4670,6 +4623,13 @@ server <- function(input, output, session) {
               width = 4,
               br(), br(), br(),
               uiOutput("reset_single_typing"),
+              HTML(
+                paste(
+                  "<span style='color: white; font-weight: bolder'>",
+                  as.character(typing_reactive$single_path$name)
+                )
+              ),
+              br(), br(),
               progressBar(
                 "progress_bar",
                 value = 0,
@@ -4734,7 +4694,17 @@ server <- function(input, output, session) {
         column(
           width = 2,
           align = "center",
-          HTML(paste("Transforming data...", '<i class="fa-solid fa-spinner fa-spin-pulse fa-lg" style="color: #ffffff;"></i>'))
+          br(),
+          fluidRow(
+            column(
+              width = 6,
+              HTML(paste("<span style='color: white;'>", "Transforming data..."))
+            ),
+            column(
+              width = 3,
+              HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:20px;color:white"></i>'))
+            )
+          )
         )
       })
     } else {
@@ -4778,7 +4748,7 @@ server <- function(input, output, session) {
                             append_country = input$append_country,
                             append_city = input$append_city,
                             append_analysisdate = input$append_analysisdate,
-                            db_directory = paste0(getwd(), "/Database/", gsub(" ", "_", DF1$scheme)))
+                            db_directory = getwd())
     
     saveRDS(meta_info, paste0(
       getwd(),
@@ -4845,8 +4815,9 @@ server <- function(input, output, session) {
     reset_kma <- paste0(
       "#!/bin/bash\n",
       'cd execute', '\n',
+      'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
       'echo 0 > ',
-      shQuote(paste0(getwd(), "/execute/progress.fifo"))
+      shQuote(paste0(getwd(), "/execute/progress.fifo")), '\n'
       )
     
     # Specify the path to save the script
@@ -4879,7 +4850,8 @@ server <- function(input, output, session) {
         ),
         shinyFilesButton(
           "genome_file",
-          "Browse" ,
+          "Browse",
+          icon = icon("folder-open"),
           title = "Please select the genome in .fasta format:",
           multiple = FALSE,
           buttonType = "default",
@@ -4896,19 +4868,213 @@ server <- function(input, output, session) {
   ### Multi Typing ----
   
   #### Render Multi Typing UI Elements ----
-  
-  # Check if ongoing Multi Typing - Render accordingly
-  
-  output$pending_multi <- reactive({
-    invalidateLater(3000, session)
-    if(grepl("Multi Typing", tail(readLines(paste0(getwd(),"/execute/script_log.txt")), n = 1))) {
-      return('no') 
-    } else if(!grepl("Multi Typing", tail(readLines(paste0(getwd(),"/execute/script_log.txt")), n = 1))) {
-      return('yes')
-    } 
+  output$initiate_multi_typing_ui <- renderUI({
+    column(
+      width = 3,
+      align = "center",
+      br(),
+      br(),
+      h3(p("Initiate Typing"), style = "color:white"),
+      br(),
+      br(),
+      p(
+        HTML(
+          paste(
+            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly Folder')
+          )
+        )
+      ),
+      column(
+        width = 12,
+        align = "center",
+        shinyDirButton(
+          "genome_file_multi",
+          "Browse",
+          icon = icon("folder-open"),
+          title = "Please select the folder containing the genome assemblies in .fasta format",
+          buttonType = "default"
+        ),
+        br(),
+        br()
+      ),
+      column(
+        width = 12,
+        align = "left",
+        rHandsontableOutput("multi_select_table")
+      )
+    )
   })
   
-  outputOptions(output, "pending_multi", suspendWhenHidden = FALSE) 
+  # Render Metadata Select Box after Folder selection
+  observe({
+    if (nrow(typing_reactive$table) > 0) {
+      
+      output$metadata_multi_box <- renderUI({
+        column(
+          width = 3,
+          align = "center",
+          tags$style(".append_table {margin-top: 0px; margin-left: 3px}"),
+          tags$style("div#append_isodate_multi.shiny-date-input.form-group.shiny-input-container.shiny-bound-input input.form-control.shinyjs-resettable {text-align: center}"),
+          tags$style("div#append_analysisdate_multi.shiny-date-input.form-group.shiny-input-container.shiny-bound-input input.form-control.shinyjs-resettable {text-align: center}"),
+          tags$style(".append_table_country .btn {height: 32px}"),
+          tags$style(".append_table_country {margin-top: 23px; margin-bottom: 5px}"),
+          tags$style("button#conf_meta_multi {background: #20e6e5; color: black}"),
+          br(),
+          br(),
+          h3(p("Declare Metadata"), style = "color:white"),
+          br(), br(),
+          box(
+            solidHeader = TRUE,
+            status = "primary",
+            width = "90%",
+            fluidRow(
+              column(
+                width = 5,
+                align = "left",
+                h5("Assembly ID", style = "color:white; margin-top: 30px; margin-left: 15px")
+              ),
+              column(
+                width = 7,
+                align = "left",
+                h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
+              )
+            ),
+            fluidRow(
+              column(
+                width = 5,
+                align = "left",
+                h5("Assembly Name", style = "color:white; margin-top: 30px; margin-left: 15px")
+              ),
+              column(
+                width = 7,
+                align = "left",
+                h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
+              )
+            ),
+            fluidRow(
+              column(
+                width = 5,
+                align = "left",
+                h5("Isolation Date", style = "color:white; margin-top: 30px; margin-left: 15px")
+              ),
+              column(
+                width = 7,
+                align = "left",
+                div(
+                  class = "append_table",
+                  dateInput("append_isodate_multi",
+                            label = "",
+                            width = "60%")
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 5,
+                align = "left",
+                h5("Host", style = "color:white; margin-top: 30px; margin-left: 15px")
+              ),
+              column(
+                width = 7,
+                align = "left",
+                div(
+                  class = "append_table",
+                  textInput("append_host_multi",
+                            label = "",
+                            width = "80%")
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 5,
+                align = "left",
+                h5("Country", style = "color:white; margin-top: 30px; margin-left: 15px")
+              ),
+              column(
+                width = 7,
+                align = "left",
+                div(
+                  class = "append_table_country",
+                  pickerInput(
+                    "append_country_multi",
+                    label = "",
+                    choices = list("Common" = sel_countries,
+                                   "All Countries" = country_names),
+                    options = list(
+                      `live-search` = TRUE,
+                      `actions-box` = TRUE,
+                      size = 10,
+                      style = "background-color: white; border-radius: 5px;"
+                    ),
+                    width = "90%"
+                  )
+                )  
+              )
+            ),
+            fluidRow(
+              column(
+                width = 5,
+                align = "left",
+                h5("City", style = "color:white; margin-top: 30px; margin-left: 15px")
+              ),
+              column(
+                width = 7,
+                align = "left",
+                div(
+                  class = "append_table",
+                  textInput("append_city_multi",
+                            label = "",
+                            width = "80%")
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 5,
+                align = "left",
+                h5("Typing Date", style = "color:white; margin-top: 30px; margin-left: 15px")
+              ),
+              column(
+                width = 7,
+                align = "left",
+                div(
+                  class = "append_table",
+                  dateInput(
+                    "append_analysisdate_multi",
+                    label = "",
+                    value = Sys.Date(),
+                    width = "60%"
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 12,
+                align = "center",
+                br(), br(),
+                actionButton(
+                  inputId = "conf_meta_multi",
+                  label = "Confirm"
+                ),
+                br()
+              )
+            ),
+            br()
+          )
+        )
+      })
+      
+    } else {
+      output$metadata_multi_box <- NULL
+    }
+  })
+  
+  
+  
+  
+  # Check if ongoing Multi Typing - Render accordingly
   
   observe({
     # Get selected Genome in Multi Mode
@@ -4929,10 +5095,13 @@ server <- function(input, output, session) {
     
     if (nrow(typing_reactive$table) > 0) {
       output$multi_select_table <- renderRHandsontable({
-        rhandsontable(typing_reactive$table, height = 500) %>%
+        rhandsontable(typing_reactive$table, rowHeaders = NULL, stretchH = "all", height = 400) %>%
           hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
           hot_cols(columnSorting = TRUE) %>%
           hot_rows(rowHeights = 25) %>%
+          hot_col(2,
+                  readOnly = TRUE,
+                  valign = "htBottom") %>%
           hot_col(1,
                   halign = "htCenter",
                   valign = "htTop",
@@ -4944,29 +5113,16 @@ server <- function(input, output, session) {
     
   })
   
-  output$assembly_files_table <- renderUI({
-    rHandsontableOutput("multi_select_table")
-  })
-  
-  output$genome_file_multi_bttn <- renderUI({
-    shinyDirButton(
-      "genome_file_multi",
-      "Browse" ,
-      title = "Please select the folder containing the genome assemblies in .fasta format",
-      buttonType = "default"
-    )
-  })
-  
-  output$initiate_typing_header <- renderUI(h3(p("Initiate Typing"), style = "color:white"))
   
   observeEvent(input$conf_meta_multi, {
+    
     meta_info <- data.frame(cgmlst_typing = DF1$scheme,
                             append_isodate = input$append_isodate_multi,
                             append_host = input$append_host_multi,
                             append_country = input$append_country_multi,
                             append_city = input$append_city_multi,
                             append_analysisdate = input$append_analysisdate_multi,
-                            db_directory = paste0(getwd(), "/Database/", gsub(" ", "_", DF1$scheme)))
+                            db_directory = getwd())
     
     saveRDS(meta_info, paste0(
       getwd(),
@@ -4979,8 +5135,6 @@ server <- function(input, output, session) {
       position = "top-end",
       timer = 3000
     )
-    
-    Sys.sleep(0.5)
     
     output$start_multi_typing_ui <- renderUI({
       column(
@@ -5028,6 +5182,67 @@ server <- function(input, output, session) {
           )
         )
       )
+    } else {
+        
+        reset_multi <- paste0(
+          '#!/bin/bash', '\n',
+          'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
+          'echo 0 > $log_file'
+        )
+        
+        # Specify the path to save the script
+        reset_multi_path <-
+          paste0(getwd(), "/execute/reset_multi.sh")
+        
+        # Write the script to a file
+        cat(reset_multi, file = reset_multi_path)
+        
+        # Make the script executable  
+        system(paste("chmod +x", reset_multi_path))
+        
+        # Execute the script
+        system(paste(reset_multi_path), wait = FALSE)
+        
+        output$initiate_multi_typing_ui <- renderUI({
+        column(
+          width = 3,
+          align = "center",
+          br(),
+          br(),
+          h3(p("Initiate Typing"), style = "color:white"),
+          br(),
+          br(),
+          p(
+            HTML(
+              paste(
+                tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly Folder')
+              )
+            )
+          ),
+          column(
+            width = 12,
+            align = "center",
+            shinyDirButton(
+              "genome_file_multi",
+              "Browse",
+              icon = icon("folder-open"),
+              title = "Please select the folder containing the genome assemblies in .fasta format",
+              buttonType = "default"
+            ),
+            br(),
+            br()
+          ),
+          column(
+            width = 12,
+            align = "left",
+            rHandsontableOutput("multi_select_table")
+          )
+        )
+      })
+        
+      typing_reactive$table <- data.frame()
+      
+      output$test_yes_pending <- NULL
     }
   })
   
@@ -5041,6 +5256,9 @@ server <- function(input, output, session) {
       position = "top-end",
       timer = 6000
     )
+    
+    output$test_yes_pending <- NULL
+    
     kill_multi <- paste0(
       '#!/bin/bash', '\n',
       'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
@@ -5058,7 +5276,7 @@ server <- function(input, output, session) {
       '  echo "Killing process $PID for $TARGET_SCRIPT"', '\n',
       '  kill "$PID"', '\n',
       'fi', '\n',
-      'log_message "Multi Typing cancelled"'
+      'echo 0 > $log_file'
     )
     
     # Specify the path to save the script
@@ -5074,6 +5292,42 @@ server <- function(input, output, session) {
     # Execute the script
     system(paste(kill_multi_path), wait = FALSE)
     
+    output$initiate_multi_typing_ui <- renderUI({
+      column(
+        width = 3,
+        align = "center",
+        br(),
+        br(),
+        h3(p("Initiate Typing"), style = "color:white"),
+        br(),
+        br(),
+        p(
+          HTML(
+            paste(
+              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly Folder')
+            )
+          )
+        ),
+        column(
+          width = 12,
+          align = "center",
+          shinyDirButton(
+            "genome_file_multi",
+            "Browse",
+            icon = icon("folder-open"),
+            title = "Please select the folder containing the genome assemblies in .fasta format",
+            buttonType = "default"
+          ),
+          br(),
+          br()
+        ),
+        column(
+          width = 12,
+          align = "left",
+          rHandsontableOutput("multi_select_table")
+        )
+      )
+    })
     
   })
   
@@ -5083,7 +5337,7 @@ server <- function(input, output, session) {
         paste0(
           "Typing multiple assemblies will take a while. Continue?"
         ),
-        title = "Start Multi Typing",
+        title = "Start multi typing",
         fade = TRUE,
         easyClose = TRUE,
         footer = tagList(
@@ -5109,13 +5363,13 @@ server <- function(input, output, session) {
       timer = 6000
     )
     
+    
     # Remove Allelic Typing Controls
     
-    output$genome_file_multi_bttn <- NULL
-    output$initiate_typing_header <- NULL
-    output$assembly_files_table <- NULL
-    output$header_declare_metadata <- NULL
+    output$initiate_multi_typing_ui <- NULL
+    
     output$metadata_multi_box <- NULL
+    
     output$start_multi_typing_ui <-NULL
     
     # List Genome Assemblies Included in Analysis in Vector
@@ -5126,6 +5380,7 @@ server <- function(input, output, session) {
     kma_multi <- paste0(
       '#!/bin/bash', '\n',
       'cd execute', '\n',
+      'base_path="/home/marian/Documents/Projects/Masterthesis"', '\n',
       '# Get Genome Folder', '\n',
       'genome_folder=', shQuote(as.character(parseDirPath(roots = c(wd = "/home"), 
                                                           input$genome_file_multi))), '\n',
@@ -5136,7 +5391,7 @@ server <- function(input, output, session) {
       '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
       '}', '\n',
       '# Create a log file or truncate if it exists', '\n',
-      'echo "Script Log" > "$log_file"', '\n',
+      'echo "Start Multi Typing" > "$log_file"', '\n',
       '# Remove the existing directory (if it exists)', '\n',
       'if [ -d "$selected_genomes" ]; then', '\n',
       '    rm -r "$selected_genomes"', '\n',
@@ -5154,10 +5409,7 @@ server <- function(input, output, session) {
       '    fi', '\n',
       'done', '\n',
       '# Directory name', '\n',
-      'results=', shQuote(paste0(getwd(),
-                                 "/Database/",
-                                 gsub(" ", "_", DF1$scheme), 
-                                 "/results")), '\n',
+      'results=', shQuote(paste0(getwd(),"/execute/kma_multi/results")), '\n',
       '# Remove the existing directory (if it exists)', '\n',
       'if [ -d "$results" ]; then', '\n',
       '    rm -r "$results"', '\n',
@@ -5165,7 +5417,7 @@ server <- function(input, output, session) {
       '# Create a new directory', '\n', 
       'mkdir "$results"', '\n',
       '#INDEXING GENOME AS DATABASE', '\n',
-      'database_name=', shQuote(gsub(" ", "_", DF1$scheme)), '\n',
+      'kma_database="$base_path/PhyloTree/execute/kma_multi/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
       '#RUNNING KMA', '\n',
       'query_folder=', shQuote(paste0(getwd(), 
                                       "/Database/", 
@@ -5180,7 +5432,7 @@ server <- function(input, output, session) {
       '    genome_filename=$(basename "$genome")', '\n',
       '    genome_filename_noext="${genome_filename%.*}"', '\n',
       '    log_message "Processing $genome_filename"', '\n',
-      '    /home/marian/miniconda3/bin/kma index -i "$genome" -o "$database_name"', '\n',
+      '    /home/marian/miniconda3/bin/kma index -i "$genome" -o "$kma_database"', '\n',
       '    fi', '\n',
       '    mkdir "$results/$genome_filename_noext"', '\n',
       '#Running Loop', '\n',
@@ -5189,7 +5441,7 @@ server <- function(input, output, session) {
       '        query_filename=$(basename "$query_file")', '\n',
       '        query_filename_noext="${query_filename%.*}"', '\n',
       '        output_file="$results/$genome_filename_noext/$query_filename_noext"', '\n',
-      '        /home/marian/miniconda3/bin/kma -i "$query_file" -o "$output_file" -t_db "$database_name" -nc -status', '\n',
+      '        /home/marian/miniconda3/bin/kma -i "$query_file" -o "$output_file" -t_db "$kma_database" -nc -status', '\n',
       '        fi', '\n',
       '    done', '\n',
       '    Rscript ', shQuote(paste0(getwd(), "/execute/automatic_typing.R")), '\n',
@@ -5213,182 +5465,90 @@ server <- function(input, output, session) {
     
   })
   
-  #### Render Elements in order ----
-  
-  observe({
-    if (nrow(typing_reactive$table) > 0) {
-      output$header_declare_metadata <- renderUI({
-        h3(p("Declare Metadata"), style = "color:white")
-      })
-      
-      output$metadata_multi_box <- renderUI({
-        box(
-          solidHeader = TRUE,
-          status = "primary",
-          width = "90%",
-          fluidRow(
-            column(
-              width = 5,
-              align = "left",
-              h5("Assembly ID", style = "color:white; margin-top: 30px; margin-left: 15px")
-            ),
-            column(
-              width = 7,
-              align = "left",
-              h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
-            )
-          ),
-          fluidRow(
-            column(
-              width = 5,
-              align = "left",
-              h5("Assembly Name", style = "color:white; margin-top: 30px; margin-left: 15px")
-            ),
-            column(
-              width = 7,
-              align = "left",
-              h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
-            )
-          ),
-          fluidRow(
-            column(
-              width = 5,
-              align = "left",
-              h5("Isolation Date", style = "color:white; margin-top: 30px; margin-left: 15px")
-            ),
-            column(
-              width = 7,
-              align = "left",
-              div(
-                class = "append_table",
-                dateInput("append_isodate_multi",
-                          label = "",
-                          width = "60%")
-              )
-            )
-          ),
-          fluidRow(
-            column(
-              width = 5,
-              align = "left",
-              h5("Host", style = "color:white; margin-top: 30px; margin-left: 15px")
-            ),
-            column(
-              width = 7,
-              align = "left",
-              div(
-                class = "append_table",
-                textInput("append_host_multi",
-                          label = "",
-                          width = "80%")
-              )
-            )
-          ),
-          fluidRow(
-            column(
-              width = 5,
-              align = "left",
-              h5("Country", style = "color:white; margin-top: 30px; margin-left: 15px")
-            ),
-            column(
-              width = 7,
-              align = "left",
-              div(
-                class = "append_table_country",
-                pickerInput(
-                  "append_country_multi",
-                  label = "",
-                  choices = list("Common" = sel_countries,
-                                 "All Countries" = country_names),
-                  options = list(
-                    `live-search` = TRUE,
-                    `actions-box` = TRUE,
-                    size = 10,
-                    style = "background-color: white; border-radius: 5px;"
-                  ),
-                  width = "90%"
-                )
-              )  
-            )
-          ),
-          fluidRow(
-            column(
-              width = 5,
-              align = "left",
-              h5("City", style = "color:white; margin-top: 30px; margin-left: 15px")
-            ),
-            column(
-              width = 7,
-              align = "left",
-              div(
-                class = "append_table",
-                textInput("append_city_multi",
-                          label = "",
-                          width = "80%")
-              )
-            )
-          ),
-          fluidRow(
-            column(
-              width = 5,
-              align = "left",
-              h5("Typing Date", style = "color:white; margin-top: 30px; margin-left: 15px")
-            ),
-            column(
-              width = 7,
-              align = "left",
-              div(
-                class = "append_table",
-                dateInput(
-                  "append_analysisdate_multi",
-                  label = "",
-                  value = Sys.Date(),
-                  width = "60%"
-                )
-              )
-            )
-          ),
-          fluidRow(
-            column(
-              width = 12,
-              align = "center",
-              br(), br(),
-              actionButton(
-                inputId = "conf_meta_multi",
-                label = "Confirm"
-              ),
-              br()
-            )
-          ),
-          br()
-        )
-      })
-      
-    } else {
-      output$header_declare_metadata <- NULL
-      output$metadata_multi_box <- NULL
-      output$start_multi_typing_ui <- NULL
-    }
-  })
-  
   #### User Feedback ----
   
-  readLogFile <- reactive({
-    invalidateLater(5000, session)
-    readLines(paste0(getwd(), "/execute/script_log.txt"))
+  observe({
+    
+    # Render log content
+    output$logText <- renderPrint({
+      readLogFile()
+    })
+    
+      # Render Pending UI
+        if(!grepl("Multi Typing", tail(readLogFile(), n = 1)) & grepl("Start Multi Typing", head(readLogFile(), n = 1))) {
+          
+          output$initiate_multi_typing_ui <- NULL
+          
+          output$test_yes_pending <- renderUI({
+            fluidRow(
+              fluidRow(
+                br(), br(),
+                column(width = 1),
+                column(
+                  width = 2,
+                  h3(p("Pending Multi Typing ..."), style = "color:white"),
+                  br(), br(),
+                  actionButton(
+                    "reset_multi",
+                    "Terminate",
+                    icon = icon("ban")
+                  )
+                )
+              ),
+              br(), br(),
+              fluidRow(
+                tags$style(type='text/css', '#logText {color:white; white-space: pre-wrap;}'),
+                column(width = 1),
+                column(
+                  width = 6,
+                  textOutput("logText"),
+                  br(),
+                  HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:24px;color:white;margin-top:5px"></i>'))
+                )  
+              )
+            )
+          })
+        } else if(grepl("Multi Typing finalized", tail(readLogFile(), n = 1))) {
+          
+          output$initiate_multi_typing_ui <- NULL
+          
+          output$test_yes_pending <- renderUI({
+            fluidRow(
+              fluidRow(
+                br(), br(),
+                column(width = 1),
+                column(
+                  width = 2,
+                  h3(p("Pending Multi Typing ..."), style = "color:white"),
+                  br(), br(),
+                  HTML(paste("<span style='color: white;'>", "Typing finalized.", "Reset to start another typing process.", sep = '<br/>')),
+                  br(), br(),
+                  actionButton(
+                    "reset_multi",
+                    "Reset",
+                    icon = icon("arrows-rotate")
+                  )
+                )
+              ),
+              br(), br(),
+              fluidRow(
+                tags$style(type='text/css', '#logText {color:white; white-space: pre-wrap;}'),
+                column(width = 1),
+                column(
+                  width = 6,
+                  textOutput("logText"),
+                )  
+              )
+            )
+          })
+          
+        } else if (!grepl("Start Multi Typing", head(readLogFile(), n = 1))){
+          output$test_yes_pending <- NULL
+        }
+      
+    
+    
   })
-  
-  # Render log content
-  output$logText <- renderPrint({
-    readLogFile()
-  })
-  
-  output$multi_typing_progress_header <- renderUI(
-    h3(p("Pending Multi Typing ..."), style = "color:white"))
-  
-  output$multi_typing_progress_symbol <- renderUI(
-    HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:24px;color:white"></i>'))
-  )  
   
 } # end server
 
