@@ -371,7 +371,7 @@ ui <- dashboardPage(
       sidebarMenuOutput("menu"),
       uiOutput("menu_sep2"),
       conditionalPanel(
-        "input.tabs==='database'",
+        "input.tabs==='db_browse_entries'",
         column(
           width = 12,
           align = "center",
@@ -429,9 +429,11 @@ ui <- dashboardPage(
         column(
           width = 12,
           align = "center",
+          tags$style("button#save_rep_profile i.far.fa-bookmark {margin-right: 5px}"),
           actionButton(
             "save_rep_profile",
-            label = "Save Profile"
+            label = "Save Profile",
+            icon = icon("bookmark")
           )
         )
       ),
@@ -910,7 +912,30 @@ ui <- dashboardPage(
       ### Tab Distance Matrix  ----  
       
       tabItem(
-        tabName = "db_distmatrix"
+        tabName = "db_distmatrix",
+        fluidRow(
+          column(
+            width = 3,
+            align = "center",
+            h2(p("Browse Local Database"), style = "color:white"),
+          )
+        ),
+        hr(), br(), br(), br(),
+        fluidRow(
+          tags$style("div#db_distmatrix.rhandsontable {font-size: 12px}"),
+          column(1),
+          column(
+            width = 10,
+            div(
+              class = "distmatrix",
+              rHandsontableOutput("db_distancematrix")
+            ),
+            br(),
+            br()
+          ),
+          br()
+        )
+          
       ),
       
       ## Tab Add Scheme  ----  
@@ -972,10 +997,15 @@ ui <- dashboardPage(
           column(
             width = 2,
             align = "center",
+            tags$style("button#download_cgMLST i.fas.fa-download {margin-right: 5px !important}"),
             br(),
             br(),
             br(),
-            actionButton(inputId = "download_cgMLST", label = "Download")
+            actionButton(
+              "download_cgMLST",
+              label = "Download",
+              icon = icon("download")
+            )
           ),
           column(width = 1),
           column(
@@ -1991,7 +2021,9 @@ ui <- dashboardPage(
           column(
             width = 2,
             br(),
-            uiOutput("save_rep"),
+            tags$style("button#save_report {font-size: 14px; height: 34px; background: #20E6E5; color: #000000;}"),
+            tags$style("button#save_report i.fas.fa-download {margin-right: 5px !important}"),
+            uiOutput("save_rep")
           )
         )
       )
@@ -2137,7 +2169,7 @@ server <- function(input, output, session) {
         menuItem(
           text = "Database Browser",
           tabName = "database",
-          icon = icon("database"),
+          icon = icon("hard-drive"),
           startExpanded = TRUE,
           selected = TRUE,
           menuSubItem(
@@ -2558,6 +2590,37 @@ server <- function(input, output, session) {
         )
       })
       
+      # Calculate Distance Matrix
+      
+      allele_numbers <- select(DF1$data, -(1:12))
+      
+      allele_numbers_noNA <- na.omit(allele_numbers)
+      
+      # Create a custom proxy object for Hamming distance
+      hamming_proxy <- proxy::dist(allele_numbers_noNA, method = hamming_distance)
+      
+      hamming_matrix <- as.matrix(hamming_proxy)
+      
+      # Convert the proxy object to a matrix
+      hamming_matrix[upper.tri(hamming_matrix)] <- NA
+      
+      # Rownames change
+      rownames(hamming_matrix) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(hamming_matrix),4]
+      colnames(hamming_matrix) <- rownames(hamming_matrix)
+      
+      mode(hamming_matrix) <- "integer"
+      
+      output$db_distancematrix <- renderRHandsontable({
+        rhandsontable(hamming_matrix, digits = 1, height = 800, colWidths = 70, rowHeaderWidth = 130) %>%
+          hot_heatmap(color_scale = c("#17F556","#ED6D47")) %>%
+          hot_rows(fixedRowsTop = 0) %>%
+          hot_cols(fixedColumnsLeft = 0) %>%
+          hot_col(1:(dim(hamming_matrix)[1]),
+                  halign = "htCenter",
+                  valign = "htBottom") 
+      })
+      
+      
     } else if (!any(grepl("Typing.rds", dir_ls(paste0(
       getwd(), "/Database/", gsub(" ", "_", DF1$scheme)
     ))))) {
@@ -2730,7 +2793,11 @@ server <- function(input, output, session) {
   })
   
   
-  
+  ### Distance Matrix ----
+  # Function to compute Hamming distance between two vectors
+  hamming_distance <- function(x, y) {
+    sum(x != y)
+  }
   
   ## Download cgMLST ----
   
@@ -3588,14 +3655,14 @@ server <- function(input, output, session) {
     
     
     cluster_add <- function(vector) {
-      cluster <<- numeric()
+      cluster <- numeric()
       
       for (i in 1:length(vector)) {
         if (length(unname(kmeans_opt$cluster[which(names(kmeans_opt$cluster) == vector[i])])) > 0) {
-          cluster[i] <<-
+          cluster[i] <-
             unname(kmeans_opt$cluster[which(names(kmeans_opt$cluster) == vector[i])])
         } else {
-          cluster[i] <<- 0
+          cluster[i] <- 0
         }
       }
     }
@@ -4311,7 +4378,7 @@ server <- function(input, output, session) {
       shinyFilesButton(
         "genome_file",
         "Browse" ,
-        icon = icon("folder-open"),
+        icon = icon("file"),
         title = "Please select the genome in .fasta format:",
         multiple = FALSE,
         buttonType = "default",
@@ -4450,12 +4517,9 @@ server <- function(input, output, session) {
                     label = "",
                     choices = list("Common" = sel_countries,
                                    "All Countries" = country_names),
-                    selected = NULL,
-                    multiple = TRUE,
                     options = list(
                       `live-search` = TRUE,
                       `actions-box` = TRUE,
-                      maxOptions = 1,
                       size = 10,
                       style = "background-color: white; border-radius: 5px;"
                     ),
@@ -5045,12 +5109,9 @@ server <- function(input, output, session) {
                     label = "",
                     choices = list("Common" = sel_countries,
                                    "All Countries" = country_names),
-                    multiple = TRUE,
-                    selected = NULL,
                     options = list(
                       `live-search` = TRUE,
                       `actions-box` = TRUE,
-                      maxOptions = 1,
                       size = 10,
                       style = "background-color: white; border-radius: 5px;"
                     ),
