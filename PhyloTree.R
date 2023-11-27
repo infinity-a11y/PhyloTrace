@@ -387,6 +387,63 @@ ui <- dashboardPage(
         )
       ),
       conditionalPanel(
+        "input.tabs==='db_distmatrix'",
+        column(
+          width = 12,
+          align = "left",
+          tags$style(type='text/css', '#na_entries {color:white; white-space: pre-wrap;}'),
+          br(), br(),
+          selectInput(
+            "distmatrix_label",
+            label = "Variable",
+            choices = c("Index", "Assembly Name", "Assembly ID"),
+            selected = c("Assembly Name"),
+            width = "90%"
+          ),
+          checkboxInput(
+            "distmatrix_triangle",
+            "Show upper triangle",
+            value = FALSE
+          ),
+          fluidRow(
+            tags$style("button#download_distmatrix_bttn {height: 34px; ; background: #20E6E5; color: #000000"),
+            column(
+              width = 4,
+              actionButton(
+                "distmatrix_change",
+                label = "Apply"
+              )
+            ), 
+            column(
+              width = 4,
+              downloadBttn(
+                "download_distmatrix",
+                style = "simple",
+                label = "",
+                size = "sm",
+                icon = icon("download")
+              )
+            )
+          ),
+          br(), hr(), br(),
+          p(
+            HTML(
+              paste(
+                tags$span(style='color: white; font-size: 18px; margin-bottom: 0px', 'Incomplete Entries:')
+              )
+            )
+          ),
+          p(
+            HTML(
+              paste(
+                tags$span(style='color: white; font-size: 12px; margin-bottom: 0px', '(Not included)')
+              )
+            )
+          ),
+          textOutput("na_entries")
+        )
+      ),
+      conditionalPanel(
         "input.tabs==='typing'",
         column(
           width = 12,
@@ -922,7 +979,7 @@ ui <- dashboardPage(
         ),
         hr(), br(), br(), br(),
         fluidRow(
-          tags$style("div#db_distmatrix.rhandsontable {font-size: 12px}"),
+          tags$style("div#db_distancematrix.rhandsontable {font-size: 11px}"),
           column(1),
           column(
             width = 10,
@@ -933,9 +990,9 @@ ui <- dashboardPage(
             br(),
             br()
           ),
-          br()
-        )
-        
+          br(), 
+        ),
+        br(), br(), br()
       ),
       
       ## Tab Add Scheme  ----  
@@ -2394,9 +2451,9 @@ server <- function(input, output, session) {
               output$db_entries <- renderRHandsontable({
                 rhandsontable(
                   select(DF1$data, 1:12, input$compare_select),
-                  rowHeaders = NULL,
-                  height = height_table()
+                  rowHeaders = NULL
                 ) %>%
+                  hot_col(1:(12+length(input$compare_select)), valign = "htMiddle") %>%
                   hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                   hot_col(2,
                           halign = "htCenter",
@@ -2412,8 +2469,7 @@ server <- function(input, output, session) {
               output$db_entries <- renderRHandsontable({
                 rhandsontable(
                   select(DF1$data, 1:12),
-                  rowHeaders = NULL,
-                  height = height_table()
+                  rowHeaders = NULL
                 ) %>%
                   hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                   hot_col(2,
@@ -2423,8 +2479,7 @@ server <- function(input, output, session) {
                   hot_context_menu(allowRowEdit = FALSE,
                                    allowColEdit = FALSE,
                                    allowReadOnly = FALSE) %>%
-                  hot_rows(rowHeights = 30,
-                           fixedRowsTop = 0)
+                  hot_rows(fixedRowsTop = 0)
               })
             }
           } else {
@@ -2434,7 +2489,7 @@ server <- function(input, output, session) {
                   select(DF1$data, 1:12, input$compare_select),
                   col_highlight = diff_allele()-1,
                   rowHeaders = NULL,
-                  height = height_table()
+                  height = 900
                 ) %>%
                   hot_col(1:(12+length(input$compare_select)), valign = "htMiddle") %>%
                   hot_context_menu(allowRowEdit = FALSE,
@@ -2467,7 +2522,7 @@ server <- function(input, output, session) {
                 rhandsontable(
                   select(DF1$data, 1:12),
                   rowHeaders = NULL,
-                  height = height_table()
+                  height = 900
                 ) %>%
                   hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                   hot_col(1:12, valign = "htMiddle") %>%
@@ -2478,8 +2533,7 @@ server <- function(input, output, session) {
                   hot_context_menu(allowRowEdit = FALSE,
                                    allowColEdit = FALSE,
                                    allowReadOnly = FALSE) %>%
-                  hot_rows(rowHeights = 30,
-                           fixedRowsTop = 0)
+                  hot_rows(fixedRowsTop = 0)
               })
             }
           }
@@ -2591,37 +2645,6 @@ server <- function(input, output, session) {
           icon = icon("xmark")
         )
       })
-      
-      # Calculate Distance Matrix
-      
-      allele_numbers <- select(DF1$data, -(1:12))
-      
-      allele_numbers_noNA <- na.omit(allele_numbers)
-      
-      # Create a custom proxy object for Hamming distance
-      hamming_proxy <- proxy::dist(allele_numbers_noNA, method = hamming_distance)
-      
-      hamming_matrix <- as.matrix(hamming_proxy)
-      
-      # Convert the proxy object to a matrix
-      hamming_matrix[upper.tri(hamming_matrix)] <- NA
-      
-      # Rownames change
-      rownames(hamming_matrix) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(hamming_matrix),4]
-      colnames(hamming_matrix) <- rownames(hamming_matrix)
-      
-      mode(hamming_matrix) <- "integer"
-      
-      output$db_distancematrix <- renderRHandsontable({
-        rhandsontable(hamming_matrix, digits = 1, height = 800, colWidths = 70, rowHeaderWidth = 130) %>%
-          hot_heatmap(color_scale = c("#17F556","#ED6D47")) %>%
-          hot_rows(fixedRowsTop = 0) %>%
-          hot_cols(fixedColumnsLeft = 0) %>%
-          hot_col(1:(dim(hamming_matrix)[1]),
-                  halign = "htCenter",
-                  valign = "htBottom") 
-      })
-      
       
     } else if (!any(grepl("Typing.rds", dir_ls(paste0(
       getwd(), "/Database/", gsub(" ", "_", DF1$scheme)
@@ -2795,11 +2818,136 @@ server <- function(input, output, session) {
   })
   
   
-  ### Distance Matrix ----
-  # Function to compute Hamming distance between two vectors
+  ### Distance Matrix ---- 
+  #Function to compute Hamming distance between two vectors
   hamming_distance <- function(x, y) {
     sum(x != y)
   }
+  
+  observe({
+    if(!is.null(DF1$data)) {
+      # Calculate Distance Matrix
+      
+      allele_numbers <- select(DF1$data, -(1:12))
+      
+      allele_numbers <- allele_numbers[which(DF1$data$Include == TRUE),]
+      
+      na_entries <- allele_numbers[!complete.cases(allele_numbers), ]
+      
+      na_entries_err <- select(DF1$data, 1:12)[rownames(na_entries),]$Errors 
+      
+      allele_numbers_noNA <- na.omit(allele_numbers)
+      
+      # Create a custom proxy object for Hamming distance
+      hamming_proxy <- proxy::dist(allele_numbers_noNA, method = hamming_distance)
+      
+      hamming_matrix <- as.matrix(hamming_proxy)
+      
+      # Convert the proxy object to a matrix
+      hamming_matrix[upper.tri(hamming_matrix)] <- NA
+      
+      # Rownames change
+      rownames(hamming_matrix) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(hamming_matrix), 4]
+      colnames(hamming_matrix) <- rownames(hamming_matrix)
+      
+      # NA Entry Rownames change
+      rownames(na_entries) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(na_entries),4]
+      
+      mode(hamming_matrix) <- "integer"
+      
+      hamming_df <- hamming_matrix %>%
+        as.data.frame() %>%
+        mutate(Index = colnames(hamming_matrix)) %>%
+        relocate(Index)
+      
+      output$db_distancematrix <- renderRHandsontable({
+        rhandsontable(hamming_df, digits = 1, height = 800, rowHeaders = NULL) %>%
+          hot_heatmap(color_scale = c("#17F556","#ED6D47")) %>%
+          hot_rows(fixedRowsTop = 0) %>%
+          hot_cols(fixedColumnsLeft = 1) %>%
+          hot_col(1:(dim(hamming_matrix)[1]),
+                  halign = "htCenter") %>%
+          hot_col(1,
+                  renderer = "
+                function(instance, td, row, col, prop, value, cellProperties) {
+                  Handsontable.renderers.NumericRenderer.apply(this, arguments);
+
+                    td.style.background = '#F0F0F0'
+              }"
+          ) 
+      })
+      
+      # Render Erroneous Entries Information
+      
+      output$na_entries <- renderPrint({
+        HTML(paste(paste0(rownames(na_entries), ", ", na_entries_err, " Error(s)"), collapse="\n"))
+      })
+    }
+  })
+  
+  observeEvent(input$distmatrix_change, {
+    allele_numbers <- select(DF1$data, -(1:12))
+    
+    allele_numbers <- allele_numbers[which(DF1$data$Include == TRUE),]
+    
+    na_entries <- allele_numbers[!complete.cases(allele_numbers), ]
+    
+    na_entries_err <- select(DF1$data, 1:12)[rownames(na_entries),]$Errors 
+    
+    allele_numbers_noNA <- na.omit(allele_numbers)
+    
+    # Create a custom proxy object for Hamming distance
+    hamming_proxy <- proxy::dist(allele_numbers_noNA, method = hamming_distance)
+    
+    hamming_matrix <- as.matrix(hamming_proxy)
+    
+    if(input$distmatrix_triangle == FALSE) {
+      # Convert the proxy object to a matrix
+      hamming_matrix[upper.tri(hamming_matrix)] <- NA
+    }
+    
+    # Rownames change
+    rownames(hamming_matrix) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(hamming_matrix),input$distmatrix_label]
+    colnames(hamming_matrix) <- rownames(hamming_matrix)
+    
+    # NA Entry Rownames change
+    rownames(na_entries) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(na_entries),4]
+    
+    mode(hamming_matrix) <- "integer"
+    
+    hamming_df <- hamming_matrix %>%
+      as.data.frame() %>%
+      mutate(Index = colnames(hamming_matrix)) %>%
+      relocate(Index)
+    
+    output$db_distancematrix <- renderRHandsontable({
+      rhandsontable(hamming_df, digits = 1, height = 800, rowHeaders = NULL) %>%
+        hot_heatmap(color_scale = c("#17F556","#ED6D47")) %>%
+        hot_rows(fixedRowsTop = 0) %>%
+        hot_cols(fixedColumnsLeft = 1) %>%
+        hot_col(1:(dim(hamming_matrix)[1]),
+                halign = "htCenter") %>%
+        hot_col(1,
+                renderer = "
+                function(instance, td, row, col, prop, value, cellProperties) {
+                  Handsontable.renderers.NumericRenderer.apply(this, arguments);
+
+                    td.style.background = '#F0F0F0'
+              }"
+        ) 
+    })
+  })
+  
+  output$download_distmatrix <- downloadHandler(
+    filename = function() {
+      paste0("distance_matrix.csv")
+    },
+    content = function(file) {
+      download_matrix <- hot_to_r(input$db_distancematrix)
+      download_matrix[is.na(download_matrix)] <- ""
+      write.csv(download_matrix, file, row.names=FALSE, quote=FALSE) 
+    }
+  )
   
   ## Download cgMLST ----
   
