@@ -1,4 +1,4 @@
-# PhyloTree
+# PhyloTrace
 # Version 1.0.0
 # Phylogenetic Visualization in a Shiny App
 # Author: Marian Freisleben
@@ -329,7 +329,7 @@ ui <- dashboardPage(
     div(
       class = "img_logo",
       img(
-        src = "PhyloTree.jpg", width = 190
+        src = "PhyloTrace.jpg", width = 190
       )
     )
   ),
@@ -881,9 +881,9 @@ ui <- dashboardPage(
         tabName = "db_schemeinfo",
         fluidRow(
           column(
-          width = 3,
-          align = "center",
-          h2(p("Browse Local Database"), style = "color:white")
+            width = 3,
+            align = "center",
+            h2(p("Browse Local Database"), style = "color:white")
           )
         ),
         hr(), br(), br(), br(),
@@ -935,7 +935,7 @@ ui <- dashboardPage(
           ),
           br()
         )
-          
+        
       ),
       
       ## Tab Add Scheme  ----  
@@ -2057,15 +2057,16 @@ server <- function(input, output, session) {
     column(
       width = 12, 
       align = "center",
-      br(), br(),
-      div(
+      br(), br(), br(), br(), br(), br(),
+      div( 
         class = "image",
         imageOutput("imageOutput")
       ),
+      br(),
       p(
         HTML(
           paste(
-            tags$span(style='color: white; font-size: 24px;', 'Welcome to PhyloTree!')
+            tags$span(style='color: white; font-size: 24px;', 'Welcome to PhyloTrace!')
           )
         )
       ),
@@ -2111,10 +2112,11 @@ server <- function(input, output, session) {
   
   output$imageOutput <- renderImage({
     # Path to your PNG image with a transparent background
-    image_path <- paste0(getwd(), "/www/PhyloTree.png")
+    image_path <- paste0(getwd(), "/www/PhyloTrace.png")
     
     # Use HTML to display the image with the <img> tag
-    list(src = image_path)
+    list(src = image_path,
+         height = 200)
   }, deleteFile = FALSE)
   
   observeEvent(input$load, {
@@ -4352,7 +4354,7 @@ server <- function(input, output, session) {
     readLines(paste0(getwd(), "/execute/script_log.txt"))
   })
   
-    
+  
   
   ### Single Typing ----
   
@@ -4926,7 +4928,7 @@ server <- function(input, output, session) {
       'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
       'echo 0 > ',
       shQuote(paste0(getwd(), "/execute/progress.fifo")), '\n'
-      )
+    )
     
     # Specify the path to save the script
     reset_kma_path <- paste0(getwd(), "/execute", "/reset_kma.sh")
@@ -5291,27 +5293,27 @@ server <- function(input, output, session) {
         )
       )
     } else {
-        
-        reset_multi <- paste0(
-          '#!/bin/bash', '\n',
-          'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
-          'echo 0 > $log_file'
-        )
-        
-        # Specify the path to save the script
-        reset_multi_path <-
-          paste0(getwd(), "/execute/reset_multi.sh")
-        
-        # Write the script to a file
-        cat(reset_multi, file = reset_multi_path)
-        
-        # Make the script executable  
-        system(paste("chmod +x", reset_multi_path))
-        
-        # Execute the script
-        system(paste(reset_multi_path), wait = FALSE)
-        
-        output$initiate_multi_typing_ui <- renderUI({
+      
+      reset_multi <- paste0(
+        '#!/bin/bash', '\n',
+        'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
+        'echo 0 > $log_file'
+      )
+      
+      # Specify the path to save the script
+      reset_multi_path <-
+        paste0(getwd(), "/execute/reset_multi.sh")
+      
+      # Write the script to a file
+      cat(reset_multi, file = reset_multi_path)
+      
+      # Make the script executable  
+      system(paste("chmod +x", reset_multi_path))
+      
+      # Execute the script
+      system(paste(reset_multi_path), wait = FALSE)
+      
+      output$initiate_multi_typing_ui <- renderUI({
         column(
           width = 3,
           align = "center",
@@ -5347,7 +5349,7 @@ server <- function(input, output, session) {
           )
         )
       })
-        
+      
       typing_reactive$table <- data.frame()
       
       output$test_yes_pending <- NULL
@@ -5582,78 +5584,78 @@ server <- function(input, output, session) {
       readLogFile()
     })
     
-      # Render Pending UI
-        if(!grepl("Multi Typing", tail(readLogFile(), n = 1)) & grepl("Start Multi Typing", head(readLogFile(), n = 1))) {
-          
-          output$initiate_multi_typing_ui <- NULL
-          
-          output$test_yes_pending <- renderUI({
-            fluidRow(
-              fluidRow(
-                br(), br(),
-                column(width = 1),
-                column(
-                  width = 2,
-                  h3(p("Pending Multi Typing ..."), style = "color:white"),
-                  br(), br(),
-                  actionButton(
-                    "reset_multi",
-                    "Terminate",
-                    icon = icon("ban")
-                  )
-                )
-              ),
-              br(), br(),
-              fluidRow(
-                tags$style(type='text/css', '#logText {color:white; white-space: pre-wrap;}'),
-                column(width = 1),
-                column(
-                  width = 6,
-                  textOutput("logText"),
-                  br(),
-                  HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:24px;color:white;margin-top:5px"></i>'))
-                )  
-              )
-            )
-          })
-        } else if(grepl("Multi Typing finalized", tail(readLogFile(), n = 1))) {
-          
-          output$initiate_multi_typing_ui <- NULL
-          
-          output$test_yes_pending <- renderUI({
-            fluidRow(
-              fluidRow(
-                br(), br(),
-                column(width = 1),
-                column(
-                  width = 2,
-                  h3(p("Pending Multi Typing ..."), style = "color:white"),
-                  br(), br(),
-                  HTML(paste("<span style='color: white;'>", "Typing finalized.", "Reset to start another typing process.", sep = '<br/>')),
-                  br(), br(),
-                  actionButton(
-                    "reset_multi",
-                    "Reset",
-                    icon = icon("arrows-rotate")
-                  )
-                )
-              ),
-              br(), br(),
-              fluidRow(
-                tags$style(type='text/css', '#logText {color:white; white-space: pre-wrap;}'),
-                column(width = 1),
-                column(
-                  width = 6,
-                  textOutput("logText"),
-                )  
-              )
-            )
-          })
-          
-        } else if (!grepl("Start Multi Typing", head(readLogFile(), n = 1))){
-          output$test_yes_pending <- NULL
-        }
+    # Render Pending UI
+    if(!grepl("Multi Typing", tail(readLogFile(), n = 1)) & grepl("Start Multi Typing", head(readLogFile(), n = 1))) {
       
+      output$initiate_multi_typing_ui <- NULL
+      
+      output$test_yes_pending <- renderUI({
+        fluidRow(
+          fluidRow(
+            br(), br(),
+            column(width = 1),
+            column(
+              width = 2,
+              h3(p("Pending Multi Typing ..."), style = "color:white"),
+              br(), br(),
+              actionButton(
+                "reset_multi",
+                "Terminate",
+                icon = icon("ban")
+              )
+            )
+          ),
+          br(), br(),
+          fluidRow(
+            tags$style(type='text/css', '#logText {color:white; white-space: pre-wrap;}'),
+            column(width = 1),
+            column(
+              width = 6,
+              textOutput("logText"),
+              br(),
+              HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:24px;color:white;margin-top:5px"></i>'))
+            )  
+          )
+        )
+      })
+    } else if(grepl("Multi Typing finalized", tail(readLogFile(), n = 1))) {
+      
+      output$initiate_multi_typing_ui <- NULL
+      
+      output$test_yes_pending <- renderUI({
+        fluidRow(
+          fluidRow(
+            br(), br(),
+            column(width = 1),
+            column(
+              width = 2,
+              h3(p("Pending Multi Typing ..."), style = "color:white"),
+              br(), br(),
+              HTML(paste("<span style='color: white;'>", "Typing finalized.", "Reset to start another typing process.", sep = '<br/>')),
+              br(), br(),
+              actionButton(
+                "reset_multi",
+                "Reset",
+                icon = icon("arrows-rotate")
+              )
+            )
+          ),
+          br(), br(),
+          fluidRow(
+            tags$style(type='text/css', '#logText {color:white; white-space: pre-wrap;}'),
+            column(width = 1),
+            column(
+              width = 6,
+              textOutput("logText"),
+            )  
+          )
+        )
+      })
+      
+    } else if (!grepl("Start Multi Typing", head(readLogFile(), n = 1))){
+      output$test_yes_pending <- NULL
+    }
+    
     
     
   })
