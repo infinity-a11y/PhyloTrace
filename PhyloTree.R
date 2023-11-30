@@ -500,6 +500,12 @@ ui <- dashboardPage(
           width = 12,
           br(),
           prettyRadioButtons(
+            inputId = "distance_mode",
+            label = "Distance method",
+            choices = c("Hamming", "Euclidean"),
+            selected = "Hamming"
+          ),
+          prettyRadioButtons(
             "tree_algo",
             choices = c("Minimum-Spanning", "Neighbour-Joining"),
             label = "Tree Type"
@@ -1149,17 +1155,11 @@ ui <- dashboardPage(
         tabName = "visualization",
         
         fluidRow(
-          column(width = 1),
           column(
-            width = 10,
+            width = 12,
             br(),
-            addSpinner(
-              plotOutput("tree_local", width = "100%", height = "600px"),
-              spin = "dots",
-              color = "#ffffff"
-            )  
-          ),
-          column(width = 1)
+            visNetworkOutput("tree_local", width = "100%", height = "600px")  
+          )
         ),
         
         br(),
@@ -1170,6 +1170,7 @@ ui <- dashboardPage(
         
         conditionalPanel(
           "input.tree_algo=='Minimum-Spanning'",
+          
           fluidRow(
             tags$style("button#node_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px}"),
             tags$style("button#edge_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px}"),
@@ -1870,7 +1871,8 @@ ui <- dashboardPage(
               )
             )
           )
-        )
+        ),
+        br(), br(), br(), br(), br(), br(), br()
       ),
       
       ## Tab Report --------------------------------------------------------------
@@ -3351,16 +3353,14 @@ server <- function(input, output, session) {
         "/Typing.rds"
       ))
     
-    
-    
     # get allele profile of included entries
     allelic_profile <- dplyr::select(Database$Typing, -(1:12))
-    allelic_profile <-
+    allelic_profile <<-
       allelic_profile[which(Database[["Typing"]]$Include == TRUE),]
     
     # get metadata without include boolean variable
     meta <- dplyr::select(Database$Typing, 1, 3:12)
-    meta <- meta[which(Database[["Typing"]]$Include == TRUE),]
+    meta <<- meta[which(Database[["Typing"]]$Include == TRUE),]
     
     # Calculate distance matrix
     dist_matrix <- dist(allelic_profile)
@@ -3401,36 +3401,144 @@ server <- function(input, output, session) {
       
     } else {
       
-      mst <- ape::mst(dist_matrix)
-      
-      plot_loc$gr_adj <- graph.adjacency(mst, mode = mode_algo())
-      
-      plot_loc$netw <- ggnetwork(plot_loc$gr_adj, arrow.gap = 0, layout = ggnet_layout())
-      
-      ## add metadata
-      plot_loc$gg <- plot_loc$netw %>% mutate(
-        index = meta[plot_loc$netw$name, "Index"],
-        assembly_id = meta[plot_loc$netw$name, "Assembly ID"],
-        assembly_name = meta[plot_loc$netw$name, "Assembly Name"],
-        scheme = meta[plot_loc$netw$name, "Scheme"],
-        isolation_date = meta[plot_loc$netw$name, "Isolation Date"],
-        host = meta[plot_loc$netw$name, "Host"],
-        country = meta[plot_loc$netw$name, "Country"],
-        city = meta[plot_loc$netw$name, "City"],
-        typing_date = meta[plot_loc$netw$name, "Typing Date"],
-        successes = meta[plot_loc$netw$name, "Successes"],
-        errors = meta[plot_loc$netw$name, "Errors"]
-      )
-      
-      output$tree_local <- renderPlot({
-        print(plot_input())
-      })
-      
-      output$cluster_start <- renderUI(actionButton("cluster_start",
-                                                    "Add Clusters"))
-      
+      if(input$distance_mode == "Euclidean") {
+        mst <- ape::mst(dist_matrix)
+        
+        plot_loc$gr_adj <- graph.adjacency(mst, mode = mode_algo())
+        
+        plot_loc$netw <- ggnetwork(plot_loc$gr_adj, arrow.gap = 0, layout = ggnet_layout())
+        
+        ## add metadata
+        plot_loc$gg <- plot_loc$netw %>% mutate(
+          index = meta[plot_loc$netw$name, "Index"],
+          assembly_id = meta[plot_loc$netw$name, "Assembly ID"],
+          assembly_name = meta[plot_loc$netw$name, "Assembly Name"],
+          scheme = meta[plot_loc$netw$name, "Scheme"],
+          isolation_date = meta[plot_loc$netw$name, "Isolation Date"],
+          host = meta[plot_loc$netw$name, "Host"],
+          country = meta[plot_loc$netw$name, "Country"],
+          city = meta[plot_loc$netw$name, "City"],
+          typing_date = meta[plot_loc$netw$name, "Typing Date"],
+          successes = meta[plot_loc$netw$name, "Successes"],
+          errors = meta[plot_loc$netw$name, "Errors"]
+        )
+        
+        output$tree_local <- renderPlot({
+          print(plot_input())
+        })
+        
+        output$cluster_start <- renderUI(actionButton("cluster_start",
+                                                      "Add Clusters"))
+        
+      } else {
+        if(!is.null(DF1$data)) {
+          
+          # get allele profile of included entries
+          
+          df <- Database[["Typing"]][which(Database[["Typing"]]$Include == TRUE),]
+          df <- na.omit(df)
+          rownames(df) <- df$`Assembly Name`
+          
+          allelic_profile <- dplyr::select(df, -(1:12))
+          
+          # get metadata without include boolean variable
+          meta <- dplyr::select(df, 1, 3:12)
+          
+          grouped_df <- allelic_profile %>%
+            group_by(across(everything())) %>%
+            mutate(group_id = cur_group_id()) %>%
+            ungroup() %>%
+            relocate(group_id) %>%
+            as.data.frame()
+          
+          rownames(grouped_df) <- rownames(allelic_profile)
+          
+          unique_allelic_profile <- grouped_df[!duplicated(grouped_df$group_id), ]
+          
+          meta <- mutate(meta, group_id = grouped_df$group_id) %>%
+            relocate(group_id)
+          
+          unique_meta <- meta[rownames(unique_allelic_profile), ]
+          
+          ## grouping names
+          data_frame <- data.frame(group = numeric(), name = character())
+          
+          for (i in unique_meta$group_id) {
+            data_frame <- rbind(data_frame, data.frame(size = length(paste(rownames(grouped_df)[which(grouped_df$group_id == i)])), name = paste(rownames(grouped_df)[which(grouped_df$group_id == i)], collapse = "\n")))
+          }
+          
+          font_size <- numeric(nrow(data_frame))
+          
+          for (i in 1:length(vector)) {
+            if(data_frame$size[i] < 3) {
+              font_size[i] <- 12
+            } else {
+              font_size[i] <- 11
+            }
+          }
+          
+          valign <- numeric(nrow(data_frame))
+          
+          for (i in 1:length(vector)) {
+            if(data_frame$size[i] == 1) {
+              valign[i] <- -30
+            } else if(data_frame$size[i] == 2) {
+              valign[i] <- -38
+            } else if(data_frame$size[i] == 3) {
+              valign[i] <- -46
+            } else if(data_frame$size[i] == 4) {
+              valign[i] <- -54
+            } else if(data_frame$size[i] == 5) {
+              valign[i] <- -62
+            } else if(data_frame$size[i] > 5) {
+              valign[i] <- -70
+            }
+          }
+          
+          data_frame <- data_frame %>%
+            cbind(font_size = font_size, valign = valign)
+          
+          unique_meta$`Assembly Name` <- data_frame$name
+          unique_meta <- mutate(unique_meta, size = data_frame$Size)
+          
+          #make hamming distance matrix
+          ham_matrix <- proxy::dist(unique_allelic_profile[,-1], method = hamming_distance) 
+          
+          # prepare igraph object
+          set.seed(1)
+          ggraph_1 <- ham_matrix |>
+            as.matrix() |>
+            graph.adjacency(weighted = TRUE) |>
+            igraph::mst() 
+          
+          output$tree_local <- renderVisNetwork({
+            data <- toVisNetworkData(ggraph_1)
+            data$nodes <- cbind(data$nodes, group = unique_meta$Host)
+            data$nodes <- mutate(data$nodes, 
+                                 label = unique_meta$`Assembly Name`,
+                                 value = data_frame$size,
+                                 font.vadjust = data_frame$valign,
+                                 font.size = data_frame$font_size,
+                                 alpha = 0.5)
+            data$edges <- mutate(data$edges, 
+                                 length = weight*20, 
+                                 label = as.character(weight))
+            
+            visNetwork(data$nodes, data$edges, main = "Minimum-Spanning-Tree") %>%
+              visNodes(size = 15, 
+                       color = "green",
+                       scaling = list(min = 15, 
+                                      max = 30),
+                       font = list(color = "white")) %>%
+              visInteraction(hover = TRUE) %>%
+              visEdges(color = "black", font = list(color = "blue",
+                                                    size = 15)) %>%
+              visLegend(main = "Host") %>%
+              visOptions(collapse = TRUE)
+          })
+        }
+      }
     }
-    
   })
   
   # NJ Tree Layout
