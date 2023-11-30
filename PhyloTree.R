@@ -116,6 +116,10 @@ if (!require(rhandsontable))
   install.packages('rhandsontable')
 library(rhandsontable)
 
+if (!require(visNetwork))
+  install.packages('visNetwork')
+library(visNetwork)
+
 country_names <- c(
   "Afghanistan",
   "Albania",
@@ -495,16 +499,10 @@ ui <- dashboardPage(
         )
       ),
       conditionalPanel(
-        "input.tabs==='visualization'",
+        "input.tabs=='visualization'",
         column(
           width = 12,
           br(),
-          prettyRadioButtons(
-            inputId = "distance_mode",
-            label = "Distance method",
-            choices = c("Hamming", "Euclidean"),
-            selected = "Hamming"
-          ),
           prettyRadioButtons(
             "tree_algo",
             choices = c("Minimum-Spanning", "Neighbour-Joining"),
@@ -1158,7 +1156,7 @@ ui <- dashboardPage(
           column(
             width = 12,
             br(),
-            visNetworkOutput("tree_local", width = "100%", height = "600px")  
+            visNetworkOutput("tree_local", width = "100%", height = "700px")  
           )
         ),
         
@@ -1170,7 +1168,347 @@ ui <- dashboardPage(
         
         conditionalPanel(
           "input.tree_algo=='Minimum-Spanning'",
-          
+          fluidRow(
+            tags$style("button#mst_node_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px}"),
+            tags$style("button#mst_edge_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px}"),
+            tags$style("input.form-control.pickr-color {text-align: center; font-size: 11px;}"),
+            column(
+              width = 2,
+              align = "center",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                h3(p("Layout"), style = "color:white"),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 12,
+                    align = "left",
+                    h4(p("Title"), style = "color:white"),
+                    column(
+                      width = 12,
+                      align = "center",
+                      textInput(
+                        "mst_title",
+                        label = "",
+                        width = "80%",
+                        placeholder = "Plot Title"
+                      ),
+                      br(),
+                      numericInput(
+                        "mst_title_size",
+                        label = "Size",
+                        value = 30,
+                        min = 15,
+                        max = 40,
+                        step = 1,
+                        width = "40%"
+                      ),
+                      br(),
+                      colorPickr(
+                        inputId = "mst_title_color",
+                        selected = "#ffffff",
+                        label = "",
+                        update = "changestop",
+                        interaction = list(clear = FALSE,
+                                           save = FALSE),
+                        position = "right-start",
+                        width = "40%"
+                      )
+                    )
+                  )
+                ),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 12,
+                    align = "left",
+                    h4(p("Subtitle"), style = "color:white"),
+                    column(
+                      width = 12,
+                      align = "center",
+                      textInput(
+                        "mst_subtitle",
+                        label = "",
+                        width = "80%",
+                        placeholder = "Plot Subtitle"
+                      ),
+                      br(),
+                      numericInput(
+                        "mst_subtitle_size",
+                        label = "Size",
+                        value = 20,
+                        min = 10,
+                        max = 35,
+                        step = 1,
+                        width = "40%"
+                      )
+                    )
+                  )
+                ),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 12,
+                    align = "left",
+                    h4(p("Footer"), style = "color:white"),
+                    column(
+                      width = 12,
+                      align = "center",
+                      textInput(
+                        "mst_footer",
+                        label = "",
+                        width = "80%",
+                        placeholder = "Plot Footer"
+                      ),
+                      br(),
+                      numericInput(
+                        "mst_footer_size",
+                        label = "Size",
+                        value = 15,
+                        min = 10,
+                        max = 30,
+                        step = 1,
+                        width = "40%"
+                      ),
+                      br(),
+                      colorPickr(
+                        inputId = "mst_footer_color",
+                        selected = "#ffffff",
+                        label = "",
+                        update = "changestop",
+                        interaction = list(clear = FALSE,
+                                           save = FALSE),
+                        position = "right-start",
+                        width = "40%"
+                      )
+                    )
+                  )
+                ),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 12,
+                    align = "left",
+                    h4(p("Background"), style = "color:white"),
+                    br(),
+                    column(
+                      width = 12,
+                      align = "center",
+                      checkboxInput(
+                        "mst_background_transparent",
+                        label = "Transparent",
+                        value = TRUE
+                      ),
+                      colorPickr(
+                        inputId = "mst_background_color",
+                        width = "40%",
+                        selected = "#ffffff",
+                        label = "",
+                        update = "changestop",
+                        interaction = list(clear = FALSE,
+                                           save = FALSE),
+                        position = "right-start"
+                      )
+                    )
+                  )
+                ),
+                br()
+              )
+            ),
+            column(
+              width = 2,
+              align = "center",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                h3(p("Nodes"), style = "color:white"),
+                hr(),
+                column(
+                  width = 12,
+                  align = "left",
+                  h4(p("Size"), style = "color:white"),
+                  checkboxInput(
+                    "scale_nodes",
+                    "Scale by duplicates",
+                    value = TRUE
+                  )
+                ),
+                column(
+                  width = 12,
+                  align = "center",
+                  br(),
+                  conditionalPanel(
+                    "input.scale_nodes==true",
+                    sliderTextInput(
+                      "mst_node_scale",
+                      label = NULL,
+                      choices = 1:80,
+                      selected = c(20, 40),
+                      hide_min_max = TRUE
+                    )
+                  ),
+                  conditionalPanel(
+                    "input.scale_nodes==false",
+                    sliderTextInput(
+                      inputId = "mst_node_size",
+                      label = NULL,
+                      choices = 1:80,
+                      selected = c(30),
+                      hide_min_max = TRUE
+                    ) 
+                  )
+                ),
+                br(), br(), br(), br(),
+                hr(),
+                column(
+                  width = 12,
+                  align = "left",
+                  br(),
+                  h4(p("Color"), style = "color:white"),
+                  column(
+                    width = 12,
+                    align = "center",
+                    colorPickr(
+                      inputId = "color_node1",
+                      width = "60%",
+                      selected = "#058C31",
+                      label = "",
+                      update = "changestop",
+                      interaction = list(clear = FALSE,
+                                         save = FALSE),
+                      position = "right-start"
+                    )
+                  )
+                ),
+                column(
+                  width = 12,
+                  align = "left",
+                  br(),
+                  h4(p("Label"), style = "color:white"),
+                  column(
+                    width = 12,
+                    align = "center",
+                    br(),
+                    colorPickr(
+                      inputId = "node_font_color",
+                      width = "60%",
+                      selected = "#ffffff",
+                      label = "Label",
+                      update = "changestop",
+                      interaction = list(clear = FALSE,
+                                         save = FALSE),
+                      position = "right-start"
+                    )
+                  )
+                ),
+                column(
+                  width = 12,
+                  align = "center",
+                  br(),
+                  dropMenu(
+                    actionBttn(
+                      "mst_node_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-start",
+                    theme = "translucent",
+                    numericInput(
+                      "node_opacity",
+                      label = h5("Opacity", style = "color:white; margin-bottom: 0px;"),
+                      value = 0.7,
+                      step = 0.1,
+                      min = 0,
+                      max = 1,
+                      width = "90%"
+                    )
+                  )
+                ),
+                br()
+              )
+            ),
+            column(
+              width = 2,
+              align = "center",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                h3(p("Edges"), style = "color:white"),
+                hr(),
+                colorPickr(
+                  inputId = "mst_color_edge",
+                  width = "60%",
+                  selected = "#ffffff",
+                  label = "",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start"
+                ),
+                br(),
+                colorPickr(
+                  inputId = "mst_edge_font_color",
+                  width = "60%",
+                  selected = "#ffffff",
+                  label = "Label",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start"
+                ),
+                br(),
+                dropMenu(
+                  actionBttn(
+                    "mst_edge_menu",
+                    label = "",
+                    color = "default",
+                    size = "sm",
+                    style = "material-flat",
+                    icon = icon("sliders")
+                  ),
+                  placement = "top-start",
+                  theme = "translucent",
+                  numericInput(
+                    "mst_edge_opacity",
+                    label = h5("Opacity", style = "color:white; margin-bottom: 0px;"),
+                    value = 0.7,
+                    step = 0.1,
+                    min = 0,
+                    max = 1,
+                    width = "90%"
+                  ),
+                  numericInput(
+                    "mst_edge_font_size",
+                    label = h5("Font size", style = "color:white; margin-bottom: 0px;"),
+                    value = 20,
+                    step = 1,
+                    min = 8,
+                    max = 30,
+                    width = "90%"
+                  )
+                ),
+                br(),
+                numericInput(
+                  "mst_edge_length",
+                  label = "Edge length",
+                  value = 20,
+                  min = 10,
+                  max = 40,
+                  step = 1,
+                  width = "60%"
+                ),
+                br()
+              )
+            )
+          ),
+          hr(),
           fluidRow(
             tags$style("button#node_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px}"),
             tags$style("button#edge_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px}"),
@@ -3280,6 +3618,8 @@ server <- function(input, output, session) {
   
   ## Visualization ----
   
+  plot_loc <- reactiveValues(cluster = NULL, metadata = list())
+  
   ### Render Slot Allocation Elements ----
   
   output$slot1_status <- renderUI({
@@ -3315,7 +3655,40 @@ server <- function(input, output, session) {
   })
   
   ### Render Plot Reactive ----
-  plot_loc <- reactiveValues(cluster = NULL, metadata = list())
+  
+  #### MST ----
+  
+  mst_tree <- reactive({
+    data <- toVisNetworkData(plot_loc$ggraph_1)
+    data$nodes <- cbind(data$nodes, group = plot_loc$unique_meta$Host)
+    data$nodes <- mutate(data$nodes, 
+                         label = plot_loc$unique_meta$`Assembly Name`,
+                         value = mst_node_scaling(),
+                         font.vadjust = plot_loc$data_frame$valign,
+                         font.size = plot_loc$data_frame$font_size,
+                         opacity = node_opacity())
+    data$edges <- mutate(data$edges, 
+                         length = weight*mst_edge_length(), 
+                         label = as.character(weight),
+                         opacity = mst_edge_opacity())
+    
+    visNetwork(data$nodes, data$edges, 
+               main = mst_title(),
+               background = mst_background_color(),
+               submain = mst_subtitle(),
+               footer = mst_footer()) %>%
+      visNodes(size = mst_node_size(), 
+               color = node_color1(),
+               scaling = list(min = mst_node_size_min(), 
+                              max = mst_node_size_max()),
+               font = list(color = node_font_color())) %>%
+      visEdges(color = mst_color_edge(), 
+               font = list(color = mst_edge_font_color(),
+                           size = mst_edge_font_size())) %>%
+      visOptions(collapse = TRUE) %>%
+      visInteraction(hover = TRUE) %>%
+      visLayout(randomSeed = 1)
+  })
   
   plot_input <- reactive({
     ggplot(plot_loc$gg, aes(
@@ -3355,12 +3728,12 @@ server <- function(input, output, session) {
     
     # get allele profile of included entries
     allelic_profile <- dplyr::select(Database$Typing, -(1:12))
-    allelic_profile <<-
+    allelic_profile <-
       allelic_profile[which(Database[["Typing"]]$Include == TRUE),]
     
     # get metadata without include boolean variable
     meta <- dplyr::select(Database$Typing, 1, 3:12)
-    meta <<- meta[which(Database[["Typing"]]$Include == TRUE),]
+    meta <- meta[which(Database[["Typing"]]$Include == TRUE),]
     
     # Calculate distance matrix
     dist_matrix <- dist(allelic_profile)
@@ -3400,143 +3773,90 @@ server <- function(input, output, session) {
       })
       
     } else {
-      
-      if(input$distance_mode == "Euclidean") {
-        mst <- ape::mst(dist_matrix)
+      if(!is.null(DF1$data)) {
         
-        plot_loc$gr_adj <- graph.adjacency(mst, mode = mode_algo())
+        # get allele profile of included entries
         
-        plot_loc$netw <- ggnetwork(plot_loc$gr_adj, arrow.gap = 0, layout = ggnet_layout())
+        df <- Database[["Typing"]][which(Database[["Typing"]]$Include == TRUE),]
+        df <- na.omit(df)
+        rownames(df) <- df$`Assembly Name`
         
-        ## add metadata
-        plot_loc$gg <- plot_loc$netw %>% mutate(
-          index = meta[plot_loc$netw$name, "Index"],
-          assembly_id = meta[plot_loc$netw$name, "Assembly ID"],
-          assembly_name = meta[plot_loc$netw$name, "Assembly Name"],
-          scheme = meta[plot_loc$netw$name, "Scheme"],
-          isolation_date = meta[plot_loc$netw$name, "Isolation Date"],
-          host = meta[plot_loc$netw$name, "Host"],
-          country = meta[plot_loc$netw$name, "Country"],
-          city = meta[plot_loc$netw$name, "City"],
-          typing_date = meta[plot_loc$netw$name, "Typing Date"],
-          successes = meta[plot_loc$netw$name, "Successes"],
-          errors = meta[plot_loc$netw$name, "Errors"]
-        )
+        allelic_profile <- dplyr::select(df, -(1:12))
         
-        output$tree_local <- renderPlot({
-          print(plot_input())
-        })
+        # get metadata without include boolean variable
+        meta <- dplyr::select(df, 1, 3:12)
         
-        output$cluster_start <- renderUI(actionButton("cluster_start",
-                                                      "Add Clusters"))
+        grouped_df <- allelic_profile %>%
+          group_by(across(everything())) %>%
+          mutate(group_id = cur_group_id()) %>%
+          ungroup() %>%
+          relocate(group_id) %>%
+          as.data.frame()
         
-      } else {
-        if(!is.null(DF1$data)) {
-          
-          # get allele profile of included entries
-          
-          df <- Database[["Typing"]][which(Database[["Typing"]]$Include == TRUE),]
-          df <- na.omit(df)
-          rownames(df) <- df$`Assembly Name`
-          
-          allelic_profile <- dplyr::select(df, -(1:12))
-          
-          # get metadata without include boolean variable
-          meta <- dplyr::select(df, 1, 3:12)
-          
-          grouped_df <- allelic_profile %>%
-            group_by(across(everything())) %>%
-            mutate(group_id = cur_group_id()) %>%
-            ungroup() %>%
-            relocate(group_id) %>%
-            as.data.frame()
-          
-          rownames(grouped_df) <- rownames(allelic_profile)
-          
-          unique_allelic_profile <- grouped_df[!duplicated(grouped_df$group_id), ]
-          
-          meta <- mutate(meta, group_id = grouped_df$group_id) %>%
-            relocate(group_id)
-          
-          unique_meta <- meta[rownames(unique_allelic_profile), ]
-          
-          ## grouping names
-          data_frame <- data.frame(group = numeric(), name = character())
-          
-          for (i in unique_meta$group_id) {
-            data_frame <- rbind(data_frame, data.frame(size = length(paste(rownames(grouped_df)[which(grouped_df$group_id == i)])), name = paste(rownames(grouped_df)[which(grouped_df$group_id == i)], collapse = "\n")))
-          }
-          
-          font_size <- numeric(nrow(data_frame))
-          
-          for (i in 1:length(vector)) {
-            if(data_frame$size[i] < 3) {
-              font_size[i] <- 12
-            } else {
-              font_size[i] <- 11
-            }
-          }
-          
-          valign <- numeric(nrow(data_frame))
-          
-          for (i in 1:length(vector)) {
-            if(data_frame$size[i] == 1) {
-              valign[i] <- -30
-            } else if(data_frame$size[i] == 2) {
-              valign[i] <- -38
-            } else if(data_frame$size[i] == 3) {
-              valign[i] <- -46
-            } else if(data_frame$size[i] == 4) {
-              valign[i] <- -54
-            } else if(data_frame$size[i] == 5) {
-              valign[i] <- -62
-            } else if(data_frame$size[i] > 5) {
-              valign[i] <- -70
-            }
-          }
-          
-          data_frame <- data_frame %>%
-            cbind(font_size = font_size, valign = valign)
-          
-          unique_meta$`Assembly Name` <- data_frame$name
-          unique_meta <- mutate(unique_meta, size = data_frame$Size)
-          
-          #make hamming distance matrix
-          ham_matrix <- proxy::dist(unique_allelic_profile[,-1], method = hamming_distance) 
-          
-          # prepare igraph object
-          set.seed(1)
-          ggraph_1 <- ham_matrix |>
-            as.matrix() |>
-            graph.adjacency(weighted = TRUE) |>
-            igraph::mst() 
-          
-          output$tree_local <- renderVisNetwork({
-            data <- toVisNetworkData(ggraph_1)
-            data$nodes <- cbind(data$nodes, group = unique_meta$Host)
-            data$nodes <- mutate(data$nodes, 
-                                 label = unique_meta$`Assembly Name`,
-                                 value = data_frame$size,
-                                 font.vadjust = data_frame$valign,
-                                 font.size = data_frame$font_size,
-                                 alpha = 0.5)
-            data$edges <- mutate(data$edges, 
-                                 length = weight*20, 
-                                 label = as.character(weight))
-            
-            visNetwork(data$nodes, data$edges, main = "Minimum-Spanning-Tree") %>%
-              visNodes(size = 15, 
-                       color = "green",
-                       scaling = list(min = 15, 
-                                      max = 30),
-                       font = list(color = "white")) %>%
-              visInteraction(hover = TRUE) %>%
-              visEdges(color = "black", font = list(color = "blue",
-                                                    size = 15)) %>%
-              visLegend(main = "Host") %>%
-              visOptions(collapse = TRUE)
-          })
+        rownames(grouped_df) <- rownames(allelic_profile)
+        
+        unique_allelic_profile <- grouped_df[!duplicated(grouped_df$group_id), ]
+        
+        meta <- mutate(meta, group_id = grouped_df$group_id) %>%
+          relocate(group_id)
+        
+        plot_loc$unique_meta <- meta[rownames(unique_allelic_profile), ]
+        
+        ## grouping names
+        data_frame <- data.frame(group = numeric(), name = character())
+        
+        for (i in plot_loc$unique_meta$group_id) {
+          data_frame <- rbind(data_frame, 
+                              data.frame(size = length(paste(rownames(grouped_df)[which(grouped_df$group_id == i)])), 
+                                         name = paste(rownames(grouped_df)[which(grouped_df$group_id == i)], collapse = "\n")))
         }
+        
+        font_size <- numeric(nrow(data_frame))
+        
+        for (i in 1:length(font_size)) {
+          if(data_frame$size[i] < 3) {
+            font_size[i] <- 12
+          } else {
+            font_size[i] <- 11
+          }
+        }
+        
+        valign <- numeric(nrow(data_frame))
+        
+        for (i in 1:length(valign)) {
+          if(data_frame$size[i] == 1) {
+            valign[i] <- -30
+          } else if(data_frame$size[i] == 2) {
+            valign[i] <- -38
+          } else if(data_frame$size[i] == 3) {
+            valign[i] <- -46
+          } else if(data_frame$size[i] == 4) {
+            valign[i] <- -54
+          } else if(data_frame$size[i] == 5) {
+            valign[i] <- -62
+          } else if(data_frame$size[i] > 5) {
+            valign[i] <- -70
+          }
+        }
+        
+        plot_loc$data_frame <- data_frame %>%
+          cbind(font_size = font_size, valign = valign)
+        
+        plot_loc$unique_meta$`Assembly Name` <- plot_loc$data_frame$name
+        plot_loc$unique_meta <- mutate(plot_loc$unique_meta, size = plot_loc$data_frame$Size)
+        
+        #make hamming distance matrix
+        ham_matrix <- proxy::dist(unique_allelic_profile[,-1], method = hamming_distance) 
+        
+        # prepare igraph object
+        plot_loc$ggraph_1 <- ham_matrix |>
+          as.matrix() |>
+          graph.adjacency(weighted = TRUE) |>
+          igraph::mst() 
+        
+        output$tree_local <- renderVisNetwork({
+          mst_tree()
+        })
       }
     }
   })
@@ -3603,7 +3923,115 @@ server <- function(input, output, session) {
     }
   })
   
-  # Set Interpretation Mode
+  ### Plot Reactives ----
+  
+  ##### visNetwork MST ----
+  
+  # Set node color
+  node_color1 <- reactive({
+    input$color_node1
+  })
+  
+  # Node Label Color
+  node_font_color <- reactive({
+    input$node_font_color
+  })
+  
+  # Node Size Scaling
+  mst_node_scaling <- reactive({
+    if(input$scale_nodes == TRUE){
+      plot_loc$data_frame$size
+    } else {NULL}
+  })
+  
+  # Node SIze Min/May
+  mst_node_size_min <- reactive({
+    input$mst_node_scale[1]
+  })
+  
+  mst_node_size_max <- reactive({
+    input$mst_node_scale[2]
+  })
+  
+  # Node Size
+  mst_node_size <- reactive({
+    input$mst_node_size
+  })
+  
+  # Node Alpha/Opacity
+  node_opacity <- reactive({
+    input$node_opacity
+  })
+  
+  # Set Title
+  mst_title <- reactive({
+    list(text = input$mst_title,
+         style = paste0(
+           "font-family:Georgia, Times New Roman, Times, serif;",
+           "text-align:center;",
+           "font-size: ", as.character(input$mst_title_size), "px", 
+           "; color: ", as.character(input$mst_title_color))
+    )
+  })
+  
+  # Set Subtitle
+  mst_subtitle <- reactive({
+    list(text = input$mst_subtitle,
+         style = paste0(
+           "font-family:Georgia, Times New Roman, Times, serif;",
+           "text-align:center;",
+           "font-size: ", as.character(input$mst_subtitle_size), "px", 
+           "; color: ", as.character(input$mst_title_color))
+    )
+  })
+  
+  # Set Footer
+  mst_footer <- reactive({
+    list(text = input$mst_footer,
+         style = paste0(
+           "font-family:Georgia, Times New Roman, Times, serif;",
+           "text-align:center;",
+           "font-size: ", as.character(input$mst_footer_size), "px", 
+           "; color: ", as.character(input$mst_footer_color))
+    )
+  })
+  
+  # Background color
+  
+  mst_background_color <- reactive({
+    if(input$mst_background_transparent == TRUE) {
+      'rgba(0, 0, 0, 0)'
+    } else{
+      input$mst_background_color
+    }
+  })
+  
+  # Edge Opacity
+  mst_edge_opacity <- reactive({
+    input$mst_edge_opacity
+  })
+  
+  # Edge font color
+  mst_edge_font_color <- reactive({
+    input$mst_edge_font_color
+  })
+  
+  # Edge  color
+  mst_color_edge <- reactive({
+    input$mst_color_edge
+  })
+  
+  # Edge ont size
+  mst_edge_font_size <- reactive({
+    input$mst_edge_font_size
+  })
+  
+  # Edge length multiplicator
+  mst_edge_length <- reactive({
+    input$mst_edge_length
+  })
+  
+  ##### old mst ----
   mode_algo <- reactive({
     input$algo_mode
   })
