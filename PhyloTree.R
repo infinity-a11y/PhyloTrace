@@ -318,6 +318,30 @@ country_names <- c(
   "Zimbabwe"
 )
 
+js <- paste0(c(
+  "$(document).ready(function(){",
+  "  $('#save_plot').on('click', function(){",
+  "    var el = document.querySelector('canvas');",
+  "    // Clone the chart to add a background color.",
+  "    var cloneCanvas = document.createElement('canvas');",
+  "    cloneCanvas.width = el.width;",
+  "    cloneCanvas.height = el.height;",
+  "    var ctx = cloneCanvas.getContext('2d');",
+  "    ctx.fillStyle = '#FFFFFF';",
+  "    ctx.fillRect(0, 0, el.width, el.height);",
+  "    ctx.drawImage(el, 0, 0);",
+  "    // Download.",
+  "    const a = document.createElement('a');",
+  "    document.body.append(a);",
+  "    a.download = 'networkradarchart.png';",
+  "    a.href = cloneCanvas.toDataURL('image/png');",
+  "    a.click();",
+  "    a.remove();",
+  "    cloneCanvas.remove();",
+  "  });",
+  "});"
+), collapse = "\n")
+
 sel_countries <-
   c("Austria",
     "Germany",
@@ -508,32 +532,7 @@ ui <- dashboardPage(
             choices = c("Minimum-Spanning", "Neighbour-Joining"),
             label = "Tree Type"
           ),
-          conditionalPanel(
-            "input.tree_algo=='Minimum-Spanning'",
-            selectInput(
-              "algo_mode",
-              label = "Interpretation Mode",
-              choices = c("directed", "undirected", "max", "min", "upper", "lower", "plus"),
-              selected = "undirected"
-            ),
-            selectInput(
-              "ggnetwork_layout",
-              label = "Layout Algorithm",
-              choices = c(
-                "Davidson-Harel",
-                "DrL",
-                "Fruchterman-Reingold",
-                "GEM",
-                "Graphopt",
-                "Kamada-Kawai",
-                "Large Graph Layout",
-                "Multidimensional Scaling",
-                "Sugiyama"
-              ),
-              selected = "Fruchterman-Reingold"
-            ),
-            br()
-          ),
+          br(),
           fluidRow(
             tags$style("button#save_plot {height: 34px; background: #20E6E5; color: #000000}"),
             column(
@@ -554,8 +553,8 @@ ui <- dashboardPage(
               )
             )
           ),
+          br(), br(),
           fluidRow(
-            br(),
             column(
               width = 12,
               conditionalPanel(
@@ -581,7 +580,7 @@ ui <- dashboardPage(
                       uiOutput("slot1_status"),
                       uiOutput("slot2_status"),
                       uiOutput("slot3_status"),
-                      uiOutput("slot4_status"),
+                      uiOutput("slot4_status")
                     )
                   ),
                   br(),
@@ -1153,15 +1152,16 @@ ui <- dashboardPage(
         tabName = "visualization",
         
         fluidRow(
+          tags$script(HTML(js)),
           column(
             width = 12,
             br(),
             visNetworkOutput("tree_local", width = "100%", height = "700px")  
           )
         ),
-        
         br(),
         hr(),
+        
         ##### Control Panels
         
         ####### Show Control for Trees generated from Local
@@ -1447,7 +1447,6 @@ ui <- dashboardPage(
                           "mst_node_label",
                           label = "",
                           choices = c(
-                            Duplicates = "duplicates",
                             Index = "index",
                             `Assembly ID` = "assembly_id",
                             `Assembly Name` = "assembly_name",
@@ -1509,7 +1508,7 @@ ui <- dashboardPage(
                                 div(
                                   class = "node_color",
                                   colorPickr(
-                                    inputId = "color_node1",
+                                    inputId = "mst_color_node",
                                     width = "100%",
                                     selected = "#058C31",
                                     label = "",
@@ -1806,7 +1805,7 @@ ui <- dashboardPage(
                           inputId = "mst_edge_length",
                           label = NULL,
                           choices = 1:40,
-                          selected = c(20),
+                          selected = c(10),
                           hide_min_max = TRUE
                         ) 
                       ),  
@@ -1816,629 +1815,6 @@ ui <- dashboardPage(
                 )
               )
             )
-          ),
-          hr(),
-          fluidRow(
-            tags$style("button#node_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px}"),
-            tags$style("button#edge_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px}"),
-            tags$style("button#nodelabel_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px}"),
-            tags$style("button#nodepanel_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px}"),
-            tags$style("button#edgelabel_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px}"),
-            tags$style("button#edgepanel_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px}"),
-            tags$style("button#add_metadata {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px}"),
-            tags$style("button#delete_meta {height: 34px; font-size: 19px}"),
-            tags$style("i.fas.fa-xmark {vertical-align: text-top;}"),
-            tags$style("input.form-control.pickr-color {text-align: center; font-size: 11px;}"),
-            column(width = 2,
-                   fluidRow(
-                     column(
-                       width = 6,
-                       align = "center",
-                       box(
-                         solidHeader = TRUE,
-                         status = "primary",
-                         width = "100%",
-                         h3(p("Nodes"), style = "color:white"),
-                         colorPickr(
-                           inputId = "color_node",
-                           width = "100%",
-                           selected = "#058C31",
-                           label = "",
-                           update = "changestop",
-                           interaction = list(clear = FALSE,
-                                              save = FALSE),
-                           position = "right-start"
-                         ),
-                         br(),
-                         dropMenu(
-                           actionBttn(
-                             "node_menu",
-                             label = "",
-                             color = "default",
-                             size = "sm",
-                             style = "material-flat",
-                             icon = icon("sliders")
-                           ),
-                           placement = "top-start",
-                           theme = "translucent",
-                           numericInput(
-                             "alpha_node",
-                             label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
-                             value = 1,
-                             step = 0.1,
-                             min = 0,
-                             max = 1,
-                             width = "90%"
-                           ),
-                           numericInput(
-                             inputId = "size_node",
-                             label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                             value = 10,
-                             min = 1,
-                             max = 20,
-                             step = 1,
-                             width = "90%"
-                           )
-                         ),
-                         br()
-                       )
-                     ),
-                     column(
-                       align = "center",
-                       width = 6,
-                       box(
-                         solidHeader = TRUE,
-                         status = "primary",
-                         width = "100%",
-                         h3(p("Edges"), style = "color:white"),
-                         colorPickr(
-                           inputId = "color_edge",
-                           width = "100%",
-                           selected = "#000000",
-                           label = "",
-                           update = "changestop",
-                           interaction = list(clear = FALSE,
-                                              save = FALSE),
-                           position = "right-start"
-                         ),
-                         br(),
-                         dropMenu(
-                           actionBttn(
-                             "edge_menu",
-                             label = "",
-                             color = "default",
-                             size = "sm",
-                             style = "material-flat",
-                             icon = icon("sliders")
-                           ),
-                           theme = "translucent",
-                           placement = "top-start",
-                           numericInput(
-                             "size_edge",
-                             label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                             value = 0.7,
-                             step = 0.1,
-                             min = 0.5,
-                             max = 1.5,
-                             width = "90%"
-                           ),
-                           numericInput(
-                             "alpha_edge",
-                             label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
-                             value = 0.7,
-                             step = 0.1,
-                             min = 0,
-                             max = 1,
-                             width = "90%"
-                           ),
-                           numericInput(
-                             "curvature_edge",
-                             label = h5("Curves", style = "color:white; margin-bottom: 0px;"),
-                             value = 0,
-                             step = 0.1,
-                             min = -0.5,
-                             max = 0.5,
-                             width = "90%"
-                           )
-                         ),
-                         br()
-                       )
-                     )
-                   ),
-                   fluidRow(column(
-                     width = 12,
-                     align = "center",
-                     box(
-                       solidHeader = TRUE,
-                       status = "primary",
-                       width = "100%",
-                       h3(p("Other"), style = "color:white"),
-                       column(
-                         width = 6,
-                         colorPickr(
-                           inputId = "color_bg",
-                           width = "100%",
-                           selected = "#ffffff",
-                           label = h5("Background", style = "color:white; margin-bottom: 0px;"),
-                           update = "changestop",
-                           interaction = list(clear = FALSE,
-                                              save = FALSE),
-                           position = "right-start"
-                         )
-                       ),
-                       column(width = 6,
-                              br(),
-                              uiOutput("cluster_start"))
-                     )
-                   ))),
-            column(
-              width = 2,
-              align = "center",
-              box(
-                solidHeader = TRUE,
-                status = "primary",
-                width = "100%",
-                fluidRow(
-                  column(
-                    width = 9,
-                    h3(p("Label Node"), style = "color:white"),
-                  ),
-                  column(
-                    width = 3,
-                    checkboxInput("include_node",
-                                  label = "",
-                                  value = TRUE)
-                  )
-                ),
-                selectInput(
-                  "node_label",
-                  label = "",
-                  choices = c(
-                    Index = "index",
-                    `Assembly ID` = "assembly_id",
-                    `Assembly Name` = "assembly_name",
-                    Scheme = "scheme",
-                    `Isolation Date` = "isolation_date",
-                    Host = "host",
-                    Country = "country",
-                    City = "city"
-                  ),
-                  selected = c(`Assembly Name` = "assembly_name"),
-                  width = "80%"
-                ),
-                fluidRow(
-                  column(width = 1),
-                  column(
-                    width = 6,
-                    align = "center",
-                    colorPickr(
-                      inputId = "label_color",
-                      width = "95%",
-                      selected = "#000000",
-                      label = "",
-                      update = "changestop",
-                      interaction = list(clear = FALSE,
-                                         save = FALSE),
-                      position = "right-start"
-                    )
-                  ),
-                  column(
-                    width = 3,
-                    align = "center",
-                    br(),
-                    dropMenu(
-                      actionBttn(
-                        "nodelabel_menu",
-                        label = "",
-                        color = "default",
-                        size = "sm",
-                        style = "material-flat",
-                        icon = icon("sliders")
-                      ),
-                      theme = "translucent",
-                      placement = "top-start",
-                      maxWidth = "1000px",
-                      column(
-                        width = 6,
-                        numericInput(
-                          "label_size",
-                          label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                          value = 4,
-                          min = 2,
-                          max = 10,
-                          step = 0.5,
-                          width = "170px"
-                        ),
-                        numericInput(
-                          "x_nudge",
-                          label = h5("X Position", style = "color:white; margin-bottom: 0px;"),
-                          value = 0,
-                          min = -10,
-                          max = 10,
-                          step = 0.5,
-                          width = "170px"
-                        ),
-                        numericInput(
-                          "y_nudge",
-                          label = h5("Y Position", style = "color:white; margin-bottom: 0px;"),
-                          value = 0,
-                          min = -10,
-                          max = 10,
-                          step = 0.5,
-                          width = "170px"
-                        ),
-                      ),
-                      column(
-                        width = 6,
-                        numericInput(
-                          "label_alpha",
-                          label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
-                          value = 1,
-                          step = 0.1,
-                          min = 0,
-                          max = 1,
-                          width = "170px"
-                        ),
-                        numericInput(
-                          "box_padding",
-                          label = h5("Box Padding", style = "color:white; margin-bottom: 0px;"),
-                          value = 0.25,
-                          min = 0,
-                          max = 1,
-                          step = 0.05,
-                          width = "170px"
-                        ),
-                        numericInput(
-                          "point_padding",
-                          label = h5("Point Padding", style = "color:white; margin-bottom: 0px;"),
-                          value = 0.25,
-                          min = 0,
-                          max = 1,
-                          step = 0.05,
-                          width = "170px"
-                        )
-                      ),
-                      h5(".", style = "color:black; font-size: 1px; margin-bottom: 0px;")
-                    )
-                  ),
-                  column(width = 2)
-                ),
-                fluidRow(column(
-                  width = 12,
-                  br(),
-                  checkboxInput("label_rect",
-                                label = "Show Panel",
-                                value = TRUE)
-                )),
-                fluidRow(
-                  column(width = 1),
-                  column(
-                    width = 6,
-                    colorPickr(
-                      inputId = "label_fillcolor",
-                      width = "95%",
-                      selected = "#ffffff",
-                      label = "",
-                      update = "changestop",
-                      interaction = list(clear = FALSE,
-                                         save = FALSE),
-                      position = "right-start"
-                    )
-                  ),
-                  column(
-                    width = 3,
-                    br(),
-                    dropMenu(
-                      actionBttn(
-                        "nodepanel_menu",
-                        label = "",
-                        color = "default",
-                        size = "sm",
-                        style = "material-flat",
-                        icon = icon("sliders")
-                      ),
-                      theme = "translucent",
-                      placement = "top-start",
-                      maxWidth = "200px",
-                      numericInput(
-                        "panel_padding",
-                        label = h5("Label Padding", style = "color:white; margin-bottom: 0px;"),
-                        value = 0.3,
-                        min = 0.2,
-                        max = 1,
-                        step = 0.1,
-                        width = "70px"
-                      ),
-                      numericInput(
-                        "panel_radius",
-                        label = h5("Radius", style = "color:white; margin-bottom: 0px;"),
-                        value = 0.2,
-                        min = 0,
-                        max = 1,
-                        step = 0.1,
-                        width = "70px"
-                      ),
-                      numericInput(
-                        "panel_bordersize",
-                        label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                        value = 0.5,
-                        min = 0,
-                        max = 4,
-                        step = 0.25,
-                        width = "70px"
-                      )
-                    )
-                  )
-                ),
-                br(),
-                br()
-              )
-            ),
-            column(
-              width = 2,
-              align = "center",
-              box(
-                solidHeader = TRUE,
-                status = "primary",
-                width = "100%",
-                fluidRow(
-                  column(
-                    width = 9,
-                    h3(p("Label Edge"), style = "color:white")
-                  ),
-                  column(
-                    width = 3,
-                    checkboxInput("include_edge",
-                                  label = "",
-                                  value = FALSE)
-                  )
-                ),
-                selectInput(
-                  "edge_label",
-                  label = "",
-                  choices = c(
-                    Index = "index",
-                    `Assembly ID` = "assembly_id",
-                    `Assembly Name` = "assembly_name",
-                    Scheme = "scheme",
-                    `Isolation Date` = "isolation_date",
-                    Host = "host",
-                    Country = "country",
-                    City = "city"
-                  ),
-                  selected = c(City = "city"),
-                  width = "80%"
-                ),
-                fluidRow(
-                  column(width = 1),
-                  column(
-                    width = 6,
-                    align = "center",
-                    colorPickr(
-                      inputId = "edgelabel_color",
-                      width = "95%",
-                      selected = "#000000",
-                      label = "",
-                      update = "changestop",
-                      interaction = list(clear = FALSE,
-                                         save = FALSE),
-                      position = "right-start"
-                    ),
-                  ),
-                  column(
-                    width = 3,
-                    br(),
-                    dropMenu(
-                      actionBttn(
-                        "edgelabel_menu",
-                        label = "",
-                        color = "default",
-                        size = "sm",
-                        style = "material-flat",
-                        icon = icon("sliders")
-                      ),
-                      theme = "translucent",
-                      placement = "top-start",
-                      maxWidth = "250px",
-                      fluidRow(
-                        column(
-                          width = 6,
-                          numericInput(
-                            "edgelabel_size",
-                            label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                            value = 3,
-                            min = 2,
-                            max = 10,
-                            step = 0.5,
-                            width = "170px"
-                          ),
-                          numericInput(
-                            "edge_x_nudge",
-                            label = h5("X Position", style = "color:white; margin-bottom: 0px;"),
-                            value = 0,
-                            min = -10,
-                            max = 10,
-                            step = 0.5,
-                            width = "170px"
-                          ),
-                          numericInput(
-                            "edge_y_nudge",
-                            label = h5("Y Position", style = "color:white; margin-bottom: 0px;"),
-                            value = 0,
-                            min = -10,
-                            max = 10,
-                            step = 0.5,
-                            width = "170px"
-                          )
-                        ),
-                        column(
-                          width = 6,
-                          numericInput(
-                            "edgelabel_alpha",
-                            label = h5("Alpha", style = "color:white; margin-bottom: 0px;"),
-                            value = 0.7,
-                            step = 0.1,
-                            min = 0,
-                            max = 1,
-                            width = "170px"
-                          ),
-                          numericInput(
-                            "edge_box_padding",
-                            label = h5("Box Padding", style = "color:white; margin-bottom: 0px;"),
-                            value = 0.25,
-                            min = 0,
-                            max = 1,
-                            step = 0.05,
-                            width = "170px"
-                          ),
-                          numericInput(
-                            "edge_point_padding",
-                            label = h5("Point Padding", style = "color:white; margin-bottom: 0px;"),
-                            value = 0.25,
-                            min = 0,
-                            max = 1,
-                            step = 0.05,
-                            width = "170px"
-                          )
-                        )
-                      ),
-                      label = h5(".", style = "color:white; font-size: 1px; margin-bottom: 0px;")
-                    )
-                  )
-                ),
-                fluidRow(column(
-                  width = 12,
-                  br(),
-                  checkboxInput("edge_rect",
-                                label = "Show Panel",
-                                value = TRUE)
-                )),
-                fluidRow(
-                  column(width = 1),
-                  column(
-                    width = 6,
-                    align = "center",
-                    colorPickr(
-                      inputId = "edgelabel_fillcolor",
-                      width = "95%",
-                      selected = "#A5A315",
-                      label = "",
-                      update = "changestop",
-                      interaction = list(clear = FALSE,
-                                         save = FALSE),
-                      position = "right-start"
-                    ),
-                  ),
-                  column(
-                    width = 3,
-                    align = "center",
-                    br(),
-                    dropMenu(
-                      actionBttn(
-                        "edgepanel_menu",
-                        label = "",
-                        color = "default",
-                        size = "sm",
-                        style = "material-flat",
-                        icon = icon("sliders")
-                      ),
-                      theme = "translucent",
-                      maxWidth = "100px",
-                      placement = "top-start",
-                      numericInput(
-                        "edge_panel_padding",
-                        label = h5("Label Padding", style = "color:white; margin-bottom: 0px;"),
-                        value = 0.3,
-                        min = 0.2,
-                        max = 1,
-                        step = 0.1,
-                        width = "70px"
-                      ),
-                      numericInput(
-                        "edge_panel_radius",
-                        label = h5("Radius", style = "color:white; margin-bottom: 0px;"),
-                        value = 0.2,
-                        min = 0,
-                        max = 1,
-                        step = 0.1,
-                        width = "70px"
-                      ),
-                      numericInput(
-                        "edge_panel_bordersize",
-                        label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                        value = 0.5,
-                        min = 0,
-                        max = 4,
-                        step = 0.25,
-                        width = "70px"
-                      )
-                    )
-                  )
-                ),
-                br(),
-                br()
-              )
-            ),
-            column(
-              width = 2,
-              align = "center",
-              box(
-                solidHeader = TRUE,
-                status = "primary",
-                width = "100%",
-                h3(p("Add Metadata"), style = "color:white"),
-                selectInput(
-                  "which_metadata",
-                  label = "",
-                  choices = c(
-                    Index = "index",
-                    `Assembly ID` = "assembly_id",
-                    `Assembly Name` = "assembly_name",
-                    Scheme = "scheme",
-                    `Isolation Date` = "isolation_date",
-                    Host = "host",
-                    Country = "country",
-                    City = "city"
-                  ),
-                  selected = c(Host = "host"),
-                  width = "80%"
-                ),
-                selectInput(
-                  "element_metadata",
-                  label = h5("Select Element", style = "color:white; margin-bottom: 0px;"),
-                  choices = c("Node Shape", "Node Size"),
-                  width = "80%"
-                ),
-                br(),
-                fluidRow(
-                  column(width = 3),
-                  column(
-                    width = 2,
-                    actionButton(
-                      "add_metadata",
-                      label = "Add"
-                    )
-                  ),
-                  column(width = 1),
-                  column(
-                    width = 2,
-                    actionBttn(
-                      "delete_meta",
-                      label = "",
-                      color = "danger",
-                      size = "sm",
-                      style = "material-circle",
-                      icon = icon("xmark")
-                    )
-                  )
-                ),
-                br(),
-                br(),
-                br(),
-                br(),
-                br()
-              )
-            ),
           )
         ),
         
@@ -2743,6 +2119,12 @@ ui <- dashboardPage(
 
 server <- function(input, output, session) {
   
+  observeEvent(input$test, {
+    html_name <- tempfile(fileext = ".html")
+    visSave(mst_tree(), html_name)
+    webshot(html_name, zoom = 2, file = "ex1.png")
+  })
+    
   shinyjs::addClass(selector = "body", class = "sidebar-collapse")
   shinyjs::removeClass(selector = "body", class = "sidebar-toggle")
   
@@ -3963,7 +3345,7 @@ server <- function(input, output, session) {
     }
   })
   
-  ### Render Plot Reactive ----
+  ### Plot Reactives ----
   
   #### MST ----
   
@@ -3987,7 +3369,7 @@ server <- function(input, output, session) {
                submain = mst_subtitle(),
                footer = mst_footer()) %>%
       visNodes(size = mst_node_size(), 
-               color = node_color1(),
+               color = mst_color_node(),
                scaling = list(min = mst_node_size_min(), 
                               max = mst_node_size_max()),
                font = list(color = node_font_color())) %>%
@@ -3999,246 +3381,9 @@ server <- function(input, output, session) {
       visLayout(randomSeed = 1)
   })
   
-  plot_input <- reactive({
-    ggplot(plot_loc$gg, aes(
-      x = x,
-      y = y,
-      xend = xend,
-      yend = yend
-    )) +
-      geom_edges(
-        color = edge_color(),
-        linewidth = edge_size(),
-        alpha = edge_alpha(),
-        curvature = edge_curvature()
-      ) +
-      nodes() +
-      label_edge() +
-      label_node() +
-      theme_blank() +
-      theme(
-        panel.background = element_rect(fill = bg_color()),
-        plot.background = element_rect(fill = bg_color())
-      )
-  })
-  
-  observeEvent(input$create_tree, {
-    
-    set.seed(1)
-    
-    # Load local database
-    Database <<-
-      readRDS(paste0(
-        getwd(),
-        "/Database/",
-        gsub(" ", "_", DF1$scheme),
-        "/Typing.rds"
-      ))
-    
-    # get allele profile of included entries
-    allelic_profile <- dplyr::select(Database$Typing, -(1:12))
-    allelic_profile <-
-      allelic_profile[which(Database[["Typing"]]$Include == TRUE),]
-    
-    # get metadata without include boolean variable
-    meta <- dplyr::select(Database$Typing, 1, 3:12)
-    meta <- meta[which(Database[["Typing"]]$Include == TRUE),]
-    
-    # Calculate distance matrix
-    dist_matrix <- dist(allelic_profile)
-    
-    if (input$tree_algo == "Neighbour-Joining") {
-      plot_loc$meta_nj <- meta
-      
-      colnames(plot_loc$meta_nj) <-
-        c(
-          "index",
-          "assembly_id",
-          "assembly_name",
-          "scheme",
-          "isolation_date",
-          "host",
-          "country",
-          "city",
-          "typing_date",
-          "successes",
-          "errors"
-        )
-      
-      plot_loc$meta_nj$taxa <- rownames(plot_loc$meta_nj)
-      
-      
-      # Create phylogenetic tree
-      plot_loc$nj <- ape::nj(dist_matrix)
-      
-      plot_loc$nj_plot <-
-        ggtree(plot_loc$nj, layout = layout_nj()) %<+% plot_loc$meta_nj +
-        tiplab_nj() +
-        inward()
-      
-      # Visualize the tree with metadata annotations
-      output$tree_local <- renderPlot({
-        print(plot_input())
-      })
-      
-    } else {
-      if(!is.null(DF1$data)) {
-        
-        # get allele profile of included entries
-        
-        df <- Database[["Typing"]][which(Database[["Typing"]]$Include == TRUE),]
-        df <- na.omit(df)
-        rownames(df) <- df$`Assembly Name`
-        
-        allelic_profile <- dplyr::select(df, -(1:12))
-        
-        # get metadata without include boolean variable
-        meta <- dplyr::select(df, 1, 3:12)
-        
-        grouped_df <- allelic_profile %>%
-          group_by(across(everything())) %>%
-          mutate(group_id = cur_group_id()) %>%
-          ungroup() %>%
-          relocate(group_id) %>%
-          as.data.frame()
-        
-        rownames(grouped_df) <- rownames(allelic_profile)
-        
-        unique_allelic_profile <- grouped_df[!duplicated(grouped_df$group_id), ]
-        
-        meta <- mutate(meta, group_id = grouped_df$group_id) %>%
-          relocate(group_id)
-        
-        plot_loc$unique_meta <- meta[rownames(unique_allelic_profile), ]
-        
-        ## grouping names
-        data_frame <- data.frame(group = numeric(), name = character())
-        
-        for (i in plot_loc$unique_meta$group_id) {
-          data_frame <- rbind(data_frame, 
-                              data.frame(size = length(paste(rownames(grouped_df)[which(grouped_df$group_id == i)])), 
-                                         name = paste(rownames(grouped_df)[which(grouped_df$group_id == i)], collapse = "\n")))
-        }
-        
-        font_size <- numeric(nrow(data_frame))
-        
-        for (i in 1:length(font_size)) {
-          if(data_frame$size[i] < 3) {
-            font_size[i] <- 12
-          } else {
-            font_size[i] <- 11
-          }
-        }
-        
-        valign <- numeric(nrow(data_frame))
-        
-        for (i in 1:length(valign)) {
-          if(data_frame$size[i] == 1) {
-            valign[i] <- -30
-          } else if(data_frame$size[i] == 2) {
-            valign[i] <- -38
-          } else if(data_frame$size[i] == 3) {
-            valign[i] <- -46
-          } else if(data_frame$size[i] == 4) {
-            valign[i] <- -54
-          } else if(data_frame$size[i] == 5) {
-            valign[i] <- -62
-          } else if(data_frame$size[i] > 5) {
-            valign[i] <- -70
-          }
-        }
-        
-        plot_loc$data_frame <- data_frame %>%
-          cbind(font_size = font_size, valign = valign)
-        
-        plot_loc$unique_meta$`Assembly Name` <- plot_loc$data_frame$name
-        plot_loc$unique_meta <- mutate(plot_loc$unique_meta, size = plot_loc$data_frame$Size)
-        
-        #make hamming distance matrix
-        ham_matrix <- proxy::dist(unique_allelic_profile[,-1], method = hamming_distance) 
-        
-        # prepare igraph object
-        plot_loc$ggraph_1 <- ham_matrix |>
-          as.matrix() |>
-          graph.adjacency(weighted = TRUE) |>
-          igraph::mst() 
-        
-        output$tree_local <- renderVisNetwork({
-          mst_tree()
-        })
-      }
-    }
-  })
-  
-  # NJ Tree Layout
-  layout_nj <- reactive({
-    input$nj_layout
-  })
-  
-  # NJ inward circular
-  inward <- reactive({
-    if (input$circ_inward == TRUE) {
-      layout_inward_circular()
-    } else {
-      NULL
-    }
-  })
-  
-  # NJ Tip Labs
-  tiplab_nj <- reactive({
-    if (input$nj_tiplab == "index") {
-      geom_tiplab(aes(label = taxa), offset = tiplab_offset())
-    } else if (input$nj_tiplab == "assembly_id") {
-      geom_tiplab(aes(label = assembly_id), offset = tiplab_offset())
-    } else if (input$nj_tiplab == "assembly_name") {
-      geom_tiplab(aes(label = assembly_name), offset = tiplab_offset())
-    } else if (input$nj_tiplab == "host") {
-      geom_tiplab(aes(label = host), offset = tiplab_offset())
-    } else if (input$nj_tiplab == "country") {
-      geom_tiplab(aes(label = country), offset = tiplab_offset())
-    } else if (input$nj_tiplab == "city") {
-      geom_tiplab(aes(label = city), offset = tiplab_offset())
-    } else if (input$nj_tiplab == "isolation_date") {
-      geom_tiplab(aes(label = isolation_date), offset = tiplab_offset())
-    }
-  })
-  
-  # NJ Tip Lab Offset
-  
-  tiplab_offset <- reactive({
-    input$nj_tip_offset
-  })
-  
-  # Set Minimum-Spanning Tree Appearance
-  ggnet_layout <- reactive({
-    if (input$ggnetwork_layout == "Davidson-Harel") {
-      layout_with_dh(plot_loc$gr_adj)
-    } else if (input$ggnetwork_layout == "DrL") {
-      layout_with_drl(plot_loc$gr_adj)
-    } else if (input$ggnetwork_layout == "Fruchterman-Reingold") {
-      layout_with_fr(plot_loc$gr_adj)
-    } else if (input$ggnetwork_layout == "GEM") {
-      layout_with_gem(plot_loc$gr_adj)
-    } else if (input$ggnetwork_layout == "Graphopt") {
-      layout_with_graphopt(plot_loc$gr_adj)
-    } else if (input$ggnetwork_layout == "Kamada-Kawai") {
-      layout_with_kk(plot_loc$gr_adj)
-    } else if (input$ggnetwork_layout == "Large Graph Layout") {
-      layout_with_lgl(plot_loc$gr_adj)
-    } else if (input$ggnetwork_layout == "Multidimensional Scaling") {
-      layout_with_mds(plot_loc$gr_adj)
-    } else if (input$ggnetwork_layout == "Sugiyama") {
-      layout_with_sugiyama(plot_loc$gr_adj)
-    }
-  })
-  
-  ### Plot Reactives ----
-  
-  ##### visNetwork MST ----
-  
   # Set node color
-  node_color1 <- reactive({
-    input$color_node1
+  mst_color_node <- reactive({
+    input$mst_color_node
   })
   
   # Node Label Color
@@ -4253,7 +3398,7 @@ server <- function(input, output, session) {
     } else {NULL}
   })
   
-  # Node SIze Min/May
+  # Node Size Min/May
   mst_node_size_min <- reactive({
     input$mst_node_scale[1]
   })
@@ -4325,12 +3470,12 @@ server <- function(input, output, session) {
     input$mst_edge_font_color
   })
   
-  # Edge  color
+  # Edge color
   mst_color_edge <- reactive({
     input$mst_color_edge
   })
   
-  # Edge ont size
+  # Edge font size
   mst_edge_font_size <- reactive({
     input$mst_edge_font_size
   })
@@ -4340,215 +3485,46 @@ server <- function(input, output, session) {
     input$mst_edge_length
   })
   
-  ##### old mst ----
-  mode_algo <- reactive({
-    input$algo_mode
+  #### NJ ----
+  
+  # NJ Tree Layout
+  layout_nj <- reactive({
+    input$nj_layout
   })
   
-  # Set edge color
-  edge_color <- reactive({
-    input$color_edge
-  })
-  
-  # Set edge color
-  edge_size <- reactive({
-    input$size_edge
-  })
-  
-  # Set edge transparency
-  edge_alpha <- reactive({
-    input$alpha_edge
-  })
-  
-  # Set edge curvature
-  edge_curvature <- reactive({
-    input$curvature_edge
-  })
-  
-  # Set node color
-  node_color <- reactive({
-    input$color_node
-  })
-  
-  # Set node transparency
-  node_alpha <- reactive({
-    input$alpha_node
-  })
-  
-  # Set node size
-  node_size <- reactive({
-    input$size_node
-  })
-  
-  # Set Background
-  bg_color <- reactive({
-    input$color_bg
-  })
-  
-  # Set Node Label
-  label_node <- reactive({
-    if (input$include_node) {
-      if (input$label_rect == FALSE) {
-        geom_nodetext_repel(
-          aes_string(label = input$node_label),
-          color = input$label_color,
-          size = input$label_size,
-          alpha = input$label_alpha,
-          box.padding = input$box_padding,
-          point.padding = input$point_padding,
-          nudge_x = input$x_nudge,
-          nudge_y = input$y_nudge,
-          max.overlaps = 18
-        )
-      } else {
-        geom_nodelabel_repel(
-          aes_string(label = input$node_label),
-          color = input$label_color,
-          fill = input$label_fillcolor,
-          size = input$label_size,
-          alpha = input$label_alpha,
-          box.padding = input$box_padding,
-          point.padding = input$point_padding,
-          nudge_x = input$x_nudge,
-          nudge_y = input$y_nudge,
-          label.padding = input$panel_padding,
-          label.r = input$panel_radius,
-          label.size = input$panel_bordersize,
-          max.overlaps = 18
-        )
-      }
-    }
-    
-    
-  })
-  
-  # Set Edge Label
-  
-  label_edge <- reactive({
-    if (input$include_edge) {
-      if (input$edge_rect == TRUE) {
-        geom_edgelabel_repel(
-          aes_string(label = input$edge_label),
-          color = input$edgelabel_color,
-          fill = input$edgelabel_fillcolor,
-          size = input$edgelabel_size,
-          alpha = input$edgelabel_alpha,
-          box.padding = input$edge_box_padding,
-          point.padding = input$edge_point_padding,
-          nudge_x = input$edge_x_nudge,
-          nudge_y = input$edge_y_nudge,
-          label.padding = input$edge_panel_padding,
-          label.r = input$edge_panel_radius,
-          label.size = input$edge_panel_bordersize,
-          max.overlaps = 18
-        )
-      } else {
-        geom_edgetext_repel(
-          aes_string(label = input$edge_label),
-          color = input$edgelabel_color,
-          size = input$edgelabel_size,
-          alpha = input$edgelabel_alpha,
-          box.padding = input$edge_box_padding,
-          point.padding = input$edge_point_padding,
-          nudge_x = input$edge_x_nudge,
-          nudge_y = input$edge_y_nudge,
-          max.overlaps = 18
-        )
-      }
+  # NJ inward circular
+  inward <- reactive({
+    if (input$circ_inward == TRUE) {
+      layout_inward_circular()
     } else {
       NULL
     }
   })
   
-  # Set Node Appearance
-  
-  nodes <- reactive({
-    if (is.null(plot_loc$gg$cluster) &
-        length(plot_loc$metadata[["which"]]) < 1) {
-      geom_nodes(color = node_color(),
-                 size = node_size(),
-                 alpha = node_alpha())
-    } else if (is.null(plot_loc$gg$cluster) &
-               length(plot_loc$metadata[["which"]]) == 1 &
-               plot_loc$metadata[["element"]] == "Node Shape") {
-      geom_nodes(
-        aes_string(shape = plot_loc$metadata[["which"]][1]),
-        color = node_color(),
-        size = node_size(),
-        alpha = node_alpha()
-      )
-    } else if (is.null(plot_loc$gg$cluster) &
-               length(plot_loc$metadata[["which"]]) == 1 &
-               plot_loc$metadata[["element"]] == "Node Size") {
-      geom_nodes(
-        aes_string(size = plot_loc$metadata[["which"]][1]),
-        color = node_color(),
-        alpha = node_alpha()
-      )
-    } else if (!is.null(plot_loc$gg$cluster) &
-               length(plot_loc$metadata[["which"]]) < 1) {
-      geom_nodes(aes_string(color = "cluster"),
-                 size = node_size(),
-                 alpha = node_alpha())
-    } else if (!is.null(plot_loc$gg$cluster) &
-               length(plot_loc$metadata[["which"]]) == 1 &
-               plot_loc$metadata[["element"]] == "Node Shape") {
-      geom_nodes(
-        aes_string(color = "cluster",
-                   shape = plot_loc$metadata[["which"]][1]),
-        size = node_size(),
-        alpha = node_alpha()
-      )
-    } else if (!is.null(plot_loc$gg$cluster) &
-               length(plot_loc$metadata[["which"]]) == 1 &
-               plot_loc$metadata[["element"]] == "Node Size") {
-      geom_nodes(
-        aes_string(color = "cluster",
-                   size = plot_loc$metadata[["which"]][1]),
-        size = node_size(),
-        alpha = node_alpha()
-      )
+  # NJ Tip Labs
+  tiplab_nj <- reactive({
+    if (input$nj_tiplab == "index") {
+      geom_tiplab(aes(label = taxa), offset = tiplab_offset())
+    } else if (input$nj_tiplab == "assembly_id") {
+      geom_tiplab(aes(label = assembly_id), offset = tiplab_offset())
+    } else if (input$nj_tiplab == "assembly_name") {
+      geom_tiplab(aes(label = assembly_name), offset = tiplab_offset())
+    } else if (input$nj_tiplab == "host") {
+      geom_tiplab(aes(label = host), offset = tiplab_offset())
+    } else if (input$nj_tiplab == "country") {
+      geom_tiplab(aes(label = country), offset = tiplab_offset())
+    } else if (input$nj_tiplab == "city") {
+      geom_tiplab(aes(label = city), offset = tiplab_offset())
+    } else if (input$nj_tiplab == "isolation_date") {
+      geom_tiplab(aes(label = isolation_date), offset = tiplab_offset())
     }
   })
   
-  # Add Metadata
+  # NJ Tip Lab Offset
   
-  observeEvent(input$add_metadata, {
-    if (length(plot_loc$metadata) == 0) {
-      plot_loc$metadata <- list(which = input$which_metadata,
-                                element = input$element_metadata)
-      #    } else if (length(plot_loc$metadata[["which"]]) == 1){
-      #      plot_loc$metadata[["which"]] <- append(plot_loc$metadata[["which"]], input$which_metadata)
-      #      plot_loc$metadata[["element"]] <- append(plot_loc$metadata[["element"]], input$element_metadata)
-    } else {
-      show_toast(
-        "Error",
-        text = "Maximum number of attached metadata is reached.",
-        type = "error",
-        timer = 3000,
-        timerProgressBar = TRUE,
-        position = "bottom-end"
-      )
-    }
-    
+  tiplab_offset <- reactive({
+    input$nj_tip_offset
   })
-  
-  # Delete Metadata
-  observeEvent(input$delete_meta, {
-    if (length(plot_loc$metadata)[["which"]] == 1) {
-      plot_loc$metadata[["which"]] <- character(0)
-    } else {
-      show_toast(
-        "Error",
-        text = "No metadata attached",
-        type = "error",
-        timer = 3000,
-        timerProgressBar = TRUE,
-        position = "top-end"
-      )
-    }
-  })
-  
   
   ### Save Tree Plot ----
   
@@ -4556,13 +3532,13 @@ server <- function(input, output, session) {
   
   output$download_plot <- downloadHandler(
     filename = function() {
-      paste0(input$plot_filename, ".", input$filetype_plot)
+      paste0(input$plot_filename, ".html")
     },
     content = function(file) {
       if (input$filetype_plot == "png") {
-        png(file, width = 1365, height = 600)
+        png(file, width = 1365, height = 700)
         if (input$tree_algo == "Minimum-Spanning") {
-          print(plot_input())
+          mst_tree() %>% visSave(file)
         } else if (input$tree_algo == "Neighbour-Joining") {
           print(plot_loc$nj_plot)
         }
@@ -4585,8 +3561,149 @@ server <- function(input, output, session) {
   
   ### Reactive Events ----
   
+  #### Generate Plot ----
+  
+  observeEvent(input$create_tree, {
+    
+    set.seed(1)
+    
+    # Load local database
+    Database <-
+      readRDS(paste0(
+        getwd(),
+        "/Database/",
+        gsub(" ", "_", DF1$scheme),
+        "/Typing.rds"
+      ))
+    
+    # get allele profile of included entries
+    allelic_profile <- dplyr::select(Database$Typing, -(1:12))
+    allelic_profile <- allelic_profile[which(Database[["Typing"]]$Include == TRUE),]
+    
+    # get metadata without include boolean variable
+    meta <- dplyr::select(Database$Typing, 1, 3:12)
+    meta <- meta[which(Database[["Typing"]]$Include == TRUE),]
+    
+    if (input$tree_algo == "Neighbour-Joining") {
+      
+      plot_loc$meta_nj <- meta
+      
+      colnames(plot_loc$meta_nj) <-
+        c(
+          "index",
+          "assembly_id",
+          "assembly_name",
+          "scheme",
+          "isolation_date",
+          "host",
+          "country",
+          "city",
+          "typing_date",
+          "successes",
+          "errors"
+        )
+      
+      plot_loc$meta_nj$taxa <- rownames(plot_loc$meta_nj)
+      
+      
+      # Create phylogenetic tree
+      plot_loc$nj <- ape::nj(dist_matrix)
+      
+      plot_loc$nj_plot <-
+        ggtree(plot_loc$nj, layout = layout_nj()) %<+% plot_loc$meta_nj +
+        tiplab_nj() +
+        inward()
+      
+    } else {
+      
+      # get allele profile of included entries
+      
+      df <- Database[["Typing"]][which(Database[["Typing"]]$Include == TRUE),]
+      df <- na.omit(df)
+      rownames(df) <- df$`Assembly Name`
+      
+      allelic_profile <- dplyr::select(df, -(1:12))
+      
+      # get metadata without include boolean variable
+      meta <- dplyr::select(df, 1, 3:12)
+      
+      grouped_df <- allelic_profile %>%
+        group_by(across(everything())) %>%
+        mutate(group_id = cur_group_id()) %>%
+        ungroup() %>%
+        relocate(group_id) %>%
+        as.data.frame()
+      
+      rownames(grouped_df) <- rownames(allelic_profile)
+      
+      unique_allelic_profile <- grouped_df[!duplicated(grouped_df$group_id), ]
+      
+      meta <- mutate(meta, group_id = grouped_df$group_id) %>%
+        relocate(group_id)
+      
+      plot_loc$unique_meta <- meta[rownames(unique_allelic_profile), ]
+      
+      ## grouping names
+      data_frame <- data.frame(group = numeric(), name = character())
+      
+      for (i in plot_loc$unique_meta$group_id) {
+        data_frame <- rbind(data_frame, 
+                            data.frame(size = length(paste(rownames(grouped_df)[which(grouped_df$group_id == i)])), 
+                                       name = paste(rownames(grouped_df)[which(grouped_df$group_id == i)], collapse = "\n")))
+      }
+      
+      font_size <- numeric(nrow(data_frame))
+      
+      for (i in 1:length(font_size)) {
+        if(data_frame$size[i] < 3) {
+          font_size[i] <- 12
+        } else {
+          font_size[i] <- 11
+        }
+      }
+      
+      valign <- numeric(nrow(data_frame))
+      
+      for (i in 1:length(valign)) {
+        if(data_frame$size[i] == 1) {
+          valign[i] <- -30
+        } else if(data_frame$size[i] == 2) {
+          valign[i] <- -38
+        } else if(data_frame$size[i] == 3) {
+          valign[i] <- -46
+        } else if(data_frame$size[i] == 4) {
+          valign[i] <- -54
+        } else if(data_frame$size[i] == 5) {
+          valign[i] <- -62
+        } else if(data_frame$size[i] > 5) {
+          valign[i] <- -70
+        }
+      }
+      
+      plot_loc$data_frame <- data_frame %>%
+        cbind(font_size = font_size, valign = valign)
+      
+      plot_loc$unique_meta$`Assembly Name` <- plot_loc$data_frame$name
+      plot_loc$unique_meta <- mutate(plot_loc$unique_meta, size = plot_loc$data_frame$Size)
+      
+      #make hamming distance matrix
+      ham_matrix <- proxy::dist(unique_allelic_profile[,-1], method = hamming_distance) 
+      
+      # prepare igraph object
+      plot_loc$ggraph_1 <- ham_matrix |>
+        as.matrix() |>
+        graph.adjacency(weighted = TRUE) |>
+        igraph::mst() 
+      
+      output$tree_local <- renderVisNetwork({
+        mst_tree()
+      })
+      
+    }
+  })
+  
   # Download plot as picture
-  observeEvent(input$save_plot, {
+  observeEvent(input$save_plot1, {
     showModal(
       modalDialog(
         textInput(
@@ -4619,56 +3736,6 @@ server <- function(input, output, session) {
   
   observeEvent(input$download_plot, {
     removeModal()
-  })
-  
-  
-  ### Cluster Analysis ----
-  
-  observeEvent(input$cluster_start, {
-    # Create a function to calculate total within-cluster sum of squares
-    set.seed(8)
-    
-    wss <- function(k) {
-      kmeans_result <- kmeans(dist_matrix, centers = k)
-      return(kmeans_result$tot.withinss)
-    }
-    
-    # Determine a suitable number of clusters using the elbow method
-    k_values <- 1:20  # You can adjust the range as needed
-    wss_values <- sapply(k_values, wss)
-    
-    # Use the elbow method to select the number of clusters
-    elbow_point <-
-      findCutoff(k_values,
-                 wss_values,
-                 method = "first",
-                 frac.of.steepest.slope = 0.5)
-    
-    # Perform K-Means clustering with the recommended number of clusters
-    kmeans_opt <-
-      kmeans(dist_matrix, centers = round(as.numeric(elbow_point$x)))
-    
-    
-    cluster_add <- function(vector) {
-      cluster <- numeric()
-      
-      for (i in 1:length(vector)) {
-        if (length(unname(kmeans_opt$cluster[which(names(kmeans_opt$cluster) == vector[i])])) > 0) {
-          cluster[i] <-
-            unname(kmeans_opt$cluster[which(names(kmeans_opt$cluster) == vector[i])])
-        } else {
-          cluster[i] <- 0
-        }
-      }
-    }
-    
-    cluster_add(gg$name)
-    
-    plot_loc$gg <-
-      plot_loc$gg %>% mutate(cluster = as.character(cluster))
-    
-    
-    
   })
   
   ## Report ----
@@ -4915,8 +3982,8 @@ server <- function(input, output, session) {
         textInput(
           "slot_name",
           label = "",
-          value = "",
-          placeholder = "Plot name"
+          value = "Analysis",
+          placeholder = "Analysis"
         ),
         title = "Add to Slot",
         fade = TRUE,
@@ -4931,16 +3998,13 @@ server <- function(input, output, session) {
   
   observeEvent(input$conf_slot, {
     if(input$slot_select == "Slot 1") {
-      if (length(input$slot_name) > 0) {
+      if (length(input$slot_name) >= 1) {
         plot_loc$slot1_getname <- substr(input$slot_name, 1, 10)
       } else {
         plot_loc$slot1_getname <- paste("Number One")
         test <<- "Number One"
       }
-      jpeg(paste0(getwd(), "/Report/slot1_plot.jpeg"), width = 1365, height = 600,
-           quality = 100)
-      print(plot_input())
-      dev.off()
+      mst_tree() %>% visExport(type = "jpeg")
       elements_data$slot1_include <- TRUE
     } else if(input$slot_select == "Slot 2") {
       if (length(input$slot_name) > 0) {
