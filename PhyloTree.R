@@ -333,8 +333,8 @@ js <- paste0(c(
   "    // Download.",
   "    const a = document.createElement('a');",
   "    document.body.append(a);",
-  "    a.download = 'networkradarchart.png';",
-  "    a.href = cloneCanvas.toDataURL('image/png');",
+  "    a.download = 'networkradarchart.jpeg';",
+  "    a.href = cloneCanvas.toDataURL('image/jpeg', 1.0);",
   "    a.click();",
   "    a.remove();",
   "    cloneCanvas.remove();",
@@ -365,6 +365,9 @@ ui <- dashboardPage(
   
   ## Sidebar ----
   dashboardSidebar(
+    tags$head(
+      tags$link(rel = "stylesheet", type = "text/css", href = "mycss.css")
+    ),
     tags$style("label{color: white;}"),
     tags$style(".main-sidebar .sidebar .sidebar-menu .treeview-menu a {color: #ffffff !important; margin-left: 25px; border-radius: 20px; margin-top: 7px; margin-bottom: 7px}"),
     tags$style(".main-sidebar .sidebar .sidebar-menu a {border: none}"),
@@ -391,6 +394,7 @@ ui <- dashboardPage(
     tags$style("i.far.fa-file-lines {margin-left: 2px; margin-right: 8px;}"),
     tags$style("button#reload_db.btn.btn-default.action-button.shiny-bound-input {height: 30px; width: 30px; position: relative; left: -20px}"),
     tags$style("button#edit_button.btn.btn-default.action-button.shiny-bound-input {background: #20E6E5; color: #000000}"),
+    tags$style("button#save_plot {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
     br(), br(),
     uiOutput("loaded_scheme"),
     sidebarMenu(
@@ -520,6 +524,61 @@ ui <- dashboardPage(
             label = "Save Profile",
             icon = icon("bookmark")
           )
+        ),
+        column(
+          width = 12,
+          box(
+            solidHeader = TRUE,
+            status = "primary",
+            width = "100%",
+            fluidRow(
+              column(
+                width = 3,
+                tags$style("#slot_select {margin-top: -25px; margin-left: -5px;}"),
+                prettyRadioButtons(
+                  "slot_select",
+                  choices = c("Slot 1", "Slot 2", "Slot 3", "Slot 4"),
+                  label = ""
+                )  
+              ),
+              column(2),
+              column(
+                width = 5,
+                align = "right",
+                uiOutput("slot1_status"),
+                uiOutput("slot2_status"),
+                uiOutput("slot3_status"),
+                uiOutput("slot4_status")
+              )
+            ),
+            br(),
+            fluidRow(
+              column(width = 1),
+              column(
+                width = 1,
+                align = "left",
+                actionBttn(
+                  "add_slot",
+                  style = "simple",
+                  size = "sm",
+                  icon = icon("plus"),
+                  color = "primary"
+                )
+              ),
+              column(1),
+              column(
+                width = 2,
+                align = "left",
+                actionBttn(
+                  "delete_slot",
+                  style = "simple",
+                  size = "sm",
+                  icon = icon("trash"),
+                  color = "danger"
+                )
+              )
+            )
+          )
         )
       ),
       conditionalPanel(
@@ -530,18 +589,44 @@ ui <- dashboardPage(
           prettyRadioButtons(
             "tree_algo",
             choices = c("Minimum-Spanning", "Neighbour-Joining"),
-            label = "Tree Type"
+            label = ""
           ),
           br(),
+          column(
+            tags$style("button#create_tree {position: relative; left: -15px; width = 100%; border: none;"),
+            tags$style("button#create_tree:hover {background: #3c8c56; border: none;}"),
+            width = 12,
+            align = "center",
+            actionButton(
+              "create_tree",
+              "",
+              width = "100%",
+              icon = icon(
+                name = NULL,
+                style = "
+                background: url('phylo.png');
+                background-size: contain;
+                background-position: center;
+                background-repeat: no-repeat;
+                height: 32px;
+                display: block;
+              "
+              )
+            )
+          ),  
           fluidRow(
-            tags$style("button#save_plot {height: 34px; background: #20E6E5; color: #000000}"),
             column(
-              width = 6,
-              actionButton("create_tree",
-                           "Create Tree")
+              width = 8,
+              selectInput(
+                inputId = "upcheckboxGroupButtons",
+                label = "",
+                choices = c("HTML", 
+                            "JPEG", "PNG", "BMP")
+              )
             ),
             column(
-              width = 6,
+              width = 4,
+              align = "left",
               actionBttn(
                 "save_plot",
                 style = "simple",
@@ -550,67 +635,6 @@ ui <- dashboardPage(
                 icon = icon("download"),
                 color = "primary"
                 
-              )
-            )
-          ),
-          br(), br(),
-          fluidRow(
-            column(
-              width = 12,
-              conditionalPanel(
-                "input.create_tree>0",
-                box(
-                  solidHeader = TRUE,
-                  status = "primary",
-                  width = "100%",
-                  fluidRow(
-                    column(
-                      width = 3,
-                      tags$style("#slot_select {margin-top: -25px; margin-left: -5px;}"),
-                      prettyRadioButtons(
-                        "slot_select",
-                        choices = c("Slot 1", "Slot 2", "Slot 3", "Slot 4"),
-                        label = ""
-                      )  
-                    ),
-                    column(2),
-                    column(
-                      width = 5,
-                      align = "right",
-                      uiOutput("slot1_status"),
-                      uiOutput("slot2_status"),
-                      uiOutput("slot3_status"),
-                      uiOutput("slot4_status")
-                    )
-                  ),
-                  br(),
-                  fluidRow(
-                    column(width = 1),
-                    column(
-                      width = 1,
-                      align = "left",
-                      actionBttn(
-                        "add_slot",
-                        style = "simple",
-                        size = "sm",
-                        icon = icon("plus"),
-                        color = "primary"
-                      )
-                    ),
-                    column(1),
-                    column(
-                      width = 2,
-                      align = "left",
-                      actionBttn(
-                        "delete_slot",
-                        style = "simple",
-                        size = "sm",
-                        icon = icon("trash"),
-                        color = "danger"
-                      )
-                    )
-                  )
-                )
               )
             )
           )
@@ -789,7 +813,7 @@ ui <- dashboardPage(
       ,
       sidebarTabBorderColorHover = "rgb(75,126,151)"
       ,
-      sidebarTabBorderWidthHover = 1
+      sidebarTabBorderWidthHover = 0
       ,
       sidebarTabRadiusHover = "0px 0px 0px 0px"
       
@@ -866,7 +890,7 @@ ui <- dashboardPage(
       ,
       textboxBackColor = "#ffffff"
       ,
-      textboxBorderColor = "#000000"
+      textboxBorderColor = "#ffffff"
       ,
       textboxBorderRadius = 5
       ,
@@ -1512,7 +1536,6 @@ ui <- dashboardPage(
                                     width = "100%",
                                     selected = "#058C31",
                                     label = "",
-                                    opacity = TRUE,
                                     update = "changestop",
                                     interaction = list(clear = FALSE,
                                                        save = FALSE),
@@ -1537,7 +1560,7 @@ ui <- dashboardPage(
                                   numericInput(
                                     "node_opacity",
                                     label = h5("Opacity", style = "color:white; margin-bottom: 0px;"),
-                                    value = 0.7,
+                                    value = 1,
                                     step = 0.1,
                                     min = 0,
                                     max = 1,
@@ -3311,39 +3334,6 @@ server <- function(input, output, session) {
   
   plot_loc <- reactiveValues(cluster = NULL, metadata = list())
   
-  ### Render Slot Allocation Elements ----
-  
-  output$slot1_status <- renderUI({
-    if(is.null(plot_loc$slot1_getname)) {
-      h5("Empty", style = "color:white; margin-top: 6px")
-    } else {
-      h5(plot_loc$slot1_getname, style = "color:white; margin-top: 6px")
-    }
-  })
-  
-  output$slot2_status <- renderUI({
-    if(is.null(plot_loc$slot2_getname)) {
-      h5("Empty", style = "color:white; margin-top: -2px")
-    } else {
-      h5(plot_loc$slot2_getname, style = "color:white; margin-top: -2px")
-    }
-  })
-  
-  output$slot3_status <- renderUI({
-    if(is.null(plot_loc$slot3_getname)) {
-      h5("Empty", style = "color:white; margin-top: -2px")
-    } else {
-      h5(plot_loc$slot3_getname, style = "color:white; margin-top: -2px")
-    }
-  })
-  
-  output$slot4_status <- renderUI({
-    if(is.null(plot_loc$slot4_getname)) {
-      h5("Empty", style = "color:white; margin-top: -2px")
-    } else {
-      h5(plot_loc$slot4_getname, style = "color:white; margin-top: -2px")
-    }
-  })
   
   ### Plot Reactives ----
   
@@ -3810,6 +3800,39 @@ server <- function(input, output, session) {
   })
   
   #### Render Slot Boxes ----
+  
+  
+  output$slot1_status <- renderUI({
+    if(is.null(plot_loc$slot1_getname)) {
+      h5("Empty", style = "color:white; margin-top: 6px")
+    } else {
+      h5(plot_loc$slot1_getname, style = "color:white; margin-top: 6px")
+    }
+  })
+  
+  output$slot2_status <- renderUI({
+    if(is.null(plot_loc$slot2_getname)) {
+      h5("Empty", style = "color:white; margin-top: -2px")
+    } else {
+      h5(plot_loc$slot2_getname, style = "color:white; margin-top: -2px")
+    }
+  })
+  
+  output$slot3_status <- renderUI({
+    if(is.null(plot_loc$slot3_getname)) {
+      h5("Empty", style = "color:white; margin-top: -2px")
+    } else {
+      h5(plot_loc$slot3_getname, style = "color:white; margin-top: -2px")
+    }
+  })
+  
+  output$slot4_status <- renderUI({
+    if(is.null(plot_loc$slot4_getname)) {
+      h5("Empty", style = "color:white; margin-top: -2px")
+    } else {
+      h5(plot_loc$slot4_getname, style = "color:white; margin-top: -2px")
+    }
+  })
   
   observe({
     if(is.null(plot_loc$slot1_getname)) {
