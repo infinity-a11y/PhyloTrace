@@ -318,9 +318,11 @@ country_names <- c(
   "Zimbabwe"
 )
 
-js <- paste0(c(
+# Plot download JS code
+
+png_mst <- paste0(c(
   "$(document).ready(function(){",
-  "  $('#save_plot').on('click', function(){",
+  "  $('#save_plot_png').on('click', function(){",
   "    var el = document.querySelector('canvas');",
   "    // Clone the chart to add a background color.",
   "    var cloneCanvas = document.createElement('canvas');",
@@ -333,7 +335,31 @@ js <- paste0(c(
   "    // Download.",
   "    const a = document.createElement('a');",
   "    document.body.append(a);",
-  "    a.download = 'networkradarchart.jpeg';",
+  "    a.download = ", shQuote(paste0(Sys.Date(), "_MST")),
+  "    a.href = cloneCanvas.toDataURL('image/png');",
+  "    a.click();",
+  "    a.remove();",
+  "    cloneCanvas.remove();",
+  "  });",
+  "});"
+), collapse = "\n")
+
+jpeg_mst <- paste0(c(
+  "$(document).ready(function(){",
+  "  $('#save_plot_jpeg').on('click', function(){",
+  "    var el = document.querySelector('canvas');",
+  "    // Clone the chart to add a background color.",
+  "    var cloneCanvas = document.createElement('canvas');",
+  "    cloneCanvas.width = el.width;",
+  "    cloneCanvas.height = el.height;",
+  "    var ctx = cloneCanvas.getContext('2d');",
+  "    ctx.fillStyle = '#FFFFFF';",
+  "    ctx.fillRect(0, 0, el.width, el.height);",
+  "    ctx.drawImage(el, 0, 0);",
+  "    // Download.",
+  "    const a = document.createElement('a');",
+  "    document.body.append(a);",
+  "    a.download = ", shQuote(paste0(Sys.Date(), "_MST")),
   "    a.href = cloneCanvas.toDataURL('image/jpeg', 1.0);",
   "    a.click();",
   "    a.remove();",
@@ -341,6 +367,64 @@ js <- paste0(c(
   "  });",
   "});"
 ), collapse = "\n")
+
+bmp_mst <- paste0(c(
+  "$(document).ready(function(){",
+  "  $('#save_plot_bmp').on('click', function(){",
+  "    var el = document.querySelector('canvas');",
+  "    // Clone the chart to add a background color.",
+  "    var cloneCanvas = document.createElement('canvas');",
+  "    cloneCanvas.width = el.width;",
+  "    cloneCanvas.height = el.height;",
+  "    var ctx = cloneCanvas.getContext('2d');",
+  "    ctx.fillStyle = '#FFFFFF';",
+  "    ctx.fillRect(0, 0, el.width, el.height);",
+  "    ctx.drawImage(el, 0, 0);",
+  "    // Download.",
+  "    const a = document.createElement('a');",
+  "    document.body.append(a);",
+  "    a.download = ", shQuote(paste0(Sys.Date(), "_MST.bmp")),
+  "    a.href = cloneCanvas.toDataURL('image/bmp');",
+  "    a.click();",
+  "    a.remove();",
+  "    cloneCanvas.remove();",
+  "  });",
+  "});"
+), collapse = "\n")
+
+
+mergeCanvas_bmp <- paste0(c(
+  "$(document).ready(function(){", "\n",
+  "  $('#save_plot_merged).on('click', function(){", "\n",
+  "    var allCanvases = document.querySelectorAll('canvas');", "\n",
+  "    var mergedCanvas = document.createElement('canvas');", "\n",
+  "    var ctx = mergedCanvas.getContext('2d');", "\n",
+  "    var totalWidth = 0;", "\n",
+  "    // Calculate the total width of all canvases.", "\n",
+  "    allCanvases.forEach(function(canvas) {", "\n",
+  "      totalWidth += canvas.width;", "\n",
+  "    });", "\n",
+  "    // Set the width and height of the merged canvas.", "\n",
+  "    mergedCanvas.width = totalWidth;", "\n",
+  "    mergedCanvas.height = allCanvases[0].height;", "\n",
+  "    var offsetX = 0;", "\n",
+  "    // Draw each canvas onto the merged canvas.", "\n",
+  "    allCanvases.forEach(function(canvas) {", "\n",
+  "      ctx.drawImage(canvas, offsetX, 0);", "\n",
+  "      offsetX += canvas.width;", "\n",
+  "    });", "\n",
+  "    // Download the merged canvas as BMP.", "\n",
+  "    const a = document.createElement('a');", "\n",
+  "    document.body.append(a);", "\n",
+  "    a.download = ", shQuote(paste0(Sys.Date(), "_MST")), "\n",
+  "    a.href = mergedCanvas.toDataURL('image/jpeg', 1.0);", "\n",
+  "    a.click();", "\n",
+  "    a.remove();", "\n",
+  "    mergedCanvas.remove();", "\n",
+  "  });", "\n",
+  "});"
+))
+
 
 sel_countries <-
   c("Austria",
@@ -394,7 +478,11 @@ ui <- dashboardPage(
     tags$style("i.far.fa-file-lines {margin-left: 2px; margin-right: 8px;}"),
     tags$style("button#reload_db.btn.btn-default.action-button.shiny-bound-input {height: 30px; width: 30px; position: relative; left: -20px}"),
     tags$style("button#edit_button.btn.btn-default.action-button.shiny-bound-input {background: #20E6E5; color: #000000}"),
-    tags$style("button#save_plot {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
+    tags$style("button#save_plot_jpeg {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
+    tags$style("button#save_plot_png {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
+    tags$style("button#save_plot_bmp {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
+    tags$style("button#save_plot_html_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
+    tags$style("button#save_plot_merged {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
     br(), br(),
     uiOutput("loaded_scheme"),
     sidebarMenu(
@@ -618,7 +706,7 @@ ui <- dashboardPage(
             column(
               width = 8,
               selectInput(
-                inputId = "upcheckboxGroupButtons",
+                inputId = "plot_format",
                 label = "",
                 choices = c("HTML", 
                             "JPEG", "PNG", "BMP")
@@ -627,14 +715,58 @@ ui <- dashboardPage(
             column(
               width = 4,
               align = "left",
-              actionBttn(
-                "save_plot",
-                style = "simple",
-                label = "",
-                size = "sm",
-                icon = icon("download"),
-                color = "primary"
-                
+              conditionalPanel(
+                "input.plot_format=='JPEG'",
+                actionBttn(
+                  "save_plot_jpeg",
+                  style = "simple",
+                  label = "",
+                  size = "sm",
+                  icon = icon("download"),
+                  color = "primary"
+                )  
+              ),
+              conditionalPanel(
+                "input.plot_format=='PNG'",
+                actionBttn(
+                  "save_plot_png",
+                  style = "simple",
+                  label = "",
+                  size = "sm",
+                  icon = icon("download"),
+                  color = "primary"
+                )
+              ),
+              conditionalPanel(
+                "input.plot_format=='BMP'",
+                actionBttn(
+                  "save_plot_bmp",
+                  style = "simple",
+                  label = "",
+                  size = "sm",
+                  icon = icon("download"),
+                  color = "primary"
+                )  
+              ),
+              conditionalPanel(
+                "input.plot_format=='HTML'",
+                downloadBttn(
+                  "save_plot_html",
+                  style = "simple",
+                  label = "",
+                  size = "sm",
+                  icon = icon("download")
+                )
+              ),
+              conditionalPanel(
+                "input.mst_color_var==true",
+                actionBttn(
+                  "save_plot_merged",
+                  style = "simple",
+                  label = "",
+                  size = "sm",
+                  icon = icon("download")
+                )
               )
             )
           )
@@ -923,7 +1055,7 @@ ui <- dashboardPage(
         fluidRow(column(
           width = 3,
           align = "center",
-          h2(p("Browse Local Database"), style = "color:white"),
+          h2(p("Browse Local Database"), style = "color:white")
         )),
         hr(), br(),
         br(),
@@ -1001,7 +1133,7 @@ ui <- dashboardPage(
           column(
             width = 3,
             align = "center",
-            h2(p("Browse Local Database"), style = "color:white"),
+            h2(p("Browse Local Database"), style = "color:white")
           )
         ),
         hr(), br(), br(), br(),
@@ -1017,7 +1149,7 @@ ui <- dashboardPage(
             br(),
             br()
           ),
-          br(), 
+          br() 
         ),
         br(), br(), br()
       ),
@@ -1029,7 +1161,7 @@ ui <- dashboardPage(
         fluidRow(column(
           width = 3,
           align = "center",
-          h2(p("Select cgMLST Scheme"), style = "color:white"),
+          h2(p("Select cgMLST Scheme"), style = "color:white")
         )),
         hr(),
         fluidRow(
@@ -1098,7 +1230,7 @@ ui <- dashboardPage(
             br(),
             br(),
             align = "center",
-            h4(p("Downloaded Loci"), style = "color:white"),
+            h4(p("Downloaded Loci"), style = "color:white")
           )
         ),
         fluidRow(
@@ -1137,7 +1269,7 @@ ui <- dashboardPage(
         fluidRow(column(
           width = 3,
           align = "center",
-          h2(p("Generate Allelic Profile"), style = "color:white"),
+          h2(p("Generate Allelic Profile"), style = "color:white")
         )),
         hr(),
         conditionalPanel(
@@ -1176,20 +1308,27 @@ ui <- dashboardPage(
         tabName = "visualization",
         
         fluidRow(
-          tags$script(HTML(js)),
+          tags$script(HTML(jpeg_mst)),
+          tags$script(HTML(png_mst)),
+          tags$script(HTML(bmp_mst)),
+          tags$script(HTML(mergeCanvas_bmp)),
           column(
             width = 12,
             br(),
-            visNetworkOutput("tree_local", width = "100%", height = "700px")  
+            conditionalPanel(
+              "input.tree_algo=='Minimum-Spanning'",
+              visNetworkOutput("tree_mst", width = "100%", height = "700px")  
+            ),
+            conditionalPanel(
+              "input.tree_algo=='Neighbour-Joining'",
+              plotOutput("tree_nj", width = "100%", height = "700px")  
+            ),
           )
         ),
         br(),
         hr(),
         
-        ##### Control Panels
-        
-        ####### Show Control for Trees generated from Local
-        
+        ### Control panels MST ----
         conditionalPanel(
           "input.tree_algo=='Minimum-Spanning'",
           fluidRow(
@@ -1200,6 +1339,7 @@ ui <- dashboardPage(
             tags$style("button#mst_edgecolor_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
             tags$style("button#mst_subtitle_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
             tags$style("button#mst_footer_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
+            tags$style("button#mst_label_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
             tags$style("input.form-control.pickr-color {text-align: center; font-size: 11px;}"),
             tags$style(".checkbox_bg .checkbox {margin-top: 25px !important;}"),
             tags$style(".label_sel {margin-bottom: -16px;}"),
@@ -1496,6 +1636,29 @@ ui <- dashboardPage(
                                                save = FALSE),
                             position = "right-start"
                           )
+                        ),
+                        column(
+                          width = 5,
+                          dropMenu(
+                            actionBttn(
+                              "mst_label_menu",
+                              label = "",
+                              color = "default",
+                              size = "sm",
+                              style = "material-flat",
+                              icon = icon("sliders")
+                            ),
+                            placement = "top-start",
+                            theme = "translucent",
+                            numericInput(
+                              "node_label_fontsize",
+                              "Size",
+                              value = 1,
+                              min = 0.1,
+                              max = 5,
+                              step = 0.1
+                            )
+                          )
                         )
                       )
                     )
@@ -1581,16 +1744,9 @@ ui <- dashboardPage(
                                     "mst_col_var",
                                     label = "",
                                     choices = c(
-                                      Duplicates = "duplicates",
-                                      Index = "index",
-                                      `Assembly ID` = "assembly_id",
-                                      `Assembly Name` = "assembly_name",
-                                      `Isolation Date` = "isolation_date",
-                                      Host = "host",
-                                      Country = "country",
-                                      City = "city"
+                                      "Host", "Country", "City", "Isolation Date", "Duplicates"
                                     ),
-                                    selected = c(Country = "country"),
+                                    selected = c("Host"),
                                     width = "100%"
                                   )
                                 )
@@ -1841,8 +1997,7 @@ ui <- dashboardPage(
           )
         ),
         
-        # Plot Control Neighbor Joining
-        
+        ### Control Panels NJ ----
         
         conditionalPanel(
           "input.tree_algo=='Neighbour-Joining'",
@@ -1878,41 +2033,161 @@ ui <- dashboardPage(
                   "input.nj_layout=='circular' | input.nj_layout=='fan'",
                   checkboxInput("circ_inward",
                                 label = "Inward Layout",
-                                value = FALSE)
+                                value = FALSE),
+                  conditionalPanel(
+                    "input.circ_inward==true",
+                    sliderTextInput(
+                      inputId = "inward_xlim",
+                      label = h5("Center space", style = "color:white"),
+                      choices = 0:150,
+                      selected = 50,
+                      hide_min_max = TRUE
+                    ),
+                  )
                 )
               )
             ),
             column(
-              width = 2,
+              width = 4,
               align = "center",
               box(
                 solidHeader = TRUE,
                 status = "primary",
                 width = "100%",
                 h3(p("Tip Label"), style = "color:white"),
-                selectInput(
-                  "nj_tiplab",
-                  label = "",
-                  choices = c(
-                    Index = "index",
-                    `Assembly ID` = "assembly_id",
-                    `Assembly Name` = "assembly_name",
-                    `Isolation Date` = "isolation_date",
-                    Host = "host",
-                    Country = "country",
-                    City = "city"
+                fluidRow(
+                  column(
+                    width = 6,
+                    selectInput(
+                      "nj_tiplab",
+                      label = "",
+                      choices = c(
+                        Index = "index",
+                        `Assembly ID` = "assembly_id",
+                        `Assembly Name` = "assembly_name",
+                        `Isolation Date` = "isolation_date",
+                        Host = "host",
+                        Country = "country",
+                        City = "city"
+                      ),
+                      selected = c(`Assembly Name` = "assembly_name"),
+                      width = "75%"
+                    ),
+                    sliderTextInput(
+                      inputId = "nj_tiplab_angle",
+                      label = h5("Offset", style = "color:white"),
+                      choices = 0:360,
+                      selected = 0,
+                      hide_min_max = TRUE
+                    ),
+                    sliderTextInput(
+                      inputId = "nj_tip_offset",
+                      label = h5("Offset", style = "color:white"),
+                      choices = (-50):50,
+                      selected = 0,
+                      hide_min_max = TRUE
+                    ),
+                    numericInput(
+                      "tiplab_size",
+                      label = h5("Label size", style = "color:white"),
+                      min = 1,
+                      max = 5,
+                      step = 0.1,
+                      value = 3.8,
+                      width = "35%"
+                    ),
+                    colorPickr(
+                      inputId = "nj_tiplab_color",
+                      width = "100%",
+                      selected = "#000000",
+                      label = "",
+                      update = "changestop",
+                      interaction = list(clear = FALSE,
+                                         save = FALSE),
+                      position = "right-start"
+                    ),
+                    sliderTextInput(
+                      inputId = "nj_tiplab_vjust",
+                      label = h5("Vjust", style = "color:white"),
+                      choices = seq(-10, 10, by = 0.5),
+                      selected = 0.5,
+                      hide_min_max = TRUE
+                    ),
+                    sliderTextInput(
+                      inputId = "nj_tiplab_alpha",
+                      label = h5("Opacity", style = "color:white"),
+                      choices = seq(0, 1, by = 0.1),
+                      selected = 1,
+                      hide_min_max = TRUE
+                    ),
+                    selectInput(
+                      "nj_tiplab_fontface",
+                      label = "Fontface",
+                      choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `Bold & Italic` = "bold.italic")
+                    )
                   ),
-                  selected = c(`Assembly Name` = "assembly_name"),
-                  width = "75%"
-                ),
-                numericInput(
-                  "nj_tip_offset",
-                  label = h5("Offset", style = "color:white"),
-                  min = -5,
-                  max = 5,
-                  step = 0.25,
-                  value = 0,
-                  width = "35%"
+                  column(
+                    width = 6,
+                    sliderTextInput(
+                      inputId = "nj_tiplab_lineheight",
+                      label = h5("Lineheight", style = "color:white"),
+                      choices = seq(0, 3, by = 0.1),
+                      selected = 1.2,
+                      hide_min_max = TRUE
+                    ),
+                    sliderTextInput(
+                      inputId = "nj_tiplab_nudge_x",
+                      label = h5("X Nudge", style = "color:white"),
+                      choices = seq(-3, 3, by = 0.1),
+                      selected = 0,
+                      hide_min_max = TRUE
+                    ),
+                    sliderTextInput(
+                      inputId = "nj_tiplab_nudge_y",
+                      label = h5("Y Nudge", style = "color:white"),
+                      choices = seq(-3, 3, by = 0.1),
+                      selected = 0,
+                      hide_min_max = TRUE
+                    ),
+                    checkboxInput(
+                      "nj_tiplab_overlap",
+                      "Check overlap"
+                    ),
+                    sliderTextInput(
+                      inputId = "nj_tiplab_padding",
+                      label = h5("Padding", style = "color:white"),
+                      choices = seq(0, 1, by = 0.05),
+                      selected = 0.25,
+                      hide_min_max = TRUE
+                    ),
+                    colorPickr(
+                      inputId = "nj_tiplab_bgcolor",
+                      width = "100%",
+                      selected = "#ffffff",
+                      label = "",
+                      update = "changestop",
+                      interaction = list(clear = FALSE,
+                                         save = FALSE),
+                      position = "right-start"
+                    ),
+                    sliderTextInput(
+                      inputId = "nj_tiplab_bgradius",
+                      label = h5("Padding", style = "color:white"),
+                      choices = seq(0, 1, by = 0.05),
+                      selected = 0.1,
+                      hide_min_max = TRUE
+                    ),
+                    conditionalPanel(
+                      "input.nj_layout=='circular' | input.nj_layout=='fan'",
+                      sliderTextInput(
+                        inputId = "nj_tiplab_hjust",
+                        label = h5("Vjust", style = "color:white"),
+                        choices = seq(-10, 10, by = 0.5),
+                        selected = 0.5,
+                        hide_min_max = TRUE
+                      )
+                    )
+                  )
                 )
               )
             )
@@ -3341,12 +3616,22 @@ server <- function(input, output, session) {
   
   mst_tree <- reactive({
     data <- toVisNetworkData(plot_loc$ggraph_1)
-    data$nodes <- cbind(data$nodes, group = plot_loc$unique_meta$Host)
+    if(input$mst_color_var == TRUE) {
+      if(input$mst_col_var == "Host") {
+        data$nodes <- cbind(data$nodes, group = plot_loc$unique_meta$Host)
+      } else if (input$mst_col_var == "Country") {
+        data$nodes <- cbind(data$nodes, group = plot_loc$unique_meta$Country)
+      } else if (input$mst_col_var == "City") {
+        data$nodes <- cbind(data$nodes, group = plot_loc$unique_meta$City)
+      } else if (input$mst_col_var == "Isolation Date") {
+        data$nodes <- cbind(data$nodes, group = plot_loc$unique_meta$`Isolation Date`)
+      }
+    }  
     data$nodes <- mutate(data$nodes, 
                          label = plot_loc$unique_meta$`Assembly Name`,
                          value = mst_node_scaling(),
                          font.vadjust = plot_loc$data_frame$valign,
-                         font.size = plot_loc$data_frame$font_size,
+                         font.size = plot_loc$data_frame$font_size * node_label_fontsize(),
                          opacity = node_opacity())
     data$edges <- mutate(data$edges, 
                          length = weight*mst_edge_length(), 
@@ -3368,7 +3653,8 @@ server <- function(input, output, session) {
                            size = mst_edge_font_size())) %>%
       visOptions(collapse = TRUE) %>%
       visInteraction(hover = TRUE) %>%
-      visLayout(randomSeed = 1)
+      visLayout(randomSeed = 1) %>%
+      visLegend()
   })
   
   # Set node color
@@ -3380,6 +3666,11 @@ server <- function(input, output, session) {
   node_font_color <- reactive({
     input$node_font_color
   })
+  
+  # Node Label Size
+  node_label_fontsize <- reactive(
+    input$node_label_fontsize
+  )
   
   # Node Size Scaling
   mst_node_scaling <- reactive({
@@ -3477,6 +3768,51 @@ server <- function(input, output, session) {
   
   #### NJ ----
   
+  nj_tree <- reactive({
+    plot_loc$nj_plot <-
+      ggtree(plot_loc$nj, layout = layout_nj()) %<+% plot_loc$meta_nj +
+      nj_tiplab() +
+      inward() +
+      geom_treescale()
+    plot_loc$nj_plot
+  })
+  
+  # NJ circular or not
+  nj_tiplab <- reactive({
+    if(input$nj_layout == "circular" || input$nj_layout == "fan") {
+      geom_tiplab2(aes_string(label = as.character(input$nj_tiplab)), 
+                  offset = input$nj_tip_offset,
+                  size = input$tiplab_size,
+                  colour = input$nj_tiplab_color,
+                  vjust = input$nj_tiplab_vjust,
+                  hjust = input$nj_tiplab_hjust,
+                  alpha = input$nj_tiplab_alpha,
+                  fontface = input$nj_tiplab_fontface,
+                  lineheight = input$nj_tiplab_lineheight,
+                  nudge_x = input$nj_tiplab_nudge_x,
+                  nudge_y = input$nj_tiplab_nudge_y,
+                  check.overlap = input$nj_tiplab_overlap)
+                  
+    } else {
+      geom_tiplab(aes_string(label = as.character(input$nj_tiplab)), 
+                   offset = input$nj_tip_offset,
+                   size = input$tiplab_size,
+                   colour = input$nj_tiplab_color,
+                   vjust = input$nj_tiplab_vjust,
+                   angle = input$nj_tiplab_angle,
+                   alpha = input$nj_tiplab_alpha,
+                   fontface = input$nj_tiplab_fontface,
+                   lineheight = input$nj_tiplab_lineheight,
+                   nudge_x = input$nj_tiplab_nudge_x,
+                   nudge_y = input$nj_tiplab_nudge_y,
+                   check.overlap = input$nj_tiplab_overlap,
+                   label.padding = paste0('unit(', input$nj_tiplab_padding, '"lines")'),
+                   bg.colour = input$nj_tiplab_bgcolor,
+                   bg.r = input$nj_tiplab_bgradius)
+    }
+  })
+  
+
   # NJ Tree Layout
   layout_nj <- reactive({
     input$nj_layout
@@ -3485,7 +3821,7 @@ server <- function(input, output, session) {
   # NJ inward circular
   inward <- reactive({
     if (input$circ_inward == TRUE) {
-      layout_inward_circular()
+      layout_inward_circular(xlim = input$inward_xlim)
     } else {
       NULL
     }
@@ -3494,7 +3830,7 @@ server <- function(input, output, session) {
   # NJ Tip Labs
   tiplab_nj <- reactive({
     if (input$nj_tiplab == "index") {
-      geom_tiplab(aes(label = taxa), offset = tiplab_offset())
+      geom_tiplab(aes(label = index), offset = tiplab_offset())
     } else if (input$nj_tiplab == "assembly_id") {
       geom_tiplab(aes(label = assembly_id), offset = tiplab_offset())
     } else if (input$nj_tiplab == "assembly_name") {
@@ -3513,38 +3849,20 @@ server <- function(input, output, session) {
   # NJ Tip Lab Offset
   
   tiplab_offset <- reactive({
-    input$nj_tip_offset
+    
   })
   
   ### Save Tree Plot ----
   
   # Define download handler to save the plot
   
-  output$download_plot <- downloadHandler(
+  
+  output$save_plot_html <- downloadHandler(
     filename = function() {
-      paste0(input$plot_filename, ".html")
+      paste0(Sys.Date(), "_MST.html")
     },
     content = function(file) {
-      if (input$filetype_plot == "png") {
-        png(file, width = 1365, height = 700)
-        if (input$tree_algo == "Minimum-Spanning") {
           mst_tree() %>% visSave(file)
-        } else if (input$tree_algo == "Neighbour-Joining") {
-          print(plot_loc$nj_plot)
-        }
-        dev.off()
-      } else if (input$filetype_plot == "jpeg") {
-        jpeg(file, width = 2730, height = 1200, quality = 100)
-        if (input$tree_algo == "Minimum-Spanning") {
-          print(plot_input())
-        } else if (input$tree_algo == "Neighbour-Joining") {
-          print(plot_loc$nj_plot)
-        }
-        dev.off()
-      } else if (input$filetype_plot == "svg") {
-        plot <- print(plot_input())
-        ggsave(file=file, plot=plot, device = svg(), width = 50, height = 22, units = "cm")
-      }
     }
   )
   
@@ -3566,15 +3884,21 @@ server <- function(input, output, session) {
         "/Typing.rds"
       ))
     
+    df <- Database[["Typing"]][which(Database[["Typing"]]$Include == TRUE),]
+    df <- na.omit(df)
+    
     # get allele profile of included entries
-    allelic_profile <- dplyr::select(Database$Typing, -(1:12))
-    allelic_profile <- allelic_profile[which(Database[["Typing"]]$Include == TRUE),]
+    rownames(df) <- df$`Assembly Name`
+    
+    allelic_profile <- dplyr::select(df, -(1:12))
     
     # get metadata without include boolean variable
-    meta <- dplyr::select(Database$Typing, 1, 3:12)
-    meta <- meta[which(Database[["Typing"]]$Include == TRUE),]
+    meta <- dplyr::select(df, 1, 3:12)
     
     if (input$tree_algo == "Neighbour-Joining") {
+      
+      # get hamming matrix
+      ham_matrix <- proxy::dist(allelic_profile, method = hamming_distance) 
       
       plot_loc$meta_nj <- meta
       
@@ -3593,29 +3917,20 @@ server <- function(input, output, session) {
           "errors"
         )
       
-      plot_loc$meta_nj$taxa <- rownames(plot_loc$meta_nj)
-      
+      plot_loc$meta_nj <- mutate(plot_loc$meta_nj, taxa = assembly_name) %>%
+        relocate(taxa)
+      test <<- mutate(plot_loc$meta_nj, taxa = assembly_name) %>%
+        relocate(taxa)
       
       # Create phylogenetic tree
-      plot_loc$nj <- ape::nj(dist_matrix)
+      plot_loc$nj <- ape::nj(ham_matrix)
+      test2 <<- ape::nj(ham_matrix)
       
-      plot_loc$nj_plot <-
-        ggtree(plot_loc$nj, layout = layout_nj()) %<+% plot_loc$meta_nj +
-        tiplab_nj() +
-        inward()
+      output$tree_nj <- renderPlot({
+        nj_tree()
+      })
       
     } else {
-      
-      # get allele profile of included entries
-      
-      df <- Database[["Typing"]][which(Database[["Typing"]]$Include == TRUE),]
-      df <- na.omit(df)
-      rownames(df) <- df$`Assembly Name`
-      
-      allelic_profile <- dplyr::select(df, -(1:12))
-      
-      # get metadata without include boolean variable
-      meta <- dplyr::select(df, 1, 3:12)
       
       grouped_df <- allelic_profile %>%
         group_by(across(everything())) %>%
@@ -3685,48 +4000,13 @@ server <- function(input, output, session) {
         graph.adjacency(weighted = TRUE) |>
         igraph::mst() 
       
-      output$tree_local <- renderVisNetwork({
+      output$tree_mst <- renderVisNetwork({
         mst_tree()
       })
       
     }
   })
   
-  # Download plot as picture
-  observeEvent(input$save_plot1, {
-    showModal(
-      modalDialog(
-        textInput(
-          "plot_filename",
-          label = "",
-          placeholder = "Plot1"
-        ),
-        radioGroupButtons(
-          "filetype_plot",
-          label = "",
-          choices = c("png", "jpeg", "svg")
-        ),
-        title = "Save plot",
-        fade = TRUE,
-        easyClose = TRUE,
-        footer = tagList(
-          modalButton("Cancel"),
-          downloadBttn(
-            "download_plot",
-            style = "simple",
-            label = "",
-            size = "sm",
-            icon = icon("download")
-          )
-          
-        )
-      )
-    )
-  })
-  
-  observeEvent(input$download_plot, {
-    removeModal()
-  })
   
   ## Report ----
   
