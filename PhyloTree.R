@@ -2016,6 +2016,7 @@ ui <- dashboardPage(
                   choices = list(
                     Linear = list(
                       "Rectangular" = "rectangular",
+                      "Dendrogram" = "dendrogram",
                       "Roundrect" = "roundrect",
                       "Slanted" = "slanted",
                       "Ellipse" = "ellipse"
@@ -2048,7 +2049,7 @@ ui <- dashboardPage(
               )
             ),
             column(
-              width = 4,
+              width = 5,
               align = "center",
               box(
                 solidHeader = TRUE,
@@ -2057,7 +2058,7 @@ ui <- dashboardPage(
                 h3(p("Tip Label"), style = "color:white"),
                 fluidRow(
                   column(
-                    width = 6,
+                    width = 4,
                     selectInput(
                       "nj_tiplab",
                       label = "",
@@ -2075,7 +2076,7 @@ ui <- dashboardPage(
                     ),
                     sliderTextInput(
                       inputId = "nj_tiplab_angle",
-                      label = h5("Offset", style = "color:white"),
+                      label = h5("Angle", style = "color:white"),
                       choices = 0:360,
                       selected = 0,
                       hide_min_max = TRUE
@@ -2100,7 +2101,7 @@ ui <- dashboardPage(
                       inputId = "nj_tiplab_color",
                       width = "100%",
                       selected = "#000000",
-                      label = "",
+                      label = "Font color",
                       update = "changestop",
                       interaction = list(clear = FALSE,
                                          save = FALSE),
@@ -2127,7 +2128,7 @@ ui <- dashboardPage(
                     )
                   ),
                   column(
-                    width = 6,
+                    width = 4,
                     sliderTextInput(
                       inputId = "nj_tiplab_lineheight",
                       label = h5("Lineheight", style = "color:white"),
@@ -2159,33 +2160,78 @@ ui <- dashboardPage(
                       choices = seq(0, 1, by = 0.05),
                       selected = 0.25,
                       hide_min_max = TRUE
-                    ),
-                    colorPickr(
-                      inputId = "nj_tiplab_bgcolor",
-                      width = "100%",
-                      selected = "#ffffff",
-                      label = "",
-                      update = "changestop",
-                      interaction = list(clear = FALSE,
-                                         save = FALSE),
-                      position = "right-start"
-                    ),
+                    )
+                  ),
+                  column(
+                    width = 4,
                     sliderTextInput(
-                      inputId = "nj_tiplab_bgradius",
-                      label = h5("Padding", style = "color:white"),
+                      inputId = "nj_tiplab_labelradius",
+                      label = h5("Label radius", style = "color:white"),
                       choices = seq(0, 1, by = 0.05),
                       selected = 0.1,
+                      hide_min_max = TRUE
+                    ),
+                    sliderTextInput(
+                      inputId = "nj_tiplab_labelsize",
+                      label = h5("Label size", style = "color:white"),
+                      choices = seq(0, 1, by = 0.05),
+                      selected = 0.25,
                       hide_min_max = TRUE
                     ),
                     conditionalPanel(
                       "input.nj_layout=='circular' | input.nj_layout=='fan'",
                       sliderTextInput(
                         inputId = "nj_tiplab_hjust",
-                        label = h5("Vjust", style = "color:white"),
+                        label = h5("Hjust", style = "color:white"),
                         choices = seq(-10, 10, by = 0.5),
                         selected = 0.5,
                         hide_min_max = TRUE
                       )
+                    ),
+                    checkboxInput(
+                      "nj_tiplab_asylab",
+                      label = "As y-Lab",
+                      value = FALSE
+                    ),
+                    sliderTextInput(
+                      inputId = "nj_tiplab_linesize",
+                      label = h5("Line Size", style = "color:white"),
+                      choices = seq(0, 5, by = 0.1),
+                      selected = 0.5,
+                      hide_min_max = TRUE
+                    ),
+                    radioGroupButtons(
+                      "nj_geom",
+                      label = "Text/Label",
+                      choices = c(Text = "text", Label = "label")
+                    ),
+                    colorPickr(
+                      inputId = "nj_tiplab_fill",
+                      width = "100%",
+                      selected = "#000000",
+                      label = "Label background",
+                      update = "changestop",
+                      interaction = list(clear = FALSE,
+                                         save = FALSE),
+                      position = "right-start"
+                    ),
+                    checkboxInput(
+                      "nj_ladder_right",
+                      "Ladder right",
+                      value = FALSE
+                    ),
+                    conditionalPanel(
+                      "input.nj_layout=='rectangular' | input.nj_layout=='dendrogram'",
+                      checkboxInput(
+                        "nj_tiplab_y",
+                        "Y-axis labels",
+                        value = FALSE
+                      )
+                    ),
+                    checkboxInput(
+                      "nj_ladder",
+                      "Ladderize",
+                      value = TRUE
                     )
                   )
                 )
@@ -3770,49 +3816,87 @@ server <- function(input, output, session) {
   
   nj_tree <- reactive({
     plot_loc$nj_plot <-
-      ggtree(plot_loc$nj, layout = layout_nj()) %<+% plot_loc$meta_nj +
+      ggtree(plot_loc$nj, 
+             layout = layout_nj(),
+             ladderize = input$nj_ladder,
+             right = input$nj_ladder_right) %<+% plot_loc$meta_nj +
       nj_tiplab() +
       inward() +
-      geom_treescale()
+      geom_treescale() 
     plot_loc$nj_plot
   })
   
   # NJ circular or not
   nj_tiplab <- reactive({
     if(input$nj_layout == "circular" || input$nj_layout == "fan") {
-      geom_tiplab2(aes_string(label = as.character(input$nj_tiplab)), 
-                  offset = input$nj_tip_offset,
-                  size = input$tiplab_size,
-                  colour = input$nj_tiplab_color,
-                  vjust = input$nj_tiplab_vjust,
-                  hjust = input$nj_tiplab_hjust,
-                  alpha = input$nj_tiplab_alpha,
-                  fontface = input$nj_tiplab_fontface,
-                  lineheight = input$nj_tiplab_lineheight,
-                  nudge_x = input$nj_tiplab_nudge_x,
-                  nudge_y = input$nj_tiplab_nudge_y,
-                  check.overlap = input$nj_tiplab_overlap)
-                  
+      geom_tiplab(
+        aes_string(text = as.character(input$nj_tiplab)), 
+        geom = "text",
+        as_ylab = input$nj_tiplab_y,
+        offset = input$nj_tip_offset,
+        size = input$tiplab_size,
+        linesize = input$nj_tiplab_linesize,
+        colour = input$nj_tiplab_color,
+        vjust = input$nj_tiplab_vjust,
+        hjust = input$nj_tiplab_hjust,
+        alpha = input$nj_tiplab_alpha,
+        fontface = input$nj_tiplab_fontface,
+        lineheight = input$nj_tiplab_lineheight,
+        nudge_x = input$nj_tiplab_nudge_x,
+        nudge_y = input$nj_tiplab_nudge_y,
+        check.overlap = input$nj_tiplab_overlap
+      )
     } else {
-      geom_tiplab(aes_string(label = as.character(input$nj_tiplab)), 
-                   offset = input$nj_tip_offset,
-                   size = input$tiplab_size,
-                   colour = input$nj_tiplab_color,
-                   vjust = input$nj_tiplab_vjust,
-                   angle = input$nj_tiplab_angle,
-                   alpha = input$nj_tiplab_alpha,
-                   fontface = input$nj_tiplab_fontface,
-                   lineheight = input$nj_tiplab_lineheight,
-                   nudge_x = input$nj_tiplab_nudge_x,
-                   nudge_y = input$nj_tiplab_nudge_y,
-                   check.overlap = input$nj_tiplab_overlap,
-                   label.padding = paste0('unit(', input$nj_tiplab_padding, '"lines")'),
-                   bg.colour = input$nj_tiplab_bgcolor,
-                   bg.r = input$nj_tiplab_bgradius)
+      if(input$nj_geom == "text") {
+        geom_tiplab(
+          aes_string(text = as.character(input$nj_tiplab)), 
+          geom = "text",
+          as_ylab = input$nj_tiplab_y,
+          offset = input$nj_tip_offset,
+          angle = input$nj_tiplab_angle,
+          size = input$tiplab_size,
+          linesize = input$nj_tiplab_linesize,
+          colour = input$nj_tiplab_color,
+          vjust = input$nj_tiplab_vjust,
+          hjust = input$nj_tiplab_hjust,
+          alpha = input$nj_tiplab_alpha,
+          fontface = input$nj_tiplab_fontface,
+          lineheight = input$nj_tiplab_lineheight,
+          nudge_x = input$nj_tiplab_nudge_x,
+          nudge_y = input$nj_tiplab_nudge_y,
+          check.overlap = input$nj_tiplab_overlap,
+          label.padding = unit(input$nj_tiplab_padding, "lines"),
+          label.r = unit(input$nj_tiplab_labelradius, "lines"), 
+          fill = input$nj_tiplab_fill
+        )
+        
+      } else {
+        geom_tiplab(
+          aes_string(label = as.character(input$nj_tiplab)), 
+          geom = "label",
+          as_ylab = input$nj_tiplab_y,
+          offset = input$nj_tip_offset,
+          angle = input$nj_tiplab_angle,
+          size = input$tiplab_size,
+          linesize = input$nj_tiplab_linesize,
+          colour = input$nj_tiplab_color,
+          vjust = input$nj_tiplab_vjust,
+          hjust = input$nj_tiplab_hjust,
+          alpha = input$nj_tiplab_alpha,
+          fontface = input$nj_tiplab_fontface,
+          lineheight = input$nj_tiplab_lineheight,
+          nudge_x = input$nj_tiplab_nudge_x,
+          nudge_y = input$nj_tiplab_nudge_y,
+          check.overlap = input$nj_tiplab_overlap,
+          label.padding = unit(input$nj_tiplab_padding, "lines"),
+          label.r = unit(input$nj_tiplab_labelradius, "lines"), 
+          fill = input$nj_tiplab_fill)
+      }
     }
+       
+     
   })
   
-
   # NJ Tree Layout
   layout_nj <- reactive({
     input$nj_layout
@@ -3825,31 +3909,6 @@ server <- function(input, output, session) {
     } else {
       NULL
     }
-  })
-  
-  # NJ Tip Labs
-  tiplab_nj <- reactive({
-    if (input$nj_tiplab == "index") {
-      geom_tiplab(aes(label = index), offset = tiplab_offset())
-    } else if (input$nj_tiplab == "assembly_id") {
-      geom_tiplab(aes(label = assembly_id), offset = tiplab_offset())
-    } else if (input$nj_tiplab == "assembly_name") {
-      geom_tiplab(aes(label = assembly_name), offset = tiplab_offset())
-    } else if (input$nj_tiplab == "host") {
-      geom_tiplab(aes(label = host), offset = tiplab_offset())
-    } else if (input$nj_tiplab == "country") {
-      geom_tiplab(aes(label = country), offset = tiplab_offset())
-    } else if (input$nj_tiplab == "city") {
-      geom_tiplab(aes(label = city), offset = tiplab_offset())
-    } else if (input$nj_tiplab == "isolation_date") {
-      geom_tiplab(aes(label = isolation_date), offset = tiplab_offset())
-    }
-  })
-  
-  # NJ Tip Lab Offset
-  
-  tiplab_offset <- reactive({
-    
   })
   
   ### Save Tree Plot ----
@@ -6015,13 +6074,9 @@ server <- function(input, output, session) {
     } else if (!grepl("Start Multi Typing", head(readLogFile(), n = 1))){
       output$test_yes_pending <- NULL
     }
-    
-    
-    
   })
   
 } # end server
-
 
 # Shiny ----
 
