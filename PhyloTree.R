@@ -2011,6 +2011,8 @@ ui <- dashboardPage(
             tags$style("button#nj_title_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
             tags$style("#nj_tippoint_color {margin-left: 15px;}"),
             tags$style("#nj_nodepoint_color {margin-left: 15px;}"),
+            tags$style("#nj_rootedge_length {height: 30px !important; margin-left: 5px}"),
+            tags$style("#rootedge_show {margin-top: 17px; margin-left: -5px}"),
             column(
               width = 4,
               align = "center",
@@ -2028,27 +2030,61 @@ ui <- dashboardPage(
                         width = 12,
                         align = "left",
                         h4(p("Theme"), style = "color:white; position: relative; right: -15px"),
-                        column(
-                          width = 12,
-                          align = "center",
-                          selectInput(
-                            inputId = "nj_layout",
-                            label = "",
-                            choices = list(
-                              Linear = list(
-                                "Rectangular" = "rectangular",
-                                "Dendrogram" = "dendrogram",
-                                "Roundrect" = "roundrect",
-                                "Slanted" = "slanted",
-                                "Ellipse" = "ellipse"
+                        fluidRow(
+                          column(
+                            width = 12,
+                            align = "center",
+                            selectInput(
+                              inputId = "nj_layout",
+                              label = "",
+                              choices = list(
+                                Linear = list(
+                                  "Rectangular" = "rectangular",
+                                  "Roundrect" = "roundrect",
+                                  "Slanted" = "slanted",
+                                  "Ellipse" = "ellipse"
+                                ),
+                                Circular = list("Circular" = "circular",
+                                                "Inward" = "inward"),
+                                Unrooted = list("Daylight" = "daylight",
+                                                "Equal Angle" = "equal_angle")
                               ),
-                              Circular = list("Circular" = "circular",
-                                              "Fan" = "fan"),
-                              Unrooted = list("Daylight" = "daylight",
-                                              "Equal Angle" = "equal_angle")
+                              selected = "rectangular",
+                              width = "100%"
+                            )
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            width = 4,
+                            numericInput(
+                              "nj_xlim",
+                              "X-Lim",
+                              value = 0,
+                              max = 100,
+                              min = -100
+                            )
+                          ),
+                          conditionalPanel(
+                            "input.nj_layout=='circular' | input.nj_layout=='fan'",
+                            column(
+                              width = 4,
+                              align = "left",
+                              checkboxInput("circ_inward",
+                                            label = "Inward",
+                                            value = FALSE)
                             ),
-                            selected = "rectangular",
-                            width = "100%"
+                            column(
+                              width = 4,
+                              numericInput(
+                                "inward_xlim",
+                                "",
+                                value = 50,
+                                min = 10,
+                                max = 100,
+                                step = 5
+                              )
+                            )
                           )
                         )
                       )
@@ -2060,23 +2096,47 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p("Background"), style = "color:white; position: relative; right: -15px"),
-                        column(
-                          width = 12,
-                          align = "center",
-                          colorPickr(
-                            inputId = "nj_bg",
-                            width = "100%",
-                            selected = "#ffffff",
-                            label = "",
-                            update = "changestop",
-                            interaction = list(clear = FALSE,
-                                               save = FALSE),
-                            position = "right-start"
+                        h4(p("Color"), style = "color:white; position: relative; right: -15px"),
+                        fluidRow(
+                          column(
+                            width = 5,
+                            h5(p("Lines/Text"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
+                          ),
+                          column(
+                            width = 7,
+                            colorPickr(
+                              inputId = "nj_color",
+                              width = "90%",
+                              selected = "#000000",
+                              label = "",
+                              update = "changestop",
+                              interaction = list(clear = FALSE,
+                                                 save = FALSE),
+                              position = "right-start"
+                            )
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            width = 5,
+                            h5(p("Background"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
+                          ),
+                          column(
+                            width = 7,
+                            colorPickr(
+                              inputId = "nj_bg",
+                              width = "90%",
+                              selected = "#ffffff",
+                              label = "",
+                              update = "changestop",
+                              interaction = list(clear = FALSE,
+                                                 save = FALSE),
+                              position = "right-start"
+                            )
                           )
                         )
                       )
-                    )
+                    ), br()
                   )
                 ),
                 hr(),
@@ -2102,7 +2162,7 @@ ui <- dashboardPage(
                               width = 7,
                               colorPickr(
                                 inputId = "nj_title_color",
-                                selected = "#ffffff",
+                                selected = "#000000",
                                 label = "",
                                 update = "changestop",
                                 interaction = list(clear = FALSE,
@@ -2162,7 +2222,7 @@ ui <- dashboardPage(
                               width = 7,
                               colorPickr(
                                 inputId = "nj_subtitle_color",
-                                selected = "#ffffff",
+                                selected = "#000000",
                                 label = "",
                                 update = "changestop",
                                 interaction = list(clear = FALSE,
@@ -2187,7 +2247,7 @@ ui <- dashboardPage(
                                 numericInput(
                                   "nj_subtitle_size",
                                   label = "Size",
-                                  value = 30,
+                                  value = 20,
                                   min = 15,
                                   max = 40,
                                   step = 1,
@@ -2210,52 +2270,44 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p("Footer"), style = "color:white; position: relative; right: -15px"),
+                        h4(p("Treescale"), style = "color:white; position: relative; right: -15px"),
                         column(
                           width = 12,
                           align = "center",
-                          textInput(
-                            "nj_footer",
-                            label = "",
-                            width = "100%",
-                            placeholder = "Plot Footer"
+                          checkboxInput(
+                            "nj_treescale_show",
+                            "Show",
+                            value = TRUE
                           ),
                           fluidRow(
                             column(
                               width = 7,
-                              colorPickr(
-                                inputId = "nj_footer_color",
-                                selected = "#ffffff",
-                                label = "",
-                                update = "changestop",
-                                interaction = list(clear = FALSE,
-                                                   save = FALSE),
-                                position = "right-start",
-                                width = "100%"
+                              numericInput(
+                                "nj_treescale_x",
+                                "Pos X",
+                                min = 0,
+                                max = 40,
+                                value = 10,
+                                step = 5
+                              ),
+                              numericInput(
+                                "nj_treescale_y",
+                                "Pos Y",
+                                min = 0,
+                                max = 65,
+                                value = 10,
+                                step = 5
                               )
                             ),
                             column(
                               width = 5,
-                              dropMenu(
-                                actionBttn(
-                                  "nj_footer_menu",
-                                  label = "",
-                                  color = "default",
-                                  size = "sm",
-                                  style = "material-flat",
-                                  icon = icon("sliders")
-                                ),
-                                placement = "top-start",
-                                theme = "translucent",
-                                numericInput(
-                                  "nj_title_size",
-                                  label = "Size",
-                                  value = 15,
-                                  min = 10,
-                                  max = 30,
-                                  step = 1,
-                                  width = "100%"
-                                )
+                              numericInput(
+                                "nj_treescale_width",
+                                "Width",
+                                value = 4,
+                                min = 1,
+                                max = 20,
+                                step = 1
                               )
                             )
                           ),
@@ -2276,23 +2328,33 @@ ui <- dashboardPage(
                           align = "center",
                           fluidRow(
                             column(
-                              width = 6,
-                              colorPickr(
-                                inputId = "nj_legend_bg",
-                                width = "100%",
-                                selected = "#ffffff",
-                                label = "Legend",
-                                update = "changestop",
-                                interaction = list(clear = FALSE,
-                                                   save = FALSE),
-                                position = "right-start"
+                              width = 12,
+                              radioGroupButtons(
+                                "nj_legend_orientation",
+                                "Orientation",
+                                choices = c(Horizontal = "horizontal",
+                                            Vertical = "vertical"),
+                                selected = c(Horizontal = "horizontal")
                               )
                             )
                           ),
                           fluidRow(
                             column(
-                              width = 6
-                              
+                              width = 6,
+                              numericInput(
+                                "nj_legend_size",
+                                "Size",
+                                value = 10,
+                                min = 5,
+                                max = 25,
+                                step = 1
+                              ),
+                              selectInput(
+                                "nj_legend_position",
+                                "Position",
+                                choices = c("top", "right", "bottom", "left"),
+                                selected = "bottom"
+                              )
                             )
                           )
                         )
@@ -2329,10 +2391,10 @@ ui <- dashboardPage(
                         Index = "index",
                         `Assembly ID` = "assembly_id",
                         `Assembly Name` = "assembly_name",
-                        `Isolation Date` = "isolation_date",
-                        Host = "host",
-                        Country = "country",
-                        City = "city"
+                        `Isolation Date` = "Isolation_Date",
+                        Host = "Host",
+                        Country = "Country",
+                        City = "City"
                       ),
                       selected = c(`Assembly Name` = "assembly_name"),
                       width = "100%"
@@ -2405,12 +2467,12 @@ ui <- dashboardPage(
                         "nj_color_mapping",
                         "Mapping",
                         choices = c(
-                          "Isolation Date" = "isolation_date",
-                          "Host" = "host",
-                          "Country" = "country",
-                          "City" = "city"
+                          "Isolation Date" = "Isolation_Date",
+                          "Host" = "Host",
+                          "Country" = "Country",
+                          "City" = "City"
                         ),
-                        selected = c("Host" = "host"),
+                        selected = c("Host" = "Host"),
                         width = "75%"
                       )
                     )
@@ -2504,12 +2566,12 @@ ui <- dashboardPage(
                       "nj_branch_label",
                       "Branch label",
                       choices = c(
-                        "Isolation Date" = "isolation_date",
-                        "Host" = "host",
-                        "Country" = "country",
-                        "City" = "city"
+                        "Isolation Date" = "Isolation_Date",
+                        "Host" = "Host",
+                        "Country" = "Country",
+                        "City" = "City"
                       ),
-                      selected = c("Country" = "country"),
+                      selected = c("Country" = "Country"),
                       width = "75%"
                     )
                   ),
@@ -2544,12 +2606,12 @@ ui <- dashboardPage(
                         "nj_branch_mapping",
                         "Branch label",
                         choices = c(
-                          "Isolation Date" = "isolation_date",
-                          "Host" = "host",
-                          "Country" = "country",
-                          "City" = "city"
+                          "Isolation Date" = "Isolation_Date",
+                          "Host" = "Host",
+                          "Country" = "Country",
+                          "City" = "City"
                         ),
-                        selected = c("Country" = "country"),
+                        selected = c("Country" = "Country"),
                         width = "75%"
                       )
                     )
@@ -2701,7 +2763,7 @@ ui <- dashboardPage(
                           min = 1,
                           max = 20,
                           step = 1,
-                          value = 10
+                          value = 5
                         )
                       )
                     )
@@ -2793,43 +2855,30 @@ ui <- dashboardPage(
                   width = "100%",
                   h3(p("Elements"), style = "color:white"),
                   hr(),
-                  conditionalPanel(
-                    "input.nj_layout=='circular' | input.nj_layout=='fan'",
-                    fluidRow(
-                      column(
-                        width = 5,
-                        align = "left",
-                        checkboxInput("circ_inward",
-                                      label = "Inward Layout",
-                                      value = FALSE)
-                      ),
-                      column(
-                        width = 6,
-                        sliderTextInput(
-                          inputId = "inward_xlim",
-                          label = h5("Center space", style = "color:white"),
-                          choices = 0:150,
-                          selected = 50,
-                          hide_min_max = TRUE
-                        ) 
-                      )
-                    )
-                  ),
                   fluidRow(
                     column(
-                      width = 5,
+                      width = 3,
                       align = "left",
                       checkboxInput(
                         "rootedge_show",
-                        "Show root",
+                        h5(p("Tree root"), style = "color:white; position: relative; bottom: -7px; right: -17px"),
                         value = FALSE
+                      ),
+                      br(), br()
+                    ),
+                    column(
+                      width = 1,
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; font-size: 14px; position: relative; bottom: -25px', 'Length')
+                        )
                       )
                     ),
                     column(
-                      width = 4,
+                      width = 2,
                       numericInput(
                         "nj_rootedge_length",
-                        "Rootedge length",
+                        "",
                         value = 2,
                         min = 1,
                         max = 10,
@@ -2839,20 +2888,21 @@ ui <- dashboardPage(
                   ),
                   fluidRow(
                     column(
-                      width = 5,
+                      width = 4,
                       align = "left",
                       checkboxInput(
                         "nj_align",
                         "Align labels",
                         value = FALSE
-                      )
+                      ),
+                      br(), br()
                     ),
                     column(
                       width = 4,
                       sliderTextInput(
                         inputId = "nj_tiplab_linesize",
-                        label = h5("Line Size", style = "color:white"),
-                        choices = seq(0, 5, by = 0.1),
+                        label = "",
+                        choices = seq(0, 3, by = 0.1),
                         selected = 0.5,
                         hide_min_max = TRUE
                       )
@@ -2860,23 +2910,24 @@ ui <- dashboardPage(
                   ),
                   fluidRow(
                     column(
-                      width = 5,
+                      width = 4,
                       align = "left",
                       checkboxInput(
                         "nj_ladder",
                         "Ladderize",
                         value = TRUE
-                      )
+                      ),
+                      br(), br()
                     ),
                     column(
                       width = 4,
                       checkboxInput(
                         "nj_ladder_right",
-                        "Ladder right",
+                        "",
                         value = FALSE
                       )
                     )
-                  )
+                  ),
                 )
               )
             )
@@ -4460,20 +4511,48 @@ server <- function(input, output, session) {
   nj_tree <- reactive({
     plot_loc$nj_plot <-
       ggtree(plot_loc$nj, 
+             color = input$nj_color,
              layout = layout_nj(),
              ladderize = input$nj_ladder,
              right = input$nj_ladder_right) %<+% plot_loc$meta_nj +
       nj_tiplab() +
+      xlim(input$nj_xlim, NA) +
       inward() +
       label_branch() +
-      geom_treescale() +
+      treescale() +
       nodepoint() +
       tippoint() +
       rootedge() +
-      theme_tree(bgcolor = input$nj_bg) 
+      ggtitle(label = input$nj_title,
+              subtitle = input$nj_subtitle) +
+      theme_tree(bgcolor = input$nj_bg) +
+      theme(plot.title = element_text(colour = input$nj_title_color,
+                                      size = input$nj_title_size),
+            plot.subtitle = element_text(colour = input$nj_subtitle_color,
+                                         size = input$nj_subtitle_size),
+            legend.background = element_rect(fill = input$nj_bg),
+            legend.direction = input$nj_legend_orientation,
+            legend.position = input$nj_legend_position,
+            legend.title = element_text(color = input$nj_color,
+                                        size = input$nj_legend_size*1.2),
+            legend.title.align = 0.5,
+            legend.text = element_text(color = input$nj_color, 
+                                       size = input$nj_legend_size),
+            legend.key = element_rect(fill = input$nj_bg),
+            plot.background = element_rect(fill = input$nj_bg))
       
     plot_loc$nj_plot
   })
+  
+  # Treescale
+  treescale <- reactive({
+    if(input$nj_treescale_show == TRUE) {
+      geom_treescale(x = input$nj_treescale_x,
+                     y = input$nj_treescale_y,
+                     width = input$nj_treescale_width,
+                     color = input$nj_color)
+    } else {NULL}
+  }) 
   
   # Label branches
   label_branch <- reactive({
@@ -4531,7 +4610,7 @@ server <- function(input, output, session) {
   
   # NJ circular or not
   nj_tiplab <- reactive({
-    if(input$nj_layout == "circular" || input$nj_layout == "fan") {
+    if(input$nj_layout == "circular" | input$nj_layout == "inward") {
       if(input$nj_mapping_show == TRUE) {
         geom_tiplab(
           mapping_tiplab(), 
@@ -4633,13 +4712,15 @@ server <- function(input, output, session) {
   
   # NJ Tree Layout
   layout_nj <- reactive({
-    input$nj_layout
+    if(input$nj_layout == "inward") {
+      "circular"
+    } else {input$nj_layout}
   })
   
   # NJ inward circular
   inward <- reactive({
-    if (input$circ_inward == TRUE) {
-      layout_inward_circular(xlim = input$inward_xlim)
+    if (input$nj_layout == "inward") {
+      layout_inward_circular(xlim = input$nj_xlim)
     } else {
       NULL
     }
@@ -4701,10 +4782,10 @@ server <- function(input, output, session) {
           "assembly_id",
           "assembly_name",
           "scheme",
-          "isolation_date",
-          "host",
-          "country",
-          "city",
+          "Isolation_Date",
+          "Host",
+          "Country",
+          "City",
           "typing_date",
           "successes",
           "errors"
@@ -4712,12 +4793,9 @@ server <- function(input, output, session) {
       
       plot_loc$meta_nj <- mutate(plot_loc$meta_nj, taxa = assembly_name) %>%
         relocate(taxa)
-      meta <<- mutate(plot_loc$meta_nj, taxa = assembly_name) %>%
-        relocate(taxa)
       
       # Create phylogenetic tree
       plot_loc$nj <- ape::nj(ham_matrix)
-      data1 <<- ape::nj(ham_matrix)
       
       output$tree_nj <- renderPlot({
         nj_tree()
