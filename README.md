@@ -1,4 +1,4 @@
-![My Image](www/PhyloTrace.jpg)
+![My Image](www/PhyloTrace.png)
 
-# PhyloTree
-PhyloTree is a user interface for a fully controllable and reproducible cgMLST analysis workflow.
+# PhyloTrace
+PhyloTrace is a user interface for a fully controllable and reproducible cgMLST analysis workflow.
