@@ -483,6 +483,10 @@ ui <- dashboardPage(
     tags$style("button#save_plot_bmp {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
     tags$style("button#save_plot_html_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
     tags$style("button#save_plot_merged {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
+    tags$style("#nj_scale {position: relative; right: -10px"),
+    tags$style(".irs.irs--shiny.js-irs-0 {margin-right: -15px"),
+    tags$style(".irs.irs--shiny.js-irs-1 {margin-right: -15px"),
+    tags$style(".irs.irs--shiny.js-irs-2 {margin-right: -15px"),
     br(), br(),
     uiOutput("loaded_scheme"),
     sidebarMenu(
@@ -511,7 +515,7 @@ ui <- dashboardPage(
         column(
           width = 12,
           align = "left",
-          tags$style(type='text/css', '#na_entries {color:white; white-space: pre-wrap;}'),
+          tags$style(type='text/css', '#na_entries_text {color:white; white-space: pre-wrap;}'),
           br(), br(),
           selectInput(
             "distmatrix_label",
@@ -544,23 +548,7 @@ ui <- dashboardPage(
                 icon = icon("download")
               )
             )
-          ),
-          br(), hr(), br(),
-          p(
-            HTML(
-              paste(
-                tags$span(style='color: white; font-size: 18px; margin-bottom: 0px', 'Incomplete Entries:')
-              )
-            )
-          ),
-          p(
-            HTML(
-              paste(
-                tags$span(style='color: white; font-size: 12px; margin-bottom: 0px', '(Not included)')
-              )
-            )
-          ),
-          textOutput("na_entries")
+          )
         )
       ),
       conditionalPanel(
@@ -701,71 +689,145 @@ ui <- dashboardPage(
               "
               )
             )
-          ),  
-          fluidRow(
+          ), 
+          conditionalPanel(
+            "input.tree_algo=='Neighbour-Joining'",
             column(
-              width = 8,
-              selectInput(
-                inputId = "plot_format",
-                label = "",
-                choices = c("HTML", 
-                            "JPEG", "PNG", "BMP")
+              width = 12,
+              fluidRow(
+                column(
+                  width = 3,
+                  align = "left",
+                  br(),
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 14px; position: relative; bottom: -28px; margin-left: 0px ', "Zoom")
+                    )
+                  )
+                ),
+                column(
+                  width = 9,
+                  align = "right",
+                  br(),
+                  sliderTextInput(
+                    "nj_scale",
+                    label = NULL,
+                    choices = seq(0.5, 1.5, 0.05),
+                    selected = 0.95,
+                    hide_min_max = TRUE
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 3,
+                  align = "left",
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 14px; position: relative; bottom: -28px; margin-left: 0px ', 'X Pos')
+                    )
+                  )
+                ),
+                column(
+                  width = 9,
+                  align = "right",
+                  sliderTextInput(
+                    "nj_h",
+                    label = NULL,
+                    choices = seq(-0.5, 0.5, 0.01),
+                    selected = 0,
+                    hide_min_max = TRUE
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 3,
+                  align = "left",
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 14px; position: relative; bottom: -28px; margin-left: 0px ', 'Y Pos')
+                    )
+                  )
+                ),
+                column(
+                  width = 9,
+                  align = "right",
+                  sliderTextInput(
+                    "nj_v",
+                    label = NULL,
+                    choices = seq(-0.5, 0.5, 0.01),
+                    selected = 0,
+                    hide_min_max = TRUE
+                  )
+                )
               )
             ),
-            column(
-              width = 4,
-              align = "left",
-              conditionalPanel(
-                "input.plot_format=='JPEG'",
-                actionBttn(
-                  "save_plot_jpeg",
-                  style = "simple",
+            fluidRow(
+              column(
+                width = 8,
+                selectInput(
+                  inputId = "plot_format",
                   label = "",
-                  size = "sm",
-                  icon = icon("download"),
-                  color = "primary"
-                )  
-              ),
-              conditionalPanel(
-                "input.plot_format=='PNG'",
-                actionBttn(
-                  "save_plot_png",
-                  style = "simple",
-                  label = "",
-                  size = "sm",
-                  icon = icon("download"),
-                  color = "primary"
+                  choices = c("HTML", 
+                              "JPEG", "PNG", "BMP")
                 )
               ),
-              conditionalPanel(
-                "input.plot_format=='BMP'",
-                actionBttn(
-                  "save_plot_bmp",
-                  style = "simple",
-                  label = "",
-                  size = "sm",
-                  icon = icon("download"),
-                  color = "primary"
-                )  
-              ),
-              conditionalPanel(
-                "input.plot_format=='HTML'",
-                downloadBttn(
-                  "save_plot_html",
-                  style = "simple",
-                  label = "",
-                  size = "sm",
-                  icon = icon("download")
-                )
-              ),
-              conditionalPanel(
-                "input.mst_color_var==true",
-                actionBttn(
-                  "save_plot_merged",
-                  style = "simple",
-                  label = "",
-                  size = "sm",
-                  icon = icon("download")
+              column(
+                width = 4,
+                align = "left",
+                conditionalPanel(
+                  "input.plot_format=='JPEG'",
+                  actionBttn(
+                    "save_plot_jpeg",
+                    style = "simple",
+                    label = "",
+                    size = "sm",
+                    icon = icon("download"),
+                    color = "primary"
+                  )  
+                ),
+                conditionalPanel(
+                  "input.plot_format=='PNG'",
+                  actionBttn(
+                    "save_plot_png",
+                    style = "simple",
+                    label = "",
+                    size = "sm",
+                    icon = icon("download"),
+                    color = "primary"
+                  )
+                ),
+                conditionalPanel(
+                  "input.plot_format=='BMP'",
+                  actionBttn(
+                    "save_plot_bmp",
+                    style = "simple",
+                    label = "",
+                    size = "sm",
+                    icon = icon("download"),
+                    color = "primary"
+                  )  
+                ),
+                conditionalPanel(
+                  "input.plot_format=='HTML'",
+                  downloadBttn(
+                    "save_plot_html",
+                    style = "simple",
+                    label = "",
+                    size = "sm",
+                    icon = icon("download")
+                  )
+                ),
+                conditionalPanel(
+                  "input.mst_color_var==true",
+                  actionBttn(
+                    "save_plot_merged",
+                    style = "simple",
+                    label = "",
+                    size = "sm",
+                    icon = icon("download")
+                  )
                 )
               )
             )
@@ -1071,24 +1133,15 @@ ui <- dashboardPage(
             ),
             uiOutput("db_entries_table")
           ),
-          column(width = 1),
           column(
-            width = 2,
+            width = 3,
             align = "left",
             uiOutput("delete_box"),
-            uiOutput("compare_allele_box")
+            uiOutput("compare_allele_box"),
+            uiOutput("missing_values")
           )
         ),
-        fluidRow(
-          br(),
-          br(),
-          column(width = 1),
-          column(width = 11,
-                 align = "center",
-                 uiOutput("edit_field"))
-        ),
-        br(),
-        uiOutput("db_line")
+        br()
       ),
       
       ### Tab Scheme Info  ----  
@@ -2048,7 +2101,7 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p(tags$b("Theme")), style = "color:white; position: relative; right: -15px"),
+                        h4(p("Theme"), style = "color:white; position: relative; right: -15px"),
                         fluidRow(
                           column(
                             width = 12,
@@ -2174,7 +2227,7 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p(tags$b("Color")), style = "color:white; position: relative; right: -15px"),
+                        h4(p("Color"), style = "color:white; position: relative; right: -15px"),
                         fluidRow(
                           column(
                             width = 5,
@@ -2225,7 +2278,7 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p(tags$b("Title")), style = "color:white; position: relative; right: -15px"),
+                        h4(p("Title"), style = "color:white; position: relative; right: -15px"),
                         column(
                           width = 12,
                           align = "center",
@@ -2292,7 +2345,7 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p(tags$b("Subtitle")), style = "color:white; position: relative; right: -15px"),
+                        h4(p("Subtitle"), style = "color:white; position: relative; right: -15px"),
                         column(
                           width = 12,
                           align = "center",
@@ -2397,7 +2450,7 @@ ui <- dashboardPage(
                                     numericInput(
                                       "nj_treescale_width",
                                       label = h5("Length", style = "color:white; margin-bottom: 0px"),
-                                      value = 4,
+                                      value = 3,
                                       min = 1,
                                       max = 20,
                                       step = 1,
@@ -2408,7 +2461,7 @@ ui <- dashboardPage(
                                       "nj_treescale_x",
                                       label = h5("X Position", style = "color:white; margin-bottom: 0px"),
                                       choices = 0:40,
-                                      selected = 35,
+                                      selected = 5,
                                       hide_min_max = TRUE,
                                       width = "150px"
                                     ),
@@ -2435,7 +2488,7 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p(tags$b("Legend")), style = "color:white; position: relative; right: -15px"),
+                        h4(p("Legend"), style = "color:white; position: relative; right: -15px"),
                         column(
                           width = 12,
                           align = "center",
@@ -2519,7 +2572,7 @@ ui <- dashboardPage(
                   column(
                     width = 12,
                     align = "left",
-                    h4(p(tags$b("Tip")), style = "color:white; position: relative; right: -15px"),
+                    h4(p("Tips"), style = "color:white; position: relative; right: -15px"),
                     fluidRow(
                       column(
                         width = 4,
@@ -2777,7 +2830,7 @@ ui <- dashboardPage(
                   column(
                     width = 12,
                     align = "left",
-                    h4(p(tags$b("Branches")), style = "color:white; position: relative; right: -15px"),
+                    h4(p("Branches"), style = "color:white; position: relative; right: -15px"),
                     fluidRow(
                       column(
                         width = 4,
@@ -2920,7 +2973,7 @@ ui <- dashboardPage(
                   column(
                     width = 12,
                     align = "left",
-                    h4(p(tags$b("Tip points")), style = "color:white; position: relative; right: -15px"),
+                    h4(p("Tip points"), style = "color:white; position: relative; right: -15px"),
                     fluidRow(
                       column(
                         width = 4,
@@ -3085,7 +3138,7 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p(tags$b("Node points")), style = "color:white; position: relative; right: -15px"),
+                        h4(p("Node points"), style = "color:white; position: relative; right: -15px"),
                         fluidRow(
                           column(
                             width = 5,
@@ -3188,7 +3241,7 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p(tags$b("Tiles")), style = "color:white; position: relative; right: -15px"),
+                        h4(p("Tiles"), style = "color:white; position: relative; right: -15px"),
                         fluidRow(
                           column(
                             width = 4,
@@ -3289,7 +3342,7 @@ ui <- dashboardPage(
                             sliderTextInput(
                               "nj_fruit_offset",
                               label = "",
-                              choices = seq(-10, 10, 0.05),
+                              choices = seq(-1.5, 1.5, 0.05),
                               selected = 0,
                               hide_min_max = TRUE
                             )
@@ -3714,6 +3767,23 @@ server <- function(input, output, session) {
   DF1 <- reactiveValues()
   database <- reactiveValues()
   
+  # Function to find columns with varying values
+  var_alleles <- function(dataframe) {
+    varying_columns <- c()
+    
+    for (col in 1:ncol(dataframe)) {
+      if(class(dataframe[, col]) == "integer") {
+        unique_values <- unique(dataframe[, col])
+        
+        if (length(unique_values) > 1) {
+          varying_columns <- c(varying_columns, col)
+        }
+      }
+    }
+    
+    return(varying_columns)
+  }
+  
   observe({
     database$available <-
       gsub("_", " ", basename(dir_ls(paste0(
@@ -3844,23 +3914,39 @@ server <- function(input, output, session) {
       DF1$scheme <- input$scheme_db
       
       output$compare_select <- renderUI({
-        pickerInput(
-          inputId = "compare_select",
-          label = h4("Display Locus", style = "color:white; margin-bottom: 10px;"),
-          choices = names(select(typing, -(1:12))),
-          selected = names(select(typing, -(1:12)))[1:20],
-          options = list(
-            `live-search` = TRUE,
-            `actions-box` = TRUE,
-            size = 10,
-            style = "background-color: white; border-radius: 5px;"
-          ),
-          multiple = TRUE
-        )
+        
+        if (input$compare_difference == FALSE) {
+          pickerInput(
+            inputId = "compare_select",
+            label = "",
+            width = "85%",
+            choices = names(select(typing, -(1:12))),
+            selected = names(select(typing, -(1:12)))[1:20],
+            options = list(
+              `live-search` = TRUE,
+              `actions-box` = TRUE,
+              size = 10,
+              style = "background-color: white; border-radius: 5px;"
+            ),
+            multiple = TRUE
+          )
+        } else {
+          pickerInput(
+            inputId = "compare_select",
+            label = "",
+            width = "85%",
+            choices = names(select(typing, -(1:12))),
+            selected = names(select(typing, -(1:12)))[var_alleles(select(typing, -(1:12)))],
+            options = list(
+              `live-search` = TRUE,
+              `actions-box` = TRUE,
+              size = 10,
+              style = "background-color: white; border-radius: 5px;"
+            ),
+            multiple = TRUE
+          )
+        }
       })
-      
-      # Render Separating hr() line
-      output$db_line <- renderUI(hr())
       
       
       #### Render Entry Data Table ----
@@ -3987,44 +4073,39 @@ server <- function(input, output, session) {
       
       ### Render Allele Differences as Highlights ----
       
-      
       diff_allele <- reactive({
         if (!class(DF1$data) == "NULL") {
-          # Function to find columns with varying values
-          var_alleles <- function(dataframe) {
-            varying_columns <- c()
-            
-            for (col in 1:ncol(dataframe)) {
-              if(class(dataframe[, col]) == "integer") {
-                unique_values <- unique(dataframe[, col])
-                
-                if (length(unique_values) > 1) {
-                  varying_columns <- c(varying_columns, col)
-                }
-              }
-            }
-            
-            return(varying_columns)
-          }
           var_alleles(select(DF1$data, input$compare_select)) + 12
         }
       })
       
+      ### Other UI Elements ----
       
-      ### Edit Entry Editing Elements ----
+      na_entries <- select(DF1$data, -(1:12))[!complete.cases(select(DF1$data, -(1:12))), ]
+      
+      na_entries_err <- select(DF1$data, 1:12)[rownames(na_entries),]$Errors 
+      
+      # NA Entry Rownames change
+      rownames(na_entries) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(na_entries),4]
+      
+      output$na_entries_text <- renderUI({
+        HTML(paste(paste0(icon("x"), " ", rownames(na_entries), ", ", na_entries_err, " Error(s)"), collapse="\n"))
+      })
       
       output$delete_box <- renderUI({
         box(
           solidHeader = TRUE,
           status = "primary",
           width = "100%",
-          column(
-            width = 12,
-            align = "center",
-            uiOutput("del_text")
-          ),
           fluidRow(
-            br(),
+            column(
+              width = 12,
+              align = "center",
+              h3(p("Delete Entries"), style = "color:white")
+            )
+          ),
+          hr(),
+          fluidRow(
             column(width = 1),
             column(
               width = 2,
@@ -4032,13 +4113,17 @@ server <- function(input, output, session) {
               br(),
               h5("Index", style = "color:white; margin-bottom: 0px;")
             ),
-            column(width = 5,
-                   align = "center",
-                   uiOutput("delete_select")),
-            column(width = 2,
-                   align = "center",
-                   br(),
-                   uiOutput("del_bttn"))
+            column(
+              width = 6,
+              align = "center",
+              uiOutput("delete_select")
+            ),
+            column(
+              width = 2,
+              align = "center",
+              br(),
+              uiOutput("del_bttn")
+            )
           ),
           br()
         )
@@ -4049,18 +4134,102 @@ server <- function(input, output, session) {
           solidHeader = TRUE,
           status = "primary",
           width = "100%",
+          fluidRow(
+            column(
+              width = 12,
+              align = "center",
+              h3(p("Compare Loci"), style = "color:white")
+            )
+          ),
+          hr(),
           column(
             width = 12,
             align = "center",
+            br(),
             uiOutput("compare_select"),
-            br()
+            br(),
+            column(3),
+            column(
+              width = 8,
+              align = "left",
+              checkboxInput(
+                "compare_difference",
+                label = h5("Only varying loci", style = "color:white; position: relative; top: -6px"),
+                value = FALSE
+              )
+            )
           ),
           br()
         )
       })
       
-      output$del_text <- renderUI({
-        h4(p("Delete Entries"), style = "color:white")
+      output$missing_values <- renderUI({
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          fluidRow(
+            column(
+              width = 12,
+              align = "center",
+              h3(p("Missing Values"), style = "color:white")
+            )
+          ),
+          hr(),
+          fluidRow(
+            column(
+              width = 12,
+              align = "left",
+              br(),
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 14px;', 
+                            paste0("There are ", 
+                                   as.character(sum(is.na(DF1$data))), 
+                                   " unsuccessful allele allocations (NA). Decide how missing values should be treated:"))
+                )
+              )
+            )
+          ),
+          fluidRow(
+            column(1),
+            column(
+              width = 11,
+              align = "left",
+              prettyRadioButtons(
+                "na_handling",
+                "",
+                choiceNames = c("Loci containing missing values are ignored (default)",
+                                "Missing values are allelic difference of 1"),
+                choiceValues = c("ignore", "one"),
+                shape = "curve",
+                selected = c("ignore")
+              )
+            )
+          ),
+          fluidRow(
+            column(
+              width = 12,
+              align = "left",
+              br(), br(),
+              p(
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 18px; margin-bottom: 0px', 'Incomplete Entries:')
+                  )
+                )
+              )
+            )
+          ),
+          fluidRow(
+            column(1),
+            column(
+              width = 11,
+              align = "left",
+              uiOutput("na_entries_text")
+            )
+          )
+        )
       })
       
       output$delete_select <- renderUI({
@@ -4098,16 +4267,15 @@ server <- function(input, output, session) {
         )
       ))
       
-      output$db_line <- renderUI(hr())
       output$db_entries <- NULL
       output$edit_index <- NULL
       output$edit_scheme_d <- NULL
       output$edit_entries <- NULL
-      output$edit_field <- NULL
       output$compare_select <- NULL
       output$delete_select <- NULL
       output$del_bttn <- NULL
       output$compare_allele_box <- NULL
+      output$missing_values <- NULL
       output$delete_box <- NULL
       
     }
@@ -4264,48 +4432,20 @@ server <- function(input, output, session) {
     sum(x != y)
   }
   
+  hamming_distance_with_na <- function(x, y) {
+    sum((is.na(x) | is.na(y)) | (x != y))
+  }
+  
   observe({
     if(!is.null(DF1$data)) {
       # Calculate Distance Matrix
       
-      allele_numbers <- select(DF1$data, -(1:12))
-      
-      allele_numbers <- allele_numbers[which(DF1$data$Include == TRUE),]
-      
-      na_entries <- allele_numbers[!complete.cases(allele_numbers), ]
-      
-      na_entries_err <- select(DF1$data, 1:12)[rownames(na_entries),]$Errors 
-      
-      allele_numbers_noNA <- na.omit(allele_numbers)
-      
-      # Create a custom proxy object for Hamming distance
-      hamming_proxy <- proxy::dist(allele_numbers_noNA, method = hamming_distance)
-      
-      hamming_matrix <- as.matrix(hamming_proxy)
-      
-      # Convert the proxy object to a matrix
-      hamming_matrix[upper.tri(hamming_matrix)] <- NA
-      
-      # Rownames change
-      rownames(hamming_matrix) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(hamming_matrix), 4]
-      colnames(hamming_matrix) <- rownames(hamming_matrix)
-      
-      # NA Entry Rownames change
-      rownames(na_entries) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(na_entries),4]
-      
-      mode(hamming_matrix) <- "integer"
-      
-      hamming_df <- hamming_matrix %>%
-        as.data.frame() %>%
-        mutate(Index = colnames(hamming_matrix)) %>%
-        relocate(Index)
-      
       output$db_distancematrix <- renderRHandsontable({
-        rhandsontable(hamming_df, digits = 1, height = 800, rowHeaders = NULL) %>%
+        rhandsontable(hamming_df(), digits = 1, height = 800, rowHeaders = NULL) %>%
           hot_heatmap(color_scale = c("#17F556","#ED6D47")) %>%
           hot_rows(fixedRowsTop = 0) %>%
           hot_cols(fixedColumnsLeft = 1) %>%
-          hot_col(1:(dim(hamming_matrix)[1]),
+          hot_col(1:(dim(DF1$ham_matrix)[1]),
                   halign = "htCenter") %>%
           hot_col(1,
                   renderer = "
@@ -4316,28 +4456,53 @@ server <- function(input, output, session) {
               }"
           ) 
       })
-      
-      # Render Erroneous Entries Information
-      
-      output$na_entries <- renderPrint({
-        HTML(paste(paste0(rownames(na_entries), ", ", na_entries_err, " Error(s)"), collapse="\n"))
-      })
     }
   })
   
-  observeEvent(input$distmatrix_change, {
-    allele_numbers <- select(DF1$data, -(1:12))
+  hamming_df <- reactive({
     
-    allele_numbers <- allele_numbers[which(DF1$data$Include == TRUE),]
+    allelic_profile <- select(DF1$data, -(1:12))
     
-    na_entries <- allele_numbers[!complete.cases(allele_numbers), ]
+    allelic_profile <- allelic_profile[which(DF1$data$Include == TRUE),]
     
-    na_entries_err <- select(DF1$data, 1:12)[rownames(na_entries),]$Errors 
-    
-    allele_numbers_noNA <- na.omit(allele_numbers)
+    allelic_profile_noNA <- allelic_profile[, colSums(is.na(allelic_profile)) == 0]
     
     # Create a custom proxy object for Hamming distance
-    hamming_proxy <- proxy::dist(allele_numbers_noNA, method = hamming_distance)
+    if(input$na_handling == "one") {
+    hamming_proxy <- proxy::dist(allelic_profile, method = hamming_distance_with_na)
+    } else {
+      hamming_proxy <- proxy::dist(allelic_profile_noNA, method = hamming_distance)
+    }
+    
+    hamming_matrix <- as.matrix(hamming_proxy)
+    
+    # Convert the proxy object to a matrix
+    hamming_matrix[upper.tri(hamming_matrix)] <- NA
+    
+    # Rownames change
+    rownames(hamming_matrix) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(hamming_matrix), 4]
+    colnames(hamming_matrix) <- rownames(hamming_matrix)
+    
+    mode(hamming_matrix) <- "integer"
+    
+    DF1$ham_matrix <- hamming_matrix %>%
+      as.data.frame() %>%
+      mutate(Index = colnames(hamming_matrix)) %>%
+      relocate(Index)
+    test <<- DF1$ham_matrix
+    DF1$ham_matrix
+  })
+  
+  observeEvent(input$distmatrix_change, {
+    
+    allelic_profile <- select(DF1$data, -(1:12))
+    
+    allelic_profile <- allelic_profile[which(DF1$data$Include == TRUE),]
+    
+    allelic_profile_noNA <- allelic_profile[, colSums(is.na(allelic_profile)) == 0]
+    
+    # Create a custom proxy object for Hamming distance
+    hamming_proxy <- proxy::dist(allelic_profile_noNA, method = hamming_distance)
     
     hamming_matrix <- as.matrix(hamming_proxy)
     
@@ -4349,10 +4514,7 @@ server <- function(input, output, session) {
     # Rownames change
     rownames(hamming_matrix) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(hamming_matrix),input$distmatrix_label]
     colnames(hamming_matrix) <- rownames(hamming_matrix)
-    
-    # NA Entry Rownames change
-    rownames(na_entries) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(na_entries),4]
-    
+   
     mode(hamming_matrix) <- "integer"
     
     hamming_df <- hamming_matrix %>%
@@ -4745,9 +4907,11 @@ server <- function(input, output, session) {
                          font.size = plot_loc$data_frame$font_size * node_label_fontsize(),
                          opacity = node_opacity())
     data$edges <- mutate(data$edges, 
-                         length = weight*mst_edge_length(), 
-                         label = as.character(weight),
+                         length = ((weight-1)*mst_edge_length()), 
+                         label = as.character(weight-1),
                          opacity = mst_edge_opacity())
+    
+    test <<- data
     
     visNetwork(data$nodes, data$edges, 
                main = mst_title(),
@@ -4880,7 +5044,7 @@ server <- function(input, output, session) {
   #### NJ ----
   
   nj_tree <- reactive({
-    plot_loc$nj_plot <-
+    tree <-
       ggtree(plot_loc$nj, 
              color = input$nj_color,
              layout = layout_nj(),
@@ -4909,9 +5073,14 @@ server <- function(input, output, session) {
             legend.text = element_text(color = input$nj_color, 
                                        size = input$nj_legend_size),
             legend.key = element_rect(fill = input$nj_bg),
+            legend.box.spacing = unit(1.5, "cm"),
             plot.background = element_rect(fill = input$nj_bg)) +
       fruit() 
-      
+    
+    plot_loc$nj_plot <- ggplotify::as.ggplot(tree, 
+                                             scale = input$nj_scale,
+                                             hjust = input$nj_h,
+                                             vjust = input$nj_v)  
     plot_loc$nj_plot
   })
   
@@ -5170,63 +5339,31 @@ server <- function(input, output, session) {
   
   #### Generate Plot ----
   
-  observeEvent(input$create_tree, {
+  hamming_nj <- reactive({
     
-    set.seed(1)
+    allelic_profile <- select(DF1$data, -(1:12))
     
-    # Load local database
-    Database <-
-      readRDS(paste0(
-        getwd(),
-        "/Database/",
-        gsub(" ", "_", DF1$scheme),
-        "/Typing.rds"
-      ))
+    allelic_profile <- allelic_profile[which(DF1$data$Include == TRUE),]
     
-    df <- Database[["Typing"]][which(Database[["Typing"]]$Include == TRUE),]
-    df <- na.omit(df)
-    
-    # get allele profile of included entries
-    rownames(df) <- df$`Assembly Name`
-    
-    allelic_profile <- dplyr::select(df, -(1:12))
-    
-    # get metadata without include boolean variable
-    meta <- dplyr::select(df, 1, 3:12)
-    
-    if (input$tree_algo == "Neighbour-Joining") {
-      
-      # get hamming matrix
-      ham_matrix <- proxy::dist(allelic_profile, method = hamming_distance) 
-      
-      plot_loc$meta_nj <- meta
-      
-      colnames(plot_loc$meta_nj) <-
-        c(
-          "index",
-          "assembly_id",
-          "assembly_name",
-          "scheme",
-          "Isolation_Date",
-          "Host",
-          "Country",
-          "City",
-          "typing_date",
-          "successes",
-          "errors"
-        )
-      
-      plot_loc$meta_nj <- mutate(plot_loc$meta_nj, taxa = assembly_name) %>%
-        relocate(taxa)
-      
-      # Create phylogenetic tree
-      plot_loc$nj <- ape::nj(ham_matrix)
-      
-      output$tree_nj <- renderPlot({
-        nj_tree()
-      })
-      
+    if(input$na_handling == "one") {
+      proxy::dist(allelic_profile, method = hamming_distance_with_na)
     } else {
+      allelic_profile_noNA <- allelic_profile[, colSums(is.na(allelic_profile)) == 0]
+      proxy::dist(allelic_profile_noNA, method = hamming_distance)
+    }
+  })
+  
+  hamming_mst <- reactive({
+    
+    allelic_profile <- select(DF1$data, -(1:12))
+    
+    allelic_profile <- allelic_profile[which(DF1$data$Include == TRUE),]
+    
+    meta <- select(DF1$data, 1, 3:12)
+    
+    meta <- meta[which(DF1$data$Include == TRUE),]
+    
+    if(input$na_handling == "one") {
       
       grouped_df <- allelic_profile %>%
         group_by(across(everything())) %>%
@@ -5235,14 +5372,98 @@ server <- function(input, output, session) {
         relocate(group_id) %>%
         as.data.frame()
       
-      rownames(grouped_df) <- rownames(allelic_profile)
+      group_df <<- grouped_df
       
-      unique_allelic_profile <- grouped_df[!duplicated(grouped_df$group_id), ]
+      rownames(grouped_df) <- meta$`Assembly Name`
+       
+      group_df_names <<- grouped_df
+      
+      plot_loc$unique_allelic_profile <- grouped_df[!duplicated(grouped_df$group_id), ]
+      
+      unique_allelic_profile <<- plot_loc$unique_allelic_profile
       
       meta <- mutate(meta, group_id = grouped_df$group_id) %>%
         relocate(group_id)
       
-      plot_loc$unique_meta <- meta[rownames(unique_allelic_profile), ]
+      meta_test <<- meta
+      
+      rownames(meta) <- meta$`Assembly Name`
+      
+      meta_test_names <<- meta
+      
+      plot_loc$unique_meta <- meta[rownames(plot_loc$unique_allelic_profile), ]
+      
+      unique_meta_1 <<- plot_loc$unique_meta
+      
+      ## grouping names
+      data_frame <- data.frame(group = numeric(), name = character())
+      
+      for (i in plot_loc$unique_meta$group_id) {
+        data_frame <- rbind(data_frame, 
+                            data.frame(size = length(paste(rownames(grouped_df)[which(grouped_df$group_id == i)])), 
+                                       name = paste(rownames(grouped_df)[which(grouped_df$group_id == i)], collapse = "\n")))
+      }
+      
+      font_size <- numeric(nrow(data_frame))
+      
+      for (i in 1:length(font_size)) {
+        if(data_frame$size[i] < 3) {
+          font_size[i] <- 12
+        } else {
+          font_size[i] <- 11
+        }
+      }
+      
+      valign <- numeric(nrow(data_frame))
+      
+      for (i in 1:length(valign)) {
+        if(data_frame$size[i] == 1) {
+          valign[i] <- -30
+        } else if(data_frame$size[i] == 2) {
+          valign[i] <- -38
+        } else if(data_frame$size[i] == 3) {
+          valign[i] <- -46
+        } else if(data_frame$size[i] == 4) {
+          valign[i] <- -54
+        } else if(data_frame$size[i] == 5) {
+          valign[i] <- -62
+        } else if(data_frame$size[i] > 5) {
+          valign[i] <- -70
+        }
+      }
+      
+      plot_loc$data_frame <- data_frame %>%
+        cbind(font_size = font_size, valign = valign)
+      
+      df_test <<- plot_loc$data_frame
+      
+      plot_loc$unique_meta$`Assembly Name` <- plot_loc$data_frame$name
+      plot_loc$unique_meta <- mutate(plot_loc$unique_meta, size = plot_loc$data_frame$Size)
+      
+      unique_meta2 <<- plot_loc$unique_meta
+      
+      proxy::dist(plot_loc$unique_allelic_profile, method = hamming_distance_with_na)
+      
+    } else {
+      allelic_profile_noNA <- allelic_profile[, colSums(is.na(allelic_profile)) == 0]
+      
+      grouped_df <- allelic_profile_noNA %>%
+        group_by(across(everything())) %>%
+        mutate(group_id = cur_group_id()) %>%
+        ungroup() %>%
+        relocate(group_id) %>%
+        as.data.frame()
+      
+      rownames(grouped_df) <- meta$`Assembly Name`
+      
+      plot_loc$unique_allelic_profile <- grouped_df[!duplicated(grouped_df$group_id), ]
+      
+      meta <- mutate(meta, group_id = grouped_df$group_id) %>%
+        relocate(group_id)
+      
+      rownames(meta) <- meta$`Assembly Name`
+      
+      plot_loc$unique_meta <- meta[rownames(plot_loc$unique_allelic_profile), ]
       
       ## grouping names
       data_frame <- data.frame(group = numeric(), name = character())
@@ -5287,11 +5508,67 @@ server <- function(input, output, session) {
       plot_loc$unique_meta$`Assembly Name` <- plot_loc$data_frame$name
       plot_loc$unique_meta <- mutate(plot_loc$unique_meta, size = plot_loc$data_frame$Size)
       
-      #make hamming distance matrix
-      ham_matrix <- proxy::dist(unique_allelic_profile[,-1], method = hamming_distance) 
+      proxy::dist(plot_loc$unique_allelic_profile, method = hamming_distance)
+    }
+  })
+  
+  observeEvent(input$create_tree, {
+    
+    set.seed(1)
+    
+    # Load local database
+    Database <-
+      readRDS(paste0(
+        getwd(),
+        "/Database/",
+        gsub(" ", "_", DF1$scheme),
+        "/Typing.rds"
+      ))
+    
+    df <- Database[["Typing"]][which(Database[["Typing"]]$Include == TRUE),]
+    
+    # get allele profile of included entries
+    rownames(df) <- df$`Assembly Name`
+    
+    allelic_profile <- dplyr::select(df, -(1:12))
+    
+    # get metadata without include boolean variable
+    meta <- dplyr::select(df, 1, 3:12)
+    
+    if (input$tree_algo == "Neighbour-Joining") {
+      
+      plot_loc$meta_nj <- meta
+      
+      colnames(plot_loc$meta_nj) <-
+        c(
+          "index",
+          "assembly_id",
+          "assembly_name",
+          "scheme",
+          "Isolation_Date",
+          "Host",
+          "Country",
+          "City",
+          "typing_date",
+          "successes",
+          "errors"
+        )
+      
+      plot_loc$meta_nj <- mutate(plot_loc$meta_nj, taxa = index) %>%
+        relocate(taxa)
+      tes_meta <<- plot_loc$meta_nj
+      
+      # Create phylogenetic tree
+      plot_loc$nj <- ape::nj(hamming_nj())
+      
+      output$tree_nj <- renderPlot({
+        nj_tree()
+      })
+      
+    } else {
       
       # prepare igraph object
-      plot_loc$ggraph_1 <- ham_matrix |>
+      plot_loc$ggraph_1 <- hamming_mst() |>
         as.matrix() |>
         graph.adjacency(weighted = TRUE) |>
         igraph::mst() 
