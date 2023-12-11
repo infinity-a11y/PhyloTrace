@@ -1400,7 +1400,7 @@ ui <- dashboardPage(
                                 theme = "translucent",
                                 numericInput(
                                   "mst_title_size",
-                                  label = "Size",
+                                  label = h5("Size", style = "color:white; margin-bottom: 0px;"),
                                   value = 30,
                                   min = 15,
                                   max = 40,
@@ -1460,7 +1460,7 @@ ui <- dashboardPage(
                                 theme = "translucent",
                                 numericInput(
                                   "mst_subtitle_size",
-                                  label = "Size",
+                                  label = h5("Size", style = "color:white; margin-bottom: 0px;"),
                                   value = 30,
                                   min = 15,
                                   max = 40,
@@ -1523,7 +1523,7 @@ ui <- dashboardPage(
                                theme = "translucent",
                                numericInput(
                                  "mst_title_size",
-                                 label = "Size",
+                                 label = h5("Size", style = "color:white; margin-bottom: 0px;"),
                                  value = 15,
                                  min = 10,
                                  max = 30,
@@ -1652,7 +1652,7 @@ ui <- dashboardPage(
                             theme = "translucent",
                             numericInput(
                               "node_label_fontsize",
-                              "Size",
+                              label = h5("Size", style = "color:white; margin-bottom: 0px;"),
                               value = 1,
                               min = 0.1,
                               max = 5,
@@ -2009,15 +2009,14 @@ ui <- dashboardPage(
             tags$style("button#nj_title_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
             tags$style("button#nj_branch_label_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px; margin-left: 10px}"),
             tags$style("button#nj_legend_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
+            tags$style("button#nj_treescale_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
             tags$style("button#nj_rootedge_menu {height: 34px; background: #20E6E5; color: #000000; margin-left: 10px; margin-top: 6px; border-radius: 5px}"),
             tags$style("button#nj_tippoint_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 21px; border-radius: 5px}"),
             tags$style("button#nj_nodepoint_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 21px; border-radius: 5px}"),
             tags$style("button#nj_tile_menu {height: 34px; background: #20E6E5; color: #000000; margin-left: 15px; margin-top: 21px; border-radius: 5px}"),
-            tags$style("#nj_tippoint_color {margin-left: 15px; margin-bottom: 16px}"),
-            tags$style("#nj_nodepoint_color {margin-left: 0px;}"),
-            tags$style("#nj_treescale_width {height: 30px !important; margin-left: 15px}"),
-            tags$style("#nj_legend_size {height: 30px !important; margin-left: 15px}"),
-            tags$style("#nj_treescale_show {margin-top: 17px; margin-left: -5px}"),
+            tags$style("#nj_tippoint_color {margin-bottom: 16px}"),
+            tags$style("#nj_nodepoint_color {margin-bottom: 16px;}"),
+            tags$style("#nj_treescale_show {margin-top: 17px; "),
             tags$style("#nj_tiles_show {margin-top: 18px; margin-left: -5px}"),
             tags$style("#nodepoint_show {margin-top: 18px; margin-left: -5px}"),
             tags$style("#nj_ladder {margin-top: 7px; margin-left: -5px}"),
@@ -2027,12 +2026,11 @@ ui <- dashboardPage(
             tags$style("#nj_tipcolor_mapping_show {margin-top: 20px;}"),
             tags$style("#nj_tipshape_mapping_show {margin-top: 20px;}"),
             tags$style("#nj_geom {margin-top: 0px; margin-left: -5px}"),
-            tags$style("#nj_tiplab_color {margin-bottom: 16px}"),
+            tags$style("#nj_tiplab_color {margin-bottom: 16px;}"),
             tags$style("#nj_show_branch_label {margin-top: 17px; margin-left: -5px}"),
             tags$style("#tippoint_show {margin-top: 17px; margin-left: -5px}"),
-            tags$style("#nj_tiplab_show {margin-top: 17px; margin-left: -20px}"),
+            tags$style("#nj_tiplab_show {margin-top: 17px; margin-left: -5px}"),
             tags$style("#tippoint_show {margin-top: 17px; margin-left: -5px}"),
-            tags$style("#nj_branch_label_color {margin-bottom: 16px}"),
             tags$style("#nj_fruit_offset {position: relative; top: -20px}"),
             column(
               width = 4,
@@ -2050,7 +2048,7 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p("Theme"), style = "color:white; position: relative; right: -15px"),
+                        h4(p(tags$b("Theme")), style = "color:white; position: relative; right: -15px"),
                         fluidRow(
                           column(
                             width = 12,
@@ -2114,7 +2112,7 @@ ui <- dashboardPage(
                                   align = "center",
                                   numericInput(
                                     "nj_rootedge_length",
-                                    label = h5("Length", style = "color:white"),
+                                    label = h5("Length", style = "color:white; margin-bottom: 0px"),
                                     value = 3,
                                     min = 1,
                                     max = 30,
@@ -2124,10 +2122,10 @@ ui <- dashboardPage(
                                   br(),
                                   selectInput(
                                     "nj_rootedge_line",
-                                    "",
+                                    label = h5("Linetype", style = "color:white"),
                                     choices = c(Solid = "solid", Dashed = "dashed", Dotted = "dotted"),
                                     selected = c(Dotted = "dotted"),
-                                    width = "80px"
+                                    width = "100px"
                                   )
                                 )
                               )
@@ -2176,7 +2174,7 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p("Color"), style = "color:white; position: relative; right: -15px"),
+                        h4(p(tags$b("Color")), style = "color:white; position: relative; right: -15px"),
                         fluidRow(
                           column(
                             width = 5,
@@ -2227,7 +2225,7 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p("Title"), style = "color:white; position: relative; right: -15px"),
+                        h4(p(tags$b("Title")), style = "color:white; position: relative; right: -15px"),
                         column(
                           width = 12,
                           align = "center",
@@ -2253,6 +2251,7 @@ ui <- dashboardPage(
                             ),
                             column(
                               width = 5,
+                              align = "right",
                               dropMenu(
                                 actionBttn(
                                   "nj_title_menu",
@@ -2264,14 +2263,20 @@ ui <- dashboardPage(
                                 ),
                                 placement = "top-start",
                                 theme = "translucent",
-                                numericInput(
-                                  "nj_title_size",
-                                  label = "Size",
-                                  value = 30,
-                                  min = 15,
-                                  max = 40,
-                                  step = 1,
-                                  width = "100%"
+                                fluidRow(
+                                  column(
+                                    width = 12,
+                                    align = "center",
+                                    numericInput(
+                                      "nj_title_size",
+                                      label = h5("Size", style = "color:white; margin-bottom: 0px"),
+                                      value = 30,
+                                      min = 15,
+                                      max = 40,
+                                      step = 1,
+                                      width = "100%"
+                                    )
+                                  )
                                 )
                               )
                             )
@@ -2287,7 +2292,7 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p("Subtitle"), style = "color:white; position: relative; right: -15px"),
+                        h4(p(tags$b("Subtitle")), style = "color:white; position: relative; right: -15px"),
                         column(
                           width = 12,
                           align = "center",
@@ -2313,6 +2318,7 @@ ui <- dashboardPage(
                             ),
                             column(
                               width = 5,
+                              align = "right",
                               dropMenu(
                                 actionBttn(
                                   "nj_subtitle_menu",
@@ -2324,14 +2330,20 @@ ui <- dashboardPage(
                                 ),
                                 placement = "top-start",
                                 theme = "translucent",
-                                numericInput(
-                                  "nj_subtitle_size",
-                                  label = "Size",
-                                  value = 20,
-                                  min = 15,
-                                  max = 40,
-                                  step = 1,
-                                  width = "100%"
+                                fluidRow(
+                                  column(
+                                    width = 12,
+                                    align = "center",
+                                    numericInput(
+                                      "nj_subtitle_size",
+                                      label = h5("Size", style = "color:white; margin-bottom: 0px"),
+                                      value = 20,
+                                      min = 15,
+                                      max = 40,
+                                      step = 1,
+                                      width = "100%"
+                                    )
+                                  )
                                 )
                               )
                             )
@@ -2350,72 +2362,67 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p("Treescale"), style = "color:white; position: relative; right: -15px"),
-                        fluidRow(
-                          column(
-                            width = 3,
-                            align = "left",
-                            checkboxInput(
-                              "nj_treescale_show",
-                              h5(p("Show"), style = "color:white; position: relative; bottom: -7px; right: -17px"),
-                              value = TRUE
+                        h4(p(tags$b("Tree scale")), style = "color:white; position: relative; right: -15px"),
+                        column(
+                          width = 12,
+                          fluidRow(
+                            column(
+                              width = 7,
+                              align = "left",
+                              checkboxInput(
+                                "nj_treescale_show",
+                                h5(p("Show "), style = "color:white; position: relative; bottom: -7px; right: 0px"),
+                                value = TRUE
+                              ),
+                              br()
                             ),
-                            br()
-                          ),
-                          column(2),
-                          column(
-                            width = 1,
-                            HTML(
-                              paste(
-                                tags$span(style='color: white; font-size: 14px; position: relative; bottom: -25px', 'Width')
+                            column(
+                              width = 5,
+                              align = "right",
+                              dropMenu(
+                                actionBttn(
+                                  "nj_treescale_menu",
+                                  label = "",
+                                  color = "default",
+                                  size = "sm",
+                                  style = "material-flat",
+                                  icon = icon("sliders")
+                                ),
+                                placement = "top-start",
+                                theme = "translucent",
+                                fluidRow(
+                                  column(
+                                    width = 12,
+                                    align = "center",
+                                    numericInput(
+                                      "nj_treescale_width",
+                                      label = h5("Length", style = "color:white; margin-bottom: 0px"),
+                                      value = 4,
+                                      min = 1,
+                                      max = 20,
+                                      step = 1,
+                                      width = "70px"
+                                    ),
+                                    br(),
+                                    sliderTextInput(
+                                      "nj_treescale_x",
+                                      label = h5("X Position", style = "color:white; margin-bottom: 0px"),
+                                      choices = 0:40,
+                                      selected = 35,
+                                      hide_min_max = TRUE,
+                                      width = "150px"
+                                    ),
+                                    br(),
+                                    sliderTextInput(
+                                      "nj_treescale_y",
+                                      label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+                                      choices = 0:65,
+                                      selected = 0,
+                                      hide_min_max = TRUE
+                                    )
+                                  )
+                                )
                               )
-                            )
-                          ),
-                          column(
-                            width = 4,
-                            numericInput(
-                              "nj_treescale_width",
-                              "",
-                              value = 4,
-                              min = 1,
-                              max = 20,
-                              step = 1
-                            )
-                          )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 3,
-                            h5(p("Horizontal"), style = "color:white; position: relative; right: -15px; margin-top: 20px")
-                          ),
-                          column(1),
-                          column(
-                            width = 7,
-                            align = "right",
-                            sliderTextInput(
-                              "nj_treescale_x",
-                              label = NULL,
-                              choices = 0:40,
-                              selected = 35,
-                              hide_min_max = TRUE
-                            )
-                          )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 3,
-                            h5(p("Vertical"), style = "color:white; position: relative; right: -15px; margin-top: 20px")
-                          ),
-                          column(1),
-                          column(
-                            width = 7,
-                            align = "right",
-                            sliderTextInput(
-                              "nj_treescale_y",
-                              label = NULL,
-                              choices = 0:65,
-                              selected = 0,
-                              hide_min_max = TRUE
                             )
                           )
                         )
@@ -2428,7 +2435,7 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p("Legend"), style = "color:white; position: relative; right: -15px"),
+                        h4(p(tags$b("Legend")), style = "color:white; position: relative; right: -15px"),
                         column(
                           width = 12,
                           align = "center",
@@ -2449,7 +2456,6 @@ ui <- dashboardPage(
                           fluidRow(
                             column(
                               width = 7,
-                              align = "left",
                               selectInput(
                                 "nj_legend_position",
                                 "",
@@ -2462,6 +2468,7 @@ ui <- dashboardPage(
                             ),
                             column(
                               width = 5,
+                              align = "right",
                               dropMenu(
                                 actionBttn(
                                   "nj_legend_menu",
@@ -2476,14 +2483,15 @@ ui <- dashboardPage(
                                 fluidRow(
                                   column(
                                     width = 12,
+                                    align = "center",
                                     numericInput(
                                       "nj_legend_size",
-                                      "Size",
+                                      label = h5("Size", style = "color:white; margin-bottom: 0px"),
                                       value = 10,
                                       min = 5,
                                       max = 25,
                                       step = 1,
-                                      width = "120px"
+                                      width = "100%"
                                     )
                                   )
                                 )
@@ -2511,95 +2519,100 @@ ui <- dashboardPage(
                   column(
                     width = 12,
                     align = "left",
-                    h4(p("Tips"), style = "color:white; position: relative; right: -15px"),
-                    column(
-                      width = 3,
-                      align = "left",
-                      checkboxInput(
-                        "nj_tiplab_show",
-                        h5(p("Show"), style = "color:white; position: relative; bottom: -7px"),
-                        value = TRUE
-                      )
-                    ),
-                    column(
-                      width = 5,
-                      align = "center",
-                      selectInput(
-                        "nj_tiplab",
-                        label = "",
-                        choices = c(
-                          Index = "index",
-                          `Assembly ID` = "assembly_id",
-                          `Assembly Name` = "assembly_name",
-                          `Isolation Date` = "Isolation_Date",
-                          Host = "Host",
-                          Country = "Country",
-                          City = "City"
-                        ),
-                        selected = c(`Assembly Name` = "assembly_name"),
-                        width = "100%"
-                      )
-                    ),
-                    column(
-                      width = 2,
-                      dropMenu(
-                        actionBttn(
-                          "nj_labeltext_menu",
+                    h4(p(tags$b("Tip")), style = "color:white; position: relative; right: -15px"),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "left",
+                        checkboxInput(
+                          "nj_tiplab_show",
+                          h5(p("Show"), style = "color:white; position: relative; right: -17px; bottom: -7px"),
+                          value = TRUE
+                        )
+                      ),
+                      column(
+                        width = 4,
+                        align = "center",
+                        selectInput(
+                          "nj_tiplab",
                           label = "",
-                          color = "default",
-                          size = "sm",
-                          style = "material-flat",
-                          icon = icon("sliders")
-                        ),
-                        placement = "top-start",
-                        theme = "translucent",
-                        fluidRow(
-                          column(
-                            width = 6,
-                            align = "center",
-                            numericInput(
-                              "tiplab_size",
-                              label = h5("Label size", style = "color:white"),
-                              min = 1,
-                              max = 10,
-                              step = 0.5,
-                              value = 4
-                            ),
-                            br(),
-                            numericInput(
-                              "nj_tiplab_alpha",
-                              label = h5("Opacity", style = "color:white"),
-                              min = 0.1,
-                              max = 1,
-                              value = 1,
-                              width = "250px"
-                            ),
-                            br(),
-                            selectInput(
-                              "nj_tiplab_fontface",
-                              label = h5("Fontface", style = "color:white"),
-                              choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
-                            )
+                          choices = c(
+                            Index = "index",
+                            `Assembly ID` = "assembly_id",
+                            `Assembly Name` = "assembly_name",
+                            `Isolation Date` = "Isolation_Date",
+                            Host = "Host",
+                            Country = "Country",
+                            City = "City"
                           ),
-                          column(
-                            width = 6,
-                            align = "center",
-                            sliderTextInput(
-                              inputId = "nj_tiplab_nudge_x",
-                              label = h5("X Nudge", style = "color:white; margin-bottom: 0px"),
-                              choices = seq(-3, 3, by = 0.1),
-                              selected = 0,
-                              width = "250px",
-                              hide_min_max = TRUE
+                          selected = c(`Assembly Name` = "assembly_name"),
+                          width = "100%"
+                        )
+                      ),
+                      column(
+                        width = 3,
+                        align = "right",
+                        dropMenu(
+                          actionBttn(
+                            "nj_labeltext_menu",
+                            label = "",
+                            color = "default",
+                            size = "sm",
+                            style = "material-flat",
+                            icon = icon("sliders")
+                          ),
+                          placement = "top-start",
+                          theme = "translucent",
+                          fluidRow(
+                            column(
+                              width = 6,
+                              align = "center",
+                              numericInput(
+                                "tiplab_size",
+                                label = h5("Label size", style = "color:white; margin-bottom: 0px"),
+                                min = 1,
+                                max = 10,
+                                step = 0.5,
+                                value = 4,
+                                width = "70px"
+                              ),
+                              br(),
+                              numericInput(
+                                "nj_tiplab_alpha",
+                                label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                                min = 0.1,
+                                max = 1,
+                                value = 1,
+                                width = "70px"
+                              ),
+                              br(),
+                              selectInput(
+                                "nj_tiplab_fontface",
+                                label = h5("Fontface", style = "color:white; margin-bottom: 0px"),
+                                width = "250px",
+                                choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
+                              )
                             ),
-                            br(),
-                            sliderTextInput(
-                              inputId = "nj_tiplab_angle",
-                              label = h5("Angle", style = "color:white; margin-bottom: 0px"),
-                              choices = -180:180,
-                              selected = 0,
-                              hide_min_max = TRUE
-                            )      
+                            column(
+                              width = 6,
+                              align = "center",
+                              sliderTextInput(
+                                inputId = "nj_tiplab_nudge_x",
+                                label = h5("X Nudge", style = "color:white; margin-bottom: 0px"),
+                                choices = seq(-3, 3, by = 0.1),
+                                selected = 0,
+                                width = "250px",
+                                hide_min_max = TRUE
+                              ),
+                              br(),
+                              sliderTextInput(
+                                inputId = "nj_tiplab_angle",
+                                label = h5("Angle", style = "color:white; margin-bottom: 0px"),
+                                choices = -180:180,
+                                selected = 0,
+                                hide_min_max = TRUE
+                              )      
+                            )
                           )
                         )
                       )
@@ -2616,44 +2629,42 @@ ui <- dashboardPage(
                       value = FALSE
                     )
                   ),
-                  conditionalPanel(
-                    "input.nj_align==true",
-                    column(
-                      width = 1,
-                      HTML(
-                        paste(
-                          tags$span(style='color: white; font-size: 14px; position: relative; bottom: -28px; margin-left: -10px ', 'Width')
-                        )
+                  column(
+                    width = 1,
+                    HTML(
+                      paste(
+                        tags$span(style='color: white; font-size: 14px; position: relative; bottom: -28px; margin-left: 0px ', 'Width')
                       )
-                    ),
-                    column(
-                      width = 3,
-                      align = "left",
-                      numericInput(
-                        "nj_tiplab_linesize",
-                        "",
-                        value = 0.5,
-                        min = 0.1,
-                        max = 3,
-                        step = 0.1,
-                        width = "80px"
-                      )
-                    ),
-                    column(
-                      width = 3,
-                      selectInput(
-                        "nj_tiplab_linetype",
-                        "",
-                        choices = c(Solid = "solid", Dashed = "dashed", Dotted = "dotted"),
-                        selected = c(Dotted = "dotted")
-                      )
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    align = "left",
+                    numericInput(
+                      "nj_tiplab_linesize",
+                      "",
+                      value = 0.5,
+                      min = 0.1,
+                      max = 3,
+                      step = 0.1,
+                      width = "80px"
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    selectInput(
+                      "nj_tiplab_linetype",
+                      "",
+                      choices = c(Solid = "solid", Dashed = "dashed", Dotted = "dotted"),
+                      selected = c(Dotted = "dotted")
                     )
                   )
                 ),
                 fluidRow(
                   column(
-                    width = 2,
-                    h5(p("Color"), style = "color:white; position: relative; right: -0px; margin-top: 30px")
+                    width = 4,
+                    align = "left",
+                    h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 30px")
                   ),
                   column(
                     width = 4,
@@ -2687,7 +2698,7 @@ ui <- dashboardPage(
                     )
                   ),
                   column(
-                    width = 5,
+                    width = 4,
                     align = "left",
                     checkboxInput(
                       "nj_mapping_show",
@@ -2698,7 +2709,7 @@ ui <- dashboardPage(
                 ),
                 fluidRow(
                   column(
-                    width = 2,
+                    width = 4,
                     align = "left",
                     br(),
                     checkboxInput(
@@ -2721,7 +2732,8 @@ ui <- dashboardPage(
                     )
                   ),
                   column(
-                    width = 2,
+                    width = 3,
+                    align = "right",
                     dropMenu(
                       actionBttn(
                         "nj_labelformat_menu",
@@ -2733,22 +2745,29 @@ ui <- dashboardPage(
                       ),
                       placement = "top-start",
                       theme = "translucent",
-                      numericInput(
-                        inputId = "nj_tiplab_padding",
-                        label = h5("Size", style = "color:white"),
-                        min = 0.1,
-                        step = 0.1,
-                        max = 1,
-                        value = 0.3,
-                        width = "100px"
-                      ),
-                      numericInput(
-                        inputId = "nj_tiplab_labelradius",
-                        label = h5("Smooth edge", style = "color:white"),
-                        min = 0,
-                        max = 0.5,
-                        step = 0.05,
-                        value = 0.2,
+                      fluidRow(
+                        column(
+                          width = 12,
+                          align = "center",
+                          numericInput(
+                            inputId = "nj_tiplab_padding",
+                            label = h5("Size", style = "color:white; margin-bottom: 0px"),
+                            min = 0.1,
+                            step = 0.1,
+                            max = 1,
+                            value = 0.3,
+                            width = "70px"
+                          ),
+                          br(),
+                          numericInput(
+                            inputId = "nj_tiplab_labelradius",
+                            label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
+                            min = 0,
+                            max = 0.5,
+                            step = 0.05,
+                            value = 0.2
+                          )
+                        )
                       )
                     )
                   )
@@ -2758,10 +2777,11 @@ ui <- dashboardPage(
                   column(
                     width = 12,
                     align = "left",
-                    h4(p("Branches"), style = "color:white; position: relative; right: -15px"),
+                    h4(p(tags$b("Branches")), style = "color:white; position: relative; right: -15px"),
                     fluidRow(
                       column(
-                        width = 3,
+                        width = 4,
+                        align = "left",
                         checkboxInput(
                           "nj_show_branch_label",
                           h5(p("Show"), style = "color:white; position: relative; bottom: -7px; right: -17px"),
@@ -2769,7 +2789,7 @@ ui <- dashboardPage(
                         )
                       ),
                       column(
-                        width = 5,
+                        width = 4,
                         align = "center",
                         selectInput(
                           "nj_branch_label",
@@ -2785,7 +2805,8 @@ ui <- dashboardPage(
                         )
                       ),
                       column(
-                        width = 2,
+                        width = 3,
+                        align = "right",
                         dropMenu(
                           actionBttn(
                             "nj_branch_label_menu",
@@ -2796,7 +2817,68 @@ ui <- dashboardPage(
                             icon = icon("sliders")
                           ),
                           placement = "top-start",
-                          theme = "translucent"
+                          theme = "translucent",
+                          fluidRow(
+                            column(
+                              width = 6,
+                              align = "center",
+                              numericInput(
+                                "nj_branch_size",
+                                label = h5("Size", style = "color:white; margin-bottom: 0px"),
+                                min = 3,
+                                max = 10,
+                                step = 0.5,
+                                value = 4,
+                                width = "70px"
+                              ),
+                              br(),
+                              numericInput(
+                                "nj_branch_labelradius",
+                                label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
+                                value = 0.5,
+                                step = 0.05,
+                                min = 0,
+                                max = 0.5
+                              ),
+                              br(),
+                              selectInput(
+                                "nj_branchlab_fontface",
+                                label = h5("Fontface", style = "color:white"),
+                                width = "250px",
+                                choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
+                              )
+                            ),
+                            column(
+                              width = 6,
+                              align = "center",
+                              numericInput(
+                                "nj_branchlab_alpha",
+                                label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                                min = 0.1,
+                                max = 1,
+                                value = 0.7,
+                                width = "70px"
+                              ),
+                              br(),
+                              sliderTextInput(
+                                inputId = "nj_branch_x",
+                                label = h5("X Position", style = "color:white; margin-bottom: 0px"),
+                                choices = seq(-3, 3, by = 0.1),
+                                selected = 0,
+                                width = "250px",
+                                hide_min_max = TRUE
+                              ),
+                              br(),
+                              sliderTextInput(
+                                inputId = "nj_branch_y",
+                                label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+                                choices = seq(-3, 3, by = 0.1),
+                                selected = 0,
+                                width = "250px",
+                                hide_min_max = TRUE
+                              )
+                            )
+                          )
                         )
                       )
                     )
@@ -2804,8 +2886,9 @@ ui <- dashboardPage(
                 ),
                 fluidRow(
                   column(
-                    width = 2,
-                    h5(p("Color"), style = "color:white; position: relative; right: -0px; margin-top: 30px")
+                    width = 4,
+                    align = "left",
+                    h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 30px")
                   ),
                   column(
                     width = 4,
@@ -2820,7 +2903,8 @@ ui <- dashboardPage(
                       position = "right-start"
                     )
                   )
-                )
+                ),
+                br(), br(), br()
               )
             ),
             column(
@@ -2830,16 +2914,16 @@ ui <- dashboardPage(
                 solidHeader = TRUE,
                 status = "primary",
                 width = "100%",
-                h3(p("Highlight"), style = "color:white"),
+                h3(p("Elements"), style = "color:white"),
                 hr(),
                 fluidRow(
                   column(
                     width = 12,
                     align = "left",
-                    h4(p("Tips"), style = "color:white; position: relative; right: -15px"),
+                    h4(p(tags$b("Tip points")), style = "color:white; position: relative; right: -15px"),
                     fluidRow(
                       column(
-                        width = 3,
+                        width = 4,
                         align = "left",
                         checkboxInput(
                           "tippoint_show",
@@ -2849,7 +2933,7 @@ ui <- dashboardPage(
                       ),
                       column(
                         width = 2,
-                        align = "center",
+                        align = "left",
                         dropMenu(
                           actionBttn(
                             "nj_tippoint_menu",
@@ -2867,17 +2951,17 @@ ui <- dashboardPage(
                               align = "center",
                               numericInput(
                                 "nj_tippoint_alpha",
-                                label = h5("Opacity", style = "color:white"),
+                                label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
                                 value = 0.5,
                                 min = 0.1,
                                 max = 1,
                                 step = 0.1,
-                                width = "100px"
+                                width = "70px"
                               ), 
                               br(),
                               numericInput(
                                 inputId = "nj_tippoint_size",
-                                label = h5("Size", style = "color:white"),
+                                label = h5("Size", style = "color:white; margin-bottom: 0px"),
                                 min = 1,
                                 max = 20,
                                 step = 1,
@@ -2890,7 +2974,8 @@ ui <- dashboardPage(
                     ),
                     fluidRow(
                       column(
-                        width = 2,
+                        width = 4,
+                        align = "left",
                         h5(p("Color"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
                       ),
                       column(
@@ -2916,7 +3001,7 @@ ui <- dashboardPage(
                           "input.nj_tipcolor_mapping_show==false || input.nj_mapping_show==true",
                           colorPickr(
                             inputId = "nj_tippoint_color",
-                            width = "95%",
+                            width = "100%",
                             selected = "#3A4657",
                             label = "",
                             update = "changestop",
@@ -2926,11 +3011,11 @@ ui <- dashboardPage(
                           )
                         )
                       ),
-                      conditionalPanel(
-                        "input.nj_mapping_show==false",
-                        column(
-                          width = 5,
-                          align = "left",
+                      column(
+                        width = 4,
+                        align = "left",
+                        conditionalPanel(
+                          "input.nj_mapping_show==false",
                           checkboxInput(
                             "nj_tipcolor_mapping_show",
                             label = h5("Add variable", style = "color:white; font-size: 14px; position: relative; bottom: -10px;"),
@@ -2939,52 +3024,55 @@ ui <- dashboardPage(
                         )
                       )
                     ),
-                    column(
-                      width = 2,
-                      h5(p("Shape"), style = "color:white; position: relative; right: -0px; margin-top: 30px")
-                    ),
-                    column(
-                      width = 4,
-                      align = "center",
-                      conditionalPanel(
-                        "input.nj_tipshape_mapping_show==false",
-                        selectInput(
-                          "nj_tippoint_shape",
-                          "",
-                          width = "90%",
-                          choices = c(
-                            Circle = "circle", 
-                            Square = "square", 
-                            Diamond = "diamond", 
-                            Triangle = "triangle",
-                            Cross = "cross", 
-                            Asterisk = "asterisk"
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "left",
+                        h5(p("Shape"), style = "color:white; position: relative; right: -17px; margin-top: 30px")
+                      ),
+                      column(
+                        width = 4,
+                        align = "center",
+                        conditionalPanel(
+                          "input.nj_tipshape_mapping_show==false",
+                          selectInput(
+                            "nj_tippoint_shape",
+                            "",
+                            width = "100%",
+                            choices = c(
+                              Circle = "circle", 
+                              Square = "square", 
+                              Diamond = "diamond", 
+                              Triangle = "triangle",
+                              Cross = "cross", 
+                              Asterisk = "asterisk"
+                            )
+                          )
+                        ),
+                        conditionalPanel(
+                          "input.nj_tipshape_mapping_show==true",
+                          selectInput(
+                            "nj_tipshape_mapping",
+                            "",
+                            choices = c(
+                              "Isolation Date" = "Isolation_Date",
+                              "Host" = "Host",
+                              "Country" = "Country",
+                              "City" = "City"
+                            ),
+                            selected = c("Country" = "Country"),
+                            width = "100%"
                           )
                         )
                       ),
-                      conditionalPanel(
-                        "input.nj_tipshape_mapping_show==true",
-                        selectInput(
-                          "nj_tipshape_mapping",
-                          "",
-                          choices = c(
-                            "Isolation Date" = "Isolation_Date",
-                            "Host" = "Host",
-                            "Country" = "Country",
-                            "City" = "City"
-                          ),
-                          selected = c("Country" = "Country"),
-                          width = "100%"
+                      column(
+                        width = 4,
+                        align = "left",
+                        checkboxInput(
+                          "nj_tipshape_mapping_show",
+                          label = h5("Add variable", style = "color:white; font-size: 14px; position: relative; bottom: -10px;"),
+                          value = FALSE
                         )
-                      )
-                    ),
-                    column(
-                      width = 5,
-                      align = "left",
-                      checkboxInput(
-                        "nj_tipshape_mapping_show",
-                        label = h5("Add variable", style = "color:white; font-size: 14px; position: relative; bottom: -10px;"),
-                        value = FALSE
                       )
                     )
                   )
@@ -2997,10 +3085,10 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p("Nodes"), style = "color:white; position: relative; right: -15px"),
+                        h4(p(tags$b("Node points")), style = "color:white; position: relative; right: -15px"),
                         fluidRow(
                           column(
-                            width = 6,
+                            width = 5,
                             align = "left",
                             checkboxInput(
                               "nodepoint_show",
@@ -3009,8 +3097,8 @@ ui <- dashboardPage(
                             )
                           ),
                           column(
-                            width = 4,
-                            align = "center",
+                            width = 7,
+                            align = "right",
                             dropMenu(
                               actionBttn(
                                 "nj_nodepoint_menu",
@@ -3028,17 +3116,17 @@ ui <- dashboardPage(
                                   align = "center",
                                   numericInput(
                                     "nj_nodepoint_alpha",
-                                    label = h5("Opacity", style = "color:white"),
+                                    label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
                                     value = 0.5,
                                     min = 0.1,
                                     max = 1,
                                     step = 0.1,
-                                    width = "100px"
+                                    width = "70px"
                                   ), 
                                   br(),
                                   numericInput(
                                     inputId = "nj_nodepoint_size",
-                                    label = h5("Size", style = "color:white"),
+                                    label = h5("Size", style = "color:white; margin-bottom: 0px"),
                                     min = 1,
                                     max = 20,
                                     step = 1,
@@ -3072,7 +3160,7 @@ ui <- dashboardPage(
                         fluidRow(
                           column(
                             width = 5,
-                            h5(p("Shape"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
+                            h5(p("Shape"), style = "color:white; position: relative; right: -20px; margin-top: 30px")
                           ),
                           column(
                             width = 7,
@@ -3100,10 +3188,10 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p("Tiles"), style = "color:white; position: relative; right: -15px"),
+                        h4(p(tags$b("Tiles")), style = "color:white; position: relative; right: -15px"),
                         fluidRow(
                           column(
-                            width = 3,
+                            width = 4,
                             align = "left",
                             checkboxInput(
                               "nj_tiles_show",
@@ -3112,7 +3200,8 @@ ui <- dashboardPage(
                             )
                           ),
                           column(
-                            width = 3,
+                            width = 7,
+                            align = "right",
                             dropMenu(
                               actionBttn(
                                 "nj_tile_menu",
@@ -3124,13 +3213,20 @@ ui <- dashboardPage(
                               ),
                               placement = "top-start",
                               theme = "translucent",
-                              numericInput(
-                                "nj_fruit_alpha",
-                                "Opacity",
-                                min = 0.1,
-                                max = 1,
-                                step = 0.1,
-                                value = 0.5
+                              fluidRow(
+                                column(
+                                  width = 12,
+                                  align = "center",
+                                  numericInput(
+                                    "nj_fruit_alpha",
+                                    label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                                    min = 0.1,
+                                    max = 1,
+                                    step = 0.1,
+                                    value = 0.5,
+                                    width = "70px"
+                                  )
+                                )
                               )
                             )
                           )
@@ -3202,7 +3298,8 @@ ui <- dashboardPage(
                       )
                     )
                   )
-                )
+                ), 
+                br()
               )
             )
           )
@@ -4858,7 +4955,13 @@ server <- function(input, output, session) {
           aes_string(
             x="branch", 
             label= as.character(input$nj_branch_label)),
-          fill = input$nj_branch_label_color
+          fill = input$nj_branch_label_color,
+          size = input$nj_branch_size,
+          label.r = unit(input$nj_branch_labelradius, "lines"),
+          nudge_x = input$nj_branch_x,
+          nudge_y = input$nj_branch_y,
+          fontface = input$nj_branchlab_fontface,
+          alpha = input$nj_branchlab_alpha
         )
       } else {NULL}
     } else {NULL}
