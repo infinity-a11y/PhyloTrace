@@ -516,8 +516,6 @@ ui <- dashboardPage(
         column(
           width = 12,
           align = "left",
-          tags$style(type='text/css', '#na_entries_text {color:white; white-space: pre-wrap;}'),
-          tags$style(type='text/css', '#na_loci {color:white; white-space: pre-wrap;}'),
           br(), br(),
           selectInput(
             "distmatrix_label",
@@ -1689,15 +1687,15 @@ ui <- dashboardPage(
                           "mst_node_label",
                           label = "",
                           choices = c(
-                            Index = "index",
-                            `Assembly ID` = "assembly_id",
-                            `Assembly Name` = "assembly_name",
-                            `Isolation Date` = "isolation_date",
-                            Host = "host",
-                            Country = "country",
-                            City = "city"
+                            Index = "Index",
+                            `Assembly ID` = "Assembly ID",
+                            `Assembly Name` = "Assembly Name",
+                            `Isolation Date` = "Isolation Date",
+                            Host = "Host",
+                            Country = "Country",
+                            City = "City"
                           ),
-                          selected = c(`Assembly Name` = "assembly_name"),
+                          selected = c(`Assembly Name` = "Assembly Name"),
                           width = "100%"
                         )
                       ),
@@ -3606,6 +3604,16 @@ ui <- dashboardPage(
 
 server <- function(input, output, session) {
   
+  ## Functions ----
+  # Function to compute Hamming distance between two vectors
+  hamming_distance <- function(x, y) {
+    sum(x != y)
+  }
+  
+  hamming_distance_with_na <- function(x, y) {
+    sum((is.na(x) | is.na(y)) | (x != y))
+  }
+  
   observeEvent(input$test, {
     html_name <- tempfile(fileext = ".html")
     visSave(mst_tree(), html_name)
@@ -3847,7 +3855,7 @@ server <- function(input, output, session) {
         
       DF1$allelic_profile <- select(DF1$data, -(1:12))
       
-      DF1$allelic_profile_true <- DF1$allellic_profile[which(DF1$data$Include == TRUE),]
+      DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
       
       DF1$scheme <- input$scheme_db
       
@@ -3950,7 +3958,6 @@ server <- function(input, output, session) {
               tabName = "database",
               icon = icon("hard-drive"),
               startExpanded = TRUE,
-              selected = TRUE,
               menuSubItem(
                 text = "Browse Entries",
                 tabName = "db_browse_entries"
@@ -3966,6 +3973,7 @@ server <- function(input, output, session) {
               menuSubItem(
                 text = "Missing Values",
                 tabName = "db_missing_values",
+                selected = TRUE,
                 icon = icon("triangle-exclamation")
               )
             ),
@@ -4002,8 +4010,8 @@ server <- function(input, output, session) {
             inputId = "compare_select",
             label = "",
             width = "85%",
-            choices = names(DF1$allellic_profile),
-            selected = names(DF1$allellic_profile)[1:20],
+            choices = names(DF1$allelic_profile),
+            selected = names(DF1$allelic_profile)[1:20],
             options = list(
               `live-search` = TRUE,
               `actions-box` = TRUE,
@@ -4017,8 +4025,8 @@ server <- function(input, output, session) {
             inputId = "compare_select",
             label = "",
             width = "85%",
-            choices = names(DF1$allellic_profile),
-            selected = names(DF1$allellic_profile)[var_alleles(DF1$allellic_profile)],
+            choices = names(DF1$allelic_profile),
+            selected = names(DF1$allelic_profile)[var_alleles(DF1$allelic_profile)],
             options = list(
               `live-search` = TRUE,
               `actions-box` = TRUE,
@@ -4182,7 +4190,6 @@ server <- function(input, output, session) {
           NA_table,
           rowHeaders = NULL
         ) %>%
-          hot_col(1:(12+length(input$compare_select)), valign = "htMiddle") %>%
           hot_context_menu(allowRowEdit = FALSE,
                            allowColEdit = FALSE,
                            allowReadOnly = TRUE) %>%
@@ -4190,21 +4197,6 @@ server <- function(input, output, session) {
           hot_rows(fixedRowsTop = 0) 
       })
         
-      na_entries <- select(DF1$data, -(1:12))[!complete.cases(select(DF1$data, -(1:12))), ]
-      
-      na_entries_err <- select(DF1$data, 1:12)[rownames(na_entries),]$Errors 
-      
-      # NA Info
-      rownames(na_entries) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(na_entries),4]
-      
-      output$na_entries_text <- renderUI({
-        HTML(paste(paste0(icon("x"), " ", rownames(na_entries), ", ", na_entries_err, " Error(s)"), collapse="\n"))
-      })
-      
-      output$na_loci <- renderUI({
-        HTML(paste(paste0(icon("x"), " ", colnames(DF1$allelic_profile[,colSums(is.na(DF1$allelic_profile)) != 0])), collapse="\n"))
-      })
-      
       output$delete_box <- renderUI({
         box(
           solidHeader = TRUE,
@@ -4268,7 +4260,7 @@ server <- function(input, output, session) {
               checkboxInput(
                 "compare_difference",
                 label = h5("Only varying loci", style = "color:white; position: relative; top: -6px"),
-                value = FALSE
+                value = TRUE
               )
             )
           ),
@@ -4284,16 +4276,8 @@ server <- function(input, output, session) {
           fluidRow(
             column(
               width = 12,
-              align = "center",
-              h3(p("Missing Values"), style = "color:white")
-            )
-          ),
-          hr(),
-          fluidRow(
-            column(
-              width = 12,
               align = "left",
-              br(),
+              br(), br(),
               HTML(
                 paste(
                   tags$span(style='color: white; font-size: 14px;', 
@@ -4301,7 +4285,8 @@ server <- function(input, output, session) {
                                    as.character(sum(is.na(DF1$data))), 
                                    " unsuccessful allele allocations (NA). Decide how missing values should be treated:"))
                 )
-              )
+              ),
+              br()
             )
           ),
           fluidRow(
@@ -4309,6 +4294,7 @@ server <- function(input, output, session) {
             column(
               width = 11,
               align = "left",
+              br(),
               prettyRadioButtons(
                 "na_handling",
                 "",
@@ -4346,6 +4332,10 @@ server <- function(input, output, session) {
           icon = icon("xmark")
         )
       })
+      
+      #### Distance Matrix ----
+      
+      
       
     } else if (!any(grepl("Typing.rds", dir_ls(paste0(
       getwd(), "/Database/", gsub(" ", "_", DF1$scheme)
@@ -4519,19 +4509,9 @@ server <- function(input, output, session) {
   
   
   ### Distance Matrix ---- 
-  #Function to compute Hamming distance between two vectors
-  hamming_distance <- function(x, y) {
-    sum(x != y)
-  }
-  
-  hamming_distance_with_na <- function(x, y) {
-    sum((is.na(x) | is.na(y)) | (x != y))
-  }
   
   observe({
-    if(!is.null(DF1$data)) {
-      # Calculate Distance Matrix
-      
+    if(!class(DF1$data) == "NULL") {
       output$db_distancematrix <- renderRHandsontable({
         rhandsontable(hamming_df(), digits = 1, height = 800, rowHeaders = NULL) %>%
           hot_heatmap(color_scale = c("#17F556","#ED6D47")) %>%
@@ -4552,17 +4532,12 @@ server <- function(input, output, session) {
   })
   
   hamming_df <- reactive({
-    
-    allelic_profile <- select(DF1$data, -(1:12))
-    
-    allelic_profile <- allelic_profile[which(DF1$data$Include == TRUE),]
-    
-    allelic_profile_noNA <- allelic_profile[, colSums(is.na(allelic_profile)) == 0]
-    
     # Create a custom proxy object for Hamming distance
     if(input$na_handling == "one") {
-    hamming_proxy <- proxy::dist(allelic_profile, method = hamming_distance_with_na)
-    } else {
+    hamming_proxy <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance_with_na)
+    } else if(input$na_handling == "ignore"){
+      allelic_profile_noNA <- DF1$allelic_profile_true[, colSums(is.na(DF1$allelic_profile_true)) == 0]
+      
       hamming_proxy <- proxy::dist(allelic_profile_noNA, method = hamming_distance)
     }
     
@@ -4581,7 +4556,6 @@ server <- function(input, output, session) {
       as.data.frame() %>%
       mutate(Index = colnames(hamming_matrix)) %>%
       relocate(Index)
-    test <<- DF1$ham_matrix
     DF1$ham_matrix
   })
   
@@ -4981,29 +4955,16 @@ server <- function(input, output, session) {
   
   mst_tree <- reactive({
     data <- toVisNetworkData(plot_loc$ggraph_1)
-    if(input$mst_color_var == TRUE) {
-      if(input$mst_col_var == "Host") {
-        data$nodes <- cbind(data$nodes, group = plot_loc$unique_meta$Host)
-      } else if (input$mst_col_var == "Country") {
-        data$nodes <- cbind(data$nodes, group = plot_loc$unique_meta$Country)
-      } else if (input$mst_col_var == "City") {
-        data$nodes <- cbind(data$nodes, group = plot_loc$unique_meta$City)
-      } else if (input$mst_col_var == "Isolation Date") {
-        data$nodes <- cbind(data$nodes, group = plot_loc$unique_meta$`Isolation Date`)
-      }
-    }  
     data$nodes <- mutate(data$nodes, 
-                         label = plot_loc$unique_meta$`Assembly Name`,
+                         label = label_mst(),
                          value = mst_node_scaling(),
-                         font.vadjust = plot_loc$data_frame$valign,
-                         font.size = plot_loc$data_frame$font_size * node_label_fontsize(),
+                         font.vadjust = plot_loc$unique_meta$valign,
+                         font.size = plot_loc$unique_meta$font_size * node_label_fontsize(),
                          opacity = node_opacity())
     data$edges <- mutate(data$edges, 
-                         length = ((weight-1)*mst_edge_length()), 
-                         label = as.character(weight-1),
+                         length = (weight*mst_edge_length()), 
+                         label = as.character(weight),
                          opacity = mst_edge_opacity())
-    
-    test <<- data
     
     visNetwork(data$nodes, data$edges, 
                main = mst_title(),
@@ -5024,6 +4985,11 @@ server <- function(input, output, session) {
       visLegend()
   })
   
+  # Set MST label
+  label_mst <- reactive({
+    plot_loc$unique_meta[, colnames(plot_loc$unique_meta) %in% input$mst_node_label]
+  })
+  
   # Set node color
   mst_color_node <- reactive({
     input$mst_color_node
@@ -5042,7 +5008,7 @@ server <- function(input, output, session) {
   # Node Size Scaling
   mst_node_scaling <- reactive({
     if(input$scale_nodes == TRUE){
-      plot_loc$data_frame$size
+      plot_loc$unique_meta$size
     } else {NULL}
   })
   
@@ -5442,12 +5408,6 @@ server <- function(input, output, session) {
   
   hamming_mst <- reactive({
     
-    allelic_profile <- select(DF1$data, -(1:12))
-    
-    allelic_profile <- allelic_profile[which(DF1$data$Include == TRUE),]
-    
-    meta <- DF1$meta_true[, -2]
-    
     if(input$na_handling == "one") {
       
       grouped_df <- DF1$allelic_profile_true %>%
@@ -5530,70 +5490,292 @@ server <- function(input, output, session) {
       proxy::dist(plot_loc$unique_allelic_profile, method = hamming_distance_with_na)
       
     } else {
-      allelic_profile_noNA <- DF1$allelic_profile_true[, colSums(is.na(DF1$allelic_profile_true)) == 0]
+      ########### Loci/Columns with NA are ignored #############
       
-      grouped_df <- allelic_profile_noNA %>%
-        group_by(across(everything())) %>%
-        mutate(group_id = cur_group_id()) %>%
-        ungroup() %>%
-        relocate(group_id) %>%
-        as.data.frame()
+      # Remove NA columns
+      noNA <- DF1$allelic_profile_true[, colSums(is.na(DF1$allelic_profile_true)) == 0]
       
-      rownames(grouped_df) <- meta$`Assembly Name`
+      # Generate hamming distance matrix
+      noNA_dist <- proxy::dist(noNA, method = hamming_distance)
       
-      plot_loc$unique_allelic_profile <- grouped_df[!duplicated(grouped_df$group_id), ]
+      # Find indices of pairs with a distance of 0
+      zero_distance_pairs <- as.data.frame(which(as.matrix(noNA_dist) == 0, arr.ind = TRUE))
       
-      meta <- mutate(meta, group_id = grouped_df$group_id) %>%
-        relocate(group_id)
+      zero_distance_pairs <- zero_distance_pairs[zero_distance_pairs$row != zero_distance_pairs$col, ]
       
-      rownames(meta) <- meta$`Assembly Name`
+      # Sort each row so that x <= y
+      df_sorted <- t(apply(zero_distance_pairs, 1, function(row) sort(row)))
       
-      plot_loc$unique_meta <- meta[rownames(plot_loc$unique_allelic_profile), ]
+      # Remove duplicate rows
+      df_unique <- as.data.frame(unique(df_sorted))
       
-      ## grouping names
-      data_frame <- data.frame(group = numeric(), name = character())
+      colnames(df_unique) <- c("col", "row")
       
-      for (i in plot_loc$unique_meta$group_id) {
-        data_frame <- rbind(data_frame, 
-                            data.frame(size = length(paste(rownames(grouped_df)[which(grouped_df$group_id == i)])), 
-                                       name = paste(rownames(grouped_df)[which(grouped_df$group_id == i)], collapse = "\n")))
+      # get metadata in df
+      vector_col <- character(0)
+      count <- 1
+      for (i in df_unique$col) {
+        vector_col[count] <- DF1$meta_true$`Assembly Name`[i]
+        count <- count + 1
       }
       
-      font_size <- numeric(nrow(data_frame))
+      vector_row <- character(0)
+      count <- 1
+      for (i in df_unique$row) {
+        vector_row[count] <- DF1$meta_true$`Assembly Name`[i]
+        count <- count + 1
+      }
+      
+      col_id <- character(0)
+      count <- 1
+      for (i in df_unique$col) {
+        col_id[count] <- DF1$meta_true$`Assembly ID`[i]
+        count <- count + 1
+      }
+      
+      row_id <- character(0)
+      count <- 1
+      for (i in df_unique$row) {
+        row_id[count] <- DF1$meta_true$`Assembly ID`[i]
+        count <- count + 1
+      }
+      
+      col_index <- character(0)
+      count <- 1
+      for (i in df_unique$col) {
+        col_index[count] <- DF1$meta_true$Index[i]
+        count <- count + 1
+      }
+      
+      row_index <- character(0)
+      count <- 1
+      for (i in df_unique$row) {
+        row_index[count] <- DF1$meta_true$Index[i]
+        count <- count + 1
+      }
+      
+      col_date <- character(0)
+      count <- 1
+      for (i in df_unique$col) {
+        col_date[count] <- DF1$meta_true$`Isolation Date`[i]
+        count <- count + 1
+      }
+      
+      row_date <- character(0)
+      count <- 1
+      for (i in df_unique$row) {
+        row_date[count] <- DF1$meta_true$`Isolation Date`[i]
+        count <- count + 1
+      }
+      
+      col_host <- character(0)
+      count <- 1
+      for (i in df_unique$col) {
+        col_host[count] <- DF1$meta_true$Host[i]
+        count <- count + 1
+      }
+      
+      row_host <- character(0)
+      count <- 1
+      for (i in df_unique$row) {
+        row_host[count] <- DF1$meta_true$Host[i]
+        count <- count + 1
+      }
+      
+      col_country <- character(0)
+      count <- 1
+      for (i in df_unique$col) {
+        col_country[count] <- DF1$meta_true$Country[i]
+        count <- count + 1
+      }
+      
+      row_country <- character(0)
+      count <- 1
+      for (i in df_unique$row) {
+        row_country[count] <- DF1$meta_true$Country[i]
+        count <- count + 1
+      }
+      
+      col_city <- character(0)
+      count <- 1
+      for (i in df_unique$col) {
+        col_city[count] <- DF1$meta_true$City[i]
+        count <- count + 1
+      }
+      
+      row_city <- character(0)
+      count <- 1
+      for (i in df_unique$row) {
+        row_city[count] <- DF1$meta_true$City[i]
+        count <- count + 1
+      }
+      
+      df_unique <- cbind(df_unique, col_name = vector_col, row_name = vector_row, 
+                         col_index = col_index, row_index = row_index, col_id = col_id,
+                         row_id = row_id, col_date = col_date, row_date = row_date,
+                         col_host = col_host, row_host = row_host, col_country = col_country,
+                         row_country = row_country, col_city = col_city, row_city = row_city)
+      
+      # Add groups
+      grouped_df <- df_unique %>%
+        group_by(col) %>%
+        mutate(group_id = cur_group_id())
+      
+      # Merge groups
+      name <- character(0)
+      index <- character(0)
+      id <- character(0)
+      count <- 1
+      for (i in grouped_df$group_id) {
+        name[count] <- paste(unique(append(grouped_df$col_name[which(grouped_df$group_id == i)], 
+                                           grouped_df$row_name[which(grouped_df$group_id == i)])), 
+                             collapse = "\n")
+        
+        id[count] <- paste(unique(append(grouped_df$col_id[which(grouped_df$group_id == i)], 
+                                         grouped_df$row_id[which(grouped_df$group_id == i)])), 
+                           collapse = "\n")
+        
+        index[count] <- paste(unique(append(grouped_df$col_index[which(grouped_df$group_id == i)], 
+                                            grouped_df$row_index[which(grouped_df$group_id == i)])), 
+                              collapse = "\n")
+        
+        count <- count + 1
+      }
+      
+      merged_names <- cbind(grouped_df, "Index" = index, "Assembly Name" = name, "Assembly ID" = id)
+      
+      # remove duplicate groups
+      
+      final <- merged_names[!duplicated(merged_names$group_id), ]
+      
+      final_cleaned <- final[!(final$col_name %in% final$row_name),]
+      
+      final_cleaned <- select(final_cleaned, 3, 17:20)
+      
+      # adapt metadata
+      Date_merged <- character(0)
+      for(j in 1:length(final_cleaned$Index)) {
+        Date <- character(0)
+        for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
+          Date <- append(Date, DF1$meta_true$`Isolation Date`[which(DF1$meta_true$Index == i)])
+        }
+        Date_merged <- append(Date_merged, paste(Date, collapse = "\n"))
+      }
+      
+      Host_merged <- character(0)
+      for(j in 1:length(final_cleaned$Index)) {
+        Host <- character(0)
+        for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
+          Host <- append(Host, DF1$meta_true$Host[which(DF1$meta_true$Index == i)])
+        }
+        Host_merged <- append(Host_merged, paste(Host, collapse = "\n"))
+      }
+      
+      Country_merged <- character(0)
+      for(j in 1:length(final_cleaned$Index)) {
+        Country <- character(0)
+        for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
+          Country <- append(Country, DF1$meta_true$Country[which(DF1$meta_true$Index == i)])
+        }
+        Country_merged <- append(Country_merged, paste(Country, collapse = "\n"))
+      }
+      
+      City_merged <- character(0)
+      for(j in 1:length(final_cleaned$Index)) {
+        City <- character(0)
+        for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
+          City <- append(City, DF1$meta_true$City[which(DF1$meta_true$Index == i)])
+        }
+        City_merged <- append(City_merged, paste(City, collapse = "\n"))
+      }
+      
+      final_meta <- cbind(final_cleaned, "Isolation Date" = Date_merged, 
+                          "Host" = Host_merged, "Country" = Country_merged, "City" = City_merged)
+      
+      
+      ### Merging with original data frame / allelic profile
+      
+      rownames(DF1$allelic_profile_true) <- DF1$meta_true$`Assembly Name`
+      rownames(DF1$meta_true) <- DF1$meta_true$`Assembly Name`
+      
+      omit <- unique(append(df_unique$col_name, df_unique$row_name)) %in% final_cleaned$col_name
+      
+      omit_id <- unique(append(df_unique$col_name, df_unique$row_name))[!omit]
+      
+      remove <- !(rownames(DF1$allelic_profile_true) %in% omit_id)
+      
+      allelic_profile_clean <- DF1$allelic_profile_true[remove, ]
+      
+      meta_clean <- DF1$meta_true[remove, ]
+      
+      # substitute meta assembly names with group names
+      
+      count <- 1
+      for(i in which(rownames(meta_clean) %in% final_meta$col_name)) {
+        meta_clean$Index[i] <- final_meta$Index[count]
+        meta_clean$`Assembly Name`[i] <- final_meta$`Assembly Name`[count]
+        meta_clean$`Assembly ID`[i] <- final_meta$`Assembly ID`[count]
+        meta_clean$`Isolation Date`[i] <- final_meta$`Isolation Date`[count]
+        meta_clean$Host[i] <- final_meta$Host[count]
+        meta_clean$Country[i] <- final_meta$Country[count]
+        meta_clean$City[i] <- final_meta$City[count]
+        count <- count + 1
+      }
+      
+      ### Metadata completion
+      # get group size
+      
+      size_vector <- numeric(0)
+      for(i in 1:nrow(meta_clean)) {
+        if (str_count(meta_clean$`Assembly Name`[i], "\n") == 0) {
+          size_vector[i] <- 1
+        } else {
+          size_vector[i] <- str_count(meta_clean$`Assembly Name`[i], "\n") +1
+        }
+      }
+      
+      meta_clean <- mutate(meta_clean, size = size_vector)
+      
+      # get font size dependent on group size
+      
+      font_size <- numeric(nrow(meta_clean))
       
       for (i in 1:length(font_size)) {
-        if(data_frame$size[i] < 3) {
+        if(meta_clean$size[i] < 3) {
           font_size[i] <- 12
         } else {
           font_size[i] <- 11
         }
       }
       
-      valign <- numeric(nrow(data_frame))
+      # get v-align dependent on group size
+      valign <- numeric(nrow(meta_clean))
       
       for (i in 1:length(valign)) {
-        if(data_frame$size[i] == 1) {
+        if(meta_clean$size[i] == 1) {
           valign[i] <- -30
-        } else if(data_frame$size[i] == 2) {
+        } else if(meta_clean$size[i] == 2) {
           valign[i] <- -38
-        } else if(data_frame$size[i] == 3) {
+        } else if(meta_clean$size[i] == 3) {
           valign[i] <- -46
-        } else if(data_frame$size[i] == 4) {
+        } else if(meta_clean$size[i] == 4) {
           valign[i] <- -54
-        } else if(data_frame$size[i] == 5) {
+        } else if(meta_clean$size[i] == 5) {
           valign[i] <- -62
-        } else if(data_frame$size[i] > 5) {
+        } else if(meta_clean$size[i] > 5) {
           valign[i] <- -70
         }
       }
       
-      plot_loc$data_frame <- data_frame %>%
+      plot_loc$unique_meta <- meta_clean %>%
         cbind(font_size = font_size, valign = valign)
       
-      plot_loc$unique_meta$`Assembly Name` <- plot_loc$data_frame$name
-      plot_loc$unique_meta <- mutate(plot_loc$unique_meta, size = plot_loc$data_frame$Size)
       
-      proxy::dist(plot_loc$unique_allelic_profile, method = hamming_distance)
+      ### final dist calculation
+      
+      allelic_profile_clean_noNA_names <- allelic_profile_clean[, colSums(is.na(allelic_profile_clean)) == 0]
+      
+      proxy::dist(allelic_profile_clean_noNA_names, method = hamming_distance)
     }
   })
   
@@ -5944,7 +6126,6 @@ server <- function(input, output, session) {
         plot_loc$slot1_getname <- substr(input$slot_name, 1, 10)
       } else {
         plot_loc$slot1_getname <- paste("Number One")
-        test <<- "Number One"
       }
       mst_tree() %>% visExport(type = "jpeg")
       elements_data$slot1_include <- TRUE
