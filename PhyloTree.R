@@ -475,6 +475,7 @@ ui <- dashboardPage(
     tags$style("i.fas.fa-xmark {margin-right: 0px}"),
     tags$style("i.fas.fa-download {margin-right: 0px}"),
     tags$style("i.far.fa-bookmark {margin-right: 0px}"),
+    tags$style("i.fas.fa-triangle-exclamation {color: yellow}"),
     tags$style("i.far.fa-file-lines {margin-left: 2px; margin-right: 8px;}"),
     tags$style("button#reload_db.btn.btn-default.action-button.shiny-bound-input {height: 30px; width: 30px; position: relative; left: -20px}"),
     tags$style("button#edit_button.btn.btn-default.action-button.shiny-bound-input {background: #20E6E5; color: #000000}"),
@@ -516,6 +517,7 @@ ui <- dashboardPage(
           width = 12,
           align = "left",
           tags$style(type='text/css', '#na_entries_text {color:white; white-space: pre-wrap;}'),
+          tags$style(type='text/css', '#na_loci {color:white; white-space: pre-wrap;}'),
           br(), br(),
           selectInput(
             "distmatrix_label",
@@ -1137,8 +1139,7 @@ ui <- dashboardPage(
             width = 3,
             align = "left",
             uiOutput("delete_box"),
-            uiOutput("compare_allele_box"),
-            uiOutput("missing_values")
+            uiOutput("compare_allele_box")
           )
         ),
         br()
@@ -1205,6 +1206,30 @@ ui <- dashboardPage(
           br() 
         ),
         br(), br(), br()
+      ),
+      
+      ### Tab Missing Values ----
+      
+      tabItem(
+        tabName = "db_missing_values",
+        fluidRow(
+          column(
+            width = 3,
+            align = "center",
+            h2(p("Missing Values"), style = "color:white")
+          )
+        ),
+        hr(), br(), br(), br(),
+        fluidRow(
+          column(
+            width = 3,
+            uiOutput("missing_values")
+          ),
+          column(
+            width = 8,
+            rHandsontableOutput("table_missing_values")
+          )
+        )
       ),
       
       ## Tab Add Scheme  ----  
@@ -3669,99 +3694,6 @@ server <- function(input, output, session) {
          height = 200)
   }, deleteFile = FALSE)
   
-  observeEvent(input$load, {
-    
-    removeModal()
-    
-    renderstart$sidebar <- FALSE
-    renderstart$header <- FALSE
-    
-    output$menu_sep1 <- renderUI(hr())
-    output$menu_sep2 <- renderUI(hr())
-    
-    output$loaded_scheme <- renderUI({
-      fluidRow(
-        column(width = 2),
-        column(
-          width = 6,
-          div(
-            class = "scheme_start",
-            p(
-              HTML(
-                paste(
-                  tags$span(style='color: white; font-size: 15px;', strong("Selected scheme:"))
-                )
-              )
-            ),
-            p(
-              HTML(
-                paste(
-                  tags$span(style='color: white; font-size: 15px; font-style: italic', DF1$scheme)
-                )
-              )
-            )
-          )
-        ),
-        column(
-          width = 2,
-          div(
-            class = "reload-bttn",
-            actionButton(
-              "reload_db",
-              label = "",
-              icon = icon("rotate")
-            )
-          )
-        )
-      )
-    })
-    
-    output$menu <- renderMenu(
-      sidebarMenu(
-        menuItem(
-          text = "Database Browser",
-          tabName = "database",
-          icon = icon("hard-drive"),
-          startExpanded = TRUE,
-          selected = TRUE,
-          menuSubItem(
-            text = "Browse Entries",
-            tabName = "db_browse_entries"
-          ),
-          menuSubItem(
-            text = "Scheme Info",
-            tabName = "db_schemeinfo"
-          ),
-          menuSubItem(
-            text = "Distance Matrix",
-            tabName = "db_distmatrix"
-          )
-        ),
-        menuItem(
-          text = "Add Scheme",
-          tabName = "init",
-          icon = icon("plus")
-        ),
-        menuItem(
-          text = "Allelic Typing",
-          tabName = "typing",
-          icon = icon("dna")
-        ),
-        menuItem(
-          text = "Visualization",
-          tabName = "visualization",
-          icon = icon("chart-line")
-        ),
-        menuItem(
-          text = "Report",
-          tabName = "report",
-          icon = icon("file-lines")
-        )
-      )
-    )
-    
-    output$start_message <- NULL
-  })
   
   ## Database ----
   DF1 <- reactiveValues()
@@ -3893,7 +3825,7 @@ server <- function(input, output, session) {
     if (any(grepl("Typing.rds", dir_ls(paste0(
       getwd(), "/Database/", gsub(" ", "_", input$scheme_db)
     ))))) {
-      Data <-
+      Database <-
         readRDS(paste0(
           getwd(),
           "/Database/",
@@ -3907,11 +3839,161 @@ server <- function(input, output, session) {
                      icon = icon("bookmark"))
       })
       
-      typing <- Data[["Typing"]]
+      DF1$data <- Database[["Typing"]]
       
-      DF1$data <- typing
+      DF1$meta <- select(DF1$data, 1:12)
+      
+      DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
+        
+      DF1$allelic_profile <- select(DF1$data, -(1:12))
+      
+      DF1$allelic_profile_true <- DF1$allellic_profile[which(DF1$data$Include == TRUE),]
       
       DF1$scheme <- input$scheme_db
+      
+      #### Render Menu Items ----
+      
+      removeModal()
+      
+      renderstart$sidebar <- FALSE
+      renderstart$header <- FALSE
+      
+      output$menu_sep1 <- renderUI(hr())
+      output$menu_sep2 <- renderUI(hr())
+      
+      output$loaded_scheme <- renderUI({
+        fluidRow(
+          column(width = 2),
+          column(
+            width = 6,
+            div(
+              class = "scheme_start",
+              p(
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 15px;', strong("Selected scheme:"))
+                  )
+                )
+              ),
+              p(
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 15px; font-style: italic', DF1$scheme)
+                  )
+                )
+              )
+            )
+          ),
+          column(
+            width = 2,
+            div(
+              class = "reload-bttn",
+              actionButton(
+                "reload_db",
+                label = "",
+                icon = icon("rotate")
+              )
+            )
+          )
+        )
+      })
+      
+      if(!anyNA(DF1$allelic_profile)) {
+        output$menu <- renderMenu(
+          sidebarMenu(
+            menuItem(
+              text = "Database Browser",
+              tabName = "database",
+              icon = icon("hard-drive"),
+              startExpanded = TRUE,
+              selected = TRUE,
+              menuSubItem(
+                text = "Browse Entries",
+                tabName = "db_browse_entries"
+              ),
+              menuSubItem(
+                text = "Scheme Info",
+                tabName = "db_schemeinfo"
+              ),
+              menuSubItem(
+                text = "Distance Matrix",
+                tabName = "db_distmatrix"
+              )
+            ),
+            menuItem(
+              text = "Add Scheme",
+              tabName = "init",
+              icon = icon("plus")
+            ),
+            menuItem(
+              text = "Allelic Typing",
+              tabName = "typing",
+              icon = icon("dna")
+            ),
+            menuItem(
+              text = "Visualization",
+              tabName = "visualization",
+              icon = icon("chart-line")
+            ),
+            menuItem(
+              text = "Report",
+              tabName = "report",
+              icon = icon("file-lines")
+            )
+          )
+        )
+      } else {
+        output$menu <- renderMenu(
+          sidebarMenu(
+            menuItem(
+              text = "Database Browser",
+              tabName = "database",
+              icon = icon("hard-drive"),
+              startExpanded = TRUE,
+              selected = TRUE,
+              menuSubItem(
+                text = "Browse Entries",
+                tabName = "db_browse_entries"
+              ),
+              menuSubItem(
+                text = "Scheme Info",
+                tabName = "db_schemeinfo"
+              ),
+              menuSubItem(
+                text = "Distance Matrix",
+                tabName = "db_distmatrix"
+              ),
+              menuSubItem(
+                text = "Missing Values",
+                tabName = "db_missing_values",
+                icon = icon("triangle-exclamation")
+              )
+            ),
+            menuItem(
+              text = "Add Scheme",
+              tabName = "init",
+              icon = icon("plus")
+            ),
+            menuItem(
+              text = "Allelic Typing",
+              tabName = "typing",
+              icon = icon("dna")
+            ),
+            menuItem(
+              text = "Visualization",
+              tabName = "visualization",
+              icon = icon("chart-line")
+            ),
+            menuItem(
+              text = "Report",
+              tabName = "report",
+              icon = icon("file-lines")
+            )
+          )
+        )
+      }
+      
+      output$start_message <- NULL
       
       output$compare_select <- renderUI({
         
@@ -3920,8 +4002,8 @@ server <- function(input, output, session) {
             inputId = "compare_select",
             label = "",
             width = "85%",
-            choices = names(select(typing, -(1:12))),
-            selected = names(select(typing, -(1:12)))[1:20],
+            choices = names(DF1$allellic_profile),
+            selected = names(DF1$allellic_profile)[1:20],
             options = list(
               `live-search` = TRUE,
               `actions-box` = TRUE,
@@ -3935,8 +4017,8 @@ server <- function(input, output, session) {
             inputId = "compare_select",
             label = "",
             width = "85%",
-            choices = names(select(typing, -(1:12))),
-            selected = names(select(typing, -(1:12)))[var_alleles(select(typing, -(1:12)))],
+            choices = names(DF1$allellic_profile),
+            selected = names(DF1$allellic_profile)[var_alleles(DF1$allellic_profile)],
             options = list(
               `live-search` = TRUE,
               `actions-box` = TRUE,
@@ -4081,15 +4163,46 @@ server <- function(input, output, session) {
       
       ### Other UI Elements ----
       
+      #### Missing Values UI ----
+      
+      # NA Table
+      NA_table <- DF1$allelic_profile[, colSums(is.na(DF1$allelic_profile)) != 0]
+      
+      NA_table <- NA_table[rowSums(is.na(NA_table)) != 0,]
+      
+      NA_table[is.na(NA_table)] <- "NA"
+      
+      NA_table <- NA_table %>% 
+        cbind("Assembly Name" = DF1$meta[rownames(NA_table),]$`Assembly Name`) %>%
+        cbind("Errors" = DF1$meta[rownames(NA_table),]$Errors) %>%
+        relocate("Assembly Name", "Errors")
+      
+      output$table_missing_values <- renderRHandsontable({
+        rhandsontable(
+          NA_table,
+          rowHeaders = NULL
+        ) %>%
+          hot_col(1:(12+length(input$compare_select)), valign = "htMiddle") %>%
+          hot_context_menu(allowRowEdit = FALSE,
+                           allowColEdit = FALSE,
+                           allowReadOnly = TRUE) %>%
+          hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+          hot_rows(fixedRowsTop = 0) 
+      })
+        
       na_entries <- select(DF1$data, -(1:12))[!complete.cases(select(DF1$data, -(1:12))), ]
       
       na_entries_err <- select(DF1$data, 1:12)[rownames(na_entries),]$Errors 
       
-      # NA Entry Rownames change
+      # NA Info
       rownames(na_entries) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(na_entries),4]
       
       output$na_entries_text <- renderUI({
         HTML(paste(paste0(icon("x"), " ", rownames(na_entries), ", ", na_entries_err, " Error(s)"), collapse="\n"))
+      })
+      
+      output$na_loci <- renderUI({
+        HTML(paste(paste0(icon("x"), " ", colnames(DF1$allelic_profile[,colSums(is.na(DF1$allelic_profile)) != 0])), collapse="\n"))
       })
       
       output$delete_box <- renderUI({
@@ -4204,29 +4317,8 @@ server <- function(input, output, session) {
                 choiceValues = c("ignore", "one"),
                 shape = "curve",
                 selected = c("ignore")
-              )
-            )
-          ),
-          fluidRow(
-            column(
-              width = 12,
-              align = "left",
-              br(), br(),
-              p(
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 18px; margin-bottom: 0px', 'Incomplete Entries:')
-                  )
-                )
-              )
-            )
-          ),
-          fluidRow(
-            column(1),
-            column(
-              width = 11,
-              align = "left",
-              uiOutput("na_entries_text")
+              ),
+              br()
             )
           )
         )
@@ -5340,15 +5432,10 @@ server <- function(input, output, session) {
   #### Generate Plot ----
   
   hamming_nj <- reactive({
-    
-    allelic_profile <- select(DF1$data, -(1:12))
-    
-    allelic_profile <- allelic_profile[which(DF1$data$Include == TRUE),]
-    
     if(input$na_handling == "one") {
-      proxy::dist(allelic_profile, method = hamming_distance_with_na)
+      proxy::dist(DF1$allelic_profile_true, method = hamming_distance_with_na)
     } else {
-      allelic_profile_noNA <- allelic_profile[, colSums(is.na(allelic_profile)) == 0]
+      allelic_profile_noNA <- DF1$allelic_profile_true[, colSums(is.na(DF1$allelic_profile_true)) == 0]
       proxy::dist(allelic_profile_noNA, method = hamming_distance)
     }
   })
@@ -5359,13 +5446,11 @@ server <- function(input, output, session) {
     
     allelic_profile <- allelic_profile[which(DF1$data$Include == TRUE),]
     
-    meta <- select(DF1$data, 1, 3:12)
-    
-    meta <- meta[which(DF1$data$Include == TRUE),]
+    meta <- DF1$meta_true[, -2]
     
     if(input$na_handling == "one") {
       
-      grouped_df <- allelic_profile %>%
+      grouped_df <- DF1$allelic_profile_true %>%
         group_by(across(everything())) %>%
         mutate(group_id = cur_group_id()) %>%
         ungroup() %>%
@@ -5445,7 +5530,7 @@ server <- function(input, output, session) {
       proxy::dist(plot_loc$unique_allelic_profile, method = hamming_distance_with_na)
       
     } else {
-      allelic_profile_noNA <- allelic_profile[, colSums(is.na(allelic_profile)) == 0]
+      allelic_profile_noNA <- DF1$allelic_profile_true[, colSums(is.na(DF1$allelic_profile_true)) == 0]
       
       grouped_df <- allelic_profile_noNA %>%
         group_by(across(everything())) %>%
@@ -5516,28 +5601,9 @@ server <- function(input, output, session) {
     
     set.seed(1)
     
-    # Load local database
-    Database <-
-      readRDS(paste0(
-        getwd(),
-        "/Database/",
-        gsub(" ", "_", DF1$scheme),
-        "/Typing.rds"
-      ))
-    
-    df <- Database[["Typing"]][which(Database[["Typing"]]$Include == TRUE),]
-    
-    # get allele profile of included entries
-    rownames(df) <- df$`Assembly Name`
-    
-    allelic_profile <- dplyr::select(df, -(1:12))
-    
-    # get metadata without include boolean variable
-    meta <- dplyr::select(df, 1, 3:12)
-    
     if (input$tree_algo == "Neighbour-Joining") {
       
-      plot_loc$meta_nj <- meta
+      plot_loc$meta_nj <- DF1$meta_true[,-2]
       
       colnames(plot_loc$meta_nj) <-
         c(
@@ -6005,33 +6071,25 @@ server <- function(input, output, session) {
     }
     
     if(elements_data$slot1_include == TRUE) {
-      meta <- select(Database$Typing, 1:12)
-      meta <- select(meta[which(meta$Include == TRUE),], -2)
-      elements_data$slot1_meta <- meta
+      elements_data$slot1_meta <- DF1$meta_true[,-2]
       elements_data$slot1_legend_sel <- input$slot1_legend_sel
       elements_data$slot1_legend <- input$slot1_legend
     }
     
     if(elements_data$slot2_include == TRUE) {
-      meta <- select(Database$Typing, 1:12)
-      meta <- select(meta[which(meta$Include == TRUE),], -2)
-      elements_data$slot2_meta <- meta
+      elements_data$slot2_meta <- DF1$meta_true[,-2]
       elements_data$slot2_legend_sel <- input$slot2_legend_sel
       elements_data$slot2_legend <- input$slot2_legend
     }
     
     if(elements_data$slot3_include == TRUE) {
-      meta <- select(Database$Typing, 1:12)
-      meta <- select(meta[which(meta$Include == TRUE),], -2)
-      elements_data$slot3_meta <- meta
+      elements_data$slot3_meta <- DF1$meta_true[,-2]
       elements_data$slot3_legend_sel <- input$slot3_legend_sel
       elements_data$slot3_legend <- input$slot3_legend
     }
     
     if(elements_data$slot4_include == TRUE) {
-      meta <- select(Database$Typing, 1:12)
-      meta <- select(meta[which(meta$Include == TRUE),], -2)
-      elements_data$slot4_meta <- meta
+      elements_data$slot4_meta <- DF1$meta_true[,-2]
       elements_data$slot4_legend_sel <- input$slot4_legend_sel
       elements_data$slot4_legend <- input$slot4_legend
     }
