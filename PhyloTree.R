@@ -320,30 +320,6 @@ country_names <- c(
 
 # Plot download JS code
 
-png_mst <- paste0(c(
-  "$(document).ready(function(){",
-  "  $('#save_plot_png').on('click', function(){",
-  "    var el = document.querySelector('canvas');",
-  "    // Clone the chart to add a background color.",
-  "    var cloneCanvas = document.createElement('canvas');",
-  "    cloneCanvas.width = el.width;",
-  "    cloneCanvas.height = el.height;",
-  "    var ctx = cloneCanvas.getContext('2d');",
-  "    ctx.fillStyle = '#FFFFFF';",
-  "    ctx.fillRect(0, 0, el.width, el.height);",
-  "    ctx.drawImage(el, 0, 0);",
-  "    // Download.",
-  "    const a = document.createElement('a');",
-  "    document.body.append(a);",
-  "    a.download = ", shQuote(paste0(Sys.Date(), "_MST")),
-  "    a.href = cloneCanvas.toDataURL('image/png');",
-  "    a.click();",
-  "    a.remove();",
-  "    cloneCanvas.remove();",
-  "  });",
-  "});"
-), collapse = "\n")
-
 jpeg_mst <- paste0(c(
   "$(document).ready(function(){",
   "  $('#save_plot_jpeg').on('click', function(){",
@@ -353,7 +329,7 @@ jpeg_mst <- paste0(c(
   "    cloneCanvas.width = el.width;",
   "    cloneCanvas.height = el.height;",
   "    var ctx = cloneCanvas.getContext('2d');",
-  "    ctx.fillStyle = '#FFFFFF';",
+  "    ctx.fillStyle = getBackgroundColor();",
   "    ctx.fillRect(0, 0, el.width, el.height);",
   "    ctx.drawImage(el, 0, 0);",
   "    // Download.",
@@ -377,7 +353,7 @@ bmp_mst <- paste0(c(
   "    cloneCanvas.width = el.width;",
   "    cloneCanvas.height = el.height;",
   "    var ctx = cloneCanvas.getContext('2d');",
-  "    ctx.fillStyle = '#FFFFFF';",
+  "    ctx.fillStyle = getBackgroundColorClear();",
   "    ctx.fillRect(0, 0, el.width, el.height);",
   "    ctx.drawImage(el, 0, 0);",
   "    // Download.",
@@ -426,6 +402,102 @@ mergeCanvas_bmp <- paste0(c(
 ))
 
 
+
+mst_bg_clear <- paste0("// Function to get the RGB color from a specific sub-element with a specific ID and class
+function getBackgroundColorClear() {
+  // Check the state of the Shiny checkbox 
+  var checkboxStatus = $('#mst_background_transparent').prop('checked');
+                 
+                 // If the checkbox is checked, return transparent RGB code
+                 if (checkboxStatus) {
+                   return \'rgba(0, 0, 0, 0)\';
+        } else {
+            // Get the sub-element by ID and class
+            var targetElement = document.querySelector(\'#mst_background_color input.form-control.pickr-color\');
+
+            // Check if the element is found
+            if (targetElement) {
+                // Get the computed style of the element
+                var computedStyle = window.getComputedStyle(targetElement);
+
+                // Get the background color property
+                var backgroundColor = computedStyle.backgroundColor;
+
+                // Parse the RGB values from the string
+                var rgbArray = backgroundColor.match(/\\d+/g);
+
+                // Convert the RGB values to a formatted string
+                var rgbString = \'rgb(\' + rgbArray.join(\', \') + \')\';
+
+                // Return the RGB string
+                return rgbString;
+            } else {
+                console.error(\'Element not found.\');
+                return null; // or any default value you want to return
+            }
+        }
+    }")
+
+mst_bg <- paste0("// Function to get the RGB color from a specific sub-element with a specific ID and class
+function getBackgroundColor() {
+  // Check the state of the Shiny checkbox 
+  var checkboxStatus = $('#mst_background_transparent').prop('checked');
+                 
+                 // If the checkbox is checked, return transparent RGB code
+                 if (checkboxStatus) {
+                   return \'rgb(255, 255, 255)\';
+        } else {
+            // Get the sub-element by ID and class
+            var targetElement = document.querySelector(\'#mst_background_color input.form-control.pickr-color\');
+
+            // Check if the element is found
+            if (targetElement) {
+                // Get the computed style of the element
+                var computedStyle = window.getComputedStyle(targetElement);
+
+                // Get the background color property
+                var backgroundColor = computedStyle.backgroundColor;
+
+                // Parse the RGB values from the string
+                var rgbArray = backgroundColor.match(/\\d+/g);
+
+                // Convert the RGB values to a formatted string
+                var rgbString = \'rgb(\' + rgbArray.join(\', \') + \')\';
+
+                // Return the RGB string
+                return rgbString;
+            } else {
+                console.error(\'Element not found.\');
+                return null; // or any default value you want to return
+            }
+        }
+    }")
+
+png_mst <- paste0(c(
+  "$(document).ready(function(){",
+  "  $('#save_plot_png').on('click', function(){",
+  "    var el = document.querySelector('canvas');",
+  "    // Clone the chart to add a background color.",
+  "    var cloneCanvas = document.createElement('canvas');",
+  "    cloneCanvas.width = el.width;",
+  "    cloneCanvas.height = el.height;",
+  "    var ctx = cloneCanvas.getContext('2d');",
+  "    ctx.fillStyle = getBackgroundColorClear();",
+  "    ctx.fillRect(0, 0, el.width, el.height);",
+  "    ctx.drawImage(el, 0, 0);",
+  "    // Download.",
+  "    const a = document.createElement('a');",
+  "    document.body.append(a);",
+  "    a.download = ", shQuote(paste0(Sys.Date(), "_MST")),
+  "    a.href = cloneCanvas.toDataURL('image/png');",
+  "    a.click();",
+  "    a.remove();",
+  "    cloneCanvas.remove();",
+  "  });",
+  "});"
+), collapse = "\n")
+
+
 sel_countries <-
   c("Austria",
     "Germany",
@@ -453,6 +525,7 @@ ui <- dashboardPage(
       tags$link(rel = "stylesheet", type = "text/css", href = "mycss.css")
     ),
     tags$style("label{color: white;}"),
+    tags$style(".white {color: white; font-size: 16px}"),
     tags$style(".main-sidebar .sidebar .sidebar-menu .treeview-menu a {color: #ffffff !important; margin-left: 25px; border-radius: 20px; margin-top: 7px; margin-bottom: 7px}"),
     tags$style(".main-sidebar .sidebar .sidebar-menu a {border: none}"),
     tags$style(".main-sidebar .sidebar .sidebar-menu .treeview-menu li.active a {color: #000000 !important; border-radius: 20px; margin-top: 7px; margin-bottom: 7px}"),
@@ -483,6 +556,7 @@ ui <- dashboardPage(
     tags$style("button#save_plot_png {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
     tags$style("button#save_plot_bmp {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
     tags$style("button#save_plot_html_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
+    tags$style("button#download_nj_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
     tags$style("button#save_plot_merged {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
     tags$style("#nj_scale {position: relative; right: -10px"),
     tags$style(".irs.irs--shiny.js-irs-0 {margin-right: -15px"),
@@ -691,6 +765,78 @@ ui <- dashboardPage(
             )
           ), 
           conditionalPanel(
+            "input.tree_algo=='Minimum-Spanning'",
+            fluidRow(
+              column(
+                width = 8,
+                selectInput(
+                  inputId = "plot_format",
+                  label = "",
+                  choices = c("html", 
+                              "jpeg", "png", "bmp")
+                )
+              ),
+              column(
+                width = 4,
+                align = "left",
+                conditionalPanel(
+                  "input.plot_format=='jpeg'",
+                  actionBttn(
+                    "save_plot_jpeg",
+                    style = "simple",
+                    label = "",
+                    size = "sm",
+                    icon = icon("download"),
+                    color = "primary"
+                  )  
+                ),
+                conditionalPanel(
+                  "input.plot_format=='png'",
+                  actionBttn(
+                    "save_plot_png",
+                    style = "simple",
+                    label = "",
+                    size = "sm",
+                    icon = icon("download"),
+                    color = "primary"
+                  )
+                ),
+                conditionalPanel(
+                  "input.plot_format=='bmp'",
+                  actionBttn(
+                    "save_plot_bmp",
+                    style = "simple",
+                    label = "",
+                    size = "sm",
+                    icon = icon("download"),
+                    color = "primary"
+                  )  
+                ),
+                conditionalPanel(
+                  "input.plot_format=='html'",
+                  downloadBttn(
+                    "save_plot_html",
+                    style = "simple",
+                    label = "",
+                    size = "sm",
+                    icon = icon("download"),
+                    color = "primary"
+                  )
+                ),
+                conditionalPanel(
+                  "input.mst_color_var==true",
+                  actionBttn(
+                    "save_plot_merged",
+                    style = "simple",
+                    label = "",
+                    size = "sm",
+                    icon = icon("download")
+                  )
+                )
+              )
+            )
+          ),
+          conditionalPanel(
             "input.tree_algo=='Neighbour-Joining'",
             column(
               width = 12,
@@ -767,67 +913,21 @@ ui <- dashboardPage(
               column(
                 width = 8,
                 selectInput(
-                  inputId = "plot_format",
+                  inputId = "filetype_nj",
                   label = "",
-                  choices = c("HTML", 
-                              "JPEG", "PNG", "BMP")
+                  choices = c("jpeg", "png", "svg")
                 )
               ),
               column(
                 width = 4,
                 align = "left",
-                conditionalPanel(
-                  "input.plot_format=='JPEG'",
-                  actionBttn(
-                    "save_plot_jpeg",
-                    style = "simple",
-                    label = "",
-                    size = "sm",
-                    icon = icon("download"),
-                    color = "primary"
-                  )  
-                ),
-                conditionalPanel(
-                  "input.plot_format=='PNG'",
-                  actionBttn(
-                    "save_plot_png",
-                    style = "simple",
-                    label = "",
-                    size = "sm",
-                    icon = icon("download"),
-                    color = "primary"
-                  )
-                ),
-                conditionalPanel(
-                  "input.plot_format=='BMP'",
-                  actionBttn(
-                    "save_plot_bmp",
-                    style = "simple",
-                    label = "",
-                    size = "sm",
-                    icon = icon("download"),
-                    color = "primary"
-                  )  
-                ),
-                conditionalPanel(
-                  "input.plot_format=='HTML'",
-                  downloadBttn(
-                    "save_plot_html",
-                    style = "simple",
-                    label = "",
-                    size = "sm",
-                    icon = icon("download")
-                  )
-                ),
-                conditionalPanel(
-                  "input.mst_color_var==true",
-                  actionBttn(
-                    "save_plot_merged",
-                    style = "simple",
-                    label = "",
-                    size = "sm",
-                    icon = icon("download")
-                  )
+                downloadBttn(
+                  "download_nj",
+                  style = "simple",
+                  label = "",
+                  size = "sm",
+                  icon = icon("download"),
+                  color = "primary"
                 )
               )
             )
@@ -1388,6 +1488,8 @@ ui <- dashboardPage(
           tags$script(HTML(png_mst)),
           tags$script(HTML(bmp_mst)),
           tags$script(HTML(mergeCanvas_bmp)),
+          tags$script(HTML(mst_bg)),
+          tags$script(HTML(mst_bg_clear)),
           column(
             width = 12,
             br(),
@@ -4274,19 +4376,27 @@ server <- function(input, output, session) {
           status = "primary",
           width = "100%",
           fluidRow(
-            column(
-              width = 12,
-              align = "left",
-              br(), br(),
-              HTML(
-                paste(
-                  tags$span(style='color: white; font-size: 14px;', 
-                            paste0("There are ", 
-                                   as.character(sum(is.na(DF1$data))), 
-                                   " unsuccessful allele allocations (NA). Decide how missing values should be treated:"))
-                )
-              ),
-              br()
+            div(
+              class = "white",
+              column(
+                width = 12,
+                align = "left",
+                br(), 
+                HTML(
+                  paste0("There are ", 
+                         strong(as.character(sum(is.na(DF1$data)))), 
+                         " unsuccessful allele allocations (NA). ",
+                         strong(sum(sapply(DF1$allelic_profile, anyNA))),
+                         " out of ",
+                         strong(ncol(DF1$allelic_profile)),
+                         " total loci in this scheme contain NA's (",
+                         strong(round((sum(sapply(DF1$allelic_profile, anyNA)) / ncol(DF1$allelic_profile) * 100), 1)),
+                         " %). ",
+                         "Decide how these missing values should be treated:")
+                  
+                ),
+                br()
+              )
             )
           ),
           fluidRow(
@@ -4299,8 +4409,9 @@ server <- function(input, output, session) {
                 "na_handling",
                 "",
                 choiceNames = c("Loci containing missing values are ignored (default)",
-                                "Missing values are allelic difference of 1"),
-                choiceValues = c("ignore", "one"),
+                                "Missing values are allelic difference of 1",
+                                "Missing values are an own category"),
+                choiceValues = c("ignore", "one", "category"),
                 shape = "curve",
                 selected = c("ignore")
               ),
@@ -5394,17 +5505,37 @@ server <- function(input, output, session) {
     }
   })
   
-  ### Save Tree Plot ----
+  ### Save MST Plot ----
+  output$save_plot_html <- downloadHandler(
+    filename = function() {
+      paste0("MST_", Sys.Date(), ".html")
+    },
+    content = function(file) {
+      mst_tree() %>% visSave(file = file, background = mst_background_color())
+    }
+  )
+  
+  ### Save NJ Plot ----
   
   # Define download handler to save the plot
   
-  
-  output$save_plot_html <- downloadHandler(
+  output$download_nj <- downloadHandler(
     filename = function() {
-      paste0(Sys.Date(), "_MST.html")
+      paste0("NJ_", Sys.Date(), ".", input$filetype_nj)
     },
     content = function(file) {
-          mst_tree() %>% visSave(file)
+      if (input$filetype_nj == "png") {
+        png(file, width = 1365, height = 600)
+        print(nj_tree())
+        dev.off()
+      } else if (input$filetype_nj == "jpeg") {
+        jpeg(file, width = 2730, height = 1200, quality = 100)
+        print(nj_tree())
+        dev.off()
+      } else if (input$filetype_nj == "svg") {
+        plot <- print(nj_tree())
+        ggsave(file=file, plot=plot, device = svg(), width = 50, height = 22, units = "cm")
+      }
     }
   )
   
@@ -5416,7 +5547,7 @@ server <- function(input, output, session) {
   hamming_nj <- reactive({
     if(input$na_handling == "one") {
       proxy::dist(DF1$allelic_profile_true, method = hamming_distance_with_na)
-    } else {
+    } else if(input$na_handling == "ignore"){
       allelic_profile_noNA <- DF1$allelic_profile_true[, colSums(is.na(DF1$allelic_profile_true)) == 0]
       proxy::dist(allelic_profile_noNA, method = hamming_distance)
     }
@@ -5505,7 +5636,7 @@ server <- function(input, output, session) {
       
       proxy::dist(plot_loc$unique_allelic_profile, method = hamming_distance_with_na)
       
-    } else {
+    } else if(input$na_handling == "ignore"){
       ########### Loci/Columns with NA are ignored #############
       
       # Remove NA columns
@@ -5711,18 +5842,21 @@ server <- function(input, output, session) {
       
       ### Merging with original data frame / allelic profile
       
-      rownames(DF1$allelic_profile_true) <- DF1$meta_true$`Assembly Name`
-      rownames(DF1$meta_true) <- DF1$meta_true$`Assembly Name`
+      allelic_profile_true <- DF1$allelic_profile_true
+      meta_true <- DF1$meta_true
+      
+      rownames(allelic_profile_true) <- DF1$meta_true$`Assembly Name`
+      rownames(meta_true) <- DF1$meta_true$`Assembly Name`
       
       omit <- unique(append(df_unique$col_name, df_unique$row_name)) %in% final_cleaned$col_name
       
       omit_id <- unique(append(df_unique$col_name, df_unique$row_name))[!omit]
       
-      remove <- !(rownames(DF1$allelic_profile_true) %in% omit_id)
+      remove <- !(rownames(allelic_profile_true) %in% omit_id)
       
-      allelic_profile_clean <- DF1$allelic_profile_true[remove, ]
+      allelic_profile_clean <- allelic_profile_true[remove, ]
       
-      meta_clean <- DF1$meta_true[remove, ]
+      meta_clean <- meta_true[remove, ]
       
       # substitute meta assembly names with group names
       
@@ -5801,7 +5935,7 @@ server <- function(input, output, session) {
     
     if (input$tree_algo == "Neighbour-Joining") {
       
-      plot_loc$meta_nj <- DF1$meta_true[,-2]
+      plot_loc$meta_nj <- select(DF1$meta_true, -2)
       
       colnames(plot_loc$meta_nj) <-
         c(
@@ -5820,7 +5954,6 @@ server <- function(input, output, session) {
       
       plot_loc$meta_nj <- mutate(plot_loc$meta_nj, taxa = index) %>%
         relocate(taxa)
-      tes_meta <<- plot_loc$meta_nj
       
       # Create phylogenetic tree
       plot_loc$nj <- ape::nj(hamming_nj())
