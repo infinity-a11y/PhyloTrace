@@ -4514,7 +4514,20 @@ server <- function(input, output, session) {
     if(!class(DF1$data) == "NULL") {
       output$db_distancematrix <- renderRHandsontable({
         rhandsontable(hamming_df(), digits = 1, height = 800, rowHeaders = NULL) %>%
-          hot_heatmap(color_scale = c("#17F556","#ED6D47")) %>%
+          hot_heatmap(renderer = paste0("function (instance, td, row, col, prop, value, cellProperties) {
+  Handsontable.renderers.TextRenderer.apply(this, arguments);
+  heatmapScale  = chroma.scale(['#17F556', '#ED6D47']);
+
+  if (instance.heatmap[col]) {
+    mn = ", DF1$matrix_min, ";
+    mx = ", DF1$matrix_max, ";
+
+    pt = (parseInt(value, 10) - mn) / (mx - mn);    
+
+    td.style.backgroundColor = heatmapScale(pt).hex();
+  }
+}
+")) %>%
           hot_rows(fixedRowsTop = 0) %>%
           hot_cols(fixedColumnsLeft = 1) %>%
           hot_col(1:(dim(DF1$ham_matrix)[1]),
@@ -4543,8 +4556,11 @@ server <- function(input, output, session) {
     
     hamming_matrix <- as.matrix(hamming_proxy)
     
+    DF1$matrix_min <- min(hamming_matrix, na.rm = TRUE)
+    DF1$matrix_max <- max(hamming_matrix, na.rm = TRUE)
+    
     # Convert the proxy object to a matrix
-    hamming_matrix[upper.tri(hamming_matrix)] <- NA
+    hamming_matrix[upper.tri(hamming_matrix, diag = TRUE)] <- NA
     
     # Rownames change
     rownames(hamming_matrix) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(hamming_matrix), 4]
