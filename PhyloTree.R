@@ -318,91 +318,268 @@ country_names <- c(
   "Zimbabwe"
 )
 
+sel_countries <-
+  c("Austria",
+    "Germany",
+    "Switzerland",
+    "United Kingdom",
+    "United States of America")
+
 # Plot download JS code
 
-jpeg_mst <- paste0(c(
-  "$(document).ready(function(){",
-  "  $('#save_plot_jpeg').on('click', function(){",
-  "    var el = document.querySelector('canvas');",
-  "    // Clone the chart to add a background color.",
-  "    var cloneCanvas = document.createElement('canvas');",
-  "    cloneCanvas.width = el.width;",
-  "    cloneCanvas.height = el.height;",
-  "    var ctx = cloneCanvas.getContext('2d');",
-  "    ctx.fillStyle = getBackgroundColor();",
-  "    ctx.fillRect(0, 0, el.width, el.height);",
-  "    ctx.drawImage(el, 0, 0);",
-  "    // Download.",
-  "    const a = document.createElement('a');",
-  "    document.body.append(a);",
-  "    a.download = ", shQuote(paste0(Sys.Date(), "_MST")),
-  "    a.href = cloneCanvas.toDataURL('image/jpeg', 1.0);",
-  "    a.click();",
-  "    a.remove();",
-  "    cloneCanvas.remove();",
-  "  });",
-  "});"
-), collapse = "\n")
+# JPEG Download
+jpeg_mst <- paste0("$(document).ready(function(){
+  $('#save_plot_jpeg').on('click', function(){
+    // Get all canvas elements on the document
+    var canvas = document.querySelector('canvas');
+    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    var titleCanvasID = document.getElementById('titletree_mst');
+    if(!(titleCanvasID.innerText.length === 0)) {
+        var titleCanvas = document.createElement('canvas');
+        var titleCanvasHeight = titleCanvasID.offsetHeight;
+        titleCanvas.width = canvas.width;
+        titleCanvas.height = titleCanvasHeight;
+        // Draw title text on titleCanvas
+        var titleCtx = titleCanvas.getContext('2d');
+        titleCtx.font = window.getComputedStyle(titleCanvasID).getPropertyValue('font');
+        titleCtx.textAlign = window.getComputedStyle(titleCanvasID).getPropertyValue('text-align');
+        titleCtx.fillStyle = window.getComputedStyle(titleCanvasID).getPropertyValue('color');
+        titleCtx.fillText(titleCanvasID.innerText, titleCanvas.width / 2, titleCanvasHeight); 
+    } else {var titleCanvasHeight = 0;}
+    var subtitleCanvasID = document.getElementById('subtitletree_mst');
+    if(!(subtitleCanvasID.innerText.length === 0)) {
+        var subtitleCanvas = document.createElement('canvas');
+        var subtitleCanvasHeight = subtitleCanvasID.offsetHeight;
+        subtitleCanvas.width = canvas.width;
+        subtitleCanvas.height = subtitleCanvasHeight;
+        // Draw subtitle text on subtitleCanvas
+        var subtitleCtx = subtitleCanvas.getContext('2d');
+        subtitleCtx.font = window.getComputedStyle(subtitleCanvasID).getPropertyValue('font');
+        subtitleCtx.textAlign = window.getComputedStyle(subtitleCanvasID).getPropertyValue('text-align');
+        subtitleCtx.fillStyle = window.getComputedStyle(subtitleCanvasID).getPropertyValue('color');
+        subtitleCtx.fillText(subtitleCanvasID.innerText, subtitleCanvas.width / 2, subtitleCanvasHeight);
+    } else {var subtitleCanvasHeight = 0;}
+    var footerCanvasID = document.getElementById('footertree_mst');
+    if(!(footerCanvasID.innerText.length === 0)) {
+        var footerCanvas = document.createElement('canvas');
+        var footerCanvasHeight = footerCanvasID.offsetHeight;
+        footerCanvas.width = canvas.width;
+        footerCanvas.height = footerCanvasHeight;
+        // Draw footer text on footerCanvas
+        var footerCtx = footerCanvas.getContext('2d');
+        footerCtx.font = window.getComputedStyle(footerCanvasID).getPropertyValue('font');
+        footerCtx.textAlign = window.getComputedStyle(footerCanvasID).getPropertyValue('text-align');
+        footerCtx.fillStyle = window.getComputedStyle(footerCanvasID).getPropertyValue('color');
+        footerCtx.fillText(footerCanvasID.innerText, footerCanvas.width / 2, footerCanvasHeight); 
+    } else {var footerCanvasHeight = 0;}
+    
+    // Get the heights of the canvas
+    var mainCanvasHeight = canvas.height;
 
-bmp_mst <- paste0(c(
-  "$(document).ready(function(){",
-  "  $('#save_plot_bmp').on('click', function(){",
-  "    var el = document.querySelector('canvas');",
-  "    // Clone the chart to add a background color.",
-  "    var cloneCanvas = document.createElement('canvas');",
-  "    cloneCanvas.width = el.width;",
-  "    cloneCanvas.height = el.height;",
-  "    var ctx = cloneCanvas.getContext('2d');",
-  "    ctx.fillStyle = getBackgroundColorClear();",
-  "    ctx.fillRect(0, 0, el.width, el.height);",
-  "    ctx.drawImage(el, 0, 0);",
-  "    // Download.",
-  "    const a = document.createElement('a');",
-  "    document.body.append(a);",
-  "    a.download = ", shQuote(paste0(Sys.Date(), "_MST.bmp")),
-  "    a.href = cloneCanvas.toDataURL('image/bmp');",
-  "    a.click();",
-  "    a.remove();",
-  "    cloneCanvas.remove();",
-  "  });",
-  "});"
-), collapse = "\n")
+    // Get the main canvas context
+    var mainCtx = canvas.getContext('2d');
+    var mainCanvasWidth = canvas.width;
+    // Create a new canvas to merge title, subtitle, main plot, and footer
+    var mergedCanvas = document.createElement('canvas');
+    mergedCanvas.width = canvas.width;
+    mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight + footerCanvasHeight;
 
+    var ctx = mergedCanvas.getContext('2d');
+    // Draw title, subtitle, main plot, and footer onto the merged canvas
+    ctx.fillStyle = getBackgroundColor();
+    ctx.fillRect(0, 0, canvas.width, mergedCanvas.height);
+    if(!(titleCanvasID.innerText.length === 0)) {
+        ctx.drawImage(titleCanvas, 0, 0);
+    }
+    if(!(subtitleCanvasID.innerText.length === 0)) {
+        ctx.drawImage(subtitleCanvas, 0, titleCanvasHeight);
+    }
+    ctx.drawImage(canvas, 0, titleCanvasHeight + subtitleCanvasHeight);
+    if(!(footerCanvasID.innerText.length === 0)) {
+        ctx.drawImage(footerCanvas, 0, titleCanvasHeight + subtitleCanvasHeight + mainCanvasHeight - footerCanvasHeight);
+    }
+ 
+    // Download the merged canvas as a JPEG image
+    const a = document.createElement('a');
+    document.body.append(a);
+    a.download = ", shQuote(paste0(Sys.Date(), "_MST.jpeg")), ";
+    a.href = mergedCanvas.toDataURL('image/jpeg', 1.0);
+    a.click();
+    a.remove();
+    // Remove the dynamically created merged canvas
+    mergedCanvas.remove();
+  });
+});")
 
-mergeCanvas_bmp <- paste0(c(
-  "$(document).ready(function(){", "\n",
-  "  $('#save_plot_merged).on('click', function(){", "\n",
-  "    var allCanvases = document.querySelectorAll('canvas');", "\n",
-  "    var mergedCanvas = document.createElement('canvas');", "\n",
-  "    var ctx = mergedCanvas.getContext('2d');", "\n",
-  "    var totalWidth = 0;", "\n",
-  "    // Calculate the total width of all canvases.", "\n",
-  "    allCanvases.forEach(function(canvas) {", "\n",
-  "      totalWidth += canvas.width;", "\n",
-  "    });", "\n",
-  "    // Set the width and height of the merged canvas.", "\n",
-  "    mergedCanvas.width = totalWidth;", "\n",
-  "    mergedCanvas.height = allCanvases[0].height;", "\n",
-  "    var offsetX = 0;", "\n",
-  "    // Draw each canvas onto the merged canvas.", "\n",
-  "    allCanvases.forEach(function(canvas) {", "\n",
-  "      ctx.drawImage(canvas, offsetX, 0);", "\n",
-  "      offsetX += canvas.width;", "\n",
-  "    });", "\n",
-  "    // Download the merged canvas as BMP.", "\n",
-  "    const a = document.createElement('a');", "\n",
-  "    document.body.append(a);", "\n",
-  "    a.download = ", shQuote(paste0(Sys.Date(), "_MST")), "\n",
-  "    a.href = mergedCanvas.toDataURL('image/jpeg', 1.0);", "\n",
-  "    a.click();", "\n",
-  "    a.remove();", "\n",
-  "    mergedCanvas.remove();", "\n",
-  "  });", "\n",
-  "});"
-))
+# BMP Download
+bmp_mst <- paste0("$(document).ready(function(){
+  $('#save_plot_bmp').on('click', function(){
+    // Get all canvas elements on the document
+    var canvas = document.querySelector('canvas');
+    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    var titleCanvasID = document.getElementById('titletree_mst');
+    if(!(titleCanvasID.innerText.length === 0)) {
+        var titleCanvas = document.createElement('canvas');
+        var titleCanvasHeight = titleCanvasID.offsetHeight;
+        titleCanvas.width = canvas.width;
+        titleCanvas.height = titleCanvasHeight;
+        // Draw title text on titleCanvas
+        var titleCtx = titleCanvas.getContext('2d');
+        titleCtx.font = window.getComputedStyle(titleCanvasID).getPropertyValue('font');
+        titleCtx.textAlign = window.getComputedStyle(titleCanvasID).getPropertyValue('text-align');
+        titleCtx.fillStyle = window.getComputedStyle(titleCanvasID).getPropertyValue('color');
+        titleCtx.fillText(titleCanvasID.innerText, titleCanvas.width / 2, titleCanvasHeight); 
+    } else {var titleCanvasHeight = 0;}
+    var subtitleCanvasID = document.getElementById('subtitletree_mst');
+    if(!(subtitleCanvasID.innerText.length === 0)) {
+        var subtitleCanvas = document.createElement('canvas');
+        var subtitleCanvasHeight = subtitleCanvasID.offsetHeight;
+        subtitleCanvas.width = canvas.width;
+        subtitleCanvas.height = subtitleCanvasHeight;
+        // Draw subtitle text on subtitleCanvas
+        var subtitleCtx = subtitleCanvas.getContext('2d');
+        subtitleCtx.font = window.getComputedStyle(subtitleCanvasID).getPropertyValue('font');
+        subtitleCtx.textAlign = window.getComputedStyle(subtitleCanvasID).getPropertyValue('text-align');
+        subtitleCtx.fillStyle = window.getComputedStyle(subtitleCanvasID).getPropertyValue('color');
+        subtitleCtx.fillText(subtitleCanvasID.innerText, subtitleCanvas.width / 2, subtitleCanvasHeight);
+    } else {var subtitleCanvasHeight = 0;}
+    var footerCanvasID = document.getElementById('footertree_mst');
+    if(!(footerCanvasID.innerText.length === 0)) {
+        var footerCanvas = document.createElement('canvas');
+        var footerCanvasHeight = footerCanvasID.offsetHeight;
+        footerCanvas.width = canvas.width;
+        footerCanvas.height = footerCanvasHeight;
+        // Draw footer text on footerCanvas
+        var footerCtx = footerCanvas.getContext('2d');
+        footerCtx.font = window.getComputedStyle(footerCanvasID).getPropertyValue('font');
+        footerCtx.textAlign = window.getComputedStyle(footerCanvasID).getPropertyValue('text-align');
+        footerCtx.fillStyle = window.getComputedStyle(footerCanvasID).getPropertyValue('color');
+        footerCtx.fillText(footerCanvasID.innerText, footerCanvas.width / 2, footerCanvasHeight); 
+    } else {var footerCanvasHeight = 0;}
+    
+    // Get the heights of the canvas
+    var mainCanvasHeight = canvas.height;
 
+    // Get the main canvas context
+    var mainCtx = canvas.getContext('2d');
+    var mainCanvasWidth = canvas.width;
+    // Create a new canvas to merge title, subtitle, main plot, and footer
+    var mergedCanvas = document.createElement('canvas');
+    mergedCanvas.width = canvas.width;
+    mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight + footerCanvasHeight;
 
+    var ctx = mergedCanvas.getContext('2d');
+    // Draw title, subtitle, main plot, and footer onto the merged canvas
+    ctx.fillStyle = getBackgroundColorClear();
+    ctx.fillRect(0, 0, canvas.width, mergedCanvas.height);
+    if(!(titleCanvasID.innerText.length === 0)) {
+        ctx.drawImage(titleCanvas, 0, 0);
+    }
+    if(!(subtitleCanvasID.innerText.length === 0)) {
+        ctx.drawImage(subtitleCanvas, 0, titleCanvasHeight);
+    }
+    ctx.drawImage(canvas, 0, titleCanvasHeight + subtitleCanvasHeight);
+    if(!(footerCanvasID.innerText.length === 0)) {
+        ctx.drawImage(footerCanvas, 0, titleCanvasHeight + subtitleCanvasHeight + mainCanvasHeight - footerCanvasHeight);
+    }
+ 
+    // Download the merged canvas as a JPEG image
+    const a = document.createElement('a');
+    document.body.append(a);
+    a.download = ", shQuote(paste0(Sys.Date(), "_MST.bmp")), ";
+    a.href = mergedCanvas.toDataURL('image/bmp');
+    a.click();
+    a.remove();
+    // Remove the dynamically created merged canvas
+    mergedCanvas.remove();
+  });
+});")
 
+# PNG Download
+png_mst <- paste0("$(document).ready(function(){
+  $('#save_plot_png').on('click', function(){
+    // Get all canvas elements on the document
+    var canvas = document.querySelector('canvas');
+    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    var titleCanvasID = document.getElementById('titletree_mst');
+    if(!(titleCanvasID.innerText.length === 0)) {
+        var titleCanvas = document.createElement('canvas');
+        var titleCanvasHeight = titleCanvasID.offsetHeight;
+        titleCanvas.width = canvas.width;
+        titleCanvas.height = titleCanvasHeight;
+        // Draw title text on titleCanvas
+        var titleCtx = titleCanvas.getContext('2d');
+        titleCtx.font = window.getComputedStyle(titleCanvasID).getPropertyValue('font');
+        titleCtx.textAlign = window.getComputedStyle(titleCanvasID).getPropertyValue('text-align');
+        titleCtx.fillStyle = window.getComputedStyle(titleCanvasID).getPropertyValue('color');
+        titleCtx.fillText(titleCanvasID.innerText, titleCanvas.width / 2, titleCanvasHeight); 
+    } else {var titleCanvasHeight = 0;}
+    var subtitleCanvasID = document.getElementById('subtitletree_mst');
+    if(!(subtitleCanvasID.innerText.length === 0)) {
+        var subtitleCanvas = document.createElement('canvas');
+        var subtitleCanvasHeight = subtitleCanvasID.offsetHeight;
+        subtitleCanvas.width = canvas.width;
+        subtitleCanvas.height = subtitleCanvasHeight;
+        // Draw subtitle text on subtitleCanvas
+        var subtitleCtx = subtitleCanvas.getContext('2d');
+        subtitleCtx.font = window.getComputedStyle(subtitleCanvasID).getPropertyValue('font');
+        subtitleCtx.textAlign = window.getComputedStyle(subtitleCanvasID).getPropertyValue('text-align');
+        subtitleCtx.fillStyle = window.getComputedStyle(subtitleCanvasID).getPropertyValue('color');
+        subtitleCtx.fillText(subtitleCanvasID.innerText, subtitleCanvas.width / 2, subtitleCanvasHeight);
+    } else {var subtitleCanvasHeight = 0;}
+    var footerCanvasID = document.getElementById('footertree_mst');
+    if(!(footerCanvasID.innerText.length === 0)) {
+        var footerCanvas = document.createElement('canvas');
+        var footerCanvasHeight = footerCanvasID.offsetHeight;
+        footerCanvas.width = canvas.width;
+        footerCanvas.height = footerCanvasHeight;
+        // Draw footer text on footerCanvas
+        var footerCtx = footerCanvas.getContext('2d');
+        footerCtx.font = window.getComputedStyle(footerCanvasID).getPropertyValue('font');
+        footerCtx.textAlign = window.getComputedStyle(footerCanvasID).getPropertyValue('text-align');
+        footerCtx.fillStyle = window.getComputedStyle(footerCanvasID).getPropertyValue('color');
+        footerCtx.fillText(footerCanvasID.innerText, footerCanvas.width / 2, footerCanvasHeight); 
+    } else {var footerCanvasHeight = 0;}
+    
+    // Get the heights of the canvas
+    var mainCanvasHeight = canvas.height;
+
+    // Get the main canvas context
+    var mainCtx = canvas.getContext('2d');
+    var mainCanvasWidth = canvas.width;
+    // Create a new canvas to merge title, subtitle, main plot, and footer
+    var mergedCanvas = document.createElement('canvas');
+    mergedCanvas.width = canvas.width;
+    mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight + footerCanvasHeight;
+
+    var ctx = mergedCanvas.getContext('2d');
+    // Draw title, subtitle, main plot, and footer onto the merged canvas
+    ctx.fillStyle = getBackgroundColorClear();
+    ctx.fillRect(0, 0, canvas.width, mergedCanvas.height);
+    if(!(titleCanvasID.innerText.length === 0)) {
+        ctx.drawImage(titleCanvas, 0, 0);
+    }
+    if(!(subtitleCanvasID.innerText.length === 0)) {
+        ctx.drawImage(subtitleCanvas, 0, titleCanvasHeight);
+    }
+    ctx.drawImage(canvas, 0, titleCanvasHeight + subtitleCanvasHeight);
+    if(!(footerCanvasID.innerText.length === 0)) {
+        ctx.drawImage(footerCanvas, 0, titleCanvasHeight + subtitleCanvasHeight + mainCanvasHeight - footerCanvasHeight);
+    }
+ 
+    // Download the merged canvas as a JPEG image
+    const a = document.createElement('a');
+    document.body.append(a);
+    a.download = ", shQuote(paste0(Sys.Date(), "_MST.png")), ";
+    a.href = mergedCanvas.toDataURL('image/png');
+    a.click();
+    a.remove();
+    // Remove the dynamically created merged canvas
+    mergedCanvas.remove();
+  });
+});")
+
+# Background transparent JS function
 mst_bg_clear <- paste0("// Function to get the RGB color from a specific sub-element with a specific ID and class
 function getBackgroundColorClear() {
   // Check the state of the Shiny checkbox 
@@ -438,6 +615,7 @@ function getBackgroundColorClear() {
         }
     }")
 
+# Background non-transparent JS function
 mst_bg <- paste0("// Function to get the RGB color from a specific sub-element with a specific ID and class
 function getBackgroundColor() {
   // Check the state of the Shiny checkbox 
@@ -472,38 +650,6 @@ function getBackgroundColor() {
             }
         }
     }")
-
-png_mst <- paste0(c(
-  "$(document).ready(function(){",
-  "  $('#save_plot_png').on('click', function(){",
-  "    var el = document.querySelector('canvas');",
-  "    // Clone the chart to add a background color.",
-  "    var cloneCanvas = document.createElement('canvas');",
-  "    cloneCanvas.width = el.width;",
-  "    cloneCanvas.height = el.height;",
-  "    var ctx = cloneCanvas.getContext('2d');",
-  "    ctx.fillStyle = getBackgroundColorClear();",
-  "    ctx.fillRect(0, 0, el.width, el.height);",
-  "    ctx.drawImage(el, 0, 0);",
-  "    // Download.",
-  "    const a = document.createElement('a');",
-  "    document.body.append(a);",
-  "    a.download = ", shQuote(paste0(Sys.Date(), "_MST")),
-  "    a.href = cloneCanvas.toDataURL('image/png');",
-  "    a.click();",
-  "    a.remove();",
-  "    cloneCanvas.remove();",
-  "  });",
-  "});"
-), collapse = "\n")
-
-
-sel_countries <-
-  c("Austria",
-    "Germany",
-    "Switzerland",
-    "United Kingdom",
-    "United States of America")
 
 # User Interface ----
 
@@ -557,7 +703,6 @@ ui <- dashboardPage(
     tags$style("button#save_plot_bmp {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
     tags$style("button#save_plot_html_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
     tags$style("button#download_nj_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
-    tags$style("button#save_plot_merged {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
     tags$style("button#download_distmatrix_bttn {height: 34px; ; background: #20E6E5; color: #000000"),
     tags$style("button#download_entry_table_bttn {height: 34px; ; background: #20E6E5; color: #000000"),
     tags$style("button#download_schemeinfo_bttn {height: 28px; background: #20E6E5; color: #000000; margin-top: 19px; margin-left: 10px"),
@@ -837,16 +982,6 @@ ui <- dashboardPage(
                     size = "sm",
                     icon = icon("download"),
                     color = "primary"
-                  )
-                ),
-                conditionalPanel(
-                  "input.mst_color_var==true",
-                  actionBttn(
-                    "save_plot_merged",
-                    style = "simple",
-                    label = "",
-                    size = "sm",
-                    icon = icon("download")
                   )
                 )
               )
@@ -1457,14 +1592,16 @@ ui <- dashboardPage(
               icon = icon("download")
             )
           ),
-          column(width = 1),
           column(
-            width = 5,
+            width = 7,
             br(),
             br(),
             br(),
             align = "center",
-            h4(p("Downloaded Loci"), style = "color:white")
+            conditionalPanel(
+              "input.download_cgMLST >= 1",
+              h4(p("Downloaded Loci"), style = "color:white")
+            )
           )
         ),
         fluidRow(
@@ -1475,10 +1612,9 @@ ui <- dashboardPage(
             br(),
             tableOutput("cgmlst_scheme")
           ),
-          column(width = 1),
           column(
-            width = 5,
-            align = "right",
+            width = 7,
+            align = "center",
             br(),
             br(),
             conditionalPanel(
@@ -1545,7 +1681,6 @@ ui <- dashboardPage(
           tags$script(HTML(jpeg_mst)),
           tags$script(HTML(png_mst)),
           tags$script(HTML(bmp_mst)),
-          tags$script(HTML(mergeCanvas_bmp)),
           tags$script(HTML(mst_bg)),
           tags$script(HTML(mst_bg_clear)),
           column(
@@ -1758,7 +1893,7 @@ ui <- dashboardPage(
                                placement = "top-start",
                                theme = "translucent",
                                numericInput(
-                                 "mst_title_size",
+                                 "mst_footer_size",
                                  label = h5("Size", style = "color:white; margin-bottom: 0px;"),
                                  value = 15,
                                  min = 10,
