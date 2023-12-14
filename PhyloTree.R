@@ -558,6 +558,10 @@ ui <- dashboardPage(
     tags$style("button#save_plot_html_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
     tags$style("button#download_nj_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
     tags$style("button#save_plot_merged {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
+    tags$style("button#download_distmatrix_bttn {height: 34px; ; background: #20E6E5; color: #000000"),
+    tags$style("button#download_entry_table_bttn {height: 34px; ; background: #20E6E5; color: #000000"),
+    tags$style("button#download_schemeinfo_bttn {height: 28px; background: #20E6E5; color: #000000; margin-top: 19px; margin-left: 10px"),
+    tags$style("button#download_loci_info_bttn {height: 28px; background: #20E6E5; color: #000000; margin-top: 19px; margin-left: 10px"),
     tags$style("#nj_scale {position: relative; right: -10px"),
     tags$style(".irs.irs--shiny.js-irs-0 {margin-right: -15px"),
     tags$style(".irs.irs--shiny.js-irs-1 {margin-right: -15px"),
@@ -591,27 +595,39 @@ ui <- dashboardPage(
           width = 12,
           align = "left",
           br(), br(),
-          selectInput(
-            "distmatrix_label",
-            label = "Variable",
-            choices = c("Index", "Assembly Name", "Assembly ID"),
-            selected = c("Assembly Name"),
-            width = "90%"
+          column(
+            width = 12,
+            align = "center",
+            selectInput(
+              "distmatrix_label",
+              label = "",
+              choices = c("Index", "Assembly Name", "Assembly ID"),
+              selected = c("Assembly Name"),
+              width = "100%"
+            ),
+            br()
           ),
           checkboxInput(
             "distmatrix_triangle",
             "Show upper triangle",
             value = FALSE
           ),
+          checkboxInput(
+            "distmatrix_diag",
+            "Show diagonal",
+            value = FALSE
+          ),
+          br(),
           fluidRow(
-            tags$style("button#download_distmatrix_bttn {height: 34px; ; background: #20E6E5; color: #000000"),
             column(
-              width = 4,
-              actionButton(
-                "distmatrix_change",
-                label = "Apply"
+              width = 6,
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 14px; position: relative; bottom: -14px; right: -15px', 
+                            'Download CSV')
+                )
               )
-            ), 
+            ),
             column(
               width = 4,
               downloadBttn(
@@ -1214,11 +1230,13 @@ ui <- dashboardPage(
       
       tabItem(
         tabName = "db_browse_entries",
-        fluidRow(column(
-          width = 3,
-          align = "center",
-          h2(p("Browse Local Database"), style = "color:white")
-        )),
+        fluidRow(
+          column(
+            width = 3,
+            align = "center",
+            h2(p("Browse Local Database"), style = "color:white")
+          )
+        ),
         hr(), br(),
         br(),
         br(),
@@ -1237,7 +1255,8 @@ ui <- dashboardPage(
             width = 3,
             align = "left",
             uiOutput("delete_box"),
-            uiOutput("compare_allele_box")
+            uiOutput("compare_allele_box"),
+            uiOutput("download_entries")
           )
         ),
         br()
@@ -1251,7 +1270,7 @@ ui <- dashboardPage(
           column(
             width = 3,
             align = "center",
-            h2(p("Browse Local Database"), style = "color:white")
+            h2(p("Scheme Info"), style = "color:white")
           )
         ),
         hr(), br(), br(), br(),
@@ -1261,7 +1280,25 @@ ui <- dashboardPage(
           column(
             width = 5,
             align = "center",
-            uiOutput("scheme_header"),
+            fluidRow(
+              column(
+                width = 7,
+                align = "right",
+                uiOutput("scheme_header")
+              ),
+              column(
+                width = 2,
+                align = "left",
+                downloadBttn(
+                  "download_schemeinfo",
+                  style = "simple",
+                  label = "",
+                  size = "sm",
+                  icon = icon("download"),
+                  color = "primary"
+                )
+              )
+            ),
             br(),
             br(),
             uiOutput("scheme_info")
@@ -1269,7 +1306,25 @@ ui <- dashboardPage(
           column(
             width = 7,
             align = "center",
-            uiOutput("loci_header"),
+            fluidRow(
+              column(
+                width = 6,
+                align = "right",
+                uiOutput("loci_header")
+              ),
+              column(
+                width = 2,
+                align = "left",
+                downloadBttn(
+                  "download_loci_info",
+                  style = "simple",
+                  label = "",
+                  size = "sm",
+                  icon = icon("download"),
+                  color = "primary"
+                )
+              )
+            ),
             br(),
             div(class = "test",
                 dataTableOutput("db_loci"))
@@ -1285,7 +1340,7 @@ ui <- dashboardPage(
           column(
             width = 3,
             align = "center",
-            h2(p("Browse Local Database"), style = "color:white")
+            h2(p("Distanzmatrix"), style = "color:white")
           )
         ),
         hr(), br(), br(), br(),
@@ -1334,11 +1389,15 @@ ui <- dashboardPage(
       
       tabItem(
         tabName = "init",
-        fluidRow(column(
-          width = 3,
-          align = "center",
-          h2(p("Select cgMLST Scheme"), style = "color:white")
-        )),
+        fluidRow(
+          tags$style("button#download_cgMLST {font-size: 14px; height: 34px; background: #20E6E5; color: #000000;}"),
+          tags$style("button#download_cgMLST i.fas.fa-download {margin-right: 5px !important}"),
+          column(
+            width = 3,
+            align = "center",
+            h2(p("Select cgMLST Scheme"), style = "color:white")
+          )
+        ),
         hr(),
         fluidRow(
           column(
@@ -1389,7 +1448,6 @@ ui <- dashboardPage(
           column(
             width = 2,
             align = "center",
-            tags$style("button#download_cgMLST i.fas.fa-download {margin-right: 5px !important}"),
             br(),
             br(),
             br(),
@@ -4370,6 +4428,55 @@ server <- function(input, output, session) {
         )
       })
       
+      output$download_entries <- renderUI({
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          fluidRow(
+            column(
+              width = 12,
+              align = "center",
+              h3(p("Download Table"), style = "color:white")
+            )
+          ),
+          hr(),
+          fluidRow(
+            column(2),
+            column(
+              width = 10,
+              align = "left",
+              br(),
+              checkboxInput(
+                "download_table_include",
+                label = h5("Only included entries (Include = TRUE)", style = "color:white; margin-top: 4px")
+              ),
+              checkboxInput(
+                "download_table_loci",
+                label = h5("Include displayed loci", style = "color:white; margin-top: 4px"),
+                value = FALSE
+              ),
+              br(),
+            )
+          ),
+          fluidRow(
+            column(
+              width = 12,
+              align = "center",
+              downloadBttn(
+                "download_entry_table",
+                style = "simple",
+                label = "",
+                size = "sm",
+                icon = icon("download"),
+                color = "primary"
+              )
+            )
+          ),
+          br()
+        )
+      })
+      
       output$missing_values <- renderUI({
         box(
           solidHeader = TRUE,
@@ -4468,6 +4575,7 @@ server <- function(input, output, session) {
       output$delete_select <- NULL
       output$del_bttn <- NULL
       output$compare_allele_box <- NULL
+      output$download_entries <- NULL
       output$missing_values <- NULL
       output$delete_box <- NULL
       
@@ -4512,6 +4620,63 @@ server <- function(input, output, session) {
   })
   
   ### Other Database Events ----
+  
+  #### Save scheme info table as CSVdownload_loci_info ----
+  
+  output$download_schemeinfo <- downloadHandler(
+    filename = function() {
+      paste0(gsub(" ", "_", DF1$scheme), "_scheme.csv")
+    },
+    content = function(file) {
+      pub_index <- which(DF1$schemeinfo[,1] == "Publications")
+      
+      write.table(
+        DF1$schemeinfo[1:(pub_index-1),],
+        file, 
+        sep = ";",
+        row.names = FALSE, 
+        quote = FALSE
+        ) 
+    }
+  )
+  
+  #### Save Loci info table as CSV ----
+  
+  output$download_loci_info <- downloadHandler(
+    filename = function() {
+      paste0(gsub(" ", "_", DF1$scheme), "_loci.csv")
+    },
+    content = function(file) {
+      write.table(
+        DF1$loci_info,
+        file, 
+        sep = ";",
+        row.names = FALSE, 
+        quote = FALSE
+      ) 
+    }
+  )
+  
+  #### Save entry table as CSV ----
+  
+  output$download_entry_table <- downloadHandler(
+    filename = function() {
+      paste0(gsub(" ", "_", DF1$scheme), "_entries.csv")
+    },
+    content = function(file) {
+      download_matrix <- hot_to_r(input$db_entries)
+      
+      if (input$download_table_include == TRUE) {
+        download_matrix <- download_matrix[which(download_matrix$Include == TRUE),]
+      }
+      
+      if (input$download_table_loci == FALSE) {
+        download_matrix <- select(download_matrix, 1:12)
+      } 
+      
+      write.csv(download_matrix, file, row.names=FALSE, quote=FALSE) 
+    }
+  )
   
   # Save Edits Button
   
@@ -4658,23 +4823,25 @@ server <- function(input, output, session) {
   hamming_df <- reactive({
     # Create a custom proxy object for Hamming distance
     if(input$na_handling == "one") {
-    hamming_proxy <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance_with_na)
+      DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance_with_na)
     } else if(input$na_handling == "ignore"){
       allelic_profile_noNA <- DF1$allelic_profile_true[, colSums(is.na(DF1$allelic_profile_true)) == 0]
       
-      hamming_proxy <- proxy::dist(allelic_profile_noNA, method = hamming_distance)
+      DF1$hamming_proxy <- proxy::dist(allelic_profile_noNA, method = hamming_distance)
     }
     
-    hamming_matrix <- as.matrix(hamming_proxy)
+    hamming_matrix <- as.matrix(DF1$hamming_proxy)
     
     DF1$matrix_min <- min(hamming_matrix, na.rm = TRUE)
     DF1$matrix_max <- max(hamming_matrix, na.rm = TRUE)
     
-    # Convert the proxy object to a matrix
-    hamming_matrix[upper.tri(hamming_matrix, diag = TRUE)] <- NA
+    if(input$distmatrix_triangle == FALSE) {
+      hamming_matrix[upper.tri(hamming_matrix, diag = !input$distmatrix_diag)] <- NA
+    } 
     
     # Rownames change
-    rownames(hamming_matrix) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(hamming_matrix), 4]
+    rownames(hamming_matrix) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(hamming_matrix), 
+                                                       input$distmatrix_label]
     colnames(hamming_matrix) <- rownames(hamming_matrix)
     
     mode(hamming_matrix) <- "integer"
@@ -4688,24 +4855,19 @@ server <- function(input, output, session) {
   
   observeEvent(input$distmatrix_change, {
     
-    allelic_profile <- select(DF1$data, -(1:12))
-    
-    allelic_profile <- allelic_profile[which(DF1$data$Include == TRUE),]
-    
-    allelic_profile_noNA <- allelic_profile[, colSums(is.na(allelic_profile)) == 0]
-    
-    # Create a custom proxy object for Hamming distance
-    hamming_proxy <- proxy::dist(allelic_profile_noNA, method = hamming_distance)
-    
-    hamming_matrix <- as.matrix(hamming_proxy)
+    hamming_matrix <- as.matrix(DF1$hamming_proxy)
     
     if(input$distmatrix_triangle == FALSE) {
-      # Convert the proxy object to a matrix
-      hamming_matrix[upper.tri(hamming_matrix)] <- NA
-    }
+      if(input$distmatrix_diag == FALSE) {
+        hamming_matrix[upper.tri(hamming_matrix, diag = TRUE)] <- NA
+      } else {
+        hamming_matrix[upper.tri(hamming_matrix, diag = FALSE)] <- NA
+      }
+    } 
     
     # Rownames change
-    rownames(hamming_matrix) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(hamming_matrix),input$distmatrix_label]
+    rownames(hamming_matrix) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(hamming_matrix), 
+                                                       input$distmatrix_label]
     colnames(hamming_matrix) <- rownames(hamming_matrix)
    
     mode(hamming_matrix) <- "integer"
@@ -5416,6 +5578,7 @@ server <- function(input, output, session) {
           )
         } else {
           geom_tiplab(
+            mapping_tiplab(),
             color = input$nj_tiplab_color,
             geom = "text",
             size = input$tiplab_size,
