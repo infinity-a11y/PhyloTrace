@@ -651,9 +651,161 @@ function getBackgroundColor() {
         }
     }")
 
+# Restrict special characters using JA
+textInput_assembly_id <- paste0('
+    // Function to apply JavaScript code
+    function applyJavaScript_assembly_id() {
+      $("#assembly_id").on("input", function() {
+        var value = $(this).val();
+        $(this).val(value.replace(/[^a-zA-Z0-9_\\.-]/g, ""));
+      });
+    }
+
+    // Check if the textInput element is available
+    function checkElement_assembly_id() {
+      if ($("#assembly_id").length) {
+        applyJavaScript_assembly_id();
+        setTimeout(checkElement_assembly_id, 100);
+      } else {
+        setTimeout(checkElement_assembly_id, 100); // Check again in 100 milliseconds
+      }
+    }
+
+    // Initial check on document ready
+    $(document).ready(function() {
+      checkElement_assembly_id();
+    });
+  ')
+
+textInput_assembly_name <- paste0('
+    // Function to apply JavaScript code
+    function applyJavaScript_assembly_name() {
+      $("#assembly_name").on("input", function() {
+        var value = $(this).val();
+        $(this).val(value.replace(/[^a-zA-Z0-9_\\.-]/g, ""));
+      });
+    }
+
+    // Check if the textInput element is available
+    function checkElement_assembly_name() {
+      if ($("#assembly_name").length) {
+        applyJavaScript_assembly_name();
+        setTimeout(checkElement_assembly_name, 100);
+      } else {
+        setTimeout(checkElement_assembly_name, 100); // Check again in 100 milliseconds
+      }
+    }
+
+    // Initial check on document ready
+    $(document).ready(function() {
+      checkElement_assembly_name();
+    });
+  ')
+
+textInput_append_host <- paste0('
+    // Function to apply JavaScript code
+    function applyJavaScript_append_host() {
+      $("#append_host").on("input", function() {
+        var value = $(this).val();
+        $(this).val(value.replace(/[^a-zA-Z0-9_\\.-]/g, ""));
+      });
+    }
+
+    // Check if the textInput element is available
+    function checkElement_append_host() {
+      if ($("#append_host").length) {
+        applyJavaScript_append_host();
+        setTimeout(checkElement_append_host, 100);
+      } else {
+        setTimeout(checkElement_append_host, 100); // Check again in 100 milliseconds
+      }
+    }
+
+    // Initial check on document ready
+    $(document).ready(function() {
+      checkElement_append_host();
+    });
+  ')
+
+textInput_append_city <- paste0('
+    // Function to apply JavaScript code
+    function applyJavaScript_append_city() {
+      $("#append_city").on("input", function() {
+        var value = $(this).val();
+        $(this).val(value.replace(/[^a-zA-Z0-9_\\.-]/g, ""));
+      });
+    }
+
+    // Check if the textInput element is available
+    function checkElement_append_city() {
+      if ($("#append_city").length) {
+        applyJavaScript_append_city();
+        setTimeout(checkElement_append_city, 100);
+      } else {
+        setTimeout(checkElement_append_city, 100); // Check again in 100 milliseconds
+      }
+    }
+
+    // Initial check on document ready
+    $(document).ready(function() {
+      checkElement_append_city();
+    });
+  ')
+
+textInput_append_host_multi <- paste0('
+    // Function to apply JavaScript code
+    function applyJavaScript_append_host_multi() {
+      $("#append_host_multi").on("input", function() {
+        var value = $(this).val();
+        $(this).val(value.replace(/[^a-zA-Z0-9_\\.-]/g, ""));
+      });
+    }
+
+    // Check if the textInput element is available
+    function checkElement_append_host_multi() {
+      if ($("#append_host_multi").length) {
+        applyJavaScript_append_host_multi();
+        setTimeout(checkElement_append_host_multi, 100);
+      } else {
+        setTimeout(checkElement_append_host_multi, 100); // Check again in 100 milliseconds
+      }
+    }
+
+    // Initial check on document ready
+    $(document).ready(function() {
+      checkElement_append_host_multi();
+    });
+  ')
+
+textInput_append_city_multi <- paste0('
+    // Function to apply JavaScript code
+    function applyJavaScript_append_city_multi() {
+      $("#append_city_multi").on("input", function() {
+        var value = $(this).val();
+        $(this).val(value.replace(/[^a-zA-Z0-9_\\.-]/g, ""));
+      });
+    }
+
+    // Check if the textInput element is available
+    function checkElement_append_city_multi() {
+      if ($("#append_city_multi").length) {
+        applyJavaScript_append_city_multi();
+        setTimeout(checkElement_append_city_multi, 100);
+      } else {
+        setTimeout(checkElement_append_city_multi, 100); // Check again in 100 milliseconds
+      }
+    }
+
+    // Initial check on document ready
+    $(document).ready(function() {
+      checkElement_append_city_multi();
+    });
+  ')
+
 # User Interface ----
 
 ui <- dashboardPage(
+  
   # Title
   dashboardHeader(title = span(
     div(
@@ -707,6 +859,7 @@ ui <- dashboardPage(
     tags$style("button#download_entry_table_bttn {height: 34px; ; background: #20E6E5; color: #000000"),
     tags$style("button#download_schemeinfo_bttn {height: 28px; background: #20E6E5; color: #000000; margin-top: 19px; margin-left: 10px"),
     tags$style("button#download_loci_info_bttn {height: 28px; background: #20E6E5; color: #000000; margin-top: 19px; margin-left: 10px"),
+    tags$style("button#download_na_matrix_bttn {height: 28px; background: #20E6E5; color: #000000; margin-top: 19px; margin-left: 10px"),
     tags$style("#nj_scale {position: relative; right: -10px"),
     tags$style(".irs.irs--shiny.js-irs-0 {margin-right: -15px"),
     tags$style(".irs.irs--shiny.js-irs-1 {margin-right: -15px"),
@@ -777,6 +930,35 @@ ui <- dashboardPage(
               width = 4,
               downloadBttn(
                 "download_distmatrix",
+                style = "simple",
+                label = "",
+                size = "sm",
+                icon = icon("download")
+              )
+            )
+          )
+        )
+      ),
+      conditionalPanel(
+        "input.tabs==='db_missing_values'",
+        column(
+          width = 12,
+          align = "center",
+          br(), br(),
+          fluidRow(
+            column(
+              width = 6,
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 14px; position: relative; bottom: -23px; right: -15px', 
+                            'Download CSV')
+                )
+              )
+            ),
+            column(
+              width = 4,
+              downloadBttn(
+                "download_na_matrix",
                 style = "simple",
                 label = "",
                 size = "sm",
@@ -1705,7 +1887,12 @@ ui <- dashboardPage(
           tags$script(HTML(bmp_mst)),
           tags$script(HTML(mst_bg)),
           tags$script(HTML(mst_bg_clear)),
-          
+          tags$script(HTML(textInput_assembly_id)),
+          tags$script(HTML(textInput_assembly_name)),          
+          tags$script(HTML(textInput_append_host)),
+          tags$script(HTML(textInput_append_city)),
+          tags$script(HTML(textInput_append_host_multi)),          
+          tags$script(HTML(textInput_append_city_multi)),
           column(
             width = 12,
             align = "center",
@@ -4896,7 +5083,19 @@ server <- function(input, output, session) {
   
   ### Other Database Events ----
   
-  #### Save scheme info table as CSVdownload_loci_info ----
+  #### Download Missing Value Matrix as CSV ----
+  
+  output$download_na_matrix <- downloadHandler(
+    filename = function() {
+      paste0(Sys.Date(), "_", gsub(" ", "_", DF1$scheme), "_Missing_Values.csv")
+    },
+    content = function(file) {
+      download_matrix <- hot_to_r(input$table_missing_values)
+      write.csv(download_matrix, file, sep = ",", row.names=FALSE, quote=FALSE) 
+    }
+  )
+  
+  #### Save scheme info table as CSV ----
   
   output$download_schemeinfo <- downloadHandler(
     filename = function() {
@@ -4904,7 +5103,6 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       pub_index <- which(DF1$schemeinfo[,1] == "Publications")
-      
       write.table(
         DF1$schemeinfo[1:(pub_index-1),],
         file, 
@@ -4919,7 +5117,7 @@ server <- function(input, output, session) {
   
   output$download_loci_info <- downloadHandler(
     filename = function() {
-      paste0(gsub(" ", "_", DF1$scheme), "_loci.csv")
+      paste0(gsub(" ", "_", DF1$scheme), "_Loci.csv")
     },
     content = function(file) {
       write.table(
@@ -4936,7 +5134,7 @@ server <- function(input, output, session) {
   
   output$download_entry_table <- downloadHandler(
     filename = function() {
-      paste0(gsub(" ", "_", DF1$scheme), "_entries.csv")
+      paste0(Sys.Date(), "_", gsub(" ", "_", DF1$scheme), "_Entries.csv")
     },
     content = function(file) {
       download_matrix <- hot_to_r(input$db_entries)
@@ -5172,7 +5370,7 @@ server <- function(input, output, session) {
   
   output$download_distmatrix <- downloadHandler(
     filename = function() {
-      paste0("distance_matrix.csv")
+      paste0(Sys.Date(), "_", gsub(" ", "_", DF1$scheme), "_Distance_Matrix.csv")
     },
     content = function(file) {
       download_matrix <- hot_to_r(input$db_distancematrix)
