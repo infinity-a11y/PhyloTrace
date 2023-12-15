@@ -929,6 +929,23 @@ ui <- dashboardPage(
             "input.tree_algo=='Minimum-Spanning'",
             fluidRow(
               column(
+                width = 12,
+                radioGroupButtons(
+                  "mst_ratio",
+                  label = h5("Aspect ratio", style = "color:white;"),
+                  choiceNames = c("16:10", "16:9", "4:3"),
+                  choiceValues = c((16/10), (16/9), (4/3))
+                ),
+                sliderTextInput(
+                  "mst_scale",
+                  label = h5("Size", style = "color:white;"),
+                  choices = 400:1200,
+                  selected = 800
+                )
+              )
+            ),
+            fluidRow(
+              column(
                 width = 8,
                 selectInput(
                   inputId = "plot_format",
@@ -1683,12 +1700,14 @@ ui <- dashboardPage(
           tags$script(HTML(bmp_mst)),
           tags$script(HTML(mst_bg)),
           tags$script(HTML(mst_bg_clear)),
+          
           column(
             width = 12,
+            align = "center",
             br(),
             conditionalPanel(
               "input.tree_algo=='Minimum-Spanning'",
-              visNetworkOutput("tree_mst", width = "100%", height = "700px")  
+               uiOutput("mst_field")
             ),
             conditionalPanel(
               "input.tree_algo=='Neighbour-Joining'",
@@ -1703,7 +1722,7 @@ ui <- dashboardPage(
         conditionalPanel(
           "input.tree_algo=='Minimum-Spanning'",
           fluidRow(
-            tags$style("button#mst_node_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px; margin-top: 20px}"),
+            tags$style("button#mst_node_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px; margin-top: 3px}"),
             tags$style("button#mst_edge_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px}"),
             tags$style("button#mst_title_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
             tags$style("button#mst_edgelabel_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
@@ -1712,10 +1731,13 @@ ui <- dashboardPage(
             tags$style("button#mst_footer_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
             tags$style("button#mst_label_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
             tags$style("input.form-control.pickr-color {text-align: center; font-size: 11px;}"),
-            tags$style(".checkbox_bg .checkbox {margin-top: 25px !important;}"),
+            tags$style(".checkbox_bg .checkbox {margin-top: 25px !important; }"),
+            tags$style("#mst_background_transparent {margin-bottom: -6px !important;}"),
             tags$style(".label_sel {margin-bottom: -16px;}"),
             tags$style(".slider {margin-bottom: -6px;}"),
             tags$style(".slider_edge {margin-top: -10px;}"),
+            tags$style("#mst_color_node {margin-top: -17px}"),
+            tags$style("#mst_shadow {position: relative; bottom: -2px}"),
             column(
               width = 4,
               align = "center",
@@ -1747,7 +1769,7 @@ ui <- dashboardPage(
                               width = 7,
                               colorPickr(
                                 inputId = "mst_title_color",
-                                selected = "#ffffff",
+                                selected = "#000000",
                                 label = "",
                                 update = "changestop",
                                 interaction = list(clear = FALSE,
@@ -1807,7 +1829,7 @@ ui <- dashboardPage(
                               width = 7,
                               colorPickr(
                                 inputId = "mst_subtitle_color",
-                                selected = "#ffffff",
+                                selected = "#000000",
                                 label = "",
                                 update = "changestop",
                                 interaction = list(clear = FALSE,
@@ -1870,7 +1892,7 @@ ui <- dashboardPage(
                              width = 7,
                              colorPickr(
                                inputId = "mst_footer_color",
-                               selected = "#ffffff",
+                               selected = "#000000",
                                label = "",
                                update = "changestop",
                                interaction = list(clear = FALSE,
@@ -1927,7 +1949,7 @@ ui <- dashboardPage(
                                checkboxInput(
                                  "mst_background_transparent",
                                  label = "Transparent",
-                                 value = TRUE
+                                 value = FALSE
                                )
                              )
                            )
@@ -2000,7 +2022,7 @@ ui <- dashboardPage(
                           colorPickr(
                             inputId = "node_font_color",
                             width = "100%",
-                            selected = "#ffffff",
+                            selected = "#000000",
                             label = "",
                             update = "changestop",
                             interaction = list(clear = FALSE,
@@ -2024,10 +2046,10 @@ ui <- dashboardPage(
                             numericInput(
                               "node_label_fontsize",
                               label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                              value = 1,
-                              min = 0.1,
-                              max = 5,
-                              step = 0.1
+                              value = 14,
+                              min = 8,
+                              max = 30,
+                              step = 1
                             )
                           )
                         )
@@ -2052,7 +2074,7 @@ ui <- dashboardPage(
                                 class = "checkbox_bg",
                                 checkboxInput(
                                   "mst_color_var",
-                                  label = "Add variable",
+                                  h5(p("Add variable"), style = "color:white; position: relative; bottom: 6px;"),
                                   value = FALSE
                                 )
                               )
@@ -2068,7 +2090,7 @@ ui <- dashboardPage(
                                   colorPickr(
                                     inputId = "mst_color_node",
                                     width = "100%",
-                                    selected = "#84D9A0",
+                                    selected = "#B2FACA",
                                     label = "",
                                     update = "changestop",
                                     interaction = list(clear = FALSE,
@@ -2132,7 +2154,7 @@ ui <- dashboardPage(
                 hr(),
                 fluidRow(
                   column(
-                    width = 12,
+                    width = 6,
                     fluidRow(
                       column(
                         width = 12,
@@ -2169,7 +2191,7 @@ ui <- dashboardPage(
                           sliderTextInput(
                             "mst_node_scale",
                             label = NULL,
-                            choices = 1:100,
+                            choices = 1:80,
                             selected = c(20, 40),
                             hide_min_max = TRUE
                           )
@@ -2190,6 +2212,57 @@ ui <- dashboardPage(
                       ),
                       br(), br()
                     )
+                  ),
+                  column(
+                    width = 6,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p("Other Elements"), style = "color:white; position: relative; right: -15px"),
+                        column(
+                          width = 12,
+                          align = "center",
+                          fluidRow(
+                            column(
+                              width = 12,
+                              align = "left",
+                              div(
+                                class = "checkbox_bg",
+                                checkboxInput(
+                                  "mst_shadow",
+                                  "Show shadow",
+                                  value = FALSE
+                                )
+                              ),
+                              fluidRow(
+                                column(
+                                  width = 3,
+                                  align = "left",
+                                  HTML(
+                                    paste(
+                                      tags$span(style='color: white; font-size: 14px; position: relative; bottom: -28px; margin-left: 0px ', 'Shape')
+                                    )
+                                  )
+                                ),
+                                column(
+                                  width = 9,
+                                  align = "center",
+                                  selectInput(
+                                    "mst_node_shape",
+                                    "",
+                                    choices = list(`Label inside` = c("Circle" = "circle", "Box" = "box", "Text" = "text"),
+                                                   `Label outside` = c("Diamond" = "diamond", "Hexagon" = "hexagon","Dot" = "dot", "Square" = "square")),
+                                    selected = c("Dot" = "dot"),
+                                    width = "70%"
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        )
+                      )
+                    ),
                   )
                 )
               )
@@ -2239,7 +2312,7 @@ ui <- dashboardPage(
                           colorPickr(
                             inputId = "mst_edge_font_color",
                             width = "100%",
-                            selected = "#ffffff",
+                            selected = "#000000",
                             label = "",
                             update = "changestop",
                             interaction = list(clear = FALSE,
@@ -2294,7 +2367,7 @@ ui <- dashboardPage(
                                 colorPickr(
                                   inputId = "mst_color_edge",
                                   width = "100%",
-                                  selected = "#ffffff",
+                                  selected = "#000000",
                                   label = "",
                                   update = "changestop",
                                   interaction = list(clear = FALSE,
@@ -2355,7 +2428,7 @@ ui <- dashboardPage(
                           inputId = "mst_edge_length",
                           label = NULL,
                           choices = 1:40,
-                          selected = c(10),
+                          selected = c(15),
                           hide_min_max = TRUE
                         ) 
                       ),  
@@ -3899,6 +3972,10 @@ ui <- dashboardPage(
 
 server <- function(input, output, session) {
   
+  # Disable MST variable mappings
+  shinyjs::disable('mst_edge_label') 
+  shinyjs::disable('mst_color_var') 
+  
   ## Functions ----
   # Function to compute Hamming distance between two vectors
   hamming_distance <- function(x, y) {
@@ -5372,6 +5449,10 @@ server <- function(input, output, session) {
   
   plot_loc <- reactiveValues(cluster = NULL, metadata = list())
   
+  output$mst_field <- renderUI({
+    visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px")) 
+  })
+  
   
   ### Plot Reactives ----
   
@@ -5382,8 +5463,6 @@ server <- function(input, output, session) {
     data$nodes <- mutate(data$nodes, 
                          label = label_mst(),
                          value = mst_node_scaling(),
-                         font.vadjust = plot_loc$unique_meta$valign,
-                         font.size = plot_loc$unique_meta$font_size * node_label_fontsize(),
                          opacity = node_opacity())
     data$edges <- mutate(data$edges, 
                          length = (weight*mst_edge_length()), 
@@ -5396,17 +5475,36 @@ server <- function(input, output, session) {
                submain = mst_subtitle(),
                footer = mst_footer()) %>%
       visNodes(size = mst_node_size(), 
+               shape = mst_node_shape(),
+               shadow = input$mst_shadow,
                color = mst_color_node(),
                scaling = list(min = mst_node_size_min(), 
                               max = mst_node_size_max()),
-               font = list(color = node_font_color())) %>%
+               font = list(color = node_font_color(),
+                           size = input$node_label_fontsize)) %>%
       visEdges(color = mst_color_edge(), 
                font = list(color = mst_edge_font_color(),
-                           size = mst_edge_font_size())) %>%
+                           size = mst_edge_font_size(),
+                           strokeWidth = 0)) %>%
       visOptions(collapse = TRUE) %>%
       visInteraction(hover = TRUE) %>%
       visLayout(randomSeed = 1) %>%
       visLegend()
+  })
+  
+  # Set MST node shape
+  mst_node_shape <- reactive({
+    if(input$mst_node_shape %in% c("circle", "database", "box", "text")) {
+      shinyjs::disable('scale_nodes') 
+      shinyjs::disable('mst_node_size') 
+      shinyjs::disable('mst_node_scale')
+      input$mst_node_shape
+    } else {
+      shinyjs::enable('scale_nodes') 
+      shinyjs::enable('mst_node_size') 
+      shinyjs::enable('mst_node_scale')
+      input$mst_node_shape
+      }
   })
   
   # Set MST label
@@ -5424,10 +5522,6 @@ server <- function(input, output, session) {
     input$node_font_color
   })
   
-  # Node Label Size
-  node_label_fontsize <- reactive(
-    input$node_label_fontsize
-  )
   
   # Node Size Scaling
   mst_node_scaling <- reactive({
@@ -5862,28 +5956,16 @@ server <- function(input, output, session) {
         relocate(group_id) %>%
         as.data.frame()
       
-      group_df <<- grouped_df
-      
       rownames(grouped_df) <- meta$`Assembly Name`
        
-      group_df_names <<- grouped_df
-      
       plot_loc$unique_allelic_profile <- grouped_df[!duplicated(grouped_df$group_id), ]
-      
-      unique_allelic_profile <<- plot_loc$unique_allelic_profile
       
       meta <- mutate(meta, group_id = grouped_df$group_id) %>%
         relocate(group_id)
       
-      meta_test <<- meta
-      
       rownames(meta) <- meta$`Assembly Name`
       
-      meta_test_names <<- meta
-      
       plot_loc$unique_meta <- meta[rownames(plot_loc$unique_allelic_profile), ]
-      
-      unique_meta_1 <<- plot_loc$unique_meta
       
       ## grouping names
       data_frame <- data.frame(group = numeric(), name = character())
@@ -5924,8 +6006,6 @@ server <- function(input, output, session) {
       
       plot_loc$data_frame <- data_frame %>%
         cbind(font_size = font_size, valign = valign)
-      
-      df_test <<- plot_loc$data_frame
       
       plot_loc$unique_meta$`Assembly Name` <- plot_loc$data_frame$name
       plot_loc$unique_meta <- mutate(plot_loc$unique_meta, size = plot_loc$data_frame$Size)
