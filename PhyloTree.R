@@ -925,25 +925,28 @@ ui <- dashboardPage(
               )
             )
           ), 
+          fluidRow(
+            column(
+              width = 12,
+              br(),
+              radioGroupButtons(
+                "mst_ratio",
+                label = h5("Aspect ratio", style = "color:white;"),
+                choiceNames = c("16:10", "16:9", "4:3"),
+                choiceValues = c((16/10), (16/9), (4/3)),
+                width = "100%"
+              ),
+              sliderTextInput(
+                "mst_scale",
+                label = h5("Size", style = "color:white;"),
+                choices = 400:1200,
+                selected = 800,
+                width = "95%"
+              )
+            )
+          ),
           conditionalPanel(
             "input.tree_algo=='Minimum-Spanning'",
-            fluidRow(
-              column(
-                width = 12,
-                radioGroupButtons(
-                  "mst_ratio",
-                  label = h5("Aspect ratio", style = "color:white;"),
-                  choiceNames = c("16:10", "16:9", "4:3"),
-                  choiceValues = c((16/10), (16/9), (4/3))
-                ),
-                sliderTextInput(
-                  "mst_scale",
-                  label = h5("Size", style = "color:white;"),
-                  choices = 400:1200,
-                  selected = 800
-                )
-              )
-            ),
             fluidRow(
               column(
                 width = 8,
@@ -1038,19 +1041,20 @@ ui <- dashboardPage(
                   align = "left",
                   HTML(
                     paste(
-                      tags$span(style='color: white; font-size: 14px; position: relative; bottom: -28px; margin-left: 0px ', 'X Pos')
+                      tags$span(style='color: white; font-size: 14px; position: relative; bottom: -40px; margin-left: 0px ', 'X Pos')
                     )
                   )
                 ),
                 column(
                   width = 9,
-                  align = "right",
-                  sliderTextInput(
+                  align = "center",
+                  numericInput(
                     "nj_h",
-                    label = NULL,
-                    choices = seq(-0.5, 0.5, 0.01),
-                    selected = 0,
-                    hide_min_max = TRUE
+                    "",
+                    min = -0.5,
+                    max = 0.5,
+                    step = 0.01,
+                    value = 0
                   )
                 )
               ),
@@ -1060,19 +1064,20 @@ ui <- dashboardPage(
                   align = "left",
                   HTML(
                     paste(
-                      tags$span(style='color: white; font-size: 14px; position: relative; bottom: -28px; margin-left: 0px ', 'Y Pos')
+                      tags$span(style='color: white; font-size: 14px; position: relative; bottom: -40px; margin-left: 0px ', 'Y Pos')
                     )
                   )
                 ),
                 column(
                   width = 9,
-                  align = "right",
-                  sliderTextInput(
+                  align = "center",
+                  numericInput(
                     "nj_v",
-                    label = NULL,
-                    choices = seq(-0.5, 0.5, 0.01),
-                    selected = 0,
-                    hide_min_max = TRUE
+                    "",
+                    min = -0.5,
+                    max = 0.5,
+                    step = 0.01,
+                    value = 0
                   )
                 )
               )
@@ -1083,7 +1088,7 @@ ui <- dashboardPage(
                 selectInput(
                   inputId = "filetype_nj",
                   label = "",
-                  choices = c("jpeg", "png", "svg")
+                  choices = c("jpeg", "png", "bmp", "svg")
                 )
               ),
               column(
@@ -1707,11 +1712,11 @@ ui <- dashboardPage(
             br(),
             conditionalPanel(
               "input.tree_algo=='Minimum-Spanning'",
-               uiOutput("mst_field")
+              uiOutput("mst_field")
             ),
             conditionalPanel(
               "input.tree_algo=='Neighbour-Joining'",
-              plotOutput("tree_nj", width = "100%", height = "700px")  
+              uiOutput("nj_field")
             ),
           )
         ),
@@ -1871,109 +1876,109 @@ ui <- dashboardPage(
                 ),
                 hr(),
                 fluidRow(
-                 column(
-                   width = 6,
-                   fluidRow(
-                     column(
-                       width = 12,
-                       align = "left",
-                       h4(p("Footer"), style = "color:white; position: relative; right: -15px"),
-                       column(
-                         width = 12,
-                         align = "center",
-                         textInput(
-                           "mst_footer",
-                           label = "",
-                           width = "100%",
-                           placeholder = "Plot Footer"
-                         ),
-                         fluidRow(
-                           column(
-                             width = 7,
-                             colorPickr(
-                               inputId = "mst_footer_color",
-                               selected = "#000000",
-                               label = "",
-                               update = "changestop",
-                               interaction = list(clear = FALSE,
-                                                  save = FALSE),
-                               position = "right-start",
-                               width = "100%"
-                             )
-                           ),
-                           column(
-                             width = 5,
-                             dropMenu(
-                               actionBttn(
-                                 "mst_footer_menu",
-                                 label = "",
-                                 color = "default",
-                                 size = "sm",
-                                 style = "material-flat",
-                                 icon = icon("sliders")
-                               ),
-                               placement = "top-start",
-                               theme = "translucent",
-                               numericInput(
-                                 "mst_footer_size",
-                                 label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                                 value = 15,
-                                 min = 10,
-                                 max = 30,
-                                 step = 1,
-                                 width = "100%"
-                               )
-                             )
-                           )
-                         ),
-                         br()
-                       )
-                     )
-                   )
-                 ),
-                 column(
-                   width = 6,
-                   fluidRow(
-                     column(
-                       width = 12,
-                       align = "left",
-                       h4(p("Background"), style = "color:white; position: relative; right: -15px"),
-                       column(
-                         width = 12,
-                         align = "center",
-                         fluidRow(
-                           column(
-                             width = 3,
-                             div(
-                               class = "checkbox_bg",
-                               checkboxInput(
-                                 "mst_background_transparent",
-                                 label = "Transparent",
-                                 value = FALSE
-                               )
-                             )
-                           )
-                         ),
-                         fluidRow(
-                           column(
-                             width = 7,
-                             colorPickr(
-                               inputId = "mst_background_color",
-                               width = "100%",
-                               selected = "#ffffff",
-                               label = "",
-                               update = "changestop",
-                               interaction = list(clear = FALSE,
-                                                  save = FALSE),
-                               position = "right-start"
-                             )
-                           )
-                         ),
-                         br()
-                       )
-                     )
-                   )
-                 )
+                  column(
+                    width = 6,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p("Footer"), style = "color:white; position: relative; right: -15px"),
+                        column(
+                          width = 12,
+                          align = "center",
+                          textInput(
+                            "mst_footer",
+                            label = "",
+                            width = "100%",
+                            placeholder = "Plot Footer"
+                          ),
+                          fluidRow(
+                            column(
+                              width = 7,
+                              colorPickr(
+                                inputId = "mst_footer_color",
+                                selected = "#000000",
+                                label = "",
+                                update = "changestop",
+                                interaction = list(clear = FALSE,
+                                                   save = FALSE),
+                                position = "right-start",
+                                width = "100%"
+                              )
+                            ),
+                            column(
+                              width = 5,
+                              dropMenu(
+                                actionBttn(
+                                  "mst_footer_menu",
+                                  label = "",
+                                  color = "default",
+                                  size = "sm",
+                                  style = "material-flat",
+                                  icon = icon("sliders")
+                                ),
+                                placement = "top-start",
+                                theme = "translucent",
+                                numericInput(
+                                  "mst_footer_size",
+                                  label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                                  value = 15,
+                                  min = 10,
+                                  max = 30,
+                                  step = 1,
+                                  width = "100%"
+                                )
+                              )
+                            )
+                          ),
+                          br()
+                        )
+                      )
+                    )
+                  ),
+                  column(
+                    width = 6,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p("Background"), style = "color:white; position: relative; right: -15px"),
+                        column(
+                          width = 12,
+                          align = "center",
+                          fluidRow(
+                            column(
+                              width = 3,
+                              div(
+                                class = "checkbox_bg",
+                                checkboxInput(
+                                  "mst_background_transparent",
+                                  label = "Transparent",
+                                  value = FALSE
+                                )
+                              )
+                            )
+                          ),
+                          fluidRow(
+                            column(
+                              width = 7,
+                              colorPickr(
+                                inputId = "mst_background_color",
+                                width = "100%",
+                                selected = "#ffffff",
+                                label = "",
+                                update = "changestop",
+                                interaction = list(clear = FALSE,
+                                                   save = FALSE),
+                                position = "right-start"
+                              )
+                            )
+                          ),
+                          br()
+                        )
+                      )
+                    )
+                  )
                 ),
                 br()
               )
@@ -2419,20 +2424,20 @@ ui <- dashboardPage(
                       )
                     ),
                     column(
-                      width = 12,
-                      align = "center",
+                      width = 6,
+                      align = "left",
                       br(),
                       div(
                         class = "slider_edge",
                         sliderTextInput(
                           inputId = "mst_edge_length",
-                          label = NULL,
+                          h5(p("Scale edge length"), style = "color:white;"),
                           choices = 1:40,
                           selected = c(15),
                           hide_min_max = TRUE
                         ) 
                       ),  
-                      br(), br(), br(), br(), br()
+                      br(), br(), br()
                     )
                   )
                 )
@@ -2508,9 +2513,7 @@ ui <- dashboardPage(
                                   "Ellipse" = "ellipse"
                                 ),
                                 Circular = list("Circular" = "circular",
-                                                "Inward" = "inward"),
-                                Unrooted = list("Daylight" = "daylight",
-                                                "Equal Angle" = "equal_angle")
+                                                "Inward" = "inward")
                               ),
                               selected = "rectangular",
                               width = "90%"
@@ -2602,7 +2605,7 @@ ui <- dashboardPage(
                                   "nj_inward_xlim",
                                   label = NULL,
                                   choices = 30:120,
-                                  selected = 70,
+                                  selected = 50,
                                   hide_min_max = TRUE
                                 )
                               )
@@ -2946,8 +2949,7 @@ ui <- dashboardPage(
                       )
                     )
                   )
-                ),
-                br()
+                )
               )
             ),
             column(
@@ -3040,13 +3042,41 @@ ui <- dashboardPage(
                             column(
                               width = 6,
                               align = "center",
-                              sliderTextInput(
-                                inputId = "nj_tiplab_nudge_x",
-                                label = h5("X Nudge", style = "color:white; margin-bottom: 0px"),
-                                choices = seq(-3, 3, by = 0.1),
-                                selected = 0,
-                                width = "250px",
-                                hide_min_max = TRUE
+                              conditionalPanel(
+                                "!(input.nj_layout=='inward'|input.nj_layout=='circular')",
+                                numericInput(
+                                  inputId = "nj_tiplab_nudge_x",
+                                  label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                                  min = -3,
+                                  max = 3,
+                                  step = 0.05,
+                                  value = 0,
+                                  width = "70px"
+                                )
+                              ),
+                              conditionalPanel(
+                                "input.nj_layout=='circular'",
+                                numericInput(
+                                  inputId = "nj_tiplab_position",
+                                  label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                                  min = -3,
+                                  max = 3,
+                                  step = 0.05,
+                                  value = -0.1,
+                                  width = "70px"
+                                )
+                              ),
+                              conditionalPanel(
+                                "input.nj_layout=='inward'",
+                                numericInput(
+                                  inputId = "nj_tiplab_position_inw",
+                                  label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                                  min = -3,
+                                  max = 3,
+                                  step = 0.05,
+                                  value = 1.1,
+                                  width = "70px"
+                                )
                               ),
                               br(),
                               sliderTextInput(
@@ -3114,16 +3144,16 @@ ui <- dashboardPage(
                     width = 4,
                     conditionalPanel(
                       "input.nj_mapping_show==false",
-                        colorPickr(
-                          inputId = "nj_tiplab_color",
-                          width = "100%",
-                          selected = "#000000",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        )
+                      colorPickr(
+                        inputId = "nj_tiplab_color",
+                        width = "100%",
+                        selected = "#000000",
+                        label = "",
+                        update = "changestop",
+                        interaction = list(clear = FALSE,
+                                           save = FALSE),
+                        position = "right-start"
+                      )
                     ),
                     conditionalPanel(
                       "input.nj_mapping_show==true",
@@ -3348,7 +3378,11 @@ ui <- dashboardPage(
                     )
                   )
                 ),
-                br(), br(), br()
+                br(), br(),
+                conditionalPanel(
+                  "input.nj_layout=='inward'|input.nj_layout=='circular'",
+                  br(), br()
+                )
               )
             ),
             column(
@@ -3712,12 +3746,25 @@ ui <- dashboardPage(
                           column(
                             width = 7,
                             align = "right",
-                            sliderTextInput(
-                              "nj_fruit_width",
-                              label = "",
-                              choices = 1:100,
-                              selected = 5,
-                              hide_min_max = TRUE
+                            conditionalPanel(
+                              "input.nj_layout=='inward'|input.nj_layout=='circular'",
+                              sliderTextInput(
+                                "nj_fruit_width_circ",
+                                label = "",
+                                choices = 1:20,
+                                selected = 5,
+                                hide_min_max = TRUE
+                              )
+                            ),
+                            conditionalPanel(
+                              "!(input.nj_layout=='inward' | input.nj_layout=='circular')",
+                              sliderTextInput(
+                                "nj_fruit_width",
+                                label = "",
+                                choices = 1:80,
+                                selected = 5,
+                                hide_min_max = TRUE
+                              )
                             )
                           )
                         ),
@@ -3730,20 +3777,36 @@ ui <- dashboardPage(
                           column(
                             width = 7,
                             align = "right",
-                            sliderTextInput(
-                              "nj_fruit_offset",
-                              label = "",
-                              choices = seq(-1.5, 1.5, 0.05),
-                              selected = 0,
-                              hide_min_max = TRUE
-                            )
+                            conditionalPanel(
+                              "input.nj_layout=='inward'|input.nj_layout=='circular'",
+                              sliderTextInput(
+                                "nj_fruit_offset_circ",
+                                label = "",
+                                choices = seq(-1.5, 1.5, 0.01),
+                                selected = 0,
+                                hide_min_max = TRUE
+                              )
+                            ),
+                            conditionalPanel(
+                              "!(input.nj_layout=='inward' | input.nj_layout=='circular')",
+                              sliderTextInput(
+                                "nj_fruit_offset",
+                                label = "",
+                                choices = seq(-15, 15, 0.05),
+                                selected = 0,
+                                hide_min_max = TRUE
+                              )
+                            )  
                           )
                         )
                       )
                     )
                   )
                 ), 
-                br()
+                conditionalPanel(
+                  "input.nj_layout=='inward'|input.nj_layout=='circular'",
+                  br(), br()
+                )
               )
             )
           )
@@ -3991,7 +4054,7 @@ server <- function(input, output, session) {
     visSave(mst_tree(), html_name)
     webshot(html_name, zoom = 2, file = "ex1.png")
   })
-    
+  
   shinyjs::addClass(selector = "body", class = "sidebar-collapse")
   shinyjs::removeClass(selector = "body", class = "sidebar-toggle")
   
@@ -4224,7 +4287,7 @@ server <- function(input, output, session) {
       DF1$meta <- select(DF1$data, 1:12)
       
       DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
-        
+      
       DF1$allelic_profile <- select(DF1$data, -(1:12))
       
       DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
@@ -4568,7 +4631,7 @@ server <- function(input, output, session) {
           hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
           hot_rows(fixedRowsTop = 0) 
       })
-        
+      
       output$delete_box <- renderUI({
         box(
           solidHeader = TRUE,
@@ -4848,7 +4911,7 @@ server <- function(input, output, session) {
         sep = ";",
         row.names = FALSE, 
         quote = FALSE
-        ) 
+      ) 
     }
   )
   
@@ -5081,7 +5144,7 @@ server <- function(input, output, session) {
     rownames(hamming_matrix) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(hamming_matrix), 
                                                        input$distmatrix_label]
     colnames(hamming_matrix) <- rownames(hamming_matrix)
-   
+    
     mode(hamming_matrix) <- "integer"
     
     hamming_df <- hamming_matrix %>%
@@ -5449,8 +5512,15 @@ server <- function(input, output, session) {
   
   plot_loc <- reactiveValues(cluster = NULL, metadata = list())
   
+  
+  ### Render Plot field ----
+  
   output$mst_field <- renderUI({
     visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px")) 
+  })
+  
+  output$nj_field <- renderUI({
+    plotOutput("tree_nj", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px")) 
   })
   
   
@@ -5504,7 +5574,7 @@ server <- function(input, output, session) {
       shinyjs::enable('mst_node_size') 
       shinyjs::enable('mst_node_scale')
       input$mst_node_shape
-      }
+    }
   })
   
   # Set MST label
@@ -5632,6 +5702,7 @@ server <- function(input, output, session) {
       treescale() +
       nodepoint() +
       tippoint() +
+      clip_label() +
       rootedge() +
       ggtitle(label = input$nj_title,
               subtitle = input$nj_subtitle) +
@@ -5660,16 +5731,34 @@ server <- function(input, output, session) {
     plot_loc$nj_plot
   })
   
+  # No label clip off for linear NJ tree
+  
+  clip_label <- reactive({
+    if(!(input$nj_layout == "circular" | input$nj_layout == "inward")) {
+      coord_cartesian(clip = "off")
+    } else {NULL}
+  })
+  
   # Geom Fruit
   fruit <- reactive({
     if(input$nj_tiles_show == TRUE) {
-      geom_fruit(
-        geom = geom_tile,
-        mapping = aes_string(fill=input$nj_fruit_variable),
-        width = input$nj_fruit_width,
-        offset = input$nj_fruit_offset,
-        alpha = input$nj_fruit_alpha
-      )
+      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+        geom_fruit(
+          geom = geom_tile,
+          mapping = aes_string(fill=input$nj_fruit_variable),
+          width = input$nj_fruit_width_circ,
+          offset = input$nj_fruit_offset_circ,
+          alpha = input$nj_fruit_alpha
+        )
+      } else {
+        geom_fruit(
+          geom = geom_tile,
+          mapping = aes_string(fill=input$nj_fruit_variable),
+          width = input$nj_fruit_width,
+          offset = input$nj_fruit_offset,
+          alpha = input$nj_fruit_alpha
+        )
+      }
     } else {NULL}
   })
   
@@ -5791,7 +5880,7 @@ server <- function(input, output, session) {
   # NJ circular or not
   nj_tiplab <- reactive({
     if(input$nj_tiplab_show == TRUE) {
-      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+      if(input$nj_layout == "circular") {
         if(input$nj_mapping_show == TRUE) {
           geom_tiplab(
             mapping_tiplab(), 
@@ -5802,7 +5891,7 @@ server <- function(input, output, session) {
             alpha = input$nj_tiplab_alpha,
             fontface = input$nj_tiplab_fontface,
             align = as.logical(input$nj_align),
-            nudge_x = input$nj_tiplab_nudge_x,
+            hjust = input$nj_tiplab_position,
             check.overlap = input$nj_tiplab_overlap
           )
         } else {
@@ -5816,7 +5905,36 @@ server <- function(input, output, session) {
             alpha = input$nj_tiplab_alpha,
             fontface = input$nj_tiplab_fontface,
             align = as.logical(input$nj_align),
-            nudge_x = input$nj_tiplab_nudge_x,
+            hjust = input$nj_tiplab_position,
+            check.overlap = input$nj_tiplab_overlap
+          )
+        }
+      } else if (input$nj_layout == "inward") {
+        if(input$nj_mapping_show == TRUE) {
+          geom_tiplab(
+            mapping_tiplab(), 
+            geom = "text",
+            size = input$tiplab_size,
+            linesize = input$nj_tiplab_linesize,
+            linetype = input$nj_tiplab_linetype,
+            alpha = input$nj_tiplab_alpha,
+            fontface = input$nj_tiplab_fontface,
+            align = as.logical(input$nj_align),
+            hjust = input$nj_tiplab_position_inw,
+            check.overlap = input$nj_tiplab_overlap
+          )
+        } else {
+          geom_tiplab(
+            mapping_tiplab(),
+            color = input$nj_tiplab_color,
+            geom = "text",
+            size = input$tiplab_size,
+            linesize = input$nj_tiplab_linesize,
+            linetype = input$nj_tiplab_linetype,
+            alpha = input$nj_tiplab_alpha,
+            fontface = input$nj_tiplab_fontface,
+            align = as.logical(input$nj_align),
+            hjust = input$nj_tiplab_position_inw,
             check.overlap = input$nj_tiplab_overlap
           )
         }
@@ -5859,8 +5977,8 @@ server <- function(input, output, session) {
         }
       }
     } else {NULL}
-       
-     
+    
+    
   })
   
   # Show Label Panels?
@@ -5917,22 +6035,42 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       if (input$filetype_nj == "png") {
-        png(file, width = 1365, height = 600)
+        png(file, width = (as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), height = as.numeric(input$mst_scale))
         print(nj_tree())
         dev.off()
       } else if (input$filetype_nj == "jpeg") {
-        jpeg(file, width = 2730, height = 1200, quality = 100)
+        jpeg(file, width = (as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), height = as.numeric(input$mst_scale), quality = 100)
         print(nj_tree())
         dev.off()
       } else if (input$filetype_nj == "svg") {
         plot <- print(nj_tree())
-        ggsave(file=file, plot=plot, device = svg(), width = 50, height = 22, units = "cm")
+        ggsave(file=file, plot=plot, device = svg(width = (as.numeric(input$mst_scale) * as.numeric(input$mst_ratio))/96,
+                                                  height = as.numeric(input$mst_scale)/96))
+      } else if (input$filetype_nj == "bmp") {
+        bmp(file, width = (as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), height = as.numeric(input$mst_scale))
+        print(nj_tree())
+        dev.off()
       }
     }
   )
   
   
   ### Reactive Events ----
+  
+  # Shut off Tiles (geom_fruit()) when inward layout
+  observe({
+    if(input$nj_layout == "inward") {
+      shinyjs::disable('nj_tiles_show') 
+      shinyjs::disable('nj_fruit_variable')
+      shinyjs::disable('nj_fruit_width')
+      shinyjs::disable('nj_fruit_offset')
+    } else {
+      shinyjs::enable('nj_tiles_show')
+      shinyjs::enable('nj_fruit_variable')
+      shinyjs::enable('nj_fruit_width')
+      shinyjs::enable('nj_fruit_offset')
+    }
+  })
   
   #### Generate Plot ----
   
@@ -5957,7 +6095,7 @@ server <- function(input, output, session) {
         as.data.frame()
       
       rownames(grouped_df) <- meta$`Assembly Name`
-       
+      
       plot_loc$unique_allelic_profile <- grouped_df[!duplicated(grouped_df$group_id), ]
       
       meta <- mutate(meta, group_id = grouped_df$group_id) %>%
@@ -6015,7 +6153,7 @@ server <- function(input, output, session) {
       proxy::dist(plot_loc$unique_allelic_profile, method = hamming_distance_with_na)
       
     } else if(input$na_handling == "ignore"){
-      ########### Loci/Columns with NA are ignored #############
+      # Loci/Columns with NA are ignored 
       
       # Remove NA columns
       noNA <- DF1$allelic_profile_true[, colSums(is.na(DF1$allelic_profile_true)) == 0]
@@ -6218,7 +6356,7 @@ server <- function(input, output, session) {
                           "Host" = Host_merged, "Country" = Country_merged, "City" = City_merged)
       
       
-      ### Merging with original data frame / allelic profile
+      # Merging with original data frame / allelic profile
       
       allelic_profile_true <- DF1$allelic_profile_true
       meta_true <- DF1$meta_true
@@ -6250,7 +6388,7 @@ server <- function(input, output, session) {
         count <- count + 1
       }
       
-      ### Metadata completion
+      # Metadata completion
       # get group size
       
       size_vector <- numeric(0)
@@ -6299,7 +6437,7 @@ server <- function(input, output, session) {
         cbind(font_size = font_size, valign = valign)
       
       
-      ### final dist calculation
+      # final dist calculation
       
       allelic_profile_clean_noNA_names <- allelic_profile_clean[, colSums(is.na(allelic_profile_clean)) == 0]
       
