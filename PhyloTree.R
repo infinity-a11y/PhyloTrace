@@ -108,10 +108,6 @@ if (!require(igraph))
   install.packages('igraph')
 library(igraph)
 
-if (!require(KneeArrower))
-  install.packages('KneeArrower')
-library(KneeArrower)
-
 if (!require(rhandsontable))
   install.packages('rhandsontable')
 library(rhandsontable)
@@ -859,7 +855,7 @@ ui <- dashboardPage(
     tags$style("button#download_entry_table_bttn {height: 34px; ; background: #20E6E5; color: #000000"),
     tags$style("button#download_schemeinfo_bttn {height: 28px; background: #20E6E5; color: #000000; margin-top: 19px; margin-left: 10px"),
     tags$style("button#download_loci_info_bttn {height: 28px; background: #20E6E5; color: #000000; margin-top: 19px; margin-left: 10px"),
-    tags$style("button#download_na_matrix_bttn {height: 28px; background: #20E6E5; color: #000000; margin-top: 19px; margin-left: 10px"),
+    tags$style("button#download_na_matrix_bttn {height: 34px; background: #20E6E5; color: #000000; margin-top: 14px; margin-left: 10px"),
     tags$style("#nj_scale {position: relative; right: -10px"),
     tags$style(".irs.irs--shiny.js-irs-0 {margin-right: -15px"),
     tags$style(".irs.irs--shiny.js-irs-1 {margin-right: -15px"),
@@ -873,71 +869,11 @@ ui <- dashboardPage(
       uiOutput("menu_sep2"),
       conditionalPanel(
         "input.tabs==='db_browse_entries'",
-        column(
-          width = 12,
-          align = "center",
-          br(), br(),
-          p(
-            HTML(
-              paste(
-                tags$span(style='color: white; font-size: 18px; margin-bottom: 0px', 'Save database changes')
-              )
-            )
-          ),
-          uiOutput("edit_button")
-        )
+        uiOutput("confirm_changes")
       ),
       conditionalPanel(
         "input.tabs==='db_distmatrix'",
-        column(
-          width = 12,
-          align = "left",
-          br(), br(),
-          column(
-            width = 12,
-            align = "center",
-            selectInput(
-              "distmatrix_label",
-              label = "",
-              choices = c("Index", "Assembly Name", "Assembly ID"),
-              selected = c("Assembly Name"),
-              width = "100%"
-            ),
-            br()
-          ),
-          checkboxInput(
-            "distmatrix_triangle",
-            "Show upper triangle",
-            value = FALSE
-          ),
-          checkboxInput(
-            "distmatrix_diag",
-            "Show diagonal",
-            value = FALSE
-          ),
-          br(),
-          fluidRow(
-            column(
-              width = 6,
-              HTML(
-                paste(
-                  tags$span(style='color: white; font-size: 14px; position: relative; bottom: -14px; right: -15px', 
-                            'Download CSV')
-                )
-              )
-            ),
-            column(
-              width = 4,
-              downloadBttn(
-                "download_distmatrix",
-                style = "simple",
-                label = "",
-                size = "sm",
-                icon = icon("download")
-              )
-            )
-          )
-        )
+        uiOutput("distmatrix_sidebar")
       ),
       conditionalPanel(
         "input.tabs==='db_missing_values'",
@@ -945,27 +881,7 @@ ui <- dashboardPage(
           width = 12,
           align = "center",
           br(), br(),
-          fluidRow(
-            column(
-              width = 6,
-              HTML(
-                paste(
-                  tags$span(style='color: white; font-size: 14px; position: relative; bottom: -23px; right: -15px', 
-                            'Download CSV')
-                )
-              )
-            ),
-            column(
-              width = 4,
-              downloadBttn(
-                "download_na_matrix",
-                style = "simple",
-                label = "",
-                size = "sm",
-                icon = icon("download")
-              )
-            )
-          )
+          uiOutput("missing_values_sidebar")
         )
       ),
       conditionalPanel(
@@ -1558,8 +1474,8 @@ ui <- dashboardPage(
       tableBorderRowSize = 1
     ),
     tags$style(".image {height: 300px;}"),
-    tags$style(".select_start_radio {position: relative; right: -55px;}"),
     uiOutput("start_message"),
+    uiOutput("start_message_no_db"),
     
     tabItems(
       
@@ -1585,8 +1501,7 @@ ui <- dashboardPage(
             column(
               width = 12,
               align = "center",
-              uiOutput("db_no_entries"),
-              uiOutput("no_db")
+              uiOutput("db_no_entries")
             ),
             uiOutput("db_entries_table")
           ),
@@ -1628,14 +1543,7 @@ ui <- dashboardPage(
               column(
                 width = 2,
                 align = "left",
-                downloadBttn(
-                  "download_schemeinfo",
-                  style = "simple",
-                  label = "",
-                  size = "sm",
-                  icon = icon("download"),
-                  color = "primary"
-                )
+                uiOutput("download_scheme_info")
               )
             ),
             br(),
@@ -1654,14 +1562,7 @@ ui <- dashboardPage(
               column(
                 width = 2,
                 align = "left",
-                downloadBttn(
-                  "download_loci_info",
-                  style = "simple",
-                  label = "",
-                  size = "sm",
-                  icon = icon("download"),
-                  color = "primary"
-                )
+                uiOutput("download_loci")
               )
             ),
             br(),
@@ -1679,7 +1580,7 @@ ui <- dashboardPage(
           column(
             width = 3,
             align = "center",
-            h2(p("Distanzmatrix"), style = "color:white")
+            h2(p("Distance Matrix"), style = "color:white")
           )
         ),
         hr(), br(), br(), br(),
@@ -4222,11 +4123,32 @@ ui <- dashboardPage(
 
 server <- function(input, output, session) {
   
+  phylotraceVersion <- paste("PhyloTrace-1.0.0", Sys.Date())
+  
   # Disable MST variable mappings
   shinyjs::disable('mst_edge_label') 
   shinyjs::disable('mst_color_var') 
   
   ## Functions ----
+  
+  # Function to find columns with varying values
+  var_alleles <- function(dataframe) {
+    
+    varying_columns <- c()
+    
+    for (col in 1:ncol(dataframe)) {
+      if(class(dataframe[, col]) == "integer") {
+        unique_values <- unique(dataframe[, col])
+        
+        if (length(unique_values) > 1) {
+          varying_columns <- c(varying_columns, col)
+        }
+      }
+    }
+    
+    return(varying_columns)
+  }
+  
   # Function to compute Hamming distance between two vectors
   hamming_distance <- function(x, y) {
     sum(x != y)
@@ -4235,22 +4157,36 @@ server <- function(input, output, session) {
   hamming_distance_with_na <- function(x, y) {
     sum((is.na(x) | is.na(y)) | (x != y))
   }
-  
-  observeEvent(input$test, {
-    html_name <- tempfile(fileext = ".html")
-    visSave(mst_tree(), html_name)
-    webshot(html_name, zoom = 2, file = "ex1.png")
-  })
+
+
+  ## Startup ----
   
   shinyjs::addClass(selector = "body", class = "sidebar-collapse")
   shinyjs::removeClass(selector = "body", class = "sidebar-toggle")
   
   renderstart <- reactiveValues(sidebar = TRUE, header = TRUE)
   
-  set.seed(1)
+  DF1 <- reactiveValues()
   
-  ## Render Menu ----
+  ### Connect to local Database ----
   
+  observe({
+    
+    # Logical any local database present 
+    DF1$exist <-
+      (length(dir_ls(paste0(
+        getwd(), "/Database/"
+      ))) == 0)
+    
+    # List of local schemes available
+    DF1$available <-
+      gsub("_", " ", basename(dir_ls(paste0(
+        getwd(), "/Database"
+      ))))
+    
+  })
+  
+  ### Landing page ----
   observe({
     if (renderstart$sidebar == FALSE) {
       shinyjs::removeClass(selector = "body", class = "sidebar-collapse")
@@ -4287,14 +4223,14 @@ server <- function(input, output, session) {
       fluidRow(
         column(
           width = 12,
-          column(width = 5),
+          align = "center",
           uiOutput("scheme_db"),
-          column(width = 5),
-        ),
-      ),
-      br(), br(),
-      uiOutput("load"),
-      br(), br(), br(), br(), br(), br(), br()
+          br(), br(),
+          actionButton("load",
+                       "Load"),
+          br(), br(), br(), br(), br(), br(), br()
+        )
+      )
     )
   })
   
@@ -4304,7 +4240,7 @@ server <- function(input, output, session) {
         selectInput(
           "scheme_db",
           label = "",
-          choices = database$available),
+          choices = DF1$available),
         title = "Select a local database to load.",
         easyClose = TRUE,
         footer = tagList(
@@ -4324,81 +4260,1159 @@ server <- function(input, output, session) {
          height = 200)
   }, deleteFile = FALSE)
   
+  ### Startup event ----
   
-  ## Database ----
-  DF1 <- reactiveValues()
-  database <- reactiveValues()
-  
-  # Function to find columns with varying values
-  var_alleles <- function(dataframe) {
-    varying_columns <- c()
+  observeEvent(input$load, {
     
-    for (col in 1:ncol(dataframe)) {
-      if(class(dataframe[, col]) == "integer") {
-        unique_values <- unique(dataframe[, col])
-        
-        if (length(unique_values) > 1) {
-          varying_columns <- c(varying_columns, col)
-        }
-      }
-    }
+    #### Render Menu Items ----
     
-    return(varying_columns)
-  }
-  
-  observe({
-    database$available <-
-      gsub("_", " ", basename(dir_ls(paste0(
-        getwd(), "/Database"
-      ))))
-    database$exist <-
-      (length(dir_ls(paste0(
-        getwd(), "/Database/"
-      ))) == 0)
+    renderstart$sidebar <- FALSE
+    renderstart$header <- FALSE
     
-  })
-  
-  ### Conditional Rendering of Database UI Elements ----
-  
-  observe({
-    if (!database$exist) {
+    output$menu_sep1 <- renderUI(hr())
+    output$menu_sep2 <- renderUI(hr())
+    
+    # Hide start message
+    output$start_message <- NULL
+    output$start_message_no_db <- NULL
+    
+    # Load app elements based on database availability and missing value presence
+    
+    if(DF1$exist) { # No local database present
       
-      output$scheme_db <- renderUI({
-        if (length(database$available) > 5) {
-          column(
-            width = 2,
-            align = "center",
-            div(
-              class = "select_start",
-              selectInput(
-                "scheme_db",
-                label = "",
-                choices = database$available
+      # Render menu with Add Scheme as start tab
+      output$menu <- renderMenu(
+        sidebarMenu(
+          menuItem(
+            text = "Database Browser",
+            tabName = "database",
+            icon = icon("hard-drive"),
+            startExpanded = TRUE,
+            menuSubItem(
+              text = "Browse Entries",
+              tabName = "db_browse_entries"
+            ),
+            menuSubItem(
+              text = "Scheme Info",
+              tabName = "db_schemeinfo"
+            ),
+            menuSubItem(
+              text = "Distance Matrix",
+              tabName = "db_distmatrix"
+            ),
+            menuSubItem(
+              text = "Missing Values",
+              tabName = "db_missing_values",
+              icon = icon("triangle-exclamation")
+            )
+          ),
+          menuItem(
+            text = "Add Scheme",
+            tabName = "init",
+            icon = icon("plus"),
+            selected = TRUE
+          ),
+          menuItem(
+            text = "Allelic Typing",
+            tabName = "typing",
+            icon = icon("dna")
+          ),
+          menuItem(
+            text = "Visualization",
+            tabName = "visualization",
+            icon = icon("chart-line")
+          ),
+          menuItem(
+            text = "Report",
+            tabName = "report",
+            icon = icon("file-lines")
+          )
+        )
+      )
+      
+      # Dont render these elements
+      output$db_no_entries <- NULL
+      output$db_entries <- NULL
+      output$edit_index <- NULL
+      output$edit_scheme_d <- NULL
+      output$edit_entries <- NULL
+      output$compare_select <- NULL
+      output$delete_select <- NULL
+      output$del_bttn <- NULL
+      output$compare_allele_box <- NULL
+      output$download_entries <- NULL
+      output$missing_values <- NULL
+      output$delete_box <- NULL
+      output$missing_values_sidebar <- NULL
+      output$distmatrix_sidebar <- NULL
+      output$download_scheme_info <- NULL
+      output$download_loci <- NULL
+      
+    } else { # If local Database available
+      
+      if(any(grepl(gsub(" ", "_", input$scheme_db), dir_ls(paste0(getwd(), "/Database/"))))) {
+        
+        if(!any(grepl("alleles", dir_ls(paste0(
+          getwd(), 
+          "/Database/", 
+          gsub(" ", "_", input$scheme_db)))))) {
+          
+          # Show message that loci files are missing
+          showModal(
+            modalDialog(
+              paste0("Whoops! No loci files are present in the local ", 
+              input$scheme_db, 
+              " folder. Download the scheme again (no influence on already typed assemblies)."),
+              title = "Local Database Error",
+              fade = TRUE,
+              easyClose = TRUE,
+              footer = tagList(
+                modalButton("Okay")
               )
             )
           )
-        } else {
-          column(
-            width = 2,
-            align = "left",
-            div(
-              class = "select_start_radio",
-              prettyRadioButtons(
-                "scheme_db",
-                label = "",
-                choices = database$available
+          
+          # Render menu with Add Scheme as start tab
+          output$menu <- renderMenu(
+            sidebarMenu(
+              menuItem(
+                text = "Database Browser",
+                tabName = "database",
+                icon = icon("hard-drive"),
+                startExpanded = TRUE,
+                menuSubItem(
+                  text = "Browse Entries",
+                  tabName = "db_browse_entries"
+                ),
+                menuSubItem(
+                  text = "Scheme Info",
+                  tabName = "db_schemeinfo"
+                ),
+                menuSubItem(
+                  text = "Distance Matrix",
+                  tabName = "db_distmatrix"
+                ),
+                menuSubItem(
+                  text = "Missing Values",
+                  tabName = "db_missing_values",
+                  icon = icon("triangle-exclamation")
+                )
+              ),
+              menuItem(
+                text = "Add Scheme",
+                tabName = "init",
+                icon = icon("plus"),
+                selected = TRUE
+              ),
+              menuItem(
+                text = "Allelic Typing",
+                tabName = "typing",
+                icon = icon("dna")
+              ),
+              menuItem(
+                text = "Visualization",
+                tabName = "visualization",
+                icon = icon("chart-line")
+              ),
+              menuItem(
+                text = "Report",
+                tabName = "report",
+                icon = icon("file-lines")
               )
             )
+          )
+        } else if (!any(grepl("scheme_info.html", dir_ls(paste0(
+          getwd(), 
+          "/Database/", 
+          gsub(" ", "_", input$scheme_db)))))) {
+          
+          output$download_scheme_info <- NULL
+          
+          # Show message that scheme info is missing
+          showModal(
+            modalDialog(
+              paste0("Whoops! Scheme info of the local ", 
+                     input$scheme_db, 
+                     " database is missing. Download the scheme again (no influence on already typed assemblies)."),
+              title = "Local Database Error",
+              fade = TRUE,
+              easyClose = TRUE,
+              footer = tagList(
+                modalButton("Okay")
+              )
+            )
+          )
+          
+          # Render menu with Add Scheme as start tab
+          output$menu <- renderMenu(
+            sidebarMenu(
+              menuItem(
+                text = "Database Browser",
+                tabName = "database",
+                icon = icon("hard-drive"),
+                startExpanded = TRUE,
+                menuSubItem(
+                  text = "Browse Entries",
+                  tabName = "db_browse_entries"
+                ),
+                menuSubItem(
+                  text = "Scheme Info",
+                  tabName = "db_schemeinfo"
+                ),
+                menuSubItem(
+                  text = "Distance Matrix",
+                  tabName = "db_distmatrix"
+                ),
+                menuSubItem(
+                  text = "Missing Values",
+                  tabName = "db_missing_values",
+                  icon = icon("triangle-exclamation")
+                )
+              ),
+              menuItem(
+                text = "Add Scheme",
+                tabName = "init",
+                icon = icon("plus"),
+                selected = TRUE
+              ),
+              menuItem(
+                text = "Allelic Typing",
+                tabName = "typing",
+                icon = icon("dna")
+              ),
+              menuItem(
+                text = "Visualization",
+                tabName = "visualization",
+                icon = icon("chart-line")
+              ),
+              menuItem(
+                text = "Report",
+                tabName = "report",
+                icon = icon("file-lines")
+              )
+            )
+          )
+          
+        } else if (!any(grepl("targets.csv", dir_ls(paste0(
+          getwd(), 
+          "/Database/", 
+          gsub(" ", "_", input$scheme_db)))))) {
+          
+          # Dont render target download button
+          output$download_loci <- NULL
+          
+          # Show message that scheme info is missing
+          showModal(
+            modalDialog(
+              paste0("Whoops! Loci info of the local ", 
+                     input$scheme_db, 
+                     " database is missing. Download the scheme again (no influence on already typed assemblies)."),
+              title = "Local Database Error",
+              fade = TRUE,
+              easyClose = TRUE,
+              footer = tagList(
+                modalButton("Okay")
+              )
+            )
+          )
+          
+          # Render menu with Add Scheme as start tab
+          output$menu <- renderMenu(
+            sidebarMenu(
+              menuItem(
+                text = "Database Browser",
+                tabName = "database",
+                icon = icon("hard-drive"),
+                startExpanded = TRUE,
+                menuSubItem(
+                  text = "Browse Entries",
+                  tabName = "db_browse_entries"
+                ),
+                menuSubItem(
+                  text = "Scheme Info",
+                  tabName = "db_schemeinfo"
+                ),
+                menuSubItem(
+                  text = "Distance Matrix",
+                  tabName = "db_distmatrix"
+                ),
+                menuSubItem(
+                  text = "Missing Values",
+                  tabName = "db_missing_values",
+                  icon = icon("triangle-exclamation")
+                )
+              ),
+              menuItem(
+                text = "Add Scheme",
+                tabName = "init",
+                icon = icon("plus"),
+                selected = TRUE
+              ),
+              menuItem(
+                text = "Allelic Typing",
+                tabName = "typing",
+                icon = icon("dna")
+              ),
+              menuItem(
+                text = "Visualization",
+                tabName = "visualization",
+                icon = icon("chart-line")
+              ),
+              menuItem(
+                text = "Report",
+                tabName = "report",
+                icon = icon("file-lines")
+              )
+            )
+          )
+          
+        } else {
+          # Produce Scheme Info Table
+          schemeinfo <-
+            read_html(paste0(
+              getwd(),
+              "/Database/",
+              gsub(" ", "_", input$scheme_db),
+              "/scheme_info.html"
+            )) %>%
+            html_table(header = FALSE) %>%
+            as.data.frame(stringsAsFactors = FALSE)
+          names(schemeinfo) <- NULL
+          DF1$schemeinfo <- schemeinfo
+          number_loci <- as.vector(DF1$schemeinfo[6, 2])
+          number_loci <- as.numeric(gsub(",", "", number_loci))
+          
+          # Check if number of fastq files of alleles is coherent with number of targets in scheme
+          if(number_loci != length(dir_ls(paste0(getwd(), "/Database/", gsub(" ", "_", input$scheme_db), "/", gsub(" ", "_", input$scheme_db), "_alleles")))) {
+            
+            # Show message that loci files are missing
+            showModal(
+              modalDialog(
+                paste0("Whoops! Some loci files are missing in the local ", 
+                       input$scheme_db, 
+                       " folder. Download the scheme again (no influence on already typed assemblies)."),
+                title = "Local Database Error",
+                fade = TRUE,
+                easyClose = TRUE,
+                footer = tagList(
+                  modalButton("Okay")
+                )
+              )
+            )
+            
+            # Render menu with Add Scheme as start tab
+            output$menu <- renderMenu(
+              sidebarMenu(
+                menuItem(
+                  text = "Database Browser",
+                  tabName = "database",
+                  icon = icon("hard-drive"),
+                  startExpanded = TRUE,
+                  menuSubItem(
+                    text = "Browse Entries",
+                    tabName = "db_browse_entries"
+                  ),
+                  menuSubItem(
+                    text = "Scheme Info",
+                    tabName = "db_schemeinfo"
+                  ),
+                  menuSubItem(
+                    text = "Distance Matrix",
+                    tabName = "db_distmatrix"
+                  ),
+                  menuSubItem(
+                    text = "Missing Values",
+                    tabName = "db_missing_values",
+                    icon = icon("triangle-exclamation")
+                  )
+                ),
+                menuItem(
+                  text = "Add Scheme",
+                  tabName = "init",
+                  icon = icon("plus"),
+                  selected = TRUE
+                ),
+                menuItem(
+                  text = "Allelic Typing",
+                  tabName = "typing",
+                  icon = icon("dna")
+                ),
+                menuItem(
+                  text = "Visualization",
+                  tabName = "visualization",
+                  icon = icon("chart-line")
+                ),
+                menuItem(
+                  text = "Report",
+                  tabName = "report",
+                  icon = icon("file-lines")
+                )
+              )
+            )
+            
+          } else {
+            ###### Alle checks bestanden -> Laden der DTB
+            # If typed entries present
+            if (any(grepl("Typing.rds", dir_ls(paste0(
+              getwd(), "/Database/", gsub(" ", "_", input$scheme_db)
+            ))))) {
+              
+              # Load database from files  
+              Database <-
+                readRDS(paste0(
+                  getwd(),
+                  "/Database/",
+                  gsub(" ", "_", input$scheme_db),
+                  "/Typing.rds"
+                ))
+              
+              DF1$data <- Database[["Typing"]]
+              
+              DF1$meta <- select(DF1$data, 1:12)
+              
+              DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
+              
+              DF1$allelic_profile <- select(DF1$data, -(1:12))
+              
+              DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
+              
+              DF1$scheme <- input$scheme_db
+              
+              if(!anyNA(DF1$allelic_profile)) {
+                
+                # no NA's -> dont render missing values sidebar elements
+                output$missing_values_sidebar <- NULL
+                
+                # Render menu if no NA's present
+                output$menu <- renderMenu(
+                  sidebarMenu(
+                    menuItem(
+                      text = "Database Browser",
+                      tabName = "database",
+                      icon = icon("hard-drive"),
+                      startExpanded = TRUE,
+                      selected = TRUE,
+                      menuSubItem(
+                        text = "Browse Entries",
+                        tabName = "db_browse_entries"
+                      ),
+                      menuSubItem(
+                        text = "Scheme Info",
+                        tabName = "db_schemeinfo"
+                      ),
+                      menuSubItem(
+                        text = "Distance Matrix",
+                        tabName = "db_distmatrix"
+                      )
+                    ),
+                    menuItem(
+                      text = "Add Scheme",
+                      tabName = "init",
+                      icon = icon("plus")
+                    ),
+                    menuItem(
+                      text = "Allelic Typing",
+                      tabName = "typing",
+                      icon = icon("dna")
+                    ),
+                    menuItem(
+                      text = "Visualization",
+                      tabName = "visualization",
+                      icon = icon("chart-line")
+                    ),
+                    menuItem(
+                      text = "Report",
+                      tabName = "report",
+                      icon = icon("file-lines")
+                    )
+                  )
+                )
+              } else {
+                output$menu <- renderMenu(
+                  sidebarMenu(
+                    menuItem(
+                      text = "Database Browser",
+                      tabName = "database",
+                      icon = icon("hard-drive"),
+                      startExpanded = TRUE,
+                      menuSubItem(
+                        text = "Browse Entries",
+                        tabName = "db_browse_entries"
+                      ),
+                      menuSubItem(
+                        text = "Scheme Info",
+                        tabName = "db_schemeinfo"
+                      ),
+                      menuSubItem(
+                        text = "Distance Matrix",
+                        tabName = "db_distmatrix"
+                      ),
+                      menuSubItem(
+                        text = "Missing Values",
+                        tabName = "db_missing_values",
+                        selected = TRUE,
+                        icon = icon("triangle-exclamation")
+                      )
+                    ),
+                    menuItem(
+                      text = "Add Scheme",
+                      tabName = "init",
+                      icon = icon("plus")
+                    ),
+                    menuItem(
+                      text = "Allelic Typing",
+                      tabName = "typing",
+                      icon = icon("dna")
+                    ),
+                    menuItem(
+                      text = "Visualization",
+                      tabName = "visualization",
+                      icon = icon("chart-line")
+                    ),
+                    menuItem(
+                      text = "Report",
+                      tabName = "report",
+                      icon = icon("file-lines")
+                    )
+                  )
+                )
+              }
+             
+              # Produce Loci Info Table
+              DF1$loci_info <- read.csv(
+                paste0(
+                  getwd(),
+                  "/Database/",
+                  gsub(" ", "_", DF1$scheme),
+                  "/targets.csv"
+                ),
+                header = TRUE,
+                sep = "\t",
+                row.names = NULL,
+                colClasses = c(
+                  "NULL",
+                  "character",
+                  "character",
+                  "integer",
+                  "integer",
+                  "character",
+                  "integer",
+                  "NULL"
+                )
+              )
+              
+              # Render edit/save button for entry metadata
+              output$confirm_changes <- renderUI({
+                column(
+                  width = 12,
+                  align = "center",
+                  br(), br(),
+                  p(
+                    HTML(
+                      paste(
+                        tags$span(style='color: white; font-size: 18px; margin-bottom: 0px', 'Confirm changes')
+                      )
+                    )
+                  ),
+                  actionButton(
+                    "edit_button",
+                    "",
+                    icon = icon("bookmark")
+                  )
+                )
+              })
+              
+              # Render scheme selector in sidebar
+              output$loaded_scheme <- renderUI({
+                fluidRow(
+                  column(width = 2),
+                  column(
+                    width = 6,
+                    div(
+                      class = "scheme_start",
+                      p(
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 15px;', strong("Selected scheme:"))
+                          )
+                        )
+                      ),
+                      p(
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 15px; font-style: italic', DF1$scheme)
+                          )
+                        )
+                      )
+                    )
+                  ),
+                  column(
+                    width = 2,
+                    div(
+                      class = "reload-bttn",
+                      actionButton(
+                        "reload_db",
+                        label = "",
+                        icon = icon("rotate")
+                      )
+                    )
+                  )
+                )
+              })
+              
+              # Render missing values sidebar elements
+              output$missing_values_sidebar <- renderUI({
+                fluidRow(
+                  column(
+                    width = 6,
+                    HTML(
+                      paste(
+                        tags$span(style='color: white; font-size: 14px; position: relative; bottom: -23px; right: -15px', 
+                                  'Download CSV')
+                      )
+                    )
+                  ),
+                  column(
+                    width = 4,
+                    downloadBttn(
+                      "download_na_matrix",
+                      style = "simple",
+                      label = "",
+                      size = "sm",
+                      icon = icon("download")
+                    )
+                  )
+                )
+              })
+              
+              # Render scheme info download button
+              output$download_loci <- renderUI({
+                downloadBttn(
+                  "download_loci_info",
+                  style = "simple",
+                  label = "",
+                  size = "sm",
+                  icon = icon("download"),
+                  color = "primary"
+                )
+              })
+              
+              # Render scheme info download button
+              output$download_scheme_info <- renderUI({
+                downloadBttn(
+                  "download_schemeinfo",
+                  style = "simple",
+                  label = "",
+                  size = "sm",
+                  icon = icon("download"),
+                  color = "primary"
+                )
+              })
+              
+              # Render distance matrix sidebar
+              output$distmatrix_sidebar <- renderUI({
+                column(
+                  width = 12,
+                  align = "left",
+                  br(), br(),
+                  column(
+                    width = 12,
+                    align = "center",
+                    selectInput(
+                      "distmatrix_label",
+                      label = "",
+                      choices = c("Index", "Assembly Name", "Assembly ID"),
+                      selected = c("Assembly Name"),
+                      width = "100%"
+                    ),
+                    br()
+                  ),
+                  checkboxInput(
+                    "distmatrix_triangle",
+                    "Show upper triangle",
+                    value = FALSE
+                  ),
+                  checkboxInput(
+                    "distmatrix_diag",
+                    "Show diagonal",
+                    value = FALSE
+                  ),
+                  br(),
+                  fluidRow(
+                    column(
+                      width = 6,
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; font-size: 14px; position: relative; bottom: -14px; right: -15px', 
+                                    'Download CSV')
+                        )
+                      )
+                    ),
+                    column(
+                      width = 4,
+                      downloadBttn(
+                        "download_distmatrix",
+                        style = "simple",
+                        label = "",
+                        size = "sm",
+                        icon = icon("download")
+                      )
+                    )
+                  )
+                )
+              })
+              
+              # Render select input to choose displayed loci
+              output$compare_select <- renderUI({
+                
+                if (input$compare_difference == FALSE) {
+                  pickerInput(
+                    inputId = "compare_select",
+                    label = "",
+                    width = "85%",
+                    choices = names(DF1$allelic_profile),
+                    selected = names(DF1$allelic_profile)[1:20],
+                    options = list(
+                      `live-search` = TRUE,
+                      `actions-box` = TRUE,
+                      size = 10,
+                      style = "background-color: white; border-radius: 5px;"
+                    ),
+                    multiple = TRUE
+                  )
+                } else {
+                  pickerInput(
+                    inputId = "compare_select",
+                    label = "",
+                    width = "85%",
+                    choices = names(DF1$allelic_profile),
+                    selected = names(DF1$allelic_profile)[var_alleles(DF1$allelic_profile)],
+                    options = list(
+                      `live-search` = TRUE,
+                      `actions-box` = TRUE,
+                      size = 10,
+                      style = "background-color: white; border-radius: 5px;"
+                    ),
+                    multiple = TRUE
+                  )
+                }
+              })
+              
+              #### Render Entry Data Table ----
+              
+              output$db_entries_table <- renderUI({
+                addSpinner(
+                  rHandsontableOutput("db_entries"),
+                  spin = "dots",
+                  color = "#ffffff"
+                )
+              })
+              
+              # Determine Entry Table Height 
+              height_table <- reactive({
+                if (nrow(DF1$data > 25)) {
+                  800
+                } else {
+                  nrow(DF1$data) * 50 + 75
+                }
+              })
+              
+              if (!class(DF1$data) == "NULL") {
+                
+                observe({
+                  
+                  if (nrow(DF1$data) == 1) {
+                    if (length(input$compare_select) > 0) {
+                      output$db_entries <- renderRHandsontable({
+                        rhandsontable(
+                          select(DF1$data, 1:12, input$compare_select),
+                          rowHeaders = NULL
+                        ) %>%
+                          hot_col(1:(12+length(input$compare_select)), valign = "htMiddle") %>%
+                          hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                          hot_col(2,
+                                  halign = "htCenter",
+                                  valign = "htTop",
+                                  width = "auto") %>%
+                          hot_context_menu(allowRowEdit = FALSE,
+                                           allowColEdit = FALSE,
+                                           allowReadOnly = FALSE) %>%
+                          hot_rows(rowHeights = 30,
+                                   fixedRowsTop = 0)
+                      })
+                    } else {
+                      output$db_entries <- renderRHandsontable({
+                        rhandsontable(
+                          select(DF1$data, 1:12),
+                          rowHeaders = NULL
+                        ) %>%
+                          hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                          hot_col(2,
+                                  halign = "htCenter",
+                                  valign = "htTop",
+                                  width = "auto") %>%
+                          hot_context_menu(allowRowEdit = FALSE,
+                                           allowColEdit = FALSE,
+                                           allowReadOnly = FALSE) %>%
+                          hot_rows(fixedRowsTop = 0)
+                      })
+                    }
+                  } else {
+                    if (length(input$compare_select) > 0) {
+                      output$db_entries <- renderRHandsontable({
+                        rhandsontable(
+                          select(DF1$data, 1:12, input$compare_select),
+                          col_highlight = diff_allele()-1,
+                          rowHeaders = NULL,
+                          height = 900
+                        ) %>%
+                          hot_col(1:(12+length(input$compare_select)), valign = "htMiddle") %>%
+                          hot_context_menu(allowRowEdit = FALSE,
+                                           allowColEdit = FALSE,
+                                           allowReadOnly = FALSE) %>%
+                          hot_col(2,
+                                  halign = "htCenter",
+                                  valign = "htTop",
+                                  width = "auto") %>%
+                          hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                          hot_rows(fixedRowsTop = 0) %>%
+                          hot_col(diff_allele(),
+                                  renderer = "
+                function(instance, td, row, col, prop, value, cellProperties) {
+                  Handsontable.renderers.NumericRenderer.apply(this, arguments);
+
+                  if (instance.params) {
+                        hcols = instance.params.col_highlight;
+                        hcols = hcols instanceof Array ? hcols : [hcols];
+                      }
+
+                  if (instance.params && hcols.includes(col)) {
+                    td.style.background = '#FF8F8F';
+                  }
+              }"
+                          ) 
+                      })
+                    } else {
+                      output$db_entries <- renderRHandsontable({
+                        rhandsontable(
+                          select(DF1$data, 1:12),
+                          rowHeaders = NULL,
+                          height = 900
+                        ) %>%
+                          hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                          hot_col(1:12, valign = "htMiddle") %>%
+                          hot_col(2,
+                                  halign = "htCenter",
+                                  valign = "htTop",
+                                  width = "auto") %>%
+                          hot_context_menu(allowRowEdit = FALSE,
+                                           allowColEdit = FALSE,
+                                           allowReadOnly = FALSE) %>%
+                          hot_rows(fixedRowsTop = 0)
+                      })
+                    }
+                  }
+                })
+                
+                # Hide no entry message
+                output$db_no_entries <- NULL
+                
+              } else {
+                
+                # If database loading not successful dont show entry table
+                output$db_entries_table <- NULL
+              }
+              
+              #### Render Allele Differences as Highlights ----
+              
+              diff_allele <- reactive({
+                if (!class(DF1$data) == "NULL") {
+                  var_alleles(select(DF1$data, input$compare_select)) + 12
+                }
+              })
+              
+              # Render delete entry box UI
+              output$delete_box <- renderUI({
+                box(
+                  solidHeader = TRUE,
+                  status = "primary",
+                  width = "100%",
+                  fluidRow(
+                    column(
+                      width = 12,
+                      align = "center",
+                      h3(p("Delete Entries"), style = "color:white")
+                    )
+                  ),
+                  hr(),
+                  fluidRow(
+                    column(width = 1),
+                    column(
+                      width = 2,
+                      align = "right",
+                      br(),
+                      h5("Index", style = "color:white; margin-bottom: 0px;")
+                    ),
+                    column(
+                      width = 6,
+                      align = "center",
+                      uiOutput("delete_select")
+                    ),
+                    column(
+                      width = 2,
+                      align = "center",
+                      br(),
+                      uiOutput("del_bttn")
+                    )
+                  ),
+                  br()
+                )
+              })
+              
+              # Render loci comparison box UI
+              output$compare_allele_box <- renderUI({
+                box(
+                  solidHeader = TRUE,
+                  status = "primary",
+                  width = "100%",
+                  fluidRow(
+                    column(
+                      width = 12,
+                      align = "center",
+                      h3(p("Compare Loci"), style = "color:white")
+                    )
+                  ),
+                  hr(),
+                  column(
+                    width = 12,
+                    align = "center",
+                    br(),
+                    uiOutput("compare_select"),
+                    br(),
+                    column(3),
+                    column(
+                      width = 8,
+                      align = "left",
+                      checkboxInput(
+                        "compare_difference",
+                        label = h5("Only varying loci", style = "color:white; position: relative; top: -6px"),
+                        value = TRUE
+                      )
+                    )
+                  ),
+                  br()
+                )
+              })
+              
+              # Render entry table download box UI
+              output$download_entries <- renderUI({
+                box(
+                  solidHeader = TRUE,
+                  status = "primary",
+                  width = "100%",
+                  fluidRow(
+                    column(
+                      width = 12,
+                      align = "center",
+                      h3(p("Download Table"), style = "color:white")
+                    )
+                  ),
+                  hr(),
+                  fluidRow(
+                    column(2),
+                    column(
+                      width = 10,
+                      align = "left",
+                      br(),
+                      checkboxInput(
+                        "download_table_include",
+                        label = h5("Only included entries (Include = TRUE)", style = "color:white; margin-top: 4px")
+                      ),
+                      checkboxInput(
+                        "download_table_loci",
+                        label = h5("Include displayed loci", style = "color:white; margin-top: 4px"),
+                        value = FALSE
+                      ),
+                      br(),
+                    )
+                  ),
+                  fluidRow(
+                    column(
+                      width = 12,
+                      align = "center",
+                      downloadBttn(
+                        "download_entry_table",
+                        style = "simple",
+                        label = "",
+                        size = "sm",
+                        icon = icon("download"),
+                        color = "primary"
+                      )
+                    )
+                  ),
+                  br()
+                )
+              })
+              
+              # Render entry deletion select input
+              output$delete_select <- renderUI({
+                pickerInput("select_delete",
+                            label = "",
+                            choices = DF1$data[, "Index"],
+                            options = list(
+                              `live-search` = TRUE,
+                              size = 10,
+                              style = "background-color: white; border-radius: 5px;"
+                            ),
+                            multiple = TRUE)
+              })
+              
+              # Render delete entry button
+              output$del_bttn <- renderUI({
+                actionBttn(
+                  "del_button",
+                  label = "",
+                  color = "danger",
+                  size = "sm",
+                  style = "material-circle",
+                  icon = icon("xmark")
+                )
+              })
+              
+              #### Missing Values UI ----
+              
+              # Missing values calculations and table 
+              NA_table <- DF1$allelic_profile[, colSums(is.na(DF1$allelic_profile)) != 0]
+              
+              NA_table <- NA_table[rowSums(is.na(NA_table)) != 0,]
+              
+              NA_table[is.na(NA_table)] <- "NA"
+              
+              NA_table <- NA_table %>% 
+                cbind("Assembly Name" = DF1$meta[rownames(NA_table),]$`Assembly Name`) %>%
+                cbind("Errors" = DF1$meta[rownames(NA_table),]$Errors) %>%
+                relocate("Assembly Name", "Errors")
+              
+              # Render missing values Table
+              output$table_missing_values <- renderRHandsontable({
+                rhandsontable(
+                  NA_table,
+                  rowHeaders = NULL
+                ) %>%
+                  hot_context_menu(allowRowEdit = FALSE,
+                                   allowColEdit = FALSE,
+                                   allowReadOnly = TRUE) %>%
+                  hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                  hot_rows(fixedRowsTop = 0) 
+              })
+              
+              # Render missing value informatiojn box UI
+              output$missing_values <- renderUI({
+                box(
+                  solidHeader = TRUE,
+                  status = "primary",
+                  width = "100%",
+                  fluidRow(
+                    div(
+                      class = "white",
+                      column(
+                        width = 12,
+                        align = "left",
+                        br(), 
+                        HTML(
+                          paste0("There are ", 
+                                 strong(as.character(sum(is.na(DF1$data)))), 
+                                 " unsuccessful allele allocations (NA). ",
+                                 strong(sum(sapply(DF1$allelic_profile, anyNA))),
+                                 " out of ",
+                                 strong(ncol(DF1$allelic_profile)),
+                                 " total loci in this scheme contain NA's (",
+                                 strong(round((sum(sapply(DF1$allelic_profile, anyNA)) / ncol(DF1$allelic_profile) * 100), 1)),
+                                 " %). ",
+                                 "Decide how these missing values should be treated:")
+                          
+                        ),
+                        br()
+                      )
+                    )
+                  ),
+                  fluidRow(
+                    column(1),
+                    column(
+                      width = 11,
+                      align = "left",
+                      br(),
+                      prettyRadioButtons(
+                        "na_handling",
+                        "",
+                        choiceNames = c("Loci containing missing values are ignored (default)",
+                                        "Missing values are allelic difference of 1",
+                                        "Missing values are an own category"),
+                        choiceValues = c("ignore", "one", "category"),
+                        shape = "curve",
+                        selected = c("ignore")
+                      ),
+                      br()
+                    )
+                  )
+                )
+              })  
+              
+            } else { #if no typed assemblies present
+              
+              output$db_no_entries <- renderUI(HTML(
+                paste(
+                  "<span style='color: white;'>",
+                  "No Entries for this scheme available.",
+                  "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
+                  sep = '<br/>'
+                )
+              ))
+              
+              output$db_entries <- NULL
+              output$edit_index <- NULL
+              output$edit_scheme_d <- NULL
+              output$edit_entries <- NULL
+              output$compare_select <- NULL
+              output$delete_select <- NULL
+              output$del_bttn <- NULL
+              output$compare_allele_box <- NULL
+              output$download_entries <- NULL
+              output$missing_values <- NULL
+              output$delete_box <- NULL
+              
+            }
+          }
+        }
+      }
+    }
+  })
+  
+  ## Database ----
+  
+  ### Conditional UI Elements rendering ----
+  
+  observe({
+    if (!DF1$exist) {
+      
+      output$scheme_db <- renderUI({
+        if (length(DF1$available) > 5) {
+          selectInput(
+            "scheme_db",
+            label = "",
+            choices = DF1$available
+          )
+        } else {
+          prettyRadioButtons(
+            "scheme_db",
+            label = "",
+            choices = DF1$available
           )
         }
       })
       
       # Dont Show 'No Database' message
-      output$no_db <- NULL
-      
-      # Show Load Database Button
-      output$load <- renderUI(actionButton("load",
-                                           "Load"))
+      output$start_message_no_db <- NULL
       
       if (!class(DF1$schemeinfo) == "NULL") {
         
@@ -4432,656 +5446,52 @@ server <- function(input, output, session) {
       }
       
     } else {
-      output$no_db <- renderUI(HTML(
-        paste(
-          "<span style='color: white;'>",
-          "No local Schemes or Entries available.",
-          "Download a cgMLST Scheme in the Section <strong>Add Scheme</strong>.",
-          sep = '<br/>'
+      output$start_message_no_db <- renderUI({
+        column(
+          width = 12, 
+          align = "center",
+          br(), br(), br(), br(), br(), br(),
+          div( 
+            class = "image",
+            imageOutput("imageOutput")
+          ),
+          br(),
+          p(
+            HTML(
+              paste(
+                tags$span(style='color: white; font-size: 24px;', 'Welcome to PhyloTrace!')
+              )
+            )
+          ),
+          br(), br(),
+          p(
+            HTML(
+              paste(
+                "<span style='color: white; font-size: 16px'>",
+                "No local Schemes or Entries available.",
+                "Download a cgMLST Scheme in the Section <strong>Add Scheme</strong>.",
+                sep = '<br/>'
+              )
+            )
+          ),
+          br(), br(), 
+          actionButton("load",
+                       "Load"),
+          br(), br(), br(), br(), br(), br(), br(), br()
         )
-      ))
+      })
+      
+      # Dont show normal start message if no Database available
+      output$start_message <- NULL
       
       # Dont show Database Selector if no Database available
       output$scheme_db <- NULL
       
-      # Dont show Load Database Button if no Database available
-      output$load <- NULL
     }
     
   })
   
-  ### Load database Event ----
-  observeEvent(input$load, {
-    if (any(grepl("Typing.rds", dir_ls(paste0(
-      getwd(), "/Database/", gsub(" ", "_", input$scheme_db)
-    ))))) {
-      Database <-
-        readRDS(paste0(
-          getwd(),
-          "/Database/",
-          gsub(" ", "_", input$scheme_db),
-          "/Typing.rds"
-        ))
-      
-      output$edit_button <- renderUI({
-        actionButton("edit_button",
-                     "",
-                     icon = icon("bookmark"))
-      })
-      
-      DF1$data <- Database[["Typing"]]
-      
-      DF1$meta <- select(DF1$data, 1:12)
-      
-      DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
-      
-      DF1$allelic_profile <- select(DF1$data, -(1:12))
-      
-      DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
-      
-      DF1$scheme <- input$scheme_db
-      
-      #### Render Menu Items ----
-      
-      removeModal()
-      
-      renderstart$sidebar <- FALSE
-      renderstart$header <- FALSE
-      
-      output$menu_sep1 <- renderUI(hr())
-      output$menu_sep2 <- renderUI(hr())
-      
-      output$loaded_scheme <- renderUI({
-        fluidRow(
-          column(width = 2),
-          column(
-            width = 6,
-            div(
-              class = "scheme_start",
-              p(
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 15px;', strong("Selected scheme:"))
-                  )
-                )
-              ),
-              p(
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 15px; font-style: italic', DF1$scheme)
-                  )
-                )
-              )
-            )
-          ),
-          column(
-            width = 2,
-            div(
-              class = "reload-bttn",
-              actionButton(
-                "reload_db",
-                label = "",
-                icon = icon("rotate")
-              )
-            )
-          )
-        )
-      })
-      
-      if(!anyNA(DF1$allelic_profile)) {
-        output$menu <- renderMenu(
-          sidebarMenu(
-            menuItem(
-              text = "Database Browser",
-              tabName = "database",
-              icon = icon("hard-drive"),
-              startExpanded = TRUE,
-              selected = TRUE,
-              menuSubItem(
-                text = "Browse Entries",
-                tabName = "db_browse_entries"
-              ),
-              menuSubItem(
-                text = "Scheme Info",
-                tabName = "db_schemeinfo"
-              ),
-              menuSubItem(
-                text = "Distance Matrix",
-                tabName = "db_distmatrix"
-              )
-            ),
-            menuItem(
-              text = "Add Scheme",
-              tabName = "init",
-              icon = icon("plus")
-            ),
-            menuItem(
-              text = "Allelic Typing",
-              tabName = "typing",
-              icon = icon("dna")
-            ),
-            menuItem(
-              text = "Visualization",
-              tabName = "visualization",
-              icon = icon("chart-line")
-            ),
-            menuItem(
-              text = "Report",
-              tabName = "report",
-              icon = icon("file-lines")
-            )
-          )
-        )
-      } else {
-        output$menu <- renderMenu(
-          sidebarMenu(
-            menuItem(
-              text = "Database Browser",
-              tabName = "database",
-              icon = icon("hard-drive"),
-              startExpanded = TRUE,
-              menuSubItem(
-                text = "Browse Entries",
-                tabName = "db_browse_entries"
-              ),
-              menuSubItem(
-                text = "Scheme Info",
-                tabName = "db_schemeinfo"
-              ),
-              menuSubItem(
-                text = "Distance Matrix",
-                tabName = "db_distmatrix"
-              ),
-              menuSubItem(
-                text = "Missing Values",
-                tabName = "db_missing_values",
-                selected = TRUE,
-                icon = icon("triangle-exclamation")
-              )
-            ),
-            menuItem(
-              text = "Add Scheme",
-              tabName = "init",
-              icon = icon("plus")
-            ),
-            menuItem(
-              text = "Allelic Typing",
-              tabName = "typing",
-              icon = icon("dna")
-            ),
-            menuItem(
-              text = "Visualization",
-              tabName = "visualization",
-              icon = icon("chart-line")
-            ),
-            menuItem(
-              text = "Report",
-              tabName = "report",
-              icon = icon("file-lines")
-            )
-          )
-        )
-      }
-      
-      output$start_message <- NULL
-      
-      output$compare_select <- renderUI({
-        
-        if (input$compare_difference == FALSE) {
-          pickerInput(
-            inputId = "compare_select",
-            label = "",
-            width = "85%",
-            choices = names(DF1$allelic_profile),
-            selected = names(DF1$allelic_profile)[1:20],
-            options = list(
-              `live-search` = TRUE,
-              `actions-box` = TRUE,
-              size = 10,
-              style = "background-color: white; border-radius: 5px;"
-            ),
-            multiple = TRUE
-          )
-        } else {
-          pickerInput(
-            inputId = "compare_select",
-            label = "",
-            width = "85%",
-            choices = names(DF1$allelic_profile),
-            selected = names(DF1$allelic_profile)[var_alleles(DF1$allelic_profile)],
-            options = list(
-              `live-search` = TRUE,
-              `actions-box` = TRUE,
-              size = 10,
-              style = "background-color: white; border-radius: 5px;"
-            ),
-            multiple = TRUE
-          )
-        }
-      })
-      
-      
-      #### Render Entry Data Table ----
-      
-      output$db_entries_table <- renderUI({
-        addSpinner(
-          rHandsontableOutput("db_entries"),
-          spin = "dots",
-          color = "#ffffff"
-        )
-      })
-      
-      # Determine Entry Table Height 
-      height_table <- reactive({
-        if (nrow(DF1$data > 25)) {
-          800
-        } else {
-          nrow(DF1$data) * 50 + 75
-        }
-      })
-      
-      if (!class(DF1$data) == "NULL") {
-        
-        observe({
-          
-          if (nrow(DF1$data) == 1) {
-            if (length(input$compare_select) > 0) {
-              output$db_entries <- renderRHandsontable({
-                rhandsontable(
-                  select(DF1$data, 1:12, input$compare_select),
-                  rowHeaders = NULL
-                ) %>%
-                  hot_col(1:(12+length(input$compare_select)), valign = "htMiddle") %>%
-                  hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                  hot_col(2,
-                          halign = "htCenter",
-                          valign = "htTop",
-                          width = "auto") %>%
-                  hot_context_menu(allowRowEdit = FALSE,
-                                   allowColEdit = FALSE,
-                                   allowReadOnly = FALSE) %>%
-                  hot_rows(rowHeights = 30,
-                           fixedRowsTop = 0)
-              })
-            } else {
-              output$db_entries <- renderRHandsontable({
-                rhandsontable(
-                  select(DF1$data, 1:12),
-                  rowHeaders = NULL
-                ) %>%
-                  hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                  hot_col(2,
-                          halign = "htCenter",
-                          valign = "htTop",
-                          width = "auto") %>%
-                  hot_context_menu(allowRowEdit = FALSE,
-                                   allowColEdit = FALSE,
-                                   allowReadOnly = FALSE) %>%
-                  hot_rows(fixedRowsTop = 0)
-              })
-            }
-          } else {
-            if (length(input$compare_select) > 0) {
-              output$db_entries <- renderRHandsontable({
-                rhandsontable(
-                  select(DF1$data, 1:12, input$compare_select),
-                  col_highlight = diff_allele()-1,
-                  rowHeaders = NULL,
-                  height = 900
-                ) %>%
-                  hot_col(1:(12+length(input$compare_select)), valign = "htMiddle") %>%
-                  hot_context_menu(allowRowEdit = FALSE,
-                                   allowColEdit = FALSE,
-                                   allowReadOnly = FALSE) %>%
-                  hot_col(2,
-                          halign = "htCenter",
-                          valign = "htTop",
-                          width = "auto") %>%
-                  hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                  hot_rows(fixedRowsTop = 0) %>%
-                  hot_col(diff_allele(),
-                          renderer = "
-                function(instance, td, row, col, prop, value, cellProperties) {
-                  Handsontable.renderers.NumericRenderer.apply(this, arguments);
-
-                  if (instance.params) {
-                        hcols = instance.params.col_highlight;
-                        hcols = hcols instanceof Array ? hcols : [hcols];
-                      }
-
-                  if (instance.params && hcols.includes(col)) {
-                    td.style.background = '#FF8F8F';
-                  }
-              }"
-                  ) 
-              })
-            } else {
-              output$db_entries <- renderRHandsontable({
-                rhandsontable(
-                  select(DF1$data, 1:12),
-                  rowHeaders = NULL,
-                  height = 900
-                ) %>%
-                  hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                  hot_col(1:12, valign = "htMiddle") %>%
-                  hot_col(2,
-                          halign = "htCenter",
-                          valign = "htTop",
-                          width = "auto") %>%
-                  hot_context_menu(allowRowEdit = FALSE,
-                                   allowColEdit = FALSE,
-                                   allowReadOnly = FALSE) %>%
-                  hot_rows(fixedRowsTop = 0)
-              })
-            }
-          }
-        })
-        
-        output$db_no_entries <- NULL
-        
-      } else {
-        output$db_entries_table <- NULL
-      }
-      
-      ### Render Allele Differences as Highlights ----
-      
-      diff_allele <- reactive({
-        if (!class(DF1$data) == "NULL") {
-          var_alleles(select(DF1$data, input$compare_select)) + 12
-        }
-      })
-      
-      ### Other UI Elements ----
-      
-      #### Missing Values UI ----
-      
-      # NA Table
-      NA_table <- DF1$allelic_profile[, colSums(is.na(DF1$allelic_profile)) != 0]
-      
-      NA_table <- NA_table[rowSums(is.na(NA_table)) != 0,]
-      
-      NA_table[is.na(NA_table)] <- "NA"
-      
-      NA_table <- NA_table %>% 
-        cbind("Assembly Name" = DF1$meta[rownames(NA_table),]$`Assembly Name`) %>%
-        cbind("Errors" = DF1$meta[rownames(NA_table),]$Errors) %>%
-        relocate("Assembly Name", "Errors")
-      
-      output$table_missing_values <- renderRHandsontable({
-        rhandsontable(
-          NA_table,
-          rowHeaders = NULL
-        ) %>%
-          hot_context_menu(allowRowEdit = FALSE,
-                           allowColEdit = FALSE,
-                           allowReadOnly = TRUE) %>%
-          hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-          hot_rows(fixedRowsTop = 0) 
-      })
-      
-      output$delete_box <- renderUI({
-        box(
-          solidHeader = TRUE,
-          status = "primary",
-          width = "100%",
-          fluidRow(
-            column(
-              width = 12,
-              align = "center",
-              h3(p("Delete Entries"), style = "color:white")
-            )
-          ),
-          hr(),
-          fluidRow(
-            column(width = 1),
-            column(
-              width = 2,
-              align = "right",
-              br(),
-              h5("Index", style = "color:white; margin-bottom: 0px;")
-            ),
-            column(
-              width = 6,
-              align = "center",
-              uiOutput("delete_select")
-            ),
-            column(
-              width = 2,
-              align = "center",
-              br(),
-              uiOutput("del_bttn")
-            )
-          ),
-          br()
-        )
-      })
-      
-      output$compare_allele_box <- renderUI({
-        box(
-          solidHeader = TRUE,
-          status = "primary",
-          width = "100%",
-          fluidRow(
-            column(
-              width = 12,
-              align = "center",
-              h3(p("Compare Loci"), style = "color:white")
-            )
-          ),
-          hr(),
-          column(
-            width = 12,
-            align = "center",
-            br(),
-            uiOutput("compare_select"),
-            br(),
-            column(3),
-            column(
-              width = 8,
-              align = "left",
-              checkboxInput(
-                "compare_difference",
-                label = h5("Only varying loci", style = "color:white; position: relative; top: -6px"),
-                value = TRUE
-              )
-            )
-          ),
-          br()
-        )
-      })
-      
-      output$download_entries <- renderUI({
-        box(
-          solidHeader = TRUE,
-          status = "primary",
-          width = "100%",
-          fluidRow(
-            column(
-              width = 12,
-              align = "center",
-              h3(p("Download Table"), style = "color:white")
-            )
-          ),
-          hr(),
-          fluidRow(
-            column(2),
-            column(
-              width = 10,
-              align = "left",
-              br(),
-              checkboxInput(
-                "download_table_include",
-                label = h5("Only included entries (Include = TRUE)", style = "color:white; margin-top: 4px")
-              ),
-              checkboxInput(
-                "download_table_loci",
-                label = h5("Include displayed loci", style = "color:white; margin-top: 4px"),
-                value = FALSE
-              ),
-              br(),
-            )
-          ),
-          fluidRow(
-            column(
-              width = 12,
-              align = "center",
-              downloadBttn(
-                "download_entry_table",
-                style = "simple",
-                label = "",
-                size = "sm",
-                icon = icon("download"),
-                color = "primary"
-              )
-            )
-          ),
-          br()
-        )
-      })
-      
-      output$missing_values <- renderUI({
-        box(
-          solidHeader = TRUE,
-          status = "primary",
-          width = "100%",
-          fluidRow(
-            div(
-              class = "white",
-              column(
-                width = 12,
-                align = "left",
-                br(), 
-                HTML(
-                  paste0("There are ", 
-                         strong(as.character(sum(is.na(DF1$data)))), 
-                         " unsuccessful allele allocations (NA). ",
-                         strong(sum(sapply(DF1$allelic_profile, anyNA))),
-                         " out of ",
-                         strong(ncol(DF1$allelic_profile)),
-                         " total loci in this scheme contain NA's (",
-                         strong(round((sum(sapply(DF1$allelic_profile, anyNA)) / ncol(DF1$allelic_profile) * 100), 1)),
-                         " %). ",
-                         "Decide how these missing values should be treated:")
-                  
-                ),
-                br()
-              )
-            )
-          ),
-          fluidRow(
-            column(1),
-            column(
-              width = 11,
-              align = "left",
-              br(),
-              prettyRadioButtons(
-                "na_handling",
-                "",
-                choiceNames = c("Loci containing missing values are ignored (default)",
-                                "Missing values are allelic difference of 1",
-                                "Missing values are an own category"),
-                choiceValues = c("ignore", "one", "category"),
-                shape = "curve",
-                selected = c("ignore")
-              ),
-              br()
-            )
-          )
-        )
-      })
-      
-      output$delete_select <- renderUI({
-        pickerInput("select_delete",
-                    label = "",
-                    choices = DF1$data[, "Index"],
-                    options = list(
-                      `live-search` = TRUE,
-                      size = 10,
-                      style = "background-color: white; border-radius: 5px;"
-                    ),
-                    multiple = TRUE)
-      })
-      
-      output$del_bttn <- renderUI({
-        actionBttn(
-          "del_button",
-          label = "",
-          color = "danger",
-          size = "sm",
-          style = "material-circle",
-          icon = icon("xmark")
-        )
-      })
-      
-      #### Distance Matrix ----
-      
-      
-      
-    } else if (!any(grepl("Typing.rds", dir_ls(paste0(
-      getwd(), "/Database/", gsub(" ", "_", DF1$scheme)
-    ))))) {
-      output$db_no_entries <- renderUI(HTML(
-        paste(
-          "<span style='color: white;'>",
-          "No Entries for this scheme available.",
-          "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
-          sep = '<br/>'
-        )
-      ))
-      
-      output$db_entries <- NULL
-      output$edit_index <- NULL
-      output$edit_scheme_d <- NULL
-      output$edit_entries <- NULL
-      output$compare_select <- NULL
-      output$delete_select <- NULL
-      output$del_bttn <- NULL
-      output$compare_allele_box <- NULL
-      output$download_entries <- NULL
-      output$missing_values <- NULL
-      output$delete_box <- NULL
-      
-    }
-    
-    # Produce Scheme Info Table
-    schemeinfo <-
-      read_html(paste0(
-        getwd(),
-        "/Database/",
-        gsub(" ", "_", DF1$scheme),
-        "/scheme_info.html"
-      )) %>%
-      html_table(header = FALSE) %>%
-      as.data.frame(stringsAsFactors = FALSE)
-    names(schemeinfo) <- NULL
-    DF1$schemeinfo <- schemeinfo
-    
-    # Produce Loci Info Table
-    DF1$loci_info <- read.csv(
-      paste0(
-        getwd(),
-        "/Database/",
-        gsub(" ", "_", DF1$scheme),
-        "/targets.csv"
-      ),
-      header = TRUE,
-      sep = "\t",
-      row.names = NULL,
-      colClasses = c(
-        "NULL",
-        "character",
-        "character",
-        "integer",
-        "integer",
-        "character",
-        "integer",
-        "NULL"
-      )
-    )
-    
-  })
-  
-  ### Other Database Events ----
+  ### Database Events ----
   
   #### Download Missing Value Matrix as CSV ----
   
@@ -5647,7 +6057,7 @@ server <- function(input, output, session) {
     )
     
     # Send downloaded scheme to datbase browser overview
-    database$available <-
+    DF1$available <-
       gsub("_", " ", basename(dir_ls(paste0(
         getwd(), "/Database"
       ))))
@@ -5670,7 +6080,7 @@ server <- function(input, output, session) {
         )
       )
     
-    database$exist <-
+    DF1$exist <-
       (length(dir_ls(paste0(
         getwd(), "/Database/"
       ))) == 0)
