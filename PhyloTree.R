@@ -1475,14 +1475,11 @@ ui <- dashboardPage(
         hr(), br(),
         br(),
         br(),
+        uiOutput("no_scheme_entries"),
+        uiOutput("db_no_entries"),
         fluidRow(
           column(
             width = 8,
-            column(
-              width = 12,
-              align = "center",
-              uiOutput("db_no_entries")
-            ),
             uiOutput("db_entries_table")
           ),
           column(
@@ -1508,6 +1505,7 @@ ui <- dashboardPage(
           )
         ),
         hr(), br(), br(), br(),
+        uiOutput("no_scheme_info"),
         fluidRow(
           tags$style(".test .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_processing, .dataTables_wrapper .dataTables_paginate {
     color: #ffffff !important;}"),
@@ -1564,18 +1562,12 @@ ui <- dashboardPage(
           )
         ),
         hr(), br(), br(), br(),
+        uiOutput("no_scheme_distancematrix"),
+        uiOutput("distancematrix_no_entries"),
         fluidRow(
           tags$style("div#db_distancematrix.rhandsontable {font-size: 11px}"),
           column(1),
-          column(
-            width = 10,
-            div(
-              class = "distmatrix",
-              rHandsontableOutput("db_distancematrix")
-            ),
-            br(),
-            br()
-          ),
+          uiOutput("distmatrix_show"),
           br() 
         ),
         br(), br(), br()
@@ -4168,8 +4160,6 @@ server <- function(input, output, session) {
     
   })
   
-
-  
   ### Landing page ----
   observe({
     if (renderstart$sidebar == FALSE) {
@@ -4248,6 +4238,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$load, {
     
+    DF1$scheme <- input$scheme_db
     removeModal()
     
     #### Render Menu Items ----
@@ -4313,6 +4304,7 @@ server <- function(input, output, session) {
       
       # Dont render these elements
       output$db_no_entries <- NULL
+      output$distancematrix_no_entries <- NULL
       output$db_entries <- NULL
       output$edit_index <- NULL
       output$edit_scheme_d <- NULL
@@ -4548,6 +4540,45 @@ server <- function(input, output, session) {
           )
           
         } else {
+          # this 
+          # Render scheme selector in sidebar
+          output$loaded_scheme <- renderUI({
+            fluidRow(
+              column(width = 2),
+              column(
+                width = 6,
+                div(
+                  class = "scheme_start",
+                  p(
+                    HTML(
+                      paste(
+                        tags$span(style='color: white; font-size: 15px;', strong("Selected scheme:"))
+                      )
+                    )
+                  ),
+                  p(
+                    HTML(
+                      paste(
+                        tags$span(style='color: white; font-size: 15px; font-style: italic', DF1$scheme)
+                      )
+                    )
+                  )
+                )
+              ),
+              column(
+                width = 2,
+                div(
+                  class = "reload-bttn",
+                  actionButton(
+                    "reload_db",
+                    label = "",
+                    icon = icon("rotate")
+                  )
+                )
+              )
+            )
+          })
+          
           # Produce Scheme Info Table
           schemeinfo <-
             read_html(paste0(
@@ -4695,7 +4726,6 @@ server <- function(input, output, session) {
                       tabName = "database",
                       icon = icon("hard-drive"),
                       startExpanded = TRUE,
-                      selected = TRUE,
                       menuSubItem(
                         text = "Browse Entries",
                         tabName = "db_browse_entries"
@@ -4909,6 +4939,11 @@ server <- function(input, output, session) {
                     br()
                   ),
                   checkboxInput(
+                    "distmatrix_true",
+                    "Only included entries (Include = TRUE)",
+                    value = FALSE
+                  ),
+                  checkboxInput(
                     "distmatrix_triangle",
                     "Show upper triangle",
                     value = FALSE
@@ -4916,7 +4951,7 @@ server <- function(input, output, session) {
                   checkboxInput(
                     "distmatrix_diag",
                     "Show diagonal",
-                    value = FALSE
+                    value = TRUE
                   ),
                   br(),
                   fluidRow(
@@ -5097,6 +5132,7 @@ server <- function(input, output, session) {
                 
                 # Hide no entry message
                 output$db_no_entries <- NULL
+                output$distancematrix_no_entries <- NULL
                 
               } else {
                 
@@ -5242,6 +5278,7 @@ server <- function(input, output, session) {
                             choices = DF1$data[, "Index"],
                             options = list(
                               `live-search` = TRUE,
+                              `actions-box` = TRUE,
                               size = 10,
                               style = "background-color: white; border-radius: 5px;"
                             ),
@@ -5387,14 +5424,37 @@ server <- function(input, output, session) {
                 )
               )
               
-              output$db_no_entries <- renderUI(HTML(
-                paste(
-                  "<span style='color: white;'>",
-                  "No Entries for this scheme available.",
-                  "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
-                  sep = '<br/>'
+              output$db_no_entries <- renderUI(
+                fluidRow(
+                  column(1),
+                  column(
+                    width = 11,
+                    align = "left",
+                    HTML(paste(
+                      "<span style='color: white;'>",
+                      "No Entries for this scheme available.",
+                      "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
+                      sep = '<br/>'
+                    ))
+                  )
                 )
-              ))
+              )
+              
+              output$distancematrix_no_entries <- renderUI(
+                fluidRow(
+                  column(1),
+                  column(
+                    width = 11,
+                    align = "left",
+                    HTML(paste(
+                      "<span style='color: white;'>",
+                      "No Entries for this scheme available.",
+                      "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
+                      sep = '<br/>'
+                    ))
+                  )
+                )
+              )
               
               output$db_entries <- NULL
               output$edit_index <- NULL
@@ -5418,6 +5478,98 @@ server <- function(input, output, session) {
   ## Database ----
   
   ### Conditional UI Elements rendering ----
+  
+  # Message on Database tabs if no scheme available yet
+  observe({
+    if(DF1$exist){
+      
+      # Message for tab Browse Entries
+      output$no_scheme_entries <- renderUI({
+        fluidRow(
+          column(1),
+          column(
+            width = 4,
+            align = "left",
+            p(
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 15px; ', 
+                            'No scheme available.')
+                )
+              )
+            ),
+            p(
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 15px; ', 
+                            'Download a scheme first and type assemblies in the section Allelic Typing.')
+                )
+              )
+            )
+          )
+        )
+      })
+      
+      # Message for Tab Scheme Info
+      output$no_scheme_info <- renderUI({
+        fluidRow(
+          column(1),
+          column(
+            width = 10,
+            align = "left",
+            p(
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 15px; ', 
+                            'No scheme available.')
+                )
+              )
+            ),
+            p(
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 15px; ', 
+                            'Download a scheme first and type assemblies in the section Allelic Typing.')
+                )
+              )
+            )
+          )
+        )
+      })
+      
+      # Message for Tab Distance Matrix
+      output$no_scheme_distancematrix <- renderUI({
+        fluidRow(
+          column(1),
+          column(
+            width = 10,
+            align = "left",
+            p(
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 15px; ', 
+                            'No scheme available.')
+                )
+              )
+            ),
+            p(
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 15px; ', 
+                            'Download a scheme first and type assemblies in the section Allelic Typing.')
+                )
+              )
+            )
+          )
+        )
+      })
+      
+    } else {
+      output$no_scheme_entries <- NULL
+      output$no_scheme_info <- NULL
+      output$no_scheme_distancematrix <- NULL
+    }
+  })
   
   observe({
     # Conditional Missing Values Tab
@@ -5445,6 +5597,7 @@ server <- function(input, output, session) {
               menuSubItem(
                 text = "Missing Values",
                 tabName = "db_missing_values",
+                selected = TRUE,
                 icon = icon("triangle-exclamation")
               )
             ),
@@ -5515,6 +5668,7 @@ server <- function(input, output, session) {
         )
       }
     }
+    
   })
   
   observe({
@@ -5818,6 +5972,7 @@ server <- function(input, output, session) {
   
   observe({
     if(!class(DF1$data) == "NULL") {
+      
       output$db_distancematrix <- renderRHandsontable({
         rhandsontable(hamming_df(), digits = 1, height = 800, rowHeaders = NULL) %>%
           hot_heatmap(renderer = paste0("function (instance, td, row, col, prop, value, cellProperties) {
@@ -5836,8 +5991,9 @@ server <- function(input, output, session) {
 ")) %>%
           hot_rows(fixedRowsTop = 0) %>%
           hot_cols(fixedColumnsLeft = 1) %>%
-          hot_col(1:(dim(DF1$ham_matrix)[1]),
-                  halign = "htCenter") %>%
+          hot_col(1:(dim(DF1$ham_matrix)[1]+1),
+                  halign = "htCenter",
+                  valign = "htMiddle") %>%
           hot_col(1,
                   renderer = "
                 function(instance, td, row, col, prop, value, cellProperties) {
@@ -5847,21 +6003,66 @@ server <- function(input, output, session) {
               }"
           ) 
       })
+      
+      # Render Distance Matrix UI
+      
+      output$distmatrix_show <- renderUI({
+        if(nrow(DF1$data) > 1) {
+          column(
+            width = 10,
+            div(
+              class = "distmatrix",
+              rHandsontableOutput("db_distancematrix")
+            ),
+            br(),
+            br()
+          )
+        } else {
+          column(
+            width = 10,
+            align = "left",
+            p(
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 15px;', "Type at least two assemblies to display a distance matrix.")
+                )
+              )
+            ),
+            br(),
+            br()
+          )
+        }
+      })
+      
     }
   })
   
   hamming_df <- reactive({
     # Create a custom proxy object for Hamming distance
-    if(anyNA(DF1$allelic_profile)) {
-      if(input$na_handling == "one") {
-        DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance_with_na)
-      } else if(input$na_handling == "ignore"){
-        allelic_profile_noNA <- DF1$allelic_profile_true[, colSums(is.na(DF1$allelic_profile_true)) == 0]
-        
-        DF1$hamming_proxy <- proxy::dist(allelic_profile_noNA, method = hamming_distance)
+    if(input$distmatrix_true == TRUE) {
+      if(anyNA(DF1$allelic_profile)) {
+        if(input$na_handling == "one") {
+          DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance_with_na)
+        } else if(input$na_handling == "ignore"){
+          allelic_profile_noNA <- DF1$allelic_profile_true[, colSums(is.na(DF1$allelic_profile_true)) == 0]
+          
+          DF1$hamming_proxy <- proxy::dist(allelic_profile_noNA, method = hamming_distance)
+        }
+      } else {
+        DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance)
       }
     } else {
-      DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance)
+      if(anyNA(DF1$allelic_profile)) {
+        if(input$na_handling == "one") {
+          DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile, method = hamming_distance_with_na)
+        } else if(input$na_handling == "ignore"){
+          allelic_profile_noNA <- DF1$allelic_profile[, colSums(is.na(DF1$allelic_profile)) == 0]
+          
+          DF1$hamming_proxy <- proxy::dist(allelic_profile_noNA, method = hamming_distance)
+        }
+      } else {
+        DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile, method = hamming_distance)
+      }
     }
     
     
@@ -5888,48 +6089,6 @@ server <- function(input, output, session) {
     DF1$ham_matrix
   })
   
-  observeEvent(input$distmatrix_change, {
-    
-    hamming_matrix <- as.matrix(DF1$hamming_proxy)
-    
-    if(input$distmatrix_triangle == FALSE) {
-      if(input$distmatrix_diag == FALSE) {
-        hamming_matrix[upper.tri(hamming_matrix, diag = TRUE)] <- NA
-      } else {
-        hamming_matrix[upper.tri(hamming_matrix, diag = FALSE)] <- NA
-      }
-    } 
-    
-    # Rownames change
-    rownames(hamming_matrix) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(hamming_matrix), 
-                                                       input$distmatrix_label]
-    colnames(hamming_matrix) <- rownames(hamming_matrix)
-    
-    mode(hamming_matrix) <- "integer"
-    
-    hamming_df <- hamming_matrix %>%
-      as.data.frame() %>%
-      mutate(Index = colnames(hamming_matrix)) %>%
-      relocate(Index)
-    
-    output$db_distancematrix <- renderRHandsontable({
-      rhandsontable(hamming_df, digits = 1, height = 800, rowHeaders = NULL) %>%
-        hot_heatmap(color_scale = c("#17F556","#ED6D47")) %>%
-        hot_rows(fixedRowsTop = 0) %>%
-        hot_cols(fixedColumnsLeft = 1) %>%
-        hot_col(1:(dim(hamming_matrix)[1]),
-                halign = "htCenter") %>%
-        hot_col(1,
-                renderer = "
-                function(instance, td, row, col, prop, value, cellProperties) {
-                  Handsontable.renderers.NumericRenderer.apply(this, arguments);
-
-                    td.style.background = '#F0F0F0'
-              }"
-        ) 
-    })
-  })
-  
   output$download_distmatrix <- downloadHandler(
     filename = function() {
       paste0(Sys.Date(), "_", gsub(" ", "_", DF1$scheme), "_Distance_Matrix.csv")
@@ -5941,6 +6100,7 @@ server <- function(input, output, session) {
     }
   )
   
+
   ## Download cgMLST ----
   
   myReactives <- reactiveValues()
