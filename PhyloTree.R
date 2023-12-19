@@ -870,7 +870,7 @@ ui <- dashboardPage(
       uiOutput("menu_sep2"),
       conditionalPanel(
         "input.tabs==='db_browse_entries'",
-        uiOutput("confirm_changes")
+        uiOutput("confirm_changes"),
       ),
       conditionalPanel(
         "input.tabs==='db_distmatrix'",
@@ -1568,7 +1568,7 @@ ui <- dashboardPage(
           tags$style("div#db_distancematrix.rhandsontable {font-size: 11px}"),
           column(1),
           uiOutput("distmatrix_show"),
-          br() 
+          br()
         ),
         br(), br(), br()
       ),
@@ -4131,6 +4131,18 @@ server <- function(input, output, session) {
     sum((is.na(x) | is.na(y)) | (x != y))
   }
 
+  # Function to determine entry table height
+  table_height <- reactive({
+    if (input$table_height == TRUE) {
+      NULL
+    } else {900}
+  })
+  
+  distancematrix_height <- reactive({
+    if(DF1$distancematrix_nrow > 33) {
+      800
+    } else {NULL}
+  })
 
   ## Startup ----
   
@@ -4829,6 +4841,21 @@ server <- function(input, output, session) {
                     "edit_button",
                     "",
                     icon = icon("bookmark")
+                  ),
+                  br(),
+                  fluidRow(
+                    column(1),
+                    column(
+                      width = 10,
+                      align = "left",
+                      if(nrow(DF1$data) > 40) {
+                        checkboxInput(
+                          "table_height",
+                          "Show full table",
+                          value = FALSE
+                        )
+                      }
+                    )
                   )
                 )
               })
@@ -4925,7 +4952,7 @@ server <- function(input, output, session) {
                 column(
                   width = 12,
                   align = "left",
-                  br(), br(),
+                  br(), 
                   column(
                     width = 12,
                     align = "center",
@@ -4935,9 +4962,9 @@ server <- function(input, output, session) {
                       choices = c("Index", "Assembly Name", "Assembly ID"),
                       selected = c("Assembly Name"),
                       width = "100%"
-                    ),
-                    br()
+                    )
                   ),
+                  hr(),
                   checkboxInput(
                     "distmatrix_true",
                     "Only included entries (Include = TRUE)",
@@ -5024,14 +5051,6 @@ server <- function(input, output, session) {
                 )
               })
               
-              # Determine Entry Table Height 
-              height_table <- reactive({
-                if (nrow(DF1$data > 25)) {
-                  800
-                } else {
-                  nrow(DF1$data) * 50 + 75
-                }
-              })
               
               if (!class(DF1$data) == "NULL") {
                 
@@ -5073,6 +5092,58 @@ server <- function(input, output, session) {
                           hot_rows(fixedRowsTop = 0)
                       })
                     }
+                  } else if (between(nrow(DF1$data), 1, 40)) {
+                    if (length(input$compare_select) > 0) {
+                      output$db_entries <- renderRHandsontable({
+                        rhandsontable(
+                          select(DF1$data, 1:12, input$compare_select),
+                          col_highlight = diff_allele()-1,
+                          rowHeaders = NULL
+                        ) %>%
+                          hot_col(1:(12+length(input$compare_select)), valign = "htMiddle") %>%
+                          hot_context_menu(allowRowEdit = FALSE,
+                                           allowColEdit = FALSE,
+                                           allowReadOnly = FALSE) %>%
+                          hot_col(2,
+                                  halign = "htCenter",
+                                  valign = "htTop",
+                                  width = "auto") %>%
+                          hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                          hot_rows(fixedRowsTop = 0) %>%
+                          hot_col(diff_allele(),
+                                  renderer = "
+                function(instance, td, row, col, prop, value, cellProperties) {
+                  Handsontable.renderers.NumericRenderer.apply(this, arguments);
+
+                  if (instance.params) {
+                        hcols = instance.params.col_highlight;
+                        hcols = hcols instanceof Array ? hcols : [hcols];
+                      }
+
+                  if (instance.params && hcols.includes(col)) {
+                    td.style.background = '#FF8F8F';
+                  }
+              }"
+                          ) 
+                      })
+                    } else {
+                      output$db_entries <- renderRHandsontable({
+                        rhandsontable(
+                          select(DF1$data, 1:12),
+                          rowHeaders = NULL
+                        ) %>%
+                          hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                          hot_col(1:12, valign = "htMiddle") %>%
+                          hot_col(2,
+                                  halign = "htCenter",
+                                  valign = "htTop",
+                                  width = "auto") %>%
+                          hot_context_menu(allowRowEdit = FALSE,
+                                           allowColEdit = FALSE,
+                                           allowReadOnly = FALSE) %>%
+                          hot_rows(fixedRowsTop = 0)
+                      })
+                    }
                   } else {
                     if (length(input$compare_select) > 0) {
                       output$db_entries <- renderRHandsontable({
@@ -5080,7 +5151,7 @@ server <- function(input, output, session) {
                           select(DF1$data, 1:12, input$compare_select),
                           col_highlight = diff_allele()-1,
                           rowHeaders = NULL,
-                          height = 900
+                          height = table_height()
                         ) %>%
                           hot_col(1:(12+length(input$compare_select)), valign = "htMiddle") %>%
                           hot_context_menu(allowRowEdit = FALSE,
@@ -5113,7 +5184,7 @@ server <- function(input, output, session) {
                         rhandsontable(
                           select(DF1$data, 1:12),
                           rowHeaders = NULL,
-                          height = 900
+                          height = table_height()
                         ) %>%
                           hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                           hot_col(1:12, valign = "htMiddle") %>%
@@ -5974,7 +6045,7 @@ server <- function(input, output, session) {
     if(!class(DF1$data) == "NULL") {
       
       output$db_distancematrix <- renderRHandsontable({
-        rhandsontable(hamming_df(), digits = 1, height = 800, rowHeaders = NULL) %>%
+        rhandsontable(hamming_df(), digits = 1, height = distancematrix_height(), rowHeaders = NULL) %>%
           hot_heatmap(renderer = paste0("function (instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);
   heatmapScale  = chroma.scale(['#17F556', '#ED6D47']);
@@ -6014,8 +6085,7 @@ server <- function(input, output, session) {
               class = "distmatrix",
               rHandsontableOutput("db_distancematrix")
             ),
-            br(),
-            br()
+            br(), 
           )
         } else {
           column(
@@ -6086,6 +6156,7 @@ server <- function(input, output, session) {
       as.data.frame() %>%
       mutate(Index = colnames(hamming_matrix)) %>%
       relocate(Index)
+    DF1$distancematrix_nrow <- nrow(DF1$ham_matrix)
     DF1$ham_matrix
   })
   
@@ -7010,374 +7081,381 @@ server <- function(input, output, session) {
   #### Generate Plot ----
   
   hamming_nj <- reactive({
-    if(input$na_handling == "one") {
-      proxy::dist(DF1$allelic_profile_true, method = hamming_distance_with_na)
-    } else if(input$na_handling == "ignore"){
-      allelic_profile_noNA <- DF1$allelic_profile_true[, colSums(is.na(DF1$allelic_profile_true)) == 0]
-      proxy::dist(allelic_profile_noNA, method = hamming_distance)
-    }
+    if(anyNA(DF1$allelic_profile)) {
+      if(input$na_handling == "one") {
+        proxy::dist(DF1$allelic_profile_true, method = hamming_distance_with_na)
+      } else if(input$na_handling == "ignore"){
+        allelic_profile_noNA <- DF1$allelic_profile_true[, colSums(is.na(DF1$allelic_profile_true)) == 0]
+        proxy::dist(allelic_profile_noNA, method = hamming_distance)
+      }
+    } else {proxy::dist(DF1$allelic_profile_true, method = hamming_distance)}
+    
   })
   
   hamming_mst <- reactive({
-    
-    if(input$na_handling == "one") {
-      
-      grouped_df <- DF1$allelic_profile_true %>%
-        group_by(across(everything())) %>%
-        mutate(group_id = cur_group_id()) %>%
-        ungroup() %>%
-        relocate(group_id) %>%
-        as.data.frame()
-      
-      rownames(grouped_df) <- meta$`Assembly Name`
-      
-      plot_loc$unique_allelic_profile <- grouped_df[!duplicated(grouped_df$group_id), ]
-      
-      meta <- mutate(meta, group_id = grouped_df$group_id) %>%
-        relocate(group_id)
-      
-      rownames(meta) <- meta$`Assembly Name`
-      
-      plot_loc$unique_meta <- meta[rownames(plot_loc$unique_allelic_profile), ]
-      
-      ## grouping names
-      data_frame <- data.frame(group = numeric(), name = character())
-      
-      for (i in plot_loc$unique_meta$group_id) {
-        data_frame <- rbind(data_frame, 
-                            data.frame(size = length(paste(rownames(grouped_df)[which(grouped_df$group_id == i)])), 
-                                       name = paste(rownames(grouped_df)[which(grouped_df$group_id == i)], collapse = "\n")))
-      }
-      
-      font_size <- numeric(nrow(data_frame))
-      
-      for (i in 1:length(font_size)) {
-        if(data_frame$size[i] < 3) {
-          font_size[i] <- 12
-        } else {
-          font_size[i] <- 11
+    if(anyNA(DF1$allelic_profile)) {
+      if(input$na_handling == "one") {
+        
+        grouped_df <- DF1$allelic_profile_true %>%
+          group_by(across(everything())) %>%
+          mutate(group_id = cur_group_id()) %>%
+          ungroup() %>%
+          relocate(group_id) %>%
+          as.data.frame()
+        
+        rownames(grouped_df) <- meta$`Assembly Name`
+        
+        plot_loc$unique_allelic_profile <- grouped_df[!duplicated(grouped_df$group_id), ]
+        
+        meta <- mutate(meta, group_id = grouped_df$group_id) %>%
+          relocate(group_id)
+        
+        rownames(meta) <- meta$`Assembly Name`
+        
+        plot_loc$unique_meta <- meta[rownames(plot_loc$unique_allelic_profile), ]
+        
+        ## grouping names
+        data_frame <- data.frame(group = numeric(), name = character())
+        
+        for (i in plot_loc$unique_meta$group_id) {
+          data_frame <- rbind(data_frame, 
+                              data.frame(size = length(paste(rownames(grouped_df)[which(grouped_df$group_id == i)])), 
+                                         name = paste(rownames(grouped_df)[which(grouped_df$group_id == i)], collapse = "\n")))
         }
-      }
-      
-      valign <- numeric(nrow(data_frame))
-      
-      for (i in 1:length(valign)) {
-        if(data_frame$size[i] == 1) {
-          valign[i] <- -30
-        } else if(data_frame$size[i] == 2) {
-          valign[i] <- -38
-        } else if(data_frame$size[i] == 3) {
-          valign[i] <- -46
-        } else if(data_frame$size[i] == 4) {
-          valign[i] <- -54
-        } else if(data_frame$size[i] == 5) {
-          valign[i] <- -62
-        } else if(data_frame$size[i] > 5) {
-          valign[i] <- -70
+        
+        font_size <- numeric(nrow(data_frame))
+        
+        for (i in 1:length(font_size)) {
+          if(data_frame$size[i] < 3) {
+            font_size[i] <- 12
+          } else {
+            font_size[i] <- 11
+          }
         }
-      }
-      
-      plot_loc$data_frame <- data_frame %>%
-        cbind(font_size = font_size, valign = valign)
-      
-      plot_loc$unique_meta$`Assembly Name` <- plot_loc$data_frame$name
-      plot_loc$unique_meta <- mutate(plot_loc$unique_meta, size = plot_loc$data_frame$Size)
-      
-      unique_meta2 <<- plot_loc$unique_meta
-      
-      proxy::dist(plot_loc$unique_allelic_profile, method = hamming_distance_with_na)
-      
-    } else if(input$na_handling == "ignore"){
-      # Loci/Columns with NA are ignored 
-      
-      # Remove NA columns
-      noNA <- DF1$allelic_profile_true[, colSums(is.na(DF1$allelic_profile_true)) == 0]
-      
-      # Generate hamming distance matrix
-      noNA_dist <- proxy::dist(noNA, method = hamming_distance)
-      
-      # Find indices of pairs with a distance of 0
-      zero_distance_pairs <- as.data.frame(which(as.matrix(noNA_dist) == 0, arr.ind = TRUE))
-      
-      zero_distance_pairs <- zero_distance_pairs[zero_distance_pairs$row != zero_distance_pairs$col, ]
-      
-      # Sort each row so that x <= y
-      df_sorted <- t(apply(zero_distance_pairs, 1, function(row) sort(row)))
-      
-      # Remove duplicate rows
-      df_unique <- as.data.frame(unique(df_sorted))
-      
-      colnames(df_unique) <- c("col", "row")
-      
-      # get metadata in df
-      vector_col <- character(0)
-      count <- 1
-      for (i in df_unique$col) {
-        vector_col[count] <- DF1$meta_true$`Assembly Name`[i]
-        count <- count + 1
-      }
-      
-      vector_row <- character(0)
-      count <- 1
-      for (i in df_unique$row) {
-        vector_row[count] <- DF1$meta_true$`Assembly Name`[i]
-        count <- count + 1
-      }
-      
-      col_id <- character(0)
-      count <- 1
-      for (i in df_unique$col) {
-        col_id[count] <- DF1$meta_true$`Assembly ID`[i]
-        count <- count + 1
-      }
-      
-      row_id <- character(0)
-      count <- 1
-      for (i in df_unique$row) {
-        row_id[count] <- DF1$meta_true$`Assembly ID`[i]
-        count <- count + 1
-      }
-      
-      col_index <- character(0)
-      count <- 1
-      for (i in df_unique$col) {
-        col_index[count] <- DF1$meta_true$Index[i]
-        count <- count + 1
-      }
-      
-      row_index <- character(0)
-      count <- 1
-      for (i in df_unique$row) {
-        row_index[count] <- DF1$meta_true$Index[i]
-        count <- count + 1
-      }
-      
-      col_date <- character(0)
-      count <- 1
-      for (i in df_unique$col) {
-        col_date[count] <- DF1$meta_true$`Isolation Date`[i]
-        count <- count + 1
-      }
-      
-      row_date <- character(0)
-      count <- 1
-      for (i in df_unique$row) {
-        row_date[count] <- DF1$meta_true$`Isolation Date`[i]
-        count <- count + 1
-      }
-      
-      col_host <- character(0)
-      count <- 1
-      for (i in df_unique$col) {
-        col_host[count] <- DF1$meta_true$Host[i]
-        count <- count + 1
-      }
-      
-      row_host <- character(0)
-      count <- 1
-      for (i in df_unique$row) {
-        row_host[count] <- DF1$meta_true$Host[i]
-        count <- count + 1
-      }
-      
-      col_country <- character(0)
-      count <- 1
-      for (i in df_unique$col) {
-        col_country[count] <- DF1$meta_true$Country[i]
-        count <- count + 1
-      }
-      
-      row_country <- character(0)
-      count <- 1
-      for (i in df_unique$row) {
-        row_country[count] <- DF1$meta_true$Country[i]
-        count <- count + 1
-      }
-      
-      col_city <- character(0)
-      count <- 1
-      for (i in df_unique$col) {
-        col_city[count] <- DF1$meta_true$City[i]
-        count <- count + 1
-      }
-      
-      row_city <- character(0)
-      count <- 1
-      for (i in df_unique$row) {
-        row_city[count] <- DF1$meta_true$City[i]
-        count <- count + 1
-      }
-      
-      df_unique <- cbind(df_unique, col_name = vector_col, row_name = vector_row, 
-                         col_index = col_index, row_index = row_index, col_id = col_id,
-                         row_id = row_id, col_date = col_date, row_date = row_date,
-                         col_host = col_host, row_host = row_host, col_country = col_country,
-                         row_country = row_country, col_city = col_city, row_city = row_city)
-      
-      # Add groups
-      grouped_df <- df_unique %>%
-        group_by(col) %>%
-        mutate(group_id = cur_group_id())
-      
-      # Merge groups
-      name <- character(0)
-      index <- character(0)
-      id <- character(0)
-      count <- 1
-      for (i in grouped_df$group_id) {
-        name[count] <- paste(unique(append(grouped_df$col_name[which(grouped_df$group_id == i)], 
-                                           grouped_df$row_name[which(grouped_df$group_id == i)])), 
+        
+        valign <- numeric(nrow(data_frame))
+        
+        for (i in 1:length(valign)) {
+          if(data_frame$size[i] == 1) {
+            valign[i] <- -30
+          } else if(data_frame$size[i] == 2) {
+            valign[i] <- -38
+          } else if(data_frame$size[i] == 3) {
+            valign[i] <- -46
+          } else if(data_frame$size[i] == 4) {
+            valign[i] <- -54
+          } else if(data_frame$size[i] == 5) {
+            valign[i] <- -62
+          } else if(data_frame$size[i] > 5) {
+            valign[i] <- -70
+          }
+        }
+        
+        plot_loc$data_frame <- data_frame %>%
+          cbind(font_size = font_size, valign = valign)
+        
+        plot_loc$unique_meta$`Assembly Name` <- plot_loc$data_frame$name
+        plot_loc$unique_meta <- mutate(plot_loc$unique_meta, size = plot_loc$data_frame$Size)
+        
+        unique_meta2 <<- plot_loc$unique_meta
+        
+        proxy::dist(plot_loc$unique_allelic_profile, method = hamming_distance_with_na)
+        
+      } else if(input$na_handling == "ignore"){
+        # Loci/Columns with NA are ignored 
+        
+        # Remove NA columns
+        noNA <- DF1$allelic_profile_true[, colSums(is.na(DF1$allelic_profile_true)) == 0]
+        
+        # Generate hamming distance matrix
+        noNA_dist <- proxy::dist(noNA, method = hamming_distance)
+        
+        # Find indices of pairs with a distance of 0
+        zero_distance_pairs <- as.data.frame(which(as.matrix(noNA_dist) == 0, arr.ind = TRUE))
+        
+        zero_distance_pairs <- zero_distance_pairs[zero_distance_pairs$row != zero_distance_pairs$col, ]
+        
+        # Sort each row so that x <= y
+        df_sorted <- t(apply(zero_distance_pairs, 1, function(row) sort(row)))
+        
+        # Remove duplicate rows
+        df_unique <- as.data.frame(unique(df_sorted))
+        
+        colnames(df_unique) <- c("col", "row")
+        
+        # get metadata in df
+        vector_col <- character(0)
+        count <- 1
+        for (i in df_unique$col) {
+          vector_col[count] <- DF1$meta_true$`Assembly Name`[i]
+          count <- count + 1
+        }
+        
+        vector_row <- character(0)
+        count <- 1
+        for (i in df_unique$row) {
+          vector_row[count] <- DF1$meta_true$`Assembly Name`[i]
+          count <- count + 1
+        }
+        
+        col_id <- character(0)
+        count <- 1
+        for (i in df_unique$col) {
+          col_id[count] <- DF1$meta_true$`Assembly ID`[i]
+          count <- count + 1
+        }
+        
+        row_id <- character(0)
+        count <- 1
+        for (i in df_unique$row) {
+          row_id[count] <- DF1$meta_true$`Assembly ID`[i]
+          count <- count + 1
+        }
+        
+        col_index <- character(0)
+        count <- 1
+        for (i in df_unique$col) {
+          col_index[count] <- DF1$meta_true$Index[i]
+          count <- count + 1
+        }
+        
+        row_index <- character(0)
+        count <- 1
+        for (i in df_unique$row) {
+          row_index[count] <- DF1$meta_true$Index[i]
+          count <- count + 1
+        }
+        
+        col_date <- character(0)
+        count <- 1
+        for (i in df_unique$col) {
+          col_date[count] <- DF1$meta_true$`Isolation Date`[i]
+          count <- count + 1
+        }
+        
+        row_date <- character(0)
+        count <- 1
+        for (i in df_unique$row) {
+          row_date[count] <- DF1$meta_true$`Isolation Date`[i]
+          count <- count + 1
+        }
+        
+        col_host <- character(0)
+        count <- 1
+        for (i in df_unique$col) {
+          col_host[count] <- DF1$meta_true$Host[i]
+          count <- count + 1
+        }
+        
+        row_host <- character(0)
+        count <- 1
+        for (i in df_unique$row) {
+          row_host[count] <- DF1$meta_true$Host[i]
+          count <- count + 1
+        }
+        
+        col_country <- character(0)
+        count <- 1
+        for (i in df_unique$col) {
+          col_country[count] <- DF1$meta_true$Country[i]
+          count <- count + 1
+        }
+        
+        row_country <- character(0)
+        count <- 1
+        for (i in df_unique$row) {
+          row_country[count] <- DF1$meta_true$Country[i]
+          count <- count + 1
+        }
+        
+        col_city <- character(0)
+        count <- 1
+        for (i in df_unique$col) {
+          col_city[count] <- DF1$meta_true$City[i]
+          count <- count + 1
+        }
+        
+        row_city <- character(0)
+        count <- 1
+        for (i in df_unique$row) {
+          row_city[count] <- DF1$meta_true$City[i]
+          count <- count + 1
+        }
+        
+        df_unique <- cbind(df_unique, col_name = vector_col, row_name = vector_row, 
+                           col_index = col_index, row_index = row_index, col_id = col_id,
+                           row_id = row_id, col_date = col_date, row_date = row_date,
+                           col_host = col_host, row_host = row_host, col_country = col_country,
+                           row_country = row_country, col_city = col_city, row_city = row_city)
+        
+        # Add groups
+        grouped_df <- df_unique %>%
+          group_by(col) %>%
+          mutate(group_id = cur_group_id())
+        
+        # Merge groups
+        name <- character(0)
+        index <- character(0)
+        id <- character(0)
+        count <- 1
+        for (i in grouped_df$group_id) {
+          name[count] <- paste(unique(append(grouped_df$col_name[which(grouped_df$group_id == i)], 
+                                             grouped_df$row_name[which(grouped_df$group_id == i)])), 
+                               collapse = "\n")
+          
+          id[count] <- paste(unique(append(grouped_df$col_id[which(grouped_df$group_id == i)], 
+                                           grouped_df$row_id[which(grouped_df$group_id == i)])), 
                              collapse = "\n")
+          
+          index[count] <- paste(unique(append(grouped_df$col_index[which(grouped_df$group_id == i)], 
+                                              grouped_df$row_index[which(grouped_df$group_id == i)])), 
+                                collapse = "\n")
+          
+          count <- count + 1
+        }
         
-        id[count] <- paste(unique(append(grouped_df$col_id[which(grouped_df$group_id == i)], 
-                                         grouped_df$row_id[which(grouped_df$group_id == i)])), 
-                           collapse = "\n")
+        merged_names <- cbind(grouped_df, "Index" = index, "Assembly Name" = name, "Assembly ID" = id)
         
-        index[count] <- paste(unique(append(grouped_df$col_index[which(grouped_df$group_id == i)], 
-                                            grouped_df$row_index[which(grouped_df$group_id == i)])), 
-                              collapse = "\n")
+        # remove duplicate groups
         
-        count <- count + 1
-      }
-      
-      merged_names <- cbind(grouped_df, "Index" = index, "Assembly Name" = name, "Assembly ID" = id)
-      
-      # remove duplicate groups
-      
-      final <- merged_names[!duplicated(merged_names$group_id), ]
-      
-      final_cleaned <- final[!(final$col_name %in% final$row_name),]
-      
-      final_cleaned <- select(final_cleaned, 3, 17:20)
-      
-      # adapt metadata
-      Date_merged <- character(0)
-      for(j in 1:length(final_cleaned$Index)) {
-        Date <- character(0)
-        for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
-          Date <- append(Date, DF1$meta_true$`Isolation Date`[which(DF1$meta_true$Index == i)])
+        final <- merged_names[!duplicated(merged_names$group_id), ]
+        
+        final_cleaned <- final[!(final$col_name %in% final$row_name),]
+        
+        final_cleaned <- select(final_cleaned, 3, 17:20)
+        
+        # adapt metadata
+        Date_merged <- character(0)
+        for(j in 1:length(final_cleaned$Index)) {
+          Date <- character(0)
+          for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
+            Date <- append(Date, DF1$meta_true$`Isolation Date`[which(DF1$meta_true$Index == i)])
+          }
+          Date_merged <- append(Date_merged, paste(Date, collapse = "\n"))
         }
-        Date_merged <- append(Date_merged, paste(Date, collapse = "\n"))
-      }
-      
-      Host_merged <- character(0)
-      for(j in 1:length(final_cleaned$Index)) {
-        Host <- character(0)
-        for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
-          Host <- append(Host, DF1$meta_true$Host[which(DF1$meta_true$Index == i)])
+        
+        Host_merged <- character(0)
+        for(j in 1:length(final_cleaned$Index)) {
+          Host <- character(0)
+          for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
+            Host <- append(Host, DF1$meta_true$Host[which(DF1$meta_true$Index == i)])
+          }
+          Host_merged <- append(Host_merged, paste(Host, collapse = "\n"))
         }
-        Host_merged <- append(Host_merged, paste(Host, collapse = "\n"))
-      }
-      
-      Country_merged <- character(0)
-      for(j in 1:length(final_cleaned$Index)) {
-        Country <- character(0)
-        for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
-          Country <- append(Country, DF1$meta_true$Country[which(DF1$meta_true$Index == i)])
+        
+        Country_merged <- character(0)
+        for(j in 1:length(final_cleaned$Index)) {
+          Country <- character(0)
+          for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
+            Country <- append(Country, DF1$meta_true$Country[which(DF1$meta_true$Index == i)])
+          }
+          Country_merged <- append(Country_merged, paste(Country, collapse = "\n"))
         }
-        Country_merged <- append(Country_merged, paste(Country, collapse = "\n"))
-      }
-      
-      City_merged <- character(0)
-      for(j in 1:length(final_cleaned$Index)) {
-        City <- character(0)
-        for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
-          City <- append(City, DF1$meta_true$City[which(DF1$meta_true$Index == i)])
+        
+        City_merged <- character(0)
+        for(j in 1:length(final_cleaned$Index)) {
+          City <- character(0)
+          for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
+            City <- append(City, DF1$meta_true$City[which(DF1$meta_true$Index == i)])
+          }
+          City_merged <- append(City_merged, paste(City, collapse = "\n"))
         }
-        City_merged <- append(City_merged, paste(City, collapse = "\n"))
-      }
-      
-      final_meta <- cbind(final_cleaned, "Isolation Date" = Date_merged, 
-                          "Host" = Host_merged, "Country" = Country_merged, "City" = City_merged)
-      
-      
-      # Merging with original data frame / allelic profile
-      
-      allelic_profile_true <- DF1$allelic_profile_true
-      meta_true <- DF1$meta_true
-      
-      rownames(allelic_profile_true) <- DF1$meta_true$`Assembly Name`
-      rownames(meta_true) <- DF1$meta_true$`Assembly Name`
-      
-      omit <- unique(append(df_unique$col_name, df_unique$row_name)) %in% final_cleaned$col_name
-      
-      omit_id <- unique(append(df_unique$col_name, df_unique$row_name))[!omit]
-      
-      remove <- !(rownames(allelic_profile_true) %in% omit_id)
-      
-      allelic_profile_clean <- allelic_profile_true[remove, ]
-      
-      meta_clean <- meta_true[remove, ]
-      
-      # substitute meta assembly names with group names
-      
-      count <- 1
-      for(i in which(rownames(meta_clean) %in% final_meta$col_name)) {
-        meta_clean$Index[i] <- final_meta$Index[count]
-        meta_clean$`Assembly Name`[i] <- final_meta$`Assembly Name`[count]
-        meta_clean$`Assembly ID`[i] <- final_meta$`Assembly ID`[count]
-        meta_clean$`Isolation Date`[i] <- final_meta$`Isolation Date`[count]
-        meta_clean$Host[i] <- final_meta$Host[count]
-        meta_clean$Country[i] <- final_meta$Country[count]
-        meta_clean$City[i] <- final_meta$City[count]
-        count <- count + 1
-      }
-      
-      # Metadata completion
-      # get group size
-      
-      size_vector <- numeric(0)
-      for(i in 1:nrow(meta_clean)) {
-        if (str_count(meta_clean$`Assembly Name`[i], "\n") == 0) {
-          size_vector[i] <- 1
-        } else {
-          size_vector[i] <- str_count(meta_clean$`Assembly Name`[i], "\n") +1
+        
+        final_meta <- cbind(final_cleaned, "Isolation Date" = Date_merged, 
+                            "Host" = Host_merged, "Country" = Country_merged, "City" = City_merged)
+        
+        
+        # Merging with original data frame / allelic profile
+        
+        allelic_profile_true <- DF1$allelic_profile_true
+        meta_true <- DF1$meta_true
+        
+        rownames(allelic_profile_true) <- DF1$meta_true$`Assembly Name`
+        rownames(meta_true) <- DF1$meta_true$`Assembly Name`
+        
+        omit <- unique(append(df_unique$col_name, df_unique$row_name)) %in% final_cleaned$col_name
+        
+        omit_id <- unique(append(df_unique$col_name, df_unique$row_name))[!omit]
+        
+        remove <- !(rownames(allelic_profile_true) %in% omit_id)
+        
+        allelic_profile_clean <- allelic_profile_true[remove, ]
+        
+        meta_clean <- meta_true[remove, ]
+        
+        # substitute meta assembly names with group names
+        
+        count <- 1
+        for(i in which(rownames(meta_clean) %in% final_meta$col_name)) {
+          meta_clean$Index[i] <- final_meta$Index[count]
+          meta_clean$`Assembly Name`[i] <- final_meta$`Assembly Name`[count]
+          meta_clean$`Assembly ID`[i] <- final_meta$`Assembly ID`[count]
+          meta_clean$`Isolation Date`[i] <- final_meta$`Isolation Date`[count]
+          meta_clean$Host[i] <- final_meta$Host[count]
+          meta_clean$Country[i] <- final_meta$Country[count]
+          meta_clean$City[i] <- final_meta$City[count]
+          count <- count + 1
         }
-      }
-      
-      meta_clean <- mutate(meta_clean, size = size_vector)
-      
-      # get font size dependent on group size
-      
-      font_size <- numeric(nrow(meta_clean))
-      
-      for (i in 1:length(font_size)) {
-        if(meta_clean$size[i] < 3) {
-          font_size[i] <- 12
-        } else {
-          font_size[i] <- 11
+        
+        # Metadata completion
+        # get group size
+        
+        size_vector <- numeric(0)
+        for(i in 1:nrow(meta_clean)) {
+          if (str_count(meta_clean$`Assembly Name`[i], "\n") == 0) {
+            size_vector[i] <- 1
+          } else {
+            size_vector[i] <- str_count(meta_clean$`Assembly Name`[i], "\n") +1
+          }
         }
-      }
-      
-      # get v-align dependent on group size
-      valign <- numeric(nrow(meta_clean))
-      
-      for (i in 1:length(valign)) {
-        if(meta_clean$size[i] == 1) {
-          valign[i] <- -30
-        } else if(meta_clean$size[i] == 2) {
-          valign[i] <- -38
-        } else if(meta_clean$size[i] == 3) {
-          valign[i] <- -46
-        } else if(meta_clean$size[i] == 4) {
-          valign[i] <- -54
-        } else if(meta_clean$size[i] == 5) {
-          valign[i] <- -62
-        } else if(meta_clean$size[i] > 5) {
-          valign[i] <- -70
+        
+        meta_clean <- mutate(meta_clean, size = size_vector)
+        
+        # get font size dependent on group size
+        
+        font_size <- numeric(nrow(meta_clean))
+        
+        for (i in 1:length(font_size)) {
+          if(meta_clean$size[i] < 3) {
+            font_size[i] <- 12
+          } else {
+            font_size[i] <- 11
+          }
         }
+        
+        # get v-align dependent on group size
+        valign <- numeric(nrow(meta_clean))
+        
+        for (i in 1:length(valign)) {
+          if(meta_clean$size[i] == 1) {
+            valign[i] <- -30
+          } else if(meta_clean$size[i] == 2) {
+            valign[i] <- -38
+          } else if(meta_clean$size[i] == 3) {
+            valign[i] <- -46
+          } else if(meta_clean$size[i] == 4) {
+            valign[i] <- -54
+          } else if(meta_clean$size[i] == 5) {
+            valign[i] <- -62
+          } else if(meta_clean$size[i] > 5) {
+            valign[i] <- -70
+          }
+        }
+        
+        plot_loc$unique_meta <- meta_clean %>%
+          cbind(font_size = font_size, valign = valign)
+        
+        
+        # final dist calculation
+        
+        allelic_profile_clean_noNA_names <- allelic_profile_clean[, colSums(is.na(allelic_profile_clean)) == 0]
+        
+        proxy::dist(allelic_profile_clean_noNA_names, method = hamming_distance)
       }
-      
-      plot_loc$unique_meta <- meta_clean %>%
-        cbind(font_size = font_size, valign = valign)
-      
-      
-      # final dist calculation
-      
-      allelic_profile_clean_noNA_names <- allelic_profile_clean[, colSums(is.na(allelic_profile_clean)) == 0]
-      
-      proxy::dist(allelic_profile_clean_noNA_names, method = hamming_distance)
+    } else {
+      proxy::dist(DF1$allelic_profile_true, method = hamming_distance)
     }
+    
   })
   
   observeEvent(input$create_tree, {
