@@ -6918,10 +6918,13 @@ server <- function(input, output, session) {
                   } else if (between(nrow(DF1$data), 1, 40)) {
                     if (length(input$compare_select) > 0) {
                       output$db_entries <- renderRHandsontable({
+                        row_highlight <- true_rows()-1
                         rhandsontable(
                           select(DF1$data, 1:12, input$compare_select),
                           col_highlight = diff_allele()-1,
-                          rowHeaders = NULL
+                          rowHeaders = NULL,
+                          row_highlight = row_highlight,
+                          col_highlight = c(5,8)-1
                         ) %>%
                           hot_col(1:(12+length(input$compare_select)), valign = "htMiddle") %>%
                           hot_context_menu(allowRowEdit = FALSE,
@@ -6933,6 +6936,18 @@ server <- function(input, output, session) {
                                   width = "auto") %>%
                           hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                           hot_rows(fixedRowsTop = 0) %>%
+                          hot_cols(render = "
+                function(instance, td, row, col, prop, value, cellProperties) {
+                  Handsontable.renderers.NumericRenderer.apply(this, arguments);
+
+                  tbl = this.HTMLWidgets.widgets[0]
+
+                     hrows = tbl.params.row_highlight
+                     hrows = hrows instanceof Array ? hrows : [hrows]
+
+                     if (hrows.includes(row)) { 
+                       td.style.background = 'green' } 
+              }") %>%
                           hot_col(diff_allele(),
                                   renderer = "
                 function(instance, td, row, col, prop, value, cellProperties) {
@@ -6970,11 +6985,13 @@ server <- function(input, output, session) {
                   } else {
                     if (length(input$compare_select) > 0) {
                       output$db_entries <- renderRHandsontable({
+                        row_highlight <- true_rows()-1
                         rhandsontable(
                           select(DF1$data, 1:12, input$compare_select),
                           col_highlight = diff_allele()-1,
                           rowHeaders = NULL,
-                          height = table_height()
+                          height = table_height(),
+                          row_highlight = row_highlight
                         ) %>%
                           hot_col(1:(12+length(input$compare_select)), valign = "htMiddle") %>%
                           hot_context_menu(allowRowEdit = FALSE,
@@ -6986,6 +7003,26 @@ server <- function(input, output, session) {
                                   width = "auto") %>%
                           hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                           hot_rows(fixedRowsTop = 0) %>%
+                          hot_cols(renderer = "
+            function (instance, td, row, col, prop, value, cellProperties) {
+                     Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+                     if (instance.params) {
+                       hrows = instance.params.row_highlight
+                       hrows = hrows instanceof Array ? hrows : [hrows]
+                       hcols = instance.params.col_highlight
+                       hcols = hcols instanceof Array ? hcols : [hcols]
+
+                       if (hrows.includes(row)) { 
+                         td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
+                       }
+
+                       if (hcols.includes(col)) {
+                         td.style.fontWeight = 'bold'
+                         td.style.color = '#fc0f03'
+                       }
+                     }
+            }") %>%
                           hot_col(diff_allele(),
                                   renderer = "
                 function(instance, td, row, col, prop, value, cellProperties) {
@@ -7041,6 +7078,15 @@ server <- function(input, output, session) {
                   var_alleles(select(DF1$data, input$compare_select)) + 12
                 }
               })
+              
+              true_rows <- reactive({
+                if (!class(DF1$data) == "NULL") {
+                  true <- DF1$data[which(DF1$data$Include == TRUE, ),]
+                  as.numeric(rownames(true))
+                }
+                
+              })
+              
               
               # Render delete entry box UI
               output$delete_box <- renderUI({
