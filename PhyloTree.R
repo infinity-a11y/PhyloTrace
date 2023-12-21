@@ -844,14 +844,15 @@ ui <- dashboardPage(
     tags$style("i.far.fa-bookmark {margin-right: 0px}"),
     tags$style("i.fas.fa-triangle-exclamation {color: yellow}"),
     tags$style("i.far.fa-file-lines {margin-left: 2px; margin-right: 8px;}"),
+    tags$style("i.far.fa-pen-to-square {position: relative; left: -3px}"),
     tags$style("button#reload_db.btn.btn-default.action-button.shiny-bound-input {height: 30px; width: 30px; position: relative; left: -20px}"),
     tags$style("button#edit_button.btn.btn-default.action-button.shiny-bound-input {background: #20E6E5; color: #000000}"),
-    tags$style("button#save_plot_jpeg {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
-    tags$style("button#save_plot_png {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
-    tags$style("button#save_plot_bmp {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
-    tags$style("button#save_plot_html_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
-    tags$style("button#download_nj_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
-    tags$style("button#download_upgma_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 26px; right: 20px}"),
+    tags$style("button#save_plot_jpeg {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 10px; right: 20px}"),
+    tags$style("button#save_plot_png {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 10px; right: 20px}"),
+    tags$style("button#save_plot_bmp {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 10px; right: 20px}"),
+    tags$style("button#save_plot_html_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 10px; right: 20px}"),
+    tags$style("button#download_nj_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 10px; right: 20px}"),
+    tags$style("button#download_upgma_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 10px; right: 20px}"),
     tags$style("button#download_distmatrix_bttn {height: 34px; ; background: #20E6E5; color: #000000; position: absolute; top: -50px"),
     tags$style("button#download_entry_table_bttn {height: 34px; ; background: #20E6E5; color: #000000"),
     tags$style("button#download_schemeinfo_bttn {height: 28px; background: #20E6E5; color: #000000; margin-top: 19px; margin-left: 10px"),
@@ -866,6 +867,14 @@ ui <- dashboardPage(
     tags$style("#distmatrix_triangle {margin-top: -35px"),
     tags$style("#distmatrix_diag {margin-top: -55px}"),
     tags$style("#distmatrix_true {margin-top: -15px}"),
+    tags$style("#mst_general {margin-top: -13px}"),
+    tags$style("#mst_analysis {margin-top: -32px}"),
+    tags$style("#mst_ratio {position: absolute; right: 36px; top: 23px}"),
+    tags$style(".format {position: absolute; top: -16px; width: -webkit-fill-available}"),
+    tags$style("button#mst_general_menu {height: 27px; width: 27px; background: #20E6E5; color: #000000; border-radius: 5px; margin-top: 2px}"),
+    tags$style("button#mst_analysis_menu {height: 27px; width: 27px; background: #20E6E5; color: #000000; border-radius: 5px; margin-top: -17px}"),
+    tags$style("button#mst_download_report_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: -25px}"),
+    tags$style(".tippy-tooltip.translucent-theme {background-color: rgba(0,0,0,0.9)}"),
     br(), br(),
     uiOutput("loaded_scheme"),
     sidebarMenu(
@@ -980,24 +989,32 @@ ui <- dashboardPage(
         column(
           width = 12,
           br(),
-          prettyRadioButtons(
-            "tree_algo",
-            choices = c("Minimum-Spanning", "Neighbour-Joining", "UPGMA"),
-            label = ""
+          fluidRow(
+            column(1),
+            column(
+              width = 11,
+              align = "left",
+              prettyRadioButtons(
+                "tree_algo",
+                choices = c("Minimum-Spanning", "Neighbour-Joining", "UPGMA"),
+                label = ""
+              ),
+            )
           ),
           br(),
-          column(
-            tags$style("button#create_tree {position: relative; left: -15px; width = 100%; border: none;"),
-            tags$style("button#create_tree:hover {background: #3c8c56; border: none;}"),
-            width = 12,
-            align = "center",
-            actionButton(
-              "create_tree",
-              "",
-              width = "100%",
-              icon = icon(
-                name = NULL,
-                style = "
+          fluidRow(
+            column(
+              tags$style("button#create_tree {position: relative; left: -15px; width = 100%; border: none;"),
+              tags$style("button#create_tree:hover {background: #3c8c56; border: none;}"),
+              width = 12,
+              align = "center",
+              actionButton(
+                "create_tree",
+                "",
+                width = "100%",
+                icon = icon(
+                  name = NULL,
+                  style = "
                 background: url('phylo.png');
                 background-size: contain;
                 background-position: center;
@@ -1005,39 +1022,71 @@ ui <- dashboardPage(
                 height: 32px;
                 display: block;
               "
+                )
               )
             )
           ), 
+          br(),
+          hr(),
           conditionalPanel(
             "input.tree_algo=='Minimum-Spanning'",
             fluidRow(
               column(
                 width = 12,
+                align = "left",
                 br(),
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Sizing")
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 12,
                 radioGroupButtons(
                   "mst_ratio",
-                  label = h5("Aspect ratio", style = "color:white;"),
+                  "",
                   choiceNames = c("16:10", "16:9", "4:3"),
                   choiceValues = c((16/10), (16/9), (4/3)),
                   width = "100%"
                 ),
+                br(),
                 sliderTextInput(
                   "mst_scale",
-                  label = h5("Size", style = "color:white;"),
+                  "",
                   choices = 400:1200,
                   selected = 800,
                   width = "95%"
                 )
               )
             ),
+            br(),
+            hr(),
+            fluidRow(
+              column(
+                width = 12,
+                align = "left",
+                br(),
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Save Plot")
+                  )
+                )
+              )
+            ),
             fluidRow(
               column(
                 width = 8,
-                selectInput(
-                  inputId = "mst_plot_format",
-                  label = "",
-                  choices = c("html", 
-                              "jpeg", "png", "bmp")
+                div(
+                  class = "format",
+                  selectInput(
+                    inputId = "mst_plot_format",
+                    label = "",
+                    choices = c("html", 
+                                "jpeg", "png", "bmp")
+                  )
                 )
               ),
               column(
@@ -1086,6 +1135,232 @@ ui <- dashboardPage(
                     icon = icon("download"),
                     color = "primary"
                   )
+                )
+              )
+            ),
+            br(),
+            hr(),
+            fluidRow(
+              column(
+                width = 12,
+                align = "left",
+                br(),
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Save Parameter")
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 8,
+                align = "left",
+                checkboxInput(
+                  "mst_entrytable",
+                  label = h5("Entry table", style = "color:white; position: absolute; top: -6px")
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                checkboxInput(
+                  "mst_general",
+                  label = h5("General", style = "color:white; position: absolute; top: -23px")
+                )
+              ),
+              column(
+                width = 4,
+                align = "left",
+                dropMenu(
+                  actionBttn(
+                    "mst_general_menu",
+                    label = "",
+                    color = "default",
+                    size = "sm",
+                    style = "material-flat",
+                    icon = icon("pen-to-square")
+                  ),
+                  placement = "top-start",
+                  theme = "translucent",
+                  fluidRow(
+                    tags$style("#mst_date_general_select .form-control {height: 28px; position: relative; right: -22px} "),
+                    tags$style("#mst_date_general {margin-top: 17px} .form-group {margin-bottom: 0px;}"),
+                    column(
+                      width = 3,
+                      checkboxInput(
+                        "mst_date_general", 
+                        label = h5("Date", style = "color:white; font-size: 17px; margin-top: 16px;"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 7,
+                      dateInput(
+                        "mst_date_general_select",
+                        ""
+                      )
+                    )
+                  ),
+                  fluidRow(
+                    tags$style("#mst_operator_general_select {height: 28px; margin-top: -15px; position: relative; right: -22px}"),
+                    tags$style("#mst_operator_general {margin-top: 0px;}"),
+                    column(
+                      width = 3,
+                      checkboxInput(
+                        "mst_operator_general", 
+                        label = h5("Operator", style = "color:white; font-size: 17px; margin-top: -1px;"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 8,
+                      textInput(
+                        "mst_operator_general_select",
+                        ""
+                      ) 
+                    )
+                  ),
+                  fluidRow(
+                    tags$style("#mst_institute_general_select {height: 28px; margin-top: -15px; position: relative; right: -22px}"),
+                    tags$style("#mst_institute_general {margin-top: 0px;}"),
+                    column(
+                      width = 3,
+                      checkboxInput(
+                        "mst_institute_general", 
+                        label = h5("Institute", style = "color:white; font-size: 17px; margin-top: -1px;"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 8,
+                      textInput(
+                        "mst_institute_general_select",
+                        ""
+                      ) 
+                    )
+                  ),
+                  fluidRow(
+                    tags$style("#mst_comm_general_select {margin-top: -15px; border-radius: 5px; position: relative; right: -22px}"),
+                    tags$style("#mst_comm_general {margin-top: 0px;}"),
+                    column(
+                      width = 3,
+                      checkboxInput(
+                        "mst_comm_general", 
+                        label = h5("Comment", style = "color:white; font-size: 17px; margin-top: -1px;")
+                      )
+                    ),
+                    column(
+                      width = 8,
+                      textAreaInput(
+                        inputId = "mst_comm_general_select",
+                        label = "",
+                        width = "100%",
+                        height = "60px",
+                        cols = NULL,
+                        rows = NULL,
+                        placeholder = NULL,
+                        resize = "vertical"
+                      ) 
+                    )
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                checkboxInput(
+                  "mst_analysis",
+                  label = h5("Analysis", style = "color:white; position: absolute; top: -42px")
+                )
+              ),
+              column(
+                width = 4,
+                align = "left",
+                dropMenu(
+                  actionBttn(
+                    "mst_analysis_menu",
+                    label = "",
+                    color = "default",
+                    size = "sm",
+                    style = "material-flat",
+                    icon = icon("pen-to-square")
+                  ),
+                  placement = "top-start",
+                  theme = "translucent",
+                  fluidRow(
+                    tags$style(".choosechannel .btn {height: 31px;}"),
+                    tags$style("#mst_cgmlst_analysis {margin-top: 19px}"),
+                    column(
+                      width = 3,
+                      checkboxInput(
+                        "mst_cgmlst_analysis",
+                        label = h5("Scheme", style = "color:white; font-size: 17px; margin-top: 18px"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 8,
+                      align = "right",
+                      div(
+                        class = "choosechannel",
+                        uiOutput("mst_cgmlst_select_analysis")
+                      )
+                    )
+                  ),
+                  fluidRow(
+                    tags$style("#mst_tree_analysis {margin-top: 0px}"),
+                    column(
+                      width = 3,
+                      checkboxInput(
+                        "mst_tree_analysis",
+                        label = h5("Tree", style = "color:white; font-size: 17px; margin-top: -1px")
+                      )
+                    ),
+                    column(
+                      width = 8,
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Tree Algorithm & Layout Info')
+                        )
+                      )
+                    )
+                  ),
+                  fluidRow(
+                    tags$style("#mst_kma_analysis {margin-top: 0px}"),
+                    column(
+                      width = 3,
+                      checkboxInput(
+                        "mst_kma_analysis",
+                        label = h5("Typing", style = "color:white; font-size: 17px; margin-top: -1px")
+                      )
+                    ),
+                    column(
+                      width = 8,
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Typing Algorithm Parameters')
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 12,
+                align = "center",
+                downloadBttn(
+                  "mst_download_report",
+                  style = "simple",
+                  label = "",
+                  size = "sm",
+                  icon = icon("download")
                 )
               )
             )
@@ -1187,11 +1462,27 @@ ui <- dashboardPage(
             ),
             fluidRow(
               column(
+                width = 12,
+                align = "center",
+                br(),
+                br(),
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 15px;', "Save Plot")
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
                 width = 8,
-                selectInput(
-                  inputId = "filetype_nj",
-                  label = "",
-                  choices = c("jpeg", "png", "bmp", "svg")
+                div(
+                  class = "format",
+                  selectInput(
+                    inputId = "filetype_nj",
+                    label = "",
+                    choices = c("jpeg", "png", "bmp", "svg")
+                  )
                 )
               ),
               column(
@@ -1305,11 +1596,27 @@ ui <- dashboardPage(
             ),
             fluidRow(
               column(
+                width = 12,
+                align = "center",
+                br(),
+                br(),
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 15px;', "Save Plot")
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
                 width = 8,
-                selectInput(
-                  inputId = "filetype_upgma",
-                  label = "",
-                  choices = c("jpeg", "png", "bmp", "svg")
+                div(
+                  class = "format",
+                  selectInput(
+                    inputId = "filetype_upgma",
+                    label = "",
+                    choices = c("jpeg", "png", "bmp", "svg")
+                  )
                 )
               ),
               column(
@@ -1711,7 +2018,8 @@ ui <- dashboardPage(
           tags$style("div#db_distancematrix.rhandsontable {font-size: 11px}"),
           column(1),
           uiOutput("distmatrix_show")
-        )
+        ),
+        br(), br()
       ),
       
       ### Tab Missing Values ----
@@ -5638,11 +5946,11 @@ server <- function(input, output, session) {
   }
   
   hamming_distance_ignore <- function(x, y) {
-    sum((x != y) & !is.na(x) & !is.na(y))
+    sum( (x != y) & !is.na(x) & !is.na(y) )
   }
   
   hamming_distance_category <- function(x, y) {
-    sum( ((x != y) | (is.na(x) & !is.na(y)) | (!is.na(x) & is.na(y))) & !(is.na(x) & is.na(y))  )
+    sum( ( (x != y) | (is.na(x) & !is.na(y)) | (!is.na(x) & is.na(y)) ) & !(is.na(x) & is.na(y))  )
   }
 
   # Function to determine entry table height
@@ -6467,7 +6775,6 @@ server <- function(input, output, session) {
                 column(
                   width = 12,
                   align = "left",
-                  br(), 
                   fluidRow(
                     column(
                       width = 12,
@@ -6951,9 +7258,9 @@ server <- function(input, output, session) {
                       prettyRadioButtons(
                         "na_handling",
                         "",
-                        choiceNames = c("Missing values ignored for pairwise comparison",
-                                        "Omit loci with missing values",
-                                        "Missing values are an own category"),
+                        choiceNames = c("Ignore missing values for pairwise comparison",
+                                        "Omit loci with missing values for all assemblies",
+                                        "Treat missing values as allele variant"),
                         choiceValues = c("ignore_na", "omit", "category"),
                         shape = "curve",
                         selected = c("ignore_na")
@@ -7633,12 +7940,13 @@ server <- function(input, output, session) {
           allelic_profile_noNA_true <- allelic_profile_noNA[which(DF1$data$Include == TRUE),]
           
           DF1$hamming_proxy <- proxy::dist(allelic_profile_noNA_true, method = hamming_distance)
-          
+          omit <<- DF1$hamming_proxy
         } else if(input$na_handling == "ignore_na"){
           DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance_ignore)
-        
+          ignore <<- DF1$hamming_proxy
         } else {
           DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance_category)
+          categ <<- DF1$hamming_proxy
         } 
       } else {
         DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance)
@@ -7648,10 +7956,13 @@ server <- function(input, output, session) {
         if(input$na_handling == "omit") {
           allelic_profile_noNA <- DF1$allelic_profile[, colSums(is.na(DF1$allelic_profile)) == 0]
           DF1$hamming_proxy <- proxy::dist(allelic_profile_noNA, method = hamming_distance)
+          omit_all <<- DF1$hamming_proxy
         } else if(input$na_handling == "ignore_na"){
           DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile, method = hamming_distance_ignore)
+          ignore_all <<- DF1$hamming_proxy
         } else {
           DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile, method = hamming_distance_category)
+          categ_all <<- DF1$hamming_proxy
         }  
       } else {
         DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile, method = hamming_distance)
