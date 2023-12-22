@@ -6831,47 +6831,61 @@ server <- function(input, output, session) {
               # Render select input to choose displayed loci
               output$compare_select <- renderUI({
                 
-                if (input$compare_difference == FALSE) {
-                  pickerInput(
-                    inputId = "compare_select",
-                    label = "",
-                    width = "85%",
-                    choices = names(DF1$allelic_profile),
-                    selected = names(DF1$allelic_profile)[1:20],
-                    options = list(
-                      `live-search` = TRUE,
-                      `actions-box` = TRUE,
-                      size = 10,
-                      style = "background-color: white; border-radius: 5px;"
-                    ),
-                    multiple = TRUE
+                if(nrow(DF1$data) == 1) {
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 15px;', "Type at least two assemblies to compare")
+                    )
                   )
                 } else {
-                  pickerInput(
-                    inputId = "compare_select",
-                    label = "",
-                    width = "85%",
-                    choices = names(DF1$allelic_profile),
-                    selected = names(DF1$allelic_profile)[var_alleles(DF1$allelic_profile)],
-                    options = list(
-                      `live-search` = TRUE,
-                      `actions-box` = TRUE,
-                      size = 10,
-                      style = "background-color: white; border-radius: 5px;"
-                    ),
-                    multiple = TRUE
-                  )
+                  if (input$compare_difference == FALSE) {
+                    pickerInput(
+                      inputId = "compare_select",
+                      label = "",
+                      width = "85%",
+                      choices = names(DF1$allelic_profile),
+                      selected = names(DF1$allelic_profile)[1:20],
+                      options = list(
+                        `live-search` = TRUE,
+                        `actions-box` = TRUE,
+                        size = 10,
+                        style = "background-color: white; border-radius: 5px;"
+                      ),
+                      multiple = TRUE
+                    )
+                  } else {
+                    pickerInput(
+                      inputId = "compare_select",
+                      label = "",
+                      width = "85%",
+                      choices = names(DF1$allelic_profile),
+                      selected = names(DF1$allelic_profile)[var_alleles(DF1$allelic_profile)],
+                      options = list(
+                        `live-search` = TRUE,
+                        `actions-box` = TRUE,
+                        size = 10,
+                        style = "background-color: white; border-radius: 5px;"
+                      ),
+                      multiple = TRUE
+                    )
+                  }
                 }
               })
               
               #### Render Entry Data Table ----
               
               output$db_entries_table <- renderUI({
-                addSpinner(
-                  rHandsontableOutput("db_entries"),
-                  spin = "dots",
-                  color = "#ffffff"
-                )
+                if(!class(DF1$data) == "NULL") {
+                  if(nrow(DF1$data) == 1) {
+                    rHandsontableOutput("db_entries")
+                  } else {
+                    addSpinner(
+                      rHandsontableOutput("db_entries"),
+                      spin = "dots",
+                      color = "#ffffff"
+                    )
+                  }
+                }
               })
               
               
@@ -6880,41 +6894,23 @@ server <- function(input, output, session) {
                 observe({
                   
                   if (nrow(DF1$data) == 1) {
-                    if (length(input$compare_select) > 0) {
-                      output$db_entries <- renderRHandsontable({
-                        rhandsontable(
-                          select(DF1$data, 1:12, input$compare_select),
-                          rowHeaders = NULL
-                        ) %>%
-                          hot_col(1:(12+length(input$compare_select)), valign = "htMiddle") %>%
-                          hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                          hot_col(2,
-                                  halign = "htCenter",
-                                  valign = "htTop",
-                                  width = "auto") %>%
-                          hot_context_menu(allowRowEdit = FALSE,
-                                           allowColEdit = FALSE,
-                                           allowReadOnly = FALSE) %>%
-                          hot_rows(rowHeights = 30,
-                                   fixedRowsTop = 0)
-                      })
-                    } else {
-                      output$db_entries <- renderRHandsontable({
-                        rhandsontable(
-                          select(DF1$data, 1:12),
-                          rowHeaders = NULL
-                        ) %>%
-                          hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                          hot_col(2,
-                                  halign = "htCenter",
-                                  valign = "htTop",
-                                  width = "auto") %>%
-                          hot_context_menu(allowRowEdit = FALSE,
-                                           allowColEdit = FALSE,
-                                           allowReadOnly = FALSE) %>%
-                          hot_rows(fixedRowsTop = 0)
-                      })
-                    }
+                    output$db_entries <- renderRHandsontable({
+                      rhandsontable(
+                        select(DF1$data, 1:12),
+                        rowHeaders = NULL
+                      ) %>%
+                        hot_col(1:12, 
+                                valign = "htMiddle",
+                                halign = "htCenter") %>%
+                        hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                        hot_col(2, type = "checkbox", width = "auto",
+                                valign = "htTop",
+                                halign = "htCenter") %>%
+                        hot_context_menu(allowRowEdit = FALSE,
+                                         allowColEdit = FALSE,
+                                         allowReadOnly = FALSE) %>%
+                        hot_rows(fixedRowsTop = 0)
+                    })
                   } else if (between(nrow(DF1$data), 1, 40)) {
                     if (length(input$compare_select) > 0) {
                       output$db_entries <- renderRHandsontable({
@@ -6923,104 +6919,34 @@ server <- function(input, output, session) {
                           select(DF1$data, 1:12, input$compare_select),
                           col_highlight = diff_allele()-1,
                           rowHeaders = NULL,
-                          row_highlight = row_highlight,
-                          col_highlight = c(5,8)-1
-                        ) %>%
-                          hot_col(1:(12+length(input$compare_select)), valign = "htMiddle") %>%
-                          hot_context_menu(allowRowEdit = FALSE,
-                                           allowColEdit = FALSE,
-                                           allowReadOnly = FALSE) %>%
-                          hot_col(2,
-                                  halign = "htCenter",
-                                  valign = "htTop",
-                                  width = "auto") %>%
-                          hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                          hot_rows(fixedRowsTop = 0) %>%
-                          hot_cols(render = "
-                function(instance, td, row, col, prop, value, cellProperties) {
-                  Handsontable.renderers.NumericRenderer.apply(this, arguments);
-
-                  tbl = this.HTMLWidgets.widgets[0]
-
-                     hrows = tbl.params.row_highlight
-                     hrows = hrows instanceof Array ? hrows : [hrows]
-
-                     if (hrows.includes(row)) { 
-                       td.style.background = 'green' } 
-              }") %>%
-                          hot_col(diff_allele(),
-                                  renderer = "
-                function(instance, td, row, col, prop, value, cellProperties) {
-                  Handsontable.renderers.NumericRenderer.apply(this, arguments);
-
-                  if (instance.params) {
-                        hcols = instance.params.col_highlight;
-                        hcols = hcols instanceof Array ? hcols : [hcols];
-                      }
-
-                  if (instance.params && hcols.includes(col)) {
-                    td.style.background = '#FF8F8F';
-                  }
-              }"
-                          ) 
-                      })
-                    } else {
-                      output$db_entries <- renderRHandsontable({
-                        rhandsontable(
-                          select(DF1$data, 1:12),
-                          rowHeaders = NULL
-                        ) %>%
-                          hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                          hot_col(1:12, valign = "htMiddle") %>%
-                          hot_col(2,
-                                  halign = "htCenter",
-                                  valign = "htTop",
-                                  width = "auto") %>%
-                          hot_context_menu(allowRowEdit = FALSE,
-                                           allowColEdit = FALSE,
-                                           allowReadOnly = FALSE) %>%
-                          hot_rows(fixedRowsTop = 0)
-                      })
-                    }
-                  } else {
-                    if (length(input$compare_select) > 0) {
-                      output$db_entries <- renderRHandsontable({
-                        row_highlight <- true_rows()-1
-                        rhandsontable(
-                          select(DF1$data, 1:12, input$compare_select),
-                          col_highlight = diff_allele()-1,
-                          rowHeaders = NULL,
-                          height = table_height(),
                           row_highlight = row_highlight
                         ) %>%
-                          hot_col(1:(12+length(input$compare_select)), valign = "htMiddle") %>%
+                          hot_col(1:(12+length(input$compare_select)), 
+                                  valign = "htMiddle",
+                                  halign = "htCenter") %>%
                           hot_context_menu(allowRowEdit = FALSE,
                                            allowColEdit = FALSE,
                                            allowReadOnly = FALSE) %>%
-                          hot_col(2,
-                                  halign = "htCenter",
+                          hot_col(2, type = "checkbox", width = "auto",
                                   valign = "htTop",
-                                  width = "auto") %>%
+                                  halign = "htCenter",
+                                  strict = TRUE,
+                                  allowInvalid = FALSE,
+                                  copyable = TRUE) %>%
                           hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                           hot_rows(fixedRowsTop = 0) %>%
-                          hot_cols(renderer = "
+                          hot_col(c(1, 3:(12 + length(input$compare_select))), renderer = "
             function (instance, td, row, col, prop, value, cellProperties) {
                      Handsontable.renderers.TextRenderer.apply(this, arguments);
 
                      if (instance.params) {
                        hrows = instance.params.row_highlight
                        hrows = hrows instanceof Array ? hrows : [hrows]
-                       hcols = instance.params.col_highlight
-                       hcols = hcols instanceof Array ? hcols : [hcols]
 
                        if (hrows.includes(row)) { 
                          td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
                        }
 
-                       if (hcols.includes(col)) {
-                         td.style.fontWeight = 'bold'
-                         td.style.color = '#fc0f03'
-                       }
                      }
             }") %>%
                           hot_col(diff_allele(),
@@ -7041,21 +6967,124 @@ server <- function(input, output, session) {
                       })
                     } else {
                       output$db_entries <- renderRHandsontable({
+                        row_highlight <- true_rows()-1
                         rhandsontable(
                           select(DF1$data, 1:12),
                           rowHeaders = NULL,
-                          height = table_height()
+                          row_highlight = row_highlight
                         ) %>%
                           hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                          hot_col(1:12, valign = "htMiddle") %>%
-                          hot_col(2,
-                                  halign = "htCenter",
+                          hot_col(1:12, 
+                                  valign = "htMiddle",
+                                  halign = "htCenter") %>%
+                          hot_col(2, type = "checkbox", width = "auto",
                                   valign = "htTop",
-                                  width = "auto") %>%
+                                  halign = "htCenter") %>%
                           hot_context_menu(allowRowEdit = FALSE,
                                            allowColEdit = FALSE,
                                            allowReadOnly = FALSE) %>%
-                          hot_rows(fixedRowsTop = 0)
+                          hot_rows(fixedRowsTop = 0) %>%
+                          hot_col(c(1, 3:12), renderer = "
+            function (instance, td, row, col, prop, value, cellProperties) {
+                     Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+                     if (instance.params) {
+                       hrows = instance.params.row_highlight
+                       hrows = hrows instanceof Array ? hrows : [hrows]
+
+                       if (hrows.includes(row)) { 
+                         td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
+                       }
+
+                     }
+            }")
+                      })
+                    }
+                  } else {
+                    if (length(input$compare_select) > 0) {
+                      output$db_entries <- renderRHandsontable({
+                        rhandsontable(
+                          select(DF1$data, 1:12, input$compare_select),
+                          col_highlight = diff_allele()-1,
+                          rowHeaders = NULL,
+                          height = table_height(),
+                          row_highlight = true_rows()-1
+                        ) %>%
+                          hot_col(1:(12+length(input$compare_select)), 
+                                  valign = "htMiddle",
+                                  halign = "htCenter") %>%
+                          hot_context_menu(allowRowEdit = FALSE,
+                                           allowColEdit = FALSE,
+                                           allowReadOnly = FALSE)  %>%
+                          hot_col(2, type = "checkbox", width = "auto",
+                                  valign = "htTop",
+                                  halign = "htCenter",
+                                  allowInvalid = FALSE,
+                                  copyable = TRUE,
+                                  ) %>%
+                          hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                          hot_rows(fixedRowsTop = 0) %>%
+                          hot_col(c(1, 3:(12 + length(input$compare_select))), renderer = "
+            function (instance, td, row, col, prop, value, cellProperties) {
+                     Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+                     if (instance.params) {
+                       hrows = instance.params.row_highlight
+                       hrows = hrows instanceof Array ? hrows : [hrows]
+
+                       if (hrows.includes(row)) { 
+                         td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
+                       }
+
+                     }
+            }") %>%
+                          hot_col(diff_allele(),
+                                  renderer = "
+                function(instance, td, row, col, prop, value, cellProperties) {
+                  Handsontable.renderers.NumericRenderer.apply(this, arguments);
+
+                  if (instance.params) {
+                        hcols = instance.params.col_highlight;
+                        hcols = hcols instanceof Array ? hcols : [hcols];
+                      }
+
+                  if (instance.params && hcols.includes(col)) {
+                    td.style.background = '#FF8F8F';
+                  }
+              }")
+                      })
+                    } else {
+                      output$db_entries <- renderRHandsontable({
+                        row_highlight <- true_rows()-1
+                        rhandsontable(
+                          select(DF1$data, 1:12),
+                          rowHeaders = NULL,
+                          height = table_height(),
+                          row_highlight = row_highlight
+                        ) %>%
+                          hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                          hot_col(1:12, 
+                                  valign = "htMiddle",
+                                  halign = "htCenter") %>%
+                          hot_context_menu(allowRowEdit = FALSE,
+                                           allowColEdit = FALSE,
+                                           allowReadOnly = FALSE) %>%
+                          hot_rows(fixedRowsTop = 0) %>%
+                          hot_col(append(1, 3:12), renderer = "
+            function (instance, td, row, col, prop, value, cellProperties) {
+                     Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+                     if (instance.params) {
+                       hrows = instance.params.row_highlight
+                       hrows = hrows instanceof Array ? hrows : [hrows]
+
+                       if (hrows.includes(row)) { 
+                         td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
+                       }
+                     }
+            }") %>%
+                          hot_col(2, type = "checkbox", width = "auto",
+                                  valign = "htTop", halign = "htCenter")
                       })
                     }
                   }
@@ -7150,11 +7179,7 @@ server <- function(input, output, session) {
                     column(
                       width = 8,
                       align = "left",
-                      checkboxInput(
-                        "compare_difference",
-                        label = h5("Only varying loci", style = "color:white; position: relative; top: -6px"),
-                        value = TRUE
-                      )
+                      uiOutput("compare_difference_box")
                     )
                   ),
                   br()
@@ -7710,6 +7735,20 @@ server <- function(input, output, session) {
       
     }
     
+  })
+  
+  # If only one entry available disable varying loci checkbox
+  
+  output$compare_difference_box <- renderUI({
+    if(!class(DF1$data) == "NULL") {
+      if(nrow(DF1$data) > 1) {
+        checkboxInput(
+          "compare_difference",
+          label = h5("Only varying loci", style = "color:white; position: relative; top: -6px"),
+          value = FALSE
+        )
+      }
+    }
   })
   
   ### Database Events ----
