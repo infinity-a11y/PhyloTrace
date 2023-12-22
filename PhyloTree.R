@@ -873,7 +873,7 @@ ui <- dashboardPage(
     tags$style(".format {position: absolute; top: -16px; width: -webkit-fill-available}"),
     tags$style("button#mst_general_menu {height: 27px; width: 27px; background: #20E6E5; color: #000000; border-radius: 5px; margin-top: 2px}"),
     tags$style("button#mst_analysis_menu {height: 27px; width: 27px; background: #20E6E5; color: #000000; border-radius: 5px; margin-top: -17px}"),
-    tags$style("button#mst_download_report_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: -25px}"),
+    tags$style("button#mst_download_report {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: -25px}"),
     tags$style(".tippy-tooltip.translucent-theme {background-color: rgba(0,0,0,0.9)}"),
     br(), br(),
     uiOutput("loaded_scheme"),
@@ -1147,7 +1147,7 @@ ui <- dashboardPage(
                 br(),
                 HTML(
                   paste(
-                    tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Save Parameter")
+                    tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Download Report")
                   )
                 )
               )
@@ -1158,7 +1158,8 @@ ui <- dashboardPage(
                 align = "left",
                 checkboxInput(
                   "mst_entrytable",
-                  label = h5("Entry table", style = "color:white; position: absolute; top: -6px")
+                  label = h5("Entry table", style = "color:white; position: absolute; top: -6px"),
+                  value = TRUE
                 )
               )
             ),
@@ -1168,7 +1169,8 @@ ui <- dashboardPage(
                 align = "left",
                 checkboxInput(
                   "mst_general",
-                  label = h5("General", style = "color:white; position: absolute; top: -23px")
+                  label = h5("General", style = "color:white; position: absolute; top: -23px"),
+                  value = TRUE
                 )
               ),
               column(
@@ -1184,6 +1186,7 @@ ui <- dashboardPage(
                     icon = icon("pen-to-square")
                   ),
                   placement = "top-start",
+                  padding = "20px",
                   theme = "translucent",
                   fluidRow(
                     tags$style("#mst_date_general_select .form-control {height: 28px; position: relative; right: -22px} "),
@@ -1275,7 +1278,8 @@ ui <- dashboardPage(
                 align = "left",
                 checkboxInput(
                   "mst_analysis",
-                  label = h5("Analysis", style = "color:white; position: absolute; top: -42px")
+                  label = h5("Analysis", style = "color:white; position: absolute; top: -42px"),
+                  value = TRUE
                 )
               ),
               column(
@@ -1291,12 +1295,12 @@ ui <- dashboardPage(
                     icon = icon("pen-to-square")
                   ),
                   placement = "top-start",
+                  padding = "20px",
                   theme = "translucent",
                   fluidRow(
-                    tags$style(".choosechannel .btn {height: 31px;}"),
                     tags$style("#mst_cgmlst_analysis {margin-top: 19px}"),
                     column(
-                      width = 3,
+                      width = 4,
                       checkboxInput(
                         "mst_cgmlst_analysis",
                         label = h5("Scheme", style = "color:white; font-size: 17px; margin-top: 18px"),
@@ -1305,45 +1309,65 @@ ui <- dashboardPage(
                     ),
                     column(
                       width = 8,
-                      align = "right",
-                      div(
-                        class = "choosechannel",
-                        uiOutput("mst_cgmlst_select_analysis")
-                      )
+                      align = "right"
                     )
                   ),
                   fluidRow(
                     tags$style("#mst_tree_analysis {margin-top: 0px}"),
                     column(
-                      width = 3,
+                      width = 4,
                       checkboxInput(
                         "mst_tree_analysis",
-                        label = h5("Tree", style = "color:white; font-size: 17px; margin-top: -1px")
+                        label = h5("Tree", style = "color:white; font-size: 17px; margin-top: -1px"),
+                        value = TRUE
                       )
                     ),
                     column(
-                      width = 8,
+                      width = 6,
+                      align = "right",
                       HTML(
                         paste(
-                          tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Tree Algorithm & Layout Info')
+                          tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Tree algorithm')
                         )
                       )
                     )
                   ),
                   fluidRow(
-                    tags$style("#mst_kma_analysis {margin-top: 0px}"),
+                    tags$style("#mst_distance {margin-top: 0px}"),
                     column(
-                      width = 3,
+                      width = 4,
                       checkboxInput(
-                        "mst_kma_analysis",
-                        label = h5("Typing", style = "color:white; font-size: 17px; margin-top: -1px")
+                        "mst_distance",
+                        label = h5("Distance", style = "color:white; font-size: 17px; margin-top: -1px"),
+                        value = TRUE
                       )
                     ),
                     column(
-                      width = 8,
+                      width = 6,
+                      align = "right",
                       HTML(
                         paste(
-                          tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Typing Algorithm Parameters')
+                          tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Distance algorithm')
+                        )
+                      )
+                    )
+                  ),
+                  fluidRow(
+                    tags$style("#mst_version {margin-top: 0px}"),
+                    column(
+                      width = 4,
+                      checkboxInput(
+                        "mst_version",
+                        label = h5("Version", style = "color:white; font-size: 17px; margin-top: -1px"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 6,
+                      align = "right",
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Version info')
                         )
                       )
                     )
@@ -1355,10 +1379,10 @@ ui <- dashboardPage(
               column(
                 width = 12,
                 align = "center",
-                downloadBttn(
+                actionBttn(
                   "mst_download_report",
                   style = "simple",
-                  label = "",
+                  label = "Save",
                   size = "sm",
                   icon = icon("download")
                 )
@@ -5691,219 +5715,7 @@ ui <- dashboardPage(
         )
       ),
       br(), br(), br(), br(), br(), br(), br()
-    ),
-      
-      ## Tab Report --------------------------------------------------------------
-      
-      
-      tabItem(
-        tabName = "report",
-        fluidRow(column(
-          width = 3,
-          align = "center",
-          h2(p("Create Report"), style = "color:white")
-        )),
-        hr(),
-        fluidRow(
-          br(),
-          br(),
-          column(
-            width = 3,
-            align = "left",
-            br(),
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = 12,
-              HTML(
-                paste(
-                  tags$span(style='color: white; font-size: 24px;', 'General')
-                )
-              ),
-              br(),
-              fluidRow(
-                tags$style("#date_general_select .form-control {height: 28px; position: relative; right: -22px} "),
-                tags$style("#date_general {margin-top: 17px} .form-group {margin-bottom: 0px;}"),
-                column(
-                  width = 3,
-                  checkboxInput(
-                    "date_general", 
-                    label = h5("Date", style = "color:white; font-size: 17px; margin-top: 16px;"),
-                    value = TRUE
-                  )
-                ),
-                column(
-                  width = 7,
-                  dateInput(
-                    "date_general_select",
-                    "",
-                    width = "50%"
-                  )
-                )
-              ),
-              fluidRow(
-                tags$style("#operator_general_select {height: 28px; margin-top: -15px; position: relative; right: -22px}"),
-                tags$style("#operator_general {margin-top: 0px;}"),
-                column(
-                  width = 3,
-                  checkboxInput(
-                    "operator_general", 
-                    label = h5("Operator", style = "color:white; font-size: 17px; margin-top: -1px;"),
-                    value = TRUE
-                  )
-                ),
-                column(
-                  width = 8,
-                  textInput(
-                    "operator_general_select",
-                    ""
-                  ) 
-                )
-              ),
-              fluidRow(
-                tags$style("#institute_general_select {height: 28px; margin-top: -15px; position: relative; right: -22px}"),
-                tags$style("#institute_general {margin-top: 0px;}"),
-                column(
-                  width = 3,
-                  checkboxInput(
-                    "institute_general", 
-                    label = h5("Institute", style = "color:white; font-size: 17px; margin-top: -1px;"),
-                    value = TRUE
-                  )
-                ),
-                column(
-                  width = 8,
-                  textInput(
-                    "institute_general_select",
-                    ""
-                  ) 
-                )
-              ),
-              fluidRow(
-                tags$style("#comm_general_select {margin-top: -15px; border-radius: 5px; position: relative; right: -22px}"),
-                tags$style("#comm_general {margin-top: 0px;}"),
-                column(
-                  width = 3,
-                  checkboxInput(
-                    "comm_general", 
-                    label = h5("Comment", style = "color:white; font-size: 17px; margin-top: -1px;")
-                  )
-                ),
-                column(
-                  width = 8,
-                  textAreaInput(
-                    inputId = "comm_general_select",
-                    label = "",
-                    width = "100%",
-                    height = "60px",
-                    cols = NULL,
-                    rows = NULL,
-                    placeholder = NULL,
-                    resize = "vertical"
-                  ) 
-                )
-              )
-            ),
-            br(),
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = 12,
-              HTML(
-                paste(
-                  tags$span(style='color: white; font-size: 24px;', 'Analysis')
-                )
-              ),
-              br(),
-              fluidRow(
-                tags$style(".choosechannel .btn {height: 31px;}"),
-                tags$style("#cgmlst_analysis {margin-top: 19px}"),
-                column(
-                  width = 3,
-                  checkboxInput(
-                    "cgmlst_analysis",
-                    label = h5("Scheme", style = "color:white; font-size: 17px; margin-top: 18px"),
-                    value = TRUE
-                  )
-                ),
-                column(
-                  width = 8,
-                  align = "right",
-                  div(
-                    class = "choosechannel",
-                    uiOutput("cgmlst_select_analysis")
-                  )
-                )
-              ),
-              fluidRow(
-                tags$style("#tree_analysis {margin-top: 0px}"),
-                column(
-                  width = 3,
-                  checkboxInput(
-                    "tree_analysis",
-                    label = h5("Tree", style = "color:white; font-size: 17px; margin-top: -1px")
-                  )
-                ),
-                column(
-                  width = 8,
-                  HTML(
-                    paste(
-                      tags$span(style='color: white; font-size: 15px; position: relative; top: 9px; right: -23px', 'Tree Algorithm & Layout Info')
-                    )
-                  )
-                )
-              ),
-              fluidRow(
-                tags$style("#kma_analysis {margin-top: 0px}"),
-                column(
-                  width = 3,
-                  checkboxInput(
-                    "kma_analysis",
-                    label = h5("Typing", style = "color:white; font-size: 17px; margin-top: -1px")
-                  )
-                ),
-                column(
-                  width = 8,
-                  HTML(
-                    paste(
-                      tags$span(style='color: white; font-size: 15px; position: relative; top: 9px; right: -23px', 'Typing Algorithm Parameters')
-                    )
-                  )
-                )
-              ),
-              br()
-            ),
-            br()
-          ),
-          column(1),
-          column(
-            width = 2,
-            br(),
-            tags$style("#slot1_legend {margin-top: 17px;}"),
-            tags$style("#slot2_legend {margin-top: 17px;}"),
-            tags$style(".choosechannel .btn {height: 31px;}"),
-            uiOutput("slot1_box"),
-            uiOutput("slot2_box")
-          ),
-          column(
-            width = 2,
-            br(),
-            tags$style("#slot3_legend {margin-top: 17px;}"),
-            tags$style("#slot4_legend {margin-top: 17px;}"),
-            tags$style(".choosechannel .btn {height: 31px;}"),
-            uiOutput("slot3_box"),
-            uiOutput("slot4_box")
-          ),
-          column(1),
-          column(
-            width = 2,
-            br(),
-            tags$style("button#save_report {font-size: 14px; height: 34px; background: #20E6E5; color: #000000;}"),
-            tags$style("button#save_report i.fas.fa-download {margin-right: 5px !important}"),
-            uiOutput("save_rep")
-          )
-        )
-      )
+    )
     ) # End tabItems
   ) # End dashboardPage
 ) # end UI
@@ -6128,11 +5940,6 @@ server <- function(input, output, session) {
             text = "Visualization",
             tabName = "visualization",
             icon = icon("chart-line")
-          ),
-          menuItem(
-            text = "Report",
-            tabName = "report",
-            icon = icon("file-lines")
           )
         )
       )
@@ -6221,11 +6028,6 @@ server <- function(input, output, session) {
                 text = "Visualization",
                 tabName = "visualization",
                 icon = icon("chart-line")
-              ),
-              menuItem(
-                text = "Report",
-                tabName = "report",
-                icon = icon("file-lines")
               )
             )
           )
@@ -6292,11 +6094,6 @@ server <- function(input, output, session) {
                 text = "Visualization",
                 tabName = "visualization",
                 icon = icon("chart-line")
-              ),
-              menuItem(
-                text = "Report",
-                tabName = "report",
-                icon = icon("file-lines")
               )
             )
           )
@@ -6365,11 +6162,6 @@ server <- function(input, output, session) {
                 text = "Visualization",
                 tabName = "visualization",
                 icon = icon("chart-line")
-              ),
-              menuItem(
-                text = "Report",
-                tabName = "report",
-                icon = icon("file-lines")
               )
             )
           )
@@ -6511,11 +6303,6 @@ server <- function(input, output, session) {
                   text = "Visualization",
                   tabName = "visualization",
                   icon = icon("chart-line")
-                ),
-                menuItem(
-                  text = "Report",
-                  tabName = "report",
-                  icon = icon("file-lines")
                 )
               )
             )
@@ -6588,11 +6375,6 @@ server <- function(input, output, session) {
                       text = "Visualization",
                       tabName = "visualization",
                       icon = icon("chart-line")
-                    ),
-                    menuItem(
-                      text = "Report",
-                      tabName = "report",
-                      icon = icon("file-lines")
                     )
                   )
                 )
@@ -6637,11 +6419,6 @@ server <- function(input, output, session) {
                       text = "Visualization",
                       tabName = "visualization",
                       icon = icon("chart-line")
-                    ),
-                    menuItem(
-                      text = "Report",
-                      tabName = "report",
-                      icon = icon("file-lines")
                     )
                   )
                 )
@@ -7381,11 +7158,6 @@ server <- function(input, output, session) {
                     text = "Visualization",
                     tabName = "visualization",
                     icon = icon("chart-line")
-                  ),
-                  menuItem(
-                    text = "Report",
-                    tabName = "report",
-                    icon = icon("file-lines")
                   )
                 )
               )
@@ -7581,11 +7353,6 @@ server <- function(input, output, session) {
               text = "Visualization",
               tabName = "visualization",
               icon = icon("chart-line")
-            ),
-            menuItem(
-              text = "Report",
-              tabName = "report",
-              icon = icon("file-lines")
             )
           )
         )
@@ -7624,11 +7391,6 @@ server <- function(input, output, session) {
               text = "Visualization",
               tabName = "visualization",
               icon = icon("chart-line")
-            ),
-            menuItem(
-              text = "Report",
-              tabName = "report",
-              icon = icon("file-lines")
             )
           )
         )
@@ -9814,686 +9576,58 @@ server <- function(input, output, session) {
   
   ## Report ----
   
-  
-  ### Report UI Elements ----
-  
-  output$cgmlst_select_analysis <- renderUI({
-    pickerInput(
-      "cgmlst_select_analysis",
-      label = "",
-      choices = DF1$schemeinfo[,1][DF1$schemeinfo[,1] != ""],
-      selected = DF1$schemeinfo[,1][DF1$schemeinfo[,1] != ""],
-      options = list(
-        `actions-box` = TRUE,
-        size = 10,
-        style = "background-color: white; border-radius: 5px;"
-      ),
-      multiple = TRUE,
-      width = "190px"
-    )
-  })
-  
-  # Render Profile Selection Box
-  
-  output$save_rep <- renderUI({
-    box(
-      solidHeader = TRUE,
-      status = "primary",
-      width = "100%",
-      column(
-        width = 12,
-        align = "left",
-        HTML(
-          paste(
-            tags$span(style='color: white; font-size: 24px;', 'Save Report')
-          )
-        ),
-        br(), br(),
-        textInput(
-          inputId = "report_dir",
-          label = h5("Open after download", style = "color:white; font-size: 15px; margin-top: 0px; margin-bottom: 0px"),
-          placeholder = paste0(getwd())
-        ),
-        br(),
-        textInput(
-          inputId = "rep_name",
-          label = h5("Name", style = "color:white; font-size: 15px; margin-top: 0px; margin-bottom: 0px"),
-          placeholder = paste0("Report_", Sys.Date())
-        ),
-        br(),
-        checkboxInput(
-          "open_report", 
-          label = h5("Open after download", style = "color:white; font-size: 15px; margin-top: 2px")
-        ),
-        column(
-          width = 12,
-          align = "center",
-          br(),
-          actionBttn(
-            "save_report",
-            style = "simple",
-            label = "Download",
-            icon = icon("download"),
-            size = "sm",
-            color = "primary" 
-          ),
-          br()
-        )
-      )
-    )
-  })
-  
-  #### Render Slot Boxes ----
-  
-  
-  output$slot1_status <- renderUI({
-    if(is.null(plot_loc$slot1_getname)) {
-      h5("Empty", style = "color:white; margin-top: 6px")
-    } else {
-      h5(plot_loc$slot1_getname, style = "color:white; margin-top: 6px")
-    }
-  })
-  
-  output$slot2_status <- renderUI({
-    if(is.null(plot_loc$slot2_getname)) {
-      h5("Empty", style = "color:white; margin-top: -2px")
-    } else {
-      h5(plot_loc$slot2_getname, style = "color:white; margin-top: -2px")
-    }
-  })
-  
-  output$slot3_status <- renderUI({
-    if(is.null(plot_loc$slot3_getname)) {
-      h5("Empty", style = "color:white; margin-top: -2px")
-    } else {
-      h5(plot_loc$slot3_getname, style = "color:white; margin-top: -2px")
-    }
-  })
-  
-  output$slot4_status <- renderUI({
-    if(is.null(plot_loc$slot4_getname)) {
-      h5("Empty", style = "color:white; margin-top: -2px")
-    } else {
-      h5(plot_loc$slot4_getname, style = "color:white; margin-top: -2px")
-    }
-  })
-  
-  observe({
-    if(is.null(plot_loc$slot1_getname)) {
-      output$slot1_box <- NULL
-    } else {
-      output$slot1_box <- renderUI({
-        box(
-          solidHeader = TRUE,
-          status = "primary",
-          width = "100%",
-          HTML(
-            paste(
-              tags$span(style='color: white; font-size: 24px;', 
-                        paste('Slot 1 -', plot_loc$slot1_getname))
-            )
-          ),
-          br(),
-          checkboxInput(
-            "slot1_legend", 
-            label = h5("Include entry legend", style = "color:white; font-size: 17px; margin-top: 15px"),
-            value = TRUE
-          ),
-          div(
-            class = "choosechannel",
-            pickerInput(
-              inputId = "slot1_legend_sel",
-              label = h4("Display metadata", style = "color:white; margin-bottom: 5px; font-size: 14px"),
-              choices = names(select(DF1$data, 3:12)),
-              selected = c("Assembly Name", "Isolation Date", "Host", "Country", "City", "Typing Date"),
-              options = list(
-                `actions-box` = TRUE,
-                size = 10,
-                style = "background-color: white; border-radius: 5px;"
-              ),
-              multiple = TRUE
-            )
-          )
-        )
-      })
-    }
-    
-    if(is.null(plot_loc$slot2_getname)) {
-      output$slot2_box <- NULL
-    } else {
-      output$slot2_box <- renderUI({
-        box(
-          solidHeader = TRUE,
-          status = "primary",
-          width = "100%",
-          HTML(
-            paste(
-              tags$span(style='color: white; font-size: 24px;', 
-                        paste('Slot 2 -', plot_loc$slot2_getname))
-            )
-          ),
-          br(), br(),
-          checkboxInput(
-            "slot2_legend", 
-            label = h5("Include entry legend", style = "color:white; font-size: 17px; margin-top: 15px;"),
-            value = TRUE
-          ),
-          div(
-            class = "choosechannel",
-            pickerInput(
-              inputId = "slot2_legend_sel",
-              label = h4("Display metadata", style = "color:white; margin-bottom: 5px; font-size: 14px"),
-              choices = names(select(DF1$data, 3:12)),
-              selected = c("Assembly Name", "Isolation Date", "Host", "Country", "City", "Typing Date"),
-              options = list(
-                `actions-box` = TRUE,
-                size = 10,
-                style = "background-color: white; border-radius: 5px;"
-              ),
-              multiple = TRUE
-            )
-          )
-        )
-      })
-    }
-    
-    if(is.null(plot_loc$slot3_getname)) {
-      output$slot3_box <- NULL
-    } else {
-      output$slot3_box <- renderUI({
-        box(
-          solidHeader = TRUE,
-          status = "primary",
-          width = "100%",
-          HTML(
-            paste(
-              tags$span(style='color: white; font-size: 24px;', 
-                        paste('Slot 3 -', plot_loc$slot3_getname))
-            )
-          ),
-          br(),
-          checkboxInput(
-            "slot3_legend", 
-            label = h5("Include entry legend", style = "color:white; font-size: 17px; margin-top: 15px;"),
-            value = TRUE
-          ),
-          div(
-            class = "choosechannel",
-            pickerInput(
-              inputId = "slot3_legend_sel",
-              label = h4("Display metadata", style = "color:white; margin-bottom: 5px; font-size: 14px"),
-              choices = names(select(DF1$data, 3:12)),
-              selected = c("Assembly Name", "Isolation Date", "Host", "Country", "City", "Typing Date"),
-              options = list(
-                `actions-box` = TRUE,
-                size = 10,
-                style = "background-color: white; border-radius: 5px;"
-              ),
-              multiple = TRUE
-            )
-          )
-        )
-      })
-    }
-    
-    if(is.null(plot_loc$slot4_getname)) {
-      output$slot4_box <- NULL
-    } else {
-      output$slot4_box <- renderUI({
-        box(
-          solidHeader = TRUE,
-          status = "primary",
-          width = "100%",
-          HTML(
-            paste(
-              tags$span(style='color: white; font-size: 24px;', 
-                        paste('Slot 4 -', plot_loc$slot4_getname))
-            )
-          ),
-          br(), 
-          checkboxInput(
-            "slot4_legend", 
-            label = h5("Include entry legend", style = "color:white; font-size: 17px; margin-top: 15px;"),
-            value = TRUE
-          ),
-          div(
-            class = "choosechannel",
-            pickerInput(
-              inputId = "slot4_legend_sel",
-              label = h4("Display metadata", style = "color:white; margin-bottom: 5px; font-size: 14px"),
-              choices = names(select(DF1$data, 3:12)),
-              selected = c("Assembly Name", "Isolation Date", "Host", "Country", "City", "Typing Date"),
-              options = list(
-                `actions-box` = TRUE,
-                size = 10,
-                style = "background-color: white; border-radius: 5px;"
-              ),
-              multiple = TRUE
-            )
-          )
-        )
-      })
-    }
-  })
-  
-  
-  ### Send Plot to Report ----
-  
-  # Add to Slot
-  observeEvent(input$add_slot, {
-    showModal(
-      modalDialog(
-        paste0(
-          "Adding plot to ", input$slot_select, ". Name the slot content and confirm (max. 10 characters)."
-        ),
-        textInput(
-          "slot_name",
-          label = "",
-          value = "Analysis",
-          placeholder = "Analysis"
-        ),
-        title = "Add to Slot",
-        fade = TRUE,
-        easyClose = TRUE,
-        footer = tagList(
-          modalButton("Cancel"),
-          actionButton("conf_slot", "Confirm")
-        )
-      )
-    )
-  })
-  
-  observeEvent(input$conf_slot, {
-    if(input$slot_select == "Slot 1") {
-      if (length(input$slot_name) >= 1) {
-        plot_loc$slot1_getname <- substr(input$slot_name, 1, 10)
-      } else {
-        plot_loc$slot1_getname <- paste("Number One")
-      }
-      mst_tree() %>% visExport(type = "jpeg")
-      elements_data$slot1_include <- TRUE
-    } else if(input$slot_select == "Slot 2") {
-      if (length(input$slot_name) > 0) {
-        plot_loc$slot2_getname <- substr(input$slot_name, 1, 10)
-      } else {
-        plot_loc$slot2_getname <- "Slot 2"
-      }
-      jpeg(paste0(getwd(), "/Report/slot2_plot.jpeg"), width = 1365, height = 600,
-           quality = 100)
-      print(plot_input())
-      dev.off()
-      elements_data$slot2_include <- TRUE
-    } else if(input$slot_select == "Slot 3") {
-      if (length(input$slot_name) > 0) {
-        plot_loc$slot3_getname <- substr(input$slot_name, 1, 10)
-      } else {
-        plot_loc$slot3_getname <- "Slot 3"
-      }
-      plot_loc$slot3_getname <- substr(input$slot_name, 1, 10)
-      jpeg(paste0(getwd(), "/Report/slot3_plot.jpeg"), width = 1365, height = 600,
-           quality = 100)
-      print(plot_input())
-      dev.off()
-      elements_data$slot3_include <- TRUE
-    } else if(input$slot_select == "Slot 4") {
-      if (length(input$slot_name) > 0) {
-        plot_loc$slot4_getname <- substr(input$slot_name, 1, 10)
-      } else {
-        plot_loc$slot4_getname <- "Slot 4"
-      }
-      jpeg(paste0(getwd(), "/Report/slot4_plot.jpeg"), width = 1365, height = 600,
-           quality = 100)
-      print(plot_input())
-      dev.off()
-      elements_data$slot4_include <- TRUE
-    }
-    removeModal()
-  })
-  
-  # Delete Slot
-  observeEvent(input$delete_slot, {
-    showModal(
-      modalDialog(
-        paste0(
-          "Delete content of ", input$slot_select, ". Name the slot content and confirm."
-        ),
-        title = "Delete Slot",
-        fade = TRUE,
-        easyClose = TRUE,
-        footer = tagList(
-          modalButton("Cancel"),
-          actionButton("conf_slot_del", "Delete")
-        )
-      )
-    )
-  })
-  
-  observeEvent(input$conf_slot_del, {
-    if(input$slot_select == "Slot 1") {
-      plot_loc$slot1_getname <- NULL
-    } else if(input$slot_select == "Slot 2") {
-      plot_loc$slot2_getname <- NULL
-    } else if(input$slot_select == "Slot 3") {
-      plot_loc$slot3_getname <- NULL
-    } else if(input$slot_select == "Slot 4") {
-      plot_loc$slot4_getname <- NULL
-    }
-    removeModal()
-  })
-  
-  
-  
   ### Save Report ----
   
-  # Create a reactiveValues to store selected elements and their content
-  elements_data <- reactiveValues(slot1_include = FALSE, slot2_include = FALSE, 
-                                  slot3_include = FALSE, slot4_include = FALSE)
+  #### Get Report elements ----
+  reportVAR <- reactiveValues()
+  
+  observe({
+    reportVAR$report_df <- data.frame(Element = c("entry_table", "general_show",
+                                                  "general_date", "operator",
+                                                  "institute", "comment",
+                                                  "analysis_show", "scheme",
+                                                  "tree", "distance", "version"), 
+                                      Include = c(input$mst_entrytable, input$mst_general,
+                                                input$mst_date_general, input$mst_operator_general,
+                                                input$mst_institute_general, input$mst_comm_general,
+                                                input$mst_analysis, input$mst_cgmlst_analysis,
+                                                input$mst_tree_analysis, input$mst_distance,
+                                                input$mst_version))
+    
+  })
   
   #### Get Report values ----
   
-  observe({
-    if(input$date_general == TRUE) {
-      elements_data$general_date <- input$date_general_select
-    } else {
-      elements_data$general_date <- NULL
-    }
-    
-    if(input$operator_general == TRUE) {
-      elements_data$general_operator <- input$operator_general_select
-    } else {
-      elements_data$general_operator <- NULL
-    }
-    
-    if(input$institute_general == TRUE) {
-      elements_data$general_institute <- input$institute_general_select
-    } else {
-      elements_data$general_institute <- NULL
-    }
-    
-    if(input$comm_general == TRUE) {
-      elements_data$general_comm <- input$comm_general_select
-    } else {
-      elements_data$general_comm <- NULL
-    }
-    
-    if(input$cgmlst_analysis == TRUE) {
-      elements_data$analysis_cgmlst <- input$cgmlst_select_analysis
-    } else {
-      elements_data$analysis_cgmlst <- NULL
-    }
-    
-    if(input$tree_analysis == TRUE) {
-      elements_data$analysis_tree <- TRUE
-    } else {
-      elements_data$analysis_tree <- NULL
-    }
-    
-    if(input$kma_analysis == TRUE) {
-      elements_data$analysis_kma <- TRUE
-    } else {
-      elements_data$analysis_kma <- NULL
-    }
-    
-    if(elements_data$slot1_include == TRUE) {
-      elements_data$slot1_meta <- DF1$meta_true[,-2]
-      elements_data$slot1_legend_sel <- input$slot1_legend_sel
-      elements_data$slot1_legend <- input$slot1_legend
-    }
-    
-    if(elements_data$slot2_include == TRUE) {
-      elements_data$slot2_meta <- DF1$meta_true[,-2]
-      elements_data$slot2_legend_sel <- input$slot2_legend_sel
-      elements_data$slot2_legend <- input$slot2_legend
-    }
-    
-    if(elements_data$slot3_include == TRUE) {
-      elements_data$slot3_meta <- DF1$meta_true[,-2]
-      elements_data$slot3_legend_sel <- input$slot3_legend_sel
-      elements_data$slot3_legend <- input$slot3_legend
-    }
-    
-    if(elements_data$slot4_include == TRUE) {
-      elements_data$slot4_meta <- DF1$meta_true[,-2]
-      elements_data$slot4_legend_sel <- input$slot4_legend_sel
-      elements_data$slot4_legend <- input$slot4_legend
-    }
-    
+  observeEvent(input$create_tree, {
+    reportVAR$report_list <- list(report_df = reportVAR$report_df,
+                                  entry_table = DF1$meta_true,
+                                  scheme = DF1$schemeinfo, 
+                                  tree = input$tree_algo,
+                                  na_handling = input$na_handling,
+                                  distance = "Hamming Distances",
+                                  version = c(phylotraceVersion, "KMA-1.3.23"))
   })
-  
   
   #### Event Save Report ----
   
-  observeEvent(input$save_report, {
+  observeEvent(input$mst_download_report, {
     
-    # Get Scheme Info
-    
-    schemeinfo <-
-      read_html(paste0(
-        getwd(),
-        "/Database/",
-        gsub(" ", "_", DF1$scheme),
-        "/scheme_info.html"
-      )) %>%
-      html_table(header = FALSE) %>%
-      as.data.frame(stringsAsFactors = FALSE)
-    names(schemeinfo) <- NULL
-    
-    # Filter and save data for the selected elements
-    selected_data <- list(
-      general_date = elements_data$general_date,
-      general_operator = elements_data$general_operator,
-      general_institute = elements_data$general_institute,
-      general_comm = elements_data$general_comm,
-      analysis_cgmlst = elements_data$analysis_cgmlst,
-      cgmlst_info = schemeinfo,
-      scheme = DF1$scheme,
-      analysis_tree = elements_data$analysis_tree,
-      analysis_kma = elements_data$analysis_kma,
-      slot1 = elements_data$slot1_include,
-      slot1_meta = elements_data$slot1_meta,
-      slot1_legend = elements_data$slot1_legend,
-      slot1_legend_sel = elements_data$slot1_legend_sel,
-      slot2 = elements_data$slot2_include,
-      slot2_meta = elements_data$slot2_meta,
-      slot2_legend = elements_data$slot2_legend,
-      slot2_legend_sel = elements_data$slot2_legend_sel,
-      slot3 = elements_data$slot3_include,
-      slot3_meta = elements_data$slot3_meta,
-      slot3_legend = elements_data$slot3_legend,
-      slot3_legend_sel = elements_data$slot3_legend_sel,
-      slot4 = elements_data$slot4_include,
-      slot4_meta = elements_data$slot4_meta,
-      slot4_legend = elements_data$slot4_legend,
-      slot4_legend_sel = elements_data$slot4_legend_sel
-    )
+    report <- c(reportVAR$report_list, 
+                "general_date" = as.character(input$mst_date_general_select),
+                "operator" = input$mst_operator_general_select,
+                "institute" = input$mst_institute_general_select,
+                "comment" = input$mst_comm_general_select)
     
     # Save data to an RDS file if any elements were selected
-    if (length(selected_data) > 0) {
-      saveRDS(selected_data, file = paste0(getwd(), "/Report/selected_elements.rds"))
+    if (!class(report) == "NULL") {
+      saveRDS(report, file = paste0(getwd(), "/Report/selected_elements.rds"))
     }
     
     rmarkdown::render(paste0(getwd(), "/Report/Report.Rmd"))
     
-    
-    if (input$open_report == TRUE) {
-      system(paste("open", paste0(getwd(), "/Report/Report.html")))
-    }
+    system(paste("open", paste0(getwd(), "/Report/Report.html")))
     
   })
-  
-  ### Save Report Profile ----
-  
-  observeEvent(input$save_rep_profile, {
-    
-    # save profile except dates or times
-    report_profile <- list(
-      selected_general = selected_general,
-      selected_sampleinfo = selected_sampleinfo,
-      selected_sequencing = selected_sequencing,
-      selected_analysis = selected_analysis,
-      general_date = NULL,
-      general_author = elements_data$general_author,
-      general_com = elements_data$general_com,
-      sample_date = NULL,
-      sample_loc = elements_data$sample_loc,
-      sample_op = elements_data$sample_op,
-      sample_com = elements_data$sample_com,
-      seq_device = elements_data$seq_device,
-      seq_flowcell = elements_data$seq_flowcell,
-      seq_start = NULL,
-      seq_end = NULL,
-      seq_op = elements_data$seq_op,
-      seq_com = elements_data$seq_com,
-      ana_date = NULL,
-      ana_com = elements_data$ana_com
-    )
-    
-    # Save data to an RDS file
-    if (length(report_profile) > 0) {
-      saveRDS(
-        report_profile,
-        file = paste0(
-          getwd(),
-          "/rep_profiles/",
-          input$rep_profilename,
-          ".rds"
-        )
-      )
-    }
-    
-    rep_profile$profile_names <-
-      list.files(paste0(getwd(), "/Report/rep_profiles"), full.names = TRUE)
-  })
-  
-  ### Load Report Profile ----
-  
-  rep_profile <- reactiveValues()
-  
-  observe(rep_profile$profile_names <-
-            list.files(paste0(getwd(), "/Report/rep_profiles"), full.names = TRUE))
-  
-  output$selProfile <- renderUI(
-    selectInput(
-      inputId = "sel_rep_profile",
-      label = "Select report profile",
-      choices = append(
-        c("None"),
-        gsub(".*/(.*).rds", "\\1", rep_profile$profile_names)
-      )
-    )
-  )
-  
-  # General Tickbox
-  general_selected <- reactive({
-    if (input$sel_rep_profile %in% "None") {
-      c("Analysis Date", "Author")
-    } else {
-      readRDS(paste0(
-        getwd(),
-        "/rep_profiles/",
-        input$sel_rep_profile,
-        ".rds"
-      ))[[1]]
-    }
-  })
-  
-  output$include_general <- renderUI(
-    checkboxGroupInput(
-      inputId = "include_general",
-      label = "",
-      choices = c("Analysis Date", "Author", "Experiment Info"),
-      selected = general_selected()
-    )
-  )
-  
-  # Sample Info Tickbox
-  sampleinfo_selected <- reactive({
-    if (input$sel_rep_profile %in% "None") {
-      c("Sampling Date", "Sampling Location")
-    } else {
-      readRDS(paste0(
-        getwd(),
-        "/rep_profiles/",
-        input$sel_rep_profile,
-        ".rds"
-      ))[[2]]
-    }
-  })
-  
-  output$include_sampleinfo <- renderUI(
-    checkboxGroupInput(
-      inputId = "include_sampleinfo",
-      label = "",
-      choices = c(
-        "Sampling Date",
-        "Sampling Location",
-        "Taken by (Name)",
-        "Comment"
-      ),
-      selected = sampleinfo_selected()
-    )
-  )
-  
-  # Sequencing Tickbox
-  sequencing_selected <- reactive({
-    if (input$sel_rep_profile %in% "None") {
-      c("Device", "Fow Cell", "Operator")
-    } else {
-      readRDS(paste0(
-        getwd(),
-        "/rep_profiles/",
-        input$sel_rep_profile,
-        ".rds"
-      ))[[3]]
-    }
-  })
-  
-  output$include_sequencing <- renderUI(
-    checkboxGroupInput(
-      inputId = "include_sequencing",
-      label = "",
-      choices = c(
-        "Device",
-        "Flow Cell",
-        "Run Start",
-        "Run Finished",
-        "Operator",
-        "Output Size",
-        "Comment"
-      ),
-      selected = sequencing_selected()
-    )
-  )
-  
-  # Analysis Tickbox
-  analysis_selected <- reactive({
-    if (input$sel_rep_profile %in% "None") {
-      c("Analysis Date", "cgMLST Scheme")
-    } else {
-      readRDS(paste0(
-        getwd(),
-        "/rep_profiles/",
-        input$sel_rep_profile,
-        ".rds"
-      ))[[4]]
-    }
-  })
-  
-  output$include_analysis <- renderUI(
-    checkboxGroupInput(
-      inputId = "include_analysis",
-      label = "",
-      choices = c(
-        "Analysis Date",
-        "Assembly Parameters",
-        "cgMLST Scheme",
-        "Comment"
-      ),
-      selected = analysis_selected()
-    )
-  )
-  
-  
   
   ## Typing  ----
   
