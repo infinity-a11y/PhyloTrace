@@ -116,6 +116,14 @@ if (!require(visNetwork))
   install.packages('visNetwork')
 library(visNetwork)
 
+if (!require(proxy))
+  install.packages('prpxy')
+library(proxy)
+
+if (!require(phangorn))
+  install.packages('phangorn')
+library(phangorn)
+
 country_names <- c(
   "Afghanistan",
   "Albania",
@@ -2286,11 +2294,11 @@ ui <- dashboardPage(
             tags$style("button#mst_node_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px; margin-top: 3px}"),
             tags$style("button#mst_edge_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px}"),
             tags$style("button#mst_title_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-            tags$style("button#mst_edgelabel_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
+            tags$style("button#mst_edgelabel_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 37px; border-radius: 5px}"),
             tags$style("button#mst_edgecolor_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
             tags$style("button#mst_subtitle_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
             tags$style("button#mst_footer_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-            tags$style("button#mst_label_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
+            tags$style("button#mst_label_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 37px; border-radius: 5px}"),
             tags$style("input.form-control.pickr-color {text-align: center; font-size: 11px;}"),
             tags$style(".checkbox_bg .checkbox {margin-top: 25px !important; }"),
             tags$style("#mst_background_transparent {margin-bottom: -6px !important;}"),
@@ -2299,6 +2307,8 @@ ui <- dashboardPage(
             tags$style(".slider_edge {margin-top: -10px;}"),
             tags$style("#mst_color_node {margin-top: -17px}"),
             tags$style("#mst_shadow {position: relative; bottom: -2px}"),
+            tags$style("#node_font_color {margin-top: 17px}"),
+            tags$style("#mst_edge_font_color {margin-top: 17px}"),
             column(
               width = 4,
               align = "center",
@@ -2987,13 +2997,13 @@ ui <- dashboardPage(
                         class = "slider_edge",
                         sliderTextInput(
                           inputId = "mst_edge_length",
-                          h5(p("Scale edge length"), style = "color:white;"),
+                          h5(p("Scale edge length"), style = "color:white; margin-top: 17px; margin-bottom: 24px"),
                           choices = 1:40,
                           selected = c(15),
                           hide_min_max = TRUE
                         ) 
                       ),  
-                      br(), br(), br()
+                      br(), br()
                     )
                   )
                 )
@@ -3016,23 +3026,23 @@ ui <- dashboardPage(
             tags$style("button#nj_branch_label_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px; margin-left: 10px}"),
             tags$style("button#nj_legend_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
             tags$style("button#nj_treescale_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-            tags$style("button#nj_rootedge_menu {height: 34px; background: #20E6E5; color: #000000; margin-left: 10px; margin-top: 6px; border-radius: 5px}"),
+            tags$style("button#nj_rootedge_menu {height: 34px; background: #20E6E5; color: #000000; margin-left: 10px; margin-top: 22px; border-radius: 5px}"),
             tags$style("button#nj_tippoint_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 21px; border-radius: 5px}"),
             tags$style("button#nj_nodepoint_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 21px; border-radius: 5px}"),
             tags$style("button#nj_tile_menu {height: 34px; background: #20E6E5; color: #000000; margin-left: 15px; margin-top: 21px; border-radius: 5px}"),
-            tags$style("#nj_tippoint_color {margin-bottom: 16px}"),
+            tags$style("#nj_tippoint_color {margin-bottom: 0px}"),
             tags$style("#nj_nodepoint_color {margin-bottom: 16px;}"),
             tags$style("#nj_treescale_show {margin-top: 17px; "),
             tags$style("#nj_tiles_show {margin-top: 18px; margin-left: -5px}"),
             tags$style("#nodepoint_show {margin-top: 18px; margin-left: -5px}"),
-            tags$style("#nj_ladder {margin-top: 7px; margin-left: -5px}"),
+            tags$style("#nj_ladder {margin-top: 19px; margin-left: -5px}"),
             tags$style("#nj_align {margin-top: 21px; margin-left: -5px}"),
-            tags$style("#rootedge_show {margin-top: 7px}"),
+            tags$style("#rootedge_show {margin-top: 20px}"),
             tags$style("#nj_mapping_show {margin-top: 20px;}"),
             tags$style("#nj_tipcolor_mapping_show {margin-top: 20px;}"),
             tags$style("#nj_tipshape_mapping_show {margin-top: 20px;}"),
             tags$style("#nj_geom {margin-top: 0px; margin-left: -5px}"),
-            tags$style("#nj_tiplab_color {margin-bottom: 16px;}"),
+            tags$style("#nj_tiplab_color {margin-bottom: 0px;}"),
             tags$style("#nj_show_branch_label {margin-top: 17px; margin-left: -5px}"),
             tags$style("#tippoint_show {margin-top: 17px; margin-left: -5px}"),
             tags$style("#nj_tiplab_show {margin-top: 17px; margin-left: -5px}"),
@@ -3082,7 +3092,7 @@ ui <- dashboardPage(
                             align = "left",
                             checkboxInput(
                               "nj_ladder",
-                              h5(p("Ladder"), style = "color:white; position: relative; bottom: 3px; right: -15px"),
+                              h5(p("Ladder"), style = "color:white; position: relative; bottom: 3px; right: -15px; margin-top: 22px"),
                               value = TRUE
                             )
                           ),
@@ -3091,7 +3101,7 @@ ui <- dashboardPage(
                             align = "left",
                             checkboxInput(
                               "rootedge_show",
-                              h5(p("Root"), style = "color:white; position: relative; bottom: 3px; right: -5px"),
+                              h5(p("Root"), style = "color:white; position: relative; bottom: 3px; right: -5px; margin-top: 23px"),
                               value = FALSE
                             )
                           ),
@@ -3934,7 +3944,7 @@ ui <- dashboardPage(
                     )
                   )
                 ),
-                br(), br(),
+                br(), br(), br(), br(),
                 conditionalPanel(
                   "input.nj_layout=='inward'|input.nj_layout=='circular'",
                   br(), br()
@@ -4327,7 +4337,7 @@ ui <- dashboardPage(
                         fluidRow(
                           column(
                             width = 3,
-                            h5(p("Position"), style = "color:white; position: relative; right: -15px; margin-top: 40px")
+                            h5(p("Position"), style = "color:white; position: relative; right: -15px; margin-top: 40px; margin-bottom: 16px")
                           ),
                           column(1),
                           column(
@@ -4359,6 +4369,7 @@ ui <- dashboardPage(
                     )
                   )
                 ), 
+                br(),
                 conditionalPanel(
                   "input.nj_layout=='inward'|input.nj_layout=='circular'",
                   br(), br()
@@ -4368,389 +4379,106 @@ ui <- dashboardPage(
             )
           )
         ),
-      
-      ### Control Panels UPGMA ----
-      
-      conditionalPanel(
-        "input.tree_algo=='UPGMA'",
-        fluidRow(
-          tags$style("button#upgma_labeltext_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px; margin-top: 20px; margin-left: 10px}"),
-          tags$style("button#upgma_labelformat_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px; margin-top: 20px}"),
-          tags$style("button#upgma_subtitle_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-          tags$style("button#upgma_footer_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-          tags$style("button#upgma_title_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-          tags$style("button#upgma_branch_label_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px; margin-left: 10px}"),
-          tags$style("button#upgma_legend_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-          tags$style("button#upgma_treescale_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-          tags$style("button#upgma_rootedge_menu {height: 34px; background: #20E6E5; color: #000000; margin-left: 10px; margin-top: 6px; border-radius: 5px}"),
-          tags$style("button#upgma_tippoint_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 21px; border-radius: 5px}"),
-          tags$style("button#upgma_nodepoint_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 21px; border-radius: 5px}"),
-          tags$style("button#upgma_tile_menu {height: 34px; background: #20E6E5; color: #000000; margin-left: 15px; margin-top: 21px; border-radius: 5px}"),
-          tags$style("#upgma_tippoint_color {margin-bottom: 16px}"),
-          tags$style("#upgma_nodepoint_color {margin-bottom: 16px;}"),
-          tags$style("#upgma_treescale_show {margin-top: 17px; "),
-          tags$style("#upgma_tiles_show {margin-top: 18px; margin-left: -5px}"),
-          tags$style("#upgma_nodepoint_show {margin-top: 18px; margin-left: -5px}"),
-          tags$style("#upgma_ladder {margin-top: 7px; margin-left: -5px}"),
-          tags$style("#upgma_align {margin-top: 21px; margin-left: -5px}"),
-          tags$style("#upgma_rootedge_show {margin-top: 7px}"),
-          tags$style("#upgma_mapping_show {margin-top: 20px;}"),
-          tags$style("#upgma_tipcolor_mapping_show {margin-top: 20px;}"),
-          tags$style("#upgma_tipshape_mapping_show {margin-top: 20px;}"),
-          tags$style("#upgma_geom {margin-top: 0px; margin-left: -5px}"),
-          tags$style("#upgma_tiplab_color {margin-bottom: 16px;}"),
-          tags$style("#upgma_show_branch_label {margin-top: 17px; margin-left: -5px}"),
-          tags$style("#upgma_tippoint_show {margin-top: 17px; margin-left: -5px}"),
-          tags$style("#upgma_tiplab_show {margin-top: 17px; margin-left: -5px}"),
-          tags$style("#upgma_fruit_offset {position: relative; top: -20px}"),
-          column(
-            width = 4,
-            align = "center",
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = "100%",
-              h3(p("Layout"), style = "color:white"),
-              hr(),
-              fluidRow(
-                column(
-                  width = 6,
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Theme"), style = "color:white; position: relative; right: -15px"),
-                      fluidRow(
-                        column(
-                          width = 12,
-                          align = "center",
-                          selectInput(
-                            inputId = "upgma_layout",
-                            label = "",
-                            choices = list(
-                              Linear = list(
-                                "Rectangular" = "rectangular",
-                                "Roundrect" = "roundrect",
-                                "Slanted" = "slanted",
-                                "Ellipse" = "ellipse"
-                              ),
-                              Circular = list("Circular" = "circular",
-                                              "Inward" = "inward")
-                            ),
-                            selected = "circular",
-                            width = "90%"
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 5,
-                          align = "left",
-                          checkboxInput(
-                            "upgma_ladder",
-                            h5(p("Ladder"), style = "color:white; position: relative; bottom: 3px; right: -15px"),
-                            value = TRUE
-                          )
-                        ),
-                        column(
-                          width = 3,
-                          align = "left",
-                          checkboxInput(
-                            "upgma_rootedge_show",
-                            h5(p("Root"), style = "color:white; position: relative; bottom: 3px; right: -5px"),
-                            value = FALSE
-                          )
-                        ),
-                        column(
-                          width = 2,
-                          align = "right",
-                          dropMenu(
-                            actionBttn(
-                              "upgma_rootedge_menu",
+        
+        ### Control Panels UPGMA ----
+        
+        conditionalPanel(
+          "input.tree_algo=='UPGMA'",
+          fluidRow(
+            tags$style("button#upgma_labeltext_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px; margin-top: 20px; margin-left: 10px}"),
+            tags$style("button#upgma_labelformat_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px; margin-top: 20px}"),
+            tags$style("button#upgma_subtitle_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
+            tags$style("button#upgma_footer_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
+            tags$style("button#upgma_title_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
+            tags$style("button#upgma_branch_label_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px; margin-left: 10px}"),
+            tags$style("button#upgma_legend_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
+            tags$style("button#upgma_treescale_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
+            tags$style("button#upgma_rootedge_menu {height: 34px; background: #20E6E5; color: #000000; margin-left: 10px; margin-top: 22px; border-radius: 5px}"),
+            tags$style("button#upgma_tippoint_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 21px; border-radius: 5px}"),
+            tags$style("button#upgma_nodepoint_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 21px; border-radius: 5px}"),
+            tags$style("button#upgma_tile_menu {height: 34px; background: #20E6E5; color: #000000; margin-left: 15px; margin-top: 21px; border-radius: 5px}"),
+            tags$style("#upgma_tippoint_color {margin-bottom: 0px}"),
+            tags$style("#upgma_nodepoint_color {margin-bottom: 16px;}"),
+            tags$style("#upgma_treescale_show {margin-top: 17px; "),
+            tags$style("#upgma_tiles_show {margin-top: 18px; margin-left: -5px}"),
+            tags$style("#upgma_nodepoint_show {margin-top: 18px; margin-left: -5px}"),
+            tags$style("#upgma_ladder {margin-top: 19px; margin-left: -5px}"),
+            tags$style("#upgma_align {margin-top: 21px; margin-left: -5px}"),
+            tags$style("#upgma_rootedge_show {margin-top: 20px}"),
+            tags$style("#upgma_mapping_show {margin-top: 20px;}"),
+            tags$style("#upgma_tipcolor_mapping_show {margin-top: 20px;}"),
+            tags$style("#upgma_tipshape_mapping_show {margin-top: 20px;}"),
+            tags$style("#upgma_geom {margin-top: 0px; margin-left: -5px}"),
+            tags$style("#upgma_tiplab_color {margin-bottom: 0px;}"),
+            tags$style("#upgma_show_branch_label {margin-top: 17px; margin-left: -5px}"),
+            tags$style("#upgma_tippoint_show {margin-top: 17px; margin-left: -5px}"),
+            tags$style("#upgma_tiplab_show {margin-top: 17px; margin-left: -5px}"),
+            tags$style("#upgma_fruit_offset {position: relative; top: -20px}"),
+            tags$style("#upgma_layout .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {margin-bottom: 16px}"),
+            column(
+              width = 4,
+              align = "center",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                h3(p("Layout"), style = "color:white"),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 6,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p("Theme"), style = "color:white; position: relative; right: -15px"),
+                        fluidRow(
+                          column(
+                            width = 12,
+                            align = "center",
+                            selectInput(
+                              inputId = "upgma_layout",
                               label = "",
-                              color = "default",
-                              size = "sm",
-                              style = "material-flat",
-                              icon = icon("sliders")
-                            ),
-                            placement = "top-start",
-                            theme = "translucent",
-                            fluidRow(
-                              column(
-                                width = 12,
-                                align = "center",
-                                numericInput(
-                                  "upgma_rootedge_length",
-                                  label = h5("Length", style = "color:white; margin-bottom: 0px"),
-                                  value = 3,
-                                  min = 1,
-                                  max = 30,
-                                  step = 1,
-                                  width = "70px"
+                              choices = list(
+                                Linear = list(
+                                  "Rectangular" = "rectangular",
+                                  "Roundrect" = "roundrect",
+                                  "Slanted" = "slanted",
+                                  "Ellipse" = "ellipse"
                                 ),
-                                br(),
-                                selectInput(
-                                  "upgma_rootedge_line",
-                                  label = h5("Linetype", style = "color:white"),
-                                  choices = c(Solid = "solid", Dashed = "dashed", Dotted = "dotted"),
-                                  selected = c(Dotted = "dotted"),
-                                  width = "100px"
-                                )
-                              )
+                                Circular = list("Circular" = "circular",
+                                                "Inward" = "inward")
+                              ),
+                              selected = "circular",
+                              width = "90%"
                             )
                           )
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.upgma_layout=='circular' | input.upgma_layout=='inward'",
-                        fluidRow(
-                          column(
-                            width = 3,
-                            h5(p("Adjust"), style = "color:white; position: relative; right: -15px; margin-top: 20px")
-                          ),
-                          column(
-                            width = 8,
-                            align = "right",
-                            conditionalPanel(
-                              "input.upgma_layout=='circular'",
-                              sliderTextInput(
-                                "upgma_xlim",
-                                label = NULL,
-                                choices = -50:0,
-                                selected = -10,
-                                hide_min_max = TRUE
-                              )
-                            ),
-                            conditionalPanel(
-                              "input.upgma_layout=='inward'",
-                              sliderTextInput(
-                                "upgma_inward_xlim",
-                                label = NULL,
-                                choices = 30:120,
-                                selected = 50,
-                                hide_min_max = TRUE
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-                ),
-                column(
-                  width = 6,
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Color"), style = "color:white; position: relative; right: -15px"),
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5(p("Lines/Text"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
-                        ),
-                        column(
-                          width = 7,
-                          colorPickr(
-                            inputId = "upgma_color",
-                            width = "90%",
-                            selected = "#000000",
-                            label = "",
-                            update = "changestop",
-                            interaction = list(clear = FALSE,
-                                               save = FALSE),
-                            position = "right-start"
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5(p("Background"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
-                        ),
-                        column(
-                          width = 7,
-                          colorPickr(
-                            inputId = "upgma_bg",
-                            width = "90%",
-                            selected = "#ffffff",
-                            label = "",
-                            update = "changestop",
-                            interaction = list(clear = FALSE,
-                                               save = FALSE),
-                            position = "right-start"
-                          )
-                        )
-                      )
-                    )
-                  ), br()
-                )
-              ),
-              hr(),
-              fluidRow(
-                column(
-                  width = 6,
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Title"), style = "color:white; position: relative; right: -15px"),
-                      column(
-                        width = 12,
-                        align = "center",
-                        textInput(
-                          "upgma_title",
-                          label = "",
-                          width = "100%",
-                          placeholder = "Plot Title"
                         ),
                         fluidRow(
-                          column(
-                            width = 7,
-                            colorPickr(
-                              inputId = "upgma_title_color",
-                              selected = "#000000",
-                              label = "",
-                              update = "changestop",
-                              interaction = list(clear = FALSE,
-                                                 save = FALSE),
-                              position = "right-start",
-                              width = "100%"
-                            )
-                          ),
                           column(
                             width = 5,
-                            align = "right",
-                            dropMenu(
-                              actionBttn(
-                                "upgma_title_menu",
-                                label = "",
-                                color = "default",
-                                size = "sm",
-                                style = "material-flat",
-                                icon = icon("sliders")
-                              ),
-                              placement = "top-start",
-                              theme = "translucent",
-                              fluidRow(
-                                column(
-                                  width = 12,
-                                  align = "center",
-                                  numericInput(
-                                    "upgma_title_size",
-                                    label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                                    value = 30,
-                                    min = 15,
-                                    max = 40,
-                                    step = 1,
-                                    width = "100%"
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        ),
-                        br()
-                      )
-                    )
-                  )
-                ),
-                column(
-                  width = 6,
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Subtitle"), style = "color:white; position: relative; right: -15px"),
-                      column(
-                        width = 12,
-                        align = "center",
-                        textInput(
-                          "upgma_subtitle",
-                          label = "",
-                          width = "100%",
-                          placeholder = "Plot Subtitle"
-                        ),
-                        fluidRow(
-                          column(
-                            width = 7,
-                            colorPickr(
-                              inputId = "upgma_subtitle_color",
-                              selected = "#000000",
-                              label = "",
-                              update = "changestop",
-                              interaction = list(clear = FALSE,
-                                                 save = FALSE),
-                              position = "right-start",
-                              width = "100%"
-                            )
-                          ),
-                          column(
-                            width = 5,
-                            align = "right",
-                            dropMenu(
-                              actionBttn(
-                                "upgma_subtitle_menu",
-                                label = "",
-                                color = "default",
-                                size = "sm",
-                                style = "material-flat",
-                                icon = icon("sliders")
-                              ),
-                              placement = "top-start",
-                              theme = "translucent",
-                              fluidRow(
-                                column(
-                                  width = 12,
-                                  align = "center",
-                                  numericInput(
-                                    "upgma_subtitle_size",
-                                    label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                                    value = 20,
-                                    min = 15,
-                                    max = 40,
-                                    step = 1,
-                                    width = "100%"
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        ),
-                        br()
-                      )
-                    )
-                  )
-                )
-              ),
-              hr(),
-              fluidRow(
-                column(
-                  width = 6,
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p(tags$b("Tree scale")), style = "color:white; position: relative; right: -15px"),
-                      column(
-                        width = 12,
-                        fluidRow(
-                          column(
-                            width = 7,
                             align = "left",
                             checkboxInput(
-                              "upgma_treescale_show",
-                              h5(p("Show "), style = "color:white; position: relative; bottom: -7px; right: 0px"),
+                              "upgma_ladder",
+                              h5(p("Ladder"), style = "color:white; position: relative; bottom: 3px; right: -15px; margin-top: 22px"),
                               value = TRUE
-                            ),
-                            br()
+                            )
                           ),
                           column(
-                            width = 5,
+                            width = 3,
+                            align = "left",
+                            checkboxInput(
+                              "upgma_rootedge_show",
+                              h5(p("Root"), style = "color:white; position: relative; bottom: 3px; right: -5px; margin-top: 23px"),
+                              value = FALSE
+                            )
+                          ),
+                          column(
+                            width = 2,
                             align = "right",
                             dropMenu(
                               actionBttn(
-                                "upgma_treescale_menu",
+                                "upgma_rootedge_menu",
                                 label = "",
                                 color = "default",
                                 size = "sm",
@@ -4764,30 +4492,315 @@ ui <- dashboardPage(
                                   width = 12,
                                   align = "center",
                                   numericInput(
-                                    "upgma_treescale_width",
+                                    "upgma_rootedge_length",
                                     label = h5("Length", style = "color:white; margin-bottom: 0px"),
                                     value = 3,
                                     min = 1,
-                                    max = 20,
+                                    max = 30,
                                     step = 1,
                                     width = "70px"
                                   ),
                                   br(),
-                                  sliderTextInput(
-                                    "upgma_treescale_x",
-                                    label = h5("X Position", style = "color:white; margin-bottom: 0px"),
-                                    choices = 0:40,
-                                    selected = 5,
-                                    hide_min_max = TRUE,
-                                    width = "150px"
-                                  ),
-                                  br(),
-                                  sliderTextInput(
-                                    "upgma_treescale_y",
-                                    label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
-                                    choices = 0:65,
-                                    selected = 0,
-                                    hide_min_max = TRUE
+                                  selectInput(
+                                    "upgma_rootedge_line",
+                                    label = h5("Linetype", style = "color:white"),
+                                    choices = c(Solid = "solid", Dashed = "dashed", Dotted = "dotted"),
+                                    selected = c(Dotted = "dotted"),
+                                    width = "100px"
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        ),
+                        conditionalPanel(
+                          "input.upgma_layout=='circular' | input.upgma_layout=='inward'",
+                          fluidRow(
+                            column(
+                              width = 3,
+                              h5(p("Adjust"), style = "color:white; position: relative; right: -15px; margin-top: 20px")
+                            ),
+                            column(
+                              width = 8,
+                              align = "right",
+                              conditionalPanel(
+                                "input.upgma_layout=='circular'",
+                                sliderTextInput(
+                                  "upgma_xlim",
+                                  label = NULL,
+                                  choices = -50:0,
+                                  selected = -10,
+                                  hide_min_max = TRUE
+                                )
+                              ),
+                              conditionalPanel(
+                                "input.upgma_layout=='inward'",
+                                sliderTextInput(
+                                  "upgma_inward_xlim",
+                                  label = NULL,
+                                  choices = 30:120,
+                                  selected = 50,
+                                  hide_min_max = TRUE
+                                )
+                              )
+                            )
+                          )
+                        )
+                      )
+                    )
+                  ),
+                  column(
+                    width = 6,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p("Color"), style = "color:white; position: relative; right: -15px"),
+                        fluidRow(
+                          column(
+                            width = 5,
+                            h5(p("Lines/Text"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
+                          ),
+                          column(
+                            width = 7,
+                            colorPickr(
+                              inputId = "upgma_color",
+                              width = "90%",
+                              selected = "#000000",
+                              label = "",
+                              update = "changestop",
+                              interaction = list(clear = FALSE,
+                                                 save = FALSE),
+                              position = "right-start"
+                            )
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            width = 5,
+                            h5(p("Background"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
+                          ),
+                          column(
+                            width = 7,
+                            colorPickr(
+                              inputId = "upgma_bg",
+                              width = "90%",
+                              selected = "#ffffff",
+                              label = "",
+                              update = "changestop",
+                              interaction = list(clear = FALSE,
+                                                 save = FALSE),
+                              position = "right-start"
+                            )
+                          )
+                        )
+                      )
+                    ), br()
+                  )
+                ),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 6,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p("Title"), style = "color:white; position: relative; right: -15px"),
+                        column(
+                          width = 12,
+                          align = "center",
+                          textInput(
+                            "upgma_title",
+                            label = "",
+                            width = "100%",
+                            placeholder = "Plot Title"
+                          ),
+                          fluidRow(
+                            column(
+                              width = 7,
+                              colorPickr(
+                                inputId = "upgma_title_color",
+                                selected = "#000000",
+                                label = "",
+                                update = "changestop",
+                                interaction = list(clear = FALSE,
+                                                   save = FALSE),
+                                position = "right-start",
+                                width = "100%"
+                              )
+                            ),
+                            column(
+                              width = 5,
+                              align = "right",
+                              dropMenu(
+                                actionBttn(
+                                  "upgma_title_menu",
+                                  label = "",
+                                  color = "default",
+                                  size = "sm",
+                                  style = "material-flat",
+                                  icon = icon("sliders")
+                                ),
+                                placement = "top-start",
+                                theme = "translucent",
+                                fluidRow(
+                                  column(
+                                    width = 12,
+                                    align = "center",
+                                    numericInput(
+                                      "upgma_title_size",
+                                      label = h5("Size", style = "color:white; margin-bottom: 0px"),
+                                      value = 30,
+                                      min = 15,
+                                      max = 40,
+                                      step = 1,
+                                      width = "100%"
+                                    )
+                                  )
+                                )
+                              )
+                            )
+                          ),
+                          br()
+                        )
+                      )
+                    )
+                  ),
+                  column(
+                    width = 6,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p("Subtitle"), style = "color:white; position: relative; right: -15px"),
+                        column(
+                          width = 12,
+                          align = "center",
+                          textInput(
+                            "upgma_subtitle",
+                            label = "",
+                            width = "100%",
+                            placeholder = "Plot Subtitle"
+                          ),
+                          fluidRow(
+                            column(
+                              width = 7,
+                              colorPickr(
+                                inputId = "upgma_subtitle_color",
+                                selected = "#000000",
+                                label = "",
+                                update = "changestop",
+                                interaction = list(clear = FALSE,
+                                                   save = FALSE),
+                                position = "right-start",
+                                width = "100%"
+                              )
+                            ),
+                            column(
+                              width = 5,
+                              align = "right",
+                              dropMenu(
+                                actionBttn(
+                                  "upgma_subtitle_menu",
+                                  label = "",
+                                  color = "default",
+                                  size = "sm",
+                                  style = "material-flat",
+                                  icon = icon("sliders")
+                                ),
+                                placement = "top-start",
+                                theme = "translucent",
+                                fluidRow(
+                                  column(
+                                    width = 12,
+                                    align = "center",
+                                    numericInput(
+                                      "upgma_subtitle_size",
+                                      label = h5("Size", style = "color:white; margin-bottom: 0px"),
+                                      value = 20,
+                                      min = 15,
+                                      max = 40,
+                                      step = 1,
+                                      width = "100%"
+                                    )
+                                  )
+                                )
+                              )
+                            )
+                          ),
+                          br()
+                        )
+                      )
+                    )
+                  )
+                ),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 6,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p(tags$b("Tree scale")), style = "color:white; position: relative; right: -15px"),
+                        column(
+                          width = 12,
+                          fluidRow(
+                            column(
+                              width = 7,
+                              align = "left",
+                              checkboxInput(
+                                "upgma_treescale_show",
+                                h5(p("Show "), style = "color:white; position: relative; bottom: -7px; right: 0px"),
+                                value = TRUE
+                              ),
+                              br()
+                            ),
+                            column(
+                              width = 5,
+                              align = "right",
+                              dropMenu(
+                                actionBttn(
+                                  "upgma_treescale_menu",
+                                  label = "",
+                                  color = "default",
+                                  size = "sm",
+                                  style = "material-flat",
+                                  icon = icon("sliders")
+                                ),
+                                placement = "top-start",
+                                theme = "translucent",
+                                fluidRow(
+                                  column(
+                                    width = 12,
+                                    align = "center",
+                                    numericInput(
+                                      "upgma_treescale_width",
+                                      label = h5("Length", style = "color:white; margin-bottom: 0px"),
+                                      value = 3,
+                                      min = 1,
+                                      max = 20,
+                                      step = 1,
+                                      width = "70px"
+                                    ),
+                                    br(),
+                                    sliderTextInput(
+                                      "upgma_treescale_x",
+                                      label = h5("X Position", style = "color:white; margin-bottom: 0px"),
+                                      choices = 0:40,
+                                      selected = 5,
+                                      hide_min_max = TRUE,
+                                      width = "150px"
+                                    ),
+                                    br(),
+                                    sliderTextInput(
+                                      "upgma_treescale_y",
+                                      label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+                                      choices = 0:65,
+                                      selected = 0,
+                                      hide_min_max = TRUE
+                                    )
                                   )
                                 )
                               )
@@ -4796,71 +4809,71 @@ ui <- dashboardPage(
                         )
                       )
                     )
-                  )
-                ),
-                column(
-                  width = 6,
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Legend"), style = "color:white; position: relative; right: -15px"),
+                  ),
+                  column(
+                    width = 6,
+                    fluidRow(
                       column(
                         width = 12,
-                        align = "center",
-                        fluidRow(
-                          column(
-                            width = 12,
-                            align = "left",
-                            prettyRadioButtons(
-                              "upgma_legend_orientation",
-                              "",
-                              choices = c(Horizontal = "horizontal",
-                                          Vertical = "vertical"),
-                              selected = c(Horizontal = "horizontal"),
-                              inline = TRUE
-                            )
-                          )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 7,
-                            selectInput(
-                              "upgma_legend_position",
-                              "",
-                              choices = c(Top = "top", 
-                                          Right = "right", 
-                                          Bottom = "bottom", 
-                                          Left = "left"),
-                              selected = "bottom"
+                        align = "left",
+                        h4(p("Legend"), style = "color:white; position: relative; right: -15px"),
+                        column(
+                          width = 12,
+                          align = "center",
+                          fluidRow(
+                            column(
+                              width = 12,
+                              align = "left",
+                              prettyRadioButtons(
+                                "upgma_legend_orientation",
+                                "",
+                                choices = c(Horizontal = "horizontal",
+                                            Vertical = "vertical"),
+                                selected = c(Horizontal = "horizontal"),
+                                inline = TRUE
+                              )
                             )
                           ),
-                          column(
-                            width = 5,
-                            align = "right",
-                            dropMenu(
-                              actionBttn(
-                                "upgma_legend_menu",
-                                label = "",
-                                color = "default",
-                                size = "sm",
-                                style = "material-flat",
-                                icon = icon("sliders")
-                              ),
-                              placement = "top-start",
-                              theme = "translucent",
-                              fluidRow(
-                                column(
-                                  width = 12,
-                                  align = "center",
-                                  numericInput(
-                                    "upgma_legend_size",
-                                    label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                                    value = 10,
-                                    min = 5,
-                                    max = 25,
-                                    step = 1,
-                                    width = "100%"
+                          fluidRow(
+                            column(
+                              width = 7,
+                              selectInput(
+                                "upgma_legend_position",
+                                "",
+                                choices = c(Top = "top", 
+                                            Right = "right", 
+                                            Bottom = "bottom", 
+                                            Left = "left"),
+                                selected = "bottom"
+                              )
+                            ),
+                            column(
+                              width = 5,
+                              align = "right",
+                              dropMenu(
+                                actionBttn(
+                                  "upgma_legend_menu",
+                                  label = "",
+                                  color = "default",
+                                  size = "sm",
+                                  style = "material-flat",
+                                  icon = icon("sliders")
+                                ),
+                                placement = "top-start",
+                                theme = "translucent",
+                                fluidRow(
+                                  column(
+                                    width = 12,
+                                    align = "center",
+                                    numericInput(
+                                      "upgma_legend_size",
+                                      label = h5("Size", style = "color:white; margin-bottom: 0px"),
+                                      value = 10,
+                                      min = 5,
+                                      max = 25,
+                                      step = 1,
+                                      width = "100%"
+                                    )
                                   )
                                 )
                               )
@@ -4872,323 +4885,214 @@ ui <- dashboardPage(
                   )
                 )
               )
-            )
-          ),
-          column(
-            width = 4,
-            align = "center",
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = "100%",
-              h3(p("Label"), style = "color:white"),
-              hr(),
-              fluidRow(
-                column(
-                  width = 12,
-                  align = "left",
-                  h4(p("Tips"), style = "color:white; position: relative; right: -15px"),
-                  fluidRow(
-                    column(
-                      width = 4,
-                      align = "left",
-                      checkboxInput(
-                        "upgma_tiplab_show",
-                        h5(p("Show"), style = "color:white; position: relative; right: -17px; bottom: -7px"),
-                        value = TRUE
-                      )
-                    ),
-                    column(
-                      width = 4,
-                      align = "center",
-                      selectInput(
-                        "upgma_tiplab",
-                        label = "",
-                        choices = c(
-                          Index = "index",
-                          `Assembly ID` = "assembly_id",
-                          `Assembly Name` = "assembly_name",
-                          `Isolation Date` = "Isolation_Date",
-                          Host = "Host",
-                          Country = "Country",
-                          City = "City"
-                        ),
-                        selected = c(`Assembly Name` = "assembly_name"),
-                        width = "100%"
-                      )
-                    ),
-                    column(
-                      width = 3,
-                      align = "right",
-                      dropMenu(
-                        actionBttn(
-                          "upgma_labeltext_menu",
+            ),
+            column(
+              width = 4,
+              align = "center",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                h3(p("Label"), style = "color:white"),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 12,
+                    align = "left",
+                    h4(p("Tips"), style = "color:white; position: relative; right: -15px"),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "left",
+                        checkboxInput(
+                          "upgma_tiplab_show",
+                          h5(p("Show"), style = "color:white; position: relative; right: -17px; bottom: -7px"),
+                          value = TRUE
+                        )
+                      ),
+                      column(
+                        width = 4,
+                        align = "center",
+                        selectInput(
+                          "upgma_tiplab",
                           label = "",
-                          color = "default",
-                          size = "sm",
-                          style = "material-flat",
-                          icon = icon("sliders")
-                        ),
-                        placement = "top-start",
-                        theme = "translucent",
-                        fluidRow(
-                          column(
-                            width = 6,
-                            align = "center",
-                            numericInput(
-                              "upgma_tiplab_size",
-                              label = h5("Label size", style = "color:white; margin-bottom: 0px"),
-                              min = 1,
-                              max = 10,
-                              step = 0.5,
-                              value = 4,
-                              width = "70px"
-                            ),
-                            br(),
-                            numericInput(
-                              "upgma_tiplab_alpha",
-                              label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                              min = 0.1,
-                              max = 1,
-                              value = 1,
-                              width = "70px"
-                            ),
-                            br(),
-                            selectInput(
-                              "upgma_tiplab_fontface",
-                              label = h5("Fontface", style = "color:white; margin-bottom: 0px"),
-                              width = "250px",
-                              choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
-                            )
+                          choices = c(
+                            Index = "index",
+                            `Assembly ID` = "assembly_id",
+                            `Assembly Name` = "assembly_name",
+                            `Isolation Date` = "Isolation_Date",
+                            Host = "Host",
+                            Country = "Country",
+                            City = "City"
                           ),
-                          column(
-                            width = 6,
-                            align = "center",
-                            conditionalPanel(
-                              "!(input.upgma_layout=='inward'|input.upgma_layout=='circular')",
+                          selected = c(`Assembly Name` = "assembly_name"),
+                          width = "100%"
+                        )
+                      ),
+                      column(
+                        width = 3,
+                        align = "right",
+                        dropMenu(
+                          actionBttn(
+                            "upgma_labeltext_menu",
+                            label = "",
+                            color = "default",
+                            size = "sm",
+                            style = "material-flat",
+                            icon = icon("sliders")
+                          ),
+                          placement = "top-start",
+                          theme = "translucent",
+                          fluidRow(
+                            column(
+                              width = 6,
+                              align = "center",
                               numericInput(
-                                inputId = "upgma_tiplab_nudge_x",
-                                label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                                min = -3,
-                                max = 3,
-                                step = 0.05,
-                                value = 0,
+                                "upgma_tiplab_size",
+                                label = h5("Label size", style = "color:white; margin-bottom: 0px"),
+                                min = 1,
+                                max = 10,
+                                step = 0.5,
+                                value = 4,
                                 width = "70px"
+                              ),
+                              br(),
+                              numericInput(
+                                "upgma_tiplab_alpha",
+                                label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                                min = 0.1,
+                                max = 1,
+                                value = 1,
+                                width = "70px"
+                              ),
+                              br(),
+                              selectInput(
+                                "upgma_tiplab_fontface",
+                                label = h5("Fontface", style = "color:white; margin-bottom: 0px"),
+                                width = "250px",
+                                choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
                               )
                             ),
-                            conditionalPanel(
-                              "input.upgma_layout=='circular'",
-                              numericInput(
-                                inputId = "upgma_tiplab_position",
-                                label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                                min = -3,
-                                max = 3,
-                                step = 0.05,
-                                value = -0.1,
-                                width = "70px"
-                              )
-                            ),
-                            conditionalPanel(
-                              "input.upgma_layout=='inward'",
-                              numericInput(
-                                inputId = "upgma_tiplab_position_inw",
-                                label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                                min = -3,
-                                max = 3,
-                                step = 0.05,
-                                value = 1.1,
-                                width = "70px"
-                              )
-                            ),
-                            br(),
-                            sliderTextInput(
-                              inputId = "upgma_tiplab_angle",
-                              label = h5("Angle", style = "color:white; margin-bottom: 0px"),
-                              choices = -180:180,
-                              selected = 0,
-                              hide_min_max = TRUE
-                            )      
+                            column(
+                              width = 6,
+                              align = "center",
+                              conditionalPanel(
+                                "!(input.upgma_layout=='inward'|input.upgma_layout=='circular')",
+                                numericInput(
+                                  inputId = "upgma_tiplab_nudge_x",
+                                  label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                                  min = -3,
+                                  max = 3,
+                                  step = 0.05,
+                                  value = 0,
+                                  width = "70px"
+                                )
+                              ),
+                              conditionalPanel(
+                                "input.upgma_layout=='circular'",
+                                numericInput(
+                                  inputId = "upgma_tiplab_position",
+                                  label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                                  min = -3,
+                                  max = 3,
+                                  step = 0.05,
+                                  value = -0.1,
+                                  width = "70px"
+                                )
+                              ),
+                              conditionalPanel(
+                                "input.upgma_layout=='inward'",
+                                numericInput(
+                                  inputId = "upgma_tiplab_position_inw",
+                                  label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                                  min = -3,
+                                  max = 3,
+                                  step = 0.05,
+                                  value = 1.1,
+                                  width = "70px"
+                                )
+                              ),
+                              br(),
+                              sliderTextInput(
+                                inputId = "upgma_tiplab_angle",
+                                label = h5("Angle", style = "color:white; margin-bottom: 0px"),
+                                choices = -180:180,
+                                selected = 0,
+                                hide_min_max = TRUE
+                              )      
+                            )
                           )
                         )
                       )
                     )
                   )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 4,
-                  align = "left",
-                  checkboxInput(
-                    "upgma_align",
-                    h5(p("Align labels"), style = "color:white; position: relative; bottom: -10px; right: -15px"),
-                    value = FALSE
-                  )
                 ),
-                column(
-                  width = 1,
-                  HTML(
-                    paste(
-                      tags$span(style='color: white; font-size: 14px; position: relative; bottom: -28px; margin-left: 0px ', 'Width')
-                    )
-                  )
-                ),
-                column(
-                  width = 3,
-                  align = "left",
-                  numericInput(
-                    "upgma_tiplab_linesize",
-                    "",
-                    value = 0.5,
-                    min = 0.1,
-                    max = 3,
-                    step = 0.1,
-                    width = "80px"
-                  )
-                ),
-                column(
-                  width = 3,
-                  selectInput(
-                    "upgma_tiplab_linetype",
-                    "",
-                    choices = c(Solid = "solid", Dashed = "dashed", Dotted = "dotted"),
-                    selected = c(Dotted = "dotted")
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 4,
-                  align = "left",
-                  h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 30px")
-                ),
-                column(
-                  width = 4,
-                  conditionalPanel(
-                    "input.upgma_mapping_show==false",
-                    colorPickr(
-                      inputId = "upgma_tiplab_color",
-                      width = "100%",
-                      selected = "#000000",
-                      label = "",
-                      update = "changestop",
-                      interaction = list(clear = FALSE,
-                                         save = FALSE),
-                      position = "right-start"
+                fluidRow(
+                  column(
+                    width = 4,
+                    align = "left",
+                    checkboxInput(
+                      "upgma_align",
+                      h5(p("Align labels"), style = "color:white; position: relative; bottom: -10px; right: -15px"),
+                      value = FALSE
                     )
                   ),
-                  conditionalPanel(
-                    "input.upgma_mapping_show==true",
-                    selectInput(
-                      "upgma_color_mapping",
+                  column(
+                    width = 1,
+                    HTML(
+                      paste(
+                        tags$span(style='color: white; font-size: 14px; position: relative; bottom: -28px; margin-left: 0px ', 'Width')
+                      )
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    align = "left",
+                    numericInput(
+                      "upgma_tiplab_linesize",
                       "",
-                      choices = c(
-                        "Isolation Date" = "Isolation_Date",
-                        "Host" = "Host",
-                        "Country" = "Country",
-                        "City" = "City"
-                      ),
-                      selected = c("Host" = "Host"),
-                      width = "100%"
+                      value = 0.5,
+                      min = 0.1,
+                      max = 3,
+                      step = 0.1,
+                      width = "80px"
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    selectInput(
+                      "upgma_tiplab_linetype",
+                      "",
+                      choices = c(Solid = "solid", Dashed = "dashed", Dotted = "dotted"),
+                      selected = c(Dotted = "dotted")
                     )
                   )
                 ),
-                column(
-                  width = 4,
-                  align = "left",
-                  checkboxInput(
-                    "upgma_mapping_show",
-                    label = h5("Add variable", style = "color:white; font-size: 14px; position: relative; bottom: -10px;"),
-                    value = FALSE
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 4,
-                  align = "left",
-                  br(),
-                  checkboxInput(
-                    "upgma_geom",
-                    h5(p("Panel"), style = "color:white; position: relative; bottom: 10px; right: -17px"),
-                    value = FALSE
-                  )
-                ),
-                column(
-                  width = 4,
-                  colorPickr(
-                    inputId = "upgma_tiplab_fill",
-                    width = "100%",
-                    selected = "#84D9A0",
-                    label = "",
-                    update = "changestop",
-                    interaction = list(clear = FALSE,
-                                       save = FALSE),
-                    position = "right-start"
-                  )
-                ),
-                column(
-                  width = 3,
-                  align = "right",
-                  dropMenu(
-                    actionBttn(
-                      "upgma_labelformat_menu",
-                      label = "",
-                      color = "default",
-                      size = "sm",
-                      style = "material-flat",
-                      icon = icon("sliders")
-                    ),
-                    placement = "top-start",
-                    theme = "translucent",
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "center",
-                        numericInput(
-                          inputId = "upgma_tiplab_padding",
-                          label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                          min = 0.1,
-                          step = 0.1,
-                          max = 1,
-                          value = 0.3,
-                          width = "70px"
-                        ),
-                        br(),
-                        numericInput(
-                          inputId = "upgma_tiplab_labelradius",
-                          label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
-                          min = 0,
-                          max = 0.5,
-                          step = 0.05,
-                          value = 0.2
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              hr(),
-              fluidRow(
-                column(
-                  width = 12,
-                  align = "left",
-                  h4(p("Branches"), style = "color:white; position: relative; right: -15px"),
-                  fluidRow(
-                    column(
-                      width = 4,
-                      align = "left",
-                      checkboxInput(
-                        "upgma_show_branch_label",
-                        h5(p("Show"), style = "color:white; position: relative; bottom: -7px; right: -17px"),
-                        value = FALSE
+                fluidRow(
+                  column(
+                    width = 4,
+                    align = "left",
+                    h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 30px")
+                  ),
+                  column(
+                    width = 4,
+                    conditionalPanel(
+                      "input.upgma_mapping_show==false",
+                      colorPickr(
+                        inputId = "upgma_tiplab_color",
+                        width = "100%",
+                        selected = "#000000",
+                        label = "",
+                        update = "changestop",
+                        interaction = list(clear = FALSE,
+                                           save = FALSE),
+                        position = "right-start"
                       )
                     ),
-                    column(
-                      width = 4,
-                      align = "center",
+                    conditionalPanel(
+                      "input.upgma_mapping_show==true",
                       selectInput(
-                        "upgma_branch_label",
+                        "upgma_color_mapping",
                         "",
                         choices = c(
                           "Isolation Date" = "Isolation_Date",
@@ -5196,263 +5100,107 @@ ui <- dashboardPage(
                           "Country" = "Country",
                           "City" = "City"
                         ),
-                        selected = c("Country" = "Country"),
+                        selected = c("Host" = "Host"),
                         width = "100%"
                       )
-                    ),
-                    column(
-                      width = 3,
-                      align = "right",
-                      dropMenu(
-                        actionBttn(
-                          "upgma_branch_label_menu",
-                          label = "",
-                          color = "default",
-                          size = "sm",
-                          style = "material-flat",
-                          icon = icon("sliders")
-                        ),
-                        placement = "top-start",
-                        theme = "translucent",
-                        fluidRow(
-                          column(
-                            width = 6,
-                            align = "center",
-                            numericInput(
-                              "upgma_branch_size",
-                              label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                              min = 3,
-                              max = 10,
-                              step = 0.5,
-                              value = 4,
-                              width = "70px"
-                            ),
-                            br(),
-                            numericInput(
-                              "upgma_branch_labelradius",
-                              label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
-                              value = 0.5,
-                              step = 0.05,
-                              min = 0,
-                              max = 0.5
-                            ),
-                            br(),
-                            selectInput(
-                              "upgma_branchlab_fontface",
-                              label = h5("Fontface", style = "color:white"),
-                              width = "250px",
-                              choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
-                            )
-                          ),
-                          column(
-                            width = 6,
-                            align = "center",
-                            numericInput(
-                              "upgma_branchlab_alpha",
-                              label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                              min = 0.1,
-                              max = 1,
-                              value = 0.7,
-                              width = "70px"
-                            ),
-                            br(),
-                            sliderTextInput(
-                              inputId = "upgma_branch_x",
-                              label = h5("X Position", style = "color:white; margin-bottom: 0px"),
-                              choices = seq(-3, 3, by = 0.1),
-                              selected = 0,
-                              width = "250px",
-                              hide_min_max = TRUE
-                            ),
-                            br(),
-                            sliderTextInput(
-                              inputId = "upgma_branch_y",
-                              label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
-                              choices = seq(-3, 3, by = 0.1),
-                              selected = 0,
-                              width = "250px",
-                              hide_min_max = TRUE
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 4,
-                  align = "left",
-                  h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 30px")
-                ),
-                column(
-                  width = 4,
-                  colorPickr(
-                    inputId = "upgma_branch_label_color",
-                    width = "100%",
-                    selected = "#FFB7B7",
-                    label = "",
-                    update = "changestop",
-                    interaction = list(clear = FALSE,
-                                       save = FALSE),
-                    position = "right-start"
-                  )
-                )
-              ),
-              br(), br(),
-              conditionalPanel(
-                "input.upgma_layout=='inward'|input.upgma_layout=='circular'",
-                br(), br()
-              )
-            )
-          ),
-          column(
-            width = 4,
-            align = "center",
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = "100%",
-              h3(p("Elements"), style = "color:white"),
-              hr(),
-              fluidRow(
-                column(
-                  width = 12,
-                  align = "left",
-                  h4(p("Tip points"), style = "color:white; position: relative; right: -15px"),
-                  fluidRow(
-                    column(
-                      width = 4,
-                      align = "left",
-                      checkboxInput(
-                        "upgma_tippoint_show",
-                        h5(p("Show"), style = "color:white; position: relative; bottom: -8px; right: -17px"),
-                        value = FALSE
-                      )
-                    ),
-                    column(
-                      width = 2,
-                      align = "left",
-                      dropMenu(
-                        actionBttn(
-                          "upgma_tippoint_menu",
-                          label = "",
-                          color = "default",
-                          size = "sm",
-                          style = "material-flat",
-                          icon = icon("sliders")
-                        ),
-                        placement = "top-start",
-                        theme = "translucent",
-                        fluidRow(
-                          column(
-                            width = 12,
-                            align = "center",
-                            numericInput(
-                              "upgma_tippoint_alpha",
-                              label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                              value = 0.5,
-                              min = 0.1,
-                              max = 1,
-                              step = 0.1,
-                              width = "70px"
-                            ), 
-                            br(),
-                            numericInput(
-                              inputId = "upgma_tippoint_size",
-                              label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                              min = 1,
-                              max = 20,
-                              step = 1,
-                              value = 5
-                            )
-                          )
-                        )
-                      )  
                     )
                   ),
-                  fluidRow(
-                    column(
-                      width = 4,
-                      align = "left",
-                      h5(p("Color"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
-                    ),
-                    column(
-                      width = 4,
-                      align = "center",
-                      conditionalPanel(
-                        "input.upgma_tipcolor_mapping_show==true & input.upgma_mapping_show==false",
-                        selectInput(
-                          "upgma_tipcolor_mapping",
-                          "",
-                          choices = c(
-                            "Assembly Name" = "assembly_name",
-                            "Isolation Date" = "Isolation_Date",
-                            "Host" = "Host",
-                            "Country" = "Country",
-                            "City" = "City"
-                          ),
-                          selected = c("Country" = "Country"),
-                          width = "100%"
-                        )
+                  column(
+                    width = 4,
+                    align = "left",
+                    checkboxInput(
+                      "upgma_mapping_show",
+                      label = h5("Add variable", style = "color:white; font-size: 14px; position: relative; bottom: -10px;"),
+                      value = FALSE
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 4,
+                    align = "left",
+                    br(),
+                    checkboxInput(
+                      "upgma_geom",
+                      h5(p("Panel"), style = "color:white; position: relative; bottom: 10px; right: -17px"),
+                      value = FALSE
+                    )
+                  ),
+                  column(
+                    width = 4,
+                    colorPickr(
+                      inputId = "upgma_tiplab_fill",
+                      width = "100%",
+                      selected = "#84D9A0",
+                      label = "",
+                      update = "changestop",
+                      interaction = list(clear = FALSE,
+                                         save = FALSE),
+                      position = "right-start"
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    align = "right",
+                    dropMenu(
+                      actionBttn(
+                        "upgma_labelformat_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("sliders")
                       ),
-                      conditionalPanel(
-                        "input.upgma_tipcolor_mapping_show==false || input.upgma_mapping_show==true",
-                        colorPickr(
-                          inputId = "upgma_tippoint_color",
-                          width = "100%",
-                          selected = "#3A4657",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
+                      placement = "top-start",
+                      theme = "translucent",
+                      fluidRow(
+                        column(
+                          width = 12,
+                          align = "center",
+                          numericInput(
+                            inputId = "upgma_tiplab_padding",
+                            label = h5("Size", style = "color:white; margin-bottom: 0px"),
+                            min = 0.1,
+                            step = 0.1,
+                            max = 1,
+                            value = 0.3,
+                            width = "70px"
+                          ),
+                          br(),
+                          numericInput(
+                            inputId = "upgma_tiplab_labelradius",
+                            label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
+                            min = 0,
+                            max = 0.5,
+                            step = 0.05,
+                            value = 0.2
+                          )
                         )
                       )
-                    ),
-                    column(
-                      width = 4,
-                      align = "left",
-                      conditionalPanel(
-                        "input.upgma_mapping_show==false",
+                    )
+                  )
+                ),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 12,
+                    align = "left",
+                    h4(p("Branches"), style = "color:white; position: relative; right: -15px"),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "left",
                         checkboxInput(
-                          "upgma_tipcolor_mapping_show",
-                          label = h5("Add variable", style = "color:white; font-size: 14px; position: relative; bottom: -10px;"),
+                          "upgma_show_branch_label",
+                          h5(p("Show"), style = "color:white; position: relative; bottom: -7px; right: -17px"),
                           value = FALSE
                         )
-                      )
-                    )
-                  ),
-                  fluidRow(
-                    column(
-                      width = 4,
-                      align = "left",
-                      h5(p("Shape"), style = "color:white; position: relative; right: -17px; margin-top: 30px")
-                    ),
-                    column(
-                      width = 4,
-                      align = "center",
-                      conditionalPanel(
-                        "input.upgma_tipshape_mapping_show==false",
-                        selectInput(
-                          "upgma_tippoint_shape",
-                          "",
-                          width = "100%",
-                          choices = c(
-                            Circle = "circle", 
-                            Square = "square", 
-                            Diamond = "diamond", 
-                            Triangle = "triangle",
-                            Cross = "cross", 
-                            Asterisk = "asterisk"
-                          )
-                        )
                       ),
-                      conditionalPanel(
-                        "input.upgma_tipshape_mapping_show==true",
+                      column(
+                        width = 4,
+                        align = "center",
                         selectInput(
-                          "upgma_tipshape_mapping",
+                          "upgma_branch_label",
                           "",
                           choices = c(
                             "Isolation Date" = "Isolation_Date",
@@ -5463,118 +5211,80 @@ ui <- dashboardPage(
                           selected = c("Country" = "Country"),
                           width = "100%"
                         )
-                      )
-                    ),
-                    column(
-                      width = 4,
-                      align = "left",
-                      checkboxInput(
-                        "upgma_tipshape_mapping_show",
-                        label = h5("Add variable", style = "color:white; font-size: 14px; position: relative; bottom: -10px;"),
-                        value = FALSE
-                      )
-                    )
-                  )
-                )
-              ),
-              hr(),
-              fluidRow(
-                column(
-                  width = 6,
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Node points"), style = "color:white; position: relative; right: -15px"),
-                      fluidRow(
-                        column(
-                          width = 5,
-                          align = "left",
-                          checkboxInput(
-                            "upgma_nodepoint_show",
-                            h5(p("Show"), style = "color:white; position: relative; bottom: -8px; right: -17px"),
-                            value = FALSE
-                          )
-                        ),
-                        column(
-                          width = 7,
-                          align = "right",
-                          dropMenu(
-                            actionBttn(
-                              "upgma_nodepoint_menu",
-                              label = "",
-                              color = "default",
-                              size = "sm",
-                              style = "material-flat",
-                              icon = icon("sliders")
-                            ),
-                            placement = "top-start",
-                            theme = "translucent",
-                            fluidRow(
-                              column(
-                                width = 12,
-                                align = "center",
-                                numericInput(
-                                  "upgma_nodepoint_alpha",
-                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                  value = 0.5,
-                                  min = 0.1,
-                                  max = 1,
-                                  step = 0.1,
-                                  width = "70px"
-                                ), 
-                                br(),
-                                numericInput(
-                                  inputId = "upgma_nodepoint_size",
-                                  label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                                  min = 1,
-                                  max = 20,
-                                  step = 1,
-                                  value = 5
-                                )
-                              )
-                            )
-                          )  
-                        )
                       ),
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5(p("Color"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          colorPickr(
-                            inputId = "upgma_nodepoint_color",
-                            width = "100%",
-                            selected = "#3A4657",
+                      column(
+                        width = 3,
+                        align = "right",
+                        dropMenu(
+                          actionBttn(
+                            "upgma_branch_label_menu",
                             label = "",
-                            update = "changestop",
-                            interaction = list(clear = FALSE,
-                                               save = FALSE),
-                            position = "right-start"
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5(p("Shape"), style = "color:white; position: relative; right: -20px; margin-top: 30px")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          selectInput(
-                            "upgma_nodepoint_shape",
-                            "",
-                            choices = c(
-                              Circle = "circle", 
-                              Square = "square", 
-                              Diamond = "diamond", 
-                              Triangle = "triangle",
-                              Cross = "cross", 
-                              Asterisk = "asterisk"
+                            color = "default",
+                            size = "sm",
+                            style = "material-flat",
+                            icon = icon("sliders")
+                          ),
+                          placement = "top-start",
+                          theme = "translucent",
+                          fluidRow(
+                            column(
+                              width = 6,
+                              align = "center",
+                              numericInput(
+                                "upgma_branch_size",
+                                label = h5("Size", style = "color:white; margin-bottom: 0px"),
+                                min = 3,
+                                max = 10,
+                                step = 0.5,
+                                value = 4,
+                                width = "70px"
+                              ),
+                              br(),
+                              numericInput(
+                                "upgma_branch_labelradius",
+                                label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
+                                value = 0.5,
+                                step = 0.05,
+                                min = 0,
+                                max = 0.5
+                              ),
+                              br(),
+                              selectInput(
+                                "upgma_branchlab_fontface",
+                                label = h5("Fontface", style = "color:white"),
+                                width = "250px",
+                                choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
+                              )
+                            ),
+                            column(
+                              width = 6,
+                              align = "center",
+                              numericInput(
+                                "upgma_branchlab_alpha",
+                                label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                                min = 0.1,
+                                max = 1,
+                                value = 0.7,
+                                width = "70px"
+                              ),
+                              br(),
+                              sliderTextInput(
+                                inputId = "upgma_branch_x",
+                                label = h5("X Position", style = "color:white; margin-bottom: 0px"),
+                                choices = seq(-3, 3, by = 0.1),
+                                selected = 0,
+                                width = "250px",
+                                hide_min_max = TRUE
+                              ),
+                              br(),
+                              sliderTextInput(
+                                inputId = "upgma_branch_y",
+                                label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+                                choices = seq(-3, 3, by = 0.1),
+                                selected = 0,
+                                width = "250px",
+                                hide_min_max = TRUE
+                              )
                             )
                           )
                         )
@@ -5582,70 +5292,111 @@ ui <- dashboardPage(
                     )
                   )
                 ),
-                column(
-                  width = 6,
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Tiles"), style = "color:white; position: relative; right: -15px"),
-                      fluidRow(
-                        column(
-                          width = 4,
-                          align = "left",
-                          checkboxInput(
-                            "upgma_tiles_show",
-                            h5(p("Show"), style = "color:white; position: relative; bottom: -8px; right: -17px"),
-                            value = FALSE
-                          )
-                        ),
-                        column(
-                          width = 7,
-                          align = "right",
-                          dropMenu(
-                            actionBttn(
-                              "upgma_tile_menu",
-                              label = "",
-                              color = "default",
-                              size = "sm",
-                              style = "material-flat",
-                              icon = icon("sliders")
-                            ),
-                            placement = "top-start",
-                            theme = "translucent",
-                            fluidRow(
-                              column(
-                                width = 12,
-                                align = "center",
-                                numericInput(
-                                  "upgma_fruit_alpha",
-                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                  min = 0.1,
-                                  max = 1,
-                                  step = 0.1,
-                                  value = 0.5,
-                                  width = "70px"
-                                )
+                fluidRow(
+                  column(
+                    width = 4,
+                    align = "left",
+                    h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 30px")
+                  ),
+                  column(
+                    width = 4,
+                    colorPickr(
+                      inputId = "upgma_branch_label_color",
+                      width = "100%",
+                      selected = "#FFB7B7",
+                      label = "",
+                      update = "changestop",
+                      interaction = list(clear = FALSE,
+                                         save = FALSE),
+                      position = "right-start"
+                    )
+                  )
+                ),
+                br(), br(), br(), br(),
+                conditionalPanel(
+                  "input.upgma_layout=='inward'|input.upgma_layout=='circular'",
+                  br(), br()
+                )
+              )
+            ),
+            column(
+              width = 4,
+              align = "center",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                h3(p("Elements"), style = "color:white"),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 12,
+                    align = "left",
+                    h4(p("Tip points"), style = "color:white; position: relative; right: -15px"),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "left",
+                        checkboxInput(
+                          "upgma_tippoint_show",
+                          h5(p("Show"), style = "color:white; position: relative; bottom: -8px; right: -17px"),
+                          value = FALSE
+                        )
+                      ),
+                      column(
+                        width = 2,
+                        align = "left",
+                        dropMenu(
+                          actionBttn(
+                            "upgma_tippoint_menu",
+                            label = "",
+                            color = "default",
+                            size = "sm",
+                            style = "material-flat",
+                            icon = icon("sliders")
+                          ),
+                          placement = "top-start",
+                          theme = "translucent",
+                          fluidRow(
+                            column(
+                              width = 12,
+                              align = "center",
+                              numericInput(
+                                "upgma_tippoint_alpha",
+                                label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                                value = 0.5,
+                                min = 0.1,
+                                max = 1,
+                                step = 0.1,
+                                width = "70px"
+                              ), 
+                              br(),
+                              numericInput(
+                                inputId = "upgma_tippoint_size",
+                                label = h5("Size", style = "color:white; margin-bottom: 0px"),
+                                min = 1,
+                                max = 20,
+                                step = 1,
+                                value = 5
                               )
                             )
                           )
-                        )
+                        )  
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "left",
+                        h5(p("Color"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
                       ),
-                      fluidRow(
-                        column(
-                          width = 4,
-                          align = "left",
-                          HTML(
-                            paste(
-                              tags$span(style='color: white; font-size: 14px; margin-left: 16px; position: relative; bottom: -28px', 'Color')
-                            )
-                          )
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
+                      column(
+                        width = 4,
+                        align = "center",
+                        conditionalPanel(
+                          "input.upgma_tipcolor_mapping_show==true & input.upgma_mapping_show==false",
                           selectInput(
-                            "upgma_fruit_variable",
+                            "upgma_tipcolor_mapping",
                             "",
                             choices = c(
                               "Assembly Name" = "assembly_name",
@@ -5657,85 +5408,347 @@ ui <- dashboardPage(
                             selected = c("Country" = "Country"),
                             width = "100%"
                           )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 3,
-                          h5(p("Width"), style = "color:white; position: relative; right: -15px; margin-top: 40px")
                         ),
-                        column(1),
-                        column(
-                          width = 7,
-                          align = "right",
-                          conditionalPanel(
-                            "input.upgma_layout=='inward'|input.upgma_layout=='circular'",
-                            sliderTextInput(
-                              "upgma_fruit_width_circ",
-                              label = "",
-                              choices = 1:20,
-                              selected = 5,
-                              hide_min_max = TRUE
-                            )
-                          ),
-                          conditionalPanel(
-                            "!(input.upgma_layout=='inward' | input.upgma_layout=='circular')",
-                            sliderTextInput(
-                              "upgma_fruit_width",
-                              label = "",
-                              choices = 1:80,
-                              selected = 5,
-                              hide_min_max = TRUE
-                            )
+                        conditionalPanel(
+                          "input.upgma_tipcolor_mapping_show==false || input.upgma_mapping_show==true",
+                          colorPickr(
+                            inputId = "upgma_tippoint_color",
+                            width = "100%",
+                            selected = "#3A4657",
+                            label = "",
+                            update = "changestop",
+                            interaction = list(clear = FALSE,
+                                               save = FALSE),
+                            position = "right-start"
                           )
                         )
                       ),
-                      fluidRow(
-                        column(
-                          width = 3,
-                          h5(p("Position"), style = "color:white; position: relative; right: -15px; margin-top: 40px")
+                      column(
+                        width = 4,
+                        align = "left",
+                        conditionalPanel(
+                          "input.upgma_mapping_show==false",
+                          checkboxInput(
+                            "upgma_tipcolor_mapping_show",
+                            label = h5("Add variable", style = "color:white; font-size: 14px; position: relative; bottom: -10px;"),
+                            value = FALSE
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "left",
+                        h5(p("Shape"), style = "color:white; position: relative; right: -17px; margin-top: 30px")
+                      ),
+                      column(
+                        width = 4,
+                        align = "center",
+                        conditionalPanel(
+                          "input.upgma_tipshape_mapping_show==false",
+                          selectInput(
+                            "upgma_tippoint_shape",
+                            "",
+                            width = "100%",
+                            choices = c(
+                              Circle = "circle", 
+                              Square = "square", 
+                              Diamond = "diamond", 
+                              Triangle = "triangle",
+                              Cross = "cross", 
+                              Asterisk = "asterisk"
+                            )
+                          )
                         ),
-                        column(1),
-                        column(
-                          width = 7,
-                          align = "right",
-                          conditionalPanel(
-                            "input.upgma_layout=='inward'|input.upgma_layout=='circular'",
-                            sliderTextInput(
-                              "upgma_fruit_offset_circ",
-                              label = "",
-                              choices = seq(-2, 2, 0.01),
-                              selected = 0,
-                              hide_min_max = TRUE
-                            )
-                          ),
-                          conditionalPanel(
-                            "!(input.upgma_layout=='inward' | input.upgma_layout=='circular')",
-                            sliderTextInput(
-                              "upgma_fruit_offset",
-                              label = "",
-                              choices = seq(-15, 15, 0.05),
-                              selected = 0,
-                              hide_min_max = TRUE
-                            )
-                          )  
+                        conditionalPanel(
+                          "input.upgma_tipshape_mapping_show==true",
+                          selectInput(
+                            "upgma_tipshape_mapping",
+                            "",
+                            choices = c(
+                              "Isolation Date" = "Isolation_Date",
+                              "Host" = "Host",
+                              "Country" = "Country",
+                              "City" = "City"
+                            ),
+                            selected = c("Country" = "Country"),
+                            width = "100%"
+                          )
+                        )
+                      ),
+                      column(
+                        width = 4,
+                        align = "left",
+                        checkboxInput(
+                          "upgma_tipshape_mapping_show",
+                          label = h5("Add variable", style = "color:white; font-size: 14px; position: relative; bottom: -10px;"),
+                          value = FALSE
                         )
                       )
                     )
                   )
+                ),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 6,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p("Node points"), style = "color:white; position: relative; right: -15px"),
+                        fluidRow(
+                          column(
+                            width = 5,
+                            align = "left",
+                            checkboxInput(
+                              "upgma_nodepoint_show",
+                              h5(p("Show"), style = "color:white; position: relative; bottom: -8px; right: -17px"),
+                              value = FALSE
+                            )
+                          ),
+                          column(
+                            width = 7,
+                            align = "right",
+                            dropMenu(
+                              actionBttn(
+                                "upgma_nodepoint_menu",
+                                label = "",
+                                color = "default",
+                                size = "sm",
+                                style = "material-flat",
+                                icon = icon("sliders")
+                              ),
+                              placement = "top-start",
+                              theme = "translucent",
+                              fluidRow(
+                                column(
+                                  width = 12,
+                                  align = "center",
+                                  numericInput(
+                                    "upgma_nodepoint_alpha",
+                                    label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                                    value = 0.5,
+                                    min = 0.1,
+                                    max = 1,
+                                    step = 0.1,
+                                    width = "70px"
+                                  ), 
+                                  br(),
+                                  numericInput(
+                                    inputId = "upgma_nodepoint_size",
+                                    label = h5("Size", style = "color:white; margin-bottom: 0px"),
+                                    min = 1,
+                                    max = 20,
+                                    step = 1,
+                                    value = 5
+                                  )
+                                )
+                              )
+                            )  
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            width = 5,
+                            h5(p("Color"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
+                          ),
+                          column(
+                            width = 7,
+                            align = "center",
+                            colorPickr(
+                              inputId = "upgma_nodepoint_color",
+                              width = "100%",
+                              selected = "#3A4657",
+                              label = "",
+                              update = "changestop",
+                              interaction = list(clear = FALSE,
+                                                 save = FALSE),
+                              position = "right-start"
+                            )
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            width = 5,
+                            h5(p("Shape"), style = "color:white; position: relative; right: -20px; margin-top: 30px")
+                          ),
+                          column(
+                            width = 7,
+                            align = "center",
+                            selectInput(
+                              "upgma_nodepoint_shape",
+                              "",
+                              choices = c(
+                                Circle = "circle", 
+                                Square = "square", 
+                                Diamond = "diamond", 
+                                Triangle = "triangle",
+                                Cross = "cross", 
+                                Asterisk = "asterisk"
+                              )
+                            )
+                          )
+                        )
+                      )
+                    )
+                  ),
+                  column(
+                    width = 6,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p("Tiles"), style = "color:white; position: relative; right: -15px"),
+                        fluidRow(
+                          column(
+                            width = 4,
+                            align = "left",
+                            checkboxInput(
+                              "upgma_tiles_show",
+                              h5(p("Show"), style = "color:white; position: relative; bottom: -8px; right: -17px"),
+                              value = FALSE
+                            )
+                          ),
+                          column(
+                            width = 7,
+                            align = "right",
+                            dropMenu(
+                              actionBttn(
+                                "upgma_tile_menu",
+                                label = "",
+                                color = "default",
+                                size = "sm",
+                                style = "material-flat",
+                                icon = icon("sliders")
+                              ),
+                              placement = "top-start",
+                              theme = "translucent",
+                              fluidRow(
+                                column(
+                                  width = 12,
+                                  align = "center",
+                                  numericInput(
+                                    "upgma_fruit_alpha",
+                                    label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                                    min = 0.1,
+                                    max = 1,
+                                    step = 0.1,
+                                    value = 0.5,
+                                    width = "70px"
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            width = 4,
+                            align = "left",
+                            HTML(
+                              paste(
+                                tags$span(style='color: white; font-size: 14px; margin-left: 16px; position: relative; bottom: -28px', 'Color')
+                              )
+                            )
+                          ),
+                          column(
+                            width = 7,
+                            align = "center",
+                            selectInput(
+                              "upgma_fruit_variable",
+                              "",
+                              choices = c(
+                                "Assembly Name" = "assembly_name",
+                                "Isolation Date" = "Isolation_Date",
+                                "Host" = "Host",
+                                "Country" = "Country",
+                                "City" = "City"
+                              ),
+                              selected = c("Country" = "Country"),
+                              width = "100%"
+                            )
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            width = 3,
+                            h5(p("Width"), style = "color:white; position: relative; right: -15px; margin-top: 40px")
+                          ),
+                          column(1),
+                          column(
+                            width = 7,
+                            align = "right",
+                            conditionalPanel(
+                              "input.upgma_layout=='inward'|input.upgma_layout=='circular'",
+                              sliderTextInput(
+                                "upgma_fruit_width_circ",
+                                label = "",
+                                choices = 1:20,
+                                selected = 5,
+                                hide_min_max = TRUE
+                              )
+                            ),
+                            conditionalPanel(
+                              "!(input.upgma_layout=='inward' | input.upgma_layout=='circular')",
+                              sliderTextInput(
+                                "upgma_fruit_width",
+                                label = "",
+                                choices = 1:80,
+                                selected = 5,
+                                hide_min_max = TRUE
+                              )
+                            )
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            width = 3,
+                            h5(p("Position"), style = "color:white; position: relative; right: -15px; margin-top: 40px; margin-bottom: 16px")
+                          ),
+                          column(1),
+                          column(
+                            width = 7,
+                            align = "right",
+                            conditionalPanel(
+                              "input.upgma_layout=='inward'|input.upgma_layout=='circular'",
+                              sliderTextInput(
+                                "upgma_fruit_offset_circ",
+                                label = "",
+                                choices = seq(-2, 2, 0.01),
+                                selected = 0,
+                                hide_min_max = TRUE
+                              )
+                            ),
+                            conditionalPanel(
+                              "!(input.upgma_layout=='inward' | input.upgma_layout=='circular')",
+                              sliderTextInput(
+                                "upgma_fruit_offset",
+                                label = "",
+                                choices = seq(-15, 15, 0.05),
+                                selected = 0,
+                                hide_min_max = TRUE
+                              )
+                            )  
+                          )
+                        )
+                      )
+                    )
+                  )
+                ), 
+                br(), 
+                conditionalPanel(
+                  "input.upgma_layout=='inward'|input.upgma_layout=='circular'",
+                  br(), br()
                 )
-              ), 
-              conditionalPanel(
-                "input.upgma_layout=='inward'|input.upgma_layout=='circular'",
-                br(), br()
-              )
-            ),
-            br(), br(), br(), br(), br(), br(), br()
+              ),
+              br(), br(), br(), br(), br(), br(), br()
+            )
           )
-        )
-      ),
-      br(), br(), br(), br(), br(), br(), br()
-    )
+        ),
+        br(), br(), br(), br(), br(), br(), br()
+      )
     ) # End tabItems
   ) # End dashboardPage
 ) # end UI
@@ -5784,7 +5797,7 @@ server <- function(input, output, session) {
   hamming_distance_category <- function(x, y) {
     sum( ( (x != y) | (is.na(x) & !is.na(y)) | (!is.na(x) & is.na(y)) ) & !(is.na(x) & is.na(y))  )
   }
-
+  
   # Function to determine entry table height
   table_height <- reactive({
     if (input$table_height == TRUE) {
@@ -5798,7 +5811,7 @@ server <- function(input, output, session) {
       800
     } else {NULL}
   })
-
+  
   ## Startup ----
   
   shinyjs::addClass(selector = "body", class = "sidebar-collapse")
@@ -5996,8 +6009,8 @@ server <- function(input, output, session) {
           showModal(
             modalDialog(
               paste0("Whoops! No loci files are present in the local ", 
-              input$scheme_db, 
-              " folder. Download the scheme again (no influence on already typed assemblies)."),
+                     input$scheme_db, 
+                     " folder. Download the scheme again (no influence on already typed assemblies)."),
               title = "Local Database Error",
               fade = TRUE,
               easyClose = TRUE,
@@ -6443,7 +6456,7 @@ server <- function(input, output, session) {
                   )
                 )
               }
-             
+              
               # Render edit/save button for entry metadata
               output$confirm_changes <- renderUI({
                 column(
@@ -6836,7 +6849,7 @@ server <- function(input, output, session) {
                                   halign = "htCenter",
                                   allowInvalid = FALSE,
                                   copyable = TRUE,
-                                  ) %>%
+                          ) %>%
                           hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                           hot_rows(fixedRowsTop = 0) %>%
                           hot_col(c(1, 3:(12 + length(input$compare_select))), renderer = "
@@ -7668,6 +7681,9 @@ server <- function(input, output, session) {
       Data[["Typing"]][, 1:12] <- attach_meta
     }
     
+    # Ensure correct logical data type
+    Data[["Typing"]][["Include"]] <- as.logical(Data[["Typing"]][["Include"]])
+    
     saveRDS(Data, paste0(
       getwd(),
       "/Database/",
@@ -7828,13 +7844,13 @@ server <- function(input, output, session) {
           allelic_profile_noNA_true <- allelic_profile_noNA[which(DF1$data$Include == TRUE),]
           
           DF1$hamming_proxy <- proxy::dist(allelic_profile_noNA_true, method = hamming_distance)
-          omit <<- DF1$hamming_proxy
+          
         } else if(input$na_handling == "ignore_na"){
           DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance_ignore)
-          ignore <<- DF1$hamming_proxy
+          
         } else {
           DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance_category)
-          categ <<- DF1$hamming_proxy
+          
         } 
       } else {
         DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance)
@@ -7844,13 +7860,10 @@ server <- function(input, output, session) {
         if(input$na_handling == "omit") {
           allelic_profile_noNA <- DF1$allelic_profile[, colSums(is.na(DF1$allelic_profile)) == 0]
           DF1$hamming_proxy <- proxy::dist(allelic_profile_noNA, method = hamming_distance)
-          omit_all <<- DF1$hamming_proxy
         } else if(input$na_handling == "ignore_na"){
           DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile, method = hamming_distance_ignore)
-          ignore_all <<- DF1$hamming_proxy
         } else {
           DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile, method = hamming_distance_category)
-          categ_all <<- DF1$hamming_proxy
         }  
       } else {
         DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile, method = hamming_distance)
@@ -7893,7 +7906,7 @@ server <- function(input, output, session) {
     }
   )
   
-
+  
   ## Download cgMLST ----
   
   myReactives <- reactiveValues()
@@ -8212,7 +8225,7 @@ server <- function(input, output, session) {
     )
   })
   
-
+  
   
   # Download Target Info (CSV Table)
   
@@ -8784,9 +8797,9 @@ server <- function(input, output, session) {
       upgma_fruit() 
     
     plot_loc$upgma_plot <- ggplotify::as.ggplot(tree, 
-                                             scale = input$upgma_zoom,
-                                             hjust = input$upgma_h,
-                                             vjust = input$upgma_v)  
+                                                scale = input$upgma_zoom,
+                                                hjust = input$upgma_h,
+                                                vjust = input$upgma_v)  
     plot_loc$upgma_plot
   })
   
@@ -9189,13 +9202,13 @@ server <- function(input, output, session) {
         allelic_profile_noNA_true <- allelic_profile_noNA[which(DF1$data$Include == TRUE),]
         
         proxy::dist(allelic_profile_noNA_true, method = hamming_distance)
-      
-        } else if(input$na_handling == "ignore_na"){
+        
+      } else if(input$na_handling == "ignore_na"){
         proxy::dist(DF1$allelic_profile_true, method = hamming_distance_ignore)
         
-        } else {
-          proxy::dist(DF1$allelic_profile_true, method = hamming_distance_category)
-        } 
+      } else {
+        proxy::dist(DF1$allelic_profile_true, method = hamming_distance_category)
+      } 
       
     } else {proxy::dist(DF1$allelic_profile_true, method = hamming_distance)}
   })
@@ -9536,81 +9549,81 @@ server <- function(input, output, session) {
         timer = 6000
       )
     } else {
-          
-    set.seed(1)
-    
-    if (input$tree_algo == "Neighbour-Joining") {
       
-      plot_loc$meta_nj <- select(DF1$meta_true, -2)
+      set.seed(1)
       
-      colnames(plot_loc$meta_nj) <-
-        c(
-          "index",
-          "assembly_id",
-          "assembly_name",
-          "scheme",
-          "Isolation_Date",
-          "Host",
-          "Country",
-          "City",
-          "typing_date",
-          "successes",
-          "errors"
-        )
-      
-      plot_loc$meta_nj <- mutate(plot_loc$meta_nj, taxa = index) %>%
-        relocate(taxa)
-      
-      # Create phylogenetic tree
-      plot_loc$nj <- ape::nj(hamming_nj())
-      
-      output$tree_nj <- renderPlot({
-        nj_tree()
-      })
-      
-    } else if (input$tree_algo == "UPGMA") {
-      
-      plot_loc$meta_upgma <- select(DF1$meta_true, -2)
-      
-      colnames(plot_loc$meta_upgma) <-
-        c(
-          "index",
-          "assembly_id",
-          "assembly_name",
-          "scheme",
-          "Isolation_Date",
-          "Host",
-          "Country",
-          "City",
-          "typing_date",
-          "successes",
-          "errors"
-        )
-      
-      plot_loc$meta_upgma <- mutate(plot_loc$meta_upgma, taxa = index) %>%
-        relocate(taxa)
-      
-      # Create phylogenetic tree
-      plot_loc$upgma <- phangorn::upgma(hamming_nj())
-      
-      
-      output$tree_upgma <- renderPlot({
-        upgma_tree()
-      })
-      
-    } else {
-      
-      # prepare igraph object
-      plot_loc$ggraph_1 <- hamming_mst() |>
-        as.matrix() |>
-        graph.adjacency(weighted = TRUE) |>
-        igraph::mst() 
-      
-      output$tree_mst <- renderVisNetwork({
-        mst_tree()
-      })
-      
-    }
+      if (input$tree_algo == "Neighbour-Joining") {
+        
+        plot_loc$meta_nj <- select(DF1$meta_true, -2)
+        
+        colnames(plot_loc$meta_nj) <-
+          c(
+            "index",
+            "assembly_id",
+            "assembly_name",
+            "scheme",
+            "Isolation_Date",
+            "Host",
+            "Country",
+            "City",
+            "typing_date",
+            "successes",
+            "errors"
+          )
+        
+        plot_loc$meta_nj <- mutate(plot_loc$meta_nj, taxa = index) %>%
+          relocate(taxa)
+        
+        # Create phylogenetic tree
+        plot_loc$nj <- ape::nj(hamming_nj())
+        
+        output$tree_nj <- renderPlot({
+          nj_tree()
+        })
+        
+      } else if (input$tree_algo == "UPGMA") {
+        
+        plot_loc$meta_upgma <- select(DF1$meta_true, -2)
+        
+        colnames(plot_loc$meta_upgma) <-
+          c(
+            "index",
+            "assembly_id",
+            "assembly_name",
+            "scheme",
+            "Isolation_Date",
+            "Host",
+            "Country",
+            "City",
+            "typing_date",
+            "successes",
+            "errors"
+          )
+        
+        plot_loc$meta_upgma <- mutate(plot_loc$meta_upgma, taxa = index) %>%
+          relocate(taxa)
+        
+        # Create phylogenetic tree
+        plot_loc$upgma <- phangorn::upgma(hamming_nj())
+        
+        
+        output$tree_upgma <- renderPlot({
+          upgma_tree()
+        })
+        
+      } else {
+        
+        # prepare igraph object
+        plot_loc$ggraph_1 <- hamming_mst() |>
+          as.matrix() |>
+          graph.adjacency(weighted = TRUE) |>
+          igraph::mst() 
+        
+        output$tree_mst <- renderVisNetwork({
+          mst_tree()
+        })
+        
+      }
     }
   })
   
@@ -9638,12 +9651,12 @@ server <- function(input, output, session) {
                                                   "tree", "distance", "na_handling", "version",
                                                   "plot"), 
                                       Include = c(input$mst_entrytable, input$mst_general,
-                                                input$mst_date_general, input$mst_operator_general,
-                                                input$mst_institute_general, input$mst_comm_general,
-                                                input$mst_analysis, input$mst_cgmlst_analysis,
-                                                input$mst_tree_analysis, input$mst_distance,
-                                                input$mst_missval, input$mst_version,
-                                                input$mst_plot_report))
+                                                  input$mst_date_general, input$mst_operator_general,
+                                                  input$mst_institute_general, input$mst_comm_general,
+                                                  input$mst_analysis, input$mst_cgmlst_analysis,
+                                                  input$mst_tree_analysis, input$mst_distance,
+                                                  input$mst_missval, input$mst_version,
+                                                  input$mst_plot_report))
     
   })
   
