@@ -6932,6 +6932,74 @@ server <- function(input, output, session) {
                 output$db_entries_table <- NULL
               }
               
+              #### Render Distance Matrix ----
+              
+              if(!class(DF1$data) == "NULL") {
+                
+                output$db_distancematrix <- renderRHandsontable({
+                  rhandsontable(hamming_df(), digits = 1, 
+                                height = distancematrix_height(), rowHeaders = NULL) %>%
+                    hot_heatmap(renderer = paste0("function (instance, td, row, col, prop, value, cellProperties) {
+  Handsontable.renderers.TextRenderer.apply(this, arguments);
+  heatmapScale  = chroma.scale(['#17F556', '#ED6D47']);
+
+  if (instance.heatmap[col]) {
+    mn = ", DF1$matrix_min, ";
+    mx = ", DF1$matrix_max, ";
+
+    pt = (parseInt(value, 10) - mn) / (mx - mn);    
+
+    td.style.backgroundColor = heatmapScale(pt).hex();
+  }
+}
+")) %>%
+                    hot_rows(fixedRowsTop = 0) %>%
+                    hot_cols(fixedColumnsLeft = 1) %>%
+                    hot_col(1:(dim(DF1$ham_matrix)[1]+1),
+                            halign = "htCenter",
+                            valign = "htMiddle") %>%
+                    hot_col(1,
+                            renderer = "
+                function(instance, td, row, col, prop, value, cellProperties) {
+                  Handsontable.renderers.NumericRenderer.apply(this, arguments);
+
+                    td.style.background = '#F0F0F0'
+              }"
+                    ) 
+                })
+                
+                # Render Distance Matrix UI
+                
+                output$distmatrix_show <- renderUI({
+                  if(!class(DF1$data) == "NULL") {
+                    if(nrow(DF1$data) > 1) {
+                      column(
+                        width = 10,
+                        div(
+                          class = "distmatrix",
+                          rHandsontableOutput("db_distancematrix")
+                        )
+                      )
+                    } else {
+                      column(
+                        width = 10,
+                        align = "left",
+                        p(
+                          HTML(
+                            paste(
+                              tags$span(style='color: white; font-size: 15px;', "Type at least two assemblies to display a distance matrix.")
+                            )
+                          )
+                        ),
+                        br(),
+                        br()
+                      )
+                    }
+                  }
+                })
+                
+              }
+              
               #### Render Allele Differences as Highlights ----
               
               diff_allele <- reactive({
@@ -7734,120 +7802,117 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$del_button, {
-    showModal(
-      modalDialog(
-        paste0(
-          "Confirmation will lead to irreversible removal of selected entries. Continue?"
-        ),
-        title = "Deleting Entry",
-        fade = TRUE,
-        easyClose = TRUE,
-        footer = tagList(
-          modalButton("Cancel"),
-          actionButton(
-            "conf_delete", 
-            "Delete", 
-            class = "btn btn-danger")
+    delete <- select(DF1$data, -(1:12))
+    if( (nrow(delete) - nrow(DF1$data) ) == 0) {
+      showModal(
+        modalDialog(
+          paste0("Deleting will lead to removal of all entries from local ", DF1$scheme, " database. The data can not be recovered afterwards. Continue?"),
+          easyClose = TRUE,
+          title = "Deleting Entries",
+          footer = tagList(
+            modalButton("Cancel"),
+            actionButton("conf_delete_all", "Delete", class = "btn btn-danger")
+          )
         )
       )
-    )
-  })
-  
-  observeEvent(input$conf_delete, {
-    delete <- select(DF1$data, -(1:12))
-    DF1$delete <- delete[-as.integer(input$select_delete),]
-    DF1$data <- DF1$data[-as.integer(input$select_delete),]
-    rownames(DF1$data) <- 1:nrow(DF1$data)
-    DF1$data <- mutate(DF1$data, Index = as.character(rownames(DF1$data)))
-    removeModal()
-    if(length(input$select_delete) > 1) {
-      show_toast(
-        title = "Entries successfully deleted",
-        type = "success",
-        position = "top-end",
-        timer = 4000
-      )
     } else {
-      show_toast(
-        title = "Entry successfully deleted",
-        type = "success",
-        position = "top-end",
-        timer = 4000
+      showModal(
+        modalDialog(
+          paste0(
+            "Confirmation will lead to irreversible removal of selected entries. Continue?"
+          ),
+          title = "Deleting Entries",
+          fade = TRUE,
+          easyClose = TRUE,
+          footer = tagList(
+            modalButton("Cancel"),
+            actionButton(
+              "conf_delete", 
+              "Delete", 
+              class = "btn btn-danger")
+          )
+        )
       )
     }
     
   })
   
+  observeEvent(input$conf_delete_all, {
+    
+    delete_typing <- paste0(
+      "#!/bin/bash\n",
+      'rm ',
+      shQuote(paste0(getwd(), "/Database/", gsub(" ", "_", DF1$scheme), "/Typing.rds"))
+      )
+    
+    # Specify the path to save the script
+    delete_typing_path <- paste0(getwd(), "/execute", "/delete_typing.sh")
+    
+    # Write the script to a file
+    cat(delete_typing, file = delete_typing_path)
+    
+    # Make the script executable
+    system(paste("chmod +x", delete_typing_path))
+    
+    # Execute the script
+    system(paste(delete_typing_path), wait = FALSE)
+    
+    showModal(
+      modalDialog(
+        selectInput(
+          "scheme_db",
+          label = "",
+          choices = DF1$available),
+        title = "All entries have been removed. Select a local database to load.",
+        footer = tagList(
+          actionButton("load", "Load", class = "btn btn-default")
+        )
+      )
+    )
+    
+  })
   
-  ### Distance Matrix ---- 
-  
-  observe({
-    if(!class(DF1$data) == "NULL") {
-      
-      output$db_distancematrix <- renderRHandsontable({
-        rhandsontable(hamming_df(), digits = 1, 
-                      height = distancematrix_height(), rowHeaders = NULL) %>%
-          hot_heatmap(renderer = paste0("function (instance, td, row, col, prop, value, cellProperties) {
-  Handsontable.renderers.TextRenderer.apply(this, arguments);
-  heatmapScale  = chroma.scale(['#17F556', '#ED6D47']);
-
-  if (instance.heatmap[col]) {
-    mn = ", DF1$matrix_min, ";
-    mx = ", DF1$matrix_max, ";
-
-    pt = (parseInt(value, 10) - mn) / (mx - mn);    
-
-    td.style.backgroundColor = heatmapScale(pt).hex();
-  }
-}
-")) %>%
-          hot_rows(fixedRowsTop = 0) %>%
-          hot_cols(fixedColumnsLeft = 1) %>%
-          hot_col(1:(dim(DF1$ham_matrix)[1]+1),
-                  halign = "htCenter",
-                  valign = "htMiddle") %>%
-          hot_col(1,
-                  renderer = "
-                function(instance, td, row, col, prop, value, cellProperties) {
-                  Handsontable.renderers.NumericRenderer.apply(this, arguments);
-
-                    td.style.background = '#F0F0F0'
-              }"
-          ) 
-      })
-      
-      # Render Distance Matrix UI
-      
-      output$distmatrix_show <- renderUI({
-        if(!class(DF1$data) == "NULL") {
-          if(nrow(DF1$data) > 1) {
-            column(
-              width = 10,
-              div(
-                class = "distmatrix",
-                rHandsontableOutput("db_distancematrix")
-              )
-            )
-          } else {
-            column(
-              width = 10,
-              align = "left",
-              p(
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 15px;', "Type at least two assemblies to display a distance matrix.")
-                  )
-                )
-              ),
-              br(),
-              br()
-            )
-          }
-        }
-      })
-      
+  observeEvent(input$conf_delete, {
+    delete <- select(DF1$data, -(1:12))
+    if( (nrow(delete) - nrow(DF1$data) ) == 0) {
+      showModal(
+        modalDialog(
+          paste0("Deleting will lead to removal of all entries from local ", DF1$scheme, " database."),
+          easyClose = TRUE,
+          title = "Deleting Entry",
+          footer = tagList(
+            modalButton("Cancel"),
+            actionButton("load", "Delete", class = "btn btn-default")
+          )
+        )
+      )
+    } else {
+      delete <- select(DF1$data, -(1:12))
+      DF1$delete <- delete[-as.integer(input$select_delete),]
+      DF1$data <- DF1$data[-as.integer(input$select_delete),]
+      rownames(DF1$data) <- 1:nrow(DF1$data)
+      DF1$data <- mutate(DF1$data, Index = as.character(rownames(DF1$data)))
+      removeModal()
+      if(length(input$select_delete) > 1) {
+        show_toast(
+          title = "Entries successfully deleted",
+          type = "success",
+          position = "top-end",
+          timer = 4000
+        )
+      } else {
+        show_toast(
+          title = "Entry successfully deleted",
+          type = "success",
+          position = "top-end",
+          timer = 4000
+        )
+      }
     }
   })
+  
+  
+  ### Distance Matrix ---- 
   
   hamming_df <- reactive({
     # Create a custom proxy object for Hamming distance
@@ -10513,7 +10578,7 @@ server <- function(input, output, session) {
   
   # Render Metadata Select Box after Folder selection
   observe({
-    if (is.null(typing_reactive$table) & nrow(typing_reactive$table) > 0) {
+    if (nrow(typing_reactive$table) > 0) {
       
       output$metadata_multi_box <- renderUI({
         column(
