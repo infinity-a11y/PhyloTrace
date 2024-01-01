@@ -5821,11 +5821,10 @@ server <- function(input, output, session) {
   
   DF1 <- reactiveValues(data = NULL)
   
-  
   ### Connect to local Database ----
   
   observe({
-    
+  
     # Logical any local database present 
     DF1$exist <-
       (length(dir_ls(paste0(
@@ -5919,6 +5918,12 @@ server <- function(input, output, session) {
   observeEvent(input$load, {
     
     DF1$scheme <- input$scheme_db
+    
+    # null Distance matrix and entry table
+    output$db_distancematrix <- NULL 
+    
+    output$db_entries_table <- NULL
+    
     removeModal()
     
     #### Render Menu Items ----
@@ -5998,18 +6003,18 @@ server <- function(input, output, session) {
       
     } else { # If local Database available
       
-      if(any(grepl(gsub(" ", "_", input$scheme_db), dir_ls(paste0(getwd(), "/Database/"))))) {
+      if(any(grepl(gsub(" ", "_", DF1$scheme), dir_ls(paste0(getwd(), "/Database/"))))) {
         
         if(!any(grepl("alleles", dir_ls(paste0(
           getwd(), 
           "/Database/", 
-          gsub(" ", "_", input$scheme_db)))))) {
+          gsub(" ", "_", DF1$scheme)))))) {
           
           # Show message that loci files are missing
           showModal(
             modalDialog(
               paste0("Whoops! No loci files are present in the local ", 
-                     input$scheme_db, 
+                     DF1$scheme, 
                      " folder. Download the scheme again (no influence on already typed assemblies)."),
               title = "Local Database Error",
               fade = TRUE,
@@ -6067,7 +6072,7 @@ server <- function(input, output, session) {
         } else if (!any(grepl("scheme_info.html", dir_ls(paste0(
           getwd(), 
           "/Database/", 
-          gsub(" ", "_", input$scheme_db)))))) {
+          gsub(" ", "_", DF1$scheme)))))) {
           
           output$download_scheme_info <- NULL
           
@@ -6075,7 +6080,7 @@ server <- function(input, output, session) {
           showModal(
             modalDialog(
               paste0("Whoops! Scheme info of the local ", 
-                     input$scheme_db, 
+                     DF1$scheme, 
                      " database is missing. Download the scheme again (no influence on already typed assemblies)."),
               title = "Local Database Error",
               fade = TRUE,
@@ -6134,7 +6139,7 @@ server <- function(input, output, session) {
         } else if (!any(grepl("targets.csv", dir_ls(paste0(
           getwd(), 
           "/Database/", 
-          gsub(" ", "_", input$scheme_db)))))) {
+          gsub(" ", "_", DF1$scheme)))))) {
           
           # Dont render target download button
           output$download_loci <- NULL
@@ -6143,7 +6148,7 @@ server <- function(input, output, session) {
           showModal(
             modalDialog(
               paste0("Whoops! Loci info of the local ", 
-                     input$scheme_db, 
+                     DF1$scheme, 
                      " database is missing. Download the scheme again (no influence on already typed assemblies)."),
               title = "Local Database Error",
               fade = TRUE,
@@ -6200,7 +6205,6 @@ server <- function(input, output, session) {
           )
           
         } else {
-          # this 
           # Render scheme selector in sidebar
           output$loaded_scheme <- renderUI({
             fluidRow(
@@ -6244,7 +6248,7 @@ server <- function(input, output, session) {
             read_html(paste0(
               getwd(),
               "/Database/",
-              gsub(" ", "_", input$scheme_db),
+              gsub(" ", "_", DF1$scheme),
               "/scheme_info.html"
             )) %>%
             html_table(header = FALSE) %>%
@@ -6259,7 +6263,7 @@ server <- function(input, output, session) {
             paste0(
               getwd(),
               "/Database/",
-              gsub(" ", "_", input$scheme_db),
+              gsub(" ", "_", DF1$scheme),
               "/targets.csv"
             ),
             header = TRUE,
@@ -6278,13 +6282,13 @@ server <- function(input, output, session) {
           )
           
           # Check if number of fastq files of alleles is coherent with number of targets in scheme
-          if(number_loci != length(dir_ls(paste0(getwd(), "/Database/", gsub(" ", "_", input$scheme_db), "/", gsub(" ", "_", input$scheme_db), "_alleles")))) {
+          if(number_loci != length(dir_ls(paste0(getwd(), "/Database/", gsub(" ", "_", DF1$scheme), "/", gsub(" ", "_", DF1$scheme), "_alleles")))) {
             
             # Show message that loci files are missing
             showModal(
               modalDialog(
                 paste0("Whoops! Some loci files are missing in the local ", 
-                       input$scheme_db, 
+                       DF1$scheme, 
                        " folder. Download the scheme again (no influence on already typed assemblies)."),
                 title = "Local Database Error",
                 fade = TRUE,
@@ -6344,7 +6348,7 @@ server <- function(input, output, session) {
             ###### Alle checks bestanden -> Laden der DTB
             # If typed entries present
             if (any(grepl("Typing.rds", dir_ls(paste0(
-              getwd(), "/Database/", gsub(" ", "_", input$scheme_db)
+              getwd(), "/Database/", gsub(" ", "_", DF1$scheme)
             ))))) {
               
               # Load database from files  
@@ -6352,7 +6356,7 @@ server <- function(input, output, session) {
                 readRDS(paste0(
                   getwd(),
                   "/Database/",
-                  gsub(" ", "_", input$scheme_db),
+                  gsub(" ", "_", DF1$scheme),
                   "/Typing.rds"
                 ))
               
@@ -6365,8 +6369,6 @@ server <- function(input, output, session) {
               DF1$allelic_profile <- select(DF1$data, -(1:12))
               
               DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
-              
-              DF1$scheme <- input$scheme_db
               
               if(!anyNA(DF1$allelic_profile)) {
                 
@@ -6459,7 +6461,8 @@ server <- function(input, output, session) {
               
               # Render edit/save button for entry metadata
               output$confirm_changes <- renderUI({
-                column(
+                if(!class(DF1$data) == "NULL") {
+                  column(
                   width = 12,
                   align = "center",
                   br(), br(),
@@ -6491,6 +6494,7 @@ server <- function(input, output, session) {
                     )
                   )
                 )
+                }
               })
               
               # Render scheme selector in sidebar
@@ -6701,8 +6705,6 @@ server <- function(input, output, session) {
               
               if (!class(DF1$data) == "NULL") {
                 
-                observe({
-                  
                   if (nrow(DF1$data) == 1) {
                     output$db_entries <- renderRHandsontable({
                       rhandsontable(
@@ -6919,7 +6921,6 @@ server <- function(input, output, session) {
                       })
                     }
                   }
-                })
                 
                 # Hide no entry message
                 output$db_no_entries <- NULL
@@ -7175,6 +7176,18 @@ server <- function(input, output, session) {
               
             } else { 
               #if no typed assemblies present
+              
+              # null underlying database
+              
+              DF1$data <- NULL
+              
+              DF1$meta <- NULL
+              
+              DF1$meta_true <- NULL
+              
+              DF1$allelic_profile <- NULL
+              
+              DF1$allelic_profile_true <- NULL
               
               # Render menu without missing values tab
               output$menu <- renderMenu(
@@ -7806,28 +7819,30 @@ server <- function(input, output, session) {
       # Render Distance Matrix UI
       
       output$distmatrix_show <- renderUI({
-        if(nrow(DF1$data) > 1) {
-          column(
-            width = 10,
-            div(
-              class = "distmatrix",
-              rHandsontableOutput("db_distancematrix")
-            )
-          )
-        } else {
-          column(
-            width = 10,
-            align = "left",
-            p(
-              HTML(
-                paste(
-                  tags$span(style='color: white; font-size: 15px;', "Type at least two assemblies to display a distance matrix.")
-                )
+        if(!class(DF1$data) == "NULL") {
+          if(nrow(DF1$data) > 1) {
+            column(
+              width = 10,
+              div(
+                class = "distmatrix",
+                rHandsontableOutput("db_distancematrix")
               )
-            ),
-            br(),
-            br()
-          )
+            )
+          } else {
+            column(
+              width = 10,
+              align = "left",
+              p(
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 15px;', "Type at least two assemblies to display a distance matrix.")
+                  )
+                )
+              ),
+              br(),
+              br()
+            )
+          }
         }
       })
       
@@ -10498,7 +10513,7 @@ server <- function(input, output, session) {
   
   # Render Metadata Select Box after Folder selection
   observe({
-    if (nrow(typing_reactive$table) > 0) {
+    if (is.null(typing_reactive$table) & nrow(typing_reactive$table) > 0) {
       
       output$metadata_multi_box <- renderUI({
         column(
