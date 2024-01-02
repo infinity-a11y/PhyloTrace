@@ -2306,9 +2306,11 @@ ui <- dashboardPage(
             tags$style(".slider {margin-bottom: -6px;}"),
             tags$style(".slider_edge {margin-top: -10px;}"),
             tags$style("#mst_color_node {margin-top: -17px}"),
-            tags$style("#mst_shadow {position: relative; bottom: -2px}"),
+            tags$style("#mst_shadow {position: relative; bottom: -1px}"),
             tags$style("#node_font_color {margin-top: 17px}"),
             tags$style("#mst_edge_font_color {margin-top: 17px}"),
+            tags$style("#scale_nodes {position: relative; bottom: -1px"),
+            tags$style("#mst_scale_edges {position: relative; bottom: -1px; margin-bottom: 30px"),
             column(
               width = 4,
               align = "center",
@@ -2519,7 +2521,7 @@ ui <- dashboardPage(
                                 class = "checkbox_bg",
                                 checkboxInput(
                                   "mst_background_transparent",
-                                  label = "Transparent",
+                                  "Transparent",
                                   value = FALSE
                                 )
                               )
@@ -2975,10 +2977,10 @@ ui <- dashboardPage(
                           )
                         )
                       )
-                    ), br()
+                    )
                   )
                 ),
-                hr(),
+                hr(style = "margin-top: 3px !important"),
                 fluidRow(
                   column(
                     width = 12,
@@ -2986,23 +2988,43 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p("Size multiplier"), style = "color:white; position: relative; right: -15px")
+                        h4(p("Size multiplier"), style = "color:white; position: relative; right: -15px; margin-bottom: -5px")
                       )
                     ),
                     column(
                       width = 6,
                       align = "left",
                       br(),
-                      div(
-                        class = "slider_edge",
-                        sliderTextInput(
-                          inputId = "mst_edge_length",
-                          h5(p("Scale edge length"), style = "color:white; margin-top: 17px; margin-bottom: 24px"),
-                          choices = 1:40,
-                          selected = c(15),
-                          hide_min_max = TRUE
-                        ) 
-                      ),  
+                      checkboxInput(
+                        "mst_scale_edges",
+                        "Scale edge length"
+                      ),
+                      conditionalPanel(
+                        "input.mst_scale_edges==true",
+                        div(
+                          class = "slider_edge",
+                          sliderTextInput(
+                            inputId = "mst_edge_length_scale",
+                            label = NULL,
+                            choices = 1:40,
+                            selected = c(15),
+                            hide_min_max = TRUE
+                          ) 
+                        )
+                      ),
+                      conditionalPanel(
+                        "input.mst_scale_edges==false",
+                        div(
+                          class = "slider_edge",
+                          sliderTextInput(
+                            inputId = "mst_edge_length",
+                            label = NULL,
+                            choices = append(seq(0.1, 1, 0.1), 2:100),
+                            selected = 20,
+                            hide_min_max = TRUE
+                          ) 
+                        )
+                      ),
                       br(), br()
                     )
                   )
@@ -8370,8 +8392,12 @@ server <- function(input, output, session) {
                          label = label_mst(),
                          value = mst_node_scaling(),
                          opacity = node_opacity())
-    data$edges <- mutate(data$edges, 
-                         length = (weight*mst_edge_length()), 
+    data$edges <- mutate(data$edges,
+                         length = if(input$mst_scale_edges == FALSE) {
+                           input$mst_edge_length
+                         } else {
+                           data$edges$weight * input$mst_edge_length_scale
+                         },
                          label = as.character(weight),
                          opacity = mst_edge_opacity())
     
@@ -8391,12 +8417,31 @@ server <- function(input, output, session) {
       visEdges(color = mst_color_edge(), 
                font = list(color = mst_edge_font_color(),
                            size = mst_edge_font_size(),
-                           strokeWidth = 0)) %>%
+                           strokeWidth = 4)) %>%
       visOptions(collapse = TRUE) %>%
       visInteraction(hover = TRUE) %>%
       visLayout(randomSeed = 1) %>%
       visLegend()
   })
+  
+  # Set MST edge length
+  
+  mst_length <- reactive({
+    if(input$mst_scale_edges == FALSE) {
+      input$mst_edge_length
+    } else {
+      list <- plot_loc$data
+      list[["edges"]][["weight"]] * input$mst_edge_length_scale
+    }
+  })
+  
+  #mst_length <- reactive({
+  #  if(input$mst_scale_edges == TRUE) {
+  #    (weight*input$mst_edge_length_scale)
+  #  } else {
+  #    input$mst_edge_length
+  #  }
+  #})
   
   # Set MST node shape
   mst_node_shape <- reactive({
@@ -8516,11 +8561,6 @@ server <- function(input, output, session) {
   # Edge font size
   mst_edge_font_size <- reactive({
     input$mst_edge_font_size
-  })
-  
-  # Edge length multiplicator
-  mst_edge_length <- reactive({
-    input$mst_edge_length
   })
   
   #### NJ ----
