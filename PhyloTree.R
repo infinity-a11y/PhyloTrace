@@ -2805,7 +2805,7 @@ ui <- dashboardPage(
                                 checkboxInput(
                                   "mst_shadow",
                                   "Show shadow",
-                                  value = FALSE
+                                  value = TRUE
                                 )
                               ),
                               fluidRow(
@@ -2910,7 +2910,7 @@ ui <- dashboardPage(
                             numericInput(
                               "mst_edge_font_size",
                               label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                              value = 20,
+                              value = 18,
                               step = 1,
                               min = 8,
                               max = 30,
@@ -2997,7 +2997,8 @@ ui <- dashboardPage(
                       br(),
                       checkboxInput(
                         "mst_scale_edges",
-                        "Scale edge length"
+                        "Scale edge length",
+                        value = FALSE
                       ),
                       conditionalPanel(
                         "input.mst_scale_edges==true",
@@ -3020,7 +3021,7 @@ ui <- dashboardPage(
                             inputId = "mst_edge_length",
                             label = NULL,
                             choices = append(seq(0.1, 1, 0.1), 2:100),
-                            selected = 20,
+                            selected = 35,
                             hide_min_max = TRUE
                           ) 
                         )
@@ -8447,6 +8448,7 @@ server <- function(input, output, session) {
   mst_node_shape <- reactive({
     if(input$mst_node_shape %in% c("circle", "database", "box", "text")) {
       shinyjs::disable('scale_nodes') 
+      updateCheckboxInput(session, "scale_nodes", value = FALSE)
       shinyjs::disable('mst_node_size') 
       shinyjs::disable('mst_node_scale')
       input$mst_node_shape
@@ -9765,6 +9767,7 @@ server <- function(input, output, session) {
   observe({
     if(input$tree_algo == "Minimum-Spanning") {
       shinyjs::disable("rep_plot_report")
+      updateCheckboxInput(session, "rep_plot_report", value = FALSE)
     } else {
       shinyjs::enable("rep_plot_report")
     }
@@ -9986,7 +9989,7 @@ server <- function(input, output, session) {
       p(
         HTML(
           paste(
-            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File (.fasta)')
+            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File (FASTA)')
           )
         )
       ),
@@ -9994,7 +9997,7 @@ server <- function(input, output, session) {
         "genome_file",
         "Browse" ,
         icon = icon("file"),
-        title = "Please select the genome in .fasta format:",
+        title = "Select the assembly in .fasta/.fna/.fa format:",
         multiple = FALSE,
         buttonType = "default",
         class = NULL
@@ -10218,6 +10221,8 @@ server <- function(input, output, session) {
   
   observeEvent(input$typing_start, {
     
+    typing_reactive$single_end <- FALSE
+    
     typing_reactive$progress_format_start <- 0
     typing_reactive$progress_format_end <- 0
     
@@ -10285,7 +10290,7 @@ server <- function(input, output, session) {
         'mkdir "$results"', '\n',
         'count=0',
         "\n",
-        'for query_file in "$query_folder"/*.fasta; do',
+        'for query_file in "$query_folder"/*.{fasta,fa,fna}; do',
         "\n",
         'if [ -f "$query_file" ]; then',
         "\n",
@@ -10329,7 +10334,7 @@ server <- function(input, output, session) {
       
       # Filter the files that have the ".fasta" extension
       typing_reactive$scheme_loci_f <-
-        scheme_loci[grep(".fasta$", scheme_loci, ignore.case = TRUE)]
+        scheme_loci[grep("\\.(fasta|fa|fna)$", scheme_loci, ignore.case = TRUE)]
       
       output$single_typing_progress <- renderUI({
         fluidRow(
@@ -10567,7 +10572,7 @@ server <- function(input, output, session) {
         p(
           HTML(
             paste(
-              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File (.fasta)')
+              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File (FASTA)')
             )
           )
         ),
@@ -10575,7 +10580,7 @@ server <- function(input, output, session) {
           "genome_file",
           "Browse",
           icon = icon("folder-open"),
-          title = "Please select the genome in .fasta format:",
+          title = "Please select the genome in .fasta/.fna/.fa format:",
           multiple = FALSE,
           buttonType = "default",
           class = NULL
@@ -10586,6 +10591,24 @@ server <- function(input, output, session) {
         uiOutput("genome_path")
       )
     })
+  })
+  
+  # Notification for finalized Single typinng
+  typing_reactive$single_end <- TRUE
+  typing_reactive$progress_format_end <- 0
+  
+  observe({
+    if(typing_reactive$single_end == FALSE) {
+      if (typing_reactive$progress_format_end == 999999) {
+        show_toast(
+          title = "Single Typing finalized",
+          type = "success",
+          position = "top-end",
+          timer = 8000
+        )
+        typing_reactive$single_end <- TRUE
+      }
+    }
   })
   
   ### Multi Typing ----
@@ -10614,7 +10637,7 @@ server <- function(input, output, session) {
           "genome_file_multi",
           "Browse",
           icon = icon("folder-open"),
-          title = "Please select the folder containing the genome assemblies in .fasta format",
+          title = "Select the folder containing the genome assemblies (FASTA)",
           buttonType = "default"
         ),
         br(),
@@ -10949,7 +10972,7 @@ server <- function(input, output, session) {
               "genome_file_multi",
               "Browse",
               icon = icon("folder-open"),
-              title = "Please select the folder containing the genome assemblies in .fasta format",
+              title = "Select the folder containing the genome assemblies (FASTA)",
               buttonType = "default"
             ),
             br(),
@@ -11038,7 +11061,7 @@ server <- function(input, output, session) {
             "genome_file_multi",
             "Browse",
             icon = icon("folder-open"),
-            title = "Please select the folder containing the genome assemblies in .fasta format",
+            title = "Please select the folder containing the genome assemblies (FASTA)",
             buttonType = "default"
           ),
           br(),
@@ -11086,6 +11109,7 @@ server <- function(input, output, session) {
       timer = 6000
     )
     
+    typing_reactive$final <- FALSE
     
     # Remove Allelic Typing Controls
     
@@ -11159,7 +11183,7 @@ server <- function(input, output, session) {
       '    fi', '\n',
       '    mkdir "$results/$genome_filename_noext"', '\n',
       '#Running Loop', '\n',
-      '    for query_file in "$query_folder"/*.fasta; do', '\n',
+      '    for query_file in "$query_folder"/*.{fasta,fa,fna}; do', '\n',
       '        if [ -f "$query_file" ]; then', '\n',
       '        query_filename=$(basename "$query_file")', '\n',
       '        query_filename_noext="${query_filename%.*}"', '\n',
@@ -11189,6 +11213,42 @@ server <- function(input, output, session) {
   })
   
   #### User Feedback ----
+  
+  readLogFile_slow <- reactive({
+    invalidateLater(9000, session)
+    readLines(paste0(getwd(), "/execute/script_log.txt"))
+  })
+  
+  typing_reactive$final <- TRUE
+  
+  # Typing Notifications
+  observe({
+    if(sum(str_detect(readLogFile_slow(), "Successful")) < sum(str_detect(readLogFile(), "Successful"))) {
+      msg_string <- sub(".*Successful", "Successful", tail(readLogFile(), 2)[1])
+      show_toast(
+        title = paste0(
+          sub("(of).*", "\\1", msg_string),
+          "\n",
+          sub(".*of ", "", msg_string)),
+        type = "success",
+        width = "500px",
+        position = "top-end",
+        timer = 8000
+      )
+    }
+    
+    if(typing_reactive$final == FALSE){
+      if(any(str_detect(readLogFile_slow(), "finalized"))) {
+        show_toast(
+          title = "Multi Typing finalized",
+          type = "success",
+          position = "top-end",
+          timer = 8000
+        )
+        typing_reactive$final <- TRUE
+      }
+    }
+  })
   
   observe({
     
