@@ -661,7 +661,7 @@ textInput_assembly_id <- paste0('
     function applyJavaScript_assembly_id() {
       $("#assembly_id").on("input", function() {
         var value = $(this).val();
-        $(this).val(value.replace(/[^a-zA-Z0-9_\\.-]/g, ""));
+        $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
       });
     }
 
@@ -686,7 +686,7 @@ textInput_assembly_name <- paste0('
     function applyJavaScript_assembly_name() {
       $("#assembly_name").on("input", function() {
         var value = $(this).val();
-        $(this).val(value.replace(/[^a-zA-Z0-9_\\.-]/g, ""));
+        $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
       });
     }
 
@@ -711,7 +711,7 @@ textInput_append_host <- paste0('
     function applyJavaScript_append_host() {
       $("#append_host").on("input", function() {
         var value = $(this).val();
-        $(this).val(value.replace(/[^a-zA-Z0-9_\\.-]/g, ""));
+        $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
       });
     }
 
@@ -736,7 +736,7 @@ textInput_append_city <- paste0('
     function applyJavaScript_append_city() {
       $("#append_city").on("input", function() {
         var value = $(this).val();
-        $(this).val(value.replace(/[^a-zA-Z0-9_\\.-]/g, ""));
+        $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
       });
     }
 
@@ -761,7 +761,7 @@ textInput_append_host_multi <- paste0('
     function applyJavaScript_append_host_multi() {
       $("#append_host_multi").on("input", function() {
         var value = $(this).val();
-        $(this).val(value.replace(/[^a-zA-Z0-9_\\.-]/g, ""));
+        $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
       });
     }
 
@@ -785,9 +785,9 @@ textInput_append_city_multi <- paste0('
     // Function to apply JavaScript code
     function applyJavaScript_append_city_multi() {
       $("#append_city_multi").on("input", function() {
-        var value = $(this).val();
-        $(this).val(value.replace(/[^a-zA-Z0-9_\\.-]/g, ""));
-      });
+    var value = $(this).val();
+    $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
+  }); 
     }
 
     // Check if the textInput element is available
@@ -5919,10 +5919,12 @@ server <- function(input, output, session) {
     
     DF1$scheme <- input$scheme_db
     
-    # null Distance matrix and entry table
+    # null Distance matrix, entry table and plots
     output$db_distancematrix <- NULL 
-    
     output$db_entries_table <- NULL
+    output$tree_mst <- NULL
+    output$tree_nj <- NULL
+    output$tree_upgma <- NULL
     
     removeModal()
     
@@ -10411,13 +10413,13 @@ server <- function(input, output, session) {
   
   observeEvent(input$conf_meta_single, {
     
-    meta_info <- data.frame(assembly_id = input$assembly_id,
-                            assembly_name = input$assembly_name,
+    meta_info <- data.frame(assembly_id = trimws(input$assembly_id),
+                            assembly_name = trimws(input$assembly_name),
                             cgmlst_typing = DF1$scheme,
                             append_isodate = input$append_isodate,
-                            append_host = input$append_host,
-                            append_country = input$append_country,
-                            append_city = input$append_city,
+                            append_host = trimws(input$append_host),
+                            append_country = trimws(input$append_country),
+                            append_city = trimws(input$append_city),
                             append_analysisdate = input$append_analysisdate,
                             db_directory = getwd())
     
@@ -10788,10 +10790,10 @@ server <- function(input, output, session) {
   observeEvent(input$conf_meta_multi, {
     
     meta_info <- data.frame(cgmlst_typing = DF1$scheme,
-                            append_isodate = input$append_isodate_multi,
-                            append_host = input$append_host_multi,
-                            append_country = input$append_country_multi,
-                            append_city = input$append_city_multi,
+                            append_isodate = trimws(input$append_isodate_multi),
+                            append_host = trimws(input$append_host_multi),
+                            append_country = trimws(input$append_country_multi),
+                            append_city = trimws(input$append_city_multi),
                             append_analysisdate = input$append_analysisdate_multi,
                             db_directory = getwd())
     
