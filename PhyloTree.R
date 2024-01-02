@@ -873,9 +873,9 @@ ui <- dashboardPage(
     tags$style("#distmatrix_triangle {margin-top: -35px"),
     tags$style("#distmatrix_diag {margin-top: -55px}"),
     tags$style("#distmatrix_true {margin-top: -15px}"),
-    tags$style("#mst_general {margin-top: -13px}"),
-    tags$style("#mst_analysis {margin-top: -32px}"),
-    tags$style("#mst_plot_report {margin-top: -51px}"),
+    tags$style("#rep_general {margin-top: -13px}"),
+    tags$style("#rep_analysis {margin-top: -32px}"),
+    tags$style("#rep_plot_report {margin-top: -51px}"),
     tags$style("#mst_ratio {position: absolute; right: 36px; top: 23px}"),
     tags$style("#nj_ratio {position: absolute; right: 36px; top: 23px}"),
     tags$style("#upgma_ratio {position: absolute; right: 36px; top: 23px}"),
@@ -1420,7 +1420,7 @@ ui <- dashboardPage(
               width = 8,
               align = "left",
               checkboxInput(
-                "mst_entrytable",
+                "rep_entrytable",
                 label = h5("Entry table", style = "color:white; position: absolute; top: -6px"),
                 value = TRUE
               )
@@ -1431,7 +1431,7 @@ ui <- dashboardPage(
               width = 6,
               align = "left",
               checkboxInput(
-                "mst_general",
+                "rep_general",
                 label = h5("General", style = "color:white; position: absolute; top: -23px"),
                 value = TRUE
               )
@@ -1453,11 +1453,11 @@ ui <- dashboardPage(
                 theme = "translucent",
                 fluidRow(
                   tags$style("#mst_date_general_select .form-control {height: 28px; position: relative; right: -22px} "),
-                  tags$style("#mst_date_general {margin-top: 17px} .form-group {margin-bottom: 0px;}"),
+                  tags$style("#rep_date_general {margin-top: 17px} .form-group {margin-bottom: 0px;}"),
                   column(
                     width = 3,
                     checkboxInput(
-                      "mst_date_general", 
+                      "rep_date_general", 
                       label = h5("Date", style = "color:white; font-size: 17px; margin-top: 16px;"),
                       value = TRUE
                     )
@@ -1472,11 +1472,11 @@ ui <- dashboardPage(
                 ),
                 fluidRow(
                   tags$style("#mst_operator_general_select {height: 28px; margin-top: -15px; position: relative; right: -22px}"),
-                  tags$style("#mst_operator_general {margin-top: 0px;}"),
+                  tags$style("#rep_operator_general {margin-top: 0px;}"),
                   column(
                     width = 3,
                     checkboxInput(
-                      "mst_operator_general", 
+                      "rep_operator_general", 
                       label = h5("Operator", style = "color:white; font-size: 17px; margin-top: -1px;"),
                       value = TRUE
                     )
@@ -1491,11 +1491,11 @@ ui <- dashboardPage(
                 ),
                 fluidRow(
                   tags$style("#mst_institute_general_select {height: 28px; margin-top: -15px; position: relative; right: -22px}"),
-                  tags$style("#mst_institute_general {margin-top: 0px;}"),
+                  tags$style("#rep_institute_general {margin-top: 0px;}"),
                   column(
                     width = 3,
                     checkboxInput(
-                      "mst_institute_general", 
+                      "rep_institute_general", 
                       label = h5("Institute", style = "color:white; font-size: 17px; margin-top: -1px;"),
                       value = TRUE
                     )
@@ -1510,11 +1510,11 @@ ui <- dashboardPage(
                 ),
                 fluidRow(
                   tags$style("#mst_comm_general_select {margin-top: -15px; border-radius: 5px; position: relative; right: -22px}"),
-                  tags$style("#mst_comm_general {margin-top: 0px;}"),
+                  tags$style("#rep_comm_general {margin-top: 0px;}"),
                   column(
                     width = 3,
                     checkboxInput(
-                      "mst_comm_general", 
+                      "rep_comm_general", 
                       label = h5("Comment", style = "color:white; font-size: 17px; margin-top: -1px;")
                     )
                   ),
@@ -1540,7 +1540,7 @@ ui <- dashboardPage(
               width = 6,
               align = "left",
               checkboxInput(
-                "mst_analysis",
+                "rep_analysis",
                 label = h5("Analysis", style = "color:white; position: absolute; top: -42px"),
                 value = TRUE
               )
@@ -1561,11 +1561,11 @@ ui <- dashboardPage(
                 padding = "20px",
                 theme = "translucent",
                 fluidRow(
-                  tags$style("#mst_cgmlst_analysis {margin-top: 19px}"),
+                  tags$style("#rep_cgmlst_analysis {margin-top: 19px}"),
                   column(
                     width = 4,
                     checkboxInput(
-                      "mst_cgmlst_analysis",
+                      "rep_cgmlst_analysis",
                       label = h5("Scheme", style = "color:white; font-size: 17px; margin-top: 18px"),
                       value = TRUE
                     )
@@ -1576,11 +1576,11 @@ ui <- dashboardPage(
                   )
                 ),
                 fluidRow(
-                  tags$style("#mst_tree_analysis {margin-top: 0px}"),
+                  tags$style("#rep_tree_analysis {margin-top: 0px}"),
                   column(
                     width = 4,
                     checkboxInput(
-                      "mst_tree_analysis",
+                      "rep_tree_analysis",
                       label = h5("Tree", style = "color:white; font-size: 17px; margin-top: -1px"),
                       value = TRUE
                     )
@@ -1596,11 +1596,11 @@ ui <- dashboardPage(
                   )
                 ),
                 fluidRow(
-                  tags$style("#mst_distance {margin-top: 0px}"),
+                  tags$style("#rep_distance {margin-top: 0px}"),
                   column(
                     width = 4,
                     checkboxInput(
-                      "mst_distance",
+                      "rep_distance",
                       label = h5("Distance", style = "color:white; font-size: 17px; margin-top: -1px"),
                       value = TRUE
                     )
@@ -1616,12 +1616,12 @@ ui <- dashboardPage(
                   )
                 ),
                 fluidRow(
-                  tags$style("#mst_missval {margin-top: 0px}"),
+                  tags$style("#rep_missval {margin-top: 0px}"),
                   column(
                     width = 7,
                     align = "left",
                     checkboxInput(
-                      "mst_missval",
+                      "rep_missval",
                       label = h5("NA handling", style = "color:white; font-size: 17px; margin-top: -1px"),
                       value = TRUE
                     )
@@ -1637,11 +1637,11 @@ ui <- dashboardPage(
                   )
                 ),
                 fluidRow(
-                  tags$style("#mst_version {margin-top: 0px}"),
+                  tags$style("#rep_version {margin-top: 0px}"),
                   column(
                     width = 4,
                     checkboxInput(
-                      "mst_version",
+                      "rep_version",
                       label = h5("Version", style = "color:white; font-size: 17px; margin-top: -1px"),
                       value = TRUE
                     )
@@ -1664,7 +1664,7 @@ ui <- dashboardPage(
               width = 8,
               align = "left",
               checkboxInput(
-                "mst_plot_report",
+                "rep_plot_report",
                 label = h5("Attach plot", style = "color:white; position: absolute; top: -61px"),
                 value = TRUE
               )
@@ -5926,6 +5926,16 @@ server <- function(input, output, session) {
     output$tree_nj <- NULL
     output$tree_upgma <- NULL
     
+    # null report values
+    reportVAR$report_list_mst <- list()
+    reportVAR$report_list_nj <- list()
+    reportVAR$report_list_upgma <- list()
+    
+    # null plots
+    plot_loc$nj <- NULL
+    plot_loc$upgma <- NULL
+    plot_loc$ggraph_1 <- NULL
+    
     removeModal()
     
     #### Render Menu Items ----
@@ -9714,9 +9724,9 @@ server <- function(input, output, session) {
   
   observe({
     if(input$tree_algo == "Minimum-Spanning") {
-      shinyjs::disable("mst_plot_report")
+      shinyjs::disable("rep_plot_report")
     } else {
-      shinyjs::enable("mst_plot_report")
+      shinyjs::enable("rep_plot_report")
     }
   })
   
@@ -9732,13 +9742,13 @@ server <- function(input, output, session) {
                                                   "analysis_show", "scheme",
                                                   "tree", "distance", "na_handling", "version",
                                                   "plot"), 
-                                      Include = c(input$mst_entrytable, input$mst_general,
-                                                  input$mst_date_general, input$mst_operator_general,
-                                                  input$mst_institute_general, input$mst_comm_general,
-                                                  input$mst_analysis, input$mst_cgmlst_analysis,
-                                                  input$mst_tree_analysis, input$mst_distance,
-                                                  input$mst_missval, input$mst_version,
-                                                  input$mst_plot_report))
+                                      Include = c(input$rep_entrytable, input$rep_general,
+                                                  input$rep_date_general, input$rep_operator_general,
+                                                  input$rep_institute_general, input$rep_comm_general,
+                                                  input$rep_analysis, input$rep_cgmlst_analysis,
+                                                  input$rep_tree_analysis, input$rep_distance,
+                                                  input$rep_missval, input$rep_version,
+                                                  input$rep_plot_report))
     
   })
   
