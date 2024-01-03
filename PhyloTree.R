@@ -826,6 +826,21 @@ ui <- dashboardPage(
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "mycss.css")
     ),
+    tags$style(HTML("
+      @keyframes pulsate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.pulsating-button {
+  animation: pulsate 1s ease infinite;
+}
+
+.pulsating-button:hover {
+  animation: none;
+}
+    ")),
     tags$style("label{color: white;}"),
     tags$style(".white {color: white; font-size: 16px}"),
     tags$style(".main-sidebar .sidebar .sidebar-menu .treeview-menu a {color: #ffffff !important; margin-left: 25px; border-radius: 20px; margin-top: 7px; margin-bottom: 7px}"),
@@ -5790,6 +5805,12 @@ server <- function(input, output, session) {
   
   ## Functions ----
   
+  # Get rhandsontable
+  get.entry.table.meta <- reactive({
+    table <- hot_to_r(input$db_entries)
+    select(table, 1:12)
+  })
+  
   # Function to find columns with varying values
   var_alleles <- function(dataframe) {
     
@@ -6512,19 +6533,7 @@ server <- function(input, output, session) {
                   width = 12,
                   align = "center",
                   br(), br(),
-                  p(
-                    HTML(
-                      paste(
-                        tags$span(style='color: white; font-size: 18px; margin-bottom: 0px', 'Confirm changes')
-                      )
-                    )
-                  ),
-                  actionButton(
-                    "edit_button",
-                    "",
-                    icon = icon("bookmark")
-                  ),
-                  br(),
+                  uiOutput("edit_entry_table"),
                   fluidRow(
                     column(1),
                     column(
@@ -6971,6 +6980,32 @@ server <- function(input, output, session) {
                         }
                       }
                     }
+                    
+                    # Dynamic save button when rhandsontable changes
+                    
+                    output$edit_entry_table <- renderUI({
+                      
+                      if(!identical(get.entry.table.meta(), DF1$meta)) {
+                        column(
+                          width = 12,
+                          p(
+                            HTML(
+                              paste(
+                                tags$span(style='color: white; font-size: 16px; margin-bottom: 0px', 'Confirm changes')
+                              )
+                            )
+                          ),
+                          actionButton(
+                            "edit_button",
+                            "",
+                            icon = icon("bookmark"),
+                            class = "pulsating-button"
+                          ),
+                          br(), br()
+                        )
+                      } else {NULL}
+                      
+                    })
                     
                   })
                 
