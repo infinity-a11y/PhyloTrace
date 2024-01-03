@@ -7737,6 +7737,13 @@ server <- function(input, output, session) {
   
   ### Database Events ----
   
+  # Switch to entry table
+  
+  observeEvent(input$change_entries, {
+    removeModal()
+    updateTabItems(session, "tabs", selected = "db_browse_entries")
+  })
+  
   #### Download Missing Value Matrix as CSV ----
   
   output$download_na_matrix <- downloadHandler(
@@ -9720,79 +9727,99 @@ server <- function(input, output, session) {
       )
     } else {
       
-      set.seed(1)
-      
-      if (input$tree_algo == "Neighbour-Joining") {
-        
-        plot_loc$meta_nj <- select(DF1$meta_true, -2)
-        
-        colnames(plot_loc$meta_nj) <-
-          c(
-            "index",
-            "assembly_id",
-            "assembly_name",
-            "scheme",
-            "Isolation_Date",
-            "Host",
-            "Country",
-            "City",
-            "typing_date",
-            "successes",
-            "errors"
+      if(any(duplicated(DF1$meta$`Assembly Name`))) {
+        showModal(
+          modalDialog(
+            if(sum(duplicated(DF1$meta$`Assembly Name`)) == 1) {
+              HTML(paste0("Entry #", which(duplicated(DF1$meta$`Assembly Name`)), 
+                                 " contains a duplicated assembly name:", "<br><br>",
+                                 DF1$meta$`Assembly Name`[which(duplicated(DF1$meta$`Assembly Name`))]))
+            } else {
+              HTML(append("Entries contain duplicated assembly names: <br><br>", 
+                          paste0(unique(DF1$meta$`Assembly Name`[which(duplicated(DF1$meta$`Assembly Name`))]), "<br>")))
+            },
+            title = "Duplicate entries",
+            fade = TRUE,
+            easyClose = TRUE,
+            footer = tagList(
+              modalButton("Cancel"),
+              actionButton("change_entries", "Go to Entry Table", class = "btn btn-default")
+            )
           )
-        
-        plot_loc$meta_nj <- mutate(plot_loc$meta_nj, taxa = index) %>%
-          relocate(taxa)
-        
-        # Create phylogenetic tree
-        plot_loc$nj <- ape::nj(hamming_nj())
-        
-        output$tree_nj <- renderPlot({
-          nj_tree()
-        })
-        
-      } else if (input$tree_algo == "UPGMA") {
-        
-        plot_loc$meta_upgma <- select(DF1$meta_true, -2)
-        
-        colnames(plot_loc$meta_upgma) <-
-          c(
-            "index",
-            "assembly_id",
-            "assembly_name",
-            "scheme",
-            "Isolation_Date",
-            "Host",
-            "Country",
-            "City",
-            "typing_date",
-            "successes",
-            "errors"
-          )
-        
-        plot_loc$meta_upgma <- mutate(plot_loc$meta_upgma, taxa = index) %>%
-          relocate(taxa)
-        
-        # Create phylogenetic tree
-        plot_loc$upgma <- phangorn::upgma(hamming_nj())
-        
-        
-        output$tree_upgma <- renderPlot({
-          upgma_tree()
-        })
-        
+        )
       } else {
+        set.seed(1)
         
-        # prepare igraph object
-        plot_loc$ggraph_1 <- hamming_mst() |>
-          as.matrix() |>
-          graph.adjacency(weighted = TRUE) |>
-          igraph::mst() 
-        
-        output$tree_mst <- renderVisNetwork({
-          mst_tree()
-        })
-        
+        if (input$tree_algo == "Neighbour-Joining") {
+          
+          plot_loc$meta_nj <- select(DF1$meta_true, -2)
+          
+          colnames(plot_loc$meta_nj) <-
+            c(
+              "index",
+              "assembly_id",
+              "assembly_name",
+              "scheme",
+              "Isolation_Date",
+              "Host",
+              "Country",
+              "City",
+              "typing_date",
+              "successes",
+              "errors"
+            )
+          
+          plot_loc$meta_nj <- mutate(plot_loc$meta_nj, taxa = index) %>%
+            relocate(taxa)
+          
+          # Create phylogenetic tree
+          plot_loc$nj <- ape::nj(hamming_nj())
+          
+          output$tree_nj <- renderPlot({
+            nj_tree()
+          })
+          
+        } else if (input$tree_algo == "UPGMA") {
+          
+          plot_loc$meta_upgma <- select(DF1$meta_true, -2)
+          
+          colnames(plot_loc$meta_upgma) <-
+            c(
+              "index",
+              "assembly_id",
+              "assembly_name",
+              "scheme",
+              "Isolation_Date",
+              "Host",
+              "Country",
+              "City",
+              "typing_date",
+              "successes",
+              "errors"
+            )
+          
+          plot_loc$meta_upgma <- mutate(plot_loc$meta_upgma, taxa = index) %>%
+            relocate(taxa)
+          
+          # Create phylogenetic tree
+          plot_loc$upgma <- phangorn::upgma(hamming_nj())
+          
+          output$tree_upgma <- renderPlot({
+            upgma_tree()
+          })
+          
+        } else {
+          
+          # prepare igraph object
+          plot_loc$ggraph_1 <- hamming_mst() |>
+            as.matrix() |>
+            graph.adjacency(weighted = TRUE) |>
+            igraph::mst() 
+          
+          output$tree_mst <- renderVisNetwork({
+            mst_tree()
+          })
+        }
       }
     }
   })
