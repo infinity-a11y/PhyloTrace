@@ -8445,6 +8445,8 @@ server <- function(input, output, session) {
                          label = as.character(weight),
                          opacity = mst_edge_opacity())
     
+    test <<- data
+    
     visNetwork(data$nodes, data$edges, 
                main = mst_title(),
                background = mst_background_color(),
@@ -8467,25 +8469,6 @@ server <- function(input, output, session) {
       visLayout(randomSeed = 1) %>%
       visLegend()
   })
-  
-  # Set MST edge length
-  
-  mst_length <- reactive({
-    if(input$mst_scale_edges == FALSE) {
-      input$mst_edge_length
-    } else {
-      list <- plot_loc$data
-      list[["edges"]][["weight"]] * input$mst_edge_length_scale
-    }
-  })
-  
-  #mst_length <- reactive({
-  #  if(input$mst_scale_edges == TRUE) {
-  #    (weight*input$mst_edge_length_scale)
-  #  } else {
-  #    input$mst_edge_length
-  #  }
-  #})
   
   # Set MST node shape
   mst_node_shape <- reactive({
@@ -9391,26 +9374,30 @@ server <- function(input, output, session) {
   })
   
   hamming_mst <- reactive({
-    if(anyNA(DF1$allelic_profile)) {
-      if(input$na_handling == "omit") {
-        allelic_profile_noNA <- DF1$allelic_profile[, colSums(is.na(DF1$allelic_profile)) == 0]
-        
-        allelic_profile_noNA_true <- allelic_profile_noNA[which(DF1$data$Include == TRUE),]
-        
-        dist <- proxy::dist(allelic_profile_noNA_true, method = hamming_distance)
-        
-      } else if (input$na_handling == "ignore_na") {
-        dist <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance_ignore)
+      if(anyNA(DF1$allelic_profile)) {
+        if(input$na_handling == "omit") {
+          allelic_profile_noNA <- DF1$allelic_profile[, colSums(is.na(DF1$allelic_profile)) == 0]
+          
+          allelic_profile_noNA_true <- allelic_profile_noNA[which(DF1$data$Include == TRUE),]
+          
+          dist <- proxy::dist(allelic_profile_noNA_true, method = hamming_distance)
+          
+        } else if (input$na_handling == "ignore_na") {
+          dist <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance_ignore)
+        } else {
+          dist <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance_category)
+        }
       } else {
-        dist <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance_category)
-      } 
-      
+        dist <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance)
+      }
+       
       # Find indices of pairs with a distance of 0
       zero_distance_pairs <- as.data.frame(which(as.matrix(dist) == 0, arr.ind = TRUE))
       
       zero_distance_pairs <- zero_distance_pairs[zero_distance_pairs$row != zero_distance_pairs$col, ]
       
       if(nrow(zero_distance_pairs) > 0) {
+        
         # Sort each row so that x <= y
         df_sorted <- t(apply(zero_distance_pairs, 1, function(row) sort(row)))
         
@@ -9683,15 +9670,16 @@ server <- function(input, output, session) {
         
         # final dist calculation
         
-        allelic_profile_clean_noNA_names <- allelic_profile_clean[, colSums(is.na(allelic_profile_clean)) == 0]
-        
-        if(input$na_handling == "omit") {
-          proxy::dist(allelic_profile_clean_noNA_names, method = hamming_distance)
-        } else if (input$na_handling == "ignore_na") {
-          proxy::dist(allelic_profile_clean_noNA_names, method = hamming_distance_ignore)
-        } else {
-          proxy::dist(allelic_profile_clean_noNA_names, method = hamming_distance_category)
-        } 
+        if(anyNA(DF1$allelic_profile)){
+          if(input$na_handling == "omit") {
+            allelic_profile_clean_noNA_names <- allelic_profile_clean[, colSums(is.na(allelic_profile_clean)) == 0]
+            proxy::dist(allelic_profile_clean_noNA_names, method = hamming_distance)
+          } else if (input$na_handling == "ignore_na") {
+            proxy::dist(allelic_profile_clean, method = hamming_distance_ignore)
+          } else {
+            proxy::dist(allelic_profile_clean, method = hamming_distance_category)
+          }
+        } else {proxy::dist(allelic_profile_clean, method = hamming_distance)}
         
         
       } else {
@@ -9703,10 +9691,6 @@ server <- function(input, output, session) {
         
         dist
       }
-      
-    } else {
-      proxy::dist(DF1$allelic_profile_true, method = hamming_distance)
-    }
     
   })
   
