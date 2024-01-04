@@ -904,6 +904,7 @@ ui <- dashboardPage(
     tags$style("#upgma_v {padding: initial; margin-top: 3px; width: 75px; text-align: center}"),
     tags$style("#upgma_h {padding: initial; margin-top: 3px; width: 75px; text-align: center}"),
     tags$style("#upgma_zoom irs.irs--shiny.js-irs-4.irs.irs-line {width: 108px}"),
+    tags$style(".textinput_var .form-group.shiny-input-container {padding: 0px 0px 0px 0px}"),
     br(), br(),
     uiOutput("loaded_scheme"),
     sidebarMenu(
@@ -913,7 +914,7 @@ ui <- dashboardPage(
       uiOutput("menu_sep2"),
       conditionalPanel(
         "input.tabs==='db_browse_entries'",
-        uiOutput("confirm_changes")
+        uiOutput("entrytable_sidebar")
       ),
       conditionalPanel(
         "input.tabs==='db_distmatrix'",
@@ -1992,6 +1993,8 @@ ui <- dashboardPage(
         br(),
         uiOutput("no_scheme_entries"),
         uiOutput("db_no_entries"),
+        uiOutput("entry_table_controls"),
+        br(), br(),
         fluidRow(
           column(
             width = 8,
@@ -5808,7 +5811,7 @@ server <- function(input, output, session) {
   # Get rhandsontable
   get.entry.table.meta <- reactive({
     table <- hot_to_r(input$db_entries)
-    select(table, 1:12)
+    select(table, 1:(12 + length(DF1$cust_var)))
   })
   
   # Function to find columns with varying values
@@ -6429,11 +6432,20 @@ server <- function(input, output, session) {
               
               DF1$data <- Database[["Typing"]]
               
-              DF1$meta <- select(DF1$data, 1:12)
+              if(!is.null(DF1$data)){
+                if ((ncol(DF1$data)-12) != as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))) {
+                  cust_vars <- select(DF1$data, 13:(ncol(DF1$data) - as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))))
+                  DF1$cust_var <- names(cust_vars)
+                } else {
+                  DF1$cust_var <- character()
+                }
+              }
+              
+              DF1$meta <- select(DF1$data, 1:(12 + length(DF1$cust_var)))
               
               DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
               
-              DF1$allelic_profile <- select(DF1$data, -(1:12))
+              DF1$allelic_profile <- select(DF1$data, -(1:(12 + length(DF1$cust_var))))
               
               DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
               
@@ -6527,13 +6539,12 @@ server <- function(input, output, session) {
               }
               
               # Render edit/save button for entry metadata
-              output$confirm_changes <- renderUI({
+              output$entrytable_sidebar <- renderUI({
                 if(!class(DF1$data) == "NULL") {
                   column(
                   width = 12,
                   align = "center",
-                  br(), br(),
-                  uiOutput("edit_entry_table"),
+                  br(), 
                   fluidRow(
                     column(1),
                     column(
@@ -6546,6 +6557,63 @@ server <- function(input, output, session) {
                           value = FALSE
                         )
                       }
+                    )
+                  ),
+                  br(), br(), br(),
+                  fluidRow(
+                    column(
+                      width = 12,
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; font-size: 18px; margin-bottom: 5px', 'Custom variables')
+                        )
+                      )
+                    )
+                  ),
+                  br(),
+                  fluidRow(
+                    column(
+                      width = 8,
+                      div(
+                        class = "textinput_var",
+                        textInput(
+                          "new_var_name",
+                          label = h5("Name", style = "color:white; margin-bottom: 0px"),
+                        )
+                      )
+                    ),
+                    column(
+                      width = 2,
+                      actionButton(
+                        "add_new_variable",
+                        "",
+                        style = "background: green; height: 35px; width: 38px; margin-top: 30px; margin-left: 5px",
+                        icon = icon("plus")
+                      )
+                    )
+                  ),
+                  fluidRow(
+                    column(
+                      width = 8,
+                      align = "left",
+                      div(
+                        class = "textinput_var",
+                        selectizeInput(
+                          "del_which_var",
+                          "",
+                          NULL
+                        )
+                      )
+                    ),
+                    column(
+                      width = 2,
+                      align = "left",
+                      actionButton(
+                        "delete_new_variable",
+                        "",
+                        style = "background: #FF5964; height: 35px; width: 38px; margin-top: 20px; margin-left: 5px",
+                        icon = icon("minus")
+                      )
                     )
                   )
                 )
@@ -6708,6 +6776,7 @@ server <- function(input, output, session) {
                   )
                 } else {
                   if (input$compare_difference == FALSE) {
+                    DF1$allelic_profile
                     pickerInput(
                       inputId = "compare_select",
                       label = "",
@@ -6757,7 +6826,6 @@ server <- function(input, output, session) {
                 }
               })
               
-              
               if (!is.null(DF1$data)) {
                 
                   observe({
@@ -6766,13 +6834,14 @@ server <- function(input, output, session) {
                       if (nrow(DF1$data) == 1) {
                         output$db_entries <- renderRHandsontable({
                           rhandsontable(
-                            select(DF1$data, 1:12),
+                            select(DF1$data, 1:(12 + length(DF1$cust_var))),
                             rowHeaders = NULL
                           ) %>%
                             hot_col(1, 
+                                    readOnly = TRUE,
                                     valign = "htMiddle",
                                     halign = "htCenter") %>%
-                            hot_col(3:12, 
+                            hot_col(3:(12 + length(DF1$cust_var)), 
                                     valign = "htMiddle",
                                     halign = "htLeft") %>%
                             hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
@@ -6789,18 +6858,19 @@ server <- function(input, output, session) {
                           output$db_entries <- renderRHandsontable({
                             row_highlight <- true_rows()-1
                             rhandsontable(
-                              select(DF1$data, 1:12, input$compare_select),
+                              select(DF1$data, 1:(12 + length(DF1$cust_var)), input$compare_select),
                               col_highlight = diff_allele()-1,
                               rowHeaders = NULL,
                               row_highlight = row_highlight
                             ) %>%
-                              hot_col(12:(12+length(input$compare_select)), 
+                              hot_col((12 + length(DF1$cust_var)):((12 + length(DF1$cust_var))+length(input$compare_select)), 
                                       valign = "htMiddle",
                                       halign = "htCenter") %>%
                               hot_col(1, 
+                                      readOnly = TRUE,
                                       valign = "htMiddle",
                                       halign = "htCenter") %>%
-                              hot_col(3:12, 
+                              hot_col(3:(12 + length(DF1$cust_var)), 
                                       valign = "htMiddle",
                                       halign = "htLeft") %>%
                               hot_context_menu(allowRowEdit = FALSE,
@@ -6814,7 +6884,7 @@ server <- function(input, output, session) {
                                       copyable = TRUE) %>%
                               hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                               hot_rows(fixedRowsTop = 0) %>%
-                              hot_col(c(1, 3:(12 + length(input$compare_select))), renderer = "
+                              hot_col(c(1, 3:((12 + length(DF1$cust_var)) + length(input$compare_select))), renderer = "
             function (instance, td, row, col, prop, value, cellProperties) {
                      Handsontable.renderers.TextRenderer.apply(this, arguments);
 
@@ -6848,15 +6918,16 @@ server <- function(input, output, session) {
                           output$db_entries <- renderRHandsontable({
                             row_highlight <- true_rows()-1
                             rhandsontable(
-                              select(DF1$data, 1:12),
+                              select(DF1$data, 1:(12 + length(DF1$cust_var))),
                               rowHeaders = NULL,
                               row_highlight = row_highlight
                             ) %>%
                               hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                               hot_col(1, 
+                                      readOnly = TRUE,
                                       valign = "htMiddle",
                                       halign = "htCenter") %>%
-                              hot_col(3:12, 
+                              hot_col(3:(12 + length(DF1$cust_var)), 
                                       valign = "htMiddle",
                                       halign = "htLeft") %>%
                               hot_col(2, type = "checkbox", width = "auto",
@@ -6866,7 +6937,7 @@ server <- function(input, output, session) {
                                                allowColEdit = FALSE,
                                                allowReadOnly = FALSE) %>%
                               hot_rows(fixedRowsTop = 0) %>%
-                              hot_col(c(1, 3:12), renderer = "
+                              hot_col(c(1, 3:(12 + length(DF1$cust_var))), renderer = "
             function (instance, td, row, col, prop, value, cellProperties) {
                      Handsontable.renderers.TextRenderer.apply(this, arguments);
 
@@ -6886,19 +6957,20 @@ server <- function(input, output, session) {
                         if (length(input$compare_select) > 0) {
                           output$db_entries <- renderRHandsontable({
                             rhandsontable(
-                              select(DF1$data, 1:12, input$compare_select),
+                              select(DF1$data, 1:(12 + length(DF1$cust_var)), input$compare_select),
                               col_highlight = diff_allele()-1,
                               rowHeaders = NULL,
                               height = table_height(),
                               row_highlight = true_rows()-1
                             ) %>%
-                              hot_col(12:(12+length(input$compare_select)), 
+                              hot_col((12 + length(DF1$cust_var)):((12 + length(DF1$cust_var))+length(input$compare_select)), 
                                       valign = "htMiddle",
                                       halign = "htCenter") %>%
-                              hot_col(3:12, 
+                              hot_col(3:(12 + length(DF1$cust_var)), 
                                       valign = "htMiddle",
                                       halign = "htLeft") %>%
                               hot_col(1, 
+                                      readOnly = TRUE,
                                       valign = "htMiddle",
                                       halign = "htCenter") %>%
                               hot_context_menu(allowRowEdit = FALSE,
@@ -6912,7 +6984,7 @@ server <- function(input, output, session) {
                               ) %>%
                               hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                               hot_rows(fixedRowsTop = 0) %>%
-                              hot_col(c(1, 3:(12 + length(input$compare_select))), renderer = "
+                              hot_col(c(1, 3:((12 + length(DF1$cust_var)) + length(input$compare_select))), renderer = "
             function (instance, td, row, col, prop, value, cellProperties) {
                      Handsontable.renderers.TextRenderer.apply(this, arguments);
 
@@ -6939,29 +7011,30 @@ server <- function(input, output, session) {
                   if (instance.params && hcols.includes(col)) {
                     td.style.background = '#FF8F8F';
                   }
-              }")
+              }") 
                           })
                         } else {
                           output$db_entries <- renderRHandsontable({
                             row_highlight <- true_rows()-1
                             rhandsontable(
-                              select(DF1$data, 1:12),
+                              select(DF1$data, 1:(12 + length(DF1$cust_var))),
                               rowHeaders = NULL,
                               height = table_height(),
                               row_highlight = row_highlight
                             ) %>%
                               hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                               hot_col(1, 
+                                      readOnly = TRUE,
                                       valign = "htMiddle",
                                       halign = "htCenter") %>%
-                              hot_col(3:12, 
+                              hot_col(3:(12 + length(DF1$cust_var)), 
                                       valign = "htMiddle",
                                       halign = "htLeft") %>%
                               hot_context_menu(allowRowEdit = FALSE,
                                                allowColEdit = FALSE,
                                                allowReadOnly = FALSE) %>%
                               hot_rows(fixedRowsTop = 0) %>%
-                              hot_col(append(1, 3:12), renderer = "
+                              hot_col(append(1, 3:(12 + length(DF1$cust_var))), renderer = "
             function (instance, td, row, col, prop, value, cellProperties) {
                      Handsontable.renderers.TextRenderer.apply(this, arguments);
 
@@ -6986,22 +7059,24 @@ server <- function(input, output, session) {
                     output$edit_entry_table <- renderUI({
                       
                       if(!identical(get.entry.table.meta(), DF1$meta)) {
-                        column(
-                          width = 12,
-                          p(
+                        fluidRow(
+                          column(
+                            width = 5,
                             HTML(
                               paste(
-                                tags$span(style='color: white; font-size: 16px; margin-bottom: 0px', 'Confirm changes')
+                                tags$span(style='color: white; font-size: 16px; position: absolute; bottom: -30px; right: -5px', 'Confirm changes')
                               )
                             )
                           ),
-                          actionButton(
-                            "edit_button",
-                            "",
-                            icon = icon("bookmark"),
-                            class = "pulsating-button"
-                          ),
-                          br(), br()
+                          column(
+                            width = 3,
+                            actionButton(
+                              "edit_button",
+                              "",
+                              icon = icon("bookmark"),
+                              class = "pulsating-button"
+                            )
+                          )
                         )
                       } else {NULL}
                       
@@ -7017,7 +7092,42 @@ server <- function(input, output, session) {
                 
                 # If database loading not successful dont show entry table
                 output$db_entries_table <- NULL
+                output$entry_table_controls <- NULL
               }
+              
+              # Render Entry table controls
+              output$entry_table_controls <- renderUI({
+                fluidRow(
+                  column(
+                    width = 3,
+                    align = "center",
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "center",
+                        actionButton(
+                          "sel_all_entries",
+                          "Select all",
+                          icon = icon("check")
+                        )
+                      ),
+                      column(
+                        width = 4,
+                        align = "left",
+                        actionButton(
+                          "desel_all_entries",
+                          "Deselect all",
+                          icon = icon("xmark")
+                        )
+                      )
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    uiOutput("edit_entry_table")
+                  )
+                )
+              })
               
               #### Render Distance Matrix ----
               
@@ -7091,7 +7201,7 @@ server <- function(input, output, session) {
               
               diff_allele <- reactive({
                 if (!class(DF1$data) == "NULL") {
-                  var_alleles(select(DF1$data, input$compare_select)) + 12
+                  var_alleles(select(DF1$data, input$compare_select)) + (12 + length(DF1$cust_var))
                 }
               })
               
@@ -7737,6 +7847,62 @@ server <- function(input, output, session) {
   
   ### Database Events ----
   
+  # Custom variables
+  
+  observe({
+    if(!is.null(DF1$data)){
+      if ((ncol(DF1$data)-12) != as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))) {
+        cust_vars <- select(DF1$data, 13:(ncol(DF1$data) - as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))))
+        DF1$cust_var <- names(cust_vars)
+      } else {
+        DF1$cust_var <- character()
+      }
+    }
+  })
+  
+  DF1$count <- 0
+  
+  observeEvent(input$add_new_variable, {
+    DF1$count <- DF1$count + 1
+    if(input$new_var_name %in% names(DF1$meta)) {
+      show_toast(
+        title = "Variable name already existing",
+        type = "warning",
+        position = "top-end",
+        width = "400px",
+        timer = 6000
+      )
+    } else {
+      name <- input$new_var_name
+      
+      DF1$cust_var <- append(DF1$cust_var, name)
+      
+      DF1$data <- DF1$data %>%
+        mutate("{name}" := character(nrow(DF1$data)), .after = 12)
+      
+      DF1$meta <- select(DF1$data, 1:(12 + length(DF1$cust_var)))
+      
+      DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
+      
+      DF1$allelic_profile <- select(DF1$data, -(1:(12 + length(DF1$cust_var))))
+      
+      DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
+      
+      test <<- DF1$data
+    }
+    
+  })
+  
+  # Select all button
+  
+  observeEvent(input$sel_all_entries, {
+    DF1$data$Include <- TRUE
+  })
+  
+  observeEvent(input$desel_all_entries, {
+    DF1$data$Include <- FALSE
+  })
+  
   # Switch to entry table
   
   observeEvent(input$change_entries, {
@@ -7805,7 +7971,7 @@ server <- function(input, output, session) {
       }
       
       if (input$download_table_loci == FALSE) {
-        download_matrix <- select(download_matrix, 1:12)
+        download_matrix <- select(download_matrix, 1:(12 + length(DF1$cust_var)))
       } 
       
       write.csv(download_matrix, file, row.names=FALSE, quote=FALSE) 
@@ -7847,17 +8013,17 @@ server <- function(input, output, session) {
     ))
     
     attach_meta <- hot_to_r(input$db_entries)
-    attach_meta <- select(attach_meta, 1:12)
+    attach_meta <- select(attach_meta, 1:(12 + length(DF1$cust_var)))
     
     if(!is.null(DF1$delete)) {
       Data[["Typing"]] <- cbind(attach_meta, DF1$delete)
-      
     } else {
-      Data[["Typing"]][, 1:12] <- attach_meta
+      Data[["Typing"]] <- cbind(attach_meta, select(Data[["Typing"]], -(1:((12 - DF1$count) + length(DF1$cust_var)))))
     }
     
     # Ensure correct logical data type
     Data[["Typing"]][["Include"]] <- as.logical(Data[["Typing"]][["Include"]])
+    
     
     saveRDS(Data, paste0(
       getwd(),
@@ -7877,11 +8043,11 @@ server <- function(input, output, session) {
     
     DF1$data <- Database[["Typing"]]
     
-    DF1$meta <- select(DF1$data, 1:12)
+    DF1$meta <- select(DF1$data, 1:(12 + length(DF1$cust_var)))
     
     DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
     
-    DF1$allelic_profile <- select(DF1$data, -(1:12))
+    DF1$allelic_profile <- select(DF1$data, -(1:(12 + length(DF1$cust_var))))
     
     DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
     
@@ -7893,6 +8059,8 @@ server <- function(input, output, session) {
       position = "top-end",
       timer = 4000
     )
+    
+    DF1$count <- 0
   })
   
   observeEvent(input$del_button, {
@@ -7966,7 +8134,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_delete, {
-    delete <- select(DF1$data, -(1:12))
+    delete <- select(DF1$data, -(1:(12 + length(DF1$cust_var))))
     DF1$delete <- delete[-as.integer(input$select_delete),]
     DF1$data <- DF1$data[-as.integer(input$select_delete),]
     rownames(DF1$data) <- 1:nrow(DF1$data)
@@ -8039,7 +8207,7 @@ server <- function(input, output, session) {
     } 
     
     # Rownames change
-    rownames(hamming_matrix) <- select(DF1$data, 1:12)[rownames(select(DF1$data, 1:12)) %in% rownames(hamming_matrix), 
+    rownames(hamming_matrix) <- select(DF1$data, 1:(12 + length(DF1$cust_var)))[rownames(select(DF1$data, 1:(12 + length(DF1$cust_var)))) %in% rownames(hamming_matrix), 
                                                        input$distmatrix_label]
     colnames(hamming_matrix) <- rownames(hamming_matrix)
     
@@ -8444,8 +8612,6 @@ server <- function(input, output, session) {
                          },
                          label = as.character(weight),
                          opacity = mst_edge_opacity())
-    
-    test <<- data
     
     visNetwork(data$nodes, data$edges, 
                main = mst_title(),
