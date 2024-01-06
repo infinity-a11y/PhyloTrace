@@ -2619,21 +2619,7 @@ ui <- dashboardPage(
                       align = "center",
                       div(
                         class = "label_sel",
-                        selectInput(
-                          "mst_node_label",
-                          label = "",
-                          choices = c(
-                            Index = "Index",
-                            `Assembly ID` = "Assembly ID",
-                            `Assembly Name` = "Assembly Name",
-                            `Isolation Date` = "Isolation Date",
-                            Host = "Host",
-                            Country = "Country",
-                            City = "City"
-                          ),
-                          selected = c(`Assembly Name` = "Assembly Name"),
-                          width = "100%"
-                        )
+                        uiOutput("mst_node_label")
                       ),
                       fluidRow(
                         column(
@@ -3614,21 +3600,7 @@ ui <- dashboardPage(
                       column(
                         width = 4,
                         align = "center",
-                        selectInput(
-                          "nj_tiplab",
-                          label = "",
-                          choices = c(
-                            Index = "index",
-                            `Assembly ID` = "assembly_id",
-                            `Assembly Name` = "assembly_name",
-                            `Isolation Date` = "Isolation_Date",
-                            Host = "Host",
-                            Country = "Country",
-                            City = "City"
-                          ),
-                          selected = c(`Assembly Name` = "assembly_name"),
-                          width = "100%"
-                        )
+                        uiOutput("nj_tiplab")
                       ),
                       column(
                         width = 3,
@@ -3792,18 +3764,7 @@ ui <- dashboardPage(
                     ),
                     conditionalPanel(
                       "input.nj_mapping_show==true",
-                      selectInput(
-                        "nj_color_mapping",
-                        "",
-                        choices = c(
-                          "Isolation Date" = "Isolation_Date",
-                          "Host" = "Host",
-                          "Country" = "Country",
-                          "City" = "City"
-                        ),
-                        selected = c("Host" = "Host"),
-                        width = "100%"
-                      )
+                      uiOutput("nj_color_mapping")
                     )
                   ),
                   column(
@@ -3900,18 +3861,7 @@ ui <- dashboardPage(
                       column(
                         width = 4,
                         align = "center",
-                        selectInput(
-                          "nj_branch_label",
-                          "",
-                          choices = c(
-                            "Isolation Date" = "Isolation_Date",
-                            "Host" = "Host",
-                            "Country" = "Country",
-                            "City" = "City"
-                          ),
-                          selected = c("Country" = "Country"),
-                          width = "100%"
-                        )
+                        uiOutput("nj_branch_label")
                       ),
                       column(
                         width = 3,
@@ -4096,19 +4046,7 @@ ui <- dashboardPage(
                         align = "center",
                         conditionalPanel(
                           "input.nj_tipcolor_mapping_show==true & input.nj_mapping_show==false",
-                          selectInput(
-                            "nj_tipcolor_mapping",
-                            "",
-                            choices = c(
-                              "Assembly Name" = "assembly_name",
-                              "Isolation Date" = "Isolation_Date",
-                              "Host" = "Host",
-                              "Country" = "Country",
-                              "City" = "City"
-                            ),
-                            selected = c("Country" = "Country"),
-                            width = "100%"
-                          )
+                          uiOutput("nj_tipcolor_mapping")
                         ),
                         conditionalPanel(
                           "input.nj_tipcolor_mapping_show==false || input.nj_mapping_show==true",
@@ -4164,18 +4102,7 @@ ui <- dashboardPage(
                         ),
                         conditionalPanel(
                           "input.nj_tipshape_mapping_show==true",
-                          selectInput(
-                            "nj_tipshape_mapping",
-                            "",
-                            choices = c(
-                              "Isolation Date" = "Isolation_Date",
-                              "Host" = "Host",
-                              "Country" = "Country",
-                              "City" = "City"
-                            ),
-                            selected = c("Country" = "Country"),
-                            width = "100%"
-                          )
+                          uiOutput("nj_tipshape_mapping")
                         )
                       ),
                       column(
@@ -4357,19 +4284,7 @@ ui <- dashboardPage(
                           column(
                             width = 7,
                             align = "center",
-                            selectInput(
-                              "nj_fruit_variable",
-                              "",
-                              choices = c(
-                                "Assembly Name" = "assembly_name",
-                                "Isolation Date" = "Isolation_Date",
-                                "Host" = "Host",
-                                "Country" = "Country",
-                                "City" = "City"
-                              ),
-                              selected = c("Country" = "Country"),
-                              width = "100%"
-                            )
+                            uiOutput("nj_fruit_variable")
                           )
                         ),
                         fluidRow(
@@ -4982,21 +4897,7 @@ ui <- dashboardPage(
                       column(
                         width = 4,
                         align = "center",
-                        selectInput(
-                          "upgma_tiplab",
-                          label = "",
-                          choices = c(
-                            Index = "index",
-                            `Assembly ID` = "assembly_id",
-                            `Assembly Name` = "assembly_name",
-                            `Isolation Date` = "Isolation_Date",
-                            Host = "Host",
-                            Country = "Country",
-                            City = "City"
-                          ),
-                          selected = c(`Assembly Name` = "assembly_name"),
-                          width = "100%"
-                        )
+                        uiOutput("upgma_tiplab")
                       ),
                       column(
                         width = 3,
@@ -5160,18 +5061,7 @@ ui <- dashboardPage(
                     ),
                     conditionalPanel(
                       "input.upgma_mapping_show==true",
-                      selectInput(
-                        "upgma_color_mapping",
-                        "",
-                        choices = c(
-                          "Isolation Date" = "Isolation_Date",
-                          "Host" = "Host",
-                          "Country" = "Country",
-                          "City" = "City"
-                        ),
-                        selected = c("Host" = "Host"),
-                        width = "100%"
-                      )
+                      uiOutput("upgma_color_mapping")
                     )
                   ),
                   column(
@@ -5268,18 +5158,7 @@ ui <- dashboardPage(
                       column(
                         width = 4,
                         align = "center",
-                        selectInput(
-                          "upgma_branch_label",
-                          "",
-                          choices = c(
-                            "Isolation Date" = "Isolation_Date",
-                            "Host" = "Host",
-                            "Country" = "Country",
-                            "City" = "City"
-                          ),
-                          selected = c("Country" = "Country"),
-                          width = "100%"
-                        )
+                        uiOutput("upgma_branch_label")
                       ),
                       column(
                         width = 3,
@@ -5464,19 +5343,7 @@ ui <- dashboardPage(
                         align = "center",
                         conditionalPanel(
                           "input.upgma_tipcolor_mapping_show==true & input.upgma_mapping_show==false",
-                          selectInput(
-                            "upgma_tipcolor_mapping",
-                            "",
-                            choices = c(
-                              "Assembly Name" = "assembly_name",
-                              "Isolation Date" = "Isolation_Date",
-                              "Host" = "Host",
-                              "Country" = "Country",
-                              "City" = "City"
-                            ),
-                            selected = c("Country" = "Country"),
-                            width = "100%"
-                          )
+                          uiOutput("upgma_tipcolor_mapping")
                         ),
                         conditionalPanel(
                           "input.upgma_tipcolor_mapping_show==false || input.upgma_mapping_show==true",
@@ -5532,18 +5399,7 @@ ui <- dashboardPage(
                         ),
                         conditionalPanel(
                           "input.upgma_tipshape_mapping_show==true",
-                          selectInput(
-                            "upgma_tipshape_mapping",
-                            "",
-                            choices = c(
-                              "Isolation Date" = "Isolation_Date",
-                              "Host" = "Host",
-                              "Country" = "Country",
-                              "City" = "City"
-                            ),
-                            selected = c("Country" = "Country"),
-                            width = "100%"
-                          )
+                          uiOutput("upgma_tipshape_mapping")
                         )
                       ),
                       column(
@@ -5725,19 +5581,7 @@ ui <- dashboardPage(
                           column(
                             width = 7,
                             align = "center",
-                            selectInput(
-                              "upgma_fruit_variable",
-                              "",
-                              choices = c(
-                                "Assembly Name" = "assembly_name",
-                                "Isolation Date" = "Isolation_Date",
-                                "Host" = "Host",
-                                "Country" = "Country",
-                                "City" = "City"
-                              ),
-                              selected = c("Country" = "Country"),
-                              width = "100%"
-                            )
+                            uiOutput("upgma_fruit_variable")
                           )
                         ),
                         fluidRow(
@@ -8809,6 +8653,267 @@ server <- function(input, output, session) {
   
   plot_loc <- reactiveValues(cluster = NULL, metadata = list())
   
+  ### Reactive Render of Visualization Controls ----
+  
+  output$nj_tipcolor_mapping <- renderUI({
+    selectInput(
+      "nj_tipcolor_mapping",
+      "",
+      choices = if(ncol(DF1$meta) == 12) {
+        c(
+          `Assembly Name` = "assembly_name",
+          `Isolation Date` = "Isolation_Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        )
+      } else {
+        append(c(`Assembly Name` = "assembly_name", `Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+               names(DF1$meta)[13:ncol(DF1$meta)])
+      },
+      selected = c("Host" = "Host"),
+      width = "100%"
+    )
+  })
+  
+  output$upgma_tipcolor_mapping <- renderUI({
+    selectInput(
+      "upgma_tipcolor_mapping",
+      "",
+      choices = if(ncol(DF1$meta) == 12) {
+        c(
+          `Assembly Name` = "assembly_name",
+          `Isolation Date` = "Isolation_Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        )
+      } else {
+        append(c(`Assembly Name` = "assembly_name", `Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+               names(DF1$meta)[13:ncol(DF1$meta)])
+      },
+      selected = c("Host" = "Host"),
+      width = "100%"
+    )
+  })
+  
+  output$upgma_fruit_variable <- renderUI({
+    selectInput(
+      "upgma_fruit_variable",
+      "",
+      choices = if(ncol(DF1$meta) == 12) {
+        c(
+          `Isolation Date` = "Isolation_Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        )
+      } else {
+        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+               names(DF1$meta)[13:ncol(DF1$meta)])
+      },
+      selected = c("Country" = "Country"),
+      width = "100%"
+    )
+  })
+  
+  output$nj_fruit_variable <- renderUI({
+    selectInput(
+      "nj_fruit_variable",
+      "",
+      choices = if(ncol(DF1$meta) == 12) {
+        c(
+          `Isolation Date` = "Isolation_Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        )
+      } else {
+        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+               names(DF1$meta)[13:ncol(DF1$meta)])
+      },
+      selected = c("Country" = "Country"),
+      width = "100%"
+    )
+  })
+  
+  output$nj_tipshape_mapping <- renderUI({
+    selectInput(
+      "nj_tipshape_mapping",
+      "",
+      choices = if(ncol(DF1$meta) == 12) {
+        c(
+          `Isolation Date` = "Isolation_Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        )
+      } else {
+        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+               names(DF1$meta)[13:ncol(DF1$meta)])
+      },
+      selected = c("Host" = "Host"),
+      width = "100%"
+    )
+  })
+  
+  output$upgma_tipshape_mapping <- renderUI({
+    selectInput(
+      "upgma_tipshape_mapping",
+      "",
+      choices = if(ncol(DF1$meta) == 12) {
+        c(
+          `Isolation Date` = "Isolation_Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        )
+      } else {
+        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+               names(DF1$meta)[13:ncol(DF1$meta)])
+      },
+      selected = c("Host" = "Host"),
+      width = "100%"
+    )
+  })
+  
+  output$upgma_branch_label <- renderUI({
+    selectInput(
+      "upgma_branch_label",
+      "",
+      choices = if(ncol(DF1$meta) == 12) {
+        c(
+          `Isolation Date` = "Isolation_Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        )
+      } else {
+        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+               names(DF1$meta)[13:ncol(DF1$meta)])
+      },
+      selected = c("Host" = "Host"),
+      width = "100%"
+    )
+  })
+  
+  output$nj_branch_label <- renderUI({
+    selectInput(
+      "nj_branch_label",
+      "",
+      choices = if(ncol(DF1$meta) == 12) {
+        c(
+          `Isolation Date` = "Isolation_Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        )
+      } else {
+        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+               names(DF1$meta)[13:ncol(DF1$meta)])
+      },
+      selected = c("Host" = "Host"),
+      width = "100%"
+    )
+  })
+  
+  output$nj_color_mapping <- renderUI({
+    selectInput(
+      "nj_color_mapping",
+      "",
+      choices = if(ncol(DF1$meta) == 12) {
+        c(
+          `Isolation Date` = "Isolation_Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        )
+      } else {
+        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+               names(DF1$meta)[13:ncol(DF1$meta)])
+      },
+      selected = c("Host" = "Host"),
+      width = "100%"
+    )
+  })
+  
+  output$upgma_color_mapping <- renderUI({
+    selectInput(
+      "upgma_color_mapping",
+      "",
+      choices = if(ncol(DF1$meta) == 12) {
+        c(
+          `Isolation Date` = "Isolation_Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        )
+      } else {
+        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+               names(DF1$meta)[13:ncol(DF1$meta)])
+      },
+      selected = c("Host" = "Host"),
+      width = "100%"
+    )
+  })
+  
+  output$mst_node_label <- renderUI({
+    selectInput(
+      "mst_node_label",
+      label = "",
+      choices = names(DF1$meta)[-c(2, 5, 10, 11, 12)],
+      selected = "Assembly Name",
+      width = "100%"
+    )
+  })
+  
+  output$nj_tiplab <- renderUI({
+    selectInput(
+      "nj_tiplab",
+      label = "",
+      choices = if(ncol(DF1$meta) == 12) {
+        c(
+          Index = "index",
+          `Assembly ID` = "assembly_id",
+          `Assembly Name` = "assembly_name",
+          `Isolation Date` = "Isolation_Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        )
+      } else {
+        append(c(Index = "index", `Assembly ID` = "assembly_id", `Assembly Name` = "assembly_name",
+                 `Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+               names(DF1$meta)[13:ncol(DF1$meta)])
+      },
+      selected = c(`Assembly Name` = "assembly_name"),
+      width = "100%"
+    )
+  })
+  
+  output$upgma_tiplab <- renderUI({
+    selectInput(
+      "upgma_tiplab",
+      label = "",
+      choices = if(ncol(DF1$meta) == 12) {
+        c(
+          Index = "index",
+          `Assembly ID` = "assembly_id",
+          `Assembly Name` = "assembly_name",
+          `Isolation Date` = "Isolation_Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        )
+      } else {
+        append(c(Index = "index", `Assembly ID` = "assembly_id", `Assembly Name` = "assembly_name",
+                 `Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+               names(DF1$meta)[13:ncol(DF1$meta)])
+      },
+      selected = c(`Assembly Name` = "assembly_name"),
+      width = "100%"
+    )
+  })
   
   ### Render Plot field ----
   
@@ -10245,7 +10350,7 @@ server <- function(input, output, session) {
       reportVAR$report_list_mst <- list(entry_table = DF1$meta_true,
                                         scheme = DF1$schemeinfo, 
                                         tree = input$tree_algo,
-                                        na_handling = input$na_handling,
+                                        na_handling = if(anyNA(DF1$allelic_profile_true)){input$na_handling} else {NULL},
                                         distance = "Hamming Distances",
                                         version = c(phylotraceVersion, "KMA-1.3.23"),
                                         plot = "MST")
