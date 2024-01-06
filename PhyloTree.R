@@ -806,9 +806,35 @@ textInput_append_city_multi <- paste0('
     });
   ')
 
+textInput_new_var_name <- paste0('
+    // Function to apply JavaScript code
+    function applyJavaScript_new_var_name() {
+      $("#new_var_name").on("input", function() {
+    var value = $(this).val();
+    $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
+  }); 
+    }
+
+    // Check if the textInput element is available
+    function checkElement_new_var_name() {
+      if ($("#new_var_name").length) {
+        applyJavaScript_new_var_name();
+        setTimeout(checkElement_new_var_name, 100);
+      } else {
+        setTimeout(checkElement_new_var_name, 100); // Check again in 100 milliseconds
+      }
+    }
+
+    // Initial check on document ready
+    $(document).ready(function() {
+      checkElement_new_var_name();
+    });
+  ')
 # User Interface ----
 
 ui <- dashboardPage(
+  
+  title = "PhyloTrace 1.0.0",
   
   # Title
   dashboardHeader(title = span(
@@ -905,6 +931,7 @@ ui <- dashboardPage(
     tags$style("#upgma_h {padding: initial; margin-top: 3px; width: 75px; text-align: center}"),
     tags$style("#upgma_zoom irs.irs--shiny.js-irs-4.irs.irs-line {width: 108px}"),
     tags$style(".textinput_var .form-group.shiny-input-container {padding: 0px 0px 0px 0px}"),
+    tags$style(type='text/css', '#show_cust_var {color:white; text-align: -webkit-right; font-size: 17px; white-space: pre-wrap; max-width: 100%;}'),
     br(), br(),
     uiOutput("loaded_scheme"),
     sidebarMenu(
@@ -2273,6 +2300,7 @@ ui <- dashboardPage(
         tabName = "visualization",
         
         fluidRow(
+          tags$script(HTML(textInput_new_var_name)),
           tags$script(HTML(jpeg_mst)),
           tags$script(HTML(png_mst)),
           tags$script(HTML(bmp_mst)),
@@ -5810,8 +5838,12 @@ server <- function(input, output, session) {
   
   # Get rhandsontable
   get.entry.table.meta <- reactive({
-    table <- hot_to_r(input$db_entries)
-    select(table, 1:(12 + length(DF1$cust_var)))
+    if(!is.null(hot_to_r(input$db_entries))){
+      table <- hot_to_r(input$db_entries)
+      tabletest <<- table
+      varss <<- DF1$cust_var
+      select(table, 1:(12 + length(DF1$cust_var)))
+    }
   })
   
   # Function to find columns with varying values
@@ -5871,7 +5903,7 @@ server <- function(input, output, session) {
   ### Connect to local Database ----
   
   observe({
-  
+    
     # Logical any local database present 
     DF1$exist <-
       (length(dir_ls(paste0(
@@ -6070,6 +6102,7 @@ server <- function(input, output, session) {
       output$distmatrix_sidebar <- NULL
       output$download_scheme_info <- NULL
       output$download_loci <- NULL
+      output$entry_table_controls <- NULL
       
     } else { # If local Database available
       
@@ -6441,6 +6474,10 @@ server <- function(input, output, session) {
                 }
               }
               
+              DF1$change <- FALSE
+              
+              DF1$no_na_switch <- FALSE
+              
               DF1$meta <- select(DF1$data, 1:(12 + length(DF1$cust_var)))
               
               DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
@@ -6537,86 +6574,100 @@ server <- function(input, output, session) {
                   )
                 )
               }
+              # Render custom variable display
+              
+              output$show_cust_var <- renderPrint({
+                cat(paste0(DF1$cust_var, "\n"))
+              })
+              
               
               # Render edit/save button for entry metadata
               output$entrytable_sidebar <- renderUI({
                 if(!class(DF1$data) == "NULL") {
                   column(
-                  width = 12,
-                  align = "center",
-                  br(), 
-                  fluidRow(
-                    column(1),
-                    column(
-                      width = 10,
-                      align = "left",
-                      if(nrow(DF1$data) > 40) {
-                        checkboxInput(
-                          "table_height",
-                          "Show full table",
-                          value = FALSE
-                        )
-                      }
-                    )
-                  ),
-                  br(), br(), br(),
-                  fluidRow(
-                    column(
-                      width = 12,
-                      HTML(
-                        paste(
-                          tags$span(style='color: white; font-size: 18px; margin-bottom: 5px', 'Custom variables')
-                        )
+                    width = 12,
+                    align = "center",
+                    br(), 
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 10,
+                        align = "left",
+                        if(nrow(DF1$data) > 40) {
+                          checkboxInput(
+                            "table_height",
+                            "Show full table",
+                            value = FALSE
+                          )
+                        }
                       )
-                    )
-                  ),
-                  br(),
-                  fluidRow(
-                    column(
-                      width = 8,
-                      div(
-                        class = "textinput_var",
-                        textInput(
-                          "new_var_name",
-                          label = h5("Name", style = "color:white; margin-bottom: 0px"),
+                    ),
+                    br(), br(), br(),
+                    fluidRow(
+                      column(
+                        width = 12,
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 18px; margin-bottom: 5px', 'Custom variables')
+                          )
                         )
                       )
                     ),
-                    column(
-                      width = 2,
-                      actionButton(
-                        "add_new_variable",
-                        "",
-                        style = "background: green; height: 35px; width: 38px; margin-top: 30px; margin-left: 5px",
-                        icon = icon("plus")
-                      )
-                    )
-                  ),
-                  fluidRow(
-                    column(
-                      width = 8,
-                      align = "left",
-                      div(
-                        class = "textinput_var",
-                        selectizeInput(
-                          "del_which_var",
+                    br(),
+                    fluidRow(
+                      column(
+                        width = 8,
+                        div(
+                          class = "textinput_var",
+                          textInput(
+                            "new_var_name",
+                            label = h5("Name", style = "color:white; margin-bottom: 0px"),
+                          )
+                        )
+                      ),
+                      column(
+                        width = 2,
+                        actionButton(
+                          "add_new_variable",
                           "",
-                          NULL
+                          style = "background: green; height: 35px; width: 38px; margin-top: 30px; margin-left: 5px",
+                          icon = icon("plus")
                         )
                       )
                     ),
-                    column(
-                      width = 2,
-                      align = "left",
-                      actionButton(
-                        "delete_new_variable",
-                        "",
-                        style = "background: #FF5964; height: 35px; width: 38px; margin-top: 20px; margin-left: 5px",
-                        icon = icon("minus")
+                    fluidRow(
+                      column(
+                        width = 8,
+                        align = "left",
+                        div(
+                          class = "textinput_var",
+                          selectInput(
+                            "del_which_var",
+                            "",
+                            DF1$cust_var
+                          )
+                        )
+                      ),
+                      column(
+                        width = 2,
+                        align = "left",
+                        actionButton(
+                          "delete_new_variable",
+                          "",
+                          style = "background: #FF5964; height: 35px; width: 38px; margin-top: 20px; margin-left: 5px",
+                          icon = icon("minus")
+                        )
+                      )
+                    ),
+                    br(), br(),
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 8,
+                        textOutput("show_cust_var")
                       )
                     )
                   )
-                )
                 }
               })
               
@@ -6828,15 +6879,44 @@ server <- function(input, output, session) {
               
               if (!is.null(DF1$data)) {
                 
-                  observe({
-                    
-                    if (!is.null(DF1$data)) {
-                      if (nrow(DF1$data) == 1) {
+                observe({
+                  
+                  if (!is.null(DF1$data)) {
+                    if (nrow(DF1$data) == 1) {
+                      output$db_entries <- renderRHandsontable({
+                        rhandsontable(
+                          select(DF1$data, 1:(12 + length(DF1$cust_var))),
+                          rowHeaders = NULL
+                        ) %>%
+                          hot_col(1, 
+                                  readOnly = TRUE,
+                                  valign = "htMiddle",
+                                  halign = "htCenter") %>%
+                          hot_col(3:(12 + length(DF1$cust_var)), 
+                                  valign = "htMiddle",
+                                  halign = "htLeft") %>%
+                          hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                          hot_col(2, type = "checkbox", width = "auto",
+                                  valign = "htTop",
+                                  halign = "htCenter") %>%
+                          hot_context_menu(allowRowEdit = FALSE,
+                                           allowColEdit = FALSE,
+                                           allowReadOnly = FALSE) %>%
+                          hot_rows(fixedRowsTop = 0)
+                      })
+                    } else if (between(nrow(DF1$data), 1, 40)) {
+                      if (length(input$compare_select) > 0) {
                         output$db_entries <- renderRHandsontable({
+                          row_highlight <- true_rows()-1
                           rhandsontable(
-                            select(DF1$data, 1:(12 + length(DF1$cust_var))),
-                            rowHeaders = NULL
+                            select(DF1$data, 1:(12 + length(DF1$cust_var)), input$compare_select),
+                            col_highlight = diff_allele()-1,
+                            rowHeaders = NULL,
+                            row_highlight = row_highlight
                           ) %>%
+                            hot_col((12 + length(DF1$cust_var)):((12 + length(DF1$cust_var))+length(input$compare_select)), 
+                                    valign = "htMiddle",
+                                    halign = "htCenter") %>%
                             hot_col(1, 
                                     readOnly = TRUE,
                                     valign = "htMiddle",
@@ -6844,47 +6924,18 @@ server <- function(input, output, session) {
                             hot_col(3:(12 + length(DF1$cust_var)), 
                                     valign = "htMiddle",
                                     halign = "htLeft") %>%
-                            hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                            hot_col(2, type = "checkbox", width = "auto",
-                                    valign = "htTop",
-                                    halign = "htCenter") %>%
                             hot_context_menu(allowRowEdit = FALSE,
                                              allowColEdit = FALSE,
                                              allowReadOnly = FALSE) %>%
-                            hot_rows(fixedRowsTop = 0)
-                        })
-                      } else if (between(nrow(DF1$data), 1, 40)) {
-                        if (length(input$compare_select) > 0) {
-                          output$db_entries <- renderRHandsontable({
-                            row_highlight <- true_rows()-1
-                            rhandsontable(
-                              select(DF1$data, 1:(12 + length(DF1$cust_var)), input$compare_select),
-                              col_highlight = diff_allele()-1,
-                              rowHeaders = NULL,
-                              row_highlight = row_highlight
-                            ) %>%
-                              hot_col((12 + length(DF1$cust_var)):((12 + length(DF1$cust_var))+length(input$compare_select)), 
-                                      valign = "htMiddle",
-                                      halign = "htCenter") %>%
-                              hot_col(1, 
-                                      readOnly = TRUE,
-                                      valign = "htMiddle",
-                                      halign = "htCenter") %>%
-                              hot_col(3:(12 + length(DF1$cust_var)), 
-                                      valign = "htMiddle",
-                                      halign = "htLeft") %>%
-                              hot_context_menu(allowRowEdit = FALSE,
-                                               allowColEdit = FALSE,
-                                               allowReadOnly = FALSE) %>%
-                              hot_col(2, type = "checkbox", width = "auto",
-                                      valign = "htTop",
-                                      halign = "htCenter",
-                                      strict = TRUE,
-                                      allowInvalid = FALSE,
-                                      copyable = TRUE) %>%
-                              hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                              hot_rows(fixedRowsTop = 0) %>%
-                              hot_col(c(1, 3:((12 + length(DF1$cust_var)) + length(input$compare_select))), renderer = "
+                            hot_col(2, type = "checkbox", width = "auto",
+                                    valign = "htTop",
+                                    halign = "htCenter",
+                                    strict = TRUE,
+                                    allowInvalid = FALSE,
+                                    copyable = TRUE) %>%
+                            hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                            hot_rows(fixedRowsTop = 0) %>%
+                            hot_col(1, renderer = "
             function (instance, td, row, col, prop, value, cellProperties) {
                      Handsontable.renderers.TextRenderer.apply(this, arguments);
 
@@ -6898,8 +6949,8 @@ server <- function(input, output, session) {
 
                      }
             }") %>%
-                              hot_col(diff_allele(),
-                                      renderer = "
+                            hot_col(diff_allele(),
+                                    renderer = "
                 function(instance, td, row, col, prop, value, cellProperties) {
                   Handsontable.renderers.NumericRenderer.apply(this, arguments);
 
@@ -6912,32 +6963,32 @@ server <- function(input, output, session) {
                     td.style.background = '#FF8F8F';
                   }
               }"
-                              ) 
-                          })
-                        } else {
-                          output$db_entries <- renderRHandsontable({
-                            row_highlight <- true_rows()-1
-                            rhandsontable(
-                              select(DF1$data, 1:(12 + length(DF1$cust_var))),
-                              rowHeaders = NULL,
-                              row_highlight = row_highlight
-                            ) %>%
-                              hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                              hot_col(1, 
-                                      readOnly = TRUE,
-                                      valign = "htMiddle",
-                                      halign = "htCenter") %>%
-                              hot_col(3:(12 + length(DF1$cust_var)), 
-                                      valign = "htMiddle",
-                                      halign = "htLeft") %>%
-                              hot_col(2, type = "checkbox", width = "auto",
-                                      valign = "htTop",
-                                      halign = "htCenter") %>%
-                              hot_context_menu(allowRowEdit = FALSE,
-                                               allowColEdit = FALSE,
-                                               allowReadOnly = FALSE) %>%
-                              hot_rows(fixedRowsTop = 0) %>%
-                              hot_col(c(1, 3:(12 + length(DF1$cust_var))), renderer = "
+                            ) 
+                        })
+                      } else {
+                        output$db_entries <- renderRHandsontable({
+                          row_highlight <- true_rows()-1
+                          rhandsontable(
+                            select(DF1$data, 1:(12 + length(DF1$cust_var))),
+                            rowHeaders = NULL,
+                            row_highlight = row_highlight
+                          ) %>%
+                            hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                            hot_col(1, 
+                                    readOnly = TRUE,
+                                    valign = "htMiddle",
+                                    halign = "htCenter") %>%
+                            hot_col(3:(12 + length(DF1$cust_var)), 
+                                    valign = "htMiddle",
+                                    halign = "htLeft") %>%
+                            hot_col(2, type = "checkbox", width = "auto",
+                                    valign = "htTop",
+                                    halign = "htCenter") %>%
+                            hot_context_menu(allowRowEdit = FALSE,
+                                             allowColEdit = FALSE,
+                                             allowReadOnly = FALSE) %>%
+                            hot_rows(fixedRowsTop = 0) %>%
+                            hot_col(1, renderer = "
             function (instance, td, row, col, prop, value, cellProperties) {
                      Handsontable.renderers.TextRenderer.apply(this, arguments);
 
@@ -6951,40 +7002,40 @@ server <- function(input, output, session) {
 
                      }
             }")
-                          })
-                        }
-                      } else {
-                        if (length(input$compare_select) > 0) {
-                          output$db_entries <- renderRHandsontable({
-                            rhandsontable(
-                              select(DF1$data, 1:(12 + length(DF1$cust_var)), input$compare_select),
-                              col_highlight = diff_allele()-1,
-                              rowHeaders = NULL,
-                              height = table_height(),
-                              row_highlight = true_rows()-1
+                        })
+                      }
+                    } else {
+                      if (length(input$compare_select) > 0) {
+                        output$db_entries <- renderRHandsontable({
+                          rhandsontable(
+                            select(DF1$data, 1:(12 + length(DF1$cust_var)), input$compare_select),
+                            col_highlight = diff_allele()-1,
+                            rowHeaders = NULL,
+                            height = table_height(),
+                            row_highlight = true_rows()-1
+                          ) %>%
+                            hot_col((12 + length(DF1$cust_var)):((12 + length(DF1$cust_var))+length(input$compare_select)), 
+                                    valign = "htMiddle",
+                                    halign = "htCenter") %>%
+                            hot_col(3:(12 + length(DF1$cust_var)), 
+                                    valign = "htMiddle",
+                                    halign = "htLeft") %>%
+                            hot_col(1, 
+                                    readOnly = TRUE,
+                                    valign = "htMiddle",
+                                    halign = "htCenter") %>%
+                            hot_context_menu(allowRowEdit = FALSE,
+                                             allowColEdit = FALSE,
+                                             allowReadOnly = FALSE)  %>%
+                            hot_col(2, type = "checkbox", width = "auto",
+                                    valign = "htTop",
+                                    halign = "htCenter",
+                                    allowInvalid = FALSE,
+                                    copyable = TRUE,
                             ) %>%
-                              hot_col((12 + length(DF1$cust_var)):((12 + length(DF1$cust_var))+length(input$compare_select)), 
-                                      valign = "htMiddle",
-                                      halign = "htCenter") %>%
-                              hot_col(3:(12 + length(DF1$cust_var)), 
-                                      valign = "htMiddle",
-                                      halign = "htLeft") %>%
-                              hot_col(1, 
-                                      readOnly = TRUE,
-                                      valign = "htMiddle",
-                                      halign = "htCenter") %>%
-                              hot_context_menu(allowRowEdit = FALSE,
-                                               allowColEdit = FALSE,
-                                               allowReadOnly = FALSE)  %>%
-                              hot_col(2, type = "checkbox", width = "auto",
-                                      valign = "htTop",
-                                      halign = "htCenter",
-                                      allowInvalid = FALSE,
-                                      copyable = TRUE,
-                              ) %>%
-                              hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                              hot_rows(fixedRowsTop = 0) %>%
-                              hot_col(c(1, 3:((12 + length(DF1$cust_var)) + length(input$compare_select))), renderer = "
+                            hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                            hot_rows(fixedRowsTop = 0) %>%
+                            hot_col(1, renderer = "
             function (instance, td, row, col, prop, value, cellProperties) {
                      Handsontable.renderers.TextRenderer.apply(this, arguments);
 
@@ -6998,8 +7049,8 @@ server <- function(input, output, session) {
 
                      }
             }") %>%
-                              hot_col(diff_allele(),
-                                      renderer = "
+                            hot_col(diff_allele(),
+                                    renderer = "
                 function(instance, td, row, col, prop, value, cellProperties) {
                   Handsontable.renderers.NumericRenderer.apply(this, arguments);
 
@@ -7012,29 +7063,29 @@ server <- function(input, output, session) {
                     td.style.background = '#FF8F8F';
                   }
               }") 
-                          })
-                        } else {
-                          output$db_entries <- renderRHandsontable({
-                            row_highlight <- true_rows()-1
-                            rhandsontable(
-                              select(DF1$data, 1:(12 + length(DF1$cust_var))),
-                              rowHeaders = NULL,
-                              height = table_height(),
-                              row_highlight = row_highlight
-                            ) %>%
-                              hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                              hot_col(1, 
-                                      readOnly = TRUE,
-                                      valign = "htMiddle",
-                                      halign = "htCenter") %>%
-                              hot_col(3:(12 + length(DF1$cust_var)), 
-                                      valign = "htMiddle",
-                                      halign = "htLeft") %>%
-                              hot_context_menu(allowRowEdit = FALSE,
-                                               allowColEdit = FALSE,
-                                               allowReadOnly = FALSE) %>%
-                              hot_rows(fixedRowsTop = 0) %>%
-                              hot_col(append(1, 3:(12 + length(DF1$cust_var))), renderer = "
+                        })
+                      } else {
+                        output$db_entries <- renderRHandsontable({
+                          row_highlight <- true_rows()-1
+                          rhandsontable(
+                            select(DF1$data, 1:(12 + length(DF1$cust_var))),
+                            rowHeaders = NULL,
+                            height = table_height(),
+                            row_highlight = row_highlight
+                          ) %>%
+                            hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                            hot_col(1, 
+                                    readOnly = TRUE,
+                                    valign = "htMiddle",
+                                    halign = "htCenter") %>%
+                            hot_col(3:(12 + length(DF1$cust_var)), 
+                                    valign = "htMiddle",
+                                    halign = "htLeft") %>%
+                            hot_context_menu(allowRowEdit = FALSE,
+                                             allowColEdit = FALSE,
+                                             allowReadOnly = FALSE) %>%
+                            hot_rows(fixedRowsTop = 0) %>%
+                            hot_col(1, renderer = "
             function (instance, td, row, col, prop, value, cellProperties) {
                      Handsontable.renderers.TextRenderer.apply(this, arguments);
 
@@ -7047,42 +7098,48 @@ server <- function(input, output, session) {
                        }
                      }
             }") %>%
-                              hot_col(2, type = "checkbox", width = "auto",
-                                      valign = "htTop", halign = "htCenter")
-                          })
-                        }
+                            hot_col(2, type = "checkbox", width = "auto",
+                                    valign = "htTop", halign = "htCenter")
+                        })
                       }
                     }
-                    
-                    # Dynamic save button when rhandsontable changes
-                    
-                    output$edit_entry_table <- renderUI({
-                      
-                      if(!identical(get.entry.table.meta(), DF1$meta)) {
-                        fluidRow(
-                          column(
-                            width = 5,
-                            HTML(
-                              paste(
-                                tags$span(style='color: white; font-size: 16px; position: absolute; bottom: -30px; right: -5px', 'Confirm changes')
-                              )
-                            )
-                          ),
-                          column(
-                            width = 3,
-                            actionButton(
-                              "edit_button",
-                              "",
-                              icon = icon("bookmark"),
-                              class = "pulsating-button"
+                  }
+                  
+                  # Dynamic save button when rhandsontable changes
+                  
+                  output$edit_entry_table <- renderUI({
+                    if((DF1$change == TRUE) | !identical(get.entry.table.meta(), DF1$meta)) {
+                      fluidRow(
+                        column(
+                          width = 5,
+                          HTML(
+                            paste(
+                              tags$span(style='color: white; font-size: 16px; position: absolute; bottom: -30px; right: -5px', 'Confirm changes')
                             )
                           )
+                        ),
+                        column(
+                          width = 3,
+                          actionButton(
+                            "edit_button",
+                            "",
+                            icon = icon("bookmark"),
+                            class = "pulsating-button"
+                          )
+                        ),
+                        column(
+                          width = 4,
+                          actionButton(
+                            "undo_changes",
+                            "Undo",
+                            icon = icon("repeat")
+                          )
                         )
-                      } else {NULL}
-                      
-                    })
-                    
+                      )
+                    } else {NULL}
                   })
+                  
+                })
                 
                 # Hide no entry message
                 output$db_no_entries <- NULL
@@ -7196,249 +7253,248 @@ server <- function(input, output, session) {
                 })
                 
               }
+            
+            #### Render Allele Differences as Highlights ----
+            
+            diff_allele <- reactive({
+              if (!class(DF1$data) == "NULL") {
+                var_alleles(select(DF1$data, input$compare_select)) + (12 + length(DF1$cust_var))
+              }
+            })
+            
+            true_rows <- reactive({
+              if (!class(DF1$data) == "NULL") {
+                which(DF1$data$Include == TRUE, )
+              }
               
-              #### Render Allele Differences as Highlights ----
-              
-              diff_allele <- reactive({
-                if (!class(DF1$data) == "NULL") {
-                  var_alleles(select(DF1$data, input$compare_select)) + (12 + length(DF1$cust_var))
-                }
-              })
-              
-              true_rows <- reactive({
-                if (!class(DF1$data) == "NULL") {
-                  true <- DF1$data[which(DF1$data$Include == TRUE, ),]
-                  as.numeric(rownames(true))
-                }
-                
-              })
-              
-              
-              # Render delete entry box UI
-              output$delete_box <- renderUI({
-                box(
-                  solidHeader = TRUE,
-                  status = "primary",
-                  width = "100%",
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "center",
-                      h3(p("Delete Entries"), style = "color:white")
-                    )
-                  ),
-                  hr(),
-                  fluidRow(
-                    column(width = 1),
-                    column(
-                      width = 2,
-                      align = "right",
-                      br(),
-                      h5("Index", style = "color:white; margin-bottom: 0px;")
-                    ),
-                    column(
-                      width = 6,
-                      align = "center",
-                      uiOutput("delete_select")
-                    ),
-                    column(
-                      width = 2,
-                      align = "center",
-                      br(),
-                      uiOutput("del_bttn")
-                    )
-                  ),
-                  br()
-                )
-              })
-              
-              # Render loci comparison box UI
-              output$compare_allele_box <- renderUI({
-                box(
-                  solidHeader = TRUE,
-                  status = "primary",
-                  width = "100%",
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "center",
-                      h3(p("Compare Loci"), style = "color:white")
-                    )
-                  ),
-                  hr(),
+            })
+            
+            
+            # Render delete entry box UI
+            output$delete_box <- renderUI({
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                fluidRow(
                   column(
                     width = 12,
                     align = "center",
+                    h3(p("Delete Entries"), style = "color:white")
+                  )
+                ),
+                hr(),
+                fluidRow(
+                  column(width = 1),
+                  column(
+                    width = 2,
+                    align = "right",
                     br(),
-                    uiOutput("compare_select"),
-                    br(),
-                    column(3),
-                    column(
-                      width = 8,
-                      align = "left",
-                      uiOutput("compare_difference_box")
-                    )
+                    h5("Index", style = "color:white; margin-bottom: 0px;")
                   ),
-                  br()
-                )
-              })
-              
-              # Render entry table download box UI
-              output$download_entries <- renderUI({
-                box(
-                  solidHeader = TRUE,
-                  status = "primary",
-                  width = "100%",
-                  fluidRow(
+                  column(
+                    width = 6,
+                    align = "center",
+                    uiOutput("delete_select")
+                  ),
+                  column(
+                    width = 2,
+                    align = "center",
+                    br(),
+                    uiOutput("del_bttn")
+                  )
+                ),
+                br()
+              )
+            })
+            
+            # Render loci comparison box UI
+            output$compare_allele_box <- renderUI({
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                fluidRow(
+                  column(
+                    width = 12,
+                    align = "center",
+                    h3(p("Compare Loci"), style = "color:white")
+                  )
+                ),
+                hr(),
+                column(
+                  width = 12,
+                  align = "center",
+                  br(),
+                  uiOutput("compare_select"),
+                  br(),
+                  column(3),
+                  column(
+                    width = 8,
+                    align = "left",
+                    uiOutput("compare_difference_box")
+                  )
+                ),
+                br()
+              )
+            })
+            
+            # Render entry table download box UI
+            output$download_entries <- renderUI({
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                fluidRow(
+                  column(
+                    width = 12,
+                    align = "center",
+                    h3(p("Download Table"), style = "color:white")
+                  )
+                ),
+                hr(),
+                fluidRow(
+                  column(2),
+                  column(
+                    width = 10,
+                    align = "left",
+                    br(),
+                    checkboxInput(
+                      "download_table_include",
+                      label = h5("Only included entries (Include = TRUE)", style = "color:white; margin-top: 4px")
+                    ),
+                    checkboxInput(
+                      "download_table_loci",
+                      label = h5("Include displayed loci", style = "color:white; margin-top: 4px"),
+                      value = FALSE
+                    ),
+                    br(),
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 12,
+                    align = "center",
+                    downloadBttn(
+                      "download_entry_table",
+                      style = "simple",
+                      label = "",
+                      size = "sm",
+                      icon = icon("download"),
+                      color = "primary"
+                    )
+                  )
+                ),
+                br()
+              )
+            })
+            
+            # Render entry deletion select input
+            output$delete_select <- renderUI({
+              pickerInput("select_delete",
+                          label = "",
+                          choices = DF1$data[, "Index"],
+                          options = list(
+                            `live-search` = TRUE,
+                            `actions-box` = TRUE,
+                            size = 10,
+                            style = "background-color: white; border-radius: 5px;"
+                          ),
+                          multiple = TRUE)
+            })
+            
+            # Render delete entry button
+            output$del_bttn <- renderUI({
+              actionBttn(
+                "del_button",
+                label = "",
+                color = "danger",
+                size = "sm",
+                style = "material-circle",
+                icon = icon("xmark")
+              )
+            })
+            
+            #### Missing Values UI ----
+            
+            # Missing values calculations and table 
+            NA_table <- DF1$allelic_profile[, colSums(is.na(DF1$allelic_profile)) != 0]
+            
+            NA_table <- NA_table[rowSums(is.na(NA_table)) != 0,]
+            
+            NA_table[is.na(NA_table)] <- "NA"
+            
+            NA_table <- NA_table %>% 
+              cbind("Assembly Name" = DF1$meta[rownames(NA_table),]$`Assembly Name`) %>%
+              cbind("Errors" = DF1$meta[rownames(NA_table),]$Errors) %>%
+              relocate("Assembly Name", "Errors")
+            
+            # Render missing values Table
+            output$table_missing_values <- renderRHandsontable({
+              rhandsontable(
+                NA_table,
+                rowHeaders = NULL
+              ) %>%
+                hot_context_menu(allowRowEdit = FALSE,
+                                 allowColEdit = FALSE,
+                                 allowReadOnly = TRUE) %>%
+                hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                hot_rows(fixedRowsTop = 0) %>%
+                hot_col(1:ncol(NA_table), valign = "htMiddle", halign = "htCenter")
+            })
+            
+            # Render missing value informatiojn box UI
+            output$missing_values <- renderUI({
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                fluidRow(
+                  div(
+                    class = "white",
                     column(
                       width = 12,
-                      align = "center",
-                      h3(p("Download Table"), style = "color:white")
-                    )
-                  ),
-                  hr(),
-                  fluidRow(
-                    column(2),
-                    column(
-                      width = 10,
                       align = "left",
-                      br(),
-                      checkboxInput(
-                        "download_table_include",
-                        label = h5("Only included entries (Include = TRUE)", style = "color:white; margin-top: 4px")
-                      ),
-                      checkboxInput(
-                        "download_table_loci",
-                        label = h5("Include displayed loci", style = "color:white; margin-top: 4px"),
-                        value = FALSE
-                      ),
-                      br(),
-                    )
-                  ),
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "center",
-                      downloadBttn(
-                        "download_entry_table",
-                        style = "simple",
-                        label = "",
-                        size = "sm",
-                        icon = icon("download"),
-                        color = "primary"
-                      )
-                    )
-                  ),
-                  br()
-                )
-              })
-              
-              # Render entry deletion select input
-              output$delete_select <- renderUI({
-                pickerInput("select_delete",
-                            label = "",
-                            choices = DF1$data[, "Index"],
-                            options = list(
-                              `live-search` = TRUE,
-                              `actions-box` = TRUE,
-                              size = 10,
-                              style = "background-color: white; border-radius: 5px;"
-                            ),
-                            multiple = TRUE)
-              })
-              
-              # Render delete entry button
-              output$del_bttn <- renderUI({
-                actionBttn(
-                  "del_button",
-                  label = "",
-                  color = "danger",
-                  size = "sm",
-                  style = "material-circle",
-                  icon = icon("xmark")
-                )
-              })
-              
-              #### Missing Values UI ----
-              
-              # Missing values calculations and table 
-              NA_table <- DF1$allelic_profile[, colSums(is.na(DF1$allelic_profile)) != 0]
-              
-              NA_table <- NA_table[rowSums(is.na(NA_table)) != 0,]
-              
-              NA_table[is.na(NA_table)] <- "NA"
-              
-              NA_table <- NA_table %>% 
-                cbind("Assembly Name" = DF1$meta[rownames(NA_table),]$`Assembly Name`) %>%
-                cbind("Errors" = DF1$meta[rownames(NA_table),]$Errors) %>%
-                relocate("Assembly Name", "Errors")
-              
-              # Render missing values Table
-              output$table_missing_values <- renderRHandsontable({
-                rhandsontable(
-                  NA_table,
-                  rowHeaders = NULL
-                ) %>%
-                  hot_context_menu(allowRowEdit = FALSE,
-                                   allowColEdit = FALSE,
-                                   allowReadOnly = TRUE) %>%
-                  hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                  hot_rows(fixedRowsTop = 0) %>%
-                  hot_col(1:ncol(NA_table), valign = "htMiddle", halign = "htCenter")
-              })
-              
-              # Render missing value informatiojn box UI
-              output$missing_values <- renderUI({
-                box(
-                  solidHeader = TRUE,
-                  status = "primary",
-                  width = "100%",
-                  fluidRow(
-                    div(
-                      class = "white",
-                      column(
-                        width = 12,
-                        align = "left",
-                        br(), 
-                        HTML(
-                          paste0("There are ", 
-                                 strong(as.character(sum(is.na(DF1$data)))), 
-                                 " unsuccessful allele allocations (NA). ",
-                                 strong(sum(sapply(DF1$allelic_profile, anyNA))),
-                                 " out of ",
-                                 strong(ncol(DF1$allelic_profile)),
-                                 " total loci in this scheme contain NA's (",
-                                 strong(round((sum(sapply(DF1$allelic_profile, anyNA)) / ncol(DF1$allelic_profile) * 100), 1)),
-                                 " %). ",
-                                 "Decide how these missing values should be treated:")
-                          
-                        ),
-                        br()
-                      )
-                    )
-                  ),
-                  fluidRow(
-                    column(1),
-                    column(
-                      width = 11,
-                      align = "left",
-                      br(),
-                      prettyRadioButtons(
-                        "na_handling",
-                        "",
-                        choiceNames = c("Ignore missing values for pairwise comparison",
-                                        "Omit loci with missing values for all assemblies",
-                                        "Treat missing values as allele variant"),
-                        choiceValues = c("ignore_na", "omit", "category"),
-                        shape = "curve",
-                        selected = c("ignore_na")
+                      br(), 
+                      HTML(
+                        paste0("There are ", 
+                               strong(as.character(sum(is.na(DF1$data)))), 
+                               " unsuccessful allele allocations (NA). ",
+                               strong(sum(sapply(DF1$allelic_profile, anyNA))),
+                               " out of ",
+                               strong(ncol(DF1$allelic_profile)),
+                               " total loci in this scheme contain NA's (",
+                               strong(round((sum(sapply(DF1$allelic_profile, anyNA)) / ncol(DF1$allelic_profile) * 100), 1)),
+                               " %). ",
+                               "Decide how these missing values should be treated:")
+                        
                       ),
                       br()
                     )
                   )
+                ),
+                fluidRow(
+                  column(1),
+                  column(
+                    width = 11,
+                    align = "left",
+                    br(),
+                    prettyRadioButtons(
+                      "na_handling",
+                      "",
+                      choiceNames = c("Ignore missing values for pairwise comparison",
+                                      "Omit loci with missing values for all assemblies",
+                                      "Treat missing values as allele variant"),
+                      choiceValues = c("ignore_na", "omit", "category"),
+                      shape = "curve",
+                      selected = c("ignore_na")
+                    ),
+                    br()
+                  )
                 )
-              })  
-              
+              )
+            })  
+            
             } else { 
               #if no typed assemblies present
               
@@ -7537,6 +7593,7 @@ server <- function(input, output, session) {
               output$download_entries <- NULL
               output$missing_values <- NULL
               output$delete_box <- NULL
+              output$entry_table_controls <- NULL
               
             }
           }
@@ -7645,49 +7702,52 @@ server <- function(input, output, session) {
     # Conditional Missing Values Tab
     if(!is.null(DF1$allelic_profile)) {
       if(anyNA(DF1$allelic_profile)) {
-        output$menu <- renderMenu(
-          sidebarMenu(
-            menuItem(
-              text = "Database Browser",
-              tabName = "database",
-              icon = icon("hard-drive"),
-              startExpanded = TRUE,
-              menuSubItem(
-                text = "Browse Entries",
-                tabName = "db_browse_entries"
+        if(DF1$no_na_switch == FALSE) {
+          output$menu <- renderMenu(
+            sidebarMenu(
+              menuItem(
+                text = "Database Browser",
+                tabName = "database",
+                icon = icon("hard-drive"),
+                startExpanded = TRUE,
+                menuSubItem(
+                  text = "Browse Entries",
+                  tabName = "db_browse_entries"
+                ),
+                menuSubItem(
+                  text = "Scheme Info",
+                  tabName = "db_schemeinfo"
+                ),
+                menuSubItem(
+                  text = "Distance Matrix",
+                  tabName = "db_distmatrix"
+                ),
+                menuSubItem(
+                  text = "Missing Values",
+                  tabName = "db_missing_values",
+                  selected = TRUE,
+                  icon = icon("triangle-exclamation")
+                )
               ),
-              menuSubItem(
-                text = "Scheme Info",
-                tabName = "db_schemeinfo"
+              menuItem(
+                text = "Add Scheme",
+                tabName = "init",
+                icon = icon("plus")
               ),
-              menuSubItem(
-                text = "Distance Matrix",
-                tabName = "db_distmatrix"
+              menuItem(
+                text = "Allelic Typing",
+                tabName = "typing",
+                icon = icon("dna")
               ),
-              menuSubItem(
-                text = "Missing Values",
-                tabName = "db_missing_values",
-                selected = TRUE,
-                icon = icon("triangle-exclamation")
+              menuItem(
+                text = "Visualization",
+                tabName = "visualization",
+                icon = icon("chart-line")
               )
-            ),
-            menuItem(
-              text = "Add Scheme",
-              tabName = "init",
-              icon = icon("plus")
-            ),
-            menuItem(
-              text = "Allelic Typing",
-              tabName = "typing",
-              icon = icon("dna")
-            ),
-            menuItem(
-              text = "Visualization",
-              tabName = "visualization",
-              icon = icon("chart-line")
             )
           )
-        )
+        }
+        
       } else {
         output$menu <- renderMenu(
           sidebarMenu(
@@ -7849,11 +7909,48 @@ server <- function(input, output, session) {
   
   # Custom variables
   
+  #Undo changes
+  observeEvent(input$undo_changes, {
+    Data <- readRDS(paste0(
+      getwd(),
+      "/Database/",
+      gsub(" ", "_", DF1$scheme),
+      "/Typing.rds"
+    ))
+    
+    DF1$data <- Data[["Typing"]]
+    
+    if ((ncol(DF1$data)-12) != as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))) {
+      DF1$cust_var <- select(DF1$data, 13:(ncol(DF1$data) - as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))))
+      DF1$cust_var <- names(DF1$cust_var)
+    } else {
+      DF1$cust_var <- character()
+    }
+    
+    DF1$change <- FALSE
+    
+    DF1$count <- 0
+    
+    DF1$no_na_switch <- TRUE
+    
+    DF1$meta <- select(DF1$data, 1:(12 + length(DF1$cust_var)))
+    
+    DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
+    
+    DF1$allelic_profile <- select(DF1$data, -(1:(12 + length(DF1$cust_var))))
+    
+    DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
+    
+    DF1$deleted_entries <- character(0)
+  })
+  
   observe({
     if(!is.null(DF1$data)){
       if ((ncol(DF1$data)-12) != as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))) {
         cust_vars <- select(DF1$data, 13:(ncol(DF1$data) - as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))))
         DF1$cust_var <- names(cust_vars)
+        
+        
       } else {
         DF1$cust_var <- character()
       }
@@ -7863,33 +7960,110 @@ server <- function(input, output, session) {
   DF1$count <- 0
   
   observeEvent(input$add_new_variable, {
-    DF1$count <- DF1$count + 1
-    if(input$new_var_name %in% names(DF1$meta)) {
+    if (input$new_var_name == "") {
       show_toast(
-        title = "Variable name already existing",
-        type = "warning",
+        title = "Name length is 0",
+        type = "error",
         position = "top-end",
-        width = "400px",
+        width = "330px",
         timer = 6000
       )
     } else {
-      name <- input$new_var_name
-      
-      DF1$cust_var <- append(DF1$cust_var, name)
-      
-      DF1$data <- DF1$data %>%
-        mutate("{name}" := character(nrow(DF1$data)), .after = 12)
-      
-      DF1$meta <- select(DF1$data, 1:(12 + length(DF1$cust_var)))
-      
-      DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
-      
-      DF1$allelic_profile <- select(DF1$data, -(1:(12 + length(DF1$cust_var))))
-      
-      DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
-      
-      test <<- DF1$data
+      show_toast(
+        title = paste0("Variable ", trimws(input$new_var_name), " added"),
+        type = "success",
+        position = "top-end",
+        width = "370px",
+        timer = 6000
+      )
+      DF1$count <- DF1$count + 1
+      if(trimws(input$new_var_name) %in% names(DF1$meta)) {
+        show_toast(
+          title = "Variable name already existing",
+          type = "warning",
+          position = "top-end",
+          width = "400px",
+          timer = 6000
+        )
+      } else {
+        DF1$change <- TRUE
+        
+        name <- trimws(input$new_var_name)
+        
+        DF1$cust_var <- append(DF1$cust_var, name)
+        
+        DF1$data <- DF1$data %>%
+          mutate("{name}" := character(nrow(DF1$data)), .after = 12)
+        
+        DF1$meta <- select(DF1$data, 1:(12 + length(DF1$cust_var)))
+        
+        DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
+        
+        DF1$allelic_profile <- select(DF1$data, -(1:(12 + length(DF1$cust_var))))
+        
+        DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
+        
+      }
     }
+  })
+  
+  observeEvent(input$delete_new_variable, {
+    if (input$del_which_var == "") {
+      show_toast(
+        title = "No custom variables",
+        type = "error",
+        position = "top-end",
+        width = "330px",
+        timer = 6000
+      )
+    } else {
+      showModal(
+        modalDialog(
+          paste0(
+            "Confirmation will lead to irreversible deletion of the custom ",
+            input$del_which_var,
+            " variable. Continue?"
+          ),
+          title = "Delete custom variables",
+          fade = TRUE,
+          easyClose = TRUE,
+          footer = tagList(
+            modalButton("Cancel"),
+            actionButton("conf_var_del", "Delete", class = "btn btn-danger")
+          )
+        )
+      )
+    }
+  })
+  
+  observeEvent(input$conf_var_del, {
+    DF1$change <- TRUE
+    
+    removeModal()
+    
+    if(DF1$count >= 1) {
+      DF1$count <- DF1$count - 1
+    } 
+    
+    show_toast(
+      title = paste0("Variable ", input$del_which_var, " removed"),
+      type = "warning",
+      position = "top-end",
+      width = "370px",
+      timer = 6000
+    )
+    
+    DF1$cust_var <- DF1$cust_var[-(which(DF1$cust_var %in% input$del_which_var))]
+    eins <<- DF1$cust_var
+    DF1$data <- select(DF1$data, -(input$del_which_var))
+    zwei <<- DF1$data
+    DF1$meta <- select(DF1$data, 1:(12 + length(DF1$cust_var)))
+    drei <<- DF1$meta
+    DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
+    
+    DF1$allelic_profile <- select(DF1$data, -(1:(12 + length(DF1$cust_var))))
+    vier <<- DF1$allelic_profile
+    DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
     
   })
   
@@ -7983,12 +8157,19 @@ server <- function(input, output, session) {
   observeEvent(input$edit_button, {
     showModal(
       modalDialog(
-        paste0(
-          "Overwriting previous metadata of local ",
-          DF1$scheme,
-          " database.",
-          " Continue?"
-        ),
+        if(length(DF1$deleted_entries > 0)) {
+          paste0(
+            "Overwriting previous metadata of local ",
+            DF1$scheme,
+            " database. Deleted entries will be irreversibly removed. Continue?"
+          )
+        } else {
+          paste0(
+            "Overwriting previous metadata of local ",
+            DF1$scheme,
+            " database. Continue?"
+          )
+        },
         title = "Save Database",
         fade = TRUE,
         easyClose = TRUE,
@@ -8005,6 +8186,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_db_save, {
+    
     Data <- readRDS(paste0(
       getwd(),
       "/Database/",
@@ -8012,18 +8194,29 @@ server <- function(input, output, session) {
       "/Typing.rds"
     ))
     
-    attach_meta <- hot_to_r(input$db_entries)
-    attach_meta <- select(attach_meta, 1:(12 + length(DF1$cust_var)))
-    
-    if(!is.null(DF1$delete)) {
-      Data[["Typing"]] <- cbind(attach_meta, DF1$delete)
+    if ((ncol(Data[["Typing"]])-12) != as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))) {
+      cust_vars_pre <- select(Data[["Typing"]], 13:(ncol(Data[["Typing"]]) - as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))))
+      cust_vars_pre <- names(cust_vars_pre)
     } else {
-      Data[["Typing"]] <- cbind(attach_meta, select(Data[["Typing"]], -(1:((12 - DF1$count) + length(DF1$cust_var)))))
+      cust_vars_pre <- character()
+    }
+    
+    Data[["Typing"]] <- select(Data[["Typing"]], -(1:(12 + length(cust_vars_pre))))
+    
+    meta_hot <- hot_to_r(input$db_entries)
+    
+    if(length(DF1$deleted_entries > 0)){
+      
+      meta_hot <- mutate(meta_hot, Index = as.character(1:nrow(DF1$data)))
+      
+      Data[["Typing"]] <- mutate(Data[["Typing"]][-as.numeric(DF1$deleted_entries),], meta_hot, .before = 1)
+    } else {
+      Data[["Typing"]] <- mutate(Data[["Typing"]], meta_hot, .before = 1)
+      
     }
     
     # Ensure correct logical data type
     Data[["Typing"]][["Include"]] <- as.logical(Data[["Typing"]][["Include"]])
-    
     
     saveRDS(Data, paste0(
       getwd(),
@@ -8043,6 +8236,21 @@ server <- function(input, output, session) {
     
     DF1$data <- Database[["Typing"]]
     
+    if(!is.null(DF1$data)){
+      if ((ncol(DF1$data)-12) != as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))) {
+        cust_vars <- select(DF1$data, 13:(ncol(DF1$data) - as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))))
+        DF1$cust_var <- names(cust_vars)
+      } else {
+        DF1$cust_var <- character()
+      }
+    }
+    
+    DF1$change <- FALSE
+    
+    DF1$count <- 0
+    
+    DF1$no_na_switch <- TRUE
+    
     DF1$meta <- select(DF1$data, 1:(12 + length(DF1$cust_var)))
     
     DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
@@ -8050,6 +8258,8 @@ server <- function(input, output, session) {
     DF1$allelic_profile <- select(DF1$data, -(1:(12 + length(DF1$cust_var))))
     
     DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
+    
+    DF1$deleted_entries <- character(0)
     
     removeModal()
     
@@ -8059,43 +8269,49 @@ server <- function(input, output, session) {
       position = "top-end",
       timer = 4000
     )
-    
-    DF1$count <- 0
   })
   
   observeEvent(input$del_button, {
-    if( (length(input$select_delete) - nrow(DF1$data) ) == 0) {
-      showModal(
-        modalDialog(
-          paste0("Deleting will lead to removal of all entries from local ", DF1$scheme, " database. The data can not be recovered afterwards. Continue?"),
-          easyClose = TRUE,
-          title = "Deleting Entries",
-          footer = tagList(
-            modalButton("Cancel"),
-            actionButton("conf_delete_all", "Delete", class = "btn btn-danger")
-          )
-        )
+    if (length(input$select_delete) < 1) {
+      show_toast(
+        title = "No entry selected",
+        type = "error",
+        position = "top-end",
+        timer = 4000
       )
     } else {
-      showModal(
-        modalDialog(
-          paste0(
-            "Confirmation will lead to irreversible removal of selected entries. Continue?"
-          ),
-          title = "Deleting Entries",
-          fade = TRUE,
-          easyClose = TRUE,
-          footer = tagList(
-            modalButton("Cancel"),
-            actionButton(
-              "conf_delete", 
-              "Delete", 
-              class = "btn btn-danger")
+      if( (length(input$select_delete) - nrow(DF1$data) ) == 0) {
+        showModal(
+          modalDialog(
+            paste0("Deleting will lead to removal of all entries from local ", DF1$scheme, " database. The data can not be recovered afterwards. Continue?"),
+            easyClose = TRUE,
+            title = "Deleting Entries",
+            footer = tagList(
+              modalButton("Cancel"),
+              actionButton("conf_delete_all", "Delete", class = "btn btn-danger")
+            )
           )
         )
-      )
+      } else {
+        showModal(
+          modalDialog(
+            paste0(
+              "Confirmation will lead to irreversible removal of selected entries. Continue?"
+            ),
+            title = "Deleting Entries",
+            fade = TRUE,
+            easyClose = TRUE,
+            footer = tagList(
+              modalButton("Cancel"),
+              actionButton(
+                "conf_delete", 
+                "Delete", 
+                class = "btn btn-danger")
+            )
+          )
+        )
+      }
     }
-    
   })
   
   observeEvent(input$conf_delete_all, {
@@ -8104,7 +8320,7 @@ server <- function(input, output, session) {
       "#!/bin/bash\n",
       'rm ',
       shQuote(paste0(getwd(), "/Database/", gsub(" ", "_", DF1$scheme), "/Typing.rds"))
-      )
+    )
     
     # Specify the path to save the script
     delete_typing_path <- paste0(getwd(), "/execute", "/delete_typing.sh")
@@ -8133,23 +8349,37 @@ server <- function(input, output, session) {
     
   })
   
+  DF1$deleted_entries <- character(0)
+  
   observeEvent(input$conf_delete, {
-    delete <- select(DF1$data, -(1:(12 + length(DF1$cust_var))))
-    DF1$delete <- delete[-as.integer(input$select_delete),]
-    DF1$data <- DF1$data[-as.integer(input$select_delete),]
-    rownames(DF1$data) <- 1:nrow(DF1$data)
-    DF1$data <- mutate(DF1$data, Index = as.character(rownames(DF1$data)))
+    
+    DF1$deleted_entries <- append(DF1$deleted_entries, DF1$data$Index[as.numeric(input$select_delete)])
+    
+    DF1$no_na_switch <- TRUE
+    
+    DF1$change <- TRUE
+    
+    DF1$data <- DF1$data[!(DF1$data$Index %in% as.numeric(input$select_delete)),]
+    
+    DF1$meta <- select(DF1$data, 1:(12 + length(DF1$cust_var)))
+    
+    DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
+    
+    DF1$allelic_profile <- select(DF1$data, -(1:(12 + length(DF1$cust_var))))
+    
+    DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
+    
     removeModal()
     if(length(input$select_delete) > 1) {
       show_toast(
-        title = "Entries successfully deleted",
+        title = "Entries deleted",
         type = "success",
         position = "top-end",
         timer = 4000
       )
     } else {
       show_toast(
-        title = "Entry successfully deleted",
+        title = "Entry deleted",
         type = "success",
         position = "top-end",
         timer = 4000
@@ -8208,7 +8438,7 @@ server <- function(input, output, session) {
     
     # Rownames change
     rownames(hamming_matrix) <- select(DF1$data, 1:(12 + length(DF1$cust_var)))[rownames(select(DF1$data, 1:(12 + length(DF1$cust_var)))) %in% rownames(hamming_matrix), 
-                                                       input$distmatrix_label]
+                                                                                input$distmatrix_label]
     colnames(hamming_matrix) <- rownames(hamming_matrix)
     
     mode(hamming_matrix) <- "integer"
@@ -9540,323 +9770,323 @@ server <- function(input, output, session) {
   })
   
   hamming_mst <- reactive({
-      if(anyNA(DF1$allelic_profile)) {
-        if(input$na_handling == "omit") {
-          allelic_profile_noNA <- DF1$allelic_profile[, colSums(is.na(DF1$allelic_profile)) == 0]
-          
-          allelic_profile_noNA_true <- allelic_profile_noNA[which(DF1$data$Include == TRUE),]
-          
-          dist <- proxy::dist(allelic_profile_noNA_true, method = hamming_distance)
-          
-        } else if (input$na_handling == "ignore_na") {
-          dist <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance_ignore)
-        } else {
-          dist <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance_category)
-        }
+    if(anyNA(DF1$allelic_profile)) {
+      if(input$na_handling == "omit") {
+        allelic_profile_noNA <- DF1$allelic_profile[, colSums(is.na(DF1$allelic_profile)) == 0]
+        
+        allelic_profile_noNA_true <- allelic_profile_noNA[which(DF1$data$Include == TRUE),]
+        
+        dist <- proxy::dist(allelic_profile_noNA_true, method = hamming_distance)
+        
+      } else if (input$na_handling == "ignore_na") {
+        dist <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance_ignore)
       } else {
-        dist <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance)
+        dist <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance_category)
       }
-       
-      # Find indices of pairs with a distance of 0
-      zero_distance_pairs <- as.data.frame(which(as.matrix(dist) == 0, arr.ind = TRUE))
+    } else {
+      dist <- proxy::dist(DF1$allelic_profile_true, method = hamming_distance)
+    }
+    
+    # Find indices of pairs with a distance of 0
+    zero_distance_pairs <- as.data.frame(which(as.matrix(dist) == 0, arr.ind = TRUE))
+    
+    zero_distance_pairs <- zero_distance_pairs[zero_distance_pairs$row != zero_distance_pairs$col, ]
+    
+    if(nrow(zero_distance_pairs) > 0) {
       
-      zero_distance_pairs <- zero_distance_pairs[zero_distance_pairs$row != zero_distance_pairs$col, ]
+      # Sort each row so that x <= y
+      df_sorted <- t(apply(zero_distance_pairs, 1, function(row) sort(row)))
       
-      if(nrow(zero_distance_pairs) > 0) {
-        
-        # Sort each row so that x <= y
-        df_sorted <- t(apply(zero_distance_pairs, 1, function(row) sort(row)))
-        
-        # Remove duplicate rows
-        df_unique <- as.data.frame(unique(df_sorted))
-        
-        colnames(df_unique) <- c("col", "row")
-        
-        # get metadata in df
-        vector_col <- character(0)
-        count <- 1
-        for (i in df_unique$col) {
-          vector_col[count] <- DF1$meta_true$`Assembly Name`[i]
-          count <- count + 1
-        }
-        
-        vector_row <- character(0)
-        count <- 1
-        for (i in df_unique$row) {
-          vector_row[count] <- DF1$meta_true$`Assembly Name`[i]
-          count <- count + 1
-        }
-        
-        col_id <- character(0)
-        count <- 1
-        for (i in df_unique$col) {
-          col_id[count] <- DF1$meta_true$`Assembly ID`[i]
-          count <- count + 1
-        }
-        
-        row_id <- character(0)
-        count <- 1
-        for (i in df_unique$row) {
-          row_id[count] <- DF1$meta_true$`Assembly ID`[i]
-          count <- count + 1
-        }
-        
-        col_index <- character(0)
-        count <- 1
-        for (i in df_unique$col) {
-          col_index[count] <- DF1$meta_true$Index[i]
-          count <- count + 1
-        }
-        
-        row_index <- character(0)
-        count <- 1
-        for (i in df_unique$row) {
-          row_index[count] <- DF1$meta_true$Index[i]
-          count <- count + 1
-        }
-        
-        col_date <- character(0)
-        count <- 1
-        for (i in df_unique$col) {
-          col_date[count] <- DF1$meta_true$`Isolation Date`[i]
-          count <- count + 1
-        }
-        
-        row_date <- character(0)
-        count <- 1
-        for (i in df_unique$row) {
-          row_date[count] <- DF1$meta_true$`Isolation Date`[i]
-          count <- count + 1
-        }
-        
-        col_host <- character(0)
-        count <- 1
-        for (i in df_unique$col) {
-          col_host[count] <- DF1$meta_true$Host[i]
-          count <- count + 1
-        }
-        
-        row_host <- character(0)
-        count <- 1
-        for (i in df_unique$row) {
-          row_host[count] <- DF1$meta_true$Host[i]
-          count <- count + 1
-        }
-        
-        col_country <- character(0)
-        count <- 1
-        for (i in df_unique$col) {
-          col_country[count] <- DF1$meta_true$Country[i]
-          count <- count + 1
-        }
-        
-        row_country <- character(0)
-        count <- 1
-        for (i in df_unique$row) {
-          row_country[count] <- DF1$meta_true$Country[i]
-          count <- count + 1
-        }
-        
-        col_city <- character(0)
-        count <- 1
-        for (i in df_unique$col) {
-          col_city[count] <- DF1$meta_true$City[i]
-          count <- count + 1
-        }
-        
-        row_city <- character(0)
-        count <- 1
-        for (i in df_unique$row) {
-          row_city[count] <- DF1$meta_true$City[i]
-          count <- count + 1
-        }
-        
-        df_unique <- cbind(df_unique, col_name = vector_col, row_name = vector_row, 
-                           col_index = col_index, row_index = row_index, col_id = col_id,
-                           row_id = row_id, col_date = col_date, row_date = row_date,
-                           col_host = col_host, row_host = row_host, col_country = col_country,
-                           row_country = row_country, col_city = col_city, row_city = row_city)
-        
-        # Add groups
-        grouped_df <- df_unique %>%
-          group_by(col) %>%
-          mutate(group_id = cur_group_id())
-        
-        # Merge groups
-        name <- character(0)
-        index <- character(0)
-        id <- character(0)
-        count <- 1
-        for (i in grouped_df$group_id) {
-          name[count] <- paste(unique(append(grouped_df$col_name[which(grouped_df$group_id == i)], 
-                                             grouped_df$row_name[which(grouped_df$group_id == i)])), 
-                               collapse = "\n")
-          
-          id[count] <- paste(unique(append(grouped_df$col_id[which(grouped_df$group_id == i)], 
-                                           grouped_df$row_id[which(grouped_df$group_id == i)])), 
+      # Remove duplicate rows
+      df_unique <- as.data.frame(unique(df_sorted))
+      
+      colnames(df_unique) <- c("col", "row")
+      
+      # get metadata in df
+      vector_col <- character(0)
+      count <- 1
+      for (i in df_unique$col) {
+        vector_col[count] <- DF1$meta_true$`Assembly Name`[i]
+        count <- count + 1
+      }
+      
+      vector_row <- character(0)
+      count <- 1
+      for (i in df_unique$row) {
+        vector_row[count] <- DF1$meta_true$`Assembly Name`[i]
+        count <- count + 1
+      }
+      
+      col_id <- character(0)
+      count <- 1
+      for (i in df_unique$col) {
+        col_id[count] <- DF1$meta_true$`Assembly ID`[i]
+        count <- count + 1
+      }
+      
+      row_id <- character(0)
+      count <- 1
+      for (i in df_unique$row) {
+        row_id[count] <- DF1$meta_true$`Assembly ID`[i]
+        count <- count + 1
+      }
+      
+      col_index <- character(0)
+      count <- 1
+      for (i in df_unique$col) {
+        col_index[count] <- DF1$meta_true$Index[i]
+        count <- count + 1
+      }
+      
+      row_index <- character(0)
+      count <- 1
+      for (i in df_unique$row) {
+        row_index[count] <- DF1$meta_true$Index[i]
+        count <- count + 1
+      }
+      
+      col_date <- character(0)
+      count <- 1
+      for (i in df_unique$col) {
+        col_date[count] <- DF1$meta_true$`Isolation Date`[i]
+        count <- count + 1
+      }
+      
+      row_date <- character(0)
+      count <- 1
+      for (i in df_unique$row) {
+        row_date[count] <- DF1$meta_true$`Isolation Date`[i]
+        count <- count + 1
+      }
+      
+      col_host <- character(0)
+      count <- 1
+      for (i in df_unique$col) {
+        col_host[count] <- DF1$meta_true$Host[i]
+        count <- count + 1
+      }
+      
+      row_host <- character(0)
+      count <- 1
+      for (i in df_unique$row) {
+        row_host[count] <- DF1$meta_true$Host[i]
+        count <- count + 1
+      }
+      
+      col_country <- character(0)
+      count <- 1
+      for (i in df_unique$col) {
+        col_country[count] <- DF1$meta_true$Country[i]
+        count <- count + 1
+      }
+      
+      row_country <- character(0)
+      count <- 1
+      for (i in df_unique$row) {
+        row_country[count] <- DF1$meta_true$Country[i]
+        count <- count + 1
+      }
+      
+      col_city <- character(0)
+      count <- 1
+      for (i in df_unique$col) {
+        col_city[count] <- DF1$meta_true$City[i]
+        count <- count + 1
+      }
+      
+      row_city <- character(0)
+      count <- 1
+      for (i in df_unique$row) {
+        row_city[count] <- DF1$meta_true$City[i]
+        count <- count + 1
+      }
+      
+      df_unique <- cbind(df_unique, col_name = vector_col, row_name = vector_row, 
+                         col_index = col_index, row_index = row_index, col_id = col_id,
+                         row_id = row_id, col_date = col_date, row_date = row_date,
+                         col_host = col_host, row_host = row_host, col_country = col_country,
+                         row_country = row_country, col_city = col_city, row_city = row_city)
+      
+      # Add groups
+      grouped_df <- df_unique %>%
+        group_by(col) %>%
+        mutate(group_id = cur_group_id())
+      
+      # Merge groups
+      name <- character(0)
+      index <- character(0)
+      id <- character(0)
+      count <- 1
+      for (i in grouped_df$group_id) {
+        name[count] <- paste(unique(append(grouped_df$col_name[which(grouped_df$group_id == i)], 
+                                           grouped_df$row_name[which(grouped_df$group_id == i)])), 
                              collapse = "\n")
-          
-          index[count] <- paste(unique(append(grouped_df$col_index[which(grouped_df$group_id == i)], 
-                                              grouped_df$row_index[which(grouped_df$group_id == i)])), 
-                                collapse = "\n")
-          
-          count <- count + 1
-        }
         
-        merged_names <- cbind(grouped_df, "Index" = index, "Assembly Name" = name, "Assembly ID" = id)
+        id[count] <- paste(unique(append(grouped_df$col_id[which(grouped_df$group_id == i)], 
+                                         grouped_df$row_id[which(grouped_df$group_id == i)])), 
+                           collapse = "\n")
         
-        # remove duplicate groups
+        index[count] <- paste(unique(append(grouped_df$col_index[which(grouped_df$group_id == i)], 
+                                            grouped_df$row_index[which(grouped_df$group_id == i)])), 
+                              collapse = "\n")
         
-        final <- merged_names[!duplicated(merged_names$group_id), ]
-        
-        final_cleaned <- final[!(final$col_name %in% final$row_name),]
-        
-        final_cleaned <- select(final_cleaned, 3, 17:20)
-        
-        # adapt metadata
-        Date_merged <- character(0)
-        for(j in 1:length(final_cleaned$Index)) {
-          Date <- character(0)
-          for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
-            Date <- append(Date, DF1$meta_true$`Isolation Date`[which(DF1$meta_true$Index == i)])
-          }
-          Date_merged <- append(Date_merged, paste(Date, collapse = "\n"))
-        }
-        
-        Host_merged <- character(0)
-        for(j in 1:length(final_cleaned$Index)) {
-          Host <- character(0)
-          for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
-            Host <- append(Host, DF1$meta_true$Host[which(DF1$meta_true$Index == i)])
-          }
-          Host_merged <- append(Host_merged, paste(Host, collapse = "\n"))
-        }
-        
-        Country_merged <- character(0)
-        for(j in 1:length(final_cleaned$Index)) {
-          Country <- character(0)
-          for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
-            Country <- append(Country, DF1$meta_true$Country[which(DF1$meta_true$Index == i)])
-          }
-          Country_merged <- append(Country_merged, paste(Country, collapse = "\n"))
-        }
-        
-        City_merged <- character(0)
-        for(j in 1:length(final_cleaned$Index)) {
-          City <- character(0)
-          for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
-            City <- append(City, DF1$meta_true$City[which(DF1$meta_true$Index == i)])
-          }
-          City_merged <- append(City_merged, paste(City, collapse = "\n"))
-        }
-        
-        final_meta <- cbind(final_cleaned, "Isolation Date" = Date_merged, 
-                            "Host" = Host_merged, "Country" = Country_merged, "City" = City_merged)
-        
-        
-        # Merging with original data frame / allelic profile
-        
-        allelic_profile_true <- DF1$allelic_profile_true
-        meta_true <- DF1$meta_true
-        
-        rownames(allelic_profile_true) <- DF1$meta_true$`Assembly Name`
-        rownames(meta_true) <- DF1$meta_true$`Assembly Name`
-        
-        omit <- unique(append(df_unique$col_name, df_unique$row_name)) %in% final_cleaned$col_name
-        
-        omit_id <- unique(append(df_unique$col_name, df_unique$row_name))[!omit]
-        
-        remove <- !(rownames(allelic_profile_true) %in% omit_id)
-        
-        allelic_profile_clean <- allelic_profile_true[remove, ]
-        
-        meta_clean <- meta_true[remove, ]
-        
-        # substitute meta assembly names with group names
-        
-        count <- 1
-        for(i in which(rownames(meta_clean) %in% final_meta$col_name)) {
-          meta_clean$Index[i] <- final_meta$Index[count]
-          meta_clean$`Assembly Name`[i] <- final_meta$`Assembly Name`[count]
-          meta_clean$`Assembly ID`[i] <- final_meta$`Assembly ID`[count]
-          meta_clean$`Isolation Date`[i] <- final_meta$`Isolation Date`[count]
-          meta_clean$Host[i] <- final_meta$Host[count]
-          meta_clean$Country[i] <- final_meta$Country[count]
-          meta_clean$City[i] <- final_meta$City[count]
-          count <- count + 1
-        }
-        
-        # Metadata completion
-        # get group size
-        
-        size_vector <- numeric(0)
-        for(i in 1:nrow(meta_clean)) {
-          if (str_count(meta_clean$`Assembly Name`[i], "\n") == 0) {
-            size_vector[i] <- 1
-          } else {
-            size_vector[i] <- str_count(meta_clean$`Assembly Name`[i], "\n") +1
-          }
-        }
-        
-        meta_clean <- mutate(meta_clean, size = size_vector)
-        
-        # get font size dependent on group size
-        
-        font_size <- numeric(nrow(meta_clean))
-        
-        for (i in 1:length(font_size)) {
-          if(meta_clean$size[i] < 3) {
-            font_size[i] <- 12
-          } else {
-            font_size[i] <- 11
-          }
-        }
-        
-        # get v-align dependent on group size
-        valign <- numeric(nrow(meta_clean))
-        
-        for (i in 1:length(valign)) {
-          if(meta_clean$size[i] == 1) {
-            valign[i] <- -30
-          } else if(meta_clean$size[i] == 2) {
-            valign[i] <- -38
-          } else if(meta_clean$size[i] == 3) {
-            valign[i] <- -46
-          } else if(meta_clean$size[i] == 4) {
-            valign[i] <- -54
-          } else if(meta_clean$size[i] == 5) {
-            valign[i] <- -62
-          } else if(meta_clean$size[i] > 5) {
-            valign[i] <- -70
-          }
-        }
-        
-        plot_loc$unique_meta <- meta_clean %>%
-          cbind(font_size = font_size, valign = valign)
-        
-        # final dist calculation
-        
-        if(anyNA(DF1$allelic_profile)){
-          if(input$na_handling == "omit") {
-            allelic_profile_clean_noNA_names <- allelic_profile_clean[, colSums(is.na(allelic_profile_clean)) == 0]
-            proxy::dist(allelic_profile_clean_noNA_names, method = hamming_distance)
-          } else if (input$na_handling == "ignore_na") {
-            proxy::dist(allelic_profile_clean, method = hamming_distance_ignore)
-          } else {
-            proxy::dist(allelic_profile_clean, method = hamming_distance_category)
-          }
-        } else {proxy::dist(allelic_profile_clean, method = hamming_distance)}
-        
-        
-      } else {
-        font_size <- rep(12, nrow(DF1$meta_true))
-        valign <- rep(-30, nrow(DF1$meta_true))
-        size <- rep(1, nrow(DF1$meta_true))
-        plot_loc$unique_meta <- DF1$meta_true %>%
-          cbind(size , font_size, valign)
-        
-        dist
+        count <- count + 1
       }
+      
+      merged_names <- cbind(grouped_df, "Index" = index, "Assembly Name" = name, "Assembly ID" = id)
+      
+      # remove duplicate groups
+      
+      final <- merged_names[!duplicated(merged_names$group_id), ]
+      
+      final_cleaned <- final[!(final$col_name %in% final$row_name),]
+      
+      final_cleaned <- select(final_cleaned, 3, 17:20)
+      
+      # adapt metadata
+      Date_merged <- character(0)
+      for(j in 1:length(final_cleaned$Index)) {
+        Date <- character(0)
+        for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
+          Date <- append(Date, DF1$meta_true$`Isolation Date`[which(DF1$meta_true$Index == i)])
+        }
+        Date_merged <- append(Date_merged, paste(Date, collapse = "\n"))
+      }
+      
+      Host_merged <- character(0)
+      for(j in 1:length(final_cleaned$Index)) {
+        Host <- character(0)
+        for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
+          Host <- append(Host, DF1$meta_true$Host[which(DF1$meta_true$Index == i)])
+        }
+        Host_merged <- append(Host_merged, paste(Host, collapse = "\n"))
+      }
+      
+      Country_merged <- character(0)
+      for(j in 1:length(final_cleaned$Index)) {
+        Country <- character(0)
+        for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
+          Country <- append(Country, DF1$meta_true$Country[which(DF1$meta_true$Index == i)])
+        }
+        Country_merged <- append(Country_merged, paste(Country, collapse = "\n"))
+      }
+      
+      City_merged <- character(0)
+      for(j in 1:length(final_cleaned$Index)) {
+        City <- character(0)
+        for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
+          City <- append(City, DF1$meta_true$City[which(DF1$meta_true$Index == i)])
+        }
+        City_merged <- append(City_merged, paste(City, collapse = "\n"))
+      }
+      
+      final_meta <- cbind(final_cleaned, "Isolation Date" = Date_merged, 
+                          "Host" = Host_merged, "Country" = Country_merged, "City" = City_merged)
+      
+      
+      # Merging with original data frame / allelic profile
+      
+      allelic_profile_true <- DF1$allelic_profile_true
+      meta_true <- DF1$meta_true
+      
+      rownames(allelic_profile_true) <- DF1$meta_true$`Assembly Name`
+      rownames(meta_true) <- DF1$meta_true$`Assembly Name`
+      
+      omit <- unique(append(df_unique$col_name, df_unique$row_name)) %in% final_cleaned$col_name
+      
+      omit_id <- unique(append(df_unique$col_name, df_unique$row_name))[!omit]
+      
+      remove <- !(rownames(allelic_profile_true) %in% omit_id)
+      
+      allelic_profile_clean <- allelic_profile_true[remove, ]
+      
+      meta_clean <- meta_true[remove, ]
+      
+      # substitute meta assembly names with group names
+      
+      count <- 1
+      for(i in which(rownames(meta_clean) %in% final_meta$col_name)) {
+        meta_clean$Index[i] <- final_meta$Index[count]
+        meta_clean$`Assembly Name`[i] <- final_meta$`Assembly Name`[count]
+        meta_clean$`Assembly ID`[i] <- final_meta$`Assembly ID`[count]
+        meta_clean$`Isolation Date`[i] <- final_meta$`Isolation Date`[count]
+        meta_clean$Host[i] <- final_meta$Host[count]
+        meta_clean$Country[i] <- final_meta$Country[count]
+        meta_clean$City[i] <- final_meta$City[count]
+        count <- count + 1
+      }
+      
+      # Metadata completion
+      # get group size
+      
+      size_vector <- numeric(0)
+      for(i in 1:nrow(meta_clean)) {
+        if (str_count(meta_clean$`Assembly Name`[i], "\n") == 0) {
+          size_vector[i] <- 1
+        } else {
+          size_vector[i] <- str_count(meta_clean$`Assembly Name`[i], "\n") +1
+        }
+      }
+      
+      meta_clean <- mutate(meta_clean, size = size_vector)
+      
+      # get font size dependent on group size
+      
+      font_size <- numeric(nrow(meta_clean))
+      
+      for (i in 1:length(font_size)) {
+        if(meta_clean$size[i] < 3) {
+          font_size[i] <- 12
+        } else {
+          font_size[i] <- 11
+        }
+      }
+      
+      # get v-align dependent on group size
+      valign <- numeric(nrow(meta_clean))
+      
+      for (i in 1:length(valign)) {
+        if(meta_clean$size[i] == 1) {
+          valign[i] <- -30
+        } else if(meta_clean$size[i] == 2) {
+          valign[i] <- -38
+        } else if(meta_clean$size[i] == 3) {
+          valign[i] <- -46
+        } else if(meta_clean$size[i] == 4) {
+          valign[i] <- -54
+        } else if(meta_clean$size[i] == 5) {
+          valign[i] <- -62
+        } else if(meta_clean$size[i] > 5) {
+          valign[i] <- -70
+        }
+      }
+      
+      plot_loc$unique_meta <- meta_clean %>%
+        cbind(font_size = font_size, valign = valign)
+      
+      # final dist calculation
+      
+      if(anyNA(DF1$allelic_profile)){
+        if(input$na_handling == "omit") {
+          allelic_profile_clean_noNA_names <- allelic_profile_clean[, colSums(is.na(allelic_profile_clean)) == 0]
+          proxy::dist(allelic_profile_clean_noNA_names, method = hamming_distance)
+        } else if (input$na_handling == "ignore_na") {
+          proxy::dist(allelic_profile_clean, method = hamming_distance_ignore)
+        } else {
+          proxy::dist(allelic_profile_clean, method = hamming_distance_category)
+        }
+      } else {proxy::dist(allelic_profile_clean, method = hamming_distance)}
+      
+      
+    } else {
+      font_size <- rep(12, nrow(DF1$meta_true))
+      valign <- rep(-30, nrow(DF1$meta_true))
+      size <- rep(1, nrow(DF1$meta_true))
+      plot_loc$unique_meta <- DF1$meta_true %>%
+        cbind(size , font_size, valign)
+      
+      dist
+    }
     
   })
   
@@ -9882,8 +10112,8 @@ server <- function(input, output, session) {
           modalDialog(
             if(sum(duplicated(DF1$meta$`Assembly Name`)) == 1) {
               HTML(paste0("Entry #", which(duplicated(DF1$meta$`Assembly Name`)), 
-                                 " contains a duplicated assembly name:", "<br><br>",
-                                 DF1$meta$`Assembly Name`[which(duplicated(DF1$meta$`Assembly Name`))]))
+                          " contains a duplicated assembly name:", "<br><br>",
+                          DF1$meta$`Assembly Name`[which(duplicated(DF1$meta$`Assembly Name`))]))
             } else {
               HTML(append("Entries contain duplicated assembly names: <br><br>", 
                           paste0(unique(DF1$meta$`Assembly Name`[which(duplicated(DF1$meta$`Assembly Name`))]), "<br>")))
