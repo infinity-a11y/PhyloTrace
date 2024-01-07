@@ -3430,7 +3430,7 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p(tags$b("Tree scale")), style = "color:white; position: relative; right: -15px"),
+                        h4(p("Tree scale"), style = "color:white; position: relative; right: -15px"),
                         column(
                           width = 12,
                           fluidRow(
@@ -4727,7 +4727,7 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p(tags$b("Tree scale")), style = "color:white; position: relative; right: -15px"),
+                        h4(p("Tree scale"), style = "color:white; position: relative; right: -15px"),
                         column(
                           width = 12,
                           fluidRow(
@@ -8054,6 +8054,7 @@ server <- function(input, output, session) {
       meta_hot <- mutate(meta_hot, Index = as.character(1:nrow(DF1$data)))
       
       Data[["Typing"]] <- mutate(Data[["Typing"]][-as.numeric(DF1$deleted_entries),], meta_hot, .before = 1)
+      rownames(Data[["Typing"]]) <- Data[["Typing"]]$Index
     } else {
       Data[["Typing"]] <- mutate(Data[["Typing"]], meta_hot, .before = 1)
       
@@ -8661,14 +8662,14 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Assembly Name` = "assembly_name",
+          `Assembly Name` = "Assembly_Name",
           `Isolation Date` = "Isolation_Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Assembly Name` = "assembly_name", `Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Assembly Name` = "Assembly_Name", `Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Host" = "Host"),
@@ -8682,14 +8683,14 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Assembly Name` = "assembly_name",
+          `Assembly Name` = "Assembly_Name",
           `Isolation Date` = "Isolation_Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Assembly Name` = "assembly_name", `Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Assembly Name` = "Assembly_Name", `Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Host" = "Host"),
@@ -8873,20 +8874,20 @@ server <- function(input, output, session) {
       label = "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          Index = "index",
-          `Assembly ID` = "assembly_id",
-          `Assembly Name` = "assembly_name",
+          Index = "Index",
+          `Assembly ID` = "Assembly_ID",
+          `Assembly Name` = "Assembly_Name",
           `Isolation Date` = "Isolation_Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(Index = "index", `Assembly ID` = "assembly_id", `Assembly Name` = "assembly_name",
+        append(c(Index = "Index", `Assembly ID` = "Assembly_ID", `Assembly Name` = "Assembly_Name",
                  `Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
-      selected = c(`Assembly Name` = "assembly_name"),
+      selected = c(`Assembly Name` = "Assembly_Name"),
       width = "100%"
     )
   })
@@ -8897,20 +8898,20 @@ server <- function(input, output, session) {
       label = "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          Index = "index",
-          `Assembly ID` = "assembly_id",
-          `Assembly Name` = "assembly_name",
+          Index = "Index",
+          `Assembly ID` = "Assembly_ID",
+          `Assembly Name` = "Assembly_Name",
           `Isolation Date` = "Isolation_Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(Index = "index", `Assembly ID` = "assembly_id", `Assembly Name` = "assembly_name",
+        append(c(Index = "Index", `Assembly ID` = "Assembly_ID", `Assembly Name` = "Assembly_Name",
                  `Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
-      selected = c(`Assembly Name` = "assembly_name"),
+      selected = c(`Assembly Name` = "Assembly_Name"),
       width = "100%"
     )
   })
@@ -9095,6 +9096,8 @@ server <- function(input, output, session) {
   #### NJ ----
   
   nj_tree <- reactive({
+    test1 <<- plot_loc$nj
+    test2 <<- plot_loc$meta_nj
     tree <-
       ggtree(plot_loc$nj, 
              color = input$nj_color,
@@ -10237,24 +10240,12 @@ server <- function(input, output, session) {
         
         if (input$tree_algo == "Neighbour-Joining") {
           
+          test <<- DF1$data
+          
           plot_loc$meta_nj <- select(DF1$meta_true, -2)
           
-          colnames(plot_loc$meta_nj) <-
-            c(
-              "index",
-              "assembly_id",
-              "assembly_name",
-              "scheme",
-              "Isolation_Date",
-              "Host",
-              "Country",
-              "City",
-              "typing_date",
-              "successes",
-              "errors"
-            )
-          
-          plot_loc$meta_nj <- mutate(plot_loc$meta_nj, taxa = index) %>%
+          colnames(plot_loc$meta_nj) <- gsub(" ", "_", colnames(plot_loc$meta_nj))
+          plot_loc$meta_nj <- mutate(plot_loc$meta_nj, taxa = Index) %>%
             relocate(taxa)
           
           # Create phylogenetic tree
@@ -10268,22 +10259,9 @@ server <- function(input, output, session) {
           
           plot_loc$meta_upgma <- select(DF1$meta_true, -2)
           
-          colnames(plot_loc$meta_upgma) <-
-            c(
-              "index",
-              "assembly_id",
-              "assembly_name",
-              "scheme",
-              "Isolation_Date",
-              "Host",
-              "Country",
-              "City",
-              "typing_date",
-              "successes",
-              "errors"
-            )
+          colnames(plot_loc$meta_upgma) <- gsub(" ", "_", colnames(plot_loc$meta_upgma))
           
-          plot_loc$meta_upgma <- mutate(plot_loc$meta_upgma, taxa = index) %>%
+          plot_loc$meta_upgma <- mutate(plot_loc$meta_upgma, taxa = Index) %>%
             relocate(taxa)
           
           # Create phylogenetic tree
