@@ -1,6 +1,7 @@
 ![My Image](www/PhyloTrace_bw.png)
 
-# Installation Instructions for PhyloTrace 1.0.0
+
+##
 
 Follow these instructions to install and run the Shiny app on a Linux system.
 
