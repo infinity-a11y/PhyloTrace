@@ -10,7 +10,7 @@ Follow these instructions to install the required dependencies.
 
 Before installing the dependencies, ensure that you have R and RStudio installed on your system. Follow the instructions below:
 
-1. Download R for your operating system from [the CRAN website](https://cran.r-project.org/).
+1. Download the latest version of R for your operating system from [the CRAN website](https://cran.r-project.org/).
 2. Install R by executing the downloaded file and following the installation prompts.
 
 [Optional: Download RStudio]
