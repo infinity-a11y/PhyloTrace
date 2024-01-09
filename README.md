@@ -3,7 +3,8 @@
 
 ##
 
-Follow these instructions to install and run the Shiny app on a Linux system.
+Download the complete repository as .zip and extract it to any location on your system.
+Follow these instructions to install the required dependencies.
 
 ## 1. Install R and RStudio
 
@@ -11,6 +12,8 @@ Before installing the dependencies, ensure that you have R and RStudio installed
 
 1. Download R for your operating system from [the CRAN website](https://cran.r-project.org/).
 2. Install R by executing the downloaded file and following the installation prompts.
+
+[Optional]
 3. Download RStudio from [the RStudio website](https://rstudio.com/products/rstudio/download/).
 4. Install RStudio by executing the downloaded file and following the installation prompts.
 
@@ -52,4 +55,12 @@ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /m
 /miniconda3/bin/conda install -c bioconda kma
 ```
 
+## 5. Running PhyloTrace
 
+Run PhyloTrace either by executing the following command in the terminal
+```bash
+Rscript PhyloTrace.R
+```
+or open PhyloTrace.R from its directory with RStudio and start it by clicking "Run App" (make sure to tick "Run External" to open it in the default browser).
+
+![My Image](www/run_external.png)
