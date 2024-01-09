@@ -961,772 +961,8 @@ ui <- dashboardPage(
         uiOutput("typing_sidebar")
       ),
       conditionalPanel(
-        "input.tabs==='report'",
-        column(
-          width = 12,
-          align = "left",
-          br(),
-          uiOutput("selProfile"),
-          hr(),
-          textInput(
-            inputId = "rep_profilename",
-            label = "Save current settings as",
-            width = "100%"
-          ),
-          br()
-        ),
-        column(
-          width = 12,
-          align = "center",
-          tags$style("button#save_rep_profile i.far.fa-bookmark {margin-right: 5px}"),
-          actionButton(
-            "save_rep_profile",
-            label = "Save Profile",
-            icon = icon("bookmark")
-          )
-        ),
-        column(
-          width = 12,
-          box(
-            solidHeader = TRUE,
-            status = "primary",
-            width = "100%",
-            fluidRow(
-              column(
-                width = 3,
-                tags$style("#slot_select {margin-top: -25px; margin-left: -5px;}"),
-                prettyRadioButtons(
-                  "slot_select",
-                  choices = c("Slot 1", "Slot 2", "Slot 3", "Slot 4"),
-                  label = ""
-                )  
-              ),
-              column(2),
-              column(
-                width = 5,
-                align = "right",
-                uiOutput("slot1_status"),
-                uiOutput("slot2_status"),
-                uiOutput("slot3_status"),
-                uiOutput("slot4_status")
-              )
-            ),
-            br(),
-            fluidRow(
-              column(width = 1),
-              column(
-                width = 1,
-                align = "left",
-                actionBttn(
-                  "add_slot",
-                  style = "simple",
-                  size = "sm",
-                  icon = icon("plus"),
-                  color = "primary"
-                )
-              ),
-              column(1),
-              column(
-                width = 2,
-                align = "left",
-                actionBttn(
-                  "delete_slot",
-                  style = "simple",
-                  size = "sm",
-                  icon = icon("trash"),
-                  color = "danger"
-                )
-              )
-            )
-          )
-        )
-      ),
-      conditionalPanel(
         "input.tabs=='visualization'",
-        column(
-          width = 12,
-          br(),
-          fluidRow(
-            column(1),
-            column(
-              width = 11,
-              align = "left",
-              prettyRadioButtons(
-                "tree_algo",
-                choices = c("Minimum-Spanning", "Neighbour-Joining", "UPGMA"),
-                label = ""
-              ),
-            )
-          ),
-          br(),
-          fluidRow(
-            column(
-              tags$style("button#create_tree {position: relative; left: -15px; width = 100%; border: none;"),
-              tags$style("button#create_tree:hover {background: #3c8c56; border: none;}"),
-              width = 12,
-              align = "center",
-              actionButton(
-                "create_tree",
-                "",
-                width = "100%",
-                icon = icon(
-                  name = NULL,
-                  style = "
-                background: url('phylo.png');
-                background-size: contain;
-                background-position: center;
-                background-repeat: no-repeat;
-                height: 32px;
-                display: block;
-              "
-                )
-              )
-            )
-          ), 
-          br(),
-          hr(),
-          conditionalPanel(
-            "input.tree_algo=='Minimum-Spanning'",
-            fluidRow(
-              column(
-                width = 12,
-                align = "left",
-                br(),
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Sizing")
-                  )
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 12,
-                radioGroupButtons(
-                  "mst_ratio",
-                  "",
-                  choiceNames = c("16:10", "16:9", "4:3"),
-                  choiceValues = c((16/10), (16/9), (4/3)),
-                  width = "100%"
-                ),
-                br(),
-                sliderTextInput(
-                  "mst_scale",
-                  "",
-                  choices = 500:1200,
-                  selected = 800,
-                  width = "95%"
-                )
-              )
-            ),
-            br(),
-            hr(),
-            fluidRow(
-              column(
-                width = 12,
-                align = "left",
-                br(),
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Save Plot")
-                  )
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 8,
-                div(
-                  class = "format",
-                  selectInput(
-                    inputId = "mst_plot_format",
-                    label = "",
-                    choices = c("html", 
-                                "jpeg", "png", "bmp")
-                  )
-                )
-              ),
-              column(
-                width = 4,
-                align = "left",
-                conditionalPanel(
-                  "input.mst_plot_format=='jpeg'",
-                  actionBttn(
-                    "save_plot_jpeg",
-                    style = "simple",
-                    label = "",
-                    size = "sm",
-                    icon = icon("download"),
-                    color = "primary"
-                  )  
-                ),
-                conditionalPanel(
-                  "input.mst_plot_format=='png'",
-                  actionBttn(
-                    "save_plot_png",
-                    style = "simple",
-                    label = "",
-                    size = "sm",
-                    icon = icon("download"),
-                    color = "primary"
-                  )
-                ),
-                conditionalPanel(
-                  "input.mst_plot_format=='bmp'",
-                  actionBttn(
-                    "save_plot_bmp",
-                    style = "simple",
-                    label = "",
-                    size = "sm",
-                    icon = icon("download"),
-                    color = "primary"
-                  )  
-                ),
-                conditionalPanel(
-                  "input.mst_plot_format=='html'",
-                  downloadBttn(
-                    "save_plot_html",
-                    style = "simple",
-                    label = "",
-                    size = "sm",
-                    icon = icon("download"),
-                    color = "primary"
-                  )
-                )
-              )
-            )
-          ),
-          conditionalPanel(
-            "input.tree_algo=='Neighbour-Joining'",
-            fluidRow(
-              column(
-                width = 12,
-                align = "left",
-                br(),
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Sizing")
-                  )
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 12,
-                radioGroupButtons(
-                  "nj_ratio",
-                  "",
-                  choiceNames = c("16:10", "16:9", "4:3"),
-                  choiceValues = c((16/10), (16/9), (4/3)),
-                  width = "100%"
-                ),
-                br(),
-                sliderTextInput(
-                  "nj_scale",
-                  "",
-                  choices = 500:1200,
-                  selected = 800,
-                  width = "95%"
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 3,
-                align = "left",
-                br(),
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 14px; position: relative; bottom: -28px; margin-left: 15px ', "Zoom")
-                  )
-                )
-              ),
-              column(
-                width = 8,
-                align = "right",
-                br(),
-                sliderTextInput(
-                  "nj_zoom",
-                  label = NULL,
-                  choices = seq(0.5, 1.5, 0.05),
-                  selected = 0.95,
-                  hide_min_max = TRUE
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 5,
-                align = "left",
-                numericInput(
-                  "nj_v",
-                  label = h5("Y", style = "color:white; margin-bottom: -6px; margin-left: 10px"),
-                  min = -0.5,
-                  max = 0.5,
-                  step = 0.01,
-                  value = 0
-                )
-              ),
-              column(
-                width = 5,
-                align = "left",
-                numericInput(
-                  "nj_h",
-                  label = h5("X", style = "color:white; margin-bottom: -6px; margin-left: 10px"),
-                  min = -0.5,
-                  max = 0.5,
-                  step = 0.01,
-                  value = 0
-                )
-              )
-            ),
-            br(),
-            hr(),
-            fluidRow(
-              column(
-                width = 12,
-                align = "left",
-                br(),
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Save Plot")
-                  )
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 8,
-                div(
-                  class = "format",
-                  selectInput(
-                    inputId = "filetype_nj",
-                    label = "",
-                    choices = c("jpeg", "png", "bmp", "svg")
-                  )
-                )
-              ),
-              column(
-                width = 4,
-                align = "left",
-                downloadBttn(
-                  "download_nj",
-                  style = "simple",
-                  label = "",
-                  size = "sm",
-                  icon = icon("download"),
-                  color = "primary"
-                )
-              )
-            )
-          ),
-          conditionalPanel(
-            "input.tree_algo=='UPGMA'",
-            fluidRow(
-              column(
-                width = 12,
-                align = "left",
-                br(),
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Sizing")
-                  )
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 12,
-                radioGroupButtons(
-                  "upgma_ratio",
-                  "",
-                  choiceNames = c("16:10", "16:9", "4:3"),
-                  choiceValues = c((16/10), (16/9), (4/3)),
-                  width = "100%"
-                ),
-                br(),
-                sliderTextInput(
-                  "upgma_scale",
-                  "",
-                  choices = 500:1200,
-                  selected = 800,
-                  width = "100%"
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 3,
-                align = "left",
-                br(),
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 14px; position: relative; bottom: -28px; margin-left: 15px ', "Zoom")
-                  )
-                )
-              ),
-              column(
-                width = 9,
-                align = "right",
-                br(),
-                sliderTextInput(
-                  "upgma_zoom",
-                  label = NULL,
-                  choices = seq(0.5, 1.5, 0.05),
-                  selected = 0.95,
-                  hide_min_max = TRUE
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 5,
-                align = "left",
-                numericInput(
-                  "upgma_v",
-                  label = h5("Y", style = "color:white; margin-bottom: -6px; margin-left: 10px"),
-                  min = -0.5,
-                  max = 0.5,
-                  step = 0.01,
-                  value = 0
-                )
-              ),
-              column(
-                width = 5,
-                align = "left",
-                numericInput(
-                  "upgma_h",
-                  label = h5("X", style = "color:white; margin-bottom: -6px; margin-left: 10px"),
-                  min = -0.5,
-                  max = 0.5,
-                  step = 0.01,
-                  value = 0
-                )
-              )
-            ),
-            br(),
-            hr(),
-            fluidRow(
-              column(
-                width = 12,
-                align = "left",
-                br(),
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Save Plot")
-                  )
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 8,
-                div(
-                  class = "format",
-                  selectInput(
-                    inputId = "filetype_upgma",
-                    label = "",
-                    choices = c("jpeg", "png", "bmp", "svg")
-                  )
-                )
-              ),
-              column(
-                width = 4,
-                align = "left",
-                downloadBttn(
-                  "download_upgma",
-                  style = "simple",
-                  label = "",
-                  size = "sm",
-                  icon = icon("download"),
-                  color = "primary"
-                )
-              )
-            )
-          ),
-          br(),
-          hr(),
-          fluidRow(
-            column(
-              width = 12,
-              align = "left",
-              br(),
-              HTML(
-                paste(
-                  tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Download Report")
-                )
-              )
-            )
-          ),
-          fluidRow(
-            column(
-              width = 8,
-              align = "left",
-              checkboxInput(
-                "rep_entrytable",
-                label = h5("Entry table", style = "color:white; position: absolute; top: -6px"),
-                value = TRUE
-              )
-            )
-          ),
-          fluidRow(
-            column(
-              width = 6,
-              align = "left",
-              checkboxInput(
-                "rep_general",
-                label = h5("General", style = "color:white; position: absolute; top: -23px"),
-                value = TRUE
-              )
-            ),
-            column(
-              width = 4,
-              align = "left",
-              dropMenu(
-                actionBttn(
-                  "mst_general_menu",
-                  label = "",
-                  color = "default",
-                  size = "sm",
-                  style = "material-flat",
-                  icon = icon("pen-to-square")
-                ),
-                placement = "top-start",
-                padding = "20px",
-                theme = "translucent",
-                fluidRow(
-                  tags$style("#mst_date_general_select .form-control {height: 28px; position: relative; right: -22px} "),
-                  tags$style("#rep_date_general {margin-top: 17px} .form-group {margin-bottom: 0px;}"),
-                  column(
-                    width = 3,
-                    checkboxInput(
-                      "rep_date_general", 
-                      label = h5("Date", style = "color:white; font-size: 17px; margin-top: 16px;"),
-                      value = TRUE
-                    )
-                  ),
-                  column(
-                    width = 7,
-                    dateInput(
-                      "mst_date_general_select",
-                      ""
-                    )
-                  )
-                ),
-                fluidRow(
-                  tags$style("#mst_operator_general_select {height: 28px; margin-top: -15px; position: relative; right: -22px}"),
-                  tags$style("#rep_operator_general {margin-top: 0px;}"),
-                  column(
-                    width = 3,
-                    checkboxInput(
-                      "rep_operator_general", 
-                      label = h5("Operator", style = "color:white; font-size: 17px; margin-top: -1px;"),
-                      value = TRUE
-                    )
-                  ),
-                  column(
-                    width = 8,
-                    textInput(
-                      "mst_operator_general_select",
-                      ""
-                    ) 
-                  )
-                ),
-                fluidRow(
-                  tags$style("#mst_institute_general_select {height: 28px; margin-top: -15px; position: relative; right: -22px}"),
-                  tags$style("#rep_institute_general {margin-top: 0px;}"),
-                  column(
-                    width = 3,
-                    checkboxInput(
-                      "rep_institute_general", 
-                      label = h5("Institute", style = "color:white; font-size: 17px; margin-top: -1px;"),
-                      value = TRUE
-                    )
-                  ),
-                  column(
-                    width = 8,
-                    textInput(
-                      "mst_institute_general_select",
-                      ""
-                    ) 
-                  )
-                ),
-                fluidRow(
-                  tags$style("#mst_comm_general_select {margin-top: -15px; border-radius: 5px; position: relative; right: -22px}"),
-                  tags$style("#rep_comm_general {margin-top: 0px;}"),
-                  column(
-                    width = 3,
-                    checkboxInput(
-                      "rep_comm_general", 
-                      label = h5("Comment", style = "color:white; font-size: 17px; margin-top: -1px;")
-                    )
-                  ),
-                  column(
-                    width = 8,
-                    textAreaInput(
-                      inputId = "mst_comm_general_select",
-                      label = "",
-                      width = "100%",
-                      height = "60px",
-                      cols = NULL,
-                      rows = NULL,
-                      placeholder = NULL,
-                      resize = "vertical"
-                    ) 
-                  )
-                )
-              )
-            )
-          ),
-          fluidRow(
-            column(
-              width = 6,
-              align = "left",
-              checkboxInput(
-                "rep_analysis",
-                label = h5("Analysis", style = "color:white; position: absolute; top: -42px"),
-                value = TRUE
-              )
-            ),
-            column(
-              width = 4,
-              align = "left",
-              dropMenu(
-                actionBttn(
-                  "mst_analysis_menu",
-                  label = "",
-                  color = "default",
-                  size = "sm",
-                  style = "material-flat",
-                  icon = icon("pen-to-square")
-                ),
-                placement = "top-start",
-                padding = "20px",
-                theme = "translucent",
-                fluidRow(
-                  tags$style("#rep_cgmlst_analysis {margin-top: 19px}"),
-                  column(
-                    width = 4,
-                    checkboxInput(
-                      "rep_cgmlst_analysis",
-                      label = h5("Scheme", style = "color:white; font-size: 17px; margin-top: 18px"),
-                      value = TRUE
-                    )
-                  ),
-                  column(
-                    width = 8,
-                    align = "right"
-                  )
-                ),
-                fluidRow(
-                  tags$style("#rep_tree_analysis {margin-top: 0px}"),
-                  column(
-                    width = 4,
-                    checkboxInput(
-                      "rep_tree_analysis",
-                      label = h5("Tree", style = "color:white; font-size: 17px; margin-top: -1px"),
-                      value = TRUE
-                    )
-                  ),
-                  column(
-                    width = 6,
-                    align = "right",
-                    HTML(
-                      paste(
-                        tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Tree algorithm')
-                      )
-                    )
-                  )
-                ),
-                fluidRow(
-                  tags$style("#rep_distance {margin-top: 0px}"),
-                  column(
-                    width = 4,
-                    checkboxInput(
-                      "rep_distance",
-                      label = h5("Distance", style = "color:white; font-size: 17px; margin-top: -1px"),
-                      value = TRUE
-                    )
-                  ),
-                  column(
-                    width = 6,
-                    align = "right",
-                    HTML(
-                      paste(
-                        tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Distance algorithm')
-                      )
-                    )
-                  )
-                ),
-                fluidRow(
-                  tags$style("#rep_missval {margin-top: 0px}"),
-                  column(
-                    width = 7,
-                    align = "left",
-                    checkboxInput(
-                      "rep_missval",
-                      label = h5("NA handling", style = "color:white; font-size: 17px; margin-top: -1px"),
-                      value = TRUE
-                    )
-                  ),
-                  column(
-                    width = 5,
-                    align = "right",
-                    HTML(
-                      paste(
-                        tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: 31px', 'Missing values')
-                      )
-                    )
-                  )
-                ),
-                fluidRow(
-                  tags$style("#rep_version {margin-top: 0px}"),
-                  column(
-                    width = 4,
-                    checkboxInput(
-                      "rep_version",
-                      label = h5("Version", style = "color:white; font-size: 17px; margin-top: -1px"),
-                      value = TRUE
-                    )
-                  ),
-                  column(
-                    width = 6,
-                    align = "right",
-                    HTML(
-                      paste(
-                        tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Version info')
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          ),
-          fluidRow(
-            column(
-              width = 8,
-              align = "left",
-              checkboxInput(
-                "rep_plot_report",
-                label = h5("Attach plot", style = "color:white; position: absolute; top: -61px"),
-                value = TRUE
-              )
-            )
-          ),
-          fluidRow(
-            column(
-              width = 12,
-              align = "left",
-              downloadBttn(
-                "download_report",
-                style = "simple",
-                label = "Save",
-                size = "sm",
-                icon = icon("download")
-              )
-            )
-          )
-        )
+        uiOutput("visualization_sidebar")
       )
     )
   ),
@@ -5684,8 +4920,6 @@ server <- function(input, output, session) {
   get.entry.table.meta <- reactive({
     if(!is.null(hot_to_r(input$db_entries))){
       table <- hot_to_r(input$db_entries)
-      tabletest <<- table
-      varss <<- DF1$cust_var
       select(table, 1:(12 + length(DF1$cust_var)))
     }
   })
@@ -5747,6 +4981,46 @@ server <- function(input, output, session) {
   ### Connect to local Database ----
   
   observe({
+    
+    if(!paste0(getwd(), "/Database") %in% dir_ls(getwd())) {
+      make_db <- paste0(
+        "#!/bin/bash \n",
+        "mkdir Database"
+      )
+      
+      # Specify the path to save the script
+      make_db_path <- paste0(getwd(), "/execute", "/make_db.sh")
+      
+      # Write the script to a file
+      cat(make_db, file = make_db_path)
+      
+      # Make the script executable
+      system(paste("chmod +x", make_db_path))
+      
+      # Execute the script
+      system(paste(make_db_path), wait = FALSE)
+    } 
+    
+    if (!paste0(getwd(), "/execute/script_log.txt") %in% dir_ls(paste0(getwd(), "/execute"))) {
+      make_log <- paste0(
+        "#!/bin/bash \n",
+        "cd execute/ \n",
+        "echo 0 > script_log.txt \n",
+        "echo 0 > progress.fifo"
+      )
+      
+      # Specify the path to save the script
+      make_log_path <- paste0(getwd(), "/execute", "/make_log.sh")
+      
+      # Write the script to a file
+      cat(make_log, file = make_log_path)
+      
+      # Make the script executable
+      system(paste("chmod +x", make_log_path))
+      
+      # Execute the script
+      system(paste(make_log_path), wait = FALSE)
+    }
     
     # Logical any local database present 
     DF1$exist <-
@@ -6424,8 +5698,698 @@ server <- function(input, output, session) {
                 cat(paste0(DF1$cust_var, "\n"))
               })
               
+              # render visualization sidebar elements
               
-              # Render edit/save button for entry metadata
+              output$visualization_sidebar <- renderUI({
+                if(!class(DF1$data) == "NULL") {
+                  column(
+                    width = 12,
+                    br(),
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 11,
+                        align = "left",
+                        prettyRadioButtons(
+                          "tree_algo",
+                          choices = c("Minimum-Spanning", "Neighbour-Joining", "UPGMA"),
+                          label = ""
+                        ),
+                      )
+                    ),
+                    br(),
+                    fluidRow(
+                      column(
+                        tags$style("button#create_tree {position: relative; left: -15px; width = 100%; border: none;"),
+                        tags$style("button#create_tree:hover {background: #3c8c56; border: none;}"),
+                        width = 12,
+                        align = "center",
+                        actionButton(
+                          "create_tree",
+                          "",
+                          width = "100%",
+                          icon = icon(
+                            name = NULL,
+                            style = "
+                background: url('phylo.png');
+                background-size: contain;
+                background-position: center;
+                background-repeat: no-repeat;
+                height: 32px;
+                display: block;
+              "
+                          )
+                        )
+                      )
+                    ), 
+                    br(),
+                    hr(),
+                    conditionalPanel(
+                      "input.tree_algo=='Minimum-Spanning'",
+                      fluidRow(
+                        column(
+                          width = 12,
+                          align = "left",
+                          br(),
+                          HTML(
+                            paste(
+                              tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Sizing")
+                            )
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 12,
+                          radioGroupButtons(
+                            "mst_ratio",
+                            "",
+                            choiceNames = c("16:10", "16:9", "4:3"),
+                            choiceValues = c((16/10), (16/9), (4/3)),
+                            width = "100%"
+                          ),
+                          br(),
+                          sliderTextInput(
+                            "mst_scale",
+                            "",
+                            choices = 500:1200,
+                            selected = 800,
+                            width = "95%"
+                          )
+                        )
+                      ),
+                      br(),
+                      hr(),
+                      fluidRow(
+                        column(
+                          width = 12,
+                          align = "left",
+                          br(),
+                          HTML(
+                            paste(
+                              tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Save Plot")
+                            )
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 8,
+                          div(
+                            class = "format",
+                            selectInput(
+                              inputId = "mst_plot_format",
+                              label = "",
+                              choices = c("html", 
+                                          "jpeg", "png", "bmp")
+                            )
+                          )
+                        ),
+                        column(
+                          width = 4,
+                          align = "left",
+                          conditionalPanel(
+                            "input.mst_plot_format=='jpeg'",
+                            actionBttn(
+                              "save_plot_jpeg",
+                              style = "simple",
+                              label = "",
+                              size = "sm",
+                              icon = icon("download"),
+                              color = "primary"
+                            )  
+                          ),
+                          conditionalPanel(
+                            "input.mst_plot_format=='png'",
+                            actionBttn(
+                              "save_plot_png",
+                              style = "simple",
+                              label = "",
+                              size = "sm",
+                              icon = icon("download"),
+                              color = "primary"
+                            )
+                          ),
+                          conditionalPanel(
+                            "input.mst_plot_format=='bmp'",
+                            actionBttn(
+                              "save_plot_bmp",
+                              style = "simple",
+                              label = "",
+                              size = "sm",
+                              icon = icon("download"),
+                              color = "primary"
+                            )  
+                          ),
+                          conditionalPanel(
+                            "input.mst_plot_format=='html'",
+                            downloadBttn(
+                              "save_plot_html",
+                              style = "simple",
+                              label = "",
+                              size = "sm",
+                              icon = icon("download"),
+                              color = "primary"
+                            )
+                          )
+                        )
+                      )
+                    ),
+                    conditionalPanel(
+                      "input.tree_algo=='Neighbour-Joining'",
+                      fluidRow(
+                        column(
+                          width = 12,
+                          align = "left",
+                          br(),
+                          HTML(
+                            paste(
+                              tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Sizing")
+                            )
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 12,
+                          radioGroupButtons(
+                            "nj_ratio",
+                            "",
+                            choiceNames = c("16:10", "16:9", "4:3"),
+                            choiceValues = c((16/10), (16/9), (4/3)),
+                            width = "100%"
+                          ),
+                          br(),
+                          sliderTextInput(
+                            "nj_scale",
+                            "",
+                            choices = 500:1200,
+                            selected = 800,
+                            width = "95%"
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 3,
+                          align = "left",
+                          br(),
+                          HTML(
+                            paste(
+                              tags$span(style='color: white; font-size: 14px; position: relative; bottom: -28px; margin-left: 15px ', "Zoom")
+                            )
+                          )
+                        ),
+                        column(
+                          width = 8,
+                          align = "right",
+                          br(),
+                          sliderTextInput(
+                            "nj_zoom",
+                            label = NULL,
+                            choices = seq(0.5, 1.5, 0.05),
+                            selected = 0.95,
+                            hide_min_max = TRUE
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 5,
+                          align = "left",
+                          numericInput(
+                            "nj_v",
+                            label = h5("Y", style = "color:white; margin-bottom: -6px; margin-left: 10px"),
+                            min = -0.5,
+                            max = 0.5,
+                            step = 0.01,
+                            value = 0
+                          )
+                        ),
+                        column(
+                          width = 5,
+                          align = "left",
+                          numericInput(
+                            "nj_h",
+                            label = h5("X", style = "color:white; margin-bottom: -6px; margin-left: 10px"),
+                            min = -0.5,
+                            max = 0.5,
+                            step = 0.01,
+                            value = 0
+                          )
+                        )
+                      ),
+                      br(),
+                      hr(),
+                      fluidRow(
+                        column(
+                          width = 12,
+                          align = "left",
+                          br(),
+                          HTML(
+                            paste(
+                              tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Save Plot")
+                            )
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 8,
+                          div(
+                            class = "format",
+                            selectInput(
+                              inputId = "filetype_nj",
+                              label = "",
+                              choices = c("jpeg", "png", "bmp", "svg")
+                            )
+                          )
+                        ),
+                        column(
+                          width = 4,
+                          align = "left",
+                          downloadBttn(
+                            "download_nj",
+                            style = "simple",
+                            label = "",
+                            size = "sm",
+                            icon = icon("download"),
+                            color = "primary"
+                          )
+                        )
+                      )
+                    ),
+                    conditionalPanel(
+                      "input.tree_algo=='UPGMA'",
+                      fluidRow(
+                        column(
+                          width = 12,
+                          align = "left",
+                          br(),
+                          HTML(
+                            paste(
+                              tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Sizing")
+                            )
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 12,
+                          radioGroupButtons(
+                            "upgma_ratio",
+                            "",
+                            choiceNames = c("16:10", "16:9", "4:3"),
+                            choiceValues = c((16/10), (16/9), (4/3)),
+                            width = "100%"
+                          ),
+                          br(),
+                          sliderTextInput(
+                            "upgma_scale",
+                            "",
+                            choices = 500:1200,
+                            selected = 800,
+                            width = "100%"
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 3,
+                          align = "left",
+                          br(),
+                          HTML(
+                            paste(
+                              tags$span(style='color: white; font-size: 14px; position: relative; bottom: -28px; margin-left: 15px ', "Zoom")
+                            )
+                          )
+                        ),
+                        column(
+                          width = 9,
+                          align = "right",
+                          br(),
+                          sliderTextInput(
+                            "upgma_zoom",
+                            label = NULL,
+                            choices = seq(0.5, 1.5, 0.05),
+                            selected = 0.95,
+                            hide_min_max = TRUE
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 5,
+                          align = "left",
+                          numericInput(
+                            "upgma_v",
+                            label = h5("Y", style = "color:white; margin-bottom: -6px; margin-left: 10px"),
+                            min = -0.5,
+                            max = 0.5,
+                            step = 0.01,
+                            value = 0
+                          )
+                        ),
+                        column(
+                          width = 5,
+                          align = "left",
+                          numericInput(
+                            "upgma_h",
+                            label = h5("X", style = "color:white; margin-bottom: -6px; margin-left: 10px"),
+                            min = -0.5,
+                            max = 0.5,
+                            step = 0.01,
+                            value = 0
+                          )
+                        )
+                      ),
+                      br(),
+                      hr(),
+                      fluidRow(
+                        column(
+                          width = 12,
+                          align = "left",
+                          br(),
+                          HTML(
+                            paste(
+                              tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Save Plot")
+                            )
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 8,
+                          div(
+                            class = "format",
+                            selectInput(
+                              inputId = "filetype_upgma",
+                              label = "",
+                              choices = c("jpeg", "png", "bmp", "svg")
+                            )
+                          )
+                        ),
+                        column(
+                          width = 4,
+                          align = "left",
+                          downloadBttn(
+                            "download_upgma",
+                            style = "simple",
+                            label = "",
+                            size = "sm",
+                            icon = icon("download"),
+                            color = "primary"
+                          )
+                        )
+                      )
+                    ),
+                    br(),
+                    hr(),
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        br(),
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Download Report")
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 8,
+                        align = "left",
+                        checkboxInput(
+                          "rep_entrytable",
+                          label = h5("Entry table", style = "color:white; position: absolute; top: -6px"),
+                          value = TRUE
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 6,
+                        align = "left",
+                        checkboxInput(
+                          "rep_general",
+                          label = h5("General", style = "color:white; position: absolute; top: -23px"),
+                          value = TRUE
+                        )
+                      ),
+                      column(
+                        width = 4,
+                        align = "left",
+                        dropMenu(
+                          actionBttn(
+                            "mst_general_menu",
+                            label = "",
+                            color = "default",
+                            size = "sm",
+                            style = "material-flat",
+                            icon = icon("pen-to-square")
+                          ),
+                          placement = "top-start",
+                          padding = "20px",
+                          theme = "translucent",
+                          fluidRow(
+                            tags$style("#mst_date_general_select .form-control {height: 28px; position: relative; right: -22px} "),
+                            tags$style("#rep_date_general {margin-top: 17px} .form-group {margin-bottom: 0px;}"),
+                            column(
+                              width = 3,
+                              checkboxInput(
+                                "rep_date_general", 
+                                label = h5("Date", style = "color:white; font-size: 17px; margin-top: 16px;"),
+                                value = TRUE
+                              )
+                            ),
+                            column(
+                              width = 7,
+                              dateInput(
+                                "mst_date_general_select",
+                                ""
+                              )
+                            )
+                          ),
+                          fluidRow(
+                            tags$style("#mst_operator_general_select {height: 28px; margin-top: -15px; position: relative; right: -22px}"),
+                            tags$style("#rep_operator_general {margin-top: 0px;}"),
+                            column(
+                              width = 3,
+                              checkboxInput(
+                                "rep_operator_general", 
+                                label = h5("Operator", style = "color:white; font-size: 17px; margin-top: -1px;"),
+                                value = TRUE
+                              )
+                            ),
+                            column(
+                              width = 8,
+                              textInput(
+                                "mst_operator_general_select",
+                                ""
+                              ) 
+                            )
+                          ),
+                          fluidRow(
+                            tags$style("#mst_institute_general_select {height: 28px; margin-top: -15px; position: relative; right: -22px}"),
+                            tags$style("#rep_institute_general {margin-top: 0px;}"),
+                            column(
+                              width = 3,
+                              checkboxInput(
+                                "rep_institute_general", 
+                                label = h5("Institute", style = "color:white; font-size: 17px; margin-top: -1px;"),
+                                value = TRUE
+                              )
+                            ),
+                            column(
+                              width = 8,
+                              textInput(
+                                "mst_institute_general_select",
+                                ""
+                              ) 
+                            )
+                          ),
+                          fluidRow(
+                            tags$style("#mst_comm_general_select {margin-top: -15px; border-radius: 5px; position: relative; right: -22px}"),
+                            tags$style("#rep_comm_general {margin-top: 0px;}"),
+                            column(
+                              width = 3,
+                              checkboxInput(
+                                "rep_comm_general", 
+                                label = h5("Comment", style = "color:white; font-size: 17px; margin-top: -1px;")
+                              )
+                            ),
+                            column(
+                              width = 8,
+                              textAreaInput(
+                                inputId = "mst_comm_general_select",
+                                label = "",
+                                width = "100%",
+                                height = "60px",
+                                cols = NULL,
+                                rows = NULL,
+                                placeholder = NULL,
+                                resize = "vertical"
+                              ) 
+                            )
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 6,
+                        align = "left",
+                        checkboxInput(
+                          "rep_analysis",
+                          label = h5("Analysis", style = "color:white; position: absolute; top: -42px"),
+                          value = TRUE
+                        )
+                      ),
+                      column(
+                        width = 4,
+                        align = "left",
+                        dropMenu(
+                          actionBttn(
+                            "mst_analysis_menu",
+                            label = "",
+                            color = "default",
+                            size = "sm",
+                            style = "material-flat",
+                            icon = icon("pen-to-square")
+                          ),
+                          placement = "top-start",
+                          padding = "20px",
+                          theme = "translucent",
+                          fluidRow(
+                            tags$style("#rep_cgmlst_analysis {margin-top: 19px}"),
+                            column(
+                              width = 4,
+                              checkboxInput(
+                                "rep_cgmlst_analysis",
+                                label = h5("Scheme", style = "color:white; font-size: 17px; margin-top: 18px"),
+                                value = TRUE
+                              )
+                            ),
+                            column(
+                              width = 8,
+                              align = "right"
+                            )
+                          ),
+                          fluidRow(
+                            tags$style("#rep_tree_analysis {margin-top: 0px}"),
+                            column(
+                              width = 4,
+                              checkboxInput(
+                                "rep_tree_analysis",
+                                label = h5("Tree", style = "color:white; font-size: 17px; margin-top: -1px"),
+                                value = TRUE
+                              )
+                            ),
+                            column(
+                              width = 6,
+                              align = "right",
+                              HTML(
+                                paste(
+                                  tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Tree algorithm')
+                                )
+                              )
+                            )
+                          ),
+                          fluidRow(
+                            tags$style("#rep_distance {margin-top: 0px}"),
+                            column(
+                              width = 4,
+                              checkboxInput(
+                                "rep_distance",
+                                label = h5("Distance", style = "color:white; font-size: 17px; margin-top: -1px"),
+                                value = TRUE
+                              )
+                            ),
+                            column(
+                              width = 6,
+                              align = "right",
+                              HTML(
+                                paste(
+                                  tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Distance algorithm')
+                                )
+                              )
+                            )
+                          ),
+                          fluidRow(
+                            tags$style("#rep_missval {margin-top: 0px}"),
+                            column(
+                              width = 7,
+                              align = "left",
+                              checkboxInput(
+                                "rep_missval",
+                                label = h5("NA handling", style = "color:white; font-size: 17px; margin-top: -1px"),
+                                value = TRUE
+                              )
+                            ),
+                            column(
+                              width = 5,
+                              align = "right",
+                              HTML(
+                                paste(
+                                  tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: 31px', 'Missing values')
+                                )
+                              )
+                            )
+                          ),
+                          fluidRow(
+                            tags$style("#rep_version {margin-top: 0px}"),
+                            column(
+                              width = 4,
+                              checkboxInput(
+                                "rep_version",
+                                label = h5("Version", style = "color:white; font-size: 17px; margin-top: -1px"),
+                                value = TRUE
+                              )
+                            ),
+                            column(
+                              width = 6,
+                              align = "right",
+                              HTML(
+                                paste(
+                                  tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Version info')
+                                )
+                              )
+                            )
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 8,
+                        align = "left",
+                        checkboxInput(
+                          "rep_plot_report",
+                          label = h5("Attach plot", style = "color:white; position: absolute; top: -61px"),
+                          value = TRUE
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        downloadBttn(
+                          "download_report",
+                          style = "simple",
+                          label = "Save",
+                          size = "sm",
+                          icon = icon("download")
+                        )
+                      )
+                    )
+                  )
+                }
+              })
+              
+              # Render entry table sidebar elements
               output$entrytable_sidebar <- renderUI({
                 if(!class(DF1$data) == "NULL") {
                   column(
@@ -6512,7 +6476,7 @@ server <- function(input, output, session) {
                       )
                     )
                   )
-                }
+                } 
               })
               
               # Render scheme selector in sidebar
@@ -6670,37 +6634,39 @@ server <- function(input, output, session) {
                     )
                   )
                 } else {
-                  if (input$compare_difference == FALSE) {
-                    DF1$allelic_profile
-                    pickerInput(
-                      inputId = "compare_select",
-                      label = "",
-                      width = "85%",
-                      choices = names(DF1$allelic_profile),
-                      selected = names(DF1$allelic_profile)[1:20],
-                      options = list(
-                        `live-search` = TRUE,
-                        `actions-box` = TRUE,
-                        size = 10,
-                        style = "background-color: white; border-radius: 5px;"
-                      ),
-                      multiple = TRUE
-                    )
-                  } else {
-                    pickerInput(
-                      inputId = "compare_select",
-                      label = "",
-                      width = "85%",
-                      choices = names(DF1$allelic_profile),
-                      selected = names(DF1$allelic_profile)[var_alleles(DF1$allelic_profile)],
-                      options = list(
-                        `live-search` = TRUE,
-                        `actions-box` = TRUE,
-                        size = 10,
-                        style = "background-color: white; border-radius: 5px;"
-                      ),
-                      multiple = TRUE
-                    )
+                  if(!is.null(input$compare_difference)) {
+                    if (input$compare_difference == FALSE) {
+                      DF1$allelic_profile
+                      pickerInput(
+                        inputId = "compare_select",
+                        label = "",
+                        width = "85%",
+                        choices = names(DF1$allelic_profile),
+                        selected = names(DF1$allelic_profile)[1:20],
+                        options = list(
+                          `live-search` = TRUE,
+                          `actions-box` = TRUE,
+                          size = 10,
+                          style = "background-color: white; border-radius: 5px;"
+                        ),
+                        multiple = TRUE
+                      )
+                    } else {
+                      pickerInput(
+                        inputId = "compare_select",
+                        label = "",
+                        width = "85%",
+                        choices = names(DF1$allelic_profile),
+                        selected = names(DF1$allelic_profile)[var_alleles(DF1$allelic_profile)],
+                        options = list(
+                          `live-search` = TRUE,
+                          `actions-box` = TRUE,
+                          size = 10,
+                          style = "background-color: white; border-radius: 5px;"
+                        ),
+                        multiple = TRUE
+                      )
+                    }
                   }
                 }
               })
@@ -10291,11 +10257,15 @@ server <- function(input, output, session) {
   ## Report ----
   
   observe({
-    if(input$tree_algo == "Minimum-Spanning") {
-      shinyjs::disable("rep_plot_report")
-      updateCheckboxInput(session, "rep_plot_report", value = FALSE)
-    } else {
-      shinyjs::enable("rep_plot_report")
+    if(!is.null(DF1$data)) {
+      if(!is.null(input$tree_algo)) {
+        if(input$tree_algo == "Minimum-Spanning") {
+          shinyjs::disable("rep_plot_report")
+          updateCheckboxInput(session, "rep_plot_report", value = FALSE)
+        } else {
+          shinyjs::enable("rep_plot_report")
+        }
+      }
     }
   })
   
@@ -10305,20 +10275,23 @@ server <- function(input, output, session) {
   reportVAR <- reactiveValues()
   
   observe({
-    reportVAR$report_df <- data.frame(Element = c("entry_table", "general_show",
-                                                  "general_date", "operator",
-                                                  "institute", "comment",
-                                                  "analysis_show", "scheme",
-                                                  "tree", "distance", "na_handling", "version",
-                                                  "plot"), 
-                                      Include = c(input$rep_entrytable, input$rep_general,
-                                                  input$rep_date_general, input$rep_operator_general,
-                                                  input$rep_institute_general, input$rep_comm_general,
-                                                  input$rep_analysis, input$rep_cgmlst_analysis,
-                                                  input$rep_tree_analysis, input$rep_distance,
-                                                  input$rep_missval, input$rep_version,
-                                                  input$rep_plot_report))
-    
+    if(!is.null(DF1$data)){
+      if(!is.null(input$tree_algo)) {
+        reportVAR$report_df <- data.frame(Element = c("entry_table", "general_show",
+                                                      "general_date", "operator",
+                                                      "institute", "comment",
+                                                      "analysis_show", "scheme",
+                                                      "tree", "distance", "na_handling", "version",
+                                                      "plot"), 
+                                          Include = c(input$rep_entrytable, input$rep_general,
+                                                      input$rep_date_general, input$rep_operator_general,
+                                                      input$rep_institute_general, input$rep_comm_general,
+                                                      input$rep_analysis, input$rep_cgmlst_analysis,
+                                                      input$rep_tree_analysis, input$rep_distance,
+                                                      input$rep_missval, input$rep_version,
+                                                      input$rep_plot_report))
+      }
+    }
   })
   
   #### Get Report values ----
@@ -10791,12 +10764,13 @@ server <- function(input, output, session) {
         'echo 0 > ',
         shQuote(paste0(getwd(), "/execute/progress.fifo")),
         "\n",
-        'base_path="/home/marian/Documents/Projects/Masterthesis"', '\n',
-        'kma_database="$base_path/PhyloTree/execute/kma_single/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
+        'base_path=', shQuote(getwd()), '\n',
+        'mkdir $base_path/execute/kma_single', '\n',
+        'kma_database="$base_path/execute/kma_single/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
         "genome=",
         shQuote(typing_reactive$single_path$datapath),
         "\n",
-        '/home/marian/miniconda3/bin/kma index -i "$genome" -o "$kma_database"', '\n',
+        'kma index -i "$genome" -o "$kma_database"', '\n',
         "query_folder=",
         shQuote(paste0(
           getwd(),
@@ -10826,7 +10800,7 @@ server <- function(input, output, session) {
         "\n",
         'output_file="$results/$query_filename_noext"',
         "\n",
-        '/home/marian/miniconda3/bin/kma -i "$query_file" -o "$output_file" -t_db "$kma_database" -nc -status',
+        'kma -i "$query_file" -o "$output_file" -t_db "$kma_database" -nc -status',
         "\n",
         '((count++))',
         "\n",
@@ -11653,7 +11627,7 @@ server <- function(input, output, session) {
     kma_multi <- paste0(
       '#!/bin/bash', '\n',
       'cd execute', '\n',
-      'base_path="/home/marian/Documents/Projects/Masterthesis"', '\n',
+      'base_path=', shQuote(getwd()), '\n',
       '# Get Genome Folder', '\n',
       'genome_folder=', shQuote(as.character(parseDirPath(roots = c(wd = "/home"), 
                                                           input$genome_file_multi))), '\n',
@@ -11682,6 +11656,7 @@ server <- function(input, output, session) {
       '    fi', '\n',
       'done', '\n',
       '# Directory name', '\n',
+      'mkdir $base_path/execute/kma_multi', '\n',
       'results=', shQuote(paste0(getwd(),"/execute/kma_multi/results")), '\n',
       '# Remove the existing directory (if it exists)', '\n',
       'if [ -d "$results" ]; then', '\n',
@@ -11690,7 +11665,7 @@ server <- function(input, output, session) {
       '# Create a new directory', '\n', 
       'mkdir "$results"', '\n',
       '#INDEXING GENOME AS DATABASE', '\n',
-      'kma_database="$base_path/PhyloTree/execute/kma_multi/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
+      'kma_database="$base_path/execute/kma_multi/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
       '#RUNNING KMA', '\n',
       'query_folder=', shQuote(paste0(getwd(), 
                                       "/Database/", 
@@ -11705,7 +11680,7 @@ server <- function(input, output, session) {
       '    genome_filename=$(basename "$genome")', '\n',
       '    genome_filename_noext="${genome_filename%.*}"', '\n',
       '    log_message "Processing $genome_filename"', '\n',
-      '    /home/marian/miniconda3/bin/kma index -i "$genome" -o "$kma_database"', '\n',
+      '    kma index -i "$genome" -o "$kma_database"', '\n',
       '    fi', '\n',
       '    mkdir "$results/$genome_filename_noext"', '\n',
       '#Running Loop', '\n',
@@ -11714,7 +11689,7 @@ server <- function(input, output, session) {
       '        query_filename=$(basename "$query_file")', '\n',
       '        query_filename_noext="${query_filename%.*}"', '\n',
       '        output_file="$results/$genome_filename_noext/$query_filename_noext"', '\n',
-      '        /home/marian/miniconda3/bin/kma -i "$query_file" -o "$output_file" -t_db "$kma_database" -nc -status', '\n',
+      '        kma -i "$query_file" -o "$output_file" -t_db "$kma_database" -nc -status', '\n',
       '        fi', '\n',
       '    done', '\n',
       '    Rscript ', shQuote(paste0(getwd(), "/execute/automatic_typing.R")), '\n',
