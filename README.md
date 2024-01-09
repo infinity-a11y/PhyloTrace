@@ -56,12 +56,23 @@ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /m
 /miniconda3/bin/conda install -c bioconda kma
 ```
 
-## 5. Running PhyloTrace
+## 5 Running PhyloTrace
+#### 5.1 Running from Terminal (no RStudio required)
 
-Run PhyloTrace either by executing the following command in the terminal
+
+1. Navigate to the local directory
 ```bash
-Rscript PhyloTrace.R
+cd <phylotrace-directory>
 ```
-or open PhyloTrace.R from its directory with RStudio and start it by clicking "Run App" (make sure to tick "Run External" to open it in the default browser).
+>Note: In the command above, replace *phylotrace-directory* with the path where you extracted the repository to. 
+
+2. Start the app by running this command from within the directory
+```bash
+Rscript PhyloTrace_App.R
+```
+
+#### 5.1 Running from RStudio
+
+Open PhyloTrace.R from its directory with RStudio and start it by clicking "Run App" (make sure to tick "Run External" to open it in the default browser).
 
 ![My Image](www/run_external.png)
