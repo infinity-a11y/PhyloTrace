@@ -6,14 +6,14 @@
 Download the complete repository as .zip and extract it to any location on your system.
 Follow these instructions to install the required dependencies.
 
-## 1. Install R and RStudio
+## 1. Install R
 
 Before installing the dependencies, ensure that you have R and RStudio installed on your system. Follow the instructions below:
 
 1. Download the latest version of R for your operating system from [the CRAN website](https://cran.r-project.org/).
 2. Install R by executing the downloaded file and following the installation prompts.
 
-[Optional: Download RStudio]
+[Optional: Download RStudio IDE]
 
 3. Download RStudio from [the RStudio website](https://rstudio.com/products/rstudio/download/).
 4. Install RStudio by executing the downloaded file and following the installation prompts.
