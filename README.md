@@ -62,9 +62,9 @@ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /m
 
 1. Navigate to the local directory
 ```bash
-cd <phylotrace-directory>
+cd path/to/directory
 ```
->Note: In the command above, replace *phylotrace-directory* with the path where you extracted the repository to. 
+>Note: In the command above, replace *path/to/directory* with the actual path where you extracted the repository to. 
 
 2. Start the app by running this command from within the directory
 ```bash
