@@ -71,6 +71,12 @@ cd <phylotrace-directory>
 Rscript PhyloTrace_App.R
 ```
 
+3. After loading the required packages, open the app in the browser by clicking the displayed port in the terminal or copying the port to the address bar of your browser.
+
+>Note: Upon first start, the packages are automatically installed. This process can take a while. After successful installation, the port will be displayed.  
+
+![My Image](www/terminal_start.png)   
+
 #### 5.1 Running from RStudio
 
 Open PhyloTrace.R from its directory with RStudio and start it by clicking "Run App" (make sure to tick "Run External" to open it in the default browser).
