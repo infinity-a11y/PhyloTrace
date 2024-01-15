@@ -935,7 +935,7 @@ ui <- dashboardPage(
     tags$style("#upgma_h {padding: initial; margin-top: 3px; width: 75px; text-align: center}"),
     tags$style("#upgma_zoom irs.irs--shiny.js-irs-4.irs.irs-line {width: 108px}"),
     tags$style(".textinput_var .form-group.shiny-input-container {padding: 0px 0px 0px 0px}"),
-    tags$style(type='text/css', '#show_cust_var {color:black; text-align: -webkit-right; font-size: 17px; white-space: pre-wrap; max-width: 100%;}'),
+    tags$style(type='text/css', '#show_cust_var {color:black; font-size: 14px;}'),
     br(), br(),
     uiOutput("loaded_scheme"),
     sidebarMenu(
@@ -6526,7 +6526,7 @@ server <- function(input, output, session) {
   get.entry.table.meta <- reactive({
     if(!is.null(hot_to_r(input$db_entries))){
       table <- hot_to_r(input$db_entries)
-      select(table, 1:(12 + length(DF1$cust_var)))
+      select(table, 1:(12 + nrow(DF1$cust_var)))
     }
   })
   
@@ -6574,6 +6574,27 @@ server <- function(input, output, session) {
       800
     } else {NULL}
   })
+  
+  # Function to missing value table height
+  miss.val.height <- reactive({
+    if(input$miss_val_height == TRUE) {
+      NULL
+    } else {800}
+  })
+  
+  #Function to check custom variable classes
+  column_classes <- function(df) {
+    sapply(df, function(x) {
+      if (class(x) == "numeric") {
+        return("(cont.)")
+      } else if (class(x) == "character") {
+        return("(categ.)")
+      } else {
+        return(class(x))
+      }
+    })
+  }
+  
   
   ## Startup ----
   
@@ -7191,10 +7212,10 @@ server <- function(input, output, session) {
               
               if(!is.null(DF1$data)){
                 if ((ncol(DF1$data)-12) != as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))) {
-                  cust_vars <- select(DF1$data, 13:(ncol(DF1$data) - as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))))
-                  DF1$cust_var <- names(cust_vars)
+                  cust_var <- select(DF1$data, 13:(ncol(DF1$data) - as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))))
+                  DF1$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
                 } else {
-                  DF1$cust_var <- character()
+                  DF1$cust_var <- data.frame()
                 }
               }
               
@@ -7202,11 +7223,11 @@ server <- function(input, output, session) {
               
               DF1$no_na_switch <- FALSE
               
-              DF1$meta <- select(DF1$data, 1:(12 + length(DF1$cust_var)))
+              DF1$meta <- select(DF1$data, 1:(12 + nrow(DF1$cust_var)))
               
               DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
               
-              DF1$allelic_profile <- select(DF1$data, -(1:(12 + length(DF1$cust_var))))
+              DF1$allelic_profile <- select(DF1$data, -(1:(12 + nrow(DF1$cust_var))))
               
               DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
               
@@ -7300,9 +7321,10 @@ server <- function(input, output, session) {
               }
               # Render custom variable display
               
-              output$show_cust_var <- renderTable({
-                paste0(DF1$cust_var, "\n")
-              })
+              output$show_cust_var <- renderTable(
+                DF1$cust_var,
+                width = "100%"
+              )
               
               # render visualization sidebar elements
               
@@ -8058,7 +8080,7 @@ server <- function(input, output, session) {
                           selectInput(
                             "del_which_var",
                             "",
-                            DF1$cust_var
+                            DF1$cust_var$Variable
                           )
                         )
                       ),
@@ -8077,7 +8099,8 @@ server <- function(input, output, session) {
                     fluidRow(
                       column(1),
                       column(
-                        width = 8,
+                        width = 11,
+                        align = "center",
                         tableOutput("show_cust_var")
                       )
                     )
@@ -8125,24 +8148,38 @@ server <- function(input, output, session) {
               
               # Render missing values sidebar elements
               output$missing_values_sidebar <- renderUI({
-                fluidRow(
-                  column(
-                    width = 6,
-                    HTML(
-                      paste(
-                        tags$span(style='color: white; font-size: 14px; position: relative; bottom: -23px; right: -15px', 
-                                  'Download CSV')
+                column(
+                  width = 12,
+                  fluidRow(
+                    column(
+                      width = 12,
+                      checkboxInput(
+                        "miss_val_height",
+                        "Show full table",
+                        value = FALSE
                       )
-                    )
+                    ),
+                    br()
                   ),
-                  column(
-                    width = 4,
-                    downloadBttn(
-                      "download_na_matrix",
-                      style = "simple",
-                      label = "",
-                      size = "sm",
-                      icon = icon("download")
+                  fluidRow(
+                    column(
+                      width = 6,
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; font-size: 14px; position: relative; bottom: -23px; right: -15px', 
+                                    'Download CSV')
+                        )
+                      )
+                    ),
+                    column(
+                      width = 4,
+                      downloadBttn(
+                        "download_na_matrix",
+                        style = "simple",
+                        label = "",
+                        size = "sm",
+                        icon = icon("download")
+                      )
                     )
                   )
                 )
@@ -8301,14 +8338,14 @@ server <- function(input, output, session) {
                     if (nrow(DF1$data) == 1) {
                       output$db_entries <- renderRHandsontable({
                         rhandsontable(
-                          select(DF1$data, 1:(12 + length(DF1$cust_var))),
+                          select(DF1$data, 1:(12 + nrow(DF1$cust_var))),
                           rowHeaders = NULL
                         ) %>%
                           hot_col(1, 
                                   readOnly = TRUE,
                                   valign = "htMiddle",
                                   halign = "htCenter") %>%
-                          hot_col(3:(12 + length(DF1$cust_var)), 
+                          hot_col(3:(12 + nrow(DF1$cust_var)), 
                                   valign = "htMiddle",
                                   halign = "htLeft") %>%
                           hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
@@ -8325,19 +8362,19 @@ server <- function(input, output, session) {
                         output$db_entries <- renderRHandsontable({
                           row_highlight <- true_rows()-1
                           rhandsontable(
-                            select(DF1$data, 1:(12 + length(DF1$cust_var)), input$compare_select),
+                            select(DF1$data, 1:(12 + nrow(DF1$cust_var)), input$compare_select),
                             col_highlight = diff_allele()-1,
                             rowHeaders = NULL,
                             row_highlight = row_highlight
                           ) %>%
-                            hot_col((12 + length(DF1$cust_var)):((12 + length(DF1$cust_var))+length(input$compare_select)), 
+                            hot_col((12 + nrow(DF1$cust_var)):((12 + nrow(DF1$cust_var))+length(input$compare_select)), 
                                     valign = "htMiddle",
                                     halign = "htCenter") %>%
                             hot_col(1, 
                                     readOnly = TRUE,
                                     valign = "htMiddle",
                                     halign = "htCenter") %>%
-                            hot_col(3:(12 + length(DF1$cust_var)), 
+                            hot_col(3:(12 + nrow(DF1$cust_var)), 
                                     valign = "htMiddle",
                                     halign = "htLeft") %>%
                             hot_context_menu(allowRowEdit = FALSE,
@@ -8385,7 +8422,7 @@ server <- function(input, output, session) {
                         output$db_entries <- renderRHandsontable({
                           row_highlight <- true_rows()-1
                           rhandsontable(
-                            select(DF1$data, 1:(12 + length(DF1$cust_var))),
+                            select(DF1$data, 1:(12 + nrow(DF1$cust_var))),
                             rowHeaders = NULL,
                             row_highlight = row_highlight
                           ) %>%
@@ -8394,7 +8431,7 @@ server <- function(input, output, session) {
                                     readOnly = TRUE,
                                     valign = "htMiddle",
                                     halign = "htCenter") %>%
-                            hot_col(3:(12 + length(DF1$cust_var)), 
+                            hot_col(3:(12 + nrow(DF1$cust_var)), 
                                     valign = "htMiddle",
                                     halign = "htLeft") %>%
                             hot_col(2, type = "checkbox", width = "auto",
@@ -8424,16 +8461,16 @@ server <- function(input, output, session) {
                       if (length(input$compare_select) > 0) {
                         output$db_entries <- renderRHandsontable({
                           rhandsontable(
-                            select(DF1$data, 1:(12 + length(DF1$cust_var)), input$compare_select),
+                            select(DF1$data, 1:(12 + nrow(DF1$cust_var)), input$compare_select),
                             col_highlight = diff_allele()-1,
                             rowHeaders = NULL,
                             height = table_height(),
                             row_highlight = true_rows()-1
                           ) %>%
-                            hot_col((12 + length(DF1$cust_var)):((12 + length(DF1$cust_var))+length(input$compare_select)), 
+                            hot_col((12 + nrow(DF1$cust_var)):((12 + nrow(DF1$cust_var))+length(input$compare_select)), 
                                     valign = "htMiddle",
                                     halign = "htCenter") %>%
-                            hot_col(3:(12 + length(DF1$cust_var)), 
+                            hot_col(3:(12 + nrow(DF1$cust_var)), 
                                     valign = "htMiddle",
                                     halign = "htLeft") %>%
                             hot_col(1, 
@@ -8484,7 +8521,7 @@ server <- function(input, output, session) {
                         output$db_entries <- renderRHandsontable({
                           row_highlight <- true_rows()-1
                           rhandsontable(
-                            select(DF1$data, 1:(12 + length(DF1$cust_var))),
+                            select(DF1$data, 1:(12 + nrow(DF1$cust_var))),
                             rowHeaders = NULL,
                             height = table_height(),
                             row_highlight = row_highlight
@@ -8494,7 +8531,7 @@ server <- function(input, output, session) {
                                     readOnly = TRUE,
                                     valign = "htMiddle",
                                     halign = "htCenter") %>%
-                            hot_col(3:(12 + length(DF1$cust_var)), 
+                            hot_col(3:(12 + nrow(DF1$cust_var)), 
                                     valign = "htMiddle",
                                     halign = "htLeft") %>%
                             hot_context_menu(allowRowEdit = FALSE,
@@ -8674,7 +8711,7 @@ server <- function(input, output, session) {
             
             diff_allele <- reactive({
               if (!is.null(DF1$data) & !is.null(input$compare_select) & !is.null(DF1$cust_var)) {
-                var_alleles(select(DF1$data, input$compare_select)) + (12 + length(DF1$cust_var))
+                var_alleles(select(DF1$data, input$compare_select)) + (12 + nrow(DF1$cust_var))
               }
             })
             
@@ -8845,18 +8882,37 @@ server <- function(input, output, session) {
               cbind("Errors" = DF1$meta[rownames(NA_table),]$Errors) %>%
               relocate("Assembly Name", "Errors")
             
-            # Render missing values Table
-            output$table_missing_values <- renderRHandsontable({
-              rhandsontable(
-                NA_table,
-                rowHeaders = NULL
-              ) %>%
-                hot_context_menu(allowRowEdit = FALSE,
-                                 allowColEdit = FALSE,
-                                 allowReadOnly = TRUE) %>%
-                hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                hot_rows(fixedRowsTop = 0) %>%
-                hot_col(1:ncol(NA_table), valign = "htMiddle", halign = "htCenter")
+            observe({
+              if(!is.null(input$miss_val_height)) {
+                if(nrow(NA_table) < 31) {
+                  output$table_missing_values <- renderRHandsontable({
+                    rhandsontable(
+                      NA_table,
+                      rowHeaders = NULL
+                    ) %>%
+                      hot_context_menu(allowRowEdit = FALSE,
+                                       allowColEdit = FALSE,
+                                       allowReadOnly = TRUE) %>%
+                      hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                      hot_rows(fixedRowsTop = 0) %>%
+                      hot_col(1:ncol(NA_table), valign = "htMiddle", halign = "htCenter")
+                  })
+                } else {
+                  output$table_missing_values <- renderRHandsontable({
+                    rhandsontable(
+                      NA_table,
+                      rowHeaders = NULL,
+                      height = miss.val.height()
+                    ) %>%
+                      hot_context_menu(allowRowEdit = FALSE,
+                                       allowColEdit = FALSE,
+                                       allowReadOnly = TRUE) %>%
+                      hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                      hot_rows(fixedRowsTop = 0) %>%
+                      hot_col(1:ncol(NA_table), valign = "htMiddle", halign = "htCenter")
+                  })
+                }
+              }
             })
             
             # Render missing value informatiojn box UI
@@ -9337,10 +9393,10 @@ server <- function(input, output, session) {
     DF1$data <- Data[["Typing"]]
     
     if ((ncol(DF1$data)-12) != as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))) {
-      DF1$cust_var <- select(DF1$data, 13:(ncol(DF1$data) - as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))))
-      DF1$cust_var <- names(DF1$cust_var)
+      cust_var <- select(DF1$data, 13:(ncol(DF1$data) - as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))))
+      DF1$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
     } else {
-      DF1$cust_var <- character()
+      DF1$cust_var <- data.frame()
     }
     
     DF1$change <- FALSE
@@ -9349,11 +9405,11 @@ server <- function(input, output, session) {
     
     DF1$no_na_switch <- TRUE
     
-    DF1$meta <- select(DF1$data, 1:(12 + length(DF1$cust_var)))
+    DF1$meta <- select(DF1$data, 1:(12 + nrow(DF1$cust_var)))
     
     DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
     
-    DF1$allelic_profile <- select(DF1$data, -(1:(12 + length(DF1$cust_var))))
+    DF1$allelic_profile <- select(DF1$data, -(1:(12 + nrow(DF1$cust_var))))
     
     DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
     
@@ -9363,12 +9419,11 @@ server <- function(input, output, session) {
   observe({
     if(!is.null(DF1$data)){
       if ((ncol(DF1$data)-12) != as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))) {
-        cust_vars <- select(DF1$data, 13:(ncol(DF1$data) - as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))))
-        DF1$cust_var <- names(cust_vars)
-        
+        cust_var <- select(DF1$data, 13:(ncol(DF1$data) - as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))))
+        DF1$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
         
       } else {
-        DF1$cust_var <- character()
+        DF1$cust_var <- data.frame()
       }
     }
   })
@@ -9376,39 +9431,49 @@ server <- function(input, output, session) {
   DF1$count <- 0
   
   observeEvent(input$add_new_variable, {
-    if (input$new_var_name == "") {
+    if(length(input$new_variable) > 10) {
       show_toast(
-        title = "Name length is 0",
-        type = "error",
+        title = "Max. 10 characters",
+        type = "warning",
         position = "top-end",
-        width = "330px",
+        width = "400px",
         timer = 6000
       )
     } else {
-      if(trimws(input$new_var_name) %in% names(DF1$meta)) {
+      if (input$new_var_name == "") {
         show_toast(
-          title = "Variable name already existing",
-          type = "warning",
+          title = "Name length is 0",
+          type = "error",
           position = "top-end",
-          width = "400px",
+          width = "330px",
           timer = 6000
         )
       } else {
-        showModal(
-          modalDialog(
-            selectInput(
-              "new_var_type",
-              label = "",
-              choices = c("Categorical (character)",
-                          "Continous (numeric)")),
-            title = paste0("Select the data type for ", input$new_varname),
-            easyClose = TRUE,
-            footer = tagList(
-              modalButton("Cancel"),
-              actionButton("conf_new_var", "Confirm", class = "btn btn-default")
+        if(trimws(input$new_var_name) %in% names(DF1$meta)) {
+          show_toast(
+            title = "Variable name already existing",
+            type = "warning",
+            position = "top-end",
+            width = "400px",
+            timer = 6000
+          )
+        } else {
+          showModal(
+            modalDialog(
+              selectInput(
+                "new_var_type",
+                label = "",
+                choices = c("Categorical (character)",
+                            "Continous (numeric)")),
+              title = paste0("Select the data type for ", input$new_varname),
+              easyClose = TRUE,
+              footer = tagList(
+                modalButton("Cancel"),
+                actionButton("conf_new_var", "Confirm", class = "btn btn-default")
+              )
             )
           )
-        )
+        }
       }
     }
   })
@@ -9423,21 +9488,23 @@ server <- function(input, output, session) {
     
     name <- trimws(input$new_var_name)
     
-    DF1$cust_var <- append(DF1$cust_var, name)
-    
     if(input$new_var_type == "Categorical (character)") {
       DF1$data <- DF1$data %>%
         mutate("{name}" := character(nrow(DF1$data)), .after = 12)
+      
+      DF1$cust_var <- rbind(DF1$cust_var, data.frame(Variable = name, Type = "(categ.)"))
     } else {
       DF1$data <- DF1$data %>%
         mutate("{name}" := numeric(nrow(DF1$data)), .after = 12)
+      
+      DF1$cust_var <- rbind(DF1$cust_var, data.frame(Variable = name, Type = "(cont.)"))
     }
     
-    DF1$meta <- select(DF1$data, 1:(12 + length(DF1$cust_var)))
+    DF1$meta <- select(DF1$data, 1:(12 + nrow(DF1$cust_var)))
     
     DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
     
-    DF1$allelic_profile <- select(DF1$data, -(1:(12 + length(DF1$cust_var))))
+    DF1$allelic_profile <- select(DF1$data, -(1:(12 + nrow(DF1$cust_var))))
     
     DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
     
@@ -9497,16 +9564,12 @@ server <- function(input, output, session) {
       timer = 6000
     )
     
-    DF1$cust_var <- DF1$cust_var[-(which(DF1$cust_var %in% input$del_which_var))]
-    eins <<- DF1$cust_var
+    DF1$cust_var <- DF1$cust_var[-which(DF1$cust_var$Variable == input$del_which_var),]
     DF1$data <- select(DF1$data, -(input$del_which_var))
-    zwei <<- DF1$data
-    DF1$meta <- select(DF1$data, 1:(12 + length(DF1$cust_var)))
-    drei <<- DF1$meta
+    DF1$meta <- select(DF1$data, 1:(12 + nrow(DF1$cust_var)))
     DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
     
-    DF1$allelic_profile <- select(DF1$data, -(1:(12 + length(DF1$cust_var))))
-    vier <<- DF1$allelic_profile
+    DF1$allelic_profile <- select(DF1$data, -(1:(12 + nrow(DF1$cust_var))))
     DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
     
   })
@@ -9589,7 +9652,7 @@ server <- function(input, output, session) {
       }
       
       if (input$download_table_loci == FALSE) {
-        download_matrix <- select(download_matrix, 1:(12 + length(DF1$cust_var)))
+        download_matrix <- select(download_matrix, 1:(12 + nrow(DF1$cust_var)))
       } 
       
       write.csv(download_matrix, file, row.names=FALSE, quote=FALSE) 
@@ -9683,10 +9746,10 @@ server <- function(input, output, session) {
     
     if(!is.null(DF1$data)){
       if ((ncol(DF1$data)-12) != as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))) {
-        cust_vars <- select(DF1$data, 13:(ncol(DF1$data) - as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))))
-        DF1$cust_var <- names(cust_vars)
+        cust_var <- select(DF1$data, 13:(ncol(DF1$data) - as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))))
+        DF1$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
       } else {
-        DF1$cust_var <- character()
+        DF1$cust_var <- data.frame()
       }
     }
     
@@ -9696,11 +9759,11 @@ server <- function(input, output, session) {
     
     DF1$no_na_switch <- TRUE
     
-    DF1$meta <- select(DF1$data, 1:(12 + length(DF1$cust_var)))
+    DF1$meta <- select(DF1$data, 1:(12 + nrow(DF1$cust_var)))
     
     DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
     
-    DF1$allelic_profile <- select(DF1$data, -(1:(12 + length(DF1$cust_var))))
+    DF1$allelic_profile <- select(DF1$data, -(1:(12 + nrow(DF1$cust_var))))
     
     DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
     
@@ -9806,11 +9869,11 @@ server <- function(input, output, session) {
     
     DF1$data <- DF1$data[!(DF1$data$Index %in% as.numeric(input$select_delete)),]
     
-    DF1$meta <- select(DF1$data, 1:(12 + length(DF1$cust_var)))
+    DF1$meta <- select(DF1$data, 1:(12 + nrow(DF1$cust_var)))
     
     DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
     
-    DF1$allelic_profile <- select(DF1$data, -(1:(12 + length(DF1$cust_var))))
+    DF1$allelic_profile <- select(DF1$data, -(1:(12 + nrow(DF1$cust_var))))
     
     DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
     
@@ -9882,7 +9945,7 @@ server <- function(input, output, session) {
     } 
     
     # Rownames change
-    rownames(hamming_matrix) <- select(DF1$data, 1:(12 + length(DF1$cust_var)))[rownames(select(DF1$data, 1:(12 + length(DF1$cust_var)))) %in% rownames(hamming_matrix), 
+    rownames(hamming_matrix) <- select(DF1$data, 1:(12 + nrow(DF1$cust_var)))[rownames(select(DF1$data, 1:(12 + nrow(DF1$cust_var)))) %in% rownames(hamming_matrix), 
                                                                                 input$distmatrix_label]
     colnames(hamming_matrix) <- rownames(hamming_matrix)
     
@@ -14342,7 +14405,7 @@ server <- function(input, output, session) {
     
     # Render log content
     output$logText <- renderPrint({
-      readLogFile()
+      tail(readLogFile(), 50)
     })
     
     # Render Pending UI
@@ -14378,7 +14441,7 @@ server <- function(input, output, session) {
           ),
           br(), br(),
           fluidRow(
-            tags$style(type='text/css', '#logText {color:black; white-space: pre-wrap; max-width: 100%;}'),
+            tags$style(type='text/css', '#logText {color:black; white-space: pre-wrap; max-width: 100%; }'),
             column(width = 1),
             column(
               width = 6,
@@ -14411,7 +14474,7 @@ server <- function(input, output, session) {
           ),
           br(), br(),
           fluidRow(
-            tags$style(type='text/css', '#logText {color:black; white-space: pre-wrap;}'),
+            tags$style(type='text/css', '#logText {color:black; white-space: pre-wrap; max-width: 100%; }'),
             column(width = 1),
             column(
               width = 6,
