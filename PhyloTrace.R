@@ -6717,7 +6717,8 @@ server <- function(input, output, session) {
         selectInput(
           "scheme_db",
           label = "",
-          choices = DF1$available),
+          choices = DF1$available,
+          selected = DF1$scheme),
         title = "Select a local database to load.",
         easyClose = TRUE,
         footer = tagList(
@@ -9431,7 +9432,7 @@ server <- function(input, output, session) {
   DF1$count <- 0
   
   observeEvent(input$add_new_variable, {
-    if(length(input$new_variable) > 10) {
+    if(nchar(input$new_var_name) > 12) {
       show_toast(
         title = "Max. 10 characters",
         type = "warning",
@@ -9442,7 +9443,7 @@ server <- function(input, output, session) {
     } else {
       if (input$new_var_name == "") {
         show_toast(
-          title = "Name length is 0",
+          title = "Min. 1 character",
           type = "error",
           position = "top-end",
           width = "330px",
@@ -13081,7 +13082,7 @@ server <- function(input, output, session) {
         p(
           HTML(
             paste(
-              tags$span(style='color: white; font-size: 18px; margin-bottom: 0px', 'Typing mode')
+              tags$span(style='color: white; font-size: 18px; margin-bottom: 0px', 'Typing Mode')
             )
           )
         ),
@@ -13626,7 +13627,7 @@ server <- function(input, output, session) {
                             append_country = trimws(input$append_country),
                             append_city = trimws(input$append_city),
                             append_analysisdate = input$append_analysisdate,
-                            db_directory = getwd())
+                            db_directory = getwd()) 
     
     saveRDS(meta_info, paste0(
       getwd(),
@@ -14011,6 +14012,7 @@ server <- function(input, output, session) {
   
   
   observeEvent(input$conf_meta_multi, {
+    
     
     meta_info <- data.frame(cgmlst_typing = DF1$scheme,
                             append_isodate = trimws(input$append_isodate_multi),
