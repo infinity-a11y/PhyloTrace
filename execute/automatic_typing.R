@@ -2,6 +2,20 @@ meta_info <- readRDS("meta_info.rds")
 
 setwd(meta_info$db_directory)
 
+#Function to check custom variable classes
+column_classes <- function(df) {
+  sapply(df, function(x) {
+    if (class(x) == "numeric") {
+      return("(cont.)")
+    } else if (class(x) == "character") {
+      return("(categ.)")
+    } else {
+      return(class(x))
+    }
+  })
+}
+
+
 typing_genome <- tail(list.files(paste0(getwd(), "/execute/kma_multi/results")), n = 1)
 typing_genome_full <- tail(list.files(paste0(getwd(), "/execute/kma_multi/results"), full.names = TRUE), n = 1)
 
@@ -132,28 +146,73 @@ if(!any(grepl("Typing", list.files(paste0(getwd(), "/Database/", gsub(" ", "_", 
       sum(sapply(allele_vector, is.na))
     )
   
+  if ((ncol(Database$Typing)-12) != length(allele_vector)) {
+    
+    cust_var <- dplyr::select(Database$Typing, 13:(ncol(Database$Typing) - length(allele_vector)))
+    cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
+    
+    class_df <- data.frame()
+    for (i in 1:nrow(cust_var)) {
+      if(cust_var$Type[i] == "(categ.)") {
+        class_df[1, i] <- ""
+      } else {
+        class_df[1, i] <- 0
+      }
+    }
+    
+    metadata <- cbind(metadata, class_df)
+  } 
+  
   df_profile <- data.frame(matrix(allele_vector, ncol = length(allele_vector)))
   
   merged <- cbind(metadata, df_profile)
   
-  colnames(merged) <-
-    append(
+  if ((ncol(Database$Typing)-12) != length(allele_vector)) {
+    names_vec <- character(0)
+    # Add new columns to df1
+    for (i in 1:nrow(cust_var)) {
+      names_vec[i]<- cust_var$Variable[i]
+    }
+    
+    colnames(merged) <-
       c(
-        "Index",
-        "Include",
-        "Assembly ID",
-        "Assembly Name",
-        "Scheme",
-        "Isolation Date",
-        "Host",
-        "Country",
-        "City",
-        "Typing Date",
-        "Successes",
-        "Errors"
-      ),
-      gsub(".fasta", "", basename(list.files(allele_folder)))
-    )
+        c(
+          "Index",
+          "Include",
+          "Assembly ID",
+          "Assembly Name",
+          "Scheme",
+          "Isolation Date",
+          "Host",
+          "Country",
+          "City",
+          "Typing Date",
+          "Successes",
+          "Errors"
+        ),
+        names_vec,
+        gsub(".fasta", "", basename(list.files(allele_folder)))
+      )
+  } else {
+    colnames(merged) <-
+      c(
+        c(
+          "Index",
+          "Include",
+          "Assembly ID",
+          "Assembly Name",
+          "Scheme",
+          "Isolation Date",
+          "Host",
+          "Country",
+          "City",
+          "Typing Date",
+          "Successes",
+          "Errors"
+        ),
+        gsub(".fasta", "", basename(list.files(allele_folder)))
+      )
+  }
   
   merged <- dplyr::mutate(merged, "Include" = as.logical(Include))
   
