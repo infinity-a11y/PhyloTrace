@@ -6625,6 +6625,7 @@ server <- function(input, output, session) {
   DF1 <- reactiveValues(data = NULL)
   
   DF1$no_na_switch <- FALSE
+  DF1$first_look <- FALSE
   
   # Typing reactive values
   typing_reactive <- reactiveValues(table = data.frame(), single_path = data.frame(), 
@@ -7294,8 +7295,19 @@ server <- function(input, output, session) {
               
               typing_reactive$single_path <- data.frame()
               
-              # Null multi typinng feedback variable
+              # Null multi typing feedback variable
               typing_reactive$reset <- TRUE
+              
+              # Check need for new missing vlaue display
+              if(DF1$first_look == TRUE) {
+                if(sum(apply(DF1$data, 1, anyNA)) >= 1) {
+                  DF1$no_na_switch <- TRUE
+                } else {
+                  DF1$no_na_switch <- FALSE
+                }
+              }
+              
+              DF1$first_look <- TRUE
               
               output$initiate_typing_ui <- renderUI({
                 column(
@@ -9140,21 +9152,80 @@ server <- function(input, output, session) {
                 )
               )
               
-              output$db_no_entries <- renderUI(
-                fluidRow(
-                  column(1),
-                  column(
-                    width = 11,
-                    align = "left",
-                    HTML(paste(
-                      "<span style='color: white;'>",
-                      "No Entries for this scheme available.",
-                      "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
-                      sep = '<br/>'
-                    ))
-                  )
-                )
-              )
+              observe({
+                if(is.null(DF1$data)) {
+                  if(is.null(typing_reactive$entry_added)) {
+                    output$db_no_entries <- renderUI(
+                      column(
+                        width = 12,
+                        fluidRow(
+                          column(1),
+                          column(
+                            width = 11,
+                            align = "left",
+                            HTML(
+                              paste(
+                                "<span style='color: white;'>",
+                                "No Entries for this scheme available.",
+                                "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
+                                sep = '<br/>'
+                              )
+                            )
+                          )
+                        )
+                      )
+                    )
+                  } else {
+                    if(typing_reactive$entry_added == 999999) {
+                      output$db_no_entries <- renderUI(
+                        column(
+                          width = 12,
+                          fluidRow(
+                            column(1),
+                            column(
+                              width = 3,
+                              align = "left",
+                              HTML(
+                                paste(
+                                  tags$span(style='color: white; font-size: 15px; position: absolute; bottom: -30px; right: -5px', 'New entries - reload database')
+                                )
+                              )
+                            ),
+                            column(
+                              width = 4,
+                              actionButton(
+                                "load",
+                                "",
+                                icon = icon("rotate"),
+                                class = "pulsating-button"
+                              )
+                            )
+                          )
+                        )
+                      )
+                    } else {
+                      output$db_no_entries <- renderUI(
+                        column(
+                          width = 12,
+                          fluidRow(
+                            column(1),
+                            column(
+                              width = 11,
+                              align = "left",
+                              HTML(paste(
+                                "<span style='color: white;'>",
+                                "No Entries for this scheme available.",
+                                "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
+                                sep = '<br/>'
+                              ))
+                            )
+                          )
+                        )
+                      )
+                    }
+                  }
+                }
+              })
               
               output$distancematrix_no_entries <- renderUI(
                 fluidRow(
@@ -10131,7 +10202,7 @@ server <- function(input, output, session) {
     if (length(input$select_delete) < 1) {
       show_toast(
         title = "No entry selected",
-        type = "error",
+        type = "warning",
         position = "top-end",
         timer = 4000
       )
@@ -13723,10 +13794,12 @@ server <- function(input, output, session) {
         timer = 6000
       )
     } else {
-      if(sum(apply(DF1$data, 1, anyNA)) >= 1) {
-        DF1$no_na_switch <- TRUE
-      } else {
-        DF1$no_na_switch <- FALSE
+      if(!is.null(DF1$data)) {
+        if(sum(apply(DF1$data, 1, anyNA)) >= 1) {
+          DF1$no_na_switch <- TRUE
+        } else {
+          DF1$no_na_switch <- FALSE
+        }
       }
       
       typing_reactive$single_end <- FALSE
@@ -14746,7 +14819,7 @@ server <- function(input, output, session) {
           if(str_detect(tail(readLogFile(), 1), "Attaching")) {
             typing_reactive$pending_format <- 888888
           } else if(str_detect(tail(readLogFile(), 2)[1], "Successful typing")) {
-            if(!identical(typing_reactive$last_success, tail(readLogFile(), 2)[1])) {
+            if(!(typing_reactive$last_success %in% readLogFile())) {
               typing_reactive$entry_added <- 999999
               typing_reactive$last_success <- tail(readLogFile(), 2)[1]
               typing_reactive$reset <- FALSE  
