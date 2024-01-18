@@ -25,6 +25,8 @@ sudo apt-get update && sudo apt-get install -y \
     zlib1g-dev \
     liblapack-dev \
     libblas-dev \
+    libmkl-rt \
+    libopenblas-dev \
     gfortran \
     libcurl4-openssl-dev \
     libxml2-dev \
