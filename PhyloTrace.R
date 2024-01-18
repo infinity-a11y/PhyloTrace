@@ -12,6 +12,10 @@ if (!require(BiocManager))
   install.packages('BiocManager')
 library(BiocManager)
 
+if (!require(igraph))
+  install.packages('igraph')
+library(igraph)
+
 if (!require(shinyWidgets))
   install.packages('shinyWidgets')
 library(shinyWidgets)
@@ -108,10 +112,6 @@ if (!require(ggnetwork))
   install.packages('ggnetwork')
 library(ggnetwork)
 
-if (!require(igraph))
-  install.packages('igraph')
-library(igraph)
-
 if (!require(rhandsontable))
   install.packages('rhandsontable')
 library(rhandsontable)
@@ -121,7 +121,7 @@ if (!require(visNetwork))
 library(visNetwork)
 
 if (!require(proxy))
-  install.packages('prpxy')
+  install.packages('proxy')
 library(proxy)
 
 if (!require(phangorn))
@@ -936,6 +936,8 @@ ui <- dashboardPage(
     tags$style("#upgma_zoom irs.irs--shiny.js-irs-4.irs.irs-line {width: 108px}"),
     tags$style(".textinput_var .form-group.shiny-input-container {padding: 0px 0px 0px 0px}"),
     tags$style(type='text/css', '#show_cust_var {color:black; font-size: 14px;}'),
+    tags$style("button#load.pulsating-button.btn.btn-default.action-button.shiny-bound-input {background: #20E6E5; color: #000000; width: 40px}"),
+    tags$style("#load .fas.fa-rotate {position: relative; left: 0px !important}"),
     br(), br(),
     uiOutput("loaded_scheme"),
     sidebarMenu(
@@ -2380,6 +2382,8 @@ ui <- dashboardPage(
             tags$style("#nj_heatmap_show {margin-top: 18px; margin-left: -5px;}"),
             tags$style(".heatmap_picker {margin-top: 20px; margin-left: 15px}"),
             tags$style("#nj_heatmap_title {position: relative; bottom: -20px}"),
+            tags$style("#nj_nodepoint_show {margin-top: 18px; margin-left: -5px}"),
+            tags$style("#nj_tippoint_show {margin-top: 18px; margin-left: -5px}"),
             column(
               width = 4,
               align = "center",
@@ -6595,6 +6599,21 @@ server <- function(input, output, session) {
     })
   }
   
+  #### Render Allele Differences as Highlights ----
+  
+  diff_allele <- reactive({
+    if (!is.null(DF1$data) & !is.null(input$compare_select) & !is.null(DF1$cust_var)) {
+      var_alleles(select(DF1$data, input$compare_select)) + (12 + nrow(DF1$cust_var))
+    }
+  })
+  
+  true_rows <- reactive({
+    if (!is.null(DF1$data)) {
+      which(DF1$data$Include == TRUE, )
+    }
+    
+  })
+  
   
   ## Startup ----
   
@@ -6604,6 +6623,15 @@ server <- function(input, output, session) {
   renderstart <- reactiveValues(sidebar = TRUE, header = TRUE)
   
   DF1 <- reactiveValues(data = NULL)
+  
+  DF1$no_na_switch <- FALSE
+  
+  # Typing reactive values
+  typing_reactive <- reactiveValues(table = data.frame(), single_path = data.frame(), 
+                                    progress = 0, progress_pct = 0, progress_format_start = 0, 
+                                    progress_format_end = 0)
+  
+  typing_reactive$last_success <- "0"
   
   ### Connect to local Database ----
   
@@ -6752,7 +6780,7 @@ server <- function(input, output, session) {
     
     DF1$allelic_profile_true <- NULL
     
-    
+    DF1$scheme
     DF1$scheme <- input$scheme_db
     
     # null Distance matrix, entry table and plots
@@ -7130,7 +7158,7 @@ server <- function(input, output, session) {
             )
           )
           
-          # Check if number of fastq files of alleles is coherent with number of targets in scheme
+          # Check if number of loci/fastq-files of alleles is coherent with number of targets in scheme
           if(number_loci != length(dir_ls(paste0(getwd(), "/Database/", gsub(" ", "_", DF1$scheme), "/", gsub(" ", "_", DF1$scheme), "_alleles")))) {
             
             # Show message that loci files are missing
@@ -7222,8 +7250,6 @@ server <- function(input, output, session) {
               
               DF1$change <- FALSE
               
-              DF1$no_na_switch <- FALSE
-              
               DF1$meta <- select(DF1$data, 1:(12 + nrow(DF1$cust_var)))
               
               DF1$meta_true <- DF1$meta[which(DF1$data$Include == TRUE),]
@@ -7231,6 +7257,77 @@ server <- function(input, output, session) {
               DF1$allelic_profile <- select(DF1$data, -(1:(12 + nrow(DF1$cust_var))))
               
               DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
+              
+              # Null pipe 
+              zero_pipe <- paste0(
+                "#!/bin/bash\n",
+                'echo 0 > ', shQuote(paste0(getwd(), "/execute/progress.fifo"))
+              )
+              
+              zero_pipe_path <- paste0(getwd(), "/execute", "/zero_pipe.sh")
+              
+              cat(zero_pipe, file = zero_pipe_path)
+              
+              system(paste("chmod +x", zero_pipe_path))
+              
+              system(paste(zero_pipe_path), wait = FALSE)
+              
+              typing_reactive$progress_format_end <- 0 
+              
+              typing_reactive$progress_format_start <- 0
+              
+              typing_reactive$pending_format <- 0
+              
+              typing_reactive$entry_added <- 0
+              
+              typing_reactive$progress <- 0
+              
+              typing_reactive$progress_pct <- 0
+              
+              typing_reactive$progress_format <- 900000
+              
+              output$single_typing_progress <- NULL
+              
+              output$typing_fin <- NULL
+              
+              output$typing_formatting <- NULL
+              
+              typing_reactive$single_path <- data.frame()
+              
+              # Null multi typinng feedback variable
+              typing_reactive$reset <- TRUE
+              
+              output$initiate_typing_ui <- renderUI({
+                column(
+                  width = 3,
+                  align = "center",
+                  br(),
+                  br(),
+                  h3(p("Initiate Typing"), style = "color:white"),
+                  br(),
+                  br(),
+                  p(
+                    HTML(
+                      paste(
+                        tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File')
+                      )
+                    )
+                  ),
+                  shinyFilesButton(
+                    "genome_file",
+                    "Browse",
+                    icon = icon("folder-open"),
+                    title = "Please select the genome in .fasta/.fna/.fa format:",
+                    multiple = FALSE,
+                    buttonType = "default",
+                    class = NULL
+                  ),
+                  br(),
+                  br(),
+                  br(),
+                  uiOutput("genome_path")
+                )
+              })
               
               if(!anyNA(DF1$allelic_profile)) {
                 
@@ -7285,7 +7382,8 @@ server <- function(input, output, session) {
                       startExpanded = TRUE,
                       menuSubItem(
                         text = "Browse Entries",
-                        tabName = "db_browse_entries"
+                        tabName = "db_browse_entries",
+                        selected = TRUE
                       ),
                       menuSubItem(
                         text = "Scheme Info",
@@ -7298,7 +7396,6 @@ server <- function(input, output, session) {
                       menuSubItem(
                         text = "Missing Values",
                         tabName = "db_missing_values",
-                        selected = TRUE,
                         icon = icon("triangle-exclamation")
                       )
                     ),
@@ -8045,7 +8142,7 @@ server <- function(input, output, session) {
                         width = 12,
                         HTML(
                           paste(
-                            tags$span(style='color: white; font-size: 18px; margin-bottom: 5px', 'Custom variables')
+                            tags$span(style='color: white; font-size: 18px; margin-bottom: 5px', 'Custom Variables')
                           )
                         )
                       )
@@ -8559,10 +8656,46 @@ server <- function(input, output, session) {
                     }
                   }
                   
-                  # Dynamic save button when rhandsontable changes
-                  
+                  # Dynamic save button when rhandsontable changes or new entries
                   output$edit_entry_table <- renderUI({
-                    if((DF1$change == TRUE) | !identical(get.entry.table.meta(), DF1$meta)) {
+                    if(typing_reactive$entry_added == 999999) {
+                      fluidRow(
+                        column(
+                          width = 8,
+                          align = "left",
+                          HTML(
+                            paste(
+                              tags$span(style='color: white; font-size: 14px; position: absolute; bottom: -30px; right: -5px', 'New entries - reload database')
+                            )
+                          )
+                        ),
+                        column(
+                          width = 4,
+                          actionButton(
+                            "load",
+                            "",
+                            icon = icon("rotate"),
+                            class = "pulsating-button"
+                          )
+                        )
+                      )
+                    } else if(typing_reactive$pending_format == 888888 & !typing_reactive$entry_added == 999999) {
+                      fluidRow(
+                        column(
+                          width = 11,
+                          align = "left",
+                          HTML(
+                            paste(
+                              tags$span(style='color: white; font-size: 14px; position: absolute; bottom: -30px; right: -5px', 'No database changes possible - pending entry addition')
+                            )
+                          )
+                        ),
+                        column(
+                          width = 1,
+                          HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:20px; color:white; margin-top: 10px"></i>'))
+                        )
+                      )
+                    } else if((DF1$change == TRUE) | !identical(get.entry.table.meta(), DF1$meta)) {
                       fluidRow(
                         column(
                           width = 5,
@@ -8707,22 +8840,6 @@ server <- function(input, output, session) {
                 })
                 
               }
-            
-            #### Render Allele Differences as Highlights ----
-            
-            diff_allele <- reactive({
-              if (!is.null(DF1$data) & !is.null(input$compare_select) & !is.null(DF1$cust_var)) {
-                var_alleles(select(DF1$data, input$compare_select)) + (12 + nrow(DF1$cust_var))
-              }
-            })
-            
-            true_rows <- reactive({
-              if (!is.null(DF1$data)) {
-                which(DF1$data$Include == TRUE, )
-              }
-              
-            })
-            
             
             # Render delete entry box UI
             output$delete_box <- renderUI({
@@ -9272,13 +9389,15 @@ server <- function(input, output, session) {
           selectInput(
             "scheme_db",
             label = "",
-            choices = DF1$available
+            choices = DF1$available,
+            selected = if(!is.null(DF1$scheme)) {DF1$scheme} else {DF1$available[1]}
           )
         } else {
           prettyRadioButtons(
             "scheme_db",
             label = "",
-            choices = DF1$available
+            choices = DF1$available,
+            selected = if(!is.null(DF1$scheme)) {DF1$scheme} else {DF1$available[1]}
           )
         }
       })
@@ -9415,6 +9534,234 @@ server <- function(input, output, session) {
     DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
     
     DF1$deleted_entries <- character(0)
+    
+    observe({
+      if (!is.null(DF1$data)) {
+        if (nrow(DF1$data) == 1) {
+          output$db_entries <- renderRHandsontable({
+            rhandsontable(
+              select(DF1$data, 1:(12 + nrow(DF1$cust_var))),
+              rowHeaders = NULL
+            ) %>%
+              hot_col(1, 
+                      readOnly = TRUE,
+                      valign = "htMiddle",
+                      halign = "htCenter") %>%
+              hot_col(3:(12 + nrow(DF1$cust_var)), 
+                      valign = "htMiddle",
+                      halign = "htLeft") %>%
+              hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+              hot_col(2, type = "checkbox", width = "auto",
+                      valign = "htTop",
+                      halign = "htCenter") %>%
+              hot_context_menu(allowRowEdit = FALSE,
+                               allowColEdit = FALSE,
+                               allowReadOnly = FALSE) %>%
+              hot_rows(fixedRowsTop = 0)
+          })
+        } else if (between(nrow(DF1$data), 1, 40)) {
+          if (length(input$compare_select) > 0) {
+            output$db_entries <- renderRHandsontable({
+              row_highlight <- true_rows()-1
+              rhandsontable(
+                select(DF1$data, 1:(12 + nrow(DF1$cust_var)), input$compare_select),
+                col_highlight = diff_allele()-1,
+                rowHeaders = NULL,
+                row_highlight = row_highlight
+              ) %>%
+                hot_col((12 + nrow(DF1$cust_var)):((12 + nrow(DF1$cust_var))+length(input$compare_select)), 
+                        valign = "htMiddle",
+                        halign = "htCenter") %>%
+                hot_col(1, 
+                        readOnly = TRUE,
+                        valign = "htMiddle",
+                        halign = "htCenter") %>%
+                hot_col(3:(12 + nrow(DF1$cust_var)), 
+                        valign = "htMiddle",
+                        halign = "htLeft") %>%
+                hot_context_menu(allowRowEdit = FALSE,
+                                 allowColEdit = FALSE,
+                                 allowReadOnly = FALSE) %>%
+                hot_col(2, type = "checkbox", width = "auto",
+                        valign = "htTop",
+                        halign = "htCenter",
+                        strict = TRUE,
+                        allowInvalid = FALSE,
+                        copyable = TRUE) %>%
+                hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                hot_rows(fixedRowsTop = 0) %>%
+                hot_col(1, renderer = "
+            function (instance, td, row, col, prop, value, cellProperties) {
+                     Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+                     if (instance.params) {
+                       hrows = instance.params.row_highlight
+                       hrows = hrows instanceof Array ? hrows : [hrows]
+
+                       if (hrows.includes(row)) { 
+                         td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
+                       }
+
+                     }
+            }") %>%
+                hot_col(diff_allele(),
+                        renderer = "
+                function(instance, td, row, col, prop, value, cellProperties) {
+                  Handsontable.renderers.NumericRenderer.apply(this, arguments);
+
+                  if (instance.params) {
+                        hcols = instance.params.col_highlight;
+                        hcols = hcols instanceof Array ? hcols : [hcols];
+                      }
+
+                  if (instance.params && hcols.includes(col)) {
+                    td.style.background = '#FF8F8F';
+                  }
+              }"
+                ) 
+            })
+          } else {
+            output$db_entries <- renderRHandsontable({
+              row_highlight <- true_rows()-1
+              rhandsontable(
+                select(DF1$data, 1:(12 + nrow(DF1$cust_var))),
+                rowHeaders = NULL,
+                row_highlight = row_highlight
+              ) %>%
+                hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                hot_col(1, 
+                        readOnly = TRUE,
+                        valign = "htMiddle",
+                        halign = "htCenter") %>%
+                hot_col(3:(12 + nrow(DF1$cust_var)), 
+                        valign = "htMiddle",
+                        halign = "htLeft") %>%
+                hot_col(2, type = "checkbox", width = "auto",
+                        valign = "htTop",
+                        halign = "htCenter") %>%
+                hot_context_menu(allowRowEdit = FALSE,
+                                 allowColEdit = FALSE,
+                                 allowReadOnly = FALSE) %>%
+                hot_rows(fixedRowsTop = 0) %>%
+                hot_col(1, renderer = "
+            function (instance, td, row, col, prop, value, cellProperties) {
+                     Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+                     if (instance.params) {
+                       hrows = instance.params.row_highlight
+                       hrows = hrows instanceof Array ? hrows : [hrows]
+
+                       if (hrows.includes(row)) { 
+                         td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
+                       }
+
+                     }
+            }")
+            })
+          }
+        } else {
+          if (length(input$compare_select) > 0) {
+            output$db_entries <- renderRHandsontable({
+              rhandsontable(
+                select(DF1$data, 1:(12 + nrow(DF1$cust_var)), input$compare_select),
+                col_highlight = diff_allele()-1,
+                rowHeaders = NULL,
+                height = table_height(),
+                row_highlight = true_rows()-1
+              ) %>%
+                hot_col((12 + nrow(DF1$cust_var)):((12 + nrow(DF1$cust_var))+length(input$compare_select)), 
+                        valign = "htMiddle",
+                        halign = "htCenter") %>%
+                hot_col(3:(12 + nrow(DF1$cust_var)), 
+                        valign = "htMiddle",
+                        halign = "htLeft") %>%
+                hot_col(1, 
+                        readOnly = TRUE,
+                        valign = "htMiddle",
+                        halign = "htCenter") %>%
+                hot_context_menu(allowRowEdit = FALSE,
+                                 allowColEdit = FALSE,
+                                 allowReadOnly = FALSE)  %>%
+                hot_col(2, type = "checkbox", width = "auto",
+                        valign = "htTop",
+                        halign = "htCenter",
+                        allowInvalid = FALSE,
+                        copyable = TRUE,
+                ) %>%
+                hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                hot_rows(fixedRowsTop = 0) %>%
+                hot_col(1, renderer = "
+            function (instance, td, row, col, prop, value, cellProperties) {
+                     Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+                     if (instance.params) {
+                       hrows = instance.params.row_highlight
+                       hrows = hrows instanceof Array ? hrows : [hrows]
+
+                       if (hrows.includes(row)) { 
+                         td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
+                       }
+
+                     }
+            }") %>%
+                hot_col(diff_allele(),
+                        renderer = "
+                function(instance, td, row, col, prop, value, cellProperties) {
+                  Handsontable.renderers.NumericRenderer.apply(this, arguments);
+
+                  if (instance.params) {
+                        hcols = instance.params.col_highlight;
+                        hcols = hcols instanceof Array ? hcols : [hcols];
+                      }
+
+                  if (instance.params && hcols.includes(col)) {
+                    td.style.background = '#FF8F8F';
+                  }
+              }") 
+            })
+          } else {
+            output$db_entries <- renderRHandsontable({
+              row_highlight <- true_rows()-1
+              rhandsontable(
+                select(DF1$data, 1:(12 + nrow(DF1$cust_var))),
+                rowHeaders = NULL,
+                height = table_height(),
+                row_highlight = row_highlight
+              ) %>%
+                hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                hot_col(1, 
+                        readOnly = TRUE,
+                        valign = "htMiddle",
+                        halign = "htCenter") %>%
+                hot_col(3:(12 + nrow(DF1$cust_var)), 
+                        valign = "htMiddle",
+                        halign = "htLeft") %>%
+                hot_context_menu(allowRowEdit = FALSE,
+                                 allowColEdit = FALSE,
+                                 allowReadOnly = FALSE) %>%
+                hot_rows(fixedRowsTop = 0) %>%
+                hot_col(1, renderer = "
+            function (instance, td, row, col, prop, value, cellProperties) {
+                     Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+                     if (instance.params) {
+                       hrows = instance.params.row_highlight
+                       hrows = hrows instanceof Array ? hrows : [hrows]
+
+                       if (hrows.includes(row)) { 
+                         td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
+                       }
+                     }
+            }") %>%
+                hot_col(2, type = "checkbox", width = "auto",
+                        valign = "htTop", halign = "htCenter")
+            })
+          }
+        }
+      }
+    })
+    
+    
   })
   
   observe({
@@ -9848,7 +10195,8 @@ server <- function(input, output, session) {
         selectInput(
           "scheme_db",
           label = "",
-          choices = DF1$available),
+          choices = DF1$available,
+          selected = DF1$scheme),
         title = "All entries have been removed. Select a local database to load.",
         footer = tagList(
           actionButton("load", "Load", class = "btn btn-default")
@@ -9947,7 +10295,7 @@ server <- function(input, output, session) {
     
     # Rownames change
     rownames(hamming_matrix) <- select(DF1$data, 1:(12 + nrow(DF1$cust_var)))[rownames(select(DF1$data, 1:(12 + nrow(DF1$cust_var)))) %in% rownames(hamming_matrix), 
-                                                                                input$distmatrix_label]
+                                                                              input$distmatrix_label]
     colnames(hamming_matrix) <- rownames(hamming_matrix)
     
     mode(hamming_matrix) <- "integer"
@@ -10281,7 +10629,8 @@ server <- function(input, output, session) {
         selectInput(
           "scheme_db",
           label = "",
-          choices = DF1$available),
+          choices = DF1$available,
+          selected = DF1$scheme),
         title = "Select a local database to load.",
         footer = tagList(
           actionButton("load", "Load", class = "btn btn-default")
@@ -12857,8 +13206,6 @@ server <- function(input, output, session) {
         
         if (input$tree_algo == "Neighbour-Joining") {
           
-          test <<- DF1$data
-          
           plot_loc$meta_nj <- select(DF1$meta_true, -2)
           
           colnames(plot_loc$meta_nj) <- gsub(" ", "_", colnames(plot_loc$meta_nj))
@@ -13057,10 +13404,7 @@ server <- function(input, output, session) {
   
   ## Typing  ----
   
-  # Typing reactive values
-  typing_reactive <- reactiveValues(table = data.frame(), single_path = data.frame(), 
-                                    progress = 0, progress_pct = 0, progress_format_start = 0, 
-                                    progress_format_end = 0)
+  
   
   # Render Single/Multi Switch
   
@@ -13371,171 +13715,188 @@ server <- function(input, output, session) {
   
   observeEvent(input$typing_start, {
     
-    typing_reactive$single_end <- FALSE
-    
-    typing_reactive$progress_format_start <- 0
-    typing_reactive$progress_format_end <- 0
-    
-    # Remove UI 
-    output$initiate_typing_ui <- NULL
-    output$metadata_single_box <- NULL
-    output$start_typing_ui <- NULL
-    
-    # Locate folder containing cgMLST scheme
-    search_string <-
-      paste0(gsub(" ", "_", DF1$scheme), "_alleles")
-    
-    scheme_folders <-
-      dir_ls(paste0(getwd(), "/Database/", gsub(" ", "_", DF1$scheme)))
-    
-    if (any(grepl(search_string, scheme_folders))) {
-      # KMA initiate index
-      
-      scheme_select <-
-        as.character(scheme_folders[which(grepl(search_string, scheme_folders))])
-      
+    if(tail(readLogFile(), 1)!= "0") {
       show_toast(
-        title = "Typing Initiated",
-        type = "success",
+        title = "Pending Multi Typing",
+        type = "warning",
         position = "top-end",
-        timer = 12000
+        timer = 6000
       )
+    } else {
+      if(sum(apply(DF1$data, 1, anyNA)) >= 1) {
+        DF1$no_na_switch <- TRUE
+      } else {
+        DF1$no_na_switch <- FALSE
+      }
       
-      ### Run KMA Typing
+      typing_reactive$single_end <- FALSE
       
-      kma_run <- paste0(
-        "#!/bin/bash\n",
-        'cd execute', '\n',
-        'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
-        '# Function to log messages to the file', '\n',
-        'log_message() {', '\n',
-        '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
-        '}', '\n',
-        '# Create a log file or truncate if it exists', '\n',
-        'echo 0 > ',
-        shQuote(paste0(getwd(), "/execute/progress.fifo")),
-        "\n",
-        'base_path=', shQuote(getwd()), '\n',
-        'mkdir $base_path/execute/kma_single', '\n',
-        'kma_database="$base_path/execute/kma_single/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
-        "genome=",
-        shQuote(typing_reactive$single_path$datapath),
-        "\n",
-        'kma index -i "$genome" -o "$kma_database"', '\n',
-        "query_folder=",
-        shQuote(paste0(
-          getwd(),
-          "/Database/",
-          gsub(" ", "_", DF1$scheme),
-          "/",
-          search_string
-        )),
-        "\n",
-        '# Directory name', '\n',
-        'results=', shQuote(paste0(getwd(),"/execute/kma_single/results")), '\n',
-        '# Remove the existing directory (if it exists)', '\n',
-        'if [ -d "$results" ]; then', '\n',
-        '    rm -r "$results"', '\n',
-        'fi', '\n',
-        '# Create a new directory', '\n', 
-        'mkdir "$results"', '\n',
-        'count=0',
-        "\n",
-        'for query_file in "$query_folder"/*.{fasta,fa,fna}; do',
-        "\n",
-        'if [ -f "$query_file" ]; then',
-        "\n",
-        'query_filename=$(basename "$query_file")',
-        "\n",
-        'query_filename_noext="${query_filename%.*}"',
-        "\n",
-        'output_file="$results/$query_filename_noext"',
-        "\n",
-        'kma -i "$query_file" -o "$output_file" -t_db "$kma_database" -nc -status',
-        "\n",
-        '((count++))',
-        "\n",
-        'echo $count > ',
-        shQuote(paste0(getwd(), "/execute/progress.fifo")),
-        "\n",
-        'fi',
-        "\n",
-        'done', '\n',
-        'echo 888888 >> ',
-        shQuote(paste0(getwd(), "/execute/progress.fifo")), '\n',
-        'Rscript ', shQuote(paste0(getwd(), "/execute/single_typing.R")), '\n',
-        'echo 999999 >> ',
-        shQuote(paste0(getwd(), "/execute/progress.fifo")), '\n'
-      )
+      typing_reactive$progress_format_start <- 0
+      typing_reactive$progress_format_end <- 0
       
-      # Specify the path to save the script
-      kma_run_path <- paste0(getwd(), "/execute", "/kma_run.sh")
+      # Remove UI 
+      output$initiate_typing_ui <- NULL
+      output$metadata_single_box <- NULL
+      output$start_typing_ui <- NULL
       
-      # Write the script to a file
-      cat(kma_run, file = kma_run_path)
+      # Locate folder containing cgMLST scheme
+      search_string <-
+        paste0(gsub(" ", "_", DF1$scheme), "_alleles")
       
-      # Make the script executable
-      system(paste("chmod +x", kma_run_path))
+      scheme_folders <-
+        dir_ls(paste0(getwd(), "/Database/", gsub(" ", "_", DF1$scheme)))
       
-      # Execute the script
-      system(paste(kma_run_path), wait = FALSE)
-      
-      scheme_loci <-
-        list.files(path = scheme_select, full.names = TRUE)
-      
-      # Filter the files that have the ".fasta" extension
-      typing_reactive$scheme_loci_f <-
-        scheme_loci[grep("\\.(fasta|fa|fna)$", scheme_loci, ignore.case = TRUE)]
-      
-      output$single_typing_progress <- renderUI({
-        fluidRow(
-          br(), br(), 
-          column(width = 1),
-          column(
-            width = 2,
-            h3(p("Pending Single Typing ..."), style = "color:white")
-          ),
-          br(), br(), br(),
+      if (any(grepl(search_string, scheme_folders))) {
+        # KMA initiate index
+        
+        scheme_select <-
+          as.character(scheme_folders[which(grepl(search_string, scheme_folders))])
+        
+        show_toast(
+          title = "Typing Initiated",
+          type = "success",
+          position = "top-end",
+          timer = 12000
+        )
+        
+        ### Run KMA Typing
+        
+        kma_run <- paste0(
+          "#!/bin/bash\n",
+          'cd execute', '\n',
+          'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
+          '# Function to log messages to the file', '\n',
+          'log_message() {', '\n',
+          '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
+          '}', '\n',
+          '# Create a log file or truncate if it exists', '\n',
+          'echo 0 > ',
+          shQuote(paste0(getwd(), "/execute/progress.fifo")),
+          "\n",
+          'base_path=', shQuote(getwd()), '\n',
+          'mkdir $base_path/execute/kma_single', '\n',
+          'kma_database="$base_path/execute/kma_single/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
+          "genome=",
+          shQuote(typing_reactive$single_path$datapath),
+          "\n",
+          'kma index -i "$genome" -o "$kma_database"', '\n',
+          "query_folder=",
+          shQuote(paste0(
+            getwd(),
+            "/Database/",
+            gsub(" ", "_", DF1$scheme),
+            "/",
+            search_string
+          )),
+          "\n",
+          '# Directory name', '\n',
+          'results=', shQuote(paste0(getwd(),"/execute/kma_single/results")), '\n',
+          '# Remove the existing directory (if it exists)', '\n',
+          'if [ -d "$results" ]; then', '\n',
+          '    rm -r "$results"', '\n',
+          'fi', '\n',
+          '# Create a new directory', '\n', 
+          'mkdir "$results"', '\n',
+          'count=0',
+          "\n",
+          'for query_file in "$query_folder"/*.{fasta,fa,fna}; do',
+          "\n",
+          'if [ -f "$query_file" ]; then',
+          "\n",
+          'query_filename=$(basename "$query_file")',
+          "\n",
+          'query_filename_noext="${query_filename%.*}"',
+          "\n",
+          'output_file="$results/$query_filename_noext"',
+          "\n",
+          'kma -i "$query_file" -o "$output_file" -t_db "$kma_database" -nc -status',
+          "\n",
+          '((count++))',
+          "\n",
+          'echo $count > ',
+          shQuote(paste0(getwd(), "/execute/progress.fifo")),
+          "\n",
+          'fi',
+          "\n",
+          'done', '\n',
+          'echo 888888 >> ',
+          shQuote(paste0(getwd(), "/execute/progress.fifo")), '\n',
+          'Rscript ', shQuote(paste0(getwd(), "/execute/single_typing.R")), '\n',
+          'echo 999999 >> ',
+          shQuote(paste0(getwd(), "/execute/progress.fifo")), '\n'
+        )
+        
+        # Specify the path to save the script
+        kma_run_path <- paste0(getwd(), "/execute", "/kma_run.sh")
+        
+        # Write the script to a file
+        cat(kma_run, file = kma_run_path)
+        
+        # Make the script executable
+        system(paste("chmod +x", kma_run_path))
+        
+        # Execute the script
+        system(paste(kma_run_path), wait = FALSE)
+        
+        scheme_loci <-
+          list.files(path = scheme_select, full.names = TRUE)
+        
+        # Filter the files that have the ".fasta" extension
+        typing_reactive$scheme_loci_f <-
+          scheme_loci[grep("\\.(fasta|fa|fna)$", scheme_loci, ignore.case = TRUE)]
+        
+        output$single_typing_progress <- renderUI({
           fluidRow(
+            br(), br(), 
             column(width = 1),
             column(
-              width = 4,
-              br(), br(), br(),
-              uiOutput("reset_single_typing"),
-              HTML(
-                paste(
-                  "<span style='color: white; font-weight: bolder'>",
-                  as.character(typing_reactive$single_path$name)
+              width = 2,
+              h3(p("Pending Single Typing ..."), style = "color:white")
+            ),
+            br(), br(), br(),
+            fluidRow(
+              column(width = 1),
+              column(
+                width = 4,
+                br(), br(), br(),
+                uiOutput("reset_single_typing"),
+                HTML(
+                  paste(
+                    "<span style='color: white; font-weight: bolder'>",
+                    as.character(typing_reactive$single_path$name)
+                  )
+                ),
+                br(), br(),
+                progressBar(
+                  "progress_bar",
+                  value = 0,
+                  display_pct = TRUE,
+                  title = ""
                 )
-              ),
-              br(), br(),
-              progressBar(
-                "progress_bar",
-                value = 0,
-                display_pct = TRUE,
-                title = ""
               )
+            ),
+            fluidRow(
+              column(width = 1),
+              uiOutput("typing_formatting"),
+              uiOutput("typing_fin")
             )
-          ),
-          fluidRow(
-            column(width = 1),
-            uiOutput("typing_formatting"),
-            uiOutput("typing_fin")
           )
+        })
+        
+      } else {
+        show_alert(
+          title = "Error",
+          text = paste0(
+            "Folder containing cgMLST alleles not in working directory.",
+            "\n",
+            "Download cgMLST Scheme for selected Organism first."
+          ),
+          type = "error"
         )
-      })
-      
-    } else {
-      show_alert(
-        title = "Error",
-        text = paste0(
-          "Folder containing cgMLST alleles not in working directory.",
-          "\n",
-          "Download cgMLST Scheme for selected Organism first."
-        ),
-        type = "error"
-      )
+      }
     }
+    
+    
   })
   
   # Function to update Progress Bar
@@ -13544,9 +13905,11 @@ server <- function(input, output, session) {
     progress <- readLines(paste0(getwd(), "/execute", "/progress.fifo"))[1]
     if(!is.na(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[2])) {
       typing_reactive$progress_format_start <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[2])
+      typing_reactive$pending_format <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[2])
     }
     if(!is.na(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[3])) {
       typing_reactive$progress_format_end <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[3])
+      typing_reactive$entry_added <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[3])
     }
     progress <- as.numeric(progress)
     typing_reactive$progress <- progress
@@ -13744,7 +14107,7 @@ server <- function(input, output, session) {
     })
   })
   
-  # Notification for finalized Single typinng
+  # Notification for finalized Single typing
   typing_reactive$single_end <- TRUE
   typing_reactive$progress_format_end <- 0
   
@@ -14013,7 +14376,6 @@ server <- function(input, output, session) {
   
   observeEvent(input$conf_meta_multi, {
     
-    
     meta_info <- data.frame(cgmlst_typing = DF1$scheme,
                             append_isodate = trimws(input$append_isodate_multi),
                             append_host = trimws(input$append_host_multi),
@@ -14254,118 +14616,146 @@ server <- function(input, output, session) {
     
     removeModal()
     
-    show_toast(
-      title = "Multi Typing started",
-      type = "success",
-      position = "top-end",
-      timer = 6000
-    )
-    
-    typing_reactive$final <- FALSE
-    
-    # Remove Allelic Typing Controls
-    
-    output$initiate_multi_typing_ui <- NULL
-    
-    output$metadata_multi_box <- NULL
-    
-    output$start_multi_typing_ui <-NULL
-    
-    # List Genome Assemblies Included in Analysis in Vector
-    genome_selected <- hot_to_r(input$multi_select_table)
-    
-    genome_names <<- genome_selected$Files[which(genome_selected$Include == TRUE)]
-    
-    kma_multi <- paste0(
-      '#!/bin/bash', '\n',
-      'cd execute', '\n',
-      'base_path=', shQuote(getwd()), '\n',
-      '# Get Genome Folder', '\n',
-      'genome_folder=', shQuote(as.character(parseDirPath(roots = c(wd = "/home"), 
-                                                          input$genome_file_multi))), '\n',
-      'selected_genomes=', shQuote(paste0(getwd(), "/execute/selected_genomes")), '\n',
-      'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
-      '# Function to log messages to the file', '\n',
-      'log_message() {', '\n',
-      '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
-      '}', '\n',
-      '# Create a log file or truncate if it exists', '\n',
-      'echo "Start Multi Typing" > "$log_file"', '\n',
-      '# Remove the existing directory (if it exists)', '\n',
-      'if [ -d "$selected_genomes" ]; then', '\n',
-      '    rm -r "$selected_genomes"', '\n',
-      'fi', '\n',
-      'mkdir $selected_genomes', '\n',
-      '# List of file names to copy', '\n',
-      'file_names=(', paste(shQuote(genome_names), collapse= " "), ')', '\n',
-      '# Loop through the list of file names and copy them to the new folder', '\n',
-      'for file in "${file_names[@]}"; do', '\n',
-      '    if [ -f "$genome_folder/$file" ]; then', '\n',
-      '        cp "$genome_folder/$file" "$selected_genomes/"', '\n',
-      '        log_message "Initiated $file"', '\n',
-      '    else', '\n', 
-      '        log_message "$file not found in $genome_folder"', '\n',
-      '    fi', '\n',
-      'done', '\n',
-      '# Directory name', '\n',
-      'mkdir $base_path/execute/kma_multi', '\n',
-      'results=', shQuote(paste0(getwd(),"/execute/kma_multi/results")), '\n',
-      '# Remove the existing directory (if it exists)', '\n',
-      'if [ -d "$results" ]; then', '\n',
-      '    rm -r "$results"', '\n',
-      'fi', '\n',
-      '# Create a new directory', '\n', 
-      'mkdir "$results"', '\n',
-      '#INDEXING GENOME AS DATABASE', '\n',
-      'kma_database="$base_path/execute/kma_multi/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
-      '#RUNNING KMA', '\n',
-      'query_folder=', shQuote(paste0(getwd(), 
-                                      "/Database/", 
-                                      gsub(" ", "_", DF1$scheme), 
-                                      "/",
-                                      gsub(" ", "_", DF1$scheme), 
-                                      "_alleles")), '\n',
-      'genome_filename_noext=""', '\n',
-      '#Indexing Loop', '\n',
-      'for genome in "$selected_genomes"/*; do', '\n',
-      '    if [ -f "$genome" ]; then', '\n',
-      '    genome_filename=$(basename "$genome")', '\n',
-      '    genome_filename_noext="${genome_filename%.*}"', '\n',
-      '    log_message "Processing $genome_filename"', '\n',
-      '    kma index -i "$genome" -o "$kma_database"', '\n',
-      '    fi', '\n',
-      '    mkdir "$results/$genome_filename_noext"', '\n',
-      '#Running Loop', '\n',
-      '    for query_file in "$query_folder"/*.{fasta,fa,fna}; do', '\n',
-      '        if [ -f "$query_file" ]; then', '\n',
-      '        query_filename=$(basename "$query_file")', '\n',
-      '        query_filename_noext="${query_filename%.*}"', '\n',
-      '        output_file="$results/$genome_filename_noext/$query_filename_noext"', '\n',
-      '        kma -i "$query_file" -o "$output_file" -t_db "$kma_database" -nc -status', '\n',
-      '        fi', '\n',
-      '    done', '\n',
-      '    Rscript ', shQuote(paste0(getwd(), "/execute/automatic_typing.R")), '\n',
-      '    log_message "Successful typing of $genome_filename"', '\n',
-      'done', '\n',
-      'log_message "Multi Typing finalized."'
-    )
-    
-    # Specify the path to save the script
-    kma_multi_path <-
-      paste0(getwd(), "/execute/kma_multi.sh")
-    
-    # Write the script to a file
-    cat(kma_multi, file = kma_multi_path)
-    
-    # Make the script executable  
-    system(paste("chmod +x", kma_multi_path))
-    
-    # Execute the script
-    system(paste("nohup", kma_multi_path, "> script.log 2>&1"), wait = FALSE)
-    
+    if(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[1] != "0") {
+      show_toast(
+        title = "Pending Single Typing",
+        type = "warning",
+        position = "top-end",
+        timer = 6000
+      )
+    } else {
+      
+      show_toast(
+        title = "Multi Typing started",
+        type = "success",
+        position = "top-end",
+        timer = 6000
+      )
+      typing_reactive$final <- FALSE
+      
+      # Remove Allelic Typing Controls
+      
+      output$initiate_multi_typing_ui <- NULL
+      
+      output$metadata_multi_box <- NULL
+      
+      output$start_multi_typing_ui <- NULL
+      
+      # List Genome Assemblies Included in Analysis in Vector
+      genome_selected <- hot_to_r(input$multi_select_table)
+      
+      genome_names <<- genome_selected$Files[which(genome_selected$Include == TRUE)]
+      
+      kma_multi <- paste0(
+        '#!/bin/bash', '\n',
+        'cd execute', '\n',
+        'base_path=', shQuote(getwd()), '\n',
+        '# Get Genome Folder', '\n',
+        'genome_folder=', shQuote(as.character(parseDirPath(roots = c(wd = "/home"), 
+                                                            input$genome_file_multi))), '\n',
+        'selected_genomes=', shQuote(paste0(getwd(), "/execute/selected_genomes")), '\n',
+        'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
+        '# Function to log messages to the file', '\n',
+        'log_message() {', '\n',
+        '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
+        '}', '\n',
+        '# Create a log file or truncate if it exists', '\n',
+        'echo "Start Multi Typing" > "$log_file"', '\n',
+        '# Remove the existing directory (if it exists)', '\n',
+        'if [ -d "$selected_genomes" ]; then', '\n',
+        '    rm -r "$selected_genomes"', '\n',
+        'fi', '\n',
+        'mkdir $selected_genomes', '\n',
+        '# List of file names to copy', '\n',
+        'file_names=(', paste(shQuote(genome_names), collapse= " "), ')', '\n',
+        '# Loop through the list of file names and copy them to the new folder', '\n',
+        'for file in "${file_names[@]}"; do', '\n',
+        '    if [ -f "$genome_folder/$file" ]; then', '\n',
+        '        cp "$genome_folder/$file" "$selected_genomes/"', '\n',
+        '        log_message "Initiated $file"', '\n',
+        '    else', '\n', 
+        '        log_message "$file not found in $genome_folder"', '\n',
+        '    fi', '\n',
+        'done', '\n',
+        '# Directory name', '\n',
+        'mkdir $base_path/execute/kma_multi', '\n',
+        'results=', shQuote(paste0(getwd(),"/execute/kma_multi/results")), '\n',
+        '# Remove the existing directory (if it exists)', '\n',
+        'if [ -d "$results" ]; then', '\n',
+        '    rm -r "$results"', '\n',
+        'fi', '\n',
+        '# Create a new directory', '\n', 
+        'mkdir "$results"', '\n',
+        '#INDEXING GENOME AS DATABASE', '\n',
+        'kma_database="$base_path/execute/kma_multi/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
+        '#RUNNING KMA', '\n',
+        'query_folder=', shQuote(paste0(getwd(), 
+                                        "/Database/", 
+                                        gsub(" ", "_", DF1$scheme), 
+                                        "/",
+                                        gsub(" ", "_", DF1$scheme), 
+                                        "_alleles")), '\n',
+        'genome_filename_noext=""', '\n',
+        '#Indexing Loop', '\n',
+        'for genome in "$selected_genomes"/*; do', '\n',
+        '    if [ -f "$genome" ]; then', '\n',
+        '    genome_filename=$(basename "$genome")', '\n',
+        '    genome_filename_noext="${genome_filename%.*}"', '\n',
+        '    log_message "Processing $genome_filename"', '\n',
+        '    kma index -i "$genome" -o "$kma_database"', '\n',
+        '    fi', '\n',
+        '    mkdir "$results/$genome_filename_noext"', '\n',
+        '#Running Loop', '\n',
+        '    for query_file in "$query_folder"/*.{fasta,fa,fna}; do', '\n',
+        '        if [ -f "$query_file" ]; then', '\n',
+        '        query_filename=$(basename "$query_file")', '\n',
+        '        query_filename_noext="${query_filename%.*}"', '\n',
+        '        output_file="$results/$genome_filename_noext/$query_filename_noext"', '\n',
+        '        kma -i "$query_file" -o "$output_file" -t_db "$kma_database" -nc -status', '\n',
+        '        fi', '\n',
+        '    done', '\n',
+        '    log_message "Attaching $genome_filename"', '\n',
+        '    Rscript ', shQuote(paste0(getwd(), "/execute/automatic_typing.R")), '\n',
+        '    log_message "Successful typing of $genome_filename"', '\n',
+        'done', '\n',
+        'log_message "Multi Typing finalized."'
+      )
+      
+      # Specify the path to save the script
+      kma_multi_path <-
+        paste0(getwd(), "/execute/kma_multi.sh")
+      
+      # Write the script to a file
+      cat(kma_multi, file = kma_multi_path)
+      
+      # Make the script executable  
+      system(paste("chmod +x", kma_multi_path))
+      
+      # Execute the script
+      system(paste("nohup", kma_multi_path, "> script.log 2>&1"), wait = FALSE)
+    }
   })
   
   #### User Feedback ----
+  
+  # Database messages
+  observe({
+    if(tail(readLogFile(), 1) != "0") {
+      if(!is.null(typing_reactive$reset)){
+        if(typing_reactive$reset == TRUE) {
+          if(str_detect(tail(readLogFile(), 1), "Attaching")) {
+            typing_reactive$pending_format <- 888888
+          } else if(str_detect(tail(readLogFile(), 2)[1], "Successful typing")) {
+            if(!identical(typing_reactive$last_success, tail(readLogFile(), 2)[1])) {
+              typing_reactive$entry_added <- 999999
+              typing_reactive$last_success <- tail(readLogFile(), 2)[1]
+              typing_reactive$reset <- FALSE  
+            }
+          } 
+        }
+      }
+    }
+  })
   
   readLogFile_slow <- reactive({
     invalidateLater(9000, session)
