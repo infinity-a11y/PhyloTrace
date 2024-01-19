@@ -59,21 +59,28 @@ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /m
 ```
 
 ## 5 Running PhyloTrace
-#### 5.1 Running from Terminal (no RStudio required)
 
+Before using PhyloTrace, install the required packages and dependencies by running the initialization script.
+```bash
+cd path/to/directory
+Rscript init.R
+```
+>Note: In the command above, replace *path/to/directory* with the actual path where you extracted the repository to.
+
+#### 5.1 Running from Terminal (no RStudio required)
 
 1. Navigate to the local directory
 ```bash
 cd path/to/directory
 ```
->Note: In the command above, replace *path/to/directory* with the actual path where you extracted the repository to. 
+>Note: In the command above, replace *path/to/directory* with the actual path where you extracted the repository to.
 
 2. Start the app by running this command from within the directory
 ```bash
 Rscript PhyloTrace_App.R
 ```
 
-3. After loading the required packages, open the app in the browser by clicking the displayed port in the terminal or copying the port to the address bar of your browser.
+3. Open the app in the browser by clicking the displayed port in the terminal or copying the port to the address bar of your browser.
 
 >Note: Upon first start, the packages are automatically installed. This process can take a while. After successful installation, the port will be displayed.  
 
