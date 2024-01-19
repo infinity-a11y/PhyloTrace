@@ -1,12 +1,17 @@
-![My Image](www/PhyloTrace_bw.png)
-
+<picture>
+    <source media="(prefers-color-scheme: light)" srcset="www/PhyloTrace_bw.png">
+    <source media="(prefers-color-scheme: dark)" srcset="www/PhyloTrace.png">    
+    <img src= "www/">
+</picture>
 
 ##
 
 Download the complete repository as .zip and extract it to any location on your system.
 Follow these instructions to install the required dependencies.
 
-## 1. Install R
+# 1 Installation
+
+## 1.1 Install R
 
 Before installing the dependencies, ensure that you have R and RStudio installed on your system. Follow the instructions below:
 
@@ -18,7 +23,7 @@ Before installing the dependencies, ensure that you have R and RStudio installed
 3. Download RStudio from [the RStudio website](https://rstudio.com/products/rstudio/download/).
 4. Install RStudio by executing the downloaded file and following the installation prompts.
 
-## 2. Install System Libraries
+## 1.2 Install System Libraries
 
 ```bash
 sudo apt-get update && sudo apt-get install -y \
@@ -43,7 +48,7 @@ sudo apt-get update && sudo apt-get install -y \
 ```
 
 
-## 3. Install Miniconda
+## 1.3 Install Miniconda
 
 ```bash
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /miniconda.sh \
@@ -52,13 +57,13 @@ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /m
     && /miniconda3/bin/conda init bash
 ```
 
-## 4. Install KMA via Conda
+## 1.4 Install KMA via Conda
 
 ```bash
 /miniconda3/bin/conda install -c bioconda kma
 ```
 
-## 5 Running PhyloTrace
+## 1.5 Running PhyloTrace
 
 Before using PhyloTrace, install the required packages and dependencies by running the initialization script.
 ```bash
@@ -67,7 +72,7 @@ Rscript init.R
 ```
 >Note: In the command above, replace *path/to/directory* with the actual path where you extracted the repository to.
 
-#### 5.1 Running from Terminal (no RStudio required)
+### 1.5.1 Running from Terminal (no RStudio required)
 
 1. Navigate to the local directory
 ```bash
@@ -86,7 +91,7 @@ Rscript PhyloTrace_App.R
 
 ![My Image](www/terminal_start.png)   
 
-#### 5.1 Running from RStudio
+### 1.5.2 Running from RStudio
 
 Open PhyloTrace.R from its directory with RStudio and start it by clicking "Run App" (make sure to tick "Run External" to open it in the default browser).
 
