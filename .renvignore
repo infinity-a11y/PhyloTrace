@@ -1,0 +1,9 @@
+Database/
+execute/kma_single/
+execute/kma_multi/
+execute/selected_genomes/
+www/
+script.log
+README.md
+.Rhistory
+Report/
