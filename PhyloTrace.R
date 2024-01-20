@@ -14536,6 +14536,9 @@ server <- function(input, output, session) {
       # Execute the script
       system(paste(reset_multi_path), wait = FALSE)
       
+      # Reset User Feedback variable
+      typing_reactive$pending_format <- 0
+      
       output$initiate_multi_typing_ui <- renderUI({
         column(
           width = 3,
@@ -14590,8 +14593,6 @@ server <- function(input, output, session) {
       timer = 6000
     )
     
-    output$test_yes_pending <- NULL
-    
     kill_multi <- paste0(
       '#!/bin/bash', '\n',
       'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
@@ -14624,6 +14625,10 @@ server <- function(input, output, session) {
     
     # Execute the script
     system(paste(kill_multi_path), wait = FALSE)
+    
+    # Reset User Feedback variable
+    typing_reactive$pending_format <- 0
+    output$test_yes_pending <- NULL
     
     output$initiate_multi_typing_ui <- renderUI({
       column(
@@ -14819,7 +14824,7 @@ server <- function(input, output, session) {
           if(str_detect(tail(readLogFile(), 1), "Attaching")) {
             typing_reactive$pending_format <- 888888
           } else if(str_detect(tail(readLogFile(), 2)[1], "Successful typing")) {
-            if(!(typing_reactive$last_success %in% readLogFile())) {
+            if(!identical(typing_reactive$last_success, tail(readLogFile(), 2)[1])) {
               typing_reactive$entry_added <- 999999
               typing_reactive$last_success <- tail(readLogFile(), 2)[1]
               typing_reactive$reset <- FALSE  
