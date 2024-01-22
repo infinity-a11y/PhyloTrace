@@ -19,11 +19,18 @@ Before installing the dependencies, ensure that you have R and RStudio installed
 2. Install R by executing the downloaded file and following the installation prompts.
 
 ```bash
-wget http://cran.rstudio.com/src/base/R-4/R-4.3.2.tar.gz \
- tar xvf R-4.3.2.tar.gz \
- cd R-4.3.2 \
- ./configure --prefix=$HOME \
- make && make install
+cd ~ \
+ && wget https://cran.r-project.org/src/base/R-4/R-4.3.2.tar.gz \
+ && tar xvf R-4.3.2.tar.gz \
+ && cd R-4.3.2 \
+ && ./configure --prefix=$HOME \
+ && make && make install \
+ && cd ~
+```
+
+Create writable R library 
+```bash
+mkdir ~/R-4.3.2/library
 ```
 
 [Optional: Download RStudio IDE]
@@ -59,16 +66,23 @@ sudo apt-get update && sudo apt-get install -y \
 ## 1.3 Install Miniconda
 
 ```bash
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /miniconda.sh \
-    && bash /miniconda.sh -b -u -p /miniconda3 \
-    && rm /miniconda.sh \
-    && /miniconda3/bin/conda init bash
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh 
+```
+```bash
+bash ~/miniconda.sh -b -u
+```
+```bash
+~/miniconda3/bin/conda create --name PhyloTrace
+```
+
+```bash
+source ~/miniconda3/bin/activate PhyloTrace
 ```
 
 ## 1.4 Install KMA via Conda
 
 ```bash
-/miniconda3/bin/conda install -c bioconda kma
+conda install -n PhyloTrace -c bioconda kma
 ```
 
 ## 1.5 Running PhyloTrace
