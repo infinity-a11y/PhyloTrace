@@ -18,6 +18,14 @@ Before installing the dependencies, ensure that you have R and RStudio installed
 1. Download the latest version of R for your operating system from [the CRAN website](https://cran.r-project.org/).
 2. Install R by executing the downloaded file and following the installation prompts.
 
+```bash
+wget http://cran.rstudio.com/src/base/R-4/R-4.3.2.tar.gz \
+ tar xvf R-4.3.2.tar.gz \
+ cd R-4.3.2 \
+ ./configure --prefix=$HOME \
+ make && make install
+```
+
 [Optional: Download RStudio IDE]
 
 3. Download RStudio from [the RStudio website](https://rstudio.com/products/rstudio/download/).

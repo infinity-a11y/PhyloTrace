@@ -12,6 +12,10 @@ if (!require(BiocManager))
   install.packages('BiocManager')
 library(BiocManager)
 
+if (!require(R.utils))
+  install.packages('R.utils')
+library(R.utils)
+
 if (!require(igraph))
   install.packages('igraph')
 library(igraph)
@@ -13308,6 +13312,16 @@ server <- function(input, output, session) {
           
         } else {
           
+          if(nrow(DF1$meta_true) > 100) {
+            show_toast(
+              title = "Computation might take a while",
+              type = "warning",
+              position = "top-end",
+              width = "400px",
+              timer = 10000
+            )
+          }
+          
           # prepare igraph object
           plot_loc$ggraph_1 <- hamming_mst() |>
             as.matrix() |>
@@ -14875,7 +14889,7 @@ server <- function(input, output, session) {
     
     # Render log content
     output$logText <- renderPrint({
-      tail(readLogFile(), 50)
+      cat(paste0(tail(readLogFile(), 50), "\n"))
     })
     
     # Render Pending UI
