@@ -17,6 +17,8 @@ Before installing R make sure that you have the following packages installed.
 
 ```bash
 sudo apt-get update && sudo apt-get install \
+    build-essential \
+    libbz2-dev \
     zlib1g-dev \
     liblapack-dev \
     libblas-dev \
@@ -32,7 +34,7 @@ sudo apt-get update && sudo apt-get install \
     libpng-dev \
     libtiff5-dev \
     libjpeg-dev \
-    libx11-dev \
+    xorg-dev \
     automake \
     pandoc \
     wget
