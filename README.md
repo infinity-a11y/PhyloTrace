@@ -11,7 +11,36 @@ Follow these instructions to install the required dependencies.
 
 # 1 Installation
 
-## 1.1 Install R
+## 1.1 Install System Libraries
+
+Before installing R make sure that you have the following packages installed.
+
+```bash
+sudo apt-get update && sudo apt-get install \
+    zlib1g-dev \
+    liblapack-dev \
+    libblas-dev \
+    libmkl-rt \
+    libopenblas-dev \
+    gfortran \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    libfontconfig1-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    libfreetype6-dev \
+    libpng-dev \
+    libtiff5-dev \
+    libjpeg-dev \
+    libz-dev \
+    libx11-dev \
+    automake \
+    pandoc \
+    wget
+```
+
+
+## 1.2 Install R
 
 Before installing the dependencies, ensure that you have R and RStudio installed on your system. Follow the instructions below:
 
@@ -37,30 +66,6 @@ mkdir ~/R-4.3.2/library
 
 3. Download RStudio from [the RStudio website](https://rstudio.com/products/rstudio/download/).
 4. Install RStudio by executing the downloaded file and following the installation prompts.
-
-## 1.2 Install System Libraries
-
-```bash
-sudo apt-get update && sudo apt-get install -y \
-    zlib1g-dev \
-    liblapack-dev \
-    libblas-dev \
-    libmkl-rt \
-    libopenblas-dev \
-    gfortran \
-    libcurl4-openssl-dev \
-    libxml2-dev \
-    libfontconfig1-dev \
-    libharfbuzz-dev \
-    libfribidi-dev \
-    libfreetype6-dev \
-    libpng-dev \
-    libtiff5-dev \
-    libjpeg-dev \
-    libz-dev \
-    pandoc \
-    wget
-```
 
 
 ## 1.3 Install Miniconda
