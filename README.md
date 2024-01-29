@@ -32,7 +32,6 @@ sudo apt-get update && sudo apt-get install \
     libpng-dev \
     libtiff5-dev \
     libjpeg-dev \
-    libz-dev \
     libx11-dev \
     automake \
     pandoc \
