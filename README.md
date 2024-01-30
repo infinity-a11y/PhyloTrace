@@ -77,10 +77,27 @@ Follow these instructions to install the required dependencies.
 Before using PhyloTrace for the first time some R packages and dependencies need to be installed.
 ```bash
 cd path/to/directory \
-&& Rscript init.R
+&& Rscript init.R \
 ```
 >Note: In the command above, replace *path/to/directory* with the actual path where you extracted the repository to.
 >Note: This process might take a while (depends on system capacities).
+
+```bash
+echo "[Desktop Entry]" >> PhyloTrace.desktop \
+&& echo "Name=PhyloTrace" >> PhyloTrace.desktop \
+&& echo "Exec=run_phylotrace.sh">> PhyloTrace.desktop \
+&& echo "Icon=$(pwd)/www/phylo.png" >> PhyloTrace.desktop \
+&& echo "Type=Application" >> PhyloTrace.desktop \
+&& echo "Categories=Utility;" >> PhyloTrace.desktop \
+&& chmod +x PhyloTrace.desktop \
+&& sudo mv PhyloTrace.desktop /usr/share/applications/ \
+&& echo -e "cd '$(pwd)'\n\n# Run the R script\nRscript PhyloTrace.R" > run_phylotrace.sh \
+&& chmod +x run_phylotrace.sh 
+```
+
+```bash
+sudo mv run_phylotrace.sh /usr/bin/
+```
 
 # 2 Running PhyloTrace
 
