@@ -105,7 +105,7 @@ cd path/to/directory
 
 2. Start the app by running this command from within the directory
 ```bash
-Rscript PhyloTrace_App.R
+Rscript PhyloTrace.R
 ```
 
 3. Open the app in the browser by clicking the displayed port in the terminal or copying the port to the address bar of your browser.
