@@ -67,7 +67,7 @@ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/
 && source ~/miniconda3/bin/activate PhyloTrace \
 && conda install -n PhyloTrace -c bioconda kma \
 && cd ~
-``
+```
 
 ## 1.4 Initialize PhyloTrace
 
@@ -82,7 +82,7 @@ cd path/to/directory \
 >Note: In the command above, replace *path/to/directory* with the actual path where you extracted the repository to.
 >Note: This process might take a while (depends on system capacities).
 
-## 2 Running PhyloTrace
+# 2 Running PhyloTrace
 
 Navigate to the local directory.
 ```bash
