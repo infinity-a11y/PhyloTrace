@@ -101,12 +101,4 @@ sudo mv run_phylotrace.sh /usr/bin/
 
 # 2 Running PhyloTrace
 
-Navigate to the local directory.
-```bash
-cd path/to/directory
-```
->Note: In the command above, replace *path/to/directory* with the actual path where you extracted the repository to.
-
-```bash
-Rscript PhyloTrace.R
-```
+Start PhyloTrace by pressing the *Super* key or open *Activities* and search for 'PhyloTrace'. A tab with the app will automatically open in the default browser.
