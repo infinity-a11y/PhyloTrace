@@ -1,3 +1,2 @@
 library(shiny)
-shiny::runApp("PhyloTrace.R")
-
+shiny::runApp("PhyloTrace.R", launch.browser = TRUE)
