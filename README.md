@@ -6,14 +6,12 @@
 
 ##
 
-Download the complete repository as .zip and extract it to any location on your system.
-Follow these instructions to install the required dependencies.
-
 # 1 Installation
 
 ## 1.1 Install System Libraries
 
 Before installing R make sure that you have the following packages installed.
+>This process might take a while (depends on system capacities).
 
 ```bash
 sudo apt-get update && sudo apt-get install \
@@ -44,37 +42,28 @@ sudo apt-get update && sudo apt-get install \
 
 ## 1.2 Install R
 
-Before installing the dependencies, ensure that you have R and RStudio installed on your system. Follow the instructions below:
+***>>>  In order for PhyloTree to work the newest R version is absolutely essential  <<<***
 
-1. Download the latest version of R for your operating system from [the CRAN website](https://cran.r-project.org/).
-2. Install R by executing the downloaded file and following the installation prompts.
+Follow the instructions below to install the newest R Version.
 
 ```bash
 cd ~ \
  && wget https://cran.r-project.org/src/base/R-4/R-4.3.2.tar.gz \
  && tar xvf R-4.3.2.tar.gz \
+ && rm R-4.3.2.tar.gz \
  && cd R-4.3.2 \
+ && mkdir library \
  && ./configure --prefix=$HOME \
  && make && make install \
  && cd ~
 ```
-
-Create writable R library 
-```bash
-mkdir ~/R-4.3.2/library
-```
-
-[Optional: Download RStudio IDE]
-
-3. Download RStudio from [the RStudio website](https://rstudio.com/products/rstudio/download/).
-4. Install RStudio by executing the downloaded file and following the installation prompts.
-
 
 ## 1.3 Install Miniconda
 
 ```bash
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh 
 ```
+
 ```bash
 bash ~/miniconda.sh -b -u
 ```
@@ -89,19 +78,24 @@ source ~/miniconda3/bin/activate PhyloTrace
 ## 1.4 Install KMA via Conda
 
 ```bash
-conda install -n PhyloTrace -c bioconda kma
+conda install -n PhyloTrace -c bioconda kma \
+&& cd ~
 ```
 
-## 1.5 Running PhyloTrace
+## 1.5 Initialize PhyloTrace
 
-Before using PhyloTrace, install the required packages and dependencies by running the initialization script.
+Download the complete Github repository as .zip and extract it to any location on your system.
+Follow these instructions to install the required dependencies.
+
+Before using PhyloTrace for the first time some R packages and dependencies need to be installed.
 ```bash
-cd path/to/directory
-Rscript init.R
+cd path/to/directory \
+&& Rscript init.R
 ```
 >Note: In the command above, replace *path/to/directory* with the actual path where you extracted the repository to.
+>Note: This process might take a while (depends on system capacities).
 
-### 1.5.1 Running from Terminal (no RStudio required)
+### 1.5.1 Running from Terminal
 
 1. Navigate to the local directory
 ```bash
@@ -119,9 +113,3 @@ Rscript PhyloTrace_App.R
 >Note: Upon first start, the packages are automatically installed. This process can take a while. After successful installation, the port will be displayed.  
 
 ![My Image](www/terminal_start.png)   
-
-### 1.5.2 Running from RStudio
-
-Open PhyloTrace.R from its directory with RStudio and start it by clicking "Run App" (make sure to tick "Run External" to open it in the default browser).
-
-![My Image](www/run_external.png)
