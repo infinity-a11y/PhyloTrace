@@ -58,31 +58,18 @@ cd ~ \
  && cd ~
 ```
 
-## 1.3 Install Miniconda
+## 1.3 Install Miniconda & KMA package 
 
 ```bash
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh 
-```
-
-```bash
-bash ~/miniconda.sh -b -u
-```
-```bash
-~/miniconda3/bin/conda create --name PhyloTrace
-```
-
-```bash
-source ~/miniconda3/bin/activate PhyloTrace
-```
-
-## 1.4 Install KMA via Conda
-
-```bash
-conda install -n PhyloTrace -c bioconda kma \
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh \
+&& bash ~/miniconda.sh -b -u \
+&& ~/miniconda3/bin/conda create --name PhyloTrace \
+&& source ~/miniconda3/bin/activate PhyloTrace \
+&& conda install -n PhyloTrace -c bioconda kma \
 && cd ~
-```
+``
 
-## 1.5 Initialize PhyloTrace
+## 1.4 Initialize PhyloTrace
 
 Download the complete Github repository as .zip and extract it to any location on your system.
 Follow these instructions to install the required dependencies.
@@ -95,21 +82,14 @@ cd path/to/directory \
 >Note: In the command above, replace *path/to/directory* with the actual path where you extracted the repository to.
 >Note: This process might take a while (depends on system capacities).
 
-### 1.5.1 Running from Terminal
+## 2 Running PhyloTrace
 
-1. Navigate to the local directory
+Navigate to the local directory.
 ```bash
 cd path/to/directory
 ```
 >Note: In the command above, replace *path/to/directory* with the actual path where you extracted the repository to.
 
-2. Start the app by running this command from within the directory
 ```bash
 Rscript PhyloTrace.R
 ```
-
-3. Open the app in the browser by clicking the displayed port in the terminal or copying the port to the address bar of your browser.
-
->Note: Upon first start, the packages are automatically installed. This process can take a while. After successful installation, the port will be displayed.  
-
-![My Image](www/terminal_start.png)   
