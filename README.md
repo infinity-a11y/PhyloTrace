@@ -18,6 +18,7 @@ Before installing R make sure that you have the following packages installed.
 ```bash
 sudo apt-get update && sudo apt-get install \
     build-essential \
+    libssl-dev \
     libbz2-dev \
     zlib1g-dev \
     liblapack-dev \
