@@ -11,7 +11,7 @@
 ## 1.1 Install System Libraries
 
 Before installing R make sure that you have the following packages installed.
->This process might take a while (depends on system capacities).
+>*This process might take a while (depends on system capacities).*
 
 ```bash
 sudo apt-get update && sudo apt-get install \
@@ -79,8 +79,8 @@ Before using PhyloTrace for the first time some R packages and dependencies need
 cd path/to/directory \
 && Rscript init.R 
 ```
->In the command above, replace *path/to/directory* with the actual path where you extracted the repository to.
->This process might take a while (depends on system capacities).
+>*In the command above, replace path/to/directory with the actual path where you extracted the repository to.*
+>*This process might take a while (depends on system capacities).*
 
 Create a desktop application-like searchable software. 
 ```bash
@@ -99,7 +99,7 @@ echo -e "cd '$(pwd)'\n\n# Run the R script\nconda activate PhyloTrace\nRscript P
 && sudo mv run_phylotrace.sh /usr/bin/
 ```
 
->If the last two steps don't work, use the alternative way of starting PhyloTrace as described in # 2 Running PhyloTrace
+>*If the last two steps don't work, use the alternative way of starting PhyloTrace as described in # 2 Running PhyloTrace*
 
 # 2 Running PhyloTrace
 
@@ -113,5 +113,5 @@ cd path/to/directory \
 && conda activate PhyloTrace \
 && Rscript PhyloTrace.R 
 ```
->Note: In the command above, replace *path/to/directory* with the actual path where you extracted the repository to.
+>*In the command above, replace path/to/directory with the actual path where you extracted the repository to.*
 
