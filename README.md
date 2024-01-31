@@ -90,13 +90,12 @@ echo "[Desktop Entry]" >> PhyloTrace.desktop \
 && echo "Icon=$(pwd)/www/phylo.png" >> PhyloTrace.desktop \
 && echo "Type=Application" >> PhyloTrace.desktop \
 && echo "Categories=Utility;" >> PhyloTrace.desktop \
-&& sudo mv PhyloTrace.desktop /usr/share/applications/ 
-```
-
-```bash
-echo -e "cd '$(pwd)'\n\n# Run the R script\nconda activate PhyloTrace\nRscript PhyloTrace.R" > run_phylotrace.sh \
-&& chmod +x run_phylotrace.sh \
-&& sudo mv run_phylotrace.sh /usr/bin/
+&& echo -e "cd '$(pwd)'\n\n# Run the R script\nconda init\nconda activate PhyloTrace\nRscript $(pwd)/PhyloTrace.R" > run_phylotrace.sh \
+&& sudo mv PhyloTrace.desktop /usr/share/applications/ \
+&& sudo mv run_phylotrace.sh /usr/bin/ \
+&& sudo chmod +x /usr/share/applications/PhyloTrace.desktop \
+&& sudo chmod +x /usr/bin/run_phylotrace.sh \
+&& cd ~
 ```
 
 >*If the last two steps don't work, use the alternative way of starting PhyloTrace as described in # 2 Running PhyloTrace*
