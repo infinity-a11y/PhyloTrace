@@ -99,7 +99,7 @@ echo "[Desktop Entry]" >> PhyloTrace.desktop \
 && cd ~
 ```
 
->*If the last two steps don't work, use the alternative way of starting PhyloTrace as described in # 2 Running PhyloTrace*
+>*If the last two steps don't work, use the alternative way of starting PhyloTrace as described in # 2 Running PhyloTrace.*
 
 # 2 Running PhyloTrace
 
@@ -110,6 +110,7 @@ Start PhyloTrace by pressing the *Super* key or open *Activities* and search for
 If this doesn't work the alternative way to run the app is to execute these commands:
 ```bash
 cd path/to/directory \
+&& conda init \
 && conda activate PhyloTrace \
 && Rscript PhyloTrace.R 
 ```
