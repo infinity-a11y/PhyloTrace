@@ -105,7 +105,8 @@ echo -e "cd '$(pwd)'\n\n# Run the R script\nconda activate PhyloTrace\nRscript P
 
 Start PhyloTrace by pressing the *Super* key or open *Activities* and search for 'PhyloTrace'. A tab with the app will automatically open in the default browser.
 
-** Alternative**
+**Alternative:**
+
 If this doesn't work the alternative way to run the app is to execute these commands:
 ```bash
 cd path/to/directory \
