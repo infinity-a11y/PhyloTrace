@@ -82,12 +82,13 @@ cd path/to/directory \
 >*In the command above, replace path/to/directory with the actual path where you extracted the repository to.*
 >*This process might take a while (depends on system capacities).*
 
-Create a desktop application-like searchable software. 
+Create an executable .desktop file to create a desktop application-like searchable software. 
 ```bash
 echo "[Desktop Entry]" >> PhyloTrace.desktop \
 && echo "Name=PhyloTrace" >> PhyloTrace.desktop \
 && echo "Exec=run_phylotrace.sh">> PhyloTrace.desktop \
 && echo "Icon=$(pwd)/www/phylo.png" >> PhyloTrace.desktop \
+&& echo "Terminal=true" >> PhyloTrace.desktop \
 && echo "Type=Application" >> PhyloTrace.desktop \
 && echo "Categories=Utility;" >> PhyloTrace.desktop \
 && echo -e "cd '$(pwd)'\n\n# Run the R script\nconda init\nconda activate PhyloTrace\nRscript $(pwd)/PhyloTrace.R" > run_phylotrace.sh \
