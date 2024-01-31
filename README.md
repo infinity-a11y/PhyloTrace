@@ -44,7 +44,7 @@ sudo apt-get update && sudo apt-get install \
 
 ***>>>  In order for PhyloTree to work the newest R version is absolutely essential  <<<***
 
-Follow the instructions below to install the newest R Version.
+Follow the instructions below to install version ***4.3.2***.
 
 ```bash
 cd ~ \
@@ -79,9 +79,10 @@ Before using PhyloTrace for the first time some R packages and dependencies need
 cd path/to/directory \
 && Rscript init.R 
 ```
->Note: In the command above, replace *path/to/directory* with the actual path where you extracted the repository to.
->Note: This process might take a while (depends on system capacities).
+>In the command above, replace *path/to/directory* with the actual path where you extracted the repository to.
+>This process might take a while (depends on system capacities).
 
+Create a desktop application-like searchable software. 
 ```bash
 echo "[Desktop Entry]" >> PhyloTrace.desktop \
 && echo "Name=PhyloTrace" >> PhyloTrace.desktop \
@@ -89,23 +90,26 @@ echo "[Desktop Entry]" >> PhyloTrace.desktop \
 && echo "Icon=$(pwd)/www/phylo.png" >> PhyloTrace.desktop \
 && echo "Type=Application" >> PhyloTrace.desktop \
 && echo "Categories=Utility;" >> PhyloTrace.desktop \
-&& chmod +x PhyloTrace.desktop \
-&& sudo mv PhyloTrace.desktop /usr/share/applications/ \
-&& echo -e "cd '$(pwd)'\n\n# Run the R script\nRscript PhyloTrace.R" > run_phylotrace.sh \
-&& chmod +x run_phylotrace.sh 
+&& sudo mv PhyloTrace.desktop /usr/share/applications/ 
 ```
 
 ```bash
-sudo mv run_phylotrace.sh /usr/bin/
+echo -e "cd '$(pwd)'\n\n# Run the R script\nconda activate PhyloTrace\nRscript PhyloTrace.R" > run_phylotrace.sh \
+&& chmod +x run_phylotrace.sh \
+&& sudo mv run_phylotrace.sh /usr/bin/
 ```
+
+>If the last two steps don't work, use the alternative way of starting PhyloTrace as described in # 2 Running PhyloTrace
 
 # 2 Running PhyloTrace
 
 Start PhyloTrace by pressing the *Super* key or open *Activities* and search for 'PhyloTrace'. A tab with the app will automatically open in the default browser.
 
+** Alternative**
 If this doesn't work the alternative way to run the app is to execute these commands:
 ```bash
 cd path/to/directory \
+&& conda activate PhyloTrace \
 && Rscript PhyloTrace.R 
 ```
 >Note: In the command above, replace *path/to/directory* with the actual path where you extracted the repository to.
