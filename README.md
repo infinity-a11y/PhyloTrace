@@ -92,6 +92,7 @@ echo "[Desktop Entry]" >> PhyloTrace.desktop \
 && echo "Type=Application" >> PhyloTrace.desktop \
 && echo "Categories=Utility;" >> PhyloTrace.desktop \
 && echo -e "cd '$(pwd)'\n\n# Run the R script\nconda init\nconda activate PhyloTrace\nRscript $(pwd)/PhyloTrace.R" > run_phylotrace.sh \
+&& sed -i '1s/^/#!\/bin\/bash\n/' run_phylotrace.sh \
 && sudo mv PhyloTrace.desktop /usr/share/applications/ \
 && sudo mv run_phylotrace.sh /usr/bin/ \
 && sudo chmod a+x /usr/share/applications/PhyloTrace.desktop \
