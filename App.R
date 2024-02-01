@@ -7244,8 +7244,6 @@ server <- function(input, output, session) {
               
               DF1$data <- Database[["Typing"]]
               
-              rownames(DF1$data) <- DF1$data$Index
-              
               if(!is.null(DF1$data)){
                 if ((ncol(DF1$data)-12) != as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))) {
                   cust_var <- select(DF1$data, 13:(ncol(DF1$data) - as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))))
@@ -10169,8 +10167,6 @@ server <- function(input, output, session) {
     
     DF1$data <- Database[["Typing"]]
     
-    rownames(DF1$data) <- DF1$data$Index
-    
     if(!is.null(DF1$data)){
       if ((ncol(DF1$data)-12) != as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))) {
         cust_var <- select(DF1$data, 13:(ncol(DF1$data) - as.numeric(gsub(",", "", as.vector(DF1$schemeinfo[6, 2])))))
@@ -11595,8 +11591,6 @@ server <- function(input, output, session) {
   #### NJ ----
   
   nj_tree <- reactive({
-    njj <<- plot_loc$nj
-    meta_nj <<- plot_loc$meta_nj
     tree <-
       ggtree(plot_loc$nj, 
              color = input$nj_color,
@@ -11645,8 +11639,6 @@ server <- function(input, output, session) {
       nj_fruit5() +
       nj_gradient5() 
     
-    treee <<- tree
-    
     plot_loc$xrange_nj <- tree$data$x
     plot_loc$yrange_nj <- tree$data$y
     
@@ -11666,8 +11658,6 @@ server <- function(input, output, session) {
                                              scale = input$nj_zoom,
                                              hjust = input$nj_h,
                                              vjust = input$nj_v)  
-    
-    nj_plot <<- plot_loc$nj_plot
     plot_loc$nj_plot
   })
   
@@ -13861,6 +13851,8 @@ server <- function(input, output, session) {
         kma_run <- paste0(
           "#!/bin/bash\n",
           'cd execute', '\n',
+          'source ~/miniconda3/etc/profile.d/conda.sh', '\n',
+          'conda activate PhyloTrace', '\n',
           'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
           '# Function to log messages to the file', '\n',
           'log_message() {', '\n',
@@ -14750,6 +14742,8 @@ server <- function(input, output, session) {
       
       kma_multi <- paste0(
         '#!/bin/bash', '\n',
+        'source ~/miniconda3/etc/profile.d/conda.sh', '\n',
+        'conda activate PhyloTrace', '\n',
         'cd execute', '\n',
         'base_path=', shQuote(getwd()), '\n',
         '# Get Genome Folder', '\n',
@@ -14842,31 +14836,16 @@ server <- function(input, output, session) {
   
   # Database messages
   observe({
-    
-    # Remove Modal Window when pending changes
-    if(!is.null(typing_reactive$pending_format) & !is.null(typing_reactive$entry_added)) {
-      if(typing_reactive$pending_format == 888888 & !typing_reactive$entry_added == 999999) {
-        removeModal()
-      }
-    }
-    
     if(tail(readLogFile(), 1) != "0") {
-      aha <<- readLogFile()
       if(!is.null(typing_reactive$reset)){
-        reset_val <<- typing_reactive$reset
         if(typing_reactive$reset == TRUE) {
           if(str_detect(tail(readLogFile(), 1), "Attaching")) {
             typing_reactive$pending_format <- 888888
-            also <<- typing_reactive$pending_format
           } else if(str_detect(tail(readLogFile(), 2)[1], "Successful typing")) {
-            super <<- typing_reactive$last_success
             if(!identical(typing_reactive$last_success, tail(readLogFile(), 2)[1])) {
               typing_reactive$entry_added <- 999999
-              test <<- typing_reactive$entry_added
               typing_reactive$last_success <- tail(readLogFile(), 2)[1]
-              typing_reactive$reset <- FALSE 
-              tttest <<- is.null(DF1$data)
-              tttest1 <<- class(DF1$data)
+              typing_reactive$reset <- FALSE  
             }
           } 
         }
