@@ -66,6 +66,7 @@ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/
 && ~/miniconda3/bin/conda create --name PhyloTrace \
 && source ~/miniconda3/bin/activate PhyloTrace \
 && conda install -n PhyloTrace -c bioconda kma \
+&& conda init \
 && cd ~
 ```
 
@@ -91,7 +92,7 @@ echo "[Desktop Entry]" >> PhyloTrace.desktop \
 && echo "Terminal=true" >> PhyloTrace.desktop \
 && echo "Type=Application" >> PhyloTrace.desktop \
 && echo "Categories=Utility;" >> PhyloTrace.desktop \
-&& echo -e "cd '$(pwd)'\n\n# Run the R script\nconda init\nconda activate PhyloTrace\nRscript $(pwd)/PhyloTrace.R" > run_phylotrace.sh \
+&& echo -e "cd '$(pwd)'\n\n# Run the R script\nRscript $(pwd)/PhyloTrace.R" > run_phylotrace.sh \
 && sed -i '1s/^/#!\/bin\/bash\n/' run_phylotrace.sh \
 && sudo mv PhyloTrace.desktop /usr/share/applications/ \
 && sudo mv run_phylotrace.sh /usr/bin/ \
@@ -111,7 +112,6 @@ Start PhyloTrace by pressing the *Super* key or open *Activities* and search for
 If this doesn't work the alternative way to run the app is to execute these commands:
 ```bash
 cd path/to/directory \
-&& conda init \
 && conda activate PhyloTrace \
 && Rscript PhyloTrace.R 
 ```
