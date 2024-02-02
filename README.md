@@ -101,7 +101,7 @@ echo "[Desktop Entry]" >> PhyloTrace.desktop \
 && cd ~
 ```
 
->*If the last two steps don't work, use the alternative way of starting PhyloTrace as described in # 2 Running PhyloTrace.*
+>*If this doesn't work, use the alternative way of starting PhyloTrace as described in # 2 Running PhyloTrace.*
 
 # 2 Running PhyloTrace
 
