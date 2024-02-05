@@ -33,6 +33,7 @@ sudo apt-get update && sudo apt-get install \
     libpng-dev \
     libtiff5-dev \
     libjpeg-dev \
+    xdg-utils \
     xorg-dev \
     automake \
     pandoc \
@@ -61,13 +62,15 @@ cd ~ \
 ## 1.3 Install Miniconda & KMA package 
 
 ```bash
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh \
+cd ~ \
+&& wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh \
 && bash ~/miniconda.sh -b -u \
-&& ~/miniconda3/bin/conda create --name PhyloTrace \
-&& source ~/miniconda3/bin/activate PhyloTrace \
-&& conda install -n PhyloTrace -c bioconda kma \
 && conda init \
-&& cd ~
+```
+
+```bash
+cd path/to/directory \
+&& conda env create -f PhyloTrace.yml
 ```
 
 ## 1.4 Initialize PhyloTrace
@@ -92,7 +95,7 @@ echo "[Desktop Entry]" >> PhyloTrace.desktop \
 && echo "Terminal=true" >> PhyloTrace.desktop \
 && echo "Type=Application" >> PhyloTrace.desktop \
 && echo "Categories=Utility;" >> PhyloTrace.desktop \
-&& echo -e "cd '$(pwd)'\n\n# Run the R script\nRscript $(pwd)/PhyloTrace.R" > run_phylotrace.sh \
+&& echo -e "cd '$(pwd)'\n\n# Run the R script\n~/miniconda3/bin/conda activate PhyloTrace\nexport R_BROWSER=$(xdg-settings get default-web-browser)\nRscript $(pwd)/PhyloTrace.R" > run_phylotrace.sh \
 && sed -i '1s/^/#!\/bin\/bash\n/' run_phylotrace.sh \
 && sudo mv PhyloTrace.desktop /usr/share/applications/ \
 && sudo mv run_phylotrace.sh /usr/bin/ \
