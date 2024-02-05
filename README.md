@@ -83,7 +83,7 @@ cd path/to/directory \
 >*In the command above, replace path/to/directory with the actual path where you extracted the repository to.*
 >*This process might take a while (depends on system capacities).*
 
-Create an executable .desktop file to create a desktop application-like searchable software. 
+Construct an executable .desktop file to make a desktop launcher for PhyloTrace. 
 ```bash
 echo "[Desktop Entry]" >> PhyloTrace.desktop \
 && echo "Name=PhyloTrace" >> PhyloTrace.desktop \
