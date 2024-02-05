@@ -144,13 +144,14 @@ If PhyloTrace is still unable to launch from desktop, a missing default browser 
 ## 4 Roadmap
 PhyloTrace is under active development with new functions, enhancements and innovations to follow.
 
+
 <picture>
-    <source media="(prefers-color-scheme: light)" srcset="www/roadmap1.png" width="40%">
-    <source media="(prefers-color-scheme: dark)" srcset="www/roadmap1.jpg" width="40%">    
+    <source srcset="www/roadmap.png" width="30%">
     <img src= "www/">
 </picture>
 
 <sub>Generated with AI (GPT-4 DALL·E)</sub>
+
 
 
 - [X] ***"Hello World!"*** - Completion Version 1.0.0 
