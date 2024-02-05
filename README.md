@@ -8,6 +8,8 @@
 
 # 1 Installation
 
+Download the repository as `.zip` and unpack it to a location on your system.  
+
 ## 1.1 Install System Libraries/Packages
 
 ```bash
@@ -42,7 +44,7 @@ sudo apt-get update && sudo apt-get install \
 Is ***Miniconda*** installed on the system?
 
 - Yes: Run the installation below and initialize conda. 
-- No: Skip this code chunk and proceed to the next one.  
+- No: Skip this code chunk and proceed to the creation of a new environment as the next step.  
 
 ```bash
 cd ~ \
@@ -56,12 +58,12 @@ Create a conda evironment containing necessary dependencies and packages.
 cd path/to/directory \
 && conda env create -f PhyloTrace.yml
 ```
->*In the command above, replace path/to/directory with the actual path linking to the PhyloTrace directory on your system.*
+>*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 >*This process might take a while (depends on system capacities).*
 
 ## 1.3 Create Desktop Launcher
 
-Construct an executable *.desktop* file to create a desktop launcher for PhyloTrace. 
+Construct an executable `.desktop` file to create a desktop launcher for PhyloTrace. 
 ```bash
 echo "[Desktop Entry]" >> PhyloTrace.desktop \
 && echo "Name=PhyloTrace" >> PhyloTrace.desktop \
@@ -85,7 +87,6 @@ echo "[Desktop Entry]" >> PhyloTrace.desktop \
 
 Start PhyloTrace by pressing the *Super* key or open *Activities* and search for 'PhyloTrace'. A tab with the app will automatically open in the default browser.
 
-
 **Alternative:**
 
 If this doesn't work the alternative way to run the app is to execute these commands:
@@ -96,3 +97,34 @@ cd path/to/directory \
 ```
 >*In the command above, replace path/to/directory with the actual path linking to the PhyloTrace directory on your system.*
 
+# 3 Troubleshooting
+
+## 3.1 General
+There are multiple possible sources for issues with the installation. Common mistakes during the installation are: 
+- Change `path/to/directory` in the command chunks with the actual path of the repository containing all PhyloTrace files
+- Before installation make sure the whole repository is unzipped to a writable location in your system
+- Sometimes system libraries/dependencies needed for PhyloTrace are not installed or updated [1.1 Install System Libraries/Packages](#11-install-system-librariespackages)
+
+If the installation issues persist feel free to contact us via [contact@phylotrace.com](mailto:contact@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans) or open an issue.
+
+## 3.2 Desktop Launcher not Working
+In some cases the default browser is not accessible from shell. In order to manually denote the browser, substitute *browser-name* in the command below with executable name of the browser you want to use. If you are unsure about the correct identifier for your browser consider the table below. 
+
+```bash
+cd /usr/bin/ \
+&& sudo sed -i '3 s/.*/export R_BROWSER=browser-name/' run_phylotrace.sh \
+&& cd ~
+```
+
+| Browser  | *browser-name*  |
+| ------------- | ------------- |
+| Google Chrome  | *google-chrome* **or** *google-chrome-stable*  |
+| Firefox  | *firefox*  |
+| Chromium  | *chromium*  |
+| Brave  | *brave-browser*  |
+| Opera  | *opera*  |
+| Vivaldi  | *vivaldi*  |
+
+<sub>Executable names for some popular browsers.</sub>
+
+If PhyloTrace is still unable to launch from desktop, a missing default browser was likely not the issue. In this case either open PhyloTrace as described in [2 Running PhyloTrace](#2-running-phylotrace) or contact us via [contact@phylotrace.com](mailto:contact@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans).  
