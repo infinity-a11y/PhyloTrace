@@ -85,6 +85,7 @@ echo "[Desktop Entry]" >> PhyloTrace.desktop \
 
 Start PhyloTrace by pressing the *Super* key or open *Activities* and search for 'PhyloTrace'. A tab with the app will automatically open in the default browser.
 
+
 **Alternative:**
 
 If this doesn't work the alternative way to run the app is to execute these commands:
