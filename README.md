@@ -6,6 +6,18 @@
 
 ##
 
+## Table of Content
+
+* [1 Installation](#1-installation)
+    * [1.1 Install System Libraries](#11-install-system-librariespackages)
+    * [1.2 Induce Conda Environment](#12-induce-conda-environment)
+    * [1.3 Create Desktop Launcher](#13-create-desktop-launcher)
+* [2 Running PhyloTrace](#2-running-phylotrace)
+* [3 Troubleshooting](#3-troubleshooting)
+    * [3.1 General](#31-general)
+    * [3.2 Desktop Launcher](#32-desktop-launcher-not-working)
+* [4 Roadmap](#4-roadmap)
+
 # 1 Installation
 
 Download the repository as `.zip` and unpack it to a location on your system.  
@@ -128,3 +140,29 @@ cd /usr/bin/ \
 <sub>Executable names for some popular browsers.</sub>
 
 If PhyloTrace is still unable to launch from desktop, a missing default browser was likely not the issue. In this case either open PhyloTrace as described in [2 Running PhyloTrace](#2-running-phylotrace) or contact us via [contact@phylotrace.com](mailto:contact@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans).  
+
+## 4 Roadmap
+PhyloTrace is under active development with new functions, enhancements and innovations to follow.
+
+<picture>
+    <source srcset="www/roadmap.png" width="20%" align="left">  
+    <img src= "www/">
+</picture>
+
+<sub>Generated with AI (GPT-4 DALL·E)</sub>
+
+
+- [X] ***"Hello World!"*** - Completion Version 1.0.0 
+- [ ] Support for additional cgMLST scheme databases (e.g. pubMLST, EnteroBase, Institut Pasteur)  
+- [ ] MST Graph Clustering 
+- [ ] Implementation of a Gene Enrichment Analysis   
+- [ ] Hash-Based Core Genome Multilocus Sequence Typing
+- [ ] More sophisticated MST Graphs (e.g. Pie Charts as Nodes)
+- [ ] Create new cgMLST Schemes / Add new Loci
+- [ ] Implementation of a NGS Sequencing Pipeline
+
+
+
+
+
+
