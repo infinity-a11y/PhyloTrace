@@ -6,7 +6,7 @@
 
 
 
-## Table of Content
+### Table of Content
 
 * [1 Installation](#1-installation)
     * [1.1 Install System Libraries](#11-install-system-librariespackages)
@@ -18,11 +18,11 @@
     * [3.2 Desktop Launcher](#32-desktop-launcher-not-working)
 * [4 Roadmap](#4-roadmap)
 
-# 1 Installation
+## 1 Installation
 
 Download the repository as `.zip` and unpack it to a location on your system.  
 
-## 1.1 Install System Libraries/Packages
+### 1.1 Install System Libraries/Packages
 
 ```bash
 sudo apt-get update && sudo apt-get install \
@@ -51,7 +51,7 @@ sudo apt-get update && sudo apt-get install \
     wget
 ```
 
-## 1.2 Induce Conda Environment 
+### 1.2 Induce Conda Environment 
 
 Is ***Miniconda*** installed on the system?
 
@@ -73,7 +73,7 @@ cd path/to/directory \
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 >*This process might take a while (depends on system capacities).*
 
-## 1.3 Create Desktop Launcher
+### 1.3 Create Desktop Launcher
 
 Construct an executable `.desktop` file to create a desktop launcher for PhyloTrace. 
 ```bash
@@ -95,7 +95,7 @@ echo "[Desktop Entry]" >> PhyloTrace.desktop \
 
 >*If this does not work, use the alternative way of starting PhyloTrace as described in # 2 Running PhyloTrace.*
 
-# 2 Running PhyloTrace
+## 2 Running PhyloTrace
 
 Start PhyloTrace by pressing the *Super* key or open *Activities* and search for 'PhyloTrace'. A tab with the app will automatically open in the default browser.
 
@@ -109,9 +109,9 @@ cd path/to/directory \
 ```
 >*In the command above, replace path/to/directory with the actual path linking to the PhyloTrace directory on your system.*
 
-# 3 Troubleshooting
+## 3 Troubleshooting
 
-## 3.1 General
+### 3.1 General
 There are multiple possible sources for issues with the installation. Common mistakes during the installation are: 
 - Change `path/to/directory` in the command chunks with the actual path of the repository containing all PhyloTrace files
 - Before installation make sure the whole repository is unzipped to a writable location in your system
@@ -119,7 +119,7 @@ There are multiple possible sources for issues with the installation. Common mis
 
 If the installation issues persist feel free to contact us via [contact@phylotrace.com](mailto:contact@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans) or open an issue.
 
-## 3.2 Desktop Launcher not Working
+### 3.2 Desktop Launcher not Working
 In some cases the default browser is not accessible from shell. In order to manually denote the browser, substitute *browser-name* in the command below with executable name of the browser you want to use. If you are unsure about the correct identifier for your browser consider the table below. 
 
 ```bash
