@@ -4,7 +4,7 @@
     <img src= "www/">
 </picture>
 
-##
+
 
 ## Table of Content
 
@@ -145,7 +145,8 @@ If PhyloTrace is still unable to launch from desktop, a missing default browser 
 PhyloTrace is under active development with new functions, enhancements and innovations to follow.
 
 <picture>
-    <source srcset="www/roadmap.png" width="20%" align="left">  
+    <source media="(prefers-color-scheme: light)" srcset="www/roadmap1.png" width="40%">
+    <source media="(prefers-color-scheme: dark)" srcset="www/roadmap1.jpg" width="40%">    
     <img src= "www/">
 </picture>
 
