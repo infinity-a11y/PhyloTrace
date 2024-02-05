@@ -8,10 +8,7 @@
 
 # 1 Installation
 
-## 1.1 Install System Libraries
-
-Before installing R make sure that you have the following packages installed.
->*This process might take a while (depends on system capacities).*
+## 1.1 Install System Libraries/Packages
 
 ```bash
 sudo apt-get update && sudo apt-get install \
@@ -40,53 +37,31 @@ sudo apt-get update && sudo apt-get install \
     wget
 ```
 
+## 1.2 Induce Conda Environment 
 
-## 1.2 Install R
+Is ***Miniconda*** installed on the system?
 
-***>>>  In order for PhyloTree to work the newest R version is absolutely essential  <<<***
-
-Follow the instructions below to install version ***4.3.2***.
-
-```bash
-cd ~ \
- && wget https://cran.r-project.org/src/base/R-4/R-4.3.2.tar.gz \
- && tar xvf R-4.3.2.tar.gz \
- && rm R-4.3.2.tar.gz \
- && cd R-4.3.2 \
- && mkdir library \
- && ./configure --prefix=$HOME \
- && make && make install \
- && cd ~
-```
-
-## 1.3 Install Miniconda & KMA package 
+- Yes: Run the installation below and initialize conda. 
+- No: Skip this code chunk and proceed to the next one.  
 
 ```bash
 cd ~ \
 && wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh \
 && bash ~/miniconda.sh -b -u \
-&& conda init \
+&& conda init 
 ```
 
+Create a conda evironment containing necessary dependencies and packages.
 ```bash
 cd path/to/directory \
 && conda env create -f PhyloTrace.yml
 ```
-
-## 1.4 Initialize PhyloTrace
-
-Download the complete Github repository as .zip and extract it to any location on your system.
-Follow these instructions to install the required dependencies.
-
-Before using PhyloTrace for the first time some R packages and dependencies need to be installed.
-```bash
-cd path/to/directory \
-&& Rscript init.R 
-```
->*In the command above, replace path/to/directory with the actual path where you extracted the repository to.*
+>*In the command above, replace path/to/directory with the actual path linking to the PhyloTrace directory on your system.*
 >*This process might take a while (depends on system capacities).*
 
-Construct an executable .desktop file to make a desktop launcher for PhyloTrace. 
+## 1.3 Create Desktop Launcher
+
+Construct an executable *.desktop* file to create a desktop launcher for PhyloTrace. 
 ```bash
 echo "[Desktop Entry]" >> PhyloTrace.desktop \
 && echo "Name=PhyloTrace" >> PhyloTrace.desktop \
@@ -95,7 +70,7 @@ echo "[Desktop Entry]" >> PhyloTrace.desktop \
 && echo "Terminal=true" >> PhyloTrace.desktop \
 && echo "Type=Application" >> PhyloTrace.desktop \
 && echo "Categories=Utility;" >> PhyloTrace.desktop \
-&& echo -e "cd '$(pwd)'\n\n# Run the R script\n~/miniconda3/bin/conda activate PhyloTrace\nexport R_BROWSER=$(xdg-settings get default-web-browser)\nRscript $(pwd)/PhyloTrace.R" > run_phylotrace.sh \
+&& echo -e "cd '$(pwd)'\n\n# Run the R script\n~/miniconda3/bin/conda activate PhyloTrace\nRscript $(pwd)/PhyloTrace.R" > run_phylotrace.sh \
 && sed -i '1s/^/#!\/bin\/bash\n/' run_phylotrace.sh \
 && sudo mv PhyloTrace.desktop /usr/share/applications/ \
 && sudo mv run_phylotrace.sh /usr/bin/ \
@@ -104,7 +79,7 @@ echo "[Desktop Entry]" >> PhyloTrace.desktop \
 && cd ~
 ```
 
->*If this doesn't work, use the alternative way of starting PhyloTrace as described in # 2 Running PhyloTrace.*
+>*If this does not work, use the alternative way of starting PhyloTrace as described in # 2 Running PhyloTrace.*
 
 # 2 Running PhyloTrace
 
@@ -118,5 +93,5 @@ cd path/to/directory \
 && conda activate PhyloTrace \
 && Rscript PhyloTrace.R 
 ```
->*In the command above, replace path/to/directory with the actual path where you extracted the repository to.*
+>*In the command above, replace path/to/directory with the actual path linking to the PhyloTrace directory on your system.*
 
