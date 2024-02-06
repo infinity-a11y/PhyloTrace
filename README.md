@@ -6,7 +6,7 @@
 
 
 
-### Table of Content
+## Table of Content
 
 * [1 Installation](#1-installation)
     * [1.1 Install System Libraries](#11-install-system-librariespackages)
@@ -85,10 +85,8 @@ cd path/to/directory \
 && echo "Terminal=true" >> PhyloTrace.desktop \
 && echo "Type=Application" >> PhyloTrace.desktop \
 && echo "Categories=Utility;" >> PhyloTrace.desktop \
-&& echo '#!/bin/bash' > run_phylotrace.sh \
-&& echo "" >> run_phylotrace.sh \
-&& echo "# Run the R script" >> run_phylotrace.sh \
-&& echo "conda activate" >> run_phylotrace.sh \
+&& echo "cd '$(pwd)'" >> run_phylotrace.sh \
+&& echo "~/miniconda3/bin/conda activate PhyloTrace" >> run_phylotrace.sh \
 && echo "Rscript $(pwd)/PhyloTrace.R" >> run_phylotrace.sh \
 && sudo mv PhyloTrace.desktop /usr/share/applications/ \
 && sudo mv run_phylotrace.sh /usr/bin/ \
@@ -112,7 +110,7 @@ cd path/to/directory \
 && conda activate PhyloTrace \
 && Rscript PhyloTrace.R 
 ```
->*In the command above, replace path/to/directory with the actual path linking to the PhyloTrace directory on your system.*
+>*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
 ## 3 Troubleshooting
 
@@ -120,7 +118,7 @@ cd path/to/directory \
 There are multiple possible sources for issues with the installation. Common mistakes during the installation are: 
 - Change `path/to/directory` in the command chunks with the actual path of the repository containing all PhyloTrace files
 - Before installation make sure the whole repository is unzipped to a writable location in your system
-- Sometimes system libraries/dependencies needed for PhyloTrace are not installed or updated [1.1 Install System Libraries/Packages](#11-install-system-librariespackages)
+- System libraries/dependencies needed for PhyloTrace are not installed or updated [1.1 Install System Libraries/Packages](#11-install-system-librariespackages)
 
 If the installation issues persist feel free to contact us via [contact@phylotrace.com](mailto:contact@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans) or open an issue.
 
