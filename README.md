@@ -127,9 +127,7 @@ If the installation issues persist feel free to contact us via [contact@phylotra
 In some cases the default browser is not accessible from shell. In order to manually denote the browser, substitute *browser-name* in the command below with executable name of the browser you want to use. If you are unsure about the correct identifier for your browser consider the table below. 
 
 ```bash
-cd /usr/bin/ \
-&& sudo sed -i '2 s/.*/export R_BROWSER=browser-name\n/' run_phylotrace.sh \
-&& cd ~
+sudo sed -i '2 s/.*/export R_BROWSER=browser-name\n/' /usr/bin/run_phylotrace.sh 
 ```
 
 | Browser  | *browser-name*  |
