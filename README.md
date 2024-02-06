@@ -92,8 +92,7 @@ cd path/to/directory \
 && sudo mv PhyloTrace.desktop /usr/share/applications/ \
 && sudo mv run_phylotrace.sh /usr/bin/ \
 && sudo chmod a+x /usr/share/applications/PhyloTrace.desktop \
-&& sudo chmod a+x /usr/bin/run_phylotrace.sh \
-&& cd ~
+&& sudo chmod a+x /usr/bin/run_phylotrace.sh 
 ```
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
