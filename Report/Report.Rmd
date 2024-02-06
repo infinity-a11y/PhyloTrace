@@ -79,10 +79,10 @@ if(!is.null(my_loaded_variables[["na_handling"]])){
   }
 } 
 
-show_analysis <- TRUE
-
-if(!(my_loaded_variables[["report_df.Include"]][9] | my_loaded_variables[["report_df.Include"]][10] | my_loaded_variables[["report_df.Include"]][11] | my_loaded_variables[["report_df.Include"]][12])) {
+if(my_loaded_variables[["report_df.Include"]][7] == FALSE) {
   show_analysis <- FALSE
+} else {
+  show_analysis <- TRUE
 }
  
 if(!is.null(my_loaded_variables[["na_handling"]])){
@@ -110,7 +110,8 @@ if(!is.null(my_loaded_variables[["na_handling"]])){
 }
 colnames(df) <- NULL
 
-if(my_loaded_variables[["report_df.Include"]][7] & show_analysis){
+if(show_analysis == TRUE) {
+  if(my_loaded_variables[["report_df.Include"]][7]){
   kbl(df) %>%
   kable_styling(position = "float_left",
                 font_size = 10) %>%
@@ -137,6 +138,7 @@ if(my_loaded_variables[["report_df.Include"]][8]) {
             label_row_css = "font-size: 20px; padding: 19px",
             hline_before = FALSE,
             hline_after = F)
+}
 }
 
 ```

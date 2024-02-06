@@ -1,8 +1,8 @@
 # PhyloTrace
 # Version 1.0.0
+
 # Phylogenetic Visualization in a Shiny App
 # Author: Marian Freisleben
-# Date: 18.09.2023
 
 library(shiny)
 library(R.utils)
