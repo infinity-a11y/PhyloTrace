@@ -53,7 +53,7 @@ sudo apt-get update && sudo apt-get install \
 
 ### 1.2 Induce Conda Environment 
 
-Is ***Miniconda*** installed on the system?
+Is ***Miniconda*** or another ***Conda Distribution*** installed on the system?
 
 - Yes: Run the installation below and initialize conda. 
 - No: Skip this code chunk and proceed to the creation of a new environment as the next step.  
