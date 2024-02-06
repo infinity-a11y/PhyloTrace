@@ -85,7 +85,9 @@ cd path/to/directory \
 && echo "Terminal=true" >> PhyloTrace.desktop \
 && echo "Type=Application" >> PhyloTrace.desktop \
 && echo "Categories=Utility;" >> PhyloTrace.desktop \
-&& echo -e "cd '$phylo_dir'\n\n# Run the R script\n~/miniconda3/bin/conda activate PhyloTrace\nRscript $phylo_dir/PhyloTrace.R" > run_phylotrace.sh \
+&& echo "# Run the R script" > run_phylotrace.sh \
+&& echo "conda activate" >> run_phylotrace.sh \
+&& echo "Rscript $(pwd)/PhyloTrace.R" >> run_phylotrace.sh \
 && sed -i '1s/^/#!\/bin\/bash\n/' run_phylotrace.sh \
 && sudo mv PhyloTrace.desktop /usr/share/applications/ \
 && sudo mv run_phylotrace.sh /usr/bin/ \
