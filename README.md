@@ -96,6 +96,7 @@ cd path/to/directory \
 && sudo chmod a+x /usr/bin/run_phylotrace.sh \
 && cd ~
 ```
+>*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
 >*If this does not work, use the alternative way of starting PhyloTrace as described in # 2 Running PhyloTrace.*
 
