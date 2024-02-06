@@ -129,7 +129,7 @@ In some cases the default browser is not accessible from shell. In order to manu
 
 ```bash
 cd /usr/bin/ \
-&& sudo sed -i '3 s/.*/export R_BROWSER=browser-name/' run_phylotrace.sh \
+&& sudo sed -i '2 s/.*/export R_BROWSER=browser-name\n/' run_phylotrace.sh \
 && cd ~
 ```
 
