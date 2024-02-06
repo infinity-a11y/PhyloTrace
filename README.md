@@ -77,14 +77,15 @@ cd path/to/directory \
 
 Construct an executable `.desktop` file to create a desktop launcher for PhyloTrace. 
 ```bash
-echo "[Desktop Entry]" >> PhyloTrace.desktop \
+cd path/to/directory \
+&& echo "[Desktop Entry]" >> PhyloTrace.desktop \
 && echo "Name=PhyloTrace" >> PhyloTrace.desktop \
 && echo "Exec=run_phylotrace.sh">> PhyloTrace.desktop \
 && echo "Icon=$(pwd)/www/phylo.png" >> PhyloTrace.desktop \
 && echo "Terminal=true" >> PhyloTrace.desktop \
 && echo "Type=Application" >> PhyloTrace.desktop \
 && echo "Categories=Utility;" >> PhyloTrace.desktop \
-&& echo -e "cd '$(pwd)'\n\n# Run the R script\n~/miniconda3/bin/conda activate PhyloTrace\nRscript $(pwd)/PhyloTrace.R" > run_phylotrace.sh \
+&& echo -e "cd '$phylo_dir'\n\n# Run the R script\n~/miniconda3/bin/conda activate PhyloTrace\nRscript $phylo_dir/PhyloTrace.R" > run_phylotrace.sh \
 && sed -i '1s/^/#!\/bin\/bash\n/' run_phylotrace.sh \
 && sudo mv PhyloTrace.desktop /usr/share/applications/ \
 && sudo mv run_phylotrace.sh /usr/bin/ \
