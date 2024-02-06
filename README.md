@@ -6,7 +6,7 @@
 
 
 
-### Table of Content
+## Table of Content
 
 * [1 Installation](#1-installation)
     * [1.1 Install System Libraries](#11-install-system-librariespackages)
@@ -78,21 +78,24 @@ cd path/to/directory \
 
 Construct an executable `.desktop` file to create a desktop launcher for PhyloTrace. 
 ```bash
-echo "[Desktop Entry]" >> PhyloTrace.desktop \
+cd path/to/directory \
+&& echo "[Desktop Entry]" > PhyloTrace.desktop \
 && echo "Name=PhyloTrace" >> PhyloTrace.desktop \
 && echo "Exec=run_phylotrace.sh">> PhyloTrace.desktop \
 && echo "Icon=$(pwd)/www/phylo.png" >> PhyloTrace.desktop \
 && echo "Terminal=true" >> PhyloTrace.desktop \
 && echo "Type=Application" >> PhyloTrace.desktop \
 && echo "Categories=Utility;" >> PhyloTrace.desktop \
-&& echo -e "cd '$(pwd)'\n\n# Run the R script\n~/miniconda3/bin/conda activate PhyloTrace\nRscript $(pwd)/PhyloTrace.R" > run_phylotrace.sh \
-&& sed -i '1s/^/#!\/bin\/bash\n/' run_phylotrace.sh \
+&& echo "cd '$(pwd)'" >> run_phylotrace.sh \
+&& echo "~/miniconda3/bin/conda activate PhyloTrace" >> run_phylotrace.sh \
+&& echo "Rscript $(pwd)/PhyloTrace.R" >> run_phylotrace.sh \
 && sudo mv PhyloTrace.desktop /usr/share/applications/ \
 && sudo mv run_phylotrace.sh /usr/bin/ \
 && sudo chmod a+x /usr/share/applications/PhyloTrace.desktop \
 && sudo chmod a+x /usr/bin/run_phylotrace.sh \
 && cd ~
 ```
+>*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
 >*If this does not work, use the alternative way of starting PhyloTrace as described in # 2 Running PhyloTrace.*
 
@@ -108,7 +111,7 @@ cd path/to/directory \
 && conda activate PhyloTrace \
 && Rscript PhyloTrace.R 
 ```
->*In the command above, replace path/to/directory with the actual path linking to the PhyloTrace directory on your system.*
+>*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
 ## 3 Troubleshooting
 
@@ -116,7 +119,7 @@ cd path/to/directory \
 There are multiple possible sources for issues with the installation. Common mistakes during the installation are: 
 - Change `path/to/directory` in the command chunks with the actual path of the repository containing all PhyloTrace files
 - Before installation make sure the whole repository is unzipped to a writable location in your system
-- Sometimes system libraries/dependencies needed for PhyloTrace are not installed or updated [1.1 Install System Libraries/Packages](#11-install-system-librariespackages)
+- System libraries/dependencies needed for PhyloTrace are not installed or updated [1.1 Install System Libraries/Packages](#11-install-system-librariespackages)
 
 If the installation issues persist feel free to contact us via [contact@phylotrace.com](mailto:contact@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans) or open an issue.
 
@@ -125,7 +128,7 @@ In some cases the default browser is not accessible from shell. In order to manu
 
 ```bash
 cd /usr/bin/ \
-&& sudo sed -i '3 s/.*/export R_BROWSER=browser-name/' run_phylotrace.sh \
+&& sudo sed -i '2 s/.*/export R_BROWSER=browser-name\n/' run_phylotrace.sh \
 && cd ~
 ```
 
