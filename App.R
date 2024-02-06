@@ -1312,7 +1312,7 @@ ui <- dashboardPage(
             br(),
             br(),
             br(),
-            selectInput(
+            pickerInput(
               inputId = "select_cgmlst",
               label = NULL,
               choices = list(
@@ -1348,7 +1348,14 @@ ui <- dashboardPage(
                 "Streptococcus pyogenes"
               ),
               selected = "Bordetella pertussis",
-              width = "300px"
+              width = "300px",
+              options = list(
+                `live-search` = TRUE,
+                `actions-box` = TRUE,
+                size = 10,
+                style = "background-color: white; border-radius: 5px;"
+              ),
+              multiple = FALSE
             )
           ),
           column(
