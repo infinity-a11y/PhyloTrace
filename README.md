@@ -78,7 +78,7 @@ cd path/to/directory \
 Construct an executable `.desktop` file to create a desktop launcher for PhyloTrace. 
 ```bash
 cd path/to/directory \
-&& echo "[Desktop Entry]" >> PhyloTrace.desktop \
+&& echo "[Desktop Entry]" > PhyloTrace.desktop \
 && echo "Name=PhyloTrace" >> PhyloTrace.desktop \
 && echo "Exec=run_phylotrace.sh">> PhyloTrace.desktop \
 && echo "Icon=$(pwd)/www/phylo.png" >> PhyloTrace.desktop \
