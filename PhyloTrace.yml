@@ -153,7 +153,7 @@ dependencies:
   - r-tzdb=0.4.0
   - r-utf8=1.2.3
   - r-uuid=1.1_1
-  - r-vctrs=0.6.3
+  - r-vctrs=0.6.4
   - r-viridisLite=0.4.2
   - r-visNetwork=2.1.2
   - r-vroom=1.6.4
