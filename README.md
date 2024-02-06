@@ -85,10 +85,11 @@ cd path/to/directory \
 && echo "Terminal=true" >> PhyloTrace.desktop \
 && echo "Type=Application" >> PhyloTrace.desktop \
 && echo "Categories=Utility;" >> PhyloTrace.desktop \
-&& echo "# Run the R script" > run_phylotrace.sh \
+&& echo "#!/bin/bash" > run_phylotrace.sh \
+&& echo "" >> run_phylotrace.sh \
+&& echo "# Run the R script" >> run_phylotrace.sh \
 && echo "conda activate" >> run_phylotrace.sh \
 && echo "Rscript $(pwd)/PhyloTrace.R" >> run_phylotrace.sh \
-&& sed -i '1s/^/#!\/bin\/bash\n/' run_phylotrace.sh \
 && sudo mv PhyloTrace.desktop /usr/share/applications/ \
 && sudo mv run_phylotrace.sh /usr/bin/ \
 && sudo chmod a+x /usr/share/applications/PhyloTrace.desktop \
