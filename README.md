@@ -85,7 +85,7 @@ cd path/to/directory \
 && echo "Terminal=true" >> PhyloTrace.desktop \
 && echo "Type=Application" >> PhyloTrace.desktop \
 && echo "Categories=Utility;" >> PhyloTrace.desktop \
-&& echo "#!/bin/bash" > run_phylotrace.sh \
+&& echo '#!/bin/bash' > run_phylotrace.sh \
 && echo "" >> run_phylotrace.sh \
 && echo "# Run the R script" >> run_phylotrace.sh \
 && echo "conda activate" >> run_phylotrace.sh \
