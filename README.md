@@ -62,7 +62,8 @@ Is ***Miniconda*** installed on the system?
 cd ~ \
 && wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh \
 && bash ~/miniconda.sh -b -u \
-&& conda init 
+&& conda init \
+&& conda config --set auto_activate_base false
 ```
 
 Create a conda evironment containing necessary dependencies and packages.
