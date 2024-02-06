@@ -4,132 +4,36 @@
 # Author: Marian Freisleben
 # Date: 18.09.2023
 
-if (!require(shiny))
-  install.packages('shiny')
 library(shiny)
-
-if (!require(BiocManager))
-  install.packages('BiocManager')
-library(BiocManager)
-
-if (!require(R.utils))
-  install.packages('R.utils')
 library(R.utils)
-
-if (!require(igraph))
-  install.packages('igraph')
 library(igraph)
-
-if (!require(shinyWidgets))
-  install.packages('shinyWidgets')
 library(shinyWidgets)
-
-if (!require(shinydashboard))
-  install.packages('shinydashboard')
 library(shinydashboard)
-
-if (!require(dashboardthemes))
-  install.packages('dashboardthemes')
 library(dashboardthemes)
-
-if (!require(ggplot2))
-  install.packages('ggplot2')
 library(ggplot2)
-
-if (!require(ggnewscale))
-  install.packages('ggnewscale')
 library(ggnewscale)
-
-if (!require(ggplotify))
-  install.packages('ggplotify')
 library(ggplotify)
-
-if (!require(ape))
-  install.packages('ape')
 library(ape)
-
-if (!require(treeio))
-  install('treeio')
 library(treeio)
-
-if (!require(ggtree))
-  install('ggtree')
 library(ggtree)
-
-if (!require(ggtreeExtra))
-  install('ggtreeExtra')
 library(ggtreeExtra)
-
-if (!require(tidyverse))
-  install.packages('tidyverse')
 library(tidyverse)
-
-if (!require(rlang))
-  install.packages('rlang')
 library(rlang)
-
-if (!require(tidytree))
-  install.packages('tidytree')
 library(tidytree)
-
-if (!require(shinyFiles))
-  install.packages('shinyFiles')
 library(shinyFiles)
-
-if (!require(dplyr))
-  install.packages('dplyr')
 library(dplyr)
-
-if (!require(downloader))
-  install.packages('downloader')
 library(downloader)
-
-if (!require(rvest))
-  install.packages('rvest')
 library(rvest)
-
-if (!require(rmarkdown))
-  install.packages('rmarkdown')
 library(rmarkdown)
-
-if (!require(knitr))
-  install.packages('knitr')
 library(knitr)
-
-if (!require(kableExtra))
-  install.packages('kableExtra')
 library(kableExtra)
-
-if (!require(fs))
-  install.packages('fs')
 library(fs)
-
-if (!require(data.table))
-  install.packages('data.table')
 library(data.table)
-
-if (!require(zoo))
-  install.packages('zoo')
 library(zoo)
-
-if (!require(ggnetwork))
-  install.packages('ggnetwork')
 library(ggnetwork)
-
-if (!require(rhandsontable))
-  install.packages('rhandsontable')
 library(rhandsontable)
-
-if (!require(visNetwork))
-  install.packages('visNetwork')
 library(visNetwork)
-
-if (!require(proxy))
-  install.packages('proxy')
 library(proxy)
-
-if (!require(phangorn))
-  install.packages('phangorn')
 library(phangorn)
 
 country_names <- c(
