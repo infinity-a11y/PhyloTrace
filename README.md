@@ -86,7 +86,7 @@ cd path/to/directory \
 && echo "Terminal=true" >> PhyloTrace.desktop \
 && echo "Type=Application" >> PhyloTrace.desktop \
 && echo "Categories=Utility;" >> PhyloTrace.desktop \
-&& echo "cd '$(pwd)'" >> run_phylotrace.sh \
+&& echo "cd '$(pwd)'" > run_phylotrace.sh \
 && echo "~/miniconda3/bin/conda activate PhyloTrace" >> run_phylotrace.sh \
 && echo "Rscript $(pwd)/PhyloTrace.R" >> run_phylotrace.sh \
 && sudo mv PhyloTrace.desktop /usr/share/applications/ \
