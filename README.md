@@ -55,9 +55,8 @@ sudo apt-get update && sudo apt-get install \
 
 Is ***Miniconda*** or another ***Conda Distribution*** installed on the system?
 
-- Yes: Run the installation below and initialize conda. 
-- No: Skip this code chunk and proceed to the creation of a new environment as the next step.  
-
+- Yes: Skip this code chunk and proceed to the creation of a new environment as the next step.  
+- No: Run the installation below and initialize conda. 
 ```bash
 mkdir -p ~/miniconda3 \
 && wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh \
@@ -127,7 +126,7 @@ There are multiple possible sources for issues with the installation. Common mis
 If the installation issues persist feel free to contact us via [contact@phylotrace.com](mailto:contact@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans) or open an issue.
 
 ### 3.2 Desktop Launcher not Working
-In some cases the default browser is not accessible from shell. In order to manually denote the browser, substitute *browser-name* in the command below with the executable name of the browser you want to use. The single quotation marks around *browser-name* have to stay, e.g.'firefox'. If you are unsure about the correct identifier for your browser consider the table below. 
+In some cases the default browser is not accessible from shell. In order to manually denote the browser, substitute *browser-name* in the command below with the executable name of the browser you want to use. The single quotation marks around *browser-name* have to stay, e.g. 'firefox'. If you are unsure about the correct identifier for your browser consider the table below. 
 
 ```bash
 cd path/to/directory \
