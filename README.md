@@ -127,16 +127,17 @@ There are multiple possible sources for issues with the installation. Common mis
 If the installation issues persist feel free to contact us via [contact@phylotrace.com](mailto:contact@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans) or open an issue.
 
 ### 3.2 Desktop Launcher not Working
-In some cases the default browser is not accessible from shell. In order to manually denote the browser, substitute *browser-name* (keep the "" quotation marks) in the command below with executable name of the browser you want to use. If you are unsure about the correct identifier for your browser consider the table below. 
+In some cases the default browser is not accessible from shell. In order to manually denote the browser, substitute *browser-name* in the command below with the executable name of the browser you want to use. The single quotation marks around *browser-name* have to stay, e.g.'firefox'. If you are unsure about the correct identifier for your browser consider the table below. 
 
 ```bash
 cd path/to/directory \
 && echo "library(shiny)" > PhyloTrace.R \
-&& echo "options(browser="browser-name") >> PhyloTrace.R \
-&& echo shiny::runApp("App.R", launch.browser = TRUE) >> PhyloTrace.R
+&& echo "options(browser='browser-name')" >> PhyloTrace.R \
+&& echo "shiny::runApp('App.R', launch.browser = TRUE)" >> PhyloTrace.R
 ```
 
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
+
 
 | Browser  | *browser-name*  |
 | ------------- | ------------- |
