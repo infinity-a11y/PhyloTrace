@@ -59,9 +59,10 @@ Is ***Miniconda*** or another ***Conda Distribution*** installed on the system?
 - No: Skip this code chunk and proceed to the creation of a new environment as the next step.  
 
 ```bash
-cd ~ \
-&& wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh \
-&& bash ~/miniconda.sh -b -u \
+mkdir -p ~/miniconda3 \
+&& wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh \
+&& bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 \
+&& rm -rf ~/miniconda3/miniconda.sh \
 && conda init \
 && conda config --set auto_activate_base false
 ```
@@ -86,14 +87,17 @@ cd path/to/directory \
 && echo "Terminal=true" >> PhyloTrace.desktop \
 && echo "Type=Application" >> PhyloTrace.desktop \
 && echo "Categories=Utility;" >> PhyloTrace.desktop \
-&& echo "cd '$(pwd)'" > run_phylotrace.sh \
-&& echo "~/miniconda3/bin/conda activate PhyloTrace" >> run_phylotrace.sh \
+&& echo '#!/bin/bash' > run_phylotrace.sh \
+&& echo "" >> run_phylotrace.sh \
+&& echo "cd $(pwd)" >> run_phylotrace.sh \
+&& echo "source ~/miniconda3/bin/activate PhyloTrace" >> run_phylotrace.sh \
 && echo "Rscript $(pwd)/PhyloTrace.R" >> run_phylotrace.sh \
 && sudo mv PhyloTrace.desktop /usr/share/applications/ \
 && sudo mv run_phylotrace.sh /usr/bin/ \
 && sudo chmod a+x /usr/share/applications/PhyloTrace.desktop \
 && sudo chmod a+x /usr/bin/run_phylotrace.sh 
 ```
+
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
 >*If this does not work, use the alternative way of starting PhyloTrace as described in # 2 Running PhyloTrace.*
@@ -123,11 +127,16 @@ There are multiple possible sources for issues with the installation. Common mis
 If the installation issues persist feel free to contact us via [contact@phylotrace.com](mailto:contact@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans) or open an issue.
 
 ### 3.2 Desktop Launcher not Working
-In some cases the default browser is not accessible from shell. In order to manually denote the browser, substitute *browser-name* in the command below with executable name of the browser you want to use. If you are unsure about the correct identifier for your browser consider the table below. 
+In some cases the default browser is not accessible from shell. In order to manually denote the browser, substitute *browser-name* (keep the "" quotation marks) in the command below with executable name of the browser you want to use. If you are unsure about the correct identifier for your browser consider the table below. 
 
 ```bash
-sudo sed -i '2 s/.*/export R_BROWSER=browser-name\n/' /usr/bin/run_phylotrace.sh 
+cd path/to/directory \
+&& echo "library(shiny)" > PhyloTrace.R \
+&& echo "options(browser="browser-name") >> PhyloTrace.R \
+&& echo shiny::runApp("App.R", launch.browser = TRUE) >> PhyloTrace.R
 ```
+
+>*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
 | Browser  | *browser-name*  |
 | ------------- | ------------- |
