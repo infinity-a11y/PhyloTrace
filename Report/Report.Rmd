@@ -79,10 +79,10 @@ if(!is.null(my_loaded_variables[["na_handling"]])){
   }
 } 
 
-if(my_loaded_variables[["report_df.Include"]][7] == FALSE) {
-  show_analysis <- FALSE
-} else {
+if(my_loaded_variables[["report_df.Include"]][7] == TRUE) {
   show_analysis <- TRUE
+} else {
+  show_analysis <- FALSE
 }
  
 if(!is.null(my_loaded_variables[["na_handling"]])){
@@ -110,8 +110,7 @@ if(!is.null(my_loaded_variables[["na_handling"]])){
 }
 colnames(df) <- NULL
 
-if(show_analysis == TRUE) {
-  if(my_loaded_variables[["report_df.Include"]][7]){
+if(my_loaded_variables[["report_df.Include"]][7] & show_analysis){
   kbl(df) %>%
   kable_styling(position = "float_left",
                 font_size = 10) %>%
@@ -123,10 +122,8 @@ if(show_analysis == TRUE) {
             label_row_css = "font-size: 20px; padding: 19px",
             hline_before = F,
             hline_after = F)
-
 }
-
-if(my_loaded_variables[["report_df.Include"]][8]) {
+if(my_loaded_variables[["report_df.Include"]][8] & show_analysis) {
   kbl(my_loaded_variables[["scheme"]]) %>%
   kable_styling(position = "right",
                 font_size = 10) %>%
@@ -138,7 +135,6 @@ if(my_loaded_variables[["report_df.Include"]][8]) {
             label_row_css = "font-size: 20px; padding: 19px",
             hline_before = FALSE,
             hline_after = F)
-}
 }
 
 ```
