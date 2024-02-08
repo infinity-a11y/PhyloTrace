@@ -2706,7 +2706,7 @@ ui <- dashboardPage(
                           align = "center",
                           fluidRow(
                             column(
-                              width = 12,
+                              width = 7,
                               align = "left",
                               prettyRadioButtons(
                                 "nj_legend_orientation",
@@ -2714,21 +2714,7 @@ ui <- dashboardPage(
                                 choices = c(Horizontal = "horizontal",
                                             Vertical = "vertical"),
                                 selected = c(Horizontal = "horizontal"),
-                                inline = TRUE
-                              )
-                            )
-                          ),
-                          fluidRow(
-                            column(
-                              width = 7,
-                              selectInput(
-                                "nj_legend_position",
-                                "",
-                                choices = c(Top = "top", 
-                                            Right = "right", 
-                                            Bottom = "bottom", 
-                                            Left = "left"),
-                                selected = "bottom"
+                                inline = FALSE
                               )
                             ),
                             column(
@@ -2756,6 +2742,24 @@ ui <- dashboardPage(
                                       min = 5,
                                       max = 25,
                                       step = 1,
+                                      width = "100%"
+                                    ),
+                                    numericInput(
+                                      "nj_legend_x",
+                                      label = h5("X Pos", style = "color:white; margin-bottom: 0px"),
+                                      value = 0.1,
+                                      min = -0.9,
+                                      max = 1.9,
+                                      step = 0.2,
+                                      width = "100%"
+                                    ),
+                                    numericInput(
+                                      "nj_legend_y",
+                                      label = h5("Y Pos", style = "color:white; margin-bottom: 0px"),
+                                      value = 1,
+                                      min = -1,
+                                      max = 1,
+                                      step = 0.1,
                                       width = "100%"
                                     )
                                   )
@@ -4797,7 +4801,7 @@ ui <- dashboardPage(
                           align = "center",
                           fluidRow(
                             column(
-                              width = 12,
+                              width = 5,
                               align = "left",
                               prettyRadioButtons(
                                 "upgma_legend_orientation",
@@ -4805,21 +4809,7 @@ ui <- dashboardPage(
                                 choices = c(Horizontal = "horizontal",
                                             Vertical = "vertical"),
                                 selected = c(Horizontal = "horizontal"),
-                                inline = TRUE
-                              )
-                            )
-                          ),
-                          fluidRow(
-                            column(
-                              width = 7,
-                              selectInput(
-                                "upgma_legend_position",
-                                "",
-                                choices = c(Top = "top", 
-                                            Right = "right", 
-                                            Bottom = "bottom", 
-                                            Left = "left"),
-                                selected = "bottom"
+                                inline = FALSE
                               )
                             ),
                             column(
@@ -4847,6 +4837,24 @@ ui <- dashboardPage(
                                       min = 5,
                                       max = 25,
                                       step = 1,
+                                      width = "100%"
+                                    ),
+                                    numericInput(
+                                      "upgma_legend_x",
+                                      label = h5("X Pos", style = "color:white; margin-bottom: 0px"),
+                                      value = 0.1,
+                                      min = -0.9,
+                                      max = 1.9,
+                                      step = 0.2,
+                                      width = "100%"
+                                    ),
+                                    numericInput(
+                                      "upgma_legend_y",
+                                      label = h5("Y Pos", style = "color:white; margin-bottom: 0px"),
+                                      value = 1,
+                                      min = -1,
+                                      max = 1,
+                                      step = 0.1,
                                       width = "100%"
                                     )
                                   )
@@ -11525,14 +11533,15 @@ server <- function(input, output, session) {
                                          size = input$nj_subtitle_size),
             legend.background = element_rect(fill = input$nj_bg),
             legend.direction = input$nj_legend_orientation,
-            legend.position = input$nj_legend_position,
             legend.title = element_text(color = input$nj_color,
                                         size = input$nj_legend_size*1.2),
             legend.title.align = 0.5,
+            legend.position = nj_legend_pos(),
             legend.text = element_text(color = input$nj_color, 
                                        size = input$nj_legend_size),
             legend.key = element_rect(fill = input$nj_bg),
             legend.box.spacing = unit(1.5, "cm"),
+            legend.key.size = unit(0.05*input$nj_legend_size, 'cm'),
             plot.background = element_rect(fill = input$nj_bg))  +
       new_scale_fill() +
       nj_fruit() +
@@ -11570,6 +11579,15 @@ server <- function(input, output, session) {
                                              hjust = input$nj_h,
                                              vjust = input$nj_v)  
     plot_loc$nj_plot
+  })
+  
+  # Legend Position
+  nj_legend_pos <- reactive({
+    if(!is.null(input$nj_legend_x) & !is.null(input$nj_legend_y)) {
+      c(input$nj_legend_x, input$nj_legend_y)
+    } else {
+      c(0.1, 1)
+    }
   })
   
   # Heatmap offset
@@ -12122,7 +12140,7 @@ server <- function(input, output, session) {
                                          size = input$upgma_subtitle_size),
             legend.background = element_rect(fill = input$upgma_bg),
             legend.direction = input$upgma_legend_orientation,
-            legend.position = input$upgma_legend_position,
+            legend.position = upgma_legend_pos(),
             legend.title = element_text(color = input$upgma_color,
                                         size = input$upgma_legend_size*1.2),
             legend.title.align = 0.5,
@@ -12130,6 +12148,7 @@ server <- function(input, output, session) {
                                        size = input$upgma_legend_size),
             legend.key = element_rect(fill = input$upgma_bg),
             legend.box.spacing = unit(1.5, "cm"),
+            legend.key.size = unit(0.05*input$upgma_legend_size, 'cm'),
             plot.background = element_rect(fill = input$upgma_bg)) +
       new_scale_fill() +
       upgma_fruit() +
@@ -12168,6 +12187,15 @@ server <- function(input, output, session) {
                                                 vjust = input$upgma_v)  
     
     plot_loc$upgma_plot
+  })
+  
+  # Legend Position
+  upgma_legend_pos <- reactive({
+    if(!is.null(input$upgma_legend_x) & !is.null(input$upgma_legend_y)) {
+      c(input$upgma_legend_x, input$upgma_legend_y)
+    } else {
+      c(0.1, 1)
+    }
   })
   
   # Heatmap offset
