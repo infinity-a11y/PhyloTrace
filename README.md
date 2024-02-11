@@ -172,6 +172,8 @@ PhyloTrace is under active development with new functions, enhancements and inno
 - [ ] More sophisticated MST Graphs (e.g. Pie Charts as Nodes)
 - [ ] Create new cgMLST Schemes / Add new Loci
 - [ ] Implementation of a NGS Sequencing Pipeline
+- [ ] Backwards Compatibility with MLST (ST calling)
+- [ ] Implementation of wgMLST
 
 
 
