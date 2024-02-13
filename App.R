@@ -13539,186 +13539,198 @@ server <- function(input, output, session) {
       
     } else if (nrow(typing_reactive$single_path) > 0) {
       
-      # Render selected assembly path
-      output$genome_path <- renderUI({
-        HTML(
-          paste(
-            "<span style='color: white; font-weight: bolder'>",
-            as.character(typing_reactive$single_path$name)
+      if (str_detect(str_sub(typing_reactive$single_path$name, start = -6), ".fasta") | 
+          str_detect(str_sub(typing_reactive$single_path$name, start = -6), ".fna") | 
+          str_detect(str_sub(typing_reactive$single_path$name, start = -6), ".fa")) {
+        # Render selected assembly path
+        output$genome_path <- renderUI({
+          HTML(
+            paste(
+              "<span style='color: white; font-weight: bolder'>",
+              as.character(typing_reactive$single_path$name)
+            )
           )
-        )
-      })
-      
-      # Render metadata declaration box
-      output$metadata_single_box <- renderUI({
-        column(
-          width = 3,
-          align = "center",
-          tags$style(".append_table {margin-top: 0px; margin-left: 3px}"),
-          tags$style("div#append_isodate.shiny-date-input.form-group.shiny-input-container.shiny-bound-input input.form-control.shinyjs-resettable {text-align: center}"),
-          tags$style("div#append_analysisdate.shiny-date-input.form-group.shiny-input-container.shiny-bound-input input.form-control.shinyjs-resettable {text-align: center}"),
-          tags$style(".append_table_country .btn {height: 32px}"),
-          tags$style(".append_table_country {margin-top: 23px; margin-bottom: 5px}"),
-          tags$style("button#conf_meta_single {background: #20e6e5; color: black}"),
-          br(),
-          br(),
-          h3(p("Declare Metadata"), style = "color:white"),
-          br(),
-          br(),
-          box(
-            solidHeader = TRUE,
-            status = "primary",
-            width = "90%",
-            fluidRow(
-              column(
-                width = 5,
-                align = "left",
-                h5("Assembly ID", style = "color:white; margin-top: 30px; margin-left: 15px")
-              ),
-              column(
-                width = 7,
-                align = "left",
-                div(
-                  class = "append_table",
-                  textInput("assembly_id",
-                            label = "",
-                            width = "80%")
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 5,
-                align = "left",
-                h5("Assembly Name", style = "color:white; margin-top: 30px; margin-left: 15px")
-              ),
-              column(
-                width = 7,
-                align = "left",
-                div(
-                  class = "append_table",
-                  textInput("assembly_name",
-                            label = "",
-                            width = "80%")
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 5,
-                align = "left",
-                h5("Isolation Date", style = "color:white; margin-top: 30px; margin-left: 15px")
-              ),
-              column(
-                width = 7,
-                align = "left",
-                div(
-                  class = "append_table",
-                  dateInput("append_isodate",
-                            label = "",
-                            width = "60%")
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 5,
-                align = "left",
-                h5("Host", style = "color:white; margin-top: 30px; margin-left: 15px")
-              ),
-              column(
-                width = 7,
-                align = "left",
-                div(
-                  class = "append_table",
-                  textInput("append_host",
-                            label = "",
-                            width = "80%")
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 5,
-                align = "left",
-                h5("Country", style = "color:white; margin-top: 30px; margin-left: 15px")
-              ),
-              column(
-                width = 7,
-                align = "left",
-                div(
-                  class = "append_table_country",
-                  pickerInput(
-                    "append_country",
-                    label = "",
-                    choices = list("Common" = sel_countries,
-                                   "All Countries" = country_names),
-                    options = list(
-                      `live-search` = TRUE,
-                      `actions-box` = TRUE,
-                      size = 10,
-                      style = "background-color: white; border-radius: 5px;"
-                    ),
-                    width = "90%"
-                  )
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 5,
-                align = "left",
-                h5("City", style = "color:white; margin-top: 30px; margin-left: 15px")
-              ),
-              column(
-                width = 7,
-                align = "left",
-                div(
-                  class = "append_table",
-                  textInput(
-                    "append_city",
-                    label = "",
-                    width = "80%"
-                  )
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 5,
-                align = "left",
-                h5("Typing Date", style = "color:white; margin-top: 30px; margin-left: 15px")
-              ),
-              column(
-                width = 7,
-                align = "left",
-                div(
-                  class = "append_table",
-                  dateInput(
-                    "append_analysisdate",
-                    label = "",
-                    value = Sys.Date(),
-                    width = "60%"
-                  )
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 12,
-                align = "center",
-                br(), br(),
-                actionButton(
-                  inputId = "conf_meta_single",
-                  label = "Confirm"
+        })
+        
+        # Render metadata declaration box
+        output$metadata_single_box <- renderUI({
+          column(
+            width = 3,
+            align = "center",
+            tags$style(".append_table {margin-top: 0px; margin-left: 3px}"),
+            tags$style("div#append_isodate.shiny-date-input.form-group.shiny-input-container.shiny-bound-input input.form-control.shinyjs-resettable {text-align: center}"),
+            tags$style("div#append_analysisdate.shiny-date-input.form-group.shiny-input-container.shiny-bound-input input.form-control.shinyjs-resettable {text-align: center}"),
+            tags$style(".append_table_country .btn {height: 32px}"),
+            tags$style(".append_table_country {margin-top: 23px; margin-bottom: 5px}"),
+            tags$style("button#conf_meta_single {background: #20e6e5; color: black}"),
+            br(),
+            br(),
+            h3(p("Declare Metadata"), style = "color:white"),
+            br(),
+            br(),
+            box(
+              solidHeader = TRUE,
+              status = "primary",
+              width = "90%",
+              fluidRow(
+                column(
+                  width = 5,
+                  align = "left",
+                  h5("Assembly ID", style = "color:white; margin-top: 30px; margin-left: 15px")
                 ),
-                br()
-              )
-            ),
-            br()
+                column(
+                  width = 7,
+                  align = "left",
+                  div(
+                    class = "append_table",
+                    textInput("assembly_id",
+                              label = "",
+                              width = "80%")
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 5,
+                  align = "left",
+                  h5("Assembly Name", style = "color:white; margin-top: 30px; margin-left: 15px")
+                ),
+                column(
+                  width = 7,
+                  align = "left",
+                  div(
+                    class = "append_table",
+                    textInput("assembly_name",
+                              label = "",
+                              width = "80%")
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 5,
+                  align = "left",
+                  h5("Isolation Date", style = "color:white; margin-top: 30px; margin-left: 15px")
+                ),
+                column(
+                  width = 7,
+                  align = "left",
+                  div(
+                    class = "append_table",
+                    dateInput("append_isodate",
+                              label = "",
+                              width = "60%")
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 5,
+                  align = "left",
+                  h5("Host", style = "color:white; margin-top: 30px; margin-left: 15px")
+                ),
+                column(
+                  width = 7,
+                  align = "left",
+                  div(
+                    class = "append_table",
+                    textInput("append_host",
+                              label = "",
+                              width = "80%")
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 5,
+                  align = "left",
+                  h5("Country", style = "color:white; margin-top: 30px; margin-left: 15px")
+                ),
+                column(
+                  width = 7,
+                  align = "left",
+                  div(
+                    class = "append_table_country",
+                    pickerInput(
+                      "append_country",
+                      label = "",
+                      choices = list("Common" = sel_countries,
+                                     "All Countries" = country_names),
+                      options = list(
+                        `live-search` = TRUE,
+                        `actions-box` = TRUE,
+                        size = 10,
+                        style = "background-color: white; border-radius: 5px;"
+                      ),
+                      width = "90%"
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 5,
+                  align = "left",
+                  h5("City", style = "color:white; margin-top: 30px; margin-left: 15px")
+                ),
+                column(
+                  width = 7,
+                  align = "left",
+                  div(
+                    class = "append_table",
+                    textInput(
+                      "append_city",
+                      label = "",
+                      width = "80%"
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 5,
+                  align = "left",
+                  h5("Typing Date", style = "color:white; margin-top: 30px; margin-left: 15px")
+                ),
+                column(
+                  width = 7,
+                  align = "left",
+                  div(
+                    class = "append_table",
+                    dateInput(
+                      "append_analysisdate",
+                      label = "",
+                      value = Sys.Date(),
+                      width = "60%"
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 12,
+                  align = "center",
+                  br(), br(),
+                  actionButton(
+                    inputId = "conf_meta_single",
+                    label = "Confirm"
+                  ),
+                  br()
+                )
+              ),
+              br()
+            )
           )
+        })
+      } else {
+        show_toast(
+          title = "Wrong file type (only fasta/fna/fa)",
+          type = "error",
+          position = "top-end",
+          width = "400px",
+          timer = 6000
         )
-      })
+      }
     }
   })
   
@@ -13733,6 +13745,7 @@ server <- function(input, output, session) {
                     roots = c(wd = "/home"),
                     session = session)
     typing_reactive$single_path <- parseFilePaths(roots = c(wd = "/home"), input$genome_file)
+    
   })
   
   #### Run KMA ----
@@ -14197,6 +14210,8 @@ server <- function(input, output, session) {
   observe({
     if (nrow(typing_reactive$table) > 0) {
       
+      typing_reactive$genome_selected <- hot_to_r(input$multi_select_table)
+      
       output$metadata_multi_box <- renderUI({
         column(
           width = 3,
@@ -14352,8 +14367,7 @@ server <- function(input, output, session) {
             br()
           )
         )
-      })
-      
+      }) 
     } else {
       output$metadata_multi_box <- NULL
     }
@@ -14625,30 +14639,6 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$start_typ_multi, {
-    showModal(
-      modalDialog(
-        paste0(
-          "Typing multiple assemblies will take a while. Continue?"
-        ),
-        title = "Start multi typing",
-        fade = TRUE,
-        easyClose = TRUE,
-        footer = tagList(
-          modalButton("Cancel"),
-          actionButton("conf_start_multi", "Start", class = "btn btn-default")
-        )
-      )
-    )
-    
-    observeEvent(input$Cancel, {
-      removeModal()
-    })
-  })
-  
-  observeEvent(input$conf_start_multi, {
-    
-    removeModal()
-    
     if(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[1] != "0") {
       show_toast(
         title = "Pending Single Typing",
@@ -14657,118 +14647,150 @@ server <- function(input, output, session) {
         timer = 6000
       )
     } else {
-      
-      show_toast(
-        title = "Multi Typing started",
-        type = "success",
-        position = "top-end",
-        timer = 6000
-      )
-      typing_reactive$final <- FALSE
-      
-      # Remove Allelic Typing Controls
-      
-      output$initiate_multi_typing_ui <- NULL
-      
-      output$metadata_multi_box <- NULL
-      
-      output$start_multi_typing_ui <- NULL
-      
-      # List Genome Assemblies Included in Analysis in Vector
-      genome_selected <- hot_to_r(input$multi_select_table)
-      
-      genome_names <<- genome_selected$Files[which(genome_selected$Include == TRUE)]
-      
-      kma_multi <- paste0(
-        '#!/bin/bash', '\n',
-        'source ~/miniconda3/etc/profile.d/conda.sh', '\n',
-        'conda activate PhyloTrace', '\n',
-        'cd execute', '\n',
-        'base_path=', shQuote(getwd()), '\n',
-        '# Get Genome Folder', '\n',
-        'genome_folder=', shQuote(as.character(parseDirPath(roots = c(wd = "/home"), 
-                                                            input$genome_file_multi))), '\n',
-        'selected_genomes=', shQuote(paste0(getwd(), "/execute/selected_genomes")), '\n',
-        'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
-        '# Function to log messages to the file', '\n',
-        'log_message() {', '\n',
-        '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
-        '}', '\n',
-        '# Create a log file or truncate if it exists', '\n',
-        'echo "Start Multi Typing" > "$log_file"', '\n',
-        '# Remove the existing directory (if it exists)', '\n',
-        'if [ -d "$selected_genomes" ]; then', '\n',
-        '    rm -r "$selected_genomes"', '\n',
-        'fi', '\n',
-        'mkdir $selected_genomes', '\n',
-        '# List of file names to copy', '\n',
-        'file_names=(', paste(shQuote(genome_names), collapse= " "), ')', '\n',
-        '# Loop through the list of file names and copy them to the new folder', '\n',
-        'for file in "${file_names[@]}"; do', '\n',
-        '    if [ -f "$genome_folder/$file" ]; then', '\n',
-        '        cp "$genome_folder/$file" "$selected_genomes/"', '\n',
-        '        log_message "Initiated $file"', '\n',
-        '    else', '\n', 
-        '        log_message "$file not found in $genome_folder"', '\n',
-        '    fi', '\n',
-        'done', '\n',
-        '# Directory name', '\n',
-        'mkdir $base_path/execute/kma_multi', '\n',
-        'results=', shQuote(paste0(getwd(),"/execute/kma_multi/results")), '\n',
-        '# Remove the existing directory (if it exists)', '\n',
-        'if [ -d "$results" ]; then', '\n',
-        '    rm -r "$results"', '\n',
-        'fi', '\n',
-        '# Create a new directory', '\n', 
-        'mkdir "$results"', '\n',
-        '#INDEXING GENOME AS DATABASE', '\n',
-        'kma_database="$base_path/execute/kma_multi/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
-        '#RUNNING KMA', '\n',
-        'query_folder=', shQuote(paste0(getwd(), 
-                                        "/Database/", 
-                                        gsub(" ", "_", DF1$scheme), 
-                                        "/",
-                                        gsub(" ", "_", DF1$scheme), 
-                                        "_alleles")), '\n',
-        'genome_filename_noext=""', '\n',
-        '#Indexing Loop', '\n',
-        'for genome in "$selected_genomes"/*; do', '\n',
-        '    if [ -f "$genome" ]; then', '\n',
-        '    genome_filename=$(basename "$genome")', '\n',
-        '    genome_filename_noext="${genome_filename%.*}"', '\n',
-        '    log_message "Processing $genome_filename"', '\n',
-        '    kma index -i "$genome" -o "$kma_database"', '\n',
-        '    fi', '\n',
-        '    mkdir "$results/$genome_filename_noext"', '\n',
-        '#Running Loop', '\n',
-        '    for query_file in "$query_folder"/*.{fasta,fa,fna}; do', '\n',
-        '        if [ -f "$query_file" ]; then', '\n',
-        '        query_filename=$(basename "$query_file")', '\n',
-        '        query_filename_noext="${query_filename%.*}"', '\n',
-        '        output_file="$results/$genome_filename_noext/$query_filename_noext"', '\n',
-        '        kma -i "$query_file" -o "$output_file" -t_db "$kma_database" -nc -status', '\n',
-        '        fi', '\n',
-        '    done', '\n',
-        '    log_message "Attaching $genome_filename"', '\n',
-        '    Rscript ', shQuote(paste0(getwd(), "/execute/automatic_typing.R")), '\n',
-        '    log_message "Successful typing of $genome_filename"', '\n',
-        'done', '\n',
-        'log_message "Multi Typing finalized."'
-      )
-      
-      # Specify the path to save the script
-      kma_multi_path <-
-        paste0(getwd(), "/execute/kma_multi.sh")
-      
-      # Write the script to a file
-      cat(kma_multi, file = kma_multi_path)
-      
-      # Make the script executable  
-      system(paste("chmod +x", kma_multi_path))
-      
-      # Execute the script
-      system(paste("nohup", kma_multi_path, "> script.log 2>&1"), wait = FALSE)
+      if (any(!grepl("\\.fasta|\\.fna|\\.fa", str_sub(typing_reactive$table$Files[which(test$Include == TRUE)], start = -6)))) {
+        
+        show_toast(
+          title = "Wrong file type (include only fasta/fna/fa)",
+          type = "error",
+          position = "top-end",
+          width = "400px",
+          timer = 6000
+        )
+      } else {
+        showModal(
+          modalDialog(
+            paste0(
+              "Typing multiple assemblies will take a while. Continue?"
+            ),
+            title = "Start multi typing",
+            fade = TRUE,
+            easyClose = TRUE,
+            footer = tagList(
+              modalButton("Cancel"),
+              actionButton("conf_start_multi", "Start", class = "btn btn-default")
+            )
+          )
+        )
+        
+        observeEvent(input$Cancel, {
+          removeModal()
+        })
+      }
     }
+    
+  })
+  
+  observeEvent(input$conf_start_multi, {
+    
+    removeModal()
+    
+    show_toast(
+      title = "Multi Typing started",
+      type = "success",
+      position = "top-end",
+      timer = 6000
+    )
+    typing_reactive$final <- FALSE
+    
+    # Remove Allelic Typing Controls
+    
+    output$initiate_multi_typing_ui <- NULL
+    
+    output$metadata_multi_box <- NULL
+    
+    output$start_multi_typing_ui <- NULL
+    
+    genome_names <<- typing_reactive$genome_selected$Files[which(typing_reactive$genome_selected$Include == TRUE)]
+    
+    kma_multi <- paste0(
+      '#!/bin/bash', '\n',
+      'source ~/miniconda3/etc/profile.d/conda.sh', '\n',
+      'conda activate PhyloTrace', '\n',
+      'cd execute', '\n',
+      'base_path=', shQuote(getwd()), '\n',
+      '# Get Genome Folder', '\n',
+      'genome_folder=', shQuote(as.character(parseDirPath(roots = c(wd = "/home"), 
+                                                          input$genome_file_multi))), '\n',
+      'selected_genomes=', shQuote(paste0(getwd(), "/execute/selected_genomes")), '\n',
+      'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
+      '# Function to log messages to the file', '\n',
+      'log_message() {', '\n',
+      '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
+      '}', '\n',
+      '# Create a log file or truncate if it exists', '\n',
+      'echo "Start Multi Typing" > "$log_file"', '\n',
+      '# Remove the existing directory (if it exists)', '\n',
+      'if [ -d "$selected_genomes" ]; then', '\n',
+      '    rm -r "$selected_genomes"', '\n',
+      'fi', '\n',
+      'mkdir $selected_genomes', '\n',
+      '# List of file names to copy', '\n',
+      'file_names=(', paste(shQuote(genome_names), collapse= " "), ')', '\n',
+      '# Loop through the list of file names and copy them to the new folder', '\n',
+      'for file in "${file_names[@]}"; do', '\n',
+      '    if [ -f "$genome_folder/$file" ]; then', '\n',
+      '        cp "$genome_folder/$file" "$selected_genomes/"', '\n',
+      '        log_message "Initiated $file"', '\n',
+      '    else', '\n', 
+      '        log_message "$file not found in $genome_folder"', '\n',
+      '    fi', '\n',
+      'done', '\n',
+      '# Directory name', '\n',
+      'mkdir $base_path/execute/kma_multi', '\n',
+      'results=', shQuote(paste0(getwd(),"/execute/kma_multi/results")), '\n',
+      '# Remove the existing directory (if it exists)', '\n',
+      'if [ -d "$results" ]; then', '\n',
+      '    rm -r "$results"', '\n',
+      'fi', '\n',
+      '# Create a new directory', '\n', 
+      'mkdir "$results"', '\n',
+      '#INDEXING GENOME AS DATABASE', '\n',
+      'kma_database="$base_path/execute/kma_multi/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
+      '#RUNNING KMA', '\n',
+      'query_folder=', shQuote(paste0(getwd(), 
+                                      "/Database/", 
+                                      gsub(" ", "_", DF1$scheme), 
+                                      "/",
+                                      gsub(" ", "_", DF1$scheme), 
+                                      "_alleles")), '\n',
+      'genome_filename_noext=""', '\n',
+      '#Indexing Loop', '\n',
+      'for genome in "$selected_genomes"/*; do', '\n',
+      '    if [ -f "$genome" ]; then', '\n',
+      '    genome_filename=$(basename "$genome")', '\n',
+      '    genome_filename_noext="${genome_filename%.*}"', '\n',
+      '    log_message "Processing $genome_filename"', '\n',
+      '    kma index -i "$genome" -o "$kma_database"', '\n',
+      '    fi', '\n',
+      '    mkdir "$results/$genome_filename_noext"', '\n',
+      '#Running Loop', '\n',
+      '    for query_file in "$query_folder"/*.{fasta,fa,fna}; do', '\n',
+      '        if [ -f "$query_file" ]; then', '\n',
+      '        query_filename=$(basename "$query_file")', '\n',
+      '        query_filename_noext="${query_filename%.*}"', '\n',
+      '        output_file="$results/$genome_filename_noext/$query_filename_noext"', '\n',
+      '        kma -i "$query_file" -o "$output_file" -t_db "$kma_database" -nc -status', '\n',
+      '        fi', '\n',
+      '    done', '\n',
+      '    log_message "Attaching $genome_filename"', '\n',
+      '    Rscript ', shQuote(paste0(getwd(), "/execute/automatic_typing.R")), '\n',
+      '    log_message "Successful typing of $genome_filename"', '\n',
+      'done', '\n',
+      'log_message "Multi Typing finalized."'
+    )
+    
+    # Specify the path to save the script
+    kma_multi_path <-
+      paste0(getwd(), "/execute/kma_multi.sh")
+    
+    # Write the script to a file
+    cat(kma_multi, file = kma_multi_path)
+    
+    # Make the script executable  
+    system(paste("chmod +x", kma_multi_path))
+    
+    # Execute the script
+    system(paste("nohup", kma_multi_path, "> script.log 2>&1"), wait = FALSE)
   })
   
   #### User Feedback ----
