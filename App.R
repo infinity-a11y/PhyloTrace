@@ -14876,7 +14876,7 @@ server <- function(input, output, session) {
     
     # Render log content
     output$logText <- renderPrint({
-      cat(paste0(tail(readLogFile(), 50), "\n"))
+      cat(rev(paste0(tail(readLogFile(), 50), "\n")))
     })
     
     # Render Pending UI
