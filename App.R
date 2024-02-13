@@ -6522,6 +6522,26 @@ server <- function(input, output, session) {
     })
   }
   
+  # Function to check single typing log file
+  check_new_entry <- reactive({
+    invalidateLater(5000, session)
+    Database <-
+      readRDS(paste0(
+        getwd(),
+        "/Database/",
+        gsub(" ", "_", DF1$scheme),
+        "/Typing.rds"
+      ))
+    
+    if(nrow(DF1$data) < nrow(Database[["Typing"]])) {
+      TRUE
+    } else {
+      FALSE
+    }
+  })
+  
+  
+  
   #### Render Allele Differences as Highlights ----
   
   diff_allele <- reactive({
@@ -8591,9 +8611,11 @@ server <- function(input, output, session) {
                     }
                   }
                   
+                  
+                  
                   # Dynamic save button when rhandsontable changes or new entries
                   output$edit_entry_table <- renderUI({
-                    if(typing_reactive$entry_added == 999999) {
+                    if(check_new_entry()) {
                       fluidRow(
                         column(
                           width = 8,
@@ -14000,10 +14022,10 @@ server <- function(input, output, session) {
       
       output$typing_fin <- renderUI({
         column(
-          width = 2,
+          width = 4,
           align = "center",
           br(), br(),
-          HTML(paste("<span style='color: white;'>", "Typing finalized.", "Reset to start another typing process.", sep = '<br/>')),
+          HTML(paste("<span style='color: white;'>", tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1), "Reset to start another typing process.", sep = '<br/>')),
           br(), br(),
           actionButton(
             "reset_single_typing",
