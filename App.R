@@ -6714,6 +6714,8 @@ server <- function(input, output, session) {
   
   observeEvent(input$load, {
     
+    DF1$check_new_entries <- TRUE
+    
     DF1$data <- NULL
     
     DF1$meta <- NULL
@@ -8615,7 +8617,7 @@ server <- function(input, output, session) {
                   
                   # Dynamic save button when rhandsontable changes or new entries
                   output$edit_entry_table <- renderUI({
-                    if(check_new_entry()) {
+                    if(check_new_entry() & DF1$check_new_entries) {
                       fluidRow(
                         column(
                           width = 8,
@@ -10231,6 +10233,8 @@ server <- function(input, output, session) {
     DF1$no_na_switch <- TRUE
     
     DF1$change <- TRUE
+    
+    DF1$check_new_entries <- FALSE
     
     DF1$data <- DF1$data[!(DF1$data$Index %in% as.numeric(input$select_delete)),]
     
