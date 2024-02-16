@@ -12,7 +12,7 @@ library(shinydashboard)
 library(dashboardthemes)
 library(ggplot2)
 library(ggnewscale)
-library(ggplotify)
+library(ggplotify) 
 library(ape)
 library(treeio)
 library(ggtree)
@@ -8638,7 +8638,7 @@ server <- function(input, output, session) {
                           )
                         )
                       )
-                    } else if(typing_reactive$pending_format == 888888 & !typing_reactive$entry_added == 999999) {
+                    } else if(typing_reactive$pending_format == 888888 & !(typing_reactive$entry_added == 999999)) {
                       fluidRow(
                         column(
                           width = 11,
@@ -13454,8 +13454,6 @@ server <- function(input, output, session) {
   
   ## Typing  ----
   
-  
-  
   # Render Single/Multi Switch
   
   readLogFile <- reactive({
@@ -14673,7 +14671,7 @@ server <- function(input, output, session) {
         timer = 6000
       )
     } else {
-      if (any(!grepl("\\.fasta|\\.fna|\\.fa", str_sub(typing_reactive$table$Files[which(test$Include == TRUE)], start = -6)))) {
+      if (any(!grepl("\\.fasta|\\.fna|\\.fa", str_sub(typing_reactive$genome_selected$Files[which(typing_reactive$genome_selected$Include == TRUE)], start = -6)))) {
         
         show_toast(
           title = "Wrong file type (include only fasta/fna/fa)",
@@ -14800,7 +14798,6 @@ server <- function(input, output, session) {
       '    done', '\n',
       '    log_message "Attaching $genome_filename"', '\n',
       '    Rscript ', shQuote(paste0(getwd(), "/execute/automatic_typing.R")), '\n',
-      '    log_message "Successful typing of $genome_filename"', '\n',
       'done', '\n',
       'log_message "Multi Typing finalized."'
     )
