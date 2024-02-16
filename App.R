@@ -10986,10 +10986,11 @@ server <- function(input, output, session) {
           `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
-          City = "City"
+          City = "City",
+          Errors = "Errors"
         )
       } else {
-        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City", Errors = "Errors"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Country" = "Country"),
@@ -12146,6 +12147,8 @@ server <- function(input, output, session) {
   #### UPGMA ----
   
   upgma_tree <- reactive({
+    plot_loc$meta_upgma$Errors <- as.numeric(plot_loc$meta_upgma$Errors)
+    test <<- plot_loc$meta_upgma
     tree <-
       ggtree(plot_loc$upgma, 
              color = input$upgma_color,
@@ -12730,7 +12733,7 @@ server <- function(input, output, session) {
   upgma_mapping_tiplab <- reactive({
     if(input$upgma_mapping_show == TRUE) {
       aes(label = !!sym(input$upgma_tiplab),
-                 colour = as.character(input$upgma_color_mapping))
+          colour = !!sym(input$upgma_color_mapping))
     } else {
       aes(label = !!sym(input$upgma_tiplab))
     }
