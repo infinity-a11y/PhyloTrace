@@ -10768,13 +10768,13 @@ server <- function(input, output, session) {
         width = "100%",
         choices = if(ncol(DF1$meta) == 12) {
           c(
-            `Isolation Date` = "Isolation_Date",
+            `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
         } else {
-          append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                  names(DF1$meta)[13:ncol(DF1$meta)])
         },
         options = list(
@@ -10795,13 +10795,13 @@ server <- function(input, output, session) {
         width = "100%",
         choices = if(ncol(DF1$meta) == 12) {
           c(
-            `Isolation Date` = "Isolation_Date",
+            `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
         } else {
-          append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                  names(DF1$meta)[13:ncol(DF1$meta)])
         },
         options = list(
@@ -10940,14 +10940,14 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Assembly Name` = "Assembly_Name",
-          `Isolation Date` = "Isolation_Date",
+          `Assembly Name` = "Assembly Name",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Assembly Name` = "Assembly_Name", `Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Host" = "Host"),
@@ -10961,14 +10961,14 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Assembly Name` = "Assembly_Name",
-          `Isolation Date` = "Isolation_Date",
+          `Assembly Name` = "Assembly Name",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Assembly Name` = "Assembly_Name", `Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Host" = "Host"),
@@ -10983,13 +10983,13 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Isolation Date` = "Isolation_Date",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Country" = "Country"),
@@ -11003,13 +11003,13 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Isolation Date` = "Isolation_Date",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Country" = "Country"),
@@ -11023,13 +11023,13 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Isolation Date` = "Isolation_Date",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Country" = "Country"),
@@ -11043,13 +11043,13 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Isolation Date` = "Isolation_Date",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Country" = "Country"),
@@ -11063,13 +11063,13 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Isolation Date` = "Isolation_Date",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Country" = "Country"),
@@ -11083,13 +11083,13 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Isolation Date` = "Isolation_Date",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Country" = "Country"),
@@ -11103,13 +11103,13 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Isolation Date` = "Isolation_Date",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Country" = "Country"),
@@ -11123,13 +11123,13 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Isolation Date` = "Isolation_Date",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Country" = "Country"),
@@ -11143,13 +11143,13 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Isolation Date` = "Isolation_Date",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Country" = "Country"),
@@ -11163,13 +11163,13 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Isolation Date` = "Isolation_Date",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Country" = "Country"),
@@ -11184,13 +11184,13 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Isolation Date` = "Isolation_Date",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Host" = "Host"),
@@ -11204,13 +11204,13 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Isolation Date` = "Isolation_Date",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Host" = "Host"),
@@ -11224,13 +11224,13 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Isolation Date` = "Isolation_Date",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Host" = "Host"),
@@ -11244,13 +11244,13 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Isolation Date` = "Isolation_Date",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Host" = "Host"),
@@ -11264,13 +11264,13 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Isolation Date` = "Isolation_Date",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Host" = "Host"),
@@ -11284,13 +11284,13 @@ server <- function(input, output, session) {
       "",
       choices = if(ncol(DF1$meta) == 12) {
         c(
-          `Isolation Date` = "Isolation_Date",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(`Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
       selected = c("Host" = "Host"),
@@ -11315,19 +11315,19 @@ server <- function(input, output, session) {
       choices = if(ncol(DF1$meta) == 12) {
         c(
           Index = "Index",
-          `Assembly ID` = "Assembly_ID",
-          `Assembly Name` = "Assembly_Name",
-          `Isolation Date` = "Isolation_Date",
+          `Assembly ID` = "Assembly ID",
+          `Assembly Name` = "Assembly Name",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(Index = "Index", `Assembly ID` = "Assembly_ID", `Assembly Name` = "Assembly_Name",
-                 `Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(Index = "Index", `Assembly ID` = "Assembly ID", `Assembly Name` = "Assembly Name",
+                 `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
-      selected = c(`Assembly Name` = "Assembly_Name"),
+      selected = c(`Assembly Name` = "Assembly Name"),
       width = "100%"
     )
   })
@@ -11339,19 +11339,19 @@ server <- function(input, output, session) {
       choices = if(ncol(DF1$meta) == 12) {
         c(
           Index = "Index",
-          `Assembly ID` = "Assembly_ID",
-          `Assembly Name` = "Assembly_Name",
-          `Isolation Date` = "Isolation_Date",
+          `Assembly ID` = "Assembly ID",
+          `Assembly Name` = "Assembly Name",
+          `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
       } else {
-        append(c(Index = "Index", `Assembly ID` = "Assembly_ID", `Assembly Name` = "Assembly_Name",
-                 `Isolation Date` = "Isolation_Date", Host = "Host", Country = "Country", City = "City"),
+        append(c(Index = "Index", `Assembly ID` = "Assembly ID", `Assembly Name` = "Assembly Name",
+                 `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                names(DF1$meta)[13:ncol(DF1$meta)])
       },
-      selected = c(`Assembly Name` = "Assembly_Name"),
+      selected = c(`Assembly Name` = "Assembly Name"),
       width = "100%"
     )
   })
@@ -11572,6 +11572,8 @@ server <- function(input, output, session) {
       new_scale_fill() +
       nj_fruit() +
       nj_gradient() +
+      scale_color_discrete(labels = function(x) gsub("_", " ", x)) +
+      scale_fill_discrete(labels = function(x) gsub("_", " ", x)) +
       new_scale_fill() +
       nj_fruit2() +
       nj_gradient2() +
@@ -11584,6 +11586,7 @@ server <- function(input, output, session) {
       new_scale_fill() +
       nj_fruit5() +
       nj_gradient5() 
+      
     
     plot_loc$xrange_nj <- tree$data$x
     plot_loc$yrange_nj <- tree$data$y
@@ -11777,7 +11780,7 @@ server <- function(input, output, session) {
       if(input$nj_layout == "circular" | input$nj_layout == "inward") {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$nj_fruit_variable),
+          mapping = aes(fill= !!sym(input$nj_fruit_variable)),
           offset = input$nj_fruit_offset_circ,
           pwidth = input$nj_fruit_width_circ,
           alpha = input$nj_fruit_alpha
@@ -11785,7 +11788,7 @@ server <- function(input, output, session) {
       } else {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$nj_fruit_variable),
+          mapping = aes(fill= !!sym(input$nj_fruit_variable)),
           offset = input$nj_fruit_offset_circ,
           pwidth = input$nj_fruit_width_circ,
           alpha = input$nj_fruit_alpha
@@ -11800,7 +11803,7 @@ server <- function(input, output, session) {
       if(input$nj_layout == "circular" | input$nj_layout == "inward") {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$nj_fruit_variable_2),
+          mapping = aes(fill = !!sym(input$nj_fruit_variable_2)),
           offset = input$nj_fruit_offset_circ_2,
           pwidth = input$nj_fruit_width_circ_2,
           alpha = input$nj_fruit_alpha_2
@@ -11808,7 +11811,7 @@ server <- function(input, output, session) {
       } else {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$nj_fruit_variable_2),
+          mapping = aes(fill = !!sym(input$nj_fruit_variable_2)),
           offset = input$nj_fruit_offset_circ_2,
           pwidth = input$nj_fruit_width_circ_2,
           alpha = input$nj_fruit_alpha_2
@@ -11822,7 +11825,7 @@ server <- function(input, output, session) {
       if(input$nj_layout == "circular" | input$nj_layout == "inward") {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$nj_fruit_variable_3),
+          mapping = aes(fill = !!sym(input$nj_fruit_variable_3)),
           offset = input$nj_fruit_offset_circ_3,
           pwidth = input$nj_fruit_width_circ_3,
           alpha = input$nj_fruit_alpha_3
@@ -11830,7 +11833,7 @@ server <- function(input, output, session) {
       } else {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$nj_fruit_variable_3),
+          mapping = aes(fill = !!sym(input$nj_fruit_variable_3)),
           offset = input$nj_fruit_offset_circ_3,
           pwidth = input$nj_fruit_width_circ_3,
           alpha = input$nj_fruit_alpha_3
@@ -11846,7 +11849,7 @@ server <- function(input, output, session) {
       if(input$nj_layout == "circular" | input$nj_layout == "inward") {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$nj_fruit_variable_4),
+          mapping = aes(fill = !!sym(input$nj_fruit_variable_4)),
           offset = input$nj_fruit_offset_circ_4,
           pwidth = input$nj_fruit_width_circ_4,
           alpha = input$nj_fruit_alpha_4
@@ -11854,7 +11857,7 @@ server <- function(input, output, session) {
       } else {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$nj_fruit_variable_4),
+          mapping = aes(fill = !!sym(input$nj_fruit_variable_4)),
           offset = input$nj_fruit_offset_circ_4,
           pwidth = input$nj_fruit_width_circ_4,
           alpha = input$nj_fruit_alpha_4
@@ -11869,7 +11872,7 @@ server <- function(input, output, session) {
       if(input$nj_layout == "circular" | input$nj_layout == "inward") {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$nj_fruit_variable_5),
+          mapping = aes(fill = !!sym(input$nj_fruit_variable_5)),
           offset = input$nj_fruit_offset_circ_5,
           pwidth = input$nj_fruit_width_circ_5,
           alpha = input$nj_fruit_alpha_5
@@ -11877,7 +11880,7 @@ server <- function(input, output, session) {
       } else {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$nj_fruit_variable_5),
+          mapping = aes(fill = !!sym(input$nj_fruit_variable_5)),
           offset = input$nj_fruit_offset_circ_5,
           pwidth = input$nj_fruit_width_circ_5,
           alpha = input$nj_fruit_alpha_5
@@ -11911,9 +11914,9 @@ server <- function(input, output, session) {
     if(!input$nj_layout == "circular" | !input$nj_layout == "inward") {
       if(input$nj_show_branch_label == TRUE) {
         geom_label(
-          aes_string(
-            x="branch", 
-            label= as.character(input$nj_branch_label)),
+          aes(
+            x=!!sym("branch"), 
+            label= !sym(input$nj_branch_label)),
           fill = input$nj_branch_label_color,
           size = input$nj_branch_size,
           label.r = unit(input$nj_branch_labelradius, "lines"),
@@ -11940,14 +11943,14 @@ server <- function(input, output, session) {
       if(input$nj_tipcolor_mapping_show == TRUE & input$nj_tipshape_mapping_show == FALSE) {
         if(input$nj_mapping_show == TRUE) {
           geom_tippoint(
-            aes_string(shape = input$nj_tipcolor_mapping),
+            aes(shape = !!sym(input$nj_tipcolor_mapping)),
             alpha = input$nj_tippoint_alpha,
             color = input$nj_tippoint_color,
             size = input$nj_tippoint_size
           )
         } else {
           geom_tippoint(
-            aes_string(color = input$nj_tipcolor_mapping),
+            aes(color = !!sym(input$nj_tipcolor_mapping)),
             alpha = input$nj_tippoint_alpha,
             shape = input$nj_tippoint_shape,
             size = input$nj_tippoint_size
@@ -11955,7 +11958,7 @@ server <- function(input, output, session) {
         }
       } else if (input$nj_tipcolor_mapping_show == FALSE & input$nj_tipshape_mapping_show == TRUE) {
         geom_tippoint(
-          aes_string(shape = input$nj_tipshape_mapping),
+          aes(shape = !!sym(input$nj_tipshape_mapping)),
           alpha = input$nj_tippoint_alpha,
           color = input$nj_tippoint_color,
           size = input$nj_tippoint_size
@@ -11963,15 +11966,15 @@ server <- function(input, output, session) {
       } else if (input$nj_tipcolor_mapping_show == TRUE & input$nj_tipshape_mapping_show == TRUE) {
         if(input$nj_mapping_show == TRUE) {
           geom_tippoint(
-            aes_string(shape = input$nj_tipshape_mapping),
+            aes(shape = !!sym(input$nj_tipshape_mapping)),
             color = input$nj_tippoint_color,
             alpha = input$nj_tippoint_alpha,
             size = input$nj_tippoint_size
           )
         } else {
           geom_tippoint(
-            aes_string(shape = input$nj_tipshape_mapping,
-                       color = input$nj_tipcolor_mapping),
+            aes(shape = !!sym(input$nj_tipshape_mapping),
+                color = !!sym(input$nj_tipcolor_mapping)),
             alpha = input$nj_tippoint_alpha,
             size = input$nj_tippoint_size
           )
@@ -12117,10 +12120,10 @@ server <- function(input, output, session) {
   # NJ Tiplab color
   mapping_tiplab <- reactive({
     if(input$nj_mapping_show == TRUE) {
-      aes_string(label = as.character(input$nj_tiplab),
-                 colour = as.character(input$nj_color_mapping))
+      aes(label = !!sym(input$nj_tiplab),
+          colour = !!sym(input$nj_color_mapping))
     } else {
-      aes_string(label = as.character(input$nj_tiplab))
+      aes(label = !!sym(input$nj_tiplab))
     }
   })
   
@@ -12386,7 +12389,7 @@ server <- function(input, output, session) {
       if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$upgma_fruit_variable),
+          mapping = aes(fill = !!sym(input$upgma_fruit_variable)),
           offset = input$upgma_fruit_offset_circ,
           pwidth = input$upgma_fruit_width_circ,
           alpha = input$upgma_fruit_alpha
@@ -12394,7 +12397,7 @@ server <- function(input, output, session) {
       } else {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$upgma_fruit_variable),
+          mapping = aes(fill = !!sym(input$upgma_fruit_variable)),
           offset = input$upgma_fruit_offset_circ,
           pwidth = input$upgma_fruit_width_circ,
           alpha = input$upgma_fruit_alpha
@@ -12409,7 +12412,7 @@ server <- function(input, output, session) {
       if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$upgma_fruit_variable_2),
+          mapping = aes(fill = !!sym(input$upgma_fruit_variable_2)),
           offset = input$upgma_fruit_offset_circ_2,
           pwidth = input$upgma_fruit_width_circ_2,
           alpha = input$upgma_fruit_alpha_2
@@ -12417,7 +12420,7 @@ server <- function(input, output, session) {
       } else {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$upgma_fruit_variable_2),
+          mapping = aes(fill = !!sym(input$upgma_fruit_variable_2)),
           offset = input$upgma_fruit_offset_circ_2,
           pwidth = input$upgma_fruit_width_circ_2,
           alpha = input$upgma_fruit_alpha_2
@@ -12431,7 +12434,7 @@ server <- function(input, output, session) {
       if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$upgma_fruit_variable_3),
+          mapping = aes(fill = !!sym(input$upgma_fruit_variable_3)),
           offset = input$upgma_fruit_offset_circ_3,
           pwidth = input$upgma_fruit_width_circ_3,
           alpha = input$upgma_fruit_alpha_3
@@ -12439,7 +12442,7 @@ server <- function(input, output, session) {
       } else {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$upgma_fruit_variable_3),
+          mapping = aes(fill = !!sym(input$upgma_fruit_variable_3)),
           offset = input$upgma_fruit_offset_circ_3,
           pwidth = input$upgma_fruit_width_circ_3,
           alpha = input$upgma_fruit_alpha_3
@@ -12455,7 +12458,7 @@ server <- function(input, output, session) {
       if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$upgma_fruit_variable_4),
+          mapping = aes(fill = !!sym(input$upgma_fruit_variable_4)),
           offset = input$upgma_fruit_offset_circ_4,
           pwidth = input$upgma_fruit_width_circ_4,
           alpha = input$upgma_fruit_alpha_4
@@ -12463,7 +12466,7 @@ server <- function(input, output, session) {
       } else {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$upgma_fruit_variable_4),
+          mapping = aes(fill = !!sym(input$upgma_fruit_variable_4)),
           offset = input$upgma_fruit_offset_circ_4,
           pwidth = input$upgma_fruit_width_circ_4,
           alpha = input$upgma_fruit_alpha_4
@@ -12478,7 +12481,7 @@ server <- function(input, output, session) {
       if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$upgma_fruit_variable_5),
+          mapping = aes(fill = !!sym(input$upgma_fruit_variable_5)),
           offset = input$upgma_fruit_offset_circ_5,
           pwidth = input$upgma_fruit_width_circ_5,
           alpha = input$upgma_fruit_alpha_5
@@ -12486,7 +12489,7 @@ server <- function(input, output, session) {
       } else {
         geom_fruit(
           geom = geom_tile,
-          mapping = aes_string(fill=input$upgma_fruit_variable_5),
+          mapping = aes(fill = !!sym(input$upgma_fruit_variable_5)),
           offset = input$upgma_fruit_offset_circ_5,
           pwidth = input$upgma_fruit_width_circ_5,
           alpha = input$upgma_fruit_alpha_5
@@ -12520,9 +12523,9 @@ server <- function(input, output, session) {
     if(!input$upgma_layout == "circular" | !input$upgma_layout == "inward") {
       if(input$upgma_show_branch_label == TRUE) {
         geom_label(
-          aes_string(
-            x="branch", 
-            label= as.character(input$upgma_branch_label)),
+          aes(
+            x = !!sym("branch"), 
+            label = !!sym(input$upgma_branch_label)),
           fill = input$upgma_branch_label_color,
           size = input$upgma_branch_size,
           label.r = unit(input$upgma_branch_labelradius, "lines"),
@@ -12549,14 +12552,14 @@ server <- function(input, output, session) {
       if(input$upgma_tipcolor_mapping_show == TRUE & input$upgma_tipshape_mapping_show == FALSE) {
         if(input$upgma_mapping_show == TRUE) {
           geom_tippoint(
-            aes_string(shape = input$upgma_tipcolor_mapping),
+            aes(shape = !!sym(input$upgma_tipcolor_mapping)),
             alpha = input$upgma_tippoint_alpha,
             color = input$upgma_tippoint_color,
             size = input$upgma_tippoint_size
           )
         } else {
           geom_tippoint(
-            aes_string(color = input$upgma_tipcolor_mapping),
+            aes(color = !!sym(input$upgma_tipcolor_mapping)),
             alpha = input$upgma_tippoint_alpha,
             shape = input$upgma_tippoint_shape,
             size = input$upgma_tippoint_size
@@ -12564,7 +12567,7 @@ server <- function(input, output, session) {
         }
       } else if (input$upgma_tipcolor_mapping_show == FALSE & input$upgma_tipshape_mapping_show == TRUE) {
         geom_tippoint(
-          aes_string(shape = input$upgma_tipshape_mapping),
+          aes(shape = !!sym(input$upgma_tipshape_mapping)),
           alpha = input$upgma_tippoint_alpha,
           color = input$upgma_tippoint_color,
           size = input$upgma_tippoint_size
@@ -12572,15 +12575,15 @@ server <- function(input, output, session) {
       } else if (input$upgma_tipcolor_mapping_show == TRUE & input$upgma_tipshape_mapping_show == TRUE) {
         if(input$upgma_mapping_show == TRUE) {
           geom_tippoint(
-            aes_string(shape = input$upgma_tipshape_mapping),
+            aes(shape = !!sym(input$upgma_tipshape_mapping)),
             color = input$upgma_tippoint_color,
             alpha = input$upgma_tippoint_alpha,
             size = input$upgma_tippoint_size
           )
         } else {
           geom_tippoint(
-            aes_string(shape = input$upgma_tipshape_mapping,
-                       color = input$upgma_tipcolor_mapping),
+            aes(shape = !!sym(input$upgma_tipshape_mapping),
+                color = !!sym(input$upgma_tipcolor_mapping)),
             alpha = input$upgma_tippoint_alpha,
             size = input$upgma_tippoint_size
           )
@@ -12726,10 +12729,10 @@ server <- function(input, output, session) {
   # upgma Tiplab color
   upgma_mapping_tiplab <- reactive({
     if(input$upgma_mapping_show == TRUE) {
-      aes_string(label = as.character(input$upgma_tiplab),
+      aes(label = !!sym(input$upgma_tiplab),
                  colour = as.character(input$upgma_color_mapping))
     } else {
-      aes_string(label = as.character(input$upgma_tiplab))
+      aes(label = !!sym(input$upgma_tiplab))
     }
   })
   
@@ -13248,33 +13251,50 @@ server <- function(input, output, session) {
           
           plot_loc$meta_nj <- select(DF1$meta_true, -2)
           
-          colnames(plot_loc$meta_nj) <- gsub(" ", "_", colnames(plot_loc$meta_nj))
-          plot_loc$meta_nj <- mutate(plot_loc$meta_nj, taxa = Index) %>%
-            relocate(taxa)
-          
-          # Create phylogenetic tree
-          plot_loc$nj <- ape::nj(hamming_nj())
-          
-          output$tree_nj <- renderPlot({
-            nj_tree()
-          })
-          
+          if(length(unique(gsub(" ", "_", colnames(plot_loc$meta_nj)))) < length(gsub(" ", "_", colnames(plot_loc$meta_nj)))) {
+            show_toast(
+              title = "Conflicting Custom Variable Names",
+              type = "warning",
+              position = "top-end",
+              width = "500px",
+              timer = 6000
+            )
+          } else {
+            
+            plot_loc$meta_nj <- mutate(plot_loc$meta_nj, taxa = Index) %>%
+              relocate(taxa)
+            
+            # Create phylogenetic tree
+            plot_loc$nj <- ape::nj(hamming_nj())
+            
+            output$tree_nj <- renderPlot({
+              nj_tree()
+            })
+          }
         } else if (input$tree_algo == "UPGMA") {
           
           plot_loc$meta_upgma <- select(DF1$meta_true, -2)
           
-          colnames(plot_loc$meta_upgma) <- gsub(" ", "_", colnames(plot_loc$meta_upgma))
-          
-          plot_loc$meta_upgma <- mutate(plot_loc$meta_upgma, taxa = Index) %>%
-            relocate(taxa)
-          
-          # Create phylogenetic tree
-          plot_loc$upgma <- phangorn::upgma(hamming_nj())
-          
-          output$tree_upgma <- renderPlot({
-            upgma_tree()
-          })
-          
+          if(length(unique(gsub(" ", "_", colnames(plot_loc$meta_upgma)))) < length(gsub(" ", "_", colnames(plot_loc$meta_upgma)))) {
+            show_toast(
+              title = "Conflicting Custom Variable Names",
+              type = "warning",
+              position = "top-end",
+              width = "500px",
+              timer = 6000
+            )
+          } else {
+            
+            plot_loc$meta_upgma <- mutate(plot_loc$meta_upgma, taxa = Index) %>%
+              relocate(taxa)
+            
+            # Create phylogenetic tree
+            plot_loc$upgma <- phangorn::upgma(hamming_nj())
+            
+            output$tree_upgma <- renderPlot({
+              upgma_tree()
+            })
+          }
         } else {
           
           if(nrow(DF1$meta_true) > 100) {
