@@ -6577,6 +6577,14 @@ server <- function(input, output, session) {
   
   typing_reactive$last_success <- "0"
   
+  # Typing feedback values
+  if(file.exists(paste0(getwd(), "/execute/script_log.txt"))) {
+    if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
+      typing_reactive$failures <- sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt"), warn = FALSE), "failed"))
+      typing_reactive$successes <- sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt"), warn = FALSE), "Successful"))
+    }
+  }
+  
   ### Connect to local Database ----
   
   observe({
@@ -8370,7 +8378,6 @@ server <- function(input, output, session) {
               })
               
               #### Render Entry Data Table ----
-              
               output$db_entries_table <- renderUI({
                 if(!class(DF1$data) == "NULL") {
                   if(between(nrow(DF1$data), 1, 30)) {
@@ -14050,7 +14057,15 @@ server <- function(input, output, session) {
           width = 4,
           align = "center",
           br(), br(),
-          HTML(paste("<span style='color: white;'>", tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1), "Reset to start another typing process.", sep = '<br/>')),
+          if(str_detect(tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1), "Successful")) {
+            HTML(paste("<span style='color: white;'>", 
+                       sub(".*Successful", "Successful", tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1)),
+                       "Reset to start another typing process.", sep = '<br/>'))
+          } else {
+            HTML(paste("<span style='color: white;'>", 
+                       sub(".*typing", "Typing", tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1)),
+                       "Reset to start another typing process.", sep = '<br/>'))
+          },
           br(), br(),
           actionButton(
             "reset_single_typing",
@@ -14645,6 +14660,8 @@ server <- function(input, output, session) {
     # Reset User Feedback variable
     typing_reactive$pending_format <- 0
     output$test_yes_pending <- NULL
+    typing_reactive$failures <- 0
+    typing_reactive$successes <- 0
     
     output$initiate_multi_typing_ui <- renderUI({
       column(
@@ -14748,6 +14765,14 @@ server <- function(input, output, session) {
     output$start_multi_typing_ui <- NULL
     
     genome_names <<- typing_reactive$genome_selected$Files[which(typing_reactive$genome_selected$Include == TRUE)]
+    
+    # Initiate Feedback variables
+    
+    typing_reactive$failures <- 0
+    
+    typing_reactive$successes <- 0
+    
+    # Start Multi Typing Script
     
     kma_multi <- paste0(
       '#!/bin/bash', '\n',
@@ -14865,22 +14890,56 @@ server <- function(input, output, session) {
     readLines(paste0(getwd(), "/execute/script_log.txt"))
   })
   
+  checkFile <- reactive({
+    invalidateLater(10000, session)  # Check every 10 seconds
+    
+    # Path to your file
+    file_path <- paste0(getwd(), "/execute/script_log.txt")
+    
+    # Check if the file exists to avoid readLines() error
+    if(file.exists(file_path)) {
+      
+      # Count failures
+      if(sum(str_detect(readLines(file_path, warn = FALSE), "failed")) > typing_reactive$failures) {
+        
+        typing_reactive$failures <- sum(str_detect(readLines(file_path, warn = FALSE), "failed"))
+        
+        msg_string <- sub(".*typing", "Typing", readLines(file_path, warn = FALSE)[max(which(str_detect(readLines(file_path, warn = FALSE), "failed") == TRUE))])
+        
+        show_toast(
+          title = msg_string,
+          type = "error",
+          width = "500px",
+          position = "top-end",
+          timer = 8000
+        )
+      }
+      
+      # Count successes
+      if(sum(str_detect(readLines(file_path, warn = FALSE), "Successful")) > typing_reactive$successes) {
+        
+        typing_reactive$successes <- sum(str_detect(readLines(file_path, warn = FALSE), "Successful"))
+        
+        msg_string <- sub(".*Successful", "Successful", readLines(file_path, warn = FALSE)[max(which(str_detect(readLines(file_path, warn = FALSE), "Successful") == TRUE))])
+        
+        show_toast(
+          title = msg_string,
+          type = "success",
+          width = "500px",
+          position = "top-end",
+          timer = 8000
+        )
+      }
+    }
+  })
+  
   typing_reactive$final <- TRUE
   
   # Typing Notifications
   observe({
-    if(sum(str_detect(readLogFile_slow(), "Successful")) < sum(str_detect(readLogFile(), "Successful"))) {
-      msg_string <- sub(".*Successful", "Successful", tail(readLogFile(), 2)[1])
-      show_toast(
-        title = paste0(
-          sub("(of).*", "\\1", msg_string),
-          "\n",
-          sub(".*of ", "", msg_string)),
-        type = "success",
-        width = "500px",
-        position = "top-end",
-        timer = 8000
-      )
+    
+    if(tail(readLogFile(), 1)!= "0") {
+      checkFile()
     }
     
     if(typing_reactive$final == FALSE){

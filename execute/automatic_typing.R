@@ -231,7 +231,7 @@ if(sum(unname(base::sapply(frag_files, file.size)) <= 100) / length(frag_files) 
     'log_message() {', '\n',
     '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
     '}', '\n',
-    'log_message "Successful typing"'
+    'log_message "Successful typing of "', shQuote(typing_genome)
   )
   
   # Specify the path to save the script
@@ -257,7 +257,8 @@ if(sum(unname(base::sapply(frag_files, file.size)) <= 100) / length(frag_files) 
     'log_message() {', '\n',
     '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
     '}', '\n',
-    'log_message ', shQuote(paste0("Assembly typing failed. ", failures, "% of loci not typed."))
+    'log_message ', shQuote(paste0("Assembly typing failed for ", typing_genome)), '\n',
+    shQuote(paste0(failures, "% of loci not typed."))
   )
   
   # Specify the path to save the script
