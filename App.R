@@ -14530,6 +14530,17 @@ server <- function(input, output, session) {
   
   #### Events Multi Typing ----
   
+  # Print Log
+  output$print_log <- downloadHandler(
+    filename = function() {
+      paste("Multi_Typing_", Sys.Date(), ".txt", sep = "")
+    },
+    content = function(file) {
+      writeLines(readLines(paste0(getwd(), "/execute/script_log.txt")), file)
+    }
+  )
+  
+  # Reset Multi Typing
   observeEvent(input$reset_multi, {
     if(!grepl("Multi Typing", tail(readLines(paste0(getwd(),"/execute/script_log.txt")), n = 1))) {
       showModal(
@@ -14885,11 +14896,6 @@ server <- function(input, output, session) {
     }
   })
   
-  readLogFile_slow <- reactive({
-    invalidateLater(9000, session)
-    readLines(paste0(getwd(), "/execute/script_log.txt"))
-  })
-  
   checkFile <- reactive({
     invalidateLater(10000, session)  # Check every 10 seconds
     
@@ -14938,12 +14944,12 @@ server <- function(input, output, session) {
   # Typing Notifications
   observe({
     
-    if(tail(readLogFile(), 1)!= "0") {
+    if(tail(readLogFile(), 1)!= "0" & typing_reactive$final == FALSE) {
       checkFile()
     }
     
     if(typing_reactive$final == FALSE){
-      if(any(str_detect(readLogFile_slow(), "finalized"))) {
+      if(any(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt")), "finalized"))) {
         show_toast(
           title = "Multi Typing finalized",
           type = "success",
@@ -14960,6 +14966,10 @@ server <- function(input, output, session) {
     # Render log content
     output$logText <- renderPrint({
       cat(rev(paste0(tail(readLogFile(), 50), "\n")))
+    })
+    
+    output$logTextFull <- renderPrint({
+      cat(rev(paste0(readLines(paste0(getwd(), "/execute/script_log.txt")), "\n")))
     })
     
     # Render Pending UI
@@ -15017,22 +15027,40 @@ server <- function(input, output, session) {
               width = 2,
               h3(p("Pending Multi Typing ..."), style = "color:white"),
               br(), br(),
-              HTML(paste("<span style='color: white;'>", "Typing finalized.", "Reset to start another typing process.", sep = '<br/>')),
+              HTML(paste("<span style='color: white;'>", 
+                         paste("Typing of", sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt")), "Processing")), "assemblies finalized."),
+                         paste(sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt")), "Successful")), "successes."),
+                         paste(sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt")), "failed")), "failures."),
+                         "Reset to start another typing process.", 
+                         sep = '<br/>')),
               br(), br(),
-              actionButton(
-                "reset_multi",
-                "Reset",
-                icon = icon("arrows-rotate")
+              fluidRow(
+                column(
+                  width = 5,
+                  actionButton(
+                    "reset_multi",
+                    "Reset",
+                    icon = icon("arrows-rotate")
+                  )
+                ),
+                column(
+                  width = 5,
+                  downloadButton(
+                    "print_log",
+                    "Logfile",
+                    icon = icon("floppy-disk")
+                  )
+                )
               )
             )
           ),
           br(), br(),
           fluidRow(
-            tags$style(type='text/css', '#logText {color:black; white-space: pre-wrap; max-width: 100%; }'),
+            tags$style(type='text/css', '#logText {color:black; white-space: pre-wrap; max-width: 100%; max-height: 500px}'),
             column(width = 1),
             column(
               width = 6,
-              verbatimTextOutput("logText"),
+              verbatimTextOutput("logTextFull"),
             )  
           )
         )
