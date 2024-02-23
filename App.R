@@ -6540,8 +6540,6 @@ server <- function(input, output, session) {
     }
   })
   
-  
-  
   #### Render Allele Differences as Highlights ----
   
   diff_allele <- reactive({
@@ -6557,9 +6555,7 @@ server <- function(input, output, session) {
     
   })
   
-  
   ## Startup ----
-  
   shinyjs::addClass(selector = "body", class = "sidebar-collapse")
   shinyjs::removeClass(selector = "body", class = "sidebar-toggle")
   
@@ -6582,11 +6578,11 @@ server <- function(input, output, session) {
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       typing_reactive$failures <- sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt"), warn = FALSE), "failed"))
       typing_reactive$successes <- sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt"), warn = FALSE), "Successful"))
+      typing_reactive$last_scheme <- sub(".*with (.*?) scheme.*", "\\1", readLines(paste0(getwd(), "/execute/script_log.txt"))[1])
     }
   }
   
   ### Connect to local Database ----
-  
   observe({
     
     if(!paste0(getwd(), "/Database") %in% dir_ls(getwd())) {
@@ -6652,61 +6648,117 @@ server <- function(input, output, session) {
   })
   
   output$start_message <- renderUI({
-    column(
-      width = 12, 
-      align = "center",
-      br(), br(), br(), br(), br(), br(),
-      div( 
-        class = "image",
-        imageOutput("imageOutput")
-      ),
-      br(),
-      p(
-        HTML(
-          paste(
-            tags$span(style='color: white; font-size: 24px;', 'Welcome to PhyloTrace!')
+    if(!is.null(typing_reactive$last_scheme)) {
+      column(
+        width = 12, 
+        align = "center",
+        br(), br(), br(), br(), br(), br(),
+        div( 
+          class = "image",
+          imageOutput("imageOutput")
+        ),
+        br(),
+        p(
+          HTML(
+            paste(
+              tags$span(style='color: white; font-size: 24px;', 'Welcome to PhyloTrace!')
+            )
           )
-        )
-      ),
-      br(), br(),
-      p(
-        HTML(
-          paste(
-            tags$span(style='color: white; font-size: 16px;', 'Proceed by loading a locally available typing database.')
+        ),
+        br(), br(),
+        p(
+          HTML(
+            paste0(
+              tags$span(style='color: white; font-size: 16px;', 'Pending Multi Typing for ', typing_reactive$last_scheme)
+            )
           )
-        )
-      ),
-      br(),
-      fluidRow(
-        column(
-          width = 12,
-          align = "center",
-          uiOutput("scheme_db"),
-          br(), br(),
-          actionButton("load",
-                       "Load"),
-          br(), br(), br(), br(), br(), br(), br()
+        ),
+        br(),
+        fluidRow(
+          column(
+            width = 12,
+            align = "center",
+            uiOutput("scheme_db"),
+            br(), br(),
+            actionButton("load",
+                         "Load"),
+            br(), br(), br(), br(), br(), br(), br()
+          )
         )
       )
-    )
+    } else {
+      column(
+        width = 12, 
+        align = "center",
+        br(), br(), br(), br(), br(), br(),
+        div( 
+          class = "image",
+          imageOutput("imageOutput")
+        ),
+        br(),
+        p(
+          HTML(
+            paste(
+              tags$span(style='color: white; font-size: 24px;', 'Welcome to PhyloTrace!')
+            )
+          )
+        ),
+        br(), br(),
+        p(
+          HTML(
+            paste(
+              tags$span(style='color: white; font-size: 16px;', 'Proceed by loading a locally available typing database.')
+            )
+          )
+        ),
+        br(),
+        fluidRow(
+          column(
+            width = 12,
+            align = "center",
+            uiOutput("scheme_db"),
+            br(), br(),
+            actionButton("load",
+                         "Load"),
+            br(), br(), br(), br(), br(), br(), br()
+          )
+        )
+      )
+    }
   })
   
   observeEvent(input$reload_db, {
-    showModal(
-      modalDialog(
-        selectInput(
-          "scheme_db",
-          label = "",
-          choices = DF1$available,
-          selected = DF1$scheme),
-        title = "Select a local database to load.",
-        easyClose = TRUE,
-        footer = tagList(
-          modalButton("Cancel"),
-          actionButton("load", "Load", class = "btn btn-default")
+    if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
+      show_toast(
+        title = "Pending Multi Typing",
+        type = "warning",
+        position = "top-end",
+        timer = 6000
+      )
+    } else if(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[1] != "0") {
+      show_toast(
+        title = "Pending Single Typing",
+        type = "warning",
+        position = "top-end",
+        timer = 6000
+      )
+    } else {
+      showModal(
+        modalDialog(
+          selectInput(
+            "scheme_db",
+            label = "",
+            choices = DF1$available,
+            selected = DF1$scheme),
+          title = "Select a local database to load.",
+          easyClose = TRUE,
+          footer = tagList(
+            modalButton("Cancel"),
+            actionButton("load", "Load", class = "btn btn-default")
+          )
         )
       )
-    )
+    }
   })
   
   output$imageOutput <- renderImage({
@@ -9414,15 +9466,23 @@ server <- function(input, output, session) {
           selectInput(
             "scheme_db",
             label = "",
-            choices = DF1$available,
-            selected = if(!is.null(DF1$scheme)) {DF1$scheme} else {DF1$available[1]}
+            choices = if(!is.null(typing_reactive$last_scheme)) {
+              typing_reactive$last_scheme
+            } else {DF1$available},
+            selected = if(!is.null(typing_reactive$last_scheme)) {
+              typing_reactive$last_scheme
+            } else {if(!is.null(DF1$scheme)) {DF1$scheme} else {DF1$available[1]}}
           )
         } else {
           prettyRadioButtons(
             "scheme_db",
             label = "",
-            choices = DF1$available,
-            selected = if(!is.null(DF1$scheme)) {DF1$scheme} else {DF1$available[1]}
+            choices = if(!is.null(typing_reactive$last_scheme)) {
+              typing_reactive$last_scheme
+            } else {DF1$available},
+            selected = if(!is.null(typing_reactive$last_scheme)) {
+              typing_reactive$last_scheme
+            } else {if(!is.null(DF1$scheme)) {DF1$scheme} else {DF1$available[1]}}
           )
         }
       })
@@ -10220,8 +10280,12 @@ server <- function(input, output, session) {
         selectInput(
           "scheme_db",
           label = "",
-          choices = DF1$available,
-          selected = DF1$scheme),
+          choices = if(!is.null(typing_reactive$last_scheme)) {
+            typing_reactive$last_scheme
+          } else {DF1$available},
+          selected = if(!is.null(typing_reactive$last_scheme)) {
+            typing_reactive$last_scheme
+          } else {if(!is.null(DF1$scheme)) {DF1$scheme} else {DF1$available[1]}}),
         title = "All entries have been removed. Select a local database to load.",
         footer = tagList(
           actionButton("load", "Load", class = "btn btn-default")
@@ -10656,8 +10720,12 @@ server <- function(input, output, session) {
         selectInput(
           "scheme_db",
           label = "",
-          choices = DF1$available,
-          selected = DF1$scheme),
+          choices = if(!is.null(typing_reactive$last_scheme)) {
+            typing_reactive$last_scheme
+          } else {DF1$available},
+          selected = if(!is.null(typing_reactive$last_scheme)) {
+            typing_reactive$last_scheme
+          } else {if(!is.null(DF1$scheme)) {DF1$scheme} else {DF1$available[1]}}),
         title = "Select a local database to load.",
         footer = tagList(
           actionButton("load", "Load", class = "btn btn-default")
@@ -14801,7 +14869,7 @@ server <- function(input, output, session) {
       '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
       '}', '\n',
       '# Create a log file or truncate if it exists', '\n',
-      'echo "Start Multi Typing" > "$log_file"', '\n',
+      'echo ', shQuote(paste0("Start Multi Typing with ", DF1$scheme, " scheme.")), ' > "$log_file"', '\n',
       '# Remove the existing directory (if it exists)', '\n',
       'if [ -d "$selected_genomes" ]; then', '\n',
       '    rm -r "$selected_genomes"', '\n',
@@ -15015,6 +15083,8 @@ server <- function(input, output, session) {
         )
       })
     } else if(grepl("Multi Typing finalized", tail(readLogFile(), n = 1))) {
+      
+      typing_reactive$last_scheme <- NULL
       
       output$initiate_multi_typing_ui <- NULL
       
