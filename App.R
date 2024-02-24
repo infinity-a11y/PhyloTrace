@@ -8802,13 +8802,46 @@ server <- function(input, output, session) {
               })
               
               #### Render Distance Matrix ----
-              
-              if(!class(DF1$data) == "NULL") {
-                
-                output$db_distancematrix <- renderRHandsontable({
-                  rhandsontable(hamming_df(), digits = 1, 
-                                height = distancematrix_height(), rowHeaders = NULL) %>%
-                    hot_heatmap(renderer = paste0("function (instance, td, row, col, prop, value, cellProperties) {
+              observe({
+                if(!class(DF1$data) == "NULL") {
+                  
+                  if(any(duplicated(DF1$meta$`Assembly Name`))) {
+                    output$db_distancematrix <- NULL
+                    output$distancematrix_duplicated <- renderUI({
+                      column(
+                        width = 12,
+                        tags$span(style = "font-size: 15; color: white",
+                                  "Change duplicated entry names to display distance matrix."),
+                        br(), br(), br(),
+                        actionButton("change_entries", "Go to Entry Table", class = "btn btn-default"),
+                        br(), br(), br(),
+                        tags$span(
+                          style = "font-size: 15; color: white",
+                          HTML(
+                            append(
+                              "Duplicated:",
+                              append(
+                                "<br>",
+                                paste0(
+                                  paste(
+                                    paste0("# ", which(duplicated(DF1$meta$`Assembly Name`)), " - "),
+                                    DF1$meta$`Assembly Name`[which(duplicated(DF1$meta$`Assembly Name`))]
+                                  ),
+                                  "<br>"
+                                )
+                              )
+                            )
+                          )
+                        )
+                      )
+                    })
+                  } else {
+                    output$distancematrix_duplicated <- NULL
+                    if(!is.null(DF1$data) & !is.null(DF1$allelic_profile) & !is.null(DF1$allelic_profile_true) & !is.null(DF1$cust_var) & !is.null(input$distmatrix_label) & !is.null(input$distmatrix_diag) & !is.null(input$distmatrix_triangle)) {
+                      output$db_distancematrix <- renderRHandsontable({
+                        rhandsontable(hamming_df(), digits = 1, 
+                                      height = distancematrix_height(), rowHeaders = NULL) %>%
+                          hot_heatmap(renderer = paste0("function (instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);
   heatmapScale  = chroma.scale(['#17F556', '#ED6D47']);
 
@@ -8822,20 +8855,22 @@ server <- function(input, output, session) {
   }
 }
 ")) %>%
-                    hot_rows(fixedRowsTop = 0) %>%
-                    hot_cols(fixedColumnsLeft = 1) %>%
-                    hot_col(1:(dim(DF1$ham_matrix)[1]+1),
-                            halign = "htCenter",
-                            valign = "htMiddle") %>%
-                    hot_col(1,
-                            renderer = "
+                          hot_rows(fixedRowsTop = 0) %>%
+                          hot_cols(fixedColumnsLeft = 1) %>%
+                          hot_col(1:(dim(DF1$ham_matrix)[1]+1),
+                                  halign = "htCenter",
+                                  valign = "htMiddle") %>%
+                          hot_col(1,
+                                  renderer = "
                 function(instance, td, row, col, prop, value, cellProperties) {
                   Handsontable.renderers.NumericRenderer.apply(this, arguments);
 
                     td.style.background = '#F0F0F0'
               }"
-                    ) 
-                })
+                          ) 
+                      })  
+                    }
+                  }
                 
                 # Render Distance Matrix UI
                 
@@ -8844,6 +8879,7 @@ server <- function(input, output, session) {
                     if(nrow(DF1$data) > 1) {
                       column(
                         width = 10,
+                        uiOutput("distancematrix_duplicated"),
                         div(
                           class = "distmatrix",
                           rHandsontableOutput("db_distancematrix")
@@ -8867,7 +8903,9 @@ server <- function(input, output, session) {
                   }
                 })
                 
-              }
+                }
+              })
+              
             
             # Render delete entry box UI
             output$delete_box <- renderUI({
@@ -10031,6 +10069,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$change_entries, {
     removeModal()
+    test <<- any(duplicated(DF1$meta$`Assembly Name`))
     updateTabItems(session, "tabs", selected = "db_browse_entries")
   })
   
@@ -10383,7 +10422,6 @@ server <- function(input, output, session) {
         DF1$hamming_proxy <- proxy::dist(DF1$allelic_profile, method = hamming_distance)
       }
     }
-    
     
     hamming_matrix <- as.matrix(DF1$hamming_proxy)
     
@@ -11658,8 +11696,6 @@ server <- function(input, output, session) {
       new_scale_fill() +
       nj_fruit() +
       nj_gradient() +
-      scale_color_discrete(labels = function(x) gsub("_", " ", x)) +
-      scale_fill_discrete(labels = function(x) gsub("_", " ", x)) +
       new_scale_fill() +
       nj_fruit2() +
       nj_gradient2() +
@@ -11672,7 +11708,7 @@ server <- function(input, output, session) {
       new_scale_fill() +
       nj_fruit5() +
       nj_gradient5() 
-      
+    
     
     plot_loc$xrange_nj <- tree$data$x
     plot_loc$yrange_nj <- tree$data$y
