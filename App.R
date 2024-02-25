@@ -260,92 +260,7 @@ ui <- dashboardPage(
   
   ## Sidebar ----
   dashboardSidebar(
-    tags$head(
-      tags$script(src = paste0(getwd(), "/www/mst_jpeg.js")),
-      tags$link(rel = "stylesheet", type = "text/css", href = "mycss.css")
-    ),
-    tags$style(HTML("
-      @keyframes pulsate {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
-}
-
-.pulsating-button {
-  animation: pulsate 1s ease infinite;
-}
-
-.pulsating-button:hover {
-  animation: none;
-}
-    ")),
-    tags$style("label{color: white;}"),
-    tags$style(".white {color: white; font-size: 16px}"),
-    tags$style(".main-sidebar .sidebar .sidebar-menu .treeview-menu a {color: #ffffff !important; margin-left: 25px; border-radius: 20px; margin-top: 7px; margin-bottom: 7px}"),
-    tags$style(".main-sidebar .sidebar .sidebar-menu a {border: none}"),
-    tags$style(".main-sidebar .sidebar .sidebar-menu .treeview-menu li.active a {color: #000000 !important; border-radius: 20px; margin-top: 7px; margin-bottom: 7px}"),
-    tags$style(".main-sidebar .sidebar .sidebar-menu .treeview-menu li:hover a {color: #000000 !important; border-radius: 20px; margin-top: 7px; margin-bottom: 7px}"),
-    tags$style(".main-sidebar .sidebar .sidebar-menu li:hover a {color: #000000; border: none}"),
-    tags$style("file.select{background-color: white;}"),
-    tags$style(
-      HTML("#include_edge {width: 20px; height: 20px; margin-top: 13px}")
-    ),
-    tags$style(
-      HTML("#include_node {width: 20px; height: 20px; margin-top: 13px}")
-    ),
-    tags$style(".selectize-control.single .selectize-input:after {right: 10px}"),
-    tags$style("#scheme_db .selectize-control {font-size: 12px;}"),
-    tags$style(".scheme_start {margin-left: -20px}"),
-    tags$style("i.fas {margin-right: 5px;}"),
-    tags$style("i.fas.fa-rotate {position: relative; left: -5px;}"),
-    tags$style("i.far {margin-right: 5px}"),
-    tags$style("i.fas.fa-sliders {margin-right: 0px; margin-top: 5px}"),
-    tags$style("i.fas.fa-xmark {margin-right: 0px}"),
-    tags$style("i.fas.fa-download {margin-right: 0px}"),
-    tags$style("i.far.fa-bookmark {margin-right: 0px}"),
-    tags$style("i.fas.fa-triangle-exclamation {color: yellow}"),
-    tags$style("i.far.fa-file-lines {margin-left: 2px; margin-right: 8px;}"),
-    tags$style("i.far.fa-pen-to-square {position: relative; left: -3px}"),
-    tags$style("button#reload_db.btn.btn-default.action-button.shiny-bound-input {height: 30px; width: 30px; position: relative; left: -20px}"),
-    tags$style("button#edit_button.btn.btn-default.action-button.shiny-bound-input {background: #20E6E5; color: #000000}"),
-    tags$style("button#save_plot_jpeg {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 10px; right: 20px}"),
-    tags$style("button#save_plot_png {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 10px; right: 20px}"),
-    tags$style("button#save_plot_bmp {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 10px; right: 20px}"),
-    tags$style("button#save_plot_html_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 10px; right: 20px}"),
-    tags$style("button#download_nj_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 10px; right: 20px}"),
-    tags$style("button#download_upgma_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: 10px; right: 20px}"),
-    tags$style("button#download_distmatrix_bttn {height: 34px; ; background: #20E6E5; color: #000000; position: absolute; top: -50px"),
-    tags$style("button#download_entry_table_bttn {height: 34px; ; background: #20E6E5; color: #000000"),
-    tags$style("button#download_schemeinfo_bttn {height: 28px; background: #20E6E5; color: #000000; margin-top: 19px; margin-left: 10px"),
-    tags$style("button#download_loci_info_bttn {height: 28px; background: #20E6E5; color: #000000; margin-top: 19px; margin-left: 10px"),
-    tags$style("button#download_na_matrix_bttn {height: 34px; background: #20E6E5; color: #000000; margin-top: 14px; margin-left: 10px"),
-    tags$style(".irs.irs--shiny.js-irs-0 {margin-right: -15px"),
-    tags$style(".irs.irs--shiny.js-irs-1 {margin-right: -15px"),
-    tags$style(".irs.irs--shiny.js-irs-2 {margin-right: -15px"),
-    tags$style("div#scheme_db .form-control, .selectize-input, .selectize-control.single .selectize-input {border-color: #000000 !important}"),
-    tags$style("#distmatrix_triangle {margin-top: -35px"),
-    tags$style("#distmatrix_diag {margin-top: -55px}"),
-    tags$style("#distmatrix_true {margin-top: -15px}"),
-    tags$style("#rep_general {margin-top: -13px}"),
-    tags$style("#rep_analysis {margin-top: -32px}"),
-    tags$style("#rep_plot_report {margin-top: -51px}"),
-    tags$style("#mst_ratio {position: absolute; right: 36px; top: 23px}"),
-    tags$style("#nj_ratio {position: absolute; right: 36px; top: 23px}"),
-    tags$style("#upgma_ratio {position: absolute; right: 36px; top: 23px}"),
-    tags$style(".format {position: absolute; top: -16px; width: -webkit-fill-available}"),
-    tags$style("button#mst_general_menu {height: 27px; width: 27px; background: #20E6E5; color: #000000; border-radius: 5px; margin-top: 2px}"),
-    tags$style("button#mst_analysis_menu {height: 27px; width: 27px; background: #20E6E5; color: #000000; border-radius: 5px; margin-top: -17px}"),
-    tags$style("button#download_report_bttn {font-size: 14px; height: 34px; background: #20E6E5; color: #000000; position: relative; top: -25px}"),
-    tags$style(".tippy-tooltip.translucent-theme {background-color: rgba(0,0,0,0.9)}"),
-    tags$style("#nj_v {padding: initial; margin-top: 3px; width: 75px; text-align: center}"),
-    tags$style("#nj_h {padding: initial; margin-top: 3px; width: 75px; text-align: center}"),
-    tags$style("#upgma_v {padding: initial; margin-top: 3px; width: 75px; text-align: center}"),
-    tags$style("#upgma_h {padding: initial; margin-top: 3px; width: 75px; text-align: center}"),
-    tags$style("#upgma_zoom irs.irs--shiny.js-irs-4.irs.irs-line {width: 108px}"),
-    tags$style(".textinput_var .form-group.shiny-input-container {padding: 0px 0px 0px 0px}"),
-    tags$style(type='text/css', '#show_cust_var {color:black; font-size: 14px;}'),
-    tags$style("button#load.pulsating-button.btn.btn-default.action-button.shiny-bound-input {background: #20E6E5; color: #000000; width: 40px}"),
-    tags$style("#load .fas.fa-rotate {position: relative; left: 0px !important}"),
+    tags$style(includeCSS("www/mycss.css")),
     br(), br(),
     uiOutput("loaded_scheme"),
     sidebarMenu(
@@ -383,24 +298,6 @@ ui <- dashboardPage(
   
   dashboardBody(
     shinyjs::useShinyjs(),
-    tags$style(
-      HTML(
-        '
-                .shiny-input-container input[type="text"] {
-                border-radius: 5px;
-                }
-
-                .box.box-solid.box-primary>.box-header {
-                background:#282F38
-                }
-
-                .box.box-solid.box-primary{
-                background:#282F38
-                }
-
-                '
-      )
-    ),
     
     shinyDashboardThemeDIY(
       ### general
@@ -646,7 +543,6 @@ ui <- dashboardPage(
       ,
       tableBorderRowSize = 1
     ),
-    tags$style(".image {height: 300px;}"),
     uiOutput("start_message"),
     uiOutput("start_message_no_db"),
     
@@ -702,8 +598,6 @@ ui <- dashboardPage(
         hr(), br(), br(), br(),
         uiOutput("no_scheme_info"),
         fluidRow(
-          tags$style(".test .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_processing, .dataTables_wrapper .dataTables_paginate {
-    color: #ffffff !important;}"),
           column(
             width = 5,
             align = "center",
@@ -760,7 +654,6 @@ ui <- dashboardPage(
         uiOutput("no_scheme_distancematrix"),
         uiOutput("distancematrix_no_entries"),
         fluidRow(
-          tags$style("div#db_distancematrix.rhandsontable {font-size: 11px}"),
           column(1),
           uiOutput("distmatrix_show")
         ),
@@ -796,8 +689,6 @@ ui <- dashboardPage(
       tabItem(
         tabName = "init",
         fluidRow(
-          tags$style("button#download_cgMLST {font-size: 14px; height: 34px; background: #20E6E5; color: #000000;}"),
-          tags$style("button#download_cgMLST i.fas.fa-download {margin-right: 5px !important}"),
           column(
             width = 3,
             align = "center",
@@ -924,9 +815,6 @@ ui <- dashboardPage(
         conditionalPanel(
           "input.typing_mode == 'Single'",
           fluidRow(
-            tags$style("span#progress_bar-title.progress-text {color: white; font-size: 13px; font-weight: normal;}"),
-            tags$style("div#progress_bar.progress-bar {font-size:13px; line-height: 30px;}"),
-            tags$style(".progress {border-radius: 5px; height: 30px; line-height: 30px}"),
             uiOutput("initiate_typing_ui"),
             uiOutput("single_typing_progress"),
             column(1),
@@ -983,26 +871,6 @@ ui <- dashboardPage(
         conditionalPanel(
           "input.tree_algo=='Minimum-Spanning'",
           fluidRow(
-            tags$style("button#mst_node_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px; margin-top: 3px}"),
-            tags$style("button#mst_edge_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px}"),
-            tags$style("button#mst_title_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-            tags$style("button#mst_edgelabel_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 37px; border-radius: 5px}"),
-            tags$style("button#mst_edgecolor_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-            tags$style("button#mst_subtitle_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-            tags$style("button#mst_footer_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-            tags$style("button#mst_label_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 37px; border-radius: 5px}"),
-            tags$style("input.form-control.pickr-color {text-align: center; font-size: 11px;}"),
-            tags$style(".checkbox_bg .checkbox {margin-top: 25px !important; }"),
-            tags$style("#mst_background_transparent {margin-bottom: -6px !important;}"),
-            tags$style(".label_sel {margin-bottom: -16px;}"),
-            tags$style(".slider {margin-bottom: -6px;}"),
-            tags$style(".slider_edge {margin-top: -10px;}"),
-            tags$style("#mst_color_node {margin-top: -17px}"),
-            tags$style("#mst_shadow {position: relative; bottom: -1px}"),
-            tags$style("#node_font_color {margin-top: 17px}"),
-            tags$style("#mst_edge_font_color {margin-top: 17px}"),
-            tags$style("#scale_nodes {position: relative; bottom: -1px"),
-            tags$style("#mst_scale_edges {position: relative; bottom: -1px; margin-bottom: 30px"),
             column(
               width = 4,
               align = "center",
@@ -1719,75 +1587,6 @@ ui <- dashboardPage(
         conditionalPanel(
           "input.tree_algo=='Neighbour-Joining'",
           fluidRow(
-            tags$style("button#nj_labeltext_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px; margin-top: 20px; margin-left: 10px}"),
-            tags$style("button#nj_labelformat_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px; margin-top: 20px}"),
-            tags$style("button#nj_subtitle_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-            tags$style("button#nj_footer_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-            tags$style("button#nj_title_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-            tags$style("button#nj_branch_label_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px; margin-left: 10px}"),
-            tags$style("button#nj_legend_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-            tags$style("button#nj_treescale_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-            tags$style("button#nj_rootedge_menu {height: 34px; background: #20E6E5; color: #000000; margin-left: 10px; margin-top: 22px; border-radius: 5px}"),
-            tags$style("button#nj_tippoint_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 21px; border-radius: 5px}"),
-            tags$style("button#nj_nodepoint_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 21px; border-radius: 5px}"),
-            tags$style("button#nj_heatmap_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 21px; border-radius: 5px}"),
-            tags$style("button#nj_tile_menu {height: 34px; background: #20E6E5; color: #000000; margin-left: 15px; margin-top: 21px; border-radius: 5px}"),
-            tags$style("button#nj_tile_menu_2 {height: 34px; background: #20E6E5; color: #000000; margin-left: 15px; margin-top: 21px; border-radius: 5px}"),
-            tags$style("button#nj_tile_menu_3 {height: 34px; background: #20E6E5; color: #000000; margin-left: 15px; margin-top: 21px; border-radius: 5px}"),
-            tags$style("button#nj_tile_menu_4 {height: 34px; background: #20E6E5; color: #000000; margin-left: 15px; margin-top: 21px; border-radius: 5px}"),
-            tags$style("button#nj_tile_menu_5 {height: 34px; background: #20E6E5; color: #000000; margin-left: 15px; margin-top: 21px; border-radius: 5px}"),
-            tags$style("#nj_tippoint_color {margin-bottom: 0px}"),
-            tags$style("#nj_nodepoint_color {margin-bottom: 16px;}"),
-            tags$style("#nj_treescale_show {margin-top: 17px; "),
-            tags$style("#nj_tiles_show {margin-top: 18px; margin-left: -5px}"),
-            tags$style("#nj_tiles_show_2 {margin-top: 18px; margin-left: -5px}"),
-            tags$style("#nj_tiles_show_3 {margin-top: 18px; margin-left: -5px}"),
-            tags$style("#nj_tiles_show_4 {margin-top: 18px; margin-left: -5px}"),
-            tags$style("#nj_tiles_show_5 {margin-top: 18px; margin-left: -5px}"),
-            tags$style("#nodepoint_show {margin-top: 18px; margin-left: -5px}"),
-            tags$style("#nj_ladder {margin-top: 19px; margin-left: -5px}"),
-            tags$style("#nj_align {margin-top: 21px; margin-left: -5px}"),
-            tags$style("#rootedge_show {margin-top: 20px}"),
-            tags$style("#nj_mapping_show {margin-top: 20px;}"),
-            tags$style("#nj_tipcolor_mapping_show {margin-top: 20px;}"),
-            tags$style("#nj_tipshape_mapping_show {margin-top: 20px;}"),
-            tags$style("#nj_geom {margin-top: 0px; margin-left: -5px}"),
-            tags$style("#nj_tiplab_color {margin-bottom: 0px;}"),
-            tags$style("#nj_show_branch_label {margin-top: 17px; margin-left: -5px}"),
-            tags$style("#tippoint_show {margin-top: 17px; margin-left: -5px}"),
-            tags$style("#nj_tiplab_show {margin-top: 17px; margin-left: -5px}"),
-            tags$style("#nj_fruit_offset {position: relative; top: -20px}"),
-            tags$style("#nj_layout .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {margin-bottom: 16px}"),
-            tags$style("#nj_div_tiles {position: absolute; bottom: 4px; margin-left: -5px}"),
-            tags$style("#nj_fruit_offset_2 {position: relative; top: -20px}"),
-            tags$style("#nj_layout_2 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {margin-bottom: 16px}"),
-            tags$style("#nj_div_tiles_2 {position: absolute; bottom: 4px; margin-left: -5px}"),
-            tags$style("#nj_fruit_offset_3 {position: relative; top: -20px}"),
-            tags$style("#nj_layout_3 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {margin-bottom: 16px}"),
-            tags$style("#nj_div_tiles_3 {position: absolute; bottom: 4px; margin-left: -5px}"),
-            tags$style("#nj_fruit_offset_4 {position: relative; top: -20px}"),
-            tags$style("#nj_layout_4 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {margin-bottom: 16px}"),
-            tags$style("#nj_div_tiles_4 {position: absolute; bottom: 4px; margin-left: -5px}"),
-            tags$style("#nj_fruit_offset_5 {position: relative; top: -20px}"),
-            tags$style("#nj_layout_5 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {margin-bottom: 16px}"),
-            tags$style("#nj_div_tiles_5 {position: absolute; bottom: 4px; margin-left: -5px}"),
-            tags$style(".tile1 {position: absolute; top: -17px; right: 35px}"),
-            tags$style(".tile_select {position: absolute; top: -17px; }"),
-            tags$style("#nj_tile_color_low {position: relative; right: -13px"),
-            tags$style("#nj_tile_color_low_2 {position: relative; right: -13px"),
-            tags$style("#nj_tile_color_low_3 {position: relative; right: -13px"),
-            tags$style("#nj_tile_color_low_4 {position: relative; right: -13px"),
-            tags$style("#nj_tile_color_low_5 {position: relative; right: -13px"),
-            tags$style("#nj_tile_color_high {position: relative; right: 13px"),
-            tags$style("#nj_tile_color_high_2 {position: relative; right: 13px"),
-            tags$style("#nj_tile_color_high_3 {position: relative; right: 13px"),
-            tags$style("#nj_tile_color_high_4 {position: relative; right: 13px"),
-            tags$style("#nj_tile_color_high_5 {position: relative; right: 13px"),
-            tags$style("#nj_heatmap_show {margin-top: 18px; margin-left: -5px;}"),
-            tags$style(".heatmap_picker {margin-top: 20px; margin-left: 15px}"),
-            tags$style("#nj_heatmap_title {position: relative; bottom: -20px}"),
-            tags$style("#nj_nodepoint_show {margin-top: 18px; margin-left: -5px}"),
-            tags$style("#nj_tippoint_show {margin-top: 18px; margin-left: -5px}"),
             column(
               width = 4,
               align = "center",
@@ -3829,73 +3628,6 @@ ui <- dashboardPage(
         conditionalPanel(
           "input.tree_algo=='UPGMA'",
           fluidRow(
-            tags$style("button#upgma_labeltext_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px; margin-top: 20px; margin-left: 10px}"),
-            tags$style("button#upgma_labelformat_menu {height: 34px; background: #20E6E5; color: #000000; border-radius: 5px; margin-top: 20px}"),
-            tags$style("button#upgma_subtitle_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-            tags$style("button#upgma_footer_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-            tags$style("button#upgma_title_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-            tags$style("button#upgma_branch_label_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px; margin-left: 10px}"),
-            tags$style("button#upgma_legend_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-            tags$style("button#upgma_treescale_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 20px; border-radius: 5px}"),
-            tags$style("button#upgma_rootedge_menu {height: 34px; background: #20E6E5; color: #000000; margin-left: 10px; margin-top: 22px; border-radius: 5px}"),
-            tags$style("button#upgma_tippoint_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 21px; border-radius: 5px}"),
-            tags$style("button#upgma_nodepoint_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 21px; border-radius: 5px}"),
-            tags$style("button#upgma_heatmap_menu {height: 34px; background: #20E6E5; color: #000000; margin-top: 21px; border-radius: 5px}"),
-            tags$style("button#upgma_tile_menu {height: 34px; background: #20E6E5; color: #000000; margin-left: 15px; margin-top: 21px; border-radius: 5px}"),
-            tags$style("button#upgma_tile_menu_2 {height: 34px; background: #20E6E5; color: #000000; margin-left: 15px; margin-top: 21px; border-radius: 5px}"),
-            tags$style("button#upgma_tile_menu_3 {height: 34px; background: #20E6E5; color: #000000; margin-left: 15px; margin-top: 21px; border-radius: 5px}"),
-            tags$style("button#upgma_tile_menu_4 {height: 34px; background: #20E6E5; color: #000000; margin-left: 15px; margin-top: 21px; border-radius: 5px}"),
-            tags$style("button#upgma_tile_menu_5 {height: 34px; background: #20E6E5; color: #000000; margin-left: 15px; margin-top: 21px; border-radius: 5px}"),
-            tags$style("#upgma_tippoint_color {margin-bottom: 0px}"),
-            tags$style("#upgma_nodepoint_color {margin-bottom: 16px;}"),
-            tags$style("#upgma_treescale_show {margin-top: 17px; "),
-            tags$style("#upgma_tiles_show {margin-top: 18px; margin-left: -5px}"),
-            tags$style("#upgma_tiles_show_2 {margin-top: 18px; margin-left: -5px}"),
-            tags$style("#upgma_tiles_show_3 {margin-top: 18px; margin-left: -5px}"),
-            tags$style("#upgma_tiles_show_4 {margin-top: 18px; margin-left: -5px}"),
-            tags$style("#upgma_tiles_show_5 {margin-top: 18px; margin-left: -5px}"),
-            tags$style("#upgma_nodepoint_show {margin-top: 18px; margin-left: -5px}"),
-            tags$style("#upgma_ladder {margin-top: 19px; margin-left: -5px}"),
-            tags$style("#upgma_align {margin-top: 21px; margin-left: -5px}"),
-            tags$style("#upgma_rootedge_show {margin-top: 20px}"),
-            tags$style("#upgma_mapping_show {margin-top: 20px;}"),
-            tags$style("#upgma_tipcolor_mapping_show {margin-top: 20px;}"),
-            tags$style("#upgma_tipshape_mapping_show {margin-top: 20px;}"),
-            tags$style("#upgma_geom {margin-top: 0px; margin-left: -5px}"),
-            tags$style("#upgma_tiplab_color {margin-bottom: 0px;}"),
-            tags$style("#upgma_show_branch_label {margin-top: 17px; margin-left: -5px}"),
-            tags$style("#upgma_tippoint_show {margin-top: 17px; margin-left: -5px}"),
-            tags$style("#upgma_tiplab_show {margin-top: 17px; margin-left: -5px}"),
-            tags$style("#upgma_fruit_offset {position: relative; top: -20px}"),
-            tags$style("#upgma_layout .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {margin-bottom: 16px}"),
-            tags$style("#upgma_div_tiles {position: absolute; bottom: 4px; margin-left: -5px}"),
-            tags$style("#upgma_fruit_offset_2 {position: relative; top: -20px}"),
-            tags$style("#upgma_layout_2 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {margin-bottom: 16px}"),
-            tags$style("#upgma_div_tiles_2 {position: absolute; bottom: 4px; margin-left: -5px}"),
-            tags$style("#upgma_fruit_offset_3 {position: relative; top: -20px}"),
-            tags$style("#upgma_layout_3 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {margin-bottom: 16px}"),
-            tags$style("#upgma_div_tiles_3 {position: absolute; bottom: 4px; margin-left: -5px}"),
-            tags$style("#upgma_fruit_offset_4 {position: relative; top: -20px}"),
-            tags$style("#upgma_layout_4 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {margin-bottom: 16px}"),
-            tags$style("#upgma_div_tiles_4 {position: absolute; bottom: 4px; margin-left: -5px}"),
-            tags$style("#upgma_fruit_offset_5 {position: relative; top: -20px}"),
-            tags$style("#upgma_layout_5 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {margin-bottom: 16px}"),
-            tags$style("#upgma_div_tiles_5 {position: absolute; bottom: 4px; margin-left: -5px}"),
-            tags$style(".tile1 {position: absolute; top: -17px; right: 35px}"),
-            tags$style(".tile_select {position: absolute; top: -17px; }"),
-            tags$style("#upgma_tile_color_low {position: relative; right: -13px"),
-            tags$style("#upgma_tile_color_low_2 {position: relative; right: -13px"),
-            tags$style("#upgma_tile_color_low_3 {position: relative; right: -13px"),
-            tags$style("#upgma_tile_color_low_4 {position: relative; right: -13px"),
-            tags$style("#upgma_tile_color_low_5 {position: relative; right: -13px"),
-            tags$style("#upgma_tile_color_high {position: relative; right: 13px"),
-            tags$style("#upgma_tile_color_high_2 {position: relative; right: 13px"),
-            tags$style("#upgma_tile_color_high_3 {position: relative; right: 13px"),
-            tags$style("#upgma_tile_color_high_4 {position: relative; right: 13px"),
-            tags$style("#upgma_tile_color_high_5 {position: relative; right: 13px"),
-            tags$style("#upgma_heatmap_show {margin-top: 18px; margin-left: -5px;}"),
-            tags$style(".heatmap_picker {margin-top: 20px; margin-left: 15px}"),
-            tags$style("#upgma_heatmap_title {position: relative; bottom: -20px}"),
             column(
               width = 4,
               align = "center",
@@ -6957,8 +6689,6 @@ server <- function(input, output, session) {
                     br(),
                     fluidRow(
                       column(
-                        tags$style("button#create_tree {position: relative; left: -15px; width = 100%; border: none;"),
-                        tags$style("button#create_tree:hover {background: #3c8c56; border: none;}"),
                         width = 12,
                         align = "center",
                         actionButton(
@@ -7391,8 +7121,6 @@ server <- function(input, output, session) {
                           padding = "20px",
                           theme = "translucent",
                           fluidRow(
-                            tags$style("#mst_date_general_select .form-control {height: 28px; position: relative; right: -22px} "),
-                            tags$style("#rep_date_general {margin-top: 17px} .form-group {margin-bottom: 0px;}"),
                             column(
                               width = 3,
                               checkboxInput(
@@ -7410,8 +7138,6 @@ server <- function(input, output, session) {
                             )
                           ),
                           fluidRow(
-                            tags$style("#mst_operator_general_select {height: 28px; margin-top: -15px; position: relative; right: -22px}"),
-                            tags$style("#rep_operator_general {margin-top: 0px;}"),
                             column(
                               width = 3,
                               checkboxInput(
@@ -7429,8 +7155,6 @@ server <- function(input, output, session) {
                             )
                           ),
                           fluidRow(
-                            tags$style("#mst_institute_general_select {height: 28px; margin-top: -15px; position: relative; right: -22px}"),
-                            tags$style("#rep_institute_general {margin-top: 0px;}"),
                             column(
                               width = 3,
                               checkboxInput(
@@ -7448,8 +7172,6 @@ server <- function(input, output, session) {
                             )
                           ),
                           fluidRow(
-                            tags$style("#mst_comm_general_select {margin-top: -15px; border-radius: 5px; position: relative; right: -22px}"),
-                            tags$style("#rep_comm_general {margin-top: 0px;}"),
                             column(
                               width = 3,
                               checkboxInput(
@@ -7500,7 +7222,6 @@ server <- function(input, output, session) {
                           padding = "20px",
                           theme = "translucent",
                           fluidRow(
-                            tags$style("#rep_cgmlst_analysis {margin-top: 19px}"),
                             column(
                               width = 4,
                               checkboxInput(
@@ -7515,7 +7236,6 @@ server <- function(input, output, session) {
                             )
                           ),
                           fluidRow(
-                            tags$style("#rep_tree_analysis {margin-top: 0px}"),
                             column(
                               width = 4,
                               checkboxInput(
@@ -7535,8 +7255,7 @@ server <- function(input, output, session) {
                             )
                           ),
                           fluidRow(
-                            tags$style("#rep_distance {margin-top: 0px}"),
-                            column(
+                           column(
                               width = 4,
                               checkboxInput(
                                 "rep_distance",
@@ -7555,7 +7274,6 @@ server <- function(input, output, session) {
                             )
                           ),
                           fluidRow(
-                            tags$style("#rep_missval {margin-top: 0px}"),
                             column(
                               width = 7,
                               align = "left",
@@ -7576,7 +7294,6 @@ server <- function(input, output, session) {
                             )
                           ),
                           fluidRow(
-                            tags$style("#rep_version {margin-top: 0px}"),
                             column(
                               width = 4,
                               checkboxInput(
@@ -8427,251 +8144,251 @@ server <- function(input, output, session) {
                 }
               })
               
-            
-            # Render delete entry box UI
-            output$delete_box <- renderUI({
-              box(
-                solidHeader = TRUE,
-                status = "primary",
-                width = "100%",
-                fluidRow(
-                  column(
-                    width = 12,
-                    align = "center",
-                    h3(p("Delete Entries"), style = "color:white")
-                  )
-                ),
-                hr(),
-                fluidRow(
-                  column(width = 1),
-                  column(
-                    width = 2,
-                    align = "right",
-                    br(),
-                    h5("Index", style = "color:white; margin-bottom: 0px;")
-                  ),
-                  column(
-                    width = 6,
-                    align = "center",
-                    uiOutput("delete_select")
-                  ),
-                  column(
-                    width = 2,
-                    align = "center",
-                    br(),
-                    uiOutput("del_bttn")
-                  )
-                ),
-                br()
-              )
-            })
-            
-            # Render loci comparison box UI
-            output$compare_allele_box <- renderUI({
-              box(
-                solidHeader = TRUE,
-                status = "primary",
-                width = "100%",
-                fluidRow(
-                  column(
-                    width = 12,
-                    align = "center",
-                    h3(p("Compare Loci"), style = "color:white")
-                  )
-                ),
-                hr(),
-                column(
-                  width = 12,
-                  align = "center",
-                  br(),
-                  uiOutput("compare_select"),
-                  br(),
-                  column(3),
-                  column(
-                    width = 8,
-                    align = "left",
-                    uiOutput("compare_difference_box")
-                  )
-                ),
-                br()
-              )
-            })
-            
-            # Render entry table download box UI
-            output$download_entries <- renderUI({
-              box(
-                solidHeader = TRUE,
-                status = "primary",
-                width = "100%",
-                fluidRow(
-                  column(
-                    width = 12,
-                    align = "center",
-                    h3(p("Download Table"), style = "color:white")
-                  )
-                ),
-                hr(),
-                fluidRow(
-                  column(2),
-                  column(
-                    width = 10,
-                    align = "left",
-                    br(),
-                    checkboxInput(
-                      "download_table_include",
-                      label = h5("Only included entries (Include = TRUE)", style = "color:white; margin-top: 4px")
-                    ),
-                    checkboxInput(
-                      "download_table_loci",
-                      label = h5("Include displayed loci", style = "color:white; margin-top: 4px"),
-                      value = FALSE
-                    ),
-                    br(),
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 12,
-                    align = "center",
-                    downloadBttn(
-                      "download_entry_table",
-                      style = "simple",
-                      label = "",
-                      size = "sm",
-                      icon = icon("download"),
-                      color = "primary"
-                    )
-                  )
-                ),
-                br()
-              )
-            })
-            
-            # Render entry deletion select input
-            output$delete_select <- renderUI({
-              pickerInput("select_delete",
-                          label = "",
-                          choices = DF1$data[, "Index"],
-                          options = list(
-                            `live-search` = TRUE,
-                            `actions-box` = TRUE,
-                            size = 10,
-                            style = "background-color: white; border-radius: 5px;"
-                          ),
-                          multiple = TRUE)
-            })
-            
-            # Render delete entry button
-            output$del_bttn <- renderUI({
-              actionBttn(
-                "del_button",
-                label = "",
-                color = "danger",
-                size = "sm",
-                style = "material-circle",
-                icon = icon("xmark")
-              )
-            })
-            
-            #### Missing Values UI ----
-            
-            # Missing values calculations and table 
-            NA_table <- DF1$allelic_profile[, colSums(is.na(DF1$allelic_profile)) != 0]
-            
-            NA_table <- NA_table[rowSums(is.na(NA_table)) != 0,]
-            
-            NA_table[is.na(NA_table)] <- "NA"
-            
-            NA_table <- NA_table %>% 
-              cbind("Assembly Name" = DF1$meta[rownames(NA_table),]$`Assembly Name`) %>%
-              cbind("Errors" = DF1$meta[rownames(NA_table),]$Errors) %>%
-              relocate("Assembly Name", "Errors")
-            
-            observe({
-              if(!is.null(input$miss_val_height)) {
-                if(nrow(NA_table) < 31) {
-                  output$table_missing_values <- renderRHandsontable({
-                    rhandsontable(
-                      NA_table,
-                      rowHeaders = NULL
-                    ) %>%
-                      hot_context_menu(allowRowEdit = FALSE,
-                                       allowColEdit = FALSE,
-                                       allowReadOnly = TRUE) %>%
-                      hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                      hot_rows(fixedRowsTop = 0) %>%
-                      hot_col(1:ncol(NA_table), valign = "htMiddle", halign = "htCenter")
-                  })
-                } else {
-                  output$table_missing_values <- renderRHandsontable({
-                    rhandsontable(
-                      NA_table,
-                      rowHeaders = NULL,
-                      height = miss.val.height()
-                    ) %>%
-                      hot_context_menu(allowRowEdit = FALSE,
-                                       allowColEdit = FALSE,
-                                       allowReadOnly = TRUE) %>%
-                      hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                      hot_rows(fixedRowsTop = 0) %>%
-                      hot_col(1:ncol(NA_table), valign = "htMiddle", halign = "htCenter")
-                  })
-                }
-              }
-            })
-            
-            # Render missing value informatiojn box UI
-            output$missing_values <- renderUI({
-              box(
-                solidHeader = TRUE,
-                status = "primary",
-                width = "100%",
-                fluidRow(
-                  div(
-                    class = "white",
+              
+              # Render delete entry box UI
+              output$delete_box <- renderUI({
+                box(
+                  solidHeader = TRUE,
+                  status = "primary",
+                  width = "100%",
+                  fluidRow(
                     column(
                       width = 12,
+                      align = "center",
+                      h3(p("Delete Entries"), style = "color:white")
+                    )
+                  ),
+                  hr(),
+                  fluidRow(
+                    column(width = 1),
+                    column(
+                      width = 2,
+                      align = "right",
+                      br(),
+                      h5("Index", style = "color:white; margin-bottom: 0px;")
+                    ),
+                    column(
+                      width = 6,
+                      align = "center",
+                      uiOutput("delete_select")
+                    ),
+                    column(
+                      width = 2,
+                      align = "center",
+                      br(),
+                      uiOutput("del_bttn")
+                    )
+                  ),
+                  br()
+                )
+              })
+              
+              # Render loci comparison box UI
+              output$compare_allele_box <- renderUI({
+                box(
+                  solidHeader = TRUE,
+                  status = "primary",
+                  width = "100%",
+                  fluidRow(
+                    column(
+                      width = 12,
+                      align = "center",
+                      h3(p("Compare Loci"), style = "color:white")
+                    )
+                  ),
+                  hr(),
+                  column(
+                    width = 12,
+                    align = "center",
+                    br(),
+                    uiOutput("compare_select"),
+                    br(),
+                    column(3),
+                    column(
+                      width = 8,
                       align = "left",
-                      br(), 
-                      HTML(
-                        paste0("There are ", 
-                               strong(as.character(sum(is.na(DF1$data)))), 
-                               " unsuccessful allele allocations (NA). ",
-                               strong(sum(sapply(DF1$allelic_profile, anyNA))),
-                               " out of ",
-                               strong(ncol(DF1$allelic_profile)),
-                               " total loci in this scheme contain NA's (",
-                               strong(round((sum(sapply(DF1$allelic_profile, anyNA)) / ncol(DF1$allelic_profile) * 100), 1)),
-                               " %). ",
-                               "Decide how these missing values should be treated:")
-                        
+                      uiOutput("compare_difference_box")
+                    )
+                  ),
+                  br()
+                )
+              })
+              
+              # Render entry table download box UI
+              output$download_entries <- renderUI({
+                box(
+                  solidHeader = TRUE,
+                  status = "primary",
+                  width = "100%",
+                  fluidRow(
+                    column(
+                      width = 12,
+                      align = "center",
+                      h3(p("Download Table"), style = "color:white")
+                    )
+                  ),
+                  hr(),
+                  fluidRow(
+                    column(2),
+                    column(
+                      width = 10,
+                      align = "left",
+                      br(),
+                      checkboxInput(
+                        "download_table_include",
+                        label = h5("Only included entries (Include = TRUE)", style = "color:white; margin-top: 4px")
+                      ),
+                      checkboxInput(
+                        "download_table_loci",
+                        label = h5("Include displayed loci", style = "color:white; margin-top: 4px"),
+                        value = FALSE
+                      ),
+                      br(),
+                    )
+                  ),
+                  fluidRow(
+                    column(
+                      width = 12,
+                      align = "center",
+                      downloadBttn(
+                        "download_entry_table",
+                        style = "simple",
+                        label = "",
+                        size = "sm",
+                        icon = icon("download"),
+                        color = "primary"
+                      )
+                    )
+                  ),
+                  br()
+                )
+              })
+              
+              # Render entry deletion select input
+              output$delete_select <- renderUI({
+                pickerInput("select_delete",
+                            label = "",
+                            choices = DF1$data[, "Index"],
+                            options = list(
+                              `live-search` = TRUE,
+                              `actions-box` = TRUE,
+                              size = 10,
+                              style = "background-color: white; border-radius: 5px;"
+                            ),
+                            multiple = TRUE)
+              })
+              
+              # Render delete entry button
+              output$del_bttn <- renderUI({
+                actionBttn(
+                  "del_button",
+                  label = "",
+                  color = "danger",
+                  size = "sm",
+                  style = "material-circle",
+                  icon = icon("xmark")
+                )
+              })
+              
+              #### Missing Values UI ----
+              
+              # Missing values calculations and table 
+              NA_table <- DF1$allelic_profile[, colSums(is.na(DF1$allelic_profile)) != 0]
+              
+              NA_table <- NA_table[rowSums(is.na(NA_table)) != 0,]
+              
+              NA_table[is.na(NA_table)] <- "NA"
+              
+              NA_table <- NA_table %>% 
+                cbind("Assembly Name" = DF1$meta[rownames(NA_table),]$`Assembly Name`) %>%
+                cbind("Errors" = DF1$meta[rownames(NA_table),]$Errors) %>%
+                relocate("Assembly Name", "Errors")
+              
+              observe({
+                if(!is.null(input$miss_val_height)) {
+                  if(nrow(NA_table) < 31) {
+                    output$table_missing_values <- renderRHandsontable({
+                      rhandsontable(
+                        NA_table,
+                        rowHeaders = NULL
+                      ) %>%
+                        hot_context_menu(allowRowEdit = FALSE,
+                                         allowColEdit = FALSE,
+                                         allowReadOnly = TRUE) %>%
+                        hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                        hot_rows(fixedRowsTop = 0) %>%
+                        hot_col(1:ncol(NA_table), valign = "htMiddle", halign = "htCenter")
+                    })
+                  } else {
+                    output$table_missing_values <- renderRHandsontable({
+                      rhandsontable(
+                        NA_table,
+                        rowHeaders = NULL,
+                        height = miss.val.height()
+                      ) %>%
+                        hot_context_menu(allowRowEdit = FALSE,
+                                         allowColEdit = FALSE,
+                                         allowReadOnly = TRUE) %>%
+                        hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                        hot_rows(fixedRowsTop = 0) %>%
+                        hot_col(1:ncol(NA_table), valign = "htMiddle", halign = "htCenter")
+                    })
+                  }
+                }
+              })
+              
+              # Render missing value informatiojn box UI
+              output$missing_values <- renderUI({
+                box(
+                  solidHeader = TRUE,
+                  status = "primary",
+                  width = "100%",
+                  fluidRow(
+                    div(
+                      class = "white",
+                      column(
+                        width = 12,
+                        align = "left",
+                        br(), 
+                        HTML(
+                          paste0("There are ", 
+                                 strong(as.character(sum(is.na(DF1$data)))), 
+                                 " unsuccessful allele allocations (NA). ",
+                                 strong(sum(sapply(DF1$allelic_profile, anyNA))),
+                                 " out of ",
+                                 strong(ncol(DF1$allelic_profile)),
+                                 " total loci in this scheme contain NA's (",
+                                 strong(round((sum(sapply(DF1$allelic_profile, anyNA)) / ncol(DF1$allelic_profile) * 100), 1)),
+                                 " %). ",
+                                 "Decide how these missing values should be treated:")
+                          
+                        ),
+                        br()
+                      )
+                    )
+                  ),
+                  fluidRow(
+                    column(1),
+                    column(
+                      width = 11,
+                      align = "left",
+                      br(),
+                      prettyRadioButtons(
+                        "na_handling",
+                        "",
+                        choiceNames = c("Ignore missing values for pairwise comparison",
+                                        "Omit loci with missing values for all assemblies",
+                                        "Treat missing values as allele variant"),
+                        choiceValues = c("ignore_na", "omit", "category"),
+                        shape = "curve",
+                        selected = c("ignore_na")
                       ),
                       br()
                     )
                   )
-                ),
-                fluidRow(
-                  column(1),
-                  column(
-                    width = 11,
-                    align = "left",
-                    br(),
-                    prettyRadioButtons(
-                      "na_handling",
-                      "",
-                      choiceNames = c("Ignore missing values for pairwise comparison",
-                                      "Omit loci with missing values for all assemblies",
-                                      "Treat missing values as allele variant"),
-                      choiceValues = c("ignore_na", "omit", "category"),
-                      shape = "curve",
-                      selected = c("ignore_na")
-                    ),
-                    br()
-                  )
                 )
-              )
-            })  
-            
+              })  
+              
             } else { 
               #if no typed assemblies present
               
@@ -13244,12 +12961,6 @@ server <- function(input, output, session) {
           column(
             width = 3,
             align = "center",
-            tags$style(".append_table {margin-top: 0px; margin-left: 3px}"),
-            tags$style("div#append_isodate.shiny-date-input.form-group.shiny-input-container.shiny-bound-input input.form-control.shinyjs-resettable {text-align: center}"),
-            tags$style("div#append_analysisdate.shiny-date-input.form-group.shiny-input-container.shiny-bound-input input.form-control.shinyjs-resettable {text-align: center}"),
-            tags$style(".append_table_country .btn {height: 32px}"),
-            tags$style(".append_table_country {margin-top: 23px; margin-bottom: 5px}"),
-            tags$style("button#conf_meta_single {background: #20e6e5; color: black}"),
             br(),
             br(),
             h3(p("Declare Metadata"), style = "color:white"),
@@ -13911,12 +13622,6 @@ server <- function(input, output, session) {
         column(
           width = 3,
           align = "center",
-          tags$style(".append_table {margin-top: 0px; margin-left: 3px}"),
-          tags$style("div#append_isodate_multi.shiny-date-input.form-group.shiny-input-container.shiny-bound-input input.form-control.shinyjs-resettable {text-align: center}"),
-          tags$style("div#append_analysisdate_multi.shiny-date-input.form-group.shiny-input-container.shiny-bound-input input.form-control.shinyjs-resettable {text-align: center}"),
-          tags$style(".append_table_country .btn {height: 32px}"),
-          tags$style(".append_table_country {margin-top: 23px; margin-bottom: 5px}"),
-          tags$style("button#conf_meta_multi {background: #20e6e5; color: black}"),
           br(),
           br(),
           h3(p("Declare Metadata"), style = "color:white"),
@@ -14653,7 +14358,6 @@ server <- function(input, output, session) {
           ),
           br(), br(),
           fluidRow(
-            tags$style(type='text/css', '#logText {color:black; white-space: pre-wrap; max-width: 100%; }'),
             column(width = 1),
             column(
               width = 6,
@@ -14706,8 +14410,7 @@ server <- function(input, output, session) {
           ),
           br(), br(),
           fluidRow(
-            tags$style(type='text/css', '#logText {color:black; white-space: pre-wrap; max-width: 100%; max-height: 500px}'),
-            column(width = 1),
+           column(width = 1),
             column(
               width = 6,
               verbatimTextOutput("logTextFull"),
