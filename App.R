@@ -14090,9 +14090,23 @@ server <- function(input, output, session) {
         parseDirPath(roots = c(wd = "/home"), input$genome_file_multi)
       )))
     
-    if (nrow(typing_reactive$table) > 0) {
+    if (between(nrow(typing_reactive$table), 1, 15)) {
       output$multi_select_table <- renderRHandsontable({
-        rhandsontable(typing_reactive$table, rowHeaders = NULL, stretchH = "all", height = 400) %>%
+        rhandsontable(typing_reactive$table, rowHeaders = NULL, stretchH = "all") %>%
+          hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+          hot_cols(columnSorting = TRUE) %>%
+          hot_rows(rowHeights = 25) %>%
+          hot_col(2,
+                  readOnly = TRUE,
+                  valign = "htBottom") %>%
+          hot_col(1,
+                  halign = "htCenter",
+                  valign = "htTop",
+                  width = "auto")
+      })
+    } else if(nrow(typing_reactive$table) > 15) {
+      output$multi_select_table <- renderRHandsontable({
+        rhandsontable(typing_reactive$table, rowHeaders = NULL, stretchH = "all", height = 500) %>%
           hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
           hot_cols(columnSorting = TRUE) %>%
           hot_rows(rowHeights = 25) %>%
