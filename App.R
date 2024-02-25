@@ -241,507 +241,6 @@ sel_countries <-
     "United Kingdom",
     "United States of America")
 
-# Plot download JS code
-
-# JPEG Download
-jpeg_mst <- paste0("$(document).ready(function(){
-  $('#save_plot_jpeg').on('click', function(){
-    // Get all canvas elements on the document
-    var canvas = document.querySelector('canvas');
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
-    var titleCanvasID = document.getElementById('titletree_mst');
-    if(!(titleCanvasID.innerText.length === 0)) {
-        var titleCanvas = document.createElement('canvas');
-        var titleCanvasHeight = titleCanvasID.offsetHeight;
-        titleCanvas.width = canvas.width;
-        titleCanvas.height = titleCanvasHeight;
-        // Draw title text on titleCanvas
-        var titleCtx = titleCanvas.getContext('2d');
-        titleCtx.font = window.getComputedStyle(titleCanvasID).getPropertyValue('font');
-        titleCtx.textAlign = window.getComputedStyle(titleCanvasID).getPropertyValue('text-align');
-        titleCtx.fillStyle = window.getComputedStyle(titleCanvasID).getPropertyValue('color');
-        titleCtx.fillText(titleCanvasID.innerText, titleCanvas.width / 2, titleCanvasHeight); 
-    } else {var titleCanvasHeight = 0;}
-    var subtitleCanvasID = document.getElementById('subtitletree_mst');
-    if(!(subtitleCanvasID.innerText.length === 0)) {
-        var subtitleCanvas = document.createElement('canvas');
-        var subtitleCanvasHeight = subtitleCanvasID.offsetHeight;
-        subtitleCanvas.width = canvas.width;
-        subtitleCanvas.height = subtitleCanvasHeight;
-        // Draw subtitle text on subtitleCanvas
-        var subtitleCtx = subtitleCanvas.getContext('2d');
-        subtitleCtx.font = window.getComputedStyle(subtitleCanvasID).getPropertyValue('font');
-        subtitleCtx.textAlign = window.getComputedStyle(subtitleCanvasID).getPropertyValue('text-align');
-        subtitleCtx.fillStyle = window.getComputedStyle(subtitleCanvasID).getPropertyValue('color');
-        subtitleCtx.fillText(subtitleCanvasID.innerText, subtitleCanvas.width / 2, subtitleCanvasHeight);
-    } else {var subtitleCanvasHeight = 0;}
-    var footerCanvasID = document.getElementById('footertree_mst');
-    if(!(footerCanvasID.innerText.length === 0)) {
-        var footerCanvas = document.createElement('canvas');
-        var footerCanvasHeight = footerCanvasID.offsetHeight;
-        footerCanvas.width = canvas.width;
-        footerCanvas.height = footerCanvasHeight;
-        // Draw footer text on footerCanvas
-        var footerCtx = footerCanvas.getContext('2d');
-        footerCtx.font = window.getComputedStyle(footerCanvasID).getPropertyValue('font');
-        footerCtx.textAlign = window.getComputedStyle(footerCanvasID).getPropertyValue('text-align');
-        footerCtx.fillStyle = window.getComputedStyle(footerCanvasID).getPropertyValue('color');
-        footerCtx.fillText(footerCanvasID.innerText, footerCanvas.width / 2, footerCanvasHeight); 
-    } else {var footerCanvasHeight = 0;}
-    
-    // Get the heights of the canvas
-    var mainCanvasHeight = canvas.height;
-
-    // Get the main canvas context
-    var mainCtx = canvas.getContext('2d');
-    var mainCanvasWidth = canvas.width;
-    // Create a new canvas to merge title, subtitle, main plot, and footer
-    var mergedCanvas = document.createElement('canvas');
-    mergedCanvas.width = canvas.width;
-    mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight + footerCanvasHeight;
-
-    var ctx = mergedCanvas.getContext('2d');
-    // Draw title, subtitle, main plot, and footer onto the merged canvas
-    ctx.fillStyle = getBackgroundColor();
-    ctx.fillRect(0, 0, canvas.width, mergedCanvas.height);
-    if(!(titleCanvasID.innerText.length === 0)) {
-        ctx.drawImage(titleCanvas, 0, 0);
-    }
-    if(!(subtitleCanvasID.innerText.length === 0)) {
-        ctx.drawImage(subtitleCanvas, 0, titleCanvasHeight);
-    }
-    ctx.drawImage(canvas, 0, titleCanvasHeight + subtitleCanvasHeight);
-    if(!(footerCanvasID.innerText.length === 0)) {
-        ctx.drawImage(footerCanvas, 0, titleCanvasHeight + subtitleCanvasHeight + mainCanvasHeight - footerCanvasHeight);
-    }
- 
-    // Download the merged canvas as a JPEG image
-    const a = document.createElement('a');
-    document.body.append(a);
-    a.download = ", shQuote(paste0(Sys.Date(), "_MST.jpeg")), ";
-    a.href = mergedCanvas.toDataURL('image/jpeg', 1.0);
-    a.click();
-    a.remove();
-    // Remove the dynamically created merged canvas
-    mergedCanvas.remove();
-  });
-});")
-
-# BMP Download
-bmp_mst <- paste0("$(document).ready(function(){
-  $('#save_plot_bmp').on('click', function(){
-    // Get all canvas elements on the document
-    var canvas = document.querySelector('canvas');
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
-    var titleCanvasID = document.getElementById('titletree_mst');
-    if(!(titleCanvasID.innerText.length === 0)) {
-        var titleCanvas = document.createElement('canvas');
-        var titleCanvasHeight = titleCanvasID.offsetHeight;
-        titleCanvas.width = canvas.width;
-        titleCanvas.height = titleCanvasHeight;
-        // Draw title text on titleCanvas
-        var titleCtx = titleCanvas.getContext('2d');
-        titleCtx.font = window.getComputedStyle(titleCanvasID).getPropertyValue('font');
-        titleCtx.textAlign = window.getComputedStyle(titleCanvasID).getPropertyValue('text-align');
-        titleCtx.fillStyle = window.getComputedStyle(titleCanvasID).getPropertyValue('color');
-        titleCtx.fillText(titleCanvasID.innerText, titleCanvas.width / 2, titleCanvasHeight); 
-    } else {var titleCanvasHeight = 0;}
-    var subtitleCanvasID = document.getElementById('subtitletree_mst');
-    if(!(subtitleCanvasID.innerText.length === 0)) {
-        var subtitleCanvas = document.createElement('canvas');
-        var subtitleCanvasHeight = subtitleCanvasID.offsetHeight;
-        subtitleCanvas.width = canvas.width;
-        subtitleCanvas.height = subtitleCanvasHeight;
-        // Draw subtitle text on subtitleCanvas
-        var subtitleCtx = subtitleCanvas.getContext('2d');
-        subtitleCtx.font = window.getComputedStyle(subtitleCanvasID).getPropertyValue('font');
-        subtitleCtx.textAlign = window.getComputedStyle(subtitleCanvasID).getPropertyValue('text-align');
-        subtitleCtx.fillStyle = window.getComputedStyle(subtitleCanvasID).getPropertyValue('color');
-        subtitleCtx.fillText(subtitleCanvasID.innerText, subtitleCanvas.width / 2, subtitleCanvasHeight);
-    } else {var subtitleCanvasHeight = 0;}
-    var footerCanvasID = document.getElementById('footertree_mst');
-    if(!(footerCanvasID.innerText.length === 0)) {
-        var footerCanvas = document.createElement('canvas');
-        var footerCanvasHeight = footerCanvasID.offsetHeight;
-        footerCanvas.width = canvas.width;
-        footerCanvas.height = footerCanvasHeight;
-        // Draw footer text on footerCanvas
-        var footerCtx = footerCanvas.getContext('2d');
-        footerCtx.font = window.getComputedStyle(footerCanvasID).getPropertyValue('font');
-        footerCtx.textAlign = window.getComputedStyle(footerCanvasID).getPropertyValue('text-align');
-        footerCtx.fillStyle = window.getComputedStyle(footerCanvasID).getPropertyValue('color');
-        footerCtx.fillText(footerCanvasID.innerText, footerCanvas.width / 2, footerCanvasHeight); 
-    } else {var footerCanvasHeight = 0;}
-    
-    // Get the heights of the canvas
-    var mainCanvasHeight = canvas.height;
-
-    // Get the main canvas context
-    var mainCtx = canvas.getContext('2d');
-    var mainCanvasWidth = canvas.width;
-    // Create a new canvas to merge title, subtitle, main plot, and footer
-    var mergedCanvas = document.createElement('canvas');
-    mergedCanvas.width = canvas.width;
-    mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight + footerCanvasHeight;
-
-    var ctx = mergedCanvas.getContext('2d');
-    // Draw title, subtitle, main plot, and footer onto the merged canvas
-    ctx.fillStyle = getBackgroundColorClear();
-    ctx.fillRect(0, 0, canvas.width, mergedCanvas.height);
-    if(!(titleCanvasID.innerText.length === 0)) {
-        ctx.drawImage(titleCanvas, 0, 0);
-    }
-    if(!(subtitleCanvasID.innerText.length === 0)) {
-        ctx.drawImage(subtitleCanvas, 0, titleCanvasHeight);
-    }
-    ctx.drawImage(canvas, 0, titleCanvasHeight + subtitleCanvasHeight);
-    if(!(footerCanvasID.innerText.length === 0)) {
-        ctx.drawImage(footerCanvas, 0, titleCanvasHeight + subtitleCanvasHeight + mainCanvasHeight - footerCanvasHeight);
-    }
- 
-    // Download the merged canvas as a JPEG image
-    const a = document.createElement('a');
-    document.body.append(a);
-    a.download = ", shQuote(paste0(Sys.Date(), "_MST.bmp")), ";
-    a.href = mergedCanvas.toDataURL('image/bmp');
-    a.click();
-    a.remove();
-    // Remove the dynamically created merged canvas
-    mergedCanvas.remove();
-  });
-});")
-
-# PNG Download
-png_mst <- paste0("$(document).ready(function(){
-  $('#save_plot_png').on('click', function(){
-    // Get all canvas elements on the document
-    var canvas = document.querySelector('canvas');
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
-    var titleCanvasID = document.getElementById('titletree_mst');
-    if(!(titleCanvasID.innerText.length === 0)) {
-        var titleCanvas = document.createElement('canvas');
-        var titleCanvasHeight = titleCanvasID.offsetHeight;
-        titleCanvas.width = canvas.width;
-        titleCanvas.height = titleCanvasHeight;
-        // Draw title text on titleCanvas
-        var titleCtx = titleCanvas.getContext('2d');
-        titleCtx.font = window.getComputedStyle(titleCanvasID).getPropertyValue('font');
-        titleCtx.textAlign = window.getComputedStyle(titleCanvasID).getPropertyValue('text-align');
-        titleCtx.fillStyle = window.getComputedStyle(titleCanvasID).getPropertyValue('color');
-        titleCtx.fillText(titleCanvasID.innerText, titleCanvas.width / 2, titleCanvasHeight); 
-    } else {var titleCanvasHeight = 0;}
-    var subtitleCanvasID = document.getElementById('subtitletree_mst');
-    if(!(subtitleCanvasID.innerText.length === 0)) {
-        var subtitleCanvas = document.createElement('canvas');
-        var subtitleCanvasHeight = subtitleCanvasID.offsetHeight;
-        subtitleCanvas.width = canvas.width;
-        subtitleCanvas.height = subtitleCanvasHeight;
-        // Draw subtitle text on subtitleCanvas
-        var subtitleCtx = subtitleCanvas.getContext('2d');
-        subtitleCtx.font = window.getComputedStyle(subtitleCanvasID).getPropertyValue('font');
-        subtitleCtx.textAlign = window.getComputedStyle(subtitleCanvasID).getPropertyValue('text-align');
-        subtitleCtx.fillStyle = window.getComputedStyle(subtitleCanvasID).getPropertyValue('color');
-        subtitleCtx.fillText(subtitleCanvasID.innerText, subtitleCanvas.width / 2, subtitleCanvasHeight);
-    } else {var subtitleCanvasHeight = 0;}
-    var footerCanvasID = document.getElementById('footertree_mst');
-    if(!(footerCanvasID.innerText.length === 0)) {
-        var footerCanvas = document.createElement('canvas');
-        var footerCanvasHeight = footerCanvasID.offsetHeight;
-        footerCanvas.width = canvas.width;
-        footerCanvas.height = footerCanvasHeight;
-        // Draw footer text on footerCanvas
-        var footerCtx = footerCanvas.getContext('2d');
-        footerCtx.font = window.getComputedStyle(footerCanvasID).getPropertyValue('font');
-        footerCtx.textAlign = window.getComputedStyle(footerCanvasID).getPropertyValue('text-align');
-        footerCtx.fillStyle = window.getComputedStyle(footerCanvasID).getPropertyValue('color');
-        footerCtx.fillText(footerCanvasID.innerText, footerCanvas.width / 2, footerCanvasHeight); 
-    } else {var footerCanvasHeight = 0;}
-    
-    // Get the heights of the canvas
-    var mainCanvasHeight = canvas.height;
-
-    // Get the main canvas context
-    var mainCtx = canvas.getContext('2d');
-    var mainCanvasWidth = canvas.width;
-    // Create a new canvas to merge title, subtitle, main plot, and footer
-    var mergedCanvas = document.createElement('canvas');
-    mergedCanvas.width = canvas.width;
-    mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight + footerCanvasHeight;
-
-    var ctx = mergedCanvas.getContext('2d');
-    // Draw title, subtitle, main plot, and footer onto the merged canvas
-    ctx.fillStyle = getBackgroundColorClear();
-    ctx.fillRect(0, 0, canvas.width, mergedCanvas.height);
-    if(!(titleCanvasID.innerText.length === 0)) {
-        ctx.drawImage(titleCanvas, 0, 0);
-    }
-    if(!(subtitleCanvasID.innerText.length === 0)) {
-        ctx.drawImage(subtitleCanvas, 0, titleCanvasHeight);
-    }
-    ctx.drawImage(canvas, 0, titleCanvasHeight + subtitleCanvasHeight);
-    if(!(footerCanvasID.innerText.length === 0)) {
-        ctx.drawImage(footerCanvas, 0, titleCanvasHeight + subtitleCanvasHeight + mainCanvasHeight - footerCanvasHeight);
-    }
- 
-    // Download the merged canvas as a JPEG image
-    const a = document.createElement('a');
-    document.body.append(a);
-    a.download = ", shQuote(paste0(Sys.Date(), "_MST.png")), ";
-    a.href = mergedCanvas.toDataURL('image/png');
-    a.click();
-    a.remove();
-    // Remove the dynamically created merged canvas
-    mergedCanvas.remove();
-  });
-});")
-
-# Background transparent JS function
-mst_bg_clear <- paste0("// Function to get the RGB color from a specific sub-element with a specific ID and class
-function getBackgroundColorClear() {
-  // Check the state of the Shiny checkbox 
-  var checkboxStatus = $('#mst_background_transparent').prop('checked');
-                 
-                 // If the checkbox is checked, return transparent RGB code
-                 if (checkboxStatus) {
-                   return \'rgba(0, 0, 0, 0)\';
-        } else {
-            // Get the sub-element by ID and class
-            var targetElement = document.querySelector(\'#mst_background_color input.form-control.pickr-color\');
-
-            // Check if the element is found
-            if (targetElement) {
-                // Get the computed style of the element
-                var computedStyle = window.getComputedStyle(targetElement);
-
-                // Get the background color property
-                var backgroundColor = computedStyle.backgroundColor;
-
-                // Parse the RGB values from the string
-                var rgbArray = backgroundColor.match(/\\d+/g);
-
-                // Convert the RGB values to a formatted string
-                var rgbString = \'rgb(\' + rgbArray.join(\', \') + \')\';
-
-                // Return the RGB string
-                return rgbString;
-            } else {
-                console.error(\'Element not found.\');
-                return null; // or any default value you want to return
-            }
-        }
-    }")
-
-# Background non-transparent JS function
-mst_bg <- paste0("// Function to get the RGB color from a specific sub-element with a specific ID and class
-function getBackgroundColor() {
-  // Check the state of the Shiny checkbox 
-  var checkboxStatus = $('#mst_background_transparent').prop('checked');
-                 
-                 // If the checkbox is checked, return transparent RGB code
-                 if (checkboxStatus) {
-                   return \'rgb(255, 255, 255)\';
-        } else {
-            // Get the sub-element by ID and class
-            var targetElement = document.querySelector(\'#mst_background_color input.form-control.pickr-color\');
-
-            // Check if the element is found
-            if (targetElement) {
-                // Get the computed style of the element
-                var computedStyle = window.getComputedStyle(targetElement);
-
-                // Get the background color property
-                var backgroundColor = computedStyle.backgroundColor;
-
-                // Parse the RGB values from the string
-                var rgbArray = backgroundColor.match(/\\d+/g);
-
-                // Convert the RGB values to a formatted string
-                var rgbString = \'rgb(\' + rgbArray.join(\', \') + \')\';
-
-                // Return the RGB string
-                return rgbString;
-            } else {
-                console.error(\'Element not found.\');
-                return null; // or any default value you want to return
-            }
-        }
-    }")
-
-# Restrict special characters using JA
-textInput_assembly_id <- paste0('
-    // Function to apply JavaScript code
-    function applyJavaScript_assembly_id() {
-      $("#assembly_id").on("input", function() {
-        var value = $(this).val();
-        $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
-      });
-    }
-
-    // Check if the textInput element is available
-    function checkElement_assembly_id() {
-      if ($("#assembly_id").length) {
-        applyJavaScript_assembly_id();
-        setTimeout(checkElement_assembly_id, 100);
-      } else {
-        setTimeout(checkElement_assembly_id, 100); // Check again in 100 milliseconds
-      }
-    }
-
-    // Initial check on document ready
-    $(document).ready(function() {
-      checkElement_assembly_id();
-    });
-  ')
-
-textInput_assembly_name <- paste0('
-    // Function to apply JavaScript code
-    function applyJavaScript_assembly_name() {
-      $("#assembly_name").on("input", function() {
-        var value = $(this).val();
-        $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
-      });
-    }
-
-    // Check if the textInput element is available
-    function checkElement_assembly_name() {
-      if ($("#assembly_name").length) {
-        applyJavaScript_assembly_name();
-        setTimeout(checkElement_assembly_name, 100);
-      } else {
-        setTimeout(checkElement_assembly_name, 100); // Check again in 100 milliseconds
-      }
-    }
-
-    // Initial check on document ready
-    $(document).ready(function() {
-      checkElement_assembly_name();
-    });
-  ')
-
-textInput_append_host <- paste0('
-    // Function to apply JavaScript code
-    function applyJavaScript_append_host() {
-      $("#append_host").on("input", function() {
-        var value = $(this).val();
-        $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
-      });
-    }
-
-    // Check if the textInput element is available
-    function checkElement_append_host() {
-      if ($("#append_host").length) {
-        applyJavaScript_append_host();
-        setTimeout(checkElement_append_host, 100);
-      } else {
-        setTimeout(checkElement_append_host, 100); // Check again in 100 milliseconds
-      }
-    }
-
-    // Initial check on document ready
-    $(document).ready(function() {
-      checkElement_append_host();
-    });
-  ')
-
-textInput_append_city <- paste0('
-    // Function to apply JavaScript code
-    function applyJavaScript_append_city() {
-      $("#append_city").on("input", function() {
-        var value = $(this).val();
-        $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
-      });
-    }
-
-    // Check if the textInput element is available
-    function checkElement_append_city() {
-      if ($("#append_city").length) {
-        applyJavaScript_append_city();
-        setTimeout(checkElement_append_city, 100);
-      } else {
-        setTimeout(checkElement_append_city, 100); // Check again in 100 milliseconds
-      }
-    }
-
-    // Initial check on document ready
-    $(document).ready(function() {
-      checkElement_append_city();
-    });
-  ')
-
-textInput_append_host_multi <- paste0('
-    // Function to apply JavaScript code
-    function applyJavaScript_append_host_multi() {
-      $("#append_host_multi").on("input", function() {
-        var value = $(this).val();
-        $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
-      });
-    }
-
-    // Check if the textInput element is available
-    function checkElement_append_host_multi() {
-      if ($("#append_host_multi").length) {
-        applyJavaScript_append_host_multi();
-        setTimeout(checkElement_append_host_multi, 100);
-      } else {
-        setTimeout(checkElement_append_host_multi, 100); // Check again in 100 milliseconds
-      }
-    }
-
-    // Initial check on document ready
-    $(document).ready(function() {
-      checkElement_append_host_multi();
-    });
-  ')
-
-textInput_append_city_multi <- paste0('
-    // Function to apply JavaScript code
-    function applyJavaScript_append_city_multi() {
-      $("#append_city_multi").on("input", function() {
-    var value = $(this).val();
-    $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
-  }); 
-    }
-
-    // Check if the textInput element is available
-    function checkElement_append_city_multi() {
-      if ($("#append_city_multi").length) {
-        applyJavaScript_append_city_multi();
-        setTimeout(checkElement_append_city_multi, 100);
-      } else {
-        setTimeout(checkElement_append_city_multi, 100); // Check again in 100 milliseconds
-      }
-    }
-
-    // Initial check on document ready
-    $(document).ready(function() {
-      checkElement_append_city_multi();
-    });
-  ')
-
-textInput_new_var_name <- paste0('
-    // Function to apply JavaScript code
-    function applyJavaScript_new_var_name() {
-      $("#new_var_name").on("input", function() {
-    var value = $(this).val();
-    $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
-  }); 
-    }
-
-    // Check if the textInput element is available
-    function checkElement_new_var_name() {
-      if ($("#new_var_name").length) {
-        applyJavaScript_new_var_name();
-        setTimeout(checkElement_new_var_name, 100);
-      } else {
-        setTimeout(checkElement_new_var_name, 100); // Check again in 100 milliseconds
-      }
-    }
-
-    // Initial check on document ready
-    $(document).ready(function() {
-      checkElement_new_var_name();
-    });
-  ')
 # User Interface ----
 
 ui <- dashboardPage(
@@ -762,6 +261,7 @@ ui <- dashboardPage(
   ## Sidebar ----
   dashboardSidebar(
     tags$head(
+      tags$script(src = paste0(getwd(), "/www/mst_jpeg.js")),
       tags$link(rel = "stylesheet", type = "text/css", href = "mycss.css")
     ),
     tags$style(HTML("
@@ -1457,18 +957,7 @@ ui <- dashboardPage(
         tabName = "visualization",
         
         fluidRow(
-          tags$script(HTML(textInput_new_var_name)),
-          tags$script(HTML(jpeg_mst)),
-          tags$script(HTML(png_mst)),
-          tags$script(HTML(bmp_mst)),
-          tags$script(HTML(mst_bg)),
-          tags$script(HTML(mst_bg_clear)),
-          tags$script(HTML(textInput_assembly_id)),
-          tags$script(HTML(textInput_assembly_name)),          
-          tags$script(HTML(textInput_append_host)),
-          tags$script(HTML(textInput_append_city)),
-          tags$script(HTML(textInput_append_host_multi)),          
-          tags$script(HTML(textInput_append_city_multi)),
+          tags$script(src = "javascript_functions.js"),
           column(
             width = 12,
             align = "center",
@@ -6540,7 +6029,7 @@ server <- function(input, output, session) {
     }
   })
   
-  #### Render Allele Differences as Highlights ----
+  #### Render Entry Table Highlights ----
   
   diff_allele <- reactive({
     if (!is.null(DF1$data) & !is.null(input$compare_select) & !is.null(DF1$cust_var)) {
@@ -6552,7 +6041,12 @@ server <- function(input, output, session) {
     if (!is.null(DF1$data)) {
       which(DF1$data$Include == TRUE, )
     }
-    
+  })
+  
+  duplicated_rows <- reactive({
+    if (!is.null(DF1$meta)) {
+      which(duplicated(DF1$meta$`Assembly Name`) | duplicated(DF1$meta$`Assembly Name`, fromLast = TRUE))
+    }
   })
   
   ## Startup ----
@@ -8586,7 +8080,8 @@ server <- function(input, output, session) {
                               col_highlight = diff_allele()-1,
                               rowHeaders = NULL,
                               height = table_height(),
-                              row_highlight = true_rows()-1
+                              row_highlight = true_rows()-1,
+                              duplicated_highlight = duplicated_rows()-1
                             ) %>%
                               hot_col((12 + nrow(DF1$cust_var)):((12 + nrow(DF1$cust_var))+length(input$compare_select)), 
                                       valign = "htMiddle",
@@ -8623,6 +8118,19 @@ server <- function(input, output, session) {
 
                      }
             }") %>%
+                              hot_col(4, renderer = "
+            function (instance, td, row, col, prop, value, cellProperties) {
+                     Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+                     if (instance.params) {
+                       hrows = instance.params.duplicated_highlight
+                       hrows = hrows instanceof Array ? hrows : [hrows]
+
+                       if (hrows.includes(row)) { 
+                         td.style.backgroundColor = 'rgba(255, 130, 1, 0.3)' 
+                       }
+                     }
+            }") %>%
                               hot_col(diff_allele(),
                                       renderer = "
                 function(instance, td, row, col, prop, value, cellProperties) {
@@ -8642,12 +8150,12 @@ server <- function(input, output, session) {
                       } else {
                         if(!is.null(DF1$data) & !is.null(DF1$cust_var) & !is.null(input$table_height)) {
                           output$db_entries <- renderRHandsontable({
-                            row_highlight <- true_rows()-1
                             rhandsontable(
                               select(DF1$data, 1:(12 + nrow(DF1$cust_var))),
                               rowHeaders = NULL,
                               height = table_height(),
-                              row_highlight = row_highlight
+                              duplicated_highlight = duplicated_rows()-1,
+                              row_highlight = true_rows()-1
                             ) %>%
                               hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                               hot_col(1, 
@@ -8675,7 +8183,20 @@ server <- function(input, output, session) {
                      }
             }") %>%
                               hot_col(2, type = "checkbox", width = "auto",
-                                      valign = "htTop", halign = "htCenter")
+                                      valign = "htTop", halign = "htCenter") %>%
+                              hot_col(4, renderer = "
+            function (instance, td, row, col, prop, value, cellProperties) {
+                     Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+                     if (instance.params) {
+                       hrows = instance.params.duplicated_highlight
+                       hrows = hrows instanceof Array ? hrows : [hrows]
+
+                       if (hrows.includes(row)) { 
+                         td.style.backgroundColor = 'rgba(255, 170, 1, 0.3)' 
+                       }
+                     }
+            }") 
                           })
                         }
                       }
@@ -10069,7 +9590,6 @@ server <- function(input, output, session) {
   
   observeEvent(input$change_entries, {
     removeModal()
-    test <<- any(duplicated(DF1$meta$`Assembly Name`))
     updateTabItems(session, "tabs", selected = "db_browse_entries")
   })
   
@@ -12269,7 +11789,6 @@ server <- function(input, output, session) {
   
   upgma_tree <- reactive({
     plot_loc$meta_upgma$Errors <- as.numeric(plot_loc$meta_upgma$Errors)
-    test <<- plot_loc$meta_upgma
     tree <-
       ggtree(plot_loc$upgma, 
              color = input$upgma_color,
