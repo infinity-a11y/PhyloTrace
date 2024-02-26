@@ -5792,6 +5792,25 @@ server <- function(input, output, session) {
   DF1$no_na_switch <- FALSE
   DF1$first_look <- FALSE
   
+  # Chekc presence of Database folder and logfiles
+  if(!paste0(getwd(), "/Database") %in% dir_ls(getwd())) {
+    
+    # Make the script executable
+    system(paste("chmod +x",  paste0(getwd(), "/execute", "/make_db.sh")))
+    
+    # Execute the script
+    system(paste0(getwd(), "/execute", "/make_db.sh"), wait = FALSE)
+  } 
+  
+  if (!paste0(getwd(), "/execute/script_log.txt") %in% dir_ls(paste0(getwd(), "/execute"))) {
+    
+    # Make the script executable
+    system(paste("chmod +x", paste0(getwd(), "/execute", "/make_log.sh")))
+    
+    # Execute the script
+    system(paste0(getwd(), "/execute", "/make_log.sh"), wait = FALSE)
+  }
+  
   # Typing reactive values
   typing_reactive <- reactiveValues(table = data.frame(), single_path = data.frame(), 
                                     progress = 0, progress_pct = 0, progress_format_start = 0, 
@@ -5810,46 +5829,6 @@ server <- function(input, output, session) {
   
   ### Connect to local Database ----
   observe({
-    
-    if(!paste0(getwd(), "/Database") %in% dir_ls(getwd())) {
-      make_db <- paste0(
-        "#!/bin/bash \n",
-        "mkdir Database"
-      )
-      
-      # Specify the path to save the script
-      make_db_path <- paste0(getwd(), "/execute", "/make_db.sh")
-      
-      # Write the script to a file
-      cat(make_db, file = make_db_path)
-      
-      # Make the script executable
-      system(paste("chmod +x", make_db_path))
-      
-      # Execute the script
-      system(paste(make_db_path), wait = FALSE)
-    } 
-    
-    if (!paste0(getwd(), "/execute/script_log.txt") %in% dir_ls(paste0(getwd(), "/execute"))) {
-      make_log <- paste0(
-        "#!/bin/bash \n",
-        "cd execute/ \n",
-        "echo 0 > script_log.txt \n",
-        "echo 0 > progress.fifo"
-      )
-      
-      # Specify the path to save the script
-      make_log_path <- paste0(getwd(), "/execute", "/make_log.sh")
-      
-      # Write the script to a file
-      cat(make_log, file = make_log_path)
-      
-      # Make the script executable
-      system(paste("chmod +x", make_log_path))
-      
-      # Execute the script
-      system(paste(make_log_path), wait = FALSE)
-    }
     
     # Logical any local database present 
     DF1$exist <-
@@ -6491,19 +6470,11 @@ server <- function(input, output, session) {
               DF1$allelic_profile_true <- DF1$allelic_profile[which(DF1$data$Include == TRUE),]
               
               # Null pipe 
-              zero_pipe <- paste0(
-                "#!/bin/bash\n",
-                'echo 0 > ', shQuote(paste0(getwd(), "/execute/progress.fifo"))
-              )
+              system(paste("chmod +x", paste0(getwd(), "/execute/zero_pipe.sh")))
               
-              zero_pipe_path <- paste0(getwd(), "/execute", "/zero_pipe.sh")
+              system(paste(paste0(getwd(), "/execute/zero_pipe.sh")), wait = FALSE)
               
-              cat(zero_pipe, file = zero_pipe_path)
-              
-              system(paste("chmod +x", zero_pipe_path))
-              
-              system(paste(zero_pipe_path), wait = FALSE)
-              
+              # Reset other reactive typing variables
               typing_reactive$progress_format_end <- 0 
               
               typing_reactive$progress_format_start <- 0
@@ -9543,23 +9514,15 @@ server <- function(input, output, session) {
   
   observeEvent(input$conf_delete_all, {
     
-    delete_typing <- paste0(
-      "#!/bin/bash\n",
-      'rm ',
-      shQuote(paste0(getwd(), "/Database/", gsub(" ", "_", DF1$scheme), "/Typing.rds"))
-    )
+    delete_typing_path <- paste0(getwd(), "/Database/", gsub(" ", "_", DF1$scheme), "/Typing.rds")
     
-    # Specify the path to save the script
-    delete_typing_path <- paste0(getwd(), "/execute", "/delete_typing.sh")
-    
-    # Write the script to a file
-    cat(delete_typing, file = delete_typing_path)
+    saveRDS(delete_typing_path, paste0(getwd(), "/execute/del_local.rds"))
     
     # Make the script executable
-    system(paste("chmod +x", delete_typing_path))
+    system(paste("chmod +x", paste0(getwd(), "/execute", "/delete_typing.sh")))
     
     # Execute the script
-    system(paste(delete_typing_path), wait = FALSE)
+    system(paste0(getwd(), "/execute", "/delete_typing.sh"), wait = FALSE)
     
     showModal(
       modalDialog(
@@ -13208,10 +13171,10 @@ server <- function(input, output, session) {
         saveRDS(single_typing_df, "execute/single_typing_df.rds")
         
         # Make the script executable
-        system(paste("chmod +x", paste0(getwd(), "/execute", "/kma_run.sh")))
+        system(paste("chmod +x", paste0(getwd(), "/execute/kma_run.sh")))
         
         # Execute the script
-        system(paste0(getwd(), "/execute", "/kma_run.sh"), wait = FALSE)
+        system(paste0(getwd(), "/execute/kma_run.sh"), wait = FALSE)
         
         scheme_loci <-
           list.files(path = scheme_select, full.names = TRUE)
