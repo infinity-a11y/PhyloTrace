@@ -13198,84 +13198,20 @@ server <- function(input, output, session) {
         
         ### Run KMA Typing
         
-        kma_run <- paste0(
-          "#!/bin/bash\n",
-          'cd execute', '\n',
-          'source ~/miniconda3/etc/profile.d/conda.sh', '\n',
-          'conda activate PhyloTrace', '\n',
-          'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
-          '# Function to log messages to the file', '\n',
-          'log_message() {', '\n',
-          '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
-          '}', '\n',
-          '# Create a log file or truncate if it exists', '\n',
-          'echo 0 > ',
-          shQuote(paste0(getwd(), "/execute/progress.fifo")),
-          "\n",
-          'base_path=', shQuote(getwd()), '\n',
-          'mkdir $base_path/execute/kma_single', '\n',
-          'kma_database="$base_path/execute/kma_single/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
-          "genome=",
-          shQuote(typing_reactive$single_path$datapath),
-          "\n",
-          'kma index -i "$genome" -o "$kma_database"', '\n',
-          "query_folder=",
-          shQuote(paste0(
-            getwd(),
-            "/Database/",
-            gsub(" ", "_", DF1$scheme),
-            "/",
-            search_string
-          )),
-          "\n",
-          '# Directory name', '\n',
-          'results=', shQuote(paste0(getwd(),"/execute/kma_single/results")), '\n',
-          '# Remove the existing directory (if it exists)', '\n',
-          'if [ -d "$results" ]; then', '\n',
-          '    rm -r "$results"', '\n',
-          'fi', '\n',
-          '# Create a new directory', '\n', 
-          'mkdir "$results"', '\n',
-          'count=0',
-          "\n",
-          'for query_file in "$query_folder"/*.{fasta,fa,fna}; do',
-          "\n",
-          'if [ -f "$query_file" ]; then',
-          "\n",
-          'query_filename=$(basename "$query_file")',
-          "\n",
-          'query_filename_noext="${query_filename%.*}"',
-          "\n",
-          'output_file="$results/$query_filename_noext"',
-          "\n",
-          'kma -i "$query_file" -o "$output_file" -t_db "$kma_database" -nc -status',
-          "\n",
-          '((count++))',
-          "\n",
-          'echo $count > ',
-          shQuote(paste0(getwd(), "/execute/progress.fifo")),
-          "\n",
-          'fi',
-          "\n",
-          'done', '\n',
-          'echo 888888 >> ',
-          shQuote(paste0(getwd(), "/execute/progress.fifo")), '\n',
-          'Rscript ', shQuote(paste0(getwd(), "/execute/single_typing.R")), '\n',
-          'echo 999999 >> ',
-          shQuote(paste0(getwd(), "/execute/progress.fifo")), '\n'
+        single_typing_df <- data.frame(
+          wd = getwd(),
+          scheme = paste0(gsub(" ", "_", DF1$scheme)),
+          genome = typing_reactive$single_path$datapath,
+          alleles = paste0(getwd(), "/Database/", gsub(" ", "_", DF1$scheme), "/", search_string)
         )
         
-        # Specify the path to save the script
-        kma_run_path <- paste0(getwd(), "/execute", "/kma_run.sh")
-        
-        # Write the script to a file
-        cat(kma_run, file = kma_run_path)
+        saveRDS(single_typing_df, "execute/single_typing_df.rds")
         
         # Make the script executable
-        system(paste("chmod +x", kma_run_path))
+        system(paste("chmod +x", paste0(getwd(), "/execute", "/kma_run.sh")))
         
         # Execute the script
-        system(paste(kma_run_path), wait = FALSE)
+        system(paste0(getwd(), "/execute", "/kma_run.sh"), wait = FALSE)
         
         scheme_loci <-
           list.files(path = scheme_select, full.names = TRUE)
