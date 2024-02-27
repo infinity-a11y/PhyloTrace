@@ -5795,19 +5795,13 @@ server <- function(input, output, session) {
   # Chekc presence of Database folder and logfiles
   if(!paste0(getwd(), "/Database") %in% dir_ls(getwd())) {
     
-    # Make the script executable
     system(paste("chmod +x",  paste0(getwd(), "/execute", "/make_db.sh")))
-    
-    # Execute the script
     system(paste0(getwd(), "/execute", "/make_db.sh"), wait = FALSE)
   } 
   
   if (!paste0(getwd(), "/execute/script_log.txt") %in% dir_ls(paste0(getwd(), "/execute"))) {
     
-    # Make the script executable
     system(paste("chmod +x", paste0(getwd(), "/execute", "/make_log.sh")))
-    
-    # Execute the script
     system(paste0(getwd(), "/execute", "/make_log.sh"), wait = FALSE)
   }
   
@@ -9518,10 +9512,7 @@ server <- function(input, output, session) {
     
     saveRDS(delete_typing_path, paste0(getwd(), "/execute/del_local.rds"))
     
-    # Make the script executable
     system(paste("chmod +x", paste0(getwd(), "/execute", "/delete_typing.sh")))
-    
-    # Execute the script
     system(paste0(getwd(), "/execute", "/delete_typing.sh"), wait = FALSE)
     
     showModal(
@@ -13170,10 +13161,8 @@ server <- function(input, output, session) {
         
         saveRDS(single_typing_df, "execute/single_typing_df.rds")
         
-        # Make the script executable
+        # Execute singlye typing script
         system(paste("chmod +x", paste0(getwd(), "/execute/kma_run.sh")))
-        
-        # Execute the script
         system(paste0(getwd(), "/execute/kma_run.sh"), wait = FALSE)
         
         scheme_loci <-
@@ -13399,26 +13388,8 @@ server <- function(input, output, session) {
     typing_reactive$single_path <- data.frame()
     
     # Resetting Progress.fifo 
-    
-    reset_kma <- paste0(
-      "#!/bin/bash\n",
-      'cd execute', '\n',
-      'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
-      'echo 0 > ',
-      shQuote(paste0(getwd(), "/execute/progress.fifo")), '\n'
-    )
-    
-    # Specify the path to save the script
-    reset_kma_path <- paste0(getwd(), "/execute", "/reset_kma.sh")
-    
-    # Write the script to a file
-    cat(reset_kma, file = reset_kma_path)
-    
-    # Make the script executable
-    system(paste("chmod +x", reset_kma_path))
-    
-    # Execute the script
-    system(paste(reset_kma_path), wait = FALSE)
+    system(paste("chmod +x", paste0(getwd(), "/execute/reset_kma.sh")))
+    system(paste0(getwd(), "/execute/reset_kma.sh"), wait = FALSE)
     
     output$initiate_typing_ui <- renderUI({
       column(
@@ -13810,24 +13781,9 @@ server <- function(input, output, session) {
       )
     } else {
       
-      reset_multi <- paste0(
-        '#!/bin/bash', '\n',
-        'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
-        'echo 0 > $log_file'
-      )
-      
-      # Specify the path to save the script
-      reset_multi_path <-
-        paste0(getwd(), "/execute/reset_multi.sh")
-      
-      # Write the script to a file
-      cat(reset_multi, file = reset_multi_path)
-      
-      # Make the script executable  
-      system(paste("chmod +x", reset_multi_path))
-      
-      # Execute the script
-      system(paste(reset_multi_path), wait = FALSE)
+      # Null logfile
+      system(paste("chmod +x", paste0(getwd(), "/execute/reset_multi.sh")))
+      system(paste0(getwd(), "/execute/reset_multi.sh"), wait = FALSE)
       
       # Reset User Feedback variable
       typing_reactive$pending_format <- 0
@@ -13886,38 +13842,9 @@ server <- function(input, output, session) {
       timer = 6000
     )
     
-    kill_multi <- paste0(
-      '#!/bin/bash', '\n',
-      'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
-      'TARGET_SCRIPT=', shQuote(paste0(getwd(), "/execute/kma_multi.sh")), '\n',
-      '# Function to log messages to the file', '\n',
-      'log_message() {', '\n',
-      '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
-      '}', '\n',
-      '# Find the process ID (PID) of the script', '\n',
-      'PID=$(pgrep -f "$TARGET_SCRIPT")', '\n',
-      'if [ -z "$PID" ]; then', '\n',
-      '  echo "No process found for $TARGET_SCRIPT"', '\n',
-      'else', '\n',
-      '  # Kill the process', '\n',
-      '  echo "Killing process $PID for $TARGET_SCRIPT"', '\n',
-      '  kill "$PID"', '\n',
-      'fi', '\n',
-      'echo 0 > $log_file'
-    )
-    
-    # Specify the path to save the script
-    kill_multi_path <-
-      paste0(getwd(), "/execute/kill_multi.sh")
-    
-    # Write the script to a file
-    cat(kill_multi, file = kill_multi_path)
-    
-    # Make the script executable  
-    system(paste("chmod +x", kill_multi_path))
-    
-    # Execute the script
-    system(paste(kill_multi_path), wait = FALSE)
+    # Kill multi typing and reset logfile  
+    system(paste("chmod +x", paste0(getwd(), "/execute/kill_multi.sh")))
+    system(paste0(getwd(), "/execute/kill_multi.sh"), wait = FALSE)
     
     # Reset User Feedback variable
     typing_reactive$pending_format <- 0
@@ -14020,111 +13947,31 @@ server <- function(input, output, session) {
     typing_reactive$final <- FALSE
     
     # Remove Allelic Typing Controls
-    
     output$initiate_multi_typing_ui <- NULL
     
     output$metadata_multi_box <- NULL
     
     output$start_multi_typing_ui <- NULL
     
-    genome_names <<- typing_reactive$genome_selected$Files[which(typing_reactive$genome_selected$Include == TRUE)]
-    
     # Initiate Feedback variables
-    
     typing_reactive$failures <- 0
     
     typing_reactive$successes <- 0
     
     # Start Multi Typing Script
-    
-    kma_multi <- paste0(
-      '#!/bin/bash', '\n',
-      'source ~/miniconda3/etc/profile.d/conda.sh', '\n',
-      'conda activate PhyloTrace', '\n',
-      'cd execute', '\n',
-      'base_path=', shQuote(getwd()), '\n',
-      '# Get Genome Folder', '\n',
-      'genome_folder=', shQuote(as.character(parseDirPath(roots = c(wd = "/home"), 
-                                                          input$genome_file_multi))), '\n',
-      'selected_genomes=', shQuote(paste0(getwd(), "/execute/selected_genomes")), '\n',
-      'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
-      '# Function to log messages to the file', '\n',
-      'log_message() {', '\n',
-      '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
-      '}', '\n',
-      '# Create a log file or truncate if it exists', '\n',
-      'echo ', shQuote(paste0("Start Multi Typing with ", DF1$scheme, " scheme.")), ' > "$log_file"', '\n',
-      '# Remove the existing directory (if it exists)', '\n',
-      'if [ -d "$selected_genomes" ]; then', '\n',
-      '    rm -r "$selected_genomes"', '\n',
-      'fi', '\n',
-      'mkdir $selected_genomes', '\n',
-      '# List of file names to copy', '\n',
-      'file_names=(', paste(shQuote(genome_names), collapse= " "), ')', '\n',
-      '# Loop through the list of file names and copy them to the new folder', '\n',
-      'for file in "${file_names[@]}"; do', '\n',
-      '    if [ -f "$genome_folder/$file" ]; then', '\n',
-      '        cp "$genome_folder/$file" "$selected_genomes/"', '\n',
-      '        log_message "Initiated $file"', '\n',
-      '    else', '\n', 
-      '        log_message "$file not found in $genome_folder"', '\n',
-      '    fi', '\n',
-      'done', '\n',
-      '# Directory name', '\n',
-      'mkdir $base_path/execute/kma_multi', '\n',
-      'results=', shQuote(paste0(getwd(),"/execute/kma_multi/results")), '\n',
-      '# Remove the existing directory (if it exists)', '\n',
-      'if [ -d "$results" ]; then', '\n',
-      '    rm -r "$results"', '\n',
-      'fi', '\n',
-      '# Create a new directory', '\n', 
-      'mkdir "$results"', '\n',
-      '#INDEXING GENOME AS DATABASE', '\n',
-      'kma_database="$base_path/execute/kma_multi/"', shQuote(paste0(gsub(" ", "_", DF1$scheme))), '\n',
-      '#RUNNING KMA', '\n',
-      'query_folder=', shQuote(paste0(getwd(), 
-                                      "/Database/", 
-                                      gsub(" ", "_", DF1$scheme), 
-                                      "/",
-                                      gsub(" ", "_", DF1$scheme), 
-                                      "_alleles")), '\n',
-      'genome_filename_noext=""', '\n',
-      '#Indexing Loop', '\n',
-      'for genome in "$selected_genomes"/*; do', '\n',
-      '    if [ -f "$genome" ]; then', '\n',
-      '    genome_filename=$(basename "$genome")', '\n',
-      '    genome_filename_noext="${genome_filename%.*}"', '\n',
-      '    log_message "Processing $genome_filename"', '\n',
-      '    kma index -i "$genome" -o "$kma_database"', '\n',
-      '    fi', '\n',
-      '    mkdir "$results/$genome_filename_noext"', '\n',
-      '#Running Loop', '\n',
-      '    for query_file in "$query_folder"/*.{fasta,fa,fna}; do', '\n',
-      '        if [ -f "$query_file" ]; then', '\n',
-      '        query_filename=$(basename "$query_file")', '\n',
-      '        query_filename_noext="${query_filename%.*}"', '\n',
-      '        output_file="$results/$genome_filename_noext/$query_filename_noext"', '\n',
-      '        kma -i "$query_file" -o "$output_file" -t_db "$kma_database" -nc -status', '\n',
-      '        fi', '\n',
-      '    done', '\n',
-      '    log_message "Attaching $genome_filename"', '\n',
-      '    Rscript ', shQuote(paste0(getwd(), "/execute/automatic_typing.R")), '\n',
-      'done', '\n',
-      'log_message "Multi Typing finalized."'
+    multi_typing_df <- data.frame(
+      wd = getwd(),
+      scheme = paste0(gsub(" ", "_", DF1$scheme)),
+      genome_folder = as.character(parseDirPath(roots = c(wd = "/home"), input$genome_file_multi)),
+      genome_names = paste(typing_reactive$genome_selected$Files[which(typing_reactive$genome_selected$Include == TRUE)], collapse= " "),
+      alleles = paste0(getwd(), "/Database/", gsub(" ", "_", DF1$scheme), "/", gsub(" ", "_", DF1$scheme), "_alleles")
     )
     
-    # Specify the path to save the script
-    kma_multi_path <-
-      paste0(getwd(), "/execute/kma_multi.sh")
+    saveRDS(multi_typing_df, "execute/multi_typing_df.rds")
     
-    # Write the script to a file
-    cat(kma_multi, file = kma_multi_path)
-    
-    # Make the script executable  
-    system(paste("chmod +x", kma_multi_path))
-    
-    # Execute the script
-    system(paste("nohup", kma_multi_path, "> script.log 2>&1"), wait = FALSE)
+    # Execute multi kma script  
+    system(paste("chmod +x", paste0(getwd(), "/execute/kma_multi.sh")))
+    system(paste("nohup", paste0(getwd(), "/execute/kma_multi.sh"), "> script.log 2>&1"), wait = FALSE)
   })
   
   #### User Feedback ----

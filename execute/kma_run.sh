@@ -11,11 +11,6 @@ scheme=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'scheme'])")
 genome=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'genome'])")
 alleles=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'alleles'])")
 
-echo "$base_path"
-echo "$scheme"
-echo "$genome"
-echo "$alleles"
-
 # Logfile
 log_file="$base_path/execute/script_log.txt"
 
