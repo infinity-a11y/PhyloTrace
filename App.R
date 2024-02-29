@@ -273,6 +273,18 @@ ui <- dashboardPage(
   ## Sidebar ----
   dashboardSidebar(
     tags$style(includeCSS("www/mycss.css")),
+    tags$style(HTML(
+      "@keyframes pulsate {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+      }
+      .pulsating-button {
+        animation: pulsate 1s ease infinite;
+      }
+      .pulsating-button:hover {
+        animation: none;
+      }")),
     br(), br(),
     uiOutput("loaded_scheme"),
     sidebarMenu(
