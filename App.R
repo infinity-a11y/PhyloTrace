@@ -6131,14 +6131,16 @@ server <- function(input, output, session) {
         title = "Pending Multi Typing",
         type = "warning",
         position = "top-end",
-        timer = 6000
+        timer = 6000,
+        width = "500px"
       )
     } else if(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[1] != "0") {
       show_toast(
         title = "Pending Single Typing",
         type = "warning",
         position = "top-end",
-        timer = 6000
+        timer = 6000,
+        width = "500px"
       )
     } else {
       showModal(
@@ -8834,7 +8836,7 @@ server <- function(input, output, session) {
           title = "Invalid scheme folder",
           type = "warning",
           position = "top-end",
-          width = "350px",
+          width = "500px",
           timer = 4000
         )
       }
@@ -9417,7 +9419,7 @@ server <- function(input, output, session) {
         title = "Max. 10 characters",
         type = "warning",
         position = "top-end",
-        width = "400px",
+        width = "500px",
         timer = 6000
       )
     } else {
@@ -9426,7 +9428,7 @@ server <- function(input, output, session) {
           title = "Min. 1 character",
           type = "error",
           position = "top-end",
-          width = "330px",
+          width = "500px",
           timer = 6000
         )
       } else {
@@ -9435,7 +9437,7 @@ server <- function(input, output, session) {
             title = "Variable name already existing",
             type = "warning",
             position = "top-end",
-            width = "400px",
+            width = "500px",
             timer = 6000
           )
         } else {
@@ -9493,7 +9495,7 @@ server <- function(input, output, session) {
       title = paste0("Variable ", trimws(input$new_var_name), " added"),
       type = "success",
       position = "top-end",
-      width = "370px",
+      width = "500px",
       timer = 6000
     )
     
@@ -9505,7 +9507,7 @@ server <- function(input, output, session) {
         title = "No custom variables",
         type = "error",
         position = "top-end",
-        width = "330px",
+        width = "500px",
         timer = 6000
       )
     } else {
@@ -9541,7 +9543,7 @@ server <- function(input, output, session) {
       title = paste0("Variable ", input$del_which_var, " removed"),
       type = "warning",
       position = "top-end",
-      width = "370px",
+      width = "500px",
       timer = 6000
     )
     
@@ -9753,7 +9755,8 @@ server <- function(input, output, session) {
       title = "Database successfully saved",
       type = "success",
       position = "top-end",
-      timer = 4000
+      timer = 4000,
+      width = "500px"
     )
   })
   
@@ -9763,7 +9766,8 @@ server <- function(input, output, session) {
         title = "No entry selected",
         type = "warning",
         position = "top-end",
-        timer = 4000
+        timer = 4000,
+        width = "500px"
       )
     } else {
       if( (length(input$select_delete) - nrow(DF1$data) ) == 0) {
@@ -9857,14 +9861,16 @@ server <- function(input, output, session) {
         title = "Entries deleted",
         type = "success",
         position = "top-end",
-        timer = 4000
+        timer = 4000,
+        width = "500px"
       )
     } else {
       show_toast(
         title = "Entry deleted",
         type = "success",
         position = "top-end",
-        timer = 4000
+        timer = 4000,
+        width = "500px"
       )
     }
   })
@@ -10241,7 +10247,8 @@ server <- function(input, output, session) {
       title = "Download successful",
       type = "success",
       position = "top-end",
-      timer = 5000
+      timer = 5000,
+      width = "500px"
     )
     
     showModal(
@@ -12825,14 +12832,16 @@ server <- function(input, output, session) {
         title = "Missing data",
         type = "error",
         position = "top-end",
-        timer = 6000
+        timer = 6000,
+        width = "500px"
       )
     } else if(nrow(DF1$allelic_profile_true) < 3) {
       show_toast(
         title = "Min. of 3 entries required for visualization",
         type = "error",
         position = "top-end",
-        timer = 6000
+        timer = 6000,
+        width = "500px"
       )
     } else {
       
@@ -12914,7 +12923,7 @@ server <- function(input, output, session) {
               title = "Computation might take a while",
               type = "warning",
               position = "top-end",
-              width = "400px",
+              width = "500px",
               timer = 10000
             )
           }
@@ -13380,7 +13389,7 @@ server <- function(input, output, session) {
           title = "Wrong file type (only fasta/fna/fa)",
           type = "error",
           position = "top-end",
-          width = "400px",
+          width = "500px",
           timer = 6000
         )
       }
@@ -13410,7 +13419,8 @@ server <- function(input, output, session) {
         title = "Pending Multi Typing",
         type = "warning",
         position = "top-end",
-        timer = 6000
+        timer = 6000,
+        width = "500px"
       )
     } else {
       if(!is.null(DF1$data)) {
@@ -13448,7 +13458,8 @@ server <- function(input, output, session) {
           title = "Typing Initiated",
           type = "success",
           position = "top-end",
-          timer = 12000
+          timer = 12000,
+          width = "500px"
         )
         
         ### Run KMA Typing
@@ -13478,10 +13489,10 @@ server <- function(input, output, session) {
             br(), br(), 
             column(width = 1),
             column(
-              width = 2,
+              width = 3,
               h3(p("Pending Single Typing ..."), style = "color:white")
             ),
-            br(), br(), br(),
+            br(), br(), br(), 
             fluidRow(
               column(width = 1),
               column(
@@ -13637,7 +13648,8 @@ server <- function(input, output, session) {
       title = "Metadata declared",
       type = "success",
       position = "top-end",
-      timer = 3000
+      timer = 3000,
+      width = "500px"
     )
     
     # Render Start Typing UI
@@ -13736,7 +13748,8 @@ server <- function(input, output, session) {
           title = "Single Typing finalized",
           type = "success",
           position = "top-end",
-          timer = 8000
+          timer = 8000,
+          width = "500px"
         )
         typing_reactive$single_end <- TRUE
       }
@@ -14020,7 +14033,8 @@ server <- function(input, output, session) {
       title = "Metadata declared",
       type = "success",
       position = "top-end",
-      timer = 3000
+      timer = 3000,
+      width = "500px"
     )
     
     output$start_multi_typing_ui <- renderUI({
@@ -14140,7 +14154,8 @@ server <- function(input, output, session) {
       title = "Execution cancelled",
       type = "warning",
       position = "top-end",
-      timer = 6000
+      timer = 6000,
+      width = "500px"
     )
     
     # Kill multi typing and reset logfile  
@@ -14198,7 +14213,8 @@ server <- function(input, output, session) {
         title = "Pending Single Typing",
         type = "warning",
         position = "top-end",
-        timer = 6000
+        timer = 6000,
+        width = "500px"
       )
     } else {
       if (any(!grepl("\\.fasta|\\.fna|\\.fa", str_sub(typing_reactive$genome_selected$Files[which(typing_reactive$genome_selected$Include == TRUE)], start = -6)))) {
@@ -14207,8 +14223,8 @@ server <- function(input, output, session) {
           title = "Wrong file type (include only fasta/fna/fa)",
           type = "error",
           position = "top-end",
-          width = "400px",
-          timer = 6000
+          timer = 6000,
+          width = "500px"
         )
       } else {
         showModal(
@@ -14242,7 +14258,8 @@ server <- function(input, output, session) {
       title = "Multi Typing started",
       type = "success",
       position = "top-end",
-      timer = 6000
+      timer = 6000,
+      width = "500px"
     )
     
     typing_reactive$final <- FALSE
@@ -14354,7 +14371,8 @@ server <- function(input, output, session) {
           title = "Multi Typing finalized",
           type = "success",
           position = "top-end",
-          timer = 8000
+          timer = 8000,
+          width = "500px"
         )
         typing_reactive$final <- TRUE
       }
