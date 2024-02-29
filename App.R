@@ -10321,45 +10321,53 @@ server <- function(input, output, session) {
   # Treescale Positioning
   
   output$upgma_treescalex <- renderUI({
-    sliderTextInput(
-      "upgma_treescale_x",
-      label = h5("X Position", style = "color:white; margin-bottom: 0px"),
-      choices = -1:(ceiling(max(plot_loc$xrange_upgma)) * 1.1),
-      selected = ceiling(min(plot_loc$xrange_upgma)),
-      hide_min_max = TRUE,
-      width = "150px"
-    )
+    if(!is.null(plot_loc$xrange_upgma)) {
+      sliderTextInput(
+        "upgma_treescale_x",
+        label = h5("X Position", style = "color:white; margin-bottom: 0px"),
+        choices = -1:(ceiling(max(plot_loc$xrange_upgma)) * 1.1),
+        selected = ceiling(min(plot_loc$xrange_upgma)),
+        hide_min_max = TRUE,
+        width = "150px"
+      )
+    }
   })
   
   output$upgma_treescaley <- renderUI({
-    sliderTextInput(
-      "upgma_treescale_y",
-      label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
-      choices = -1:(ceiling(max(plot_loc$yrange_upgma)) * 1.1),
-      selected = 0,
-      hide_min_max = TRUE
-    )
+    if(!is.null(plot_loc$yrange_upgma)) {
+      sliderTextInput(
+        "upgma_treescale_y",
+        label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+        choices = -1:(ceiling(max(plot_loc$yrange_upgma)) * 1.1),
+        selected = 0,
+        hide_min_max = TRUE
+      )
+    }
   })
   
   output$nj_treescalex <- renderUI({
-    sliderTextInput(
-      "nj_treescale_x",
-      label = h5("X Position", style = "color:white; margin-bottom: 0px"),
-      choices = -1:(ceiling(max(plot_loc$xrange_nj)) * 1.1),
-      selected = ceiling(min(plot_loc$xrange_nj)),
-      hide_min_max = TRUE,
-      width = "150px"
-    )
+    if(!is.null(plot_loc$xrange_nj)) {
+      sliderTextInput(
+        "nj_treescale_x",
+        label = h5("X Position", style = "color:white; margin-bottom: 0px"),
+        choices = -1:(ceiling(max(plot_loc$xrange_nj)) * 1.1),
+        selected = ceiling(min(plot_loc$xrange_nj)),
+        hide_min_max = TRUE,
+        width = "150px"
+      )
+    }
   })
   
   output$nj_treescaley <- renderUI({
-    sliderTextInput(
-      "nj_treescale_y",
-      label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
-      choices = -1:(ceiling(max(plot_loc$yrange_nj)) * 1.1),
-      selected = 0,
-      hide_min_max = TRUE
-    )
+    if(!is.null(plot_loc$yrange_nj)) {
+      sliderTextInput(
+        "nj_treescale_y",
+        label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+        choices = -1:(ceiling(max(plot_loc$yrange_nj)) * 1.1),
+        selected = 0,
+        hide_min_max = TRUE
+      )
+    }
   })
   
   # heatmap picker

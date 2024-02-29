@@ -12,7 +12,7 @@
   animation: none;
 }
 
-h1, h2, p, body {
+h1, h2, h3, h4, h5, p, body {
   font-family: 'Liberation Sans', sans-serif;
 }
 
@@ -83,6 +83,11 @@ i.fas {
 }
 
 i.fas.fa-rotate {
+  position: relative; 
+  left: -5px;
+}
+
+#reload_db i.fas.fa-rotate {
   position: relative; 
   left: -5px;
   top: -2px;
@@ -1467,5 +1472,4 @@ button#conf_meta_multi {
   color:black; 
   white-space: pre-wrap; 
   max-width: 100%; 
-  max-height: 500px;
 }
