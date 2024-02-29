@@ -325,7 +325,7 @@ ui <- dashboardPage(
     
     shinyDashboardThemeDIY(
       ### general
-      appFontFamily = "Tahoma"
+      appFontFamily = "Liberation Sans"
       ,
       appFontColor = "#000000"
       ,
@@ -955,7 +955,7 @@ ui <- dashboardPage(
                                   min = 15,
                                   max = 40,
                                   step = 1,
-                                  width = "100%"
+                                  width = "80px"
                                 )
                               )
                             )
@@ -1015,7 +1015,7 @@ ui <- dashboardPage(
                                   min = 15,
                                   max = 40,
                                   step = 1,
-                                  width = "100%"
+                                  width = "80px"
                                 )
                               )
                             )
@@ -1078,7 +1078,7 @@ ui <- dashboardPage(
                                   min = 10,
                                   max = 30,
                                   step = 1,
-                                  width = "100%"
+                                  width = "80px"
                                 )
                               )
                             )
@@ -1192,7 +1192,8 @@ ui <- dashboardPage(
                               value = 14,
                               min = 8,
                               max = 30,
-                              step = 1
+                              step = 1,
+                              width = "80px"
                             )
                           )
                         )
@@ -1263,7 +1264,7 @@ ui <- dashboardPage(
                                     step = 0.1,
                                     min = 0,
                                     max = 1,
-                                    width = "100%"
+                                    width = "80px"
                                   )
                                 )
                               )
@@ -1484,7 +1485,7 @@ ui <- dashboardPage(
                               step = 1,
                               min = 8,
                               max = 30,
-                              width = "100%"
+                              width = "80px"
                             )
                           )
                         )
@@ -1540,7 +1541,7 @@ ui <- dashboardPage(
                                   step = 0.1,
                                   min = 0,
                                   max = 1,
-                                  width = "100%"
+                                  width = "80px"
                                 )
                               )
                             )
@@ -1694,7 +1695,7 @@ ui <- dashboardPage(
                                     min = 1,
                                     max = 30,
                                     step = 1,
-                                    width = "70px"
+                                    width = "80px"
                                   ),
                                   br(),
                                   selectInput(
@@ -1851,7 +1852,7 @@ ui <- dashboardPage(
                                       min = 15,
                                       max = 40,
                                       step = 1,
-                                      width = "100%"
+                                      width = "80px"
                                     )
                                   )
                                 )
@@ -1918,7 +1919,7 @@ ui <- dashboardPage(
                                       min = 15,
                                       max = 40,
                                       step = 1,
-                                      width = "100%"
+                                      width = "80px"
                                     )
                                   )
                                 )
@@ -1978,7 +1979,7 @@ ui <- dashboardPage(
                                       min = 1,
                                       max = 20,
                                       step = 1,
-                                      width = "70px"
+                                      width = "80px"
                                     ),
                                     br(),
                                     sliderTextInput(
@@ -2054,7 +2055,7 @@ ui <- dashboardPage(
                                       min = 5,
                                       max = 25,
                                       step = 1,
-                                      width = "100%"
+                                      width = "80px"
                                     ),
                                     numericInput(
                                       "nj_legend_x",
@@ -2063,7 +2064,7 @@ ui <- dashboardPage(
                                       min = -0.9,
                                       max = 1.9,
                                       step = 0.2,
-                                      width = "100%"
+                                      width = "80px"
                                     ),
                                     numericInput(
                                       "nj_legend_y",
@@ -2072,7 +2073,7 @@ ui <- dashboardPage(
                                       min = -1,
                                       max = 1,
                                       step = 0.1,
-                                      width = "100%"
+                                      width = "80px"
                                     )
                                   )
                                 )
@@ -2140,7 +2141,7 @@ ui <- dashboardPage(
                                 max = 10,
                                 step = 0.5,
                                 value = 4,
-                                width = "70px"
+                                width = "80px"
                               ),
                               br(),
                               numericInput(
@@ -2149,7 +2150,7 @@ ui <- dashboardPage(
                                 min = 0.1,
                                 max = 1,
                                 value = 1,
-                                width = "70px"
+                                width = "80px"
                               ),
                               br(),
                               selectInput(
@@ -2171,7 +2172,7 @@ ui <- dashboardPage(
                                   max = 3,
                                   step = 0.05,
                                   value = 0,
-                                  width = "70px"
+                                  width = "80px"
                                 )
                               ),
                               conditionalPanel(
@@ -2183,7 +2184,7 @@ ui <- dashboardPage(
                                   max = 3,
                                   step = 0.05,
                                   value = -0.1,
-                                  width = "70px"
+                                  width = "80px"
                                 )
                               ),
                               conditionalPanel(
@@ -2195,7 +2196,7 @@ ui <- dashboardPage(
                                   max = 3,
                                   step = 0.05,
                                   value = 1.1,
-                                  width = "70px"
+                                  width = "80px"
                                 )
                               ),
                               br(),
@@ -2339,7 +2340,7 @@ ui <- dashboardPage(
                             step = 0.1,
                             max = 1,
                             value = 0.3,
-                            width = "70px"
+                            width = "80px"
                           ),
                           br(),
                           numericInput(
@@ -2348,7 +2349,8 @@ ui <- dashboardPage(
                             min = 0,
                             max = 0.5,
                             step = 0.05,
-                            value = 0.2
+                            value = 0.2,
+                            width = "80px"
                           )
                         )
                       )
@@ -2401,7 +2403,7 @@ ui <- dashboardPage(
                                 max = 10,
                                 step = 0.5,
                                 value = 4,
-                                width = "70px"
+                                width = "80px"
                               ),
                               br(),
                               numericInput(
@@ -2410,7 +2412,8 @@ ui <- dashboardPage(
                                 value = 0.5,
                                 step = 0.05,
                                 min = 0,
-                                max = 0.5
+                                max = 0.5,
+                                width = "80px"
                               ),
                               br(),
                               selectInput(
@@ -2429,7 +2432,7 @@ ui <- dashboardPage(
                                 min = 0.1,
                                 max = 1,
                                 value = 0.7,
-                                width = "70px"
+                                width = "80px"
                               ),
                               br(),
                               sliderTextInput(
@@ -2532,7 +2535,7 @@ ui <- dashboardPage(
                                 min = 0.1,
                                 max = 1,
                                 step = 0.1,
-                                width = "70px"
+                                width = "80px"
                               ), 
                               br(),
                               numericInput(
@@ -2541,7 +2544,8 @@ ui <- dashboardPage(
                                 min = 1,
                                 max = 20,
                                 step = 1,
-                                value = 5
+                                value = 5,
+                                width = "80px"
                               )
                             )
                           )
@@ -2674,7 +2678,7 @@ ui <- dashboardPage(
                                     min = 0.1,
                                     max = 1,
                                     step = 0.1,
-                                    width = "70px"
+                                    width = "80px"
                                   ), 
                                   br(),
                                   numericInput(
@@ -2683,7 +2687,8 @@ ui <- dashboardPage(
                                     min = 1,
                                     max = 20,
                                     step = 1,
-                                    value = 5
+                                    value = 5,
+                                    width = "80px"
                                   )
                                 )
                               )
@@ -2803,7 +2808,7 @@ ui <- dashboardPage(
                                       max = 3,
                                       step = 0.05,
                                       value = 0,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 ),
@@ -2818,7 +2823,7 @@ ui <- dashboardPage(
                                       max = 1,
                                       step = 0.1,
                                       value = 1,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 )
@@ -2953,7 +2958,7 @@ ui <- dashboardPage(
                                       max = 3,
                                       step = 0.05,
                                       value = 0,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 ),
@@ -2968,7 +2973,7 @@ ui <- dashboardPage(
                                       max = 1,
                                       step = 0.1,
                                       value = 1,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 )
@@ -3103,7 +3108,7 @@ ui <- dashboardPage(
                                       max = 3,
                                       step = 0.05,
                                       value = 0,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 ),
@@ -3118,7 +3123,7 @@ ui <- dashboardPage(
                                       max = 1,
                                       step = 0.1,
                                       value = 1,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 )
@@ -3253,7 +3258,7 @@ ui <- dashboardPage(
                                       max = 3,
                                       step = 0.05,
                                       value = 0,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 ),
@@ -3268,7 +3273,7 @@ ui <- dashboardPage(
                                       max = 1,
                                       step = 0.1,
                                       value = 1,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 )
@@ -3403,7 +3408,7 @@ ui <- dashboardPage(
                                       max = 3,
                                       step = 0.05,
                                       value = 0,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 ),
@@ -3418,7 +3423,7 @@ ui <- dashboardPage(
                                       max = 1,
                                       step = 0.1,
                                       value = 1,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 )
@@ -3569,7 +3574,7 @@ ui <- dashboardPage(
                                     max = 5,
                                     step = 0.1,
                                     value = 0.5,
-                                    width = "70px"
+                                    width = "80px"
                                   )
                                 )
                               ),
@@ -3583,7 +3588,8 @@ ui <- dashboardPage(
                                     min = 0,
                                     max = 360,
                                     value = 0,
-                                    step = 5
+                                    step = 5,
+                                    width = "80px"
                                   )
                                 )
                               ),
@@ -3597,7 +3603,8 @@ ui <- dashboardPage(
                                     min = -10,
                                     max = 10,
                                     value = 0,
-                                    step = 1
+                                    step = 1,
+                                    width = "80px"
                                   )
                                 )
                               ),
@@ -3611,7 +3618,8 @@ ui <- dashboardPage(
                                     min = -10,
                                     max = 10,
                                     value = 0,
-                                    step = 1
+                                    step = 1,
+                                    width = "80px"
                                   )
                                 )
                               )
@@ -3735,7 +3743,7 @@ ui <- dashboardPage(
                                     min = 1,
                                     max = 30,
                                     step = 1,
-                                    width = "70px"
+                                    width = "80px"
                                   ),
                                   br(),
                                   selectInput(
@@ -3892,7 +3900,7 @@ ui <- dashboardPage(
                                       min = 15,
                                       max = 40,
                                       step = 1,
-                                      width = "100%"
+                                      width = "80px"
                                     )
                                   )
                                 )
@@ -3959,7 +3967,7 @@ ui <- dashboardPage(
                                       min = 15,
                                       max = 40,
                                       step = 1,
-                                      width = "100%"
+                                      width = "80px"
                                     )
                                   )
                                 )
@@ -4019,7 +4027,7 @@ ui <- dashboardPage(
                                       min = 1,
                                       max = 20,
                                       step = 1,
-                                      width = "70px"
+                                      width = "80px"
                                     ),
                                     br(),
                                     uiOutput("upgma_treescalex"),
@@ -4082,7 +4090,7 @@ ui <- dashboardPage(
                                       min = 5,
                                       max = 25,
                                       step = 1,
-                                      width = "100%"
+                                      width = "80px"
                                     ),
                                     numericInput(
                                       "upgma_legend_x",
@@ -4091,7 +4099,7 @@ ui <- dashboardPage(
                                       min = -0.9,
                                       max = 1.9,
                                       step = 0.2,
-                                      width = "100%"
+                                      width = "80px"
                                     ),
                                     numericInput(
                                       "upgma_legend_y",
@@ -4100,7 +4108,7 @@ ui <- dashboardPage(
                                       min = -1,
                                       max = 1,
                                       step = 0.1,
-                                      width = "100%"
+                                      width = "80px"
                                     )
                                   )
                                 )
@@ -4168,7 +4176,7 @@ ui <- dashboardPage(
                                 max = 10,
                                 step = 0.5,
                                 value = 4,
-                                width = "70px"
+                                width = "80px"
                               ),
                               br(),
                               numericInput(
@@ -4177,7 +4185,7 @@ ui <- dashboardPage(
                                 min = 0.1,
                                 max = 1,
                                 value = 1,
-                                width = "70px"
+                                width = "80px"
                               ),
                               br(),
                               selectInput(
@@ -4199,7 +4207,7 @@ ui <- dashboardPage(
                                   max = 3,
                                   step = 0.05,
                                   value = 0,
-                                  width = "70px"
+                                  width = "80px"
                                 )
                               ),
                               conditionalPanel(
@@ -4211,7 +4219,7 @@ ui <- dashboardPage(
                                   max = 3,
                                   step = 0.05,
                                   value = -0.1,
-                                  width = "70px"
+                                  width = "80px"
                                 )
                               ),
                               conditionalPanel(
@@ -4223,7 +4231,7 @@ ui <- dashboardPage(
                                   max = 3,
                                   step = 0.05,
                                   value = 1.1,
-                                  width = "70px"
+                                  width = "80px"
                                 )
                               ),
                               br(),
@@ -4367,7 +4375,7 @@ ui <- dashboardPage(
                             step = 0.1,
                             max = 1,
                             value = 0.3,
-                            width = "70px"
+                            width = "80px"
                           ),
                           br(),
                           numericInput(
@@ -4376,7 +4384,8 @@ ui <- dashboardPage(
                             min = 0,
                             max = 0.5,
                             step = 0.05,
-                            value = 0.2
+                            value = 0.2,
+                            width = "80px"
                           )
                         )
                       )
@@ -4429,7 +4438,7 @@ ui <- dashboardPage(
                                 max = 10,
                                 step = 0.5,
                                 value = 4,
-                                width = "70px"
+                                width = "80px"
                               ),
                               br(),
                               numericInput(
@@ -4438,7 +4447,8 @@ ui <- dashboardPage(
                                 value = 0.5,
                                 step = 0.05,
                                 min = 0,
-                                max = 0.5
+                                max = 0.5,
+                                width = "80px"
                               ),
                               br(),
                               selectInput(
@@ -4457,7 +4467,7 @@ ui <- dashboardPage(
                                 min = 0.1,
                                 max = 1,
                                 value = 0.7,
-                                width = "70px"
+                                width = "80px"
                               ),
                               br(),
                               sliderTextInput(
@@ -4560,7 +4570,7 @@ ui <- dashboardPage(
                                 min = 0.1,
                                 max = 1,
                                 step = 0.1,
-                                width = "70px"
+                                width = "80px"
                               ), 
                               br(),
                               numericInput(
@@ -4569,7 +4579,8 @@ ui <- dashboardPage(
                                 min = 1,
                                 max = 20,
                                 step = 1,
-                                value = 5
+                                value = 5,
+                                width = "80px"
                               )
                             )
                           )
@@ -4702,7 +4713,7 @@ ui <- dashboardPage(
                                     min = 0.1,
                                     max = 1,
                                     step = 0.1,
-                                    width = "70px"
+                                    width = "80px"
                                   ), 
                                   br(),
                                   numericInput(
@@ -4711,7 +4722,8 @@ ui <- dashboardPage(
                                     min = 1,
                                     max = 20,
                                     step = 1,
-                                    value = 5
+                                    value = 5,
+                                    width = "80px"
                                   )
                                 )
                               )
@@ -4831,7 +4843,7 @@ ui <- dashboardPage(
                                       max = 3,
                                       step = 0.05,
                                       value = 0,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 ),
@@ -4846,7 +4858,7 @@ ui <- dashboardPage(
                                       max = 1,
                                       step = 0.1,
                                       value = 1,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 )
@@ -4981,7 +4993,7 @@ ui <- dashboardPage(
                                       max = 3,
                                       step = 0.05,
                                       value = 0,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 ),
@@ -4996,7 +5008,7 @@ ui <- dashboardPage(
                                       max = 1,
                                       step = 0.1,
                                       value = 1,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 )
@@ -5131,7 +5143,7 @@ ui <- dashboardPage(
                                       max = 3,
                                       step = 0.05,
                                       value = 0,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 ),
@@ -5146,7 +5158,7 @@ ui <- dashboardPage(
                                       max = 1,
                                       step = 0.1,
                                       value = 1,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 )
@@ -5281,7 +5293,7 @@ ui <- dashboardPage(
                                       max = 3,
                                       step = 0.05,
                                       value = 0,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 ),
@@ -5296,7 +5308,7 @@ ui <- dashboardPage(
                                       max = 1,
                                       step = 0.1,
                                       value = 1,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 )
@@ -5431,7 +5443,7 @@ ui <- dashboardPage(
                                       max = 3,
                                       step = 0.05,
                                       value = 0,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 ),
@@ -5446,7 +5458,7 @@ ui <- dashboardPage(
                                       max = 1,
                                       step = 0.1,
                                       value = 1,
-                                      width = "70px"
+                                      width = "80px"
                                     )
                                   )
                                 )
@@ -5597,7 +5609,7 @@ ui <- dashboardPage(
                                     max = 5,
                                     step = 0.1,
                                     value = 0.5,
-                                    width = "70px"
+                                    width = "80px"
                                   )
                                 )
                               ),
@@ -5611,7 +5623,8 @@ ui <- dashboardPage(
                                     min = 0,
                                     max = 360,
                                     value = 0,
-                                    step = 5
+                                    step = 5,
+                                    width = "80px"
                                   )
                                 )
                               ),
@@ -5625,7 +5638,8 @@ ui <- dashboardPage(
                                     min = -10,
                                     max = 10,
                                     value = 0,
-                                    step = 1
+                                    step = 1,
+                                    width = "80px"
                                   )
                                 )
                               ),
@@ -5639,7 +5653,8 @@ ui <- dashboardPage(
                                     min = -10,
                                     max = 10,
                                     value = 0,
-                                    step = 1
+                                    step = 1,
+                                    width = "80px"
                                   )
                                 )
                               )
@@ -6554,14 +6569,14 @@ server <- function(input, output, session) {
                     p(
                       HTML(
                         paste(
-                          tags$span(style='color: white; font-size: 15px;', strong("Selected scheme:"))
+                          tags$span(style='color: white; font-size: 14px;', strong("Selected scheme:"))
                         )
                       )
                     ),
                     p(
                       HTML(
                         paste(
-                          tags$span(style='color: white; font-size: 15px; font-style: italic', DF1$scheme)
+                          tags$span(style='color: white; font-size: 13px; font-style: italic', DF1$scheme)
                         )
                       )
                     )
@@ -7102,25 +7117,33 @@ server <- function(input, output, session) {
                           column(
                             width = 5,
                             align = "left",
-                            numericInput(
-                              "nj_v",
-                              label = h5("Y", style = "color:white; margin-bottom: -6px; margin-left: 10px"),
-                              min = -0.5,
-                              max = 0.5,
-                              step = 0.01,
-                              value = 0
+                            div(
+                              class = "arrow_move",
+                              numericInput(
+                                "nj_v",
+                                label = h5("Y", style = "color:white; margin-bottom: -6px; margin-left: 10px"),
+                                min = -0.5,
+                                max = 0.5,
+                                step = 0.01,
+                                value = 0,
+                                width = "80px"
+                              )
                             )
                           ),
                           column(
                             width = 5,
                             align = "left",
-                            numericInput(
-                              "nj_h",
-                              label = h5("X", style = "color:white; margin-bottom: -6px; margin-left: 10px"),
-                              min = -0.5,
-                              max = 0.5,
-                              step = 0.01,
-                              value = 0
+                            div(
+                              class = "arrow_move",
+                              numericInput(
+                                "nj_h",
+                                label = h5("X", style = "color:white; margin-bottom: -6px; margin-left: 10px"),
+                                min = -0.5,
+                                max = 0.5,
+                                step = 0.01,
+                                value = 0,
+                                width = "80px"
+                              )
                             )
                           )
                         ),
@@ -7226,25 +7249,33 @@ server <- function(input, output, session) {
                           column(
                             width = 5,
                             align = "left",
-                            numericInput(
-                              "upgma_v",
-                              label = h5("Y", style = "color:white; margin-bottom: -6px; margin-left: 10px"),
-                              min = -0.5,
-                              max = 0.5,
-                              step = 0.01,
-                              value = 0
+                            div(
+                              class = "arrow_move",
+                              numericInput(
+                                "upgma_v",
+                                label = h5("Y", style = "color:white; margin-bottom: -6px; margin-left: 10px"),
+                                min = -0.5,
+                                max = 0.5,
+                                step = 0.01,
+                                value = 0,
+                                width = "80px"
+                              )
                             )
                           ),
                           column(
                             width = 5,
                             align = "left",
-                            numericInput(
-                              "upgma_h",
-                              label = h5("X", style = "color:white; margin-bottom: -6px; margin-left: 10px"),
-                              min = -0.5,
-                              max = 0.5,
-                              step = 0.01,
-                              value = 0
+                            div(
+                              class = "arrow_move",
+                              numericInput(
+                                "upgma_h",
+                                label = h5("X", style = "color:white; margin-bottom: -6px; margin-left: 10px"),
+                                min = -0.5,
+                                max = 0.5,
+                                step = 0.01,
+                                value = 0,
+                                width = "80px"
+                              )
                             )
                           )
                         ),
@@ -7663,14 +7694,14 @@ server <- function(input, output, session) {
                         p(
                           HTML(
                             paste(
-                              tags$span(style='color: white; font-size: 15px;', strong("Selected scheme:"))
+                              tags$span(style='color: white; font-size: 14px;', strong("Selected scheme:"))
                             )
                           )
                         ),
                         p(
                           HTML(
                             paste(
-                              tags$span(style='color: white; font-size: 15px; font-style: italic', DF1$scheme)
+                              tags$span(style='color: white; font-size: 13px; font-style: italic', DF1$scheme)
                             )
                           )
                         )
@@ -10271,7 +10302,7 @@ server <- function(input, output, session) {
       max = ceiling(max(plot_loc$xrange_nj)),
       step = 1,
       value = 0,
-      width = "70px"
+      width = "80px"
     )
   })
   
@@ -10283,7 +10314,7 @@ server <- function(input, output, session) {
       max = ceiling(max(plot_loc$xrange_upgma)),
       step = 1,
       value = 0,
-      width = "70px"
+      width = "80px"
     )
   })
   
@@ -10395,7 +10426,7 @@ server <- function(input, output, session) {
       max = ceiling(max(plot_loc$xrange_upgma)),
       value = ceiling(max(plot_loc$xrange_upgma) * 0.1),
       step = 0.5,
-      width = "70px"
+      width = "80px"
     )
   })
   
@@ -10407,7 +10438,7 @@ server <- function(input, output, session) {
       max = ceiling(max(plot_loc$xrange_upgma)),
       value = ceiling(max(plot_loc$xrange_upgma) * 0.1),
       step = 0.5,
-      width = "70px"
+      width = "80px"
     )
   })
   
@@ -10419,7 +10450,7 @@ server <- function(input, output, session) {
       max = ceiling(max(plot_loc$xrange_upgma)),
       value = ceiling(max(plot_loc$xrange_upgma) * 0.1),
       step = 0.5,
-      width = "70px"
+      width = "80px"
     )
   })
   
@@ -10431,7 +10462,7 @@ server <- function(input, output, session) {
       max = ceiling(max(plot_loc$xrange_upgma)),
       value = ceiling(max(plot_loc$xrange_upgma) * 0.1),
       step = 0.5,
-      width = "70px"
+      width = "80px"
     )
   })
   
@@ -10443,7 +10474,7 @@ server <- function(input, output, session) {
       max = ceiling(max(plot_loc$xrange_upgma)),
       value = ceiling(max(plot_loc$xrange_upgma) * 0.1),
       step = 0.5,
-      width = "70px"
+      width = "80px"
     )
   })
   
@@ -10455,7 +10486,7 @@ server <- function(input, output, session) {
       max = ceiling(max(plot_loc$xrange_nj)),
       value = ceiling(max(plot_loc$xrange_nj) * 0.1),
       step = 0.5,
-      width = "70px"
+      width = "80px"
     )
   })
   
@@ -10467,7 +10498,7 @@ server <- function(input, output, session) {
       max = ceiling(max(plot_loc$xrange_nj)),
       value = ceiling(max(plot_loc$xrange_nj) * 0.1),
       step = 0.5,
-      width = "70px"
+      width = "80px"
     )
   })
   
@@ -10479,7 +10510,7 @@ server <- function(input, output, session) {
       max = ceiling(max(plot_loc$xrange_nj)),
       value = ceiling(max(plot_loc$xrange_nj) * 0.1),
       step = 0.5,
-      width = "70px"
+      width = "80px"
     )
   })
   
@@ -10491,7 +10522,7 @@ server <- function(input, output, session) {
       max = ceiling(max(plot_loc$xrange_nj)),
       value = ceiling(max(plot_loc$xrange_nj) * 0.1),
       step = 0.5,
-      width = "70px"
+      width = "80px"
     )
   })
   
@@ -10503,7 +10534,7 @@ server <- function(input, output, session) {
       max = ceiling(max(plot_loc$xrange_nj)),
       value = ceiling(max(plot_loc$xrange_nj) * 0.1),
       step = 0.5,
-      width = "70px"
+      width = "80px"
     )
   })
   

@@ -12,6 +12,10 @@
   animation: none;
 }
 
+h1, h2, p, body {
+  font-family: 'Liberation Sans', sans-serif;
+}
+
 label {
   color: white;
 }
@@ -81,6 +85,7 @@ i.fas {
 i.fas.fa-rotate {
   position: relative; 
   left: -5px;
+  top: -2px;
 }
 
 i.far {
@@ -321,6 +326,10 @@ button#download_report_bttn {
   margin-top: 3px; 
   width: 75px; 
   text-align: center;
+}
+
+.arrow_move input::-webkit-inner-spin-button {
+  margin-right: 8px;
 }
 
 #nj_h {
