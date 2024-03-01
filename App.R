@@ -13465,6 +13465,7 @@ server <- function(input, output, session) {
         ### Run KMA Typing
         
         single_typing_df <- data.frame(
+          db_path = DF1$database,
           wd = getwd(),
           scheme = paste0(gsub(" ", "_", DF1$scheme)),
           genome = typing_reactive$single_path$datapath,
@@ -14278,6 +14279,7 @@ server <- function(input, output, session) {
     
     # Start Multi Typing Script
     multi_typing_df <- data.frame(
+      db_path = DF1$database,
       wd = getwd(),
       scheme = paste0(gsub(" ", "_", DF1$scheme)),
       genome_folder = as.character(parseDirPath(roots = c(wd = "/home"), input$genome_file_multi)),

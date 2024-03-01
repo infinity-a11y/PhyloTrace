@@ -1,4 +1,6 @@
+# Hand over variables
 meta_info <- readRDS("meta_info_single.rds")
+db_path <- readRDS("single_typing_df.rds")[, "db_path"]
 
 setwd(meta_info$db_directory)
 
@@ -57,11 +59,11 @@ if(sum(unname(base::sapply(frag_files, file.size)) <= 100) / length(frag_files) 
   allele_vector <- as.integer(allele_vector)
   
   # Find Alleles folder in directory
-  allele_folder <- list.files(paste0(getwd(), "/Database/", gsub(" ", "_", meta_info$cgmlst_typing)), full.names = TRUE)[grep("_alleles", list.files(paste0(getwd(), "/Database/", gsub(" ", "_", meta_info$cgmlst_typing))))]
+  allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)), full.names = TRUE)[grep("_alleles", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing))))]
   
   # Create Results Data Frame 
   
-  if(!any(grepl("Typing", list.files(paste0(getwd(), "/Database/", gsub(" ", "_", meta_info$cgmlst_typing)))))) {
+  if(!any(grepl("Typing", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)))))) {
     
     Database <- list(Typing = data.frame())
     
@@ -125,7 +127,7 @@ if(sum(unname(base::sapply(frag_files, file.size)) <= 100) / length(frag_files) 
     
   } else {
     
-    Database <- readRDS(paste0(getwd(), "/Database/", gsub(" ", "_", meta_info$cgmlst_typing), "/Typing.rds"))
+    Database <- readRDS(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Typing.rds"))
     
     metadata <-
       data.frame(
@@ -218,7 +220,7 @@ if(sum(unname(base::sapply(frag_files, file.size)) <= 100) / length(frag_files) 
   }
   
   # Save new Entry in Typing Database
-  saveRDS(Database, paste0(getwd(), "/Database/", gsub(" ", "_", meta_info$cgmlst_typing), "/Typing.rds"))
+  saveRDS(Database, paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Typing.rds"))
   
   user_fb <- paste0(
     "#!/bin/bash\n",
