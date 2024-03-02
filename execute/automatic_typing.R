@@ -33,36 +33,27 @@ frag_data_list <- list()
 allele_vector <- integer(length(frag_files))
 
 if(sum(unname(base::sapply(frag_files, file.size)) <= 100) / length(frag_files) < 0.5) {
-  for (i in 1:length(frag_files)) {
+  for (i in seq_along(frag_files)) {
     # Extract the base filename without extension
-    frag_filename <-
-      gsub(".frag", "", tools::file_path_sans_ext(basename(frag_files[i])))
+    frag_filename <- gsub(".frag", "", tools::file_path_sans_ext(basename(frag_files[i])))
     
     # Check if the file is empty
     if (file.info(frag_files[i])$size < 100) {
-      # Handle empty file: Insert NA in the allele_vector and create an empty data frame
-      allele_vector[i] <- NA
+      # Handle empty file: Insert NA in the allele_vector
+      allele_vector[[i]] <- NA
     } else {
-      # Read the .frag.gz file into a data table
-      frag_data <-
-        data.table::fread(frag_files[i], sep = "\t", header = FALSE)
+      # Read only the necessary columns (3rd and 7th) from the .frag.gz file into a data table
+      frag_data <- data.table::fread(frag_files[i], select = c(3, 7), sep = "\t", header = FALSE)
       
-      # Extract the third, and seventh columns
-      frag_data <- frag_data[, .(V3, V7)]
-      
-      # Find the row with the highest value in the third field
-      max_row <- which.max(frag_data$V3)
-      
-      # Extract the value from the seventh field in the max row
-      allele_vector[i] <- frag_data$V7[max_row]
+      # Find the row with the highest value in the third field and extract the value from the seventh field
+      allele_vector[[i]] <- frag_data[which.max(frag_data$V3), V7]
     }
-    
   }
   
   allele_vector <- as.integer(allele_vector)
   
   # Find Alleles folder in directory
-  allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)), full.names = TRUE)[grep("_alleles", list.files(paste0(getwd(), "/Database/", gsub(" ", "_", meta_info$cgmlst_typing))))]
+  allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)), full.names = TRUE)[grep("_alleles", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing))))]
   
   # Create Results Data Frame 
   
