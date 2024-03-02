@@ -1,8 +1,4 @@
 # PhyloTrace
-# Version 1.0.0
-
-# Phylogenetic Visualization in a Shiny App
-# Author: Marian Freisleben
 
 library(shiny)
 library(R.utils)
@@ -5852,18 +5848,12 @@ server <- function(input, output, session) {
           )
         }
         
-        # Logical any local database present 
-        DF1$exist <- (length(dir_ls(DF1$database)) == 0)
-        
-        # List of local schemes available
-        DF1$available <- gsub("_", " ", basename(dir_ls(DF1$database)))
-        
       } else if (DF1$select_new ==  TRUE) {
         DF1$database <- paste0(DF1$new_database, "/Database")
         
       }
     } else {
-      if(!is.null(DF1$last_db) & file.exists(paste0(getwd(), "/execute/last_db.rds"))){
+      if(!is.null(DF1$last_db) & file.exists(paste0(getwd(), "/execute/last_db.rds")) & dir_exists(readRDS(paste0(getwd(), "/execute/last_db.rds")))){
         DF1$database <- readRDS(paste0(getwd(), "/execute/last_db.rds"))
         
         # Logical any local database present 
@@ -6028,6 +6018,14 @@ server <- function(input, output, session) {
           if(any(!(gsub(" ", "_", DF1$available) %in% schemes))) {
             column(
               width = 12,
+              p(
+                tags$span(
+                  style='color: white; font-size: 15px; font-style: italic;',
+                  HTML(
+                    paste('Selected:', DF1$database)
+                  )
+                )
+              ),
               uiOutput("scheme_db"),
               br(), 
               p(
@@ -6047,6 +6045,14 @@ server <- function(input, output, session) {
           } else {
             column(
               width = 12,
+              p(
+                tags$span(
+                  style='color: white; font-size: 15px; font-style: italic;',
+                  HTML(
+                    paste('Selected:', DF1$database)
+                  )
+                )
+              ),
               uiOutput("scheme_db"),
               br(), br(),
               actionButton(
@@ -6055,7 +6061,7 @@ server <- function(input, output, session) {
               )
             )
           }
-        }
+        } 
       } else if((!is.null(DF1$last_db)) & (!is.null(DF1$available))) {
         if (DF1$last_db == TRUE & (length(DF1$available) > 0)) {
           if(any(!(gsub(" ", "_", DF1$available) %in% schemes))) {
@@ -6186,7 +6192,7 @@ server <- function(input, output, session) {
         )
         DF1$load_selected <- FALSE
         
-      } else if(DF1$select_new) {
+      } else if(DF1$select_new | (DF1$select_new == FALSE & is.null(input$scheme_db))) {
         
         DF1$check_new_entries <- TRUE
         
@@ -6235,10 +6241,7 @@ server <- function(input, output, session) {
         
         DF1$load_selected <- FALSE
         
-        # Create new database 
-        saveRDS(DF1$new_database, paste0(getwd(), "/execute/new_db.rds"))
-        system(paste("chmod +x",  paste0(getwd(), "/execute/make_db.sh")))
-        system(paste0(getwd(), "/execute/make_db.sh"), wait = TRUE)
+        
         
         # Declare database path
         DF1$database <- paste0(DF1$new_database, "/Database")
@@ -9135,8 +9138,6 @@ server <- function(input, output, session) {
     }
   })
   
-  # Custom variables
-  
   #Undo changes
   observeEvent(input$undo_changes, {
     Data <- readRDS(paste0(
@@ -10186,6 +10187,12 @@ server <- function(input, output, session) {
   )
   
   observeEvent(input$download_cgMLST, {
+    
+    if(length(DF1$available) == 0) {
+      saveRDS(DF1$new_database, paste0(getwd(), "/execute/new_db.rds"))
+      system(paste("chmod +x",  paste0(getwd(), "/execute/make_db.sh")))
+      system(paste0(getwd(), "/execute/make_db.sh"), wait = TRUE)
+    }
     
     DF1$load_selected <- TRUE
     
@@ -13574,13 +13581,13 @@ server <- function(input, output, session) {
     if (typing_reactive$progress_format_start == 888888) {
       output$typing_formatting <- renderUI({
         column(
-          width = 2,
+          width = 3,
           align = "center",
           br(),
           fluidRow(
             column(
               width = 6,
-              HTML(paste("<span style='color: white;'>", "Transforming data..."))
+              HTML(paste("<span style='color: white;'>", "Transforming data ..."))
             ),
             column(
               width = 3,
