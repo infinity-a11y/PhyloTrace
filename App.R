@@ -298,12 +298,7 @@
         ),
         conditionalPanel(
           "input.tabs==='db_missing_values'",
-          column(
-            width = 12,
-            align = "center",
-            br(), br(),
-            uiOutput("missing_values_sidebar")
-          )
+          uiOutput("missing_values_sidebar")
         ),
         conditionalPanel(
           "input.tabs==='typing'",
@@ -7648,6 +7643,7 @@
                       fluidRow(
                         column(
                           width = 12,
+                          br(),
                           checkboxInput(
                             "miss_val_height",
                             "Show full table",
