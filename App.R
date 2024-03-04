@@ -799,11 +799,17 @@ ui <- dashboardPage(
             align = "center",
             br(),
             br(),
-            tableOutput("cgmlst_scheme")
+            br(),
+            addSpinner(
+              tableOutput("cgmlst_scheme"),
+              spin = "dots",
+              color = "#ffffff"
+            )
           ),
           column(
             width = 7,
             align = "center",
+            br(),
             br(),
             br(),
             conditionalPanel(
@@ -5780,22 +5786,38 @@ server <- function(input, output, session) {
   
   # Function to check single typing log file
   check_new_entry <- reactive({
+    
     invalidateLater(5000, session)
-    Database <-
-      readRDS(paste0(
+    
+    if(!is.null(DF1$database)) {
+      if(file_exists(paste0(
         DF1$database, "/",
         gsub(" ", "_", DF1$scheme),
         "/Typing.rds"
-      ))
-    
-    if(nrow(DF1$data) < nrow(Database[["Typing"]])) {
-      TRUE
-    } else {
-      FALSE
+      ))) {
+        Database <-
+          readRDS(paste0(
+            DF1$database, "/",
+            gsub(" ", "_", DF1$scheme),
+            "/Typing.rds"
+          ))
+        
+        if(is.null(DF1$data)) {
+          if(nrow(Database[["Typing"]]) == 1) {
+            TRUE
+          } else {FALSE}
+        } else {
+          if(nrow(DF1$data) < nrow(Database[["Typing"]])) {
+            TRUE
+          } else {
+            FALSE
+          }
+        }
+      } else {FALSE}
     }
   })
   
-  #### Render Entry Table Highlights ----
+  # Render Entry Table Highlights 
   
   diff_allele <- reactive({
     if (!is.null(DF1$data) & !is.null(input$compare_select) & !is.null(DF1$cust_var)) {
@@ -5819,13 +5841,17 @@ server <- function(input, output, session) {
   shinyjs::addClass(selector = "body", class = "sidebar-collapse")
   shinyjs::removeClass(selector = "body", class = "sidebar-toggle")
   
-  renderstart <- reactiveValues(sidebar = TRUE, header = TRUE)
+  # Declare reactive variables
+  renderstart <- reactiveValues(sidebar = TRUE, header = TRUE) # reactive variables related to startup process
+  DF1 <- reactiveValues(data = NULL, block_db = FALSE, load_selected = TRUE) # reactiive variables related to local database
+  typing_reactive <- reactiveValues(table = data.frame(), single_path = data.frame(), 
+                                    progress = 0, progress_pct = 0, progress_format_start = 0, 
+                                    progress_format_end = 0) # reactive variables related to typing process
   
-  DF1 <- reactiveValues(data = NULL, block_db = FALSE, load_selected = TRUE)
-  
-  DF1$no_na_switch <- FALSE
+  DF1$no_na_switch <- FALSE # Show Missing value tab on startup 
   DF1$first_look <- FALSE
   
+  # Load last used database if possible
   if(paste0(getwd(), "/execute/last_db.rds") %in% dir_ls(paste0(getwd(), "/execute"))) {
     DF1$last_db <- TRUE
   }
@@ -5856,38 +5882,39 @@ server <- function(input, output, session) {
       if(!is.null(DF1$last_db) & file.exists(paste0(getwd(), "/execute/last_db.rds")) & dir_exists(readRDS(paste0(getwd(), "/execute/last_db.rds")))){
         DF1$database <- readRDS(paste0(getwd(), "/execute/last_db.rds"))
         
-        # Logical any local database present 
-        DF1$exist <- (length(dir_ls(DF1$database)) == 0)
+        DF1$exist <- (length(dir_ls(DF1$database)) == 0)  # Logical any local database present
         
-        # List of local schemes available
-        DF1$available <- gsub("_", " ", basename(dir_ls(DF1$database)))
+        DF1$available <- gsub("_", " ", basename(dir_ls(DF1$database))) # List of local schemes available
       }
     }
   })
   
+  ### Set up typing environment ----
+  
+  # Create logfile if not present
   if (!paste0(getwd(), "/execute/script_log.txt") %in% dir_ls(paste0(getwd(), "/execute"))) {
-    
     system(paste("chmod +x", paste0(getwd(), "/execute", "/make_log.sh")))
     system(paste0(getwd(), "/execute", "/make_log.sh"), wait = TRUE)
   }
   
-  # Typing reactive values
-  typing_reactive <- reactiveValues(table = data.frame(), single_path = data.frame(), 
-                                    progress = 0, progress_pct = 0, progress_format_start = 0, 
-                                    progress_format_end = 0)
-  
-  typing_reactive$last_success <- "0"
-  
-  # Typing feedback values
+  # Set typing feedback values
   if(file.exists(paste0(getwd(), "/execute/script_log.txt"))) {
-    if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
+    if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1) != "0") {
+      typing_reactive$multi_started <- TRUE
+      typing_reactive$pending <- TRUE
       typing_reactive$failures <- sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt"), warn = FALSE), "failed"))
       typing_reactive$successes <- sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt"), warn = FALSE), "Successful"))
       typing_reactive$last_scheme <- gsub("_", " ", sub(".*with (.*?) scheme.*", "\\1", readLines(paste0(getwd(), "/execute/script_log.txt"))[1]))
+    } else {
+      typing_reactive$pending <- FALSE
+      typing_reactive$multi_started <- FALSE
     }
   }
   
-  ### Landing page ----
+  typing_reactive$last_success <- "0" # Null last multi typing success name
+  typing_reactive$last_failure <- "0" # Null last multi typing failure name
+  
+  ### Landing page UI ----
   observe({
     if (renderstart$sidebar == FALSE) {
       shinyjs::removeClass(selector = "body", class = "sidebar-collapse")
@@ -6132,6 +6159,7 @@ server <- function(input, output, session) {
     })
   
   observeEvent(input$reload_db, {
+    
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -8213,7 +8241,8 @@ server <- function(input, output, session) {
                             align = "left",
                             HTML(
                               paste(
-                                tags$span(style='color: white; font-size: 14px; position: absolute; bottom: -30px; right: -5px', 'New entries - reload database')
+                                tags$span(style='color: white; font-size: 14px; position: absolute; bottom: -30px; right: -5px', 
+                                          'New entries - reload database')
                               )
                             )
                           ),
@@ -8227,7 +8256,7 @@ server <- function(input, output, session) {
                             )
                           )
                         )
-                      } else if(typing_reactive$pending_format == 888888 & !(typing_reactive$entry_added == 999999)) {
+                      } else if(typing_reactive$status == "Attaching") {
                         fluidRow(
                           column(
                             width = 11,
@@ -8728,56 +8757,35 @@ server <- function(input, output, session) {
                 
                 observe({
                   if(is.null(DF1$data)) {
-                    if(is.null(typing_reactive$entry_added)) {
+                    if(check_new_entry()) {
                       output$db_no_entries <- renderUI(
                         column(
                           width = 12,
                           fluidRow(
                             column(1),
                             column(
-                              width = 11,
+                              width = 3,
                               align = "left",
                               HTML(
                                 paste(
-                                  "<span style='color: white;'>",
-                                  "No Entries for this scheme available.",
-                                  "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
-                                  sep = '<br/>'
+                                  tags$span(style='color: white; font-size: 15px; position: absolute; bottom: -30px; right: -5px', 'New entries - reload database')
                                 )
+                              )
+                            ),
+                            column(
+                              width = 4,
+                              actionButton(
+                                "load",
+                                "",
+                                icon = icon("rotate"),
+                                class = "pulsating-button"
                               )
                             )
                           )
                         )
                       )
                     } else {
-                      if(typing_reactive$entry_added == 999999) {
-                        output$db_no_entries <- renderUI(
-                          column(
-                            width = 12,
-                            fluidRow(
-                              column(1),
-                              column(
-                                width = 3,
-                                align = "left",
-                                HTML(
-                                  paste(
-                                    tags$span(style='color: white; font-size: 15px; position: absolute; bottom: -30px; right: -5px', 'New entries - reload database')
-                                  )
-                                )
-                              ),
-                              column(
-                                width = 4,
-                                actionButton(
-                                  "load",
-                                  "",
-                                  icon = icon("rotate"),
-                                  class = "pulsating-button"
-                                )
-                              )
-                            )
-                          )
-                        )
-                      } else {
+                      if(is.null(typing_reactive$entry_added)) {
                         output$db_no_entries <- renderUI(
                           column(
                             width = 12,
@@ -8786,16 +8794,66 @@ server <- function(input, output, session) {
                               column(
                                 width = 11,
                                 align = "left",
-                                HTML(paste(
-                                  "<span style='color: white;'>",
-                                  "No Entries for this scheme available.",
-                                  "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
-                                  sep = '<br/>'
-                                ))
+                                HTML(
+                                  paste(
+                                    "<span style='color: white;'>",
+                                    "No Entries for this scheme available.",
+                                    "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
+                                    sep = '<br/>'
+                                  )
+                                )
                               )
                             )
                           )
                         )
+                      } else {
+                        if(typing_reactive$entry_added == 999999) {
+                          output$db_no_entries <- renderUI(
+                            column(
+                              width = 12,
+                              fluidRow(
+                                column(1),
+                                column(
+                                  width = 3,
+                                  align = "left",
+                                  HTML(
+                                    paste(
+                                      tags$span(style='color: white; font-size: 15px; position: absolute; bottom: -30px; right: -5px', 'New entries - reload database')
+                                    )
+                                  )
+                                ),
+                                column(
+                                  width = 4,
+                                  actionButton(
+                                    "load",
+                                    "",
+                                    icon = icon("rotate"),
+                                    class = "pulsating-button"
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        } else {
+                          output$db_no_entries <- renderUI(
+                            column(
+                              width = 12,
+                              fluidRow(
+                                column(1),
+                                column(
+                                  width = 11,
+                                  align = "left",
+                                  HTML(paste(
+                                    "<span style='color: white;'>",
+                                    "No Entries for this scheme available.",
+                                    "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
+                                    sep = '<br/>'
+                                  ))
+                                )
+                              )
+                            )
+                          )
+                        }
                       }
                     }
                   }
@@ -13217,6 +13275,7 @@ server <- function(input, output, session) {
       if (str_detect(str_sub(typing_reactive$single_path$name, start = -6), ".fasta") | 
           str_detect(str_sub(typing_reactive$single_path$name, start = -6), ".fna") | 
           str_detect(str_sub(typing_reactive$single_path$name, start = -6), ".fa")) {
+        
         # Render selected assembly path
         output$genome_path <- renderUI({
           HTML(
@@ -13443,7 +13502,7 @@ server <- function(input, output, session) {
       typing_reactive$progress_format_start <- 0
       typing_reactive$progress_format_end <- 0
       
-      # Remove UI 
+      # Remove Initiate Typing UI 
       output$initiate_typing_ui <- NULL
       output$metadata_single_box <- NULL
       output$start_typing_ui <- NULL
@@ -13456,8 +13515,8 @@ server <- function(input, output, session) {
         dir_ls(paste0(DF1$database, "/", gsub(" ", "_", DF1$scheme)))
       
       if (any(grepl(search_string, scheme_folders))) {
-        # KMA initiate index
         
+        # KMA initiate index
         scheme_select <-
           as.character(scheme_folders[which(grepl(search_string, scheme_folders))])
         
@@ -13569,14 +13628,16 @@ server <- function(input, output, session) {
   # Observe Typing Progress
   observe({
     
-    # Update Progress Bar
-    updateProgressBar(
-      session = session,
-      id = "progress_bar",
-      value = update(),
-      total = 100,
-      title = paste0(as.character(typing_reactive$progress), "/", length(typing_reactive$scheme_loci_f))
-    )
+    if(!(tail(readLogFile(), 1)!= "0")) {
+      # Update Progress Bar
+      updateProgressBar(
+        session = session,
+        id = "progress_bar",
+        value = update(),
+        total = 100,
+        title = paste0(as.character(typing_reactive$progress), "/", length(typing_reactive$scheme_loci_f))
+      )
+    }
     
     if (typing_reactive$progress_format_start == 888888) {
       output$typing_formatting <- renderUI({
@@ -13591,6 +13652,7 @@ server <- function(input, output, session) {
             ),
             column(
               width = 3,
+              align = "left",
               HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:20px;color:white"></i>'))
             )
           )
@@ -14110,6 +14172,7 @@ server <- function(input, output, session) {
       
       # Reset User Feedback variable
       typing_reactive$pending_format <- 0
+      typing_reactive$multi_started <- FALSE
       
       output$initiate_multi_typing_ui <- renderUI({
         column(
@@ -14175,6 +14238,7 @@ server <- function(input, output, session) {
     output$test_yes_pending <- NULL
     typing_reactive$failures <- 0
     typing_reactive$successes <- 0
+    typing_reactive$multi_started <- FALSE
     
     output$initiate_multi_typing_ui <- renderUI({
       column(
@@ -14270,8 +14334,6 @@ server <- function(input, output, session) {
       width = "500px"
     )
     
-    typing_reactive$final <- FALSE
-    
     # Remove Allelic Typing Controls
     output$initiate_multi_typing_ui <- NULL
     
@@ -14280,8 +14342,9 @@ server <- function(input, output, session) {
     output$start_multi_typing_ui <- NULL
     
     # Initiate Feedback variables
+    typing_reactive$multi_started <- TRUE
+    typing_reactive$pending <- TRUE
     typing_reactive$failures <- 0
-    
     typing_reactive$successes <- 0
     
     # Start Multi Typing Script
@@ -14303,91 +14366,99 @@ server <- function(input, output, session) {
   
   #### User Feedback ----
   
-  # Database messages
   observe({
-    if(tail(readLogFile(), 1) != "0") {
-      if(!is.null(typing_reactive$reset)){
-        if(typing_reactive$reset == TRUE) {
-          if(str_detect(tail(readLogFile(), 1), "Attaching")) {
-            typing_reactive$pending_format <- 888888
-          } else if(str_detect(tail(readLogFile(), 2)[1], "Successful typing")) {
-            if(!identical(typing_reactive$last_success, tail(readLogFile(), 2)[1])) {
-              typing_reactive$entry_added <- 999999
-              typing_reactive$last_success <- tail(readLogFile(), 2)[1]
-              typing_reactive$reset <- FALSE  
-            }
-          } 
+    if(file.exists(paste0(getwd(), "/execute/script_log.txt"))) {
+      if(typing_reactive$multi_started == TRUE) {
+        check_multi_status()
+      } else {
+        typing_reactive$status <- "Inactive"
+      }
+    }
+  })
+  
+  check_multi_status <- reactive({
+    
+    invalidateLater(3000, session)
+    
+    log <- readLines(paste0(getwd(), "/execute/script_log.txt"))
+    
+    # Determine if Single or Multi Typing
+    if(str_detect(log[1], "Multi")) {
+      typing_reactive$pending_mode <- "Multi"
+    } else {
+      typing_reactive$pending_mode <- "Single"
+    }
+    
+    # Check typing status
+    if(str_detect(tail(log, 1), "Attaching")) {
+      typing_reactive$status <- "Attaching"
+    } else if(str_detect(tail(log, 1), "Successful")) {
+      typing_reactive$status <- "Successful"
+      show_toast(
+        title = paste0("Successful", sub(".*Successful", "", tail(log, 1))),
+        type = "success",
+        width = "500px",
+        position = "top-end",
+        timer = 8000
+      )
+    } else if(str_detect(tail(log, 1), "failed")) {
+      typing_reactive$status <- "Failed"
+      show_toast(
+        title = paste0("Failed typing of ", sub(".*failed for ", "", tail(log, 1))),
+        type = "error",
+        width = "500px",
+        position = "top-end",
+        timer = 8000
+      )
+    } else if(str_detect(tail(log, 1), "Processing")) {
+      typing_reactive$status <- "Processing"
+      
+      if(any(str_detect(tail(log, 2), "Successful"))) {
+        
+        if(!identical(typing_reactive$last_success, tail(log, 2)[1])) {
+          show_toast(
+            title = paste0("Successful", sub(".*Successful", "", tail(log, 2)[1])),
+            type = "success",
+            width = "500px",
+            position = "top-end",
+            timer = 8000
+          )
+          
+          typing_reactive$last_success <- tail(log, 2)[1]
+        }
+      } else if(any(str_detect(tail(log, 2), "failed for"))) {
+        
+        if(!identical(typing_reactive$last_failure, tail(log, 2)[1])) {
+          show_toast(
+            title = paste0("Failed typing of ", sub(".*failed for ", "", tail(log, 2)[1])),
+            type = "error",
+            width = "500px",
+            position = "top-end",
+            timer = 8000
+          )
+          
+          typing_reactive$last_failure <- tail(log, 2)[1]
         }
       }
-    }
-  })
-  
-  checkFile <- reactive({
-    invalidateLater(10000, session)  # Check every 10 seconds
-    
-    # Path to your file
-    file_path <- paste0(getwd(), "/execute/script_log.txt")
-    
-    # Check if the file exists to avoid readLines() error
-    if(file.exists(file_path)) {
+    } else if(str_detect(tail(log, 1), "finalized")) {
       
-      # Count failures
-      if(sum(str_detect(readLines(file_path, warn = FALSE), "failed")) > typing_reactive$failures) {
-        
-        typing_reactive$failures <- sum(str_detect(readLines(file_path, warn = FALSE), "failed"))
-        
-        msg_string <- sub(".*typing", "Typing", readLines(file_path, warn = FALSE)[max(which(str_detect(readLines(file_path, warn = FALSE), "failed") == TRUE))])
-        
-        show_toast(
-          title = msg_string,
-          type = "error",
-          width = "500px",
-          position = "top-end",
-          timer = 8000
-        )
-      }
+      typing_reactive$status <- "Finalized"
       
-      # Count successes
-      if(sum(str_detect(readLines(file_path, warn = FALSE), "Successful")) > typing_reactive$successes) {
-        
-        typing_reactive$successes <- sum(str_detect(readLines(file_path, warn = FALSE), "Successful"))
-        
-        msg_string <- sub(".*Successful", "Successful", readLines(file_path, warn = FALSE)[max(which(str_detect(readLines(file_path, warn = FALSE), "Successful") == TRUE))])
-        
+      if(typing_reactive$pending == TRUE) {
         show_toast(
-          title = msg_string,
+          title = "Typing finalized",
           type = "success",
           width = "500px",
           position = "top-end",
           timer = 8000
         )
+        
+        typing_reactive$pending <- FALSE
       }
     }
   })
   
-  typing_reactive$final <- TRUE
-  
-  # Typing Notifications
-  observe({
-    
-    if(tail(readLogFile(), 1)!= "0" & typing_reactive$final == FALSE) {
-      checkFile()
-    }
-    
-    if(typing_reactive$final == FALSE){
-      if(any(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt")), "finalized"))) {
-        show_toast(
-          title = "Multi Typing finalized",
-          type = "success",
-          position = "top-end",
-          timer = 8000,
-          width = "500px"
-        )
-        typing_reactive$final <- TRUE
-      }
-    }
-  })
-  
+  ##### Render Multi Typing UI Feedback ----
   observe({
     
     # Render log content
