@@ -321,248 +321,133 @@
       
       shinyDashboardThemeDIY(
         ### general
-        appFontFamily = "Liberation Sans"
-        ,
-        appFontColor = "#000000"
-        ,
-        primaryFontColor = "#ffffff"
-        ,
-        infoFontColor = "rgb(0,0,0)"
-        ,
-        successFontColor = "rgb(0,0,0)"
-        ,
-        warningFontColor = "rgb(0,0,0)"
-        ,
-        dangerFontColor = "rgb(0,0,0)"
-        ,
+        appFontFamily = "Liberation Sans",
+        appFontColor = "#000000",
+        primaryFontColor = "#ffffff",
+        infoFontColor = "rgb(0,0,0)",
+        successFontColor = "rgb(0,0,0)",
+        warningFontColor = "rgb(0,0,0)",
+        dangerFontColor = "rgb(0,0,0)",
         bodyBackColor = cssGradientThreeColors(
-          direction = "down"
-          ,
-          colorStart = "#282f38"
-          ,
-          colorMiddle = "#384454"
-          ,
-          colorEnd = "#495d78"
-          ,
-          colorStartPos = 0
-          ,
-          colorMiddlePos = 50
-          ,
+          direction = "down",
+          colorStart = "#282f38",
+          colorMiddle = "#384454",
+          colorEnd = "#495d78",
+          colorStartPos = 0,
+          colorMiddlePos = 50,
           colorEndPos = 100
-        )
+        ),
         
         ### header
-        ,
-        logoBackColor = "#282f38"
-        
-        ,
-        headerButtonBackColor = "#282f38"
-        ,
-        headerButtonIconColor = "#18ece1"
-        ,
-        headerButtonBackColorHover = "#282f38"
-        ,
-        headerButtonIconColorHover = "#ffffff"
-        
-        ,
-        headerBackColor = "#282f38"
-        ,
-        headerBoxShadowColor = "#aaaaaa"
-        ,
-        headerBoxShadowSize = "0px 0px 0px"
+        logoBackColor = "#282f38",
+        headerButtonBackColor = "#282f38",
+        headerButtonIconColor = "#18ece1",
+        headerButtonBackColorHover = "#282f38",
+        headerButtonIconColorHover = "#ffffff",
+        headerBackColor = "#282f38",
+        headerBoxShadowColor = "#aaaaaa",
+        headerBoxShadowSize = "0px 0px 0px",
         
         ### sidebar
-        ,
         sidebarBackColor = cssGradientThreeColors(
-          direction = "down"
-          ,
-          colorStart = "#282f38"
-          ,
-          colorMiddle = "#384454"
-          ,
-          colorEnd = "#495d78"
-          ,
-          colorStartPos = 0
-          ,
-          colorMiddlePos = 50
-          ,
-          colorEndPos = 100
-        )
-        ,
-        sidebarPadding = 0
+          direction = "down",
+          colorStart = "#282f38",
+          colorMiddle = "#384454",
+          colorEnd = "#495d78",
+          colorStartPos = 0,
+          colorMiddlePos = 50,
+          colorEndPos = 100),
         
-        ,
-        sidebarMenuBackColor = "transparent"
-        ,
-        sidebarMenuPadding = 0
-        ,
-        sidebarMenuBorderRadius = 0
-        
-        ,
-        sidebarShadowRadius = "5px 5px 5px"
-        ,
-        sidebarShadowColor = "#282f38"
-        
-        ,
-        sidebarUserTextColor = "#ffffff"
-        
-        ,
-        sidebarSearchBackColor = "rgb(55,72,80)"
-        ,
-        sidebarSearchIconColor = "rgb(153,153,153)"
-        ,
-        sidebarSearchBorderColor = "rgb(55,72,80)"
-        
-        ,
-        sidebarTabTextColor = "rgb(255,255,255)"
-        ,
-        sidebarTabTextSize = 15
-        ,
-        sidebarTabBorderStyle = "none none solid none"
-        ,
-        sidebarTabBorderColor = "rgb(35,106,135)"
-        ,
-        sidebarTabBorderWidth = 0
-        
-        ,
+        sidebarPadding = 0,
+        sidebarMenuBackColor = "transparent",
+        sidebarMenuPadding = 0,
+        sidebarMenuBorderRadius = 0,
+        sidebarShadowRadius = "5px 5px 5px",
+        sidebarShadowColor = "#282f38",
+        sidebarUserTextColor = "#ffffff",
+        sidebarSearchBackColor = "rgb(55,72,80)",
+        sidebarSearchIconColor = "rgb(153,153,153)",
+        sidebarSearchBorderColor = "rgb(55,72,80)",
+        sidebarTabTextColor = "rgb(255,255,255)",
+        sidebarTabTextSize = 15,
+        sidebarTabBorderStyle = "none none solid none",
+        sidebarTabBorderColor = "rgb(35,106,135)",
+        sidebarTabBorderWidth = 0,
         sidebarTabBackColorSelected = cssGradientThreeColors(
-          direction = "right"
-          ,
-          colorStart = "rgba(44,222,235,1)"
-          ,
-          colorMiddle = "rgba(44,222,235,1)"
-          ,
-          colorEnd = "rgba(0,255,213,1)"
-          ,
-          colorStartPos = 0
-          ,
-          colorMiddlePos = 30
-          ,
+          direction = "right",
+          colorStart = "rgba(44,222,235,1)",
+          colorMiddle = "rgba(44,222,235,1)",
+          colorEnd = "rgba(0,255,213,1)",
+          colorStartPos = 0,
+          colorMiddlePos = 30,
           colorEndPos = 100
-        )
-        ,
-        sidebarTabTextColorSelected = "rgb(0,0,0)"
-        ,
-        sidebarTabRadiusSelected = "0px 0px 0px 0px"
-        
-        ,
+        ),
+        sidebarTabTextColorSelected = "rgb(0,0,0)",
+        sidebarTabRadiusSelected = "0px 0px 0px 0px",
         sidebarTabBackColorHover = cssGradientThreeColors(
-          direction = "right"
-          ,
-          colorStart = "rgba(44,222,235,1)"
-          ,
-          colorMiddle = "rgba(44,222,235,1)"
-          ,
-          colorEnd = "rgba(0,255,213,1)"
-          ,
-          colorStartPos = 0
-          ,
-          colorMiddlePos = 30
-          ,
+          direction = "right",
+          colorStart = "rgba(44,222,235,1)",
+          colorMiddle = "rgba(44,222,235,1)",
+          colorEnd = "rgba(0,255,213,1)",
+          colorStartPos = 0,
+          colorMiddlePos = 30,
           colorEndPos = 100
-        )
-        ,
-        sidebarTabTextColorHover = "rgb(50,50,50)"
-        ,
-        sidebarTabBorderStyleHover = "none none solid none"
-        ,
-        sidebarTabBorderColorHover = "rgb(75,126,151)"
-        ,
-        sidebarTabBorderWidthHover = 0
-        ,
-        sidebarTabRadiusHover = "0px 0px 0px 0px"
+        ),
+        sidebarTabTextColorHover = "rgb(50,50,50)",
+        sidebarTabBorderStyleHover = "none none solid none",
+        sidebarTabBorderColorHover = "rgb(75,126,151)",
+        sidebarTabBorderWidthHover = 0,
+        sidebarTabRadiusHover = "0px 0px 0px 0px",
         
         ### boxes
-        ,
-        boxBackColor = "#ffffff"
-        ,
-        boxBorderRadius = 7
-        ,
-        boxShadowSize = "0px 0px 0px"
-        ,
-        boxShadowColor = "#ffffff"
-        ,
-        boxTitleSize = 20
-        ,
-        boxDefaultColor = "#00a65a"
-        ,
-        boxPrimaryColor = "#ffffff"
-        ,
-        boxInfoColor = "#00a65a"
-        ,
-        boxSuccessColor = "#00a65a"
-        ,
-        boxWarningColor = "#ffffff"
-        ,
-        boxDangerColor = "#ffffff"
-        
-        ,
-        tabBoxTabColor = "#ffffff"
-        ,
-        tabBoxTabTextSize = 14
-        ,
-        tabBoxTabTextColor = "rgb(0,0,0)"
-        ,
-        tabBoxTabTextColorSelected = "rgb(0,0,0)"
-        ,
-        tabBoxBackColor = "#ffffff"
-        ,
-        tabBoxHighlightColor = "#ffffff"
-        ,
-        tabBoxBorderRadius = 5
+        boxBackColor = "#ffffff",
+        boxBorderRadius = 7,
+        boxShadowSize = "0px 0px 0px",
+        boxShadowColor = "#ffffff",
+        boxTitleSize = 20,
+        boxDefaultColor = "#00a65a",
+        boxPrimaryColor = "#ffffff",
+        boxInfoColor = "#00a65a",
+        boxSuccessColor = "#00a65a",
+        boxWarningColor = "#ffffff",
+        boxDangerColor = "#ffffff",
+        tabBoxTabColor = "#ffffff",
+        tabBoxTabTextSize = 14,
+        tabBoxTabTextColor = "rgb(0,0,0)",
+        tabBoxTabTextColorSelected = "rgb(0,0,0)",
+        tabBoxBackColor = "#ffffff",
+        tabBoxHighlightColor = "#ffffff",
+        tabBoxBorderRadius = 5,
         
         ### inputs
-        ,
-        buttonBackColor = "#282F38"
-        ,
-        buttonTextColor = "#ffffff"
-        ,
-        buttonBorderColor = "#282F38"
-        ,
-        buttonBorderRadius = 5
-        
-        ,
+        buttonBackColor = "#282F38",
+        buttonTextColor = "#ffffff",
+        buttonBorderColor = "#282F38",
+        buttonBorderRadius = 5,
         buttonBackColorHover = cssGradientThreeColors(
-          direction = "right"
-          ,
-          colorStart = "rgba(44,222,235,1)"
-          ,
-          colorMiddle = "rgba(44,222,235,1)"
-          ,
-          colorEnd = "rgba(0,255,213,1)"
-          ,
-          colorStartPos = 0
-          ,
-          colorMiddlePos = 30
-          ,
+          direction = "right",
+          colorStart = "rgba(44,222,235,1)",
+          colorMiddle = "rgba(44,222,235,1)",
+          colorEnd = "rgba(0,255,213,1)",
+          colorStartPos = 0,
+          colorMiddlePos = 30,
           colorEndPos = 100
-        )
-        ,
-        buttonTextColorHover = "#000000"
-        ,
-        buttonBorderColorHover = "transparent"
-        
-        ,
-        textboxBackColor = "#ffffff"
-        ,
-        textboxBorderColor = "#ffffff"
-        ,
-        textboxBorderRadius = 5
-        ,
-        textboxBackColorSelect = "#ffffff"
-        ,
-        textboxBorderColorSelect = "#000000"
+        ),
+        buttonTextColorHover = "#000000",
+        buttonBorderColorHover = "transparent",
+        textboxBackColor = "#ffffff",
+        textboxBorderColor = "#ffffff",
+        textboxBorderRadius = 5,
+        textboxBackColorSelect = "#ffffff",
+        textboxBorderColorSelect = "#000000",
         
         ### tables
-        ,
-        tableBackColor = "rgb(255,255,255)"
-        ,
-        tableBorderColor = "rgb(240,240,240)"
-        ,
-        tableBorderTopSize = 1
-        ,
+        tableBackColor = "rgb(255,255,255)",
+        tableBorderColor = "rgb(240,240,240)",
+        tableBorderTopSize = 1,
         tableBorderRowSize = 1
       ),
+      
       uiOutput("start_message"),
       uiOutput("start_message_no_db"),
       
