@@ -11457,7 +11457,7 @@
           geom_label(
             aes(
               x=!!sym("branch"), 
-              label= !sym(input$nj_branch_label)),
+              label= !!sym(input$nj_branch_label)),
             fill = input$nj_branch_label_color,
             size = input$nj_branch_size,
             label.r = unit(input$nj_branch_labelradius, "lines"),
