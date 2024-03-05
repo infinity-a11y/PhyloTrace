@@ -1548,7 +1548,7 @@
                               width = 3,
                               align = "left",
                               checkboxInput(
-                                "rootedge_show",
+                                "nj_rootedge_show",
                                 h5(p("Root"), style = "color:white; position: relative; bottom: 3px; right: -5px; margin-top: 23px"),
                                 value = FALSE
                               )
@@ -1571,15 +1571,7 @@
                                   column(
                                     width = 12,
                                     align = "center",
-                                    numericInput(
-                                      "nj_rootedge_length",
-                                      label = h5("Length", style = "color:white; margin-bottom: 0px"),
-                                      value = 3,
-                                      min = 1,
-                                      max = 30,
-                                      step = 1,
-                                      width = "80px"
-                                    ),
+                                    uiOutput("nj_rootedge_length"),
                                     br(),
                                     selectInput(
                                       "nj_rootedge_line",
@@ -3598,15 +3590,7 @@
                                   column(
                                     width = 12,
                                     align = "center",
-                                    numericInput(
-                                      "upgma_rootedge_length",
-                                      label = h5("Length", style = "color:white; margin-bottom: 0px"),
-                                      value = 3,
-                                      min = 1,
-                                      max = 30,
-                                      step = 1,
-                                      width = "80px"
-                                    ),
+                                    uiOutput("upgma_rootedge_length"),
                                     br(),
                                     selectInput(
                                       "upgma_rootedge_line",
@@ -10139,7 +10123,42 @@
     ## Visualization ----
     ### Render Visualization Controls ----
     
-    #### Treescale ----
+    #### NJ and UPGMA controls ----
+    
+    ##### Rootedge length ----
+    output$nj_rootedge_length <- renderUI({
+      min <- round(ceiling(max(Vis$xrange_nj)) * 0.01, 0)
+      max <- round(ceiling(max(Vis$xrange_nj)) * 0.2, 0)
+      sel <- round(ceiling(max(Vis$xrange_nj)) * 0.05, 0)
+      sliderTextInput(
+        "nj_rootedge_length",
+        label = h5("Length", style = "color:white; margin-bottom: 0px"),
+        choices = min:max,
+        selected = sel,
+        hide_min_max = TRUE,
+        width = "150px"
+      )
+    })
+    
+    output$upgma_rootedge_length <- renderUI({
+      if(round(ceiling(max(Vis$xrange_upgma)) * 0.02, 0) < 1) {
+        min <- 1
+      } else {
+        min <- round(ceiling(max(Vis$xrange_upgma)) * 0.02, 0)  
+      }
+      max <- round(ceiling(max(Vis$xrange_upgma)) * 0.4, 0)
+      sel <- round(ceiling(max(Vis$xrange_upgma)) * 0.1, 0)
+      sliderTextInput(
+        "upgma_rootedge_length",
+        label = h5("Length", style = "color:white; margin-bottom: 0px"),
+        choices = min:max,
+        selected = sel,
+        hide_min_max = TRUE,
+        width = "150px"
+      )
+    })
+    
+    ##### Treescale ----
     output$nj_treescale_width <- renderUI({
       numericInput(
         "nj_treescale_width",
@@ -10220,7 +10239,7 @@
       )
     })
     
-    #### Heatmap ----
+    ##### Heatmap ----
     # Heatmap picker
     output$upgma_heatmap_sel <- renderUI({
       div(
@@ -10301,7 +10320,7 @@
       )
     })
     
-    #### Tiling ----
+    ##### Tiling ----
     
     # Geom Fruit select Variable
     output$upgma_fruit_variable <- renderUI({
@@ -10626,7 +10645,7 @@
       )
     })
     
-    #### Tip color mapping ----
+    ##### Tip color mapping ----
     output$nj_tipcolor_mapping <- renderUI({
       selectInput(
         "nj_tipcolor_mapping",
@@ -10669,7 +10688,7 @@
       )
     })
     
-    #### Tip shape Mapping ----
+    ##### Tip shape Mapping ----
     output$nj_tipshape_mapping <- renderUI({
       selectInput(
         "nj_tipshape_mapping",
@@ -10710,7 +10729,7 @@
       )
     })
     
-    #### Branch label ----
+    ##### Branch label ----
     output$upgma_branch_label <- renderUI({
       selectInput(
         "upgma_branch_label",
@@ -10751,7 +10770,7 @@
       )
     })
     
-    #### Color mapping ----
+    ##### Color mapping ----
     output$nj_color_mapping <- renderUI({
       selectInput(
         "nj_color_mapping",
@@ -10792,18 +10811,7 @@
       )
     })
     
-    #### MST node labels ----
-    output$mst_node_label <- renderUI({
-      selectInput(
-        "mst_node_label",
-        label = "",
-        choices = names(DB$meta)[-c(2, 5, 10, 11, 12)],
-        selected = "Assembly Name",
-        width = "100%"
-      )
-    })
-    
-    #### Tip labels ----
+    ##### Tip labels ----
     output$nj_tiplab <- renderUI({
       selectInput(
         "nj_tiplab",
@@ -10848,6 +10856,19 @@
                  names(DB$meta)[13:ncol(DB$meta)])
         },
         selected = c(`Assembly Name` = "Assembly Name"),
+        width = "100%"
+      )
+    })
+    
+    #### MST controls ----
+    
+    ##### MST node labels ----
+    output$mst_node_label <- renderUI({
+      selectInput(
+        "mst_node_label",
+        label = "",
+        choices = names(DB$meta)[-c(2, 5, 10, 11, 12)],
+        selected = "Assembly Name",
         width = "100%"
       )
     })
@@ -11045,7 +11066,7 @@
         nodepoint() +
         tippoint() +
         clip_label() +
-        rootedge() +
+        nj_rootedge() +
         ggtitle(label = input$nj_title,
                 subtitle = input$nj_subtitle) +
         theme_tree(bgcolor = input$nj_bg) +
@@ -11445,10 +11466,15 @@
     })
     
     # Rootedge
-    rootedge <- reactive({
-      if(input$rootedge_show == TRUE) {
-        geom_rootedge(rootedge = input$nj_rootedge_length,
-                      linetype = input$nj_rootedge_line)
+    nj_rootedge <- reactive({
+      if(input$nj_rootedge_show == TRUE) {
+        if(is.null(input$nj_rootedge_length)) {
+          geom_rootedge(rootedge = round(ceiling(max(Vis$xrange_nj)) * 0.05, 0),
+                        linetype = input$nj_rootedge_line)
+        } else {
+          geom_rootedge(rootedge = input$nj_rootedge_length,
+                        linetype = input$nj_rootedge_line)
+        }
       } else {NULL}
     })
     
@@ -12078,8 +12104,13 @@
     # Rootedge
     upgma_rootedge <- reactive({
       if(input$upgma_rootedge_show == TRUE) {
-        geom_rootedge(rootedge = input$upgma_rootedge_length,
-                      linetype = input$upgma_rootedge_line)
+        if(is.null(input$upgma_rootedge_length)) {
+          geom_rootedge(rootedge = round(ceiling(max(Vis$xrange_upgma)) * 0.05, 0),
+                        linetype = input$upgma_rootedge_line)
+        } else {
+          geom_rootedge(rootedge = input$upgma_rootedge_length,
+                        linetype = input$upgma_rootedge_line)
+        }
       } else {NULL}
     })
     
