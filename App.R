@@ -305,7 +305,7 @@
           uiOutput("typing_sidebar")
         ),
         conditionalPanel(
-          "input.tabs=='visualization'",
+          "input.tabs==='visualization'",
           uiOutput("visualization_sidebar")
         )
       )
@@ -444,7 +444,6 @@
       ),
       
       uiOutput("start_message"),
-      uiOutput("start_message_no_db"),
       
       tabItems(
         
@@ -6148,11 +6147,8 @@
           
           # Hide start message
           output$start_message <- NULL
-          output$start_message_no_db <- NULL
           
           DB$load_selected <- FALSE
-          
-          
           
           # Declare database path
           DB$database <- paste0(DB$new_database, "/Database")
@@ -6273,7 +6269,6 @@
           
           # Hide start message
           output$start_message <- NULL
-          output$start_message_no_db <- NULL
           
           if(any(grepl(gsub(" ", "_", DB$scheme), dir_ls(DB$database)))) {
             
@@ -6819,7 +6814,7 @@
                   # render visualization sidebar elements
                   
                   output$visualization_sidebar <- renderUI({
-                    if(!class(DB$data) == "NULL") {
+                    if(!is.null(DB$data)) {
                       column(
                         width = 12,
                         br(),
@@ -7510,7 +7505,7 @@
                   
                   # Render entry table sidebar elements
                   output$entrytable_sidebar <- renderUI({
-                    if(!class(DB$data) == "NULL") {
+                    if(!is.null(DB$data)) {
                       column(
                         width = 12,
                         align = "center",
@@ -7808,7 +7803,7 @@
                   
                   #### Render Entry Data Table ----
                   output$db_entries_table <- renderUI({
-                    if(!class(DB$data) == "NULL") {
+                    if(!is.null(DB$data)) {
                       if(between(nrow(DB$data), 1, 30)) {
                         rHandsontableOutput("db_entries")
                       } else {
@@ -8236,7 +8231,7 @@
                   
                   #### Render Distance Matrix ----
                   observe({
-                    if(!class(DB$data) == "NULL") {
+                    if(!is.null(DB$data)) {
                       
                       if(any(duplicated(DB$meta$`Assembly Name`))) {
                         output$db_distancematrix <- NULL
@@ -8308,7 +8303,7 @@
                     # Render Distance Matrix UI
                     
                     output$distmatrix_show <- renderUI({
-                      if(!class(DB$data) == "NULL") {
+                      if(!is.null(DB$data)) {
                         if(nrow(DB$data) > 1) {
                           column(
                             width = 10,
@@ -9010,10 +9005,7 @@
           }
         })
         
-        # Dont Show 'No Database' message
-        output$start_message_no_db <- NULL
-        
-        if (!class(DB$schemeinfo) == "NULL") {
+        if (!is.null(DB$schemeinfo)) {
           
           output$scheme_info <- renderTable({
             DB$schemeinfo
@@ -9029,7 +9021,7 @@
           
         }
         
-        if (!class(DB$loci_info) == "NULL") {
+        if (!is.null(DB$loci_info)) {
           output$db_loci <- renderDataTable(DB$loci_info,
                                             options = list(pageLength = 10,
                                                            columnDefs = list(
@@ -9050,7 +9042,7 @@
     # If only one entry available disable varying loci checkbox
     
     output$compare_difference_box <- renderUI({
-      if(!class(DB$data) == "NULL") {
+      if(!is.null(DB$data)) {
         if(nrow(DB$data) > 1) {
           checkboxInput(
             "compare_difference",
@@ -12911,7 +12903,7 @@
                       "report_df" = Report$report_df)
           
           # Save data to an RDS file if any elements were selected
-          if (!class(report) == "NULL") {
+          if (!is.null(report)) {
             saveRDS(report, file = paste0(getwd(), "/Report/selected_elements.rds"))
           }
           
@@ -12929,7 +12921,7 @@
                       "report_df" = Report$report_df)
           
           # Save data to an RDS file if any elements were selected
-          if (!class(report) == "NULL") {
+          if (!is.null(report)) {
             saveRDS(report, file = paste0(getwd(), "/Report/selected_elements.rds"))
           }
           
@@ -12947,7 +12939,7 @@
                       "report_df" = Report$report_df)
           
           # Save data to an RDS file if any elements were selected
-          if (!class(report) == "NULL") {
+          if (!is.null(report)) {
             saveRDS(report, file = paste0(getwd(), "/Report/selected_elements.rds"))
           }
           
