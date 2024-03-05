@@ -5616,7 +5616,7 @@
       return(varying_columns)
     }
     
-    # Function to compute Hamming distance between two vectors
+    # Functions to compute Hamming distance between two vectors
     hamming_distance <- function(x, y) {
       sum(x != y)
     }
@@ -5721,17 +5721,28 @@
     shinyjs::removeClass(selector = "body", class = "sidebar-toggle")
     
     # Declare reactive variables
-    Startup <- reactiveValues(sidebar = TRUE, header = TRUE) # reactive variables related to startup process
-    DB <- reactiveValues(data = NULL, block_db = FALSE, load_selected = TRUE) # reactiive variables related to local database
-    Typing <- reactiveValues(table = data.frame(), single_path = data.frame(), 
-                                      progress = 0, progress_pct = 0, progress_format_start = 0, 
-                                      progress_format_end = 0) # reactive variables related to typing process
-    Vis <- reactiveValues(cluster = NULL, metadata = list()) # reactive variables related to visualization
-    Report <- reactiveValues() # reactive variables related to report functions
-    Scheme <- reactiveValues() # reactive variables related to scheme download functions
+    Startup <- reactiveValues(sidebar = TRUE, 
+                              header = TRUE) # reactive variables related to startup process
     
-    DB$no_na_switch <- FALSE # Show Missing value tab on startup 
-    DB$first_look <- FALSE
+    DB <- reactiveValues(data = NULL, 
+                         block_db = FALSE, 
+                         load_selected = TRUE,
+                         no_na_switch = FALSE,
+                         first_look = FALSE) # reactiive variables related to local database
+    
+    Typing <- reactiveValues(table = data.frame(), 
+                             single_path = data.frame(),
+                             progress = 0, 
+                             progress_pct = 0, 
+                             progress_format_start = 0, 
+                             progress_format_end = 0) # reactive variables related to typing process
+    
+    Vis <- reactiveValues(cluster = NULL, 
+                          metadata = list()) # reactive variables related to visualization
+    
+    Report <- reactiveValues() # reactive variables related to report functions
+    
+    Scheme <- reactiveValues() # reactive variables related to scheme download functions
     
     # Load last used database if possible
     if(paste0(getwd(), "/execute/last_db.rds") %in% dir_ls(paste0(getwd(), "/execute"))) {
@@ -5901,125 +5912,80 @@
       DB$select_new <- FALSE
     })
       
-      output$load_db <- renderUI({
-        if(!is.null(DB$select_new)) {
-          if(length(DB$new_database) > 0 & DB$select_new) {
+    # Load db & scheme selection UI
+    output$load_db <- renderUI({
+      if(!is.null(DB$select_new)) {
+        if(length(DB$new_database) > 0 & DB$select_new) {
+          column(
+            width = 12,
+            p(
+              tags$span(
+                style='color: white; font-size: 15px;',
+                HTML(
+                  paste(
+                    'New database will be created in',
+                    DB$new_database
+                  )
+                )
+              )
+            ),
+            br(),
+            actionButton(
+              "load",
+              "Create"
+            )
+          )
+        } else if(length(DB$available) > 0 & !(DB$select_new)) {
+          if(any(!(gsub(" ", "_", DB$available) %in% schemes))) {
             column(
               width = 12,
               p(
                 tags$span(
-                  style='color: white; font-size: 15px;',
+                  style='color: white; font-size: 15px; font-style: italic;',
                   HTML(
-                    paste(
-                      'New database will be created in',
-                      DB$new_database
-                    )
+                    paste('Selected:', DB$database)
+                  )
+                )
+              ),
+              uiOutput("scheme_db"),
+              br(), 
+              p(
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 13px; font-style: italic;', 
+                              'Warning: Folder contains invalid elements.')
                   )
                 )
               ),
               br(),
               actionButton(
                 "load",
-                "Create"
+                "Load"
               )
             )
-          } else if(length(DB$available) > 0 & !(DB$select_new)) {
-            if(any(!(gsub(" ", "_", DB$available) %in% schemes))) {
-              column(
-                width = 12,
-                p(
-                  tags$span(
-                    style='color: white; font-size: 15px; font-style: italic;',
-                    HTML(
-                      paste('Selected:', DB$database)
-                    )
-                  )
-                ),
-                uiOutput("scheme_db"),
-                br(), 
-                p(
+          } else {
+            column(
+              width = 12,
+              p(
+                tags$span(
+                  style='color: white; font-size: 15px; font-style: italic;',
                   HTML(
-                    paste(
-                      tags$span(style='color: white; font-size: 13px; font-style: italic;', 
-                                'Warning: Folder contains invalid elements.')
-                    )
+                    paste('Selected:', DB$database)
                   )
-                ),
-                br(),
-                actionButton(
-                  "load",
-                  "Load"
                 )
+              ),
+              uiOutput("scheme_db"),
+              br(), br(),
+              actionButton(
+                "load",
+                "Load"
               )
-            } else {
-              column(
-                width = 12,
-                p(
-                  tags$span(
-                    style='color: white; font-size: 15px; font-style: italic;',
-                    HTML(
-                      paste('Selected:', DB$database)
-                    )
-                  )
-                ),
-                uiOutput("scheme_db"),
-                br(), br(),
-                actionButton(
-                  "load",
-                  "Load"
-                )
-              )
-            }
-          } 
-        } else if((!is.null(DB$last_db)) & (!is.null(DB$available))) {
-          if (DB$last_db == TRUE & (length(DB$available) > 0)) {
-            if(any(!(gsub(" ", "_", DB$available) %in% schemes))) {
-              column(
-                width = 12,
-                p(
-                  tags$span(
-                    style='color: white; font-size: 15px; font-style: italic;',
-                    HTML(
-                      paste('Last used:', DB$database)
-                    )
-                  )
-                ),
-                uiOutput("scheme_db"),
-                br(), 
-                p(
-                  HTML(
-                    paste(
-                      tags$span(style='color: white; font-size: 13px; font-style: italic;', 
-                                'Warning: Folder contains invalid elements.')
-                    )
-                  )
-                ),
-                br(),
-                actionButton(
-                  "load",
-                  "Load"
-                )
-              )
-            } else {
-              column(
-                width = 12,
-                p(
-                  tags$span(
-                    style='color: white; font-size: 15px; font-style: italic;',
-                    HTML(
-                      paste('Last used:', DB$database)
-                    )
-                  )
-                ),
-                uiOutput("scheme_db"),
-                br(), br(),
-                actionButton(
-                  "load",
-                  "Load"
-                )
-              )
-            }
-          } else if (DB$last_db == TRUE & (length(DB$available) == 0)) {
+            )
+          }
+        } 
+      } else if((!is.null(DB$last_db)) & (!is.null(DB$available))) {
+        if (DB$last_db == TRUE & (length(DB$available) > 0)) {
+          if(any(!(gsub(" ", "_", DB$available) %in% schemes))) {
             column(
               width = 12,
               p(
@@ -6030,50 +5996,59 @@
                   )
                 )
               ),
+              uiOutput("scheme_db"),
+              br(), 
+              p(
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 13px; font-style: italic;', 
+                              'Warning: Folder contains invalid elements.')
+                  )
+                )
+              ),
               br(),
               actionButton(
                 "load",
                 "Load"
               )
             )
+          } else {
+            column(
+              width = 12,
+              p(
+                tags$span(
+                  style='color: white; font-size: 15px; font-style: italic;',
+                  HTML(
+                    paste('Last used:', DB$database)
+                  )
+                )
+              ),
+              uiOutput("scheme_db"),
+              br(), br(),
+              actionButton(
+                "load",
+                "Load"
+              )
+            )
           }
-        }
-      })
-    
-    observeEvent(input$reload_db, {
-      
-      if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
-        show_toast(
-          title = "Pending Multi Typing",
-          type = "warning",
-          position = "top-end",
-          timer = 6000,
-          width = "500px"
-        )
-      } else if(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[1] != "0") {
-        show_toast(
-          title = "Pending Single Typing",
-          type = "warning",
-          position = "top-end",
-          timer = 6000,
-          width = "500px"
-        )
-      } else {
-        showModal(
-          modalDialog(
-            selectInput(
-              "scheme_db",
-              label = "",
-              choices = DB$available,
-              selected = DB$scheme),
-            title = "Select a local database to load.",
-            easyClose = TRUE,
-            footer = tagList(
-              modalButton("Cancel"),
-              actionButton("load", "Load", class = "btn btn-default")
+        } else if (DB$last_db == TRUE & (length(DB$available) == 0)) {
+          column(
+            width = 12,
+            p(
+              tags$span(
+                style='color: white; font-size: 15px; font-style: italic;',
+                HTML(
+                  paste('Last used:', DB$database)
+                )
+              )
+            ),
+            br(),
+            actionButton(
+              "load",
+              "Load"
             )
           )
-        )
+        }
       }
     })
     
@@ -6086,7 +6061,7 @@
            height = 180)
     }, deleteFile = FALSE)
     
-    ### Startup event ----
+    ### Load app event ----
     
     observeEvent(input$load, {
       
@@ -9055,6 +9030,44 @@
     
     ### Database Events ----
     
+    # Change scheme
+    observeEvent(input$reload_db, {
+      
+      if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
+        show_toast(
+          title = "Pending Multi Typing",
+          type = "warning",
+          position = "top-end",
+          timer = 6000,
+          width = "500px"
+        )
+      } else if(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[1] != "0") {
+        show_toast(
+          title = "Pending Single Typing",
+          type = "warning",
+          position = "top-end",
+          timer = 6000,
+          width = "500px"
+        )
+      } else {
+        showModal(
+          modalDialog(
+            selectInput(
+              "scheme_db",
+              label = "",
+              choices = DB$available,
+              selected = DB$scheme),
+            title = "Select a local database to load.",
+            easyClose = TRUE,
+            footer = tagList(
+              modalButton("Cancel"),
+              actionButton("load", "Load", class = "btn btn-default")
+            )
+          )
+        )
+      }
+    })
+    
     # Create new database
     observe({
       shinyDirChoose(input,
@@ -9072,7 +9085,7 @@
       }
     })
     
-    #Undo changes
+    # Undo db changes
     observeEvent(input$undo_changes, {
       Data <- readRDS(paste0(
         DB$database, "/",
