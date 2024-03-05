@@ -9143,7 +9143,9 @@
                 hot_rows(fixedRowsTop = 0)
             })
           } else if (between(nrow(DB$data), 1, 40)) {
+            
             if (length(input$compare_select) > 0) {
+              
               output$db_entries <- renderRHandsontable({
                 row_highlight <- true_rows()-1
                 rhandsontable(
@@ -9174,35 +9176,30 @@
                   hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                   hot_rows(fixedRowsTop = 0) %>%
                   hot_col(1, renderer = "
-              function (instance, td, row, col, prop, value, cellProperties) {
-                       Handsontable.renderers.TextRenderer.apply(this, arguments);
-  
-                       if (instance.params) {
-                         hrows = instance.params.row_highlight
-                         hrows = hrows instanceof Array ? hrows : [hrows]
-  
-                         if (hrows.includes(row)) { 
+                    function (instance, td, row, col, prop, value, cellProperties) {
+                      Handsontable.renderers.TextRenderer.apply(this, arguments);
+                      if (instance.params) {
+                        hrows = instance.params.row_highlight
+                        hrows = hrows instanceof Array ? hrows : [hrows]
+                        if (hrows.includes(row)) { 
                            td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
-                         }
-  
-                       }
-              }") %>%
+                        }
+                      }
+                    }") %>%
                   hot_col(diff_allele(),
                           renderer = "
-                  function(instance, td, row, col, prop, value, cellProperties) {
-                    Handsontable.renderers.NumericRenderer.apply(this, arguments);
-  
-                    if (instance.params) {
-                          hcols = instance.params.col_highlight;
-                          hcols = hcols instanceof Array ? hcols : [hcols];
-                        }
-  
-                    if (instance.params && hcols.includes(col)) {
-                      td.style.background = '#FF8F8F';
-                    }
-                }"
-                  ) 
-              })
+                    function(instance, td, row, col, prop, value, cellProperties) {
+                      Handsontable.renderers.NumericRenderer.apply(this, arguments);
+                      if (instance.params) {
+                        hcols = instance.params.col_highlight;
+                        hcols = hcols instanceof Array ? hcols : [hcols];
+                      }
+                      
+                      if (instance.params && hcols.includes(col)) {
+                        td.style.background = '#FF8F8F';
+                      }
+                    }")
+                })
             } else {
               output$db_entries <- renderRHandsontable({
                 row_highlight <- true_rows()-1
@@ -9227,19 +9224,17 @@
                                    allowReadOnly = FALSE) %>%
                   hot_rows(fixedRowsTop = 0) %>%
                   hot_col(1, renderer = "
-              function (instance, td, row, col, prop, value, cellProperties) {
-                       Handsontable.renderers.TextRenderer.apply(this, arguments);
-  
-                       if (instance.params) {
-                         hrows = instance.params.row_highlight
-                         hrows = hrows instanceof Array ? hrows : [hrows]
-  
-                         if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
-                         }
-  
-                       }
-              }")
+                    function (instance, td, row, col, prop, value, cellProperties) {
+                      Handsontable.renderers.TextRenderer.apply(this, arguments);
+                      
+                      if (instance.params) {
+                        hrows = instance.params.row_highlight
+                        hrows = hrows instanceof Array ? hrows : [hrows]
+                        if (hrows.includes(row)) { 
+                          td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
+                        }
+                      }
+                    }")
               })
             }
           } else {
@@ -9274,33 +9269,28 @@
                   hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                   hot_rows(fixedRowsTop = 0) %>%
                   hot_col(1, renderer = "
-              function (instance, td, row, col, prop, value, cellProperties) {
-                       Handsontable.renderers.TextRenderer.apply(this, arguments);
-  
-                       if (instance.params) {
-                         hrows = instance.params.row_highlight
-                         hrows = hrows instanceof Array ? hrows : [hrows]
-  
-                         if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
-                         }
-  
-                       }
-              }") %>%
+                    function (instance, td, row, col, prop, value, cellProperties) {
+                      Handsontable.renderers.TextRenderer.apply(this, arguments);
+                      if (instance.params) {
+                        hrows = instance.params.row_highlight
+                        hrows = hrows instanceof Array ? hrows : [hrows]
+                        if (hrows.includes(row)) { 
+                          td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
+                        }
+                      }
+                    }") %>%
                   hot_col(diff_allele(),
                           renderer = "
-                  function(instance, td, row, col, prop, value, cellProperties) {
-                    Handsontable.renderers.NumericRenderer.apply(this, arguments);
-  
-                    if (instance.params) {
-                          hcols = instance.params.col_highlight;
-                          hcols = hcols instanceof Array ? hcols : [hcols];
-                        }
-  
-                    if (instance.params && hcols.includes(col)) {
-                      td.style.background = '#FF8F8F';
-                    }
-                }") 
+                    function(instance, td, row, col, prop, value, cellProperties) {
+                      Handsontable.renderers.NumericRenderer.apply(this, arguments);
+                      if (instance.params) {
+                        hcols = instance.params.col_highlight;
+                        hcols = hcols instanceof Array ? hcols : [hcols];
+                      }
+                      if (instance.params && hcols.includes(col)) {
+                        td.style.background = '#FF8F8F';
+                      }
+                    }") 
               })
             } else {
               output$db_entries <- renderRHandsontable({
@@ -9324,18 +9314,16 @@
                                    allowReadOnly = FALSE) %>%
                   hot_rows(fixedRowsTop = 0) %>%
                   hot_col(1, renderer = "
-              function (instance, td, row, col, prop, value, cellProperties) {
-                       Handsontable.renderers.TextRenderer.apply(this, arguments);
-  
-                       if (instance.params) {
-                         hrows = instance.params.row_highlight
-                         hrows = hrows instanceof Array ? hrows : [hrows]
-  
-                         if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
-                         }
-                       }
-              }") %>%
+                    function (instance, td, row, col, prop, value, cellProperties) {
+                      Handsontable.renderers.TextRenderer.apply(this, arguments);
+                      if (instance.params) {
+                        hrows = instance.params.row_highlight
+                        hrows = hrows instanceof Array ? hrows : [hrows]
+                        if (hrows.includes(row)) { 
+                          td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
+                        }
+                      }
+                    }") %>%
                   hot_col(2, type = "checkbox", width = "auto",
                           valign = "htTop", halign = "htCenter")
               })
