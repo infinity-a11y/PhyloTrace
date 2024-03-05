@@ -5724,6 +5724,10 @@
                 input$db_location
               )
             )
+            
+            DB$exist <- (length(dir_ls(DB$database)) == 0)  # Logical any local database present
+            
+            DB$available <- gsub("_", " ", basename(dir_ls(DB$database))) # List of local schemes available
           }
           
         } else if (DB$select_new ==  TRUE) {
@@ -5731,8 +5735,11 @@
           
         }
       } else {
-        if(!is.null(DB$last_db) & file.exists(paste0(getwd(), "/execute/last_db.rds")) & dir_exists(readRDS(paste0(getwd(), "/execute/last_db.rds")))){
-          DB$database <- readRDS(paste0(getwd(), "/execute/last_db.rds"))
+        if(!is.null(DB$last_db) & 
+           file.exists(paste0(getwd(), "/execute/last_db.rds")) & 
+           dir_exists(readRDS(paste0(getwd(), "/execute/last_db.rds")))){
+          
+          DB$database <- readRDS(paste0(getwd(), "/execute/last_db.rds")) 
           
           DB$exist <- (length(dir_ls(DB$database)) == 0)  # Logical any local database present
           
@@ -8947,8 +8954,7 @@
             DB$schemeinfo
           })
           
-          output$scheme_header <-
-            renderUI(h3(p("cgMLST Scheme"), style = "color:white"))
+          output$scheme_header <- renderUI(h3(p("cgMLST Scheme"), style = "color:white"))
           
         } else {
           
@@ -8958,15 +8964,14 @@
         }
         
         if (!is.null(DB$loci_info)) {
-          output$db_loci <- renderDataTable(DB$loci_info,
-                                            options = list(pageLength = 10,
-                                                           columnDefs = list(
-                                                             list(searchable = FALSE,
-                                                                  targets = "_all")
-                                                           )))
+          output$db_loci <- renderDataTable(
+            DB$loci_info,
+            options = list(pageLength = 10,
+                           columnDefs = list(list(searchable = FALSE,
+                                                  targets = "_all")
+                                             )))
           
-          output$loci_header <-
-            renderUI(h3(p("Loci"), style = "color:white"))
+          output$loci_header <- renderUI(h3(p("Loci"), style = "color:white"))
           
         } else {
           output$db_loci <- NULL
