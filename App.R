@@ -1,4 +1,6 @@
-  # PhyloTrace
+######## PhyloTrace #########
+
+# _______________________ ####
   
   library(shiny)
   library(R.utils)
@@ -5576,13 +5578,13 @@
     ) # End dashboardPage
   ) # end UI
   
-  
+  # _______________________ ####
   
   # Server ----
   
   server <- function(input, output, session) {
     
-    phylotraceVersion <- paste("PhyloTrace-1.0.0", Sys.Date())
+    phylotraceVersion <- paste("PhyloTrace-1.1.1", Sys.Date())
     
     # Disable MST variable mappings
     shinyjs::disable('mst_edge_label') 
@@ -5715,6 +5717,8 @@
         which(duplicated(DB$meta$`Assembly Name`) | duplicated(DB$meta$`Assembly Name`, fromLast = TRUE))
       }
     })
+    
+    # _______________________ ####
     
     ## Startup ----
     shinyjs::addClass(selector = "body", class = "sidebar-collapse")
@@ -8759,6 +8763,8 @@
       
     })
     
+    # _______________________ ####
+    
     ## Database ----
     
     ### Conditional UI Elements rendering ----
@@ -9885,6 +9891,7 @@
       }
     )
     
+    # _______________________ ####
     
     ## Download cgMLST ----
     
@@ -10156,6 +10163,7 @@
                      list(searchable = FALSE, targets = "_all")
                    )))
     
+    # _______________________ ####
     
     ## Visualization ----
     ### Reactive Render of Visualization Controls ----
@@ -12802,6 +12810,7 @@
       }
     })
     
+    # _______________________ ####
     
     ## Report ----
     
@@ -12951,6 +12960,8 @@
         }
       }
     )
+    
+    # _______________________ ####
     
     ## Typing  ----
     
@@ -14364,6 +14375,8 @@
     })
     
   } # end server
+  
+  # _______________________ ####
   
   # Shiny ----
   
