@@ -11107,7 +11107,7 @@
         nj_fruit5() +
         nj_gradient5() 
       
-      
+      # Extract plot meta data
       Vis$xrange_nj <- tree$data$x
       Vis$yrange_nj <- tree$data$y
       
@@ -11124,9 +11124,9 @@
       } 
       
       Vis$nj_plot <- ggplotify::as.ggplot(tree, 
-                                               scale = input$nj_zoom,
-                                               hjust = input$nj_h,
-                                               vjust = input$nj_v)  
+                                          scale = input$nj_zoom,
+                                          hjust = input$nj_h,
+                                          vjust = input$nj_v)  
       Vis$nj_plot
     })
     
@@ -11742,6 +11742,7 @@
         upgma_fruit5() +
         upgma_gradient5() 
       
+      # Extract plot meta data
       Vis$xrange_upgma <- tree$data$x
       Vis$yrange_upgma <- tree$data$y
       
@@ -11758,9 +11759,9 @@
       } 
       
       Vis$upgma_plot <- ggplotify::as.ggplot(tree, 
-                                                  scale = input$upgma_zoom,
-                                                  hjust = input$upgma_h,
-                                                  vjust = input$upgma_v)  
+                                             scale = input$upgma_zoom,
+                                             hjust = input$upgma_h,
+                                             vjust = input$upgma_v)  
       
       Vis$upgma_plot
     })
@@ -12401,22 +12402,54 @@
     shinyjs::disable('upgma_tiplab_linesize')
     shinyjs::disable('upgma_tiplab_linetype')
     
-    # Shut off Tiles (geom_fruit()) when inward layout
+    # Conditional disabling of control elemenmts
     observe({
+      
+      # Tiles for inward layout
       if(input$nj_layout == "inward") {
         shinyjs::disable('nj_tiles_show') 
+        shinyjs::disable('nj_tiles_show_2')
+        shinyjs::disable('nj_tiles_show_3') 
+        shinyjs::disable('nj_tiles_show_4')
+        shinyjs::disable('nj_tiles_show_5') 
         shinyjs::disable('nj_fruit_variable')
+        shinyjs::disable('nj_fruit_variable_2')
+        shinyjs::disable('nj_fruit_variable_3')
+        shinyjs::disable('nj_fruit_variable_4')
+        shinyjs::disable('nj_fruit_variable_5')
         shinyjs::disable('nj_fruit_width')
+        shinyjs::disable('nj_fruit_width_2')
+        shinyjs::disable('nj_fruit_width_3')
+        shinyjs::disable('nj_fruit_width_4')
+        shinyjs::disable('nj_fruit_width_5')
         shinyjs::disable('nj_fruit_offset')
+        shinyjs::disable('nj_fruit_offset_2')
+        shinyjs::disable('nj_fruit_offset_3')
+        shinyjs::disable('nj_fruit_offset_4')
+        shinyjs::disable('nj_fruit_offset_5')
       } else {
-        shinyjs::enable('nj_tiles_show')
+        shinyjs::enable('nj_tiles_show') 
+        shinyjs::enable('nj_tiles_show_2')
+        shinyjs::enable('nj_tiles_show_3') 
+        shinyjs::enable('nj_tiles_show_4')
+        shinyjs::enable('nj_tiles_show_5') 
         shinyjs::enable('nj_fruit_variable')
+        shinyjs::enable('nj_fruit_variable_2')
+        shinyjs::enable('nj_fruit_variable_3')
+        shinyjs::enable('nj_fruit_variable_4')
+        shinyjs::enable('nj_fruit_variable_5')
         shinyjs::enable('nj_fruit_width')
+        shinyjs::enable('nj_fruit_width_2')
+        shinyjs::enable('nj_fruit_width_3')
+        shinyjs::enable('nj_fruit_width_4')
+        shinyjs::enable('nj_fruit_width_5')
         shinyjs::enable('nj_fruit_offset')
+        shinyjs::enable('nj_fruit_offset_2')
+        shinyjs::enable('nj_fruit_offset_3')
+        shinyjs::enable('nj_fruit_offset_4')
+        shinyjs::enable('nj_fruit_offset_5')
       }
-    })
-    
-    observe({
+      
       if(input$upgma_layout == "inward") {
         shinyjs::disable('upgma_tiles_show') 
         shinyjs::disable('upgma_tiles_show_2')
@@ -12424,17 +12457,54 @@
         shinyjs::disable('upgma_tiles_show_4')
         shinyjs::disable('upgma_tiles_show_5') 
         shinyjs::disable('upgma_fruit_variable')
+        shinyjs::disable('upgma_fruit_variable_2')
+        shinyjs::disable('upgma_fruit_variable_3')
+        shinyjs::disable('upgma_fruit_variable_4')
+        shinyjs::disable('upgma_fruit_variable_5')
         shinyjs::disable('upgma_fruit_width')
+        shinyjs::disable('upgma_fruit_width_2')
+        shinyjs::disable('upgma_fruit_width_3')
+        shinyjs::disable('upgma_fruit_width_4')
+        shinyjs::disable('upgma_fruit_width_5')
         shinyjs::disable('upgma_fruit_offset')
+        shinyjs::disable('upgma_fruit_offset_2')
+        shinyjs::disable('upgma_fruit_offset_3')
+        shinyjs::disable('upgma_fruit_offset_4')
+        shinyjs::disable('upgma_fruit_offset_5')
       } else {
         shinyjs::enable('upgma_tiles_show') 
         shinyjs::enable('upgma_tiles_show_2')
         shinyjs::enable('upgma_tiles_show_3') 
         shinyjs::enable('upgma_tiles_show_4')
-        shinyjs::enable('upgma_tiles_show_5')
+        shinyjs::enable('upgma_tiles_show_5') 
         shinyjs::enable('upgma_fruit_variable')
+        shinyjs::enable('upgma_fruit_variable_2')
+        shinyjs::enable('upgma_fruit_variable_3')
+        shinyjs::enable('upgma_fruit_variable_4')
+        shinyjs::enable('upgma_fruit_variable_5')
         shinyjs::enable('upgma_fruit_width')
+        shinyjs::enable('upgma_fruit_width_2')
+        shinyjs::enable('upgma_fruit_width_3')
+        shinyjs::enable('upgma_fruit_width_4')
+        shinyjs::enable('upgma_fruit_width_5')
         shinyjs::enable('upgma_fruit_offset')
+        shinyjs::enable('upgma_fruit_offset_2')
+        shinyjs::enable('upgma_fruit_offset_3')
+        shinyjs::enable('upgma_fruit_offset_4')
+        shinyjs::enable('upgma_fruit_offset_5')
+      }
+      
+      # Shut off branch labels for NJ and UPGMA plots for circular layout
+      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+        shinyjs::disable('nj_show_branch_label')
+      } else {
+        shinyjs::enable('nj_show_branch_label')
+      }
+      
+      if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
+        shinyjs::disable('upgma_show_branch_label')
+      } else {
+        shinyjs::enable('upgma_show_branch_label')
       }
     })
     
