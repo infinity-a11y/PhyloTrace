@@ -13073,7 +13073,9 @@
           paste("<span style='color: white;'>", "No file selected.")
         ))
         
+        # dont show subsequent metadata declaration and typing start UI
         output$metadata_single_box <- NULL
+        output$start_typing_ui <- NULL
         
       } else if (nrow(Typing$single_path) > 0) {
         
@@ -13263,6 +13265,7 @@
             width = "500px",
             timer = 6000
           )
+          
         }
       }
     })
