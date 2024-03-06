@@ -78,6 +78,18 @@ file.select {
   margin-left: -20px;
 }
 
+.irs--shiny .irs-min,
+.irs--shiny .irs-max {
+  top: 0;
+  padding: 1px 3px;
+  text-shadow: none;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  font-size: 10px;
+  line-height: 1.333;
+  color: white
+}
+
 i.fas {
   margin-right: 5px;
 }
@@ -521,6 +533,16 @@ input.form-control.pickr-color {
 
 .slider_edge {
   margin-top: -10px;
+}
+
+#nj_branch_label_menu-template > div > div:nth-child(2) > div:nth-child(2) {
+  margin-top: 26px;
+  margin-bottom: -10px;
+}
+
+#upgma_branch_label_menu-template > div > div:nth-child(2) > div:nth-child(2) {
+  margin-top: 26px;
+  margin-bottom: -10px;
 }
 
 #mst_color_node {
