@@ -11186,7 +11186,7 @@ server <- function(input, output, session) {
             legend.key = element_rect(fill = input$nj_bg),
             legend.box.spacing = unit(1.5, "cm"),
             legend.key.size = unit(0.05*input$nj_legend_size, 'cm'),
-            plot.background = element_rect(fill = input$nj_bg))  +
+            plot.background = element_rect(fill = input$nj_bg, color = input$nj_bg)) +
       new_scale_fill() +
       nj_fruit() +
       nj_gradient() +
@@ -11223,7 +11223,9 @@ server <- function(input, output, session) {
                                         scale = input$nj_zoom,
                                         hjust = input$nj_h,
                                         vjust = input$nj_v)  
-    Vis$nj_plot
+    
+    cowplot::ggdraw(Vis$nj_plot) + 
+      theme(plot.background = element_rect(fill = input$nj_bg, color = input$nj_bg))
   })
   
   # Legend Position
@@ -11821,7 +11823,7 @@ server <- function(input, output, session) {
             legend.key = element_rect(fill = input$upgma_bg),
             legend.box.spacing = unit(1.5, "cm"),
             legend.key.size = unit(0.05*input$upgma_legend_size, 'cm'),
-            plot.background = element_rect(fill = input$upgma_bg)) +
+            plot.background = element_rect(fill = input$upgma_bg, color = input$upgma_bg)) +
       new_scale_fill() +
       upgma_fruit() +
       upgma_gradient() +
@@ -11859,7 +11861,8 @@ server <- function(input, output, session) {
                                            hjust = input$upgma_h,
                                            vjust = input$upgma_v)  
     
-    Vis$upgma_plot
+    cowplot::ggdraw(Vis$upgma_plot) + 
+      theme(plot.background = element_rect(fill = input$upgma_bg, color = input$upgma_bg))
   })
   
   # Legend Position
