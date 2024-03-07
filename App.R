@@ -33,6 +33,7 @@ library(rhandsontable)
 library(visNetwork)
 library(proxy)
 library(phangorn)
+library(cowplot)
 
 schemes <- c("Acinetobacter_baumanii", "Bacillus_anthracis", "Bordetella_pertussis", 
              "Brucella_melitensis", "Brucella_spp", "Burkholderia_mallei_FLI", 
@@ -2028,7 +2029,7 @@ ui <- dashboardPage(
                                   min = -3,
                                   max = 3,
                                   step = 0.05,
-                                  value = 0.10,
+                                  value = -0.05,
                                   width = "150px",
                                   ticks = FALSE
                                 )
@@ -4059,7 +4060,7 @@ ui <- dashboardPage(
                                   label = h5("Position", style = "color:white; margin-bottom: 0px"),
                                   min = -3,
                                   max = 3,
-                                  value = -0.1,
+                                  value = -0.05,
                                   width = "150px",
                                   ticks = FALSE
                                 )
@@ -4090,15 +4091,7 @@ ui <- dashboardPage(
                             column(
                               width = 6,
                               align = "center",
-                              numericInput(
-                                "upgma_tiplab_size",
-                                label = h5("Label size", style = "color:white; margin-bottom: 0px"),
-                                min = 1,
-                                max = 10,
-                                step = 0.5,
-                                value = 4,
-                                width = "80px"
-                              ),
+                              uiOutput("upgma_tiplab_size"),
                               br(),
                               selectInput(
                                 "upgma_tiplab_fontface",
@@ -9037,6 +9030,9 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
+    testt <<- upgma_tiplab_size()
+    test <<- input$upgma_tiplab_size
+    
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -10167,6 +10163,31 @@ server <- function(input, output, session) {
   ### Render Visualization Controls ----
   
   #### NJ and UPGMA controls ----
+  
+  ##### Tiplabel size ----
+  output$upgma_tiplab_size <- renderUI(
+    numericInput(
+      "upgma_tiplab_size",
+      label = h5("Label size", style = "color:white; margin-bottom: 0px"),
+      min = 1,
+      max = 10,
+      step = 0.5,
+      value = Vis$labelsize_upgma,
+      width = "80px"
+    )
+  )
+  
+  output$nj_tiplab_size <- renderUI(
+    numericInput(
+      "nj_tiplab_size",
+      label = h5("Label size", style = "color:white; margin-bottom: 0px"),
+      min = 1,
+      max = 10,
+      step = 0.5,
+      value = Vis$labelsize_nj,
+      width = "80px"
+    )
+  )
   
   ##### Rootedge length ----
   output$nj_rootedge_length <- renderUI({
@@ -11657,7 +11678,7 @@ server <- function(input, output, session) {
           geom_tiplab(
             mapping_tiplab(), 
             geom = "text",
-            size = input$tiplab_size,
+            size = nj_tiplab_size(),
             linesize = input$nj_tiplab_linesize,
             linetype = input$nj_tiplab_linetype,
             alpha = input$nj_tiplab_alpha,
@@ -11671,7 +11692,7 @@ server <- function(input, output, session) {
             mapping_tiplab(),
             color = input$nj_tiplab_color,
             geom = "text",
-            size = input$tiplab_size,
+            size = nj_tiplab_size(),
             linesize = input$nj_tiplab_linesize,
             linetype = input$nj_tiplab_linetype,
             alpha = input$nj_tiplab_alpha,
@@ -11686,7 +11707,7 @@ server <- function(input, output, session) {
           geom_tiplab(
             mapping_tiplab(), 
             geom = "text",
-            size = input$tiplab_size,
+            size = nj_tiplab_size(),
             linesize = input$nj_tiplab_linesize,
             linetype = input$nj_tiplab_linetype,
             alpha = input$nj_tiplab_alpha,
@@ -11700,7 +11721,7 @@ server <- function(input, output, session) {
             mapping_tiplab(),
             color = input$nj_tiplab_color,
             geom = "text",
-            size = input$tiplab_size,
+            size = nj_tiplab_size(),
             linesize = input$nj_tiplab_linesize,
             linetype = input$nj_tiplab_linetype,
             alpha = input$nj_tiplab_alpha,
@@ -11716,7 +11737,7 @@ server <- function(input, output, session) {
             mapping_tiplab(), 
             geom = nj_geom(),
             angle = input$nj_tiplab_angle,
-            size = input$tiplab_size,
+            size = nj_tiplab_size(),
             linesize = input$nj_tiplab_linesize,
             linetype = input$nj_tiplab_linetype,
             alpha = input$nj_tiplab_alpha,
@@ -11734,7 +11755,7 @@ server <- function(input, output, session) {
             geom = nj_geom(),
             color = input$nj_tiplab_color,
             angle = input$nj_tiplab_angle,
-            size = input$tiplab_size,
+            size = nj_tiplab_size(),
             linesize = input$nj_tiplab_linesize,
             linetype = input$nj_tiplab_linetype,
             alpha = input$nj_tiplab_alpha,
@@ -11753,8 +11774,16 @@ server <- function(input, output, session) {
     
   })
   
-  # Show Label Panels?
+  # Tiplab size
+  nj_tiplab_size <- reactive({
+    if(!is.null(input$nj_tiplab_size)) {
+      input$nj_tiplab_size
+    } else {
+      Vis$labelsize_nj
+    }
+  })
   
+  # Show Label Panels?
   nj_geom <- reactive({
     if(input$nj_geom == TRUE) {
       "label"
@@ -12023,7 +12052,6 @@ server <- function(input, output, session) {
   
   
   # No label clip off for linear UPGMA tree
-  
   upgma_clip_label <- reactive({
     if(!(input$upgma_layout == "circular" | input$upgma_layout == "inward")) {
       coord_cartesian(clip = "off")
@@ -12295,7 +12323,7 @@ server <- function(input, output, session) {
           geom_tiplab(
             upgma_mapping_tiplab(), 
             geom = "text",
-            size = input$upgma_tiplab_size,
+            size = upgma_tiplab_size(),
             linesize = input$upgma_tiplab_linesize,
             linetype = input$upgma_tiplab_linetype,
             alpha = input$upgma_tiplab_alpha,
@@ -12309,7 +12337,7 @@ server <- function(input, output, session) {
             upgma_mapping_tiplab(),
             color = input$upgma_tiplab_color,
             geom = "text",
-            size = input$upgma_tiplab_size,
+            size = upgma_tiplab_size(),
             linesize = input$upgma_tiplab_linesize,
             linetype = input$upgma_tiplab_linetype,
             alpha = input$upgma_tiplab_alpha,
@@ -12324,7 +12352,7 @@ server <- function(input, output, session) {
           geom_tiplab(
             upgma_mapping_tiplab(), 
             geom = "text",
-            size = input$upgma_tiplab_size,
+            size = upgma_tiplab_size(),
             linesize = input$upgma_tiplab_linesize,
             linetype = input$upgma_tiplab_linetype,
             alpha = input$upgma_tiplab_alpha,
@@ -12338,7 +12366,7 @@ server <- function(input, output, session) {
             upgma_mapping_tiplab(),
             color = input$upgma_tiplab_color,
             geom = "text",
-            size = input$upgma_tiplab_size,
+            size = upgma_tiplab_size(),
             linesize = input$upgma_tiplab_linesize,
             linetype = input$upgma_tiplab_linetype,
             alpha = input$upgma_tiplab_alpha,
@@ -12354,7 +12382,7 @@ server <- function(input, output, session) {
             upgma_mapping_tiplab(), 
             geom = upgma_geom(),
             angle = input$upgma_tiplab_angle,
-            size = input$upgma_tiplab_size,
+            size = upgma_tiplab_size(),
             linesize = input$upgma_tiplab_linesize,
             linetype = input$upgma_tiplab_linetype,
             alpha = input$upgma_tiplab_alpha,
@@ -12372,7 +12400,7 @@ server <- function(input, output, session) {
             geom = upgma_geom(),
             color = input$upgma_tiplab_color,
             angle = input$upgma_tiplab_angle,
-            size = input$upgma_tiplab_size,
+            size = upgma_tiplab_size(),
             linesize = input$upgma_tiplab_linesize,
             linetype = input$upgma_tiplab_linetype,
             alpha = input$upgma_tiplab_alpha,
@@ -12391,8 +12419,16 @@ server <- function(input, output, session) {
     
   })
   
-  # Show Label Panels?
+  # Tiplab size
+  upgma_tiplab_size <- reactive({
+    if(!is.null(input$upgma_tiplab_size)) {
+      input$upgma_tiplab_size
+    } else {
+      Vis$labelsize_upgma
+    }
+  })
   
+  # Show Label Panels?
   upgma_geom <- reactive({
     if(input$upgma_geom == TRUE) {
       "label"
@@ -13008,6 +13044,46 @@ server <- function(input, output, session) {
             Vis$meta_nj <- mutate(Vis$meta_nj, taxa = Index) %>%
               relocate(taxa)
             
+            # Get number of included entries calculate start values for tree 
+            if(!is.null(input$nj_layout)) {
+              if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+                if(sum(DB$data$Include) < 21) {
+                  Vis$labelsize_nj <- 5.5
+                } else if (between(sum(DB$data$Include), 21, 40)) {
+                  Vis$labelsize_nj <- 5
+                } else if (between(sum(DB$data$Include), 41, 60)) {
+                  Vis$labelsize_nj <- 4.5
+                } else if (between(sum(DB$data$Include), 61, 80)) {
+                  Vis$labelsize_nj <- 4
+                } else if (between(sum(DB$data$Include), 81, 120)) {
+                  Vis$labelsize_nj <- 3.5
+                } else {
+                  Vis$labelsize_nj <- 3
+                }
+              } else {
+                if(sum(DB$data$Include) < 21) {
+                  Vis$labelsize_nj <- 5
+                } else if (between(sum(DB$data$Include), 21, 40)) {
+                  Vis$labelsize_nj <- 4.5
+                } else if (between(sum(DB$data$Include), 41, 60)) {
+                  Vis$labelsize_nj <- 4
+                } else if (between(sum(DB$data$Include), 61, 80)) {
+                  Vis$labelsize_nj <- 3.5
+                } else if (between(sum(DB$data$Include), 81, 100)) {
+                  Vis$labelsize_nj <- 3
+                } else {
+                  Vis$labelsize_nj <- 2.5
+                }
+              }
+            } else {
+              Vis$labelsize_nj <- 4
+            }
+            
+            # Update visualization control inputs
+            if(!is.null(input$nj_tiplab_size)) {
+              updateNumericInput(session, "nj_tiplab_size", value = Vis$labelsize_nj)
+            }
+            
             # Create phylogenetic tree
             Vis$nj <- ape::nj(hamming_nj())
             
@@ -13031,6 +13107,46 @@ server <- function(input, output, session) {
             
             Vis$meta_upgma <- mutate(Vis$meta_upgma, taxa = Index) %>%
               relocate(taxa)
+            
+            # Get number of included entries calculate start values for tree 
+            if(!is.null(input$upgma_layout)) {
+              if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
+                if(sum(DB$data$Include) < 21) {
+                  Vis$labelsize_upgma <- 5.5
+                } else if (between(sum(DB$data$Include), 21, 40)) {
+                  Vis$labelsize_upgma <- 5
+                } else if (between(sum(DB$data$Include), 41, 60)) {
+                  Vis$labelsize_upgma <- 4.5
+                } else if (between(sum(DB$data$Include), 61, 80)) {
+                  Vis$labelsize_upgma <- 4
+                } else if (between(sum(DB$data$Include), 81, 120)) {
+                  Vis$labelsize_upgma <- 3.5
+                } else {
+                  Vis$labelsize_upgma <- 3
+                }
+              } else {
+                if(sum(DB$data$Include) < 21) {
+                  Vis$labelsize_upgma <- 5
+                } else if (between(sum(DB$data$Include), 21, 40)) {
+                  Vis$labelsize_upgma <- 4.5
+                } else if (between(sum(DB$data$Include), 41, 60)) {
+                  Vis$labelsize_upgma <- 4
+                } else if (between(sum(DB$data$Include), 61, 80)) {
+                  Vis$labelsize_upgma <- 3.5
+                } else if (between(sum(DB$data$Include), 81, 100)) {
+                  Vis$labelsize_upgma <- 3
+                } else {
+                  Vis$labelsize_upgma <- 2.5
+                }
+              }
+            } else {
+              Vis$labelsize_upgma <- 4
+            }
+            
+            # Update visualization control inputs
+            if(!is.null(input$upgma_tiplab_size)) {
+              updateNumericInput(session, "upgma_tiplab_size", value = Vis$labelsize_upgma)
+            }
             
             # Create phylogenetic tree
             Vis$upgma <- phangorn::upgma(hamming_nj())
