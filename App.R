@@ -2061,15 +2061,7 @@ ui <- dashboardPage(
                             column(
                               width = 6,
                               align = "center",
-                              numericInput(
-                                "tiplab_size",
-                                label = h5("Label size", style = "color:white; margin-bottom: 0px"),
-                                min = 1,
-                                max = 10,
-                                step = 0.5,
-                                value = 4,
-                                width = "80px"
-                              ),
+                              uiOutput("nj_tiplab_size"),
                               br(),
                               selectInput(
                                 "nj_tiplab_fontface",
@@ -2410,15 +2402,7 @@ ui <- dashboardPage(
                                 ticks = FALSE
                               ), 
                               br(),
-                              sliderInput(
-                                inputId = "nj_tippoint_size",
-                                label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                                min = 1,
-                                max = 20,
-                                value = 5,
-                                width = "150px",
-                                ticks = FALSE
-                              )
+                              uiOutput("nj_tippoint_size")
                             )
                           )
                         )  
@@ -4432,15 +4416,7 @@ ui <- dashboardPage(
                                 ticks = FALSE
                               ), 
                               br(),
-                              sliderInput(
-                                inputId = "upgma_tippoint_size",
-                                label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                                min = 1,
-                                max = 20,
-                                value = 5,
-                                width = "150px",
-                                ticks = FALSE
-                              )
+                              uiOutput("upgma_tippoint_size")
                             )
                           )
                         )  
@@ -9030,8 +9006,7 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
-    testt <<- upgma_tiplab_size()
-    test <<- input$upgma_tiplab_size
+    test <<- input$nj_layout
     
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -10163,6 +10138,33 @@ server <- function(input, output, session) {
   ### Render Visualization Controls ----
   
   #### NJ and UPGMA controls ----
+  
+  ##### Tippoint size ----
+  output$nj_tippoint_size <- renderUI(
+    sliderInput(
+      inputId = "nj_tippoint_size",
+      label = h5("Size", style = "color:white; margin-bottom: 0px"),
+      min = 1,
+      max = 20,
+      step = 0.5,
+      value = Vis$tippointsize_nj,
+      width = "150px",
+      ticks = FALSE
+    )
+  )
+  
+  output$upgma_tippoint_size <- renderUI(
+    sliderInput(
+      inputId = "upgma_tippoint_size",
+      label = h5("Size", style = "color:white; margin-bottom: 0px"),
+      min = 1,
+      max = 20,
+      step = 0.5,
+      value = Vis$tippointsize_upgma,
+      width = "150px",
+      ticks = FALSE
+    )
+  )
   
   ##### Tiplabel size ----
   output$upgma_tiplab_size <- renderUI(
@@ -11406,7 +11408,6 @@ server <- function(input, output, session) {
   })
   
   # No label clip off for linear NJ tree
-  
   clip_label <- reactive({
     if(!(input$nj_layout == "circular" | input$nj_layout == "inward")) {
       coord_cartesian(clip = "off")
@@ -11611,14 +11612,14 @@ server <- function(input, output, session) {
             aes(shape = !!sym(input$nj_tipcolor_mapping)),
             alpha = input$nj_tippoint_alpha,
             color = input$nj_tippoint_color,
-            size = input$nj_tippoint_size
+            size = nj_tippoint_size()
           )
         } else {
           geom_tippoint(
             aes(color = !!sym(input$nj_tipcolor_mapping)),
             alpha = input$nj_tippoint_alpha,
             shape = input$nj_tippoint_shape,
-            size = input$nj_tippoint_size
+            size = nj_tippoint_size()
           )
         }
       } else if (input$nj_tipcolor_mapping_show == FALSE & input$nj_tipshape_mapping_show == TRUE) {
@@ -11626,7 +11627,7 @@ server <- function(input, output, session) {
           aes(shape = !!sym(input$nj_tipshape_mapping)),
           alpha = input$nj_tippoint_alpha,
           color = input$nj_tippoint_color,
-          size = input$nj_tippoint_size
+          size = nj_tippoint_size()
         )
       } else if (input$nj_tipcolor_mapping_show == TRUE & input$nj_tipshape_mapping_show == TRUE) {
         if(input$nj_mapping_show == TRUE) {
@@ -11634,14 +11635,14 @@ server <- function(input, output, session) {
             aes(shape = !!sym(input$nj_tipshape_mapping)),
             color = input$nj_tippoint_color,
             alpha = input$nj_tippoint_alpha,
-            size = input$nj_tippoint_size
+            size = nj_tippoint_size()
           )
         } else {
           geom_tippoint(
             aes(shape = !!sym(input$nj_tipshape_mapping),
                 color = !!sym(input$nj_tipcolor_mapping)),
             alpha = input$nj_tippoint_alpha,
-            size = input$nj_tippoint_size
+            size = nj_tippoint_size()
           )
         }
       } else {
@@ -11650,7 +11651,7 @@ server <- function(input, output, session) {
           colour = input$nj_tippoint_color,
           fill = input$nj_tippoint_color,
           shape = input$nj_tippoint_shape,
-          size = input$nj_tippoint_size
+          size = nj_tippoint_size()
         )
       } 
     } else {NULL
@@ -11780,6 +11781,15 @@ server <- function(input, output, session) {
       input$nj_tiplab_size
     } else {
       Vis$labelsize_nj
+    }
+  })
+  
+  # Tippoint size
+  nj_tippoint_size <- reactive({
+    if(!is.null(input$nj_tippoint_size)) {
+      input$nj_tippoint_size
+    } else {
+      Vis$tippointsize_nj
     }
   })
   
@@ -12256,14 +12266,14 @@ server <- function(input, output, session) {
             aes(shape = !!sym(input$upgma_tipcolor_mapping)),
             alpha = input$upgma_tippoint_alpha,
             color = input$upgma_tippoint_color,
-            size = input$upgma_tippoint_size
+            size = upgma_tippoint_size()
           )
         } else {
           geom_tippoint(
             aes(color = !!sym(input$upgma_tipcolor_mapping)),
             alpha = input$upgma_tippoint_alpha,
             shape = input$upgma_tippoint_shape,
-            size = input$upgma_tippoint_size
+            size = upgma_tippoint_size()
           )
         }
       } else if (input$upgma_tipcolor_mapping_show == FALSE & input$upgma_tipshape_mapping_show == TRUE) {
@@ -12271,7 +12281,7 @@ server <- function(input, output, session) {
           aes(shape = !!sym(input$upgma_tipshape_mapping)),
           alpha = input$upgma_tippoint_alpha,
           color = input$upgma_tippoint_color,
-          size = input$upgma_tippoint_size
+          size = upgma_tippoint_size()
         )
       } else if (input$upgma_tipcolor_mapping_show == TRUE & input$upgma_tipshape_mapping_show == TRUE) {
         if(input$upgma_mapping_show == TRUE) {
@@ -12279,14 +12289,14 @@ server <- function(input, output, session) {
             aes(shape = !!sym(input$upgma_tipshape_mapping)),
             color = input$upgma_tippoint_color,
             alpha = input$upgma_tippoint_alpha,
-            size = input$upgma_tippoint_size
+            size = upgma_tippoint_size()
           )
         } else {
           geom_tippoint(
             aes(shape = !!sym(input$upgma_tipshape_mapping),
                 color = !!sym(input$upgma_tipcolor_mapping)),
             alpha = input$upgma_tippoint_alpha,
-            size = input$upgma_tippoint_size
+            size = upgma_tippoint_size()
           )
         }
       } else {
@@ -12295,7 +12305,7 @@ server <- function(input, output, session) {
           colour = input$upgma_tippoint_color,
           fill = input$upgma_tippoint_color,
           shape = input$upgma_tippoint_shape,
-          size = input$upgma_tippoint_size
+          size = upgma_tippoint_size()
         )
       } 
     } else {NULL
@@ -12417,6 +12427,15 @@ server <- function(input, output, session) {
     } else {NULL}
     
     
+  })
+  
+  # TIppoint size
+  upgma_tippoint_size <- reactive({
+    if(!is.null(input$upgma_tippoint_size)) {
+      input$upgma_tippoint_size
+    } else {
+      Vis$tippointsize_upgma
+    }
   })
   
   # Tiplab size
@@ -13049,39 +13068,55 @@ server <- function(input, output, session) {
               if(input$nj_layout == "circular" | input$nj_layout == "inward") {
                 if(sum(DB$data$Include) < 21) {
                   Vis$labelsize_nj <- 5.5
+                  Vis$tippointsize_nj <- 5.5
                 } else if (between(sum(DB$data$Include), 21, 40)) {
                   Vis$labelsize_nj <- 5
+                  Vis$tippointsize_nj <- 5
                 } else if (between(sum(DB$data$Include), 41, 60)) {
                   Vis$labelsize_nj <- 4.5
+                  Vis$tippointsize_nj <- 4.5
                 } else if (between(sum(DB$data$Include), 61, 80)) {
                   Vis$labelsize_nj <- 4
-                } else if (between(sum(DB$data$Include), 81, 120)) {
+                  Vis$tippointsize_nj <- 4
+                } else if (between(sum(DB$data$Include), 81, 100)) {
                   Vis$labelsize_nj <- 3.5
+                  Vis$tippointsize_nj <- 3.5
                 } else {
                   Vis$labelsize_nj <- 3
+                  Vis$tippointsize_nj <- 3
                 }
               } else {
                 if(sum(DB$data$Include) < 21) {
                   Vis$labelsize_nj <- 5
+                  Vis$tippointsize_nj <- 5
                 } else if (between(sum(DB$data$Include), 21, 40)) {
                   Vis$labelsize_nj <- 4.5
+                  Vis$tippointsize_nj <- 4.5
                 } else if (between(sum(DB$data$Include), 41, 60)) {
                   Vis$labelsize_nj <- 4
+                  Vis$tippointsize_nj <- 4
                 } else if (between(sum(DB$data$Include), 61, 80)) {
                   Vis$labelsize_nj <- 3.5
+                  Vis$tippointsize_nj <- 3.5
                 } else if (between(sum(DB$data$Include), 81, 100)) {
                   Vis$labelsize_nj <- 3
+                  Vis$tippointsize_nj <- 3
                 } else {
                   Vis$labelsize_nj <- 2.5
+                  Vis$tippointsize_nj <- 2.5
                 }
               }
             } else {
               Vis$labelsize_nj <- 4
+              Vis$tippointsize_nj <- 4
             }
             
             # Update visualization control inputs
             if(!is.null(input$nj_tiplab_size)) {
               updateNumericInput(session, "nj_tiplab_size", value = Vis$labelsize_nj)
+            }
+            if(!is.null(input$nj_tippoint_size)) {
+              updateSliderInput(session, "nj_tippoint_size", value = Vis$tippointsize_nj)
             }
             
             # Create phylogenetic tree
@@ -13113,39 +13148,55 @@ server <- function(input, output, session) {
               if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
                 if(sum(DB$data$Include) < 21) {
                   Vis$labelsize_upgma <- 5.5
+                  Vis$tippointsize_upgma <- 5.5
                 } else if (between(sum(DB$data$Include), 21, 40)) {
                   Vis$labelsize_upgma <- 5
+                  Vis$tippointsize_upgma <- 5
                 } else if (between(sum(DB$data$Include), 41, 60)) {
                   Vis$labelsize_upgma <- 4.5
+                  Vis$tippointsize_upgma <- 4.5
                 } else if (between(sum(DB$data$Include), 61, 80)) {
                   Vis$labelsize_upgma <- 4
-                } else if (between(sum(DB$data$Include), 81, 120)) {
+                  Vis$tippointsize_upgma <- 4
+                } else if (between(sum(DB$data$Include), 81, 100)) {
                   Vis$labelsize_upgma <- 3.5
+                  Vis$tippointsize_upgma <- 3.5
                 } else {
                   Vis$labelsize_upgma <- 3
+                  Vis$tippointsize_upgma <- 3
                 }
               } else {
                 if(sum(DB$data$Include) < 21) {
                   Vis$labelsize_upgma <- 5
+                  Vis$tippointsize_upgma <- 5
                 } else if (between(sum(DB$data$Include), 21, 40)) {
                   Vis$labelsize_upgma <- 4.5
+                  Vis$tippointsize_upgma <- 4.5
                 } else if (between(sum(DB$data$Include), 41, 60)) {
                   Vis$labelsize_upgma <- 4
+                  Vis$tippointsize_upgma <- 4
                 } else if (between(sum(DB$data$Include), 61, 80)) {
                   Vis$labelsize_upgma <- 3.5
+                  Vis$tippointsize_upgma <- 3.5
                 } else if (between(sum(DB$data$Include), 81, 100)) {
                   Vis$labelsize_upgma <- 3
+                  Vis$tippointsize_upgma <- 3
                 } else {
                   Vis$labelsize_upgma <- 2.5
+                  Vis$tippointsize_upgma <- 2.5
                 }
               }
             } else {
               Vis$labelsize_upgma <- 4
+              Vis$tippointsize_upgma <- 4
             }
             
             # Update visualization control inputs
             if(!is.null(input$upgma_tiplab_size)) {
               updateNumericInput(session, "upgma_tiplab_size", value = Vis$labelsize_upgma)
+            }
+            if(!is.null(input$upgma_tippoint_size)) {
+              updateSliderInput(session, "upgma_tippoint_size", value = Vis$tippointsize_upgma)
             }
             
             # Create phylogenetic tree
