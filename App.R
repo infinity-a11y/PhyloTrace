@@ -1533,7 +1533,7 @@ ui <- dashboardPage(
                                 Circular = list("Circular" = "circular",
                                                 "Inward" = "inward")
                               ),
-                              selected = "circular",
+                              selected = "rectangular",
                               width = "90%"
                             )
                           )
@@ -2394,7 +2394,7 @@ ui <- dashboardPage(
                             style = "material-flat",
                             icon = icon("sliders")
                           ),
-                          placement = "top-start",
+                          placement = "top-end",
                           theme = "translucent",
                           fluidRow(
                             column(
@@ -2537,7 +2537,7 @@ ui <- dashboardPage(
                                 style = "material-flat",
                                 icon = icon("sliders")
                               ),
-                              placement = "top-start",
+                              placement = "top-end",
                               theme = "translucent",
                               fluidRow(
                                 column(
@@ -2660,7 +2660,7 @@ ui <- dashboardPage(
                                   style = "material-flat",
                                   icon = icon("sliders")
                                 ),
-                                placement = "left-start",
+                                placement = "top-end",
                                 theme = "translucent",
                                 fluidRow(
                                   column(
@@ -2813,7 +2813,7 @@ ui <- dashboardPage(
                                   style = "material-flat",
                                   icon = icon("sliders")
                                 ),
-                                placement = "left-start",
+                                placement = "top-end",
                                 theme = "translucent",
                                 fluidRow(
                                   column(
@@ -2966,7 +2966,7 @@ ui <- dashboardPage(
                                   style = "material-flat",
                                   icon = icon("sliders")
                                 ),
-                                placement = "left-start",
+                                placement = "top-end",
                                 theme = "translucent",
                                 fluidRow(
                                   column(
@@ -3119,7 +3119,7 @@ ui <- dashboardPage(
                                   style = "material-flat",
                                   icon = icon("sliders")
                                 ),
-                                placement = "left-start",
+                                placement = "top-end",
                                 theme = "translucent",
                                 fluidRow(
                                   column(
@@ -3272,7 +3272,7 @@ ui <- dashboardPage(
                                   style = "material-flat",
                                   icon = icon("sliders")
                                 ),
-                                placement = "left-start",
+                                placement = "top-end",
                                 theme = "translucent",
                                 fluidRow(
                                   column(
@@ -3441,23 +3441,23 @@ ui <- dashboardPage(
                                 style = "material-flat",
                                 icon = icon("sliders")
                               ),
-                              placement = "left-start",
+                              placement = "top-end",
                               theme = "translucent",
                               fluidRow(
                                 column(
                                   width = 6,
                                   align = "center",
-                                  uiOutput("nj_heatmap_offs"),
-                                  br(),
                                   sliderInput(
                                     "nj_heatmap_width",
                                     label = h5("Width", style = "color:white; margin-bottom: 0px"),
                                     min = 0.1,
                                     max = 5,
                                     value = 0.5,
-                                    width = "150px",
+                                    width = "250px",
                                     ticks = FALSE
-                                  )
+                                  ),
+                                  br(),
+                                  uiOutput("nj_heatmap_offs"),
                                 ),
                                 column(
                                   width = 6,
@@ -3469,7 +3469,7 @@ ui <- dashboardPage(
                                     min = -90,
                                     max = 90,
                                     value = 0,
-                                    width = "150px",
+                                    width = "250px",
                                     ticks = FALSE
                                   ),
                                   br(),
@@ -3479,7 +3479,7 @@ ui <- dashboardPage(
                                     min = -10,
                                     max = 10,
                                     value = 0,
-                                    width = "150px",
+                                    width = "250px",
                                     ticks = FALSE
                                   ),
                                   br(),
@@ -3489,7 +3489,7 @@ ui <- dashboardPage(
                                     min = -10,
                                     max = 10,
                                     value = 0,
-                                    width = "150px",
+                                    width = "250px",
                                     ticks = FALSE
                                   )
                                 )
@@ -3507,8 +3507,8 @@ ui <- dashboardPage(
                             textInput(
                               "nj_heatmap_title",
                               label = h5("Legend title", style = "color:white; margin-bottom: 0px; position: relative; bottom: -20px"),
-                              value = "values",
-                              placeholder = "values" 
+                              value = "Heatmap",
+                              placeholder = "Heatmap" 
                             )
                           )
                         )
@@ -4424,7 +4424,7 @@ ui <- dashboardPage(
                             style = "material-flat",
                             icon = icon("sliders")
                           ),
-                          placement = "top-start",
+                          placement = "top-end",
                           theme = "translucent",
                           fluidRow(
                             column(
@@ -4567,7 +4567,7 @@ ui <- dashboardPage(
                                 style = "material-flat",
                                 icon = icon("sliders")
                               ),
-                              placement = "top-start",
+                              placement = "top-end",
                               theme = "translucent",
                               fluidRow(
                                 column(
@@ -4690,7 +4690,7 @@ ui <- dashboardPage(
                                   style = "material-flat",
                                   icon = icon("sliders")
                                 ),
-                                placement = "left-start",
+                                placement = "top-end",
                                 theme = "translucent",
                                 fluidRow(
                                   column(
@@ -4843,7 +4843,7 @@ ui <- dashboardPage(
                                   style = "material-flat",
                                   icon = icon("sliders")
                                 ),
-                                placement = "left-start",
+                                placement = "top-end",
                                 theme = "translucent",
                                 fluidRow(
                                   column(
@@ -4996,7 +4996,7 @@ ui <- dashboardPage(
                                   style = "material-flat",
                                   icon = icon("sliders")
                                 ),
-                                placement = "left-start",
+                                placement = "top-end",
                                 theme = "translucent",
                                 fluidRow(
                                   column(
@@ -5149,7 +5149,7 @@ ui <- dashboardPage(
                                   style = "material-flat",
                                   icon = icon("sliders")
                                 ),
-                                placement = "left-start",
+                                placement = "top-end",
                                 theme = "translucent",
                                 fluidRow(
                                   column(
@@ -5302,7 +5302,7 @@ ui <- dashboardPage(
                                   style = "material-flat",
                                   icon = icon("sliders")
                                 ),
-                                placement = "left-start",
+                                placement = "top-end",
                                 theme = "translucent",
                                 fluidRow(
                                   column(
@@ -5471,23 +5471,23 @@ ui <- dashboardPage(
                                 style = "material-flat",
                                 icon = icon("sliders")
                               ),
-                              placement = "left-start",
+                              placement = "top-end",
                               theme = "translucent",
                               fluidRow(
                                 column(
                                   width = 6,
                                   align = "center",
-                                  uiOutput("upgma_heatmap_offs"),
-                                  br(),
                                   sliderInput(
                                     "upgma_heatmap_width",
                                     label = h5("Width", style = "color:white; margin-bottom: 0px"),
                                     min = 0.1,
                                     max = 5,
                                     value = 0.5,
-                                    width = "150px",
+                                    width = "250px",
                                     ticks = FALSE
-                                  )
+                                  ),
+                                  br(),
+                                  uiOutput("upgma_heatmap_offs")
                                 ),
                                 column(
                                   width = 6,
@@ -5499,7 +5499,7 @@ ui <- dashboardPage(
                                     min = -90,
                                     max = 90,
                                     value = 0,
-                                    width = "150px",
+                                    width = "250px",
                                     ticks = FALSE
                                   ),
                                   br(),
@@ -5509,7 +5509,7 @@ ui <- dashboardPage(
                                     min = -10,
                                     max = 10,
                                     value = 0,
-                                    width = "150px",
+                                    width = "250px",
                                     ticks = FALSE
                                   ),
                                   br(),
@@ -5519,7 +5519,7 @@ ui <- dashboardPage(
                                     min = -10,
                                     max = 10,
                                     value = 0,
-                                    width = "150px",
+                                    width = "250px",
                                     ticks = FALSE
                                   )
                                 )
@@ -5537,8 +5537,8 @@ ui <- dashboardPage(
                             textInput(
                               "upgma_heatmap_title",
                               label = h5("Legend title", style = "color:white; margin-bottom: 0px; position: relative; bottom: -20px"),
-                              value = "values",
-                              placeholder = "values" 
+                              value = "Heatmap",
+                              placeholder = "Heatmap" 
                             )
                           )
                         )
