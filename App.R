@@ -2628,7 +2628,7 @@ ui <- dashboardPage(
                             div(
                               class = "tile1",
                               selectInput(
-                                "tile_num",
+                                "nj_tile_num",
                                 "",
                                 choices = 1:5,
                                 width = "70px"
@@ -2637,7 +2637,7 @@ ui <- dashboardPage(
                           )
                         ),
                         conditionalPanel(
-                          "input.tile_num == 1",
+                          "input.nj_tile_num == 1",
                           fluidRow(
                             column(
                               width = 4,
@@ -2790,7 +2790,7 @@ ui <- dashboardPage(
                           )
                         ),
                         conditionalPanel(
-                          "input.tile_num == 2",
+                          "input.nj_tile_num == 2",
                           fluidRow(
                             column(
                               width = 4,
@@ -2943,7 +2943,7 @@ ui <- dashboardPage(
                           )
                         ),
                         conditionalPanel(
-                          "input.tile_num == 3",
+                          "input.nj_tile_num == 3",
                           fluidRow(
                             column(
                               width = 4,
@@ -3096,7 +3096,7 @@ ui <- dashboardPage(
                           )
                         ),
                         conditionalPanel(
-                          "input.tile_num == 4",
+                          "input.nj_tile_num == 4",
                           fluidRow(
                             column(
                               width = 4,
@@ -3249,7 +3249,7 @@ ui <- dashboardPage(
                           )
                         ),
                         conditionalPanel(
-                          "input.tile_num == 5",
+                          "input.nj_tile_num == 5",
                           fluidRow(
                             column(
                               width = 4,
@@ -3447,7 +3447,7 @@ ui <- dashboardPage(
                                 column(
                                   width = 6,
                                   align = "center",
-                                  uiOutput("upgma_heatmap_offs"),
+                                  uiOutput("nj_heatmap_offs"),
                                   br(),
                                   sliderInput(
                                     "nj_heatmap_width",
@@ -4658,7 +4658,7 @@ ui <- dashboardPage(
                             div(
                               class = "tile1",
                               selectInput(
-                                "tile_num",
+                                "upgma_tile_num",
                                 "",
                                 choices = 1:5,
                                 width = "70px"
@@ -4667,7 +4667,7 @@ ui <- dashboardPage(
                           )
                         ),
                         conditionalPanel(
-                          "input.tile_num == 1",
+                          "input.upgma_tile_num == 1",
                           fluidRow(
                             column(
                               width = 4,
@@ -4820,7 +4820,7 @@ ui <- dashboardPage(
                           )
                         ),
                         conditionalPanel(
-                          "input.tile_num == 2",
+                          "input.upgma_tile_num == 2",
                           fluidRow(
                             column(
                               width = 4,
@@ -4973,7 +4973,7 @@ ui <- dashboardPage(
                           )
                         ),
                         conditionalPanel(
-                          "input.tile_num == 3",
+                          "input.upgma_tile_num == 3",
                           fluidRow(
                             column(
                               width = 4,
@@ -5126,7 +5126,7 @@ ui <- dashboardPage(
                           )
                         ),
                         conditionalPanel(
-                          "input.tile_num == 4",
+                          "input.upgma_tile_num == 4",
                           fluidRow(
                             column(
                               width = 4,
@@ -5279,7 +5279,7 @@ ui <- dashboardPage(
                           )
                         ),
                         conditionalPanel(
-                          "input.tile_num == 5",
+                          "input.upgma_tile_num == 5",
                           fluidRow(
                             column(
                               width = 4,
@@ -9035,9 +9035,6 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
-    xrange_nj <<- Vis$xrange_nj
-    yrange_nj <<- Vis$yrange_nj
-    
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -11301,26 +11298,26 @@ server <- function(input, output, session) {
   
   nj_gradient3 <- reactive({
     if(input$nj_tiles_show_3 == TRUE) {
-      if(class(DB$meta_true[[input$nj_fruit_variable_2]]) == "numeric") {
+      if(class(DB$meta_true[[input$nj_fruit_variable_3]]) == "numeric") {
         if(input$nj_div_tiles == TRUE) {
           if(input$nj_tile_mid == "Median"){
-            scale_fill_gradient2(low = input$nj_tile_color_low_2,
-                                 mid = input$nj_tile_color_mid_2,
-                                 midpoint = median(DB$meta_true[[input$nj_fruit_variable_2]], na.rm = TRUE),
-                                 high = input$nj_tile_color_high_2)
+            scale_fill_gradient3(low = input$nj_tile_color_low_3,
+                                 mid = input$nj_tile_color_mid_3,
+                                 midpoint = median(DB$meta_true[[input$nj_fruit_variable_3]], na.rm = TRUE),
+                                 high = input$nj_tile_color_high_3)
           } else if(input$nj_tile_mid == "Mean") {
-            scale_fill_gradient2(low = input$nj_tile_color_low_2,
-                                 mid = input$nj_tile_color_mid_2,
-                                 midpoint = mean(DB$meta_true[[input$nj_fruit_variable_2]], na.rm = TRUE),
-                                 high = input$nj_tile_color_high_2)
+            scale_fill_gradient3(low = input$nj_tile_color_low_3,
+                                 mid = input$nj_tile_color_mid_3,
+                                 midpoint = mean(DB$meta_true[[input$nj_fruit_variable_3]], na.rm = TRUE),
+                                 high = input$nj_tile_color_high_3)
           } else {
-            scale_fill_gradient2(low = input$nj_tile_color_low_2,
-                                 mid = input$nj_tile_color_mid_2,
-                                 high = input$nj_tile_color_high_2)
+            scale_fill_gradient3(low = input$nj_tile_color_low_3,
+                                 mid = input$nj_tile_color_mid_3,
+                                 high = input$nj_tile_color_high_3)
           }
         } else {
-          scale_fill_gradient(low = input$nj_tile_color_low_2,
-                              high = input$nj_tile_color_high_2)
+          scale_fill_gradient(low = input$nj_tile_color_low_3,
+                              high = input$nj_tile_color_high_3)
         }
       } else {NULL}
     }else {NULL}
