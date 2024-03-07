@@ -750,7 +750,6 @@ ui <- dashboardPage(
       
       tabItem(
         tabName = "visualization",
-        
         fluidRow(
           tags$script(src = "javascript_functions.js"),
           column(
@@ -6779,7 +6778,9 @@ server <- function(input, output, session) {
                 )
                 
                 # render visualization sidebar elements
-                
+                observe({
+                  Vis$tree_algo <- input$tree_algo
+                })
                 output$visualization_sidebar <- renderUI({
                   if(!is.null(DB$data)) {
                     column(
@@ -6793,7 +6794,8 @@ server <- function(input, output, session) {
                           prettyRadioButtons(
                             "tree_algo",
                             choices = c("Minimum-Spanning", "Neighbour-Joining", "UPGMA"),
-                            label = ""
+                            label = "",
+                            selected = if(!is.null(Vis$tree_algo)){Vis$tree_algo} else {"Minimum-Spanning"}
                           ),
                         )
                       ),
