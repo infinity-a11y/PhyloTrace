@@ -48,7 +48,7 @@ OPTIONAL: To disable automatic activation of conda whenever the terminal is star
 conda config --set auto_activate_base false
 ```
 
-### Create Conda Environment
+### 1.2 Create Conda Environment
 Create a conda environment containing necessary dependencies and packages.
 ```bash
 cd path/to/directory
