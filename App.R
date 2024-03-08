@@ -2195,15 +2195,7 @@ ui <- dashboardPage(
                         column(
                           width = 12,
                           align = "center",
-                          sliderInput(
-                            inputId = "nj_tiplab_padding",
-                            label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                            min = 0.1,
-                            max = 1,
-                            value = 0.3,
-                            width = "150px",
-                            ticks = FALSE
-                          ),
+                          uiOutput("nj_tiplab_padding"),
                           br(),
                           sliderInput(
                             inputId = "nj_tiplab_labelradius",
@@ -4201,15 +4193,7 @@ ui <- dashboardPage(
                         column(
                           width = 12,
                           align = "center",
-                          sliderInput(
-                            inputId = "upgma_tiplab_padding",
-                            label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                            min = 0.1,
-                            max = 1,
-                            value = 0.3,
-                            width = "150px",
-                            ticks = FALSE
-                          ),
+                          uiOutput("upgma_tiplab_padding"),
                           br(),
                           sliderInput(
                             inputId = "upgma_tiplab_labelradius",
@@ -8990,8 +8974,6 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
-    test <<- input$nj_layout
-    
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -10122,6 +10104,33 @@ server <- function(input, output, session) {
   ### Render Visualization Controls ----
   
   #### NJ and UPGMA controls ----
+  
+  # Tippanel size
+  output$nj_tiplab_padding <- renderUI(
+    sliderInput(
+      inputId = "nj_tiplab_padding",
+      label = h5("Size", style = "color:white; margin-bottom: 0px"),
+      min = 0.05,
+      max = 1,
+      value = Vis$tiplab_padding_nj,
+      step = 0.05,
+      width = "150px",
+      ticks = FALSE
+    )
+  )
+  
+  output$upgma_tiplab_padding <- renderUI(
+    sliderInput(
+      inputId = "upgma_tiplab_padding",
+      label = h5("Size", style = "color:white; margin-bottom: 0px"),
+      min = 0.05,
+      max = 1,
+      value = Vis$tiplab_padding_upgma,
+      step = 0.05,
+      width = "150px",
+      ticks = FALSE
+    )
+  )
   
   # Nodepoint size
   output$nj_nodepoint_size <- renderUI(
@@ -11766,7 +11775,7 @@ server <- function(input, output, session) {
             align = as.logical(input$nj_align),
             nudge_x = input$nj_tiplab_nudge_x,
             check.overlap = input$nj_tiplab_overlap,
-            label.padding = unit(input$nj_tiplab_padding, "lines"),
+            label.padding = unit(nj_tiplab_padding(), "lines"),
             label.r = unit(input$nj_tiplab_labelradius, "lines"), 
             fill = input$nj_tiplab_fill
           )
@@ -11784,15 +11793,22 @@ server <- function(input, output, session) {
             align = as.logical(input$nj_align),
             nudge_x = input$nj_tiplab_nudge_x,
             check.overlap = input$nj_tiplab_overlap,
-            label.padding = unit(input$nj_tiplab_padding, "lines"),
+            label.padding = unit(nj_tiplab_padding(), "lines"),
             label.r = unit(input$nj_tiplab_labelradius, "lines"), 
             fill = input$nj_tiplab_fill
           )
         }
       }
     } else {NULL}
-    
-    
+  })
+  
+  # Tip panel size
+  nj_tiplab_padding <- reactive({
+    if(!is.null(input$nj_tiplab_padding)) {
+      input$nj_tiplab_padding
+    } else {
+      Vis$tiplab_padding_nj
+    }
   })
   
   # Tiplab size
@@ -12429,7 +12445,7 @@ server <- function(input, output, session) {
             align = as.logical(input$upgma_align),
             nudge_x = input$upgma_tiplab_nudge_x,
             check.overlap = input$upgma_tiplab_overlap,
-            label.padding = unit(input$upgma_tiplab_padding, "lines"),
+            label.padding = unit(upgma_tiplab_padding(), "lines"),
             label.r = unit(input$upgma_tiplab_labelradius, "lines"), 
             fill = input$upgma_tiplab_fill
           )
@@ -12447,18 +12463,25 @@ server <- function(input, output, session) {
             align = as.logical(input$upgma_align),
             nudge_x = input$upgma_tiplab_nudge_x,
             check.overlap = input$upgma_tiplab_overlap,
-            label.padding = unit(input$upgma_tiplab_padding, "lines"),
+            label.padding = unit(upgma_tiplab_padding(), "lines"),
             label.r = unit(input$upgma_tiplab_labelradius, "lines"), 
             fill = input$upgma_tiplab_fill
           )
         }
       }
     } else {NULL}
-    
-    
   })
   
-  # TIppoint size
+  # Tip panel size
+  upgma_tiplab_padding <- reactive({
+    if(!is.null(input$upgma_tiplab_padding)) {
+      input$upgma_tiplab_padding
+    } else {
+      Vis$tiplab_padding_upgma
+    }
+  })
+  
+  # Tippoint size
   upgma_tippoint_size <- reactive({
     if(!is.null(input$upgma_tippoint_size)) {
       input$upgma_tippoint_size
@@ -13099,58 +13122,71 @@ server <- function(input, output, session) {
                   Vis$labelsize_nj <- 5.5
                   Vis$tippointsize_nj <- 5.5
                   Vis$nodepointsize_nj <- 4
+                  Vis$tiplab_padding_nj <- 0.25
                 } else if (between(sum(DB$data$Include), 21, 40)) {
                   Vis$labelsize_nj <- 5
                   Vis$tippointsize_nj <- 5
                   Vis$nodepointsize_nj <- 3.5
+                  Vis$tiplab_padding_nj <- 0.2
                 } else if (between(sum(DB$data$Include), 41, 60)) {
                   Vis$labelsize_nj <- 4.5
                   Vis$tippointsize_nj <- 4.5
                   Vis$nodepointsize_nj <- 3
+                  Vis$tiplab_padding_nj <- 0.15
                 } else if (between(sum(DB$data$Include), 61, 80)) {
                   Vis$labelsize_nj <- 4
                   Vis$tippointsize_nj <- 4
                   Vis$nodepointsize_nj <- 2.5
+                  Vis$tiplab_padding_nj <- 0.1
                 } else if (between(sum(DB$data$Include), 81, 100)) {
                   Vis$labelsize_nj <- 3.5
                   Vis$tippointsize_nj <- 3.5
                   Vis$nodepointsize_nj <- 2
+                  Vis$tiplab_padding_nj <- 0.1
                 } else {
                   Vis$labelsize_nj <- 3
                   Vis$tippointsize_nj <- 3
                   Vis$nodepointsize_nj <- 1.5
+                  Vis$tiplab_padding_nj <- 0.05
                 }
               } else {
                 if(sum(DB$data$Include) < 21) {
                   Vis$labelsize_nj <- 5
                   Vis$tippointsize_nj <- 5
                   Vis$nodepointsize_nj <- 4
+                  Vis$tiplab_padding_nj <- 0.25
                 } else if (between(sum(DB$data$Include), 21, 40)) {
                   Vis$labelsize_nj <- 4.5
                   Vis$tippointsize_nj <- 4.5
                   Vis$nodepointsize_nj <- 3.5
+                  Vis$tiplab_padding_nj <- 0.2
                 } else if (between(sum(DB$data$Include), 41, 60)) {
                   Vis$labelsize_nj <- 4
                   Vis$tippointsize_nj <- 4
                   Vis$nodepointsize_nj <- 3
+                  Vis$tiplab_padding_nj <- 0.15
                 } else if (between(sum(DB$data$Include), 61, 80)) {
                   Vis$labelsize_nj <- 3.5
                   Vis$tippointsize_nj <- 3.5
                   Vis$nodepointsize_nj <- 2.5
+                  Vis$tiplab_padding_nj <- 0.1
                 } else if (between(sum(DB$data$Include), 81, 100)) {
                   Vis$labelsize_nj <- 3
                   Vis$tippointsize_nj <- 3
                   Vis$nodepointsize_nj <- 2
+                  Vis$tiplab_padding_nj <- 0.1
                 } else {
                   Vis$labelsize_nj <- 2.5
                   Vis$tippointsize_nj <- 2.5
                   Vis$nodepointsize_nj <- 1.5
+                  Vis$tiplab_padding_nj <- 0.05
                 }
               }
             } else {
               Vis$labelsize_nj <- 4
               Vis$tippointsize_nj <- 4
               Vis$nodepointsize_nj <- 2.5
+              Vis$tiplab_padding_nj <- 0.2
             }
             
             # Update visualization control inputs
@@ -13162,6 +13198,9 @@ server <- function(input, output, session) {
             }
             if(!is.null(input$nj_nodepoint_size)) {
               updateSliderInput(session, "nj_nodepoint_size", value = Vis$nodepointsize_nj)
+            }
+            if(!is.null(input$nj_tiplab_padding)) {
+              updateSliderInput(session, "nj_tiplab_padding", value = Vis$tiplab_padding_nj)
             }
             
             # Create phylogenetic tree
@@ -13195,58 +13234,71 @@ server <- function(input, output, session) {
                   Vis$labelsize_upgma <- 5.5
                   Vis$tippointsize_upgma <- 5.5
                   Vis$nodepointsize_upgma <- 4
+                  Vis$tiplab_padding_upgma <- 0.25
                 } else if (between(sum(DB$data$Include), 21, 40)) {
                   Vis$labelsize_upgma <- 5
                   Vis$tippointsize_upgma <- 5
                   Vis$nodepointsize_upgma <- 3.5
+                  Vis$tiplab_padding_upgma <- 0.2
                 } else if (between(sum(DB$data$Include), 41, 60)) {
                   Vis$labelsize_upgma <- 4.5
                   Vis$tippointsize_upgma <- 4.5
                   Vis$nodepointsize_upgma <- 3
+                  Vis$tiplab_padding_upgma <- 0.1
                 } else if (between(sum(DB$data$Include), 61, 80)) {
                   Vis$labelsize_upgma <- 4
                   Vis$tippointsize_upgma <- 4
                   Vis$nodepointsize_upgma <- 2.5
+                  Vis$tiplab_padding_upgma <- 0.05
                 } else if (between(sum(DB$data$Include), 81, 100)) {
                   Vis$labelsize_upgma <- 3.5
                   Vis$tippointsize_upgma <- 3.5
                   Vis$nodepointsize_upgma <- 2
+                  Vis$tiplab_padding_upgma <- 0.05
                 } else {
                   Vis$labelsize_upgma <- 3
                   Vis$tippointsize_upgma <- 3
                   Vis$nodepointsize_upgma <- 1.5
+                  Vis$tiplab_padding_upgma <- 0.05
                 }
               } else {
                 if(sum(DB$data$Include) < 21) {
                   Vis$labelsize_upgma <- 5
                   Vis$tippointsize_upgma <- 5
                   Vis$nodepointsize_upgma <- 4
+                  Vis$tiplab_padding_upgma <- 0.25
                 } else if (between(sum(DB$data$Include), 21, 40)) {
                   Vis$labelsize_upgma <- 4.5
                   Vis$tippointsize_upgma <- 4.5
                   Vis$nodepointsize_upgma <- 3.5
+                  Vis$tiplab_padding_upgma <- 0.2
                 } else if (between(sum(DB$data$Include), 41, 60)) {
                   Vis$labelsize_upgma <- 4
                   Vis$tippointsize_upgma <- 4
                   Vis$nodepointsize_upgma <- 3
+                  Vis$tiplab_padding_upgma <- 0.1
                 } else if (between(sum(DB$data$Include), 61, 80)) {
                   Vis$labelsize_upgma <- 3.5
                   Vis$tippointsize_upgma <- 3.5
                   Vis$nodepointsize_upgma <- 2.5
+                  Vis$tiplab_padding_upgma <- 0.05
                 } else if (between(sum(DB$data$Include), 81, 100)) {
                   Vis$labelsize_upgma <- 3
                   Vis$tippointsize_upgma <- 3
                   Vis$nodepointsize_upgma <- 2
+                  Vis$tiplab_padding_upgma <- 0.05
                 } else {
                   Vis$labelsize_upgma <- 2.5
                   Vis$tippointsize_upgma <- 2.5
                   Vis$nodepointsize_upgma <- 1.5
+                  Vis$tiplab_padding_upgma <- 0.05
                 }
               }
             } else {
               Vis$labelsize_upgma <- 4
               Vis$tippointsize_upgma <- 4
               Vis$nodepointsize_upgma <- 2.5
+              Vis$tiplab_padding_upgma <- 0.2
             }
             
             # Update visualization control inputs
@@ -13258,6 +13310,9 @@ server <- function(input, output, session) {
             }
             if(!is.null(input$upgma_nodepoint_size)) {
               updateSliderInput(session, "upgma_nodepoint_size", value = Vis$nodepointsize_upgma)
+            }
+            if(!is.null(input$upgma_tiplab_padding)) {
+              updateSliderInput(session, "upgma_tiplab_padding", value = Vis$tiplab_padding_upgma)
             }
             
             # Create phylogenetic tree
