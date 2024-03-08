@@ -8958,6 +8958,9 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
+    xrange <<- Vis$xrange_nj
+    test <<- Vis$nj
+    
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -10261,9 +10264,9 @@ server <- function(input, output, session) {
     numericInput(
       "nj_treescale_width",
       label = h5("Length", style = "color:white; margin-bottom: 0px"),
-      value = round(ceiling(max(Vis$xrange_nj)) * 0.1, 0),
+      value = round(ceiling(Vis$nj_max_x) * 0.1, 0),
       min = 1,
-      max = round(floor(max(Vis$xrange_nj)) * 0.5, 0),
+      max = round(floor(Vis$nj_max_x) * 0.5, 0),
       step = 1,
       width = "80px"
     )
@@ -10304,9 +10307,9 @@ server <- function(input, output, session) {
     numericInput(
       "upgma_treescale_width",
       label = h5("Length", style = "color:white; margin-bottom: 0px"),
-      value = round(ceiling(max(Vis$xrange_upgma)) * 0.1, 0),
+      value = round(ceiling(Vis$upgma_max_x) * 0.1, 0),
       min = 1,
-      max = round(floor(max(Vis$xrange_upgma)) * 0.5, 0),
+      max = round(floor(Vis$upgma_max_x) * 0.5, 0),
       step = 1,
       width = "80px"
     )
@@ -11573,7 +11576,8 @@ server <- function(input, output, session) {
         geom_treescale(x = nj_treescale_x(),
                        y = nj_treescale_y(),
                        width = nj_treescale_width(),
-                       color = input$nj_color)
+                       color = input$nj_color,
+                       fontsize = 4)
       } else {NULL}
     } else {NULL}
   }) 
@@ -11594,9 +11598,11 @@ server <- function(input, output, session) {
   
   # Treescale width
   nj_treescale_width <- reactive({
-    if(is.null(input$nj_treescale_width)) {
-      round(ceiling(max(Vis$xrange_nj)) * 0.1, 0)
-    } else {input$nj_treescale_width}
+    if(!is.null(input$nj_treescale_width)) {
+      input$nj_treescale_width
+    } else {
+      round(ceiling(Vis$nj_max_x) * 0.1, 0)
+    }
   })
   
   # Label branches
@@ -12252,7 +12258,8 @@ server <- function(input, output, session) {
         geom_treescale(x = upgma_treescale_x(),
                        y = upgma_treescale_y(),
                        width = upgma_treescale_width(),
-                       color = input$upgma_color)
+                       color = input$upgma_color,
+                       fontsize = 4)
       } else {NULL}
     } else {NULL}
   }) 
@@ -12273,9 +12280,11 @@ server <- function(input, output, session) {
   
   # Treescale width
   upgma_treescale_width <- reactive({
-    if(is.null(input$upgma_treescale_width)) {
-      round(ceiling(max(Vis$xrange_upgma)) * 0.1, 0)
-    } else {input$upgma_treescale_width}
+    if(!is.null(input$upgma_treescale_width)) {
+      input$upgma_treescale_width
+    } else {
+      round(ceiling(Vis$upgma_max_x) * 0.1, 0)
+    }
   })
   
   # Label branches
@@ -13139,6 +13148,10 @@ server <- function(input, output, session) {
             )
           } else {
             
+            # Create phylogenetic tree data
+            Vis$nj <- ape::nj(hamming_nj())
+            
+            # Create phylogenetic tree meta data
             Vis$meta_nj <- mutate(Vis$meta_nj, taxa = Index) %>%
               relocate(taxa)
             
@@ -13229,6 +13242,9 @@ server <- function(input, output, session) {
               Vis$branch_size_nj <- 3.5
             }
             
+            # Get upper end of x range
+            Vis$nj_max_x <- max(ggtree(Vis$nj)$data$x)
+            
             # Update visualization control inputs
             if(!is.null(input$nj_tiplab_size)) {
               updateNumericInput(session, "nj_tiplab_size", value = Vis$labelsize_nj)
@@ -13245,9 +13261,9 @@ server <- function(input, output, session) {
             if(!is.null(input$nj_branch_size)) {
               updateNumericInput(session, "nj_branch_size", value = Vis$branch_size_nj)
             }
-            
-            # Create phylogenetic tree
-            Vis$nj <- ape::nj(hamming_nj())
+            if(!is.null(input$nj_treescale_width)) {
+              updateNumericInput(session, "nj_treescale_width", value = round(ceiling(max(ggtree(Vis$nj)$data$x)) * 0.1, 0))
+            }
             
             output$tree_nj <- renderPlot({
               nj_tree()
@@ -13267,6 +13283,10 @@ server <- function(input, output, session) {
             )
           } else {
             
+            # Create phylogenetic tree data
+            Vis$upgma <- phangorn::upgma(hamming_nj())
+            
+            # Create phylogenetic tree meta data
             Vis$meta_upgma <- mutate(Vis$meta_upgma, taxa = Index) %>%
               relocate(taxa)
             
@@ -13357,6 +13377,10 @@ server <- function(input, output, session) {
               Vis$branch_size_upgma <- 3.5
             }
             
+            
+            # Get upper end of x range
+            Vis$upgma_max_x <- max(ggtree(Vis$upgma)$data$x)
+            
             # Update visualization control inputs
             if(!is.null(input$upgma_tiplab_size)) {
               updateNumericInput(session, "upgma_tiplab_size", value = Vis$labelsize_upgma)
@@ -13373,9 +13397,9 @@ server <- function(input, output, session) {
             if(!is.null(input$upgma_branch_size)) {
               updateNumericInput(session, "upgma_branch_size", value = Vis$branch_size_upgma)
             }
-            
-            # Create phylogenetic tree
-            Vis$upgma <- phangorn::upgma(hamming_nj())
+            if(!is.null(input$upgma_treescale_width)) {
+              updateNumericInput(session, "upgma_treescale_width", value = round(ceiling(max(ggtree(Vis$upgma)$data$x)) * 0.1, 0))
+            }
             
             output$tree_upgma <- renderPlot({
               upgma_tree()
