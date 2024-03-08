@@ -25,7 +25,7 @@ Download the repository as `.zip` and unpack it to a location on your system.
 
 Is ***Miniconda*** or another ***Conda Distribution*** installed on the system?
 - No: Run the installation below and initialize conda. 
-- Yes: Skip this code chunk and proceed to the [creation of a new environment](#12-create-conda-environment) as the next step.
+- Yes: Proceed to the [Create Conda Environment](#12-create-conda-environment).
 
 ### 1.1 Install Miniconda
 These four commands quickly and quietly install the latest 64-bit version of the installer and then clean up after themselves. 
@@ -64,12 +64,11 @@ Construct an `.desktop` file to create a desktop launcher for PhyloTrace.
 cd path/to/directory
 bash install_desktop_icon.sh
 ```
-
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
 ## 2 Running PhyloTrace
 
-Start PhyloTrace by pressing the *Super* key or open *Activities* and search for 'PhyloTrace'. A tab with the app will automatically open in the default browser.
+Start PhyloTrace by using the launcher in Applications Menu. A tab with the app will automatically open in the default browser.
 
 **Alternative:**
 
