@@ -2530,22 +2530,14 @@ ui <- dashboardPage(
                                   sliderInput(
                                     "nj_nodepoint_alpha",
                                     label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                    value = 0.5,
+                                    value = 1,
                                     min = 0.1,
                                     max = 1,
                                     width = "150px",
                                     ticks = FALSE
                                   ), 
                                   br(),
-                                  sliderInput(
-                                    inputId = "nj_nodepoint_size",
-                                    label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                                    min = 1,
-                                    max = 20,
-                                    value = 5,
-                                    width = "150px",
-                                    ticks = FALSE
-                                  )
+                                  uiOutput("nj_nodepoint_size")
                                 )
                               )
                             )  
@@ -4544,22 +4536,14 @@ ui <- dashboardPage(
                                   sliderInput(
                                     "upgma_nodepoint_alpha",
                                     label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                    value = 0.5,
+                                    value = 1,
                                     min = 0.1,
                                     max = 1,
                                     width = "150px",
                                     ticks = FALSE
                                   ), 
                                   br(),
-                                  sliderInput(
-                                    inputId = "upgma_nodepoint_size",
-                                    label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                                    min = 1,
-                                    max = 20,
-                                    value = 5,
-                                    width = "150px",
-                                    ticks = FALSE
-                                  )
+                                  uiOutput("upgma_nodepoint_size")
                                 )
                               )
                             )  
@@ -10139,7 +10123,35 @@ server <- function(input, output, session) {
   
   #### NJ and UPGMA controls ----
   
-  ##### Tippoint size ----
+  # Nodepoint size
+  output$nj_nodepoint_size <- renderUI(
+    sliderInput(
+      inputId = "nj_nodepoint_size",
+      label = h5("Size", style = "color:white; margin-bottom: 0px"),
+      min = 1,
+      max = 20,
+      value = Vis$nodepointsize_nj,
+      step = 0.5,
+      width = "150px",
+      ticks = FALSE
+    )
+  )
+  
+  output$upgma_nodepoint_size <- renderUI(
+    sliderInput(
+      inputId = "upgma_nodepoint_size",
+      label = h5("Size", style = "color:white; margin-bottom: 0px"),
+      min = 1,
+      max = 20,
+      value = Vis$nodepointsize_upgma,
+      step = 0.5,
+      width = "150px",
+      ticks = FALSE
+    )
+  )
+  
+  
+  # Tippoint size 
   output$nj_tippoint_size <- renderUI(
     sliderInput(
       inputId = "nj_tippoint_size",
@@ -10166,7 +10178,7 @@ server <- function(input, output, session) {
     )
   )
   
-  ##### Tiplabel size ----
+  # Tiplabel size
   output$upgma_tiplab_size <- renderUI(
     numericInput(
       "upgma_tiplab_size",
@@ -10191,7 +10203,7 @@ server <- function(input, output, session) {
     )
   )
   
-  ##### Rootedge length ----
+  # Rootedge length 
   output$nj_rootedge_length <- renderUI({
     min <- round(ceiling(max(Vis$xrange_nj)) * 0.01, 0)
     max <- round(ceiling(max(Vis$xrange_nj)) * 0.2, 0)
@@ -10226,7 +10238,7 @@ server <- function(input, output, session) {
     )
   })
   
-  ##### Treescale ----
+  # Treescale 
   output$nj_treescale_width <- renderUI({
     numericInput(
       "nj_treescale_width",
@@ -10313,7 +10325,7 @@ server <- function(input, output, session) {
     )
   })
   
-  ##### Heatmap ----
+  ### Heatmap 
   # Heatmap picker
   output$upgma_heatmap_sel <- renderUI({
     div(
@@ -10394,8 +10406,7 @@ server <- function(input, output, session) {
     )
   })
   
-  ##### Tiling ----
-  
+  ### Tiling 
   # Geom Fruit select Variable
   output$upgma_fruit_variable <- renderUI({
     selectInput(
@@ -10769,7 +10780,7 @@ server <- function(input, output, session) {
     )
   })
   
-  ##### Tip color mapping ----
+  # Tip color mapping 
   output$nj_tipcolor_mapping <- renderUI({
     selectInput(
       "nj_tipcolor_mapping",
@@ -10812,7 +10823,7 @@ server <- function(input, output, session) {
     )
   })
   
-  ##### Tip shape Mapping ----
+  # Tip shape Mapping 
   output$nj_tipshape_mapping <- renderUI({
     selectInput(
       "nj_tipshape_mapping",
@@ -10853,7 +10864,7 @@ server <- function(input, output, session) {
     )
   })
   
-  ##### Branch label ----
+  # Branch label 
   output$upgma_branch_label <- renderUI({
     selectInput(
       "upgma_branch_label",
@@ -10894,7 +10905,7 @@ server <- function(input, output, session) {
     )
   })
   
-  ##### Color mapping ----
+  # Color mapping 
   output$nj_color_mapping <- renderUI({
     selectInput(
       "nj_color_mapping",
@@ -10935,7 +10946,7 @@ server <- function(input, output, session) {
     )
   })
   
-  ##### Tip labels ----
+  # Tip labels 
   output$nj_tiplab <- renderUI({
     selectInput(
       "nj_tiplab",
@@ -10986,7 +10997,7 @@ server <- function(input, output, session) {
   
   #### MST controls ----
   
-  ##### MST node labels ----
+  # MST node labels 
   output$mst_node_label <- renderUI({
     selectInput(
       "mst_node_label",
@@ -11666,9 +11677,18 @@ server <- function(input, output, session) {
         alpha = input$nj_nodepoint_alpha,
         color = input$nj_nodepoint_color,
         shape = input$nj_nodepoint_shape,
-        size = input$nj_nodepoint_size
+        size = nj_nodepoint_size()
       )
     } else {NULL}
+  })
+  
+  # Nodepoint size
+  nj_nodepoint_size <- reactive({
+    if(!is.null(input$nj_nodepoint_size)) {
+      input$nj_nodepoint_size
+    } else {
+      Vis$nodepointsize_nj
+    }
   })
   
   # NJ circular or not
@@ -12320,9 +12340,18 @@ server <- function(input, output, session) {
         alpha = input$upgma_nodepoint_alpha,
         color = input$upgma_nodepoint_color,
         shape = input$upgma_nodepoint_shape,
-        size = input$upgma_nodepoint_size
+        size = upgma_nodepoint_size()
       )
     } else {NULL}
+  })
+  
+  # Nodepoint size
+  upgma_nodepoint_size <- reactive({
+    if(!is.null(input$upgma_nodepoint_size)) {
+      input$upgma_nodepoint_size
+    } else {
+      Vis$nodepointsize_upgma
+    }
   })
   
   # upgma circular or not
@@ -13069,46 +13098,59 @@ server <- function(input, output, session) {
                 if(sum(DB$data$Include) < 21) {
                   Vis$labelsize_nj <- 5.5
                   Vis$tippointsize_nj <- 5.5
+                  Vis$nodepointsize_nj <- 4
                 } else if (between(sum(DB$data$Include), 21, 40)) {
                   Vis$labelsize_nj <- 5
                   Vis$tippointsize_nj <- 5
+                  Vis$nodepointsize_nj <- 3.5
                 } else if (between(sum(DB$data$Include), 41, 60)) {
                   Vis$labelsize_nj <- 4.5
                   Vis$tippointsize_nj <- 4.5
+                  Vis$nodepointsize_nj <- 3
                 } else if (between(sum(DB$data$Include), 61, 80)) {
                   Vis$labelsize_nj <- 4
                   Vis$tippointsize_nj <- 4
+                  Vis$nodepointsize_nj <- 2.5
                 } else if (between(sum(DB$data$Include), 81, 100)) {
                   Vis$labelsize_nj <- 3.5
                   Vis$tippointsize_nj <- 3.5
+                  Vis$nodepointsize_nj <- 2
                 } else {
                   Vis$labelsize_nj <- 3
                   Vis$tippointsize_nj <- 3
+                  Vis$nodepointsize_nj <- 1.5
                 }
               } else {
                 if(sum(DB$data$Include) < 21) {
                   Vis$labelsize_nj <- 5
                   Vis$tippointsize_nj <- 5
+                  Vis$nodepointsize_nj <- 4
                 } else if (between(sum(DB$data$Include), 21, 40)) {
                   Vis$labelsize_nj <- 4.5
                   Vis$tippointsize_nj <- 4.5
+                  Vis$nodepointsize_nj <- 3.5
                 } else if (between(sum(DB$data$Include), 41, 60)) {
                   Vis$labelsize_nj <- 4
                   Vis$tippointsize_nj <- 4
+                  Vis$nodepointsize_nj <- 3
                 } else if (between(sum(DB$data$Include), 61, 80)) {
                   Vis$labelsize_nj <- 3.5
                   Vis$tippointsize_nj <- 3.5
+                  Vis$nodepointsize_nj <- 2.5
                 } else if (between(sum(DB$data$Include), 81, 100)) {
                   Vis$labelsize_nj <- 3
                   Vis$tippointsize_nj <- 3
+                  Vis$nodepointsize_nj <- 2
                 } else {
                   Vis$labelsize_nj <- 2.5
                   Vis$tippointsize_nj <- 2.5
+                  Vis$nodepointsize_nj <- 1.5
                 }
               }
             } else {
               Vis$labelsize_nj <- 4
               Vis$tippointsize_nj <- 4
+              Vis$nodepointsize_nj <- 2.5
             }
             
             # Update visualization control inputs
@@ -13117,6 +13159,9 @@ server <- function(input, output, session) {
             }
             if(!is.null(input$nj_tippoint_size)) {
               updateSliderInput(session, "nj_tippoint_size", value = Vis$tippointsize_nj)
+            }
+            if(!is.null(input$nj_nodepoint_size)) {
+              updateSliderInput(session, "nj_nodepoint_size", value = Vis$nodepointsize_nj)
             }
             
             # Create phylogenetic tree
@@ -13149,46 +13194,59 @@ server <- function(input, output, session) {
                 if(sum(DB$data$Include) < 21) {
                   Vis$labelsize_upgma <- 5.5
                   Vis$tippointsize_upgma <- 5.5
+                  Vis$nodepointsize_upgma <- 4
                 } else if (between(sum(DB$data$Include), 21, 40)) {
                   Vis$labelsize_upgma <- 5
                   Vis$tippointsize_upgma <- 5
+                  Vis$nodepointsize_upgma <- 3.5
                 } else if (between(sum(DB$data$Include), 41, 60)) {
                   Vis$labelsize_upgma <- 4.5
                   Vis$tippointsize_upgma <- 4.5
+                  Vis$nodepointsize_upgma <- 3
                 } else if (between(sum(DB$data$Include), 61, 80)) {
                   Vis$labelsize_upgma <- 4
                   Vis$tippointsize_upgma <- 4
+                  Vis$nodepointsize_upgma <- 2.5
                 } else if (between(sum(DB$data$Include), 81, 100)) {
                   Vis$labelsize_upgma <- 3.5
                   Vis$tippointsize_upgma <- 3.5
+                  Vis$nodepointsize_upgma <- 2
                 } else {
                   Vis$labelsize_upgma <- 3
                   Vis$tippointsize_upgma <- 3
+                  Vis$nodepointsize_upgma <- 1.5
                 }
               } else {
                 if(sum(DB$data$Include) < 21) {
                   Vis$labelsize_upgma <- 5
                   Vis$tippointsize_upgma <- 5
+                  Vis$nodepointsize_upgma <- 4
                 } else if (between(sum(DB$data$Include), 21, 40)) {
                   Vis$labelsize_upgma <- 4.5
                   Vis$tippointsize_upgma <- 4.5
+                  Vis$nodepointsize_upgma <- 3.5
                 } else if (between(sum(DB$data$Include), 41, 60)) {
                   Vis$labelsize_upgma <- 4
                   Vis$tippointsize_upgma <- 4
+                  Vis$nodepointsize_upgma <- 3
                 } else if (between(sum(DB$data$Include), 61, 80)) {
                   Vis$labelsize_upgma <- 3.5
                   Vis$tippointsize_upgma <- 3.5
+                  Vis$nodepointsize_upgma <- 2.5
                 } else if (between(sum(DB$data$Include), 81, 100)) {
                   Vis$labelsize_upgma <- 3
                   Vis$tippointsize_upgma <- 3
+                  Vis$nodepointsize_upgma <- 2
                 } else {
                   Vis$labelsize_upgma <- 2.5
                   Vis$tippointsize_upgma <- 2.5
+                  Vis$nodepointsize_upgma <- 1.5
                 }
               }
             } else {
               Vis$labelsize_upgma <- 4
               Vis$tippointsize_upgma <- 4
+              Vis$nodepointsize_upgma <- 2.5
             }
             
             # Update visualization control inputs
@@ -13197,6 +13255,9 @@ server <- function(input, output, session) {
             }
             if(!is.null(input$upgma_tippoint_size)) {
               updateSliderInput(session, "upgma_tippoint_size", value = Vis$tippointsize_upgma)
+            }
+            if(!is.null(input$upgma_nodepoint_size)) {
+              updateSliderInput(session, "upgma_nodepoint_size", value = Vis$nodepointsize_upgma)
             }
             
             # Create phylogenetic tree
