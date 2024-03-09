@@ -13,7 +13,6 @@
     * [1.2 Create Conda Environment](#12-create-conda-environment)
     * [1.3 Create Launcher](#13-create-desktop-launcher)
 * [2 Running PhyloTrace](#2-running-phylotrace)
-* [2 Running PhyloTrace](#2-running-phylotrace)
 * [3 Troubleshooting](#3-troubleshooting)
     * [3.1 General](#31-general)
     * [3.2 Desktop Launcher](#32-desktop-launcher-not-working)
@@ -25,7 +24,7 @@ Download the repository as `.zip` and unpack it to a location on your system.
 
 Is ***Miniconda*** or another ***Conda Distribution*** installed on the system?
 - No: Run the installation below and initialize conda. 
-- Yes: Proceed to the [Create Conda Environment](#12-create-conda-environment).
+- Yes: Proceed to [1.2 Create Conda Environment](#12-create-conda-environment).
 
 ### 1.1 Install Miniconda
 These four commands quickly and quietly install the latest 64-bit version of the installer and then clean up after themselves. 
@@ -43,7 +42,7 @@ After installation, the newly-installed Miniconda should be initialized with the
 
 To start using conda, the terminal should be restarted.
 
-OPTIONAL: To disable automatic activation of conda whenever the terminal is started, the following command can be executed:
+>***Optional:*** *To disable automatic activation of conda whenever the terminal is started, the following command can be executed:*
 ```bash
 conda config --set auto_activate_base false
 ```
@@ -75,7 +74,7 @@ Start PhyloTrace by using the launcher in Applications Menu. A tab with the app 
 If this doesn't work the alternative way to run the app is to execute these commands:
 ```bash
 cd path/to/directory
-bash start_phylotrace 
+bash start_phylotrace.sh
 ```
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
