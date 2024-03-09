@@ -256,7 +256,7 @@ sel_countries <-
 
 ui <- dashboardPage(
   
-  title = "PhyloTrace 1.1.0",
+  title = "PhyloTrace 1.1.1",
   
   # Title
   dashboardHeader(title = span(
@@ -1581,7 +1581,7 @@ ui <- dashboardPage(
                                     "nj_rootedge_line",
                                     label = h5("Linetype", style = "color:white"),
                                     choices = c(Solid = "solid", Dashed = "dashed", Dotted = "dotted"),
-                                    selected = c(Dotted = "dotted"),
+                                    selected = c(Dotted = "solid"),
                                     width = "100px"
                                   )
                                 )
@@ -3573,7 +3573,7 @@ ui <- dashboardPage(
                                     "upgma_rootedge_line",
                                     label = h5("Linetype", style = "color:white"),
                                     choices = c(Solid = "solid", Dashed = "dashed", Dotted = "dotted"),
-                                    selected = c(Dotted = "dotted"),
+                                    selected = c(Dotted = "solid"),
                                     width = "100px"
                                   )
                                 )
@@ -8958,9 +8958,6 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
-    xrange <<- Vis$xrange_nj
-    test <<- Vis$nj
-    
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -10226,34 +10223,36 @@ server <- function(input, output, session) {
   
   # Rootedge length 
   output$nj_rootedge_length <- renderUI({
-    min <- round(ceiling(max(Vis$xrange_nj)) * 0.01, 0)
-    max <- round(ceiling(max(Vis$xrange_nj)) * 0.2, 0)
-    sel <- round(ceiling(max(Vis$xrange_nj)) * 0.05, 0)
+    if(round(ceiling(Vis$nj_max_x) * 0.02, 0) < 1) {
+      min <- 1
+    } else {
+      min <- round(ceiling(Vis$nj_max_x) * 0.02, 0)  
+    }
+    max <- round(ceiling(Vis$nj_max_x) * 0.2, 0)
     sliderInput(
       "nj_rootedge_length",
       label = h5("Length", style = "color:white; margin-bottom: 0px"),
       min = min,
       max = max,
-      value = sel,
+      value = round(ceiling(Vis$nj_max_x) * 0.05, 0),
       width = "150px",
       ticks = FALSE
     )
   })
   
   output$upgma_rootedge_length <- renderUI({
-    if(round(ceiling(max(Vis$xrange_upgma)) * 0.02, 0) < 1) {
+    if(round(ceiling(Vis$upgma_max_x) * 0.02, 0) < 1) {
       min <- 1
     } else {
-      min <- round(ceiling(max(Vis$xrange_upgma)) * 0.02, 0)  
+      min <- round(ceiling(Vis$upgma_max_x) * 0.02, 0)  
     }
-    max <- round(ceiling(max(Vis$xrange_upgma)) * 0.4, 0)
-    sel <- round(ceiling(max(Vis$xrange_upgma)) * 0.1, 0)
+    max <- round(ceiling(Vis$upgma_max_x) * 0.4, 0)
     sliderInput(
       "upgma_rootedge_length",
       label = h5("Length", style = "color:white; margin-bottom: 0px"),
       min = min,
       max = max,
-      value = sel,
+      value = round(ceiling(Vis$upgma_max_x) * 0.05, 0),
       width = "150px",
       ticks = FALSE
     )
@@ -10274,18 +10273,18 @@ server <- function(input, output, session) {
   
   output$nj_treescale_x <- renderUI({
     
-    if(ceiling(min(Vis$xrange_nj)) < 1) {
+    if(ceiling(Vis$nj_min_x) < 1) {
       floor <- 1
     } else {
-      floor <- ceiling(min(Vis$xrange_nj))
+      floor <- ceiling(Vis$nj_min_x)
     }
     
     sliderInput(
       "nj_treescale_x",
       label = h5("X Position", style = "color:white; margin-bottom: 0px"),
       min = floor,
-      max = round(floor(max(Vis$xrange_nj))),
-      value = round(ceiling(max(Vis$xrange_nj)) * 0.2, 0),
+      max = round(floor(Vis$nj_max_x)),
+      value = round(ceiling(Vis$nj_max_x) * 0.2, 0),
       width = "150px",
       ticks = FALSE
     )
@@ -10317,18 +10316,18 @@ server <- function(input, output, session) {
   
   output$upgma_treescale_x <- renderUI({
     
-    if(ceiling(min(Vis$xrange_upgma)) < 1) {
+    if(ceiling(Vis$upgma_min_x) < 1) {
       floor <- 1
     } else {
-      floor <- ceiling(min(Vis$xrange_upgma))
+      floor <- ceiling(Vis$upgma_min_x)
     }
     
     sliderInput(
       "upgma_treescale_x",
       label = h5("X Position", style = "color:white; margin-bottom: 0px"),
       min = floor,
-      max = round(floor(max(Vis$xrange_upgma))),
-      value = round(ceiling(max(Vis$xrange_upgma)) * 0.2, 0),
+      max = round(floor(Vis$upgma_max_x)),
+      value = round(ceiling(Vis$upgma_max_x) * 0.2, 0),
       ticks = FALSE,
       width = "150px"
     )
@@ -10407,8 +10406,8 @@ server <- function(input, output, session) {
     numericInput(
       "nj_heatmap_offset",
       label = h5("Position", style = "color:white; margin-bottom: 0px"),
-      min = -ceiling(max(Vis$xrange_nj)),
-      max = ceiling(max(Vis$xrange_nj)),
+      min = -ceiling(Vis$nj_max_x),
+      max = ceiling(Vis$nj_max_x),
       step = 1,
       value = 0,
       width = "80px"
@@ -10419,8 +10418,8 @@ server <- function(input, output, session) {
     numericInput(
       "upgma_heatmap_offset",
       label = h5("Position", style = "color:white; margin-bottom: 0px"),
-      min = -ceiling(max(Vis$xrange_upgma)),
-      max = ceiling(max(Vis$xrange_upgma)),
+      min = -ceiling(Vis$upgma_max_x),
+      max = ceiling(Vis$upgma_max_x),
       step = 1,
       value = 0,
       width = "80px"
@@ -10632,170 +10631,170 @@ server <- function(input, output, session) {
   
   # Geom Fruit Width
   output$upgma_fruit_width <- renderUI({
-    if(round(ceiling(min(Vis$xrange_upgma)), 0) < 1) {
+    if(round(ceiling(Vis$upgma_min_x), 0) < 1) {
       min <- 1
     } else {
-      min <- round(ceiling(min(Vis$xrange_upgma)), 0)
+      min <- round(ceiling(Vis$upgma_min_x), 0)
     }
     sliderInput(
       "upgma_fruit_width_circ",
       label = h5("Width", style = "color:white; margin-bottom: 0px"),
       min = min,
-      max = round(ceiling(max(Vis$xrange_upgma)) * 0.5, 0),
-      value = ceiling(max(Vis$xrange_upgma) * 0.08),
+      max = round(ceiling(Vis$upgma_max_x) * 0.5, 0),
+      value = ceiling(Vis$upgma_max_x * 0.08),
       width = "150px",
       ticks = FALSE
     )
   })
   
   output$upgma_fruit_width2 <- renderUI({
-    if(round(ceiling(min(Vis$xrange_upgma)), 0) < 1) {
+    if(round(ceiling(Vis$upgma_min_x), 0) < 1) {
       min <- 1
     } else {
-      min <- round(ceiling(min(Vis$xrange_upgma)), 0)
+      min <- round(ceiling(Vis$upgma_min_x), 0)
     }
     sliderInput(
       "upgma_fruit_width_circ_2",
       label = h5("Width", style = "color:white; margin-bottom: 0px"),
       min = min,
-      max = round(ceiling(max(Vis$xrange_upgma)) * 0.5, 0),
-      value = ceiling(max(Vis$xrange_upgma) * 0.08),
+      max = round(ceiling(Vis$upgma_max_x) * 0.5, 0),
+      value = ceiling(Vis$upgma_max_x * 0.08),
       width = "150px",
       ticks = FALSE
     )
   })
   
   output$upgma_fruit_width3 <- renderUI({
-    if(round(ceiling(min(Vis$xrange_upgma)), 0) < 1) {
+    if(round(ceiling(Vis$upgma_min_x), 0) < 1) {
       min <- 1
     } else {
-      min <- round(ceiling(min(Vis$xrange_upgma)), 0)
+      min <- round(ceiling(Vis$upgma_min_x), 0)
     }
     sliderInput(
       "upgma_fruit_width_circ_3",
       label = h5("Width", style = "color:white; margin-bottom: 0px"),
       min = min,
-      max = round(ceiling(max(Vis$xrange_upgma)) * 0.5, 0),
-      value = ceiling(max(Vis$xrange_upgma) * 0.08),
+      max = round(ceiling(Vis$upgma_max_x) * 0.5, 0),
+      value = ceiling(Vis$upgma_max_x * 0.08),
       width = "150px",
       ticks = FALSE
     )
   })
   
   output$upgma_fruit_width4 <- renderUI({
-    if(round(ceiling(min(Vis$xrange_upgma)), 0) < 1) {
+    if(round(ceiling(Vis$upgma_min_x), 0) < 1) {
       min <- 1
     } else {
-      min <- round(ceiling(min(Vis$xrange_upgma)), 0)
+      min <- round(ceiling(Vis$upgma_min_x), 0)
     }
     sliderInput(
       "upgma_fruit_width_circ_4",
       label = h5("Width", style = "color:white; margin-bottom: 0px"),
       min = min,
-      max = round(ceiling(max(Vis$xrange_upgma)) * 0.5, 0),
-      value = ceiling(max(Vis$xrange_upgma) * 0.08),
+      max = round(ceiling(Vis$upgma_max_x) * 0.5, 0),
+      value = ceiling(Vis$upgma_max_x * 0.08),
       width = "150px",
       ticks = FALSE
     )
   })
   
   output$upgma_fruit_width5 <- renderUI({
-    if(round(ceiling(min(Vis$xrange_upgma)), 0) < 1) {
+    if(round(ceiling(Vis$upgma_min_x), 0) < 1) {
       min <- 1
     } else {
-      min <- round(ceiling(min(Vis$xrange_upgma)), 0)
+      min <- round(ceiling(Vis$upgma_min_x), 0)
     }
     sliderInput(
       "upgma_fruit_width_circ_5",
       label = h5("Width", style = "color:white; margin-bottom: 0px"),
       min = min,
-      max = round(ceiling(max(Vis$xrange_upgma)) * 0.5, 0),
-      value = ceiling(max(Vis$xrange_upgma) * 0.08),
+      max = round(ceiling(Vis$upgma_max_x) * 0.5, 0),
+      value = ceiling(Vis$upgma_max_x * 0.08),
       width = "150px",
       ticks = FALSE
     )
   })
   
   output$nj_fruit_width <- renderUI({
-    if(round(ceiling(min(Vis$xrange_nj)), 0) < 1) {
+    if(round(ceiling(Vis$nj_min_x), 0) < 1) {
       min <- 1
     } else {
-      min <- round(ceiling(min(Vis$xrange_nj)), 0)
+      min <- round(ceiling(Vis$nj_min_x), 0)
     }
     sliderInput(
       "nj_fruit_width_circ",
       label = h5("Width", style = "color:white; margin-bottom: 0px"),
       min = min,
-      max = round(ceiling(max(Vis$xrange_nj)) * 0.5, 0),
-      value = ceiling(max(Vis$xrange_nj) * 0.08),
+      max = round(ceiling(Vis$nj_max_x) * 0.5, 0),
+      value = ceiling(Vis$nj_max_x * 0.08),
       width = "150px",
       ticks = FALSE
     )
   })
   
   output$nj_fruit_width2 <- renderUI({
-    if(round(ceiling(min(Vis$xrange_nj)), 0) < 1) {
+    if(round(ceiling(Vis$nj_min_x), 0) < 1) {
       min <- 1
     } else {
-      min <- round(ceiling(min(Vis$xrange_nj)), 0)
+      min <- round(ceiling(Vis$nj_min_x), 0)
     }
     sliderInput(
       "nj_fruit_width_circ_2",
       label = h5("Width", style = "color:white; margin-bottom: 0px"),
       min = min,
-      max = round(ceiling(max(Vis$xrange_nj)) * 0.5, 0),
-      value = ceiling(max(Vis$xrange_nj) * 0.08),
+      max = round(ceiling(Vis$nj_max_x) * 0.5, 0),
+      value = ceiling(Vis$nj_max_x * 0.08),
       width = "150px",
       ticks = FALSE
     )
   })
   
   output$nj_fruit_width3 <- renderUI({
-    if(round(ceiling(min(Vis$xrange_nj)), 0) < 1) {
+    if(round(ceiling(Vis$nj_min_x), 0) < 1) {
       min <- 1
     } else {
-      min <- round(ceiling(min(Vis$xrange_nj)), 0)
+      min <- round(ceiling(Vis$nj_min_x), 0)
     }
     sliderInput(
       "nj_fruit_width_circ_3",
       label = h5("Width", style = "color:white; margin-bottom: 0px"),
       min = min,
-      max = round(ceiling(max(Vis$xrange_nj)) * 0.5, 0),
-      value = ceiling(max(Vis$xrange_nj) * 0.08),
+      max = round(ceiling(Vis$nj_max_x) * 0.5, 0),
+      value = ceiling(Vis$nj_max_x * 0.08),
       width = "150px",
       ticks = FALSE
     )
   })
   
   output$nj_fruit_width4 <- renderUI({
-    if(round(ceiling(min(Vis$xrange_nj)), 0) < 1) {
+    if(round(ceiling(Vis$nj_min_x), 0) < 1) {
       min <- 1
     } else {
-      min <- round(ceiling(min(Vis$xrange_nj)), 0)
+      min <- round(ceiling(Vis$nj_min_x), 0)
     }
     sliderInput(
       "nj_fruit_width_circ_4",
       label = h5("Width", style = "color:white; margin-bottom: 0px"),
       min = min,
-      max = round(ceiling(max(Vis$xrange_nj)) * 0.5, 0),
-      value = ceiling(max(Vis$xrange_nj) * 0.08),
+      max = round(ceiling(Vis$nj_max_x) * 0.5, 0),
+      value = ceiling(Vis$nj_max_x * 0.08),
       width = "150px",
       ticks = FALSE
     )
   })
   
   output$nj_fruit_width5 <- renderUI({
-    if(round(ceiling(min(Vis$xrange_nj)), 0) < 1) {
+    if(round(ceiling(Vis$nj_min_x), 0) < 1) {
       min <- 1
     } else {
-      min <- round(ceiling(min(Vis$xrange_nj)), 0)
+      min <- round(ceiling(Vis$nj_min_x), 0)
     }
     sliderInput(
       "nj_fruit_width_circ_5",
       label = h5("Width", style = "color:white; margin-bottom: 0px"),
       min = min,
-      max = round(ceiling(max(Vis$xrange_nj)) * 0.5, 0),
-      value = ceiling(max(Vis$xrange_nj) * 0.08),
+      max = round(ceiling(Vis$nj_max_x) * 0.5, 0),
+      value = ceiling(Vis$nj_max_x * 0.08),
       width = "150px",
       ticks = FALSE
     )
@@ -11592,7 +11591,7 @@ server <- function(input, output, session) {
   # Treescale X Position
   nj_treescale_x <- reactive({
     if(is.null(input$nj_treescale_x)) {
-      round(ceiling(max(Vis$xrange_nj)) * 0.2, 0)
+      round(ceiling(Vis$nj_max_x) * 0.2, 0)
     } else {input$nj_treescale_x}
   })
   
@@ -11638,7 +11637,7 @@ server <- function(input, output, session) {
   nj_rootedge <- reactive({
     if(input$nj_rootedge_show == TRUE) {
       if(is.null(input$nj_rootedge_length)) {
-        geom_rootedge(rootedge = round(ceiling(max(Vis$xrange_nj)) * 0.05, 0),
+        geom_rootedge(rootedge = round(ceiling(Vis$nj_max_x) * 0.05, 0),
                       linetype = input$nj_rootedge_line)
       } else {
         geom_rootedge(rootedge = input$nj_rootedge_length,
@@ -12274,7 +12273,7 @@ server <- function(input, output, session) {
   # Treescale X Position
   upgma_treescale_x <- reactive({
     if(is.null(input$upgma_treescale_x)) {
-      round(ceiling(max(Vis$xrange_upgma)) * 0.2, 0)
+      round(ceiling(Vis$upgma_max_x) * 0.2, 0)
     } else {input$upgma_treescale_x}
   })
   
@@ -12320,7 +12319,7 @@ server <- function(input, output, session) {
   upgma_rootedge <- reactive({
     if(input$upgma_rootedge_show == TRUE) {
       if(is.null(input$upgma_rootedge_length)) {
-        geom_rootedge(rootedge = round(ceiling(max(Vis$xrange_upgma)) * 0.05, 0),
+        geom_rootedge(rootedge = round(ceiling(Vis$upgma_max_x) * 0.05, 0),
                       linetype = input$upgma_rootedge_line)
       } else {
         geom_rootedge(rootedge = input$upgma_rootedge_length,
@@ -13242,8 +13241,9 @@ server <- function(input, output, session) {
               Vis$branch_size_nj <- 3.5
             }
             
-            # Get upper end of x range
+            # Get upper and lower end of x range
             Vis$nj_max_x <- max(ggtree(Vis$nj)$data$x)
+            Vis$nj_min_x <- min(ggtree(Vis$nj)$data$x)
             
             # Update visualization control inputs
             if(!is.null(input$nj_tiplab_size)) {
@@ -13262,7 +13262,10 @@ server <- function(input, output, session) {
               updateNumericInput(session, "nj_branch_size", value = Vis$branch_size_nj)
             }
             if(!is.null(input$nj_treescale_width)) {
-              updateNumericInput(session, "nj_treescale_width", value = round(ceiling(max(ggtree(Vis$nj)$data$x)) * 0.1, 0))
+              updateNumericInput(session, "nj_treescale_width", value = round(ceiling(Vis$nj_max_x) * 0.1, 0))
+            }
+            if(!is.null(input$nj_rootedge_length)) {
+              updateSliderInput(session, "nj_rootedge_length", value = round(ceiling(Vis$nj_max_x) * 0.05, 0))
             }
             
             output$tree_nj <- renderPlot({
@@ -13380,6 +13383,7 @@ server <- function(input, output, session) {
             
             # Get upper end of x range
             Vis$upgma_max_x <- max(ggtree(Vis$upgma)$data$x)
+            Vis$upgma_min_x <- min(ggtree(Vis$upgma)$data$x)
             
             # Update visualization control inputs
             if(!is.null(input$upgma_tiplab_size)) {
@@ -13398,7 +13402,10 @@ server <- function(input, output, session) {
               updateNumericInput(session, "upgma_branch_size", value = Vis$branch_size_upgma)
             }
             if(!is.null(input$upgma_treescale_width)) {
-              updateNumericInput(session, "upgma_treescale_width", value = round(ceiling(max(ggtree(Vis$upgma)$data$x)) * 0.1, 0))
+              updateNumericInput(session, "upgma_treescale_width", value = round(ceiling(Vis$upgma_max_x) * 0.1, 0))
+            }
+            if(!is.null(input$upgma_rootedge_length)) {
+              updateSliderInput(session, "upgma_rootedge_length", value = round(ceiling(Vis$upgma_max_x) * 0.05, 0))
             }
             
             output$tree_upgma <- renderPlot({
