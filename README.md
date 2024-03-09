@@ -75,7 +75,7 @@ Start PhyloTrace by using the launcher in Applications Menu. A tab with the app 
 If this doesn't work the alternative way to run the app is to execute these commands:
 ```bash
 cd path/to/directory
-bash start_phylotrace 
+bash start_phylotrace.sh
 ```
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
