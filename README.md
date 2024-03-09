@@ -1,6 +1,6 @@
 <picture>
     <source media="(prefers-color-scheme: light)" srcset="www/PhyloTrace_bw.png">
-    <source media="(prefers-color-scheme: dark)" srcset="www/PhyloTrace.png">    
+    <source media="(prefers-color-scheme: dark)" srcset="www/PhyloTrace.png">
     <img src= "www/">
 </picture>
 
@@ -9,9 +9,10 @@
 ## Table of Content
 
 * [1 Installation](#1-installation)
-    * [1.1 Install System Libraries](#11-install-system-librariespackages)
-    * [1.2 Induce Conda Environment](#12-induce-conda-environment)
-    * [1.3 Create Desktop Launcher](#13-create-desktop-launcher)
+    * [1.1 Install Miniconda](#11-install-miniconda)
+    * [1.2 Create Conda Environment](#12-create-conda-environment)
+    * [1.3 Create Launcher](#13-create-desktop-launcher)
+* [2 Running PhyloTrace](#2-running-phylotrace)
 * [2 Running PhyloTrace](#2-running-phylotrace)
 * [3 Troubleshooting](#3-troubleshooting)
     * [3.1 General](#31-general)
@@ -20,98 +21,61 @@
 
 ## 1 Installation
 
-Download the repository as `.zip` and unpack it to a location on your system.  
-
-### 1.1 Install System Libraries/Packages
-
-```bash
-sudo apt-get update && sudo apt-get install \
-    build-essential \
-    libssl-dev \
-    libbz2-dev \
-    zlib1g-dev \
-    liblapack-dev \
-    libblas-dev \
-    libmkl-rt \
-    libopenblas-dev \
-    gfortran \
-    libcurl4-openssl-dev \
-    libxml2-dev \
-    libfontconfig1-dev \
-    libharfbuzz-dev \
-    libfribidi-dev \
-    libfreetype6-dev \
-    libpng-dev \
-    libtiff5-dev \
-    libjpeg-dev \
-    xdg-utils \
-    xorg-dev \
-    automake \
-    pandoc \
-    wget
-```
-
-### 1.2 Induce Conda Environment 
+Download the repository as `.zip` and unpack it to a location on your system.
 
 Is ***Miniconda*** or another ***Conda Distribution*** installed on the system?
-
-- Yes: Skip this code chunk and proceed to the creation of a new environment as the next step.  
 - No: Run the installation below and initialize conda. 
+- Yes: Proceed to the [Create Conda Environment](#12-create-conda-environment).
+
+### 1.1 Install Miniconda
+These four commands quickly and quietly install the latest 64-bit version of the installer and then clean up after themselves. 
 ```bash
-mkdir -p ~/miniconda3 \
-&& wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh \
-&& bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 \
-&& rm -rf ~/miniconda3/miniconda.sh \
-&& conda init \
-&& conda config --set auto_activate_base false
+mkdir -p ~/miniconda3
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+rm ~/miniconda3/miniconda.sh
 ```
 
-Create a conda evironment containing necessary dependencies and packages.
+After installation, the newly-installed Miniconda should be initialized with the following command:
 ```bash
-cd path/to/directory \
-&& conda env create -f PhyloTrace.yml
+~/miniconda3/bin/conda init
+```
+
+To start using conda, the terminal should be restarted.
+
+OPTIONAL: To disable automatic activation of conda whenever the terminal is started, the following command can be executed:
+```bash
+conda config --set auto_activate_base false
+```
+
+### 1.2 Create Conda Environment
+Create a conda environment containing necessary dependencies and packages.
+```bash
+cd path/to/directory
+conda env create -f PhyloTrace.yml
 ```
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 >*This process might take a while (depends on system capacities).*
 
 ### 1.3 Create Desktop Launcher
 
-Construct an executable `.desktop` file to create a desktop launcher for PhyloTrace. 
+Construct an `.desktop` file to create a desktop launcher for PhyloTrace. 
 ```bash
-cd path/to/directory \
-&& echo "[Desktop Entry]" > PhyloTrace.desktop \
-&& echo "Name=PhyloTrace" >> PhyloTrace.desktop \
-&& echo "Exec=run_phylotrace.sh">> PhyloTrace.desktop \
-&& echo "Icon=$(pwd)/www/phylo.png" >> PhyloTrace.desktop \
-&& echo "Terminal=true" >> PhyloTrace.desktop \
-&& echo "Type=Application" >> PhyloTrace.desktop \
-&& echo "Categories=Utility;" >> PhyloTrace.desktop \
-&& echo '#!/bin/bash' > run_phylotrace.sh \
-&& echo "" >> run_phylotrace.sh \
-&& echo "cd $(pwd)" >> run_phylotrace.sh \
-&& echo "source ~/miniconda3/bin/activate PhyloTrace" >> run_phylotrace.sh \
-&& echo "Rscript $(pwd)/PhyloTrace.R" >> run_phylotrace.sh \
-&& sudo mv PhyloTrace.desktop /usr/share/applications/ \
-&& sudo mv run_phylotrace.sh /usr/bin/ \
-&& sudo chmod a+x /usr/share/applications/PhyloTrace.desktop \
-&& sudo chmod a+x /usr/bin/run_phylotrace.sh 
+cd path/to/directory
+bash install_desktop_icon.sh
 ```
-
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
-
->*If this does not work, use the alternative way of starting PhyloTrace as described in # 2 Running PhyloTrace.*
 
 ## 2 Running PhyloTrace
 
-Start PhyloTrace by pressing the *Super* key or open *Activities* and search for 'PhyloTrace'. A tab with the app will automatically open in the default browser.
+Start PhyloTrace by using the launcher in Applications Menu. A tab with the app will automatically open in the default browser.
 
 **Alternative:**
 
 If this doesn't work the alternative way to run the app is to execute these commands:
 ```bash
-cd path/to/directory \
-&& conda activate PhyloTrace \
-&& Rscript PhyloTrace.R 
+cd path/to/directory
+bash start_phylotrace 
 ```
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
@@ -121,18 +85,14 @@ cd path/to/directory \
 There are multiple possible sources for issues with the installation. Common mistakes during the installation are: 
 - Change `path/to/directory` in the command chunks with the actual path of the repository containing all PhyloTrace files
 - Before installation make sure the whole repository is unzipped to a writable location in your system
-- System libraries/dependencies needed for PhyloTrace are not installed or updated [1.1 Install System Libraries/Packages](#11-install-system-librariespackages)
 
 If the installation issues persist feel free to contact us via [contact@phylotrace.com](mailto:contact@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans) or open an issue.
 
 ### 3.2 Desktop Launcher not Working
-In some cases the default browser is not accessible from shell. In order to manually denote the browser, substitute *browser-name* in the command below with the executable name of the browser you want to use. The single quotation marks around *browser-name* have to stay, e.g. 'firefox'. If you are unsure about the correct identifier for your browser consider the table below. 
-
+If the default browser does not work properly, it can be changed, by changing R_BROWSER parameter in start_phylotrace. For example, to change it to Google Chrome:
 ```bash
-cd path/to/directory \
-&& echo "library(shiny)" > PhyloTrace.R \
-&& echo "options(browser='browser-name')" >> PhyloTrace.R \
-&& echo "shiny::runApp('App.R', launch.browser = TRUE)" >> PhyloTrace.R
+...
+R_BROWSER=google-chrome Rscript -e "shiny::runApp('${SCRIPT_DIR}/App.R', launch.browser=TRUE)"
 ```
 
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
@@ -149,7 +109,15 @@ cd path/to/directory \
 
 <sub>Executable names for some popular browsers.</sub>
 
-If PhyloTrace is still unable to launch from desktop, a missing default browser was likely not the issue. In this case either open PhyloTrace as described in [2 Running PhyloTrace](#2-running-phylotrace) or contact us via [contact@phylotrace.com](mailto:contact@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans).  
+If PhyloTrace is still unable to launch from desktop, a missing default browser was likely not the issue. In this case either open PhyloTrace as described in [2 Running PhyloTrace](#2-running-phylotrace) or contact us via [contact@phylotrace.com](mailto:contact@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans).
+
+## Uninstall PhyloTrace
+To remove PhyloTrace from your system, remove the Phylotrace directory and run the following command to remove
+Desktop Launcher:
+```bash
+rm $HOME/.local/share/applications/PhyloTrace.desktop
+rm $HOME/.local/share/icons/hicolor/scalable/apps/PhyloTrace.png
+```
 
 ## 4 Roadmap
 PhyloTrace is under active development with new functions, enhancements and innovations to follow.
@@ -174,9 +142,3 @@ PhyloTrace is under active development with new functions, enhancements and inno
 - [ ] Implementation of a NGS Sequencing Pipeline
 - [ ] Backwards Compatibility with MLST (ST calling)
 - [ ] Implementation of wgMLST
-
-
-
-
-
-
