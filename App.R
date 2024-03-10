@@ -1500,447 +1500,455 @@ ui <- dashboardPage(
           "input.tree_algo=='Neighbour-Joining'",
           fluidRow(
             column(
-              width = 4,
-              align = "center",
+              width = 1,
+              radioGroupButtons(
+                inputId = "nj_controls",
+                label = "",
+                choices = c("Layout", "Label", "Elements"),
+                direction = "vertical"
+              )
+            ),
+            conditionalPanel(
+              "input.nj_controls=='Layout'"
+            ),
+            column(
+              width = 2,
               box(
                 solidHeader = TRUE,
-                status = "primary",
+                status = "info",
                 width = "100%",
-                h3(p("Layout"), style = "color:white"),
-                hr(),
-                fluidRow(
-                  column(
-                    width = 6,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Theme"), style = "color:white; position: relative; right: -15px"),
+                column(
+                  width = 12,
+                  align = "left",
+                  h4(p("Theme"), style = "color:white; position: relative; right: -15px"),
+                  fluidRow(
+                    column(
+                      width = 12,
+                      align = "center",
+                      selectInput(
+                        inputId = "nj_layout",
+                        label = "",
+                        choices = list(
+                          Linear = list(
+                            "Rectangular" = "rectangular",
+                            "Roundrect" = "roundrect",
+                            "Slanted" = "slanted",
+                            "Ellipse" = "ellipse"
+                          ),
+                          Circular = list("Circular" = "circular",
+                                          "Inward" = "inward")
+                        ),
+                        selected = "rectangular",
+                        width = "90%"
+                      )
+                    )
+                  ),
+                  br(),
+                  fluidRow(
+                    column(
+                      width = 5,
+                      align = "left",
+                      checkboxInput(
+                        "nj_ladder",
+                        h5(p("Ladder"), style = "color:white; position: relative; bottom: 3px; right: -15px; margin-top: 22px; margin-bottom: 27px"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 3,
+                      align = "left",
+                      checkboxInput(
+                        "nj_rootedge_show",
+                        h5(p("Root"), style = "color:white; position: relative; bottom: 3px; right: -5px; margin-top: 23px"),
+                        value = FALSE
+                      )
+                    ),
+                    column(
+                      width = 2,
+                      align = "right",
+                      dropMenu(
+                        actionBttn(
+                          "nj_rootedge_menu",
+                          label = "",
+                          color = "default",
+                          size = "sm",
+                          style = "material-flat",
+                          icon = icon("sliders")
+                        ),
+                        placement = "top-start",
+                        theme = "translucent",
                         fluidRow(
                           column(
                             width = 12,
                             align = "center",
+                            uiOutput("nj_rootedge_length"),
+                            br(),
                             selectInput(
-                              inputId = "nj_layout",
-                              label = "",
-                              choices = list(
-                                Linear = list(
-                                  "Rectangular" = "rectangular",
-                                  "Roundrect" = "roundrect",
-                                  "Slanted" = "slanted",
-                                  "Ellipse" = "ellipse"
-                                ),
-                                Circular = list("Circular" = "circular",
-                                                "Inward" = "inward")
-                              ),
-                              selected = "rectangular",
-                              width = "90%"
+                              "nj_rootedge_line",
+                              label = h5("Linetype", style = "color:white"),
+                              choices = c(Solid = "solid", Dashed = "dashed", Dotted = "dotted"),
+                              selected = c(Dotted = "solid"),
+                              width = "100px"
                             )
                           )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 5,
-                            align = "left",
-                            checkboxInput(
-                              "nj_ladder",
-                              h5(p("Ladder"), style = "color:white; position: relative; bottom: 3px; right: -15px; margin-top: 22px"),
-                              value = TRUE
-                            )
-                          ),
-                          column(
-                            width = 3,
-                            align = "left",
-                            checkboxInput(
-                              "nj_rootedge_show",
-                              h5(p("Root"), style = "color:white; position: relative; bottom: 3px; right: -5px; margin-top: 23px"),
-                              value = FALSE
-                            )
-                          ),
-                          column(
-                            width = 2,
-                            align = "right",
-                            dropMenu(
-                              actionBttn(
-                                "nj_rootedge_menu",
-                                label = "",
-                                color = "default",
-                                size = "sm",
-                                style = "material-flat",
-                                icon = icon("sliders")
-                              ),
-                              placement = "top-start",
-                              theme = "translucent",
-                              fluidRow(
-                                column(
-                                  width = 12,
-                                  align = "center",
-                                  uiOutput("nj_rootedge_length"),
-                                  br(),
-                                  selectInput(
-                                    "nj_rootedge_line",
-                                    label = h5("Linetype", style = "color:white"),
-                                    choices = c(Solid = "solid", Dashed = "dashed", Dotted = "dotted"),
-                                    selected = c(Dotted = "solid"),
-                                    width = "100px"
-                                  )
-                                )
-                              )
-                            )
+                        )
+                      )
+                    )
+                  ),
+                  conditionalPanel(
+                    "input.nj_layout=='circular' | input.nj_layout=='inward'",
+                    fluidRow(
+                      column(
+                        width = 3,
+                        h5(p("Adjust"), style = "color:white; position: relative; right: -15px; margin-top: 20px")
+                      ),
+                      column(
+                        width = 8,
+                        align = "right",
+                        conditionalPanel(
+                          "input.nj_layout=='circular'",
+                          sliderInput(
+                            "nj_xlim",
+                            label = NULL,
+                            min = -50,
+                            max = 0,
+                            value = -10,
+                            width = "150px",
+                            ticks = FALSE
                           )
                         ),
                         conditionalPanel(
-                          "input.nj_layout=='circular' | input.nj_layout=='inward'",
+                          "input.nj_layout=='inward'",
+                          sliderInput(
+                            "nj_inward_xlim",
+                            label = NULL,
+                            min = 30,
+                            max = 120,
+                            value = 50,
+                            ticks = FALSE,
+                            width = "150px",
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            ),
+            column(
+              width = 2,
+              box(
+                solidHeader = TRUE,
+                status = "info",
+                width = "100%",
+                column(
+                  width = 12,
+                  align = "left",
+                  h4(p("Color"), style = "color:white; position: relative; right: -15px"),
+                  fluidRow(
+                    column(
+                      width = 5,
+                      h5(p("Lines/Text"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
+                    ),
+                    column(
+                      width = 7,
+                      colorPickr(
+                        inputId = "nj_color",
+                        width = "90%",
+                        selected = "#000000",
+                        label = "",
+                        update = "changestop",
+                        interaction = list(clear = FALSE,
+                                           save = FALSE),
+                        position = "right-start"
+                      )
+                    )
+                  ),
+                  br(),
+                  fluidRow(
+                    column(
+                      width = 5,
+                      h5(p("Background"), style = "color:white; position: relative; right: -15px; margin-top: 30px; margin-bottom: -8px")
+                    ),
+                    column(
+                      width = 7,
+                      colorPickr(
+                        inputId = "nj_bg",
+                        width = "90%",
+                        selected = "#ffffff",
+                        label = "",
+                        update = "changestop",
+                        interaction = list(clear = FALSE,
+                                           save = FALSE),
+                        position = "right-start"
+                      )
+                    )
+                  ),
+                  br()
+                )
+              )
+            ),
+            column(
+              width = 2,
+              box(
+                solidHeader = TRUE,
+                status = "info",
+                width = "100%",
+                column(
+                  width = 12,
+                  align = "left",
+                  h4(p("Title"), style = "color:white; position: relative; right: -15px"),
+                  column(
+                    width = 12,
+                    align = "center",
+                    textInput(
+                      "nj_title",
+                      label = "",
+                      width = "100%",
+                      placeholder = "Plot Title"
+                    ),
+                    br(),
+                    fluidRow(
+                      column(
+                        width = 7,
+                        colorPickr(
+                          inputId = "nj_title_color",
+                          selected = "#000000",
+                          label = "",
+                          update = "changestop",
+                          interaction = list(clear = FALSE,
+                                             save = FALSE),
+                          position = "right-start",
+                          width = "100%"
+                        )
+                      ),
+                      column(
+                        width = 5,
+                        align = "right",
+                        dropMenu(
+                          actionBttn(
+                            "nj_title_menu",
+                            label = "",
+                            color = "default",
+                            size = "sm",
+                            style = "material-flat",
+                            icon = icon("sliders")
+                          ),
+                          placement = "top-start",
+                          theme = "translucent",
                           fluidRow(
                             column(
-                              width = 3,
-                              h5(p("Adjust"), style = "color:white; position: relative; right: -15px; margin-top: 20px")
-                            ),
-                            column(
-                              width = 8,
-                              align = "right",
-                              conditionalPanel(
-                                "input.nj_layout=='circular'",
-                                sliderInput(
-                                  "nj_xlim",
-                                  label = NULL,
-                                  min = -50,
-                                  max = 0,
-                                  value = -10,
-                                  width = "150px",
-                                  ticks = FALSE
-                                )
-                              ),
-                              conditionalPanel(
-                                "input.nj_layout=='inward'",
-                                sliderInput(
-                                  "nj_inward_xlim",
-                                  label = NULL,
-                                  min = 30,
-                                  max = 120,
-                                  value = 50,
-                                  ticks = FALSE,
-                                  width = "150px",
-                                )
+                              width = 12,
+                              align = "center",
+                              numericInput(
+                                "nj_title_size",
+                                label = h5("Size", style = "color:white; margin-bottom: 0px"),
+                                value = 30,
+                                min = 15,
+                                max = 40,
+                                step = 1,
+                                width = "80px"
                               )
                             )
                           )
                         )
                       )
-                    )
-                  ),
+                    ),
+                    br()
+                  )
+                )
+              )
+            ),
+            column(
+              width = 2,
+              box(
+                solidHeader = TRUE,
+                status = "info",
+                width = "100%",
+                column(
+                  width = 12,
+                  align = "left",
+                  h4(p("Subtitle"), style = "color:white; position: relative; right: -15px"),
                   column(
-                    width = 6,
+                    width = 12,
+                    align = "center",
+                    textInput(
+                      "nj_subtitle",
+                      label = "",
+                      width = "100%",
+                      placeholder = "Plot Subtitle"
+                    ),
+                    br(),
                     fluidRow(
                       column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Color"), style = "color:white; position: relative; right: -15px"),
-                        fluidRow(
-                          column(
-                            width = 5,
-                            h5(p("Lines/Text"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
+                        width = 7,
+                        colorPickr(
+                          inputId = "nj_subtitle_color",
+                          selected = "#000000",
+                          label = "",
+                          update = "changestop",
+                          interaction = list(clear = FALSE,
+                                             save = FALSE),
+                          position = "right-start",
+                          width = "100%"
+                        )
+                      ),
+                      column(
+                        width = 5,
+                        align = "right",
+                        dropMenu(
+                          actionBttn(
+                            "nj_subtitle_menu",
+                            label = "",
+                            color = "default",
+                            size = "sm",
+                            style = "material-flat",
+                            icon = icon("sliders")
                           ),
-                          column(
-                            width = 7,
-                            colorPickr(
-                              inputId = "nj_color",
-                              width = "90%",
-                              selected = "#000000",
-                              label = "",
-                              update = "changestop",
-                              interaction = list(clear = FALSE,
-                                                 save = FALSE),
-                              position = "right-start"
+                          placement = "top-start",
+                          theme = "translucent",
+                          fluidRow(
+                            column(
+                              width = 12,
+                              align = "center",
+                              numericInput(
+                                "nj_subtitle_size",
+                                label = h5("Size", style = "color:white; margin-bottom: 0px"),
+                                value = 20,
+                                min = 15,
+                                max = 40,
+                                step = 1,
+                                width = "80px"
+                              )
                             )
                           )
+                        )
+                      )
+                    ),
+                    br()
+                  )
+                )
+              )
+            ),
+            column(
+              width = 2,
+              box(
+                solidHeader = TRUE,
+                status = "info",
+                width = "100%",
+                column(
+                  width = 12,
+                  align = "left",
+                  h4(p("Tree scale"), style = "color:white; position: relative; right: -15px"),
+                  column(
+                    width = 12,
+                    fluidRow(
+                      column(
+                        width = 7,
+                        align = "left",
+                        checkboxInput(
+                          "nj_treescale_show",
+                          h5(p("Show "), style = "color:white; position: relative; bottom: -7px; right: 0px"),
+                          value = TRUE
                         ),
-                        fluidRow(
-                          column(
-                            width = 5,
-                            h5(p("Background"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
+                        br()
+                      ),
+                      column(
+                        width = 5,
+                        align = "right",
+                        dropMenu(
+                          actionBttn(
+                            "nj_treescale_menu",
+                            label = "",
+                            color = "default",
+                            size = "sm",
+                            style = "material-flat",
+                            icon = icon("sliders")
                           ),
-                          column(
-                            width = 7,
-                            colorPickr(
-                              inputId = "nj_bg",
-                              width = "90%",
-                              selected = "#ffffff",
-                              label = "",
-                              update = "changestop",
-                              interaction = list(clear = FALSE,
-                                                 save = FALSE),
-                              position = "right-start"
+                          placement = "top-start",
+                          theme = "translucent",
+                          fluidRow(
+                            column(
+                              width = 12,
+                              align = "center",
+                              uiOutput("nj_treescale_width"),
+                              br(),
+                              uiOutput("nj_treescale_x"),
+                              br(),
+                              uiOutput("nj_treescale_y")
                             )
                           )
                         )
                       )
-                    ), br()
-                  )
-                ),
-                hr(),
-                fluidRow(
-                  column(
-                    width = 6,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Title"), style = "color:white; position: relative; right: -15px"),
-                        column(
-                          width = 12,
-                          align = "center",
-                          textInput(
-                            "nj_title",
-                            label = "",
-                            width = "100%",
-                            placeholder = "Plot Title"
-                          ),
-                          fluidRow(
-                            column(
-                              width = 7,
-                              colorPickr(
-                                inputId = "nj_title_color",
-                                selected = "#000000",
-                                label = "",
-                                update = "changestop",
-                                interaction = list(clear = FALSE,
-                                                   save = FALSE),
-                                position = "right-start",
-                                width = "100%"
-                              )
-                            ),
-                            column(
-                              width = 5,
-                              align = "right",
-                              dropMenu(
-                                actionBttn(
-                                  "nj_title_menu",
-                                  label = "",
-                                  color = "default",
-                                  size = "sm",
-                                  style = "material-flat",
-                                  icon = icon("sliders")
-                                ),
-                                placement = "top-start",
-                                theme = "translucent",
-                                fluidRow(
-                                  column(
-                                    width = 12,
-                                    align = "center",
-                                    numericInput(
-                                      "nj_title_size",
-                                      label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                                      value = 30,
-                                      min = 15,
-                                      max = 40,
-                                      step = 1,
-                                      width = "80px"
-                                    )
-                                  )
-                                )
-                              )
-                            )
-                          ),
-                          br()
-                        )
-                      )
-                    )
-                  ),
-                  column(
-                    width = 6,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Subtitle"), style = "color:white; position: relative; right: -15px"),
-                        column(
-                          width = 12,
-                          align = "center",
-                          textInput(
-                            "nj_subtitle",
-                            label = "",
-                            width = "100%",
-                            placeholder = "Plot Subtitle"
-                          ),
-                          fluidRow(
-                            column(
-                              width = 7,
-                              colorPickr(
-                                inputId = "nj_subtitle_color",
-                                selected = "#000000",
-                                label = "",
-                                update = "changestop",
-                                interaction = list(clear = FALSE,
-                                                   save = FALSE),
-                                position = "right-start",
-                                width = "100%"
-                              )
-                            ),
-                            column(
-                              width = 5,
-                              align = "right",
-                              dropMenu(
-                                actionBttn(
-                                  "nj_subtitle_menu",
-                                  label = "",
-                                  color = "default",
-                                  size = "sm",
-                                  style = "material-flat",
-                                  icon = icon("sliders")
-                                ),
-                                placement = "top-start",
-                                theme = "translucent",
-                                fluidRow(
-                                  column(
-                                    width = 12,
-                                    align = "center",
-                                    numericInput(
-                                      "nj_subtitle_size",
-                                      label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                                      value = 20,
-                                      min = 15,
-                                      max = 40,
-                                      step = 1,
-                                      width = "80px"
-                                    )
-                                  )
-                                )
-                              )
-                            )
-                          ),
-                          br()
-                        )
-                      )
                     )
                   )
                 ),
-                hr(),
-                fluidRow(
+                column(
+                  width = 12,
+                  align = "left",
+                  h4(p("Legend"), style = "color:white; position: relative; right: -15px; margin-top: -3px; margin-bottom: -5px"),
                   column(
-                    width = 6,
+                    width = 12,
+                    align = "center",
                     fluidRow(
                       column(
-                        width = 12,
+                        width = 7,
                         align = "left",
-                        h4(p("Tree scale"), style = "color:white; position: relative; right: -15px"),
-                        column(
-                          width = 12,
+                        prettyRadioButtons(
+                          "nj_legend_orientation",
+                          "",
+                          choices = c(Horizontal = "horizontal",
+                                      Vertical = "vertical"),
+                          selected = c(Horizontal = "horizontal"),
+                          inline = FALSE
+                        )
+                      ),
+                      column(
+                        width = 5,
+                        align = "right",
+                        dropMenu(
+                          actionBttn(
+                            "nj_legend_menu",
+                            label = "",
+                            color = "default",
+                            size = "sm",
+                            style = "material-flat",
+                            icon = icon("sliders")
+                          ),
+                          placement = "top-start",
+                          theme = "translucent",
                           fluidRow(
                             column(
-                              width = 7,
-                              align = "left",
-                              checkboxInput(
-                                "nj_treescale_show",
-                                h5(p("Show "), style = "color:white; position: relative; bottom: -7px; right: 0px"),
-                                value = TRUE
+                              width = 12,
+                              align = "center",
+                              numericInput(
+                                "nj_legend_size",
+                                label = h5("Size", style = "color:white; margin-bottom: 0px"),
+                                value = 10,
+                                min = 5,
+                                max = 25,
+                                step = 1,
+                                width = "80px"
                               ),
-                              br()
-                            ),
-                            column(
-                              width = 5,
-                              align = "right",
-                              dropMenu(
-                                actionBttn(
-                                  "nj_treescale_menu",
-                                  label = "",
-                                  color = "default",
-                                  size = "sm",
-                                  style = "material-flat",
-                                  icon = icon("sliders")
-                                ),
-                                placement = "top-start",
-                                theme = "translucent",
-                                fluidRow(
-                                  column(
-                                    width = 12,
-                                    align = "center",
-                                    uiOutput("nj_treescale_width"),
-                                    br(),
-                                    uiOutput("nj_treescale_x"),
-                                    br(),
-                                    uiOutput("nj_treescale_y")
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  ),
-                  column(
-                    width = 6,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Legend"), style = "color:white; position: relative; right: -15px"),
-                        column(
-                          width = 12,
-                          align = "center",
-                          fluidRow(
-                            column(
-                              width = 7,
-                              align = "left",
-                              prettyRadioButtons(
-                                "nj_legend_orientation",
-                                "",
-                                choices = c(Horizontal = "horizontal",
-                                            Vertical = "vertical"),
-                                selected = c(Horizontal = "horizontal"),
-                                inline = FALSE
-                              )
-                            ),
-                            column(
-                              width = 5,
-                              align = "right",
-                              dropMenu(
-                                actionBttn(
-                                  "nj_legend_menu",
-                                  label = "",
-                                  color = "default",
-                                  size = "sm",
-                                  style = "material-flat",
-                                  icon = icon("sliders")
-                                ),
-                                placement = "top-start",
-                                theme = "translucent",
-                                fluidRow(
-                                  column(
-                                    width = 12,
-                                    align = "center",
-                                    numericInput(
-                                      "nj_legend_size",
-                                      label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                                      value = 10,
-                                      min = 5,
-                                      max = 25,
-                                      step = 1,
-                                      width = "80px"
-                                    ),
-                                    br(),
-                                    sliderInput(
-                                      "nj_legend_x",
-                                      label = h5("X Position", style = "color:white; margin-bottom: 0px"),
-                                      value = 0.1,
-                                      min = -0.9,
-                                      max = 1.9,
-                                      width = "150px",
-                                      ticks = FALSE
-                                    ),
-                                    br(),
-                                    sliderInput(
-                                      "nj_legend_y",
-                                      label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
-                                      value = 1,
-                                      min = -1,
-                                      max = 1,
-                                      width = "150px",
-                                      ticks = FALSE
-                                    )
-                                  )
-                                )
+                              br(),
+                              sliderInput(
+                                "nj_legend_x",
+                                label = h5("X Position", style = "color:white; margin-bottom: 0px"),
+                                value = 0.1,
+                                min = -0.9,
+                                max = 1.9,
+                                width = "150px",
+                                ticks = FALSE
+                              ),
+                              br(),
+                              sliderInput(
+                                "nj_legend_y",
+                                label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+                                value = 1,
+                                min = -1,
+                                max = 1,
+                                width = "150px",
+                                ticks = FALSE
                               )
                             )
                           )
@@ -1950,7 +1958,11 @@ ui <- dashboardPage(
                   )
                 )
               )
-            ),
+            )
+          ),
+          fluidRow(
+            br(), br(), br(), br(), br(), br(), br(),
+            br(), br(), br(), br(), br(), br(), br(),
             column(
               width = 4,
               align = "center",
@@ -3470,6 +3482,50 @@ ui <- dashboardPage(
                               value = "Heatmap",
                               placeholder = "Heatmap" 
                             )
+                          )
+                        )
+                      )
+                    )
+                  ),
+                  column(
+                    width = 6,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        fluidRow(
+                          column(
+                            width = 6,
+                            h4(p("Clade Highlight"), style = "color:white; position: relative; right: -15px")
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            width = 5,
+                            checkboxInput(
+                              "nj_clades_show",
+                              "Show"
+                            )
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            width = 12,
+                            materialSwitch(
+                              "nj_nodelabel_show",
+                              "Show Nodes",
+                              value = FALSE
+                            )
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            width = 5,
+                            h5(p("Parent node"), style = "color:white; position: relative; right: -20px; margin-top: 30px")
+                          ),
+                          column(
+                            width = 7,
+                            uiOutput("nj_parentnode")
                           )
                         )
                       )
@@ -10089,6 +10145,39 @@ server <- function(input, output, session) {
   
   #### NJ and UPGMA controls ----
   
+  # Clade Highlights
+  output$nj_parentnode <- renderUI({
+    if(!is.null(Vis$nj_parentnodes)) {
+      pickerInput(
+        "nj_parentnode",
+        label = "",
+        choices = Vis$nj_parentnodes,
+        multiple = TRUE,
+        options = list(
+          `live-search` = TRUE,
+          `actions-box` = TRUE,
+          size = 10,
+          style = "background-color: white; border-radius: 5px;"
+        ),
+        width = "90%"
+      )
+    } else {
+      pickerInput(
+        "nj_parentnode",
+        label = "",
+        choices = c(),
+        multiple = TRUE,
+        options = list(
+          `live-search` = TRUE,
+          `actions-box` = TRUE,
+          size = 10,
+          style = "background-color: white; border-radius: 5px;"
+        ),
+        width = "90%"
+      )
+    }
+  })
+  
   # Branch label size
   output$nj_branch_size <- renderUI(
     numericInput(
@@ -11212,7 +11301,8 @@ server <- function(input, output, session) {
       ggtree(Vis$nj, 
              color = input$nj_color,
              layout = layout_nj(),
-             ladderize = input$nj_ladder) %<+% Vis$meta_nj +
+             ladderize = input$nj_ladder,
+             alpha = nj_alpha()) %<+% Vis$meta_nj +
       nj_tiplab() +
       limit() +
       inward() +
@@ -11222,6 +11312,8 @@ server <- function(input, output, session) {
       tippoint() +
       clip_label() +
       nj_rootedge() +
+      nj_nodelabel() +
+      nj_clades() +
       ggtitle(label = input$nj_title,
               subtitle = input$nj_subtitle) +
       theme_tree(bgcolor = input$nj_bg) +
@@ -11257,10 +11349,6 @@ server <- function(input, output, session) {
       nj_fruit5() +
       nj_gradient5() 
     
-    # Extract plot meta data
-    Vis$xrange_nj <- tree$data$x
-    Vis$yrange_nj <- tree$data$y
-    
     if(input$nj_heatmap_show == TRUE & length(input$nj_heatmap_select) > 0) {
       tree <- gheatmap(tree, 
                        data = select(Vis$meta_nj, input$nj_heatmap_select),
@@ -11280,6 +11368,28 @@ server <- function(input, output, session) {
     
     cowplot::ggdraw(Vis$nj_plot) + 
       theme(plot.background = element_rect(fill = input$nj_bg, color = input$nj_bg))
+  })
+  
+  # Clade Highlight
+  nj_clades <- reactive({
+    if(!is.null(input$nj_parentnode)) {
+      if(input$nj_clades_show == TRUE & (!length(input$nj_parentnode) == 0)) {
+        geom_highlight(node = input$nj_parentnode)
+      } else {NULL}
+    }
+  })
+  
+  # Nodelabel
+  nj_nodelabel <- reactive({
+    if(input$nj_nodelabel_show == TRUE) {
+      geom_nodelab(aes(label = node), color = "#29303A", size = nj_tiplab_size() + 1, hjust = 0.7)
+    } else {NULL}
+  })
+  
+  nj_alpha <- reactive({
+    if(input$nj_nodelabel_show == TRUE) {
+      0.2
+    } else {1}
   })
   
   # Legend Position
@@ -11937,10 +12047,6 @@ server <- function(input, output, session) {
       new_scale_fill() +
       upgma_fruit5() +
       upgma_gradient5() 
-    
-    # Extract plot meta data
-    Vis$xrange_upgma <- tree$data$x
-    Vis$yrange_upgma <- tree$data$y
     
     if(input$upgma_heatmap_show == TRUE & length(input$upgma_heatmap_select) > 0) {
       tree <- gheatmap(tree, 
@@ -13241,9 +13347,14 @@ server <- function(input, output, session) {
               Vis$branch_size_nj <- 3.5
             }
             
+            Vis$nj_tree <- ggtree(Vis$nj)
+            
             # Get upper and lower end of x range
-            Vis$nj_max_x <- max(ggtree(Vis$nj)$data$x)
-            Vis$nj_min_x <- min(ggtree(Vis$nj)$data$x)
+            Vis$nj_max_x <- max(Vis$nj_tree$data$x)
+            Vis$nj_min_x <- min(Vis$nj_tree$data$x)
+            
+            # Get parent node numbers
+            Vis$nj_parentnodes <- Vis$nj_tree$data$parent
             
             # Update visualization control inputs
             if(!is.null(input$nj_tiplab_size)) {

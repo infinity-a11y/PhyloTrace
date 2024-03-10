@@ -12,8 +12,43 @@
   animation: none;
 }
 
+.box.box-solid.box-info{
+    background: #282F38;
+    margin-top: 20px;
+    position: relative;
+    left: 30px;
+}
+
+.box.box-solid.box-info, .box.box-info {
+    border-color: #ffffff;
+    border-left-color: #ffffff;
+    border-right-color: #ffffff;
+    border-top-color: #ffffff;
+    border-radius: 7px;
+}
+
+#nj_layout_ctrl, #nj_label_ctrl, #nj_elements_ctrl {
+    width: 134px;
+    margin-left: 25px;
+    margin-bottom: 5px;
+    margin-top: 10px;
+    height: 40px;
+    text-align-last: justify;
+    font-size: larger;
+}
+
+#nj_layout_ctrl {
+  margin-top: 20px !important;
+}
+
+
+
 h1, h2, h3, h4, h5, p, body {
   font-family: 'Liberation Sans', sans-serif;
+}
+
+#nj_field img {
+  border-radius: 10px;
 }
 
 label {
@@ -535,6 +570,10 @@ input.form-control.pickr-color {
   margin-top: -10px;
 }
 
+#nj_subtitle_color, #nj_title_color, #nj_bg {
+  margin-bottom: 11px;
+}
+
 #nj_branch_label_menu-template > div > div:nth-child(2) > div:nth-child(2) {
   margin-top: 26px;
   margin-bottom: -10px;
@@ -571,6 +610,26 @@ input.form-control.pickr-color {
   position: relative; 
   bottom: -1px; 
   margin-bottom: 30px
+}
+
+#nj_controls {
+  margin-left: 25px;
+  margin-top: 35px;
+}
+
+#nj_controls > div > div:nth-child(1) {
+  height: 50px;
+  width: 100px;
+}
+
+#nj_controls > div > div:nth-child(2) {
+  height: 50px;
+  width: 100px;
+}
+
+#nj_controls > div > div:nth-child(3) {
+  height: 50px;
+  width: 100px;
 }
 
 button#nj_labeltext_menu {
