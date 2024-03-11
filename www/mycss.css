@@ -632,6 +632,15 @@ input.form-control.pickr-color {
   width: 100px;
 }
 
+#nj_color_mapping {
+  margin-top: -7px;
+  margin-bottom: -10px;
+}
+
+#nj_branch_label_color {
+  margin-top: -7px;
+}
+
 button#nj_labeltext_menu {
   height: 34px; 
   background: #20E6E5; 
@@ -703,7 +712,7 @@ button#nj_rootedge_menu {
   background: #20E6E5; 
   color: #000000; 
   margin-left: 10px; 
-  margin-top: 22px; 
+  margin-top: 8px; 
   border-radius: 5px
 }
 
@@ -819,29 +828,51 @@ button#nj_tile_menu_5 {
 }
 
 #nj_ladder {
-  margin-top: 19px; 
+  margin-top: 8px; 
   margin-left: -5px
 }
 
 #nj_align {
-  margin-top: 21px; 
-  margin-left: -5px
+  margin-top: 10px; 
+  margin-left: -60px
 }
 
 #nj_rootedge_show, #upgma_rootedge_show {
-  margin-top: 20px
+  margin-top: 8px;
+  margin-left: -15px;
 }
 
 #nj_mapping_show {
-  margin-top: 20px;
+  margin-top: 13px;
 }
 
 #nj_tipcolor_mapping_show {
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 #nj_tipshape_mapping_show {
-  margin-top: 20px;
+  margin-top: 10px;
+}
+
+#nj_tipshape_mapping {
+  margin-top: -6px;
+}
+
+#nj_tiplab_scale {
+  margin-top: -7px;
+  margin-bottom: -10px;
+}
+
+#shiny-tab-visualization > div:nth-child(5) > div > div:nth-child(5) > div > div > div > div > div > div:nth-child(2) > div:nth-child(3) > div > div > div {
+  margin-top: -7px;
+}
+
+##nj_tipcolor_mapping > div > div > div {
+  margin-top: -10px;
+}
+
+#shiny-tab-visualization > div:nth-child(5) > div > div:nth-child(5) > div > div > div > div > div > div:nth-child(3) > div:nth-child(3) > div > div > div {
+  margin-top: -10px;
 }
 
 #nj_geom {
@@ -851,6 +882,7 @@ button#nj_tile_menu_5 {
 
 #nj_tiplab_color {
   margin-bottom: 0px;
+  margin-top: -7px;
 }
 
 #nj_show_branch_label {

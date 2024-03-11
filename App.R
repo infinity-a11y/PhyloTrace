@@ -1504,7 +1504,7 @@ ui <- dashboardPage(
               radioGroupButtons(
                 inputId = "nj_controls",
                 label = "",
-                choices = c("Layout", "Label", "Elements"),
+                choices = c("Layout", "Label", "Elements", "Variables"),
                 direction = "vertical"
               )
             ),
@@ -1549,7 +1549,7 @@ ui <- dashboardPage(
                         align = "left",
                         checkboxInput(
                           "nj_ladder",
-                          h5(p("Ladder"), style = "color:white; position: relative; bottom: 3px; right: -15px; margin-top: 22px; margin-bottom: 27px"),
+                          h5(p("Ladder"), style = "color:white; position: relative; bottom: 14px; right: -10px; margin-top: 22px; margin-bottom: 13px"),
                           value = TRUE
                         )
                       ),
@@ -1558,7 +1558,7 @@ ui <- dashboardPage(
                         align = "left",
                         checkboxInput(
                           "nj_rootedge_show",
-                          h5(p("Root"), style = "color:white; position: relative; bottom: 3px; right: -5px; margin-top: 23px"),
+                          h5(p("Root"), style = "color:white; position: relative; bottom: 15px; right: -5px; margin-top: 23px"),
                           value = FALSE
                         )
                       ),
@@ -1682,7 +1682,7 @@ ui <- dashboardPage(
                           position = "right-start"
                         )
                       )
-                    ),
+                    ), 
                     br()
                   )
                 )
@@ -1838,7 +1838,7 @@ ui <- dashboardPage(
                   column(
                     width = 12,
                     align = "left",
-                    h4(p("Tree scale"), style = "color:white; position: relative; right: -15px"),
+                    h4(p("Tree Scale"), style = "color:white; position: relative; right: -15px"),
                     column(
                       width = 12,
                       fluidRow(
@@ -1962,7 +1962,7 @@ ui <- dashboardPage(
             conditionalPanel(
               "input.nj_controls=='Label'",
               column(
-                width = 6,
+                width = 4,
                 box(
                   solidHeader = TRUE,
                   status = "info",
@@ -2077,6 +2077,12 @@ ui <- dashboardPage(
                                     label = h5("Fontface", style = "color:white; margin-bottom: 5px; margin-top: 16px"),
                                     width = "250px",
                                     choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
+                                  ),
+                                  br(),
+                                  checkboxInput(
+                                    "nj_align",
+                                    h5(p("Align labels"), style = "color:white;"),
+                                    value = FALSE
                                   )
                                 )
                               )
@@ -2089,76 +2095,20 @@ ui <- dashboardPage(
                       column(
                         width = 4,
                         align = "left",
-                        checkboxInput(
-                          "nj_align",
-                          h5(p("Align labels"), style = "color:white; position: relative; bottom: -10px; right: -15px"),
-                          value = FALSE
-                        )
-                      ),
-                      column(
-                        width = 1,
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; bottom: -28px; margin-left: 0px ', 'Width')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 3,
-                        align = "left",
-                        numericInput(
-                          "nj_tiplab_linesize",
-                          "",
-                          value = 0.5,
-                          min = 0.1,
-                          max = 3,
-                          step = 0.1,
-                          width = "80px"
-                        )
-                      ),
-                      column(
-                        width = 3,
-                        selectInput(
-                          "nj_tiplab_linetype",
-                          "",
-                          choices = c(Solid = "solid", Dashed = "dashed", Dotted = "dotted"),
-                          selected = c(Dotted = "dotted")
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 4,
-                        align = "left",
-                        h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 30px")
+                        h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 23px")
                       ),
                       column(
                         width = 4,
-                        conditionalPanel(
-                          "input.nj_mapping_show==false",
-                          colorPickr(
-                            inputId = "nj_tiplab_color",
-                            width = "100%",
-                            selected = "#000000",
-                            label = "",
-                            update = "changestop",
-                            interaction = list(clear = FALSE,
-                                               save = FALSE),
-                            position = "right-start"
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.nj_mapping_show==true",
-                          uiOutput("nj_color_mapping")
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        align = "left",
-                        checkboxInput(
-                          "nj_mapping_show",
-                          label = h5("Add variable", style = "color:white; font-size: 14px; position: relative; bottom: -10px;"),
-                          value = FALSE
+                        align = "center",
+                        colorPickr(
+                          inputId = "nj_tiplab_color",
+                          width = "100%",
+                          selected = "#000000",
+                          label = "",
+                          update = "changestop",
+                          interaction = list(clear = FALSE,
+                                             save = FALSE),
+                          position = "right-start"
                         )
                       )
                     ),
@@ -2330,7 +2280,7 @@ ui <- dashboardPage(
                       column(
                         width = 4,
                         align = "left",
-                        h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 30px")
+                        h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 23px; margin-bottom: 94px")
                       ),
                       column(
                         width = 4,
@@ -2343,7 +2293,8 @@ ui <- dashboardPage(
                           interaction = list(clear = FALSE,
                                              save = FALSE),
                           position = "right-start"
-                        )
+                        ),
+                        br(), br(), br(), br()
                       )
                     )
                   )
@@ -2353,7 +2304,7 @@ ui <- dashboardPage(
             conditionalPanel(
               "input.nj_controls=='Elements'",
               column(
-                width = 3,
+                width = 2,
                 box(
                   solidHeader = TRUE,
                   status = "info",
@@ -2361,10 +2312,10 @@ ui <- dashboardPage(
                   column(
                     width = 12,
                     align = "left",
-                    h4(p("Tip points"), style = "color:white; position: relative; right: -15px"),
+                    h4(p("Tip Points"), style = "color:white; position: relative; right: -15px"),
                     fluidRow(
                       column(
-                        width = 4,
+                        width = 5,
                         align = "left",
                         checkboxInput(
                           "nj_tippoint_show",
@@ -2373,7 +2324,7 @@ ui <- dashboardPage(
                         )
                       ),
                       column(
-                        width = 2,
+                        width = 7,
                         align = "left",
                         dropMenu(
                           actionBttn(
@@ -2408,52 +2359,33 @@ ui <- dashboardPage(
                     ),
                     fluidRow(
                       column(
-                        width = 4,
+                        width = 5,
                         align = "left",
                         h5(p("Color"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
                       ),
                       column(
-                        width = 4,
+                        width = 7,
                         align = "center",
-                        conditionalPanel(
-                          "input.nj_tipcolor_mapping_show==true & input.nj_mapping_show==false",
-                          uiOutput("nj_tipcolor_mapping")
-                        ),
-                        conditionalPanel(
-                          "input.nj_tipcolor_mapping_show==false || input.nj_mapping_show==true",
-                          colorPickr(
-                            inputId = "nj_tippoint_color",
-                            width = "100%",
-                            selected = "#3A4657",
-                            label = "",
-                            update = "changestop",
-                            interaction = list(clear = FALSE,
-                                               save = FALSE),
-                            position = "right-start"
-                          )
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        align = "left",
-                        conditionalPanel(
-                          "input.nj_mapping_show==false",
-                          checkboxInput(
-                            "nj_tipcolor_mapping_show",
-                            label = h5("Add variable", style = "color:white; font-size: 14px; position: relative; bottom: -10px;"),
-                            value = FALSE
-                          )
+                        colorPickr(
+                          inputId = "nj_tippoint_color",
+                          width = "100%",
+                          selected = "#3A4657",
+                          label = "",
+                          update = "changestop",
+                          interaction = list(clear = FALSE,
+                                             save = FALSE),
+                          position = "right-start"
                         )
                       )
                     ),
                     fluidRow(
                       column(
-                        width = 4,
+                        width = 5,
                         align = "left",
                         h5(p("Shape"), style = "color:white; position: relative; right: -17px; margin-top: 30px")
                       ),
                       column(
-                        width = 4,
+                        width = 7,
                         align = "center",
                         conditionalPanel(
                           "input.nj_tipshape_mapping_show==false",
@@ -2473,16 +2405,7 @@ ui <- dashboardPage(
                         ),
                         conditionalPanel(
                           "input.nj_tipshape_mapping_show==true",
-                          uiOutput("nj_tipshape_mapping")
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        align = "left",
-                        checkboxInput(
-                          "nj_tipshape_mapping_show",
-                          label = h5("Add variable", style = "color:white; font-size: 14px; position: relative; bottom: -10px;"),
-                          value = FALSE
+                          h5(p("Variable assigned"), style = "color:white; position: relative; right: -17px; margin-top: 30px; font-style: italic")
                         )
                       )
                     )
@@ -2498,7 +2421,7 @@ ui <- dashboardPage(
                   column(
                     width = 12,
                     align = "left",
-                    h4(p("Node points"), style = "color:white; position: relative; right: -15px"),
+                    h4(p("Node Points"), style = "color:white; position: relative; right: -15px"),
                     fluidRow(
                       column(
                         width = 5,
@@ -2589,7 +2512,7 @@ ui <- dashboardPage(
                 )
               ),
               column(
-                width = 3,
+                width = 2,
                 box(
                   solidHeader = TRUE,
                   status = "info",
@@ -3541,8 +3464,117 @@ ui <- dashboardPage(
                   )
                 )
               )
+            ),
+            conditionalPanel(
+              "input.nj_controls=='Variables'",
+              column(
+                width = 4,
+                box(
+                  solidHeader = TRUE,
+                  status = "info",
+                  width = "100%",
+                  column(
+                    width = 12,
+                    align = "left",
+                    fluidRow(
+                      column(
+                        width = 4,
+                        h4(p("Element"), style = "color:white; margin-left: 8px")
+                      ),
+                      column(
+                        width = 4,
+                        h4(p("Variable"), style = "color:white; margin-left: 8px")
+                      ),
+                      column(
+                        width = 4,
+                        h4(p("Color Scale"), style = "color:white; margin-left: 8px")
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        checkboxInput(
+                          "nj_mapping_show",
+                          label = h5("Tip Label Color", style = "color:white; font-size: 14px; position: relative; bottom: -3px;"),
+                          value = FALSE
+                        )
+                      ),
+                      column(
+                        width = 4,
+                        align = "center",
+                        uiOutput("nj_color_mapping")
+                      ),
+                      column(
+                        width = 4,
+                        align = "center",
+                        selectInput(
+                          "nj_tiplab_scale",
+                          "",
+                          choices = list(
+                            Viridis = list(
+                              "Magma" = "magma",
+                              "Inferno" = "inferno",
+                              "Plasma" = "plasma",
+                              "Viridis" = "viridis",
+                              "Cividis" = "cividis",
+                              "Rocket" = "rocket",
+                              "Mako" = "mako",
+                              "Turbo" = "turbo"
+                            )
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        checkboxInput(
+                          "nj_tipcolor_mapping_show",
+                          label = h5("Tip Point Color", style = "color:white; font-size: 14px;"),
+                          value = FALSE
+                        )
+                      ),
+                      column(
+                        width = 4,
+                        align = "center",
+                        uiOutput("nj_tipcolor_mapping")
+                      ),
+                      column(
+                        width = 4,
+                        align = "center",
+                        uiOutput("nj_tippoint_scale")
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        checkboxInput(
+                          "nj_tipshape_mapping_show",
+                          label = h5("Tip Point Shape", style = "color:white; font-size: 14px;"),
+                          value = FALSE
+                        )
+                      ),
+                      column(
+                        width = 4,
+                        align = "center",
+                        uiOutput("nj_tipshape_mapping")
+                      ),
+                      column(
+                        width = 4,
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; font-style: italic; position: relative; bottom: -16px; right: -5px;', 'No scale for shapes')
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              )
             )
-          )
+          ), 
+          br(), br(), br(), br(), br(), br(), br(), br(), br(), 
+          br(), br(), br(), br(), br(), br(), br(), br(), br(),
         ),
         
         ### Control Panels UPGMA ----
@@ -9017,6 +9049,8 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
+    test <<- DB$meta[input$nj_color_mapping]
+    
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -10147,6 +10181,75 @@ server <- function(input, output, session) {
   ### Render Visualization Controls ----
   
   #### NJ and UPGMA controls ----
+  
+  # Tippoint Scale
+  
+  output$nj_tippoint_scale <- renderUI({
+    if(class(unlist(DB$meta[input$nj_tipcolor_mapping])) == "numeric") {
+      selectInput(
+        "nj_tippoint_scale",
+        "",
+        choices = list(
+          Sequential = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo",
+            "YlOrRd",
+            "YlOrBr",
+            "YlGnBu",
+            "YlGn",
+            "Reds",
+            "RdPu",
+            "Purples",
+            "PuRd",
+            "PuBuGn",
+            "PuBu",
+            "OrRd",
+            "Oranges",
+            "Greys",
+            "Greens",
+            "GnBu",
+            "BuPu",
+            "BuGn",
+            "Blues"
+          ),
+          Diverging = list(
+            "Spectral",
+            "RdYlGn",
+            "RdYlBu",
+            "RdGy",
+            "RdBu",
+            "PuOr",
+            "PRGn",
+            "PiYG",
+            "BrBG"
+          )
+        )
+      )
+    } else {
+      selectInput(
+        "nj_tippoint_scale",
+        "",
+        choices = list(
+          Qualitative = list(
+            "Set1",
+            "Set2",
+            "Set3",
+            "Pastel1",
+            "Pastel2",
+            "Paired",
+            "Dark2",
+            "Accent"
+          )
+        )
+      )
+    }
+  })
   
   # Clade Highlights
   output$nj_parentnode <- renderUI({
@@ -11307,12 +11410,16 @@ server <- function(input, output, session) {
              ladderize = input$nj_ladder,
              alpha = nj_alpha()) %<+% Vis$meta_nj +
       nj_tiplab() +
+      nj_tiplab_scale() + 
+      new_scale_color() +
       limit() +
       inward() +
       label_branch() +
       treescale() +
       nodepoint() +
       tippoint() +
+      nj_tippoint_scale() + 
+      new_scale_color() +
       clip_label() +
       nj_rootedge() +
       nj_nodelabel() +
@@ -11371,6 +11478,100 @@ server <- function(input, output, session) {
     
     cowplot::ggdraw(Vis$nj_plot) + 
       theme(plot.background = element_rect(fill = input$nj_bg, color = input$nj_bg))
+  })
+  
+  # Tippoint Scale
+  nj_tippoint_scale <- reactive({
+    if(!is.null(input$nj_tippoint_scale)) {
+      if(input$nj_tippoint_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+        if(class(unlist(DB$meta[input$nj_tipcolor_mapping])) == "numeric") {
+          if(input$nj_tippoint_scale == "magma") {
+            scale_color_viridis(option = "A")
+          } else if(input$nj_tippoint_scale == "inferno") {
+            scale_color_viridis(option = "B")
+          } else if(input$nj_tippoint_scale == "plasma") {
+            scale_color_viridis(option = "C")
+          } else if(input$nj_tippoint_scale == "viridis") {
+            scale_color_viridis(option = "D")
+          } else if(input$nj_tippoint_scale == "cividis") {
+            scale_color_viridis(option = "E")
+          } else if(input$nj_tippoint_scale == "rocket") {
+            scale_color_viridis(option = "F")
+          } else if(input$nj_tippoint_scale == "mako") {
+            scale_color_viridis(option = "G")
+          } else if(input$nj_tippoint_scale == "turbo") {
+            scale_color_viridis(option = "H")
+          } 
+        } else {
+          if(input$nj_tippoint_scale == "magma") {
+            scale_color_viridis(discrete = TRUE, option = "A")
+          } else if(input$nj_tippoint_scale == "inferno") {
+            scale_color_viridis(discrete = TRUE, option = "B")
+          } else if(input$nj_tippoint_scale == "plasma") {
+            scale_color_viridis(discrete = TRUE, option = "C")
+          } else if(input$nj_tippoint_scale == "viridis") {
+            scale_color_viridis(discrete = TRUE, option = "D")
+          } else if(input$nj_tippoint_scale == "cividis") {
+            scale_color_viridis(discrete = TRUE, option = "E")
+          } else if(input$nj_tippoint_scale == "rocket") {
+            scale_color_viridis(discrete = TRUE, option = "F")
+          } else if(input$nj_tippoint_scale == "mako") {
+            scale_color_viridis(discrete = TRUE, option = "G")
+          } else if(input$nj_tippoint_scale == "turbo") {
+            scale_color_viridis(discrete = TRUE, option = "H")
+          } 
+        }
+      } else {
+        scale_color_brewer(palette = input$nj_tippoint_scale)
+      }
+    }
+  })
+  
+  # Tiplab Scale
+  nj_tiplab_scale <- reactive({
+    if(!is.null(input$nj_tiplab_scale)) {
+      if(input$nj_tiplab_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+        if(class(unlist(DB$meta[input$nj_color_mapping])) == "numeric") {
+          if(input$nj_tiplab_scale == "magma") {
+            scale_color_viridis(option = "A")
+          } else if(input$nj_tiplab_scale == "inferno") {
+            scale_color_viridis(option = "B")
+          } else if(input$nj_tiplab_scale == "plasma") {
+            scale_color_viridis(option = "C")
+          } else if(input$nj_tiplab_scale == "viridis") {
+            scale_color_viridis(option = "D")
+          } else if(input$nj_tiplab_scale == "cividis") {
+            scale_color_viridis(option = "E")
+          } else if(input$nj_tiplab_scale == "rocket") {
+            scale_color_viridis(option = "F")
+          } else if(input$nj_tiplab_scale == "mako") {
+            scale_color_viridis(option = "G")
+          } else if(input$nj_tiplab_scale == "turbo") {
+            scale_color_viridis(option = "H")
+          } 
+        } else {
+          if(input$nj_tiplab_scale == "magma") {
+            scale_color_viridis(discrete = TRUE, option = "A")
+          } else if(input$nj_tiplab_scale == "inferno") {
+            scale_color_viridis(discrete = TRUE, option = "B")
+          } else if(input$nj_tiplab_scale == "plasma") {
+            scale_color_viridis(discrete = TRUE, option = "C")
+          } else if(input$nj_tiplab_scale == "viridis") {
+            scale_color_viridis(discrete = TRUE, option = "D")
+          } else if(input$nj_tiplab_scale == "cividis") {
+            scale_color_viridis(discrete = TRUE, option = "E")
+          } else if(input$nj_tiplab_scale == "rocket") {
+            scale_color_viridis(discrete = TRUE, option = "F")
+          } else if(input$nj_tiplab_scale == "mako") {
+            scale_color_viridis(discrete = TRUE, option = "G")
+          } else if(input$nj_tiplab_scale == "turbo") {
+            scale_color_viridis(discrete = TRUE, option = "H")
+          } 
+        }
+      } else {
+        scale_color_brewer(palette = input$nj_tiplab_scale)
+      }
+    }
   })
   
   # Clade Highlight
@@ -11763,21 +11964,12 @@ server <- function(input, output, session) {
   tippoint <- reactive({
     if(input$nj_tippoint_show == TRUE) {
       if(input$nj_tipcolor_mapping_show == TRUE & input$nj_tipshape_mapping_show == FALSE) {
-        if(input$nj_mapping_show == TRUE) {
-          geom_tippoint(
-            aes(shape = !!sym(input$nj_tipcolor_mapping)),
-            alpha = input$nj_tippoint_alpha,
-            color = input$nj_tippoint_color,
-            size = nj_tippoint_size()
-          )
-        } else {
-          geom_tippoint(
-            aes(color = !!sym(input$nj_tipcolor_mapping)),
-            alpha = input$nj_tippoint_alpha,
-            shape = input$nj_tippoint_shape,
-            size = nj_tippoint_size()
-          )
-        }
+        geom_tippoint(
+          aes(color = !!sym(input$nj_tipcolor_mapping)),
+          alpha = input$nj_tippoint_alpha,
+          shape = input$nj_tippoint_shape,
+          size = nj_tippoint_size()
+        )
       } else if (input$nj_tipcolor_mapping_show == FALSE & input$nj_tipshape_mapping_show == TRUE) {
         geom_tippoint(
           aes(shape = !!sym(input$nj_tipshape_mapping)),
@@ -11786,21 +11978,12 @@ server <- function(input, output, session) {
           size = nj_tippoint_size()
         )
       } else if (input$nj_tipcolor_mapping_show == TRUE & input$nj_tipshape_mapping_show == TRUE) {
-        if(input$nj_mapping_show == TRUE) {
-          geom_tippoint(
-            aes(shape = !!sym(input$nj_tipshape_mapping)),
-            color = input$nj_tippoint_color,
-            alpha = input$nj_tippoint_alpha,
-            size = nj_tippoint_size()
-          )
-        } else {
-          geom_tippoint(
-            aes(shape = !!sym(input$nj_tipshape_mapping),
-                color = !!sym(input$nj_tipcolor_mapping)),
-            alpha = input$nj_tippoint_alpha,
-            size = nj_tippoint_size()
-          )
-        }
+        geom_tippoint(
+          aes(shape = !!sym(input$nj_tipshape_mapping),
+              color = !!sym(input$nj_tipcolor_mapping)),
+          alpha = input$nj_tippoint_alpha,
+          size = nj_tippoint_size()
+        )
       } else {
         geom_tippoint(
           alpha = input$nj_tippoint_alpha,
@@ -11810,9 +11993,7 @@ server <- function(input, output, session) {
           size = nj_tippoint_size()
         )
       } 
-    } else {NULL
-      
-    }
+    } else {NULL}
   })
   
   # Nodepoints
@@ -11845,8 +12026,6 @@ server <- function(input, output, session) {
             mapping_tiplab(), 
             geom = "text",
             size = nj_tiplab_size(),
-            linesize = input$nj_tiplab_linesize,
-            linetype = input$nj_tiplab_linetype,
             alpha = input$nj_tiplab_alpha,
             fontface = input$nj_tiplab_fontface,
             align = as.logical(input$nj_align),
@@ -11859,8 +12038,6 @@ server <- function(input, output, session) {
             color = input$nj_tiplab_color,
             geom = "text",
             size = nj_tiplab_size(),
-            linesize = input$nj_tiplab_linesize,
-            linetype = input$nj_tiplab_linetype,
             alpha = input$nj_tiplab_alpha,
             fontface = input$nj_tiplab_fontface,
             align = as.logical(input$nj_align),
@@ -11874,8 +12051,6 @@ server <- function(input, output, session) {
             mapping_tiplab(), 
             geom = "text",
             size = nj_tiplab_size(),
-            linesize = input$nj_tiplab_linesize,
-            linetype = input$nj_tiplab_linetype,
             alpha = input$nj_tiplab_alpha,
             fontface = input$nj_tiplab_fontface,
             align = as.logical(input$nj_align),
@@ -11888,8 +12063,6 @@ server <- function(input, output, session) {
             color = input$nj_tiplab_color,
             geom = "text",
             size = nj_tiplab_size(),
-            linesize = input$nj_tiplab_linesize,
-            linetype = input$nj_tiplab_linetype,
             alpha = input$nj_tiplab_alpha,
             fontface = input$nj_tiplab_fontface,
             align = as.logical(input$nj_align),
@@ -11904,8 +12077,6 @@ server <- function(input, output, session) {
             geom = nj_geom(),
             angle = input$nj_tiplab_angle,
             size = nj_tiplab_size(),
-            linesize = input$nj_tiplab_linesize,
-            linetype = input$nj_tiplab_linetype,
             alpha = input$nj_tiplab_alpha,
             fontface = input$nj_tiplab_fontface,
             align = as.logical(input$nj_align),
@@ -11922,8 +12093,6 @@ server <- function(input, output, session) {
             color = input$nj_tiplab_color,
             angle = input$nj_tiplab_angle,
             size = nj_tiplab_size(),
-            linesize = input$nj_tiplab_linesize,
-            linetype = input$nj_tiplab_linetype,
             alpha = input$nj_tiplab_alpha,
             fontface = input$nj_tiplab_fontface,
             align = as.logical(input$nj_align),
@@ -11974,11 +12143,15 @@ server <- function(input, output, session) {
   
   # NJ Tiplab color
   mapping_tiplab <- reactive({
-    if(input$nj_mapping_show == TRUE) {
-      aes(label = !!sym(input$nj_tiplab),
-          colour = !!sym(input$nj_color_mapping))
+    if(!is.null(input$nj_tiplab)) {
+      if(input$nj_mapping_show == TRUE) {
+        aes(label = !!sym(input$nj_tiplab),
+            color = !!sym(input$nj_color_mapping))
+      } else {
+        aes(label = !!sym(input$nj_tiplab))
+      }
     } else {
-      aes(label = !!sym(input$nj_tiplab))
+      aes(label = !!sym("Assembly Name"))
     }
   })
   
