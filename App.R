@@ -34,6 +34,8 @@ library(visNetwork)
 library(proxy)
 library(phangorn)
 library(cowplot)
+library(viridis)
+library(RColorBrewer)
 
 schemes <- c("Acinetobacter_baumanii", "Bacillus_anthracis", "Bordetella_pertussis", 
              "Brucella_melitensis", "Brucella_spp", "Burkholderia_mallei_FLI", 
@@ -3468,7 +3470,7 @@ ui <- dashboardPage(
             conditionalPanel(
               "input.nj_controls=='Variables'",
               column(
-                width = 4,
+                width = 6,
                 box(
                   solidHeader = TRUE,
                   status = "info",
@@ -3478,21 +3480,21 @@ ui <- dashboardPage(
                     align = "left",
                     fluidRow(
                       column(
-                        width = 4,
+                        width = 3,
                         h4(p("Element"), style = "color:white; margin-left: 8px")
                       ),
                       column(
-                        width = 4,
+                        width = 3,
                         h4(p("Variable"), style = "color:white; margin-left: 8px")
                       ),
                       column(
-                        width = 4,
+                        width = 6,
                         h4(p("Color Scale"), style = "color:white; margin-left: 8px")
                       )
                     ),
                     fluidRow(
                       column(
-                        width = 4,
+                        width = 3,
                         checkboxInput(
                           "nj_mapping_show",
                           label = h5("Tip Label Color", style = "color:white; font-size: 14px; position: relative; bottom: -3px;"),
@@ -3500,34 +3502,31 @@ ui <- dashboardPage(
                         )
                       ),
                       column(
-                        width = 4,
+                        width = 3,
                         align = "center",
                         uiOutput("nj_color_mapping")
                       ),
                       column(
-                        width = 4,
+                        width = 3,
                         align = "center",
-                        selectInput(
-                          "nj_tiplab_scale",
-                          "",
-                          choices = list(
-                            Viridis = list(
-                              "Magma" = "magma",
-                              "Inferno" = "inferno",
-                              "Plasma" = "plasma",
-                              "Viridis" = "viridis",
-                              "Cividis" = "cividis",
-                              "Rocket" = "rocket",
-                              "Mako" = "mako",
-                              "Turbo" = "turbo"
-                            )
+                        uiOutput("nj_tiplab_scale")
+                      ),
+                      conditionalPanel(
+                        "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_tiplab_scale)",
+                        column(
+                          width = 3,
+                          selectInput(
+                            "nj_color_mapping_div_mid",
+                            label = h5("Midpoint", style = "color:white; font-size: 14px;"),
+                            choices = c("Zero", "Mean", "Median"),
+                            selected = "Mean"
                           )
                         )
                       )
                     ),
                     fluidRow(
                       column(
-                        width = 4,
+                        width = 3,
                         checkboxInput(
                           "nj_tipcolor_mapping_show",
                           label = h5("Tip Point Color", style = "color:white; font-size: 14px;"),
@@ -3535,19 +3534,31 @@ ui <- dashboardPage(
                         )
                       ),
                       column(
-                        width = 4,
+                        width = 3,
                         align = "center",
                         uiOutput("nj_tipcolor_mapping")
                       ),
                       column(
-                        width = 4,
+                        width = 3,
                         align = "center",
                         uiOutput("nj_tippoint_scale")
+                      ),
+                      conditionalPanel(
+                        "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_tippoint_scale)",
+                        column(
+                          width = 3,
+                          selectInput(
+                            "nj_tipcolor_mapping_div_mid",
+                            label = h5("Midpoint", style = "color:white; font-size: 14px;"),
+                            choices = c("Zero", "Mean", "Median"),
+                            selected = "Mean"
+                          )
+                        )
                       )
                     ),
                     fluidRow(
                       column(
-                        width = 4,
+                        width = 3,
                         checkboxInput(
                           "nj_tipshape_mapping_show",
                           label = h5("Tip Point Shape", style = "color:white; font-size: 14px;"),
@@ -3555,12 +3566,12 @@ ui <- dashboardPage(
                         )
                       ),
                       column(
-                        width = 4,
+                        width = 3,
                         align = "center",
                         uiOutput("nj_tipshape_mapping")
                       ),
                       column(
-                        width = 4,
+                        width = 3,
                         HTML(
                           paste(
                             tags$span(style='color: white; font-size: 14px; font-style: italic; position: relative; bottom: -16px; right: -5px;', 'No scale for shapes')
@@ -10182,15 +10193,14 @@ server <- function(input, output, session) {
   
   #### NJ and UPGMA controls ----
   
-  # Tippoint Scale
-  
-  output$nj_tippoint_scale <- renderUI({
-    if(class(unlist(DB$meta[input$nj_tipcolor_mapping])) == "numeric") {
+  # Tip Labels Variable Color Scale
+  output$nj_tiplab_scale <- renderUI({
+    if(class(unlist(DB$meta[input$nj_color_mapping])) == "numeric") {
       selectInput(
-        "nj_tippoint_scale",
+        "nj_tiplab_scale",
         "",
         choices = list(
-          Sequential = list(
+          Continous = list(
             "Magma" = "magma",
             "Inferno" = "inferno",
             "Plasma" = "plasma",
@@ -10198,7 +10208,37 @@ server <- function(input, output, session) {
             "Cividis" = "cividis",
             "Rocket" = "rocket",
             "Mako" = "mako",
-            "Turbo" = "turbo",
+            "Turbo" = "turbo"
+          ),
+          Diverging = list(
+            "Spectral",
+            "RdYlGn",
+            "RdYlBu",
+            "RdGy",
+            "RdBu",
+            "PuOr",
+            "PRGn",
+            "PiYG",
+            "BrBG"
+          )
+        )
+      )
+    } else {
+      selectInput(
+        "nj_tiplab_scale",
+        "",
+        choices = list(
+          Qualitative = list(
+            "Set1",
+            "Set2",
+            "Set3",
+            "Pastel1",
+            "Pastel2",
+            "Paired",
+            "Dark2",
+            "Accent"
+          ),
+          Sequential = list(
             "YlOrRd",
             "YlOrBr",
             "YlGnBu",
@@ -10217,6 +10257,28 @@ server <- function(input, output, session) {
             "BuPu",
             "BuGn",
             "Blues"
+          )
+        )
+      )
+    }
+  })
+  
+  # Tippoint Scale
+  output$nj_tippoint_scale <- renderUI({
+    if(class(unlist(DB$meta[input$nj_tipcolor_mapping])) == "numeric") {
+      selectInput(
+        "nj_tippoint_scale",
+        "",
+        choices = list(
+          Continous = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo"
           ),
           Diverging = list(
             "Spectral",
@@ -10245,6 +10307,26 @@ server <- function(input, output, session) {
             "Paired",
             "Dark2",
             "Accent"
+          ),
+          Sequential = list(
+            "YlOrRd",
+            "YlOrBr",
+            "YlGnBu",
+            "YlGn",
+            "Reds",
+            "RdPu",
+            "Purples",
+            "PuRd",
+            "PuBuGn",
+            "PuBu",
+            "OrRd",
+            "Oranges",
+            "Greys",
+            "Greens",
+            "GnBu",
+            "BuPu",
+            "BuGn",
+            "Blues"
           )
         )
       )
@@ -11483,46 +11565,60 @@ server <- function(input, output, session) {
   # Tippoint Scale
   nj_tippoint_scale <- reactive({
     if(!is.null(input$nj_tippoint_scale)) {
-      if(input$nj_tippoint_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-        if(class(unlist(DB$meta[input$nj_tipcolor_mapping])) == "numeric") {
-          if(input$nj_tippoint_scale == "magma") {
-            scale_color_viridis(option = "A")
-          } else if(input$nj_tippoint_scale == "inferno") {
-            scale_color_viridis(option = "B")
-          } else if(input$nj_tippoint_scale == "plasma") {
-            scale_color_viridis(option = "C")
-          } else if(input$nj_tippoint_scale == "viridis") {
-            scale_color_viridis(option = "D")
-          } else if(input$nj_tippoint_scale == "cividis") {
-            scale_color_viridis(option = "E")
-          } else if(input$nj_tippoint_scale == "rocket") {
-            scale_color_viridis(option = "F")
-          } else if(input$nj_tippoint_scale == "mako") {
-            scale_color_viridis(option = "G")
-          } else if(input$nj_tippoint_scale == "turbo") {
-            scale_color_viridis(option = "H")
-          } 
+      if(input$nj_tippoint_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
+        if(input$nj_tipcolor_mapping_div_mid == "Zero") {
+          midpoint <- 0
+        } else if(input$nj_tipcolor_mapping_div_mid == "Mean") {
+          midpoint <- mean(DB$meta_true[[input$nj_tipcolor_mapping]], na.rm = TRUE)
         } else {
-          if(input$nj_tippoint_scale == "magma") {
-            scale_color_viridis(discrete = TRUE, option = "A")
-          } else if(input$nj_tippoint_scale == "inferno") {
-            scale_color_viridis(discrete = TRUE, option = "B")
-          } else if(input$nj_tippoint_scale == "plasma") {
-            scale_color_viridis(discrete = TRUE, option = "C")
-          } else if(input$nj_tippoint_scale == "viridis") {
-            scale_color_viridis(discrete = TRUE, option = "D")
-          } else if(input$nj_tippoint_scale == "cividis") {
-            scale_color_viridis(discrete = TRUE, option = "E")
-          } else if(input$nj_tippoint_scale == "rocket") {
-            scale_color_viridis(discrete = TRUE, option = "F")
-          } else if(input$nj_tippoint_scale == "mako") {
-            scale_color_viridis(discrete = TRUE, option = "G")
-          } else if(input$nj_tippoint_scale == "turbo") {
-            scale_color_viridis(discrete = TRUE, option = "H")
-          } 
+          midpoint <- median(DB$meta_true[[input$nj_tipcolor_mapping]], na.rm = TRUE)
         }
+        scale_color_gradient2(low = brewer.pal(3, input$nj_tippoint_scale)[1],
+                              mid = brewer.pal(3, input$nj_tippoint_scale)[2],
+                              high = brewer.pal(3, input$nj_tippoint_scale)[3],
+                              midpoint = midpoint)
       } else {
-        scale_color_brewer(palette = input$nj_tippoint_scale)
+        if(input$nj_tippoint_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+          if(class(unlist(DB$meta[input$nj_tipcolor_mapping])) == "numeric") {
+            if(input$nj_tippoint_scale == "magma") {
+              scale_color_viridis(option = "A")
+            } else if(input$nj_tippoint_scale == "inferno") {
+              scale_color_viridis(option = "B")
+            } else if(input$nj_tippoint_scale == "plasma") {
+              scale_color_viridis(option = "C")
+            } else if(input$nj_tippoint_scale == "viridis") {
+              scale_color_viridis(option = "D")
+            } else if(input$nj_tippoint_scale == "cividis") {
+              scale_color_viridis(option = "E")
+            } else if(input$nj_tippoint_scale == "rocket") {
+              scale_color_viridis(option = "F")
+            } else if(input$nj_tippoint_scale == "mako") {
+              scale_color_viridis(option = "G")
+            } else if(input$nj_tippoint_scale == "turbo") {
+              scale_color_viridis(option = "H")
+            } 
+          } else {
+            if(input$nj_tippoint_scale == "magma") {
+              scale_color_viridis(discrete = TRUE, option = "A")
+            } else if(input$nj_tippoint_scale == "inferno") {
+              scale_color_viridis(discrete = TRUE, option = "B")
+            } else if(input$nj_tippoint_scale == "plasma") {
+              scale_color_viridis(discrete = TRUE, option = "C")
+            } else if(input$nj_tippoint_scale == "viridis") {
+              scale_color_viridis(discrete = TRUE, option = "D")
+            } else if(input$nj_tippoint_scale == "cividis") {
+              scale_color_viridis(discrete = TRUE, option = "E")
+            } else if(input$nj_tippoint_scale == "rocket") {
+              scale_color_viridis(discrete = TRUE, option = "F")
+            } else if(input$nj_tippoint_scale == "mako") {
+              scale_color_viridis(discrete = TRUE, option = "G")
+            } else if(input$nj_tippoint_scale == "turbo") {
+              scale_color_viridis(discrete = TRUE, option = "H")
+            } 
+          }
+        } else {
+          scale_color_brewer(palette = input$nj_tippoint_scale)
+        }
       }
     }
   })
@@ -11530,46 +11626,60 @@ server <- function(input, output, session) {
   # Tiplab Scale
   nj_tiplab_scale <- reactive({
     if(!is.null(input$nj_tiplab_scale)) {
-      if(input$nj_tiplab_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-        if(class(unlist(DB$meta[input$nj_color_mapping])) == "numeric") {
-          if(input$nj_tiplab_scale == "magma") {
-            scale_color_viridis(option = "A")
-          } else if(input$nj_tiplab_scale == "inferno") {
-            scale_color_viridis(option = "B")
-          } else if(input$nj_tiplab_scale == "plasma") {
-            scale_color_viridis(option = "C")
-          } else if(input$nj_tiplab_scale == "viridis") {
-            scale_color_viridis(option = "D")
-          } else if(input$nj_tiplab_scale == "cividis") {
-            scale_color_viridis(option = "E")
-          } else if(input$nj_tiplab_scale == "rocket") {
-            scale_color_viridis(option = "F")
-          } else if(input$nj_tiplab_scale == "mako") {
-            scale_color_viridis(option = "G")
-          } else if(input$nj_tiplab_scale == "turbo") {
-            scale_color_viridis(option = "H")
-          } 
+      if(input$nj_tiplab_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
+        if(input$nj_color_mapping_div_mid == "Zero") {
+          midpoint <- 0
+        } else if(input$nj_color_mapping_div_mid == "Mean") {
+          midpoint <- mean(DB$meta_true[[input$nj_color_mapping]], na.rm = TRUE)
         } else {
-          if(input$nj_tiplab_scale == "magma") {
-            scale_color_viridis(discrete = TRUE, option = "A")
-          } else if(input$nj_tiplab_scale == "inferno") {
-            scale_color_viridis(discrete = TRUE, option = "B")
-          } else if(input$nj_tiplab_scale == "plasma") {
-            scale_color_viridis(discrete = TRUE, option = "C")
-          } else if(input$nj_tiplab_scale == "viridis") {
-            scale_color_viridis(discrete = TRUE, option = "D")
-          } else if(input$nj_tiplab_scale == "cividis") {
-            scale_color_viridis(discrete = TRUE, option = "E")
-          } else if(input$nj_tiplab_scale == "rocket") {
-            scale_color_viridis(discrete = TRUE, option = "F")
-          } else if(input$nj_tiplab_scale == "mako") {
-            scale_color_viridis(discrete = TRUE, option = "G")
-          } else if(input$nj_tiplab_scale == "turbo") {
-            scale_color_viridis(discrete = TRUE, option = "H")
-          } 
+          midpoint <- median(DB$meta_true[[input$nj_color_mapping]], na.rm = TRUE)
         }
+        scale_color_gradient2(low = brewer.pal(3, input$nj_tiplab_scale)[1],
+                              mid = brewer.pal(3, input$nj_tiplab_scale)[2],
+                              high = brewer.pal(3, input$nj_tiplab_scale)[3],
+                              midpoint = midpoint)
       } else {
-        scale_color_brewer(palette = input$nj_tiplab_scale)
+        if(input$nj_tiplab_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+          if(class(unlist(DB$meta[input$nj_color_mapping])) == "numeric") {
+            if(input$nj_tiplab_scale == "magma") {
+              scale_color_viridis(option = "A")
+            } else if(input$nj_tiplab_scale == "inferno") {
+              scale_color_viridis(option = "B")
+            } else if(input$nj_tiplab_scale == "plasma") {
+              scale_color_viridis(option = "C")
+            } else if(input$nj_tiplab_scale == "viridis") {
+              scale_color_viridis(option = "D")
+            } else if(input$nj_tiplab_scale == "cividis") {
+              scale_color_viridis(option = "E")
+            } else if(input$nj_tiplab_scale == "rocket") {
+              scale_color_viridis(option = "F")
+            } else if(input$nj_tiplab_scale == "mako") {
+              scale_color_viridis(option = "G")
+            } else if(input$nj_tiplab_scale == "turbo") {
+              scale_color_viridis(option = "H")
+            } 
+          } else {
+            if(input$nj_tiplab_scale == "magma") {
+              scale_color_viridis(discrete = TRUE, option = "A")
+            } else if(input$nj_tiplab_scale == "inferno") {
+              scale_color_viridis(discrete = TRUE, option = "B")
+            } else if(input$nj_tiplab_scale == "plasma") {
+              scale_color_viridis(discrete = TRUE, option = "C")
+            } else if(input$nj_tiplab_scale == "viridis") {
+              scale_color_viridis(discrete = TRUE, option = "D")
+            } else if(input$nj_tiplab_scale == "cividis") {
+              scale_color_viridis(discrete = TRUE, option = "E")
+            } else if(input$nj_tiplab_scale == "rocket") {
+              scale_color_viridis(discrete = TRUE, option = "F")
+            } else if(input$nj_tiplab_scale == "mako") {
+              scale_color_viridis(discrete = TRUE, option = "G")
+            } else if(input$nj_tiplab_scale == "turbo") {
+              scale_color_viridis(discrete = TRUE, option = "H")
+            } 
+          }
+        } else {
+          scale_color_brewer(palette = input$nj_tiplab_scale)
+        }
       }
     }
   })
@@ -11962,7 +12072,7 @@ server <- function(input, output, session) {
   
   # Tippoints
   tippoint <- reactive({
-    if(input$nj_tippoint_show == TRUE) {
+    if(input$nj_tippoint_show == TRUE | input$nj_tipcolor_mapping_show == TRUE) {
       if(input$nj_tipcolor_mapping_show == TRUE & input$nj_tipshape_mapping_show == FALSE) {
         geom_tippoint(
           aes(color = !!sym(input$nj_tipcolor_mapping)),
