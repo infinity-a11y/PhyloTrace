@@ -2763,16 +2763,17 @@ ui <- dashboardPage(
                     ),
                     fluidRow(
                       column(
-                        width = 4,
+                        width = 7,
                         align = "left",
-                        checkboxInput(
-                          "nj_heatmap_show",
-                          h5(p("Show"), style = "color:white; position: relative; bottom: -8px; right: -17px"),
-                          value = FALSE
+                        textInput(
+                          "nj_heatmap_title",
+                          label = h5("Legend Title", style = "color:white; margin-bottom: 0px;"),
+                          value = "Heatmap",
+                          placeholder = "Heatmap" 
                         )
                       ),
                       column(
-                        width = 7,
+                        width = 5,
                         align = "right",
                         dropMenu(
                           actionBttn(
@@ -2836,21 +2837,6 @@ ui <- dashboardPage(
                               )
                             )
                           )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 6,
-                        uiOutput("nj_heatmap_sel")
-                      ),
-                      column(
-                        width = 6,
-                        textInput(
-                          "nj_heatmap_title",
-                          label = h5("Legend title", style = "color:white; margin-bottom: 0px; position: relative; bottom: -20px"),
-                          value = "Heatmap",
-                          placeholder = "Heatmap" 
                         )
                       )
                     )
@@ -3195,6 +3181,38 @@ ui <- dashboardPage(
                               choices = c("Zero", "Mean", "Median"),
                               selected = "Mean"
                             )
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 3,
+                        checkboxInput(
+                          "nj_heatmap_show",
+                          h5(p("Heatmap"), style = "color:white; position: relative; bottom: -8px; right: -17px"),
+                          value = FALSE
+                        )
+                      ),
+                      column(
+                        width = 3,
+                        align = "center",
+                        uiOutput("nj_heatmap_sel")
+                      ),
+                      column(
+                        width = 3,
+                        align = "center",
+                        uiOutput("nj_heatmap_scale")
+                      ),
+                      conditionalPanel(
+                        "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_heatmap_scale)",
+                        column(
+                          width = 3,
+                          selectInput(
+                            "nj_heatmap_div_mid",
+                            label = h5("Midpoint", style = "color:white; font-size: 14px;"),
+                            choices = c("Zero", "Mean", "Median"),
+                            selected = "Mean"
                           )
                         )
                       )
@@ -9811,6 +9829,76 @@ server <- function(input, output, session) {
   
   #### NJ and UPGMA controls ----
   
+  # Heatmap variable color scale
+  output$nj_heatmap_scale <- renderUI({
+    if(class(unlist(DB$meta[input$nj_heatmap_select])) == "numeric") {
+      selectInput(
+        "nj_heatmap_scale",
+        "",
+        choices = list(
+          Continous = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo"
+          ),
+          Diverging = list(
+            "Spectral",
+            "RdYlGn",
+            "RdYlBu",
+            "RdGy",
+            "RdBu",
+            "PuOr",
+            "PRGn",
+            "PiYG",
+            "BrBG"
+          )
+        )
+      )
+    } else {
+      selectInput(
+        "nj_heatmap_scale",
+        "",
+        choices = list(
+          Qualitative = list(
+            "Set1",
+            "Set2",
+            "Set3",
+            "Pastel1",
+            "Pastel2",
+            "Paired",
+            "Dark2",
+            "Accent"
+          ),
+          Sequential = list(
+            "YlOrRd",
+            "YlOrBr",
+            "YlGnBu",
+            "YlGn",
+            "Reds",
+            "RdPu",
+            "Purples",
+            "PuRd",
+            "PuBuGn",
+            "PuBu",
+            "OrRd",
+            "Oranges",
+            "Greys",
+            "Greens",
+            "GnBu",
+            "BuPu",
+            "BuGn",
+            "Blues"
+          )
+        )
+      )
+    }
+  })
+  
   # Tiles variable color scale
   output$nj_tiles_scale_1 <- renderUI({
     if(class(unlist(DB$meta[input$nj_fruit_variable])) == "numeric") {
@@ -11513,8 +11601,10 @@ server <- function(input, output, session) {
       nj_gradient4() +
       new_scale_fill() +
       nj_fruit5() +
-      nj_gradient5() 
+      nj_gradient5() +
+      new_scale_fill() 
     
+    # Add heatmap
     if(input$nj_heatmap_show == TRUE & length(input$nj_heatmap_select) > 0) {
       tree <- gheatmap(tree, 
                        data = select(Vis$meta_nj, input$nj_heatmap_select),
@@ -11523,17 +11613,80 @@ server <- function(input, output, session) {
                        legend_title = input$nj_heatmap_title,
                        colnames_angle = -(input$nj_colnames_angle),
                        colnames_offset_x = input$nj_colnames_x,
-                       colnames_offset_y = input$nj_colnames_y
-      )
+                       colnames_offset_y = input$nj_colnames_y) +
+        heatmap_scale()
     } 
     
+    # Sizing control
     Vis$nj_plot <- ggplotify::as.ggplot(tree, 
                                         scale = input$nj_zoom,
                                         hjust = input$nj_h,
                                         vjust = input$nj_v)  
     
+    # Correct background color if zoomed out
     cowplot::ggdraw(Vis$nj_plot) + 
       theme(plot.background = element_rect(fill = input$nj_bg, color = input$nj_bg))
+  })
+  
+  # Heatmap scale
+  heatmap_scale <- reactive({
+    if(!is.null(input$nj_heatmap_scale)) {
+      if(input$nj_heatmap_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
+        if(input$nj_heatmap_div_mid == "Zero") {
+          midpoint <- 0
+        } else if(input$nj_heatmap_div_mid == "Mean") {
+          midpoint <- mean(DB$meta_true[[input$nj_heatmap_select]], na.rm = TRUE)
+        } else {
+          midpoint <- median(DB$meta_true[[input$nj_heatmap_select]], na.rm = TRUE)
+        }
+        scale_fill_gradient2(low = brewer.pal(3, input$nj_heatmap_scale)[1],
+                              mid = brewer.pal(3, input$nj_heatmap_scale)[2],
+                              high = brewer.pal(3, input$nj_heatmap_scale)[3],
+                              midpoint = midpoint)
+      } else {
+        if(input$nj_heatmap_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+          if(class(unlist(DB$meta[input$nj_heatmap_select])) == "numeric") {
+            if(input$nj_heatmap_scale == "magma") {
+              scale_fill_viridis(option = "A")
+            } else if(input$nj_heatmap_scale == "inferno") {
+              scale_fill_viridis(option = "B")
+            } else if(input$nj_heatmap_scale == "plasma") {
+              scale_fill_viridis(option = "C")
+            } else if(input$nj_heatmap_scale == "viridis") {
+              scale_fill_viridis(option = "D")
+            } else if(input$nj_heatmap_scale == "cividis") {
+              scale_fill_viridis(option = "E")
+            } else if(input$nj_heatmap_scale == "rocket") {
+              scale_fill_viridis(option = "F")
+            } else if(input$nj_heatmap_scale == "mako") {
+              scale_fill_viridis(option = "G")
+            } else if(input$nj_heatmap_scale == "turbo") {
+              scale_fill_viridis(option = "H")
+            } 
+          } else {
+            if(input$nj_heatmap_scale == "magma") {
+              scale_fill_viridis(discrete = TRUE, option = "A")
+            } else if(input$nj_heatmap_scale == "inferno") {
+              scale_fill_viridis(discrete = TRUE, option = "B")
+            } else if(input$nj_heatmap_scale == "plasma") {
+              scale_fill_viridis(discrete = TRUE, option = "C")
+            } else if(input$nj_heatmap_scale == "viridis") {
+              scale_fill_viridis(discrete = TRUE, option = "D")
+            } else if(input$nj_heatmap_scale == "cividis") {
+              scale_fill_viridis(discrete = TRUE, option = "E")
+            } else if(input$nj_heatmap_scale == "rocket") {
+              scale_fill_viridis(discrete = TRUE, option = "F")
+            } else if(input$nj_heatmap_scale == "mako") {
+              scale_fill_viridis(discrete = TRUE, option = "G")
+            } else if(input$nj_heatmap_scale == "turbo") {
+              scale_fill_viridis(discrete = TRUE, option = "H")
+            } 
+          }
+        } else {
+          scale_fill_brewer(palette = input$nj_heatmap_scale)
+        }
+      }
+    }
   })
   
   # Tippoint Scale
