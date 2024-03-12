@@ -2860,15 +2860,6 @@ ui <- dashboardPage(
                     ),
                     fluidRow(
                       column(
-                        width = 5,
-                        checkboxInput(
-                          "nj_clades_show",
-                          "Show"
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
                         width = 12,
                         materialSwitch(
                           "nj_nodelabel_show",
@@ -2885,6 +2876,64 @@ ui <- dashboardPage(
                       column(
                         width = 7,
                         uiOutput("nj_parentnode")
+                      )
+                    ),
+                    uiOutput("nj_clade_coloring"),
+                    fluidRow(
+                      column(
+                        width = 5,
+                        align = "left",
+                        selectInput(
+                          "nj_clade_type",
+                          h5(p("Type"), style = "color:white;"),
+                          choices = c("Rectangular" = "rect",
+                                      "Roundrect" = "roundrect",
+                                      "Gradient" = "gradient")
+                        ) 
+                      ),
+                      column(
+                        width = 7,
+                        align = "right",
+                        dropMenu(
+                          actionBttn(
+                            "nj_clade_menu",
+                            label = "",
+                            color = "default",
+                            size = "sm",
+                            style = "material-flat",
+                            icon = icon("sliders")
+                          ),
+                          placement = "top-end",
+                          theme = "translucent",
+                          fluidRow(
+                            column(
+                              width = 12,
+                              selectInput(
+                                "nj_clade_align",
+                                label = h5("Align", style = "color:white; font-size: 14px;"),
+                                choices = c("None" = "none",
+                                            "Left" = "left",
+                                            "Right" = "right",
+                                            "Both" = "both")
+                              ),
+                              br(),
+                              selectInput(
+                                "nj_clade_grad_dir",
+                                label = h5("Gradient Direction", style = "color:white; font-size: 14px; "),
+                                choices = c("Right" = "rt",
+                                            "Left" = "tr")
+                              ),
+                              br(),
+                              sliderInput(
+                                "nj_grad_len",
+                                label = h5("Gradient Length", style = "color:white; font-size: 14px; "),
+                                min = 1,
+                                max = 10,
+                                value = 2
+                              )
+                            )
+                          )
+                        )
                       )
                     )
                   )
@@ -9829,6 +9878,77 @@ server <- function(input, output, session) {
   
   #### NJ and UPGMA controls ----
   
+  # Clade coloring
+  output$nj_clade_coloring <- renderUI({
+    if(length(input$nj_parentnode) <= 1) {
+      fluidRow(
+        column(
+          width = 4,
+          h5("Color", style = "color:white; margin-bottom: 0px")
+        ),
+        column(
+          width = 8,
+          colorPickr(
+            inputId = "nj_clade_scale",
+            selected = "#D0F221",
+            label = "",
+            update = "changestop",
+            interaction = list(clear = FALSE,
+                               save = FALSE),
+            position = "right-start",
+            width = "100%"
+          )
+        )
+      )
+    } else {
+      fluidRow(
+        column(
+          width = 4,
+          h5("Scale", style = "color:white; margin-bottom: 0px")
+        ),
+        column(
+          width = 8,
+          selectInput(
+            "nj_clade_scale",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
+              ),
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
+            )
+          )
+        )
+      )
+    }
+  })
+  
   # Heatmap variable color scale
   output$nj_heatmap_scale <- renderUI({
     if(class(unlist(DB$meta[input$nj_heatmap_select])) == "numeric") {
@@ -10391,7 +10511,7 @@ server <- function(input, output, session) {
       pickerInput(
         "nj_parentnode",
         label = "",
-        choices = Vis$nj_parentnodes,
+        choices = sort(unique(as.numeric(Vis$nj_parentnodes))),
         multiple = TRUE,
         options = list(
           `live-search` = TRUE,
@@ -11547,85 +11667,90 @@ server <- function(input, output, session) {
   #### NJ ----
   
   nj_tree <- reactive({
-    tree <-
-      ggtree(Vis$nj, 
-             color = input$nj_color,
-             layout = layout_nj(),
-             ladderize = input$nj_ladder,
-             alpha = nj_alpha()) %<+% Vis$meta_nj +
-      nj_tiplab() +
-      nj_tiplab_scale() + 
-      new_scale_color() +
-      limit() +
-      inward() +
-      label_branch() +
-      treescale() +
-      nodepoint() +
-      tippoint() +
-      nj_tippoint_scale() + 
-      new_scale_color() +
-      clip_label() +
-      nj_rootedge() +
-      nj_nodelabel() +
-      nj_clades() +
-      ggtitle(label = input$nj_title,
-              subtitle = input$nj_subtitle) +
-      theme_tree(bgcolor = input$nj_bg) +
-      theme(plot.title = element_text(colour = input$nj_title_color,
-                                      size = input$nj_title_size),
-            plot.subtitle = element_text(colour = input$nj_subtitle_color,
-                                         size = input$nj_subtitle_size),
-            legend.background = element_rect(fill = input$nj_bg),
-            legend.direction = input$nj_legend_orientation,
-            legend.title = element_text(color = input$nj_color,
-                                        size = input$nj_legend_size*1.2),
-            legend.title.align = 0.5,
-            legend.position = nj_legend_pos(),
-            legend.text = element_text(color = input$nj_color, 
-                                       size = input$nj_legend_size),
-            legend.key = element_rect(fill = input$nj_bg),
-            legend.box.spacing = unit(1.5, "cm"),
-            legend.key.size = unit(0.05*input$nj_legend_size, 'cm'),
-            plot.background = element_rect(fill = input$nj_bg, color = input$nj_bg)) +
-      new_scale_fill() +
-      nj_fruit() +
-      nj_gradient() +
-      new_scale_fill() +
-      nj_fruit2() +
-      nj_gradient2() +
-      new_scale_fill() +
-      nj_fruit3() +
-      nj_gradient3() +
-      new_scale_fill() +
-      nj_fruit4() +
-      nj_gradient4() +
-      new_scale_fill() +
-      nj_fruit5() +
-      nj_gradient5() +
-      new_scale_fill() 
-    
-    # Add heatmap
-    if(input$nj_heatmap_show == TRUE & length(input$nj_heatmap_select) > 0) {
-      tree <- gheatmap(tree, 
-                       data = select(Vis$meta_nj, input$nj_heatmap_select),
-                       offset = nj_heatmap_offset(),
-                       width = input$nj_heatmap_width,
-                       legend_title = input$nj_heatmap_title,
-                       colnames_angle = -(input$nj_colnames_angle),
-                       colnames_offset_x = input$nj_colnames_x,
-                       colnames_offset_y = input$nj_colnames_y) +
-        heatmap_scale()
-    } 
-    
-    # Sizing control
-    Vis$nj_plot <- ggplotify::as.ggplot(tree, 
-                                        scale = input$nj_zoom,
-                                        hjust = input$nj_h,
-                                        vjust = input$nj_v)  
-    
-    # Correct background color if zoomed out
-    cowplot::ggdraw(Vis$nj_plot) + 
-      theme(plot.background = element_rect(fill = input$nj_bg, color = input$nj_bg))
+    if(input$nj_nodelabel_show == TRUE) {
+      ggtree(Vis$nj, alpha = 0.2) + 
+        geom_nodelab(aes(label = node), color = "#29303A", size = nj_tiplab_size() + 1, hjust = 0.7) +
+        limit() +
+        inward() 
+    } else {
+      tree <-
+        ggtree(Vis$nj, 
+               color = input$nj_color,
+               layout = layout_nj(),
+               ladderize = input$nj_ladder) %<+% Vis$meta_nj +
+        nj_tiplab() +
+        nj_tiplab_scale() + 
+        new_scale_color() +
+        limit() +
+        inward() +
+        label_branch() +
+        treescale() +
+        nodepoint() +
+        tippoint() +
+        nj_tippoint_scale() + 
+        new_scale_color() +
+        clip_label() +
+        nj_rootedge() +
+        nj_clades() +
+        ggtitle(label = input$nj_title,
+                subtitle = input$nj_subtitle) +
+        theme_tree(bgcolor = input$nj_bg) +
+        theme(plot.title = element_text(colour = input$nj_title_color,
+                                        size = input$nj_title_size),
+              plot.subtitle = element_text(colour = input$nj_subtitle_color,
+                                           size = input$nj_subtitle_size),
+              legend.background = element_rect(fill = input$nj_bg),
+              legend.direction = input$nj_legend_orientation,
+              legend.title = element_text(color = input$nj_color,
+                                          size = input$nj_legend_size*1.2),
+              legend.title.align = 0.5,
+              legend.position = nj_legend_pos(),
+              legend.text = element_text(color = input$nj_color, 
+                                         size = input$nj_legend_size),
+              legend.key = element_rect(fill = input$nj_bg),
+              legend.box.spacing = unit(1.5, "cm"),
+              legend.key.size = unit(0.05*input$nj_legend_size, 'cm'),
+              plot.background = element_rect(fill = input$nj_bg, color = input$nj_bg)) +
+        new_scale_fill() +
+        nj_fruit() +
+        nj_gradient() +
+        new_scale_fill() +
+        nj_fruit2() +
+        nj_gradient2() +
+        new_scale_fill() +
+        nj_fruit3() +
+        nj_gradient3() +
+        new_scale_fill() +
+        nj_fruit4() +
+        nj_gradient4() +
+        new_scale_fill() +
+        nj_fruit5() +
+        nj_gradient5() +
+        new_scale_fill() 
+      
+      # Add heatmap
+      if(input$nj_heatmap_show == TRUE & length(input$nj_heatmap_select) > 0) {
+        tree <- gheatmap(tree, 
+                         data = select(Vis$meta_nj, input$nj_heatmap_select),
+                         offset = nj_heatmap_offset(),
+                         width = input$nj_heatmap_width,
+                         legend_title = input$nj_heatmap_title,
+                         colnames_angle = -(input$nj_colnames_angle),
+                         colnames_offset_x = input$nj_colnames_x,
+                         colnames_offset_y = input$nj_colnames_y) +
+          heatmap_scale()
+      } 
+      
+      # Sizing control
+      Vis$nj_plot <- ggplotify::as.ggplot(tree, 
+                                          scale = input$nj_zoom,
+                                          hjust = input$nj_h,
+                                          vjust = input$nj_v)  
+      
+      # Correct background color if zoomed out
+      cowplot::ggdraw(Vis$nj_plot) + 
+        theme(plot.background = element_rect(fill = input$nj_bg, color = input$nj_bg))
+    }
   })
   
   # Heatmap scale
@@ -11814,23 +11939,36 @@ server <- function(input, output, session) {
   # Clade Highlight
   nj_clades <- reactive({
     if(!is.null(input$nj_parentnode)) {
-      if(input$nj_clades_show == TRUE & (!length(input$nj_parentnode) == 0)) {
-        geom_highlight(node = input$nj_parentnode)
+      if(!length(input$nj_parentnode) == 0) {
+        if(length(input$nj_parentnode) == 1) {
+          fill <- input$nj_clade_scale
+        } else if (length(input$nj_parentnode) == 2) {
+          fill <- brewer.pal(3, input$nj_clade_scale)[1:2]
+        } else {
+          fill <- brewer.pal(length(input$nj_parentnode), input$nj_clade_scale)
+        }
+        geom_hilight(node = as.numeric(input$nj_parentnode),
+                     fill = fill,
+                     align = input$nj_clade_align,
+                     type = input$nj_clade_type,
+                     gradient.direction = nj_clade_grad_dir(),
+                     gradient.length.out = nj_clade_grad_len())
       } else {NULL}
     }
   })
   
-  # Nodelabel
-  nj_nodelabel <- reactive({
-    if(input$nj_nodelabel_show == TRUE) {
-      geom_nodelab(aes(label = node), color = "#29303A", size = nj_tiplab_size() + 1, hjust = 0.7)
-    } else {NULL}
+  # Clade highlight gradient direction
+  nj_clade_grad_dir <- reactive({
+    if(input$nj_clade_type == "gradient") {
+      input$nj_clade_grad_dir
+    } else {"rt"}
   })
   
-  nj_alpha <- reactive({
-    if(input$nj_nodelabel_show == TRUE) {
-      0.2
-    } else {1}
+  # Clade hightlight gradient length
+  nj_clade_grad_len <- reactive({
+    if(input$nj_clade_type == "gradient") {
+      nj_clade_grad_len
+    } else {2}
   })
   
   # Legend Position

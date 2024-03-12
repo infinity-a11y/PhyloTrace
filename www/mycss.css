@@ -740,6 +740,14 @@ button#nj_heatmap_menu {
   border-radius: 5px
 }
 
+button#nj_clade_menu {
+  height: 34px; 
+  background: #20E6E5; 
+  color: #000000; 
+  margin-top: 21px; 
+  border-radius: 5px
+}
+
 button#nj_tile_menu {
   height: 34px; 
   background: #20E6E5; 
