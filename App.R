@@ -2530,6 +2530,36 @@ ui <- dashboardPage(
                         h4(p("Tiles"), style = "color:white; position: relative; right: -15px")
                       )
                     ),
+                    fluidRow(
+                      column(
+                        width = 5,
+                        div(
+                          class = "tile-sel",
+                          selectInput(
+                            "nj_tile_number",
+                            "",
+                            choices = 1:5,
+                            width = "70px"
+                          )
+                        )
+                      ),
+                      column(
+                        width = 7,
+                        align = "right",
+                        dropMenu(
+                          actionBttn(
+                            "mst_title_menu",
+                            label = "",
+                            color = "default",
+                            size = "sm",
+                            style = "material-flat",
+                            icon = icon("sliders")
+                          ),
+                          placement = "top-start",
+                          theme = "translucent"
+                          )
+                      )
+                    ),
                     conditionalPanel(
                       "input.nj_tile_num == 1",
                       fluidRow(
@@ -9883,6 +9913,15 @@ server <- function(input, output, session) {
   ### Render Visualization Controls ----
   
   #### NJ and UPGMA controls ----
+  
+  # Tile number selector update each other
+  observeEvent(input$nj_tile_num, {
+    updateSelectInput(session, "nj_tile_number", selected = input$nj_tile_num)
+  })
+  
+  observeEvent(input$nj_tile_number, {
+    updateSelectInput(session, "nj_tile_num", selected = input$nj_tile_number)
+  })
   
   # Clade coloring
   output$nj_clade_scale <- renderUI({
