@@ -8747,6 +8747,9 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
+    test <<- input$nj_tiplab
+    est <<- input$nj_tiplab_show
+    
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -12730,15 +12733,20 @@ server <- function(input, output, session) {
   
   # NJ Tiplab color
   mapping_tiplab <- reactive({
-    if(!is.null(input$nj_tiplab)) {
-      if(input$nj_mapping_show == TRUE) {
+    if(input$nj_mapping_show == TRUE) {
+      if(!is.null(input$nj_tiplab)) {
         aes(label = !!sym(input$nj_tiplab),
             color = !!sym(input$nj_color_mapping))
       } else {
-        aes(label = !!sym(input$nj_tiplab))
+        aes(label = !!sym("Assembly Name"),
+            color = !!sym(input$nj_color_mapping))
       }
     } else {
-      aes(label = !!sym("Assembly Name"))
+      if(!is.null(input$nj_tiplab)) {
+        aes(label = !!sym(input$nj_tiplab))
+      } else {
+        aes(label = !!sym("Assembly Name"))
+      }
     }
   })
   
