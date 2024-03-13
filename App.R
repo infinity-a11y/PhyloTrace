@@ -2852,47 +2852,43 @@ ui <- dashboardPage(
                   column(
                     width = 12,
                     align = "left",
-                    fluidRow(
-                      column(
-                        width = 6,
-                        h4(p("Clade Highlight"), style = "color:white; position: relative; right: -15px")
-                      )
-                    ),
+                    h4(p("Clade Highlight"), style = "color:white; position: relative; right: -15px"),
                     fluidRow(
                       column(
                         width = 12,
                         materialSwitch(
                           "nj_nodelabel_show",
-                          "Show Nodes",
-                          value = FALSE
+                          h5(p("Toggle Node View"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
+                          value = FALSE,
+                          right = TRUE
                         )
                       )
                     ),
                     fluidRow(
                       column(
-                        width = 5,
-                        h5(p("Parent node"), style = "color:white; position: relative; right: -20px; margin-top: 30px")
+                        width = 3,
+                        h5(p("Nodes"), style = "color:white; position: relative; right: -20px; margin-top: 20px")
                       ),
                       column(
-                        width = 7,
+                        width = 9,
                         uiOutput("nj_parentnode")
                       )
                     ),
-                    uiOutput("nj_clade_coloring"),
+                    uiOutput("nj_clade_scale"),
                     fluidRow(
                       column(
-                        width = 5,
-                        align = "left",
+                        width = 8,
+                        align = "center",
                         selectInput(
                           "nj_clade_type",
-                          h5(p("Type"), style = "color:white;"),
-                          choices = c("Rectangular" = "rect",
-                                      "Roundrect" = "roundrect",
-                                      "Gradient" = "gradient")
+                          "",
+                          choices = c("Rect" = "rect",
+                                      "Round" = "roundrect"),
+                          selected = c("Round" = "roundrect")
                         ) 
                       ),
                       column(
-                        width = 7,
+                        width = 4,
                         align = "right",
                         dropMenu(
                           actionBttn(
@@ -2908,28 +2904,15 @@ ui <- dashboardPage(
                           fluidRow(
                             column(
                               width = 12,
+                              align = "center",
                               selectInput(
                                 "nj_clade_align",
                                 label = h5("Align", style = "color:white; font-size: 14px;"),
                                 choices = c("None" = "none",
                                             "Left" = "left",
                                             "Right" = "right",
-                                            "Both" = "both")
-                              ),
-                              br(),
-                              selectInput(
-                                "nj_clade_grad_dir",
-                                label = h5("Gradient Direction", style = "color:white; font-size: 14px; "),
-                                choices = c("Right" = "rt",
-                                            "Left" = "tr")
-                              ),
-                              br(),
-                              sliderInput(
-                                "nj_grad_len",
-                                label = h5("Gradient Length", style = "color:white; font-size: 14px; "),
-                                min = 1,
-                                max = 10,
-                                value = 2
+                                            "Both" = "both"),
+                                width = "100px"
                               )
                             )
                           )
@@ -9882,15 +9865,16 @@ server <- function(input, output, session) {
   #### NJ and UPGMA controls ----
   
   # Clade coloring
-  output$nj_clade_coloring <- renderUI({
+  output$nj_clade_scale <- renderUI({
     if(length(input$nj_parentnode) <= 1) {
       fluidRow(
         column(
-          width = 4,
-          h5("Color", style = "color:white; margin-bottom: 0px")
+          width = 5,
+          h5("Color", style = "color:white; position: relative; right: -20px; margin-top: 30px")
         ),
         column(
-          width = 8,
+          width = 7,
+          align = "center",
           colorPickr(
             inputId = "nj_clade_scale",
             selected = "#D0F221",
@@ -9906,11 +9890,12 @@ server <- function(input, output, session) {
     } else {
       fluidRow(
         column(
-          width = 4,
-          h5("Scale", style = "color:white; margin-bottom: 0px")
+          width = 5,
+          h5("Scale", style = "color:white; position: relative; right: -20px; margin-top: 30px")
         ),
         column(
-          width = 8,
+          width = 7,
+          align = "center",
           selectInput(
             "nj_clade_scale",
             "",
@@ -10518,11 +10503,11 @@ server <- function(input, output, session) {
         multiple = TRUE,
         options = list(
           `live-search` = TRUE,
-          `actions-box` = TRUE,
+          `noneSelectedText` = "Test",
           size = 10,
           style = "background-color: white; border-radius: 5px;"
         ),
-        width = "90%"
+        width = "99%"
       )
     } else {
       pickerInput(
@@ -10532,11 +10517,11 @@ server <- function(input, output, session) {
         multiple = TRUE,
         options = list(
           `live-search` = TRUE,
-          `actions-box` = TRUE,
+          noneSelectedText = "Test",
           size = 10,
           style = "background-color: white; border-radius: 5px;"
         ),
-        width = "90%"
+        width = "99%"
       )
     }
   })
