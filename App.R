@@ -9868,6 +9868,18 @@ server <- function(input, output, session) {
   # _______________________ ####
   
   ## Visualization ----
+  
+  # Render placeholder image
+  
+  output$placeholder <- renderImage({
+    # Path to your PNG image with a transparent background
+    image_path <- paste0(getwd(), "/www/PhyloTrace.png")
+    
+    # Use HTML to display the image with the <img> tag
+    list(src = image_path,
+         height = 180)
+  }, deleteFile = FALSE)
+  
   ### Render Visualization Controls ----
   
   #### NJ and UPGMA controls ----
@@ -11176,6 +11188,16 @@ server <- function(input, output, session) {
         width = "150px",
         ticks = FALSE
       )
+    } else {
+      sliderInput(
+        "nj_fruit_width_circ",
+        label = h5("Width", style = "color:white; margin-bottom: 0px"),
+        min = 1,
+        max = 10,
+        value = 5,
+        width = "150px",
+        ticks = FALSE
+      )
     }
   })
   
@@ -11486,15 +11508,27 @@ server <- function(input, output, session) {
   ### Render Plot field ----
   
   output$mst_field <- renderUI({
-    visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px")) 
+    addSpinner(
+      visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px")),
+      spin = "dots",
+      color = "#ffffff"
+    )
   })
   
   output$nj_field <- renderUI({
-    plotOutput("tree_nj", width = paste0(as.character(as.numeric(input$nj_scale) * as.numeric(input$nj_ratio)), "px"), height = paste0(as.character(input$nj_scale), "px")) 
+    addSpinner(
+      plotOutput("tree_nj", width = paste0(as.character(as.numeric(input$nj_scale) * as.numeric(input$nj_ratio)), "px"), height = paste0(as.character(input$nj_scale), "px")) ,
+      spin = "dots",
+      color = "#ffffff"
+    )
   })
   
   output$upgma_field <- renderUI({
-    plotOutput("tree_upgma", width = paste0(as.character(as.numeric(input$upgma_scale) * as.numeric(input$upgma_ratio)), "px"), height = paste0(as.character(input$upgma_scale), "px")) 
+   addSpinner(
+     plotOutput("tree_upgma", width = paste0(as.character(as.numeric(input$upgma_scale) * as.numeric(input$upgma_ratio)), "px"), height = paste0(as.character(input$upgma_scale), "px")),
+     spin = "dots",
+     color = "#ffffff"
+    )
   })
   
   ### Plot Reactives ----
