@@ -2327,7 +2327,7 @@ ui <- dashboardPage(
                       ),
                       column(
                         width = 7,
-                        align = "left",
+                        align = "right",
                         dropMenu(
                           actionBttn(
                             "nj_tippoint_menu",
@@ -2408,7 +2408,8 @@ ui <- dashboardPage(
                         conditionalPanel(
                           "input.nj_tipshape_mapping_show==true",
                           h5(p("Variable assigned"), style = "color:white; position: relative; right: -17px; margin-top: 30px; font-style: italic")
-                        )
+                        ),
+                        br(), br()
                       )
                     )
                   )
@@ -2491,7 +2492,7 @@ ui <- dashboardPage(
                     fluidRow(
                       column(
                         width = 5,
-                        h5(p("Shape"), style = "color:white; position: relative; right: -20px; margin-top: 30px")
+                        h5(p("Shape"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
                       ),
                       column(
                         width = 7,
@@ -2507,7 +2508,8 @@ ui <- dashboardPage(
                             Cross = "cross", 
                             Asterisk = "asterisk"
                           )
-                        )
+                        ),
+                        br(), br()
                       )
                     )
                   )
@@ -2856,18 +2858,21 @@ ui <- dashboardPage(
                     fluidRow(
                       column(
                         width = 12,
-                        materialSwitch(
-                          "nj_nodelabel_show",
-                          h5(p("Toggle Node View"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
-                          value = FALSE,
-                          right = TRUE
+                        div(
+                          class = "mat-switch",
+                          materialSwitch(
+                            "nj_nodelabel_show",
+                            h5(p("Toggle Node View"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
+                            value = FALSE,
+                            right = TRUE
+                          )
                         )
                       )
                     ),
                     fluidRow(
                       column(
                         width = 3,
-                        h5(p("Nodes"), style = "color:white; position: relative; right: -20px; margin-top: 20px")
+                        h5(p("Nodes"), style = "color:white; position: relative; right: -15px; margin-top: 20px")
                       ),
                       column(
                         width = 9,
@@ -2879,13 +2884,16 @@ ui <- dashboardPage(
                       column(
                         width = 8,
                         align = "center",
-                        selectInput(
-                          "nj_clade_type",
-                          "",
-                          choices = c("Rect" = "rect",
-                                      "Round" = "roundrect"),
-                          selected = c("Round" = "roundrect")
-                        ) 
+                        div(
+                          class = "sel-clade",
+                          selectInput(
+                            "nj_clade_type",
+                            "",
+                            choices = c("Rect" = "rect",
+                                        "Round" = "roundrect"),
+                            selected = c("Round" = "roundrect")
+                          ) 
+                        )
                       ),
                       column(
                         width = 4,
@@ -9870,7 +9878,7 @@ server <- function(input, output, session) {
       fluidRow(
         column(
           width = 5,
-          h5("Color", style = "color:white; position: relative; right: -20px; margin-top: 30px")
+          h5("Color", style = "color:white; position: relative; right: -15px; margin-top: 30px")
         ),
         column(
           width = 7,
@@ -9891,7 +9899,7 @@ server <- function(input, output, session) {
       fluidRow(
         column(
           width = 5,
-          h5("Scale", style = "color:white; position: relative; right: -20px; margin-top: 30px")
+          h5("Scale", style = "color:white; position: relative; right: -15px; margin-top: 30px")
         ),
         column(
           width = 7,

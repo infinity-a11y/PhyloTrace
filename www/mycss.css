@@ -8,8 +8,8 @@
   animation: pulsate 1s ease infinite;
 }
 
-#shiny-tab-visualization > div:nth-child(5) > div > div:nth-child(4) > div:nth-child(5) > div > div > div > div > div:nth-child(5) > div.col-sm-8 > div {
-  margin-left: 20px;
+.sel-clade {
+  margin-left: 15px;
 }
 
 #nj_parentnode {
@@ -17,9 +17,9 @@
   margin-top: -10px;
 }
 
-#shiny-tab-visualization > div:nth-child(5) > div > div:nth-child(4) > div:nth-child(5) > div > div > div > div > div:nth-child(2) > div > div > div > label.switch.label-default.bg-default {
-  margin-left: 20px;
-  margin-top: 35px;
+.mat-switch {
+  margin-left: 15px;
+  margin-top: 20px;
 }
 
 .material-switch>label.switch:before {
@@ -1427,7 +1427,7 @@ button#nj_tile_menu_5 {
 }
 
 #nj_nodepoint_color {
-  margin-bottom: 16px;
+  margin-bottom: 0px;
 }
 
 #nj_treescale_show {
