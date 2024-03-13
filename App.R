@@ -2363,7 +2363,7 @@ ui <- dashboardPage(
                       column(
                         width = 5,
                         align = "left",
-                        h5(p("Color"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
+                        h5(p("Color"), style = "color:white; position: relative; right: -15px; margin-top: 40px")
                       ),
                       column(
                         width = 7,
@@ -2384,7 +2384,7 @@ ui <- dashboardPage(
                       column(
                         width = 5,
                         align = "left",
-                        h5(p("Shape"), style = "color:white; position: relative; right: -17px; margin-top: 30px")
+                        h5(p("Shape"), style = "color:white; position: relative; right: -15px; margin-top: 30px; margin-bottom: 50px")
                       ),
                       column(
                         width = 7,
@@ -2407,9 +2407,9 @@ ui <- dashboardPage(
                         ),
                         conditionalPanel(
                           "input.nj_tipshape_mapping_show==true",
-                          h5(p("Variable assigned"), style = "color:white; position: relative; right: -17px; margin-top: 30px; font-style: italic")
+                          h5(p("Variable assigned"), style = "color:white; position: relative; right: -15px; margin-top: 30px; font-style: italic")
                         ),
-                        br(), br()
+                        br()
                       )
                     )
                   )
@@ -2472,7 +2472,7 @@ ui <- dashboardPage(
                     fluidRow(
                       column(
                         width = 5,
-                        h5(p("Color"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
+                        h5(p("Color"), style = "color:white; position: relative; right: -15px; margin-top: 40px")
                       ),
                       column(
                         width = 7,
@@ -2492,7 +2492,7 @@ ui <- dashboardPage(
                     fluidRow(
                       column(
                         width = 5,
-                        h5(p("Shape"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
+                        h5(p("Shape"), style = "color:white; position: relative; right: -15px; margin-top: 30px; margin-bottom: 50px")
                       ),
                       column(
                         width = 7,
@@ -2509,7 +2509,7 @@ ui <- dashboardPage(
                             Asterisk = "asterisk"
                           )
                         ),
-                        br(), br()
+                        br()
                       )
                     )
                   )
@@ -2548,7 +2548,7 @@ ui <- dashboardPage(
                         align = "right",
                         dropMenu(
                           actionBttn(
-                            "mst_title_menu",
+                            "nj_tile_menu",
                             label = "",
                             color = "default",
                             size = "sm",
@@ -2556,15 +2556,90 @@ ui <- dashboardPage(
                             icon = icon("sliders")
                           ),
                           placement = "top-start",
-                          theme = "translucent"
+                          theme = "translucent",
+                          fluidRow(
+                            column(
+                              width = 12,
+                              align = "center",
+                              conditionalPanel(
+                                "input.nj_tile_num == 1",
+                                sliderInput(
+                                  "nj_fruit_alpha",
+                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                                  min = 0.1,
+                                  max = 1,
+                                  value = 1,
+                                  step = 0.05,
+                                  width = "150px",
+                                  ticks = FALSE
+                                )
+                              ),
+                              conditionalPanel(
+                                "input.nj_tile_num == 2",
+                                sliderInput(
+                                  "nj_fruit_alpha_2",
+                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                                  min = 0.1,
+                                  max = 1,
+                                  value = 1,
+                                  step = 0.05,
+                                  width = "150px",
+                                  ticks = FALSE
+                                )
+                              ),
+                              conditionalPanel(
+                                "input.nj_tile_num == 3",
+                                sliderInput(
+                                  "nj_fruit_alpha_3",
+                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                                  min = 0.1,
+                                  max = 1,
+                                  value = 1,
+                                  step = 0.05,
+                                  width = "150px",
+                                  ticks = FALSE
+                                )
+                              ),
+                              conditionalPanel(
+                                "input.nj_tile_num == 4",
+                                sliderInput(
+                                  "nj_fruit_alpha_4",
+                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                                  min = 0.1,
+                                  max = 1,
+                                  value = 1,
+                                  step = 0.05,
+                                  width = "150px",
+                                  ticks = FALSE
+                                )
+                              ),
+                              conditionalPanel(
+                                "input.nj_tile_num == 5",
+                                sliderInput(
+                                  "nj_fruit_alpha_5",
+                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                                  min = 0.1,
+                                  max = 1,
+                                  value = 1,
+                                  step = 0.05,
+                                  width = "150px",
+                                  ticks = FALSE
+                                )
+                              )
+                            )
                           )
+                        )
                       )
                     ),
                     conditionalPanel(
                       "input.nj_tile_num == 1",
                       fluidRow(
                         column(
-                          width = 12,
+                          width = 5,
+                          h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
+                        ),
+                        column(
+                          width = 7,
                           align = "center",
                           uiOutput("nj_fruit_width"),
                           br()
@@ -2572,11 +2647,15 @@ ui <- dashboardPage(
                       ),
                       fluidRow(
                         column(
-                          width = 12,
+                          width = 5,
+                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 51px")
+                        ),
+                        column(
+                          width = 7,
                           align = "center",
                           sliderInput(
                             "nj_fruit_offset_circ",
-                            label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                            label = "",
                             min = -3,
                             max = 3,
                             step= 0.05,
@@ -2585,21 +2664,6 @@ ui <- dashboardPage(
                             ticks = FALSE
                           ),
                           br()
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 12,
-                          align = "center",
-                          sliderInput(
-                            "nj_fruit_alpha",
-                            label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                            min = 0.1,
-                            max = 1,
-                            value = 1,
-                            width = "150px",
-                            ticks = FALSE
-                          )
                         )
                       )
                     ),
@@ -2607,7 +2671,11 @@ ui <- dashboardPage(
                       "input.nj_tile_num == 2",
                       fluidRow(
                         column(
-                          width = 12,
+                          width = 5,
+                          h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
+                        ),
+                        column(
+                          width = 7,
                           align = "center",
                           uiOutput("nj_fruit_width2"),
                           br()
@@ -2615,11 +2683,15 @@ ui <- dashboardPage(
                       ),
                       fluidRow(
                         column(
-                          width = 12,
+                          width = 5,
+                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 62px")
+                        ),
+                        column(
+                          width = 7,
                           align = "center",
                           sliderInput(
                             "nj_fruit_offset_circ_2",
-                            label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                            label = "",
                             min = -3,
                             max = 3,
                             step= 0.05,
@@ -2628,21 +2700,6 @@ ui <- dashboardPage(
                             ticks = FALSE
                           ),
                           br()
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 12,
-                          align = "center",
-                          sliderInput(
-                            "nj_fruit_alpha_2",
-                            label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                            min = 0.1,
-                            max = 1,
-                            value = 1,
-                            width = "150px",
-                            ticks = FALSE
-                          )
                         )
                       )
                     ),
@@ -2650,7 +2707,11 @@ ui <- dashboardPage(
                       "input.nj_tile_num == 3",
                       fluidRow(
                         column(
-                          width = 12,
+                          width = 5,
+                          h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
+                        ),
+                        column(
+                          width = 7,
                           align = "center",
                           uiOutput("nj_fruit_width3"),
                           br()
@@ -2658,11 +2719,15 @@ ui <- dashboardPage(
                       ),
                       fluidRow(
                         column(
-                          width = 12,
+                          width = 5,
+                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 62px")
+                        ),
+                        column(
+                          width = 7,
                           align = "center",
                           sliderInput(
                             "nj_fruit_offset_circ_3",
-                            label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                            label = "",
                             min = -3,
                             max = 3,
                             step= 0.05,
@@ -2671,21 +2736,6 @@ ui <- dashboardPage(
                             ticks = FALSE
                           ),
                           br()
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 12,
-                          align = "center",
-                          sliderInput(
-                            "nj_fruit_alpha_3",
-                            label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                            min = 0.1,
-                            max = 1,
-                            value = 1,
-                            width = "150px",
-                            ticks = FALSE
-                          )
                         )
                       )
                     ),
@@ -2693,7 +2743,11 @@ ui <- dashboardPage(
                       "input.nj_tile_num == 4",
                       fluidRow(
                         column(
-                          width = 12,
+                          width = 5,
+                          h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
+                        ),
+                        column(
+                          width = 7,
                           align = "center",
                           uiOutput("nj_fruit_width4"),
                           br()
@@ -2701,11 +2755,15 @@ ui <- dashboardPage(
                       ),
                       fluidRow(
                         column(
-                          width = 12,
+                          width = 5,
+                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 62px")
+                        ),
+                        column(
+                          width = 7,
                           align = "center",
                           sliderInput(
                             "nj_fruit_offset_circ_4",
-                            label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                            label = "",
                             min = -3,
                             max = 3,
                             value = 0,
@@ -2714,21 +2772,6 @@ ui <- dashboardPage(
                             ticks = FALSE
                           ),
                           br()
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 12,
-                          align = "center",
-                          sliderInput(
-                            "nj_fruit_alpha_4",
-                            label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                            min = 0.1,
-                            max = 1,
-                            value = 1,
-                            width = "150px",
-                            ticks = FALSE
-                          )
                         )
                       )
                     ),
@@ -2736,7 +2779,11 @@ ui <- dashboardPage(
                       "input.nj_tile_num == 5",
                       fluidRow(
                         column(
-                          width = 12,
+                          width = 5,
+                          h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
+                        ),
+                        column(
+                          width = 7,
                           align = "center",
                           uiOutput("nj_fruit_width5"),
                           br()
@@ -2744,11 +2791,15 @@ ui <- dashboardPage(
                       ),
                       fluidRow(
                         column(
-                          width = 12,
+                          width = 5,
+                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 62px")
+                        ),
+                        column(
+                          width = 7,
                           align = "center",
                           sliderInput(
                             "nj_fruit_offset_circ_5",
-                            label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                            label = "",
                             min = -3,
                             max = 3,
                             value = 0,
@@ -2757,21 +2808,6 @@ ui <- dashboardPage(
                             ticks = FALSE
                           ),
                           br()
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 12,
-                          align = "center",
-                          sliderInput(
-                            "nj_fruit_alpha_5",
-                            label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                            min = 0.1,
-                            max = 1,
-                            value = 1,
-                            width = "150px",
-                            ticks = FALSE
-                          )
                         )
                       )
                     )
@@ -2795,17 +2831,21 @@ ui <- dashboardPage(
                     ),
                     fluidRow(
                       column(
-                        width = 7,
-                        align = "left",
+                        width = 3,
+                        h5("Title", style = "color:white; margin-left: 15px; margin-top: 32px;")
+                      ),
+                      column(
+                        width = 6,
+                        align = "center",
                         textInput(
                           "nj_heatmap_title",
-                          label = h5("Legend Title", style = "color:white; margin-bottom: 0px;"),
+                          label = "",
                           value = "Heatmap",
                           placeholder = "Heatmap" 
                         )
                       ),
                       column(
-                        width = 5,
+                        width = 3,
                         align = "right",
                         dropMenu(
                           actionBttn(
@@ -2820,58 +2860,70 @@ ui <- dashboardPage(
                           theme = "translucent",
                           fluidRow(
                             column(
-                              width = 6,
+                              width = 12,
                               align = "center",
-                              sliderInput(
-                                "nj_heatmap_width",
-                                label = h5("Width", style = "color:white; margin-bottom: 0px"),
-                                min = 0.1,
-                                max = 5,
-                                value = 0.5,
-                                width = "250px",
-                                ticks = FALSE
-                              ),
-                              br(),
-                              uiOutput("nj_heatmap_offs"),
-                            ),
-                            column(
-                              width = 6,
-                              align = "center",
-                              br(),
                               sliderInput(
                                 "nj_colnames_angle",
-                                label = h5("Names angle", style = "color:white; margin-bottom: 0px"),
+                                label = h5("Names Angle", style = "color:white; margin-bottom: 0px"),
                                 min = -90,
                                 max = 90,
                                 value = 0,
-                                width = "250px",
+                                width = "150px",
                                 ticks = FALSE
                               ),
                               br(),
                               sliderInput(
                                 "nj_colnames_x",
-                                label = h5("Names X Pos", style = "color:white; margin-bottom: 0px"),
+                                label = h5("Names X-Position", style = "color:white; margin-bottom: 0px"),
                                 min = -10,
                                 max = 10,
                                 value = 0,
-                                width = "250px",
+                                width = "150px",
                                 ticks = FALSE
                               ),
                               br(),
                               sliderInput(
                                 "nj_colnames_y",
-                                label = h5("Names Y Pos", style = "color:white; margin-bottom: 0px"),
+                                label = h5("Names Y-Position", style = "color:white; margin-bottom: 0px"),
                                 min = -10,
                                 max = 10,
                                 value = 0,
-                                width = "250px",
+                                width = "150px",
                                 ticks = FALSE
                               )
                             )
                           )
                         )
                       )
-                    )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 5,
+                        h5("Width", style = "color:white; margin-left: 15px; margin-top: 32px;")
+                      ),
+                      column(
+                        width = 7,
+                        uiOutput("nj_heatmap_offset")
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 5,
+                        h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px;")
+                      ),
+                      column(
+                        width = 7,
+                        sliderInput(
+                          "nj_heatmap_width",
+                          label = "",
+                          min = 0.1,
+                          max = 5,
+                          value = 0.5,
+                          width = "150px",
+                          ticks = FALSE
+                        )
+                      )
+                    ), br(), br()
                   )
                 )
               ),
@@ -10898,28 +10950,56 @@ server <- function(input, output, session) {
   })
   
   # Heatmap offset
-  output$nj_heatmap_offs <- renderUI({
-    numericInput(
-      "nj_heatmap_offset",
-      label = h5("Position", style = "color:white; margin-bottom: 0px"),
-      min = -ceiling(Vis$nj_max_x),
-      max = ceiling(Vis$nj_max_x),
-      step = 1,
-      value = 0,
-      width = "80px"
-    )
+  output$nj_heatmap_offset <- renderUI({
+    if(!is.null(Vis$nj_max_x)) {
+      sliderInput(
+        "nj_heatmap_offset",
+        label = "",
+        min = -ceiling(Vis$nj_max_x),
+        max = ceiling(Vis$nj_max_x),
+        step = 1,
+        value = 0,
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        "nj_heatmap_offset",
+        label = "",
+        min = -10,
+        max = 10,
+        step = 1,
+        value = 0,
+        width = "150px",
+        ticks = FALSE
+      )
+    }
   })
   
   output$upgma_heatmap_offs <- renderUI({
-    numericInput(
-      "upgma_heatmap_offset",
-      label = h5("Position", style = "color:white; margin-bottom: 0px"),
-      min = -ceiling(Vis$upgma_max_x),
-      max = ceiling(Vis$upgma_max_x),
-      step = 1,
-      value = 0,
-      width = "80px"
-    )
+    if(!is.null(Vis$upgma_max_x)) {
+      sliderInput(
+        "upgma_heatmap_offset",
+        label = "",
+        min = -ceiling(Vis$upgma_max_x),
+        max = ceiling(Vis$upgma_max_x),
+        step = 1,
+        value = 0,
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        "upgma_heatmap_offset",
+        label = "",
+        min = -10,
+        max = 10,
+        step = 1,
+        value = 0,
+        width = "150px",
+        ticks = FALSE
+      )
+    }
   })
   
   ### Tiling 
@@ -11220,7 +11300,7 @@ server <- function(input, output, session) {
       }
       sliderInput(
         "nj_fruit_width_circ",
-        label = h5("Width", style = "color:white; margin-bottom: 0px"),
+        label = "",
         min = min,
         max = round(ceiling(Vis$nj_max_x) * 0.5, 0),
         value = ceiling(Vis$nj_max_x * 0.08),
@@ -11230,7 +11310,7 @@ server <- function(input, output, session) {
     } else {
       sliderInput(
         "nj_fruit_width_circ",
-        label = h5("Width", style = "color:white; margin-bottom: 0px"),
+        label = "",
         min = 1,
         max = 10,
         value = 5,
@@ -11249,10 +11329,20 @@ server <- function(input, output, session) {
       }
       sliderInput(
         "nj_fruit_width_circ_2",
-        label = h5("Width", style = "color:white; margin-bottom: 0px"),
+        label = "",
         min = min,
         max = round(ceiling(Vis$nj_max_x) * 0.5, 0),
         value = ceiling(Vis$nj_max_x * 0.08),
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        "nj_fruit_width_circ_2",
+        label = "",
+        min = 1,
+        max = 10,
+        value = 5,
         width = "150px",
         ticks = FALSE
       )
@@ -11268,10 +11358,20 @@ server <- function(input, output, session) {
       }
       sliderInput(
         "nj_fruit_width_circ_3",
-        label = h5("Width", style = "color:white; margin-bottom: 0px"),
+        label = "",
         min = min,
         max = round(ceiling(Vis$nj_max_x) * 0.5, 0),
         value = ceiling(Vis$nj_max_x * 0.08),
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        "nj_fruit_width_circ_3",
+        label = "",
+        min = 1,
+        max = 10,
+        value = 5,
         width = "150px",
         ticks = FALSE
       )
@@ -11287,13 +11387,23 @@ server <- function(input, output, session) {
       }
       sliderInput(
         "nj_fruit_width_circ_4",
-        label = h5("Width", style = "color:white; margin-bottom: 0px"),
+        label = "",
         min = min,
         max = round(ceiling(Vis$nj_max_x) * 0.5, 0),
         value = ceiling(Vis$nj_max_x * 0.08),
         width = "150px",
         ticks = FALSE
       )    
+    } else {
+      sliderInput(
+        "nj_fruit_width_circ_4",
+        label = "",
+        min = 1,
+        max = 10,
+        value = 5,
+        width = "150px",
+        ticks = FALSE
+      )
     }
   })
   
@@ -11306,10 +11416,20 @@ server <- function(input, output, session) {
       }
       sliderInput(
         "nj_fruit_width_circ_5",
-        label = h5("Width", style = "color:white; margin-bottom: 0px"),
+        label = "",
         min = min,
         max = round(ceiling(Vis$nj_max_x) * 0.5, 0),
         value = ceiling(Vis$nj_max_x * 0.08),
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        "nj_fruit_width_circ_5",
+        label = "",
+        min = 1,
+        max = 10,
+        value = 5,
         width = "150px",
         ticks = FALSE
       )

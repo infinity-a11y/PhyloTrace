@@ -10,6 +10,7 @@
 
 .sel-clade {
   margin-left: 15px;
+  margin-block: -2px;
 }
 
 .tile-sel {
@@ -1370,7 +1371,8 @@ button#nj_heatmap_menu {
   background: #20E6E5; 
   color: #000000; 
   margin-top: 21px; 
-  border-radius: 5px
+  border-radius: 5px;
+  margin-left: -10px;
 }
 
 button#nj_clade_menu {
@@ -1427,11 +1429,13 @@ button#nj_tile_menu_5 {
 }
 
 #nj_tippoint_color {
-  margin-bottom: 0px
+  margin-bottom: 10px;
+  margin-top: 10px;
 }
 
 #nj_nodepoint_color {
-  margin-bottom: 0px;
+  margin-bottom: 10px;
+  margin-top: 10px;
 }
 
 #nj_treescale_show {
@@ -1625,6 +1629,15 @@ button#nj_tile_menu_5 {
 .tile_select {
   position: absolute; 
   top: -17px; 
+}
+
+#nj_heatmap_offset {
+  margin-bottom: 10px;
+}
+
+#nj_fruit_width, #nj_fruit_width_2, #nj_fruit_width_3, #nj_fruit_width_4, #nj_fruit_width_5 {
+  margin-top: -5px;
+  margin-bottom: -15px;
 }
 
 #nj_tile_color_low {
