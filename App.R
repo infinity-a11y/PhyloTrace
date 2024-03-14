@@ -2282,7 +2282,7 @@ ui <- dashboardPage(
                       column(
                         width = 4,
                         align = "left",
-                        h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 23px; margin-bottom: 94px")
+                        h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 23px; margin-bottom: 87px")
                       ),
                       column(
                         width = 4,
@@ -2533,14 +2533,11 @@ ui <- dashboardPage(
                     fluidRow(
                       column(
                         width = 5,
-                        div(
-                          class = "tile-sel",
-                          selectInput(
-                            "nj_tile_number",
-                            "",
-                            choices = 1:5,
-                            width = "70px"
-                          )
+                        selectInput(
+                          "nj_tile_number",
+                          "",
+                          choices = 1:5,
+                          width = "70px"
                         )
                       ),
                       column(
@@ -2941,7 +2938,7 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         div(
-                          class = "mat-switch",
+                          class = "mat-switch-v",
                           materialSwitch(
                             "nj_nodelabel_show",
                             h5(p("Toggle Node View"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
@@ -3016,7 +3013,7 @@ ui <- dashboardPage(
             conditionalPanel(
               "input.nj_controls=='Variables'",
               column(
-                width = 6,
+                width = 7,
                 box(
                   solidHeader = TRUE,
                   status = "info",
@@ -3027,24 +3024,31 @@ ui <- dashboardPage(
                     fluidRow(
                       column(
                         width = 3,
-                        h4(p("Element"), style = "color:white; margin-left: 8px")
+                        align = "center",
+                        h4(p("Element"), style = "color:white; margin-bottom: 20px")
                       ),
                       column(
                         width = 3,
-                        h4(p("Variable"), style = "color:white; margin-left: 8px")
+                        align = "center",
+                        h4(p("Variable"), style = "color:white; margin-bottom: 20px; margin-right: 30px;")
                       ),
                       column(
                         width = 6,
-                        h4(p("Color Scale"), style = "color:white; margin-left: 8px")
+                        align = "center",
+                        h4(p("Color Scale"), style = "color:white; margin-bottom: 20px")
                       )
                     ),
                     fluidRow(
                       column(
                         width = 3,
-                        checkboxInput(
-                          "nj_mapping_show",
-                          label = h5("Tip Label Color", style = "color:white; font-size: 14px; position: relative; bottom: -3px;"),
-                          value = FALSE
+                        div(
+                          class = "mat-switch-v",
+                          materialSwitch(
+                            "nj_mapping_show",
+                            h5(p("Tip Label Color"), style = "color:white; position: relative; top: -4px; right: -5px;"),
+                            value = FALSE,
+                            right = TRUE
+                          )
                         )
                       ),
                       column(
@@ -3060,12 +3064,19 @@ ui <- dashboardPage(
                       conditionalPanel(
                         "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_tiplab_scale)",
                         column(
-                          width = 3,
-                          selectInput(
-                            "nj_color_mapping_div_mid",
-                            label = h5("Midpoint", style = "color:white; font-size: 14px;"),
-                            choices = c("Zero", "Mean", "Median"),
-                            selected = "Mean"
+                          width = 1,
+                          h5("Midpoint", style = "color: white; margin-top: 20px;")
+                        ),
+                        column(
+                          width = 2,
+                          div(
+                            class = "divmid-sel",
+                            selectInput(
+                              "nj_color_mapping_div_mid",
+                              label = "",
+                              choices = c("Zero", "Mean", "Median"),
+                              selected = "Mean"
+                            )
                           )
                         )
                       )
@@ -3073,10 +3084,14 @@ ui <- dashboardPage(
                     fluidRow(
                       column(
                         width = 3,
-                        checkboxInput(
-                          "nj_tipcolor_mapping_show",
-                          label = h5("Tip Point Color", style = "color:white; font-size: 14px;"),
-                          value = FALSE
+                        div(
+                          class = "mat-switch-v",
+                          materialSwitch(
+                            "nj_tipcolor_mapping_show",
+                            h5(p("Tip Point Color"), style = "color:white; position: relative; top: -4px; right: -5px;"),
+                            value = FALSE,
+                            right = TRUE
+                          )
                         )
                       ),
                       column(
@@ -3092,12 +3107,19 @@ ui <- dashboardPage(
                       conditionalPanel(
                         "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_tippoint_scale)",
                         column(
-                          width = 3,
-                          selectInput(
-                            "nj_tipcolor_mapping_div_mid",
-                            label = h5("Midpoint", style = "color:white; font-size: 14px;"),
-                            choices = c("Zero", "Mean", "Median"),
-                            selected = "Mean"
+                          width = 1,
+                          h5("Midpoint", style = "color: white; margin-top: 20px;")
+                        ),
+                        column(
+                          width = 2,
+                          div(
+                            class = "divmid-sel",
+                            selectInput(
+                              "nj_tipcolor_mapping_div_mid",
+                              label = "",
+                              choices = c("Zero", "Mean", "Median"),
+                              selected = "Mean"
+                            )
                           )
                         )
                       )
@@ -3105,10 +3127,14 @@ ui <- dashboardPage(
                     fluidRow(
                       column(
                         width = 3,
-                        checkboxInput(
-                          "nj_tipshape_mapping_show",
-                          label = h5("Tip Point Shape", style = "color:white; font-size: 14px;"),
-                          value = FALSE
+                        div(
+                          class = "mat-switch-v",
+                          materialSwitch(
+                            "nj_tipshape_mapping_show",
+                            h5(p("Tip Point Shape"), style = "color:white; position: relative; top: -4px; right: -5px;"),
+                            value = FALSE,
+                            right = TRUE
+                          )
                         )
                       ),
                       column(
@@ -3120,7 +3146,7 @@ ui <- dashboardPage(
                         width = 3,
                         HTML(
                           paste(
-                            tags$span(style='color: white; font-size: 14px; font-style: italic; position: relative; bottom: -16px; right: -5px;', 'No scale for shapes')
+                            tags$span(style='color: white; font-size: 14px; font-style: italic; position: relative; bottom: -16px; right: -15px;', 'No scale for shapes')
                           )
                         )
                       )
@@ -3130,61 +3156,86 @@ ui <- dashboardPage(
                         width = 3,
                         fluidRow(
                           column(
-                            width = 6,
+                            width = 8,
                             conditionalPanel(
                               "input.nj_tile_num == 1",
-                              checkboxInput(
-                                "nj_tiles_show_1",
-                                h5(p("Tile"), style = "color:white; position: relative; bottom: -8px; right: -17px"),
-                                value = FALSE
+                              div(
+                                class = "mat-switch-v",
+                                materialSwitch(
+                                  "nj_tiles_show_1",
+                                  h5(p("Tile"), style = "color:white; position: relative; top: -4px; right: -5px; margin-right: 10px"),
+                                  value = FALSE,
+                                  right = TRUE
+                                )
                               )
                             ),
                             conditionalPanel(
                               "input.nj_tile_num == 2",
-                              checkboxInput(
-                                "nj_tiles_show_2",
-                                h5(p("Tile"), style = "color:white; position: relative; bottom: -8px; right: -17px"),
-                                value = FALSE
+                              div(
+                                class = "mat-switch-v",
+                                materialSwitch(
+                                  "nj_tiles_show_2",
+                                  h5(p("Tile"), style = "color:white; position: relative; top: -4px; right: -5px;"),
+                                  value = FALSE,
+                                  right = TRUE
+                                )
                               )
                             ),
                             conditionalPanel(
                               "input.nj_tile_num == 3",
-                              checkboxInput(
-                                "nj_tiles_show_3",
-                                h5(p("Tile"), style = "color:white; position: relative; bottom: -8px; right: -17px"),
-                                value = FALSE
+                              div(
+                                class = "mat-switch-v",
+                                materialSwitch(
+                                  "nj_tiles_show_3",
+                                  h5(p("Tile"), style = "color:white; position: relative; top: -4px; right: -5px;"),
+                                  value = FALSE,
+                                  right = TRUE
+                                )
                               )
                             ),
                             conditionalPanel(
                               "input.nj_tile_num == 4",
-                              checkboxInput(
-                                "nj_tiles_show_4",
-                                h5(p("Tile"), style = "color:white; position: relative; bottom: -8px; right: -17px"),
-                                value = FALSE
+                              div(
+                                class = "mat-switch-v",
+                                materialSwitch(
+                                  "nj_tiles_show_4",
+                                  h5(p("Tile"), style = "color:white; position: relative; top: -4px; right: -5px;"),
+                                  value = FALSE,
+                                  right = TRUE
+                                )
                               )
                             ),
                             conditionalPanel(
                               "input.nj_tile_num == 5",
-                              checkboxInput(
-                                "nj_tiles_show_5",
-                                h5(p("Tile"), style = "color:white; position: relative; bottom: -8px; right: -17px"),
-                                value = FALSE
+                              div(
+                                class = "mat-switch-v",
+                                materialSwitch(
+                                  "nj_tiles_show_5",
+                                  h5(p("Tile"), style = "color:white; position: relative; top: -4px; right: -5px;"),
+                                  value = FALSE,
+                                  right = TRUE
+                                )
                               )
                             )
                           ), 
                           column(
-                            width = 6,
-                            selectInput(
-                              "nj_tile_num",
-                              "",
-                              choices = 1:5,
-                              width = "70px"
+                            width = 4,
+                            align = "left",
+                            div(
+                              class = "tile-sel",
+                              selectInput(
+                                "nj_tile_num",
+                                "",
+                                choices = 1:5,
+                                width = "50px"
+                              )
                             )
                           )
                         )
                       ),
                       column(
                         width = 3,
+                        align = "center",
                         conditionalPanel(
                           "input.nj_tile_num == 1",
                           uiOutput("nj_fruit_variable")
@@ -3216,12 +3267,19 @@ ui <- dashboardPage(
                         conditionalPanel(
                           "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_tiles_scale_1)",
                           column(
-                            width = 3,
-                            selectInput(
-                              "nj_tiles_mapping_div_mid_1",
-                              label = h5("Midpoint", style = "color:white; font-size: 14px;"),
-                              choices = c("Zero", "Mean", "Median"),
-                              selected = "Mean"
+                            width = 1,
+                            h5("Midpoint", style = "color: white; margin-top: 20px;")
+                          ),
+                          column(
+                            width = 2,
+                            div(
+                              class = "divmid-sel",
+                              selectInput(
+                                "nj_tiles_mapping_div_mid_1",
+                                label = "",
+                                choices = c("Zero", "Mean", "Median"),
+                                selected = "Mean"
+                              )
                             )
                           )
                         )
@@ -3236,12 +3294,19 @@ ui <- dashboardPage(
                         conditionalPanel(
                           "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_tiles_scale_2)",
                           column(
-                            width = 3,
-                            selectInput(
-                              "nj_tiles_mapping_div_mid_2",
-                              label = h5("Midpoint", style = "color:white; font-size: 14px;"),
-                              choices = c("Zero", "Mean", "Median"),
-                              selected = "Mean"
+                            width = 1,
+                            h5("Midpoint", style = "color: white; margin-top: 20px;")
+                          ),
+                          column(
+                            width = 2,
+                            div(
+                              class = "divmid-sel",
+                              selectInput(
+                                "nj_tiles_mapping_div_mid_2",
+                                label = "",
+                                choices = c("Zero", "Mean", "Median"),
+                                selected = "Mean"
+                              )
                             )
                           )
                         )
@@ -3256,12 +3321,19 @@ ui <- dashboardPage(
                         conditionalPanel(
                           "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_tiles_scale_3)",
                           column(
-                            width = 3,
-                            selectInput(
-                              "nj_tiles_mapping_div_mid_3",
-                              label = h5("Midpoint", style = "color:white; font-size: 14px;"),
-                              choices = c("Zero", "Mean", "Median"),
-                              selected = "Mean"
+                            width = 1,
+                            h5("Midpoint", style = "color: white; margin-top: 20px;")
+                          ),
+                          column(
+                            width = 2,
+                            div(
+                              class = "divmid-sel",
+                              selectInput(
+                                "nj_tiles_mapping_div_mid_3",
+                                label = "",
+                                choices = c("Zero", "Mean", "Median"),
+                                selected = "Mean"
+                              )
                             )
                           )
                         )
@@ -3276,12 +3348,19 @@ ui <- dashboardPage(
                         conditionalPanel(
                           "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_tiles_scale_4)",
                           column(
-                            width = 3,
-                            selectInput(
-                              "nj_tiles_mapping_div_mid_4",
-                              label = h5("Midpoint", style = "color:white; font-size: 14px;"),
-                              choices = c("Zero", "Mean", "Median"),
-                              selected = "Mean"
+                            width = 1,
+                            h5("Midpoint", style = "color: white; margin-top: 20px;")
+                          ),
+                          column(
+                            width = 2,
+                            div(
+                              class = "divmid-sel",
+                              selectInput(
+                                "nj_tiles_mapping_div_mid_4",
+                                label = "",
+                                choices = c("Zero", "Mean", "Median"),
+                                selected = "Mean"
+                              )
                             )
                           )
                         )
@@ -3296,12 +3375,19 @@ ui <- dashboardPage(
                         conditionalPanel(
                           "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_tiles_scale_5)",
                           column(
-                            width = 3,
-                            selectInput(
-                              "nj_tiles_mapping_div_mid_5",
-                              label = h5("Midpoint", style = "color:white; font-size: 14px;"),
-                              choices = c("Zero", "Mean", "Median"),
-                              selected = "Mean"
+                            width = 1,
+                            h5("Midpoint", style = "color: white; margin-top: 20px;")
+                          ),
+                          column(
+                            width = 2,
+                            div(
+                              class = "divmid-sel",
+                              selectInput(
+                                "nj_tiles_mapping_div_mid_5",
+                                label = "",
+                                choices = c("Zero", "Mean", "Median"),
+                                selected = "Mean"
+                              )
                             )
                           )
                         )
@@ -3310,10 +3396,14 @@ ui <- dashboardPage(
                     fluidRow(
                       column(
                         width = 3,
-                        checkboxInput(
-                          "nj_heatmap_show",
-                          h5(p("Heatmap"), style = "color:white; position: relative; bottom: -8px; right: -17px"),
-                          value = FALSE
+                        div(
+                          class = "mat-switch-v",
+                          materialSwitch(
+                            "nj_heatmap_show",
+                            h5(p("Heatmap"), style = "color:white; position: relative; top: -4px; right: -5px;"),
+                            value = FALSE,
+                            right = TRUE
+                          )
                         )
                       ),
                       column(
@@ -3329,12 +3419,19 @@ ui <- dashboardPage(
                       conditionalPanel(
                         "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_heatmap_scale)",
                         column(
-                          width = 3,
-                          selectInput(
-                            "nj_heatmap_div_mid",
-                            label = h5("Midpoint", style = "color:white; font-size: 14px;"),
-                            choices = c("Zero", "Mean", "Median"),
-                            selected = "Mean"
+                          width = 1,
+                          h5("Midpoint", style = "color: white; margin-top: 20px;")
+                        ),
+                        column(
+                          width = 2,
+                          div(
+                            class = "divmid-sel",
+                            selectInput(
+                              "nj_heatmap_div_mid",
+                              label = "",
+                              choices = c("Zero", "Mean", "Median"),
+                              selected = "Mean"
+                            )
                           )
                         )
                       )
@@ -11017,7 +11114,7 @@ server <- function(input, output, session) {
   # Heatmap picker
   output$upgma_heatmap_sel <- renderUI({
     div(
-      class = "heatmap_picker",
+      class = "heatmap-picker",
       pickerInput(
         inputId = "upgma_heatmap_select",
         label = h5("Variables", style = "color:white; margin-bottom: 0px"),
@@ -11044,10 +11141,10 @@ server <- function(input, output, session) {
   
   output$nj_heatmap_sel <- renderUI({
     div(
-      class = "heatmap_picker",
+      class = "heatmap-picker",
       pickerInput(
         inputId = "nj_heatmap_select",
-        label = h5("Variables", style = "color:white; margin-bottom: 0px"),
+        label = "",
         width = "100%",
         choices = if(ncol(DB$meta) == 12) {
           c(

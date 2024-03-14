@@ -13,8 +13,13 @@
   margin-block: -2px;
 }
 
+.divmid-sel {
+  margin-top: -10px;
+}
+
 .tile-sel {
-  margin-left: 15px;
+  margin-left: -20px;
+  margin-top: -10px;
 }
 
 #nj_parentnode {
@@ -25,6 +30,11 @@
 .mat-switch {
   margin-left: 15px;
   margin-top: 20px;
+}
+
+.mat-switch-v {
+  margin-left: 25px;
+  margin-top: 15px;
 }
 
 .material-switch>label.switch:before {
@@ -167,7 +177,6 @@
 #nj_clade_scale .option[data-value="Accent"] {
     background: linear-gradient(to right, #7FC97F 0%, #7FC97F 12.5%, #BEAED4 12.5%, #BEAED4 25%, #FDC086 25%, #FDC086 37.5%, #FFFF99 37.5%, #FFFF99 50%, #386CB0 50%, #386CB0 62.5%, #F0027F 62.5%, #F0027F 75%, #BF5B17 75%, #BF5B17 87.5%, #666666 87.5%, #666666 100%);
     color: black;
-    margin-bottom: 2px;
 }
 
 #nj_tiplab_scale .option[data-value="YlOrRd"], 
@@ -522,7 +531,6 @@
 #nj_heatmap_scale .option[data-value="turbo"] {
     background: linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF, #3AA2FCFF, #23C3E4FF, #18DEC1FF, #2CF09EFF, #5BFB72FF, #8EFF49FF, #B5F836FF, #D6E635FF, #EFCD3AFF, #FCB036FF, #FD8A26FF, #F36215FF, #E14209FF, #C82803FF, #A51301FF, #7A0403FF);
     color: white;
-    margin-bottom: 2px;
 }
 
 #nj_tiplab_scale .option[data-value="Spectral"], 
@@ -1272,8 +1280,13 @@ input.form-control.pickr-color {
 
 #nj_color_mapping {
   margin-top: -7px;
-  margin-bottom: -10px;
+  margin-bottom: 0px;
+  margin-right: 30px;
 }
+
+#nj_heatmap_scale, #nj_tiles_scale_1, #nj_tiles_scale_2, #nj_tiles_scale_3, #nj_tiles_scale_4, #nj_tiles_scale_5 {
+  margin-top: -10px;
+} 
 
 #nj_branch_label_color {
   margin-top: -7px;
@@ -1495,20 +1508,18 @@ button#nj_tile_menu_5 {
   margin-top: 13px;
 }
 
-#nj_tipcolor_mapping_show {
-  margin-top: 10px;
+#nj_tipcolor_mapping, #nj_tipshape_mapping_show {
+  margin-top: -10px;
+  margin-right: 30px;
 }
 
-#nj_tipshape_mapping_show {
-  margin-top: 10px;
+#nj_tipshape_mapping, #nj_fruit_variable, #nj_fruit_variable2, #nj_fruit_variable3, #nj_fruit_variable4, #nj_fruit_variable5 {
+  margin-top: -10px;
+  margin-right: 30px;
 }
 
-#nj_tipshape_mapping {
-  margin-top: -6px;
-}
-
-#nj_tiplab_scale {
-  margin-top: -7px;
+#nj_tiplab_scale, #nj_tippoint_scale {
+  margin-top: 0px;
   margin-bottom: -10px;
 }
 
@@ -1516,7 +1527,7 @@ button#nj_tile_menu_5 {
   margin-top: -7px;
 }
 
-##nj_tipcolor_mapping > div > div > div {
+#nj_tipcolor_mapping {
   margin-top: -10px;
 }
 
@@ -1700,9 +1711,10 @@ button#nj_tile_menu_5 {
   margin-left: -5px;
 }
 
-.heatmap_picker {
-  margin-top: 20px; 
-  margin-left: 15px
+.heatmap-picker {
+  margin-top: 0px; 
+  margin-left: 3px;
+  margin-right: 30px;
 }
 
 #nj_nodepoint_show {
@@ -2092,9 +2104,9 @@ button#upgma_tile_menu_5 {
   margin-left: -5px;
 }
 
-.heatmap_picker {
-  margin-top: 20px; 
-  margin-left: 15px
+.heatmap-picker {
+  margin-top: -10px; 
+  margin-left: 3px
 }
 
 #upgma_heatmap_title {
