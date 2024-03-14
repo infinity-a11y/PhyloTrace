@@ -1544,28 +1544,22 @@ ui <- dashboardPage(
                         )
                       )
                     ),
-                    br(),
                     fluidRow(
                       column(
-                        width = 5,
+                        width = 8,
                         align = "left",
-                        checkboxInput(
-                          "nj_ladder",
-                          h5(p("Ladder"), style = "color:white; position: relative; bottom: 14px; right: -10px; margin-top: 22px; margin-bottom: 12px"),
-                          value = TRUE
+                        div(
+                          class = "mat-switch-layout",
+                          materialSwitch(
+                            "nj_rootedge_show",
+                            h5(p("Rootedge"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                            value = FALSE,
+                            right = TRUE
+                          )
                         )
                       ),
                       column(
-                        width = 3,
-                        align = "left",
-                        checkboxInput(
-                          "nj_rootedge_show",
-                          h5(p("Root"), style = "color:white; position: relative; bottom: 15px; right: -5px; margin-top: 23px"),
-                          value = FALSE
-                        )
-                      ),
-                      column(
-                        width = 2,
+                        width = 4,
                         align = "right",
                         dropMenu(
                           actionBttn(
@@ -1592,6 +1586,21 @@ ui <- dashboardPage(
                                 width = "100px"
                               )
                             )
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 8,
+                        align = "left",
+                        div(
+                          class = "mat-switch-re",
+                          materialSwitch(
+                            "nj_ladder",
+                            h5(p("Ladderize"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                            value = TRUE,
+                            right = TRUE
                           )
                         )
                       )
@@ -1669,7 +1678,7 @@ ui <- dashboardPage(
                     fluidRow(
                       column(
                         width = 5,
-                        h5(p("Background"), style = "color:white; position: relative; right: -15px; margin-top: 30px; margin-bottom: -8px")
+                        h5(p("Background"), style = "color:white; position: relative; right: -15px; margin-top: 30px; margin-bottom: 38px")
                       ),
                       column(
                         width = 7,
@@ -1845,17 +1854,21 @@ ui <- dashboardPage(
                       width = 12,
                       fluidRow(
                         column(
-                          width = 7,
+                          width = 8,
                           align = "left",
-                          checkboxInput(
-                            "nj_treescale_show",
-                            h5(p("Show "), style = "color:white; position: relative; bottom: -7px; right: 0px"),
-                            value = TRUE
+                          div(
+                            class = "mat-switch-layout",
+                            materialSwitch(
+                              "nj_treescale_show",
+                              h5(p("Show"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                              value = TRUE,
+                              right = TRUE
+                            )
                           ),
                           br()
                         ),
                         column(
-                          width = 5,
+                          width = 4,
                           align = "right",
                           dropMenu(
                             actionBttn(
@@ -1887,7 +1900,7 @@ ui <- dashboardPage(
                   column(
                     width = 12,
                     align = "left",
-                    h4(p("Legend"), style = "color:white; position: relative; right: -15px; margin-top: -3px; margin-bottom: -5px"),
+                    h4(p("Legend"), style = "color:white; position: relative; right: -15px; margin-top: 10px; margin-bottom: -2px"),
                     column(
                       width = 12,
                       align = "center",
@@ -1980,10 +1993,14 @@ ui <- dashboardPage(
                           column(
                             width = 4,
                             align = "left",
-                            checkboxInput(
-                              "nj_tiplab_show",
-                              h5(p("Show"), style = "color:white; position: relative; right: -17px; bottom: -7px"),
-                              value = TRUE
+                            div(
+                              class = "mat-switch-lab",
+                              materialSwitch(
+                                "nj_tiplab_show",
+                                h5(p("Show"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
+                                value = TRUE,
+                                right = TRUE
+                              )
                             )
                           ),
                           column(
@@ -1993,6 +2010,18 @@ ui <- dashboardPage(
                           ),
                           column(
                             width = 3,
+                            div(
+                              class = "mat-switch-align",
+                              materialSwitch(
+                                "nj_align",
+                                h5(p("Align"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                value = FALSE,
+                                right = TRUE
+                              )
+                            )
+                          ),
+                          column(
+                            width = 1,
                             align = "right",
                             dropMenu(
                               actionBttn(
@@ -2079,12 +2108,6 @@ ui <- dashboardPage(
                                     label = h5("Fontface", style = "color:white; margin-bottom: 5px; margin-top: 16px"),
                                     width = "250px",
                                     choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
-                                  ),
-                                  br(),
-                                  checkboxInput(
-                                    "nj_align",
-                                    h5(p("Align labels"), style = "color:white;"),
-                                    value = FALSE
                                   )
                                 )
                               )
@@ -2119,10 +2142,14 @@ ui <- dashboardPage(
                         width = 4,
                         align = "left",
                         br(),
-                        checkboxInput(
-                          "nj_geom",
-                          h5(p("Panel"), style = "color:white; position: relative; bottom: 10px; right: -17px"),
-                          value = FALSE
+                        div(
+                          class = "mat-switch-geom",
+                          materialSwitch(
+                            "nj_geom",
+                            h5(p("Show"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
+                            value = FALSE,
+                            right = TRUE
+                          )
                         )
                       ),
                       column(
@@ -2140,7 +2167,7 @@ ui <- dashboardPage(
                       ),
                       column(
                         width = 3,
-                        align = "right",
+                        align = "left",
                         dropMenu(
                           actionBttn(
                             "nj_labelformat_menu",
@@ -2192,10 +2219,14 @@ ui <- dashboardPage(
                           column(
                             width = 4,
                             align = "left",
-                            checkboxInput(
-                              "nj_show_branch_label",
-                              h5(p("Show"), style = "color:white; position: relative; bottom: -7px; right: -17px"),
-                              value = FALSE
+                            div(
+                              class = "mat-switch-lab",
+                              materialSwitch(
+                                "nj_show_branch_label",
+                                h5(p("Show"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
+                                value = FALSE,
+                                right = TRUE
+                              )
                             )
                           ),
                           column(
@@ -2282,7 +2313,7 @@ ui <- dashboardPage(
                       column(
                         width = 4,
                         align = "left",
-                        h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 23px; margin-bottom: 87px")
+                        h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 23px; margin-bottom: 82px")
                       ),
                       column(
                         width = 4,
@@ -2317,16 +2348,20 @@ ui <- dashboardPage(
                     h4(p("Tip Points"), style = "color:white; position: relative; right: -15px"),
                     fluidRow(
                       column(
-                        width = 5,
+                        width = 8,
                         align = "left",
-                        checkboxInput(
-                          "nj_tippoint_show",
-                          h5(p("Show"), style = "color:white; position: relative; bottom: -8px; right: -17px"),
-                          value = FALSE
+                        div(
+                          class = "mat-switch",
+                          materialSwitch(
+                            "nj_tippoint_show",
+                            h5(p("Show"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
+                            value = FALSE,
+                            right = TRUE
+                          )
                         )
                       ),
                       column(
-                        width = 7,
+                        width = 4,
                         align = "right",
                         dropMenu(
                           actionBttn(
@@ -2363,7 +2398,7 @@ ui <- dashboardPage(
                       column(
                         width = 5,
                         align = "left",
-                        h5(p("Color"), style = "color:white; position: relative; right: -15px; margin-top: 40px")
+                        h5(p("Color"), style = "color:white; position: relative; right: -15px; margin-top: 36px")
                       ),
                       column(
                         width = 7,
@@ -2384,7 +2419,7 @@ ui <- dashboardPage(
                       column(
                         width = 5,
                         align = "left",
-                        h5(p("Shape"), style = "color:white; position: relative; right: -15px; margin-top: 30px; margin-bottom: 50px")
+                        h5(p("Shape"), style = "color:white; position: relative; right: -15px; margin-top: 30px; margin-bottom: 48px")
                       ),
                       column(
                         width = 7,
@@ -2427,16 +2462,20 @@ ui <- dashboardPage(
                     h4(p("Node Points"), style = "color:white; position: relative; right: -15px"),
                     fluidRow(
                       column(
-                        width = 5,
+                        width = 8,
                         align = "left",
-                        checkboxInput(
-                          "nj_nodepoint_show",
-                          h5(p("Show"), style = "color:white; position: relative; bottom: -8px; right: -17px"),
-                          value = FALSE
+                        div(
+                          class = "mat-switch",
+                          materialSwitch(
+                            "nj_nodepoint_show",
+                            h5(p("Show"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
+                            value = FALSE,
+                            right = TRUE
+                          )
                         )
                       ),
                       column(
-                        width = 7,
+                        width = 4,
                         align = "right",
                         dropMenu(
                           actionBttn(
@@ -2472,7 +2511,7 @@ ui <- dashboardPage(
                     fluidRow(
                       column(
                         width = 5,
-                        h5(p("Color"), style = "color:white; position: relative; right: -15px; margin-top: 40px")
+                        h5(p("Color"), style = "color:white; position: relative; right: -15px; margin-top: 36px")
                       ),
                       column(
                         width = 7,
@@ -2492,7 +2531,7 @@ ui <- dashboardPage(
                     fluidRow(
                       column(
                         width = 5,
-                        h5(p("Shape"), style = "color:white; position: relative; right: -15px; margin-top: 30px; margin-bottom: 50px")
+                        h5(p("Shape"), style = "color:white; position: relative; right: -15px; margin-top: 30px; margin-bottom: 48px")
                       ),
                       column(
                         width = 7,
@@ -2533,11 +2572,14 @@ ui <- dashboardPage(
                     fluidRow(
                       column(
                         width = 5,
-                        selectInput(
-                          "nj_tile_number",
-                          "",
-                          choices = 1:5,
-                          width = "70px"
+                        div(
+                          class = "sel-tile-number",
+                          selectInput(
+                            "nj_tile_number",
+                            "",
+                            choices = 1:5,
+                            width = "70px"
+                          )
                         )
                       ),
                       column(
@@ -2645,7 +2687,7 @@ ui <- dashboardPage(
                       fluidRow(
                         column(
                           width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 51px")
+                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 54px")
                         ),
                         column(
                           width = 7,
@@ -2681,7 +2723,7 @@ ui <- dashboardPage(
                       fluidRow(
                         column(
                           width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 62px")
+                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 49px")
                         ),
                         column(
                           width = 7,
@@ -2717,7 +2759,7 @@ ui <- dashboardPage(
                       fluidRow(
                         column(
                           width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 62px")
+                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 49px")
                         ),
                         column(
                           width = 7,
@@ -2753,7 +2795,7 @@ ui <- dashboardPage(
                       fluidRow(
                         column(
                           width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 62px")
+                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 49px")
                         ),
                         column(
                           width = 7,
@@ -2789,7 +2831,7 @@ ui <- dashboardPage(
                       fluidRow(
                         column(
                           width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 62px")
+                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 49px")
                         ),
                         column(
                           width = 7,
@@ -2859,15 +2901,7 @@ ui <- dashboardPage(
                             column(
                               width = 12,
                               align = "center",
-                              sliderInput(
-                                "nj_colnames_angle",
-                                label = h5("Names Angle", style = "color:white; margin-bottom: 0px"),
-                                min = -90,
-                                max = 90,
-                                value = 0,
-                                width = "150px",
-                                ticks = FALSE
-                              ),
+                              uiOutput("nj_colnames_angle"),
                               br(),
                               sliderInput(
                                 "nj_colnames_x",
@@ -2896,17 +2930,7 @@ ui <- dashboardPage(
                     fluidRow(
                       column(
                         width = 5,
-                        h5("Width", style = "color:white; margin-left: 15px; margin-top: 32px;")
-                      ),
-                      column(
-                        width = 7,
-                        uiOutput("nj_heatmap_offset")
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px;")
+                        h5("Width", style = "color: white; margin-left: 15px; margin-top: 40px;")
                       ),
                       column(
                         width = 7,
@@ -2920,7 +2944,18 @@ ui <- dashboardPage(
                           ticks = FALSE
                         )
                       )
-                    ), br(), br()
+                    ),
+                    fluidRow(
+                      column(
+                        width = 5,
+                        h5("Position", style = "color:white; margin-left: 15px; margin-top: 36px;")
+                      ),
+                      column(
+                        width = 7,
+                        uiOutput("nj_heatmap_offset")
+                      )
+                    ),
+                    br(), br()
                   )
                 )
               ),
@@ -2938,7 +2973,7 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         div(
-                          class = "mat-switch-v",
+                          class = "mat-switch",
                           materialSwitch(
                             "nj_nodelabel_show",
                             h5(p("Toggle Node View"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
@@ -3065,12 +3100,12 @@ ui <- dashboardPage(
                         "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_tiplab_scale)",
                         column(
                           width = 1,
-                          h5("Midpoint", style = "color: white; margin-top: 20px;")
+                          h5("Midpoint", style = "color: white; margin-top: 22px;")
                         ),
                         column(
                           width = 2,
                           div(
-                            class = "divmid-sel",
+                            class = "divmid-sel1",
                             selectInput(
                               "nj_color_mapping_div_mid",
                               label = "",
@@ -8917,9 +8952,6 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
-    test <<- input$nj_tiplab
-    est <<- input$nj_tiplab_show
-    
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -10063,13 +10095,63 @@ server <- function(input, output, session) {
   
   #### NJ and UPGMA controls ----
   
+  # Heatmap column titles angle
+  output$nj_colnames_angle <- renderUI({
+    if(!is.null(input$nj_layout)) {
+      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+        angle <- 90
+      } else {angle <- 0}
+      sliderInput(
+        "nj_colnames_angle",
+        label = h5("Names Angle", style = "color:white; margin-bottom: 0px"),
+        min = -90,
+        max = 90,
+        value = angle,
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        "nj_colnames_angle",
+        label = h5("Names Angle", style = "color:white; margin-bottom: 0px"),
+        min = -90,
+        max = 90,
+        value = 0,
+        width = "150px",
+        ticks = FALSE
+      )
+    }
+  })
+  
+  observeEvent(input$nj_layout, {
+    if(input$nj_layout == "circular" | input$nj_layout == "inward"){
+      angle <- 90
+    } else {angle <- 0}
+    updateSliderInput(session, "nj_colnames_angle", value = angle)
+  })
+  
   # Tile number selector update each other
   observeEvent(input$nj_tile_num, {
-    updateSelectInput(session, "nj_tile_number", selected = input$nj_tile_num)
+    updateSelectInput(session, "nj_colnames_angle", selected = input$nj_tile_num)
   })
   
   observeEvent(input$nj_tile_number, {
     updateSelectInput(session, "nj_tile_num", selected = input$nj_tile_number)
+  })
+  
+  observeEvent(input$nj_tipcolor_mapping_show, {
+    updateCheckboxInput(session, "nj_tippoint_show", value = input$nj_tipcolor_mapping_show)
+  })
+  
+  observeEvent(input$nj_tipshape_mapping_show, {
+    updateCheckboxInput(session, "nj_tippoint_show", value = input$nj_tipshape_mapping_show)
+  })
+  
+  observeEvent(input$nj_tippoint_show, {
+    if(input$nj_tippoint_show == FALSE) {
+      updateCheckboxInput(session, "nj_tipcolor_mapping_show", value = FALSE)
+      updateCheckboxInput(session, "nj_tipshape_mapping_show", value = FALSE)
+    }
   })
   
   # Clade coloring
@@ -10104,39 +10186,42 @@ server <- function(input, output, session) {
         column(
           width = 7,
           align = "center",
-          selectInput(
-            "nj_clade_scale",
-            "",
-            choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
-              ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
+          div(
+            class = "sel-clade-scale",
+            selectInput(
+              "nj_clade_scale",
+              "",
+              choices = list(
+                Qualitative = list(
+                  "Set1",
+                  "Set2",
+                  "Set3",
+                  "Pastel1",
+                  "Pastel2",
+                  "Paired",
+                  "Dark2",
+                  "Accent"
+                ),
+                Sequential = list(
+                  "YlOrRd",
+                  "YlOrBr",
+                  "YlGnBu",
+                  "YlGn",
+                  "Reds",
+                  "RdPu",
+                  "Purples",
+                  "PuRd",
+                  "PuBuGn",
+                  "PuBu",
+                  "OrRd",
+                  "Oranges",
+                  "Greys",
+                  "Greens",
+                  "GnBu",
+                  "BuPu",
+                  "BuGn",
+                  "Blues"
+                )
               )
             )
           )
@@ -10907,34 +10992,58 @@ server <- function(input, output, session) {
   )
   
   output$nj_tiplab_size <- renderUI(
-    numericInput(
-      "nj_tiplab_size",
-      label = h5("Label size", style = "color:white; margin-bottom: 0px"),
-      min = 1,
-      max = 10,
-      step = 0.5,
-      value = Vis$labelsize_nj,
-      width = "80px"
-    )
+    if(!is.null(Vis$labelsize_nj)) {
+      numericInput(
+        "nj_tiplab_size",
+        label = h5("Label size", style = "color:white; margin-bottom: 0px"),
+        min = 1,
+        max = 10,
+        step = 0.5,
+        value = Vis$labelsize_nj,
+        width = "80px"
+      )
+    } else {
+      numericInput(
+        "nj_tiplab_size",
+        label = h5("Label size", style = "color:white; margin-bottom: 0px"),
+        min = 1,
+        max = 10,
+        step = 0.5,
+        value = 4,
+        width = "80px"
+      )
+    }
   )
   
   # Rootedge length 
   output$nj_rootedge_length <- renderUI({
-    if(round(ceiling(Vis$nj_max_x) * 0.02, 0) < 1) {
-      min <- 1
+    if(!is.null(Vis$nj_max_x)) {
+      if(round(ceiling(Vis$nj_max_x) * 0.02, 0) < 1) {
+        min <- 1
+      } else {
+        min <- round(ceiling(Vis$nj_max_x) * 0.02, 0)  
+      }
+      max <- round(ceiling(Vis$nj_max_x) * 0.2, 0)
+      sliderInput(
+        "nj_rootedge_length",
+        label = h5("Length", style = "color:white; margin-bottom: 0px"),
+        min = min,
+        max = max,
+        value = round(ceiling(Vis$nj_max_x) * 0.05, 0),
+        width = "150px",
+        ticks = FALSE
+      )
     } else {
-      min <- round(ceiling(Vis$nj_max_x) * 0.02, 0)  
+      sliderInput(
+        "nj_rootedge_length",
+        label = h5("Length", style = "color:white; margin-bottom: 0px"),
+        min = 1,
+        max = 10,
+        value = 2,
+        width = "150px",
+        ticks = FALSE
+      )
     }
-    max <- round(ceiling(Vis$nj_max_x) * 0.2, 0)
-    sliderInput(
-      "nj_rootedge_length",
-      label = h5("Length", style = "color:white; margin-bottom: 0px"),
-      min = min,
-      max = max,
-      value = round(ceiling(Vis$nj_max_x) * 0.05, 0),
-      width = "150px",
-      ticks = FALSE
-    )
   })
   
   output$upgma_rootedge_length <- renderUI({
@@ -11010,12 +11119,12 @@ server <- function(input, output, session) {
   })
   
   output$nj_treescale_y <- renderUI({
-    if(!is.null(Vis$nj_min_x)) {
+    if(!is.null(sum(DB$data$Include))) {
       sliderInput(
         "nj_treescale_y",
         label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
         min = 0,
-        max = max(Vis$yrange_nj),
+        max = sum(DB$data$Include),
         value = 0,
         width = "150px",
         ticks = FALSE
@@ -12141,7 +12250,7 @@ server <- function(input, output, session) {
                          offset = nj_heatmap_offset(),
                          width = input$nj_heatmap_width,
                          legend_title = input$nj_heatmap_title,
-                         colnames_angle = -(input$nj_colnames_angle),
+                         colnames_angle = -nj_colnames_angle(),
                          colnames_offset_x = input$nj_colnames_x,
                          colnames_offset_y = input$nj_colnames_y) +
           heatmap_scale()
@@ -12156,6 +12265,19 @@ server <- function(input, output, session) {
       # Correct background color if zoomed out
       cowplot::ggdraw(Vis$nj_plot) + 
         theme(plot.background = element_rect(fill = input$nj_bg, color = input$nj_bg))
+    }
+  })
+  
+  # Heatmap column titles angle
+  nj_colnames_angle <- reactive({
+    if(!is.null(input$nj_colnames_angle)) {
+      input$nj_colnames_angle
+    } else {
+      if(!is.null(input$nj_layout)) {
+        if(input$nj_layout == "inward" | input$nj_layout == "circular") {
+          90
+        } else {0}
+      } else {0}
     }
   })
   
@@ -12955,7 +13077,7 @@ server <- function(input, output, session) {
   
   # Tippoints
   tippoint <- reactive({
-    if(input$nj_tippoint_show == TRUE | input$nj_tipcolor_mapping_show == TRUE) {
+    if(input$nj_tippoint_show == TRUE | input$nj_tipcolor_mapping_show == TRUE | input$nj_tipshape_mapping_show == TRUE) {
       if(input$nj_tipcolor_mapping_show == TRUE & input$nj_tipshape_mapping_show == FALSE) {
         geom_tippoint(
           aes(color = !!sym(input$nj_tipcolor_mapping)),

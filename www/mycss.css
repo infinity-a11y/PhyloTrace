@@ -13,8 +13,20 @@
   margin-block: -2px;
 }
 
+.sel-clade-scale {
+  margin-bottom: -14px;
+}
+
+#nj_clade_scale {
+  margin-bottom 1px;
+}
+
 .divmid-sel {
   margin-top: -10px;
+}
+
+.divmid-sel1 {
+  margin-top: -8px;
 }
 
 .tile-sel {
@@ -29,12 +41,38 @@
 
 .mat-switch {
   margin-left: 15px;
-  margin-top: 20px;
+  margin-top: 25px;
 }
 
 .mat-switch-v {
   margin-left: 25px;
   margin-top: 15px;
+}
+
+.mat-switch-geom {
+  margin-top: 5px;
+  margin-left: 15px;
+}
+
+.mat-switch-lab {
+  margin-top: 25px;
+  margin-left: 15px;
+}
+
+.mat-switch-layout {
+  margin-left: 10px;
+  margin-top: 20px;
+}
+
+.mat-switch-re {
+  margin-left: 10px;
+  margin-top: 10px;
+  margin-block: -2px;
+}
+
+.mat-switch-align {
+  margin-top: 25px;
+  margin-left: -10px;
 }
 
 .material-switch>label.switch:before {
@@ -1213,7 +1251,7 @@ input.form-control.pickr-color {
 }
 
 #nj_subtitle_color, #nj_title_color {
-  margin-bottom: 11px;
+  margin-bottom: 32px;
 }
 
 #nj_bg {
@@ -1298,7 +1336,7 @@ button#nj_labeltext_menu {
   color: #000000; 
   border-radius: 5px; 
   margin-top: 20px; 
-  margin-left: 10px
+  margin-left: -50px
 }
 
 button#nj_labelformat_menu {
@@ -1358,21 +1396,22 @@ button#nj_treescale_menu {
   border-radius: 5px
 }
 
-button#nj_rootedge_menu {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-left: 10px; 
-  margin-top: 8px; 
-  border-radius: 5px
-}
-
 button#nj_tippoint_menu {
   height: 34px; 
   background: #20E6E5; 
   color: #000000; 
   margin-top: 21px; 
   border-radius: 5px
+}
+
+button#nj_rootedge_menu {
+  height: 34px; 
+  background: #20E6E5; 
+  color: #000000; 
+  margin-top: 16px; 
+  border-radius: 5px;
+  margin-right: 10px;
+  margin-bottom: 23px;
 }
 
 button#nj_nodepoint_menu {
@@ -1396,7 +1435,7 @@ button#nj_clade_menu {
   height: 34px; 
   background: #20E6E5; 
   color: #000000; 
-  margin-top: 21px; 
+  margin-top: 19px; 
   border-radius: 5px
 }
 
@@ -1445,14 +1484,9 @@ button#nj_tile_menu_5 {
   border-radius: 5px
 }
 
-#nj_tippoint_color {
+#nj_nodepoint_color, #nj_tippoint_color {
   margin-bottom: 10px;
-  margin-top: 10px;
-}
-
-#nj_nodepoint_color {
-  margin-bottom: 10px;
-  margin-top: 10px;
+  margin-top: 6px;
 }
 
 #nj_treescale_show {
@@ -1542,7 +1576,7 @@ button#nj_tile_menu_5 {
 }
 
 #nj_tiplab_color {
-  margin-bottom: 0px;
+  margin-bottom: 7px;
   margin-top: -7px;
 }
 
@@ -1647,11 +1681,20 @@ button#nj_tile_menu_5 {
   top: -17px; 
 }
 
-#nj_heatmap_offset {
-  margin-bottom: 10px;
+.sel-tile-number {
+  margin-left: 14px;
 }
 
-#nj_fruit_width, #nj_fruit_width_2, #nj_fruit_width_3, #nj_fruit_width_4, #nj_fruit_width_5 {
+#nj_heatmap_width {
+  margin-top: 8px;
+}
+
+#nj_heatmap_offset {
+  margin-top: 4px;
+  margin-bottom: 3px;
+}
+
+#nj_fruit_width, #nj_fruit_width2, #nj_fruit_width3, #nj_fruit_width4, #nj_fruit_width5 {
   margin-top: -5px;
   margin-bottom: -15px;
 }
