@@ -2903,25 +2903,7 @@ ui <- dashboardPage(
                               align = "center",
                               uiOutput("nj_colnames_angle"),
                               br(),
-                              sliderInput(
-                                "nj_colnames_x",
-                                label = h5("Names X-Position", style = "color:white; margin-bottom: 0px"),
-                                min = -10,
-                                max = 10,
-                                value = 0,
-                                width = "150px",
-                                ticks = FALSE
-                              ),
-                              br(),
-                              sliderInput(
-                                "nj_colnames_y",
-                                label = h5("Names Y-Position", style = "color:white; margin-bottom: 0px"),
-                                min = -10,
-                                max = 10,
-                                value = 0,
-                                width = "150px",
-                                ticks = FALSE
-                              )
+                              uiOutput("nj_colnames_y")
                             )
                           )
                         )
@@ -2934,15 +2916,7 @@ ui <- dashboardPage(
                       ),
                       column(
                         width = 7,
-                        sliderInput(
-                          "nj_heatmap_width",
-                          label = "",
-                          min = 0.1,
-                          max = 5,
-                          value = 0.5,
-                          width = "150px",
-                          ticks = FALSE
-                        )
+                        uiOutput("nj_heatmap_width")
                       )
                     ),
                     fluidRow(
@@ -10095,12 +10069,157 @@ server <- function(input, output, session) {
   
   #### NJ and UPGMA controls ----
   
+  # Heatmap width
+  
+  output$nj_heatmap_width <- renderUI({
+    if(!is.null(input$nj_heatmap_select)) {
+      length_input <- length(input$nj_heatmap_select)
+      if((!(input$nj_layout == "circular")) & (!(input$nj_layout == "inward"))) {
+        if(length_input < 3) {
+          width <- 0.1
+        } else {
+          if (length_input >= 3 && length_input <= 50) {
+            width <- min(0.15 + 0.05 * floor((length_input - 3) / 2), 1.5)
+          } else {
+            width <- 1.5
+          }   
+        }
+      } else {
+        if(length_input < 3) {
+          width <- 0.3
+        } else if (length_input >= 3 && length_input <= 27) {
+          width <- min(0.6 + 0.2 * floor((length_input - 3) / 2), 1.5)
+        } else {
+          width <- 3
+        }
+      }
+        
+      sliderInput(
+        "nj_heatmap_width",
+        label = "",
+        min = 0.05,
+        max = 1.5,
+        value = width,
+        step = 0.05,
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        "nj_heatmap_width",
+        label = "",
+        min = 0.05,
+        max = 1.5,
+        value = 0.1,
+        step = 0.05,
+        width = "150px",
+        ticks = FALSE
+      )
+    }
+  })
+  
+  # Update value if new variables added
+  observeEvent(input$nj_heatmap_select, {
+    length_input <- length(input$nj_heatmap_select)
+    if((!(input$nj_layout == "circular")) & (!(input$nj_layout == "inward"))) {
+      if(length_input < 3) {
+        width <- 0.1
+      } else {
+        if (length_input >= 3 && length_input <= 50) {
+          width <- min(0.15 + 0.05 * floor((length_input - 3) / 2), 1.5)
+        } else {
+          width <- 1.5
+        }   
+      }
+    } else {
+      if(length_input < 3) {
+        width <- 0.3
+      } else if (length_input >= 3 && length_input <= 27) {
+        width <- min(0.6 + 0.2 * floor((length_input - 3) / 2), 1.5)
+      } else {
+        width <- 3
+      }
+    }
+    updateSliderInput(session, "nj_heatmap_width", value = width)
+  })
+  
+  # Update value if layout changed
+  observeEvent(input$nj_layout, {
+    length_input <- length(input$nj_heatmap_select)
+    if((!(input$nj_layout == "circular")) & (!(input$nj_layout == "inward"))) {
+      if(length_input < 3) {
+        width <- 0.1
+      } else {
+        if (length_input >= 3 && length_input <= 50) {
+          width <- min(0.15 + 0.05 * floor((length_input - 3) / 2), 1.5)
+        } else {
+          width <- 1.5
+        }   
+      }
+    } else {
+      if(length_input < 3) {
+        width <- 0.3
+      } else if (length_input >= 3 && length_input <= 27) {
+        width <- min(0.6 + 0.2 * floor((length_input - 3) / 2), 1.5)
+      } else {
+        width <- 3
+      }
+    }
+    updateSliderInput(session, "nj_heatmap_width", value = width)
+  })
+  
+  # Heatmap column titles position
+  observeEvent(input$nj_layout, {
+    if(!(input$nj_layout == "inward" | input$nj_layout == "circular")) {
+      updateSliderInput(session, "nj_colnames_y", value = -1)
+    } else {
+      updateSliderInput(session, "nj_colnames_y", value = 0)
+    }
+  })
+  
+  output$nj_colnames_y <- renderUI({
+    if(!is.null(sum(DB$data$Include))) {
+      if(input$nj_layout == "inward" | input$nj_layout == "circular") {
+        min <- 0
+        val <- 0
+      } else {
+        val <- -1
+        if((sum(DB$data$Include) * -0.1) > -2) {
+          min <- -2
+        } else {
+          min <- round(sum(DB$data$Include) * -0.1, 0)
+        }
+      }
+      sliderInput(
+        "nj_colnames_y",
+        label = h5("Names Y-Position", style = "color:white; margin-bottom: 0px"),
+        min = min,
+        max = sum(DB$data$Include),
+        value = val,
+        step = 1,
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        "nj_colnames_y",
+        label = h5("Names Y-Position", style = "color:white; margin-bottom: 0px"),
+        min = -10,
+        max = 10,
+        value = 0,
+        step = 1,
+        width = "150px",
+        ticks = FALSE
+      )
+    }
+  })
+  
   # Heatmap column titles angle
   output$nj_colnames_angle <- renderUI({
     if(!is.null(input$nj_layout)) {
       if(input$nj_layout == "circular" | input$nj_layout == "inward") {
         angle <- 90
-      } else {angle <- 0}
+      } else {angle <- -90}
       sliderInput(
         "nj_colnames_angle",
         label = h5("Names Angle", style = "color:white; margin-bottom: 0px"),
@@ -10123,16 +10242,22 @@ server <- function(input, output, session) {
     }
   })
   
+  # Change heatmap column titles angle and label align when switching layout
   observeEvent(input$nj_layout, {
     if(input$nj_layout == "circular" | input$nj_layout == "inward"){
       angle <- 90
-    } else {angle <- 0}
+      val <- TRUE
+    } else {
+      angle <- -90
+      val <- FALSE
+    }
+    updateSwitchInput(session, "nj_align", value = val)
     updateSliderInput(session, "nj_colnames_angle", value = angle)
   })
   
   # Tile number selector update each other
   observeEvent(input$nj_tile_num, {
-    updateSelectInput(session, "nj_colnames_angle", selected = input$nj_tile_num)
+    updateSelectInput(session, "nj_tile_number", selected = input$nj_tile_num)
   })
   
   observeEvent(input$nj_tile_number, {
@@ -12248,11 +12373,10 @@ server <- function(input, output, session) {
         tree <- gheatmap(tree, 
                          data = select(Vis$meta_nj, input$nj_heatmap_select),
                          offset = nj_heatmap_offset(),
-                         width = input$nj_heatmap_width,
+                         width = nj_heatmap_width(),
                          legend_title = input$nj_heatmap_title,
                          colnames_angle = -nj_colnames_angle(),
-                         colnames_offset_x = input$nj_colnames_x,
-                         colnames_offset_y = input$nj_colnames_y) +
+                         colnames_offset_y = nj_colnames_y()) +
           heatmap_scale()
       } 
       
@@ -12268,6 +12392,45 @@ server <- function(input, output, session) {
     }
   })
   
+  # Heatmap width
+  nj_heatmap_width <- reactive({
+    if(!is.null(input$nj_heatmap_width)) {
+      input$nj_heatmap_width
+    } else {
+      length_input <- length(input$nj_heatmap_select)
+      if((!(input$nj_layout == "circular")) & (!(input$nj_layout == "inward"))) {
+        if(length_input < 3) {
+          0.1
+        } else {
+          if (length_input >= 3 && length_input <= 50) {
+            min(0.15 + 0.05 * floor((length_input - 3) / 2), 1.5)
+          } else {
+            1.5
+          }   
+        }
+      } else {
+        if(length_input < 3) {
+          0.3
+        } else if (length_input >= 3 && length_input <= 27) {
+          min(0.6 + 0.2 * floor((length_input - 3) / 2), 1.5)
+        } else {
+          3
+        }
+      }
+    }
+  })
+  
+  # Heatmap column titles position
+  nj_colnames_y <- reactive({
+    if(!is.null(input$nj_colnames_y)) {
+      input$nj_colnames_y
+    } else {
+      if(input$nj_layout == "inward" | input$nj_layout == "circular") {
+        0
+      } else {-1}
+    }
+  })
+  
   # Heatmap column titles angle
   nj_colnames_angle <- reactive({
     if(!is.null(input$nj_colnames_angle)) {
@@ -12276,8 +12439,8 @@ server <- function(input, output, session) {
       if(!is.null(input$nj_layout)) {
         if(input$nj_layout == "inward" | input$nj_layout == "circular") {
           90
-        } else {0}
-      } else {0}
+        } else {-90}
+      } else {-90}
     }
   })
   
@@ -12293,50 +12456,68 @@ server <- function(input, output, session) {
           midpoint <- median(DB$meta_true[[input$nj_heatmap_select]], na.rm = TRUE)
         }
         scale_fill_gradient2(low = brewer.pal(3, input$nj_heatmap_scale)[1],
-                              mid = brewer.pal(3, input$nj_heatmap_scale)[2],
-                              high = brewer.pal(3, input$nj_heatmap_scale)[3],
-                              midpoint = midpoint)
+                             mid = brewer.pal(3, input$nj_heatmap_scale)[2],
+                             high = brewer.pal(3, input$nj_heatmap_scale)[3],
+                             midpoint = midpoint,
+                             name = input$nj_heatmap_title)
       } else {
         if(input$nj_heatmap_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
           if(class(unlist(DB$meta[input$nj_heatmap_select])) == "numeric") {
             if(input$nj_heatmap_scale == "magma") {
-              scale_fill_viridis(option = "A")
+              scale_fill_viridis(option = "A",
+                                 name = input$nj_heatmap_title)
             } else if(input$nj_heatmap_scale == "inferno") {
-              scale_fill_viridis(option = "B")
+              scale_fill_viridis(option = "B",
+                                 name = input$nj_heatmap_title)
             } else if(input$nj_heatmap_scale == "plasma") {
-              scale_fill_viridis(option = "C")
+              scale_fill_viridis(option = "C",
+                                 name = input$nj_heatmap_title)
             } else if(input$nj_heatmap_scale == "viridis") {
-              scale_fill_viridis(option = "D")
+              scale_fill_viridis(option = "D",
+                                 name = input$nj_heatmap_title)
             } else if(input$nj_heatmap_scale == "cividis") {
-              scale_fill_viridis(option = "E")
+              scale_fill_viridis(option = "E",
+                                 name = input$nj_heatmap_title)
             } else if(input$nj_heatmap_scale == "rocket") {
-              scale_fill_viridis(option = "F")
+              scale_fill_viridis(option = "F",
+                                 name = input$nj_heatmap_title)
             } else if(input$nj_heatmap_scale == "mako") {
-              scale_fill_viridis(option = "G")
+              scale_fill_viridis(option = "G",
+                                 name = input$nj_heatmap_title)
             } else if(input$nj_heatmap_scale == "turbo") {
-              scale_fill_viridis(option = "H")
+              scale_fill_viridis(option = "H",
+                                 name = input$nj_heatmap_title)
             } 
           } else {
             if(input$nj_heatmap_scale == "magma") {
-              scale_fill_viridis(discrete = TRUE, option = "A")
+              scale_fill_viridis(discrete = TRUE, option = "A",
+                                 name = input$nj_heatmap_title)
             } else if(input$nj_heatmap_scale == "inferno") {
-              scale_fill_viridis(discrete = TRUE, option = "B")
+              scale_fill_viridis(discrete = TRUE, option = "B",
+                                 name = input$nj_heatmap_title)
             } else if(input$nj_heatmap_scale == "plasma") {
-              scale_fill_viridis(discrete = TRUE, option = "C")
+              scale_fill_viridis(discrete = TRUE, option = "C",
+                                 name = input$nj_heatmap_title)
             } else if(input$nj_heatmap_scale == "viridis") {
-              scale_fill_viridis(discrete = TRUE, option = "D")
+              scale_fill_viridis(discrete = TRUE, option = "D",
+                                 name = input$nj_heatmap_title)
             } else if(input$nj_heatmap_scale == "cividis") {
-              scale_fill_viridis(discrete = TRUE, option = "E")
+              scale_fill_viridis(discrete = TRUE, option = "E",
+                                 name = input$nj_heatmap_title)
             } else if(input$nj_heatmap_scale == "rocket") {
-              scale_fill_viridis(discrete = TRUE, option = "F")
+              scale_fill_viridis(discrete = TRUE, option = "F",
+                                 name = input$nj_heatmap_title)
             } else if(input$nj_heatmap_scale == "mako") {
-              scale_fill_viridis(discrete = TRUE, option = "G")
+              scale_fill_viridis(discrete = TRUE, option = "G",
+                                 name = input$nj_heatmap_title)
             } else if(input$nj_heatmap_scale == "turbo") {
-              scale_fill_viridis(discrete = TRUE, option = "H")
+              scale_fill_viridis(discrete = TRUE, option = "H",
+                                 name = input$nj_heatmap_title)
             } 
           }
         } else {
-          scale_fill_brewer(palette = input$nj_heatmap_scale)
+          scale_fill_brewer(palette = input$nj_heatmap_scale,
+                            name = input$nj_heatmap_title)
         }
       }
     }
