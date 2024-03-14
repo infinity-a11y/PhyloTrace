@@ -2146,7 +2146,7 @@ ui <- dashboardPage(
                           class = "mat-switch-geom",
                           materialSwitch(
                             "nj_geom",
-                            h5(p("Show"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
+                            h5(p("Panels"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
                             value = FALSE,
                             right = TRUE
                           )
@@ -2695,9 +2695,9 @@ ui <- dashboardPage(
                           sliderInput(
                             "nj_fruit_offset_circ",
                             label = "",
-                            min = -3,
-                            max = 3,
-                            step= 0.05,
+                            min = -0.1,
+                            max = 0.1,
+                            step= 0.01,
                             value = 0,
                             width = "150px",
                             ticks = FALSE
@@ -2723,7 +2723,7 @@ ui <- dashboardPage(
                       fluidRow(
                         column(
                           width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 49px")
+                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 54px")
                         ),
                         column(
                           width = 7,
@@ -2731,10 +2731,10 @@ ui <- dashboardPage(
                           sliderInput(
                             "nj_fruit_offset_circ_2",
                             label = "",
-                            min = -3,
-                            max = 3,
-                            step= 0.05,
-                            value = 0,
+                            min = -0.1,
+                            max = 0.1,
+                            step= 0.01,
+                            value = 0.05,
                             width = "150px",
                             ticks = FALSE
                           ),
@@ -2759,7 +2759,7 @@ ui <- dashboardPage(
                       fluidRow(
                         column(
                           width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 49px")
+                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 54px")
                         ),
                         column(
                           width = 7,
@@ -2767,10 +2767,10 @@ ui <- dashboardPage(
                           sliderInput(
                             "nj_fruit_offset_circ_3",
                             label = "",
-                            min = -3,
-                            max = 3,
-                            step= 0.05,
-                            value = 0,
+                            min = -0.1,
+                            max = 0.1,
+                            step= 0.01,
+                            value = 0.05,
                             width = "150px",
                             ticks = FALSE
                           ),
@@ -2795,7 +2795,7 @@ ui <- dashboardPage(
                       fluidRow(
                         column(
                           width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 49px")
+                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 54px")
                         ),
                         column(
                           width = 7,
@@ -2803,10 +2803,10 @@ ui <- dashboardPage(
                           sliderInput(
                             "nj_fruit_offset_circ_4",
                             label = "",
-                            min = -3,
-                            max = 3,
-                            value = 0,
-                            step= 0.05,
+                            min = -0.1,
+                            max = 0.1,
+                            step= 0.01,
+                            value = 0.05,
                             width = "150px",
                             ticks = FALSE
                           ),
@@ -2831,7 +2831,7 @@ ui <- dashboardPage(
                       fluidRow(
                         column(
                           width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 49px")
+                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 54px")
                         ),
                         column(
                           width = 7,
@@ -2839,10 +2839,10 @@ ui <- dashboardPage(
                           sliderInput(
                             "nj_fruit_offset_circ_5",
                             label = "",
-                            min = -3,
-                            max = 3,
-                            value = 0,
-                            step= 0.05,
+                            min = -0.1,
+                            max = 0.1,
+                            step= 0.01,
+                            value = 0.05,
                             width = "150px",
                             ticks = FALSE
                           ),
@@ -11406,8 +11406,8 @@ server <- function(input, output, session) {
       sliderInput(
         "nj_heatmap_offset",
         label = "",
-        min = -ceiling(Vis$nj_max_x),
-        max = ceiling(Vis$nj_max_x),
+        min = 0,
+        max = round(ceiling(Vis$nj_max_x)*1.5, 0),
         step = 1,
         value = 0,
         width = "150px",
@@ -11417,7 +11417,7 @@ server <- function(input, output, session) {
       sliderInput(
         "nj_heatmap_offset",
         label = "",
-        min = -10,
+        min = 0,
         max = 10,
         step = 1,
         value = 0,
@@ -11744,17 +11744,17 @@ server <- function(input, output, session) {
   
   output$nj_fruit_width <- renderUI({
     if((!is.null(Vis$nj_min_x)) & (!is.null(Vis$nj_max_x))) {
-      if(round(ceiling(Vis$nj_min_x), 0) < 1) {
-        min <- 1
+      if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+        width <- 1
       } else {
-        min <- round(ceiling(Vis$nj_min_x), 0)
+        width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
       }
       sliderInput(
         "nj_fruit_width_circ",
         label = "",
-        min = min,
+        min = 1,
         max = round(ceiling(Vis$nj_max_x) * 0.5, 0),
-        value = ceiling(Vis$nj_max_x * 0.08),
+        value = width,
         width = "150px",
         ticks = FALSE
       )
@@ -11773,17 +11773,17 @@ server <- function(input, output, session) {
   
   output$nj_fruit_width2 <- renderUI({
     if((!is.null(Vis$nj_min_x)) & (!is.null(Vis$nj_max_x))) {
-      if(round(ceiling(Vis$nj_min_x), 0) < 1) {
-        min <- 1
+      if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+        width <- 1
       } else {
-        min <- round(ceiling(Vis$nj_min_x), 0)
+        width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
       }
       sliderInput(
         "nj_fruit_width_circ_2",
         label = "",
-        min = min,
+        min = 1,
         max = round(ceiling(Vis$nj_max_x) * 0.5, 0),
-        value = ceiling(Vis$nj_max_x * 0.08),
+        value = width,
         width = "150px",
         ticks = FALSE
       )
@@ -11802,17 +11802,17 @@ server <- function(input, output, session) {
   
   output$nj_fruit_width3 <- renderUI({
     if((!is.null(Vis$nj_min_x)) & (!is.null(Vis$nj_max_x))) {
-      if(round(ceiling(Vis$nj_min_x), 0) < 1) {
-        min <- 1
+      if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+        width <- 1
       } else {
-        min <- round(ceiling(Vis$nj_min_x), 0)
+        width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
       }
       sliderInput(
         "nj_fruit_width_circ_3",
         label = "",
-        min = min,
+        min = 1,
         max = round(ceiling(Vis$nj_max_x) * 0.5, 0),
-        value = ceiling(Vis$nj_max_x * 0.08),
+        value = width,
         width = "150px",
         ticks = FALSE
       )
@@ -11831,17 +11831,17 @@ server <- function(input, output, session) {
   
   output$nj_fruit_width4 <- renderUI({
     if((!is.null(Vis$nj_min_x)) & (!is.null(Vis$nj_max_x))) {
-      if(round(ceiling(Vis$nj_min_x), 0) < 1) {
-        min <- 1
+      if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+        width <- 1
       } else {
-        min <- round(ceiling(Vis$nj_min_x), 0)
+        width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
       }
       sliderInput(
         "nj_fruit_width_circ_4",
         label = "",
-        min = min,
+        min = 1,
         max = round(ceiling(Vis$nj_max_x) * 0.5, 0),
-        value = ceiling(Vis$nj_max_x * 0.08),
+        value = width,
         width = "150px",
         ticks = FALSE
       )    
@@ -11860,17 +11860,17 @@ server <- function(input, output, session) {
   
   output$nj_fruit_width5 <- renderUI({
     if((!is.null(Vis$nj_min_x)) & (!is.null(Vis$nj_max_x))) {
-      if(round(ceiling(Vis$nj_min_x), 0) < 1) {
-        min <- 1
+      if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+        width <- 1
       } else {
-        min <- round(ceiling(Vis$nj_min_x), 0)
+        width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
       }
       sliderInput(
         "nj_fruit_width_circ_5",
         label = "",
-        min = min,
+        min = 1,
         max = round(ceiling(Vis$nj_max_x) * 0.5, 0),
-        value = ceiling(Vis$nj_max_x * 0.08),
+        value = width,
         width = "150px",
         ticks = FALSE
       )
@@ -13038,7 +13038,7 @@ server <- function(input, output, session) {
             geom = geom_tile,
             mapping = aes(fill= !!sym(input$nj_fruit_variable)),
             offset = input$nj_fruit_offset_circ,
-            pwidth = input$nj_fruit_width_circ,
+            width = input$nj_fruit_width_circ,
             alpha = input$nj_fruit_alpha
           )
         } else {
@@ -13046,12 +13046,41 @@ server <- function(input, output, session) {
             geom = geom_tile,
             mapping = aes(fill= !!sym(input$nj_fruit_variable)),
             offset = input$nj_fruit_offset_circ,
-            pwidth = input$nj_fruit_width_circ,
+            width = input$nj_fruit_width_circ,
             alpha = input$nj_fruit_alpha
           )
         }
       } else {NULL}
-    } else {NULL}
+    } else {
+      if(input$nj_tiles_show_1 == TRUE) {
+        if(!is.null(Vis$nj_max_x)) {
+          if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+          width <- 1
+          } else {
+            width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          }
+        } else {
+          width <- 2
+        }
+        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill= !!sym(input$nj_fruit_variable)),
+            offset = 0,
+            width = width,
+            alpha = 1
+          )
+        } else {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill= !!sym(input$nj_fruit_variable)),
+            offset = 0,
+            width = width,
+            alpha = 1
+          )
+        }
+      } else {NULL}
+    }
   })
   
   # Geom Fruit
@@ -13068,7 +13097,7 @@ server <- function(input, output, session) {
             geom = geom_tile,
             mapping = aes(fill = !!sym(input$nj_fruit_variable_2)),
             offset = input$nj_fruit_offset_circ_2,
-            pwidth = input$nj_fruit_width_circ_2,
+            width = input$nj_fruit_width_circ_2,
             alpha = input$nj_fruit_alpha_2
           )
         } else {
@@ -13076,12 +13105,41 @@ server <- function(input, output, session) {
             geom = geom_tile,
             mapping = aes(fill = !!sym(input$nj_fruit_variable_2)),
             offset = input$nj_fruit_offset_circ_2,
-            pwidth = input$nj_fruit_width_circ_2,
+            width = input$nj_fruit_width_circ_2,
             alpha = input$nj_fruit_alpha_2
           )
         }
       } else {NULL}
-    } else {NULL}
+    } else {
+      if(input$nj_tiles_show_2 == TRUE) {
+        if(!is.null(Vis$nj_max_x)) {
+          if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+            width <- 1
+          } else {
+            width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          }
+        } else {
+          width <- 2
+        }
+        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill= !!sym(input$nj_fruit_variable)),
+            offset = 0.05,
+            width = width,
+            alpha = 1
+          )
+        } else {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill= !!sym(input$nj_fruit_variable)),
+            offset = 0.05,
+            width = width,
+            alpha = 1
+          )
+        }
+      } else {NULL}
+    }
   })
   
   nj_fruit3 <- reactive({
@@ -13097,7 +13155,7 @@ server <- function(input, output, session) {
             geom = geom_tile,
             mapping = aes(fill = !!sym(input$nj_fruit_variable_3)),
             offset = input$nj_fruit_offset_circ_3,
-            pwidth = input$nj_fruit_width_circ_3,
+            width = input$nj_fruit_width_circ_3,
             alpha = input$nj_fruit_alpha_3
           )
         } else {
@@ -13105,12 +13163,41 @@ server <- function(input, output, session) {
             geom = geom_tile,
             mapping = aes(fill = !!sym(input$nj_fruit_variable_3)),
             offset = input$nj_fruit_offset_circ_3,
-            pwidth = input$nj_fruit_width_circ_3,
+            width = input$nj_fruit_width_circ_3,
             alpha = input$nj_fruit_alpha_3
           )
         }
       } else {NULL}
-    } else {NULL}
+    } else {
+      if(input$nj_tiles_show_3 == TRUE) {
+        if(!is.null(Vis$nj_max_x)) {
+          if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+            width <- 1
+          } else {
+            width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          }
+        } else {
+          width <- 2
+        }
+        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill= !!sym(input$nj_fruit_variable)),
+            offset = 0.05,
+            width = width,
+            alpha = 1
+          )
+        } else {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill= !!sym(input$nj_fruit_variable)),
+            offset = 0.05,
+            width = width,
+            alpha = 1
+          )
+        }
+      } else {NULL}
+    }
   })
   
   nj_fruit4 <- reactive({
@@ -13126,7 +13213,7 @@ server <- function(input, output, session) {
             geom = geom_tile,
             mapping = aes(fill = !!sym(input$nj_fruit_variable_4)),
             offset = input$nj_fruit_offset_circ_4,
-            pwidth = input$nj_fruit_width_circ_4,
+            width = input$nj_fruit_width_circ_4,
             alpha = input$nj_fruit_alpha_4
           )
         } else {
@@ -13134,11 +13221,40 @@ server <- function(input, output, session) {
             geom = geom_tile,
             mapping = aes(fill = !!sym(input$nj_fruit_variable_4)),
             offset = input$nj_fruit_offset_circ_4,
-            pwidth = input$nj_fruit_width_circ_4,
+            width = input$nj_fruit_width_circ_4,
             alpha = input$nj_fruit_alpha_4
           )
         }
-      } else {NULL}
+      } else {
+        if(input$nj_tiles_show_4 == TRUE) {
+          if(!is.null(Vis$nj_max_x)) {
+            if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+              width <- 1
+            } else {
+              width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+            }
+          } else {
+            width <- 2
+          }
+          if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+            geom_fruit(
+              geom = geom_tile,
+              mapping = aes(fill= !!sym(input$nj_fruit_variable)),
+              offset = 0.05,
+              width = width,
+              alpha = 1
+            )
+          } else {
+            geom_fruit(
+              geom = geom_tile,
+              mapping = aes(fill= !!sym(input$nj_fruit_variable)),
+              offset = 0.05,
+              width = width,
+              alpha = 1
+            )
+          }
+        } else {NULL}
+      }
     }
   })
   
@@ -13155,7 +13271,7 @@ server <- function(input, output, session) {
             geom = geom_tile,
             mapping = aes(fill = !!sym(input$nj_fruit_variable_5)),
             offset = input$nj_fruit_offset_circ_5,
-            pwidth = input$nj_fruit_width_circ_5,
+            width = input$nj_fruit_width_circ_5,
             alpha = input$nj_fruit_alpha_5
           )
         } else {
@@ -13163,12 +13279,41 @@ server <- function(input, output, session) {
             geom = geom_tile,
             mapping = aes(fill = !!sym(input$nj_fruit_variable_5)),
             offset = input$nj_fruit_offset_circ_5,
-            pwidth = input$nj_fruit_width_circ_5,
+            width = input$nj_fruit_width_circ_5,
             alpha = input$nj_fruit_alpha_5
           )
         }
       } else {NULL}
-    } else {NULL}
+    } else {
+      if(input$nj_tiles_show_5 == TRUE) {
+        if(!is.null(Vis$nj_max_x)) {
+          if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+            width <- 1
+          } else {
+            width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          }
+        } else {
+          width <- 2
+        }
+        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill= !!sym(input$nj_fruit_variable)),
+            offset = 0.05,
+            width = width,
+            alpha = 1
+          )
+        } else {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill= !!sym(input$nj_fruit_variable)),
+            offset = 0.05,
+            width = width,
+            alpha = 1
+          )
+        }
+      } else {NULL}
+    }
   })
   
   # Xlim
@@ -13368,36 +13513,65 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$nj_mapping_show == TRUE) {
-          geom_tiplab(
-            mapping_tiplab(), 
-            geom = nj_geom(),
-            angle = input$nj_tiplab_angle,
-            size = nj_tiplab_size(),
-            alpha = input$nj_tiplab_alpha,
-            fontface = input$nj_tiplab_fontface,
-            align = as.logical(input$nj_align),
-            nudge_x = input$nj_tiplab_nudge_x,
-            check.overlap = input$nj_tiplab_overlap,
-            label.padding = unit(nj_tiplab_padding(), "lines"),
-            label.r = unit(input$nj_tiplab_labelradius, "lines"), 
-            fill = input$nj_tiplab_fill
-          )
+          if(input$nj_geom == TRUE) {
+            geom_tiplab(
+              mapping_tiplab(), 
+              geom = nj_geom(),
+              angle = input$nj_tiplab_angle,
+              size = nj_tiplab_size(),
+              alpha = input$nj_tiplab_alpha,
+              fontface = input$nj_tiplab_fontface,
+              align = as.logical(input$nj_align),
+              nudge_x = input$nj_tiplab_nudge_x,
+              check.overlap = input$nj_tiplab_overlap,
+              label.padding = unit(nj_tiplab_padding(), "lines"),
+              label.r = unit(input$nj_tiplab_labelradius, "lines"), 
+              fill = input$nj_tiplab_fill
+            )
+          } else {
+            geom_tiplab(
+              mapping_tiplab(), 
+              geom = nj_geom(),
+              angle = input$nj_tiplab_angle,
+              size = nj_tiplab_size(),
+              alpha = input$nj_tiplab_alpha,
+              fontface = input$nj_tiplab_fontface,
+              align = as.logical(input$nj_align),
+              nudge_x = input$nj_tiplab_nudge_x,
+              check.overlap = input$nj_tiplab_overlap
+            )
+          }
         } else {
-          geom_tiplab(
-            mapping_tiplab(), 
-            geom = nj_geom(),
-            color = input$nj_tiplab_color,
-            angle = input$nj_tiplab_angle,
-            size = nj_tiplab_size(),
-            alpha = input$nj_tiplab_alpha,
-            fontface = input$nj_tiplab_fontface,
-            align = as.logical(input$nj_align),
-            nudge_x = input$nj_tiplab_nudge_x,
-            check.overlap = input$nj_tiplab_overlap,
-            label.padding = unit(nj_tiplab_padding(), "lines"),
-            label.r = unit(input$nj_tiplab_labelradius, "lines"), 
-            fill = input$nj_tiplab_fill
-          )
+          if(input$nj_geom == TRUE) {
+            geom_tiplab(
+              mapping_tiplab(), 
+              geom = nj_geom(),
+              color = input$nj_tiplab_color,
+              angle = input$nj_tiplab_angle,
+              size = nj_tiplab_size(),
+              alpha = input$nj_tiplab_alpha,
+              fontface = input$nj_tiplab_fontface,
+              align = as.logical(input$nj_align),
+              nudge_x = input$nj_tiplab_nudge_x,
+              check.overlap = input$nj_tiplab_overlap,
+              label.padding = unit(nj_tiplab_padding(), "lines"),
+              label.r = unit(input$nj_tiplab_labelradius, "lines"), 
+              fill = input$nj_tiplab_fill
+            )
+          } else {
+            geom_tiplab(
+              mapping_tiplab(), 
+              geom = nj_geom(),
+              color = input$nj_tiplab_color,
+              angle = input$nj_tiplab_angle,
+              size = nj_tiplab_size(),
+              alpha = input$nj_tiplab_alpha,
+              fontface = input$nj_tiplab_fontface,
+              align = as.logical(input$nj_align),
+              nudge_x = input$nj_tiplab_nudge_x,
+              check.overlap = input$nj_tiplab_overlap
+            )
+          }
         }
       }
     } else {NULL}
@@ -13718,7 +13892,7 @@ server <- function(input, output, session) {
           geom = geom_tile,
           mapping = aes(fill = !!sym(input$upgma_fruit_variable)),
           offset = input$upgma_fruit_offset_circ,
-          pwidth = input$upgma_fruit_width_circ,
+          width = input$upgma_fruit_width_circ,
           alpha = input$upgma_fruit_alpha
         )
       } else {
@@ -13726,7 +13900,7 @@ server <- function(input, output, session) {
           geom = geom_tile,
           mapping = aes(fill = !!sym(input$upgma_fruit_variable)),
           offset = input$upgma_fruit_offset_circ,
-          pwidth = input$upgma_fruit_width_circ,
+          width = input$upgma_fruit_width_circ,
           alpha = input$upgma_fruit_alpha
         )
       }
@@ -13741,7 +13915,7 @@ server <- function(input, output, session) {
           geom = geom_tile,
           mapping = aes(fill = !!sym(input$upgma_fruit_variable_2)),
           offset = input$upgma_fruit_offset_circ_2,
-          pwidth = input$upgma_fruit_width_circ_2,
+          width = input$upgma_fruit_width_circ_2,
           alpha = input$upgma_fruit_alpha_2
         )
       } else {
@@ -13749,7 +13923,7 @@ server <- function(input, output, session) {
           geom = geom_tile,
           mapping = aes(fill = !!sym(input$upgma_fruit_variable_2)),
           offset = input$upgma_fruit_offset_circ_2,
-          pwidth = input$upgma_fruit_width_circ_2,
+          width = input$upgma_fruit_width_circ_2,
           alpha = input$upgma_fruit_alpha_2
         )
       }
@@ -13763,7 +13937,7 @@ server <- function(input, output, session) {
           geom = geom_tile,
           mapping = aes(fill = !!sym(input$upgma_fruit_variable_3)),
           offset = input$upgma_fruit_offset_circ_3,
-          pwidth = input$upgma_fruit_width_circ_3,
+          width = input$upgma_fruit_width_circ_3,
           alpha = input$upgma_fruit_alpha_3
         )
       } else {
@@ -13771,7 +13945,7 @@ server <- function(input, output, session) {
           geom = geom_tile,
           mapping = aes(fill = !!sym(input$upgma_fruit_variable_3)),
           offset = input$upgma_fruit_offset_circ_3,
-          pwidth = input$upgma_fruit_width_circ_3,
+          width = input$upgma_fruit_width_circ_3,
           alpha = input$upgma_fruit_alpha_3
         )
       }
@@ -13787,7 +13961,7 @@ server <- function(input, output, session) {
           geom = geom_tile,
           mapping = aes(fill = !!sym(input$upgma_fruit_variable_4)),
           offset = input$upgma_fruit_offset_circ_4,
-          pwidth = input$upgma_fruit_width_circ_4,
+          width = input$upgma_fruit_width_circ_4,
           alpha = input$upgma_fruit_alpha_4
         )
       } else {
@@ -13795,7 +13969,7 @@ server <- function(input, output, session) {
           geom = geom_tile,
           mapping = aes(fill = !!sym(input$upgma_fruit_variable_4)),
           offset = input$upgma_fruit_offset_circ_4,
-          pwidth = input$upgma_fruit_width_circ_4,
+          width = input$upgma_fruit_width_circ_4,
           alpha = input$upgma_fruit_alpha_4
         )
       }
@@ -13810,7 +13984,7 @@ server <- function(input, output, session) {
           geom = geom_tile,
           mapping = aes(fill = !!sym(input$upgma_fruit_variable_5)),
           offset = input$upgma_fruit_offset_circ_5,
-          pwidth = input$upgma_fruit_width_circ_5,
+          width = input$upgma_fruit_width_circ_5,
           alpha = input$upgma_fruit_alpha_5
         )
       } else {
@@ -13818,7 +13992,7 @@ server <- function(input, output, session) {
           geom = geom_tile,
           mapping = aes(fill = !!sym(input$upgma_fruit_variable_5)),
           offset = input$upgma_fruit_offset_circ_5,
-          pwidth = input$upgma_fruit_width_circ_5,
+          width = input$upgma_fruit_width_circ_5,
           alpha = input$upgma_fruit_alpha_5
         )
       }
