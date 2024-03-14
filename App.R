@@ -1551,7 +1551,7 @@ ui <- dashboardPage(
                         align = "left",
                         checkboxInput(
                           "nj_ladder",
-                          h5(p("Ladder"), style = "color:white; position: relative; bottom: 14px; right: -10px; margin-top: 22px; margin-bottom: 13px"),
+                          h5(p("Ladder"), style = "color:white; position: relative; bottom: 14px; right: -10px; margin-top: 22px; margin-bottom: 12px"),
                           value = TRUE
                         )
                       ),
@@ -2296,7 +2296,7 @@ ui <- dashboardPage(
                                              save = FALSE),
                           position = "right-start"
                         ),
-                        br(), br(), br(), br()
+                        br(), br()
                       )
                     )
                   )
@@ -10664,43 +10664,82 @@ server <- function(input, output, session) {
   
   # Tippanel size
   output$nj_tiplab_padding <- renderUI(
-    sliderInput(
-      inputId = "nj_tiplab_padding",
-      label = h5("Size", style = "color:white; margin-bottom: 0px"),
-      min = 0.05,
-      max = 1,
-      value = Vis$tiplab_padding_nj,
-      step = 0.05,
-      width = "150px",
-      ticks = FALSE
-    )
+    if(!is.null(Vis$tiplab_padding_nj)) {
+      sliderInput(
+        inputId = "nj_tiplab_padding",
+        label = h5("Size", style = "color:white; margin-bottom: 0px"),
+        min = 0.05,
+        max = 1,
+        value = Vis$tiplab_padding_nj,
+        step = 0.05,
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        inputId = "nj_tiplab_padding",
+        label = h5("Size", style = "color:white; margin-bottom: 0px"),
+        min = 0.05,
+        max = 1,
+        value = 0.2,
+        step = 0.05,
+        width = "150px",
+        ticks = FALSE
+      )
+    }
   )
   
   output$upgma_tiplab_padding <- renderUI(
-    sliderInput(
-      inputId = "upgma_tiplab_padding",
-      label = h5("Size", style = "color:white; margin-bottom: 0px"),
-      min = 0.05,
-      max = 1,
-      value = Vis$tiplab_padding_upgma,
-      step = 0.05,
-      width = "150px",
-      ticks = FALSE
-    )
+    if(!is.null(Vis$tiplab_padding_upgma)) {
+      sliderInput(
+        inputId = "upgma_tiplab_padding",
+        label = h5("Size", style = "color:white; margin-bottom: 0px"),
+        min = 0.05,
+        max = 1,
+        value = Vis$tiplab_padding_upgma,
+        step = 0.05,
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        inputId = "upgma_tiplab_padding",
+        label = h5("Size", style = "color:white; margin-bottom: 0px"),
+        min = 0.05,
+        max = 1,
+        value = 0.2,
+        step = 0.05,
+        width = "150px",
+        ticks = FALSE
+      )
+    }
   )
   
   # Nodepoint size
   output$nj_nodepoint_size <- renderUI(
-    sliderInput(
-      inputId = "nj_nodepoint_size",
-      label = h5("Size", style = "color:white; margin-bottom: 0px"),
-      min = 1,
-      max = 20,
-      value = Vis$nodepointsize_nj,
-      step = 0.5,
-      width = "150px",
-      ticks = FALSE
-    )
+    if(!is.null(Vis$nodepointsize_nj)) {
+      sliderInput(
+        inputId = "nj_nodepoint_size",
+        label = h5("Size", style = "color:white; margin-bottom: 0px"),
+        min = 1,
+        max = 20,
+        value = Vis$nodepointsize_nj,
+        step = 0.5,
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        inputId = "nj_nodepoint_size",
+        label = h5("Size", style = "color:white; margin-bottom: 0px"),
+        min = 1,
+        max = 20,
+        value = 2.5,
+        step = 0.5,
+        width = "150px",
+        ticks = FALSE
+      )
+    }
   )
   
   output$upgma_nodepoint_size <- renderUI(
@@ -10719,16 +10758,29 @@ server <- function(input, output, session) {
   
   # Tippoint size 
   output$nj_tippoint_size <- renderUI(
-    sliderInput(
-      inputId = "nj_tippoint_size",
-      label = h5("Size", style = "color:white; margin-bottom: 0px"),
-      min = 1,
-      max = 20,
-      step = 0.5,
-      value = Vis$tippointsize_nj,
-      width = "150px",
-      ticks = FALSE
-    )
+    if(!is.null(Vis$tippointsize_nj)) {
+      sliderInput(
+        inputId = "nj_tippoint_size",
+        label = h5("Size", style = "color:white; margin-bottom: 0px"),
+        min = 1,
+        max = 20,
+        step = 0.5,
+        value = Vis$tippointsize_nj,
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        inputId = "nj_tippoint_size",
+        label = h5("Size", style = "color:white; margin-bottom: 0px"),
+        min = 1,
+        max = 20,
+        step = 0.5,
+        value = 4,
+        width = "150px",
+        ticks = FALSE
+      )
+    }
   )
   
   output$upgma_tippoint_size <- renderUI(
@@ -10808,89 +10860,157 @@ server <- function(input, output, session) {
   
   # Treescale 
   output$nj_treescale_width <- renderUI({
-    numericInput(
-      "nj_treescale_width",
-      label = h5("Length", style = "color:white; margin-bottom: 0px"),
-      value = round(ceiling(Vis$nj_max_x) * 0.1, 0),
-      min = 1,
-      max = round(floor(Vis$nj_max_x) * 0.5, 0),
-      step = 1,
-      width = "80px"
-    )
+    if(!is.null(Vis$nj_max_x)) {
+      numericInput(
+        "nj_treescale_width",
+        label = h5("Length", style = "color:white; margin-bottom: 0px"),
+        value = round(ceiling(Vis$nj_max_x) * 0.1, 0),
+        min = 1,
+        max = round(floor(Vis$nj_max_x) * 0.5, 0),
+        step = 1,
+        width = "80px"
+      )
+    } else {
+      numericInput(
+        "nj_treescale_width",
+        label = h5("Length", style = "color:white; margin-bottom: 0px"),
+        value = 2,
+        min = 1,
+        max = 10,
+        step = 1,
+        width = "80px"
+      )
+    }
   })
   
   output$nj_treescale_x <- renderUI({
-    
-    if(ceiling(Vis$nj_min_x) < 1) {
-      floor <- 1
+    if((!is.null(Vis$nj_min_x)) & (!is.null(Vis$nj_max_x))) {
+      if(ceiling(Vis$nj_min_x) < 1) {
+        floor <- 1
+      } else {
+        floor <- ceiling(Vis$nj_min_x)
+      }
+      sliderInput(
+        "nj_treescale_x",
+        label = h5("X Position", style = "color:white; margin-bottom: 0px"),
+        min = floor,
+        max = round(floor(Vis$nj_max_x)),
+        value = round(ceiling(Vis$nj_max_x) * 0.2, 0),
+        width = "150px",
+        ticks = FALSE
+      )
     } else {
-      floor <- ceiling(Vis$nj_min_x)
+      sliderInput(
+        "nj_treescale_x",
+        label = h5("X Position", style = "color:white; margin-bottom: 0px"),
+        min = 1,
+        max = 10,
+        value = 2,
+        width = "150px",
+        ticks = FALSE
+      )
     }
-    
-    sliderInput(
-      "nj_treescale_x",
-      label = h5("X Position", style = "color:white; margin-bottom: 0px"),
-      min = floor,
-      max = round(floor(Vis$nj_max_x)),
-      value = round(ceiling(Vis$nj_max_x) * 0.2, 0),
-      width = "150px",
-      ticks = FALSE
-    )
   })
   
   output$nj_treescale_y <- renderUI({
-    sliderInput(
-      "nj_treescale_y",
-      label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
-      min = 0,
-      max = max(Vis$yrange_nj),
-      value = 0,
-      width = "150px",
-      ticks = FALSE
-    )
+    if(!is.null(Vis$nj_min_x)) {
+      sliderInput(
+        "nj_treescale_y",
+        label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+        min = 0,
+        max = max(Vis$yrange_nj),
+        value = 0,
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        "nj_treescale_y",
+        label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+        min = 0,
+        max = 10,
+        value = 0,
+        width = "150px",
+        ticks = FALSE
+      )
+    }
   })
   
   output$upgma_treescale_width <- renderUI({
-    numericInput(
-      "upgma_treescale_width",
-      label = h5("Length", style = "color:white; margin-bottom: 0px"),
-      value = round(ceiling(Vis$upgma_max_x) * 0.1, 0),
-      min = 1,
-      max = round(floor(Vis$upgma_max_x) * 0.5, 0),
-      step = 1,
-      width = "80px"
-    )
+    if(!is.null(Vis$upgma_max_x)) {
+      numericInput(
+        "upgma_treescale_width",
+        label = h5("Length", style = "color:white; margin-bottom: 0px"),
+        value = round(ceiling(Vis$upgma_max_x) * 0.1, 0),
+        min = 1,
+        max = round(floor(Vis$upgma_max_x) * 0.5, 0),
+        step = 1,
+        width = "80px"
+      )
+    } else {
+      numericInput(
+        "upgma_treescale_width",
+        label = h5("Length", style = "color:white; margin-bottom: 0px"),
+        value = 2,
+        min = 1,
+        max = 10,
+        step = 1,
+        width = "80px"
+      )
+    }
   })
   
   output$upgma_treescale_x <- renderUI({
-    
-    if(ceiling(Vis$upgma_min_x) < 1) {
-      floor <- 1
+    if((!is.null(Vis$upgma_min_x)) & (!is.null(Vis$upgma_max_x))) {
+      if(ceiling(Vis$upgma_min_x) < 1) {
+        floor <- 1
+      } else {
+        floor <- ceiling(Vis$upgma_min_x)
+      }
+      sliderInput(
+        "upgma_treescale_x",
+        label = h5("X Position", style = "color:white; margin-bottom: 0px"),
+        min = floor,
+        max = round(floor(Vis$upgma_max_x)),
+        value = round(ceiling(Vis$upgma_max_x) * 0.2, 0),
+        width = "150px",
+        ticks = FALSE
+      )
     } else {
-      floor <- ceiling(Vis$upgma_min_x)
+      sliderInput(
+        "upgma_treescale_x",
+        label = h5("X Position", style = "color:white; margin-bottom: 0px"),
+        min = 1,
+        max = 10,
+        value = 2,
+        width = "150px",
+        ticks = FALSE
+      )
     }
-    
-    sliderInput(
-      "upgma_treescale_x",
-      label = h5("X Position", style = "color:white; margin-bottom: 0px"),
-      min = floor,
-      max = round(floor(Vis$upgma_max_x)),
-      value = round(ceiling(Vis$upgma_max_x) * 0.2, 0),
-      ticks = FALSE,
-      width = "150px"
-    )
   })
   
   output$upgma_treescale_y <- renderUI({
-    sliderInput(
-      "upgma_treescale_y",
-      label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
-      min = 0,
-      max = max(Vis$yrange_upgma),
-      value = 0,
-      width = "150px",
-      ticks = FALSE
-    )
+    if(!is.null(Vis$upgma_min_x)) {
+      sliderInput(
+        "upgma_treescale_y",
+        label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+        min = 0,
+        max = max(Vis$yrange_upgma),
+        value = 0,
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        "upgma_treescale_y",
+        label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+        min = 0,
+        max = 10,
+        value = 0,
+        width = "150px",
+        ticks = FALSE
+      )
+    }
   })
   
   ### Heatmap 
@@ -11670,7 +11790,7 @@ server <- function(input, output, session) {
     addSpinner(
       visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px")),
       spin = "dots",
-      color = "#ffffff"
+      color = "white"
     )
   })
   
@@ -11678,7 +11798,7 @@ server <- function(input, output, session) {
     addSpinner(
       plotOutput("tree_nj", width = paste0(as.character(as.numeric(input$nj_scale) * as.numeric(input$nj_ratio)), "px"), height = paste0(as.character(input$nj_scale), "px")) ,
       spin = "dots",
-      color = "#ffffff"
+      color = "white"
     )
   })
   
@@ -11686,7 +11806,7 @@ server <- function(input, output, session) {
    addSpinner(
      plotOutput("tree_upgma", width = paste0(as.character(as.numeric(input$upgma_scale) * as.numeric(input$upgma_ratio)), "px"), height = paste0(as.character(input$upgma_scale), "px")),
      spin = "dots",
-     color = "#ffffff"
+     color = "white"
     )
   })
   

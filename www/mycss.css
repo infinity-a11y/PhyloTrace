@@ -1204,8 +1204,12 @@ input.form-control.pickr-color {
   margin-top: -10px;
 }
 
-#nj_subtitle_color, #nj_title_color, #nj_bg {
+#nj_subtitle_color, #nj_title_color {
   margin-bottom: 11px;
+}
+
+#nj_bg {
+  margin-bottom: 10px;
 }
 
 #nj_branch_label_menu-template > div > div:nth-child(2) > div:nth-child(2) {
@@ -1522,7 +1526,8 @@ button#nj_tile_menu_5 {
 
 #nj_geom {
   margin-top: 0px; 
-  margin-left: -5px
+  margin-left: -5px;
+  margin-bottom: 0px;
 }
 
 #nj_tiplab_color {
