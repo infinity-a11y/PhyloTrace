@@ -193,6 +193,20 @@ input.form-control.pickr-color {
   margin-bottom: 0px;
 }
 
+@keyframes pulsate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.pulsating-button {
+  animation: pulsate 1s ease infinite;
+}
+
+.pulsating-button:hover {
+  animation: none;
+}
+
 /* Icons */
 
 i.fas {
@@ -323,18 +337,16 @@ div#progress_bar.progress-bar {
 
 /* Visualization MST */
 
-@keyframes pulsate {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+button#create_tree {
+  position: relative; 
+  left: -15px; 
+  width = 100%; 
+  border: none;
 }
 
-.pulsating-button {
-  animation: pulsate 1s ease infinite;
-}
-
-.pulsating-button:hover {
-  animation: none;
+button#create_tree:hover {
+  background: #3c8c56; 
+  border: none;
 }
 
 #mst_ratio {
@@ -472,6 +484,15 @@ button#mst_label_menu {
   border-radius: 5px; 
   position: relative; 
   right: -22px
+}
+
+#node_font_color {
+  margin-top: 17px
+}
+
+#scale_nodes {
+  position: relative; 
+  bottom: -1px
 }
 
 /* Visualization NJ & UPGMA */
@@ -614,20 +635,17 @@ button#mst_label_menu {
   text-align: center;
 }
 
-#upgma_zoom irs.irs--shiny.js-irs-4.irs.irs-line {
-  width: 108px;
-}
-
-#nj_clade_scale {
+#nj_clade_scale, #upgma_clade_scale {
   margin-bottom:; 1px;
 }
 
-#nj_parentnode {
+#nj_parentnode, #upgma_parentnode {
   margin-left: 38px;
   margin-top: -10px;
 }
 
-#nj_layout_ctrl, #nj_label_ctrl, #nj_elements_ctrl {
+#nj_layout_ctrl, #nj_label_ctrl, #nj_elements_ctrl,
+#upgma_layout_ctrl, #upgma_label_ctrl, #upgma_elements_ctrl {
     width: 134px;
     margin-left: 25px;
     margin-bottom: 5px;
@@ -637,18 +655,13 @@ button#mst_label_menu {
     font-size: larger;
 }
 
-#nj_layout_ctrl {
+#nj_layout_ctrl, #upgma_layout_ctrl {
   margin-top: 20px !important;
 }
 
-#nj_field img {
+#nj_field img,
+#upgma_field img{
   border-radius: 10px;
-}
-
-#include_edge, #include_node {
-  width: 20px; 
-  height: 20px; 
-  margin-top: 13px;
 }
 
 button#save_plot_jpeg {
@@ -691,7 +704,7 @@ button#save_plot_html_bttn {
   right: 20px;
 }
 
-button#download_nj_bttn {
+button#download_nj_bttn, button#download_upgma_bttn {
   font-size: 14px; 
   height: 34px; 
   background: #20E6E5; 
@@ -701,23 +714,7 @@ button#download_nj_bttn {
   right: 20px;
 }
 
-button#download_upgma_bttn {
-  font-size: 14px; 
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  position: relative; 
-  top: 10px; 
-  right: 20px;
-}
-
-#nj_ratio {
-  position: absolute; 
-  right: 36px; 
-  top: 23px;
-}
-
-#upgma_ratio {
+#nj_ratio, #upgma_ratio {
   position: absolute; 
   right: 36px; 
   top: 23px;
@@ -732,97 +729,59 @@ button#download_report_bttn {
   top: -25px;
 }
 
-#nj_v {
+#nj_v, #nj_h, #upgma_h, #upgma_v {
   padding: initial; 
   margin-top: 3px; 
   width: 75px; 
   text-align: center;
 }
 
-#nj_h {
-  padding: initial; 
-  margin-top: 3px; 
-  width: 75px; 
-  text-align: center;
-}
-
-#upgma_v {
-  padding: initial; 
-  margin-top: 3px; 
-  width: 75px; 
-  text-align: center;
-}
-
-#upgma_h {
-  padding: initial; 
-  margin-top: 3px; 
-  width: 75px; 
-  text-align: center;
-}
-
-#nj_title_color {
+#nj_title_color, #upgma_title_color {
   margin-bottom: -15px;
   margin-top: -16px;
 }
 
-#nj_bg {
+#nj_bg, #upgma_bg {
   margin-bottom: 10px;
 }
 
-#nj_branch_label_menu-template > div > div:nth-child(2) > div:nth-child(2) {
-  margin-top: 26px;
-  margin-bottom: -10px;
-}
-
+#nj_branch_label_menu-template > div > div:nth-child(2) > div:nth-child(2),
 #upgma_branch_label_menu-template > div > div:nth-child(2) > div:nth-child(2) {
   margin-top: 26px;
   margin-bottom: -10px;
 }
 
-#node_font_color {
-  margin-top: 17px
-}
-
-#scale_nodes {
-  position: relative; 
-  bottom: -1px
-}
-
-#nj_controls {
+#nj_controls, #upgma_controls {
   margin-left: 25px;
   margin-top: 35px;
 }
 
-#nj_controls > div > div:nth-child(1) {
+#nj_controls > div > div:nth-child(1),
+#upgma_controls > div > div:nth-child(1),
+#nj_controls > div > div:nth-child(2),
+#upgma_controls > div > div:nth-child(2),
+#nj_controls > div > div:nth-child(3),
+#upgma_controls > div > div:nth-child(3) {
   height: 50px;
   width: 100px;
 }
 
-#nj_controls > div > div:nth-child(2) {
-  height: 50px;
-  width: 100px;
-}
-
-#nj_controls > div > div:nth-child(3) {
-  height: 50px;
-  width: 100px;
-}
-
-#nj_color_mapping {
+#nj_color_mapping,
+#upgma_color_mapping {
   margin-top: -7px;
   margin-bottom: 0px;
   margin-right: 30px;
 }
 
-#nj_heatmap_scale, #nj_tiles_scale_1, #nj_tiles_scale_2, #nj_tiles_scale_3, #nj_tiles_scale_4, #nj_tiles_scale_5 {
+#nj_heatmap_scale, #nj_tiles_scale_1, #nj_tiles_scale_2, #nj_tiles_scale_3, #nj_tiles_scale_4, #nj_tiles_scale_5, #upgma_heatmap_scale, #upgma_tiles_scale_1, #upgma_tiles_scale_2, #upgma_tiles_scale_3, #upgma_tiles_scale_4, #upgma_tiles_scale_5 {
   margin-top: -10px;
 } 
 
-#nj_branch_label_color {
+#nj_branch_label_color, #upgma_branch_label_color {
   margin-top: -7px;
 }
 
-button#nj_labeltext_menu {
+button#nj_labeltext_menu, button#upgma_labeltext_menu {
   height: 34px; 
   background: #20E6E5; 
   color: #000000; 
@@ -831,7 +790,7 @@ button#nj_labeltext_menu {
   margin-left: -50px
 }
 
-button#nj_labelformat_menu {
+button#nj_labelformat_menu, button#upgma_labelformat_menu {
   height: 34px; 
   background: #20E6E5; 
   color: #000000; 
@@ -839,7 +798,7 @@ button#nj_labelformat_menu {
   margin-top: 20px
 }
 
-button#nj_subtitle_menu {
+button#nj_footer_menu, button#upgma_footer_menu {
   height: 34px; 
   background: #20E6E5; 
   color: #000000; 
@@ -847,15 +806,7 @@ button#nj_subtitle_menu {
   border-radius: 5px
 }
 
-button#nj_footer_menu {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-top: 20px; 
-  border-radius: 5px
-}
-
-button#nj_title_menu {
+button#nj_title_menu, button#upgma_title_menu {
   height: 34px;
   background: #20E6E5;
   color: #000000;
@@ -864,7 +815,7 @@ button#nj_title_menu {
   margin-bottom: -24px;
 }
 
-button#nj_size_menu {
+button#nj_size_menu, button#upgma_size_menu {
   height: 34px; 
   background: #20E6E5; 
   color: #000000; 
@@ -873,7 +824,7 @@ button#nj_size_menu {
   margin-left: -15px;
 }
 
-button#nj_branch_label_menu {
+button#nj_branch_label_menu, button#upgma_branch_label_menu {
   height: 34px; 
   background: #20E6E5; 
   color: #000000; 
@@ -882,7 +833,7 @@ button#nj_branch_label_menu {
   margin-left: 10px
 }
 
-button#nj_legend_menu {
+button#nj_legend_menu, button#upgma_legend_menu {
   height: 34px; 
   background: #20E6E5; 
   color: #000000; 
@@ -890,7 +841,7 @@ button#nj_legend_menu {
   border-radius: 5px
 }
 
-button#nj_treescale_menu {
+button#nj_treescale_menu, button#upgma_treescale_menu {
   height: 34px; 
   background: #20E6E5; 
   color: #000000; 
@@ -898,7 +849,7 @@ button#nj_treescale_menu {
   border-radius: 5px
 }
 
-button#nj_tippoint_menu {
+button#nj_tippoint_menu, button#upgma_tippoint_menu {
   height: 34px; 
   background: #20E6E5; 
   color: #000000; 
@@ -906,7 +857,7 @@ button#nj_tippoint_menu {
   border-radius: 5px
 }
 
-button#nj_rootedge_menu {
+button#nj_rootedge_menu, button#upgma_rootedge_menu {
   height: 34px; 
   background: #20E6E5; 
   color: #000000; 
@@ -916,7 +867,7 @@ button#nj_rootedge_menu {
   margin-bottom: 23px;
 }
 
-button#nj_nodepoint_menu {
+button#nj_nodepoint_menu, button#upgma_nodepoint_menu {
   height: 34px; 
   background: #20E6E5; 
   color: #000000; 
@@ -924,7 +875,7 @@ button#nj_nodepoint_menu {
   border-radius: 5px
 }
 
-button#nj_heatmap_menu {
+button#nj_heatmap_menu, button#upgma_heatmap_menu {
   height: 34px; 
   background: #20E6E5; 
   color: #000000; 
@@ -933,7 +884,7 @@ button#nj_heatmap_menu {
   margin-left: -10px;
 }
 
-button#nj_clade_menu {
+button#nj_clade_menu, button#upgma_clade_menu {
   height: 34px; 
   background: #20E6E5; 
   color: #000000; 
@@ -941,7 +892,9 @@ button#nj_clade_menu {
   border-radius: 5px
 }
 
-button#nj_tile_menu {
+button#nj_tile_menu, button#nj_tile_menu_2, button#nj_tile_menu_3, 
+button#nj_tile_menu_4, button#nj_tile_menu_5, button#upgma_tile_menu, 
+button#upgma_tile_menu_2, button#upgma_tile_menu_3, button#upgma_tile_menu_4, button#upgma_tile_menu_5 {
   height: 34px; 
   background: #20E6E5; 
   color: #000000; 
@@ -950,87 +903,27 @@ button#nj_tile_menu {
   border-radius: 5px
 }
 
-button#nj_tile_menu_2 {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-left: 15px; 
-  margin-top: 21px; 
-  border-radius: 5px
-}
-
-button#nj_tile_menu_3 {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-left: 15px; 
-  margin-top: 21px; 
-  border-radius: 5px
-}
-
-button#nj_tile_menu_4 {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-left: 15px; 
-  margin-top: 21px; 
-  border-radius: 5px
-}
-
-button#nj_tile_menu_5 {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-left: 15px; 
-  margin-top: 21px; 
-  border-radius: 5px
-}
-
-#nj_nodepoint_color, #nj_tippoint_color {
+#nj_nodepoint_color, #nj_tippoint_color, #upgma_nodepoint_color, #upgma_tippoint_color {
   margin-bottom: 10px;
   margin-top: 6px;
 }
 
-#nj_treescale_show {
+#nj_treescale_show, #upgma_treescale_show {
   margin-top: 17px;
 }
 
-#nj_tiles_show {
+#nj_tiles_show, #nj_tiles_show_2, #nj_tiles_show_3, #nj_tiles_show_4, #nj_tiles_show_5,
+#upgma_tiles_show, #upgma_tiles_show_2, #upgma_tiles_show_3, #upgma_tiles_show_4, #upgma_tiles_show_5 {
   margin-top: 18px; 
   margin-left: -5px
 }
 
-#nj_tiles_show_2 {
-  margin-top: 18px; 
-  margin-left: -5px
-}
-
-#nj_tiles_show_3 {
-  margin-top: 18px; 
-  margin-left: -5px
-}
-
-#nj_tiles_show_4 {
-  margin-top: 18px; 
-  margin-left: -5px
-}
-
-#nj_tiles_show_5 {
-  margin-top: 18px; 
-  margin-left: -5px
-}
-
-#nodepoint_show {
-  margin-top: 18px; 
-  margin-left: -5px
-}
-
-#nj_ladder {
+#nj_ladder, #upgma_ladder {
   margin-top: 8px; 
   margin-left: -5px
 }
 
-#nj_align {
+#nj_align, #upgma_align {
   margin-top: 10px; 
   margin-left: -60px
 }
@@ -1040,21 +933,21 @@ button#nj_tile_menu_5 {
   margin-left: -15px;
 }
 
-#nj_mapping_show {
+#nj_mapping_show, #upgma_mapping_show {
   margin-top: 13px;
 }
 
-#nj_tipcolor_mapping, #nj_tipshape_mapping_show {
+#nj_tipcolor_mapping, #nj_tipshape_mapping_show, #upgma_tipcolor_mapping, #upgma_tipshape_mapping_show {
   margin-top: -10px;
   margin-right: 30px;
 }
 
-#nj_tipshape_mapping, #nj_fruit_variable, #nj_fruit_variable2, #nj_fruit_variable3, #nj_fruit_variable4, #nj_fruit_variable5 {
+#nj_tipshape_mapping, #nj_fruit_variable, #nj_fruit_variable2, #nj_fruit_variable3, #nj_fruit_variable4, #nj_fruit_variable5, #upgma_tipshape_mapping, #upgma_fruit_variable, #upgma_fruit_variable2, #upgma_fruit_variable3, #upgma_fruit_variable4, #upgma_fruit_variable5 {
   margin-top: -10px;
   margin-right: 30px;
 }
 
-#nj_tiplab_scale, #nj_tippoint_scale {
+#nj_tiplab_scale, #nj_tippoint_scale, #upgma_tiplab_scale, #upgma_tippoint_scale {
   margin-top: 0px;
   margin-bottom: -10px;
 }
@@ -1063,575 +956,138 @@ button#nj_tile_menu_5 {
   margin-top: -7px;
 }
 
-#nj_tipcolor_mapping {
-  margin-top: -10px;
-}
-
 #shiny-tab-visualization > div:nth-child(5) > div > div:nth-child(5) > div > div > div > div > div > div:nth-child(3) > div:nth-child(3) > div > div > div {
   margin-top: -10px;
 }
 
-#nj_geom {
+#nj_tipcolor_mapping, #upgma_tipcolor_mapping {
+  margin-top: -10px;
+}
+
+#nj_geom, #upgma_geom {
   margin-top: 0px; 
   margin-left: -5px;
   margin-bottom: 0px;
 }
 
-#nj_tiplab_color {
+#nj_tiplab_color, #upgma_tiplab_color {
   margin-bottom: 7px;
   margin-top: -7px;
 }
 
-#nj_show_branch_label {
+#nj_show_branch_label, #upgma_show_branch_label {
   margin-top: 17px; 
   margin-left: -5px
 }
 
-#tippoint_show {
+#nj_tiplab_show, #upgma_tiplab_show {
   margin-top: 17px; 
   margin-left: -5px
 }
 
-#nj_tiplab_show {
-  margin-top: 17px; 
-  margin-left: -5px
-}
-
-#nj_fruit_offset {
+#nj_fruit_offset, #upgma_fruit_offset {
   position: relative; 
   top: -20px
 }
 
-#nj_layout .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {
+#nj_layout .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y,
+#upgma_layout .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y{
   margin-bottom: 16px
 }
 
-#nj_div_tiles {
+#nj_div_tiles, #upgma_div_tiles {
   position: absolute; 
   bottom: 4px; 
   margin-left: -5px
 }
 
-#nj_fruit_offset_2 {
+#nj_fruit_offset_2, #upgma_fruit_offset_2 {
   position: relative; 
   top: -20px
 }
 
-#nj_layout_2 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {
+#nj_layout_2 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y,
+#upgma_layout_2 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y{
   margin-bottom: 16px
 }
 
-#nj_div_tiles_2 {
+#nj_div_tiles_2, #upgma_div_tiles_2 {
   position: absolute; 
   bottom: 4px; 
   margin-left: -5px
 }
 
-#nj_fruit_offset_3 {
+#nj_fruit_offset_3, #upgma_fruit_offset_3 {
   position: relative; 
   top: -20px
 }
 
-#nj_layout_3 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {
+#nj_layout_3 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y,
+#upgma_layout_3 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y{
   margin-bottom: 16px
 }
 
-#nj_div_tiles_3 {
+#nj_div_tiles_3, #upgma_div_tiles_3 {
   position: absolute; 
   bottom: 4px; 
   margin-left: -5px
 }
 
-#nj_fruit_offset_4 {
+#nj_fruit_offset_4, #upgma_fruit_offset_4 {
   position: relative; 
   top: -20px
 }
 
-#nj_layout_4 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {
+#nj_layout_4 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y,
+#upgma_layout_4 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y{
   margin-bottom: 16px
 }
 
-#nj_div_tiles_4 {
+#nj_div_tiles_4, #upgma_div_tiles_4 {
   position: absolute; 
   bottom: 4px; 
   margin-left: -5px
 }
 
-#nj_fruit_offset_5 {
+#nj_fruit_offset_5, #upgma_fruit_offset_5 {
   position: relative; 
   top: -20px
 }
 
-#nj_layout_5 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {
-  margin-bottom: 16px
-}
-
-#nj_div_tiles_5 {
-  position: absolute; 
-  bottom: 4px; 
-  margin-left: -5px
-}
-
-#nj_heatmap_width {
-  margin-top: 8px;
-}
-
-#nj_heatmap_offset {
-  margin-top: 4px;
-  margin-bottom: 2px;
-}
-
-#nj_fruit_width, #nj_fruit_width2, #nj_fruit_width3, #nj_fruit_width4, #nj_fruit_width5 {
-  margin-top: -5px;
-  margin-bottom: -15px;
-}
-
-#nj_tile_color_low {
-  position: relative; 
-  right: -13px;
-}
-
-#nj_tile_color_low_2 {
-  position: relative; 
-  right: -13px;
-}
-
-#nj_tile_color_low_3 {
-  position: relative; 
-  right: -13px;
-}
-
-#nj_tile_color_low_4 {
-  position: relative; 
-  right: -13px;
-}
-
-#nj_tile_color_low_5 {
-  position: relative; 
-  right: -13px;
-}
-
-#nj_tile_color_high {
-  position: relative; 
-  right: 13px;
-}
-
-#nj_tile_color_high_2 {
-  position: relative; 
-  right: 13px;
-}
-
-#nj_tile_color_high_3 {
-  position: relative; 
-  right: 13px;
-}
-
-#nj_tile_color_high_4 {
-  position: relative; 
-  right: 13px;
-}
-
-#nj_tile_color_high_5 {
-  position: relative; 
-  right: 13px;
-}
-
-#nj_heatmap_show {
-  margin-top: 18px; 
-  margin-left: -5px;
-}
-
-#nj_nodepoint_show {
-  margin-top: 18px; 
-  margin-left: -5px
-}
-
-#nj_tippoint_show {
-  margin-top: 18px; 
-  margin-left: -5px
-}
-
-#upgma_labeltext_menu {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  border-radius: 5px; 
-  margin-top: 20px; 
-  margin-left: 10px
-}
-
-button#upgma_labelformat_menu {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  border-radius: 5px; 
-  margin-top: 20px
-}
-
-button#upgma_subtitle_menu {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-top: 20px; 
-  border-radius: 5px
-}
-
-button#upgma_footer_menu {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-top: 20px; 
-  border-radius: 5px
-}
-
-button#upgma_title_menu {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-top: 20px; 
-  border-radius: 5px
-}
-
-button#upgma_branch_label_menu {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-top: 20px; 
-  border-radius: 5px; 
-  margin-left: 10px
-}
-
-button#upgma_legend_menu {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-top: 20px; 
-  border-radius: 5px
-}
-
-button#upgma_treescale_menu {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-top: 20px; 
-  border-radius: 5px
-}
-
-button#upgma_rootedge_menu {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-left: 10px; 
-  margin-top: 22px; 
-  border-radius: 5px
-}
-
-button#upgma_tippoint_menu {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-top: 21px; 
-  border-radius: 5px
-}
-
-button#upgma_nodepoint_menu {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-top: 21px; 
-  border-radius: 5px
-}
-
-button#upgma_heatmap_menu {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-top: 21px; 
-  border-radius: 5px
-}
-
-button#upgma_tile_menu {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-left: 15px; 
-  margin-top: 21px; 
-  border-radius: 5px
-}
-
-button#upgma_tile_menu_2 {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-left: 15px; 
-  margin-top: 21px; 
-  border-radius: 5px
-}
-
-button#upgma_tile_menu_3 {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-left: 15px; 
-  margin-top: 21px; 
-  border-radius: 5px
-}
-
-button#upgma_tile_menu_4 {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-left: 15px; 
-  margin-top: 21px; 
-  border-radius: 5px
-}
-
-button#upgma_tile_menu_5 {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-left: 15px; 
-  margin-top: 21px; 
-  border-radius: 5px
-}
-
-#upgma_tippoint_color {
-  margin-bottom: 0px
-}
-
-#upgma_nodepoint_color {
-  margin-bottom: 16px;
-}
-
-#upgma_treescale_show {
-  margin-top: 17px;
-}
-
-#upgma_tiles_show {
-  margin-top: 18px; 
-  margin-left: -5px
-}
-
-#upgma_tiles_show_2 {
-  margin-top: 18px; 
-  margin-left: -5px
-}
-
-#upgma_tiles_show_3 {
-  margin-top: 18px; 
-  margin-left: -5px
-}
-
-#upgma_tiles_show_4 {
-  margin-top: 18px; 
-  margin-left: -5px
-}
-
-#upgma_tiles_show_5 {
-  margin-top: 18px; 
-  margin-left: -5px
-}
-
-#upgma_nodepoint_show {
-  margin-top: 18px; 
-  margin-left: -5px
-}
-
-#upgma_ladder {
-  margin-top: 19px; 
-  margin-left: -5px
-}
-
-#upgma_align {
-  margin-top: 21px; 
-  margin-left: -5px
-}
-
-#upgma_rootedge_show {
-  margin-top: 20px
-}
-
-#upgma_mapping_show {
-  margin-top: 20px;
-}
-
-#upgma_tipcolor_mapping_show {
-  margin-top: 20px;
-}
-
-#upgma_tipshape_mapping_show {
-  margin-top: 20px;
-}
-
-#upgma_geom {
-  margin-top: 0px; 
-  margin-left: -5px
-}
-
-#upgma_tiplab_color {
-  margin-bottom: 0px;
-}
-
-#upgma_show_branch_label {
-  margin-top: 17px; 
-  margin-left: -5px
-}
-
-#upgma_tippoint_show {
-  margin-top: 17px; 
-  margin-left: -5px
-}
-
-#upgma_tiplab_show {
-  margin-top: 17px; 
-  margin-left: -5px
-}
-
-#upgma_fruit_offset {
-  position: relative; 
-  top: -20px
-}
-
-#upgma_layout .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {
-  margin-bottom: 16px
-}
-
-#upgma_div_tiles {
-  position: absolute; 
-  bottom: 4px; 
-  margin-left: -5px
-}
-
-#upgma_fruit_offset_2 {
-  position: relative; 
-  top: -20px
-}
-
-#upgma_layout_2 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {
-  margin-bottom: 16px
-}
-
-#upgma_div_tiles_2 {
-  position: absolute; 
-  bottom: 4px; 
-  margin-left: -5px
-}
-
-#upgma_fruit_offset_3 {
-  position: relative; 
-  top: -20px
-}
-
-#upgma_layout_3 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {
-  margin-bottom: 16px
-}
-
-#upgma_div_tiles_3 {
-  position: absolute; 
-  bottom: 4px; 
-  margin-left: -5px
-}
-
-#upgma_fruit_offset_4 {
-  position: relative; 
-  top: -20px
-}
-
-#upgma_layout_4 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {
-  margin-bottom: 16px
-}
-
-#upgma_div_tiles_4 {
-  position: absolute; 
-  bottom: 4px; 
-  margin-left: -5px
-}
-
-#upgma_fruit_offset_5 {
-  position: relative; 
-  top: -20px
-}
-
+#nj_layout_5 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y,
 #upgma_layout_5 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {
   margin-bottom: 16px
 }
 
-#upgma_div_tiles_5 {
+#nj_div_tiles_5, #upgma_div_tiles_5 {
   position: absolute; 
   bottom: 4px; 
   margin-left: -5px
 }
 
-#upgma_tile_color_low {
-  position: relative; 
-  right: -13px;
+#nj_heatmap_width, #upgma_heatmap_width {
+  margin-top: 8px;
 }
 
-#upgma_tile_color_low_2 {
-  position: relative; 
-  right: -13px;
+#nj_heatmap_offset, #upgma_heatmap_offset {
+  margin-top: 4px;
+  margin-bottom: 2px;
 }
 
-#upgma_tile_color_low_3 {
-  position: relative; 
-  right: -13px;
+#nj_fruit_width, #nj_fruit_width2, #nj_fruit_width3, #nj_fruit_width4, #nj_fruit_width5,
+#upgma_fruit_width, #upgma_fruit_width2, #upgma_fruit_width3, #upgma_fruit_width4, #upgma_fruit_width5{
+  margin-top: -5px;
+  margin-bottom: -15px;
 }
 
-#upgma_tile_color_low_4 {
-  position: relative; 
-  right: -13px;
-}
-
-#upgma_tile_color_low_5 {
-  position: relative; 
-  right: -13px;
-}
-
-#upgma_tile_color_high {
-  position: relative; 
-  right: 13px;
-}
-
-#upgma_tile_color_high_2 {
-  position: relative; 
-  right: 13px;
-}
-
-#upgma_tile_color_high_3 {
-  position: relative; 
-  right: 13px;
-}
-
-#upgma_tile_color_high_4 {
-  position: relative; 
-  right: 13px;
-}
-
-#upgma_tile_color_high_5 {
-  position: relative; 
-  right: 13px;
-}
-
-#upgma_heatmap_show {
+#nj_heatmap_show, #upgma_heatmap_show {
   margin-top: 18px; 
   margin-left: -5px;
 }
 
-#upgma_heatmap_title {
-  position: relative; 
-  bottom: -20px
-}
-
-button#create_tree {
-  position: relative; 
-  left: -15px; 
-  width = 100%; 
-  border: none;
-}
-
-button#create_tree:hover {
-  background: #3c8c56; 
-  border: none;
+#nj_nodepoint_show, #nj_tippoint_show, #upgma_nodepoint_show, #upgma_tippoint_show {
+  margin-top: 18px; 
+  margin-left: -5px
 }
 
 #nj_tiplab_scale .option[data-value="Set1"],
@@ -1647,7 +1103,6 @@ button#create_tree:hover {
     color: black;
     margin-bottom: 2px;
 }
-
 
 #nj_tiplab_scale .option[data-value="Set2"], 
 #nj_tippoint_scale .option[data-value="Set2"], 
