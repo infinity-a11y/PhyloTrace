@@ -117,6 +117,7 @@ dependencies:
   - r-quadprog=1.5_8
   - r-ragg=1.2.5
   - r-rappdirs=0.3.3
+  - r-rcolorbrewer=1.1_3
   - r-readr=2.1.4
   - r-readxl=1.4.3
   - r-rematch=2.0.0
@@ -155,6 +156,7 @@ dependencies:
   - r-utf8=1.2.3
   - r-uuid=1.1_1
   - r-vctrs=0.6.4
+  - r-viridis=0.6.5
   - r-viridisLite=0.4.2
   - r-visNetwork=2.1.2
   - r-vroom=1.6.4
