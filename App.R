@@ -1997,9 +1997,10 @@ ui <- dashboardPage(
                                 sliderInput(
                                   "nj_legend_x",
                                   label = h5("X Position", style = "color:white; margin-bottom: 0px"),
-                                  value = 0.1,
+                                  value = 0.9,
                                   min = -0.9,
                                   max = 1.9,
+                                  step = 0.2,
                                   width = "150px",
                                   ticks = FALSE
                                 ),
@@ -2007,9 +2008,10 @@ ui <- dashboardPage(
                                 sliderInput(
                                   "nj_legend_y",
                                   label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
-                                  value = 1,
-                                  min = -1,
-                                  max = 1,
+                                  value = 0.2,
+                                  min = -1.5,
+                                  max = 1.5,
+                                  step = 0.1,
                                   width = "150px",
                                   ticks = FALSE
                                 )
