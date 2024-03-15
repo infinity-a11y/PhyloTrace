@@ -3013,25 +3013,7 @@ ui <- dashboardPage(
                         align = "center",
                         uiOutput("nj_tiplab_scale")
                       ),
-                      conditionalPanel(
-                        "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_tiplab_scale)",
-                        column(
-                          width = 1,
-                          h5("Midpoint", style = "color: white; margin-top: 22px;")
-                        ),
-                        column(
-                          width = 2,
-                          div(
-                            class = "divmid-sel1",
-                            selectInput(
-                              "nj_color_mapping_div_mid",
-                              label = "",
-                              choices = c("Zero", "Mean", "Median"),
-                              selected = "Mean"
-                            )
-                          )
-                        )
-                      )
+                      uiOutput("nj_tiplab_mapping_info"),
                     ),
                     fluidRow(
                       column(
@@ -3056,25 +3038,7 @@ ui <- dashboardPage(
                         align = "center",
                         uiOutput("nj_tippoint_scale")
                       ),
-                      conditionalPanel(
-                        "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_tippoint_scale)",
-                        column(
-                          width = 1,
-                          h5("Midpoint", style = "color: white; margin-top: 20px;")
-                        ),
-                        column(
-                          width = 2,
-                          div(
-                            class = "divmid-sel",
-                            selectInput(
-                              "nj_tipcolor_mapping_div_mid",
-                              label = "",
-                              choices = c("Zero", "Mean", "Median"),
-                              selected = "Mean"
-                            )
-                          )
-                        )
-                      )
+                      uiOutput("nj_tipcolor_mapping_info")
                     ),
                     fluidRow(
                       column(
@@ -3098,10 +3062,11 @@ ui <- dashboardPage(
                         width = 3,
                         HTML(
                           paste(
-                            tags$span(style='color: white; font-size: 14px; font-style: italic; position: relative; bottom: -16px; right: -15px;', 'No scale for shapes')
+                            tags$span(style='color: white; font-size: 14px; font-style: italic; position: relative; bottom: -16px; right: -40px;', 'No scale for shapes')
                           )
                         )
-                      )
+                      ),
+                      uiOutput("nj_tipshape_mapping_info")
                     ),
                     fluidRow(
                       column(
@@ -3215,25 +3180,6 @@ ui <- dashboardPage(
                           width = 3,
                           align = "center",
                           uiOutput("nj_tiles_scale_1")
-                        ),
-                        conditionalPanel(
-                          "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_tiles_scale_1)",
-                          column(
-                            width = 1,
-                            h5("Midpoint", style = "color: white; margin-top: 20px;")
-                          ),
-                          column(
-                            width = 2,
-                            div(
-                              class = "divmid-sel",
-                              selectInput(
-                                "nj_tiles_mapping_div_mid_1",
-                                label = "",
-                                choices = c("Zero", "Mean", "Median"),
-                                selected = "Mean"
-                              )
-                            )
-                          )
                         )
                       ),
                       conditionalPanel(
@@ -3242,25 +3188,6 @@ ui <- dashboardPage(
                           width = 3,
                           align = "center",
                           uiOutput("nj_tiles_scale_2")
-                        ),
-                        conditionalPanel(
-                          "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_tiles_scale_2)",
-                          column(
-                            width = 1,
-                            h5("Midpoint", style = "color: white; margin-top: 20px;")
-                          ),
-                          column(
-                            width = 2,
-                            div(
-                              class = "divmid-sel",
-                              selectInput(
-                                "nj_tiles_mapping_div_mid_2",
-                                label = "",
-                                choices = c("Zero", "Mean", "Median"),
-                                selected = "Mean"
-                              )
-                            )
-                          )
                         )
                       ),
                       conditionalPanel(
@@ -3269,25 +3196,6 @@ ui <- dashboardPage(
                           width = 3,
                           align = "center",
                           uiOutput("nj_tiles_scale_3")
-                        ),
-                        conditionalPanel(
-                          "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_tiles_scale_3)",
-                          column(
-                            width = 1,
-                            h5("Midpoint", style = "color: white; margin-top: 20px;")
-                          ),
-                          column(
-                            width = 2,
-                            div(
-                              class = "divmid-sel",
-                              selectInput(
-                                "nj_tiles_mapping_div_mid_3",
-                                label = "",
-                                choices = c("Zero", "Mean", "Median"),
-                                selected = "Mean"
-                              )
-                            )
-                          )
                         )
                       ),
                       conditionalPanel(
@@ -3296,25 +3204,6 @@ ui <- dashboardPage(
                           width = 3,
                           align = "center",
                           uiOutput("nj_tiles_scale_4")
-                        ),
-                        conditionalPanel(
-                          "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_tiles_scale_4)",
-                          column(
-                            width = 1,
-                            h5("Midpoint", style = "color: white; margin-top: 20px;")
-                          ),
-                          column(
-                            width = 2,
-                            div(
-                              class = "divmid-sel",
-                              selectInput(
-                                "nj_tiles_mapping_div_mid_4",
-                                label = "",
-                                choices = c("Zero", "Mean", "Median"),
-                                selected = "Mean"
-                              )
-                            )
-                          )
                         )
                       ),
                       conditionalPanel(
@@ -3323,27 +3212,9 @@ ui <- dashboardPage(
                           width = 3,
                           align = "center",
                           uiOutput("nj_tiles_scale_5")
-                        ),
-                        conditionalPanel(
-                          "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_tiles_scale_5)",
-                          column(
-                            width = 1,
-                            h5("Midpoint", style = "color: white; margin-top: 20px;")
-                          ),
-                          column(
-                            width = 2,
-                            div(
-                              class = "divmid-sel",
-                              selectInput(
-                                "nj_tiles_mapping_div_mid_5",
-                                label = "",
-                                choices = c("Zero", "Mean", "Median"),
-                                selected = "Mean"
-                              )
-                            )
-                          )
                         )
-                      )
+                      ),
+                      uiOutput("nj_fruit_mapping_info")
                     ),
                     fluidRow(
                       column(
@@ -3368,25 +3239,7 @@ ui <- dashboardPage(
                         align = "center",
                         uiOutput("nj_heatmap_scale")
                       ),
-                      conditionalPanel(
-                        "['Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG'].includes(input.nj_heatmap_scale)",
-                        column(
-                          width = 1,
-                          h5("Midpoint", style = "color: white; margin-top: 20px;")
-                        ),
-                        column(
-                          width = 2,
-                          div(
-                            class = "divmid-sel",
-                            selectInput(
-                              "nj_heatmap_div_mid",
-                              label = "",
-                              choices = c("Zero", "Mean", "Median"),
-                              selected = "Mean"
-                            )
-                          )
-                        )
-                      )
+                      uiOutput("nj_heatmap_mapping_info")
                     )
                   )
                 )
@@ -8869,6 +8722,8 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
+    test <<- DB$meta
+    
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -10012,6 +9867,410 @@ server <- function(input, output, session) {
   
   #### NJ and UPGMA controls ----
   
+  # Mapping value number information
+  
+  output$nj_tiplab_mapping_info <- renderUI({
+    if(!is.null(input$nj_color_mapping)) {
+      if(is.numeric(unlist(DB$meta[input$nj_color_mapping]))) {
+        if(input$nj_tiplab_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
+          column(
+            width = 3,
+            fluidRow(
+              column(
+                width = 4,
+                h5("Midpoint", style = "color: white; margin-top: 22px;")
+              ),
+              column(
+                width = 8,
+                div(
+                  class = "divmid-sel1",
+                  selectInput(
+                    "nj_color_mapping_div_mid",
+                    label = "",
+                    choices = c("Zero", "Mean", "Median"),
+                    selected = "Mean"
+                  )
+                )
+              )
+            )
+          )
+        } else {
+          column(
+            width = 3,
+            h5("Continous values", style = "color: white; font-size: 14px; margin-top: 23px; margin-left: 40px")
+          ) 
+        }
+      } else {
+        if(length(unique(unlist(DB$meta[input$nj_color_mapping]))) > 7) {
+          column(
+            width = 3,
+            h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$nj_color_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+          )
+        } else {
+          column(
+            width = 3,
+            h5(paste0(length(unique(unlist(DB$meta[input$nj_color_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+          )
+        }
+      }
+    } else {NULL}
+  })
+  
+  output$nj_tipcolor_mapping_info <- renderUI({
+    if(!is.null(input$nj_tipcolor_mapping)) {
+      if(is.numeric(unlist(DB$meta[input$nj_tipcolor_mapping]))) {
+        if(input$nj_tippoint_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
+          column(
+            width = 3,
+            fluidRow(
+              column(
+                width = 4,
+                h5("Midpoint", style = "color: white; margin-top: 22px;")
+              ),
+              column(
+                width = 8,
+                div(
+                  class = "divmid-sel1",
+                  selectInput(
+                    "nj_tipcolor_mapping_div_mid",
+                    label = "",
+                    choices = c("Zero", "Mean", "Median"),
+                    selected = "Mean"
+                  )
+                )
+              )
+            )
+          )
+        } else {
+          column(
+            width = 3,
+            h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
+          ) 
+        }
+      } else {
+        if(length(unique(unlist(DB$meta[input$nj_tipcolor_mapping]))) > 7) {
+          column(
+            width = 3,
+            h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$nj_tipcolor_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+          )
+        } else {
+          column(
+            width = 3,
+            h5(paste0(length(unique(unlist(DB$meta[input$nj_tipcolor_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+          )
+        }
+      }
+    } else {NULL}
+  })
+  
+  output$nj_tipshape_mapping_info <- renderUI({
+    if(!is.null(input$nj_tipshape_mapping)) {
+      if(is.numeric(unlist(DB$meta[input$nj_tipshape_mapping]))) {
+        column(
+          width = 3,
+          h5("Mapping continous variables to shape not possible", style = "color: #E18B00; font-style: italic; font-size: 12px; margin-top: 15px;  margin-left: 40px")        
+        )
+      } else {
+        if(length(unique(unlist(DB$meta[input$nj_tipshape_mapping]))) > 6) {
+          column(
+            width = 3,
+            h5("Mapping > 6 variables to shape not possible", style = "color: #E18B00; font-style: italic; font-size: 12px; margin-top: 15px;  margin-left: 40px")        
+          )
+        } else {
+          column(
+            width = 3,
+            h5(paste0(length(unique(unlist(DB$meta[input$nj_tipshape_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+          )    
+        }
+      }
+    } else {NULL}
+  })
+  
+  output$nj_fruit_mapping_info <- renderUI({
+    if(input$nj_tile_num == 1) {
+      if(!is.null(input$nj_fruit_variable)) {
+        if(is.numeric(unlist(DB$meta[input$nj_fruit_variable]))) {
+          if(input$nj_tiles_scale_1 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
+            column(
+              width = 3,
+              fluidRow(
+                column(
+                  width = 4,
+                  h5("Midpoint", style = "color: white; margin-top: 22px;")
+                ),
+                column(
+                  width = 8,
+                  div(
+                    class = "divmid-sel1",
+                    selectInput(
+                      "nj_tiles_mapping_div_mid_1",
+                      label = "",
+                      choices = c("Zero", "Mean", "Median"),
+                      selected = "Mean"
+                    )
+                  )
+                )
+              )
+            )
+          } else {
+            column(
+              width = 3,
+              h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
+            ) 
+          }
+        } else {
+          if(length(unique(unlist(DB$meta[input$nj_fruit_variable]))) > 7) {
+            column(
+              width = 3,
+              h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$nj_fruit_variable]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            )
+          } else {
+            column(
+              width = 3,
+              h5(paste0(length(unique(unlist(DB$meta[input$nj_fruit_variable]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            )
+          }
+        }
+      } else {NULL}
+    } else if (input$nj_tile_num == 2) {
+      if(!is.null(input$nj_fruit_variable_2)) {
+        if(is.numeric(unlist(DB$meta[input$nj_fruit_variable_2]))) {
+          if(input$nj_tiles_scale_2 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
+            column(
+              width = 3,
+              fluidRow(
+                column(
+                  width = 4,
+                  h5("Midpoint", style = "color: white; margin-top: 22px;")
+                ),
+                column(
+                  width = 8,
+                  div(
+                    class = "divmid-sel1",
+                    selectInput(
+                      "nj_tiles_mapping_div_mid_2",
+                      label = "",
+                      choices = c("Zero", "Mean", "Median"),
+                      selected = "Mean"
+                    )
+                  )
+                )
+              )
+            )
+          } else {
+            column(
+              width = 3,
+              h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
+            ) 
+          }
+        } else {
+          if(length(unique(unlist(DB$meta[input$nj_fruit_variable_2]))) > 7) {
+            column(
+              width = 3,
+              h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$nj_fruit_variable_2]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            )
+          } else {
+            column(
+              width = 3,
+              h5(paste0(length(unique(unlist(DB$meta[input$nj_fruit_variable_2]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            )
+          }
+        }
+      } else {NULL}
+    } else if (input$nj_tile_num == 3) {
+      if(!is.null(input$nj_fruit_variable_3)) {
+        if(is.numeric(unlist(DB$meta[input$nj_fruit_variable_3]))) {
+          if(input$nj_tiles_scale_3 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
+            column(
+              width = 3,
+              fluidRow(
+                column(
+                  width = 4,
+                  h5("Midpoint", style = "color: white; margin-top: 22px;")
+                ),
+                column(
+                  width = 8,
+                  div(
+                    class = "divmid-sel1",
+                    selectInput(
+                      "nj_tiles_mapping_div_mid_3",
+                      label = "",
+                      choices = c("Zero", "Mean", "Median"),
+                      selected = "Mean"
+                    )
+                  )
+                )
+              )
+            )
+          } else {
+            column(
+              width = 3,
+              h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
+            ) 
+          }
+        } else {
+          if(length(unique(unlist(DB$meta[input$nj_fruit_variable_3]))) > 7) {
+            column(
+              width = 3,
+              h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$nj_fruit_variable_3]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            )
+          } else {
+            column(
+              width = 3,
+              h5(paste0(length(unique(unlist(DB$meta[input$nj_fruit_variable_3]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            )
+          }
+        }
+      } else {NULL}
+    } else if (input$nj_tile_num == 4) {
+      if(!is.null(input$nj_fruit_variable_4)) {
+        if(is.numeric(unlist(DB$meta[input$nj_fruit_variable_4]))) {
+          if(input$nj_tiles_scale_4 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
+            column(
+              width = 3,
+              fluidRow(
+                column(
+                  width = 4,
+                  h5("Midpoint", style = "color: white; margin-top: 22px;")
+                ),
+                column(
+                  width = 8,
+                  div(
+                    class = "divmid-sel1",
+                    selectInput(
+                      "nj_tiles_mapping_div_mid_4",
+                      label = "",
+                      choices = c("Zero", "Mean", "Median"),
+                      selected = "Mean"
+                    )
+                  )
+                )
+              )
+            )
+          } else {
+            column(
+              width = 3,
+              h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
+            ) 
+          }
+        } else {
+          if(length(unique(unlist(DB$meta[input$nj_fruit_variable_4]))) > 7) {
+            column(
+              width = 3,
+              h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$nj_fruit_variable_4]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            )
+          } else {
+            column(
+              width = 3,
+              h5(paste0(length(unique(unlist(DB$meta[input$nj_fruit_variable_4]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            )
+          }
+        }
+      } else {NULL}
+    } else if (input$nj_tile_num == 5) {
+      if(!is.null(input$nj_fruit_variable_5)) {
+        if(is.numeric(unlist(DB$meta[input$nj_fruit_variable_5]))) {
+          if(input$nj_tiles_scale_5 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
+            column(
+              width = 3,
+              fluidRow(
+                column(
+                  width = 4,
+                  h5("Midpoint", style = "color: white; margin-top: 22px;")
+                ),
+                column(
+                  width = 8,
+                  div(
+                    class = "divmid-sel1",
+                    selectInput(
+                      "nj_tiles_mapping_div_mid_5",
+                      label = "",
+                      choices = c("Zero", "Mean", "Median"),
+                      selected = "Mean"
+                    )
+                  )
+                )
+              )
+            )
+          } else {
+            column(
+              width = 3,
+              h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
+            ) 
+          }
+        } else {
+          if(length(unique(unlist(DB$meta[input$nj_fruit_variable_5]))) > 7) {
+            column(
+              width = 3,
+              h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$nj_fruit_variable_5]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            )
+          } else {
+            column(
+              width = 3,
+              h5(paste0(length(unique(unlist(DB$meta[input$nj_fruit_variable_5]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            )
+          }
+        }
+      } else {NULL}
+    }
+  })
+  
+  output$nj_heatmap_mapping_info <- renderUI({
+    if(!is.null(input$nj_heatmap_select)) {
+      if (any(sapply(DB$meta[input$nj_heatmap_select], is.numeric)) & 
+          any(!sapply(DB$meta[input$nj_heatmap_select], is.numeric))) {
+        column(
+          width = 3,
+          h5("Heatmap with categorical and continous values not possible", 
+             style = "color: #E18B00; font-size: 12px; font-style: italic; margin-top: 15px;  margin-left: 40px")
+        ) 
+      } else {
+        if(any(sapply(DB$meta[input$nj_heatmap_select], is.numeric))) {
+          if(input$nj_heatmap_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
+            column(
+              width = 3,
+              fluidRow(
+                column(
+                  width = 4,
+                  h5("Midpoint", style = "color: white; margin-top: 22px;")
+                ),
+                column(
+                  width = 8,
+                  div(
+                    class = "divmid-sel1",
+                    selectInput(
+                      "nj_heatmap_div_mid",
+                      label = "",
+                      choices = c("Zero", "Mean", "Median"),
+                      selected = "Mean"
+                    )
+                  )
+                )
+              )
+            )
+          } else {
+            column(
+              width = 3,
+              h5("Continous values", style = "color: white; font-size: 14px; margin-top: 23px; margin-left: 40px")
+            ) 
+          }
+        } else {
+          if(length(unique(unlist(DB$meta[input$nj_heatmap_select]))) > 7) {
+            column(
+              width = 3,
+              h5(paste0("> 7 categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            )
+          } else {
+            column(
+              width = 3,
+              h5("Categorical values", style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            )
+          }
+        }
+      }
+    } else {NULL}
+  })
+  
   # Tiles offset
   output$nj_fruit_offset_circ <- renderUI({
     if(!is.null(input$nj_layout)) {
@@ -10540,42 +10799,62 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      selectInput(
-        "nj_heatmap_scale",
-        "",
-        choices = list(
-          Qualitative = list(
-            "Set1",
-            "Set2",
-            "Set3",
-            "Pastel1",
-            "Pastel2",
-            "Paired",
-            "Dark2",
-            "Accent"
+      if(length(unique(unlist(DB$meta[input$nj_heatmap_select]))) > 7) {
+        selectInput(
+          "nj_heatmap_scale",
+          "",
+          choices = list(
+            Gradient = list(
+              "Magma" = "magma",
+              "Inferno" = "inferno",
+              "Plasma" = "plasma",
+              "Viridis" = "viridis",
+              "Cividis" = "cividis",
+              "Rocket" = "rocket",
+              "Mako" = "mako",
+              "Turbo" = "turbo"
+            )
           ),
-          Sequential = list(
-            "YlOrRd",
-            "YlOrBr",
-            "YlGnBu",
-            "YlGn",
-            "Reds",
-            "RdPu",
-            "Purples",
-            "PuRd",
-            "PuBuGn",
-            "PuBu",
-            "OrRd",
-            "Oranges",
-            "Greys",
-            "Greens",
-            "GnBu",
-            "BuPu",
-            "BuGn",
-            "Blues"
+          selected = "turbo"
+        )
+      } else {
+        selectInput(
+          "nj_heatmap_scale",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set1",
+              "Set2",
+              "Set3",
+              "Pastel1",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
+            ),
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
           )
         )
-      )
+      }
     }
   })
   
@@ -10610,42 +10889,62 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      selectInput(
-        "nj_tiles_scale_1",
-        "",
-        choices = list(
-          Qualitative = list(
-            "Set1",
-            "Set2",
-            "Set3",
-            "Pastel1",
-            "Pastel2",
-            "Paired",
-            "Dark2",
-            "Accent"
+      if(length(unique(unlist(DB$meta[input$nj_fruit_variable]))) > 7) {
+        selectInput(
+          "nj_tiles_scale_1",
+          "",
+          choices = list(
+            Gradient = list(
+              "Magma" = "magma",
+              "Inferno" = "inferno",
+              "Plasma" = "plasma",
+              "Viridis" = "viridis",
+              "Cividis" = "cividis",
+              "Rocket" = "rocket",
+              "Mako" = "mako",
+              "Turbo" = "turbo"
+            )
           ),
-          Sequential = list(
-            "YlOrRd",
-            "YlOrBr",
-            "YlGnBu",
-            "YlGn",
-            "Reds",
-            "RdPu",
-            "Purples",
-            "PuRd",
-            "PuBuGn",
-            "PuBu",
-            "OrRd",
-            "Oranges",
-            "Greys",
-            "Greens",
-            "GnBu",
-            "BuPu",
-            "BuGn",
-            "Blues"
+          selected = "turbo"
+        )
+      } else {
+        selectInput(
+          "nj_tiles_scale_1",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set1",
+              "Set2",
+              "Set3",
+              "Pastel1",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
+            ),
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
           )
         )
-      )
+      }
     }
   })
   
@@ -10679,42 +10978,62 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      selectInput(
-        "nj_tiles_scale_2",
-        "",
-        choices = list(
-          Qualitative = list(
-            "Set1",
-            "Set2",
-            "Set3",
-            "Pastel1",
-            "Pastel2",
-            "Paired",
-            "Dark2",
-            "Accent"
+      if(length(unique(unlist(DB$meta[input$nj_fruit_variable_2]))) > 7) {
+        selectInput(
+          "nj_tiles_scale_2",
+          "",
+          choices = list(
+            Gradient = list(
+              "Magma" = "magma",
+              "Inferno" = "inferno",
+              "Plasma" = "plasma",
+              "Viridis" = "viridis",
+              "Cividis" = "cividis",
+              "Rocket" = "rocket",
+              "Mako" = "mako",
+              "Turbo" = "turbo"
+            )
           ),
-          Sequential = list(
-            "YlOrRd",
-            "YlOrBr",
-            "YlGnBu",
-            "YlGn",
-            "Reds",
-            "RdPu",
-            "Purples",
-            "PuRd",
-            "PuBuGn",
-            "PuBu",
-            "OrRd",
-            "Oranges",
-            "Greys",
-            "Greens",
-            "GnBu",
-            "BuPu",
-            "BuGn",
-            "Blues"
+          selected = "turbo"
+        )
+      } else {
+        selectInput(
+          "nj_tiles_scale_2",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set1",
+              "Set2",
+              "Set3",
+              "Pastel1",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
+            ),
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
           )
         )
-      )
+      }
     }
   })
   
@@ -10748,42 +11067,62 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      selectInput(
-        "nj_tiles_scale_3",
-        "",
-        choices = list(
-          Qualitative = list(
-            "Set1",
-            "Set2",
-            "Set3",
-            "Pastel1",
-            "Pastel2",
-            "Paired",
-            "Dark2",
-            "Accent"
+      if(length(unique(unlist(DB$meta[input$nj_fruit_variable_3]))) > 7) {
+        selectInput(
+          "nj_tiles_scale_3",
+          "",
+          choices = list(
+            Gradient = list(
+              "Magma" = "magma",
+              "Inferno" = "inferno",
+              "Plasma" = "plasma",
+              "Viridis" = "viridis",
+              "Cividis" = "cividis",
+              "Rocket" = "rocket",
+              "Mako" = "mako",
+              "Turbo" = "turbo"
+            )
           ),
-          Sequential = list(
-            "YlOrRd",
-            "YlOrBr",
-            "YlGnBu",
-            "YlGn",
-            "Reds",
-            "RdPu",
-            "Purples",
-            "PuRd",
-            "PuBuGn",
-            "PuBu",
-            "OrRd",
-            "Oranges",
-            "Greys",
-            "Greens",
-            "GnBu",
-            "BuPu",
-            "BuGn",
-            "Blues"
+          selected = "turbo"
+        )
+      } else {
+        selectInput(
+          "nj_tiles_scale_3",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set1",
+              "Set2",
+              "Set3",
+              "Pastel1",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
+            ),
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
           )
         )
-      )
+      }
     }
   })
   
@@ -10817,42 +11156,62 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      selectInput(
-        "nj_tiles_scale_4",
-        "",
-        choices = list(
-          Qualitative = list(
-            "Set1",
-            "Set2",
-            "Set3",
-            "Pastel1",
-            "Pastel2",
-            "Paired",
-            "Dark2",
-            "Accent"
+      if(length(unique(unlist(DB$meta[input$nj_fruit_variable_4]))) > 7) {
+        selectInput(
+          "nj_tiles_scale_4",
+          "",
+          choices = list(
+            Gradient = list(
+              "Magma" = "magma",
+              "Inferno" = "inferno",
+              "Plasma" = "plasma",
+              "Viridis" = "viridis",
+              "Cividis" = "cividis",
+              "Rocket" = "rocket",
+              "Mako" = "mako",
+              "Turbo" = "turbo"
+            )
           ),
-          Sequential = list(
-            "YlOrRd",
-            "YlOrBr",
-            "YlGnBu",
-            "YlGn",
-            "Reds",
-            "RdPu",
-            "Purples",
-            "PuRd",
-            "PuBuGn",
-            "PuBu",
-            "OrRd",
-            "Oranges",
-            "Greys",
-            "Greens",
-            "GnBu",
-            "BuPu",
-            "BuGn",
-            "Blues"
+          selected = "turbo"
+        )
+      } else {
+        selectInput(
+          "nj_tiles_scale_4",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set1",
+              "Set2",
+              "Set3",
+              "Pastel1",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
+            ),
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
           )
         )
-      )
+      }
     }
   })
   
@@ -10886,42 +11245,62 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      selectInput(
-        "nj_tiles_scale_5",
-        "",
-        choices = list(
-          Qualitative = list(
-            "Set1",
-            "Set2",
-            "Set3",
-            "Pastel1",
-            "Pastel2",
-            "Paired",
-            "Dark2",
-            "Accent"
+      if(length(unique(unlist(DB$meta[input$nj_fruit_variable_5]))) > 7) {
+        selectInput(
+          "nj_tiles_scale_5",
+          "",
+          choices = list(
+            Gradient = list(
+              "Magma" = "magma",
+              "Inferno" = "inferno",
+              "Plasma" = "plasma",
+              "Viridis" = "viridis",
+              "Cividis" = "cividis",
+              "Rocket" = "rocket",
+              "Mako" = "mako",
+              "Turbo" = "turbo"
+            )
           ),
-          Sequential = list(
-            "YlOrRd",
-            "YlOrBr",
-            "YlGnBu",
-            "YlGn",
-            "Reds",
-            "RdPu",
-            "Purples",
-            "PuRd",
-            "PuBuGn",
-            "PuBu",
-            "OrRd",
-            "Oranges",
-            "Greys",
-            "Greens",
-            "GnBu",
-            "BuPu",
-            "BuGn",
-            "Blues"
+          selected = "turbo"
+        )
+      } else {
+        selectInput(
+          "nj_tiles_scale_5",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set1",
+              "Set2",
+              "Set3",
+              "Pastel1",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
+            ),
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
           )
         )
-      )
+      }
     }
   })
   
@@ -10956,42 +11335,62 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      selectInput(
-        "nj_tiplab_scale",
-        "",
-        choices = list(
-          Qualitative = list(
-            "Set1",
-            "Set2",
-            "Set3",
-            "Pastel1",
-            "Pastel2",
-            "Paired",
-            "Dark2",
-            "Accent"
+      if(length(unique(unlist(DB$meta[input$nj_color_mapping]))) > 7) {
+        selectInput(
+          "nj_tiplab_scale",
+          "",
+          choices = list(
+            Gradient = list(
+              "Magma" = "magma",
+              "Inferno" = "inferno",
+              "Plasma" = "plasma",
+              "Viridis" = "viridis",
+              "Cividis" = "cividis",
+              "Rocket" = "rocket",
+              "Mako" = "mako",
+              "Turbo" = "turbo"
+            )
           ),
-          Sequential = list(
-            "YlOrRd",
-            "YlOrBr",
-            "YlGnBu",
-            "YlGn",
-            "Reds",
-            "RdPu",
-            "Purples",
-            "PuRd",
-            "PuBuGn",
-            "PuBu",
-            "OrRd",
-            "Oranges",
-            "Greys",
-            "Greens",
-            "GnBu",
-            "BuPu",
-            "BuGn",
-            "Blues"
+          selected = "turbo"
+        )
+      } else {
+        selectInput(
+          "nj_tiplab_scale",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set1",
+              "Set2",
+              "Set3",
+              "Pastel1",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
+            ),
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
           )
         )
-      )
+      }
     }
   })
   
@@ -11026,42 +11425,62 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      selectInput(
-        "nj_tippoint_scale",
-        "",
-        choices = list(
-          Qualitative = list(
-            "Set1",
-            "Set2",
-            "Set3",
-            "Pastel1",
-            "Pastel2",
-            "Paired",
-            "Dark2",
-            "Accent"
+      if(length(unique(unlist(DB$meta[input$nj_tipcolor_mapping]))) > 7) {
+        selectInput(
+          "nj_tippoint_scale",
+          "",
+          choices = list(
+            Gradient = list(
+              "Magma" = "magma",
+              "Inferno" = "inferno",
+              "Plasma" = "plasma",
+              "Viridis" = "viridis",
+              "Cividis" = "cividis",
+              "Rocket" = "rocket",
+              "Mako" = "mako",
+              "Turbo" = "turbo"
+            )
           ),
-          Sequential = list(
-            "YlOrRd",
-            "YlOrBr",
-            "YlGnBu",
-            "YlGn",
-            "Reds",
-            "RdPu",
-            "Purples",
-            "PuRd",
-            "PuBuGn",
-            "PuBu",
-            "OrRd",
-            "Oranges",
-            "Greys",
-            "Greens",
-            "GnBu",
-            "BuPu",
-            "BuGn",
-            "Blues"
+          selected = "turbo"
+        )
+      } else {
+        selectInput(
+          "nj_tippoint_scale",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set1",
+              "Set2",
+              "Set3",
+              "Pastel1",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
+            ),
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
           )
         )
-      )
+      }
     }
   })
   
@@ -11528,6 +11947,27 @@ server <- function(input, output, session) {
   })
   
   output$nj_heatmap_sel <- renderUI({
+    
+    meta <- select(DB$meta, -c(Index, Include, `Assembly ID`, `Assembly Name`,
+                               Scheme, `Typing Date`, Successes, Errors))
+                     
+    # Identify numeric columns
+    numeric_columns <- sapply(meta, is.numeric)
+    
+    numeric_column_names <- names(meta[numeric_columns])
+    
+    non_numeric_column_names <- names(meta)[!numeric_columns]
+    
+    choices <- list()
+    
+    # Add Continuous list only if there are numeric columns
+    if (length(numeric_column_names) > 0) {
+      choices$Continuous <- as.list(setNames(numeric_column_names, numeric_column_names))
+    }
+    
+    # Add Diverging list
+    choices$Categorical <- as.list(setNames(non_numeric_column_names, non_numeric_column_names))
+    
     div(
       class = "heatmap-picker",
       pickerInput(
@@ -11541,11 +11981,9 @@ server <- function(input, output, session) {
             Country = "Country",
             City = "City"
           )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(DB$meta)[13:ncol(DB$meta)])
-        },
+        } else {choices},
         options = list(
+          `dropdown-align-center` = TRUE,
           size = 10,
           style = "background-color: white; border-radius: 5px;"
         ),
@@ -12649,14 +13087,17 @@ server <- function(input, output, session) {
       
       # Add heatmap
       if(input$nj_heatmap_show == TRUE & length(input$nj_heatmap_select) > 0) {
-        tree <- gheatmap(tree, 
-                         data = select(Vis$meta_nj, input$nj_heatmap_select),
-                         offset = nj_heatmap_offset(),
-                         width = nj_heatmap_width(),
-                         legend_title = input$nj_heatmap_title,
-                         colnames_angle = -nj_colnames_angle(),
-                         colnames_offset_y = nj_colnames_y()) +
-          heatmap_scale()
+        if (!(any(sapply(DB$meta[input$nj_heatmap_select], is.numeric)) & 
+            any(!sapply(DB$meta[input$nj_heatmap_select], is.numeric)))) {
+          tree <- gheatmap(tree, 
+                           data = select(Vis$meta_nj, input$nj_heatmap_select),
+                           offset = nj_heatmap_offset(),
+                           width = nj_heatmap_width(),
+                           legend_title = input$nj_heatmap_title,
+                           colnames_angle = -nj_colnames_angle(),
+                           colnames_offset_y = nj_colnames_y()) +
+            heatmap_scale()
+        }
       } 
       
       # Sizing control

@@ -105,6 +105,10 @@
     width: 20px;
 }
 
+#nj_heatmap_sel .filter-option-inner {
+  text-align: center;
+}
+
 #nj_tiplab_scale .option[data-value="Set1"],
 #nj_tippoint_scale .option[data-value="Set1"],
 #nj_tiles_scale_1 .option[data-value="Set1"],
