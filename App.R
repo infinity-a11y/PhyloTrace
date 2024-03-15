@@ -1580,10 +1580,35 @@ ui <- dashboardPage(
                               br(),
                               selectInput(
                                 "nj_rootedge_line",
-                                label = h5("Linetype", style = "color:white"),
+                                label = h5("Rootedge Line", style = "color:white"),
                                 choices = c(Solid = "solid", Dashed = "dashed", Dotted = "dotted"),
                                 selected = c(Dotted = "solid"),
                                 width = "100px"
+                              ),
+                              br(),
+                              conditionalPanel(
+                                "input.nj_layout=='circular'",
+                                sliderInput(
+                                  "nj_xlim",
+                                  label = h5("Adjust Circular", style = "color:white"),
+                                  min = -50,
+                                  max = 0,
+                                  value = -10,
+                                  width = "150px",
+                                  ticks = FALSE
+                                )
+                              ),
+                              conditionalPanel(
+                                "input.nj_layout=='inward'",
+                                sliderInput(
+                                  "nj_inward_xlim",
+                                  label = h5("Adjust Circular", style = "color:white"),
+                                  min = 30,
+                                  max = 120,
+                                  value = 50,
+                                  ticks = FALSE,
+                                  width = "150px",
+                                )
                               )
                             )
                           )
@@ -1601,43 +1626,6 @@ ui <- dashboardPage(
                             h5(p("Ladderize"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
                             value = TRUE,
                             right = TRUE
-                          )
-                        )
-                      )
-                    ),
-                    conditionalPanel(
-                      "input.nj_layout=='circular' | input.nj_layout=='inward'",
-                      fluidRow(
-                        column(
-                          width = 3,
-                          h5(p("Adjust"), style = "color:white; position: relative; right: -15px; margin-top: 20px")
-                        ),
-                        column(
-                          width = 8,
-                          align = "right",
-                          conditionalPanel(
-                            "input.nj_layout=='circular'",
-                            sliderInput(
-                              "nj_xlim",
-                              label = NULL,
-                              min = -50,
-                              max = 0,
-                              value = -10,
-                              width = "150px",
-                              ticks = FALSE
-                            )
-                          ),
-                          conditionalPanel(
-                            "input.nj_layout=='inward'",
-                            sliderInput(
-                              "nj_inward_xlim",
-                              label = NULL,
-                              min = 30,
-                              max = 120,
-                              value = 50,
-                              ticks = FALSE,
-                              width = "150px",
-                            )
                           )
                         )
                       )
@@ -2692,16 +2680,7 @@ ui <- dashboardPage(
                         column(
                           width = 7,
                           align = "center",
-                          sliderInput(
-                            "nj_fruit_offset_circ",
-                            label = "",
-                            min = -0.1,
-                            max = 0.1,
-                            step= 0.01,
-                            value = 0,
-                            width = "150px",
-                            ticks = FALSE
-                          ),
+                          uiOutput("nj_fruit_offset_circ"),
                           br()
                         )
                       )
@@ -2728,16 +2707,7 @@ ui <- dashboardPage(
                         column(
                           width = 7,
                           align = "center",
-                          sliderInput(
-                            "nj_fruit_offset_circ_2",
-                            label = "",
-                            min = -0.1,
-                            max = 0.1,
-                            step= 0.01,
-                            value = 0.05,
-                            width = "150px",
-                            ticks = FALSE
-                          ),
+                          uiOutput("nj_fruit_offset_circ_2"),
                           br()
                         )
                       )
@@ -2764,16 +2734,7 @@ ui <- dashboardPage(
                         column(
                           width = 7,
                           align = "center",
-                          sliderInput(
-                            "nj_fruit_offset_circ_3",
-                            label = "",
-                            min = -0.1,
-                            max = 0.1,
-                            step= 0.01,
-                            value = 0.05,
-                            width = "150px",
-                            ticks = FALSE
-                          ),
+                          uiOutput("nj_fruit_offset_circ_3"),
                           br()
                         )
                       )
@@ -2800,16 +2761,7 @@ ui <- dashboardPage(
                         column(
                           width = 7,
                           align = "center",
-                          sliderInput(
-                            "nj_fruit_offset_circ_4",
-                            label = "",
-                            min = -0.1,
-                            max = 0.1,
-                            step= 0.01,
-                            value = 0.05,
-                            width = "150px",
-                            ticks = FALSE
-                          ),
+                          uiOutput("nj_fruit_offset_circ_4"),
                           br()
                         )
                       )
@@ -2836,16 +2788,7 @@ ui <- dashboardPage(
                         column(
                           width = 7,
                           align = "center",
-                          sliderInput(
-                            "nj_fruit_offset_circ_5",
-                            label = "",
-                            min = -0.1,
-                            max = 0.1,
-                            step= 0.01,
-                            value = 0.05,
-                            width = "150px",
-                            ticks = FALSE
-                          ),
+                          uiOutput("nj_fruit_offset_circ_5"),
                           br()
                         )
                       )
@@ -10069,8 +10012,219 @@ server <- function(input, output, session) {
   
   #### NJ and UPGMA controls ----
   
-  # Heatmap width
+  # Tiles offset
+  output$nj_fruit_offset_circ <- renderUI({
+    if(!is.null(input$nj_layout)) {
+      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+        offset <- 0.15
+        step <- 0.03
+        min <- -0.6
+        max <- 0.6
+      } else {
+        offset <- 0.05
+        step <- 0.01
+        min <- -0.2
+        max <- 0.2
+      }
+      
+      sliderInput(
+        "nj_fruit_offset_circ",
+        label = "",
+        min = min,
+        max = max,
+        step= step,
+        value = 0,
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        "nj_fruit_offset_circ",
+        label = "",
+        min = -0.2,
+        max = 0.2,
+        step= 0.01,
+        value = 0,
+        width = "150px",
+        ticks = FALSE
+      )
+    }
+  })
   
+  output$nj_fruit_offset_circ_2 <- renderUI({
+    if(!is.null(input$nj_layout)) {
+      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+        offset <- 0.15
+        step <- 0.03
+        min <- -0.6
+        max <- 0.6
+      } else {
+        offset <- 0.05
+        step <- 0.01
+        min <- -0.2
+        max <- 0.2
+      }
+      
+      sliderInput(
+        "nj_fruit_offset_circ_2",
+        label = "",
+        min = min,
+        max = max,
+        step= step,
+        value = offset,
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        "nj_fruit_offset_circ_2",
+        label = "",
+        min = -0.2,
+        max = 0.2,
+        step= 0.01,
+        value = 0,
+        width = "150px",
+        ticks = FALSE
+      )
+    }
+  })
+  
+  output$nj_fruit_offset_circ_3 <- renderUI({
+    if(!is.null(input$nj_layout)) {
+      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+        offset <- 0.15
+        step <- 0.03
+        min <- -0.6
+        max <- 0.6
+      } else {
+        offset <- 0.05
+        step <- 0.01
+        min <- -0.2
+        max <- 0.2
+      }
+      
+      sliderInput(
+        "nj_fruit_offset_circ_3",
+        label = "",
+        min = min,
+        max = max,
+        step= step,
+        value = offset,
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        "nj_fruit_offset_circ_3",
+        label = "",
+        min = -0.2,
+        max = 0.2,
+        step= 0.01,
+        value = 0,
+        width = "150px",
+        ticks = FALSE
+      )
+    }
+  })
+  
+  output$nj_fruit_offset_circ_4 <- renderUI({
+    if(!is.null(input$nj_layout)) {
+      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+        offset <- 0.15
+        step <- 0.03
+        min <- -0.6
+        max <- 0.6
+      } else {
+        offset <- 0.05
+        step <- 0.01
+        min <- -0.2
+        max <- 0.2
+      }
+      
+      sliderInput(
+        "nj_fruit_offset_circ_4",
+        label = "",
+        min = min,
+        max = max,
+        step= step,
+        value = offset,
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        "nj_fruit_offset_circ_4",
+        label = "",
+        min = -0.2,
+        max = 0.2,
+        step= 0.01,
+        value = 0,
+        width = "150px",
+        ticks = FALSE
+      )
+    }
+  })
+  
+  output$nj_fruit_offset_circ_5 <- renderUI({
+    if(!is.null(input$nj_layout)) {
+      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+        offset <- 0.15
+        step <- 0.03
+        min <- -0.6
+        max <- 0.6
+      } else {
+        offset <- 0.05
+        step <- 0.01
+        min <- -0.2
+        max <- 0.2
+      }
+      
+      sliderInput(
+        "nj_fruit_offset_circ_5",
+        label = "",
+        min = min,
+        max = max,
+        step= step,
+        value = offset,
+        width = "150px",
+        ticks = FALSE
+      )
+    } else {
+      sliderInput(
+        "nj_fruit_offset_circ_5",
+        label = "",
+        min = -0.2,
+        max = 0.2,
+        step= 0.01,
+        value = 0,
+        width = "150px",
+        ticks = FALSE
+      )
+    }
+  })
+  
+  # For Layout change update tiles offset position
+  observeEvent(input$nj_layout, {
+      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+        offset <- 0.05
+        step <- 0.01
+        min <- -0.2
+        max <- 0.2
+      } else {
+        offset <- 0.15
+        step <- 0.03
+        min <- -0.6
+        max <- 0.6
+      }
+      
+      updateSliderInput(session, "nj_fruit_offset_circ", min = min, step = step, max = max)
+      updateSliderInput(session, "nj_fruit_offset_circ_2", min = min, step = step, max = max, value = offset)
+      updateSliderInput(session, "nj_fruit_offset_circ_3", min = min, step = step, max = max, value = offset)
+      updateSliderInput(session, "nj_fruit_offset_circ_4", min = min, step = step, max = max, value = offset)
+      updateSliderInput(session, "nj_fruit_offset_circ_5", min = min, step = step, max = max, value = offset) 
+  })
+  
+  # Heatmap width
   output$nj_heatmap_width <- renderUI({
     if(!is.null(input$nj_heatmap_select)) {
       length_input <- length(input$nj_heatmap_select)
@@ -11151,7 +11305,7 @@ server <- function(input, output, session) {
       max <- round(ceiling(Vis$nj_max_x) * 0.2, 0)
       sliderInput(
         "nj_rootedge_length",
-        label = h5("Length", style = "color:white; margin-bottom: 0px"),
+        label = h5("Rootedge Length", style = "color:white; margin-bottom: 0px"),
         min = min,
         max = max,
         value = round(ceiling(Vis$nj_max_x) * 0.05, 0),
@@ -11745,9 +11899,17 @@ server <- function(input, output, session) {
   output$nj_fruit_width <- renderUI({
     if((!is.null(Vis$nj_min_x)) & (!is.null(Vis$nj_max_x))) {
       if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
-        width <- 1
+        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+          width <- 3
+        } else {
+          width <- 1
+        }
       } else {
-        width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+        } else {
+          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+        }
       }
       sliderInput(
         "nj_fruit_width_circ",
@@ -11759,24 +11921,44 @@ server <- function(input, output, session) {
         ticks = FALSE
       )
     } else {
-      sliderInput(
-        "nj_fruit_width_circ",
-        label = "",
-        min = 1,
-        max = 10,
-        value = 5,
-        width = "150px",
-        ticks = FALSE
-      )
+      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+        sliderInput(
+          "nj_fruit_width_circ",
+          label = "",
+          min = 1,
+          max = 10,
+          value = 3,
+          width = "150px",
+          ticks = FALSE
+        )
+      } else {
+        sliderInput(
+          "nj_fruit_width_circ",
+          label = "",
+          min = 1,
+          max = 10,
+          value = 1,
+          width = "150px",
+          ticks = FALSE
+        )
+      }
     }
   })
   
   output$nj_fruit_width2 <- renderUI({
     if((!is.null(Vis$nj_min_x)) & (!is.null(Vis$nj_max_x))) {
       if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
-        width <- 1
+        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+          width <- 3
+        } else {
+          width <- 1
+        }
       } else {
-        width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+        } else {
+          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+        }
       }
       sliderInput(
         "nj_fruit_width_circ_2",
@@ -11788,24 +11970,44 @@ server <- function(input, output, session) {
         ticks = FALSE
       )
     } else {
-      sliderInput(
-        "nj_fruit_width_circ_2",
-        label = "",
-        min = 1,
-        max = 10,
-        value = 5,
-        width = "150px",
-        ticks = FALSE
-      )
+      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+        sliderInput(
+          "nj_fruit_width_circ_2",
+          label = "",
+          min = 1,
+          max = 10,
+          value = 3,
+          width = "150px",
+          ticks = FALSE
+        )
+      } else {
+        sliderInput(
+          "nj_fruit_width_circ_2",
+          label = "",
+          min = 1,
+          max = 10,
+          value = 1,
+          width = "150px",
+          ticks = FALSE
+        )
+      }
     }
   })
   
   output$nj_fruit_width3 <- renderUI({
     if((!is.null(Vis$nj_min_x)) & (!is.null(Vis$nj_max_x))) {
       if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
-        width <- 1
+        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+          width <- 3
+        } else {
+          width <- 1
+        }
       } else {
-        width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+        } else {
+          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+        }
       }
       sliderInput(
         "nj_fruit_width_circ_3",
@@ -11817,24 +12019,44 @@ server <- function(input, output, session) {
         ticks = FALSE
       )
     } else {
-      sliderInput(
-        "nj_fruit_width_circ_3",
-        label = "",
-        min = 1,
-        max = 10,
-        value = 5,
-        width = "150px",
-        ticks = FALSE
-      )
+      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+        sliderInput(
+          "nj_fruit_width_circ_3",
+          label = "",
+          min = 1,
+          max = 10,
+          value = 3,
+          width = "150px",
+          ticks = FALSE
+        )
+      } else {
+        sliderInput(
+          "nj_fruit_width_circ_3",
+          label = "",
+          min = 1,
+          max = 10,
+          value = 1,
+          width = "150px",
+          ticks = FALSE
+        )
+      }
     }
   })
   
   output$nj_fruit_width4 <- renderUI({
     if((!is.null(Vis$nj_min_x)) & (!is.null(Vis$nj_max_x))) {
       if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
-        width <- 1
+        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+          width <- 3
+        } else {
+          width <- 1
+        }
       } else {
-        width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+        } else {
+          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+        }
       }
       sliderInput(
         "nj_fruit_width_circ_4",
@@ -11844,26 +12066,46 @@ server <- function(input, output, session) {
         value = width,
         width = "150px",
         ticks = FALSE
-      )    
-    } else {
-      sliderInput(
-        "nj_fruit_width_circ_4",
-        label = "",
-        min = 1,
-        max = 10,
-        value = 5,
-        width = "150px",
-        ticks = FALSE
       )
+    } else {
+      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+        sliderInput(
+          "nj_fruit_width_circ_4",
+          label = "",
+          min = 1,
+          max = 10,
+          value = 3,
+          width = "150px",
+          ticks = FALSE
+        )
+      } else {
+        sliderInput(
+          "nj_fruit_width_circ_4",
+          label = "",
+          min = 1,
+          max = 10,
+          value = 1,
+          width = "150px",
+          ticks = FALSE
+        )
+      }
     }
   })
   
   output$nj_fruit_width5 <- renderUI({
     if((!is.null(Vis$nj_min_x)) & (!is.null(Vis$nj_max_x))) {
       if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
-        width <- 1
+        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+          width <- 3
+        } else {
+          width <- 1
+        }
       } else {
-        width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+        } else {
+          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+        }
       }
       sliderInput(
         "nj_fruit_width_circ_5",
@@ -11875,15 +12117,52 @@ server <- function(input, output, session) {
         ticks = FALSE
       )
     } else {
-      sliderInput(
-        "nj_fruit_width_circ_5",
-        label = "",
-        min = 1,
-        max = 10,
-        value = 5,
-        width = "150px",
-        ticks = FALSE
-      )
+      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+        sliderInput(
+          "nj_fruit_width_circ_5",
+          label = "",
+          min = 1,
+          max = 10,
+          value = 3,
+          width = "150px",
+          ticks = FALSE
+        )
+      } else {
+        sliderInput(
+          "nj_fruit_width_circ_5",
+          label = "",
+          min = 1,
+          max = 10,
+          value = 1,
+          width = "150px",
+          ticks = FALSE
+        )
+      }
+    }
+  })
+  
+  # For Layout change update tiles 
+  observeEvent(input$nj_layout, {
+    if((!is.null(Vis$nj_min_x)) & (!is.null(Vis$nj_max_x))) {
+      if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+          width <- 3
+        } else {
+          width <- 1
+        }
+      } else {
+        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+        } else {
+          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+        }
+      }
+      
+      updateSliderInput(session, "nj_fruit_width_circ", value = width)
+      updateSliderInput(session, "nj_fruit_width_circ_2", value = width)
+      updateSliderInput(session, "nj_fruit_width_circ_3", value = width)
+      updateSliderInput(session, "nj_fruit_width_circ_4", value = width)
+      updateSliderInput(session, "nj_fruit_width_circ_5", value = width) 
     }
   })
   
@@ -12770,9 +13049,9 @@ server <- function(input, output, session) {
           if(input$nj_tiles_mapping_div_mid_2 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_2 == "Mean") {
-            midpoint <- mean(DB$meta_true[[input$nj_fruit_variable]], na.rm = TRUE)
+            midpoint <- mean(DB$meta_true[[input$nj_fruit_variable_2]], na.rm = TRUE)
           } else {
-            midpoint <- median(DB$meta_true[[input$nj_fruit_variable]], na.rm = TRUE)
+            midpoint <- median(DB$meta_true[[input$nj_fruit_variable_2]], na.rm = TRUE)
           }
           scale_fill_gradient2(low = brewer.pal(3, input$nj_tiles_scale_2)[1],
                                 mid = brewer.pal(3, input$nj_tiles_scale_2)[2],
@@ -12780,7 +13059,7 @@ server <- function(input, output, session) {
                                 midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_2 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$nj_fruit_variable])) == "numeric") {
+            if(class(unlist(DB$meta[input$nj_fruit_variable_2])) == "numeric") {
               if(input$nj_tiles_scale_2 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$nj_tiles_scale_2 == "inferno") {
@@ -12834,9 +13113,9 @@ server <- function(input, output, session) {
           if(input$nj_tiles_mapping_div_mid_3 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_3 == "Mean") {
-            midpoint <- mean(DB$meta_true[[input$nj_fruit_variable_1]], na.rm = TRUE)
+            midpoint <- mean(DB$meta_true[[input$nj_fruit_variable_3]], na.rm = TRUE)
           } else {
-            midpoint <- median(DB$meta_true[[input$nj_fruit_variable]], na.rm = TRUE)
+            midpoint <- median(DB$meta_true[[input$nj_fruit_variable_3]], na.rm = TRUE)
           }
           scale_fill_gradient3(low = brewer.pal(3, input$nj_tiles_scale_3)[1],
                                 mid = brewer.pal(3, input$nj_tiles_scale_3)[2],
@@ -12844,7 +13123,7 @@ server <- function(input, output, session) {
                                 midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_3 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$nj_fruit_variable])) == "numeric") {
+            if(class(unlist(DB$meta[input$nj_fruit_variable_3])) == "numeric") {
               if(input$nj_tiles_scale_3 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$nj_tiles_scale_3 == "inferno") {
@@ -12898,9 +13177,9 @@ server <- function(input, output, session) {
           if(input$nj_tiles_mapping_div_mid_4 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_4 == "Mean") {
-            midpoint <- mean(DB$meta_true[[input$nj_fruit_variable]], na.rm = TRUE)
+            midpoint <- mean(DB$meta_true[[input$nj_fruit_variable_4]], na.rm = TRUE)
           } else {
-            midpoint <- median(DB$meta_true[[input$nj_fruit_variable]], na.rm = TRUE)
+            midpoint <- median(DB$meta_true[[input$nj_fruit_variable_4]], na.rm = TRUE)
           }
           scale_fill_gradient4(low = brewer.pal(3, input$nj_tiles_scale_4)[1],
                                 mid = brewer.pal(3, input$nj_tiles_scale_4)[2],
@@ -12962,9 +13241,9 @@ server <- function(input, output, session) {
           if(input$nj_tiles_mapping_div_mid_5 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_5 == "Mean") {
-            midpoint <- mean(DB$meta_true[[input$nj_fruit_variable]], na.rm = TRUE)
+            midpoint <- mean(DB$meta_true[[input$nj_fruit_variable_5]], na.rm = TRUE)
           } else {
-            midpoint <- median(DB$meta_true[[input$nj_fruit_variable]], na.rm = TRUE)
+            midpoint <- median(DB$meta_true[[input$nj_fruit_variable_5]], na.rm = TRUE)
           }
           scale_fill_gradient5(low = brewer.pal(3, input$nj_tiles_scale_5)[1],
                                 mid = brewer.pal(3, input$nj_tiles_scale_5)[2],
@@ -12972,7 +13251,7 @@ server <- function(input, output, session) {
                                 midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_5 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$nj_fruit_variable])) == "numeric") {
+            if(class(unlist(DB$meta[input$nj_fruit_variable_5])) == "numeric") {
               if(input$nj_tiles_scale_5 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$nj_tiles_scale_5 == "inferno") {
@@ -13067,7 +13346,7 @@ server <- function(input, output, session) {
             geom = geom_tile,
             mapping = aes(fill= !!sym(input$nj_fruit_variable)),
             offset = 0,
-            width = width,
+            width = width * 3,
             alpha = 1
           )
         } else {
@@ -13124,15 +13403,15 @@ server <- function(input, output, session) {
         if(input$nj_layout == "circular" | input$nj_layout == "inward") {
           geom_fruit(
             geom = geom_tile,
-            mapping = aes(fill= !!sym(input$nj_fruit_variable)),
-            offset = 0.05,
-            width = width,
+            mapping = aes(fill= !!sym(input$nj_fruit_variable_2)),
+            offset = 0.15,
+            width = width * 3,
             alpha = 1
           )
         } else {
           geom_fruit(
             geom = geom_tile,
-            mapping = aes(fill= !!sym(input$nj_fruit_variable)),
+            mapping = aes(fill= !!sym(input$nj_fruit_variable_2)),
             offset = 0.05,
             width = width,
             alpha = 1
@@ -13182,15 +13461,15 @@ server <- function(input, output, session) {
         if(input$nj_layout == "circular" | input$nj_layout == "inward") {
           geom_fruit(
             geom = geom_tile,
-            mapping = aes(fill= !!sym(input$nj_fruit_variable)),
-            offset = 0.05,
-            width = width,
+            mapping = aes(fill= !!sym(input$nj_fruit_variable_3)),
+            offset = 0.15,
+            width = width * 3,
             alpha = 1
           )
         } else {
           geom_fruit(
             geom = geom_tile,
-            mapping = aes(fill= !!sym(input$nj_fruit_variable)),
+            mapping = aes(fill= !!sym(input$nj_fruit_variable_3)),
             offset = 0.05,
             width = width,
             alpha = 1
@@ -13239,15 +13518,15 @@ server <- function(input, output, session) {
           if(input$nj_layout == "circular" | input$nj_layout == "inward") {
             geom_fruit(
               geom = geom_tile,
-              mapping = aes(fill= !!sym(input$nj_fruit_variable)),
-              offset = 0.05,
-              width = width,
+              mapping = aes(fill= !!sym(input$nj_fruit_variable_4)),
+              offset = 0.15,
+              width = width * 3,
               alpha = 1
             )
           } else {
             geom_fruit(
               geom = geom_tile,
-              mapping = aes(fill= !!sym(input$nj_fruit_variable)),
+              mapping = aes(fill= !!sym(input$nj_fruit_variable_4)),
               offset = 0.05,
               width = width,
               alpha = 1
@@ -13298,15 +13577,15 @@ server <- function(input, output, session) {
         if(input$nj_layout == "circular" | input$nj_layout == "inward") {
           geom_fruit(
             geom = geom_tile,
-            mapping = aes(fill= !!sym(input$nj_fruit_variable)),
-            offset = 0.05,
-            width = width,
+            mapping = aes(fill= !!sym(input$nj_fruit_variable_5)),
+            offset = 0.15,
+            width = width * 3,
             alpha = 1
           )
         } else {
           geom_fruit(
             geom = geom_tile,
-            mapping = aes(fill= !!sym(input$nj_fruit_variable)),
+            mapping = aes(fill= !!sym(input$nj_fruit_variable_5)),
             offset = 0.05,
             width = width,
             alpha = 1
