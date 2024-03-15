@@ -1705,6 +1705,12 @@ ui <- dashboardPage(
                         width = "100%",
                         placeholder = "Plot Title"
                       ),
+                      textInput(
+                        "nj_subtitle",
+                        label = "",
+                        width = "100%",
+                        placeholder = "Plot Subtitle"
+                      ),
                       br(),
                       fluidRow(
                         column(
@@ -1740,8 +1746,18 @@ ui <- dashboardPage(
                                 align = "center",
                                 numericInput(
                                   "nj_title_size",
-                                  label = h5("Size", style = "color:white; margin-bottom: 0px"),
+                                  label = h5("Title Size", style = "color:white; margin-bottom: 0px"),
                                   value = 30,
+                                  min = 15,
+                                  max = 40,
+                                  step = 1,
+                                  width = "80px"
+                                ),
+                                br(),
+                                numericInput(
+                                  "nj_subtitle_size",
+                                  label = h5("Subtitle Size", style = "color:white; margin-bottom: 0px"),
+                                  value = 20,
                                   min = 15,
                                   max = 40,
                                   step = 1,
@@ -1766,37 +1782,33 @@ ui <- dashboardPage(
                   column(
                     width = 12,
                     align = "left",
-                    h4(p("Subtitle"), style = "color:white; position: relative; right: -15px"),
+                    h4(p("Sizing"), style = "color:white; position: relative; right: -15px"),
                     column(
                       width = 12,
                       align = "center",
-                      textInput(
-                        "nj_subtitle",
-                        label = "",
-                        width = "100%",
-                        placeholder = "Plot Subtitle"
-                      ),
                       br(),
                       fluidRow(
                         column(
-                          width = 7,
-                          colorPickr(
-                            inputId = "nj_subtitle_color",
-                            selected = "#000000",
-                            label = "",
-                            update = "changestop",
-                            interaction = list(clear = FALSE,
-                                               save = FALSE),
-                            position = "right-start",
-                            width = "100%"
+                          width = 3,
+                          h5("Ratio", style = "color: white; font-size: 14px;")
+                        ),
+                        column(
+                          width = 6,
+                          align = "left",
+                          div(
+                            class = "ratio-sel",
+                            selectInput(
+                              "nj_ratio",
+                              "",
+                              choices = c("16:10" = (16/10), "16:9" = (16/9), "4:3" = (4/3))
+                            )
                           )
                         ),
                         column(
-                          width = 5,
-                          align = "right",
+                          width = 3,
                           dropMenu(
                             actionBttn(
-                              "nj_subtitle_menu",
+                              "nj_size_menu",
                               label = "",
                               color = "default",
                               size = "sm",
@@ -1808,22 +1820,71 @@ ui <- dashboardPage(
                             fluidRow(
                               column(
                                 width = 12,
-                                align = "center",
-                                numericInput(
-                                  "nj_subtitle_size",
-                                  label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                                  value = 20,
-                                  min = 15,
-                                  max = 40,
-                                  step = 1,
-                                  width = "80px"
+                                sliderInput(
+                                  "nj_v",
+                                  label = "Vertical Position",
+                                  min = -0.5,
+                                  max = 0.5,
+                                  step = 0.01,
+                                  value = 0,
+                                  width = "150px",
+                                  ticks = FALSE
+                                ),
+                                br(),
+                                sliderInput(
+                                  "nj_h",
+                                  label = "Horizontal Position",
+                                  min = -0.5,
+                                  max = 0.5,
+                                  step = 0.01,
+                                  value = 0,
+                                  width = "150px",
+                                  ticks = FALSE
                                 )
                               )
                             )
                           )
                         )
                       ),
-                      br()
+                      fluidRow(
+                        column(
+                          width = 3,
+                          h5("Size", style = "color: white; font-size: 14px; margin-top: 30px")
+                        ),
+                        column(
+                          width = 9,
+                          sliderInput(
+                            "nj_scale",
+                            "",
+                            min = 500,
+                            max = 1200,
+                            value = 800,
+                            width = "95%",
+                            ticks = FALSE
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 3,
+                          h5("Zoom", style = "color: white; font-size: 14px; margin-top: 30px")
+                        ),
+                        column(
+                          width = 9,
+                          div(
+                            class = "zoom-slider",
+                            sliderInput(
+                              "nj_zoom",
+                              label = NULL,
+                              min = 0.5,
+                              max = 1.5,
+                              step = 0.05,
+                              value = 0.95,
+                              ticks = FALSE
+                            )
+                          )
+                        )
+                      )
                     )
                   )
                 )
@@ -3245,9 +3306,7 @@ ui <- dashboardPage(
                 )
               )
             )
-          ), 
-          br(), br(), br(), br(), br(), br(), br(), br(), br(), 
-          br(), br(), br(), br(), br(), br(), br(), br(), br(),
+          )
         ),
         
         ### Control Panels UPGMA ----
@@ -6631,102 +6690,6 @@ server <- function(input, output, session) {
                             br(),
                             HTML(
                               paste(
-                                tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Sizing")
-                              )
-                            )
-                          )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 12,
-                            radioGroupButtons(
-                              "nj_ratio",
-                              "",
-                              choiceNames = c("16:10", "16:9", "4:3"),
-                              choiceValues = c((16/10), (16/9), (4/3)),
-                              width = "100%"
-                            ),
-                            br(),
-                            sliderInput(
-                              "nj_scale",
-                              "",
-                              min = 500,
-                              max = 1200,
-                              value = 800,
-                              width = "95%",
-                              ticks = FALSE
-                            )
-                          )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 3,
-                            align = "left",
-                            br(),
-                            HTML(
-                              paste(
-                                tags$span(style='color: white; font-size: 14px; position: relative; bottom: -28px; margin-left: 15px ', "Zoom")
-                              )
-                            )
-                          ),
-                          column(
-                            width = 8,
-                            align = "right",
-                            br(),
-                            sliderInput(
-                              "nj_zoom",
-                              label = NULL,
-                              min = 0.5,
-                              max = 1.5,
-                              step = 0.05,
-                              value = 0.95,
-                              ticks = FALSE
-                            )
-                          )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 5,
-                            align = "left",
-                            div(
-                              class = "arrow_move",
-                              numericInput(
-                                "nj_v",
-                                label = h5("Y", style = "color:white; margin-bottom: -6px; margin-left: 10px"),
-                                min = -0.5,
-                                max = 0.5,
-                                step = 0.01,
-                                value = 0,
-                                width = "80px"
-                              )
-                            )
-                          ),
-                          column(
-                            width = 5,
-                            align = "left",
-                            div(
-                              class = "arrow_move",
-                              numericInput(
-                                "nj_h",
-                                label = h5("X", style = "color:white; margin-bottom: -6px; margin-left: 10px"),
-                                min = -0.5,
-                                max = 0.5,
-                                step = 0.01,
-                                value = 0,
-                                width = "80px"
-                              )
-                            )
-                          )
-                        ),
-                        br(),
-                        hr(),
-                        fluidRow(
-                          column(
-                            width = 12,
-                            align = "left",
-                            br(),
-                            HTML(
-                              paste(
                                 tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Save Plot")
                               )
                             )
@@ -8721,8 +8684,6 @@ server <- function(input, output, session) {
   
   # Change scheme
   observeEvent(input$reload_db, {
-    
-    test <<- DB$meta
     
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -13054,7 +13015,7 @@ server <- function(input, output, session) {
         theme_tree(bgcolor = input$nj_bg) +
         theme(plot.title = element_text(colour = input$nj_title_color,
                                         size = input$nj_title_size),
-              plot.subtitle = element_text(colour = input$nj_subtitle_color,
+              plot.subtitle = element_text(colour = input$nj_title_color,
                                            size = input$nj_subtitle_size),
               legend.background = element_rect(fill = input$nj_bg),
               legend.direction = input$nj_legend_orientation,

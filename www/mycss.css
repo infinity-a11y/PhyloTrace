@@ -1242,6 +1242,11 @@ input.form-control.pickr-color {
   margin-bottom: -6px !important;
 }
 
+.ratio-sel {
+  margin-top: -20px;
+  margin-bottom: -40px;
+}
+
 .label_sel {
   margin-bottom: -16px;
 }
@@ -1254,8 +1259,9 @@ input.form-control.pickr-color {
   margin-top: -10px;
 }
 
-#nj_subtitle_color, #nj_title_color {
-  margin-bottom: 32px;
+#nj_title_color {
+  margin-bottom: -15px;
+  margin-top: -16px;
 }
 
 #nj_bg {
@@ -1320,6 +1326,11 @@ input.form-control.pickr-color {
   width: 100px;
 }
 
+.zoom-slider {
+  margin-top: 20px;
+  margin-bottom: 6px;
+}
+
 #nj_color_mapping {
   margin-top: -7px;
   margin-bottom: 0px;
@@ -1368,11 +1379,21 @@ button#nj_footer_menu {
 }
 
 button#nj_title_menu {
+  height: 34px;
+  background: #20E6E5;
+  color: #000000;
+  margin-top: 4px;
+  border-radius: 5px;
+  margin-bottom: -24px;
+}
+
+button#nj_size_menu {
   height: 34px; 
   background: #20E6E5; 
   color: #000000; 
-  margin-top: 20px; 
-  border-radius: 5px
+  margin-top: 0px; 
+  border-radius: 5px;
+  margin-left: -15px;
 }
 
 button#nj_branch_label_menu {
