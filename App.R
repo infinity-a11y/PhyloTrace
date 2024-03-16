@@ -12990,8 +12990,8 @@ server <- function(input, output, session) {
     if(input$nj_nodelabel_show == TRUE) {
       ggtree(Vis$nj, alpha = 0.2) + 
         geom_nodelab(aes(label = node), color = "#29303A", size = nj_tiplab_size() + 1, hjust = 0.7) +
-        limit() +
-        inward() 
+        nj_limit() +
+        nj_inward() 
     } else {
       tree <-
         ggtree(Vis$nj, 
@@ -13001,15 +13001,15 @@ server <- function(input, output, session) {
         nj_tiplab() +
         nj_tiplab_scale() + 
         new_scale_color() +
-        limit() +
-        inward() +
-        label_branch() +
-        treescale() +
-        nodepoint() +
-        tippoint() +
+        nj_limit() +
+        nj_inward() +
+        nj_label_branch() +
+        nj_treescale() +
+        nj_nodepoint() +
+        nj_tippoint() +
         nj_tippoint_scale() + 
         new_scale_color() +
-        clip_label() +
+        nj_clip_label() +
         nj_rootedge() +
         nj_clades() +
         ggtitle(label = input$nj_title,
@@ -13059,7 +13059,7 @@ server <- function(input, output, session) {
                            legend_title = input$nj_heatmap_title,
                            colnames_angle = -nj_colnames_angle(),
                            colnames_offset_y = nj_colnames_y()) +
-            heatmap_scale()
+            nj_heatmap_scale()
         }
       } 
       
@@ -13128,7 +13128,7 @@ server <- function(input, output, session) {
   })
   
   # Heatmap scale
-  heatmap_scale <- reactive({
+  nj_heatmap_scale <- reactive({
     if(!is.null(input$nj_heatmap_scale)) {
       if(input$nj_heatmap_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
         if(input$nj_heatmap_div_mid == "Zero") {
@@ -13701,7 +13701,7 @@ server <- function(input, output, session) {
   })
   
   # No label clip off for linear NJ tree
-  clip_label <- reactive({
+  nj_clip_label <- reactive({
     if(!(input$nj_layout == "circular" | input$nj_layout == "inward")) {
       coord_cartesian(clip = "off")
     } else {NULL}
@@ -14000,14 +14000,14 @@ server <- function(input, output, session) {
   })
   
   # Xlim
-  limit <- reactive({
+  nj_limit <- reactive({
     if(input$nj_layout == "circular") {
       xlim(input$nj_xlim, NA)
     } else {NULL}
   })
   
   # Treescale
-  treescale <- reactive({
+  nj_treescale <- reactive({
     if(!input$nj_layout == "circular") {
       if(input$nj_treescale_show == TRUE) {
         geom_treescale(x = nj_treescale_x(),
@@ -14043,7 +14043,7 @@ server <- function(input, output, session) {
   })
   
   # Label branches
-  label_branch <- reactive({
+  nj_label_branch <- reactive({
     if(!input$nj_layout == "circular" | !input$nj_layout == "inward") {
       if(input$nj_show_branch_label == TRUE) {
         geom_label(
@@ -14085,7 +14085,7 @@ server <- function(input, output, session) {
   })
   
   # Tippoints
-  tippoint <- reactive({
+  nj_tippoint <- reactive({
     if(input$nj_tippoint_show == TRUE | input$nj_tipcolor_mapping_show == TRUE | input$nj_tipshape_mapping_show == TRUE) {
       if(input$nj_tipcolor_mapping_show == TRUE & input$nj_tipshape_mapping_show == FALSE) {
         geom_tippoint(
@@ -14121,7 +14121,7 @@ server <- function(input, output, session) {
   })
   
   # Nodepoints
-  nodepoint <- reactive({
+  nj_nodepoint <- reactive({
     if(input$nj_nodepoint_show == TRUE) {
       geom_nodepoint(
         alpha = input$nj_nodepoint_alpha,
@@ -14321,7 +14321,7 @@ server <- function(input, output, session) {
   })
   
   # NJ inward circular
-  inward <- reactive({
+  nj_inward <- reactive({
     if (input$nj_layout == "inward") {
       layout_inward_circular(xlim = input$nj_inward_xlim)
     } else {
@@ -14332,75 +14332,380 @@ server <- function(input, output, session) {
   #### UPGMA ----
   
   upgma_tree <- reactive({
-    Vis$meta_upgma$Errors <- as.numeric(Vis$meta_upgma$Errors)
-    tree <-
-      ggtree(Vis$upgma, 
-             color = input$upgma_color,
-             layout = layout_upgma(),
-             ladderize = input$upgma_ladder) %<+% Vis$meta_upgma +
-      upgma_tiplab() +
-      upgma_limit() +
-      upgma_inward() +
-      upgma_label_branch() +
-      upgma_treescale() +
-      upgma_nodepoint() +
-      upgma_tippoint() +
-      upgma_clip_label() +
-      upgma_rootedge() +
-      ggtitle(label = input$upgma_title,
-              subtitle = input$upgma_subtitle) +
-      theme_tree(bgcolor = input$upgma_bg) +
-      theme(plot.title = element_text(colour = input$upgma_title_color,
-                                      size = input$upgma_title_size),
-            plot.subtitle = element_text(colour = input$upgma_subtitle_color,
-                                         size = input$upgma_subtitle_size),
-            legend.background = element_rect(fill = input$upgma_bg),
-            legend.direction = input$upgma_legend_orientation,
-            legend.position = upgma_legend_pos(),
-            legend.title = element_text(color = input$upgma_color,
-                                        size = input$upgma_legend_size*1.2),
-            legend.title.align = 0.5,
-            legend.text = element_text(color = input$upgma_color, 
-                                       size = input$upgma_legend_size),
-            legend.key = element_rect(fill = input$upgma_bg),
-            legend.box.spacing = unit(1.5, "cm"),
-            legend.key.size = unit(0.05*input$upgma_legend_size, 'cm'),
-            plot.background = element_rect(fill = input$upgma_bg, color = input$upgma_bg)) +
-      new_scale_fill() +
-      upgma_fruit() +
-      upgma_gradient() +
-      new_scale_fill() +
-      upgma_fruit2() +
-      upgma_gradient2() +
-      new_scale_fill() +
-      upgma_fruit3() +
-      upgma_gradient3() +
-      new_scale_fill() +
-      upgma_fruit4() +
-      upgma_gradient4() +
-      new_scale_fill() +
-      upgma_fruit5() +
-      upgma_gradient5() 
-    
-    if(input$upgma_heatmap_show == TRUE & length(input$upgma_heatmap_select) > 0) {
-      tree <- gheatmap(tree, 
-                       data = select(Vis$meta_upgma, input$upgma_heatmap_select),
-                       offset = upgma_heatmap_offset(),
-                       width = input$upgma_heatmap_width,
-                       legend_title = input$upgma_heatmap_title,
-                       colnames_angle = -(input$upgma_colnames_angle),
-                       colnames_offset_x = input$upgma_colnames_x,
-                       colnames_offset_y = input$upgma_colnames_y
-      )
-    } 
-    
-    Vis$upgma_plot <- ggplotify::as.ggplot(tree, 
-                                           scale = input$upgma_zoom,
-                                           hjust = input$upgma_h,
-                                           vjust = input$upgma_v)  
-    
-    cowplot::ggdraw(Vis$upgma_plot) + 
-      theme(plot.background = element_rect(fill = input$upgma_bg, color = input$upgma_bg))
+    if(input$upgma_nodelabel_show == TRUE) {
+      ggtree(Vis$upgma, alpha = 0.2) + 
+        geom_nodelab(aes(label = node), color = "#29303A", size = upgma_tiplab_size() + 1, hjust = 0.7) +
+        upgma_limit() +
+        upgma_inward() 
+    } else {
+      tree <-
+        ggtree(Vis$upgma, 
+               color = input$upgma_color,
+               layout = layout_upgma(),
+               ladderize = input$upgma_ladder) %<+% Vis$meta_upgma +
+        upgma_tiplab() +
+        upgma_tiplab_scale() + 
+        new_scale_color() +
+        upgma_limit() +
+        upgma_inward() +
+        upgma_label_branch() +
+        upgma_treescale() +
+        upgma_nodepoint() +
+        upgma_tippoint() +
+        upgma_tippoint_scale() + 
+        new_scale_color() +
+        upgma_clip_label() +
+        upgma_rootedge() +
+        upgma_clades() +
+        ggtitle(label = input$upgma_title,
+                subtitle = input$upgma_subtitle) +
+        theme_tree(bgcolor = input$upgma_bg) +
+        theme(plot.title = element_text(colour = input$upgma_title_color,
+                                        size = input$upgma_title_size),
+              plot.subtitle = element_text(colour = input$upgma_title_color,
+                                           size = input$upgma_subtitle_size),
+              legend.background = element_rect(fill = input$upgma_bg),
+              legend.direction = input$upgma_legend_orientation,
+              legend.title = element_text(color = input$upgma_color,
+                                          size = input$upgma_legend_size*1.2),
+              legend.title.align = 0.5,
+              legend.position = upgma_legend_pos(),
+              legend.text = element_text(color = input$upgma_color, 
+                                         size = input$upgma_legend_size),
+              legend.key = element_rect(fill = input$upgma_bg),
+              legend.box.spacing = unit(1.5, "cm"),
+              legend.key.size = unit(0.05*input$upgma_legend_size, 'cm'),
+              plot.background = element_rect(fill = input$upgma_bg, color = input$upgma_bg)) +
+        new_scale_fill() +
+        upgma_fruit() +
+        upgma_gradient() +
+        new_scale_fill() +
+        upgma_fruit2() +
+        upgma_gradient2() +
+        new_scale_fill() +
+        upgma_fruit3() +
+        upgma_gradient3() +
+        new_scale_fill() +
+        upgma_fruit4() +
+        upgma_gradient4() +
+        new_scale_fill() +
+        upgma_fruit5() +
+        upgma_gradient5() +
+        new_scale_fill() 
+      
+      # Add heatmap
+      if(input$upgma_heatmap_show == TRUE & length(input$upgma_heatmap_select) > 0) {
+        if (!(any(sapply(DB$meta[input$upgma_heatmap_select], is.numeric)) & 
+              any(!sapply(DB$meta[input$upgma_heatmap_select], is.numeric)))) {
+          tree <- gheatmap(tree, 
+                           data = select(Vis$meta_upgma, input$upgma_heatmap_select),
+                           offset = upgma_heatmap_offset(),
+                           width = upgma_heatmap_width(),
+                           legend_title = input$upgma_heatmap_title,
+                           colnames_angle = -upgma_colnames_angle(),
+                           colnames_offset_y = upgma_colnames_y()) +
+            upgma_heatmap_scale()
+        }
+      } 
+      
+      # Sizing control
+      Vis$upgma_plot <- ggplotify::as.ggplot(tree, 
+                                          scale = input$upgma_zoom,
+                                          hjust = input$upgma_h,
+                                          vjust = input$upgma_v)  
+      
+      # Correct background color if zoomed out
+      cowplot::ggdraw(Vis$upgma_plot) + 
+        theme(plot.background = element_rect(fill = input$upgma_bg, color = input$upgma_bg))
+    }
+  })
+  
+  # Heatmap width
+  upgma_heatmap_width <- reactive({
+    if(!is.null(input$upgma_heatmap_width)) {
+      input$upgma_heatmap_width
+    } else {
+      length_input <- length(input$upgma_heatmap_select)
+      if((!(input$upgma_layout == "circular")) & (!(input$upgma_layout == "inward"))) {
+        if(length_input < 3) {
+          0.1
+        } else {
+          if (length_input >= 3 && length_input <= 50) {
+            min(0.15 + 0.05 * floor((length_input - 3) / 2), 1.5)
+          } else {
+            1.5
+          }   
+        }
+      } else {
+        if(length_input < 3) {
+          0.3
+        } else if (length_input >= 3 && length_input <= 27) {
+          min(0.6 + 0.2 * floor((length_input - 3) / 2), 1.5)
+        } else {
+          3
+        }
+      }
+    }
+  })
+  
+  # Heatmap column titles position
+  upgma_colnames_y <- reactive({
+    if(!is.null(input$upgma_colnames_y)) {
+      input$upgma_colnames_y
+    } else {
+      if(input$upgma_layout == "inward" | input$upgma_layout == "circular") {
+        0
+      } else {-1}
+    }
+  })
+  
+  # Heatmap column titles angle
+  upgma_colnames_angle <- reactive({
+    if(!is.null(input$upgma_colnames_angle)) {
+      input$upgma_colnames_angle
+    } else {
+      if(!is.null(input$upgma_layout)) {
+        if(input$upgma_layout == "inward" | input$upgma_layout == "circular") {
+          90
+        } else {-90}
+      } else {-90}
+    }
+  })
+  
+  # Heatmap scale
+  upgma_heatmap_scale <- reactive({
+    if(!is.null(input$upgma_heatmap_scale)) {
+      if(input$upgma_heatmap_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
+        if(input$upgma_heatmap_div_mid == "Zero") {
+          midpoint <- 0
+        } else if(input$upgma_heatmap_div_mid == "Mean") {
+          midpoint <- mean(DB$meta_true[[input$upgma_heatmap_select]], na.rm = TRUE)
+        } else {
+          midpoint <- median(DB$meta_true[[input$upgma_heatmap_select]], na.rm = TRUE)
+        }
+        scale_fill_gradient2(low = brewer.pal(3, input$upgma_heatmap_scale)[1],
+                             mid = brewer.pal(3, input$upgma_heatmap_scale)[2],
+                             high = brewer.pal(3, input$upgma_heatmap_scale)[3],
+                             midpoint = midpoint,
+                             name = input$upgma_heatmap_title)
+      } else {
+        if(input$upgma_heatmap_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+          if(class(unlist(DB$meta[input$upgma_heatmap_select])) == "numeric") {
+            if(input$upgma_heatmap_scale == "magma") {
+              scale_fill_viridis(option = "A",
+                                 name = input$upgma_heatmap_title)
+            } else if(input$upgma_heatmap_scale == "inferno") {
+              scale_fill_viridis(option = "B",
+                                 name = input$upgma_heatmap_title)
+            } else if(input$upgma_heatmap_scale == "plasma") {
+              scale_fill_viridis(option = "C",
+                                 name = input$upgma_heatmap_title)
+            } else if(input$upgma_heatmap_scale == "viridis") {
+              scale_fill_viridis(option = "D",
+                                 name = input$upgma_heatmap_title)
+            } else if(input$upgma_heatmap_scale == "cividis") {
+              scale_fill_viridis(option = "E",
+                                 name = input$upgma_heatmap_title)
+            } else if(input$upgma_heatmap_scale == "rocket") {
+              scale_fill_viridis(option = "F",
+                                 name = input$upgma_heatmap_title)
+            } else if(input$upgma_heatmap_scale == "mako") {
+              scale_fill_viridis(option = "G",
+                                 name = input$upgma_heatmap_title)
+            } else if(input$upgma_heatmap_scale == "turbo") {
+              scale_fill_viridis(option = "H",
+                                 name = input$upgma_heatmap_title)
+            } 
+          } else {
+            if(input$upgma_heatmap_scale == "magma") {
+              scale_fill_viridis(discrete = TRUE, option = "A",
+                                 name = input$upgma_heatmap_title)
+            } else if(input$upgma_heatmap_scale == "inferno") {
+              scale_fill_viridis(discrete = TRUE, option = "B",
+                                 name = input$upgma_heatmap_title)
+            } else if(input$upgma_heatmap_scale == "plasma") {
+              scale_fill_viridis(discrete = TRUE, option = "C",
+                                 name = input$upgma_heatmap_title)
+            } else if(input$upgma_heatmap_scale == "viridis") {
+              scale_fill_viridis(discrete = TRUE, option = "D",
+                                 name = input$upgma_heatmap_title)
+            } else if(input$upgma_heatmap_scale == "cividis") {
+              scale_fill_viridis(discrete = TRUE, option = "E",
+                                 name = input$upgma_heatmap_title)
+            } else if(input$upgma_heatmap_scale == "rocket") {
+              scale_fill_viridis(discrete = TRUE, option = "F",
+                                 name = input$upgma_heatmap_title)
+            } else if(input$upgma_heatmap_scale == "mako") {
+              scale_fill_viridis(discrete = TRUE, option = "G",
+                                 name = input$upgma_heatmap_title)
+            } else if(input$upgma_heatmap_scale == "turbo") {
+              scale_fill_viridis(discrete = TRUE, option = "H",
+                                 name = input$upgma_heatmap_title)
+            } 
+          }
+        } else {
+          scale_fill_brewer(palette = input$upgma_heatmap_scale,
+                            name = input$upgma_heatmap_title)
+        }
+      }
+    }
+  })
+  
+  # Tippoint Scale
+  upgma_tippoint_scale <- reactive({
+    if(!is.null(input$upgma_tippoint_scale)) {
+      if(input$upgma_tippoint_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
+        if(input$upgma_tipcolor_mapping_div_mid == "Zero") {
+          midpoint <- 0
+        } else if(input$upgma_tipcolor_mapping_div_mid == "Mean") {
+          midpoint <- mean(DB$meta_true[[input$upgma_tipcolor_mapping]], na.rm = TRUE)
+        } else {
+          midpoint <- median(DB$meta_true[[input$upgma_tipcolor_mapping]], na.rm = TRUE)
+        }
+        scale_color_gradient2(low = brewer.pal(3, input$upgma_tippoint_scale)[1],
+                              mid = brewer.pal(3, input$upgma_tippoint_scale)[2],
+                              high = brewer.pal(3, input$upgma_tippoint_scale)[3],
+                              midpoint = midpoint)
+      } else {
+        if(input$upgma_tippoint_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+          if(class(unlist(DB$meta[input$upgma_tipcolor_mapping])) == "numeric") {
+            if(input$upgma_tippoint_scale == "magma") {
+              scale_color_viridis(option = "A")
+            } else if(input$upgma_tippoint_scale == "inferno") {
+              scale_color_viridis(option = "B")
+            } else if(input$upgma_tippoint_scale == "plasma") {
+              scale_color_viridis(option = "C")
+            } else if(input$upgma_tippoint_scale == "viridis") {
+              scale_color_viridis(option = "D")
+            } else if(input$upgma_tippoint_scale == "cividis") {
+              scale_color_viridis(option = "E")
+            } else if(input$upgma_tippoint_scale == "rocket") {
+              scale_color_viridis(option = "F")
+            } else if(input$upgma_tippoint_scale == "mako") {
+              scale_color_viridis(option = "G")
+            } else if(input$upgma_tippoint_scale == "turbo") {
+              scale_color_viridis(option = "H")
+            } 
+          } else {
+            if(input$upgma_tippoint_scale == "magma") {
+              scale_color_viridis(discrete = TRUE, option = "A")
+            } else if(input$upgma_tippoint_scale == "inferno") {
+              scale_color_viridis(discrete = TRUE, option = "B")
+            } else if(input$upgma_tippoint_scale == "plasma") {
+              scale_color_viridis(discrete = TRUE, option = "C")
+            } else if(input$upgma_tippoint_scale == "viridis") {
+              scale_color_viridis(discrete = TRUE, option = "D")
+            } else if(input$upgma_tippoint_scale == "cividis") {
+              scale_color_viridis(discrete = TRUE, option = "E")
+            } else if(input$upgma_tippoint_scale == "rocket") {
+              scale_color_viridis(discrete = TRUE, option = "F")
+            } else if(input$upgma_tippoint_scale == "mako") {
+              scale_color_viridis(discrete = TRUE, option = "G")
+            } else if(input$upgma_tippoint_scale == "turbo") {
+              scale_color_viridis(discrete = TRUE, option = "H")
+            } 
+          }
+        } else {
+          scale_color_brewer(palette = input$upgma_tippoint_scale)
+        }
+      }
+    }
+  })
+  
+  # Tiplab Scale
+  upgma_tiplab_scale <- reactive({
+    if(!is.null(input$upgma_tiplab_scale)) {
+      if(input$upgma_tiplab_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
+        if(input$upgma_color_mapping_div_mid == "Zero") {
+          midpoint <- 0
+        } else if(input$upgma_color_mapping_div_mid == "Mean") {
+          midpoint <- mean(DB$meta_true[[input$upgma_color_mapping]], na.rm = TRUE)
+        } else {
+          midpoint <- median(DB$meta_true[[input$upgma_color_mapping]], na.rm = TRUE)
+        }
+        scale_color_gradient2(low = brewer.pal(3, input$upgma_tiplab_scale)[1],
+                              mid = brewer.pal(3, input$upgma_tiplab_scale)[2],
+                              high = brewer.pal(3, input$upgma_tiplab_scale)[3],
+                              midpoint = midpoint)
+      } else {
+        if(input$upgma_tiplab_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+          if(class(unlist(DB$meta[input$upgma_color_mapping])) == "numeric") {
+            if(input$upgma_tiplab_scale == "magma") {
+              scale_color_viridis(option = "A")
+            } else if(input$upgma_tiplab_scale == "inferno") {
+              scale_color_viridis(option = "B")
+            } else if(input$upgma_tiplab_scale == "plasma") {
+              scale_color_viridis(option = "C")
+            } else if(input$upgma_tiplab_scale == "viridis") {
+              scale_color_viridis(option = "D")
+            } else if(input$upgma_tiplab_scale == "cividis") {
+              scale_color_viridis(option = "E")
+            } else if(input$upgma_tiplab_scale == "rocket") {
+              scale_color_viridis(option = "F")
+            } else if(input$upgma_tiplab_scale == "mako") {
+              scale_color_viridis(option = "G")
+            } else if(input$upgma_tiplab_scale == "turbo") {
+              scale_color_viridis(option = "H")
+            } 
+          } else {
+            if(input$upgma_tiplab_scale == "magma") {
+              scale_color_viridis(discrete = TRUE, option = "A")
+            } else if(input$upgma_tiplab_scale == "inferno") {
+              scale_color_viridis(discrete = TRUE, option = "B")
+            } else if(input$upgma_tiplab_scale == "plasma") {
+              scale_color_viridis(discrete = TRUE, option = "C")
+            } else if(input$upgma_tiplab_scale == "viridis") {
+              scale_color_viridis(discrete = TRUE, option = "D")
+            } else if(input$upgma_tiplab_scale == "cividis") {
+              scale_color_viridis(discrete = TRUE, option = "E")
+            } else if(input$upgma_tiplab_scale == "rocket") {
+              scale_color_viridis(discrete = TRUE, option = "F")
+            } else if(input$upgma_tiplab_scale == "mako") {
+              scale_color_viridis(discrete = TRUE, option = "G")
+            } else if(input$upgma_tiplab_scale == "turbo") {
+              scale_color_viridis(discrete = TRUE, option = "H")
+            } 
+          }
+        } else {
+          scale_color_brewer(palette = input$upgma_tiplab_scale)
+        }
+      }
+    }
+  })
+  
+  # Clade Highlight
+  upgma_clades <- reactive({
+    if(!is.null(input$upgma_parentnode)) {
+      if(!length(input$upgma_parentnode) == 0) {
+        if(length(input$upgma_parentnode) == 1) {
+          fill <- input$upgma_clade_scale
+        } else if (length(input$upgma_parentnode) == 2) {
+          fill <- brewer.pal(3, input$upgma_clade_scale)[1:2]
+        } else {
+          fill <- brewer.pal(length(input$upgma_parentnode), input$upgma_clade_scale)
+        }
+        geom_hilight(node = as.numeric(input$upgma_parentnode),
+                     fill = fill,
+                     align = input$upgma_clade_align,
+                     type = input$upgma_clade_type,
+                     gradient.direction = upgma_clade_grad_dir(),
+                     gradient.length.out = upgma_clade_grad_len())
+      } else {NULL}
+    }
+  })
+  
+  # Clade highlight gradient direction
+  upgma_clade_grad_dir <- reactive({
+    if(input$upgma_clade_type == "gradient") {
+      input$upgma_clade_grad_dir
+    } else {"rt"}
+  })
+  
+  # Clade hightlight gradient length
+  upgma_clade_grad_len <- reactive({
+    if(input$upgma_clade_type == "gradient") {
+      upgma_clade_grad_len
+    } else {2}
   })
   
   # Legend Position
@@ -14421,146 +14726,326 @@ server <- function(input, output, session) {
   
   # Tiles fill color gradient
   upgma_gradient <- reactive({
-    if(input$upgma_tiles_show == TRUE) {
-      if(class(DB$meta_true[[input$upgma_fruit_variable]]) == "numeric") {
-        if(input$upgma_div_tiles == TRUE) {
-          if(input$upgma_tile_mid == "Median"){
-            scale_fill_gradient2(low = input$upgma_tile_color_low,
-                                 mid = input$upgma_tile_color_mid,
-                                 midpoint = median(DB$meta_true[[input$upgma_fruit_variable]], na.rm = TRUE),
-                                 high = input$upgma_tile_color_high)
-          } else if(input$upgma_tile_mid == "Mean") {
-            scale_fill_gradient2(low = input$upgma_tile_color_low,
-                                 mid = input$upgma_tile_color_mid,
-                                 midpoint = mean(DB$meta_true[[input$upgma_fruit_variable]], na.rm = TRUE),
-                                 high = input$upgma_tile_color_high)
+    if((!is.null(input$upgma_tiles_show_1)) & 
+       (!is.null(input$upgma_fruit_variable)) & 
+       (!is.null(input$upgma_tiles_scale_1))) {
+      if(input$upgma_tiles_show_1 == TRUE) {
+        if(input$upgma_tiles_scale_1 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
+          if(input$upgma_tiles_mapping_div_mid_1 == "Zero") {
+            midpoint <- 0
+          } else if(input$upgma_tiles_mapping_div_mid_1 == "Mean") {
+            midpoint <- mean(DB$meta_true[[input$upgma_fruit_variable]], na.rm = TRUE)
           } else {
-            scale_fill_gradient2(low = input$upgma_tile_color_low,
-                                 mid = input$upgma_tile_color_mid,
-                                 high = input$upgma_tile_color_high)
+            midpoint <- median(DB$meta_true[[input$upgma_fruit_variable]], na.rm = TRUE)
           }
+          scale_fill_gradient2(low = brewer.pal(3, input$upgma_tiles_scale_1)[1],
+                               mid = brewer.pal(3, input$upgma_tiles_scale_1)[2],
+                               high = brewer.pal(3, input$upgma_tiles_scale_1)[3],
+                               midpoint = midpoint)
         } else {
-          scale_fill_gradient(low = input$upgma_tile_color_low,
-                              high = input$upgma_tile_color_high)
+          if(input$upgma_tiles_scale_1 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+            if(class(unlist(DB$meta[input$upgma_fruit_variable])) == "numeric") {
+              if(input$upgma_tiles_scale_1 == "magma") {
+                scale_fill_viridis(option = "A")
+              } else if(input$upgma_tiles_scale_1 == "inferno") {
+                scale_fill_viridis(option = "B")
+              } else if(input$upgma_tiles_scale_1 == "plasma") {
+                scale_fill_viridis(option = "C")
+              } else if(input$upgma_tiles_scale_1 == "viridis") {
+                scale_fill_viridis(option = "D")
+              } else if(input$upgma_tiles_scale_1 == "cividis") {
+                scale_fill_viridis(option = "E")
+              } else if(input$upgma_tiles_scale_1 == "rocket") {
+                scale_fill_viridis(option = "F")
+              } else if(input$upgma_tiles_scale_1 == "mako") {
+                scale_fill_viridis(option = "G")
+              } else if(input$upgma_tiles_scale_1 == "turbo") {
+                scale_fill_viridis(option = "H")
+              } 
+            } else {
+              if(input$upgma_tiles_scale_1 == "magma") {
+                scale_fill_viridis(discrete = TRUE, option = "A")
+              } else if(input$upgma_tiles_scale_1 == "inferno") {
+                scale_fill_viridis(discrete = TRUE, option = "B")
+              } else if(input$upgma_tiles_scale_1 == "plasma") {
+                scale_fill_viridis(discrete = TRUE, option = "C")
+              } else if(input$upgma_tiles_scale_1 == "viridis") {
+                scale_fill_viridis(discrete = TRUE, option = "D")
+              } else if(input$upgma_tiles_scale_1 == "cividis") {
+                scale_fill_viridis(discrete = TRUE, option = "E")
+              } else if(input$upgma_tiles_scale_1 == "rocket") {
+                scale_fill_viridis(discrete = TRUE, option = "F")
+              } else if(input$upgma_tiles_scale_1 == "mako") {
+                scale_fill_viridis(discrete = TRUE, option = "G")
+              } else if(input$upgma_tiles_scale_1 == "turbo") {
+                scale_fill_viridis(discrete = TRUE, option = "H")
+              } 
+            }
+          } else {
+            scale_fill_brewer(palette = input$upgma_tiles_scale_1)
+          }
         }
       } else {NULL}
-    } else {NULL}
+    }
   })
   
   upgma_gradient2 <- reactive({
-    if(input$upgma_tiles_show_2 == TRUE) {
-      if(class(DB$meta_true[[input$upgma_fruit_variable_2]]) == "numeric") {
-        if(input$upgma_div_tiles == TRUE) {
-          if(input$upgma_tile_mid == "Median"){
-            scale_fill_gradient2(low = input$upgma_tile_color_low_2,
-                                 mid = input$upgma_tile_color_mid_2,
-                                 midpoint = median(DB$meta_true[[input$upgma_fruit_variable_2]], na.rm = TRUE),
-                                 high = input$upgma_tile_color_high_2)
-          } else if(input$upgma_tile_mid == "Mean") {
-            scale_fill_gradient2(low = input$upgma_tile_color_low_2,
-                                 mid = input$upgma_tile_color_mid_2,
-                                 midpoint = mean(DB$meta_true[[input$upgma_fruit_variable_2]], na.rm = TRUE),
-                                 high = input$upgma_tile_color_high_2)
+    if((!is.null(input$upgma_tiles_show_2)) & 
+       (!is.null(input$upgma_fruit_variable_2)) & 
+       (!is.null(input$upgma_tiles_scale_2))) {
+      if(input$upgma_tiles_show_2 == TRUE) {
+        if(input$upgma_tiles_scale_2 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
+          if(input$upgma_tiles_mapping_div_mid_2 == "Zero") {
+            midpoint <- 0
+          } else if(input$upgma_tiles_mapping_div_mid_2 == "Mean") {
+            midpoint <- mean(DB$meta_true[[input$upgma_fruit_variable_2]], na.rm = TRUE)
           } else {
-            scale_fill_gradient2(low = input$upgma_tile_color_low_2,
-                                 mid = input$upgma_tile_color_mid_2,
-                                 high = input$upgma_tile_color_high_2)
+            midpoint <- median(DB$meta_true[[input$upgma_fruit_variable_2]], na.rm = TRUE)
           }
+          scale_fill_gradient2(low = brewer.pal(3, input$upgma_tiles_scale_2)[1],
+                               mid = brewer.pal(3, input$upgma_tiles_scale_2)[2],
+                               high = brewer.pal(3, input$upgma_tiles_scale_2)[3],
+                               midpoint = midpoint)
         } else {
-          scale_fill_gradient(low = input$upgma_tile_color_low_2,
-                              high = input$upgma_tile_color_high_2)
+          if(input$upgma_tiles_scale_2 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+            if(class(unlist(DB$meta[input$upgma_fruit_variable_2])) == "numeric") {
+              if(input$upgma_tiles_scale_2 == "magma") {
+                scale_fill_viridis(option = "A")
+              } else if(input$upgma_tiles_scale_2 == "inferno") {
+                scale_fill_viridis(option = "B")
+              } else if(input$upgma_tiles_scale_2 == "plasma") {
+                scale_fill_viridis(option = "C")
+              } else if(input$upgma_tiles_scale_2 == "viridis") {
+                scale_fill_viridis(option = "D")
+              } else if(input$upgma_tiles_scale_2 == "cividis") {
+                scale_fill_viridis(option = "E")
+              } else if(input$upgma_tiles_scale_2 == "rocket") {
+                scale_fill_viridis(option = "F")
+              } else if(input$upgma_tiles_scale_2 == "mako") {
+                scale_fill_viridis(option = "G")
+              } else if(input$upgma_tiles_scale_2 == "turbo") {
+                scale_fill_viridis(option = "H")
+              } 
+            } else {
+              if(input$upgma_tiles_scale_2 == "magma") {
+                scale_fill_viridis(discrete = TRUE, option = "A")
+              } else if(input$upgma_tiles_scale_2 == "inferno") {
+                scale_fill_viridis(discrete = TRUE, option = "B")
+              } else if(input$upgma_tiles_scale_2 == "plasma") {
+                scale_fill_viridis(discrete = TRUE, option = "C")
+              } else if(input$upgma_tiles_scale_2 == "viridis") {
+                scale_fill_viridis(discrete = TRUE, option = "D")
+              } else if(input$upgma_tiles_scale_2 == "cividis") {
+                scale_fill_viridis(discrete = TRUE, option = "E")
+              } else if(input$upgma_tiles_scale_2 == "rocket") {
+                scale_fill_viridis(discrete = TRUE, option = "F")
+              } else if(input$upgma_tiles_scale_2 == "mako") {
+                scale_fill_viridis(discrete = TRUE, option = "G")
+              } else if(input$upgma_tiles_scale_2 == "turbo") {
+                scale_fill_viridis(discrete = TRUE, option = "H")
+              } 
+            }
+          } else {
+            scale_fill_brewer(palette = input$upgma_tiles_scale_2)
+          }
         }
       } else {NULL}
-    } else {NULL}
-    
+    }
   })
   
   upgma_gradient3 <- reactive({
-    if(input$upgma_tiles_show_3 == TRUE) {
-      if(class(DB$meta_true[[input$upgma_fruit_variable_2]]) == "numeric") {
-        if(input$upgma_div_tiles == TRUE) {
-          if(input$upgma_tile_mid == "Median"){
-            scale_fill_gradient2(low = input$upgma_tile_color_low_2,
-                                 mid = input$upgma_tile_color_mid_2,
-                                 midpoint = median(DB$meta_true[[input$upgma_fruit_variable_2]], na.rm = TRUE),
-                                 high = input$upgma_tile_color_high_2)
-          } else if(input$upgma_tile_mid == "Mean") {
-            scale_fill_gradient2(low = input$upgma_tile_color_low_2,
-                                 mid = input$upgma_tile_color_mid_2,
-                                 midpoint = mean(DB$meta_true[[input$upgma_fruit_variable_2]], na.rm = TRUE),
-                                 high = input$upgma_tile_color_high_2)
+    if((!is.null(input$upgma_tiles_show_3)) & 
+       (!is.null(input$upgma_fruit_variable_3)) & 
+       (!is.null(input$upgma_tiles_scale_3))) {
+      if(input$upgma_tiles_show_3 == TRUE) {
+        if(input$upgma_tiles_scale_3 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
+          if(input$upgma_tiles_mapping_div_mid_3 == "Zero") {
+            midpoint <- 0
+          } else if(input$upgma_tiles_mapping_div_mid_3 == "Mean") {
+            midpoint <- mean(DB$meta_true[[input$upgma_fruit_variable_3]], na.rm = TRUE)
           } else {
-            scale_fill_gradient2(low = input$upgma_tile_color_low_2,
-                                 mid = input$upgma_tile_color_mid_2,
-                                 high = input$upgma_tile_color_high_2)
+            midpoint <- median(DB$meta_true[[input$upgma_fruit_variable_3]], na.rm = TRUE)
           }
+          scale_fill_gradient3(low = brewer.pal(3, input$upgma_tiles_scale_3)[1],
+                               mid = brewer.pal(3, input$upgma_tiles_scale_3)[2],
+                               high = brewer.pal(3, input$upgma_tiles_scale_3)[3],
+                               midpoint = midpoint)
         } else {
-          scale_fill_gradient(low = input$upgma_tile_color_low_2,
-                              high = input$upgma_tile_color_high_2)
+          if(input$upgma_tiles_scale_3 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+            if(class(unlist(DB$meta[input$upgma_fruit_variable_3])) == "numeric") {
+              if(input$upgma_tiles_scale_3 == "magma") {
+                scale_fill_viridis(option = "A")
+              } else if(input$upgma_tiles_scale_3 == "inferno") {
+                scale_fill_viridis(option = "B")
+              } else if(input$upgma_tiles_scale_3 == "plasma") {
+                scale_fill_viridis(option = "C")
+              } else if(input$upgma_tiles_scale_3 == "viridis") {
+                scale_fill_viridis(option = "D")
+              } else if(input$upgma_tiles_scale_3 == "cividis") {
+                scale_fill_viridis(option = "E")
+              } else if(input$upgma_tiles_scale_3 == "rocket") {
+                scale_fill_viridis(option = "F")
+              } else if(input$upgma_tiles_scale_3 == "mako") {
+                scale_fill_viridis(option = "G")
+              } else if(input$upgma_tiles_scale_3 == "turbo") {
+                scale_fill_viridis(option = "H")
+              } 
+            } else {
+              if(input$upgma_tiles_scale_3 == "magma") {
+                scale_fill_viridis(discrete = TRUE, option = "A")
+              } else if(input$upgma_tiles_scale_3 == "inferno") {
+                scale_fill_viridis(discrete = TRUE, option = "B")
+              } else if(input$upgma_tiles_scale_3 == "plasma") {
+                scale_fill_viridis(discrete = TRUE, option = "C")
+              } else if(input$upgma_tiles_scale_3 == "viridis") {
+                scale_fill_viridis(discrete = TRUE, option = "D")
+              } else if(input$upgma_tiles_scale_3 == "cividis") {
+                scale_fill_viridis(discrete = TRUE, option = "E")
+              } else if(input$upgma_tiles_scale_3 == "rocket") {
+                scale_fill_viridis(discrete = TRUE, option = "F")
+              } else if(input$upgma_tiles_scale_3 == "mako") {
+                scale_fill_viridis(discrete = TRUE, option = "G")
+              } else if(input$upgma_tiles_scale_3 == "turbo") {
+                scale_fill_viridis(discrete = TRUE, option = "H")
+              } 
+            }
+          } else {
+            scale_fill_brewer(palette = input$upgma_tiles_scale_3)
+          }
         }
       } else {NULL}
-    }else {NULL}
-    
+    }
   })
   
   upgma_gradient4 <- reactive({
-    if(input$upgma_tiles_show_4 == TRUE) {
-      if(class(DB$meta_true[[input$upgma_fruit_variable_4]]) == "numeric") {
-        if(input$upgma_div_tiles == TRUE) {
-          if(input$upgma_tile_mid == "Median"){
-            scale_fill_gradient2(low = input$upgma_tile_color_low_4,
-                                 mid = input$upgma_tile_color_mid_4,
-                                 midpoint = median(DB$meta_true[[input$upgma_fruit_variable_4]], na.rm = TRUE),
-                                 high = input$upgma_tile_color_high_4)
-          } else if(input$upgma_tile_mid == "Mean") {
-            scale_fill_gradient2(low = input$upgma_tile_color_low_4,
-                                 mid = input$upgma_tile_color_mid_4,
-                                 midpoint = mean(DB$meta_true[[input$upgma_fruit_variable_4]], na.rm = TRUE),
-                                 high = input$upgma_tile_color_high_4)
+    if((!is.null(input$upgma_tiles_show_4)) & 
+       (!is.null(input$upgma_fruit_variable_4)) & 
+       (!is.null(input$upgma_tiles_scale_4))) {
+      if(input$upgma_tiles_show_4 == TRUE) {
+        if(input$upgma_tiles_scale_4 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
+          if(input$upgma_tiles_mapping_div_mid_4 == "Zero") {
+            midpoint <- 0
+          } else if(input$upgma_tiles_mapping_div_mid_4 == "Mean") {
+            midpoint <- mean(DB$meta_true[[input$upgma_fruit_variable_4]], na.rm = TRUE)
           } else {
-            scale_fill_gradient2(low = input$upgma_tile_color_low_4,
-                                 mid = input$upgma_tile_color_mid_4,
-                                 high = input$upgma_tile_color_high_4)
+            midpoint <- median(DB$meta_true[[input$upgma_fruit_variable_4]], na.rm = TRUE)
           }
+          scale_fill_gradient4(low = brewer.pal(3, input$upgma_tiles_scale_4)[1],
+                               mid = brewer.pal(3, input$upgma_tiles_scale_4)[2],
+                               high = brewer.pal(3, input$upgma_tiles_scale_4)[3],
+                               midpoint = midpoint)
         } else {
-          scale_fill_gradient(low = input$upgma_tile_color_low_4,
-                              high = input$upgma_tile_color_high_4)
+          if(input$upgma_tiles_scale_4 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+            if(class(unlist(DB$meta[input$upgma_fruit_variable])) == "numeric") {
+              if(input$upgma_tiles_scale_4 == "magma") {
+                scale_fill_viridis(option = "A")
+              } else if(input$upgma_tiles_scale_4 == "inferno") {
+                scale_fill_viridis(option = "B")
+              } else if(input$upgma_tiles_scale_4 == "plasma") {
+                scale_fill_viridis(option = "C")
+              } else if(input$upgma_tiles_scale_4 == "viridis") {
+                scale_fill_viridis(option = "D")
+              } else if(input$upgma_tiles_scale_4 == "cividis") {
+                scale_fill_viridis(option = "E")
+              } else if(input$upgma_tiles_scale_4 == "rocket") {
+                scale_fill_viridis(option = "F")
+              } else if(input$upgma_tiles_scale_4 == "mako") {
+                scale_fill_viridis(option = "G")
+              } else if(input$upgma_tiles_scale_4 == "turbo") {
+                scale_fill_viridis(option = "H")
+              } 
+            } else {
+              if(input$upgma_tiles_scale_4 == "magma") {
+                scale_fill_viridis(discrete = TRUE, option = "A")
+              } else if(input$upgma_tiles_scale_4 == "inferno") {
+                scale_fill_viridis(discrete = TRUE, option = "B")
+              } else if(input$upgma_tiles_scale_4 == "plasma") {
+                scale_fill_viridis(discrete = TRUE, option = "C")
+              } else if(input$upgma_tiles_scale_4 == "viridis") {
+                scale_fill_viridis(discrete = TRUE, option = "D")
+              } else if(input$upgma_tiles_scale_4 == "cividis") {
+                scale_fill_viridis(discrete = TRUE, option = "E")
+              } else if(input$upgma_tiles_scale_4 == "rocket") {
+                scale_fill_viridis(discrete = TRUE, option = "F")
+              } else if(input$upgma_tiles_scale_4 == "mako") {
+                scale_fill_viridis(discrete = TRUE, option = "G")
+              } else if(input$upgma_tiles_scale_4 == "turbo") {
+                scale_fill_viridis(discrete = TRUE, option = "H")
+              } 
+            }
+          } else {
+            scale_fill_brewer(palette = input$upgma_tiles_scale_4)
+          }
         }
       } else {NULL}
-    } else {NULL}
-    
+    }
   })
   
   upgma_gradient5 <- reactive({
-    if(input$upgma_tiles_show_5 == TRUE) {
-      if(class(DB$meta_true[[input$upgma_fruit_variable_5]]) == "numeric") {
-        if(input$upgma_div_tiles == TRUE) {
-          if(input$upgma_tile_mid == "Median"){
-            scale_fill_gradient2(low = input$upgma_tile_color_low_5,
-                                 mid = input$upgma_tile_color_mid_5,
-                                 midpoint = median(DB$meta_true[[input$upgma_fruit_variable_5]], na.rm = TRUE),
-                                 high = input$upgma_tile_color_high_5)
-          } else if(input$upgma_tile_mid == "Mean") {
-            scale_fill_gradient2(low = input$upgma_tile_color_low_5,
-                                 mid = input$upgma_tile_color_mid_5,
-                                 midpoint = mean(DB$meta_true[[input$upgma_fruit_variable_5]], na.rm = TRUE),
-                                 high = input$upgma_tile_color_high_5)
+    if((!is.null(input$upgma_tiles_show_5)) & 
+       (!is.null(input$upgma_fruit_variable_5)) & 
+       (!is.null(input$upgma_tiles_scale_5))) {
+      if(input$upgma_tiles_show_5 == TRUE) {
+        if(input$upgma_tiles_scale_5 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
+          if(input$upgma_tiles_mapping_div_mid_5 == "Zero") {
+            midpoint <- 0
+          } else if(input$upgma_tiles_mapping_div_mid_5 == "Mean") {
+            midpoint <- mean(DB$meta_true[[input$upgma_fruit_variable_5]], na.rm = TRUE)
           } else {
-            scale_fill_gradient2(low = input$upgma_tile_color_low_5,
-                                 mid = input$upgma_tile_color_mid_5,
-                                 high = input$upgma_tile_color_high_5)
+            midpoint <- median(DB$meta_true[[input$upgma_fruit_variable_5]], na.rm = TRUE)
           }
+          scale_fill_gradient5(low = brewer.pal(3, input$upgma_tiles_scale_5)[1],
+                               mid = brewer.pal(3, input$upgma_tiles_scale_5)[2],
+                               high = brewer.pal(3, input$upgma_tiles_scale_5)[3],
+                               midpoint = midpoint)
         } else {
-          scale_fill_gradient(low = input$upgma_tile_color_low_5,
-                              high = input$upgma_tile_color_high_5)
+          if(input$upgma_tiles_scale_5 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+            if(class(unlist(DB$meta[input$upgma_fruit_variable_5])) == "numeric") {
+              if(input$upgma_tiles_scale_5 == "magma") {
+                scale_fill_viridis(option = "A")
+              } else if(input$upgma_tiles_scale_5 == "inferno") {
+                scale_fill_viridis(option = "B")
+              } else if(input$upgma_tiles_scale_5 == "plasma") {
+                scale_fill_viridis(option = "C")
+              } else if(input$upgma_tiles_scale_5 == "viridis") {
+                scale_fill_viridis(option = "D")
+              } else if(input$upgma_tiles_scale_5 == "cividis") {
+                scale_fill_viridis(option = "E")
+              } else if(input$upgma_tiles_scale_5 == "rocket") {
+                scale_fill_viridis(option = "F")
+              } else if(input$upgma_tiles_scale_5 == "mako") {
+                scale_fill_viridis(option = "G")
+              } else if(input$upgma_tiles_scale_5 == "turbo") {
+                scale_fill_viridis(option = "H")
+              } 
+            } else {
+              if(input$upgma_tiles_scale_5 == "magma") {
+                scale_fill_viridis(discrete = TRUE, option = "A")
+              } else if(input$upgma_tiles_scale_5 == "inferno") {
+                scale_fill_viridis(discrete = TRUE, option = "B")
+              } else if(input$upgma_tiles_scale_5 == "plasma") {
+                scale_fill_viridis(discrete = TRUE, option = "C")
+              } else if(input$upgma_tiles_scale_5 == "viridis") {
+                scale_fill_viridis(discrete = TRUE, option = "D")
+              } else if(input$upgma_tiles_scale_5 == "cividis") {
+                scale_fill_viridis(discrete = TRUE, option = "E")
+              } else if(input$upgma_tiles_scale_5 == "rocket") {
+                scale_fill_viridis(discrete = TRUE, option = "F")
+              } else if(input$upgma_tiles_scale_5 == "mako") {
+                scale_fill_viridis(discrete = TRUE, option = "G")
+              } else if(input$upgma_tiles_scale_5 == "turbo") {
+                scale_fill_viridis(discrete = TRUE, option = "H")
+              } 
+            }
+          } else {
+            scale_fill_brewer(palette = input$upgma_tiles_scale_5)
+          }
         }
       } else {NULL}
-    } else {NULL}
-    
+    }
   })
   
-  
-  # No label clip off for linear UPGMA tree
+  # No label clip off for linear upgma tree
   upgma_clip_label <- reactive({
     if(!(input$upgma_layout == "circular" | input$upgma_layout == "inward")) {
       coord_cartesian(clip = "off")
@@ -14569,118 +15054,294 @@ server <- function(input, output, session) {
   
   # Geom Fruit
   upgma_fruit <- reactive({
-    if(input$upgma_tiles_show == TRUE) {
-      if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-        geom_fruit(
-          geom = geom_tile,
-          mapping = aes(fill = !!sym(input$upgma_fruit_variable)),
-          offset = input$upgma_fruit_offset_circ,
-          width = input$upgma_fruit_width_circ,
-          alpha = input$upgma_fruit_alpha
-        )
-      } else {
-        geom_fruit(
-          geom = geom_tile,
-          mapping = aes(fill = !!sym(input$upgma_fruit_variable)),
-          offset = input$upgma_fruit_offset_circ,
-          width = input$upgma_fruit_width_circ,
-          alpha = input$upgma_fruit_alpha
-        )
-      }
-    } else {NULL}
+    if((!is.null(input$upgma_tiles_show_1)) & 
+       (!is.null(input$upgma_fruit_variable)) & 
+       (!is.null(input$upgma_layout)) & 
+       (!is.null(input$upgma_fruit_offset_circ)) & 
+       (!is.null(input$upgma_fruit_width_circ)) & 
+       (!is.null(input$upgma_fruit_alpha))) {
+      if(input$upgma_tiles_show_1 == TRUE) {
+        if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill= !!sym(input$upgma_fruit_variable)),
+            offset = input$upgma_fruit_offset_circ,
+            width = input$upgma_fruit_width_circ,
+            alpha = input$upgma_fruit_alpha
+          )
+        } else {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill= !!sym(input$upgma_fruit_variable)),
+            offset = input$upgma_fruit_offset_circ,
+            width = input$upgma_fruit_width_circ,
+            alpha = input$upgma_fruit_alpha
+          )
+        }
+      } else {NULL}
+    } else {
+      if(input$upgma_tiles_show_1 == TRUE) {
+        if(!is.null(Vis$upgma_max_x)) {
+          if(round(ceiling(Vis$upgma_max_x) * 0.1, 0) < 1) {
+            width <- 1
+          } else {
+            width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          }
+        } else {
+          width <- 2
+        }
+        if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill= !!sym(input$upgma_fruit_variable)),
+            offset = 0,
+            width = width * 3,
+            alpha = 1
+          )
+        } else {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill= !!sym(input$upgma_fruit_variable)),
+            offset = 0,
+            width = width,
+            alpha = 1
+          )
+        }
+      } else {NULL}
+    }
   })
   
   # Geom Fruit
   upgma_fruit2 <- reactive({
-    if(input$upgma_tiles_show_2 == TRUE) {
-      if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-        geom_fruit(
-          geom = geom_tile,
-          mapping = aes(fill = !!sym(input$upgma_fruit_variable_2)),
-          offset = input$upgma_fruit_offset_circ_2,
-          width = input$upgma_fruit_width_circ_2,
-          alpha = input$upgma_fruit_alpha_2
-        )
-      } else {
-        geom_fruit(
-          geom = geom_tile,
-          mapping = aes(fill = !!sym(input$upgma_fruit_variable_2)),
-          offset = input$upgma_fruit_offset_circ_2,
-          width = input$upgma_fruit_width_circ_2,
-          alpha = input$upgma_fruit_alpha_2
-        )
-      }
-    } else {NULL}
+    if((!is.null(input$upgma_tiles_show_2)) & 
+       (!is.null(input$upgma_fruit_variable_2)) & 
+       (!is.null(input$upgma_layout)) & 
+       (!is.null(input$upgma_fruit_offset_circ_2)) & 
+       (!is.null(input$upgma_fruit_width_circ_2)) & 
+       (!is.null(input$upgma_fruit_alpha_2))) {
+      if(input$upgma_tiles_show_2 == TRUE) {
+        if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill = !!sym(input$upgma_fruit_variable_2)),
+            offset = input$upgma_fruit_offset_circ_2,
+            width = input$upgma_fruit_width_circ_2,
+            alpha = input$upgma_fruit_alpha_2
+          )
+        } else {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill = !!sym(input$upgma_fruit_variable_2)),
+            offset = input$upgma_fruit_offset_circ_2,
+            width = input$upgma_fruit_width_circ_2,
+            alpha = input$upgma_fruit_alpha_2
+          )
+        }
+      } else {NULL}
+    } else {
+      if(input$upgma_tiles_show_2 == TRUE) {
+        if(!is.null(Vis$upgma_max_x)) {
+          if(round(ceiling(Vis$upgma_max_x) * 0.1, 0) < 1) {
+            width <- 1
+          } else {
+            width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          }
+        } else {
+          width <- 2
+        }
+        if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill= !!sym(input$upgma_fruit_variable_2)),
+            offset = 0.15,
+            width = width * 3,
+            alpha = 1
+          )
+        } else {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill= !!sym(input$upgma_fruit_variable_2)),
+            offset = 0.05,
+            width = width,
+            alpha = 1
+          )
+        }
+      } else {NULL}
+    }
   })
   
   upgma_fruit3 <- reactive({
-    if(input$upgma_tiles_show_3 == TRUE) {
-      if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-        geom_fruit(
-          geom = geom_tile,
-          mapping = aes(fill = !!sym(input$upgma_fruit_variable_3)),
-          offset = input$upgma_fruit_offset_circ_3,
-          width = input$upgma_fruit_width_circ_3,
-          alpha = input$upgma_fruit_alpha_3
-        )
-      } else {
-        geom_fruit(
-          geom = geom_tile,
-          mapping = aes(fill = !!sym(input$upgma_fruit_variable_3)),
-          offset = input$upgma_fruit_offset_circ_3,
-          width = input$upgma_fruit_width_circ_3,
-          alpha = input$upgma_fruit_alpha_3
-        )
-      }
-    } else {NULL}
-    
-    
+    if((!is.null(input$upgma_tiles_show_3)) & 
+       (!is.null(input$upgma_fruit_variable_3)) & 
+       (!is.null(input$upgma_layout)) & 
+       (!is.null(input$upgma_fruit_offset_circ_3)) & 
+       (!is.null(input$upgma_fruit_width_circ_3)) & 
+       (!is.null(input$upgma_fruit_alpha_3))) {
+      if(input$upgma_tiles_show_3 == TRUE) {
+        if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill = !!sym(input$upgma_fruit_variable_3)),
+            offset = input$upgma_fruit_offset_circ_3,
+            width = input$upgma_fruit_width_circ_3,
+            alpha = input$upgma_fruit_alpha_3
+          )
+        } else {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill = !!sym(input$upgma_fruit_variable_3)),
+            offset = input$upgma_fruit_offset_circ_3,
+            width = input$upgma_fruit_width_circ_3,
+            alpha = input$upgma_fruit_alpha_3
+          )
+        }
+      } else {NULL}
+    } else {
+      if(input$upgma_tiles_show_3 == TRUE) {
+        if(!is.null(Vis$upgma_max_x)) {
+          if(round(ceiling(Vis$upgma_max_x) * 0.1, 0) < 1) {
+            width <- 1
+          } else {
+            width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          }
+        } else {
+          width <- 2
+        }
+        if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill= !!sym(input$upgma_fruit_variable_3)),
+            offset = 0.15,
+            width = width * 3,
+            alpha = 1
+          )
+        } else {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill= !!sym(input$upgma_fruit_variable_3)),
+            offset = 0.05,
+            width = width,
+            alpha = 1
+          )
+        }
+      } else {NULL}
+    }
   })
   
   upgma_fruit4 <- reactive({
-    if(input$upgma_tiles_show_4 == TRUE) {
-      if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-        geom_fruit(
-          geom = geom_tile,
-          mapping = aes(fill = !!sym(input$upgma_fruit_variable_4)),
-          offset = input$upgma_fruit_offset_circ_4,
-          width = input$upgma_fruit_width_circ_4,
-          alpha = input$upgma_fruit_alpha_4
-        )
+    if((!is.null(input$upgma_tiles_show_4)) & 
+       (!is.null(input$upgma_fruit_variable_4)) & 
+       (!is.null(input$upgma_layout)) & 
+       (!is.null(input$upgma_fruit_offset_circ_4)) & 
+       (!is.null(input$upgma_fruit_width_circ_4)) & 
+       (!is.null(input$upgma_fruit_alpha_4))) {
+      if(input$upgma_tiles_show_4 == TRUE) {
+        if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill = !!sym(input$upgma_fruit_variable_4)),
+            offset = input$upgma_fruit_offset_circ_4,
+            width = input$upgma_fruit_width_circ_4,
+            alpha = input$upgma_fruit_alpha_4
+          )
+        } else {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill = !!sym(input$upgma_fruit_variable_4)),
+            offset = input$upgma_fruit_offset_circ_4,
+            width = input$upgma_fruit_width_circ_4,
+            alpha = input$upgma_fruit_alpha_4
+          )
+        }
       } else {
-        geom_fruit(
-          geom = geom_tile,
-          mapping = aes(fill = !!sym(input$upgma_fruit_variable_4)),
-          offset = input$upgma_fruit_offset_circ_4,
-          width = input$upgma_fruit_width_circ_4,
-          alpha = input$upgma_fruit_alpha_4
-        )
+        if(input$upgma_tiles_show_4 == TRUE) {
+          if(!is.null(Vis$upgma_max_x)) {
+            if(round(ceiling(Vis$upgma_max_x) * 0.1, 0) < 1) {
+              width <- 1
+            } else {
+              width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+            }
+          } else {
+            width <- 2
+          }
+          if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
+            geom_fruit(
+              geom = geom_tile,
+              mapping = aes(fill= !!sym(input$upgma_fruit_variable_4)),
+              offset = 0.15,
+              width = width * 3,
+              alpha = 1
+            )
+          } else {
+            geom_fruit(
+              geom = geom_tile,
+              mapping = aes(fill= !!sym(input$upgma_fruit_variable_4)),
+              offset = 0.05,
+              width = width,
+              alpha = 1
+            )
+          }
+        } else {NULL}
       }
-    } else {NULL}
-    
+    }
   })
   
   upgma_fruit5 <- reactive({
-    if(input$upgma_tiles_show_5 == TRUE) {
-      if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-        geom_fruit(
-          geom = geom_tile,
-          mapping = aes(fill = !!sym(input$upgma_fruit_variable_5)),
-          offset = input$upgma_fruit_offset_circ_5,
-          width = input$upgma_fruit_width_circ_5,
-          alpha = input$upgma_fruit_alpha_5
-        )
-      } else {
-        geom_fruit(
-          geom = geom_tile,
-          mapping = aes(fill = !!sym(input$upgma_fruit_variable_5)),
-          offset = input$upgma_fruit_offset_circ_5,
-          width = input$upgma_fruit_width_circ_5,
-          alpha = input$upgma_fruit_alpha_5
-        )
-      }
-    } else {NULL}
-    
+    if((!is.null(input$upgma_tiles_show_5)) & 
+       (!is.null(input$upgma_fruit_variable_5)) & 
+       (!is.null(input$upgma_layout)) & 
+       (!is.null(input$upgma_fruit_offset_circ_5)) & 
+       (!is.null(input$upgma_fruit_width_circ_5)) & 
+       (!is.null(input$upgma_fruit_alpha_5))) {
+      if(input$upgma_tiles_show_5 == TRUE) {
+        if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill = !!sym(input$upgma_fruit_variable_5)),
+            offset = input$upgma_fruit_offset_circ_5,
+            width = input$upgma_fruit_width_circ_5,
+            alpha = input$upgma_fruit_alpha_5
+          )
+        } else {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill = !!sym(input$upgma_fruit_variable_5)),
+            offset = input$upgma_fruit_offset_circ_5,
+            width = input$upgma_fruit_width_circ_5,
+            alpha = input$upgma_fruit_alpha_5
+          )
+        }
+      } else {NULL}
+    } else {
+      if(input$upgma_tiles_show_5 == TRUE) {
+        if(!is.null(Vis$upgma_max_x)) {
+          if(round(ceiling(Vis$upgma_max_x) * 0.1, 0) < 1) {
+            width <- 1
+          } else {
+            width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          }
+        } else {
+          width <- 2
+        }
+        if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill= !!sym(input$upgma_fruit_variable_5)),
+            offset = 0.15,
+            width = width * 3,
+            alpha = 1
+          )
+        } else {
+          geom_fruit(
+            geom = geom_tile,
+            mapping = aes(fill= !!sym(input$upgma_fruit_variable_5)),
+            offset = 0.05,
+            width = width,
+            alpha = 1
+          )
+        }
+      } else {NULL}
+    }
   })
   
   # Xlim
@@ -14732,8 +15393,8 @@ server <- function(input, output, session) {
       if(input$upgma_show_branch_label == TRUE) {
         geom_label(
           aes(
-            x = !!sym("branch"), 
-            label = !!sym(input$upgma_branch_label)),
+            x=!!sym("branch"), 
+            label= !!sym(input$upgma_branch_label)),
           fill = input$upgma_branch_label_color,
           size = upgma_branch_size(),
           label.r = unit(input$upgma_branch_labelradius, "lines"),
@@ -14770,23 +15431,14 @@ server <- function(input, output, session) {
   
   # Tippoints
   upgma_tippoint <- reactive({
-    if(input$upgma_tippoint_show == TRUE) {
+    if(input$upgma_tippoint_show == TRUE | input$upgma_tipcolor_mapping_show == TRUE | input$upgma_tipshape_mapping_show == TRUE) {
       if(input$upgma_tipcolor_mapping_show == TRUE & input$upgma_tipshape_mapping_show == FALSE) {
-        if(input$upgma_mapping_show == TRUE) {
-          geom_tippoint(
-            aes(shape = !!sym(input$upgma_tipcolor_mapping)),
-            alpha = input$upgma_tippoint_alpha,
-            color = input$upgma_tippoint_color,
-            size = upgma_tippoint_size()
-          )
-        } else {
-          geom_tippoint(
-            aes(color = !!sym(input$upgma_tipcolor_mapping)),
-            alpha = input$upgma_tippoint_alpha,
-            shape = input$upgma_tippoint_shape,
-            size = upgma_tippoint_size()
-          )
-        }
+        geom_tippoint(
+          aes(color = !!sym(input$upgma_tipcolor_mapping)),
+          alpha = input$upgma_tippoint_alpha,
+          shape = input$upgma_tippoint_shape,
+          size = upgma_tippoint_size()
+        )
       } else if (input$upgma_tipcolor_mapping_show == FALSE & input$upgma_tipshape_mapping_show == TRUE) {
         geom_tippoint(
           aes(shape = !!sym(input$upgma_tipshape_mapping)),
@@ -14795,21 +15447,12 @@ server <- function(input, output, session) {
           size = upgma_tippoint_size()
         )
       } else if (input$upgma_tipcolor_mapping_show == TRUE & input$upgma_tipshape_mapping_show == TRUE) {
-        if(input$upgma_mapping_show == TRUE) {
-          geom_tippoint(
-            aes(shape = !!sym(input$upgma_tipshape_mapping)),
-            color = input$upgma_tippoint_color,
-            alpha = input$upgma_tippoint_alpha,
-            size = upgma_tippoint_size()
-          )
-        } else {
-          geom_tippoint(
-            aes(shape = !!sym(input$upgma_tipshape_mapping),
-                color = !!sym(input$upgma_tipcolor_mapping)),
-            alpha = input$upgma_tippoint_alpha,
-            size = upgma_tippoint_size()
-          )
-        }
+        geom_tippoint(
+          aes(shape = !!sym(input$upgma_tipshape_mapping),
+              color = !!sym(input$upgma_tipcolor_mapping)),
+          alpha = input$upgma_tippoint_alpha,
+          size = upgma_tippoint_size()
+        )
       } else {
         geom_tippoint(
           alpha = input$upgma_tippoint_alpha,
@@ -14819,9 +15462,7 @@ server <- function(input, output, session) {
           size = upgma_tippoint_size()
         )
       } 
-    } else {NULL
-      
-    }
+    } else {NULL}
   })
   
   # Nodepoints
@@ -14851,11 +15492,9 @@ server <- function(input, output, session) {
       if(input$upgma_layout == "circular") {
         if(input$upgma_mapping_show == TRUE) {
           geom_tiplab(
-            upgma_mapping_tiplab(), 
+            mapping_tiplab(), 
             geom = "text",
             size = upgma_tiplab_size(),
-            linesize = input$upgma_tiplab_linesize,
-            linetype = input$upgma_tiplab_linetype,
             alpha = input$upgma_tiplab_alpha,
             fontface = input$upgma_tiplab_fontface,
             align = as.logical(input$upgma_align),
@@ -14864,12 +15503,10 @@ server <- function(input, output, session) {
           )
         } else {
           geom_tiplab(
-            upgma_mapping_tiplab(),
+            mapping_tiplab(),
             color = input$upgma_tiplab_color,
             geom = "text",
             size = upgma_tiplab_size(),
-            linesize = input$upgma_tiplab_linesize,
-            linetype = input$upgma_tiplab_linetype,
             alpha = input$upgma_tiplab_alpha,
             fontface = input$upgma_tiplab_fontface,
             align = as.logical(input$upgma_align),
@@ -14880,11 +15517,9 @@ server <- function(input, output, session) {
       } else if (input$upgma_layout == "inward") {
         if(input$upgma_mapping_show == TRUE) {
           geom_tiplab(
-            upgma_mapping_tiplab(), 
+            mapping_tiplab(), 
             geom = "text",
             size = upgma_tiplab_size(),
-            linesize = input$upgma_tiplab_linesize,
-            linetype = input$upgma_tiplab_linetype,
             alpha = input$upgma_tiplab_alpha,
             fontface = input$upgma_tiplab_fontface,
             align = as.logical(input$upgma_align),
@@ -14893,12 +15528,10 @@ server <- function(input, output, session) {
           )
         } else {
           geom_tiplab(
-            upgma_mapping_tiplab(),
+            mapping_tiplab(),
             color = input$upgma_tiplab_color,
             geom = "text",
             size = upgma_tiplab_size(),
-            linesize = input$upgma_tiplab_linesize,
-            linetype = input$upgma_tiplab_linetype,
             alpha = input$upgma_tiplab_alpha,
             fontface = input$upgma_tiplab_fontface,
             align = as.logical(input$upgma_align),
@@ -14908,40 +15541,65 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$upgma_mapping_show == TRUE) {
-          geom_tiplab(
-            upgma_mapping_tiplab(), 
-            geom = upgma_geom(),
-            angle = input$upgma_tiplab_angle,
-            size = upgma_tiplab_size(),
-            linesize = input$upgma_tiplab_linesize,
-            linetype = input$upgma_tiplab_linetype,
-            alpha = input$upgma_tiplab_alpha,
-            fontface = input$upgma_tiplab_fontface,
-            align = as.logical(input$upgma_align),
-            nudge_x = input$upgma_tiplab_nudge_x,
-            check.overlap = input$upgma_tiplab_overlap,
-            label.padding = unit(upgma_tiplab_padding(), "lines"),
-            label.r = unit(input$upgma_tiplab_labelradius, "lines"), 
-            fill = input$upgma_tiplab_fill
-          )
+          if(input$upgma_geom == TRUE) {
+            geom_tiplab(
+              mapping_tiplab(), 
+              geom = upgma_geom(),
+              angle = input$upgma_tiplab_angle,
+              size = upgma_tiplab_size(),
+              alpha = input$upgma_tiplab_alpha,
+              fontface = input$upgma_tiplab_fontface,
+              align = as.logical(input$upgma_align),
+              nudge_x = input$upgma_tiplab_nudge_x,
+              check.overlap = input$upgma_tiplab_overlap,
+              label.padding = unit(upgma_tiplab_padding(), "lines"),
+              label.r = unit(input$upgma_tiplab_labelradius, "lines"), 
+              fill = input$upgma_tiplab_fill
+            )
+          } else {
+            geom_tiplab(
+              mapping_tiplab(), 
+              geom = upgma_geom(),
+              angle = input$upgma_tiplab_angle,
+              size = upgma_tiplab_size(),
+              alpha = input$upgma_tiplab_alpha,
+              fontface = input$upgma_tiplab_fontface,
+              align = as.logical(input$upgma_align),
+              nudge_x = input$upgma_tiplab_nudge_x,
+              check.overlap = input$upgma_tiplab_overlap
+            )
+          }
         } else {
-          geom_tiplab(
-            upgma_mapping_tiplab(), 
-            geom = upgma_geom(),
-            color = input$upgma_tiplab_color,
-            angle = input$upgma_tiplab_angle,
-            size = upgma_tiplab_size(),
-            linesize = input$upgma_tiplab_linesize,
-            linetype = input$upgma_tiplab_linetype,
-            alpha = input$upgma_tiplab_alpha,
-            fontface = input$upgma_tiplab_fontface,
-            align = as.logical(input$upgma_align),
-            nudge_x = input$upgma_tiplab_nudge_x,
-            check.overlap = input$upgma_tiplab_overlap,
-            label.padding = unit(upgma_tiplab_padding(), "lines"),
-            label.r = unit(input$upgma_tiplab_labelradius, "lines"), 
-            fill = input$upgma_tiplab_fill
-          )
+          if(input$upgma_geom == TRUE) {
+            geom_tiplab(
+              mapping_tiplab(), 
+              geom = upgma_geom(),
+              color = input$upgma_tiplab_color,
+              angle = input$upgma_tiplab_angle,
+              size = upgma_tiplab_size(),
+              alpha = input$upgma_tiplab_alpha,
+              fontface = input$upgma_tiplab_fontface,
+              align = as.logical(input$upgma_align),
+              nudge_x = input$upgma_tiplab_nudge_x,
+              check.overlap = input$upgma_tiplab_overlap,
+              label.padding = unit(upgma_tiplab_padding(), "lines"),
+              label.r = unit(input$upgma_tiplab_labelradius, "lines"), 
+              fill = input$upgma_tiplab_fill
+            )
+          } else {
+            geom_tiplab(
+              mapping_tiplab(), 
+              geom = upgma_geom(),
+              color = input$upgma_tiplab_color,
+              angle = input$upgma_tiplab_angle,
+              size = upgma_tiplab_size(),
+              alpha = input$upgma_tiplab_alpha,
+              fontface = input$upgma_tiplab_fontface,
+              align = as.logical(input$upgma_align),
+              nudge_x = input$upgma_tiplab_nudge_x,
+              check.overlap = input$upgma_tiplab_overlap
+            )
+          }
         }
       }
     } else {NULL}
@@ -14956,21 +15614,21 @@ server <- function(input, output, session) {
     }
   })
   
-  # Tippoint size
-  upgma_tippoint_size <- reactive({
-    if(!is.null(input$upgma_tippoint_size)) {
-      input$upgma_tippoint_size
-    } else {
-      Vis$tippointsize_upgma
-    }
-  })
-  
   # Tiplab size
   upgma_tiplab_size <- reactive({
     if(!is.null(input$upgma_tiplab_size)) {
       input$upgma_tiplab_size
     } else {
       Vis$labelsize_upgma
+    }
+  })
+  
+  # Tippoint size
+  upgma_tippoint_size <- reactive({
+    if(!is.null(input$upgma_tippoint_size)) {
+      input$upgma_tippoint_size
+    } else {
+      Vis$tippointsize_upgma
     }
   })
   
@@ -14982,12 +15640,21 @@ server <- function(input, output, session) {
   })
   
   # upgma Tiplab color
-  upgma_mapping_tiplab <- reactive({
+  mapping_tiplab <- reactive({
     if(input$upgma_mapping_show == TRUE) {
-      aes(label = !!sym(input$upgma_tiplab),
-          colour = !!sym(input$upgma_color_mapping))
+      if(!is.null(input$upgma_tiplab)) {
+        aes(label = !!sym(input$upgma_tiplab),
+            color = !!sym(input$upgma_color_mapping))
+      } else {
+        aes(label = !!sym("Assembly Name"),
+            color = !!sym(input$upgma_color_mapping))
+      }
     } else {
-      aes(label = !!sym(input$upgma_tiplab))
+      if(!is.null(input$upgma_tiplab)) {
+        aes(label = !!sym(input$upgma_tiplab))
+      } else {
+        aes(label = !!sym("Assembly Name"))
+      }
     }
   })
   
