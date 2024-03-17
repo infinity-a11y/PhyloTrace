@@ -58,10 +58,10 @@ conda env create -f PhyloTrace.yml
 
 ### 1.3 Create Desktop Launcher
 
-Construct an `.desktop` file to create a desktop launcher for PhyloTrace. 
+Create a run script and an `.desktop` file to create a desktop launcher for PhyloTrace. 
 ```bash
 cd path/to/directory
-bash install_desktop_icon.sh
+bash install_phylotrace.sh
 ```
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
@@ -74,7 +74,7 @@ Start PhyloTrace by using the launcher in Applications Menu. A tab with the app 
 If this doesn't work the alternative way to run the app is to execute these commands:
 ```bash
 cd path/to/directory
-bash start_phylotrace.sh
+bash run_phylotrace.sh
 ```
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
@@ -88,10 +88,9 @@ There are multiple possible sources for issues with the installation. Common mis
 If the installation issues persist feel free to contact us via [contact@phylotrace.com](mailto:contact@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans) or open an issue.
 
 ### 3.2 Desktop Launcher not Working
-If the default browser does not work properly, it can be changed, by changing R_BROWSER parameter in start_phylotrace. For example, to change it to Google Chrome:
+If the default browser does not work properly, it can be changed, by changing R_BROWSER environment variable. For example, to use Google Chrome, use the following command:
 ```bash
-...
-R_BROWSER=google-chrome Rscript -e "shiny::runApp('${SCRIPT_DIR}/App.R', launch.browser=TRUE)"
+R_BROWSER=google-chrome bash run_phylotrace.sh
 ```
 
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
