@@ -4,7 +4,9 @@
     <img src= "www/">
 </picture>
 
-
+<div style="display: flex; justify-content: center; align-items: center;">
+    <img align="center" src="www/features.png" alt="Partner/Feature 1" width="60%">
+</div>
 
 ## Table of Content
 
