@@ -7021,15 +7021,12 @@ server <- function(input, output, session) {
                       fluidRow(
                         column(
                           width = 8,
-                          div(
-                            class = "textinput_var",
-                            textInput(
-                              "new_var_name",
-                              label = "",
-                              placeholder = "New Variable"),
+                          textInput(
+                            "new_var_name",
+                            label = "",
+                            placeholder = "New Variable"
                           )
-                        )
-                        ,
+                        ),
                         column(
                           width = 2,
                           actionButton(
@@ -19435,8 +19432,8 @@ server <- function(input, output, session) {
                   valign = "htBottom") %>%
           hot_col(1,
                   halign = "htCenter",
-                  valign = "htTop",
-                  width = "auto")
+                  valign = "htTop", 
+                  colWidths = 60)
       })
     } else if(nrow(Typing$table) > 15) {
       output$multi_select_table <- renderRHandsontable({
@@ -19449,8 +19446,8 @@ server <- function(input, output, session) {
                   valign = "htBottom") %>%
           hot_col(1,
                   halign = "htCenter",
-                  valign = "htTop",
-                  width = "auto")
+                  valign = "htTop", 
+                  colWidths = 60)
       })
     } else {
       output$multi_select_table <- NULL

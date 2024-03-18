@@ -150,8 +150,10 @@ div#scheme_db .form-control, .selectize-input, .selectize-control.single .select
 
 .textinput_var {
   width: 123px;
+  margin-left: 10px;
 }
 
+textinput-var-2
 button#load.pulsating-button.btn.btn-default.action-button.shiny-bound-input {
   background: #20E6E5; 
   color: #000000; 
@@ -251,6 +253,10 @@ i.far.fa-pen-to-square {
 
 /* Database */
 
+#db_entries, #db_distancematrix, #table_missing_values, #multi_select_table {
+  border-radius: 8px;
+}
+
 #add_new_variable {
   background: green; 
   height: 35px; 
@@ -269,7 +275,9 @@ i.far.fa-pen-to-square {
 
 #new_var_name {
   height: 32px;
-  margin-left: 10px;
+  margin-left: -6px;
+  width: 123px;
+  margin-top: -12px;
 }
 
 #cust_var_select {
