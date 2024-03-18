@@ -5146,6 +5146,112 @@ server <- function(input, output, session) {
   
   ## Functions ----
   
+  # Modified gheatmap function
+  gheatmap.mod <- function(p, data, offset=0, width=1, low="green", high="red", color="white",
+                       colnames=TRUE, colnames_position="bottom", colnames_angle=0, colnames_level=NULL,
+                       colnames_offset_x = 0, colnames_offset_y = 0, font.size=4, family="", hjust=0.5, legend_title = "value",
+                       colnames_color = "black") {
+    
+    colnames_position %<>% match.arg(c("bottom", "top"))
+    variable <- value <- lab <- y <- NULL
+    
+    ## if (is.null(width)) {
+    ##     width <- (p$data$x %>% range %>% diff)/30
+    ## }
+    
+    ## convert width to width of each cell
+    width <- width * (p$data$x %>% range(na.rm=TRUE) %>% diff) / ncol(data)
+    
+    isTip <- x <- y <- variable <- value <- from <- to <- NULL
+    
+    ## handle the display of heatmap on collapsed nodes
+    ## https://github.com/GuangchuangYu/ggtree/issues/242
+    ## extract data on leaves (& on collapsed internal nodes) 
+    ## (the latter is extracted only when the input data has data on collapsed
+    ## internal nodes)
+    df <- p$data
+    nodeCo <- intersect(df %>% filter(is.na(x)) %>% 
+                          select(.data$parent, .data$node) %>% unlist(), 
+                        df %>% filter(!is.na(x)) %>% 
+                          select(.data$parent, .data$node) %>% unlist())
+    labCo <- df %>% filter(.data$node %in% nodeCo) %>% 
+      select(.data$label) %>% unlist()
+    selCo <- intersect(labCo, rownames(data))
+    isSel <- df$label %in% selCo
+    
+    df <- df[df$isTip | isSel, ]
+    start <- max(df$x, na.rm=TRUE) + offset
+    
+    dd <- as.data.frame(data)
+    ## dd$lab <- rownames(dd)
+    i <- order(df$y)
+    
+    ## handle collapsed tree
+    ## https://github.com/GuangchuangYu/ggtree/issues/137
+    i <- i[!is.na(df$y[i])]
+    
+    lab <- df$label[i]
+    ## dd <- dd[lab, , drop=FALSE]
+    ## https://github.com/GuangchuangYu/ggtree/issues/182
+    dd <- dd[match(lab, rownames(dd)), , drop = FALSE]
+    
+    
+    dd$y <- sort(df$y)
+    dd$lab <- lab
+    ## dd <- melt(dd, id=c("lab", "y"))
+    dd <- gather(dd, variable, value, -c(lab, y))
+    
+    i <- which(dd$value == "")
+    if (length(i) > 0) {
+      dd$value[i] <- NA
+    }
+    if (is.null(colnames_level)) {
+      dd$variable <- factor(dd$variable, levels=colnames(data))
+    } else {
+      dd$variable <- factor(dd$variable, levels=colnames_level)
+    }
+    V2 <- start + as.numeric(dd$variable) * width
+    mapping <- data.frame(from=dd$variable, to=V2)
+    mapping <- unique(mapping)
+    
+    dd$x <- V2
+    dd$width <- width
+    dd[[".panel"]] <- factor("Tree")
+    if (is.null(color)) {
+      p2 <- p + geom_tile(data=dd, aes(x, y, fill=value), width=width, inherit.aes=FALSE)
+    } else {
+      p2 <- p + geom_tile(data=dd, aes(x, y, fill=value), width=width, color=color, inherit.aes=FALSE)
+    }
+    if (is(dd$value,"numeric")) {
+      p2 <- p2 + scale_fill_gradient(low=low, high=high, na.value=NA, name = legend_title) # "white")
+    } else {
+      p2 <- p2 + scale_fill_discrete(na.value=NA, name = legend_title) #"white")
+    }
+    
+    if (colnames) {
+      if (colnames_position == "bottom") {
+        y <- 0
+      } else {
+        y <- max(p$data$y) + 1
+      }
+      mapping$y <- y
+      mapping[[".panel"]] <- factor("Tree")
+      p2 <- p2 + geom_text(data=mapping, aes(x=to, y = y, label=from), color = colnames_color, size=font.size, family=family, inherit.aes = FALSE,
+                           angle=colnames_angle, nudge_x=colnames_offset_x, nudge_y = colnames_offset_y, hjust=hjust)
+    }
+    
+    p2 <- p2 + theme(legend.position="right")
+    ## p2 <- p2 + guides(fill = guide_legend(override.aes = list(colour = NULL)))
+    
+    if (!colnames) {
+      ## https://github.com/GuangchuangYu/ggtree/issues/204
+      p2 <- p2 + scale_y_continuous(expand = c(0,0))
+    }
+    
+    attr(p2, "mapping") <- mapping
+    return(p2)
+  }
+  
   # Get rhandsontable
   get.entry.table.meta <- reactive({
     if(!is.null(hot_to_r(input$db_entries))){
@@ -8416,8 +8522,6 @@ server <- function(input, output, session) {
   
   # Change scheme
   observeEvent(input$reload_db, {
-    
-    test <<- input$mst_title
     
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -14711,14 +14815,14 @@ server <- function(input, output, session) {
       if(input$nj_heatmap_show == TRUE & length(input$nj_heatmap_select) > 0) {
         if (!(any(sapply(DB$meta[input$nj_heatmap_select], is.numeric)) & 
             any(!sapply(DB$meta[input$nj_heatmap_select], is.numeric)))) {
-          tree <- gheatmap(tree, 
+          tree <- gheatmap.mod(tree, 
                            data = select(Vis$meta_nj, input$nj_heatmap_select),
                            offset = nj_heatmap_offset(),
                            width = nj_heatmap_width(),
                            legend_title = input$nj_heatmap_title,
                            colnames_angle = -nj_colnames_angle(),
                            colnames_offset_y = nj_colnames_y(),
-                           color = "green") +
+                           colnames_color = input$nj_color) +
             nj_heatmap_scale()
         }
       } 
@@ -16057,13 +16161,14 @@ server <- function(input, output, session) {
       if(input$upgma_heatmap_show == TRUE & length(input$upgma_heatmap_select) > 0) {
         if (!(any(sapply(DB$meta[input$upgma_heatmap_select], is.numeric)) & 
               any(!sapply(DB$meta[input$upgma_heatmap_select], is.numeric)))) {
-          tree <- gheatmap(tree, 
+          tree <- gheatmap.mod(tree, 
                            data = select(Vis$meta_upgma, input$upgma_heatmap_select),
                            offset = upgma_heatmap_offset(),
                            width = upgma_heatmap_width(),
                            legend_title = input$upgma_heatmap_title,
                            colnames_angle = -upgma_colnames_angle(),
-                           colnames_offset_y = upgma_colnames_y()) +
+                           colnames_offset_y = upgma_colnames_y(),
+                           colnames_color = input$upgma_color) +
             upgma_heatmap_scale()
         }
       } 
