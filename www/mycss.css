@@ -148,6 +148,10 @@ div#scheme_db .form-control, .selectize-input, .selectize-control.single .select
   padding: 0px 0px 0px 0px;
 }
 
+.textinput_var {
+  width: 123px;
+}
+
 button#load.pulsating-button.btn.btn-default.action-button.shiny-bound-input {
   background: #20E6E5; 
   color: #000000; 
@@ -247,6 +251,35 @@ i.far.fa-pen-to-square {
 
 /* Database */
 
+#add_new_variable {
+  background: green; 
+  height: 35px; 
+  width: 38px;
+  margin-left: -5px;
+  margin-top: 19px;
+}
+
+#delete_new_variable {
+  background: #FF5964; 
+  height: 35px; 
+  width: 38px;
+  margin-left: -5px;
+  margin-top: 20px;
+}
+
+#new_var_name {
+  height: 32px;
+  margin-left: 10px;
+}
+
+#cust_var_select {
+  margin-top: -40px;
+}
+
+#cust_var_select .selectize-dropdown-content {
+  max-height: 80px;
+}
+
 div#db_distancematrix.rhandsontable {
   font-size: 11px;
 }
@@ -265,6 +298,7 @@ button#download_cgMLST i.fas.fa-download {
 #show_cust_var {
   color:black; 
   font-size: 14px;
+  margin-left: 15px;
 }
 
 button#download_distmatrix_bttn {

@@ -482,7 +482,8 @@ ui <- dashboardPage(
             align = "left",
             uiOutput("delete_box"),
             uiOutput("compare_allele_box"),
-            uiOutput("download_entries")
+            uiOutput("download_entries"),
+            br(), br(), br(), br(), br(), br(), br(), br(), br()
           )
         ),
         br()
@@ -6450,10 +6451,27 @@ server <- function(input, output, session) {
                 }
                 # Render custom variable display
                 
-                output$show_cust_var <- renderTable(
-                  DB$cust_var,
-                  width = "100%"
-                )
+                output$show_cust_var <- renderTable({
+                  if(nrow(DB$cust_var) > 5) {
+                    low <- -4
+                    high <- 0
+                    for (i in 1:input$cust_var_select) {
+                      low <- low + 5
+                      if((nrow(DB$cust_var) %% 5) != 0) {
+                        if(i == ceiling(nrow(DB$cust_var) / 5 )) {
+                          high <- high + nrow(DB$cust_var) %% 5
+                        } else {
+                          high <- high + 5
+                        }
+                      } else {
+                        high <- high + 5
+                      }
+                    }
+                    DB$cust_var[low:high,]
+                  } else {
+                    DB$cust_var
+                  }
+                })
                 
                 # render visualization sidebar elements
                 observe({
@@ -6989,18 +7007,17 @@ server <- function(input, output, session) {
                           }
                         )
                       ),
-                      br(), br(), br(),
+                      br(), br(), 
                       fluidRow(
                         column(
                           width = 12,
                           HTML(
                             paste(
-                              tags$span(style='color: white; font-size: 18px; margin-bottom: 5px', 'Custom Variables')
+                              tags$span(style='color: white; font-size: 18px; margin-bottom: 0px', 'Custom Variables')
                             )
                           )
                         )
                       ),
-                      br(),
                       fluidRow(
                         column(
                           width = 8,
@@ -7008,16 +7025,16 @@ server <- function(input, output, session) {
                             class = "textinput_var",
                             textInput(
                               "new_var_name",
-                              label = h5("Name", style = "color:white; margin-bottom: 0px"),
-                            )
+                              label = "",
+                              placeholder = "New Variable"),
                           )
-                        ),
+                        )
+                        ,
                         column(
                           width = 2,
                           actionButton(
                             "add_new_variable",
                             "",
-                            style = "background: green; height: 35px; width: 38px; margin-top: 30px; margin-left: 5px",
                             icon = icon("plus")
                           )
                         )
@@ -7041,18 +7058,32 @@ server <- function(input, output, session) {
                           actionButton(
                             "delete_new_variable",
                             "",
-                            style = "background: #FF5964; height: 35px; width: 38px; margin-top: 20px; margin-left: 5px",
                             icon = icon("minus")
                           )
                         )
                       ),
-                      br(), br(),
+                      br(), 
+                      fluidRow(
+                        column(1),
+                        column(
+                          width = 4,
+                          uiOutput("cust_var_info")
+                        )
+                      ),
                       fluidRow(
                         column(1),
                         column(
                           width = 11,
                           align = "center",
                           tableOutput("show_cust_var")
+                        )
+                      ),
+                      fluidRow(
+                        column(4),
+                        column(
+                          width = 7,
+                          align = "center",
+                          uiOutput("cust_var_select")
                         )
                       )
                     )
@@ -8255,6 +8286,37 @@ server <- function(input, output, session) {
   
   ### Conditional UI Elements rendering ----
   
+  # Contro custom variables table
+  output$cust_var_select <- renderUI({
+    if(nrow(DB$cust_var) > 5) {
+      selectInput(
+        "cust_var_select",
+        "",
+        choices = 1:ceiling(nrow(DB$cust_var) / 5 )
+      )
+    }
+  })
+  
+  output$cust_var_info <- renderUI({
+    if(nrow(DB$cust_var) > 5) {
+      low <- -4
+      high <- 0
+      for (i in 1:input$cust_var_select) {
+        low <- low + 5
+        if((nrow(DB$cust_var) %% 5) != 0) {
+          if(i == ceiling(nrow(DB$cust_var) / 5 )) {
+            high <- high + nrow(DB$cust_var) %% 5
+          } else {
+            high <- high + 5
+          }
+        } else {
+          high <- high + 5
+        }
+      }
+      h5(paste0("Showing ", low, " to ", high," of ", nrow(DB$cust_var), " variables"), style = "color: white; font-size: 10px;")
+    }
+  })
+  
   # Message on Database tabs if no scheme available yet
   observe({
     if(!is.null(DB$exist)) {
@@ -8874,7 +8936,7 @@ server <- function(input, output, session) {
                 label = "",
                 choices = c("Categorical (character)",
                             "Continous (numeric)")),
-              title = paste0("Select the data type for ", input$new_varname),
+              title = paste0("Select data type"),
               easyClose = TRUE,
               footer = tagList(
                 modalButton("Cancel"),
