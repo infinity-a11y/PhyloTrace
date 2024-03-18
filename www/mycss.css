@@ -253,6 +253,33 @@ i.far.fa-pen-to-square {
 
 /* Database */
 
+#cgmlst_scheme {
+  margin-top: 41px;
+}
+
+#shiny-tab-db_browse_entries > div:nth-child(11) > div.col-sm-1,
+#shiny-tab-init > div:nth-child(4) > div.col-sm-1,
+#shiny-tab-init > div:nth-child(3) > div.col-sm-1 {
+  width: 4.333333%;
+}
+
+.mat-switch-db {
+  margin-left: 20px;
+}
+
+.mat-switch-db-tab {
+  margin-left: -20px;
+}
+
+.mat-switch-dmatrix {
+  margin-left: -12px;
+}
+
+.mat-switch-dmatrix-last {
+  margin-left: -10px;
+  margin-bottom: 70px;
+}
+
 #db_entries, #db_distancematrix, #table_missing_values, #multi_select_table {
   border-radius: 8px;
 }
@@ -379,6 +406,21 @@ div#progress_bar.progress-bar {
 
 /* Visualization MST */
 
+.mat-switch-mst-mult {
+  margin-top: 10px;
+  margin-left: 2px;
+}
+
+.mat-switch-mst-nodes {
+  margin-top: 25px;
+  margin-left: 3px;
+}
+
+.switch-mst-edges {
+  margin-top: 10px;
+  margin-left: 3px;
+}
+
 button#create_tree {
   position: relative; 
   left: -15px; 
@@ -478,10 +520,6 @@ button#mst_label_menu {
   border-radius: 5px
 }
 
-#mst_background_transparent {
-  margin-bottom: -6px !important;
-}
-
 #mst_color_node {
   margin-top: -17px
 }
@@ -493,12 +531,6 @@ button#mst_label_menu {
 
 #mst_edge_font_color {
   margin-top: 17px
-}
-
-#mst_scale_edges {
-  position: relative; 
-  bottom: -1px; 
-  margin-bottom: 30px
 }
 
 #mst_date_general_select .form-control {
@@ -560,7 +592,9 @@ button#mst_label_menu {
 }
 
 .slider_edge {
-  margin-top: -10px;
+  margin-top: 20px;
+  margin-bottom: -4px;
+  width: 50%;
 }
 
 .sel-clade {

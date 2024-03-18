@@ -473,6 +473,7 @@ ui <- dashboardPage(
         uiOutput("entry_table_controls"),
         br(), br(),
         fluidRow(
+          column(1),
           column(
             width = 8,
             uiOutput("db_entries_table")
@@ -602,6 +603,7 @@ ui <- dashboardPage(
         ),
         hr(),
         fluidRow(
+          column(1),
           column(
             width = 3,
             align = "center",
@@ -667,7 +669,7 @@ ui <- dashboardPage(
             )
           ),
           column(
-            width = 7,
+            width = 6,
             br(),
             br(),
             br(),
@@ -679,6 +681,7 @@ ui <- dashboardPage(
           )
         ),
         fluidRow(
+          column(1),
           column(
             width = 5,
             align = "center",
@@ -692,7 +695,7 @@ ui <- dashboardPage(
             )
           ),
           column(
-            width = 7,
+            width = 6,
             align = "center",
             br(),
             br(),
@@ -986,13 +989,15 @@ ui <- dashboardPage(
                           align = "center",
                           fluidRow(
                             column(
-                              width = 3,
+                              width = 12,
+                              align = "left",
                               div(
-                                class = "checkbox_bg",
-                                checkboxInput(
+                                class = "mat-switch-mst-nodes",
+                                materialSwitch(
                                   "mst_background_transparent",
-                                  "Transparent",
-                                  value = FALSE
+                                  h5(p("Transparent"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                  value = FALSE,
+                                  right = TRUE
                                 )
                               )
                             )
@@ -1198,11 +1203,12 @@ ui <- dashboardPage(
                               width = 12,
                               align = "left",
                               div(
-                                class = "checkbox_bg",
-                                checkboxInput(
+                                class = "mat-switch-mst-nodes",
+                                materialSwitch(
                                   "scale_nodes",
-                                  "Scale by duplicates",
-                                  value = TRUE
+                                  h5(p("Scale by Duplicates"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                  value = TRUE,
+                                  right = TRUE
                                 )
                               )
                             )
@@ -1260,11 +1266,12 @@ ui <- dashboardPage(
                               width = 12,
                               align = "left",
                               div(
-                                class = "checkbox_bg",
-                                checkboxInput(
+                                class = "mat-switch-mst-nodes",
+                                materialSwitch(
                                   "mst_shadow",
-                                  "Show shadow",
-                                  value = TRUE
+                                  h5(p("Show Shadow"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                  value = FALSE,
+                                  right = TRUE
                                 )
                               ),
                               fluidRow(
@@ -1455,10 +1462,14 @@ ui <- dashboardPage(
                       width = 6,
                       align = "left",
                       br(),
-                      checkboxInput(
-                        "mst_scale_edges",
-                        "Scale edge length",
-                        value = FALSE
+                      div(
+                        class = "switch-mst-edges",
+                        materialSwitch(
+                          "mst_scale_edges",
+                          h5(p("Scale Edge Length"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                          value = FALSE,
+                          right = TRUE
+                        )
                       ),
                       conditionalPanel(
                         "input.mst_scale_edges==true",
@@ -6452,24 +6463,26 @@ server <- function(input, output, session) {
                 # Render custom variable display
                 
                 output$show_cust_var <- renderTable({
-                  if(nrow(DB$cust_var) > 5) {
-                    low <- -4
-                    high <- 0
-                    for (i in 1:input$cust_var_select) {
-                      low <- low + 5
-                      if((nrow(DB$cust_var) %% 5) != 0) {
-                        if(i == ceiling(nrow(DB$cust_var) / 5 )) {
-                          high <- high + nrow(DB$cust_var) %% 5
+                  if((!is.null(DB$cust_var)) & (!is.null(input$cust_var_select))) {
+                    if(nrow(DB$cust_var) > 5) {
+                      low <- -4
+                      high <- 0
+                      for (i in 1:input$cust_var_select) {
+                        low <- low + 5
+                        if((nrow(DB$cust_var) %% 5) != 0) {
+                          if(i == ceiling(nrow(DB$cust_var) / 5 )) {
+                            high <- high + nrow(DB$cust_var) %% 5
+                          } else {
+                            high <- high + 5
+                          }
                         } else {
                           high <- high + 5
                         }
-                      } else {
-                        high <- high + 5
                       }
+                      DB$cust_var[low:high,]
+                    } else {
+                      DB$cust_var
                     }
-                    DB$cust_var[low:high,]
-                  } else {
-                    DB$cust_var
                   }
                 })
                 
@@ -6999,10 +7012,14 @@ server <- function(input, output, session) {
                           width = 10,
                           align = "left",
                           if(nrow(DB$data) > 40) {
-                            checkboxInput(
-                              "table_height",
-                              "Show full table",
-                              value = FALSE
+                            div(
+                              class = "mat-switch-db-tab",
+                              materialSwitch(
+                                "table_height",
+                                h5(p("Show Full Table"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                value = FALSE,
+                                right = TRUE
+                              )
                             )
                           }
                         )
@@ -7133,10 +7150,11 @@ server <- function(input, output, session) {
                       column(
                         width = 12,
                         br(),
-                        checkboxInput(
+                        materialSwitch(
                           "miss_val_height",
-                          "Show full table",
-                          value = FALSE
+                          h5(p("Show Full Table"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                          value = FALSE,
+                          right = TRUE
                         )
                       ),
                       br()
@@ -7208,20 +7226,32 @@ server <- function(input, output, session) {
                         br()
                       )
                     ),
-                    checkboxInput(
-                      "distmatrix_true",
-                      label = h5("Only included entries", style = "color:white; position: absolute; top: -26px"),
-                      value = FALSE
+                    div(
+                      class = "mat-switch-dmatrix",
+                      materialSwitch(
+                        "distmatrix_true",
+                        h5(p("Only Included Entries"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                        value = FALSE,
+                        right = TRUE
+                      )
                     ),
-                    checkboxInput(
-                      "distmatrix_triangle",
-                      label = h5("Show upper triangle", style = "color:white; position: absolute; top: -46px"),
-                      value = FALSE
+                    div(
+                      class = "mat-switch-dmatrix",
+                      materialSwitch(
+                        "distmatrix_triangle",
+                        h5(p("Show Upper Triangle"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                        value = FALSE,
+                        right = TRUE
+                      )
                     ),
-                    checkboxInput(
-                      "distmatrix_diag",
-                      label = h5("Show diagonal", style = "color:white; position: absolute; top: -66px"),
-                      value = TRUE
+                    div(
+                      class = "mat-switch-dmatrix-last",
+                      materialSwitch(
+                        "distmatrix_diag",
+                        h5(p("Show Diagonal"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                        value = TRUE,
+                        right = TRUE
+                      )
                     ),
                     fluidRow(
                       column(
@@ -7691,6 +7721,7 @@ server <- function(input, output, session) {
                 # Render Entry table controls
                 output$entry_table_controls <- renderUI({
                   fluidRow(
+                    column(1),
                     column(
                       width = 3,
                       align = "center",
@@ -7886,9 +7917,9 @@ server <- function(input, output, session) {
                       br(),
                       uiOutput("compare_select"),
                       br(),
-                      column(3),
+                      column(2),
                       column(
-                        width = 8,
+                        width = 10,
                         align = "left",
                         uiOutput("compare_difference_box")
                       )
@@ -7917,14 +7948,23 @@ server <- function(input, output, session) {
                         width = 10,
                         align = "left",
                         br(),
-                        checkboxInput(
-                          "download_table_include",
-                          label = h5("Only included entries (Include = TRUE)", style = "color:white; margin-top: 4px")
+                        div(
+                          class = "mat-switch-db",
+                          materialSwitch(
+                            "download_table_include",
+                            h5(p("Only Included Entries"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                            value = FALSE,
+                            right = TRUE
+                          )
                         ),
-                        checkboxInput(
-                          "download_table_loci",
-                          label = h5("Include displayed loci", style = "color:white; margin-top: 4px"),
-                          value = FALSE
+                        div(
+                          class = "mat-switch-db",
+                          materialSwitch(
+                            "download_table_loci",
+                            h5(p("Include Displayed Loci"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                            value = FALSE,
+                            right = TRUE
+                          )
                         ),
                         br(),
                       )
@@ -8295,22 +8335,24 @@ server <- function(input, output, session) {
   })
   
   output$cust_var_info <- renderUI({
-    if(nrow(DB$cust_var) > 5) {
-      low <- -4
-      high <- 0
-      for (i in 1:input$cust_var_select) {
-        low <- low + 5
-        if((nrow(DB$cust_var) %% 5) != 0) {
-          if(i == ceiling(nrow(DB$cust_var) / 5 )) {
-            high <- high + nrow(DB$cust_var) %% 5
+    if((!is.null(DB$cust_var)) & (!is.null(input$cust_var_select))) {
+      if(nrow(DB$cust_var) > 5) {
+        low <- -4
+        high <- 0
+        for (i in 1:input$cust_var_select) {
+          low <- low + 5
+          if((nrow(DB$cust_var) %% 5) != 0) {
+            if(i == ceiling(nrow(DB$cust_var) / 5 )) {
+              high <- high + nrow(DB$cust_var) %% 5
+            } else {
+              high <- high + 5
+            }
           } else {
             high <- high + 5
           }
-        } else {
-          high <- high + 5
         }
+        h5(paste0("Showing ", low, " to ", high," of ", nrow(DB$cust_var), " variables"), style = "color: white; font-size: 10px;")
       }
-      h5(paste0("Showing ", low, " to ", high," of ", nrow(DB$cust_var), " variables"), style = "color: white; font-size: 10px;")
     }
   })
   
@@ -8568,10 +8610,14 @@ server <- function(input, output, session) {
   output$compare_difference_box <- renderUI({
     if(!is.null(DB$data)) {
       if(nrow(DB$data) > 1) {
-        checkboxInput(
-          "compare_difference",
-          label = h5("Only varying loci", style = "color:white; position: relative; top: -6px"),
-          value = FALSE
+        div(
+          class = "mat-switch-db",
+          materialSwitch(
+            "compare_difference",
+            h5(p("Only Varying Loci"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+            value = FALSE,
+            right = TRUE
+          )
         )
       }
     }
