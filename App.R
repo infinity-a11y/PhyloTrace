@@ -1822,7 +1822,7 @@ ui <- dashboardPage(
                                 width = 12,
                                 sliderInput(
                                   "nj_v",
-                                  label = "Vertical Position",
+                                  label = h5("Vertical Position", style = "color:white; margin-bottom: 0px"),
                                   min = -0.5,
                                   max = 0.5,
                                   step = 0.01,
@@ -1833,7 +1833,7 @@ ui <- dashboardPage(
                                 br(),
                                 sliderInput(
                                   "nj_h",
-                                  label = "Horizontal Position",
+                                  label = h5("Horizontal Position", style = "color:white; margin-bottom: 0px"),
                                   min = -0.5,
                                   max = 0.5,
                                   step = 0.01,
@@ -1996,7 +1996,7 @@ ui <- dashboardPage(
                                 br(),
                                 sliderInput(
                                   "nj_legend_x",
-                                  label = h5("X Position", style = "color:white; margin-bottom: 0px"),
+                                  label = h5("Horizontal Position", style = "color:white; margin-bottom: 0px"),
                                   value = 0.9,
                                   min = -0.9,
                                   max = 1.9,
@@ -2007,7 +2007,7 @@ ui <- dashboardPage(
                                 br(),
                                 sliderInput(
                                   "nj_legend_y",
-                                  label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+                                  label = h5("Vertical Position", style = "color:white; margin-bottom: 0px"),
                                   value = 0.2,
                                   min = -1.5,
                                   max = 1.5,
@@ -8417,6 +8417,8 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
+    test <<- input$mst_title
+    
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -14411,11 +14413,15 @@ server <- function(input, output, session) {
   ### Render Plot field ----
   
   output$mst_field <- renderUI({
-    addSpinner(
-      visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px")),
-      spin = "dots",
-      color = "white"
-    )
+    if(input$mst_background_transparent == TRUE) {
+      visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px"))
+    } else {
+      addSpinner(
+        visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px")),
+        spin = "dots",
+        color = "white"
+      )
+    }
   })
   
   output$nj_field <- renderUI({
@@ -14536,13 +14542,33 @@ server <- function(input, output, session) {
   
   # Set Title
   mst_title <- reactive({
-    list(text = input$mst_title,
-         style = paste0(
-           "font-family:Georgia, Times New Roman, Times, serif;",
-           "text-align:center;",
-           "font-size: ", as.character(input$mst_title_size), "px", 
-           "; color: ", as.character(input$mst_title_color))
-    )
+    if(!is.null(input$mst_title)) {
+      if(nchar(input$mst_title) < 1) {
+        list(text = "title",
+             style = paste0(
+               "font-family:Georgia, Times New Roman, Times, serif;",
+               "text-align:center;",
+               "font-size: ", as.character(input$mst_title_size), "px", 
+               "; color: ", as.character(mst_background_color()))
+        )
+      } else {
+        list(text = input$mst_title,
+             style = paste0(
+               "font-family:Georgia, Times New Roman, Times, serif;",
+               "text-align:center;",
+               "font-size: ", as.character(input$mst_title_size), "px", 
+               "; color: ", as.character(input$mst_title_color))
+        )
+      }
+    } else {
+      list(text = "title",
+           style = paste0(
+             "font-family:Georgia, Times New Roman, Times, serif;",
+             "text-align:center;",
+             "font-size: ", as.character(input$mst_title_size), "px", 
+             "; color: ", as.character(mst_background_color()))
+      )
+    }
   })
   
   # Set Subtitle
@@ -14558,13 +14584,33 @@ server <- function(input, output, session) {
   
   # Set Footer
   mst_footer <- reactive({
-    list(text = input$mst_footer,
-         style = paste0(
-           "font-family:Georgia, Times New Roman, Times, serif;",
-           "text-align:center;",
-           "font-size: ", as.character(input$mst_footer_size), "px", 
-           "; color: ", as.character(input$mst_footer_color))
-    )
+    if(!is.null(input$mst_footer)) {
+      if(nchar(input$mst_footer) < 1) {
+        list(text = "footer",
+             style = paste0(
+               "font-family:Georgia, Times New Roman, Times, serif;",
+               "text-align:center;",
+               "font-size: ", as.character(input$mst_footer_size), "px", 
+               "; color: ", as.character(mst_background_color()))
+        )
+      } else {
+        list(text = input$mst_footer,
+             style = paste0(
+               "font-family:Georgia, Times New Roman, Times, serif;",
+               "text-align:center;",
+               "font-size: ", as.character(input$mst_footer_size), "px", 
+               "; color: ", as.character(input$mst_footer_color))
+        )
+      }
+    } else {
+      list(text = "footer",
+           style = paste0(
+             "font-family:Georgia, Times New Roman, Times, serif;",
+             "text-align:center;",
+             "font-size: ", as.character(input$mst_footer_size), "px", 
+             "; color: ", as.character(mst_background_color()))
+      )
+    }
   })
   
   # Background color
@@ -14671,7 +14717,8 @@ server <- function(input, output, session) {
                            width = nj_heatmap_width(),
                            legend_title = input$nj_heatmap_title,
                            colnames_angle = -nj_colnames_angle(),
-                           colnames_offset_y = nj_colnames_y()) +
+                           colnames_offset_y = nj_colnames_y(),
+                           color = "green") +
             nj_heatmap_scale()
         }
       } 

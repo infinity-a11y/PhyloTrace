@@ -495,8 +495,14 @@ button#mst_label_menu {
   bottom: -1px
 }
 
-#tree_mst {
+#tree_mst, #titletree_mst {
   border-radius: 10px;
+}
+
+#footertree_mst {
+  border-radius: 10px;
+  position: relative;
+  top: -10px;
 }
 
 /* Visualization NJ & UPGMA */
@@ -747,6 +753,11 @@ button#download_report_bttn {
 
 #nj_bg, #upgma_bg {
   margin-bottom: 10px;
+  margin-left: 10px;
+}
+
+#nj_color, #upgma_color {
+  margin-left: 10px;
 }
 
 #nj_branch_label_menu-template > div > div:nth-child(2) > div:nth-child(2),
