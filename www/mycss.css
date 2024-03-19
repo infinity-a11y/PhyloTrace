@@ -725,6 +725,35 @@ button#mst_label_menu {
   margin-right: 0px;
 }
 
+#nj_add_new_label, #upgma_add_new_label {
+  background: green; 
+  height: 35px; 
+  width: 38px;
+  margin-top: 20px;
+}
+
+button#nj_del_label, button#upgma_del_label {
+  background: #FF5964; 
+  height: 35px; 
+  width: 38px;
+  margin-top: 27px;
+}
+
+#nj_custom_label_select, #upgma_custom_label_select {
+  margin-top: 7px;
+  margin-left: 15px;
+}
+
+#nj_tiplab_fill, #upgma_tiplab_fill {
+  margin-bottom: 39px;
+}
+#nj_sliderInput_y, #nj_sliderInput_x,
+#upgma_sliderInput_y, #upgma_sliderInput_x{
+  margin-left: 15px;
+  margin-bottom: 10px;
+  margin-right: 15px;
+}
+
 #nj_heatmap_sel > div > div > button,
 #upgma_heatmap_sel > div > div > button {
   background-color: white;
@@ -854,6 +883,7 @@ button#download_report_bttn {
 #upgma_branch_label_menu-template > div > div:nth-child(2) > div:nth-child(2) {
   margin-top: 26px;
   margin-bottom: -10px;
+  margin-left: -10px;
 }
 
 #nj_controls, #upgma_controls {
@@ -884,6 +914,11 @@ button#download_report_bttn {
 
 #nj_branch_label_color, #upgma_branch_label_color {
   margin-top: -7px;
+}
+
+#nj_new_label_name, #upgma_new_label_name {
+  margin-left: 15px;
+  width: 90%;
 }
 
 button#nj_labeltext_menu, button#upgma_labeltext_menu {
@@ -935,7 +970,16 @@ button#nj_branch_label_menu, button#upgma_branch_label_menu {
   color: #000000; 
   margin-top: 20px; 
   border-radius: 5px; 
-  margin-left: 10px
+  margin-left: -10px
+}
+
+button#nj_custom_label_menu, button#upgma_custom_label_menu {
+  height: 34px; 
+  background: #20E6E5; 
+  color: #000000; 
+  margin-top: 20px; 
+  border-radius: 5px; 
+  margin-left: -20px;
 }
 
 button#nj_legend_menu, button#upgma_legend_menu {

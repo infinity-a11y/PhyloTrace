@@ -258,7 +258,7 @@ sel_countries <-
 
 ui <- dashboardPage(
   
-  title = "PhyloTrace 1.1.1",
+  title = "PhyloTrace 1.2.0",
   
   # Title
   dashboardHeader(title = span(
@@ -2266,7 +2266,7 @@ ui <- dashboardPage(
                 )
               ),
               column(
-                width = 4,
+                width = 3,
                 box(
                   solidHeader = TRUE,
                   status = "info",
@@ -2280,7 +2280,7 @@ ui <- dashboardPage(
                         h4(p("Branches"), style = "color:white; position: relative; right: -15px"),
                         fluidRow(
                           column(
-                            width = 4,
+                            width = 5,
                             align = "left",
                             div(
                               class = "mat-switch-lab",
@@ -2293,12 +2293,12 @@ ui <- dashboardPage(
                             )
                           ),
                           column(
-                            width = 4,
+                            width = 5,
                             align = "center",
                             uiOutput("nj_branch_label")
                           ),
                           column(
-                            width = 3,
+                            width = 2,
                             align = "right",
                             dropMenu(
                               actionBttn(
@@ -2374,12 +2374,12 @@ ui <- dashboardPage(
                     ),
                     fluidRow(
                       column(
-                        width = 4,
+                        width = 5,
                         align = "left",
-                        h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 23px; margin-bottom: 82px")
+                        h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 23px; margin-bottom: 109px")
                       ),
                       column(
-                        width = 4,
+                        width = 5,
                         colorPickr(
                           inputId = "nj_branch_label_color",
                           width = "100%",
@@ -2391,6 +2391,88 @@ ui <- dashboardPage(
                           position = "right-start"
                         ),
                         br(), br()
+                      )
+                    )
+                  )
+                )
+              ),
+              column(
+                width = 3,
+                box(
+                  solidHeader = TRUE,
+                  status = "info",
+                  width = "100%",
+                  column(
+                    width = 12,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p("Custom Labels"), style = "color:white; position: relative; right: -15px"),
+                        fluidRow(
+                          column(
+                            width = 6,
+                            textInput(
+                              "nj_new_label_name",
+                              "",
+                              placeholder = "New Label"
+                            )
+                          ),
+                          column(
+                            width = 3,
+                            actionButton(
+                              "nj_add_new_label",
+                              "",
+                              icon = icon("plus")
+                            )
+                          ),
+                          column(
+                            width = 2,
+                            align = "right",
+                            dropMenu(
+                              actionBttn(
+                                "nj_custom_label_menu",
+                                label = "",
+                                color = "default",
+                                size = "sm",
+                                style = "material-flat",
+                                icon = icon("sliders")
+                              ),
+                              placement = "top-end",
+                              theme = "translucent",
+                              fluidRow(
+                                column(
+                                  width = 12,
+                                  align = "center",
+                                  uiOutput("nj_custom_labelsize")
+                                )
+                              )
+                            )
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            width = 6,
+                            uiOutput("nj_custom_label_select")
+                          ),
+                          column(
+                            width = 4,
+                            uiOutput("nj_del_label"),
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            width = 6,
+                            align = "center",
+                            uiOutput("nj_sliderInput_y"),
+                            uiOutput("nj_label_space")
+                          ),
+                          column(
+                            width = 6,
+                            align = "center",
+                            uiOutput("nj_sliderInput_x")
+                          )
+                        )
                       )
                     )
                   )
@@ -4085,7 +4167,7 @@ ui <- dashboardPage(
                 )
               ),
               column(
-                width = 4,
+                width = 3,
                 box(
                   solidHeader = TRUE,
                   status = "info",
@@ -4099,7 +4181,7 @@ ui <- dashboardPage(
                         h4(p("Branches"), style = "color:white; position: relative; right: -15px"),
                         fluidRow(
                           column(
-                            width = 4,
+                            width = 5,
                             align = "left",
                             div(
                               class = "mat-switch-lab",
@@ -4112,12 +4194,12 @@ ui <- dashboardPage(
                             )
                           ),
                           column(
-                            width = 4,
+                            width = 5,
                             align = "center",
                             uiOutput("upgma_branch_label")
                           ),
                           column(
-                            width = 3,
+                            width = 2,
                             align = "right",
                             dropMenu(
                               actionBttn(
@@ -4193,12 +4275,12 @@ ui <- dashboardPage(
                     ),
                     fluidRow(
                       column(
-                        width = 4,
+                        width = 5,
                         align = "left",
-                        h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 23px; margin-bottom: 82px")
+                        h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 23px; margin-bottom: 109px")
                       ),
                       column(
-                        width = 4,
+                        width = 5,
                         colorPickr(
                           inputId = "upgma_branch_label_color",
                           width = "100%",
@@ -4210,6 +4292,88 @@ ui <- dashboardPage(
                           position = "right-start"
                         ),
                         br(), br()
+                      )
+                    )
+                  )
+                )
+              ),
+              column(
+                width = 3,
+                box(
+                  solidHeader = TRUE,
+                  status = "info",
+                  width = "100%",
+                  column(
+                    width = 12,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p("Custom Labels"), style = "color:white; position: relative; right: -15px"),
+                        fluidRow(
+                          column(
+                            width = 6,
+                            textInput(
+                              "upgma_new_label_name",
+                              "",
+                              placeholder = "New Label"
+                            )
+                          ),
+                          column(
+                            width = 3,
+                            actionButton(
+                              "upgma_add_new_label",
+                              "",
+                              icon = icon("plus")
+                            )
+                          ),
+                          column(
+                            width = 2,
+                            align = "right",
+                            dropMenu(
+                              actionBttn(
+                                "upgma_custom_label_menu",
+                                label = "",
+                                color = "default",
+                                size = "sm",
+                                style = "material-flat",
+                                icon = icon("sliders")
+                              ),
+                              placement = "top-end",
+                              theme = "translucent",
+                              fluidRow(
+                                column(
+                                  width = 12,
+                                  align = "center",
+                                  uiOutput("upgma_custom_labelsize")
+                                )
+                              )
+                            )
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            width = 6,
+                            uiOutput("upgma_custom_label_select")
+                          ),
+                          column(
+                            width = 4,
+                            uiOutput("upgma_del_label"),
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            width = 6,
+                            align = "center",
+                            uiOutput("upgma_sliderInput_y"),
+                            uiOutput("upgma_label_space")
+                          ),
+                          column(
+                            width = 6,
+                            align = "center",
+                            uiOutput("upgma_sliderInput_x")
+                          )
+                        )
                       )
                     )
                   )
@@ -5166,9 +5330,9 @@ server <- function(input, output, session) {
   
   # Modified gheatmap function
   gheatmap.mod <- function(p, data, offset=0, width=1, low="green", high="red", color="white",
-                       colnames=TRUE, colnames_position="bottom", colnames_angle=0, colnames_level=NULL,
-                       colnames_offset_x = 0, colnames_offset_y = 0, font.size=4, family="", hjust=0.5, legend_title = "value",
-                       colnames_color = "black") {
+                           colnames=TRUE, colnames_position="bottom", colnames_angle=0, colnames_level=NULL,
+                           colnames_offset_x = 0, colnames_offset_y = 0, font.size=4, family="", hjust=0.5, legend_title = "value",
+                           colnames_color = "black") {
     
     colnames_position %<>% match.arg(c("bottom", "top"))
     variable <- value <- lab <- y <- NULL
@@ -5420,7 +5584,15 @@ server <- function(input, output, session) {
                            progress_format_end = 0) # reactive variables related to typing process
   
   Vis <- reactiveValues(cluster = NULL, 
-                        metadata = list()) # reactive variables related to visualization
+                        metadata = list(),
+                        custom_label_nj = data.frame(),
+                        nj_label_pos_y = list(),
+                        nj_label_pos_x = list(),
+                        nj_label_size = list(),
+                        custom_label_upgma = data.frame(),
+                        upgma_label_pos_y = list(),
+                        upgma_label_pos_x = list(),
+                        upgma_label_size = list()) # reactive variables related to visualization
   
   Report <- reactiveValues() # reactive variables related to report functions
   
@@ -8634,6 +8806,10 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
+    test <<- Vis$nj_label_pos_size[[input$nj_custom_label_sel]]
+    
+    ganzeliste <<- Vis$nj_label_pos_size
+    
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -9530,7 +9706,7 @@ server <- function(input, output, session) {
       Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/18876117/alleles/"
       Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/18876117/"
       Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/18876117/locus/?content-type=csv"
-      Scheme$folder_name <<- "Burkholderia_pseudomallei"
+      Scheme$folder_name <- "Burkholderia_pseudomallei"
     } else if (input$select_cgmlst == "Campylobacter jejuni/coli") {
       Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/145039/alleles/"
       Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/145039/"
@@ -9776,6 +9952,330 @@ server <- function(input, output, session) {
   ### Render Visualization Controls ----
   
   #### NJ and UPGMA controls ----
+  
+  # Custom Labels
+  
+  # Custom Label Size
+  output$nj_custom_labelsize <- renderUI({
+    if(length(Vis$custom_label_nj) > 0) {
+      if(length(Vis$nj_label_size) > 0) {
+        if(!is.null(Vis$nj_label_size[[input$nj_custom_label_sel]])) {
+          sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_size"),
+                      label = h5("Size", style = "color: white; margin-bottom: 0px;"),
+                      min = 0, max = 10, step = 0.5, ticks = F,
+                      value = Vis$nj_label_size[[input$nj_custom_label_sel]],
+                      width = "150px")
+        } else {
+          sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_size"),
+                      label = h5("Size", style = "color: white; margin-bottom: 0px;"),
+                      min = 0, max = 10, step = 0.5, ticks = F, value = 5,
+                      width = "150px")
+        }
+      } else {
+        sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_size"),
+                    label = h5("Size", style = "color: white; margin-bottom: 0px;"),
+                    min = 0, max = 10, step = 0.5, ticks = F, value = 5,
+                    width = "150px")
+      }
+    } 
+  })
+  
+  # Add custom label
+  observeEvent(input$nj_add_new_label, {
+    if(nchar(input$nj_new_label_name) > 0) {
+      if(!(input$nj_new_label_name %in% Vis$custom_label_nj)) {
+        Vis$custom_label_nj <- rbind(Vis$custom_label_nj, input$nj_new_label_name) 
+        if(!(nrow(Vis$custom_label_nj) == 1)) {
+          updateSelectInput(session, "nj_custom_label_sel", selected = input$nj_new_label_name)
+        }
+      } else {
+        show_toast(
+          title = "Label already exists",
+          type = "error",
+          position = "top-end",
+          timer = 6000,
+          width = "500px"
+        )
+      }
+    } else {
+      show_toast(
+        title = "Min. 1 character",
+        type = "error",
+        position = "top-end",
+        timer = 6000,
+        width = "500px"
+      )
+    }
+  })
+  
+  # Delete custom label
+  observeEvent(input$nj_del_label, {
+    if(nrow(Vis$custom_label_nj) > 1) {
+      Vis$custom_label_nj <- Vis$custom_label_nj[-which(Vis$custom_label_nj[,1] == input$nj_custom_label_sel), , drop = FALSE]
+    } else if (nrow(Vis$custom_label_nj) == 1) {
+      Vis$nj_label_pos_x <- list()
+      Vis$nj_label_pos_y <- list()
+      Vis$nj_label_size <- list()
+      Vis$custom_label_nj <- data.frame()
+    }
+  })
+  
+  # Select custom labels
+  output$nj_custom_label_select <- renderUI({
+    if(nrow(Vis$custom_label_nj) > 0) {
+      selectInput(
+        "nj_custom_label_sel",
+        "",
+        choices = Vis$custom_label_nj[,1]
+      )
+    }
+  })
+  
+  # Render slider input based on selected label
+  output$nj_sliderInput_y <- renderUI({
+    if(length(Vis$custom_label_nj) > 0) {
+        if(length(Vis$nj_label_pos_y) > 0) {
+          if(!is.null(Vis$nj_label_pos_y[[input$nj_custom_label_sel]])) {
+            sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
+                        label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
+                        min = 0, max = 10, step = 1, ticks = F,
+                        value = Vis$nj_label_pos_y[[input$nj_custom_label_sel]])
+          } else {
+            sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
+                        label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
+                        min = 0, max = 10, step = 1, ticks = F, value = 5)
+          }
+        } else {
+          sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
+                      label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
+                      min = 0, max = 10, step = 1, ticks = F, value = 5)
+        }
+    } 
+  })
+  
+  output$nj_sliderInput_x <- renderUI({
+    if(length(Vis$custom_label_nj) > 0) {
+        if(length(Vis$nj_label_pos_y) > 0) {
+          if(!is.null(Vis$nj_label_pos_y[[input$nj_custom_label_sel]])) {
+            sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
+                        label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
+                        min = 0, max = 10, step = 1, ticks = F,
+                        value = Vis$nj_label_pos_x[[input$nj_custom_label_sel]])
+          } else {
+            sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
+                        label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
+                        min = 0, max = 10, step = 1, ticks = F, value = 5)
+          }
+        } else {
+          sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
+                      label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
+                      min = 0, max = 10, step = 1, ticks = F, value = 5)
+        }
+      
+    } 
+  })
+  
+  # Space if no custom label selected
+  output$nj_label_space <- renderUI({
+    if(nrow(Vis$custom_label_nj) == 0) {
+      column(12, br(), br(), br(), br(), br(), h5("space", style = "color: transparent; margin-bottom: 20px"))
+    } else {NULL}
+  })
+  
+  # Show delete custom label button if custam label added
+  output$nj_del_label <- renderUI({
+    if(nrow(Vis$custom_label_nj) > 0) {
+      actionButton(
+        "nj_del_label",
+        "",
+        icon = icon("minus")
+      )
+    } else {NULL}
+  })
+  
+  observe({
+    if(length(Vis$custom_label_nj) > 0) {
+      if(!is.null(input$nj_custom_label_sel)) {
+        if((!is.null(input[[paste0("nj_slider_", input$nj_custom_label_sel, "_y")]])) & 
+           (!is.null(input[[paste0("nj_slider_", input$nj_custom_label_sel, "_x")]]))) {
+          Vis$nj_label_pos_y[[input$nj_custom_label_sel]] <- input[[paste0("nj_slider_", input$nj_custom_label_sel, "_y")]]
+          Vis$nj_label_pos_x[[input$nj_custom_label_sel]] <- input[[paste0("nj_slider_", input$nj_custom_label_sel, "_x")]]
+          
+          if (!is.null(input[[paste0("nj_slider_", input$nj_custom_label_sel, "_size")]])) {
+            Vis$nj_label_size[[input$nj_custom_label_sel]] <- input[[paste0("nj_slider_", input$nj_custom_label_sel, "_size")]]
+          } else {
+            Vis$nj_label_size[[input$nj_custom_label_sel]] <- 5
+          }
+        }
+      }
+    } else {
+      Vis$nj_label_pos_y <- list()
+      Vis$nj_label_pos_x <- list()
+      Vis$nj_label_size <- list()
+    }
+  })
+  
+  # Custom Labels
+  
+  # Custom Label Size
+  output$upgma_custom_labelsize <- renderUI({
+    if(length(Vis$custom_label_upgma) > 0) {
+      if(length(Vis$upgma_label_size) > 0) {
+        if(!is.null(Vis$upgma_label_size[[input$upgma_custom_label_sel]])) {
+          sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_size"),
+                      label = h5("Size", style = "color: white; margin-bottom: 0px;"),
+                      min = 0, max = 10, step = 0.5, ticks = F,
+                      value = Vis$upgma_label_size[[input$upgma_custom_label_sel]],
+                      width = "150px")
+        } else {
+          sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_size"),
+                      label = h5("Size", style = "color: white; margin-bottom: 0px;"),
+                      min = 0, max = 10, step = 0.5, ticks = F, value = 5,
+                      width = "150px")
+        }
+      } else {
+        sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_size"),
+                    label = h5("Size", style = "color: white; margin-bottom: 0px;"),
+                    min = 0, max = 10, step = 0.5, ticks = F, value = 5,
+                    width = "150px")
+      }
+    } 
+  })
+  
+  # Add custom label
+  observeEvent(input$upgma_add_new_label, {
+    if(nchar(input$upgma_new_label_name) > 0) {
+      if(!(input$upgma_new_label_name %in% Vis$custom_label_upgma)) {
+        Vis$custom_label_upgma <- rbind(Vis$custom_label_upgma, input$upgma_new_label_name) 
+        if(!(nrow(Vis$custom_label_upgma) == 1)) {
+          updateSelectInput(session, "upgma_custom_label_sel", selected = input$upgma_new_label_name)
+        }
+      } else {
+        show_toast(
+          title = "Label already exists",
+          type = "error",
+          position = "top-end",
+          timer = 6000,
+          width = "500px"
+        )
+      }
+    } else {
+      show_toast(
+        title = "Min. 1 character",
+        type = "error",
+        position = "top-end",
+        timer = 6000,
+        width = "500px"
+      )
+    }
+  })
+  
+  # Delete custom label
+  observeEvent(input$upgma_del_label, {
+    if(nrow(Vis$custom_label_upgma) > 1) {
+      Vis$custom_label_upgma <- Vis$custom_label_upgma[-which(Vis$custom_label_upgma[,1] == input$upgma_custom_label_sel), , drop = FALSE]
+    } else if (nrow(Vis$custom_label_upgma) == 1) {
+      Vis$upgma_label_pos_x <- list()
+      Vis$upgma_label_pos_y <- list()
+      Vis$upgma_label_size <- list()
+      Vis$custom_label_upgma <- data.frame()
+    }
+  })
+  
+  # Select custom labels
+  output$upgma_custom_label_select <- renderUI({
+    if(nrow(Vis$custom_label_upgma) > 0) {
+      selectInput(
+        "upgma_custom_label_sel",
+        "",
+        choices = Vis$custom_label_upgma[,1]
+      )
+    }
+  })
+  
+  # Render slider input based on selected label
+  output$upgma_sliderInput_y <- renderUI({
+    if(length(Vis$custom_label_upgma) > 0) {
+      if(length(Vis$upgma_label_pos_y) > 0) {
+        if(!is.null(Vis$upgma_label_pos_y[[input$upgma_custom_label_sel]])) {
+          sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_y"),
+                      label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
+                      min = 0, max = 10, step = 1, ticks = F,
+                      value = Vis$upgma_label_pos_y[[input$upgma_custom_label_sel]])
+        } else {
+          sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_y"),
+                      label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
+                      min = 0, max = 10, step = 1, ticks = F, value = 5)
+        }
+      } else {
+        sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_y"),
+                    label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
+                    min = 0, max = 10, step = 1, ticks = F, value = 5)
+      }
+    } 
+  })
+  
+  output$upgma_sliderInput_x <- renderUI({
+    if(length(Vis$custom_label_upgma) > 0) {
+      if(length(Vis$upgma_label_pos_y) > 0) {
+        if(!is.null(Vis$upgma_label_pos_y[[input$upgma_custom_label_sel]])) {
+          sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_x"),
+                      label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
+                      min = 0, max = 10, step = 1, ticks = F,
+                      value = Vis$upgma_label_pos_x[[input$upgma_custom_label_sel]])
+        } else {
+          sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_x"),
+                      label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
+                      min = 0, max = 10, step = 1, ticks = F, value = 5)
+        }
+      } else {
+        sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_x"),
+                    label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
+                    min = 0, max = 10, step = 1, ticks = F, value = 5)
+      }
+      
+    } 
+  })
+  
+  # Space if no custom label selected
+  output$upgma_label_space <- renderUI({
+    if(nrow(Vis$custom_label_upgma) == 0) {
+      column(12, br(), br(), br(), br(), br(), h5("space", style = "color: transparent; margin-bottom: 20px"))
+    } else {NULL}
+  })
+  
+  # Show delete custom label button if custam label added
+  output$upgma_del_label <- renderUI({
+    if(nrow(Vis$custom_label_upgma) > 0) {
+      actionButton(
+        "upgma_del_label",
+        "",
+        icon = icon("minus")
+      )
+    } else {NULL}
+  })
+  
+  observe({
+    if(length(Vis$custom_label_upgma) > 0) {
+      if(!is.null(input$upgma_custom_label_sel)) {
+        if((!is.null(input[[paste0("upgma_slider_", input$upgma_custom_label_sel, "_y")]])) & 
+           (!is.null(input[[paste0("upgma_slider_", input$upgma_custom_label_sel, "_x")]]))) {
+          Vis$upgma_label_pos_y[[input$upgma_custom_label_sel]] <- input[[paste0("upgma_slider_", input$upgma_custom_label_sel, "_y")]]
+          Vis$upgma_label_pos_x[[input$upgma_custom_label_sel]] <- input[[paste0("upgma_slider_", input$upgma_custom_label_sel, "_x")]]
+          
+          if (!is.null(input[[paste0("upgma_slider_", input$upgma_custom_label_sel, "_size")]])) {
+            Vis$upgma_label_size[[input$upgma_custom_label_sel]] <- input[[paste0("upgma_slider_", input$upgma_custom_label_sel, "_size")]]
+          } else {
+            Vis$upgma_label_size[[input$upgma_custom_label_sel]] <- 5
+          }
+        }
+      }
+    } else {
+      Vis$upgma_label_pos_y <- list()
+      Vis$upgma_label_pos_x <- list()
+      Vis$upgma_label_size <- list()
+    }
+  })
   
   # Mapping value number information
   output$nj_tiplab_mapping_info <- renderUI({
@@ -10965,23 +11465,23 @@ server <- function(input, output, session) {
   
   # For Layout change update tiles offset position
   observeEvent(input$nj_layout, {
-      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-        offset <- 0.05
-        step <- 0.01
-        min <- -0.2
-        max <- 0.2
-      } else {
-        offset <- 0.15
-        step <- 0.03
-        min <- -0.6
-        max <- 0.6
-      }
-      
-      updateSliderInput(session, "nj_fruit_offset_circ", min = min, step = step, max = max)
-      updateSliderInput(session, "nj_fruit_offset_circ_2", min = min, step = step, max = max, value = offset)
-      updateSliderInput(session, "nj_fruit_offset_circ_3", min = min, step = step, max = max, value = offset)
-      updateSliderInput(session, "nj_fruit_offset_circ_4", min = min, step = step, max = max, value = offset)
-      updateSliderInput(session, "nj_fruit_offset_circ_5", min = min, step = step, max = max, value = offset) 
+    if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+      offset <- 0.05
+      step <- 0.01
+      min <- -0.2
+      max <- 0.2
+    } else {
+      offset <- 0.15
+      step <- 0.03
+      min <- -0.6
+      max <- 0.6
+    }
+    
+    updateSliderInput(session, "nj_fruit_offset_circ", min = min, step = step, max = max)
+    updateSliderInput(session, "nj_fruit_offset_circ_2", min = min, step = step, max = max, value = offset)
+    updateSliderInput(session, "nj_fruit_offset_circ_3", min = min, step = step, max = max, value = offset)
+    updateSliderInput(session, "nj_fruit_offset_circ_4", min = min, step = step, max = max, value = offset)
+    updateSliderInput(session, "nj_fruit_offset_circ_5", min = min, step = step, max = max, value = offset) 
   })
   
   observeEvent(input$upgma_layout, {
@@ -11027,7 +11527,7 @@ server <- function(input, output, session) {
           width <- 3
         }
       }
-        
+      
       sliderInput(
         "nj_heatmap_width",
         label = "",
@@ -13611,39 +14111,39 @@ server <- function(input, output, session) {
       choices$Categorical <- as.list(setNames(non_numeric_column_names, non_numeric_column_names))
       
       
-        pickerInput(
-          inputId = "nj_heatmap_select",
-          label = "",
-          width = "100%",
-          choices = if(ncol(Vis$meta_nj) == 11) {
-            c(
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            )
-          } else {choices},
-          options = list(
-            `dropdown-align-center` = TRUE,
-            size = 10,
-            style = "background-color: white; border-radius: 5px;"
-          ),
-          multiple = TRUE
-        )
-      
-    } else {
-        pickerInput(
-          inputId = "nj_heatmap_select",
-          label = "",
-          width = "100%",
-          choices = c(
+      pickerInput(
+        inputId = "nj_heatmap_select",
+        label = "",
+        width = "100%",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
-          ),
-          multiple = TRUE
-        )
+          )
+        } else {choices},
+        options = list(
+          `dropdown-align-center` = TRUE,
+          size = 10,
+          style = "background-color: white; border-radius: 5px;"
+        ),
+        multiple = TRUE
+      )
+      
+    } else {
+      pickerInput(
+        inputId = "nj_heatmap_select",
+        label = "",
+        width = "100%",
+        choices = c(
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        ),
+        multiple = TRUE
+      )
       
     }
   })
@@ -13651,7 +14151,7 @@ server <- function(input, output, session) {
   output$upgma_heatmap_sel <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
       meta <- select(Vis$meta_upgma, -c(taxa, Index, `Assembly ID`, `Assembly Name`,
-                                     Scheme, `Typing Date`, Successes, Errors))
+                                        Scheme, `Typing Date`, Successes, Errors))
       
       # Identify numeric columns
       numeric_columns <- sapply(meta, is.numeric)
@@ -14696,10 +15196,10 @@ server <- function(input, output, session) {
           Host = "Host",
           Country = "Country",
           City = "City"
-          )
         )
-      }
-    })
+      )
+    }
+  })
   
   # Tip shape Mapping 
   output$nj_tipshape_mapping <- renderUI({
@@ -14868,11 +15368,11 @@ server <- function(input, output, session) {
         "nj_color_mapping",
         "",
         choices = c(
-            `Isolation Date` = "Isolation Date",
-            Host = "Host",
-            Country = "Country",
-            City = "City"
-          ),
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        ),
         selected = c("Host" = "Host"),
         width = "100%"
       )
@@ -15035,10 +15535,10 @@ server <- function(input, output, session) {
   })
   
   output$upgma_field <- renderUI({
-   addSpinner(
-     plotOutput("tree_upgma", width = paste0(as.character(as.numeric(input$upgma_scale) * as.numeric(input$upgma_ratio)), "px"), height = paste0(as.character(input$upgma_scale), "px")),
-     spin = "dots",
-     color = "white"
+    addSpinner(
+      plotOutput("tree_upgma", width = paste0(as.character(as.numeric(input$upgma_scale) * as.numeric(input$upgma_ratio)), "px"), height = paste0(as.character(input$upgma_scale), "px")),
+      spin = "dots",
+      color = "white"
     )
   })
   
@@ -15309,18 +15809,37 @@ server <- function(input, output, session) {
         nj_gradient5() +
         new_scale_fill() 
       
+      # Add custom labels
+      if(length(Vis$custom_label_nj) > 0) {
+        for(i in Vis$custom_label_nj[,1]) {
+          if(!is.null(Vis$nj_label_size[[i]])) {
+            tree <- tree + annotate("text",
+                                    x = Vis$nj_label_pos_x[[i]], 
+                                    y = Vis$nj_label_pos_y[[i]], 
+                                    label = i,
+                                    size = Vis$nj_label_size[[i]])
+          } else {
+            tree <- tree + annotate("text",
+                                    x = Vis$nj_label_pos_x[[i]], 
+                                    y = Vis$nj_label_pos_y[[i]], 
+                                    label = i,
+                                    size = 5)
+          }
+        }
+      }
+      
       # Add heatmap
       if(input$nj_heatmap_show == TRUE & length(input$nj_heatmap_select) > 0) {
         if (!(any(sapply(Vis$meta_nj[input$nj_heatmap_select], is.numeric)) & 
-            any(!sapply(Vis$meta_nj[input$nj_heatmap_select], is.numeric)))) {
+              any(!sapply(Vis$meta_nj[input$nj_heatmap_select], is.numeric)))) {
           tree <- gheatmap.mod(tree, 
-                           data = select(Vis$meta_nj, input$nj_heatmap_select),
-                           offset = nj_heatmap_offset(),
-                           width = nj_heatmap_width(),
-                           legend_title = input$nj_heatmap_title,
-                           colnames_angle = -nj_colnames_angle(),
-                           colnames_offset_y = nj_colnames_y(),
-                           colnames_color = input$nj_color) +
+                               data = select(Vis$meta_nj, input$nj_heatmap_select),
+                               offset = nj_heatmap_offset(),
+                               width = nj_heatmap_width(),
+                               legend_title = input$nj_heatmap_title,
+                               colnames_angle = -nj_colnames_angle(),
+                               colnames_offset_y = nj_colnames_y(),
+                               colnames_color = input$nj_color) +
             nj_heatmap_scale()
         }
       } 
@@ -15656,9 +16175,9 @@ server <- function(input, output, session) {
             midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable]], na.rm = TRUE)
           }
           scale_fill_gradient2(low = brewer.pal(3, input$nj_tiles_scale_1)[1],
-                                mid = brewer.pal(3, input$nj_tiles_scale_1)[2],
-                                high = brewer.pal(3, input$nj_tiles_scale_1)[3],
-                                midpoint = midpoint)
+                               mid = brewer.pal(3, input$nj_tiles_scale_1)[2],
+                               high = brewer.pal(3, input$nj_tiles_scale_1)[3],
+                               midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_1 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
             if(class(unlist(DB$meta[input$nj_fruit_variable])) == "numeric") {
@@ -15720,9 +16239,9 @@ server <- function(input, output, session) {
             midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable_2]], na.rm = TRUE)
           }
           scale_fill_gradient2(low = brewer.pal(3, input$nj_tiles_scale_2)[1],
-                                mid = brewer.pal(3, input$nj_tiles_scale_2)[2],
-                                high = brewer.pal(3, input$nj_tiles_scale_2)[3],
-                                midpoint = midpoint)
+                               mid = brewer.pal(3, input$nj_tiles_scale_2)[2],
+                               high = brewer.pal(3, input$nj_tiles_scale_2)[3],
+                               midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_2 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
             if(class(unlist(DB$meta[input$nj_fruit_variable_2])) == "numeric") {
@@ -15784,9 +16303,9 @@ server <- function(input, output, session) {
             midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable_3]], na.rm = TRUE)
           }
           scale_fill_gradient3(low = brewer.pal(3, input$nj_tiles_scale_3)[1],
-                                mid = brewer.pal(3, input$nj_tiles_scale_3)[2],
-                                high = brewer.pal(3, input$nj_tiles_scale_3)[3],
-                                midpoint = midpoint)
+                               mid = brewer.pal(3, input$nj_tiles_scale_3)[2],
+                               high = brewer.pal(3, input$nj_tiles_scale_3)[3],
+                               midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_3 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
             if(class(unlist(DB$meta[input$nj_fruit_variable_3])) == "numeric") {
@@ -15848,9 +16367,9 @@ server <- function(input, output, session) {
             midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable_4]], na.rm = TRUE)
           }
           scale_fill_gradient4(low = brewer.pal(3, input$nj_tiles_scale_4)[1],
-                                mid = brewer.pal(3, input$nj_tiles_scale_4)[2],
-                                high = brewer.pal(3, input$nj_tiles_scale_4)[3],
-                                midpoint = midpoint)
+                               mid = brewer.pal(3, input$nj_tiles_scale_4)[2],
+                               high = brewer.pal(3, input$nj_tiles_scale_4)[3],
+                               midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_4 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
             if(class(unlist(DB$meta[input$nj_fruit_variable])) == "numeric") {
@@ -15912,9 +16431,9 @@ server <- function(input, output, session) {
             midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable_5]], na.rm = TRUE)
           }
           scale_fill_gradient5(low = brewer.pal(3, input$nj_tiles_scale_5)[1],
-                                mid = brewer.pal(3, input$nj_tiles_scale_5)[2],
-                                high = brewer.pal(3, input$nj_tiles_scale_5)[3],
-                                midpoint = midpoint)
+                               mid = brewer.pal(3, input$nj_tiles_scale_5)[2],
+                               high = brewer.pal(3, input$nj_tiles_scale_5)[3],
+                               midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_5 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
             if(class(unlist(DB$meta[input$nj_fruit_variable_5])) == "numeric") {
@@ -16000,7 +16519,7 @@ server <- function(input, output, session) {
       if(input$nj_tiles_show_1 == TRUE) {
         if(!is.null(Vis$nj_max_x)) {
           if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
-          width <- 1
+            width <- 1
           } else {
             width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
           }
@@ -16655,27 +17174,46 @@ server <- function(input, output, session) {
         upgma_gradient5() +
         new_scale_fill() 
       
+      # Add custom labels
+      if(length(Vis$custom_label_upgma) > 0) {
+        for(i in Vis$custom_label_upgma[,1]) {
+          if(!is.null(Vis$upgma_label_size[[i]])) {
+            tree <- tree + annotate("text",
+                                    x = Vis$upgma_label_pos_x[[i]], 
+                                    y = Vis$upgma_label_pos_y[[i]], 
+                                    label = i,
+                                    size = Vis$upgma_label_size[[i]])
+          } else {
+            tree <- tree + annotate("text",
+                                    x = Vis$upgma_label_pos_x[[i]], 
+                                    y = Vis$upgma_label_pos_y[[i]], 
+                                    label = i,
+                                    size = 5)
+          }
+        }
+      }
+      
       # Add heatmap
       if(input$upgma_heatmap_show == TRUE & length(input$upgma_heatmap_select) > 0) {
         if (!(any(sapply(DB$meta[input$upgma_heatmap_select], is.numeric)) & 
               any(!sapply(DB$meta[input$upgma_heatmap_select], is.numeric)))) {
           tree <- gheatmap.mod(tree, 
-                           data = select(Vis$meta_upgma, input$upgma_heatmap_select),
-                           offset = upgma_heatmap_offset(),
-                           width = upgma_heatmap_width(),
-                           legend_title = input$upgma_heatmap_title,
-                           colnames_angle = -upgma_colnames_angle(),
-                           colnames_offset_y = upgma_colnames_y(),
-                           colnames_color = input$upgma_color) +
+                               data = select(Vis$meta_upgma, input$upgma_heatmap_select),
+                               offset = upgma_heatmap_offset(),
+                               width = upgma_heatmap_width(),
+                               legend_title = input$upgma_heatmap_title,
+                               colnames_angle = -upgma_colnames_angle(),
+                               colnames_offset_y = upgma_colnames_y(),
+                               colnames_color = input$upgma_color) +
             upgma_heatmap_scale()
         }
       } 
       
       # Sizing control
       Vis$upgma_plot <- ggplotify::as.ggplot(tree, 
-                                          scale = input$upgma_zoom,
-                                          hjust = input$upgma_h,
-                                          vjust = input$upgma_v)  
+                                             scale = input$upgma_zoom,
+                                             hjust = input$upgma_h,
+                                             vjust = input$upgma_v)  
       
       # Correct background color if zoomed out
       cowplot::ggdraw(Vis$upgma_plot) + 
@@ -18506,291 +19044,319 @@ server <- function(input, output, session) {
         
         if (input$tree_algo == "Neighbour-Joining") {
           
-          Vis$meta_nj <- select(DB$meta_true, -2)
-          
-          if(length(unique(gsub(" ", "_", colnames(Vis$meta_nj)))) < length(gsub(" ", "_", colnames(Vis$meta_nj)))) {
-            show_toast(
-              title = "Conflicting Custom Variable Names",
-              type = "warning",
-              position = "top-end",
-              width = "500px",
-              timer = 6000
+          if(nrow(Vis$custom_label_nj) > 0) {
+            showModal(
+              modalDialog(
+                paste0("Creating a new Neighbour-Joining tree will remove all custom labels. Continue?"),
+                easyClose = TRUE,
+                title = "Confirm New NJ-Tree",
+                footer = tagList(
+                  modalButton("Cancel"),
+                  actionButton("conf_create_nj", "Create Tree", class = "btn btn-success")
+                )
+              )
             )
           } else {
+            Vis$meta_nj <- select(DB$meta_true, -2)
             
-            # Create phylogenetic tree data
-            Vis$nj <- ape::nj(hamming_nj())
-            
-            # Create phylogenetic tree meta data
-            Vis$meta_nj <- mutate(Vis$meta_nj, taxa = Index) %>%
-              relocate(taxa)
-            
-            # Get number of included entries calculate start values for tree 
-            if(!is.null(input$nj_layout)) {
-              if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-                if(sum(DB$data$Include) < 21) {
-                  Vis$labelsize_nj <- 5.5
-                  Vis$tippointsize_nj <- 5.5
-                  Vis$nodepointsize_nj <- 4
-                  Vis$tiplab_padding_nj <- 0.25
-                  Vis$branch_size_nj <- 4.5
-                } else if (between(sum(DB$data$Include), 21, 40)) {
-                  Vis$labelsize_nj <- 5
-                  Vis$tippointsize_nj <- 5
-                  Vis$nodepointsize_nj <- 3.5
-                  Vis$tiplab_padding_nj <- 0.2
-                  Vis$branch_size_nj <- 4
-                } else if (between(sum(DB$data$Include), 41, 60)) {
-                  Vis$labelsize_nj <- 4.5
-                  Vis$tippointsize_nj <- 4.5
-                  Vis$nodepointsize_nj <- 3
-                  Vis$tiplab_padding_nj <- 0.15
-                  Vis$branch_size_nj <- 3.5
-                } else if (between(sum(DB$data$Include), 61, 80)) {
-                  Vis$labelsize_nj <- 4
-                  Vis$tippointsize_nj <- 4
-                  Vis$nodepointsize_nj <- 2.5
-                  Vis$tiplab_padding_nj <- 0.1
-                  Vis$branch_size_nj <- 3
-                } else if (between(sum(DB$data$Include), 81, 100)) {
-                  Vis$labelsize_nj <- 3.5
-                  Vis$tippointsize_nj <- 3.5
-                  Vis$nodepointsize_nj <- 2
-                  Vis$tiplab_padding_nj <- 0.1
-                  Vis$branch_size_nj <- 2.5
+            if(length(unique(gsub(" ", "_", colnames(Vis$meta_nj)))) < length(gsub(" ", "_", colnames(Vis$meta_nj)))) {
+              show_toast(
+                title = "Conflicting Custom Variable Names",
+                type = "warning",
+                position = "top-end",
+                width = "500px",
+                timer = 6000
+              )
+            } else {
+              
+              # Create phylogenetic tree data
+              Vis$nj <- ape::nj(hamming_nj())
+              
+              # Create phylogenetic tree meta data
+              Vis$meta_nj <- mutate(Vis$meta_nj, taxa = Index) %>%
+                relocate(taxa)
+              
+              # Get number of included entries calculate start values for tree 
+              if(!is.null(input$nj_layout)) {
+                if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+                  if(sum(DB$data$Include) < 21) {
+                    Vis$labelsize_nj <- 5.5
+                    Vis$tippointsize_nj <- 5.5
+                    Vis$nodepointsize_nj <- 4
+                    Vis$tiplab_padding_nj <- 0.25
+                    Vis$branch_size_nj <- 4.5
+                  } else if (between(sum(DB$data$Include), 21, 40)) {
+                    Vis$labelsize_nj <- 5
+                    Vis$tippointsize_nj <- 5
+                    Vis$nodepointsize_nj <- 3.5
+                    Vis$tiplab_padding_nj <- 0.2
+                    Vis$branch_size_nj <- 4
+                  } else if (between(sum(DB$data$Include), 41, 60)) {
+                    Vis$labelsize_nj <- 4.5
+                    Vis$tippointsize_nj <- 4.5
+                    Vis$nodepointsize_nj <- 3
+                    Vis$tiplab_padding_nj <- 0.15
+                    Vis$branch_size_nj <- 3.5
+                  } else if (between(sum(DB$data$Include), 61, 80)) {
+                    Vis$labelsize_nj <- 4
+                    Vis$tippointsize_nj <- 4
+                    Vis$nodepointsize_nj <- 2.5
+                    Vis$tiplab_padding_nj <- 0.1
+                    Vis$branch_size_nj <- 3
+                  } else if (between(sum(DB$data$Include), 81, 100)) {
+                    Vis$labelsize_nj <- 3.5
+                    Vis$tippointsize_nj <- 3.5
+                    Vis$nodepointsize_nj <- 2
+                    Vis$tiplab_padding_nj <- 0.1
+                    Vis$branch_size_nj <- 2.5
+                  } else {
+                    Vis$labelsize_nj <- 3
+                    Vis$tippointsize_nj <- 3
+                    Vis$nodepointsize_nj <- 1.5
+                    Vis$tiplab_padding_nj <- 0.05
+                    Vis$branch_size_nj <- 2
+                  }
                 } else {
-                  Vis$labelsize_nj <- 3
-                  Vis$tippointsize_nj <- 3
-                  Vis$nodepointsize_nj <- 1.5
-                  Vis$tiplab_padding_nj <- 0.05
-                  Vis$branch_size_nj <- 2
+                  if(sum(DB$data$Include) < 21) {
+                    Vis$labelsize_nj <- 5
+                    Vis$tippointsize_nj <- 5
+                    Vis$nodepointsize_nj <- 4
+                    Vis$tiplab_padding_nj <- 0.25
+                    Vis$branch_size_nj <- 4.5
+                  } else if (between(sum(DB$data$Include), 21, 40)) {
+                    Vis$labelsize_nj <- 4.5
+                    Vis$tippointsize_nj <- 4.5
+                    Vis$nodepointsize_nj <- 3.5
+                    Vis$tiplab_padding_nj <- 0.2
+                    Vis$branch_size_nj <- 4
+                  } else if (between(sum(DB$data$Include), 41, 60)) {
+                    Vis$labelsize_nj <- 4
+                    Vis$tippointsize_nj <- 4
+                    Vis$nodepointsize_nj <- 3
+                    Vis$tiplab_padding_nj <- 0.15
+                    Vis$branch_size_nj <- 3.5
+                  } else if (between(sum(DB$data$Include), 61, 80)) {
+                    Vis$labelsize_nj <- 3.5
+                    Vis$tippointsize_nj <- 3.5
+                    Vis$nodepointsize_nj <- 2.5
+                    Vis$tiplab_padding_nj <- 0.1
+                    Vis$branch_size_nj <- 3
+                  } else if (between(sum(DB$data$Include), 81, 100)) {
+                    Vis$labelsize_nj <- 3
+                    Vis$tippointsize_nj <- 3
+                    Vis$nodepointsize_nj <- 2
+                    Vis$tiplab_padding_nj <- 0.1
+                    Vis$branch_size_nj <- 2.5
+                  } else {
+                    Vis$labelsize_nj <- 2.5
+                    Vis$tippointsize_nj <- 2.5
+                    Vis$nodepointsize_nj <- 1.5
+                    Vis$tiplab_padding_nj <- 0.05
+                    Vis$branch_size_nj <- 2
+                  }
                 }
               } else {
-                if(sum(DB$data$Include) < 21) {
-                  Vis$labelsize_nj <- 5
-                  Vis$tippointsize_nj <- 5
-                  Vis$nodepointsize_nj <- 4
-                  Vis$tiplab_padding_nj <- 0.25
-                  Vis$branch_size_nj <- 4.5
-                } else if (between(sum(DB$data$Include), 21, 40)) {
-                  Vis$labelsize_nj <- 4.5
-                  Vis$tippointsize_nj <- 4.5
-                  Vis$nodepointsize_nj <- 3.5
-                  Vis$tiplab_padding_nj <- 0.2
-                  Vis$branch_size_nj <- 4
-                } else if (between(sum(DB$data$Include), 41, 60)) {
-                  Vis$labelsize_nj <- 4
-                  Vis$tippointsize_nj <- 4
-                  Vis$nodepointsize_nj <- 3
-                  Vis$tiplab_padding_nj <- 0.15
-                  Vis$branch_size_nj <- 3.5
-                } else if (between(sum(DB$data$Include), 61, 80)) {
-                  Vis$labelsize_nj <- 3.5
-                  Vis$tippointsize_nj <- 3.5
-                  Vis$nodepointsize_nj <- 2.5
-                  Vis$tiplab_padding_nj <- 0.1
-                  Vis$branch_size_nj <- 3
-                } else if (between(sum(DB$data$Include), 81, 100)) {
-                  Vis$labelsize_nj <- 3
-                  Vis$tippointsize_nj <- 3
-                  Vis$nodepointsize_nj <- 2
-                  Vis$tiplab_padding_nj <- 0.1
-                  Vis$branch_size_nj <- 2.5
-                } else {
-                  Vis$labelsize_nj <- 2.5
-                  Vis$tippointsize_nj <- 2.5
-                  Vis$nodepointsize_nj <- 1.5
-                  Vis$tiplab_padding_nj <- 0.05
-                  Vis$branch_size_nj <- 2
-                }
+                Vis$labelsize_nj <- 4
+                Vis$tippointsize_nj <- 4
+                Vis$nodepointsize_nj <- 2.5
+                Vis$tiplab_padding_nj <- 0.2
+                Vis$branch_size_nj <- 3.5
               }
-            } else {
-              Vis$labelsize_nj <- 4
-              Vis$tippointsize_nj <- 4
-              Vis$nodepointsize_nj <- 2.5
-              Vis$tiplab_padding_nj <- 0.2
-              Vis$branch_size_nj <- 3.5
+              
+              Vis$nj_tree <- ggtree(Vis$nj)
+              
+              # Get upper and lower end of x range
+              Vis$nj_max_x <- max(Vis$nj_tree$data$x)
+              Vis$nj_min_x <- min(Vis$nj_tree$data$x)
+              
+              # Get parent node numbers
+              Vis$nj_parentnodes <- Vis$nj_tree$data$parent
+              
+              # Update visualization control inputs
+              if(!is.null(input$nj_tiplab_size)) {
+                updateNumericInput(session, "nj_tiplab_size", value = Vis$labelsize_nj)
+              }
+              if(!is.null(input$nj_tippoint_size)) {
+                updateSliderInput(session, "nj_tippoint_size", value = Vis$tippointsize_nj)
+              }
+              if(!is.null(input$nj_nodepoint_size)) {
+                updateSliderInput(session, "nj_nodepoint_size", value = Vis$nodepointsize_nj)
+              }
+              if(!is.null(input$nj_tiplab_padding)) {
+                updateSliderInput(session, "nj_tiplab_padding", value = Vis$tiplab_padding_nj)
+              }
+              if(!is.null(input$nj_branch_size)) {
+                updateNumericInput(session, "nj_branch_size", value = Vis$branch_size_nj)
+              }
+              if(!is.null(input$nj_treescale_width)) {
+                updateNumericInput(session, "nj_treescale_width", value = round(ceiling(Vis$nj_max_x) * 0.1, 0))
+              }
+              if(!is.null(input$nj_rootedge_length)) {
+                updateSliderInput(session, "nj_rootedge_length", value = round(ceiling(Vis$nj_max_x) * 0.05, 0))
+              }
+              
+              output$tree_nj <- renderPlot({
+                nj_tree()
+              })
             }
-            
-            Vis$nj_tree <- ggtree(Vis$nj)
-            
-            # Get upper and lower end of x range
-            Vis$nj_max_x <- max(Vis$nj_tree$data$x)
-            Vis$nj_min_x <- min(Vis$nj_tree$data$x)
-            
-            # Get parent node numbers
-            Vis$nj_parentnodes <- Vis$nj_tree$data$parent
-            
-            # Update visualization control inputs
-            if(!is.null(input$nj_tiplab_size)) {
-              updateNumericInput(session, "nj_tiplab_size", value = Vis$labelsize_nj)
-            }
-            if(!is.null(input$nj_tippoint_size)) {
-              updateSliderInput(session, "nj_tippoint_size", value = Vis$tippointsize_nj)
-            }
-            if(!is.null(input$nj_nodepoint_size)) {
-              updateSliderInput(session, "nj_nodepoint_size", value = Vis$nodepointsize_nj)
-            }
-            if(!is.null(input$nj_tiplab_padding)) {
-              updateSliderInput(session, "nj_tiplab_padding", value = Vis$tiplab_padding_nj)
-            }
-            if(!is.null(input$nj_branch_size)) {
-              updateNumericInput(session, "nj_branch_size", value = Vis$branch_size_nj)
-            }
-            if(!is.null(input$nj_treescale_width)) {
-              updateNumericInput(session, "nj_treescale_width", value = round(ceiling(Vis$nj_max_x) * 0.1, 0))
-            }
-            if(!is.null(input$nj_rootedge_length)) {
-              updateSliderInput(session, "nj_rootedge_length", value = round(ceiling(Vis$nj_max_x) * 0.05, 0))
-            }
-            
-            output$tree_nj <- renderPlot({
-              nj_tree()
-            })
           }
         } else if (input$tree_algo == "UPGMA") {
           
-          Vis$meta_upgma <- select(DB$meta_true, -2)
-          
-          if(length(unique(gsub(" ", "_", colnames(Vis$meta_upgma)))) < length(gsub(" ", "_", colnames(Vis$meta_upgma)))) {
-            show_toast(
-              title = "Conflicting Custom Variable Names",
-              type = "warning",
-              position = "top-end",
-              width = "500px",
-              timer = 6000
+          if(nrow(Vis$custom_label_upgma) > 0) {
+            showModal(
+              modalDialog(
+                paste0("Creating a new Neighbour-Joining tree will remove all custom labels. Continue?"),
+                easyClose = TRUE,
+                title = "Confirm New UPGMA-Tree",
+                footer = tagList(
+                  modalButton("Cancel"),
+                  actionButton("conf_create_upgma", "Create Tree", class = "btn btn-success")
+                )
+              )
             )
           } else {
+            Vis$meta_upgma <- select(DB$meta_true, -2)
             
-            # Create phylogenetic tree data
-            Vis$upgma <- phangorn::upgma(hamming_nj())
-            
-            # Create phylogenetic tree meta data
-            Vis$meta_upgma <- mutate(Vis$meta_upgma, taxa = Index) %>%
-              relocate(taxa)
-            
-            # Get number of included entries calculate start values for tree 
-            if(!is.null(input$upgma_layout)) {
-              if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-                if(sum(DB$data$Include) < 21) {
-                  Vis$labelsize_upgma <- 5.5
-                  Vis$tippointsize_upgma <- 5.5
-                  Vis$nodepointsize_upgma <- 4
-                  Vis$tiplab_padding_upgma <- 0.25
-                  Vis$branch_size_upgma <- 4.5
-                } else if (between(sum(DB$data$Include), 21, 40)) {
-                  Vis$labelsize_upgma <- 5
-                  Vis$tippointsize_upgma <- 5
-                  Vis$nodepointsize_upgma <- 3.5
-                  Vis$tiplab_padding_upgma <- 0.2
-                  Vis$branch_size_upgma <- 4
-                } else if (between(sum(DB$data$Include), 41, 60)) {
-                  Vis$labelsize_upgma <- 4.5
-                  Vis$tippointsize_upgma <- 4.5
-                  Vis$nodepointsize_upgma <- 3
-                  Vis$tiplab_padding_upgma <- 0.15
-                  Vis$branch_size_upgma <- 3.5
-                } else if (between(sum(DB$data$Include), 61, 80)) {
-                  Vis$labelsize_upgma <- 4
-                  Vis$tippointsize_upgma <- 4
-                  Vis$nodepointsize_upgma <- 2.5
-                  Vis$tiplab_padding_upgma <- 0.1
-                  Vis$branch_size_upgma <- 3
-                } else if (between(sum(DB$data$Include), 81, 100)) {
-                  Vis$labelsize_upgma <- 3.5
-                  Vis$tippointsize_upgma <- 3.5
-                  Vis$nodepointsize_upgma <- 2
-                  Vis$tiplab_padding_upgma <- 0.1
-                  Vis$branch_size_upgma <- 2.5
+            if(length(unique(gsub(" ", "_", colnames(Vis$meta_upgma)))) < length(gsub(" ", "_", colnames(Vis$meta_upgma)))) {
+              show_toast(
+                title = "Conflicting Custom Variable Names",
+                type = "warning",
+                position = "top-end",
+                width = "500px",
+                timer = 6000
+              )
+            } else {
+              
+              # Create phylogenetic tree data
+              Vis$upgma <- phangorn::upgma(hamming_nj())
+              
+              # Create phylogenetic tree meta data
+              Vis$meta_upgma <- mutate(Vis$meta_upgma, taxa = Index) %>%
+                relocate(taxa)
+              
+              # Get number of included entries calculate start values for tree 
+              if(!is.null(input$upgma_layout)) {
+                if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
+                  if(sum(DB$data$Include) < 21) {
+                    Vis$labelsize_upgma <- 5.5
+                    Vis$tippointsize_upgma <- 5.5
+                    Vis$nodepointsize_upgma <- 4
+                    Vis$tiplab_padding_upgma <- 0.25
+                    Vis$branch_size_upgma <- 4.5
+                  } else if (between(sum(DB$data$Include), 21, 40)) {
+                    Vis$labelsize_upgma <- 5
+                    Vis$tippointsize_upgma <- 5
+                    Vis$nodepointsize_upgma <- 3.5
+                    Vis$tiplab_padding_upgma <- 0.2
+                    Vis$branch_size_upgma <- 4
+                  } else if (between(sum(DB$data$Include), 41, 60)) {
+                    Vis$labelsize_upgma <- 4.5
+                    Vis$tippointsize_upgma <- 4.5
+                    Vis$nodepointsize_upgma <- 3
+                    Vis$tiplab_padding_upgma <- 0.15
+                    Vis$branch_size_upgma <- 3.5
+                  } else if (between(sum(DB$data$Include), 61, 80)) {
+                    Vis$labelsize_upgma <- 4
+                    Vis$tippointsize_upgma <- 4
+                    Vis$nodepointsize_upgma <- 2.5
+                    Vis$tiplab_padding_upgma <- 0.1
+                    Vis$branch_size_upgma <- 3
+                  } else if (between(sum(DB$data$Include), 81, 100)) {
+                    Vis$labelsize_upgma <- 3.5
+                    Vis$tippointsize_upgma <- 3.5
+                    Vis$nodepointsize_upgma <- 2
+                    Vis$tiplab_padding_upgma <- 0.1
+                    Vis$branch_size_upgma <- 2.5
+                  } else {
+                    Vis$labelsize_upgma <- 3
+                    Vis$tippointsize_upgma <- 3
+                    Vis$nodepointsize_upgma <- 1.5
+                    Vis$tiplab_padding_upgma <- 0.05
+                    Vis$branch_size_upgma <- 2
+                  }
                 } else {
-                  Vis$labelsize_upgma <- 3
-                  Vis$tippointsize_upgma <- 3
-                  Vis$nodepointsize_upgma <- 1.5
-                  Vis$tiplab_padding_upgma <- 0.05
-                  Vis$branch_size_upgma <- 2
+                  if(sum(DB$data$Include) < 21) {
+                    Vis$labelsize_upgma <- 5
+                    Vis$tippointsize_upgma <- 5
+                    Vis$nodepointsize_upgma <- 4
+                    Vis$tiplab_padding_upgma <- 0.25
+                    Vis$branch_size_upgma <- 4.5
+                  } else if (between(sum(DB$data$Include), 21, 40)) {
+                    Vis$labelsize_upgma <- 4.5
+                    Vis$tippointsize_upgma <- 4.5
+                    Vis$nodepointsize_upgma <- 3.5
+                    Vis$tiplab_padding_upgma <- 0.2
+                    Vis$branch_size_upgma <- 4
+                  } else if (between(sum(DB$data$Include), 41, 60)) {
+                    Vis$labelsize_upgma <- 4
+                    Vis$tippointsize_upgma <- 4
+                    Vis$nodepointsize_upgma <- 3
+                    Vis$tiplab_padding_upgma <- 0.15
+                    Vis$branch_size_upgma <- 3.5
+                  } else if (between(sum(DB$data$Include), 61, 80)) {
+                    Vis$labelsize_upgma <- 3.5
+                    Vis$tippointsize_upgma <- 3.5
+                    Vis$nodepointsize_upgma <- 2.5
+                    Vis$tiplab_padding_upgma <- 0.1
+                    Vis$branch_size_upgma <- 3
+                  } else if (between(sum(DB$data$Include), 81, 100)) {
+                    Vis$labelsize_upgma <- 3
+                    Vis$tippointsize_upgma <- 3
+                    Vis$nodepointsize_upgma <- 2
+                    Vis$tiplab_padding_upgma <- 0.1
+                    Vis$branch_size_upgma <- 2.5
+                  } else {
+                    Vis$labelsize_upgma <- 2.5
+                    Vis$tippointsize_upgma <- 2.5
+                    Vis$nodepointsize_upgma <- 1.5
+                    Vis$tiplab_padding_upgma <- 0.05
+                    Vis$branch_size_upgma <- 2
+                  }
                 }
               } else {
-                if(sum(DB$data$Include) < 21) {
-                  Vis$labelsize_upgma <- 5
-                  Vis$tippointsize_upgma <- 5
-                  Vis$nodepointsize_upgma <- 4
-                  Vis$tiplab_padding_upgma <- 0.25
-                  Vis$branch_size_upgma <- 4.5
-                } else if (between(sum(DB$data$Include), 21, 40)) {
-                  Vis$labelsize_upgma <- 4.5
-                  Vis$tippointsize_upgma <- 4.5
-                  Vis$nodepointsize_upgma <- 3.5
-                  Vis$tiplab_padding_upgma <- 0.2
-                  Vis$branch_size_upgma <- 4
-                } else if (between(sum(DB$data$Include), 41, 60)) {
-                  Vis$labelsize_upgma <- 4
-                  Vis$tippointsize_upgma <- 4
-                  Vis$nodepointsize_upgma <- 3
-                  Vis$tiplab_padding_upgma <- 0.15
-                  Vis$branch_size_upgma <- 3.5
-                } else if (between(sum(DB$data$Include), 61, 80)) {
-                  Vis$labelsize_upgma <- 3.5
-                  Vis$tippointsize_upgma <- 3.5
-                  Vis$nodepointsize_upgma <- 2.5
-                  Vis$tiplab_padding_upgma <- 0.1
-                  Vis$branch_size_upgma <- 3
-                } else if (between(sum(DB$data$Include), 81, 100)) {
-                  Vis$labelsize_upgma <- 3
-                  Vis$tippointsize_upgma <- 3
-                  Vis$nodepointsize_upgma <- 2
-                  Vis$tiplab_padding_upgma <- 0.1
-                  Vis$branch_size_upgma <- 2.5
-                } else {
-                  Vis$labelsize_upgma <- 2.5
-                  Vis$tippointsize_upgma <- 2.5
-                  Vis$nodepointsize_upgma <- 1.5
-                  Vis$tiplab_padding_upgma <- 0.05
-                  Vis$branch_size_upgma <- 2
-                }
+                Vis$labelsize_upgma <- 4
+                Vis$tippointsize_upgma <- 4
+                Vis$nodepointsize_upgma <- 2.5
+                Vis$tiplab_padding_upgma <- 0.2
+                Vis$branch_size_upgma <- 3.5
               }
-            } else {
-              Vis$labelsize_upgma <- 4
-              Vis$tippointsize_upgma <- 4
-              Vis$nodepointsize_upgma <- 2.5
-              Vis$tiplab_padding_upgma <- 0.2
-              Vis$branch_size_upgma <- 3.5
+              
+              Vis$upgma_tree <- ggtree(Vis$upgma)
+              
+              # Get upper and lower end of x range
+              Vis$upgma_max_x <- max(Vis$upgma_tree$data$x)
+              Vis$upgma_min_x <- min(Vis$upgma_tree$data$x)
+              
+              # Get parent node numbers
+              Vis$upgma_parentnodes <- Vis$upgma_tree$data$parent
+              
+              # Update visualization control inputs
+              if(!is.null(input$upgma_tiplab_size)) {
+                updateNumericInput(session, "upgma_tiplab_size", value = Vis$labelsize_upgma)
+              }
+              if(!is.null(input$upgma_tippoint_size)) {
+                updateSliderInput(session, "upgma_tippoint_size", value = Vis$tippointsize_upgma)
+              }
+              if(!is.null(input$upgma_nodepoint_size)) {
+                updateSliderInput(session, "upgma_nodepoint_size", value = Vis$nodepointsize_upgma)
+              }
+              if(!is.null(input$upgma_tiplab_padding)) {
+                updateSliderInput(session, "upgma_tiplab_padding", value = Vis$tiplab_padding_upgma)
+              }
+              if(!is.null(input$upgma_branch_size)) {
+                updateNumericInput(session, "upgma_branch_size", value = Vis$branch_size_upgma)
+              }
+              if(!is.null(input$upgma_treescale_width)) {
+                updateNumericInput(session, "upgma_treescale_width", value = round(ceiling(Vis$upgma_max_x) * 0.1, 0))
+              }
+              if(!is.null(input$upgma_rootedge_length)) {
+                updateSliderInput(session, "upgma_rootedge_length", value = round(ceiling(Vis$upgma_max_x) * 0.05, 0))
+              }
+              
+              output$tree_upgma <- renderPlot({
+                upgma_tree()
+              })
             }
-            
-            Vis$upgma_tree <- ggtree(Vis$upgma)
-            
-            # Get upper and lower end of x range
-            Vis$upgma_max_x <- max(Vis$upgma_tree$data$x)
-            Vis$upgma_min_x <- min(Vis$upgma_tree$data$x)
-            
-            # Get parent node numbers
-            Vis$upgma_parentnodes <- Vis$upgma_tree$data$parent
-            
-            # Update visualization control inputs
-            if(!is.null(input$upgma_tiplab_size)) {
-              updateNumericInput(session, "upgma_tiplab_size", value = Vis$labelsize_upgma)
-            }
-            if(!is.null(input$upgma_tippoint_size)) {
-              updateSliderInput(session, "upgma_tippoint_size", value = Vis$tippointsize_upgma)
-            }
-            if(!is.null(input$upgma_nodepoint_size)) {
-              updateSliderInput(session, "upgma_nodepoint_size", value = Vis$nodepointsize_upgma)
-            }
-            if(!is.null(input$upgma_tiplab_padding)) {
-              updateSliderInput(session, "upgma_tiplab_padding", value = Vis$tiplab_padding_upgma)
-            }
-            if(!is.null(input$upgma_branch_size)) {
-              updateNumericInput(session, "upgma_branch_size", value = Vis$branch_size_upgma)
-            }
-            if(!is.null(input$upgma_treescale_width)) {
-              updateNumericInput(session, "upgma_treescale_width", value = round(ceiling(Vis$upgma_max_x) * 0.1, 0))
-            }
-            if(!is.null(input$upgma_rootedge_length)) {
-              updateSliderInput(session, "upgma_rootedge_length", value = round(ceiling(Vis$upgma_max_x) * 0.05, 0))
-            }
-            
-            output$tree_upgma <- renderPlot({
-              upgma_tree()
-            })
           }
         } else {
           
@@ -18815,6 +19381,310 @@ server <- function(input, output, session) {
           })
         }
       }
+    }
+  })
+  
+  observeEvent(input$conf_create_nj, {
+    removeModal()
+    
+    Vis$nj_label_pos_x <- list()
+    Vis$nj_label_pos_y <- list()
+    Vis$nj_label_size <- list()
+    Vis$custom_label_nj <- data.frame()
+    
+    Vis$meta_nj <- select(DB$meta_true, -2)
+    
+    if(length(unique(gsub(" ", "_", colnames(Vis$meta_nj)))) < length(gsub(" ", "_", colnames(Vis$meta_nj)))) {
+      show_toast(
+        title = "Conflicting Custom Variable Names",
+        type = "warning",
+        position = "top-end",
+        width = "500px",
+        timer = 6000
+      )
+    } else {
+      
+      # Create phylogenetic tree data
+      Vis$nj <- ape::nj(hamming_nj())
+      
+      # Create phylogenetic tree meta data
+      Vis$meta_nj <- mutate(Vis$meta_nj, taxa = Index) %>%
+        relocate(taxa)
+      
+      # Get number of included entries calculate start values for tree 
+      if(!is.null(input$nj_layout)) {
+        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+          if(sum(DB$data$Include) < 21) {
+            Vis$labelsize_nj <- 5.5
+            Vis$tippointsize_nj <- 5.5
+            Vis$nodepointsize_nj <- 4
+            Vis$tiplab_padding_nj <- 0.25
+            Vis$branch_size_nj <- 4.5
+          } else if (between(sum(DB$data$Include), 21, 40)) {
+            Vis$labelsize_nj <- 5
+            Vis$tippointsize_nj <- 5
+            Vis$nodepointsize_nj <- 3.5
+            Vis$tiplab_padding_nj <- 0.2
+            Vis$branch_size_nj <- 4
+          } else if (between(sum(DB$data$Include), 41, 60)) {
+            Vis$labelsize_nj <- 4.5
+            Vis$tippointsize_nj <- 4.5
+            Vis$nodepointsize_nj <- 3
+            Vis$tiplab_padding_nj <- 0.15
+            Vis$branch_size_nj <- 3.5
+          } else if (between(sum(DB$data$Include), 61, 80)) {
+            Vis$labelsize_nj <- 4
+            Vis$tippointsize_nj <- 4
+            Vis$nodepointsize_nj <- 2.5
+            Vis$tiplab_padding_nj <- 0.1
+            Vis$branch_size_nj <- 3
+          } else if (between(sum(DB$data$Include), 81, 100)) {
+            Vis$labelsize_nj <- 3.5
+            Vis$tippointsize_nj <- 3.5
+            Vis$nodepointsize_nj <- 2
+            Vis$tiplab_padding_nj <- 0.1
+            Vis$branch_size_nj <- 2.5
+          } else {
+            Vis$labelsize_nj <- 3
+            Vis$tippointsize_nj <- 3
+            Vis$nodepointsize_nj <- 1.5
+            Vis$tiplab_padding_nj <- 0.05
+            Vis$branch_size_nj <- 2
+          }
+        } else {
+          if(sum(DB$data$Include) < 21) {
+            Vis$labelsize_nj <- 5
+            Vis$tippointsize_nj <- 5
+            Vis$nodepointsize_nj <- 4
+            Vis$tiplab_padding_nj <- 0.25
+            Vis$branch_size_nj <- 4.5
+          } else if (between(sum(DB$data$Include), 21, 40)) {
+            Vis$labelsize_nj <- 4.5
+            Vis$tippointsize_nj <- 4.5
+            Vis$nodepointsize_nj <- 3.5
+            Vis$tiplab_padding_nj <- 0.2
+            Vis$branch_size_nj <- 4
+          } else if (between(sum(DB$data$Include), 41, 60)) {
+            Vis$labelsize_nj <- 4
+            Vis$tippointsize_nj <- 4
+            Vis$nodepointsize_nj <- 3
+            Vis$tiplab_padding_nj <- 0.15
+            Vis$branch_size_nj <- 3.5
+          } else if (between(sum(DB$data$Include), 61, 80)) {
+            Vis$labelsize_nj <- 3.5
+            Vis$tippointsize_nj <- 3.5
+            Vis$nodepointsize_nj <- 2.5
+            Vis$tiplab_padding_nj <- 0.1
+            Vis$branch_size_nj <- 3
+          } else if (between(sum(DB$data$Include), 81, 100)) {
+            Vis$labelsize_nj <- 3
+            Vis$tippointsize_nj <- 3
+            Vis$nodepointsize_nj <- 2
+            Vis$tiplab_padding_nj <- 0.1
+            Vis$branch_size_nj <- 2.5
+          } else {
+            Vis$labelsize_nj <- 2.5
+            Vis$tippointsize_nj <- 2.5
+            Vis$nodepointsize_nj <- 1.5
+            Vis$tiplab_padding_nj <- 0.05
+            Vis$branch_size_nj <- 2
+          }
+        }
+      } else {
+        Vis$labelsize_nj <- 4
+        Vis$tippointsize_nj <- 4
+        Vis$nodepointsize_nj <- 2.5
+        Vis$tiplab_padding_nj <- 0.2
+        Vis$branch_size_nj <- 3.5
+      }
+      
+      Vis$nj_tree <- ggtree(Vis$nj)
+      
+      # Get upper and lower end of x range
+      Vis$nj_max_x <- max(Vis$nj_tree$data$x)
+      Vis$nj_min_x <- min(Vis$nj_tree$data$x)
+      
+      # Get parent node numbers
+      Vis$nj_parentnodes <- Vis$nj_tree$data$parent
+      
+      # Update visualization control inputs
+      if(!is.null(input$nj_tiplab_size)) {
+        updateNumericInput(session, "nj_tiplab_size", value = Vis$labelsize_nj)
+      }
+      if(!is.null(input$nj_tippoint_size)) {
+        updateSliderInput(session, "nj_tippoint_size", value = Vis$tippointsize_nj)
+      }
+      if(!is.null(input$nj_nodepoint_size)) {
+        updateSliderInput(session, "nj_nodepoint_size", value = Vis$nodepointsize_nj)
+      }
+      if(!is.null(input$nj_tiplab_padding)) {
+        updateSliderInput(session, "nj_tiplab_padding", value = Vis$tiplab_padding_nj)
+      }
+      if(!is.null(input$nj_branch_size)) {
+        updateNumericInput(session, "nj_branch_size", value = Vis$branch_size_nj)
+      }
+      if(!is.null(input$nj_treescale_width)) {
+        updateNumericInput(session, "nj_treescale_width", value = round(ceiling(Vis$nj_max_x) * 0.1, 0))
+      }
+      if(!is.null(input$nj_rootedge_length)) {
+        updateSliderInput(session, "nj_rootedge_length", value = round(ceiling(Vis$nj_max_x) * 0.05, 0))
+      }
+      
+      output$tree_nj <- renderPlot({
+        nj_tree()
+      })
+    }
+  })
+  
+  observeEvent(input$conf_create_upgma, {
+    removeModal()
+    
+    Vis$upgma_label_pos_x <- list()
+    Vis$upgma_label_pos_y <- list()
+    Vis$upgma_label_size <- list()
+    Vis$custom_label_upgma <- data.frame()
+    
+    Vis$meta_upgma <- select(DB$meta_true, -2)
+    
+    if(length(unique(gsub(" ", "_", colnames(Vis$meta_upgma)))) < length(gsub(" ", "_", colnames(Vis$meta_upgma)))) {
+      show_toast(
+        title = "Conflicting Custom Variable Names",
+        type = "warning",
+        position = "top-end",
+        width = "500px",
+        timer = 6000
+      )
+    } else {
+      
+      # Create phylogenetic tree data
+      Vis$upgma <- ape::upgma(hamming_upgma())
+      
+      # Create phylogenetic tree meta data
+      Vis$meta_upgma <- mutate(Vis$meta_upgma, taxa = Index) %>%
+        relocate(taxa)
+      
+      # Get number of included entries calculate start values for tree 
+      if(!is.null(input$upgma_layout)) {
+        if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
+          if(sum(DB$data$Include) < 21) {
+            Vis$labelsize_upgma <- 5.5
+            Vis$tippointsize_upgma <- 5.5
+            Vis$nodepointsize_upgma <- 4
+            Vis$tiplab_padding_upgma <- 0.25
+            Vis$branch_size_upgma <- 4.5
+          } else if (between(sum(DB$data$Include), 21, 40)) {
+            Vis$labelsize_upgma <- 5
+            Vis$tippointsize_upgma <- 5
+            Vis$nodepointsize_upgma <- 3.5
+            Vis$tiplab_padding_upgma <- 0.2
+            Vis$branch_size_upgma <- 4
+          } else if (between(sum(DB$data$Include), 41, 60)) {
+            Vis$labelsize_upgma <- 4.5
+            Vis$tippointsize_upgma <- 4.5
+            Vis$nodepointsize_upgma <- 3
+            Vis$tiplab_padding_upgma <- 0.15
+            Vis$branch_size_upgma <- 3.5
+          } else if (between(sum(DB$data$Include), 61, 80)) {
+            Vis$labelsize_upgma <- 4
+            Vis$tippointsize_upgma <- 4
+            Vis$nodepointsize_upgma <- 2.5
+            Vis$tiplab_padding_upgma <- 0.1
+            Vis$branch_size_upgma <- 3
+          } else if (between(sum(DB$data$Include), 81, 100)) {
+            Vis$labelsize_upgma <- 3.5
+            Vis$tippointsize_upgma <- 3.5
+            Vis$nodepointsize_upgma <- 2
+            Vis$tiplab_padding_upgma <- 0.1
+            Vis$branch_size_upgma <- 2.5
+          } else {
+            Vis$labelsize_upgma <- 3
+            Vis$tippointsize_upgma <- 3
+            Vis$nodepointsize_upgma <- 1.5
+            Vis$tiplab_padding_upgma <- 0.05
+            Vis$branch_size_upgma <- 2
+          }
+        } else {
+          if(sum(DB$data$Include) < 21) {
+            Vis$labelsize_upgma <- 5
+            Vis$tippointsize_upgma <- 5
+            Vis$nodepointsize_upgma <- 4
+            Vis$tiplab_padding_upgma <- 0.25
+            Vis$branch_size_upgma <- 4.5
+          } else if (between(sum(DB$data$Include), 21, 40)) {
+            Vis$labelsize_upgma <- 4.5
+            Vis$tippointsize_upgma <- 4.5
+            Vis$nodepointsize_upgma <- 3.5
+            Vis$tiplab_padding_upgma <- 0.2
+            Vis$branch_size_upgma <- 4
+          } else if (between(sum(DB$data$Include), 41, 60)) {
+            Vis$labelsize_upgma <- 4
+            Vis$tippointsize_upgma <- 4
+            Vis$nodepointsize_upgma <- 3
+            Vis$tiplab_padding_upgma <- 0.15
+            Vis$branch_size_upgma <- 3.5
+          } else if (between(sum(DB$data$Include), 61, 80)) {
+            Vis$labelsize_upgma <- 3.5
+            Vis$tippointsize_upgma <- 3.5
+            Vis$nodepointsize_upgma <- 2.5
+            Vis$tiplab_padding_upgma <- 0.1
+            Vis$branch_size_upgma <- 3
+          } else if (between(sum(DB$data$Include), 81, 100)) {
+            Vis$labelsize_upgma <- 3
+            Vis$tippointsize_upgma <- 3
+            Vis$nodepointsize_upgma <- 2
+            Vis$tiplab_padding_upgma <- 0.1
+            Vis$branch_size_upgma <- 2.5
+          } else {
+            Vis$labelsize_upgma <- 2.5
+            Vis$tippointsize_upgma <- 2.5
+            Vis$nodepointsize_upgma <- 1.5
+            Vis$tiplab_padding_upgma <- 0.05
+            Vis$branch_size_upgma <- 2
+          }
+        }
+      } else {
+        Vis$labelsize_upgma <- 4
+        Vis$tippointsize_upgma <- 4
+        Vis$nodepointsize_upgma <- 2.5
+        Vis$tiplab_padding_upgma <- 0.2
+        Vis$branch_size_upgma <- 3.5
+      }
+      
+      Vis$upgma_tree <- ggtree(Vis$upgma)
+      
+      # Get upper and lower end of x range
+      Vis$upgma_max_x <- max(Vis$upgma_tree$data$x)
+      Vis$upgma_min_x <- min(Vis$upgma_tree$data$x)
+      
+      # Get parent node numbers
+      Vis$upgma_parentnodes <- Vis$upgma_tree$data$parent
+      
+      # Update visualization control inputs
+      if(!is.null(input$upgma_tiplab_size)) {
+        updateNumericInput(session, "upgma_tiplab_size", value = Vis$labelsize_upgma)
+      }
+      if(!is.null(input$upgma_tippoint_size)) {
+        updateSliderInput(session, "upgma_tippoint_size", value = Vis$tippointsize_upgma)
+      }
+      if(!is.null(input$upgma_nodepoint_size)) {
+        updateSliderInput(session, "upgma_nodepoint_size", value = Vis$nodepointsize_upgma)
+      }
+      if(!is.null(input$upgma_tiplab_padding)) {
+        updateSliderInput(session, "upgma_tiplab_padding", value = Vis$tiplab_padding_upgma)
+      }
+      if(!is.null(input$upgma_branch_size)) {
+        updateNumericInput(session, "upgma_branch_size", value = Vis$branch_size_upgma)
+      }
+      if(!is.null(input$upgma_treescale_width)) {
+        updateNumericInput(session, "upgma_treescale_width", value = round(ceiling(Vis$upgma_max_x) * 0.1, 0))
+      }
+      if(!is.null(input$upgma_rootedge_length)) {
+        updateSliderInput(session, "upgma_rootedge_length", value = round(ceiling(Vis$upgma_max_x) * 0.05, 0))
+      }
+      
+      output$tree_upgma <- renderPlot({
+        upgma_tree()
+      })
     }
   })
   
