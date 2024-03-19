@@ -716,8 +716,22 @@ button#mst_label_menu {
   margin-right: 30px;
 }
 
+.dropdown-menu>li>a {
+  color: #000000;
+  text-align: center;
+}
+
+.bootstrap-select.show-tick .dropdown-menu li a span.text {
+  margin-right: 0px;
+}
+
+#nj_heatmap_sel > div > div > button,
+#upgma_heatmap_sel > div > div > button {
+  background-color: white;
+}
+
 #nj_heatmap_sel .filter-option-inner,
-#nj_heatmap_sel .filter-option-inner {
+#upgma_heatmap_sel .filter-option-inner {
   text-align: center;
 }
 

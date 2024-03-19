@@ -3307,7 +3307,10 @@ ui <- dashboardPage(
                       column(
                         width = 3,
                         align = "center",
-                        uiOutput("nj_heatmap_sel")
+                        div(
+                          class = "heatmap-picker",
+                          uiOutput("nj_heatmap_sel")
+                        )
                       ),
                       column(
                         width = 3,
@@ -5123,7 +5126,10 @@ ui <- dashboardPage(
                       column(
                         width = 3,
                         align = "center",
-                        uiOutput("upgma_heatmap_sel")
+                        div(
+                          class = "heatmap-picker",
+                          uiOutput("upgma_heatmap_sel")
+                        )
                       ),
                       column(
                         width = 3,
@@ -9774,7 +9780,7 @@ server <- function(input, output, session) {
   # Mapping value number information
   output$nj_tiplab_mapping_info <- renderUI({
     if(!is.null(input$nj_color_mapping)) {
-      if(is.numeric(unlist(DB$meta[input$nj_color_mapping]))) {
+      if(is.numeric(unlist(Vis$meta_nj[input$nj_color_mapping]))) {
         if(input$nj_tiplab_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
           column(
             width = 3,
@@ -9804,15 +9810,15 @@ server <- function(input, output, session) {
           ) 
         }
       } else {
-        if(length(unique(unlist(DB$meta[input$nj_color_mapping]))) > 7) {
+        if(length(unique(unlist(Vis$meta_nj[input$nj_color_mapping]))) > 7) {
           column(
             width = 3,
-            h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$nj_color_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_color_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
           )
         } else {
           column(
             width = 3,
-            h5(paste0(length(unique(unlist(DB$meta[input$nj_color_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_color_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
           )
         }
       }
@@ -9821,7 +9827,7 @@ server <- function(input, output, session) {
   
   output$upgma_tiplab_mapping_info <- renderUI({
     if(!is.null(input$upgma_color_mapping)) {
-      if(is.numeric(unlist(DB$meta[input$upgma_color_mapping]))) {
+      if(is.numeric(unlist(Vis$meta_upgma[input$upgma_color_mapping]))) {
         if(input$upgma_tiplab_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
           column(
             width = 3,
@@ -9851,15 +9857,15 @@ server <- function(input, output, session) {
           ) 
         }
       } else {
-        if(length(unique(unlist(DB$meta[input$upgma_color_mapping]))) > 7) {
+        if(length(unique(unlist(Vis$meta_upgma[input$upgma_color_mapping]))) > 7) {
           column(
             width = 3,
-            h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$upgma_color_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_color_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
           )
         } else {
           column(
             width = 3,
-            h5(paste0(length(unique(unlist(DB$meta[input$upgma_color_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_color_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
           )
         }
       }
@@ -9867,8 +9873,8 @@ server <- function(input, output, session) {
   })
   
   output$nj_tipcolor_mapping_info <- renderUI({
-    if(!is.null(input$nj_tipcolor_mapping)) {
-      if(is.numeric(unlist(DB$meta[input$nj_tipcolor_mapping]))) {
+    if(!is.null(input$nj_tipcolor_mapping) & (!is.null(Vis$meta_nj))) {
+      if(is.numeric(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))) {
         if(input$nj_tippoint_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
           column(
             width = 3,
@@ -9898,15 +9904,15 @@ server <- function(input, output, session) {
           ) 
         }
       } else {
-        if(length(unique(unlist(DB$meta[input$nj_tipcolor_mapping]))) > 7) {
+        if(length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))) > 7) {
           column(
             width = 3,
-            h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$nj_tipcolor_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
           )
         } else {
           column(
             width = 3,
-            h5(paste0(length(unique(unlist(DB$meta[input$nj_tipcolor_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
           )
         }
       }
@@ -9914,8 +9920,8 @@ server <- function(input, output, session) {
   })
   
   output$upgma_tipcolor_mapping_info <- renderUI({
-    if(!is.null(input$upgma_tipcolor_mapping)) {
-      if(is.numeric(unlist(DB$meta[input$upgma_tipcolor_mapping]))) {
+    if(!is.null(input$upgma_tipcolor_mapping) & (!is.null(Vis$meta_upgma))) {
+      if(is.numeric(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping]))) {
         if(input$upgma_tippoint_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
           column(
             width = 3,
@@ -9945,15 +9951,15 @@ server <- function(input, output, session) {
           ) 
         }
       } else {
-        if(length(unique(unlist(DB$meta[input$upgma_tipcolor_mapping]))) > 7) {
+        if(length(unique(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping]))) > 7) {
           column(
             width = 3,
-            h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$upgma_tipcolor_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
           )
         } else {
           column(
             width = 3,
-            h5(paste0(length(unique(unlist(DB$meta[input$upgma_tipcolor_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
           )
         }
       }
@@ -9962,13 +9968,13 @@ server <- function(input, output, session) {
   
   output$nj_tipshape_mapping_info <- renderUI({
     if(!is.null(input$nj_tipshape_mapping)) {
-      if(is.numeric(unlist(DB$meta[input$nj_tipshape_mapping]))) {
+      if(is.numeric(unlist(Vis$meta_nj[input$nj_tipshape_mapping]))) {
         column(
           width = 3,
           h5("Mapping continous variables to shape not possible", style = "color: #E18B00; font-style: italic; font-size: 12px; margin-top: 15px;  margin-left: 40px")        
         )
       } else {
-        if(length(unique(unlist(DB$meta[input$nj_tipshape_mapping]))) > 6) {
+        if(length(unique(unlist(Vis$meta_nj[input$nj_tipshape_mapping]))) > 6) {
           column(
             width = 3,
             h5("Mapping > 6 variables to shape not possible", style = "color: #E18B00; font-style: italic; font-size: 12px; margin-top: 15px;  margin-left: 40px")        
@@ -9976,7 +9982,7 @@ server <- function(input, output, session) {
         } else {
           column(
             width = 3,
-            h5(paste0(length(unique(unlist(DB$meta[input$nj_tipshape_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_tipshape_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
           )    
         }
       }
@@ -9985,13 +9991,13 @@ server <- function(input, output, session) {
   
   output$upgma_tipshape_mapping_info <- renderUI({
     if(!is.null(input$upgma_tipshape_mapping)) {
-      if(is.numeric(unlist(DB$meta[input$upgma_tipshape_mapping]))) {
+      if(is.numeric(unlist(Vis$meta_upgma[input$upgma_tipshape_mapping]))) {
         column(
           width = 3,
           h5("Mapping continous variables to shape not possible", style = "color: #E18B00; font-style: italic; font-size: 12px; margin-top: 15px;  margin-left: 40px")        
         )
       } else {
-        if(length(unique(unlist(DB$meta[input$upgma_tipshape_mapping]))) > 6) {
+        if(length(unique(unlist(Vis$meta_upgma[input$upgma_tipshape_mapping]))) > 6) {
           column(
             width = 3,
             h5("Mapping > 6 variables to shape not possible", style = "color: #E18B00; font-style: italic; font-size: 12px; margin-top: 15px;  margin-left: 40px")        
@@ -9999,7 +10005,7 @@ server <- function(input, output, session) {
         } else {
           column(
             width = 3,
-            h5(paste0(length(unique(unlist(DB$meta[input$upgma_tipshape_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_tipshape_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
           )    
         }
       }
@@ -10009,7 +10015,7 @@ server <- function(input, output, session) {
   output$nj_fruit_mapping_info <- renderUI({
     if(input$nj_tile_num == 1) {
       if(!is.null(input$nj_fruit_variable)) {
-        if(is.numeric(unlist(DB$meta[input$nj_fruit_variable]))) {
+        if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable]))) {
           if(input$nj_tiles_scale_1 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
               width = 3,
@@ -10039,22 +10045,22 @@ server <- function(input, output, session) {
             ) 
           }
         } else {
-          if(length(unique(unlist(DB$meta[input$nj_fruit_variable]))) > 7) {
+          if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))) > 7) {
             column(
               width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$nj_fruit_variable]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
             )
           } else {
             column(
               width = 3,
-              h5(paste0(length(unique(unlist(DB$meta[input$nj_fruit_variable]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
             )
           }
         }
       } else {NULL}
     } else if (input$nj_tile_num == 2) {
       if(!is.null(input$nj_fruit_variable_2)) {
-        if(is.numeric(unlist(DB$meta[input$nj_fruit_variable_2]))) {
+        if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))) {
           if(input$nj_tiles_scale_2 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
               width = 3,
@@ -10084,22 +10090,22 @@ server <- function(input, output, session) {
             ) 
           }
         } else {
-          if(length(unique(unlist(DB$meta[input$nj_fruit_variable_2]))) > 7) {
+          if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))) > 7) {
             column(
               width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$nj_fruit_variable_2]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
             )
           } else {
             column(
               width = 3,
-              h5(paste0(length(unique(unlist(DB$meta[input$nj_fruit_variable_2]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
             )
           }
         }
       } else {NULL}
     } else if (input$nj_tile_num == 3) {
       if(!is.null(input$nj_fruit_variable_3)) {
-        if(is.numeric(unlist(DB$meta[input$nj_fruit_variable_3]))) {
+        if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))) {
           if(input$nj_tiles_scale_3 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
               width = 3,
@@ -10129,22 +10135,22 @@ server <- function(input, output, session) {
             ) 
           }
         } else {
-          if(length(unique(unlist(DB$meta[input$nj_fruit_variable_3]))) > 7) {
+          if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))) > 7) {
             column(
               width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$nj_fruit_variable_3]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
             )
           } else {
             column(
               width = 3,
-              h5(paste0(length(unique(unlist(DB$meta[input$nj_fruit_variable_3]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
             )
           }
         }
       } else {NULL}
     } else if (input$nj_tile_num == 4) {
       if(!is.null(input$nj_fruit_variable_4)) {
-        if(is.numeric(unlist(DB$meta[input$nj_fruit_variable_4]))) {
+        if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable_4]))) {
           if(input$nj_tiles_scale_4 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
               width = 3,
@@ -10174,22 +10180,22 @@ server <- function(input, output, session) {
             ) 
           }
         } else {
-          if(length(unique(unlist(DB$meta[input$nj_fruit_variable_4]))) > 7) {
+          if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_4]))) > 7) {
             column(
               width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$nj_fruit_variable_4]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_4]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
             )
           } else {
             column(
               width = 3,
-              h5(paste0(length(unique(unlist(DB$meta[input$nj_fruit_variable_4]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_4]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
             )
           }
         }
       } else {NULL}
     } else if (input$nj_tile_num == 5) {
       if(!is.null(input$nj_fruit_variable_5)) {
-        if(is.numeric(unlist(DB$meta[input$nj_fruit_variable_5]))) {
+        if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))) {
           if(input$nj_tiles_scale_5 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
               width = 3,
@@ -10219,15 +10225,15 @@ server <- function(input, output, session) {
             ) 
           }
         } else {
-          if(length(unique(unlist(DB$meta[input$nj_fruit_variable_5]))) > 7) {
+          if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))) > 7) {
             column(
               width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$nj_fruit_variable_5]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
             )
           } else {
             column(
               width = 3,
-              h5(paste0(length(unique(unlist(DB$meta[input$nj_fruit_variable_5]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
             )
           }
         }
@@ -10238,7 +10244,7 @@ server <- function(input, output, session) {
   output$upgma_fruit_mapping_info <- renderUI({
     if(input$upgma_tile_num == 1) {
       if(!is.null(input$upgma_fruit_variable)) {
-        if(is.numeric(unlist(DB$meta[input$upgma_fruit_variable]))) {
+        if(is.numeric(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))) {
           if(input$upgma_tiles_scale_1 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
               width = 3,
@@ -10268,22 +10274,22 @@ server <- function(input, output, session) {
             ) 
           }
         } else {
-          if(length(unique(unlist(DB$meta[input$upgma_fruit_variable]))) > 7) {
+          if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))) > 7) {
             column(
               width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$upgma_fruit_variable]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
             )
           } else {
             column(
               width = 3,
-              h5(paste0(length(unique(unlist(DB$meta[input$upgma_fruit_variable]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+              h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
             )
           }
         }
       } else {NULL}
     } else if (input$upgma_tile_num == 2) {
       if(!is.null(input$upgma_fruit_variable_2)) {
-        if(is.numeric(unlist(DB$meta[input$upgma_fruit_variable_2]))) {
+        if(is.numeric(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2]))) {
           if(input$upgma_tiles_scale_2 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
               width = 3,
@@ -10313,22 +10319,22 @@ server <- function(input, output, session) {
             ) 
           }
         } else {
-          if(length(unique(unlist(DB$meta[input$upgma_fruit_variable_2]))) > 7) {
+          if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2]))) > 7) {
             column(
               width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$upgma_fruit_variable_2]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
             )
           } else {
             column(
               width = 3,
-              h5(paste0(length(unique(unlist(DB$meta[input$upgma_fruit_variable_2]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+              h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
             )
           }
         }
       } else {NULL}
     } else if (input$upgma_tile_num == 3) {
       if(!is.null(input$upgma_fruit_variable_3)) {
-        if(is.numeric(unlist(DB$meta[input$upgma_fruit_variable_3]))) {
+        if(is.numeric(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3]))) {
           if(input$upgma_tiles_scale_3 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
               width = 3,
@@ -10358,22 +10364,22 @@ server <- function(input, output, session) {
             ) 
           }
         } else {
-          if(length(unique(unlist(DB$meta[input$upgma_fruit_variable_3]))) > 7) {
+          if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3]))) > 7) {
             column(
               width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$upgma_fruit_variable_3]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
             )
           } else {
             column(
               width = 3,
-              h5(paste0(length(unique(unlist(DB$meta[input$upgma_fruit_variable_3]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+              h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
             )
           }
         }
       } else {NULL}
     } else if (input$upgma_tile_num == 4) {
       if(!is.null(input$upgma_fruit_variable_4)) {
-        if(is.numeric(unlist(DB$meta[input$upgma_fruit_variable_4]))) {
+        if(is.numeric(unlist(Vis$meta_upgma[input$upgma_fruit_variable_4]))) {
           if(input$upgma_tiles_scale_4 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
               width = 3,
@@ -10403,22 +10409,22 @@ server <- function(input, output, session) {
             ) 
           }
         } else {
-          if(length(unique(unlist(DB$meta[input$upgma_fruit_variable_4]))) > 7) {
+          if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_4]))) > 7) {
             column(
               width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$upgma_fruit_variable_4]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_4]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
             )
           } else {
             column(
               width = 3,
-              h5(paste0(length(unique(unlist(DB$meta[input$upgma_fruit_variable_4]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+              h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_4]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
             )
           }
         }
       } else {NULL}
     } else if (input$upgma_tile_num == 5) {
       if(!is.null(input$upgma_fruit_variable_5)) {
-        if(is.numeric(unlist(DB$meta[input$upgma_fruit_variable_5]))) {
+        if(is.numeric(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5]))) {
           if(input$upgma_tiles_scale_5 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
               width = 3,
@@ -10448,15 +10454,15 @@ server <- function(input, output, session) {
             ) 
           }
         } else {
-          if(length(unique(unlist(DB$meta[input$upgma_fruit_variable_5]))) > 7) {
+          if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5]))) > 7) {
             column(
               width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(DB$meta[input$upgma_fruit_variable_5]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
             )
           } else {
             column(
               width = 3,
-              h5(paste0(length(unique(unlist(DB$meta[input$upgma_fruit_variable_5]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+              h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
             )
           }
         }
@@ -10466,15 +10472,15 @@ server <- function(input, output, session) {
   
   output$nj_heatmap_mapping_info <- renderUI({
     if(!is.null(input$nj_heatmap_select)) {
-      if (any(sapply(DB$meta[input$nj_heatmap_select], is.numeric)) & 
-          any(!sapply(DB$meta[input$nj_heatmap_select], is.numeric))) {
+      if (any(sapply(Vis$meta_nj[input$nj_heatmap_select], is.numeric)) & 
+          any(!sapply(Vis$meta_nj[input$nj_heatmap_select], is.numeric))) {
         column(
           width = 3,
           h5("Heatmap with categorical and continous values not possible", 
              style = "color: #E18B00; font-size: 12px; font-style: italic; margin-top: 15px;  margin-left: 40px")
         ) 
       } else {
-        if(any(sapply(DB$meta[input$nj_heatmap_select], is.numeric))) {
+        if(any(sapply(Vis$meta_nj[input$nj_heatmap_select], is.numeric))) {
           if(input$nj_heatmap_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
               width = 3,
@@ -10504,7 +10510,7 @@ server <- function(input, output, session) {
             ) 
           }
         } else {
-          if(length(unique(unlist(DB$meta[input$nj_heatmap_select]))) > 7) {
+          if(length(unique(unlist(Vis$meta_nj[input$nj_heatmap_select]))) > 7) {
             column(
               width = 3,
               h5(paste0("> 7 categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
@@ -10522,15 +10528,15 @@ server <- function(input, output, session) {
   
   output$upgma_heatmap_mapping_info <- renderUI({
     if(!is.null(input$upgma_heatmap_select)) {
-      if (any(sapply(DB$meta[input$upgma_heatmap_select], is.numeric)) & 
-          any(!sapply(DB$meta[input$upgma_heatmap_select], is.numeric))) {
+      if (any(sapply(Vis$meta_upgma[input$upgma_heatmap_select], is.numeric)) & 
+          any(!sapply(Vis$meta_upgma[input$upgma_heatmap_select], is.numeric))) {
         column(
           width = 3,
           h5("Heatmap with categorical and continous values not possible", 
              style = "color: #E18B00; font-size: 12px; font-style: italic; margin-top: 15px;  margin-left: 40px")
         ) 
       } else {
-        if(any(sapply(DB$meta[input$upgma_heatmap_select], is.numeric))) {
+        if(any(sapply(Vis$meta_upgma[input$upgma_heatmap_select], is.numeric))) {
           if(input$upgma_heatmap_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
               width = 3,
@@ -10560,7 +10566,7 @@ server <- function(input, output, session) {
             ) 
           }
         } else {
-          if(length(unique(unlist(DB$meta[input$upgma_heatmap_select]))) > 7) {
+          if(length(unique(unlist(Vis$meta_upgma[input$upgma_heatmap_select]))) > 7) {
             column(
               width = 3,
               h5(paste0("> 7 categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
@@ -11562,7 +11568,7 @@ server <- function(input, output, session) {
   
   # Heatmap variable color scale
   output$nj_heatmap_scale <- renderUI({
-    if(class(unlist(DB$meta[input$nj_heatmap_select])) == "numeric") {
+    if(class(unlist(Vis$meta_nj[input$nj_heatmap_select])) == "numeric") {
       selectInput(
         "nj_heatmap_scale",
         "",
@@ -11591,7 +11597,7 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      if(length(unique(unlist(DB$meta[input$nj_heatmap_select]))) > 7) {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_heatmap_select]))) > 7) {
         selectInput(
           "nj_heatmap_scale",
           "",
@@ -11651,7 +11657,7 @@ server <- function(input, output, session) {
   })
   
   output$upgma_heatmap_scale <- renderUI({
-    if(class(unlist(DB$meta[input$upgma_heatmap_select])) == "numeric") {
+    if(class(unlist(Vis$meta_upgma[input$upgma_heatmap_select])) == "numeric") {
       selectInput(
         "upgma_heatmap_scale",
         "",
@@ -11680,7 +11686,7 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      if(length(unique(unlist(DB$meta[input$upgma_heatmap_select]))) > 7) {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_heatmap_select]))) > 7) {
         selectInput(
           "upgma_heatmap_scale",
           "",
@@ -11741,7 +11747,7 @@ server <- function(input, output, session) {
   
   # Tiles variable color scale
   output$nj_tiles_scale_1 <- renderUI({
-    if(class(unlist(DB$meta[input$nj_fruit_variable])) == "numeric") {
+    if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
       selectInput(
         "nj_tiles_scale_1",
         "",
@@ -11770,7 +11776,7 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      if(length(unique(unlist(DB$meta[input$nj_fruit_variable]))) > 7) {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))) > 7) {
         selectInput(
           "nj_tiles_scale_1",
           "",
@@ -11830,7 +11836,7 @@ server <- function(input, output, session) {
   })
   
   output$upgma_tiles_scale_1 <- renderUI({
-    if(class(unlist(DB$meta[input$upgma_fruit_variable])) == "numeric") {
+    if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable])) == "numeric") {
       selectInput(
         "upgma_tiles_scale_1",
         "",
@@ -11859,7 +11865,7 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      if(length(unique(unlist(DB$meta[input$upgma_fruit_variable]))) > 7) {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))) > 7) {
         selectInput(
           "upgma_tiles_scale_1",
           "",
@@ -11919,7 +11925,7 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiles_scale_2 <- renderUI({
-    if(class(unlist(DB$meta[input$nj_fruit_variable_2])) == "numeric") {
+    if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_2])) == "numeric") {
       selectInput(
         "nj_tiles_scale_2",
         "",
@@ -11948,7 +11954,7 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      if(length(unique(unlist(DB$meta[input$nj_fruit_variable_2]))) > 7) {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))) > 7) {
         selectInput(
           "nj_tiles_scale_2",
           "",
@@ -12008,7 +12014,7 @@ server <- function(input, output, session) {
   })
   
   output$upgma_tiles_scale_2 <- renderUI({
-    if(class(unlist(DB$meta[input$upgma_fruit_variable_2])) == "numeric") {
+    if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2])) == "numeric") {
       selectInput(
         "upgma_tiles_scale_2",
         "",
@@ -12037,7 +12043,7 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      if(length(unique(unlist(DB$meta[input$upgma_fruit_variable_2]))) > 7) {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2]))) > 7) {
         selectInput(
           "upgma_tiles_scale_2",
           "",
@@ -12097,7 +12103,7 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiles_scale_3 <- renderUI({
-    if(class(unlist(DB$meta[input$nj_fruit_variable_3])) == "numeric") {
+    if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_3])) == "numeric") {
       selectInput(
         "nj_tiles_scale_3",
         "",
@@ -12126,7 +12132,7 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      if(length(unique(unlist(DB$meta[input$nj_fruit_variable_3]))) > 7) {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))) > 7) {
         selectInput(
           "nj_tiles_scale_3",
           "",
@@ -12186,7 +12192,7 @@ server <- function(input, output, session) {
   })
   
   output$upgma_tiles_scale_3 <- renderUI({
-    if(class(unlist(DB$meta[input$upgma_fruit_variable_3])) == "numeric") {
+    if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3])) == "numeric") {
       selectInput(
         "upgma_tiles_scale_3",
         "",
@@ -12215,7 +12221,7 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      if(length(unique(unlist(DB$meta[input$upgma_fruit_variable_3]))) > 7) {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3]))) > 7) {
         selectInput(
           "upgma_tiles_scale_3",
           "",
@@ -12275,7 +12281,7 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiles_scale_4 <- renderUI({
-    if(class(unlist(DB$meta[input$nj_fruit_variable_4])) == "numeric") {
+    if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_4])) == "numeric") {
       selectInput(
         "nj_tiles_scale_4",
         "",
@@ -12304,7 +12310,7 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      if(length(unique(unlist(DB$meta[input$nj_fruit_variable_4]))) > 7) {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_4]))) > 7) {
         selectInput(
           "nj_tiles_scale_4",
           "",
@@ -12364,7 +12370,7 @@ server <- function(input, output, session) {
   })
   
   output$upgma_tiles_scale_4 <- renderUI({
-    if(class(unlist(DB$meta[input$upgma_fruit_variable_4])) == "numeric") {
+    if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_4])) == "numeric") {
       selectInput(
         "upgma_tiles_scale_4",
         "",
@@ -12393,7 +12399,7 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      if(length(unique(unlist(DB$meta[input$upgma_fruit_variable_4]))) > 7) {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_4]))) > 7) {
         selectInput(
           "upgma_tiles_scale_4",
           "",
@@ -12453,7 +12459,7 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiles_scale_5 <- renderUI({
-    if(class(unlist(DB$meta[input$nj_fruit_variable_5])) == "numeric") {
+    if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_5])) == "numeric") {
       selectInput(
         "nj_tiles_scale_5",
         "",
@@ -12482,7 +12488,7 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      if(length(unique(unlist(DB$meta[input$nj_fruit_variable_5]))) > 7) {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))) > 7) {
         selectInput(
           "nj_tiles_scale_5",
           "",
@@ -12542,7 +12548,7 @@ server <- function(input, output, session) {
   })
   
   output$upgma_tiles_scale_5 <- renderUI({
-    if(class(unlist(DB$meta[input$upgma_fruit_variable_5])) == "numeric") {
+    if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5])) == "numeric") {
       selectInput(
         "upgma_tiles_scale_5",
         "",
@@ -12571,7 +12577,7 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      if(length(unique(unlist(DB$meta[input$upgma_fruit_variable_5]))) > 7) {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5]))) > 7) {
         selectInput(
           "upgma_tiles_scale_5",
           "",
@@ -12632,7 +12638,7 @@ server <- function(input, output, session) {
   
   # Tip Labels Variable Color Scale
   output$nj_tiplab_scale <- renderUI({
-    if(class(unlist(DB$meta[input$nj_color_mapping])) == "numeric") {
+    if(class(unlist(Vis$meta_nj[input$nj_color_mapping])) == "numeric") {
       selectInput(
         "nj_tiplab_scale",
         "",
@@ -12661,7 +12667,7 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      if(length(unique(unlist(DB$meta[input$nj_color_mapping]))) > 7) {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_color_mapping]))) > 7) {
         selectInput(
           "nj_tiplab_scale",
           "",
@@ -12721,7 +12727,7 @@ server <- function(input, output, session) {
   })
   
   output$upgma_tiplab_scale <- renderUI({
-    if(class(unlist(DB$meta[input$upgma_color_mapping])) == "numeric") {
+    if(class(unlist(Vis$meta_upgma[input$upgma_color_mapping])) == "numeric") {
       selectInput(
         "upgma_tiplab_scale",
         "",
@@ -12750,7 +12756,7 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      if(length(unique(unlist(DB$meta[input$upgma_color_mapping]))) > 7) {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_color_mapping]))) > 7) {
         selectInput(
           "upgma_tiplab_scale",
           "",
@@ -12811,130 +12817,141 @@ server <- function(input, output, session) {
   
   # Tippoint Scale
   output$nj_tippoint_scale <- renderUI({
-    if(class(unlist(DB$meta[input$nj_tipcolor_mapping])) == "numeric") {
+    if(!is.null(Vis$meta_nj)) {
+      if(class(unlist(Vis$meta_nj[input$nj_tipcolor_mapping])) == "numeric") {
+        selectInput(
+          "nj_tippoint_scale",
+          "",
+          choices = list(
+            Continous = list(
+              "Magma" = "magma",
+              "Inferno" = "inferno",
+              "Plasma" = "plasma",
+              "Viridis" = "viridis",
+              "Cividis" = "cividis",
+              "Rocket" = "rocket",
+              "Mako" = "mako",
+              "Turbo" = "turbo"
+            ),
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
+            )
+          )
+        )
+      } else {
+        if(length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))) > 7) {
+          selectInput(
+            "nj_tippoint_scale",
+            "",
+            choices = list(
+              Gradient = list(
+                "Magma" = "magma",
+                "Inferno" = "inferno",
+                "Plasma" = "plasma",
+                "Viridis" = "viridis",
+                "Cividis" = "cividis",
+                "Rocket" = "rocket",
+                "Mako" = "mako",
+                "Turbo" = "turbo"
+              )
+            ),
+            selected = "turbo"
+          )
+        } else {
+          selectInput(
+            "nj_tippoint_scale",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
+              ),
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
+            )
+          )
+        }
+      }
+    } else {
       selectInput(
         "nj_tippoint_scale",
         "",
         choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
+          Qualitative = list(
+            "Set1",
+            "Set2",
+            "Set3",
+            "Pastel1",
+            "Pastel2",
+            "Paired",
+            "Dark2",
+            "Accent"
           ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
+          Sequential = list(
+            "YlOrRd",
+            "YlOrBr",
+            "YlGnBu",
+            "YlGn",
+            "Reds",
+            "RdPu",
+            "Purples",
+            "PuRd",
+            "PuBuGn",
+            "PuBu",
+            "OrRd",
+            "Oranges",
+            "Greys",
+            "Greens",
+            "GnBu",
+            "BuPu",
+            "BuGn",
+            "Blues"
           )
         )
       )
-    } else {
-      if(length(unique(unlist(DB$meta[input$nj_tipcolor_mapping]))) > 7) {
-        selectInput(
-          "nj_tippoint_scale",
-          "",
-          choices = list(
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
-          ),
-          selected = "turbo"
-        )
-      } else {
-        selectInput(
-          "nj_tippoint_scale",
-          "",
-          choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
-          )
-        )
-      }
     }
   })
   
   output$upgma_tippoint_scale <- renderUI({
-    if(class(unlist(DB$meta[input$upgma_tipcolor_mapping])) == "numeric") {
-      selectInput(
-        "upgma_tippoint_scale",
-        "",
-        choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
-        )
-      )
-    } else {
-      if(length(unique(unlist(DB$meta[input$upgma_tipcolor_mapping]))) > 7) {
+    if(!is.null(Vis$meta_upgma)) {
+      if(class(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping])) == "numeric") {
         selectInput(
           "upgma_tippoint_scale",
           "",
           choices = list(
-            Gradient = list(
+            Continous = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -12943,48 +12960,115 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
-            )
-          ),
-          selected = "turbo"
-        )
-      } else {
-        selectInput(
-          "upgma_tippoint_scale",
-          "",
-          choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
             ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
             )
           )
         )
+      } else {
+        if(length(unique(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping]))) > 7) {
+          selectInput(
+            "upgma_tippoint_scale",
+            "",
+            choices = list(
+              Gradient = list(
+                "Magma" = "magma",
+                "Inferno" = "inferno",
+                "Plasma" = "plasma",
+                "Viridis" = "viridis",
+                "Cividis" = "cividis",
+                "Rocket" = "rocket",
+                "Mako" = "mako",
+                "Turbo" = "turbo"
+              )
+            ),
+            selected = "turbo"
+          )
+        } else {
+          selectInput(
+            "upgma_tippoint_scale",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
+              ),
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
+            )
+          )
+        }
       }
+    } else {
+      selectInput(
+        "upgma_tippoint_scale",
+        "",
+        choices = list(
+          Qualitative = list(
+            "Set1",
+            "Set2",
+            "Set3",
+            "Pastel1",
+            "Pastel2",
+            "Paired",
+            "Dark2",
+            "Accent"
+          ),
+          Sequential = list(
+            "YlOrRd",
+            "YlOrBr",
+            "YlGnBu",
+            "YlGn",
+            "Reds",
+            "RdPu",
+            "Purples",
+            "PuRd",
+            "PuBuGn",
+            "PuBu",
+            "OrRd",
+            "Oranges",
+            "Greys",
+            "Greens",
+            "GnBu",
+            "BuPu",
+            "BuGn",
+            "Blues"
+          )
+        )
+      )
     }
   })
   
@@ -13505,80 +13589,92 @@ server <- function(input, output, session) {
   ### Heatmap 
   # Heatmap picker
   output$nj_heatmap_sel <- renderUI({
-    
-    meta <- select(DB$meta, -c(Index, Include, `Assembly ID`, `Assembly Name`,
-                               Scheme, `Typing Date`, Successes, Errors))
-                     
-    # Identify numeric columns
-    numeric_columns <- sapply(meta, is.numeric)
-    
-    numeric_column_names <- names(meta[numeric_columns])
-    
-    non_numeric_column_names <- names(meta)[!numeric_columns]
-    
-    choices <- list()
-    
-    # Add Continuous list only if there are numeric columns
-    if (length(numeric_column_names) > 0) {
-      choices$Continuous <- as.list(setNames(numeric_column_names, numeric_column_names))
-    }
-    
-    # Add Diverging list
-    choices$Categorical <- as.list(setNames(non_numeric_column_names, non_numeric_column_names))
-    
-    div(
-      class = "heatmap-picker",
-      pickerInput(
-        inputId = "nj_heatmap_select",
-        label = "",
-        width = "100%",
-        choices = if(ncol(DB$meta) == 12) {
-          c(
+    if(!is.null(Vis$meta_nj)) {
+      meta <- select(Vis$meta_nj, -c(taxa, Index, `Assembly ID`, `Assembly Name`,
+                                     Scheme, `Typing Date`, Successes, Errors))
+      
+      # Identify numeric columns
+      numeric_columns <- sapply(meta, is.numeric)
+      
+      numeric_column_names <- names(meta[numeric_columns])
+      
+      non_numeric_column_names <- names(meta)[!numeric_columns]
+      
+      choices <- list()
+      
+      # Add Continuous list only if there are numeric columns
+      if (length(numeric_column_names) > 0) {
+        choices$Continuous <- as.list(setNames(numeric_column_names, numeric_column_names))
+      }
+      
+      # Add Diverging list
+      choices$Categorical <- as.list(setNames(non_numeric_column_names, non_numeric_column_names))
+      
+      
+        pickerInput(
+          inputId = "nj_heatmap_select",
+          label = "",
+          width = "100%",
+          choices = if(ncol(Vis$meta_nj) == 11) {
+            c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {choices},
+          options = list(
+            `dropdown-align-center` = TRUE,
+            size = 10,
+            style = "background-color: white; border-radius: 5px;"
+          ),
+          multiple = TRUE
+        )
+      
+    } else {
+        pickerInput(
+          inputId = "nj_heatmap_select",
+          label = "",
+          width = "100%",
+          choices = c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
-          )
-        } else {choices},
-        options = list(
-          `dropdown-align-center` = TRUE,
-          size = 10,
-          style = "background-color: white; border-radius: 5px;"
-        ),
-        multiple = TRUE
-      )
-    )
+          ),
+          multiple = TRUE
+        )
+      
+    }
   })
   
   output$upgma_heatmap_sel <- renderUI({
-    
-    meta <- select(DB$meta, -c(Index, Include, `Assembly ID`, `Assembly Name`,
-                               Scheme, `Typing Date`, Successes, Errors))
-    
-    # Identify numeric columns
-    numeric_columns <- sapply(meta, is.numeric)
-    
-    numeric_column_names <- names(meta[numeric_columns])
-    
-    non_numeric_column_names <- names(meta)[!numeric_columns]
-    
-    choices <- list()
-    
-    # Add Continuous list only if there are numeric columns
-    if (length(numeric_column_names) > 0) {
-      choices$Continuous <- as.list(setNames(numeric_column_names, numeric_column_names))
-    }
-    
-    # Add Diverging list
-    choices$Categorical <- as.list(setNames(non_numeric_column_names, non_numeric_column_names))
-    
-    div(
-      class = "heatmap-picker",
+    if(!is.null(Vis$meta_upgma)) {
+      meta <- select(Vis$meta_upgma, -c(taxa, Index, `Assembly ID`, `Assembly Name`,
+                                     Scheme, `Typing Date`, Successes, Errors))
+      
+      # Identify numeric columns
+      numeric_columns <- sapply(meta, is.numeric)
+      
+      numeric_column_names <- names(meta[numeric_columns])
+      
+      non_numeric_column_names <- names(meta)[!numeric_columns]
+      
+      choices <- list()
+      
+      # Add Continuous list only if there are numeric columns
+      if (length(numeric_column_names) > 0) {
+        choices$Continuous <- as.list(setNames(numeric_column_names, numeric_column_names))
+      }
+      
+      # Add Diverging list
+      choices$Categorical <- as.list(setNames(non_numeric_column_names, non_numeric_column_names))
+      
       pickerInput(
         inputId = "upgma_heatmap_select",
         label = "",
         width = "100%",
-        choices = if(ncol(DB$meta) == 12) {
+        choices = if(ncol(Vis$meta_upgma) == 11) {
           c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
@@ -13593,7 +13689,20 @@ server <- function(input, output, session) {
         ),
         multiple = TRUE
       )
-    )
+    } else {
+      pickerInput(
+        inputId = "upgma_heatmap_select",
+        label = "",
+        width = "100%",
+        choices = c(
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        ),
+        multiple = TRUE
+      )
+    }
   })
   
   # Heatmap offset
@@ -13652,203 +13761,333 @@ server <- function(input, output, session) {
   ### Tiling 
   # Geom Fruit select Variable
   output$nj_fruit_variable <- renderUI({
-    selectInput(
-      "nj_fruit_variable",
-      "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_nj)) {
+      selectInput(
+        "nj_fruit_variable",
+        "",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+        },
+        selected = c("Country" = "Country"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "nj_fruit_variable",
+        "",
+        choices = c(
           `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
-      } else {
-        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c("Country" = "Country"),
-      width = "100%"
-    )
+      )
+    }
   })
   
   output$nj_fruit_variable2 <- renderUI({
-    selectInput(
-      "nj_fruit_variable_2",
-      "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_nj)) {
+      selectInput(
+        "nj_fruit_variable_2",
+        "",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+        },
+        selected = c("Country" = "Country"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "nj_fruit_variable_2",
+        "",
+        choices = c(
           `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
-      } else {
-        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c("Country" = "Country"),
-      width = "100%"
-    )
+      )
+    }
   })
   
   output$nj_fruit_variable3 <- renderUI({
-    selectInput(
-      "nj_fruit_variable_3",
-      "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_nj)) {
+      selectInput(
+        "nj_fruit_variable_3",
+        "",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+        },
+        selected = c("Country" = "Country"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "nj_fruit_variable_3",
+        "",
+        choices = c(
           `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
-      } else {
-        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c("Country" = "Country"),
-      width = "100%"
-    )
+      )
+    }
   })
   
   output$nj_fruit_variable4 <- renderUI({
-    selectInput(
-      "nj_fruit_variable_4",
-      "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_nj)) {
+      selectInput(
+        "nj_fruit_variable_4",
+        "",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+        },
+        selected = c("Country" = "Country"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "nj_fruit_variable_4",
+        "",
+        choices = c(
           `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
-      } else {
-        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c("Country" = "Country"),
-      width = "100%"
-    )
+      )
+    }
   })
   
   output$nj_fruit_variable5 <- renderUI({
-    selectInput(
-      "nj_fruit_variable_5",
-      "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_nj)) {
+      selectInput(
+        "nj_fruit_variable_5",
+        "",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+        },
+        selected = c("Country" = "Country"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "nj_fruit_variable_5",
+        "",
+        choices = c(
           `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
-      } else {
-        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c("Country" = "Country"),
-      width = "100%"
-    )
+      )
+    }
   })
   
   output$upgma_fruit_variable <- renderUI({
-    selectInput(
-      "upgma_fruit_variable",
-      "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_upgma)) {
+      selectInput(
+        "upgma_fruit_variable",
+        "",
+        choices = if(ncol(Vis$meta_upgma) == 11) {
+          c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+        },
+        selected = c("Country" = "Country"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "upgma_fruit_variable",
+        "",
+        choices = c(
           `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
-      } else {
-        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c("Country" = "Country"),
-      width = "100%"
-    )
+      )
+    }
   })
   
   output$upgma_fruit_variable2 <- renderUI({
-    selectInput(
-      "upgma_fruit_variable_2",
-      "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_upgma)) {
+      selectInput(
+        "upgma_fruit_variable_2",
+        "",
+        choices = if(ncol(Vis$meta_upgma) == 11) {
+          c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+        },
+        selected = c("Country" = "Country"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "upgma_fruit_variable_2",
+        "",
+        choices = c(
           `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
-      } else {
-        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c("Country" = "Country"),
-      width = "100%"
-    )
+      )
+    }
   })
   
   output$upgma_fruit_variable3 <- renderUI({
-    selectInput(
-      "upgma_fruit_variable_3",
-      "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_upgma)) {
+      selectInput(
+        "upgma_fruit_variable_3",
+        "",
+        choices = if(ncol(Vis$meta_upgma) == 11) {
+          c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+        },
+        selected = c("Country" = "Country"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "upgma_fruit_variable_3",
+        "",
+        choices = c(
           `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
-      } else {
-        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c("Country" = "Country"),
-      width = "100%"
-    )
+      )
+    }
   })
   
   output$upgma_fruit_variable4 <- renderUI({
-    selectInput(
-      "upgma_fruit_variable_4",
-      "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_upgma)) {
+      selectInput(
+        "upgma_fruit_variable_4",
+        "",
+        choices = if(ncol(Vis$meta_upgma) == 11) {
+          c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+        },
+        selected = c("Country" = "Country"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "upgma_fruit_variable_4",
+        "",
+        choices = c(
           `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
-      } else {
-        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c("Country" = "Country"),
-      width = "100%"
-    )
+      )
+    }
   })
   
   output$upgma_fruit_variable5 <- renderUI({
-    selectInput(
-      "upgma_fruit_variable_5",
-      "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_upgma)) {
+      selectInput(
+        "upgma_fruit_variable_5",
+        "",
+        choices = if(ncol(Vis$meta_upgma) == 11) {
+          c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+        },
+        selected = c("Country" = "Country"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "upgma_fruit_variable_5",
+        "",
+        choices = c(
           `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
-      } else {
-        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c("Country" = "Country"),
-      width = "100%"
-    )
+      )
+    }
   })
   
   # Geom Fruit Width
@@ -14393,177 +14632,317 @@ server <- function(input, output, session) {
   
   # Tip color mapping 
   output$nj_tipcolor_mapping <- renderUI({
-    selectInput(
-      "nj_tipcolor_mapping",
-      "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_nj)) {
+      selectInput(
+        "nj_tipcolor_mapping",
+        "",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
+            `Assembly Name` = "Assembly Name",
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+        },
+        selected = c("Host" = "Host"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "nj_tipcolor_mapping",
+        "",
+        choices = c(
           `Assembly Name` = "Assembly Name",
           `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
         )
-      } else {
-        append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c("Host" = "Host"),
-      width = "100%"
-    )
+      )
+    }
   })
   
   output$upgma_tipcolor_mapping <- renderUI({
-    selectInput(
-      "upgma_tipcolor_mapping",
-      "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_upgma)) {
+      selectInput(
+        "upgma_tipcolor_mapping",
+        "",
+        choices = if(ncol(Vis$meta_upgma) == 11) {
+          c(
+            `Assembly Name` = "Assembly Name",
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+        },
+        selected = c("Host" = "Host"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "upgma_tipcolor_mapping",
+        "",
+        choices = c(
           `Assembly Name` = "Assembly Name",
           `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
+          )
         )
-      } else {
-        append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c("Host" = "Host"),
-      width = "100%"
-    )
-  })
+      }
+    })
   
   # Tip shape Mapping 
   output$nj_tipshape_mapping <- renderUI({
-    selectInput(
-      "nj_tipshape_mapping",
-      "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_nj)) {
+      selectInput(
+        "nj_tipshape_mapping",
+        "",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+        },
+        selected = c("Host" = "Host"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "nj_tipshape_mapping",
+        "",
+        choices = c(
           `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
-        )
-      } else {
-        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c("Host" = "Host"),
-      width = "100%"
-    )
+        ),
+        selected = c("Host" = "Host"),
+        width = "100%"
+      )
+    }
   })
   
   output$upgma_tipshape_mapping <- renderUI({
-    selectInput(
-      "upgma_tipshape_mapping",
-      "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_upgma)) {
+      selectInput(
+        "upgma_tipshape_mapping",
+        "",
+        choices = if(ncol(Vis$meta_upgma) == 11) {
+          c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+        },
+        selected = c("Host" = "Host"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "upgma_tipshape_mapping",
+        "",
+        choices = c(
           `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
-        )
-      } else {
-        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c("Host" = "Host"),
-      width = "100%"
-    )
+        ),
+        selected = c("Host" = "Host"),
+        width = "100%"
+      )
+    }
   })
   
   # Branch label 
   output$nj_branch_label <- renderUI({
-    selectInput(
-      "nj_branch_label",
-      "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_nj)) {
+      selectInput(
+        "nj_branch_label",
+        "",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+        },
+        selected = c("Host" = "Host"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "nj_branch_label",
+        "",
+        choices = c(
           `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
-        )
-      } else {
-        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c("Host" = "Host"),
-      width = "100%"
-    )
+        ),
+        selected = c("Host" = "Host"),
+        width = "100%"
+      )
+    }
   })
   
   output$upgma_branch_label <- renderUI({
-    selectInput(
-      "upgma_branch_label",
-      "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_upgma)) {
+      selectInput(
+        "upgma_branch_label",
+        "",
+        choices = if(ncol(Vis$meta_upgma) == 11) {
+          c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+        },
+        selected = c("Host" = "Host"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "upgma_branch_label",
+        "",
+        choices = c(
           `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
-        )
-      } else {
-        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c("Host" = "Host"),
-      width = "100%"
-    )
+        ),
+        selected = c("Host" = "Host"),
+        width = "100%"
+      )
+    }
   })
   
   # Color mapping 
   output$nj_color_mapping <- renderUI({
-    selectInput(
-      "nj_color_mapping",
-      "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        )
-      } else {
-        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c("Host" = "Host"),
-      width = "100%"
-    )
+    if(!is.null(Vis$meta_nj)) {
+      selectInput(
+        "nj_color_mapping",
+        "",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+        },
+        selected = c("Host" = "Host"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "nj_color_mapping",
+        "",
+        choices = c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          ),
+        selected = c("Host" = "Host"),
+        width = "100%"
+      )
+    }
   })
   
   output$upgma_color_mapping <- renderUI({
-    selectInput(
-      "upgma_color_mapping",
-      "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_upgma)) {
+      selectInput(
+        "upgma_color_mapping",
+        "",
+        choices = if(ncol(Vis$meta_upgma) == 11) {
+          c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+        },
+        selected = c("Host" = "Host"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "upgma_color_mapping",
+        "",
+        choices = c(
           `Isolation Date` = "Isolation Date",
           Host = "Host",
           Country = "Country",
           City = "City"
-        )
-      } else {
-        append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c("Host" = "Host"),
-      width = "100%"
-    )
+        ),
+        selected = c("Host" = "Host"),
+        width = "100%"
+      )
+    }
   })
   
   # Tip labels 
   output$nj_tiplab <- renderUI({
-    selectInput(
-      "nj_tiplab",
-      label = "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_nj)) {
+      selectInput(
+        "nj_tiplab",
+        label = "",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
+            Index = "Index",
+            `Assembly ID` = "Assembly ID",
+            `Assembly Name` = "Assembly Name",
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(Index = "Index", `Assembly ID` = "Assembly ID", `Assembly Name` = "Assembly Name",
+                   `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+        },
+        selected = c(`Assembly Name` = "Assembly Name"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "nj_tiplab",
+        label = "",
+        choices = c(
           Index = "Index",
           `Assembly ID` = "Assembly ID",
           `Assembly Name` = "Assembly Name",
@@ -14571,23 +14950,41 @@ server <- function(input, output, session) {
           Host = "Host",
           Country = "Country",
           City = "City"
-        )
-      } else {
-        append(c(Index = "Index", `Assembly ID` = "Assembly ID", `Assembly Name` = "Assembly Name",
-                 `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c(`Assembly Name` = "Assembly Name"),
-      width = "100%"
-    )
+        ),
+        selected = c(`Assembly Name` = "Assembly Name"),
+        width = "100%"
+      )
+    }
   })
   
   output$upgma_tiplab <- renderUI({
-    selectInput(
-      "upgma_tiplab",
-      label = "",
-      choices = if(ncol(DB$meta) == 12) {
-        c(
+    if(!is.null(Vis$meta_upgma)) {
+      selectInput(
+        "upgma_tiplab",
+        label = "",
+        choices = if(ncol(Vis$meta_upgma) == 11) {
+          c(
+            Index = "Index",
+            `Assembly ID` = "Assembly ID",
+            `Assembly Name` = "Assembly Name",
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(Index = "Index", `Assembly ID` = "Assembly ID", `Assembly Name` = "Assembly Name",
+                   `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+        },
+        selected = c(`Assembly Name` = "Assembly Name"),
+        width = "100%"
+      )
+    } else {
+      selectInput(
+        "upgma_tiplab",
+        label = "",
+        choices = c(
           Index = "Index",
           `Assembly ID` = "Assembly ID",
           `Assembly Name` = "Assembly Name",
@@ -14595,15 +14992,11 @@ server <- function(input, output, session) {
           Host = "Host",
           Country = "Country",
           City = "City"
-        )
-      } else {
-        append(c(Index = "Index", `Assembly ID` = "Assembly ID", `Assembly Name` = "Assembly Name",
-                 `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-               names(DB$meta)[13:ncol(DB$meta)])
-      },
-      selected = c(`Assembly Name` = "Assembly Name"),
-      width = "100%"
-    )
+        ),
+        selected = c(`Assembly Name` = "Assembly Name"),
+        width = "100%"
+      )
+    }
   })
   
   #### MST controls ----
@@ -14918,8 +15311,8 @@ server <- function(input, output, session) {
       
       # Add heatmap
       if(input$nj_heatmap_show == TRUE & length(input$nj_heatmap_select) > 0) {
-        if (!(any(sapply(DB$meta[input$nj_heatmap_select], is.numeric)) & 
-            any(!sapply(DB$meta[input$nj_heatmap_select], is.numeric)))) {
+        if (!(any(sapply(Vis$meta_nj[input$nj_heatmap_select], is.numeric)) & 
+            any(!sapply(Vis$meta_nj[input$nj_heatmap_select], is.numeric)))) {
           tree <- gheatmap.mod(tree, 
                            data = select(Vis$meta_nj, input$nj_heatmap_select),
                            offset = nj_heatmap_offset(),
@@ -15003,9 +15396,9 @@ server <- function(input, output, session) {
         if(input$nj_heatmap_div_mid == "Zero") {
           midpoint <- 0
         } else if(input$nj_heatmap_div_mid == "Mean") {
-          midpoint <- mean(DB$meta_true[[input$nj_heatmap_select]], na.rm = TRUE)
+          midpoint <- mean(Vis$meta_nj[[input$nj_heatmap_select]], na.rm = TRUE)
         } else {
-          midpoint <- median(DB$meta_true[[input$nj_heatmap_select]], na.rm = TRUE)
+          midpoint <- median(Vis$meta_nj[[input$nj_heatmap_select]], na.rm = TRUE)
         }
         scale_fill_gradient2(low = brewer.pal(3, input$nj_heatmap_scale)[1],
                              mid = brewer.pal(3, input$nj_heatmap_scale)[2],
@@ -15014,7 +15407,7 @@ server <- function(input, output, session) {
                              name = input$nj_heatmap_title)
       } else {
         if(input$nj_heatmap_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-          if(class(unlist(DB$meta[input$nj_heatmap_select])) == "numeric") {
+          if(class(unlist(Vis$meta_nj[input$nj_heatmap_select])) == "numeric") {
             if(input$nj_heatmap_scale == "magma") {
               scale_fill_viridis(option = "A",
                                  name = input$nj_heatmap_title)
@@ -15082,9 +15475,9 @@ server <- function(input, output, session) {
         if(input$nj_tipcolor_mapping_div_mid == "Zero") {
           midpoint <- 0
         } else if(input$nj_tipcolor_mapping_div_mid == "Mean") {
-          midpoint <- mean(DB$meta_true[[input$nj_tipcolor_mapping]], na.rm = TRUE)
+          midpoint <- mean(Vis$meta_nj[[input$nj_tipcolor_mapping]], na.rm = TRUE)
         } else {
-          midpoint <- median(DB$meta_true[[input$nj_tipcolor_mapping]], na.rm = TRUE)
+          midpoint <- median(Vis$meta_nj[[input$nj_tipcolor_mapping]], na.rm = TRUE)
         }
         scale_color_gradient2(low = brewer.pal(3, input$nj_tippoint_scale)[1],
                               mid = brewer.pal(3, input$nj_tippoint_scale)[2],
@@ -15092,7 +15485,7 @@ server <- function(input, output, session) {
                               midpoint = midpoint)
       } else {
         if(input$nj_tippoint_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-          if(class(unlist(DB$meta[input$nj_tipcolor_mapping])) == "numeric") {
+          if(class(unlist(Vis$meta_nj[input$nj_tipcolor_mapping])) == "numeric") {
             if(input$nj_tippoint_scale == "magma") {
               scale_color_viridis(option = "A")
             } else if(input$nj_tippoint_scale == "inferno") {
@@ -15143,9 +15536,9 @@ server <- function(input, output, session) {
         if(input$nj_color_mapping_div_mid == "Zero") {
           midpoint <- 0
         } else if(input$nj_color_mapping_div_mid == "Mean") {
-          midpoint <- mean(DB$meta_true[[input$nj_color_mapping]], na.rm = TRUE)
+          midpoint <- mean(Vis$meta_nj[[input$nj_color_mapping]], na.rm = TRUE)
         } else {
-          midpoint <- median(DB$meta_true[[input$nj_color_mapping]], na.rm = TRUE)
+          midpoint <- median(Vis$meta_nj[[input$nj_color_mapping]], na.rm = TRUE)
         }
         scale_color_gradient2(low = brewer.pal(3, input$nj_tiplab_scale)[1],
                               mid = brewer.pal(3, input$nj_tiplab_scale)[2],
@@ -15153,7 +15546,7 @@ server <- function(input, output, session) {
                               midpoint = midpoint)
       } else {
         if(input$nj_tiplab_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-          if(class(unlist(DB$meta[input$nj_color_mapping])) == "numeric") {
+          if(class(unlist(Vis$meta_nj[input$nj_color_mapping])) == "numeric") {
             if(input$nj_tiplab_scale == "magma") {
               scale_color_viridis(option = "A")
             } else if(input$nj_tiplab_scale == "inferno") {
@@ -15258,9 +15651,9 @@ server <- function(input, output, session) {
           if(input$nj_tiles_mapping_div_mid_1 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_1 == "Mean") {
-            midpoint <- mean(DB$meta_true[[input$nj_fruit_variable]], na.rm = TRUE)
+            midpoint <- mean(Vis$meta_nj[[input$nj_fruit_variable]], na.rm = TRUE)
           } else {
-            midpoint <- median(DB$meta_true[[input$nj_fruit_variable]], na.rm = TRUE)
+            midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable]], na.rm = TRUE)
           }
           scale_fill_gradient2(low = brewer.pal(3, input$nj_tiles_scale_1)[1],
                                 mid = brewer.pal(3, input$nj_tiles_scale_1)[2],
@@ -15322,9 +15715,9 @@ server <- function(input, output, session) {
           if(input$nj_tiles_mapping_div_mid_2 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_2 == "Mean") {
-            midpoint <- mean(DB$meta_true[[input$nj_fruit_variable_2]], na.rm = TRUE)
+            midpoint <- mean(Vis$meta_nj[[input$nj_fruit_variable_2]], na.rm = TRUE)
           } else {
-            midpoint <- median(DB$meta_true[[input$nj_fruit_variable_2]], na.rm = TRUE)
+            midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable_2]], na.rm = TRUE)
           }
           scale_fill_gradient2(low = brewer.pal(3, input$nj_tiles_scale_2)[1],
                                 mid = brewer.pal(3, input$nj_tiles_scale_2)[2],
@@ -15386,9 +15779,9 @@ server <- function(input, output, session) {
           if(input$nj_tiles_mapping_div_mid_3 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_3 == "Mean") {
-            midpoint <- mean(DB$meta_true[[input$nj_fruit_variable_3]], na.rm = TRUE)
+            midpoint <- mean(Vis$meta_nj[[input$nj_fruit_variable_3]], na.rm = TRUE)
           } else {
-            midpoint <- median(DB$meta_true[[input$nj_fruit_variable_3]], na.rm = TRUE)
+            midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable_3]], na.rm = TRUE)
           }
           scale_fill_gradient3(low = brewer.pal(3, input$nj_tiles_scale_3)[1],
                                 mid = brewer.pal(3, input$nj_tiles_scale_3)[2],
@@ -15450,9 +15843,9 @@ server <- function(input, output, session) {
           if(input$nj_tiles_mapping_div_mid_4 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_4 == "Mean") {
-            midpoint <- mean(DB$meta_true[[input$nj_fruit_variable_4]], na.rm = TRUE)
+            midpoint <- mean(Vis$meta_nj[[input$nj_fruit_variable_4]], na.rm = TRUE)
           } else {
-            midpoint <- median(DB$meta_true[[input$nj_fruit_variable_4]], na.rm = TRUE)
+            midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable_4]], na.rm = TRUE)
           }
           scale_fill_gradient4(low = brewer.pal(3, input$nj_tiles_scale_4)[1],
                                 mid = brewer.pal(3, input$nj_tiles_scale_4)[2],
@@ -15514,9 +15907,9 @@ server <- function(input, output, session) {
           if(input$nj_tiles_mapping_div_mid_5 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_5 == "Mean") {
-            midpoint <- mean(DB$meta_true[[input$nj_fruit_variable_5]], na.rm = TRUE)
+            midpoint <- mean(Vis$meta_nj[[input$nj_fruit_variable_5]], na.rm = TRUE)
           } else {
-            midpoint <- median(DB$meta_true[[input$nj_fruit_variable_5]], na.rm = TRUE)
+            midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable_5]], na.rm = TRUE)
           }
           scale_fill_gradient5(low = brewer.pal(3, input$nj_tiles_scale_5)[1],
                                 mid = brewer.pal(3, input$nj_tiles_scale_5)[2],
@@ -16016,7 +16409,7 @@ server <- function(input, output, session) {
       if(input$nj_layout == "circular") {
         if(input$nj_mapping_show == TRUE) {
           geom_tiplab(
-            mapping_tiplab(), 
+            nj_mapping_tiplab(), 
             geom = "text",
             size = nj_tiplab_size(),
             alpha = input$nj_tiplab_alpha,
@@ -16027,7 +16420,7 @@ server <- function(input, output, session) {
           )
         } else {
           geom_tiplab(
-            mapping_tiplab(),
+            nj_mapping_tiplab(),
             color = input$nj_tiplab_color,
             geom = "text",
             size = nj_tiplab_size(),
@@ -16041,7 +16434,7 @@ server <- function(input, output, session) {
       } else if (input$nj_layout == "inward") {
         if(input$nj_mapping_show == TRUE) {
           geom_tiplab(
-            mapping_tiplab(), 
+            nj_mapping_tiplab(), 
             geom = "text",
             size = nj_tiplab_size(),
             alpha = input$nj_tiplab_alpha,
@@ -16052,7 +16445,7 @@ server <- function(input, output, session) {
           )
         } else {
           geom_tiplab(
-            mapping_tiplab(),
+            nj_mapping_tiplab(),
             color = input$nj_tiplab_color,
             geom = "text",
             size = nj_tiplab_size(),
@@ -16067,7 +16460,7 @@ server <- function(input, output, session) {
         if(input$nj_mapping_show == TRUE) {
           if(input$nj_geom == TRUE) {
             geom_tiplab(
-              mapping_tiplab(), 
+              nj_mapping_tiplab(), 
               geom = nj_geom(),
               angle = input$nj_tiplab_angle,
               size = nj_tiplab_size(),
@@ -16082,7 +16475,7 @@ server <- function(input, output, session) {
             )
           } else {
             geom_tiplab(
-              mapping_tiplab(), 
+              nj_mapping_tiplab(), 
               geom = nj_geom(),
               angle = input$nj_tiplab_angle,
               size = nj_tiplab_size(),
@@ -16096,7 +16489,7 @@ server <- function(input, output, session) {
         } else {
           if(input$nj_geom == TRUE) {
             geom_tiplab(
-              mapping_tiplab(), 
+              nj_mapping_tiplab(), 
               geom = nj_geom(),
               color = input$nj_tiplab_color,
               angle = input$nj_tiplab_angle,
@@ -16112,7 +16505,7 @@ server <- function(input, output, session) {
             )
           } else {
             geom_tiplab(
-              mapping_tiplab(), 
+              nj_mapping_tiplab(), 
               geom = nj_geom(),
               color = input$nj_tiplab_color,
               angle = input$nj_tiplab_angle,
@@ -16164,7 +16557,7 @@ server <- function(input, output, session) {
   })
   
   # NJ Tiplab color
-  mapping_tiplab <- reactive({
+  nj_mapping_tiplab <- reactive({
     if(input$nj_mapping_show == TRUE) {
       if(!is.null(input$nj_tiplab)) {
         aes(label = !!sym(input$nj_tiplab),
@@ -16349,9 +16742,9 @@ server <- function(input, output, session) {
         if(input$upgma_heatmap_div_mid == "Zero") {
           midpoint <- 0
         } else if(input$upgma_heatmap_div_mid == "Mean") {
-          midpoint <- mean(DB$meta_true[[input$upgma_heatmap_select]], na.rm = TRUE)
+          midpoint <- mean(Vis$meta_upgma[[input$upgma_heatmap_select]], na.rm = TRUE)
         } else {
-          midpoint <- median(DB$meta_true[[input$upgma_heatmap_select]], na.rm = TRUE)
+          midpoint <- median(Vis$meta_upgma[[input$upgma_heatmap_select]], na.rm = TRUE)
         }
         scale_fill_gradient2(low = brewer.pal(3, input$upgma_heatmap_scale)[1],
                              mid = brewer.pal(3, input$upgma_heatmap_scale)[2],
@@ -16428,9 +16821,9 @@ server <- function(input, output, session) {
         if(input$upgma_tipcolor_mapping_div_mid == "Zero") {
           midpoint <- 0
         } else if(input$upgma_tipcolor_mapping_div_mid == "Mean") {
-          midpoint <- mean(DB$meta_true[[input$upgma_tipcolor_mapping]], na.rm = TRUE)
+          midpoint <- mean(Vis$meta_upgma[[input$upgma_tipcolor_mapping]], na.rm = TRUE)
         } else {
-          midpoint <- median(DB$meta_true[[input$upgma_tipcolor_mapping]], na.rm = TRUE)
+          midpoint <- median(Vis$meta_upgma[[input$upgma_tipcolor_mapping]], na.rm = TRUE)
         }
         scale_color_gradient2(low = brewer.pal(3, input$upgma_tippoint_scale)[1],
                               mid = brewer.pal(3, input$upgma_tippoint_scale)[2],
@@ -16489,9 +16882,9 @@ server <- function(input, output, session) {
         if(input$upgma_color_mapping_div_mid == "Zero") {
           midpoint <- 0
         } else if(input$upgma_color_mapping_div_mid == "Mean") {
-          midpoint <- mean(DB$meta_true[[input$upgma_color_mapping]], na.rm = TRUE)
+          midpoint <- mean(Vis$meta_upgma[[input$upgma_color_mapping]], na.rm = TRUE)
         } else {
-          midpoint <- median(DB$meta_true[[input$upgma_color_mapping]], na.rm = TRUE)
+          midpoint <- median(Vis$meta_upgma[[input$upgma_color_mapping]], na.rm = TRUE)
         }
         scale_color_gradient2(low = brewer.pal(3, input$upgma_tiplab_scale)[1],
                               mid = brewer.pal(3, input$upgma_tiplab_scale)[2],
@@ -16604,9 +16997,9 @@ server <- function(input, output, session) {
           if(input$upgma_tiles_mapping_div_mid_1 == "Zero") {
             midpoint <- 0
           } else if(input$upgma_tiles_mapping_div_mid_1 == "Mean") {
-            midpoint <- mean(DB$meta_true[[input$upgma_fruit_variable]], na.rm = TRUE)
+            midpoint <- mean(Vis$meta_upgma[[input$upgma_fruit_variable]], na.rm = TRUE)
           } else {
-            midpoint <- median(DB$meta_true[[input$upgma_fruit_variable]], na.rm = TRUE)
+            midpoint <- median(Vis$meta_upgma[[input$upgma_fruit_variable]], na.rm = TRUE)
           }
           scale_fill_gradient2(low = brewer.pal(3, input$upgma_tiles_scale_1)[1],
                                mid = brewer.pal(3, input$upgma_tiles_scale_1)[2],
@@ -16668,9 +17061,9 @@ server <- function(input, output, session) {
           if(input$upgma_tiles_mapping_div_mid_2 == "Zero") {
             midpoint <- 0
           } else if(input$upgma_tiles_mapping_div_mid_2 == "Mean") {
-            midpoint <- mean(DB$meta_true[[input$upgma_fruit_variable_2]], na.rm = TRUE)
+            midpoint <- mean(Vis$meta_upgma[[input$upgma_fruit_variable_2]], na.rm = TRUE)
           } else {
-            midpoint <- median(DB$meta_true[[input$upgma_fruit_variable_2]], na.rm = TRUE)
+            midpoint <- median(Vis$meta_upgma[[input$upgma_fruit_variable_2]], na.rm = TRUE)
           }
           scale_fill_gradient2(low = brewer.pal(3, input$upgma_tiles_scale_2)[1],
                                mid = brewer.pal(3, input$upgma_tiles_scale_2)[2],
@@ -16732,9 +17125,9 @@ server <- function(input, output, session) {
           if(input$upgma_tiles_mapping_div_mid_3 == "Zero") {
             midpoint <- 0
           } else if(input$upgma_tiles_mapping_div_mid_3 == "Mean") {
-            midpoint <- mean(DB$meta_true[[input$upgma_fruit_variable_3]], na.rm = TRUE)
+            midpoint <- mean(Vis$meta_upgma[[input$upgma_fruit_variable_3]], na.rm = TRUE)
           } else {
-            midpoint <- median(DB$meta_true[[input$upgma_fruit_variable_3]], na.rm = TRUE)
+            midpoint <- median(Vis$meta_upgma[[input$upgma_fruit_variable_3]], na.rm = TRUE)
           }
           scale_fill_gradient3(low = brewer.pal(3, input$upgma_tiles_scale_3)[1],
                                mid = brewer.pal(3, input$upgma_tiles_scale_3)[2],
@@ -16796,9 +17189,9 @@ server <- function(input, output, session) {
           if(input$upgma_tiles_mapping_div_mid_4 == "Zero") {
             midpoint <- 0
           } else if(input$upgma_tiles_mapping_div_mid_4 == "Mean") {
-            midpoint <- mean(DB$meta_true[[input$upgma_fruit_variable_4]], na.rm = TRUE)
+            midpoint <- mean(Vis$meta_upgma[[input$upgma_fruit_variable_4]], na.rm = TRUE)
           } else {
-            midpoint <- median(DB$meta_true[[input$upgma_fruit_variable_4]], na.rm = TRUE)
+            midpoint <- median(Vis$meta_upgma[[input$upgma_fruit_variable_4]], na.rm = TRUE)
           }
           scale_fill_gradient4(low = brewer.pal(3, input$upgma_tiles_scale_4)[1],
                                mid = brewer.pal(3, input$upgma_tiles_scale_4)[2],
@@ -16860,9 +17253,9 @@ server <- function(input, output, session) {
           if(input$upgma_tiles_mapping_div_mid_5 == "Zero") {
             midpoint <- 0
           } else if(input$upgma_tiles_mapping_div_mid_5 == "Mean") {
-            midpoint <- mean(DB$meta_true[[input$upgma_fruit_variable_5]], na.rm = TRUE)
+            midpoint <- mean(Vis$meta_upgma[[input$upgma_fruit_variable_5]], na.rm = TRUE)
           } else {
-            midpoint <- median(DB$meta_true[[input$upgma_fruit_variable_5]], na.rm = TRUE)
+            midpoint <- median(Vis$meta_upgma[[input$upgma_fruit_variable_5]], na.rm = TRUE)
           }
           scale_fill_gradient5(low = brewer.pal(3, input$upgma_tiles_scale_5)[1],
                                mid = brewer.pal(3, input$upgma_tiles_scale_5)[2],
@@ -17362,7 +17755,7 @@ server <- function(input, output, session) {
       if(input$upgma_layout == "circular") {
         if(input$upgma_mapping_show == TRUE) {
           geom_tiplab(
-            mapping_tiplab(), 
+            upgma_mapping_tiplab(), 
             geom = "text",
             size = upgma_tiplab_size(),
             alpha = input$upgma_tiplab_alpha,
@@ -17373,7 +17766,7 @@ server <- function(input, output, session) {
           )
         } else {
           geom_tiplab(
-            mapping_tiplab(),
+            upgma_mapping_tiplab(),
             color = input$upgma_tiplab_color,
             geom = "text",
             size = upgma_tiplab_size(),
@@ -17387,7 +17780,7 @@ server <- function(input, output, session) {
       } else if (input$upgma_layout == "inward") {
         if(input$upgma_mapping_show == TRUE) {
           geom_tiplab(
-            mapping_tiplab(), 
+            upgma_mapping_tiplab(), 
             geom = "text",
             size = upgma_tiplab_size(),
             alpha = input$upgma_tiplab_alpha,
@@ -17398,7 +17791,7 @@ server <- function(input, output, session) {
           )
         } else {
           geom_tiplab(
-            mapping_tiplab(),
+            upgma_mapping_tiplab(),
             color = input$upgma_tiplab_color,
             geom = "text",
             size = upgma_tiplab_size(),
@@ -17413,7 +17806,7 @@ server <- function(input, output, session) {
         if(input$upgma_mapping_show == TRUE) {
           if(input$upgma_geom == TRUE) {
             geom_tiplab(
-              mapping_tiplab(), 
+              upgma_mapping_tiplab(), 
               geom = upgma_geom(),
               angle = input$upgma_tiplab_angle,
               size = upgma_tiplab_size(),
@@ -17428,7 +17821,7 @@ server <- function(input, output, session) {
             )
           } else {
             geom_tiplab(
-              mapping_tiplab(), 
+              upgma_mapping_tiplab(), 
               geom = upgma_geom(),
               angle = input$upgma_tiplab_angle,
               size = upgma_tiplab_size(),
@@ -17442,7 +17835,7 @@ server <- function(input, output, session) {
         } else {
           if(input$upgma_geom == TRUE) {
             geom_tiplab(
-              mapping_tiplab(), 
+              upgma_mapping_tiplab(), 
               geom = upgma_geom(),
               color = input$upgma_tiplab_color,
               angle = input$upgma_tiplab_angle,
@@ -17458,7 +17851,7 @@ server <- function(input, output, session) {
             )
           } else {
             geom_tiplab(
-              mapping_tiplab(), 
+              upgma_mapping_tiplab(), 
               geom = upgma_geom(),
               color = input$upgma_tiplab_color,
               angle = input$upgma_tiplab_angle,
@@ -17510,7 +17903,7 @@ server <- function(input, output, session) {
   })
   
   # upgma Tiplab color
-  mapping_tiplab <- reactive({
+  upgma_mapping_tiplab <- reactive({
     if(input$upgma_mapping_show == TRUE) {
       if(!is.null(input$upgma_tiplab)) {
         aes(label = !!sym(input$upgma_tiplab),
