@@ -1974,7 +1974,7 @@ ui <- dashboardPage(
                             "",
                             choices = c(Horizontal = "horizontal",
                                         Vertical = "vertical"),
-                            selected = c(Horizontal = "horizontal"),
+                            selected = c(Vertical = "vertical"),
                             inline = FALSE
                           )
                         ),
@@ -3875,7 +3875,7 @@ ui <- dashboardPage(
                             "",
                             choices = c(Horizontal = "horizontal",
                                         Vertical = "vertical"),
-                            selected = c(Horizontal = "horizontal"),
+                            selected = c(Vertical = "vertical"),
                             inline = FALSE
                           )
                         ),
@@ -6846,7 +6846,7 @@ server <- function(input, output, session) {
                               selectInput(
                                 inputId = "filetype_nj",
                                 label = "",
-                                choices = c("jpeg", "png", "bmp", "svg")
+                                choices = c("png", "jpeg", "bmp", "svg")
                               )
                             )
                           ),
@@ -6886,7 +6886,7 @@ server <- function(input, output, session) {
                               selectInput(
                                 inputId = "filetype_upgma",
                                 label = "",
-                                choices = c("jpeg", "png", "bmp", "svg")
+                                choices = c("png", "jpeg", "bmp", "svg")
                               )
                             )
                           ),
@@ -9161,7 +9161,7 @@ server <- function(input, output, session) {
                 label = "",
                 choices = c("Categorical (character)",
                             "Continous (numeric)")),
-              title = paste0("Select data type"),
+              title = paste0("Select Data Type"),
               easyClose = TRUE,
               footer = tagList(
                 modalButton("Cancel"),
@@ -10279,7 +10279,7 @@ server <- function(input, output, session) {
   
   # Mapping value number information
   output$nj_tiplab_mapping_info <- renderUI({
-    if(!is.null(input$nj_color_mapping)) {
+    if(!is.null(input$nj_color_mapping) & (!is.null(Vis$meta_nj))) {
       if(is.numeric(unlist(Vis$meta_nj[input$nj_color_mapping]))) {
         if(input$nj_tiplab_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
           column(
@@ -10326,7 +10326,7 @@ server <- function(input, output, session) {
   })
   
   output$upgma_tiplab_mapping_info <- renderUI({
-    if(!is.null(input$upgma_color_mapping)) {
+    if(!is.null(input$upgma_color_mapping) & (!is.null(Vis$meta_upgma))) {
       if(is.numeric(unlist(Vis$meta_upgma[input$upgma_color_mapping]))) {
         if(input$upgma_tiplab_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
           column(
@@ -10467,7 +10467,7 @@ server <- function(input, output, session) {
   })
   
   output$nj_tipshape_mapping_info <- renderUI({
-    if(!is.null(input$nj_tipshape_mapping)) {
+    if(!is.null(input$nj_tipshape_mapping) & (!is.null(Vis$meta_nj))) {
       if(is.numeric(unlist(Vis$meta_nj[input$nj_tipshape_mapping]))) {
         column(
           width = 3,
@@ -10490,7 +10490,7 @@ server <- function(input, output, session) {
   })
   
   output$upgma_tipshape_mapping_info <- renderUI({
-    if(!is.null(input$upgma_tipshape_mapping)) {
+    if(!is.null(input$upgma_tipshape_mapping) & (!is.null(Vis$meta_upgma))) {
       if(is.numeric(unlist(Vis$meta_upgma[input$upgma_tipshape_mapping]))) {
         column(
           width = 3,
@@ -10514,7 +10514,7 @@ server <- function(input, output, session) {
   
   output$nj_fruit_mapping_info <- renderUI({
     if(input$nj_tile_num == 1) {
-      if(!is.null(input$nj_fruit_variable)) {
+      if(!is.null(input$nj_fruit_variable) & (!is.null(Vis$meta_nj))) {
         if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable]))) {
           if(input$nj_tiles_scale_1 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
@@ -10559,7 +10559,7 @@ server <- function(input, output, session) {
         }
       } else {NULL}
     } else if (input$nj_tile_num == 2) {
-      if(!is.null(input$nj_fruit_variable_2)) {
+      if(!is.null(input$nj_fruit_variable_2) & (!is.null(Vis$meta_nj))) {
         if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))) {
           if(input$nj_tiles_scale_2 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
@@ -10604,7 +10604,7 @@ server <- function(input, output, session) {
         }
       } else {NULL}
     } else if (input$nj_tile_num == 3) {
-      if(!is.null(input$nj_fruit_variable_3)) {
+      if(!is.null(input$nj_fruit_variable_3) & (!is.null(Vis$meta_nj))) {
         if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))) {
           if(input$nj_tiles_scale_3 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
@@ -10649,7 +10649,7 @@ server <- function(input, output, session) {
         }
       } else {NULL}
     } else if (input$nj_tile_num == 4) {
-      if(!is.null(input$nj_fruit_variable_4)) {
+      if(!is.null(input$nj_fruit_variable_4) & (!is.null(Vis$meta_nj))) {
         if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable_4]))) {
           if(input$nj_tiles_scale_4 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
@@ -10694,7 +10694,7 @@ server <- function(input, output, session) {
         }
       } else {NULL}
     } else if (input$nj_tile_num == 5) {
-      if(!is.null(input$nj_fruit_variable_5)) {
+      if(!is.null(input$nj_fruit_variable_5) & (!is.null(Vis$meta_nj))) {
         if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))) {
           if(input$nj_tiles_scale_5 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
@@ -10743,7 +10743,7 @@ server <- function(input, output, session) {
   
   output$upgma_fruit_mapping_info <- renderUI({
     if(input$upgma_tile_num == 1) {
-      if(!is.null(input$upgma_fruit_variable)) {
+      if(!is.null(input$upgma_fruit_variable) & (!is.null(Vis$meta_upgma))) {
         if(is.numeric(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))) {
           if(input$upgma_tiles_scale_1 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
@@ -10788,7 +10788,7 @@ server <- function(input, output, session) {
         }
       } else {NULL}
     } else if (input$upgma_tile_num == 2) {
-      if(!is.null(input$upgma_fruit_variable_2)) {
+      if(!is.null(input$upgma_fruit_variable_2) & (!is.null(Vis$meta_upgma))) {
         if(is.numeric(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2]))) {
           if(input$upgma_tiles_scale_2 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
@@ -10833,7 +10833,7 @@ server <- function(input, output, session) {
         }
       } else {NULL}
     } else if (input$upgma_tile_num == 3) {
-      if(!is.null(input$upgma_fruit_variable_3)) {
+      if(!is.null(input$upgma_fruit_variable_3) & (!is.null(Vis$meta_upgma))) {
         if(is.numeric(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3]))) {
           if(input$upgma_tiles_scale_3 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
@@ -10878,7 +10878,7 @@ server <- function(input, output, session) {
         }
       } else {NULL}
     } else if (input$upgma_tile_num == 4) {
-      if(!is.null(input$upgma_fruit_variable_4)) {
+      if(!is.null(input$upgma_fruit_variable_4) & (!is.null(Vis$meta_upgma))) {
         if(is.numeric(unlist(Vis$meta_upgma[input$upgma_fruit_variable_4]))) {
           if(input$upgma_tiles_scale_4 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
@@ -10923,7 +10923,7 @@ server <- function(input, output, session) {
         }
       } else {NULL}
     } else if (input$upgma_tile_num == 5) {
-      if(!is.null(input$upgma_fruit_variable_5)) {
+      if(!is.null(input$upgma_fruit_variable_5) & (!is.null(Vis$meta_upgma))) {
         if(is.numeric(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5]))) {
           if(input$upgma_tiles_scale_5 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             column(
@@ -10971,7 +10971,7 @@ server <- function(input, output, session) {
   })
   
   output$nj_heatmap_mapping_info <- renderUI({
-    if(!is.null(input$nj_heatmap_select)) {
+    if(!is.null(input$nj_heatmap_select) & (!is.null(Vis$meta_nj))) {
       if (any(sapply(Vis$meta_nj[input$nj_heatmap_select], is.numeric)) & 
           any(!sapply(Vis$meta_nj[input$nj_heatmap_select], is.numeric))) {
         column(
@@ -11027,7 +11027,7 @@ server <- function(input, output, session) {
   })
   
   output$upgma_heatmap_mapping_info <- renderUI({
-    if(!is.null(input$upgma_heatmap_select)) {
+    if(!is.null(input$upgma_heatmap_select) & (!is.null(Vis$meta_upgma))) {
       if (any(sapply(Vis$meta_upgma[input$upgma_heatmap_select], is.numeric)) & 
           any(!sapply(Vis$meta_upgma[input$upgma_heatmap_select], is.numeric))) {
         column(
@@ -12150,7 +12150,8 @@ server <- function(input, output, session) {
               "BuGn",
               "Blues"
             )
-          )
+          ),
+          selected = "Paired"
         )
       }
     }
@@ -12239,7 +12240,8 @@ server <- function(input, output, session) {
               "BuGn",
               "Blues"
             )
-          )
+          ),
+          selected = "Paired"
         )
       }
     }
@@ -12329,7 +12331,8 @@ server <- function(input, output, session) {
               "BuGn",
               "Blues"
             )
-          )
+          ),
+          selected = "Accent"
         )
       }
     }
@@ -12418,7 +12421,8 @@ server <- function(input, output, session) {
               "BuGn",
               "Blues"
             )
-          )
+          ),
+          selected = "Accent"
         )
       }
     }
@@ -12507,7 +12511,8 @@ server <- function(input, output, session) {
               "BuGn",
               "Blues"
             )
-          )
+          ),
+          selected = "Accent"
         )
       }
     }
@@ -12596,7 +12601,8 @@ server <- function(input, output, session) {
               "BuGn",
               "Blues"
             )
-          )
+          ),
+          selected = "Accent"
         )
       }
     }
@@ -12685,7 +12691,8 @@ server <- function(input, output, session) {
               "BuGn",
               "Blues"
             )
-          )
+          ),
+          selected = "Accent"
         )
       }
     }
@@ -12774,7 +12781,8 @@ server <- function(input, output, session) {
               "BuGn",
               "Blues"
             )
-          )
+          ),
+          selected = "Accent"
         )
       }
     }
@@ -12863,7 +12871,8 @@ server <- function(input, output, session) {
               "BuGn",
               "Blues"
             )
-          )
+          ),
+          selected = "Accent"
         )
       }
     }
@@ -12952,7 +12961,8 @@ server <- function(input, output, session) {
               "BuGn",
               "Blues"
             )
-          )
+          ),
+          selected = "Accent"
         )
       }
     }
@@ -13041,7 +13051,8 @@ server <- function(input, output, session) {
               "BuGn",
               "Blues"
             )
-          )
+          ),
+          selected = "Accent"
         )
       }
     }
@@ -13130,7 +13141,8 @@ server <- function(input, output, session) {
               "BuGn",
               "Blues"
             )
-          )
+          ),
+          selected = "Accent"
         )
       }
     }
@@ -13400,7 +13412,8 @@ server <- function(input, output, session) {
                 "BuGn",
                 "Blues"
               )
-            )
+            ),
+            selected = "Set2"
           )
         }
       }
@@ -13439,7 +13452,8 @@ server <- function(input, output, session) {
             "BuGn",
             "Blues"
           )
-        )
+        ),
+        selected = "Set2"
       )
     }
   })
@@ -13472,7 +13486,8 @@ server <- function(input, output, session) {
               "PiYG",
               "BrBG"
             )
-          )
+          ),
+          selected = c("Viridis" = "viridis")
         )
       } else {
         if(length(unique(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping]))) > 7) {
@@ -13528,7 +13543,8 @@ server <- function(input, output, session) {
                 "BuGn",
                 "Blues"
               )
-            )
+            ),
+            selected = "Set2"
           )
         }
       }
@@ -13567,7 +13583,8 @@ server <- function(input, output, session) {
             "BuGn",
             "Blues"
           )
-        )
+        ),
+        selected = "Set2"
       )
     }
   })
@@ -14276,7 +14293,7 @@ server <- function(input, output, session) {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                  names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
         },
-        selected = c("Country" = "Country"),
+        selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
       )
     } else {
@@ -14309,7 +14326,7 @@ server <- function(input, output, session) {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                  names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
         },
-        selected = c("Country" = "Country"),
+        selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
       )
     } else {
@@ -14342,7 +14359,7 @@ server <- function(input, output, session) {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                  names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
         },
-        selected = c("Country" = "Country"),
+        selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
       )
     } else {
@@ -14375,7 +14392,7 @@ server <- function(input, output, session) {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                  names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
         },
-        selected = c("Country" = "Country"),
+        selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
       )
     } else {
@@ -14408,7 +14425,7 @@ server <- function(input, output, session) {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                  names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
         },
-        selected = c("Country" = "Country"),
+        selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
       )
     } else {
@@ -14441,7 +14458,7 @@ server <- function(input, output, session) {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                  names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
         },
-        selected = c("Country" = "Country"),
+        selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
       )
     } else {
@@ -14474,7 +14491,7 @@ server <- function(input, output, session) {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                  names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
         },
-        selected = c("Country" = "Country"),
+        selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
       )
     } else {
@@ -14507,7 +14524,7 @@ server <- function(input, output, session) {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                  names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
         },
-        selected = c("Country" = "Country"),
+        selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
       )
     } else {
@@ -14540,7 +14557,7 @@ server <- function(input, output, session) {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                  names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
         },
-        selected = c("Country" = "Country"),
+        selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
       )
     } else {
@@ -14573,7 +14590,7 @@ server <- function(input, output, session) {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                  names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
         },
-        selected = c("Country" = "Country"),
+        selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
       )
     } else {
@@ -15148,7 +15165,7 @@ server <- function(input, output, session) {
           append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                  names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
         },
-        selected = c("Host" = "Host"),
+        selected = c(City = "City"),
         width = "100%"
       )
     } else {
@@ -15161,7 +15178,8 @@ server <- function(input, output, session) {
           Host = "Host",
           Country = "Country",
           City = "City"
-        )
+        ),
+        selected = c(City = "City")
       )
     }
   })
@@ -15183,7 +15201,7 @@ server <- function(input, output, session) {
           append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                  names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
         },
-        selected = c("Host" = "Host"),
+        selected = c(City = "City"),
         width = "100%"
       )
     } else {
@@ -15196,7 +15214,8 @@ server <- function(input, output, session) {
           Host = "Host",
           Country = "Country",
           City = "City"
-        )
+        ),
+        selected = c(City = "City")
       )
     }
   })
@@ -15360,7 +15379,7 @@ server <- function(input, output, session) {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                  names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
         },
-        selected = c("Host" = "Host"),
+        selected = c(Country = "Country"),
         width = "100%"
       )
     } else {
@@ -15373,7 +15392,7 @@ server <- function(input, output, session) {
           Country = "Country",
           City = "City"
         ),
-        selected = c("Host" = "Host"),
+        selected = c(Country = "Country"),
         width = "100%"
       )
     }
@@ -15395,7 +15414,7 @@ server <- function(input, output, session) {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
                  names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
         },
-        selected = c("Host" = "Host"),
+        selected = c(Country = "Country"),
         width = "100%"
       )
     } else {
@@ -15408,7 +15427,7 @@ server <- function(input, output, session) {
           Country = "Country",
           City = "City"
         ),
-        selected = c("Host" = "Host"),
+        selected = c(Country = "Country"),
         width = "100%"
       )
     }
