@@ -5498,9 +5498,9 @@ server <- function(input, output, session) {
   column_classes <- function(df) {
     sapply(df, function(x) {
       if (class(x) == "numeric") {
-        return("(cont.)")
+        return("cont")
       } else if (class(x) == "character") {
-        return("(categ.)")
+        return("categ")
       } else {
         return(class(x))
       }
@@ -6640,7 +6640,9 @@ server <- function(input, output, session) {
                 }
                 # Render custom variable display
                 
-                output$show_cust_var <- renderTable({
+                output$show_cust_var <- renderTable(
+                  width = "100%", 
+                  {
                   if((!is.null(DB$cust_var)) & (!is.null(input$cust_var_select))) {
                     if(nrow(DB$cust_var) > 5) {
                       low <- -4
@@ -7853,33 +7855,35 @@ server <- function(input, output, session) {
                           )
                         )
                       } else if((DB$change == TRUE) | !identical(get.entry.table.meta(), DB$meta)) {
-                        fluidRow(
-                          column(
-                            width = 5,
-                            HTML(
-                              paste(
-                                tags$span(style='color: white; font-size: 16px; position: absolute; bottom: -30px; right: -5px', 'Confirm changes')
+                        if(!is.null(input$db_entries) & (!is.null(input$db_entries_table))) {
+                          fluidRow(
+                            column(
+                              width = 5,
+                              HTML(
+                                paste(
+                                  tags$span(style='color: white; font-size: 16px; position: absolute; bottom: -30px; right: -5px', 'Confirm changes')
+                                )
+                              )
+                            ),
+                            column(
+                              width = 3,
+                              actionButton(
+                                "edit_button",
+                                "",
+                                icon = icon("bookmark"),
+                                class = "pulsating-button"
+                              )
+                            ),
+                            column(
+                              width = 4,
+                              actionButton(
+                                "undo_changes",
+                                "Undo",
+                                icon = icon("repeat")
                               )
                             )
-                          ),
-                          column(
-                            width = 3,
-                            actionButton(
-                              "edit_button",
-                              "",
-                              icon = icon("bookmark"),
-                              class = "pulsating-button"
-                            )
-                          ),
-                          column(
-                            width = 4,
-                            actionButton(
-                              "undo_changes",
-                              "Undo",
-                              icon = icon("repeat")
-                            )
                           )
-                        )
+                        }
                       } else {NULL}
                     })
                     
@@ -9188,12 +9192,12 @@ server <- function(input, output, session) {
       DB$data <- DB$data %>%
         mutate("{name}" := character(nrow(DB$data)), .after = 12)
       
-      DB$cust_var <- rbind(DB$cust_var, data.frame(Variable = name, Type = "(categ.)"))
+      DB$cust_var <- rbind(DB$cust_var, data.frame(Variable = name, Type = "categ"))
     } else {
       DB$data <- DB$data %>%
         mutate("{name}" := numeric(nrow(DB$data)), .after = 12)
       
-      DB$cust_var <- rbind(DB$cust_var, data.frame(Variable = name, Type = "(cont.)"))
+      DB$cust_var <- rbind(DB$cust_var, data.frame(Variable = name, Type = "cont"))
     }
     
     DB$meta <- select(DB$data, 1:(12 + nrow(DB$cust_var)))
