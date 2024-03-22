@@ -95,7 +95,7 @@ country_names <- c(
   "Cuba",
   "Cyprus",
   "Czechia (Czech Republic)",
-  "Democratic Republic of the Congo (Congo-Kinshasa)",
+  "Democratic Republic of the Congo",
   "Denmark",
   "Djibouti",
   "Dominica",
@@ -3312,23 +3312,38 @@ ui <- dashboardPage(
                         align = "center",
                         conditionalPanel(
                           "input.nj_tile_num == 1",
-                          uiOutput("nj_fruit_variable")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("nj_fruit_variable")
+                          )
                         ),
                         conditionalPanel(
                           "input.nj_tile_num == 2",
-                          uiOutput("nj_fruit_variable2")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("nj_fruit_variable2")
+                          )
                         ),
                         conditionalPanel(
                           "input.nj_tile_num == 3",
-                          uiOutput("nj_fruit_variable3")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("nj_fruit_variable3")
+                          )
                         ),
                         conditionalPanel(
                           "input.nj_tile_num == 4",
-                          uiOutput("nj_fruit_variable4")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("nj_fruit_variable4")
+                          )
                         ),
                         conditionalPanel(
                           "input.nj_tile_num == 5",
-                          uiOutput("nj_fruit_variable5")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("nj_fruit_variable5")
+                          )
                         )
                       ),
                       conditionalPanel(
@@ -3336,7 +3351,10 @@ ui <- dashboardPage(
                         column(
                           width = 3,
                           align = "center",
-                          uiOutput("nj_tiles_scale_1")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("nj_tiles_scale_1")
+                          )
                         )
                       ),
                       conditionalPanel(
@@ -3344,7 +3362,10 @@ ui <- dashboardPage(
                         column(
                           width = 3,
                           align = "center",
-                          uiOutput("nj_tiles_scale_2")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("nj_tiles_scale_2")
+                          )
                         )
                       ),
                       conditionalPanel(
@@ -3352,7 +3373,10 @@ ui <- dashboardPage(
                         column(
                           width = 3,
                           align = "center",
-                          uiOutput("nj_tiles_scale_3")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("nj_tiles_scale_3")
+                          )
                         )
                       ),
                       conditionalPanel(
@@ -3360,7 +3384,10 @@ ui <- dashboardPage(
                         column(
                           width = 3,
                           align = "center",
-                          uiOutput("nj_tiles_scale_4")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("nj_tiles_scale_4")
+                          )
                         )
                       ),
                       conditionalPanel(
@@ -3368,7 +3395,10 @@ ui <- dashboardPage(
                         column(
                           width = 3,
                           align = "center",
-                          uiOutput("nj_tiles_scale_5")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("nj_tiles_scale_5")
+                          )
                         )
                       ),
                       uiOutput("nj_fruit_mapping_info")
@@ -3389,15 +3419,15 @@ ui <- dashboardPage(
                       column(
                         width = 3,
                         align = "center",
-                        div(
-                          class = "heatmap-picker",
-                          uiOutput("nj_heatmap_sel")
-                        )
+                        uiOutput("nj_heatmap_sel")
                       ),
                       column(
                         width = 3,
                         align = "center",
-                        uiOutput("nj_heatmap_scale")
+                        div(
+                          class = "heatmap-scale",
+                          uiOutput("nj_heatmap_scale")
+                        )
                       ),
                       uiOutput("nj_heatmap_mapping_info")
                     )
@@ -5213,23 +5243,38 @@ ui <- dashboardPage(
                         align = "center",
                         conditionalPanel(
                           "input.upgma_tile_num == 1",
-                          uiOutput("upgma_fruit_variable")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("upgma_fruit_variable")
+                          )
                         ),
                         conditionalPanel(
                           "input.upgma_tile_num == 2",
-                          uiOutput("upgma_fruit_variable2")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("upgma_fruit_variable2")
+                          )
                         ),
                         conditionalPanel(
                           "input.upgma_tile_num == 3",
-                          uiOutput("upgma_fruit_variable3")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("upgma_fruit_variable3")
+                          )
                         ),
                         conditionalPanel(
                           "input.upgma_tile_num == 4",
-                          uiOutput("upgma_fruit_variable4")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("upgma_fruit_variable4")
+                          )
                         ),
                         conditionalPanel(
                           "input.upgma_tile_num == 5",
-                          uiOutput("upgma_fruit_variable5")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("upgma_fruit_variable5")
+                          )
                         )
                       ),
                       conditionalPanel(
@@ -5237,7 +5282,10 @@ ui <- dashboardPage(
                         column(
                           width = 3,
                           align = "center",
-                          uiOutput("upgma_tiles_scale_1")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("upgma_tiles_scale_1")
+                          )
                         )
                       ),
                       conditionalPanel(
@@ -5245,7 +5293,10 @@ ui <- dashboardPage(
                         column(
                           width = 3,
                           align = "center",
-                          uiOutput("upgma_tiles_scale_2")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("upgma_tiles_scale_2")
+                          )
                         )
                       ),
                       conditionalPanel(
@@ -5253,7 +5304,10 @@ ui <- dashboardPage(
                         column(
                           width = 3,
                           align = "center",
-                          uiOutput("upgma_tiles_scale_3")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("upgma_tiles_scale_3")
+                          )
                         )
                       ),
                       conditionalPanel(
@@ -5261,7 +5315,10 @@ ui <- dashboardPage(
                         column(
                           width = 3,
                           align = "center",
-                          uiOutput("upgma_tiles_scale_4")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("upgma_tiles_scale_4")
+                          )
                         )
                       ),
                       conditionalPanel(
@@ -5269,7 +5326,10 @@ ui <- dashboardPage(
                         column(
                           width = 3,
                           align = "center",
-                          uiOutput("upgma_tiles_scale_5")
+                          div(
+                            class = "heatmap-scale",
+                            uiOutput("upgma_tiles_scale_5")
+                          )
                         )
                       ),
                       uiOutput("upgma_fruit_mapping_info")
@@ -5290,15 +5350,15 @@ ui <- dashboardPage(
                       column(
                         width = 3,
                         align = "center",
-                        div(
-                          class = "heatmap-picker",
-                          uiOutput("upgma_heatmap_sel")
-                        )
+                        uiOutput("upgma_heatmap_sel")
                       ),
                       column(
                         width = 3,
                         align = "center",
-                        uiOutput("upgma_heatmap_scale")
+                        div(
+                          class = "heatmap-scale",
+                          uiOutput("upgma_heatmap_scale")
+                        )
                       ),
                       uiOutput("upgma_heatmap_mapping_info")
                     )
@@ -7855,7 +7915,7 @@ server <- function(input, output, session) {
                           )
                         )
                       } else if((DB$change == TRUE) | !identical(get.entry.table.meta(), DB$meta)) {
-                        if(!is.null(input$db_entries) & (!is.null(input$db_entries_table))) {
+                        if(!is.null(input$db_entries)) {
                           fluidRow(
                             column(
                               width = 5,
@@ -11129,12 +11189,12 @@ server <- function(input, output, session) {
     if(!is.null(input$upgma_layout)) {
       if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
         offset <- 0.15
-        step <- 0.03
+        step <- 0.1
         min <- -0.6
         max <- 0.6
       } else {
         offset <- 0.05
-        step <- 0.01
+        step <- 0.05
         min <- -0.2
         max <- 0.2
       }
@@ -11155,7 +11215,7 @@ server <- function(input, output, session) {
         label = "",
         min = -0.2,
         max = 0.2,
-        step= 0.01,
+        step= 0.05,
         value = 0,
         width = "150px",
         ticks = FALSE
@@ -14131,41 +14191,44 @@ server <- function(input, output, session) {
       # Add Diverging list
       choices$Categorical <- as.list(setNames(non_numeric_column_names, non_numeric_column_names))
       
-      
-      pickerInput(
-        inputId = "nj_heatmap_select",
-        label = "",
-        width = "100%",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
+      div(
+        class = "heatmap-picker",
+        pickerInput(
+          inputId = "nj_heatmap_select",
+          label = "",
+          width = "100%",
+          choices = if(ncol(Vis$meta_nj) == 11) {
+            c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {choices},
+          options = list(
+            `dropdown-align-center` = TRUE,
+            size = 10,
+            style = "background-color: white; border-radius: 5px;"
+          ),
+          multiple = TRUE
+        )
+      )
+    } else {
+      div(
+        class = "heatmap-picker",
+        pickerInput(
+          inputId = "nj_heatmap_select",
+          label = "",
+          width = "100%",
+          choices = c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
-          )
-        } else {choices},
-        options = list(
-          `dropdown-align-center` = TRUE,
-          size = 10,
-          style = "background-color: white; border-radius: 5px;"
-        ),
-        multiple = TRUE
+          ),
+          multiple = TRUE
+        )
       )
-      
-    } else {
-      pickerInput(
-        inputId = "nj_heatmap_select",
-        label = "",
-        width = "100%",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        ),
-        multiple = TRUE
-      )
-      
     }
   })
   
@@ -14191,37 +14254,43 @@ server <- function(input, output, session) {
       # Add Diverging list
       choices$Categorical <- as.list(setNames(non_numeric_column_names, non_numeric_column_names))
       
-      pickerInput(
-        inputId = "upgma_heatmap_select",
-        label = "",
-        width = "100%",
-        choices = if(ncol(Vis$meta_upgma) == 11) {
-          c(
+      div(
+        class = "heatmap-picker",
+        pickerInput(
+          inputId = "upgma_heatmap_select",
+          label = "",
+          width = "100%",
+          choices = if(ncol(Vis$meta_upgma) == 11) {
+            c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {choices},
+          options = list(
+            `dropdown-align-center` = TRUE,
+            size = 10,
+            style = "background-color: white; border-radius: 5px;"
+          ),
+          multiple = TRUE
+        )
+      )
+    } else {
+      div(
+        class = "heatmap-picker",
+        pickerInput(
+          inputId = "upgma_heatmap_select",
+          label = "",
+          width = "100%",
+          choices = c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
-          )
-        } else {choices},
-        options = list(
-          `dropdown-align-center` = TRUE,
-          size = 10,
-          style = "background-color: white; border-radius: 5px;"
-        ),
-        multiple = TRUE
-      )
-    } else {
-      pickerInput(
-        inputId = "upgma_heatmap_select",
-        label = "",
-        width = "100%",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        ),
-        multiple = TRUE
+          ),
+          multiple = TRUE
+        )
       )
     }
   })

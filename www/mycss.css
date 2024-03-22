@@ -387,6 +387,16 @@ button#edit_button.btn.btn-default.action-button.shiny-bound-input {
   margin-left: 3px
 }
 
+.append_table_country {
+  margin-top: 20px;
+  width: 97%;
+}
+
+.append_table_country .bs-searchbox{
+  border-color: black;
+}
+
+    
 span#progress_bar-title.progress-text {
   color: white; 
   font-size: 13px; 
@@ -716,9 +726,16 @@ button#mst_label_menu {
   margin-right: 30px;
 }
 
-.dropdown-menu>li>a {
-  color: #000000;
-  text-align: center;
+.heatmap-picker .btn-default {
+  background: white;
+}
+
+.heatmap-picker .dropdown-menu>li>a>.glyphicon {
+  margin-right: 0px;
+}
+
+.heatmap-picker .bootstrap-select .dropdown-menu li a.opt {
+  width: 165px;
 }
 
 .bootstrap-select.show-tick .dropdown-menu li a span.text {
@@ -912,6 +929,12 @@ button#download_report_bttn {
   margin-top: -10px;
 } 
 
+.heatmap-scale div>.selectize-dropdown {
+  bottom: 100% !important; 
+  top:auto!important;
+  
+}
+
 #nj_branch_label_color, #upgma_branch_label_color {
   margin-top: -7px;
 }
@@ -919,6 +942,10 @@ button#download_report_bttn {
 #nj_new_label_name, #upgma_new_label_name {
   margin-left: 15px;
   width: 90%;
+}
+
+.heatmap-picker, {
+    margin-right: 105px
 }
 
 button#nj_labeltext_menu, button#upgma_labeltext_menu {
