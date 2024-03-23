@@ -58,12 +58,12 @@ conda env create -f PhyloTrace.yml
 
 ### 1.3 Create Desktop Launcher
 
-Create a run script and an `.desktop` file to create a desktop launcher for PhyloTrace. 
+Run the installation script to create an app launcher and a desktop entry.
 ```bash
 cd path/to/directory
 bash install_phylotrace.sh
 ```
->*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
+>*In the command above, replace `path/to/directory` with the actual path pointing to the PhyloTrace directory on your system. If your current directory is already set to the PhyloTrace location you can omit this command.*
 
 ## 2 Running PhyloTrace
 
@@ -76,14 +76,14 @@ If this doesn't work the alternative way to run the app is to execute these comm
 cd path/to/directory
 bash run_phylotrace.sh
 ```
->*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
+>*In the command above, replace `path/to/directory` with the actual path pointing to the PhyloTrace directory on your system. If your current directory is already set to the PhyloTrace location you can omit this command.*
 
 ## 3 Troubleshooting
 
 ### 3.1 General
 There are multiple possible sources for issues with the installation. Common mistakes during the installation are: 
-- Change `path/to/directory` in the command chunks with the actual path of the repository containing all PhyloTrace files
-- Before installation make sure the whole repository is unzipped to a writable location in your system
+- Change `path/to/directory` in the command chunks with the actual path to the directory containing all PhyloTrace files
+- Before installation make sure the downloaded folder is unzipped to a writable location in your system
 
 If the installation issues persist feel free to contact us via [info@phylotrace.com](mailto:info@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans) or open an issue.
 
@@ -93,8 +93,7 @@ If the default browser does not work properly, it can be changed, by changing R_
 cd path/to/directory
 R_BROWSER=google-chrome bash run_phylotrace.sh
 ```
-
->*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
+>*In the command above, replace `path/to/directory` with the actual path pointing to the PhyloTrace directory on your system. If your current directory is already set to the PhyloTrace location you can omit this command.*
 
 
 | Browser  | *browser-name*  |
@@ -108,7 +107,7 @@ R_BROWSER=google-chrome bash run_phylotrace.sh
 
 <sub>Executable names for some popular browsers.</sub>
 
-If PhyloTrace is still unable to launch from desktop, a missing default browser was likely not the issue. In this case either open PhyloTrace as described in [2 Running PhyloTrace](#2-running-phylotrace) or contact us via [contact@phylotrace.com](mailto:info@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans).
+If PhyloTrace is still unable to launch from desktop, a missing default browser was likely not the issue. In this case either open PhyloTrace as described in [2 Running PhyloTrace](#2-running-phylotrace) or contact us via [info@phylotrace.com](mailto:info@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans).
 
 ## Uninstall PhyloTrace
 To remove PhyloTrace from your system, remove the Phylotrace directory and run the following command to remove
