@@ -5667,7 +5667,7 @@ server <- function(input, output, session) {
   observe({
     shinyDirChoose(input,
                    "db_location",
-                   roots = c(wd = "/home"),
+                   roots = c(home = path_home()),
                    session = session)
     
     if(!is.null(DB$select_new)) {
@@ -5675,7 +5675,7 @@ server <- function(input, output, session) {
         if(DB$block_db == FALSE) {
           DB$database <- as.character(
             parseDirPath(
-              roots = c(wd = "/home"), 
+              roots = c(home = path_home()),
               input$db_location
             )
           )
@@ -5794,7 +5794,8 @@ server <- function(input, output, session) {
               "Browse",
               icon = icon("folder-open"),
               title = "Locate the database folder",
-              buttonType = "default"
+              buttonType = "default",
+              root = path_home()
             )
           ),
           column(
@@ -5805,7 +5806,8 @@ server <- function(input, output, session) {
               "Create New",
               icon = icon("plus"),
               title = "Choose location for new PhyloTrace database",
-              buttonType = "default"
+              buttonType = "default",
+              root = path_home()
             )
           )
         ),
@@ -6601,7 +6603,8 @@ server <- function(input, output, session) {
                       title = "Please select the genome in .fasta/.fna/.fa format:",
                       multiple = FALSE,
                       buttonType = "default",
-                      class = NULL
+                      class = NULL,
+                      root = path_home()
                     ),
                     br(),
                     br(),
@@ -6703,28 +6706,28 @@ server <- function(input, output, session) {
                 output$show_cust_var <- renderTable(
                   width = "100%", 
                   {
-                  if((!is.null(DB$cust_var)) & (!is.null(input$cust_var_select))) {
-                    if(nrow(DB$cust_var) > 5) {
-                      low <- -4
-                      high <- 0
-                      for (i in 1:input$cust_var_select) {
-                        low <- low + 5
-                        if((nrow(DB$cust_var) %% 5) != 0) {
-                          if(i == ceiling(nrow(DB$cust_var) / 5 )) {
-                            high <- high + nrow(DB$cust_var) %% 5
+                    if((!is.null(DB$cust_var)) & (!is.null(input$cust_var_select))) {
+                      if(nrow(DB$cust_var) > 5) {
+                        low <- -4
+                        high <- 0
+                        for (i in 1:input$cust_var_select) {
+                          low <- low + 5
+                          if((nrow(DB$cust_var) %% 5) != 0) {
+                            if(i == ceiling(nrow(DB$cust_var) / 5 )) {
+                              high <- high + nrow(DB$cust_var) %% 5
+                            } else {
+                              high <- high + 5
+                            }
                           } else {
                             high <- high + 5
                           }
-                        } else {
-                          high <- high + 5
                         }
+                        DB$cust_var[low:high,]
+                      } else {
+                        DB$cust_var
                       }
-                      DB$cust_var[low:high,]
-                    } else {
-                      DB$cust_var
                     }
-                  }
-                })
+                  })
                 
                 # render visualization sidebar elements
                 observe({
@@ -8913,13 +8916,13 @@ server <- function(input, output, session) {
   observe({
     shinyDirChoose(input,
                    "create_new_db",
-                   roots = c(wd = "/home"),
+                   roots = c(home = path_home()),
                    session = session)
     
     if(!is.null(input$create_new_db)) {
       DB$new_database <- as.character(
         parseDirPath(
-          roots = c(wd = "/home"), 
+          roots = c(home = path_home()), 
           input$create_new_db
         )
       )
@@ -10098,43 +10101,43 @@ server <- function(input, output, session) {
   # Render slider input based on selected label
   output$nj_sliderInput_y <- renderUI({
     if(length(Vis$custom_label_nj) > 0) {
-        if(length(Vis$nj_label_pos_y) > 0) {
-          if(!is.null(Vis$nj_label_pos_y[[input$nj_custom_label_sel]])) {
-            sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
-                        label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
-                        min = 0, max = 10, step = 1, ticks = F,
-                        value = Vis$nj_label_pos_y[[input$nj_custom_label_sel]])
-          } else {
-            sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
-                        label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
-                        min = 0, max = 10, step = 1, ticks = F, value = 5)
-          }
+      if(length(Vis$nj_label_pos_y) > 0) {
+        if(!is.null(Vis$nj_label_pos_y[[input$nj_custom_label_sel]])) {
+          sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
+                      label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
+                      min = 0, max = 10, step = 1, ticks = F,
+                      value = Vis$nj_label_pos_y[[input$nj_custom_label_sel]])
         } else {
           sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
                       label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
                       min = 0, max = 10, step = 1, ticks = F, value = 5)
         }
+      } else {
+        sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
+                    label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
+                    min = 0, max = 10, step = 1, ticks = F, value = 5)
+      }
     } 
   })
   
   output$nj_sliderInput_x <- renderUI({
     if(length(Vis$custom_label_nj) > 0) {
-        if(length(Vis$nj_label_pos_y) > 0) {
-          if(!is.null(Vis$nj_label_pos_y[[input$nj_custom_label_sel]])) {
-            sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
-                        label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
-                        min = 0, max = 10, step = 1, ticks = F,
-                        value = Vis$nj_label_pos_x[[input$nj_custom_label_sel]])
-          } else {
-            sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
-                        label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
-                        min = 0, max = 10, step = 1, ticks = F, value = 5)
-          }
+      if(length(Vis$nj_label_pos_y) > 0) {
+        if(!is.null(Vis$nj_label_pos_y[[input$nj_custom_label_sel]])) {
+          sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
+                      label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
+                      min = 0, max = 10, step = 1, ticks = F,
+                      value = Vis$nj_label_pos_x[[input$nj_custom_label_sel]])
         } else {
           sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
                       label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
                       min = 0, max = 10, step = 1, ticks = F, value = 5)
         }
+      } else {
+        sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
+                    label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
+                    min = 0, max = 10, step = 1, ticks = F, value = 5)
+      }
       
     } 
   })
@@ -20026,7 +20029,8 @@ server <- function(input, output, session) {
         title = "Select the assembly in .fasta/.fna/.fa format:",
         multiple = FALSE,
         buttonType = "default",
-        class = NULL
+        class = NULL,
+        root = path_home()
       ),
       br(),
       br(),
@@ -20124,7 +20128,7 @@ server <- function(input, output, session) {
                     class = "append_table",
                     dateInput("append_isodate",
                               label = "",
-                              width = "60%")
+                              width = "80%")
                   )
                 )
               ),
@@ -20206,7 +20210,7 @@ server <- function(input, output, session) {
                       "append_analysisdate",
                       label = "",
                       value = Sys.Date(),
-                      width = "60%"
+                      width = "80%"
                     )
                   )
                 )
@@ -20248,9 +20252,9 @@ server <- function(input, output, session) {
     # Get selected Genome in Single Mode
     shinyFileChoose(input,
                     "genome_file",
-                    roots = c(wd = "/home"),
+                    roots = c(home = path_home()),
                     session = session)
-    Typing$single_path <- parseFilePaths(roots = c(wd = "/home"), input$genome_file)
+    Typing$single_path <- parseFilePaths(roots = c(home = path_home()), input$genome_file)
     
   })
   
@@ -20570,7 +20574,8 @@ server <- function(input, output, session) {
           title = "Please select the genome in .fasta/.fna/.fa format:",
           multiple = FALSE,
           buttonType = "default",
-          class = NULL
+          class = NULL,
+          root = path_home()
         ),
         br(),
         br(),
@@ -20626,7 +20631,8 @@ server <- function(input, output, session) {
           "Browse",
           icon = icon("folder-open"),
           title = "Select the folder containing the genome assemblies (FASTA)",
-          buttonType = "default"
+          buttonType = "default",
+          root = path_home()
         ),
         br(),
         br()
@@ -20694,7 +20700,7 @@ server <- function(input, output, session) {
                   class = "append_table",
                   dateInput("append_isodate_multi",
                             label = "",
-                            width = "60%")
+                            width = "80%")
                 )
               )
             ),
@@ -20774,7 +20780,7 @@ server <- function(input, output, session) {
                     "append_analysisdate_multi",
                     label = "",
                     value = Sys.Date(),
-                    width = "60%"
+                    width = "80%"
                   )
                 )
               )
@@ -20809,17 +20815,17 @@ server <- function(input, output, session) {
     # Get selected Genome in Multi Mode
     shinyDirChoose(input,
                    "genome_file_multi",
-                   roots = c(wd = "/home"),
+                   roots = c(home = path_home()),
                    session = session)
     
     Typing$table <-
       data.frame(Include = rep(TRUE, length(list.files(
         as.character(parseDirPath(
-          roots = c(wd = "/home"), input$genome_file_multi
+          roots = c(home = path_home()), input$genome_file_multi
         ))
       ))),
       Files = list.files(as.character(
-        parseDirPath(roots = c(wd = "/home"), input$genome_file_multi)
+        parseDirPath(roots = c(home = path_home()), input$genome_file_multi)
       )))
     
     if (between(nrow(Typing$table), 1, 15)) {
@@ -20971,7 +20977,8 @@ server <- function(input, output, session) {
               "Browse",
               icon = icon("folder-open"),
               title = "Select the folder containing the genome assemblies (FASTA)",
-              buttonType = "default"
+              buttonType = "default",
+              root = path_home()
             ),
             br(),
             br()
@@ -21037,7 +21044,8 @@ server <- function(input, output, session) {
             "Browse",
             icon = icon("folder-open"),
             title = "Please select the folder containing the genome assemblies (FASTA)",
-            buttonType = "default"
+            buttonType = "default",
+            root = path_home()
           ),
           br(),
           br()
@@ -21125,7 +21133,7 @@ server <- function(input, output, session) {
       db_path = DB$database,
       wd = getwd(),
       scheme = paste0(gsub(" ", "_", DB$scheme)),
-      genome_folder = as.character(parseDirPath(roots = c(wd = "/home"), input$genome_file_multi)),
+      genome_folder = as.character(parseDirPath(roots = c(home = path_home()), input$genome_file_multi)),
       genome_names = paste(Typing$genome_selected$Files[which(Typing$genome_selected$Include == TRUE)], collapse= " "),
       alleles = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")
     )

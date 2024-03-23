@@ -414,6 +414,10 @@ div#progress_bar.progress-bar {
   line-height: 30px;
 }
 
+#conf_meta_single, #conf_meta_multi {
+border-color: white;
+}
+
 /* Visualization MST */
 
 .mat-switch-mst-mult {
