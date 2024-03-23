@@ -85,11 +85,12 @@ There are multiple possible sources for issues with the installation. Common mis
 - Change `path/to/directory` in the command chunks with the actual path of the repository containing all PhyloTrace files
 - Before installation make sure the whole repository is unzipped to a writable location in your system
 
-If the installation issues persist feel free to contact us via [contact@phylotrace.com](mailto:contact@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans) or open an issue.
+If the installation issues persist feel free to contact us via [info@phylotrace.com](mailto:info@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans) or open an issue.
 
 ### 3.2 Desktop Launcher not Working
 If the default browser does not work properly, it can be changed, by changing R_BROWSER environment variable. For example, to use Google Chrome, use the following command:
 ```bash
+cd path/to/directory
 R_BROWSER=google-chrome bash run_phylotrace.sh
 ```
 
@@ -107,7 +108,7 @@ R_BROWSER=google-chrome bash run_phylotrace.sh
 
 <sub>Executable names for some popular browsers.</sub>
 
-If PhyloTrace is still unable to launch from desktop, a missing default browser was likely not the issue. In this case either open PhyloTrace as described in [2 Running PhyloTrace](#2-running-phylotrace) or contact us via [contact@phylotrace.com](mailto:contact@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans).
+If PhyloTrace is still unable to launch from desktop, a missing default browser was likely not the issue. In this case either open PhyloTrace as described in [2 Running PhyloTrace](#2-running-phylotrace) or contact us via [contact@phylotrace.com](mailto:info@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans).
 
 ## Uninstall PhyloTrace
 To remove PhyloTrace from your system, remove the Phylotrace directory and run the following command to remove
