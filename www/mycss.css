@@ -253,6 +253,14 @@ i.far.fa-pen-to-square {
 
 /* Database */
 
+#sel_all_entries, #desel_all_entries, #typing_start, #start_typ_multi, #undo_changes, #genome_file, #genome_file_multi {
+  border-color: white;
+}
+
+.btn-default:hover {
+  border-color: transparent !important;
+}
+
 #cgmlst_scheme {
   margin-top: 41px;
 }
