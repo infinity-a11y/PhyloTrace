@@ -59,15 +59,11 @@ footer {
     bottom: 0;
     left: 0;
     width: 100%;
-    background-color: #f4f4f4;
-    color: #000;
+    background-color: #282f38;
+    color: white;
     text-align: center;
-    padding: 20px;
+    padding: 10px;
     z-index: 1000;
     display: none;
 }
 
-#cookieConsentBanner a {
-    color: #00449e;
-    text-decoration: underline;
-}
