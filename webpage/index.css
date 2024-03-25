@@ -1,0 +1,73 @@
+header img{
+    display: block;
+    width: 40%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 1%;
+
+}
+
+a {
+    color: #0df2dc;
+}
+
+body {
+    margin-right: 4em;
+    margin-left: 4em;
+    background-image: linear-gradient(#282f38, #384454 , #495d78);
+}
+
+.carousel-inner {
+    padding: 1em;
+}
+
+.carousel-item img {
+    margin: auto;
+    max-width: 60%;
+    border-radius: 10px;
+    box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.3);
+}
+
+.carousel-caption {
+    margin: auto;
+    text-align: left;
+    padding-left: 1em;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3));
+    max-width: 60%;
+}
+
+.bottom-buttons {
+    text-align:center;
+    padding: 2em;
+}
+
+.bottom-buttons button {
+    margin-left: 2vw;
+    margin-right: 2vw;
+    min-width: 200px;
+}
+
+footer {
+    margin-top: 10em;
+    font-size: 12px;
+    color: white;
+    text-align: center;
+}
+
+#cookieConsentBanner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #f4f4f4;
+    color: #000;
+    text-align: center;
+    padding: 20px;
+    z-index: 1000;
+    display: none;
+}
+
+#cookieConsentBanner a {
+    color: #00449e;
+    text-decoration: underline;
+}
