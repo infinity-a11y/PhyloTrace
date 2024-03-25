@@ -273,6 +273,7 @@ ui <- dashboardPage(
   
   ## Sidebar ----
   dashboardSidebar(
+    tags$head(includeCSS("www/head.css")),
     tags$style(includeCSS("www/mycss.css")),
     tags$style(HTML(
       "@keyframes pulsate {
