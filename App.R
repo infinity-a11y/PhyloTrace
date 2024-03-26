@@ -3437,7 +3437,7 @@ ui <- dashboardPage(
               )
             )
           ),
-          br(), br(), br(), br()
+          br(), br(), br(), br(), br(), br()
         ),
         
         ### Control Panels UPGMA ----
@@ -5368,7 +5368,7 @@ ui <- dashboardPage(
               )
             )
           ),
-          br(), br(), br(), br()
+          br(), br(), br(), br(), br(), br()
         )
       )
     ) # End tabItems
@@ -10103,17 +10103,17 @@ server <- function(input, output, session) {
         if(!is.null(Vis$nj_label_pos_y[[input$nj_custom_label_sel]])) {
           sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
                       label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
-                      min = 0, max = 10, step = 1, ticks = F,
+                      min = 0, max = 50, step = 1, ticks = F,
                       value = Vis$nj_label_pos_y[[input$nj_custom_label_sel]])
         } else {
           sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
                       label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
-                      min = 0, max = 10, step = 1, ticks = F, value = 5)
+                      min = 0, max = 50, step = 1, ticks = F, value = 5)
         }
       } else {
         sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
                     label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
-                    min = 0, max = 10, step = 1, ticks = F, value = 5)
+                    min = 0, max = 50, step = 1, ticks = F, value = 5)
       }
     } 
   })
@@ -10124,17 +10124,17 @@ server <- function(input, output, session) {
         if(!is.null(Vis$nj_label_pos_y[[input$nj_custom_label_sel]])) {
           sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
                       label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
-                      min = 0, max = 10, step = 1, ticks = F,
+                      min = 0, max = 50, step = 1, ticks = F,
                       value = Vis$nj_label_pos_x[[input$nj_custom_label_sel]])
         } else {
           sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
                       label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
-                      min = 0, max = 10, step = 1, ticks = F, value = 5)
+                      min = 0, max = 50, step = 1, ticks = F, value = 5)
         }
       } else {
         sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
                     label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
-                    min = 0, max = 10, step = 1, ticks = F, value = 5)
+                    min = 0, max = 50, step = 1, ticks = F, value = 5)
       }
       
     } 
@@ -15852,6 +15852,7 @@ server <- function(input, output, session) {
                color = input$nj_color,
                layout = layout_nj(),
                ladderize = input$nj_ladder) %<+% Vis$meta_nj +
+        nj_clades() +
         nj_tiplab() +
         nj_tiplab_scale() + 
         new_scale_color() +
@@ -15865,7 +15866,6 @@ server <- function(input, output, session) {
         new_scale_color() +
         nj_clip_label() +
         nj_rootedge() +
-        nj_clades() +
         ggtitle(label = input$nj_title,
                 subtitle = input$nj_subtitle) +
         theme_tree(bgcolor = input$nj_bg) +
