@@ -19812,7 +19812,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$create_tree, {
     if(input$tree_algo == "Minimum-Spanning") {
-      Report$report_list_mst <- list(entry_table = DB$meta_true,
+      Report$report_list_mst <- list(entry_table = DB$meta_true[,1:12],
                                      scheme = DB$schemeinfo, 
                                      tree = input$tree_algo,
                                      na_handling = if(anyNA(DB$allelic_profile_true)){input$na_handling} else {NULL},
@@ -19820,7 +19820,7 @@ server <- function(input, output, session) {
                                      version = c(phylotraceVersion, "KMA-1.3.23"),
                                      plot = "MST")
     } else if(input$tree_algo == "Neighbour-Joining") {
-      Report$report_list_nj <- list(entry_table = DB$meta_true,
+      Report$report_list_nj <- list(entry_table = DB$meta_true[,1:12],
                                     scheme = DB$schemeinfo, 
                                     tree = input$tree_algo,
                                     na_handling = input$na_handling,
@@ -19828,7 +19828,7 @@ server <- function(input, output, session) {
                                     version = c(phylotraceVersion, "KMA-1.3.23"),
                                     plot = "NJ")
     } else {
-      Report$report_list_upgma <- list(entry_table = DB$meta_true,
+      Report$report_list_upgma <- list(entry_table = DB$meta_true[,1:12],
                                        scheme = DB$schemeinfo, 
                                        tree = input$tree_algo,
                                        na_handling = input$na_handling,
