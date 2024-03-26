@@ -5640,7 +5640,6 @@ server <- function(input, output, session) {
   Typing <- reactiveValues(table = data.frame(), 
                            single_path = data.frame(),
                            progress = 0, 
-                           progress_pct = 0, 
                            progress_format_start = 0, 
                            progress_format_end = 0) # reactive variables related to typing process
   
@@ -6554,8 +6553,6 @@ server <- function(input, output, session) {
                 Typing$entry_added <- 0
                 
                 Typing$progress <- 0
-                
-                Typing$progress_pct <- 0
                 
                 Typing$progress_format <- 900000
                 
@@ -20389,18 +20386,20 @@ server <- function(input, output, session) {
   update <- reactive({
     invalidateLater(3000, session)
     progress <- readLines(paste0(getwd(), "/execute", "/progress.fifo"))[1]
-    if(!is.na(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[2])) {
-      Typing$progress_format_start <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[2])
-      Typing$pending_format <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[2])
+    if(!is.na(progress)) {
+      if(!is.na(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[2])) {
+        Typing$progress_format_start <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[2])
+        Typing$pending_format <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[2])
+      }
+      if(!is.na(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[3])) {
+        Typing$progress_format_end <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[3])
+        Typing$entry_added <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[3])
+      }
+      Typing$progress <- as.numeric(progress)
+      floor((as.numeric(Typing$progress) / length(Typing$scheme_loci_f)) * 100)
+    } else {
+      Typing$progress
     }
-    if(!is.na(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[3])) {
-      Typing$progress_format_end <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[3])
-      Typing$entry_added <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[3])
-    }
-    progress <- as.numeric(progress)
-    Typing$progress <- progress
-    Typing$progress_pct <- floor((as.numeric(progress) / length(Typing$scheme_loci_f)) * 100)
-    progress_pct <- floor((as.numeric(progress) / length(Typing$scheme_loci_f)) * 100)
   })
   
   # Observe Typing Progress
@@ -20535,8 +20534,6 @@ server <- function(input, output, session) {
   observeEvent(input$reset_single_typing, {
     
     Typing$progress <- 0
-    
-    Typing$progress_pct <- 0
     
     Typing$progress_format <- 900000
     
