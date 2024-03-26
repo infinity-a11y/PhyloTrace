@@ -8871,10 +8871,6 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
-    test <<- Vis$nj_label_pos_size[[input$nj_custom_label_sel]]
-    
-    ganzeliste <<- Vis$nj_label_pos_size
-    
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -10120,8 +10116,8 @@ server <- function(input, output, session) {
   
   output$nj_sliderInput_x <- renderUI({
     if(length(Vis$custom_label_nj) > 0) {
-      if(length(Vis$nj_label_pos_y) > 0) {
-        if(!is.null(Vis$nj_label_pos_y[[input$nj_custom_label_sel]])) {
+      if(length(Vis$nj_label_pos_x) > 0) {
+        if(!is.null(Vis$nj_label_pos_x[[input$nj_custom_label_sel]])) {
           sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
                       label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
                       min = 0, max = 50, step = 1, ticks = F,
@@ -10138,24 +10134,6 @@ server <- function(input, output, session) {
       }
       
     } 
-  })
-  
-  # Space if no custom label selected
-  output$nj_label_space <- renderUI({
-    if(nrow(Vis$custom_label_nj) == 0) {
-      column(12, br(), br(), br(), br(), br(), h5("space", style = "color: transparent; margin-bottom: 20px"))
-    } else {NULL}
-  })
-  
-  # Show delete custom label button if custam label added
-  output$nj_del_label <- renderUI({
-    if(nrow(Vis$custom_label_nj) > 0) {
-      actionButton(
-        "nj_del_label",
-        "",
-        icon = icon("minus")
-      )
-    } else {NULL}
   })
   
   observe({
@@ -10178,6 +10156,24 @@ server <- function(input, output, session) {
       Vis$nj_label_pos_x <- list()
       Vis$nj_label_size <- list()
     }
+  })
+  
+  # Space if no custom label selected
+  output$nj_label_space <- renderUI({
+    if(nrow(Vis$custom_label_nj) == 0) {
+      column(12, br(), br(), br(), br(), br(), h5("space", style = "color: transparent; margin-bottom: 20px"))
+    } else {NULL}
+  })
+  
+  # Show delete custom label button if custam label added
+  output$nj_del_label <- renderUI({
+    if(nrow(Vis$custom_label_nj) > 0) {
+      actionButton(
+        "nj_del_label",
+        "",
+        icon = icon("minus")
+      )
+    } else {NULL}
   })
   
   # Custom Labels
