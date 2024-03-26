@@ -2445,7 +2445,11 @@ ui <- dashboardPage(
                                 column(
                                   width = 12,
                                   align = "center",
-                                  uiOutput("nj_custom_labelsize")
+                                  uiOutput("nj_custom_labelsize"),
+                                  br(),
+                                  uiOutput("nj_sliderInput_y"),
+                                  br(),
+                                  uiOutput("nj_sliderInput_x")
                                 )
                               )
                             )
@@ -2463,15 +2467,9 @@ ui <- dashboardPage(
                         ),
                         fluidRow(
                           column(
-                            width = 6,
+                            width = 12,
                             align = "center",
-                            uiOutput("nj_sliderInput_y"),
-                            uiOutput("nj_label_space")
-                          ),
-                          column(
-                            width = 6,
-                            align = "center",
-                            uiOutput("nj_sliderInput_x")
+                            uiOutput("nj_cust_label_save")
                           )
                         )
                       )
@@ -4376,7 +4374,11 @@ ui <- dashboardPage(
                                 column(
                                   width = 12,
                                   align = "center",
-                                  uiOutput("upgma_custom_labelsize")
+                                  uiOutput("upgma_custom_labelsize"),
+                                  br(),
+                                  uiOutput("upgma_sliderInput_y"),
+                                  br(),
+                                  uiOutput("upgma_sliderInput_x")
                                 )
                               )
                             )
@@ -4394,15 +4396,9 @@ ui <- dashboardPage(
                         ),
                         fluidRow(
                           column(
-                            width = 6,
+                            width = 12,
                             align = "center",
-                            uiOutput("upgma_sliderInput_y"),
-                            uiOutput("upgma_label_space")
-                          ),
-                          column(
-                            width = 6,
-                            align = "center",
-                            uiOutput("upgma_sliderInput_x")
+                            uiOutput("upgma_cust_label_save")
                           )
                         )
                       )
@@ -8871,6 +8867,16 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
+    test <<- Vis$nj_label_pos_x
+    
+    another <<- Vis$custom_label_nj
+    
+    x_pos <<- Vis$x_pos
+    
+    y_pos <<- Vis$y_pos
+    
+    size <<- Vis$size
+    
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -10016,31 +10022,6 @@ server <- function(input, output, session) {
   
   # Custom Labels
   
-  # Custom Label Size
-  output$nj_custom_labelsize <- renderUI({
-    if(length(Vis$custom_label_nj) > 0) {
-      if(length(Vis$nj_label_size) > 0) {
-        if(!is.null(Vis$nj_label_size[[input$nj_custom_label_sel]])) {
-          sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_size"),
-                      label = h5("Size", style = "color: white; margin-bottom: 0px;"),
-                      min = 0, max = 10, step = 0.5, ticks = F,
-                      value = Vis$nj_label_size[[input$nj_custom_label_sel]],
-                      width = "150px")
-        } else {
-          sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_size"),
-                      label = h5("Size", style = "color: white; margin-bottom: 0px;"),
-                      min = 0, max = 10, step = 0.5, ticks = F, value = 5,
-                      width = "150px")
-        }
-      } else {
-        sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_size"),
-                    label = h5("Size", style = "color: white; margin-bottom: 0px;"),
-                    min = 0, max = 10, step = 0.5, ticks = F, value = 5,
-                    width = "150px")
-      }
-    } 
-  })
-  
   # Add custom label
   observeEvent(input$nj_add_new_label, {
     if(nchar(input$nj_new_label_name) > 0) {
@@ -10048,6 +10029,33 @@ server <- function(input, output, session) {
         Vis$custom_label_nj <- rbind(Vis$custom_label_nj, input$nj_new_label_name) 
         if(!(nrow(Vis$custom_label_nj) == 1)) {
           updateSelectInput(session, "nj_custom_label_sel", selected = input$nj_new_label_name)
+        }
+      } else {
+        show_toast(
+          title = "Label already exists",
+          type = "error",
+          position = "top-end",
+          timer = 6000,
+          width = "500px"
+        )
+      }
+    } else {
+      show_toast(
+        title = "Min. 1 character",
+        type = "error",
+        position = "top-end",
+        timer = 6000,
+        width = "500px"
+      )
+    }
+  })
+  
+  observeEvent(input$upgma_add_new_label, {
+    if(nchar(input$upgma_new_label_name) > 0) {
+      if(!(input$upgma_new_label_name %in% Vis$custom_label_upgma)) {
+        Vis$custom_label_upgma <- rbind(Vis$custom_label_upgma, input$upgma_new_label_name) 
+        if(!(nrow(Vis$custom_label_upgma) == 1)) {
+          updateSelectInput(session, "upgma_custom_label_sel", selected = input$upgma_new_label_name)
         }
       } else {
         show_toast(
@@ -10081,6 +10089,17 @@ server <- function(input, output, session) {
     }
   })
   
+  observeEvent(input$upgma_del_label, {
+    if(nrow(Vis$custom_label_upgma) > 1) {
+      Vis$custom_label_upgma <- Vis$custom_label_upgma[-which(Vis$custom_label_upgma[,1] == input$upgma_custom_label_sel), , drop = FALSE]
+    } else if (nrow(Vis$custom_label_upgma) == 1) {
+      Vis$upgma_label_pos_x <- list()
+      Vis$upgma_label_pos_y <- list()
+      Vis$upgma_label_size <- list()
+      Vis$custom_label_upgma <- data.frame()
+    }
+  })
+  
   # Select custom labels
   output$nj_custom_label_select <- renderUI({
     if(nrow(Vis$custom_label_nj) > 0) {
@@ -10092,77 +10111,176 @@ server <- function(input, output, session) {
     }
   })
   
+  output$upgma_custom_label_select <- renderUI({
+    if(nrow(Vis$custom_label_upgma) > 0) {
+      selectInput(
+        "upgma_custom_label_sel",
+        "",
+        choices = Vis$custom_label_upgma[,1]
+      )
+    }
+  })
+  
+  # Select custom labels
+  output$nj_cust_label_save <- renderUI({
+    if(nrow(Vis$custom_label_nj) > 0) {
+      actionButton(
+        "nj_cust_label_save",
+        "Apply"
+      )
+    } else {
+      column(
+        width = 12,
+        br(), br(), br(), br(), br(), br(),
+        h5("test", style = "color: transparent; margin-bottom: 3px")
+      )
+    }
+  })
+  
+  output$upgma_cust_label_save <- renderUI({
+    if(nrow(Vis$custom_label_upgma) > 0) {
+      actionButton(
+        "upgma_cust_label_save",
+        "Apply"
+      )
+    } else {
+      column(
+        width = 12,
+        br(), br(), br(), br(), br(), br(),
+        h5("test", style = "color: transparent; margin-bottom: 3px")
+      )
+    }
+  })
+  
+  # Custom Label Size
+  output$nj_custom_labelsize <- renderUI({
+    if(length(Vis$custom_label_nj) > 0) {
+      if(!is.null(Vis$nj_label_size[[input$nj_custom_label_sel]])) {
+        sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_size"),
+                    label = h5("Size", style = "color: white; margin-bottom: 0px;"),
+                    min = 0, max = 10, step = 0.5, ticks = F,
+                    value = Vis$nj_label_size[[input$nj_custom_label_sel]],
+                    width = "150px")
+      } else {
+        sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_size"),
+                    label = h5("Size", style = "color: white; margin-bottom: 0px;"),
+                    min = 0, max = 10, step = 0.5, ticks = F, value = 5,
+                    width = "150px")
+      }
+    } 
+  })
+  
+  output$upgma_custom_labelsize <- renderUI({
+    if(length(Vis$custom_label_upgma) > 0) {
+      if(!is.null(Vis$upgma_label_size[[input$upgma_custom_label_sel]])) {
+        sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_size"),
+                    label = h5("Size", style = "color: white; margin-bottom: 0px;"),
+                    min = 0, max = 10, step = 0.5, ticks = F,
+                    value = Vis$upgma_label_size[[input$upgma_custom_label_sel]],
+                    width = "150px")
+      } else {
+        sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_size"),
+                    label = h5("Size", style = "color: white; margin-bottom: 0px;"),
+                    min = 0, max = 10, step = 0.5, ticks = F, value = 5,
+                    width = "150px")
+      }
+    } 
+  })
+  
   # Render slider input based on selected label
   output$nj_sliderInput_y <- renderUI({
     if(length(Vis$custom_label_nj) > 0) {
-      if(length(Vis$nj_label_pos_y) > 0) {
-        if(!is.null(Vis$nj_label_pos_y[[input$nj_custom_label_sel]])) {
-          sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
-                      label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
-                      min = 0, max = 50, step = 1, ticks = F,
-                      value = Vis$nj_label_pos_y[[input$nj_custom_label_sel]])
-        } else {
-          sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
-                      label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
-                      min = 0, max = 50, step = 1, ticks = F, value = 5)
-        }
+      if(!is.null(Vis$nj_label_pos_y[[input$nj_custom_label_sel]])) {
+        sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
+                    label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
+                    min = 0, max = 50, step = 1, ticks = F,
+                    value = Vis$nj_label_pos_y[[input$nj_custom_label_sel]],
+                    width = "150px")
       } else {
         sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
                     label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
-                    min = 0, max = 50, step = 1, ticks = F, value = 5)
+                    min = 0, max = sum(DB$data$Include), step = 1, ticks = F, 
+                    value = sum(DB$data$Include) / 2,
+                    width = "150px")
+      }
+    } 
+  })
+  
+  output$upgma_sliderInput_y <- renderUI({
+    if(length(Vis$custom_label_upgma) > 0) {
+      if(!is.null(Vis$upgma_label_pos_y[[input$upgma_custom_label_sel]])) {
+        sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_y"),
+                    label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
+                    min = 0, max = 50, step = 1, ticks = F,
+                    value = Vis$upgma_label_pos_y[[input$upgma_custom_label_sel]],
+                    width = "150px")
+      } else {
+        sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_y"),
+                    label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
+                    min = 0, max = sum(DB$data$Include), step = 1, ticks = F, 
+                    value = sum(DB$data$Include) / 2,
+                    width = "150px")
       }
     } 
   })
   
   output$nj_sliderInput_x <- renderUI({
     if(length(Vis$custom_label_nj) > 0) {
-      if(length(Vis$nj_label_pos_x) > 0) {
-        if(!is.null(Vis$nj_label_pos_x[[input$nj_custom_label_sel]])) {
-          sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
-                      label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
-                      min = 0, max = 50, step = 1, ticks = F,
-                      value = Vis$nj_label_pos_x[[input$nj_custom_label_sel]])
-        } else {
-          sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
-                      label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
-                      min = 0, max = 50, step = 1, ticks = F, value = 5)
-        }
+      if(!is.null(Vis$nj_label_pos_x[[input$nj_custom_label_sel]])) {
+        sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
+                    label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
+                    min = 0, max = 50, step = 1, ticks = F,
+                    value = Vis$nj_label_pos_x[[input$nj_custom_label_sel]],
+                    width = "150px")
       } else {
         sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
                     label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
-                    min = 0, max = 50, step = 1, ticks = F, value = 5)
+                    min = 0, max = round(Vis$nj_max_x, 0), step = 1, ticks = F, 
+                    value = round(Vis$nj_max_x / 2, 0),
+                    width = "150px")
       }
-      
-    } 
-  })
-  
-  observe({
-    if(length(Vis$custom_label_nj) > 0) {
-      if(!is.null(input$nj_custom_label_sel)) {
-        if((!is.null(input[[paste0("nj_slider_", input$nj_custom_label_sel, "_y")]])) & 
-           (!is.null(input[[paste0("nj_slider_", input$nj_custom_label_sel, "_x")]]))) {
-          Vis$nj_label_pos_y[[input$nj_custom_label_sel]] <- input[[paste0("nj_slider_", input$nj_custom_label_sel, "_y")]]
-          Vis$nj_label_pos_x[[input$nj_custom_label_sel]] <- input[[paste0("nj_slider_", input$nj_custom_label_sel, "_x")]]
-          
-          if (!is.null(input[[paste0("nj_slider_", input$nj_custom_label_sel, "_size")]])) {
-            Vis$nj_label_size[[input$nj_custom_label_sel]] <- input[[paste0("nj_slider_", input$nj_custom_label_sel, "_size")]]
-          } else {
-            Vis$nj_label_size[[input$nj_custom_label_sel]] <- 5
-          }
-        }
-      }
-    } else {
-      Vis$nj_label_pos_y <- list()
-      Vis$nj_label_pos_x <- list()
-      Vis$nj_label_size <- list()
     }
   })
   
-  # Space if no custom label selected
-  output$nj_label_space <- renderUI({
-    if(nrow(Vis$custom_label_nj) == 0) {
-      column(12, br(), br(), br(), br(), br(), h5("space", style = "color: transparent; margin-bottom: 20px"))
-    } else {NULL}
+  output$upgma_sliderInput_x <- renderUI({
+    if(length(Vis$custom_label_upgma) > 0) {
+      if(!is.null(Vis$upgma_label_pos_x[[input$upgma_custom_label_sel]])) {
+        sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_x"),
+                    label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
+                    min = 0, max = 50, step = 1, ticks = F,
+                    value = Vis$upgma_label_pos_x[[input$upgma_custom_label_sel]],
+                    width = "150px")
+      } else {
+        sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_x"),
+                    label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
+                    min = 0, max = round(Vis$upgma_max_x, 0), step = 1, ticks = F, 
+                    value = round(Vis$upgma_max_x / 2, 0),
+                    width = "150px")
+      }
+    }
+  })
+  
+  # Apply custom label changes
+  observeEvent(input$nj_cust_label_save, {
+    if(!is.null(Vis$nj_label_pos_y) &
+       !is.null(Vis$nj_label_pos_x) &
+       !is.null(Vis$nj_label_size) &
+       !is.null(input$nj_custom_label_sel)) {
+      Vis$nj_label_pos_y[[input$nj_custom_label_sel]] <- input[[paste0("nj_slider_", input$nj_custom_label_sel, "_y")]]
+      Vis$nj_label_pos_x[[input$nj_custom_label_sel]] <- input[[paste0("nj_slider_", input$nj_custom_label_sel, "_x")]]
+      Vis$nj_label_size[[input$nj_custom_label_sel]] <- input[[paste0("nj_slider_", input$nj_custom_label_sel, "_size")]]
+    }
+  })
+  
+  observeEvent(input$upgma_cust_label_save, {
+    if(!is.null(Vis$upgma_label_pos_y) &
+       !is.null(Vis$upgma_label_pos_x) &
+       !is.null(Vis$upgma_label_size) &
+       !is.null(input$upgma_custom_label_sel)) {
+      Vis$upgma_label_pos_y[[input$upgma_custom_label_sel]] <- input[[paste0("upgma_slider_", input$upgma_custom_label_sel, "_y")]]
+      Vis$upgma_label_pos_x[[input$upgma_custom_label_sel]] <- input[[paste0("upgma_slider_", input$upgma_custom_label_sel, "_x")]]
+      Vis$upgma_label_size[[input$upgma_custom_label_sel]] <- input[[paste0("upgma_slider_", input$upgma_custom_label_sel, "_size")]]
+    }
   })
   
   # Show delete custom label button if custam label added
@@ -10176,136 +10294,6 @@ server <- function(input, output, session) {
     } else {NULL}
   })
   
-  # Custom Labels
-  
-  # Custom Label Size
-  output$upgma_custom_labelsize <- renderUI({
-    if(length(Vis$custom_label_upgma) > 0) {
-      if(length(Vis$upgma_label_size) > 0) {
-        if(!is.null(Vis$upgma_label_size[[input$upgma_custom_label_sel]])) {
-          sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_size"),
-                      label = h5("Size", style = "color: white; margin-bottom: 0px;"),
-                      min = 0, max = 10, step = 0.5, ticks = F,
-                      value = Vis$upgma_label_size[[input$upgma_custom_label_sel]],
-                      width = "150px")
-        } else {
-          sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_size"),
-                      label = h5("Size", style = "color: white; margin-bottom: 0px;"),
-                      min = 0, max = 10, step = 0.5, ticks = F, value = 5,
-                      width = "150px")
-        }
-      } else {
-        sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_size"),
-                    label = h5("Size", style = "color: white; margin-bottom: 0px;"),
-                    min = 0, max = 10, step = 0.5, ticks = F, value = 5,
-                    width = "150px")
-      }
-    } 
-  })
-  
-  # Add custom label
-  observeEvent(input$upgma_add_new_label, {
-    if(nchar(input$upgma_new_label_name) > 0) {
-      if(!(input$upgma_new_label_name %in% Vis$custom_label_upgma)) {
-        Vis$custom_label_upgma <- rbind(Vis$custom_label_upgma, input$upgma_new_label_name) 
-        if(!(nrow(Vis$custom_label_upgma) == 1)) {
-          updateSelectInput(session, "upgma_custom_label_sel", selected = input$upgma_new_label_name)
-        }
-      } else {
-        show_toast(
-          title = "Label already exists",
-          type = "error",
-          position = "top-end",
-          timer = 6000,
-          width = "500px"
-        )
-      }
-    } else {
-      show_toast(
-        title = "Min. 1 character",
-        type = "error",
-        position = "top-end",
-        timer = 6000,
-        width = "500px"
-      )
-    }
-  })
-  
-  # Delete custom label
-  observeEvent(input$upgma_del_label, {
-    if(nrow(Vis$custom_label_upgma) > 1) {
-      Vis$custom_label_upgma <- Vis$custom_label_upgma[-which(Vis$custom_label_upgma[,1] == input$upgma_custom_label_sel), , drop = FALSE]
-    } else if (nrow(Vis$custom_label_upgma) == 1) {
-      Vis$upgma_label_pos_x <- list()
-      Vis$upgma_label_pos_y <- list()
-      Vis$upgma_label_size <- list()
-      Vis$custom_label_upgma <- data.frame()
-    }
-  })
-  
-  # Select custom labels
-  output$upgma_custom_label_select <- renderUI({
-    if(nrow(Vis$custom_label_upgma) > 0) {
-      selectInput(
-        "upgma_custom_label_sel",
-        "",
-        choices = Vis$custom_label_upgma[,1]
-      )
-    }
-  })
-  
-  # Render slider input based on selected label
-  output$upgma_sliderInput_y <- renderUI({
-    if(length(Vis$custom_label_upgma) > 0) {
-      if(length(Vis$upgma_label_pos_y) > 0) {
-        if(!is.null(Vis$upgma_label_pos_y[[input$upgma_custom_label_sel]])) {
-          sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_y"),
-                      label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
-                      min = 0, max = 10, step = 1, ticks = F,
-                      value = Vis$upgma_label_pos_y[[input$upgma_custom_label_sel]])
-        } else {
-          sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_y"),
-                      label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
-                      min = 0, max = 10, step = 1, ticks = F, value = 5)
-        }
-      } else {
-        sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_y"),
-                    label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
-                    min = 0, max = 10, step = 1, ticks = F, value = 5)
-      }
-    } 
-  })
-  
-  output$upgma_sliderInput_x <- renderUI({
-    if(length(Vis$custom_label_upgma) > 0) {
-      if(length(Vis$upgma_label_pos_y) > 0) {
-        if(!is.null(Vis$upgma_label_pos_y[[input$upgma_custom_label_sel]])) {
-          sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_x"),
-                      label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
-                      min = 0, max = 10, step = 1, ticks = F,
-                      value = Vis$upgma_label_pos_x[[input$upgma_custom_label_sel]])
-        } else {
-          sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_x"),
-                      label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
-                      min = 0, max = 10, step = 1, ticks = F, value = 5)
-        }
-      } else {
-        sliderInput(inputId = paste0("upgma_slider_", input$upgma_custom_label_sel, "_x"),
-                    label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
-                    min = 0, max = 10, step = 1, ticks = F, value = 5)
-      }
-      
-    } 
-  })
-  
-  # Space if no custom label selected
-  output$upgma_label_space <- renderUI({
-    if(nrow(Vis$custom_label_upgma) == 0) {
-      column(12, br(), br(), br(), br(), br(), h5("space", style = "color: transparent; margin-bottom: 20px"))
-    } else {NULL}
-  })
-  
-  # Show delete custom label button if custam label added
   output$upgma_del_label <- renderUI({
     if(nrow(Vis$custom_label_upgma) > 0) {
       actionButton(
@@ -10314,28 +10302,6 @@ server <- function(input, output, session) {
         icon = icon("minus")
       )
     } else {NULL}
-  })
-  
-  observe({
-    if(length(Vis$custom_label_upgma) > 0) {
-      if(!is.null(input$upgma_custom_label_sel)) {
-        if((!is.null(input[[paste0("upgma_slider_", input$upgma_custom_label_sel, "_y")]])) & 
-           (!is.null(input[[paste0("upgma_slider_", input$upgma_custom_label_sel, "_x")]]))) {
-          Vis$upgma_label_pos_y[[input$upgma_custom_label_sel]] <- input[[paste0("upgma_slider_", input$upgma_custom_label_sel, "_y")]]
-          Vis$upgma_label_pos_x[[input$upgma_custom_label_sel]] <- input[[paste0("upgma_slider_", input$upgma_custom_label_sel, "_x")]]
-          
-          if (!is.null(input[[paste0("upgma_slider_", input$upgma_custom_label_sel, "_size")]])) {
-            Vis$upgma_label_size[[input$upgma_custom_label_sel]] <- input[[paste0("upgma_slider_", input$upgma_custom_label_sel, "_size")]]
-          } else {
-            Vis$upgma_label_size[[input$upgma_custom_label_sel]] <- 5
-          }
-        }
-      }
-    } else {
-      Vis$upgma_label_pos_y <- list()
-      Vis$upgma_label_pos_x <- list()
-      Vis$upgma_label_size <- list()
-    }
   })
   
   # Mapping value number information
@@ -15900,20 +15866,32 @@ server <- function(input, output, session) {
       
       # Add custom labels
       if(length(Vis$custom_label_nj) > 0) {
+        
         for(i in Vis$custom_label_nj[,1]) {
-          if(!is.null(Vis$nj_label_size[[i]])) {
-            tree <- tree + annotate("text",
-                                    x = Vis$nj_label_pos_x[[i]], 
-                                    y = Vis$nj_label_pos_y[[i]], 
-                                    label = i,
-                                    size = Vis$nj_label_size[[i]])
+          
+          if(!is.null(Vis$nj_label_pos_x[[i]])) {
+            x_pos <- Vis$nj_label_pos_x[[i]]
           } else {
-            tree <- tree + annotate("text",
-                                    x = Vis$nj_label_pos_x[[i]], 
-                                    y = Vis$nj_label_pos_y[[i]], 
-                                    label = i,
-                                    size = 5)
+            x_pos <- round(Vis$nj_max_x / 2, 0)
           }
+          
+          if(!is.null(Vis$nj_label_pos_y[[i]])) {
+            y_pos <- Vis$nj_label_pos_y[[i]]
+          } else {
+            y_pos <- sum(DB$data$Include) / 2
+          }
+          
+          if(!is.null(Vis$nj_label_size[[i]])) {
+            size <- Vis$nj_label_size[[i]]
+          } else {
+            size <- 5
+          }
+          
+          tree <- tree + annotate("text",
+                                  x = x_pos,
+                                  y = y_pos, 
+                                  label = i,
+                                  size = size)
         }
       }
       
@@ -17265,20 +17243,32 @@ server <- function(input, output, session) {
       
       # Add custom labels
       if(length(Vis$custom_label_upgma) > 0) {
+        
         for(i in Vis$custom_label_upgma[,1]) {
-          if(!is.null(Vis$upgma_label_size[[i]])) {
-            tree <- tree + annotate("text",
-                                    x = Vis$upgma_label_pos_x[[i]], 
-                                    y = Vis$upgma_label_pos_y[[i]], 
-                                    label = i,
-                                    size = Vis$upgma_label_size[[i]])
+          
+          if(!is.null(Vis$upgma_label_pos_x[[i]])) {
+            x_pos <- Vis$upgma_label_pos_x[[i]]
           } else {
-            tree <- tree + annotate("text",
-                                    x = Vis$upgma_label_pos_x[[i]], 
-                                    y = Vis$upgma_label_pos_y[[i]], 
-                                    label = i,
-                                    size = 5)
+            x_pos <- round(Vis$upgma_max_x / 2, 0)
           }
+          
+          if(!is.null(Vis$upgma_label_pos_y[[i]])) {
+            y_pos <- Vis$upgma_label_pos_y[[i]]
+          } else {
+            y_pos <- sum(DB$data$Include) / 2
+          }
+          
+          if(!is.null(Vis$upgma_label_size[[i]])) {
+            size <- Vis$upgma_label_size[[i]]
+          } else {
+            size <- 5
+          }
+          
+          tree <- tree + annotate("text",
+                                  x = x_pos,
+                                  y = y_pos, 
+                                  label = i,
+                                  size = size)
         }
       }
       

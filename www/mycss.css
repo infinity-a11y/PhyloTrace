@@ -254,7 +254,7 @@ i.far.fa-pen-to-square {
 /* Database */
 
 #sel_all_entries, #desel_all_entries, #typing_start, #start_typ_multi, 
-#undo_changes, #genome_file, #genome_file_multi, #reset_multi {
+#undo_changes, #genome_file, #genome_file_multi, #reset_multi, #save_cust {
   border-color: white;
 }
 
@@ -753,6 +753,12 @@ button#mst_label_menu {
 
 .bootstrap-select.show-tick .dropdown-menu li a span.text {
   margin-right: 0px;
+}
+
+#nj_cust_label_save, #upgma_cust_label_save {
+  border-color: white;
+  margin-top: 6px;
+  margin-bottom: 20px;
 }
 
 #nj_add_new_label, #upgma_add_new_label {
