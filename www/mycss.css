@@ -153,11 +153,14 @@ div#scheme_db .form-control, .selectize-input, .selectize-control.single .select
   margin-left: 10px;
 }
 
-textinput-var-2
 button#load.pulsating-button.btn.btn-default.action-button.shiny-bound-input {
   background: #20E6E5; 
   color: #000000; 
   width: 40px;
+}
+
+.btn.btn-default.action-button.pulsating-button.shiny-bound-input {
+  border-color: transparent;
 }
 
 #load .fas.fa-rotate {
@@ -201,7 +204,7 @@ input.form-control.pickr-color {
 
 @keyframes pulsate {
   0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  50% { transform: scale(1.07); }
   100% { transform: scale(1); }
 }
 
