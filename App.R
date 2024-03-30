@@ -5869,7 +5869,7 @@ server <- function(input, output, session) {
             p(
               HTML(
                 paste(
-                  tags$span(style='color: white; font-size: 13px; font-style: italic;', 
+                  tags$span(style='color: #E18B00; font-size: 13px; font-style: italic;', 
                             'Warning: Folder contains invalid elements.')
                 )
               )
@@ -5918,7 +5918,7 @@ server <- function(input, output, session) {
             p(
               HTML(
                 paste(
-                  tags$span(style='color: white; font-size: 13px; font-style: italic;', 
+                  tags$span(style='color: #E18B00; font-size: 13px; font-style: italic;', 
                             'Warning: Folder contains invalid elements.')
                 )
               )

@@ -10,6 +10,18 @@ label {
   color: white;
 }
 
+.bs-searchbox .form-control {
+  border-color: black;
+}
+
+.open > .dropdown-menu {
+  border-color: black;
+}
+
+.shiny-input-container input[type="text"] {
+  border-color: black;
+}
+
 .white {
   color: white; 
   font-size: 16px;
@@ -313,7 +325,7 @@ i.far.fa-pen-to-square {
 }
 
 #new_var_name {
-  height: 32px;
+  height: 33px;
   margin-left: -6px;
   width: 123px;
   margin-top: -12px;
