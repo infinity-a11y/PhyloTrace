@@ -406,6 +406,10 @@ button#edit_button.btn.btn-default.action-button.shiny-bound-input {
 
 /* Typing */
 
+#print_log {
+  border-color: white;
+}
+
 .append_table {
   margin-top: 0px; 
   margin-left: 3px
