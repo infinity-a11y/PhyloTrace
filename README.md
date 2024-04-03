@@ -5,7 +5,21 @@
 </picture>
 <br><br><br><br>
 
-PhyloTrace is a platform for fully interactive bacterial typing, to be more precise: core-genome multi locus sequence typing (cgMLST) analysis, and management of a local database. It enables to get insight in the genomic relationship of a set of bacterial isolates and helps to reveal patterns explaining underlying spread dynamics and outbreaks by connecting epidemiologic variables. This tool can be used for research and academic purposes. Note that PhyloTrace is not validated for a clinical use yet, but we are working on achieving that.
+PhyloTrace is a platform for bacterial pathogen monitoring on a genomic level. Its components evolve around allele variant typing, to be more precise: core-genome multi locus sequence typing (cgMLST). Complex analyses and computation are wrapped into an appealing and easy-to-handle graphical user interface. This tool can help to reveal patterns explaining outbreak dynamics and events by connecting genomic information with epidemiologic variables. 
+
+<br>
+
+**Features**
+- Interactive cgMLST analysis also for large datasets comprising multiple genome assemblies
+- Managing a custom local database 
+- Connecting informative meta data and custom variables
+- Visualizing the relationship between bacterial isolates with phylogenetic trees
+- Download and report functionalities
+- *and more*
+
+<br>
+
+We want to make cgMLST analysis and genomic pathogen monitoring accessible to a broad spectrum of individuals and organizations. Therefore our goal is to build an interface with convenient user experience and easy handling that doesn't require you to be a bioinformatician. The app is in active development. To get a stable version download only the newest release and not the GitHub version. This tool can be used for research and academic purposes. Note that PhyloTrace is not validated for a clinical use yet, but we are working on achieving that.
 
 <br>
 
@@ -205,7 +219,7 @@ bash run_phylotrace.sh
 <br>
 
 ## 4 Roadmap
-PhyloTrace is under active development with new functions, enhancements and innovations to follow.
+PhyloTrace is under active development with new functions, enhancements and innovations to follow. Next to the points listed on the roadmap we constantly improve existing features.
 
 <picture>
     <source srcset="www/roadmap.png" width="30%">
@@ -214,13 +228,12 @@ PhyloTrace is under active development with new functions, enhancements and inno
 
 <sub>Generated with AI (GPT-4 DALL·E)</sub>
 
-- [X] ***"Hello World!"*** - Completion Version 1.0.0 
+- [X] ***"Hello World!"*** - Completion Version 1.0.0
+- [ ] Hash-Based Variant Calling
 - [ ] Support for additional cgMLST scheme databases (e.g. pubMLST, EnteroBase, Institut Pasteur)  
-- [ ] MST Graph Clustering 
-- [ ] Implementation of a Gene Enrichment Analysis   
-- [ ] Hash-Based Core Genome Multilocus Sequence Typing
-- [ ] More sophisticated MST Graphs (e.g. Pie Charts as Nodes)
-- [ ] Create new cgMLST Schemes / Add new Loci
-- [ ] Implementation of a NGS Sequencing Pipeline
+- [ ] MST Graph Clustering
 - [ ] Backwards Compatibility with MLST (ST calling)
 - [ ] Implementation of wgMLST
+- [ ] Implementation of a Gene Enrichment Analysis   
+- [ ] More sophisticated MST Graphs (e.g. Pie Charts as Nodes)
+- [ ] Implementation of a NGS Assembly Pipeline 
