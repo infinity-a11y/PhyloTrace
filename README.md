@@ -154,7 +154,7 @@ conda env create -f PhyloTrace.yml
 
 ### 2.3 Create Desktop Launcher
 
-Create a run script and an `.desktop` file to create a desktop launcher for PhyloTrace. 
+Create a run script and `.desktop` file to create a desktop launcher for PhyloTrace. 
 ```bash
 cd path/to/directory
 bash install_phylotrace.sh
@@ -180,6 +180,7 @@ If the installation issues persist feel free to contact us via [info@phylotrace.
 #### Desktop Launcher not Working
 If the default browser does not work properly, it can be changed, by changing R_BROWSER environment variable. For example, to use Google Chrome, use the following command:
 ```bash
+cd path/to/directory
 R_BROWSER=google-chrome bash run_phylotrace.sh
 ```
 
