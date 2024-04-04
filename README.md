@@ -234,7 +234,8 @@ PhyloTrace is under active development with new functions, enhancements and inno
 - [ ] Support for additional cgMLST scheme databases (e.g. pubMLST, EnteroBase, Institut Pasteur)  
 - [ ] MST Graph Clustering
 - [ ] Backwards Compatibility with MLST (ST calling)
-- [ ] Implementation of wgMLST
-- [ ] Implementation of a Gene Enrichment Analysis   
-- [ ] More sophisticated MST Graphs (e.g. Pie Charts as Nodes)
-- [ ] Implementation of a NGS Assembly Pipeline 
+- [ ] Implementation of wgMLST  
+- [ ] More sophisticated MST Graphs (e.g. Clustering & Pie Charts as Nodes)
+- [ ] Implementation of a NGS Assembly Pipeline
+- [ ] Validation of PhyloTrace for Clinical Use
+- [ ] Implementation of a Gene Enrichment Analysis 
