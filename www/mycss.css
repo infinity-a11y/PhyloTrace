@@ -464,15 +464,44 @@ border-color: white;
 }
 
 button#create_tree {
-  position: relative; 
-  left: -15px; 
-  width = 100%; 
-  border: none;
+position: relative;
+overflow: hidden;
+box-shadow: 0px 0px 20px 10px rgba(255, 255, 255, 0.23);
+transition: box-shadow 0.3s ease;
+left: -15px;
+border: none;
+height: 45px;
+z-index: 0;
 }
 
 button#create_tree:hover {
-  background: #3c8c56; 
+background: #3c8c56; 
   border: none;
+box-shadow: 0px 0px 20px 15px rgba(40, 47, 56, 1);
+}
+
+#button-wrapper {
+position: relative;
+display: inline-block;
+}
+
+.icon {
+  transition: transform 0.3s ease;
+  position: absolute;
+  top: 13px;
+  left: 8px;
+  width: 23px;
+  height: auto;
+  z-index: 1;
+  pointer-events: none;
+}
+
+#button-wrapper:hover .icon {
+transform: scale(1.2);
+width: 43px;
+height: auto;
+top: -2px;
+left: -7px;
 }
 
 #mst_ratio {

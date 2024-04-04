@@ -6750,20 +6750,17 @@ server <- function(input, output, session) {
                         column(
                           width = 12,
                           align = "center",
-                          actionButton(
-                            "create_tree",
-                            "",
-                            width = "100%",
-                            icon = icon(
-                              name = NULL,
-                              style = "
-                  background: url('phylo.png');
-                  background-size: contain;
-                  background-position: center;
-                  background-repeat: no-repeat;
-                  height: 32px;
-                  display: block;
-                "
+                          tags$div(
+                            id = "button-wrapper",
+                            actionButton(
+                              "create_tree",
+                              h5("Create Tree", style = "position: relative; left: 15px; color: white; font-size: 15px;"),
+                              width = "100%"
+                            ),
+                            tags$img(
+                              src = "phylo.png",
+                              alt = "icon",
+                              class = "icon"
                             )
                           )
                         )
