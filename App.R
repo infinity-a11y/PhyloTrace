@@ -16186,12 +16186,20 @@ server <- function(input, output, session) {
         }
         geom_hilight(node = as.numeric(input$nj_parentnode),
                      fill = fill,
-                     align = input$nj_clade_align,
+                     align = nj_align_clade(),
                      type = input$nj_clade_type,
                      gradient.direction = nj_clade_grad_dir(),
                      gradient.length.out = nj_clade_grad_len())
       } else {NULL}
     }
+  })
+  
+  # Clade highlight align 
+  
+  nj_align_clade <- reactive({
+    if(is.null(input$nj_clade_align)) {
+      input$nj_clade_align
+    } else {input$nj_clade_align}
   })
   
   # Clade highlight gradient direction
