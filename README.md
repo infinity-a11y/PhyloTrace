@@ -28,10 +28,10 @@ We want to make cgMLST analysis and genomic pathogen monitoring accessible to a 
 <br>
 
 <div style="display: flex; justify-content: center; align-items: center; margin-top: 50px; margin-bottom: -30px;">
-    <img align="center" src="www/featured.png" alt="Partner/Feature 1" width="70%">
+    <img align="center" src="www/partners_features.png" alt="Partner/Feature 1" width="70%">
 </div>
-
-<sup> Developed in collaboration with Hochschule Furtwangen University (HFU) and Medical University of Graz (MUG). Featured on ShinyConf 2024. </sup> 
+<br>
+<sup><sup> Developed in collaboration with Hochschule Furtwangen University (HFU) and Medical University of Graz (MUG). Featured on ShinyConf 2024. </sup> </sup>
 
 <br>
 <hr>
@@ -222,18 +222,12 @@ bash run_phylotrace.sh
 ## 4 Roadmap
 PhyloTrace is under active development with new functions, enhancements and innovations to follow. Next to the points listed on the roadmap we constantly improve existing features.
 
-<picture>
-    <source srcset="www/roadmap.png" width="30%">
-    <img src= "www/">
-</picture>
-
-<sub>Generated with AI (GPT-4 DALL·E)</sub>
-
 - [X] ***"Hello World!"*** - Completion Version 1.0.0
 - [ ] Hash-Based Variant Calling
 - [ ] Support for additional cgMLST scheme databases (e.g. pubMLST, EnteroBase, Institut Pasteur)  
 - [ ] MST Graph Clustering
 - [ ] Backwards Compatibility with MLST (ST calling)
+- [ ] Compatibility with Microsoft Windows
 - [ ] Implementation of wgMLST  
 - [ ] More sophisticated MST Graphs (e.g. Clustering & Pie Charts as Nodes)
 - [ ] Implementation of a NGS Assembly Pipeline
