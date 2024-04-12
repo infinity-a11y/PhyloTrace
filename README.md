@@ -16,7 +16,7 @@ We want to make cgMLST analysis and genomic pathogen monitoring accessible to a 
 
 [www.PhyloTrace.com](https://www.phylotrace.com)  |  [info@phylotrace.com](mailto:info@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans)
 
-![PartnerLogos](www/partner_logos_rounded.webp)
+![PartnerLogos](www/partner_logos_round.svg)
 
 <sup><sup> Developed in collaboration with Hochschule Furtwangen University (HFU) and Medical University of Graz (MUG). Featured on ShinyConf 2024. </sup> </sup>
 
