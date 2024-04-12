@@ -1,5 +1,5 @@
-![PhyloTrace](www/PhyloTrace_bw.png#gh-dark-mode-only)
-![PhyloTrace](www/PhyloTrace.png#gh-light-mode-only)
+![PhyloTrace](www/PhyloTrace_bw.png#gh-light-mode-only)
+![PhyloTrace](www/PhyloTrace.png#gh-dark-mode-only)
 
 PhyloTrace is a platform for bacterial pathogen monitoring on a genomic level. Its components evolve around allele variant typing, to be more precise: core-genome multi locus sequence typing (cgMLST). Complex analyses and computation are wrapped into an appealing and easy-to-handle graphical user interface. This tool can help to reveal patterns explaining outbreak dynamics and events by connecting genomic information with epidemiologic variables. 
 
@@ -16,13 +16,11 @@ We want to make cgMLST analysis and genomic pathogen monitoring accessible to a 
 
 [www.PhyloTrace.com](https://www.phylotrace.com)  |  [info@phylotrace.com](mailto:info@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans)
 
-![PartnerLogos](www/partner_logos_rounded_border.svg)
+![PartnerLogos](www/partner_logos_rounded.webp)
 
 <sup><sup> Developed in collaboration with Hochschule Furtwangen University (HFU) and Medical University of Graz (MUG). Featured on ShinyConf 2024. </sup> </sup>
 
-<br>
-<hr>
-<br>
+---
 
 ## Table of Content
 
@@ -39,7 +37,6 @@ We want to make cgMLST analysis and genomic pathogen monitoring accessible to a 
 * [3 Using PhyloTrace](#3-using-phylotrace)
 * [4 Roadmap](#4-roadmap)
 
-<br>
 
 ## 1 Getting Started
 
@@ -57,12 +54,12 @@ PhyloTrace follows a straight-forward workflow. Note, that although these steps 
 ### 1.2 Compatibility
 
 #### Minimal System Requirements
-CPU: Intel i3-4005U
-RAM: 8GB
-OS: Debian 12
-Storage: ...
+- CPU: Intel i3-4005U
+- RAM: 8GB
+- OS: Debian 12
+- Storage: ...
 
-Additionally PhyloTrace was tested on the following Linux distribution:
+Additionally, PhyloTrace was tested on the following Linux distribution:
 - Ubuntu 22.04
 - Debian 12
 - Fedora 39
@@ -92,8 +89,6 @@ If you use PhyloTrace for your paper or publication, please give us credit by ci
   url          = {https://doi.org/10.1234/zenodo.xxxxxxx}
 }
 ```
-
-<br>
 
 ## 2 Installation
 
@@ -181,15 +176,11 @@ R_BROWSER=google-chrome bash run_phylotrace.sh
 
 If PhyloTrace is still unable to launch from desktop, a missing default browser was likely not the issue. In this case either open PhyloTrace as described in [3 Using PhyloTrace](#3-using-phylotrace) or contact us via [info@phylotrace.com](mailto:info@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans).
 
-<br>
-
 ## 3 Using PhyloTrace
 
 Start PhyloTrace by using the launcher in Applications Menu. A tab with the app will automatically open in the default browser. 
 
 The **user manual** containing documentation is available at [www.phylotrace.com/user-manual](https://www.phylotrace.com/user-manual). 
-
-<br>
 
 **Alternative Launching:**
 
@@ -199,8 +190,6 @@ cd path/to/directory
 bash run_phylotrace.sh
 ```
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
-
-<br>
 
 ## 4 Roadmap
 PhyloTrace is under active development with new functions, enhancements and innovations to follow. Next to the points listed on the roadmap we constantly improve existing features.
