@@ -24,7 +24,7 @@ We want to make cgMLST analysis and genomic pathogen monitoring accessible to a 
 
 ## Table of Content
 
-* [1 Getting Started](#1-getting-started)  
+* [1 Getting Started](#1-getting-started)
     * [1.1 Gallery](#11-gallery)
     * [1.2 Compatibility](#12-compatibility)
     * [1.3 Citation](#13-citation)
@@ -57,15 +57,16 @@ PhyloTrace follows a straight-forward workflow. Note, that although these steps 
 - CPU: Intel i3-4005U
 - RAM: 8GB
 - OS: Debian 12
-- Storage: ...
+- Storage: 250 GB
 
 Additionally, PhyloTrace was tested on the following Linux distribution:
-- Ubuntu 22.04
-- Debian 12
 - Fedora 39
+- Ubuntu 22.04
+- Linux Mint 21.3
+- MX Linux 23.2
 
 #### Browser Compatibility
-PhyloTrace is compatible with any modern browser. For best compatibility and user-exerience we recommend one of the following browsers:
+PhyloTrace is compatible with any modern browser. For best compatibility and user-experience we recommend one of the following browsers:
 - Google Chrome
 - Chromium
 - Brave
@@ -132,7 +133,7 @@ conda env create -f PhyloTrace.yml
 
 ### 2.3 Create Desktop Launcher
 
-Run install script to generate a run script and include desktop launcher for PhyloTrace in the Applications Menu.
+Run install script to generate a run script and include PhyloTrace desktop icon in the Applications Menu.
  
 ```bash
 cd path/to/directory
@@ -141,7 +142,7 @@ bash install_phylotrace.sh
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
 ### 2.4 Uninstall
-To remove PhyloTrace from your system, remove the Phylotrace directory and run the following command to remove
+To uninstall PhyloTrace from your system, remove the Phylotrace directory and run the following command to remove
 Desktop Launcher:
 ```bash
 rm $HOME/.local/share/applications/PhyloTrace.desktop
@@ -196,12 +197,12 @@ PhyloTrace is under active development with new functions, enhancements and inno
 
 - [X] ***"Hello World!"*** - Completion Version 1.0.0
 - [ ] Hash-Based Variant Calling
-- [ ] Support for additional cgMLST scheme databases (e.g. pubMLST, EnteroBase, Institut Pasteur)  
+- [ ] Support for additional cgMLST scheme databases (e.g. pubMLST, EnteroBase, Institut Pasteur)
 - [ ] MST Graph Clustering
 - [ ] Backwards Compatibility with MLST (ST calling)
 - [ ] Compatibility with Microsoft Windows
-- [ ] Implementation of wgMLST  
+- [ ] Implementation of wgMLST
 - [ ] More sophisticated MST Graphs (e.g. Clustering & Pie Charts as Nodes)
 - [ ] Implementation of a NGS Assembly Pipeline
 - [ ] Validation of PhyloTrace for Clinical Use
-- [ ] Implementation of a Gene Enrichment Analysis 
+- [ ] Implementation of a Gene Enrichment Analysis
