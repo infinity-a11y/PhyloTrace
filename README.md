@@ -1,15 +1,10 @@
-<picture>
-    <source media="(prefers-color-scheme: light)" srcset="www/PhyloTrace_bw.png">
-    <source media="(prefers-color-scheme: dark)" srcset="www/PhyloTrace.png">
-    <img src= "www/">
-</picture>
-<br><br><br><br>
+![PhyloTrace](www/PhyloTrace_bw.png#gh-light-mode-only)
+![PhyloTrace](www/PhyloTrace.png#gh-dark-mode-only)
 
 PhyloTrace is a platform for bacterial pathogen monitoring on a genomic level. Its components evolve around allele variant typing, to be more precise: core-genome multi locus sequence typing (cgMLST). Complex analyses and computation are wrapped into an appealing and easy-to-handle graphical user interface. This tool can help to reveal patterns explaining outbreak dynamics and events by connecting genomic information with epidemiologic variables. 
 
-<br>
-
 **Features**
+
 - Interactive cgMLST analysis also for large datasets comprising multiple genome assemblies
 - Managing a custom local database 
 - Connecting informative meta data and custom variables
@@ -17,29 +12,19 @@ PhyloTrace is a platform for bacterial pathogen monitoring on a genomic level. I
 - Download and report functionalities
 - *and more*
 
-<br>
-
 We want to make cgMLST analysis and genomic pathogen monitoring accessible to a broad spectrum of individuals and organizations. Therefore our goal is to build an interface with convenient user experience and easy handling that doesn't require you to be a bioinformatician. The app is in active development. To get a stable version download only the newest release and not the GitHub version. This tool can be used for research and academic purposes. Note that PhyloTrace is not validated for a clinical use yet, but we are working on achieving that.
-
-<br>
 
 [www.PhyloTrace.com](https://www.phylotrace.com)  |  [info@phylotrace.com](mailto:info@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans)
 
-<br>
+![PartnerLogos](www/partners_logo_round.svg)
 
-<div style="display: flex; justify-content: center; align-items: center; margin-top: 50px; margin-bottom: -30px;">
-    <img align="center" src="www/partners_features.png" alt="Partner/Feature 1" width="70%">
-</div>
-<br>
 <sup><sup> Developed in collaboration with Hochschule Furtwangen University (HFU) and Medical University of Graz (MUG). Featured on ShinyConf 2024. </sup> </sup>
 
-<br>
-<hr>
-<br>
+---
 
 ## Table of Content
 
-* [1 Getting Started](#1-getting-started)  
+* [1 Getting Started](#1-getting-started)
     * [1.1 Gallery](#11-gallery)
     * [1.2 Compatibility](#12-compatibility)
     * [1.3 Citation](#13-citation)
@@ -52,12 +37,8 @@ We want to make cgMLST analysis and genomic pathogen monitoring accessible to a 
 * [3 Using PhyloTrace](#3-using-phylotrace)
 * [4 Roadmap](#4-roadmap)
 
-<br>
 
 ## 1 Getting Started
-PhyloTrace is a platform for fully interactive bacterial typing, to be more precise: core-genome multi locus sequence typing (cgMLST) analysis, and management of a local database. It enables to get insight in the genomic relationship of a set of bacterial isolates and helps to reveal patterns explaining underlying spread dynamics and outbreaks by connecting epidemiologic variables. This tool can be used for research and academic purposes. Note that PhyloTrace is not validated for a clinical use yet, but we are working on achieving that. 
-
-<p></p>
 
 The **user manual** is available at [www.phylotrace.com/user-manual](https://www.phylotrace.com/user-manual). 
 
@@ -72,33 +53,31 @@ PhyloTrace follows a straight-forward workflow. Note, that although these steps 
 
 ### 1.2 Compatibility
 
-#### System Requirements
-PhyloTrace does not require overly powerful hardware.  It was tested with a simple office notebook. However the speed of the typing analysis is dependent on the system capabilities.
+#### Minimal System Requirements
+- CPU: Intel i3-4005U
+- RAM: 8GB
+- OS: Debian 12
+- Storage: 250 GB
 
-#### Operating System
-PhyloTrace is compatible for the following Linux distributions:
-- Ubuntu
-- Debian
-- Fedora
+Additionally, PhyloTrace was tested on the following Linux distribution:
+- Fedora 39
+- Ubuntu 22.04
+- Linux Mint 21.3
+- MX Linux 23.2
 
 #### Browser Compatibility
-PhyloTrace is compatible with .... - only browsers, such as:
+PhyloTrace is compatible with any modern browser. For best compatibility and user-experience we recommend one of the following browsers:
 - Google Chrome
 - Chromium
 - Brave
 - Opera
 - Vivaldi
-- ...
 
 ### 1.3 Citation
 
 If you use PhyloTrace for your paper or publication, please give us credit by citing:
 
-<br>
-
 - *Freisleben, M. & Paskali, F. (2024). PhyloTrace. Zenodo. DOI: 10.1234/zenodo.xxxxxxx.*
-
-<br>
 
 *In Bibtex format:*
 ```
@@ -112,18 +91,18 @@ If you use PhyloTrace for your paper or publication, please give us credit by ci
 }
 ```
 
-<br>
-
 ## 2 Installation
 
-Download the repository as `.zip` and unpack it to a location on your system.
+Download the repository as `.zip` and unpack it to a location on your system, or use git clone.
 
 Is ***Miniconda*** or another ***Conda Distribution*** installed on the system?
 - No: Run the installation below and initialize conda. 
 - Yes: Proceed to [2.2 Create Conda Environment](#22-create-conda-environment).
 
 ### 2.1 Install Miniconda
-These four commands quickly and quietly install the latest 64-bit version of the installer and then clean up after themselves. 
+These four commands quickly and quietly install the latest 64-bit version of Miniconda and then clean up after themselves.
+>For installation of Miniconda on system with different architecture, please refer to the [Miniconda documentation](https://docs.anaconda.com/free/miniconda/index.html)
+
 ```bash
 mkdir -p ~/miniconda3
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
@@ -150,11 +129,12 @@ cd path/to/directory
 conda env create -f PhyloTrace.yml
 ```
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
->*This process might take a while (depends on system capacities).*
+>*This process might take a while (depends on system performance).*
 
 ### 2.3 Create Desktop Launcher
 
-Create a run script and `.desktop` file to create a desktop launcher for PhyloTrace. 
+Run install script to generate a run script and include PhyloTrace desktop icon in the Applications Menu.
+ 
 ```bash
 cd path/to/directory
 bash install_phylotrace.sh
@@ -162,7 +142,7 @@ bash install_phylotrace.sh
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
 ### 2.4 Uninstall
-To remove PhyloTrace from your system, remove the Phylotrace directory and run the following command to remove
+To uninstall PhyloTrace from your system, remove the Phylotrace directory and run the following command to remove
 Desktop Launcher:
 ```bash
 rm $HOME/.local/share/applications/PhyloTrace.desktop
@@ -183,7 +163,6 @@ If the default browser does not work properly, it can be changed, by changing R_
 cd path/to/directory
 R_BROWSER=google-chrome bash run_phylotrace.sh
 ```
-
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
 | Browser  | *browser-name*  |
@@ -198,15 +177,11 @@ R_BROWSER=google-chrome bash run_phylotrace.sh
 
 If PhyloTrace is still unable to launch from desktop, a missing default browser was likely not the issue. In this case either open PhyloTrace as described in [3 Using PhyloTrace](#3-using-phylotrace) or contact us via [info@phylotrace.com](mailto:info@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans).
 
-<br>
-
 ## 3 Using PhyloTrace
 
 Start PhyloTrace by using the launcher in Applications Menu. A tab with the app will automatically open in the default browser. 
 
 The **user manual** containing documentation is available at [www.phylotrace.com/user-manual](https://www.phylotrace.com/user-manual). 
-
-<br>
 
 **Alternative Launching:**
 
@@ -217,19 +192,17 @@ bash run_phylotrace.sh
 ```
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
-<br>
-
 ## 4 Roadmap
 PhyloTrace is under active development with new functions, enhancements and innovations to follow. Next to the points listed on the roadmap we constantly improve existing features.
 
 - [X] ***"Hello World!"*** - Completion Version 1.0.0
 - [ ] Hash-Based Variant Calling
-- [ ] Support for additional cgMLST scheme databases (e.g. pubMLST, EnteroBase, Institut Pasteur)  
+- [ ] Support for additional cgMLST scheme databases (e.g. pubMLST, EnteroBase, Institut Pasteur)
 - [ ] MST Graph Clustering
 - [ ] Backwards Compatibility with MLST (ST calling)
 - [ ] Compatibility with Microsoft Windows
-- [ ] Implementation of wgMLST  
+- [ ] Implementation of wgMLST
 - [ ] More sophisticated MST Graphs (e.g. Clustering & Pie Charts as Nodes)
 - [ ] Implementation of a NGS Assembly Pipeline
 - [ ] Validation of PhyloTrace for Clinical Use
-- [ ] Implementation of a Gene Enrichment Analysis 
+- [ ] Implementation of a Gene Enrichment Analysis
