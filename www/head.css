@@ -1,0 +1,59 @@
+ /* Works on Firefox */
+* {
+  scrollbar-width: 10px;
+  scrollbar-color: white;
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 15px;
+  height: 15px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #282F38;
+}
+
+.wtHolder::-webkit-scrollbar-track,
+div#bs-select-1::-webkit-scrollbar-track,
+div#bs-select-2::-webkit-scrollbar-track,
+div#bs-select-3::-webkit-scrollbar-track,
+div#bs-select-4::-webkit-scrollbar-track,
+div#bs-select-5::-webkit-scrollbar-track,
+div#bs-select-6::-webkit-scrollbar-track,
+div#bs-select-7::-webkit-scrollbar-track,
+div#bs-select-8::-webkit-scrollbar-track,
+div#bs-select-9::-webkit-scrollbar-track,
+div#bs-select-10::-webkit-scrollbar-track,
+div#bs-select-11::-webkit-scrollbar-track,
+div#bs-select-12::-webkit-scrollbar-track,
+.selectize-dropdown-content::-webkit-scrollbar-track {
+  background: #F0F0F0;
+}
+.wtHolder::-webkit-scrollbar-thumb,
+div#bs-select-1::-webkit-scrollbar-thumb,
+div#bs-select-2::-webkit-scrollbar-thumb,
+div#bs-select-3::-webkit-scrollbar-thumb,
+div#bs-select-4::-webkit-scrollbar-thumb,
+div#bs-select-5::-webkit-scrollbar-thumb,
+div#bs-select-6::-webkit-scrollbar-thumb,
+div#bs-select-7::-webkit-scrollbar-thumb,
+div#bs-select-8::-webkit-scrollbar-thumb,
+div#bs-select-9::-webkit-scrollbar-thumb,
+div#bs-select-10::-webkit-scrollbar-thumb,
+div#bs-select-11::-webkit-scrollbar-thumb,
+div#bs-select-12::-webkit-scrollbar-thumb,
+.selectize-dropdown-content::-webkit-scrollbar-thumb {
+  background: #bcbcbc;
+  border: 2px solid #F0F0F0;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #F0F0F0;
+  border-radius: 10px;
+  border: 2px solid #282F38;
+} 
+
+*::-webkit-scrollbar-corner {
+  background: #F0F0F0;
+}
