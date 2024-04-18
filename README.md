@@ -54,16 +54,22 @@ PhyloTrace follows a straight-forward workflow. Note, that although these steps 
 ### 1.2 Compatibility
 
 #### Minimal System Requirements
-- CPU: Intel i3-4005U
-- RAM: 8GB
-- OS: Debian 12
-- Storage: 250 GB
 
-Additionally, PhyloTrace was tested on the following Linux distribution:
-- Fedora 39
-- Ubuntu 22.04
-- Linux Mint 21.3
-- MX Linux 23.2
+| Component  | Requirement  |
+| ------------- | ------------- |
+| CPU  | Intel i3-4005U  |
+| RAM  | 8 GB  |
+| Operating System  | Debian 12  |
+| Storage  | 250 GB  |
+
+Additionally, PhyloTrace was tested on the following Linux distributions:
+| Name  | Version  |
+| ------------- | ------------- |
+| Debian | 12 |
+| Fedora | 39 |
+| Ubuntu | 22.04 |
+| Linux Mint | 21.3 |
+| MX Linux | 23.2 |
 
 #### Browser Compatibility
 PhyloTrace is compatible with any modern browser. For best compatibility and user-experience we recommend one of the following browsers:
