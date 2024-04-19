@@ -28,9 +28,8 @@ We want to make cgMLST analysis and genomic pathogen monitoring accessible to a 
 ## Table of Content
 
 * [1 Getting Started](#1-getting-started)
-    * [1.1 Gallery](#11-gallery)
-    * [1.2 Compatibility](#12-compatibility)
-    * [1.3 Citation](#13-citation)
+    * [1.1 Compatibility](#11-compatibility)
+    * [1.2 Citation](#12-citation)
 * [2 Installation](#2-installation)
     * [2.1 Install Miniconda](#21-install-miniconda)
     * [2.2 Create Conda Environment](#22-create-conda-environment)
@@ -42,22 +41,13 @@ We want to make cgMLST analysis and genomic pathogen monitoring accessible to a 
 
 ## 1 Getting Started
 
-The **user manual** is available at [www.phylotrace.com/user-manual](https://www.phylotrace.com/user-manual). 
+The **user manual** containing detailed instructions and informations is available at [www.phylotrace.com/user-manual](https://www.phylotrace.com/user-manual). 
 
-### 1.1 Gallery
-PhyloTrace follows a straight-forward workflow. Note, that although these steps seem very simplistic, the app offers extensive customization options. The database can interactively managed, allowing to edit meta data, add custom variables, delete entries and download it to external files. 
-
-**1. Type New Bacterial Assembly**
-
-**2. Add Results to Database**
-
-**3. Visualize Results**
-
-### 1.2 Compatibility
+### 1.1 Compatibility
 
 #### Minimal System Requirements
 
-| Requirement         | Description   |
+| Component         | Description   |
 | ------------------- | ------------- |
 | Operating System    | Any Linux distribution capable of running R and Conda (e.g., Ubuntu, Fedora, Debian, ArchLinux, OpenSuse) |
 | Web Browser | Compatible with latest version of major browsers(Chrome, Firefox, Brave, Chromium, Opera, Vivaldi) |
@@ -76,7 +66,7 @@ PhyloTrace was tested on the following Linux distributions:
 | Linux Mint | 21.3 |
 | MX Linux | 23.2 |
 
-### 1.3 Citation
+### 1.2 Citation
 
 If you use PhyloTrace for your paper or publication, please give us credit by citing:
 
