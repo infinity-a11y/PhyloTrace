@@ -83,7 +83,7 @@ PhyloTrace is compatible with any modern browser. For best compatibility and use
 
 If you use PhyloTrace for your paper or publication, please give us credit by citing:
 
-- *Freisleben, M. & Paskali, F. (2024). PhyloTrace. Zenodo. DOI: 10.1234/zenodo.xxxxxxx.*
+- *Freisleben, M. & Paskali, F. (2024). PhyloTrace. Zenodo. DOI: 10.5281/zenodo.10996424.*
 
 *In Bibtex format:*
 ```
@@ -92,8 +92,8 @@ If you use PhyloTrace for your paper or publication, please give us credit by ci
   title        = {PhyloTrace},
   year         = {2024},
   publisher    = {Zenodo},
-  doi          = {10.1234/zenodo.xxxxxxx},
-  url          = {https://doi.org/10.1234/zenodo.xxxxxxx}
+  doi          = {10.5281/zenodo.10996424},
+  url          = {https://doi.org/10.5281/zenodo.10996424}
 }
 ```
 
