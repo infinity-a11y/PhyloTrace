@@ -20,8 +20,11 @@ We want to make cgMLST analysis and genomic pathogen monitoring accessible to a 
 
 <sup><sup> Developed in collaboration with Hochschule Furtwangen University (HFU) and Medical University of Graz (MUG). Featured on ShinyConf 2024. </sup> </sup>
 
----
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10996424.svg)](https://doi.org/10.5281/zenodo.10996424)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)
 
+---
 ## Table of Content
 
 * [1 Getting Started](#1-getting-started)
@@ -36,7 +39,6 @@ We want to make cgMLST analysis and genomic pathogen monitoring accessible to a 
     * [2.5 Troubleshooting](#25-troubleshooting)
 * [3 Using PhyloTrace](#3-using-phylotrace)
 * [4 Roadmap](#4-roadmap)
-
 
 ## 1 Getting Started
 
@@ -55,29 +57,24 @@ PhyloTrace follows a straight-forward workflow. Note, that although these steps 
 
 #### Minimal System Requirements
 
-| Component  | Requirement  |
-| ------------- | ------------- |
-| CPU  | Intel i3-4005U  |
-| RAM  | 8 GB  |
-| Operating System  | Debian 12  |
-| Storage  | 250 GB  |
+| Requirement         | Description   |
+| ------------------- | ------------- |
+| Operating System    | Any Linux distribution capable of running R and Conda (e.g., Ubuntu, Fedora, Debian, ArchLinux, OpenSuse) |
+| Web Browser | Compatible with latest version of major browsers(Chrome, Firefox, Brave, Chromium, Opera, Vivaldi) |
+| Storage 		  	  | >= 250GB SSD |
+| RAM				  | >= 8GB |
+| CPU  				  | Multi-core processor, >= 2.5 GHz |
+>*These system requirements are provided as estimates, and it's possible for the application to run on lower-spec systems, depending on application workload and usage patterns.*
 
-Additionally, PhyloTrace was tested on the following Linux distributions:
-| Name  | Version  |
+PhyloTrace was tested on the following Linux distributions:
+
+| Distribution  | Version  |
 | ------------- | ------------- |
 | Debian | 12 |
 | Fedora | 39 |
 | Ubuntu | 22.04 |
 | Linux Mint | 21.3 |
 | MX Linux | 23.2 |
-
-#### Browser Compatibility
-PhyloTrace is compatible with any modern browser. For best compatibility and user-experience we recommend one of the following browsers:
-- Google Chrome
-- Chromium
-- Brave
-- Opera
-- Vivaldi
 
 ### 1.3 Citation
 
