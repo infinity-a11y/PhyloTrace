@@ -304,8 +304,10 @@ i.far.fa-pen-to-square {
   margin-bottom: 70px;
 }
 
-#db_entries, #db_distancematrix, #table_missing_values, #multi_select_table {
+#db_entries, #db_distancematrix, #table_missing_values, 
+#multi_select_table, #typing_result_table {
   border-radius: 8px;
+  color: black;
 }
 
 #add_new_variable {

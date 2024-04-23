@@ -41,7 +41,7 @@ for query_file in "$alleles"/*.{fasta,fa,fna}; do
     query_filename=$(basename "$query_file")
     query_filename_noext="${query_filename%.*}"
   output_file="$results/$query_filename_noext"
-  blat $genome "$query_file" "$output_file.psl"
+  pblat $genome "$query_file" "$output_file.psl"
   ((count++))
   echo $count > "$base_path/execute/progress.fifo"
   fi

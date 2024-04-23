@@ -5,8 +5,6 @@ assembly <- readRDS("single_typing_df.rds")[, "genome"]
 
 setwd(meta_info$db_directory)
 
-library(Biostrings)
-
 #Function to check custom variable classes
 column_classes <- function(df) {
   sapply(df, function(x) {
@@ -31,13 +29,16 @@ psl_files <- list.files(paste0(meta_info$db_directory, "/execute/kma_single/resu
 # Initialize an empty vector to store the results
 allele_vector <- integer(length(psl_files))
 
-if(sum(unname(base::sapply(psl_files, file.size)) <= 100) / length(psl_files) < 0.5) {
+event_df <- data.frame(Locus = character(0), Event = character(0), Value = character(0))
+
+# if more than 5 % of loci are not typed, assembly typing is considered failed
+if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <= 0.05) {
   for (i in seq_along(psl_files)) {
     # Extract the base filename without extension
     allele_index <- gsub(".psl", "", tools::file_path_sans_ext(basename(psl_files[i])))
     
     # Check if the file is empty
-    if (file.info(psl_files[i])$size < 100) {
+    if (file.info(psl_files[i])$size <= 427) {
       
       # Handle empty file: Insert NA in the allele_vector
       allele_vector[[i]] <- NA
@@ -49,19 +50,21 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 100) / length(psl_files) < 
       # filter query - template alignments without insertions/deletions
       # non/mis-sense mutations removed
       # sense-frameshift-mutations with insertions/deletions of multiples of 3 bases ALSO removed although they could be new variants
-      result <- result[which(result$V5 == 0 & result$V7 == 0)]
+      result_f <- result[which(result$V5 == 0 & result$V7 == 0)]
       
       # if every alignment has gaps (i.e. frameshifts) -> NA 
-      if(nrow(result) == 0) {
+      if(nrow(result_f) == 0) {
         cat(paste0(allele_index, " has frameshift mutation(s).\n"))
         allele_vector[[i]] <- NA
         
+        event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "Frameshift", Value = "NA"))
+        
       } else {
         # if any query fully aligns with template AND scores perfectly
-        if(any(result$V1 == result$V11)) { 
+        if(any(result_f$V1 == result_f$V11)) { 
           
           # if more than one query fully aligns with template AND scores perfectly
-          if(sum(result$V1 == result$V11) > 1) { 
+          if(sum(result_f$V1 == result_f$V11) > 1) { 
             
             cat(paste0(allele_index, " has multiple perfectly matching variants.\n"))
             
@@ -71,24 +74,24 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 100) / length(psl_files) < 
             # get index of query with no template gaps & assign as present variant
             #allele_vector[[i]] <- competitors[which.min(result$V7[competitors])] 
             
-            allele_vector[[i]] <- which.max(result$V1)
+            allele_vector[[i]] <- which.max(result_f$V1)
             
           } else {
             
-            allele_vector[[i]] <- which(result$V1 == result$V11)
+            allele_vector[[i]] <- which(result_f$V1 == result_f$V11)
           }
         } else {
           
           # only accept queries aligning with template >= 95%
-          if (any(result$V1/result$V11 >= 0.95)) { 
+          if (any(result_f$V1/result_f$V11 >= 0.95)) { 
             
             cat(paste0(allele_index, " has new variant.\n"))
             
             # get most similar variant
-            ref <- which.max(result$V1)
+            ref <- which.max(result_f$V1)
             
             # template start and end of most similar variant
-            var_seq <- substring(template, result$V16[ref] + 1, result$V17[ref])
+            var_seq <- substring(template, result_f$V16[ref] + 1, result_f$V17[ref])
             
             # new variant number
             allele_vector[[i]] <- nrow(result) + 1
@@ -102,10 +105,10 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 100) / length(psl_files) < 
             
             best_match_seq <- variants[best_match]
             
-            match_strand <- pairwiseAlignment(var_seq, best_match_seq)
+            match_strand <- Biostrings::pairwiseAlignment(var_seq, best_match_seq)
             
             if (match_strand@score < 0) {
-              var_seq <- reverseComplement(DNAString(var_seq))
+              var_seq <- Biostrings::reverseComplement(Biostrings::DNAString(var_seq))
             }
             
             # Append new variant number to allele fasta file
@@ -114,17 +117,25 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 100) / length(psl_files) < 
             # Append new variant sequence to allele fasta file
             cat(paste0("\n", var_seq, "\n"), file = locus_file, append = TRUE)
             
+            # Entry in results data frame
+            event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "New Variant", Value = as.character(nrow(result) + 1)))
+            
           } else {
             
             # no query - template alignment with >= 95% similarity -> NA
             cat(paste0(allele_index, " has mutations (< 95% similarity).\n"))
             
             allele_vector[[i]] <- NA
+            
+            event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "Mutation", Value = "NA"))
+            
           }
         }
       }
     }
   }
+  
+  saveRDS(event_df, "execute/event_df.rds")
   
   allele_vector <- as.integer(allele_vector)
   
@@ -313,7 +324,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 100) / length(psl_files) < 
   
 } else {
   
-  failures <- sum(unname(base::sapply(psl_files, file.size)) <= 100) / length(frag_files) * 100
+  failures <- sum(unname(base::sapply(psl_files, file.size)) <= 100) / length(psl_files) * 100
   
   user_fb <- paste0(
     "#!/bin/bash\n",
