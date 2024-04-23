@@ -49,8 +49,8 @@ The **user manual** containing detailed instructions and informations is availab
 
 | Component         | Description   |
 | ------------------- | ------------- |
-| Operating System    | Any Linux distribution capable of running R and Conda (e.g., Ubuntu, Fedora, Debian, ArchLinux, OpenSuse) |
-| Web Browser | Compatible with latest version of major browsers(Chrome, Firefox, Brave, Chromium, Opera, Vivaldi) |
+| Operating System    | Any Linux distribution capable of running R and Conda (e.g. Ubuntu, Fedora, Debian, ArchLinux, OpenSuse) |
+| Web Browser | Compatible with latest version of major browsers (Chrome, Firefox, Brave, Chromium, Opera, Vivaldi) |
 | Storage 		  	  | >= 250GB SSD |
 | RAM				  | >= 8GB |
 | CPU  				  | Multi-core processor, >= 2.5 GHz |
