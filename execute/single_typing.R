@@ -1,8 +1,11 @@
 # Hand over variables
 meta_info <- readRDS("meta_info_single.rds")
 db_path <- readRDS("single_typing_df.rds")[, "db_path"]
+assembly <- readRDS("single_typing_df.rds")[, "genome"]
 
 setwd(meta_info$db_directory)
+
+library(Biostrings)
 
 #Function to check custom variable classes
 column_classes <- function(df) {
@@ -17,40 +20,113 @@ column_classes <- function(df) {
   })
 }
 
-# List all the .frag.gz files in the folder
-frag_files <-
-  list.files(paste0(getwd(), "/execute/kma_single/results"),
-             pattern = "\\.frag\\.gz$",
-             full.names = TRUE)
+# Locate Alleles folder in directory
+allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)), full.names = TRUE)[grep("_alleles", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing))))]
 
-# List to store data frames
-frag_data_list <- list()
+template <- readLines(assembly)[2]
+
+# List all .psl result files from alignment with BLAT
+psl_files <- list.files(paste0(meta_info$db_directory, "/execute/kma_single/results"), pattern = "\\.psl$", full.names = TRUE)
 
 # Initialize an empty vector to store the results
-allele_vector <- integer(length(frag_files))
+allele_vector <- integer(length(psl_files))
 
-if(sum(unname(base::sapply(frag_files, file.size)) <= 100) / length(frag_files) < 0.5) {
-  for (i in seq_along(frag_files)) {
+if(sum(unname(base::sapply(psl_files, file.size)) <= 100) / length(psl_files) < 0.5) {
+  for (i in seq_along(psl_files)) {
     # Extract the base filename without extension
-    frag_filename <- gsub(".frag", "", tools::file_path_sans_ext(basename(frag_files[i])))
+    allele_index <- gsub(".psl", "", tools::file_path_sans_ext(basename(psl_files[i])))
     
     # Check if the file is empty
-    if (file.info(frag_files[i])$size < 100) {
+    if (file.info(psl_files[i])$size < 100) {
+      
       # Handle empty file: Insert NA in the allele_vector
       allele_vector[[i]] <- NA
-    } else {
-      # Read only the necessary columns (3rd and 7th) from the .frag.gz file into a data table
-      frag_data <- data.table::fread(frag_files[i], select = c(3, 7), sep = "\t", header = FALSE)
       
-      # Find the row with the highest value in the third field and extract the value from the seventh field
-      allele_vector[[i]] <- frag_data[which.max(frag_data$V3), V7]
+    } else {
+      
+      result <- data.table::fread(psl_files[i], select = c(1, 5, 7, 11, 16, 17), header = FALSE)
+      
+      # filter query - template alignments without insertions/deletions
+      # non/mis-sense mutations removed
+      # sense-frameshift-mutations with insertions/deletions of multiples of 3 bases ALSO removed although they could be new variants
+      result <- result[which(result$V5 == 0 & result$V7 == 0)]
+      
+      # if every alignment has gaps (i.e. frameshifts) -> NA 
+      if(nrow(result) == 0) {
+        cat(paste0(allele_index, " has frameshift mutation(s).\n"))
+        allele_vector[[i]] <- NA
+        
+      } else {
+        # if any query fully aligns with template AND scores perfectly
+        if(any(result$V1 == result$V11)) { 
+          
+          # if more than one query fully aligns with template AND scores perfectly
+          if(sum(result$V1 == result$V11) > 1) { 
+            
+            cat(paste0(allele_index, " has multiple perfectly matching variants.\n"))
+            
+            # get indices of queries that fully align with template AND scores perfectly
+            #competitors <- which(result$V1 == result$V11) 
+            
+            # get index of query with no template gaps & assign as present variant
+            #allele_vector[[i]] <- competitors[which.min(result$V7[competitors])] 
+            
+            allele_vector[[i]] <- which.max(result$V1)
+            
+          } else {
+            
+            allele_vector[[i]] <- which(result$V1 == result$V11)
+          }
+        } else {
+          
+          # only accept queries aligning with template >= 95%
+          if (any(result$V1/result$V11 >= 0.95)) { 
+            
+            cat(paste0(allele_index, " has new variant.\n"))
+            
+            # get most similar variant
+            ref <- which.max(result$V1)
+            
+            # template start and end of most similar variant
+            var_seq <- substring(template, result$V16[ref] + 1, result$V17[ref])
+            
+            # new variant number
+            allele_vector[[i]] <- nrow(result) + 1
+            
+            # select allele fasta file to append new variant
+            locus_file <- list.files(allele_folder, full.names = TRUE)[grep(allele_index, list.files(allele_folder))]
+            
+            variants <- readLines(locus_file)
+            
+            best_match <- grep(paste0("^>", ref, "$"), readLines(locus_file)) + 1
+            
+            best_match_seq <- variants[best_match]
+            
+            match_strand <- pairwiseAlignment(var_seq, best_match_seq)
+            
+            if (match_strand@score < 0) {
+              var_seq <- reverseComplement(DNAString(var_seq))
+            }
+            
+            # Append new variant number to allele fasta file
+            cat(paste0("\n>", nrow(result) + 1), file = locus_file, append = TRUE)
+            
+            # Append new variant sequence to allele fasta file
+            cat(paste0("\n", var_seq, "\n"), file = locus_file, append = TRUE)
+            
+          } else {
+            
+            # no query - template alignment with >= 95% similarity -> NA
+            cat(paste0(allele_index, " has mutations (< 95% similarity).\n"))
+            
+            allele_vector[[i]] <- NA
+          }
+        }
+      }
     }
   }
   
   allele_vector <- as.integer(allele_vector)
-  
-  # Find Alleles folder in directory
-  allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)), full.names = TRUE)[grep("_alleles", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing))))]
   
   # Create Results Data Frame 
   
@@ -62,7 +138,7 @@ if(sum(unname(base::sapply(frag_files, file.size)) <= 100) / length(frag_files) 
       data.frame(matrix(
         NA,
         nrow = 0,
-        ncol = 12 + length(frag_files)
+        ncol = 12 + length(psl_files)
       ))
     
     metadata <-
@@ -237,7 +313,7 @@ if(sum(unname(base::sapply(frag_files, file.size)) <= 100) / length(frag_files) 
   
 } else {
   
-  failures <- sum(unname(base::sapply(frag_files, file.size)) <= 100) / length(frag_files) * 100
+  failures <- sum(unname(base::sapply(psl_files, file.size)) <= 100) / length(frag_files) * 100
   
   user_fb <- paste0(
     "#!/bin/bash\n",
