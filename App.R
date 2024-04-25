@@ -19998,71 +19998,74 @@ server <- function(input, output, session) {
   
   # Render Typing Results if finished
   observe({
-    if(Typing$progress_format_end == 999999 & str_detect(tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1), "Successful")) {
-      output$typing_result_table <- renderRHandsontable({
-        typing_result_table <- readRDS(paste0(getwd(), "/execute/event_df.rds"))
-        if(nrow(typing_result_table) > 0) {
-          if(nrow(typing_result_table) > 15) {
-            rhandsontable(typing_result_table, rowHeaders = NULL, 
-                          stretchH = "all", height = 400) %>%
-              hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
-              hot_cols(columnSorting = TRUE) %>%
-              hot_rows(rowHeights = 25) %>%
-              hot_col(1:ncol(typing_result_table), valign = "htMiddle", halign = "htCenter")
-          } else {
-            rhandsontable(typing_result_table, rowHeaders = NULL, 
-                          stretchH = "all") %>%
-              hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
-              hot_cols(columnSorting = TRUE) %>%
-              hot_rows(rowHeights = 25) %>%
-              hot_col(1:ncol(typing_result_table), valign = "htMiddle", halign = "htCenter")
+    if(Typing$progress_format_end == 999999) {
+      if(str_detect(tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1), "Successful")) {
+        output$typing_result_table <- renderRHandsontable({
+          typing_result_table <- readRDS(paste0(getwd(), "/execute/event_df.rds"))
+          if(nrow(typing_result_table) > 0) {
+            if(nrow(typing_result_table) > 15) {
+              rhandsontable(typing_result_table, rowHeaders = NULL, 
+                            stretchH = "all", height = 400) %>%
+                hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+                hot_cols(columnSorting = TRUE) %>%
+                hot_rows(rowHeights = 25) %>%
+                hot_col(1:ncol(typing_result_table), valign = "htMiddle", halign = "htCenter")
+            } else {
+              rhandsontable(typing_result_table, rowHeaders = NULL, 
+                            stretchH = "all") %>%
+                hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+                hot_cols(columnSorting = TRUE) %>%
+                hot_rows(rowHeights = 25) %>%
+                hot_col(1:ncol(typing_result_table), valign = "htMiddle", halign = "htCenter")
+            }
           }
-        }
-      })
-      
-      output$single_typing_results <- renderUI({
-        result_table <- readRDS(paste0(getwd(), "/execute/event_df.rds"))
-        number_events <- nrow(result_table)
+        })
         
-        n_new <- length(grep("New Variant", result_table$Event))
-        
-        n_missing <- number_events - n_new
-        
-        # Show results table only if successful typing 
-        if(str_detect(tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1), "Successful")) {
-          if(number_events > 0) {
-            column(
-              width = 12,
-              HTML(paste("<span style='color: white;'>", 
-                         length(Typing$scheme_loci_f) - number_events,
-                         "loci were assigned a variant from local scheme.")),
-              br(), 
-              HTML(paste("<span style='color: white;'>", 
-                         n_missing,
-                         if(n_missing == 1) " locus not assigned (<i>NA</i>)." else " loci not assigned (<i>NA</i>).")),
-              br(),
-              HTML(paste("<span style='color: white;'>", 
-                         n_new,
-                         if(n_new == 1) " locus with new variant."  else " loci with new variants.")),
-              br(), br(),
-              rHandsontableOutput("typing_result_table")
-            )
-          } else {
-            column(
-              width = 12,
-              HTML(paste("<span style='color: white;'>", 
-                         length(Typing$scheme_loci_f),
-                         "successfully assigned from local scheme."))
-            )
+        output$single_typing_results <- renderUI({
+          result_table <- readRDS(paste0(getwd(), "/execute/event_df.rds"))
+          number_events <- nrow(result_table)
+          
+          n_new <- length(grep("New Variant", result_table$Event))
+          
+          n_missing <- number_events - n_new
+          
+          # Show results table only if successful typing 
+          if(str_detect(tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1), "Successful")) {
+            if(number_events > 0) {
+              column(
+                width = 12,
+                HTML(paste("<span style='color: white;'>", 
+                           length(Typing$scheme_loci_f) - number_events,
+                           "loci were assigned a variant from local scheme.")),
+                br(), 
+                HTML(paste("<span style='color: white;'>", 
+                           n_missing,
+                           if(n_missing == 1) " locus not assigned (<i>NA</i>)." else " loci not assigned (<i>NA</i>).")),
+                br(),
+                HTML(paste("<span style='color: white;'>", 
+                           n_new,
+                           if(n_new == 1) " locus with new variant."  else " loci with new variants.")),
+                br(), br(),
+                rHandsontableOutput("typing_result_table")
+              )
+            } else {
+              column(
+                width = 12,
+                HTML(paste("<span style='color: white;'>", 
+                           length(Typing$scheme_loci_f),
+                           "successfully assigned from local scheme."))
+              )
+            }
           }
-        }
-      })
-      
-    } else {
-      
-      output$single_typing_results <- NULL
-      
+        })
+        
+      } else {
+        
+        output$single_typing_results <- NULL
+        
+      }
     }
+    
   })
   
   # Render Initiate Typing UI

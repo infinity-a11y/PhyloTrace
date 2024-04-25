@@ -45,7 +45,9 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       
     } else {
       
-      result <- data.table::fread(psl_files[i], select = c(1, 5, 7, 11, 16, 17), header = FALSE)
+      result <- data.table::fread(psl_files[i], select = c(1, 5, 7, 10, 11, 16, 17), header = FALSE)
+      
+      n_variants <- max(result$V10)
       
       # filter query - template alignments without insertions/deletions
       # non/mis-sense mutations removed
@@ -94,7 +96,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
             var_seq <- substring(template, result_f$V16[ref] + 1, result_f$V17[ref])
             
             # new variant number
-            allele_vector[[i]] <- nrow(result) + 1
+            allele_vector[[i]] <- n_variants + 1
             
             # select allele fasta file to append new variant
             locus_file <- list.files(allele_folder, full.names = TRUE)[grep(allele_index, list.files(allele_folder))]
@@ -112,13 +114,13 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
             }
             
             # Append new variant number to allele fasta file
-            cat(paste0("\n>", nrow(result) + 1), file = locus_file, append = TRUE)
+            cat(paste0("\n>", n_variants + 1), file = locus_file, append = TRUE)
             
             # Append new variant sequence to allele fasta file
             cat(paste0("\n", var_seq, "\n"), file = locus_file, append = TRUE)
             
             # Entry in results data frame
-            event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "New Variant", Value = as.character(nrow(result) + 1)))
+            event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "New Variant", Value = as.character(n_variants + 1)))
             
           } else {
             
