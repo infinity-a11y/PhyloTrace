@@ -3,6 +3,8 @@ meta_info <- readRDS("meta_info_single.rds")
 db_path <- readRDS("single_typing_df.rds")[, "db_path"]
 assembly <- readRDS("single_typing_df.rds")[, "genome"]
 
+source("variant_validation.R")
+
 setwd(meta_info$db_directory)
 
 #Function to check custom variable classes
@@ -17,6 +19,10 @@ column_classes <- function(df) {
     }
   })
 }
+
+# Define start and stop codons
+start_codons <- c("ATG", "GTG", "TTG")
+stop_codons <- c("TAA", "TAG", "TGA")
 
 # Locate Alleles folder in directory
 allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)), full.names = TRUE)[grep("_alleles", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing))))]
@@ -43,96 +49,79 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       # Handle empty file: Insert NA in the allele_vector
       allele_vector[[i]] <- NA
       
+      event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "Locus Not Found", Value = "NA"))
+      
     } else {
       
-      result <- data.table::fread(psl_files[i], select = c(1, 5, 7, 10, 11, 16, 17), header = FALSE)
-      
+      result <- data.table::fread(psl_files[i], select = c(1, 5, 6, 7, 8, 10, 11, 16, 17), header = FALSE)
+      result_f <- result
+      # variant count 
       n_variants <- max(result$V10)
       
-      # filter query - template alignments without insertions/deletions
-      # non/mis-sense mutations removed
-      # sense-frameshift-mutations with insertions/deletions of multiples of 3 bases ALSO removed although they could be new variants
-      result_f <- result[which(result$V5 == 0 & result$V7 == 0)]
-      
-      # if every alignment has gaps (i.e. frameshifts) -> NA 
-      if(nrow(result_f) == 0) {
-        cat(paste0(allele_index, " has frameshift mutation(s).\n"))
-        allele_vector[[i]] <- NA
+      if(any(result_f$V1 == result_f$V11)) {
         
-        event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "Frameshift", Value = "NA"))
+        perf_match <- result[which(result_f$V1 == result_f$V11)]
         
-      } else {
-        # if any query fully aligns with template AND scores perfectly
-        if(any(result_f$V1 == result_f$V11)) { 
+        if(sum((perf_match$V5 + perf_match$V7) == 0) > 1) {
           
-          # if more than one query fully aligns with template AND scores perfectly
-          if(sum(result_f$V1 == result_f$V11) > 1) { 
-            
-            cat(paste0(allele_index, " has multiple perfectly matching variants.\n"))
-            
-            # get indices of queries that fully align with template AND scores perfectly
-            #competitors <- which(result$V1 == result$V11) 
-            
-            # get index of query with no template gaps & assign as present variant
-            #allele_vector[[i]] <- competitors[which.min(result$V7[competitors])] 
-            
-            allele_vector[[i]] <- which.max(result_f$V1)
-            
-          } else {
-            
-            allele_vector[[i]] <- which(result_f$V1 == result_f$V11)
-          }
+          cat(paste0(allele_index, " has multiple hits.\n"))
+          allele_vector[[i]] <- NA
+          event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "Multiple Hits", Value = "NA"))
+          
+        } else {
+          allele_vector[[i]] <- perf_match$V10[which((perf_match$V5 + perf_match$V7) == 0)]
+        }
+      } else {
+        
+        # select allele fasta file to get present variants in scheme
+        locus_file <- list.files(allele_folder, full.names = TRUE)[grep(allele_index, list.files(allele_folder))]
+        
+        variants <- readLines(locus_file)
+        
+        # new variant validation 
+        
+        # decision what is reference sequence
+        
+        # sort by score, then number of gaps then number of bases in the gaps
+        result <- result %>%
+          arrange(desc(V1), desc(V5 + V7), desc(V6 + V7))
+        
+        # check which reference sequences have different alignment positions with the template
+        unique_res <- result[which(!(duplicated(result$V16) & duplicated(result$V17)))]
+        
+        # loop over all unique template alignments (regarding position)
+        
+        if(variant_validation(references = unique_res,
+                              start_codons = start_codons, 
+                              stop_codons = stop_codons
+                              )) {
+          
+          # valid variant found 
+          
+          # Append new variant number to allele fasta file
+          cat(paste0("\n>", n_variants + 1), file = locus_file, append = TRUE)
+          
+          # Append new variant sequence to allele fasta file
+          cat(paste0("\n", seq, "\n"), file = locus_file, append = TRUE)
+          
+          # Entry in results data frame
+          event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "New Variant", Value = as.character(n_variants + 1)))
+          
+          allele_vector[[i]] <- n_variants + 1
+          
+          cat(paste0(allele_index, " has new variant.\n"))
+          
         } else {
           
-          # only accept queries aligning with template >= 95%
-          if (any(result_f$V1/result_f$V11 >= 0.95)) { 
-            
-            cat(paste0(allele_index, " has new variant.\n"))
-            
-            # get most similar variant
-            ref <- which.max(result_f$V1)
-            
-            # template start and end of most similar variant
-            var_seq <- substring(template, result_f$V16[ref] + 1, result_f$V17[ref])
-            
-            # new variant number
-            allele_vector[[i]] <- n_variants + 1
-            
-            # select allele fasta file to append new variant
-            locus_file <- list.files(allele_folder, full.names = TRUE)[grep(allele_index, list.files(allele_folder))]
-            
-            variants <- readLines(locus_file)
-            
-            best_match <- grep(paste0("^>", ref, "$"), readLines(locus_file)) + 1
-            
-            best_match_seq <- variants[best_match]
-            
-            match_strand <- Biostrings::pairwiseAlignment(var_seq, best_match_seq)
-            
-            if (match_strand@score < 0) {
-              var_seq <- Biostrings::reverseComplement(Biostrings::DNAString(var_seq))
-            }
-            
-            # Append new variant number to allele fasta file
-            cat(paste0("\n>", n_variants + 1), file = locus_file, append = TRUE)
-            
-            # Append new variant sequence to allele fasta file
-            cat(paste0("\n", var_seq, "\n"), file = locus_file, append = TRUE)
-            
-            # Entry in results data frame
-            event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "New Variant", Value = as.character(n_variants + 1)))
-            
-          } else {
-            
-            # no query - template alignment with >= 95% similarity -> NA
-            cat(paste0(allele_index, " has mutations (< 95% similarity).\n"))
-            
-            allele_vector[[i]] <- NA
-            
-            event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "Mutation", Value = "NA"))
-            
-          }
+          #no valid variant found
+          allele_vector[[i]] <- NA
+          
+          # Entry in results data frame
+          event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "Invalid Sequence", Value = as.character(n_variants + 1)))
+          
+          cat(paste0(allele_index, " has invalid sequence.\n"))
         }
+        
       }
     }
   }

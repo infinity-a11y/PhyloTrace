@@ -20005,7 +20005,7 @@ server <- function(input, output, session) {
           if(nrow(typing_result_table) > 0) {
             if(nrow(typing_result_table) > 15) {
               rhandsontable(typing_result_table, rowHeaders = NULL, 
-                            stretchH = "all", height = 400) %>%
+                            stretchH = "all", height = 500) %>%
                 hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
                 hot_cols(columnSorting = TRUE) %>%
                 hot_rows(rowHeights = 25) %>%
