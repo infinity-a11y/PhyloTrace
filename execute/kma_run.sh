@@ -8,8 +8,12 @@ unset R_HOME
 # Get variables
 base_path=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'wd'])")
 scheme=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'scheme'])")
-genome=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'genome'])")
 alleles=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'alleles'])")
+
+# Check assembly file and save in the execute folder
+Rscript "$base_path/execute/check_duplicate.R"
+
+genome="$base_path/execute/kma_single/assembly.fasta"
 
 # Logfile
 log_file="$base_path/execute/script_log.txt"
