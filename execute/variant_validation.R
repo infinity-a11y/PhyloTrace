@@ -1,6 +1,3 @@
-# Load Biostrings package
-library(Biostrings)
-
 # Function to check for length and frameshift of new variant sequence
 check_length_frameshift <- function(seq, ref_seq) {
   
@@ -15,7 +12,7 @@ check_length_frameshift <- function(seq, ref_seq) {
 # Function to check for internal stop codons
 internal_stop_codon <- function(seq, stop_codons) {
   for (codon in stop_codons) {
-    stop_match <- matchPattern(codon, seq)
+    stop_match <- Biostrings::matchPattern(codon, seq)
     
     # Check if found internal stop codons are in the correct frame
     if(any(start(stop_match) %% 3 == 1)) {
@@ -36,26 +33,26 @@ internal_stop_codon <- function(seq, stop_codons) {
 # Function to validate start and stop codon position and check for internal stop codons
 validate_start_stop <- function(seq, start_codons, stop_codons) {
   
-  seq <- DNAString(seq)
+  seq <- Biostrings::DNAString(seq)
   
   # Extract first and last 3 nucleotides
   seq_for_start <- substring(seq, first = 1, last = 3)
   seq_for_end <- substring(seq, first = nchar(seq) - 2, last = nchar(seq))
   
   # Define reverse complement of first and last 3 nucleotides
-  seq_rev_start <- reverseComplement(seq_for_end)
-  seq_rev_end <- reverseComplement(seq_for_start)
+  seq_rev_start <- Biostrings::reverseComplement(seq_for_end)
+  seq_rev_end <- Biostrings::reverseComplement(seq_for_start)
   
   for (codon in start_codons) {
-    forward_match <- matchPattern(codon, seq_for_start)
-    reverse_match <- matchPattern(codon, seq_rev_start)
+    forward_match <- Biostrings::matchPattern(codon, seq_for_start)
+    reverse_match <- Biostrings::matchPattern(codon, seq_rev_start)
     
     # Check if forward sequence has start codon
     if (length(forward_match@ranges) != 0) {
       
       # Verify if stop codon is at other end
       for (stop_codon in stop_codons) {
-        stop_end <- matchPattern(stop_codon, seq_for_end)
+        stop_end <- Biostrings::matchPattern(stop_codon, seq_for_end)
         
         # If stop codon is found, check for internal stop codons
         if (length(stop_end@ranges) != 0) {
@@ -73,13 +70,13 @@ validate_start_stop <- function(seq, start_codons, stop_codons) {
       
       # Verify if stop codon is at other end
       for (stop_codon in stop_codons) {
-        stop_end <- matchPattern(stop_codon, seq_rev_end)
+        stop_end <- Biostrings::matchPattern(stop_codon, seq_rev_end)
         
         # If stop codon is found, check for internal stop codons
         if (length(stop_end@ranges) != 0) {
           
           # If no internal stop codons are found return TRUE
-          if(!internal_stop_codon(seq = reverseComplement(seq), stop_codons = stop_codons)) {
+          if(!internal_stop_codon(seq = Biostrings::reverseComplement(seq), stop_codons = stop_codons)) {
             return(TRUE)
             break
           }
@@ -93,6 +90,7 @@ validate_start_stop <- function(seq, start_codons, stop_codons) {
 
 # overall variant validation combining the validation functions
 variant_validation <- function(references, start_codons, stop_codons) {
+  
   for(i in 1:nrow(references)){
     
     seq <- substring(template, references$V16[i] + 1, references$V17[i])
@@ -110,8 +108,16 @@ variant_validation <- function(references, start_codons, stop_codons) {
                             stop_codons = stop_codons)) {
       next
     } 
-    # valid variant found 
-    return(TRUE)
+    
+    # check if reverse complement is needed
+    match_strand <- Biostrings::pairwiseAlignment(seq, ref_seq)
+    
+    if (match_strand@score < 0) {
+      seq <- Biostrings::reverseComplement(Biostrings::DNAString(seq))
+    }
+    
+    # return found valid variant 
+    return(as.character(seq))
   }
   # no valid variant found 
   return(FALSE)

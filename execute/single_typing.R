@@ -27,6 +27,7 @@ stop_codons <- c("TAA", "TAG", "TGA")
 # Locate Alleles folder in directory
 allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)), full.names = TRUE)[grep("_alleles", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing))))]
 
+# Read the template (assembly) sequence
 template <- readLines(assembly)[2]
 
 # List all .psl result files from alignment with BLAT
@@ -39,7 +40,9 @@ event_df <- data.frame(Locus = character(0), Event = character(0), Value = chara
 
 # if more than 5 % of loci are not typed, assembly typing is considered failed
 if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <= 0.05) {
+  
   for (i in seq_along(psl_files)) {
+    
     # Extract the base filename without extension
     allele_index <- gsub(".psl", "", tools::file_path_sans_ext(basename(psl_files[i])))
     
@@ -53,14 +56,14 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       
     } else {
       
-      result <- data.table::fread(psl_files[i], select = c(1, 5, 6, 7, 8, 10, 11, 16, 17), header = FALSE)
-      result_f <- result
-      # variant count 
-      n_variants <- max(result$V10)
+      matches <- data.table::fread(psl_files[i], select = c(1, 5, 6, 7, 8, 10, 11, 16, 17), header = FALSE)
       
-      if(any(result_f$V1 == result_f$V11)) {
+      # variant count 
+      n_variants <- max(matches$V10)
+      
+      if(any(matches$V1 == matches$V11 & (matches$V5 + matches$V7) == 0)) {
         
-        perf_match <- result[which(result_f$V1 == result_f$V11)]
+        perf_match <- matches[which(matches$V1 == matches$V11)]
         
         if(sum((perf_match$V5 + perf_match$V7) == 0) > 1) {
           
@@ -83,26 +86,24 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         # decision what is reference sequence
         
         # sort by score, then number of gaps then number of bases in the gaps
-        result <- result %>%
-          arrange(desc(V1), desc(V5 + V7), desc(V6 + V7))
+        matches <- dplyr::arrange(matches, desc(V1), desc(V5 + V7), desc(V6 + V7))
         
         # check which reference sequences have different alignment positions with the template
-        unique_res <- result[which(!(duplicated(result$V16) & duplicated(result$V17)))]
+        unique_template_seq <- matches[which(!(duplicated(matches$V16) & duplicated(matches$V17)))]
         
         # loop over all unique template alignments (regarding position)
         
-        if(variant_validation(references = unique_res,
-                              start_codons = start_codons, 
-                              stop_codons = stop_codons
-                              )) {
-          
-          # valid variant found 
+        variant_valid <- variant_validation(references = unique_template_seq, 
+                           start_codons = start_codons, stop_codons = stop_codons)
+        
+        # if valid variant found 
+        if(variant_valid != FALSE) {
           
           # Append new variant number to allele fasta file
           cat(paste0("\n>", n_variants + 1), file = locus_file, append = TRUE)
           
           # Append new variant sequence to allele fasta file
-          cat(paste0("\n", seq, "\n"), file = locus_file, append = TRUE)
+          cat(paste0("\n", variant_valid, "\n"), file = locus_file, append = TRUE)
           
           # Entry in results data frame
           event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "New Variant", Value = as.character(n_variants + 1)))
@@ -339,5 +340,3 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   # Execute the script
   system(paste(user_fb_path), wait = FALSE)
 }
-
-
