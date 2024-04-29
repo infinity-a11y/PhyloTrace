@@ -484,7 +484,7 @@ ui <- dashboardPage(
             align = "left",
             uiOutput("delete_box"),
             uiOutput("compare_allele_box"),
-            uiOutput("download_entries"),
+            uiOutput("_entries"),
             br(), br(), br(), br(), br(), br(), br(), br(), br()
           )
         ),
@@ -517,7 +517,7 @@ ui <- dashboardPage(
               column(
                 width = 2,
                 align = "left",
-                uiOutput("download_scheme_info")
+                uiOutput("_scheme_info")
               )
             ),
             br(),
@@ -536,7 +536,7 @@ ui <- dashboardPage(
               column(
                 width = 2,
                 align = "left",
-                uiOutput("download_loci")
+                uiOutput("_loci")
               )
             ),
             br(),
@@ -664,9 +664,9 @@ ui <- dashboardPage(
             br(),
             br(),
             actionButton(
-              "download_cgMLST",
-              label = "Download",
-              icon = icon("download")
+              "_cgMLST",
+              label = "",
+              icon = icon("")
             )
           ),
           column(
@@ -676,8 +676,8 @@ ui <- dashboardPage(
             br(),
             align = "center",
             conditionalPanel(
-              "input.download_cgMLST >= 1",
-              h4(p("Downloaded Loci"), style = "color:white")
+              "input._cgMLST >= 1",
+              h4(p("ed Loci"), style = "color:white")
             )
           )
         ),
@@ -702,7 +702,7 @@ ui <- dashboardPage(
             br(),
             br(),
             conditionalPanel(
-              "input.download_cgMLST >= 1",
+              "input._cgMLST >= 1",
               addSpinner(
                 dataTableOutput("cgmlst_targets"),
                 spin = "dots",
@@ -5652,7 +5652,7 @@ server <- function(input, output, session) {
   
   Report <- reactiveValues() # reactive variables related to report functions
   
-  Scheme <- reactiveValues() # reactive variables related to scheme download functions
+  Scheme <- reactiveValues() # reactive variables related to scheme  functions
   
   # Load last used database if possible
   if(paste0(getwd(), "/execute/last_db.rds") %in% dir_ls(paste0(getwd(), "/execute"))) {
@@ -9899,7 +9899,7 @@ server <- function(input, output, session) {
     Scheme$target_table <- NULL
     
     # Download Loci Fasta Files
-    download(Scheme$link_cgmlst, dest = "dataset.zip", mode = "wb")
+    download(Scheme$link_cgmlst, dest = "dataset.zip", mode = "wb", timeout = 300)
     
     unzip(
       zipfile = "dataset.zip",
