@@ -118,7 +118,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
           allele_vector[[i]] <- NA
           
           # Entry in results data frame
-          event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "Invalid Sequence", Value = as.character(n_variants + 1)))
+          event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "Invalid Sequence", Value = "NA"))
           
           cat(paste0(allele_index, " has invalid sequence.\n"))
         }
