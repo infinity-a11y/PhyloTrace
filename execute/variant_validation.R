@@ -1,3 +1,5 @@
+library(Biostrings)
+
 # Function to check for length and frameshift of new variant sequence
 check_length_frameshift <- function(seq, ref_seq) {
   
