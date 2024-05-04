@@ -10015,6 +10015,35 @@ server <- function(input, output, session) {
          height = 180)
   }, deleteFile = FALSE)
   
+  # Render tree plot fields
+  
+  output$nj_field <- renderUI(
+    fluidRow(
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br()
+    )
+  )
+  
+  output$mst_field <- renderUI(
+    fluidRow(
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br()
+    )
+  )
+  
+  output$upgma_field <- renderUI(
+    fluidRow(
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br()
+    )
+  )
+  
   ### Render Visualization Controls ----
   
   #### NJ and UPGMA controls ----
@@ -15566,36 +15595,6 @@ server <- function(input, output, session) {
     )
   })
   
-  ### Render Plot field ----
-  
-  output$mst_field <- renderUI({
-    if(input$mst_background_transparent == TRUE) {
-      visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px"))
-    } else {
-      addSpinner(
-        visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px")),
-        spin = "dots",
-        color = "white"
-      )
-    }
-  })
-  
-  output$nj_field <- renderUI({
-    addSpinner(
-      plotOutput("tree_nj", width = paste0(as.character(as.numeric(input$nj_scale) * as.numeric(input$nj_ratio)), "px"), height = paste0(as.character(input$nj_scale), "px")) ,
-      spin = "dots",
-      color = "white"
-    )
-  })
-  
-  output$upgma_field <- renderUI({
-    addSpinner(
-      plotOutput("tree_upgma", width = paste0(as.character(as.numeric(input$upgma_scale) * as.numeric(input$upgma_ratio)), "px"), height = paste0(as.character(input$upgma_scale), "px")),
-      spin = "dots",
-      color = "white"
-    )
-  })
-  
   ### Plot Reactives ----
   
   #### MST ----
@@ -19130,321 +19129,317 @@ server <- function(input, output, session) {
         
         if (input$tree_algo == "Neighbour-Joining") {
           
-          if(nrow(Vis$custom_label_nj) > 0) {
-            showModal(
-              modalDialog(
-                paste0("Creating a new Neighbour-Joining tree will remove all custom labels. Continue?"),
-                easyClose = TRUE,
-                title = "Confirm New NJ-Tree",
-                footer = tagList(
-                  modalButton("Cancel"),
-                  actionButton("conf_create_nj", "Create Tree", class = "btn btn-success")
-                )
-              )
+          output$nj_field <- renderUI({
+            addSpinner(
+              plotOutput("tree_nj", width = paste0(as.character(as.numeric(input$nj_scale) * as.numeric(input$nj_ratio)), "px"), height = paste0(as.character(input$nj_scale), "px")),
+              spin = "dots",
+              color = "#ffffff"
+            )
+          })
+          
+          Vis$meta_nj <- select(DB$meta_true, -2)
+          
+          if(length(unique(gsub(" ", "_", colnames(Vis$meta_nj)))) < length(gsub(" ", "_", colnames(Vis$meta_nj)))) {
+            show_toast(
+              title = "Conflicting Custom Variable Names",
+              type = "warning",
+              position = "top-end",
+              width = "500px",
+              timer = 6000
             )
           } else {
-            Vis$meta_nj <- select(DB$meta_true, -2)
             
-            if(length(unique(gsub(" ", "_", colnames(Vis$meta_nj)))) < length(gsub(" ", "_", colnames(Vis$meta_nj)))) {
-              show_toast(
-                title = "Conflicting Custom Variable Names",
-                type = "warning",
-                position = "top-end",
-                width = "500px",
-                timer = 6000
-              )
-            } else {
-              
-              # Create phylogenetic tree data
-              Vis$nj <- ape::nj(hamming_nj())
-              
-              # Create phylogenetic tree meta data
-              Vis$meta_nj <- mutate(Vis$meta_nj, taxa = Index) %>%
-                relocate(taxa)
-              
-              # Get number of included entries calculate start values for tree 
-              if(!is.null(input$nj_layout)) {
-                if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-                  if(sum(DB$data$Include) < 21) {
-                    Vis$labelsize_nj <- 5.5
-                    Vis$tippointsize_nj <- 5.5
-                    Vis$nodepointsize_nj <- 4
-                    Vis$tiplab_padding_nj <- 0.25
-                    Vis$branch_size_nj <- 4.5
-                  } else if (between(sum(DB$data$Include), 21, 40)) {
-                    Vis$labelsize_nj <- 5
-                    Vis$tippointsize_nj <- 5
-                    Vis$nodepointsize_nj <- 3.5
-                    Vis$tiplab_padding_nj <- 0.2
-                    Vis$branch_size_nj <- 4
-                  } else if (between(sum(DB$data$Include), 41, 60)) {
-                    Vis$labelsize_nj <- 4.5
-                    Vis$tippointsize_nj <- 4.5
-                    Vis$nodepointsize_nj <- 3
-                    Vis$tiplab_padding_nj <- 0.15
-                    Vis$branch_size_nj <- 3.5
-                  } else if (between(sum(DB$data$Include), 61, 80)) {
-                    Vis$labelsize_nj <- 4
-                    Vis$tippointsize_nj <- 4
-                    Vis$nodepointsize_nj <- 2.5
-                    Vis$tiplab_padding_nj <- 0.1
-                    Vis$branch_size_nj <- 3
-                  } else if (between(sum(DB$data$Include), 81, 100)) {
-                    Vis$labelsize_nj <- 3.5
-                    Vis$tippointsize_nj <- 3.5
-                    Vis$nodepointsize_nj <- 2
-                    Vis$tiplab_padding_nj <- 0.1
-                    Vis$branch_size_nj <- 2.5
-                  } else {
-                    Vis$labelsize_nj <- 3
-                    Vis$tippointsize_nj <- 3
-                    Vis$nodepointsize_nj <- 1.5
-                    Vis$tiplab_padding_nj <- 0.05
-                    Vis$branch_size_nj <- 2
-                  }
+            # Create phylogenetic tree data
+            Vis$nj <- ape::nj(hamming_nj())
+            
+            # Create phylogenetic tree meta data
+            Vis$meta_nj <- mutate(Vis$meta_nj, taxa = Index) %>%
+              relocate(taxa)
+            
+            # Get number of included entries calculate start values for tree 
+            if(!is.null(input$nj_layout)) {
+              if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+                if(sum(DB$data$Include) < 21) {
+                  Vis$labelsize_nj <- 5.5
+                  Vis$tippointsize_nj <- 5.5
+                  Vis$nodepointsize_nj <- 4
+                  Vis$tiplab_padding_nj <- 0.25
+                  Vis$branch_size_nj <- 4.5
+                } else if (between(sum(DB$data$Include), 21, 40)) {
+                  Vis$labelsize_nj <- 5
+                  Vis$tippointsize_nj <- 5
+                  Vis$nodepointsize_nj <- 3.5
+                  Vis$tiplab_padding_nj <- 0.2
+                  Vis$branch_size_nj <- 4
+                } else if (between(sum(DB$data$Include), 41, 60)) {
+                  Vis$labelsize_nj <- 4.5
+                  Vis$tippointsize_nj <- 4.5
+                  Vis$nodepointsize_nj <- 3
+                  Vis$tiplab_padding_nj <- 0.15
+                  Vis$branch_size_nj <- 3.5
+                } else if (between(sum(DB$data$Include), 61, 80)) {
+                  Vis$labelsize_nj <- 4
+                  Vis$tippointsize_nj <- 4
+                  Vis$nodepointsize_nj <- 2.5
+                  Vis$tiplab_padding_nj <- 0.1
+                  Vis$branch_size_nj <- 3
+                } else if (between(sum(DB$data$Include), 81, 100)) {
+                  Vis$labelsize_nj <- 3.5
+                  Vis$tippointsize_nj <- 3.5
+                  Vis$nodepointsize_nj <- 2
+                  Vis$tiplab_padding_nj <- 0.1
+                  Vis$branch_size_nj <- 2.5
                 } else {
-                  if(sum(DB$data$Include) < 21) {
-                    Vis$labelsize_nj <- 5
-                    Vis$tippointsize_nj <- 5
-                    Vis$nodepointsize_nj <- 4
-                    Vis$tiplab_padding_nj <- 0.25
-                    Vis$branch_size_nj <- 4.5
-                  } else if (between(sum(DB$data$Include), 21, 40)) {
-                    Vis$labelsize_nj <- 4.5
-                    Vis$tippointsize_nj <- 4.5
-                    Vis$nodepointsize_nj <- 3.5
-                    Vis$tiplab_padding_nj <- 0.2
-                    Vis$branch_size_nj <- 4
-                  } else if (between(sum(DB$data$Include), 41, 60)) {
-                    Vis$labelsize_nj <- 4
-                    Vis$tippointsize_nj <- 4
-                    Vis$nodepointsize_nj <- 3
-                    Vis$tiplab_padding_nj <- 0.15
-                    Vis$branch_size_nj <- 3.5
-                  } else if (between(sum(DB$data$Include), 61, 80)) {
-                    Vis$labelsize_nj <- 3.5
-                    Vis$tippointsize_nj <- 3.5
-                    Vis$nodepointsize_nj <- 2.5
-                    Vis$tiplab_padding_nj <- 0.1
-                    Vis$branch_size_nj <- 3
-                  } else if (between(sum(DB$data$Include), 81, 100)) {
-                    Vis$labelsize_nj <- 3
-                    Vis$tippointsize_nj <- 3
-                    Vis$nodepointsize_nj <- 2
-                    Vis$tiplab_padding_nj <- 0.1
-                    Vis$branch_size_nj <- 2.5
-                  } else {
-                    Vis$labelsize_nj <- 2.5
-                    Vis$tippointsize_nj <- 2.5
-                    Vis$nodepointsize_nj <- 1.5
-                    Vis$tiplab_padding_nj <- 0.05
-                    Vis$branch_size_nj <- 2
-                  }
+                  Vis$labelsize_nj <- 3
+                  Vis$tippointsize_nj <- 3
+                  Vis$nodepointsize_nj <- 1.5
+                  Vis$tiplab_padding_nj <- 0.05
+                  Vis$branch_size_nj <- 2
                 }
               } else {
-                Vis$labelsize_nj <- 4
-                Vis$tippointsize_nj <- 4
-                Vis$nodepointsize_nj <- 2.5
-                Vis$tiplab_padding_nj <- 0.2
-                Vis$branch_size_nj <- 3.5
+                if(sum(DB$data$Include) < 21) {
+                  Vis$labelsize_nj <- 5
+                  Vis$tippointsize_nj <- 5
+                  Vis$nodepointsize_nj <- 4
+                  Vis$tiplab_padding_nj <- 0.25
+                  Vis$branch_size_nj <- 4.5
+                } else if (between(sum(DB$data$Include), 21, 40)) {
+                  Vis$labelsize_nj <- 4.5
+                  Vis$tippointsize_nj <- 4.5
+                  Vis$nodepointsize_nj <- 3.5
+                  Vis$tiplab_padding_nj <- 0.2
+                  Vis$branch_size_nj <- 4
+                } else if (between(sum(DB$data$Include), 41, 60)) {
+                  Vis$labelsize_nj <- 4
+                  Vis$tippointsize_nj <- 4
+                  Vis$nodepointsize_nj <- 3
+                  Vis$tiplab_padding_nj <- 0.15
+                  Vis$branch_size_nj <- 3.5
+                } else if (between(sum(DB$data$Include), 61, 80)) {
+                  Vis$labelsize_nj <- 3.5
+                  Vis$tippointsize_nj <- 3.5
+                  Vis$nodepointsize_nj <- 2.5
+                  Vis$tiplab_padding_nj <- 0.1
+                  Vis$branch_size_nj <- 3
+                } else if (between(sum(DB$data$Include), 81, 100)) {
+                  Vis$labelsize_nj <- 3
+                  Vis$tippointsize_nj <- 3
+                  Vis$nodepointsize_nj <- 2
+                  Vis$tiplab_padding_nj <- 0.1
+                  Vis$branch_size_nj <- 2.5
+                } else {
+                  Vis$labelsize_nj <- 2.5
+                  Vis$tippointsize_nj <- 2.5
+                  Vis$nodepointsize_nj <- 1.5
+                  Vis$tiplab_padding_nj <- 0.05
+                  Vis$branch_size_nj <- 2
+                }
               }
-              
-              Vis$nj_tree <- ggtree(Vis$nj)
-              
-              # Get upper and lower end of x range
-              Vis$nj_max_x <- max(Vis$nj_tree$data$x)
-              Vis$nj_min_x <- min(Vis$nj_tree$data$x)
-              
-              # Get parent node numbers
-              Vis$nj_parentnodes <- Vis$nj_tree$data$parent
-              
-              # Update visualization control inputs
-              if(!is.null(input$nj_tiplab_size)) {
-                updateNumericInput(session, "nj_tiplab_size", value = Vis$labelsize_nj)
-              }
-              if(!is.null(input$nj_tippoint_size)) {
-                updateSliderInput(session, "nj_tippoint_size", value = Vis$tippointsize_nj)
-              }
-              if(!is.null(input$nj_nodepoint_size)) {
-                updateSliderInput(session, "nj_nodepoint_size", value = Vis$nodepointsize_nj)
-              }
-              if(!is.null(input$nj_tiplab_padding)) {
-                updateSliderInput(session, "nj_tiplab_padding", value = Vis$tiplab_padding_nj)
-              }
-              if(!is.null(input$nj_branch_size)) {
-                updateNumericInput(session, "nj_branch_size", value = Vis$branch_size_nj)
-              }
-              if(!is.null(input$nj_treescale_width)) {
-                updateNumericInput(session, "nj_treescale_width", value = round(ceiling(Vis$nj_max_x) * 0.1, 0))
-              }
-              if(!is.null(input$nj_rootedge_length)) {
-                updateSliderInput(session, "nj_rootedge_length", value = round(ceiling(Vis$nj_max_x) * 0.05, 0))
-              }
-              
-              output$tree_nj <- renderPlot({
-                nj_tree()
-              })
+            } else {
+              Vis$labelsize_nj <- 4
+              Vis$tippointsize_nj <- 4
+              Vis$nodepointsize_nj <- 2.5
+              Vis$tiplab_padding_nj <- 0.2
+              Vis$branch_size_nj <- 3.5
             }
+            
+            Vis$nj_tree <- ggtree(Vis$nj)
+            
+            # Get upper and lower end of x range
+            Vis$nj_max_x <- max(Vis$nj_tree$data$x)
+            Vis$nj_min_x <- min(Vis$nj_tree$data$x)
+            
+            # Get parent node numbers
+            Vis$nj_parentnodes <- Vis$nj_tree$data$parent
+            
+            # Update visualization control inputs
+            if(!is.null(input$nj_tiplab_size)) {
+              updateNumericInput(session, "nj_tiplab_size", value = Vis$labelsize_nj)
+            }
+            if(!is.null(input$nj_tippoint_size)) {
+              updateSliderInput(session, "nj_tippoint_size", value = Vis$tippointsize_nj)
+            }
+            if(!is.null(input$nj_nodepoint_size)) {
+              updateSliderInput(session, "nj_nodepoint_size", value = Vis$nodepointsize_nj)
+            }
+            if(!is.null(input$nj_tiplab_padding)) {
+              updateSliderInput(session, "nj_tiplab_padding", value = Vis$tiplab_padding_nj)
+            }
+            if(!is.null(input$nj_branch_size)) {
+              updateNumericInput(session, "nj_branch_size", value = Vis$branch_size_nj)
+            }
+            if(!is.null(input$nj_treescale_width)) {
+              updateNumericInput(session, "nj_treescale_width", value = round(ceiling(Vis$nj_max_x) * 0.1, 0))
+            }
+            if(!is.null(input$nj_rootedge_length)) {
+              updateSliderInput(session, "nj_rootedge_length", value = round(ceiling(Vis$nj_max_x) * 0.05, 0))
+            }
+            
+            output$tree_nj <- renderPlot({
+              nj_tree()
+            })
           }
         } else if (input$tree_algo == "UPGMA") {
           
-          if(nrow(Vis$custom_label_upgma) > 0) {
-            showModal(
-              modalDialog(
-                paste0("Creating a new Neighbour-Joining tree will remove all custom labels. Continue?"),
-                easyClose = TRUE,
-                title = "Confirm New UPGMA-Tree",
-                footer = tagList(
-                  modalButton("Cancel"),
-                  actionButton("conf_create_upgma", "Create Tree", class = "btn btn-success")
-                )
-              )
+          output$upgma_field <- renderUI({
+            addSpinner(
+              plotOutput("tree_upgma", width = paste0(as.character(as.numeric(input$upgma_scale) * as.numeric(input$upgma_ratio)), "px"), height = paste0(as.character(input$upgma_scale), "px")),
+              spin = "dots",
+              color = "#ffffff"
+            )
+          })
+          
+          Vis$meta_upgma <- select(DB$meta_true, -2)
+          
+          if(length(unique(gsub(" ", "_", colnames(Vis$meta_upgma)))) < length(gsub(" ", "_", colnames(Vis$meta_upgma)))) {
+            show_toast(
+              title = "Conflicting Custom Variable Names",
+              type = "warning",
+              position = "top-end",
+              width = "500px",
+              timer = 6000
             )
           } else {
-            Vis$meta_upgma <- select(DB$meta_true, -2)
             
-            if(length(unique(gsub(" ", "_", colnames(Vis$meta_upgma)))) < length(gsub(" ", "_", colnames(Vis$meta_upgma)))) {
-              show_toast(
-                title = "Conflicting Custom Variable Names",
-                type = "warning",
-                position = "top-end",
-                width = "500px",
-                timer = 6000
-              )
-            } else {
-              
-              # Create phylogenetic tree data
-              Vis$upgma <- phangorn::upgma(hamming_nj())
-              
-              # Create phylogenetic tree meta data
-              Vis$meta_upgma <- mutate(Vis$meta_upgma, taxa = Index) %>%
-                relocate(taxa)
-              
-              # Get number of included entries calculate start values for tree 
-              if(!is.null(input$upgma_layout)) {
-                if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-                  if(sum(DB$data$Include) < 21) {
-                    Vis$labelsize_upgma <- 5.5
-                    Vis$tippointsize_upgma <- 5.5
-                    Vis$nodepointsize_upgma <- 4
-                    Vis$tiplab_padding_upgma <- 0.25
-                    Vis$branch_size_upgma <- 4.5
-                  } else if (between(sum(DB$data$Include), 21, 40)) {
-                    Vis$labelsize_upgma <- 5
-                    Vis$tippointsize_upgma <- 5
-                    Vis$nodepointsize_upgma <- 3.5
-                    Vis$tiplab_padding_upgma <- 0.2
-                    Vis$branch_size_upgma <- 4
-                  } else if (between(sum(DB$data$Include), 41, 60)) {
-                    Vis$labelsize_upgma <- 4.5
-                    Vis$tippointsize_upgma <- 4.5
-                    Vis$nodepointsize_upgma <- 3
-                    Vis$tiplab_padding_upgma <- 0.15
-                    Vis$branch_size_upgma <- 3.5
-                  } else if (between(sum(DB$data$Include), 61, 80)) {
-                    Vis$labelsize_upgma <- 4
-                    Vis$tippointsize_upgma <- 4
-                    Vis$nodepointsize_upgma <- 2.5
-                    Vis$tiplab_padding_upgma <- 0.1
-                    Vis$branch_size_upgma <- 3
-                  } else if (between(sum(DB$data$Include), 81, 100)) {
-                    Vis$labelsize_upgma <- 3.5
-                    Vis$tippointsize_upgma <- 3.5
-                    Vis$nodepointsize_upgma <- 2
-                    Vis$tiplab_padding_upgma <- 0.1
-                    Vis$branch_size_upgma <- 2.5
-                  } else {
-                    Vis$labelsize_upgma <- 3
-                    Vis$tippointsize_upgma <- 3
-                    Vis$nodepointsize_upgma <- 1.5
-                    Vis$tiplab_padding_upgma <- 0.05
-                    Vis$branch_size_upgma <- 2
-                  }
+            # Create phylogenetic tree data
+            Vis$upgma <- phangorn::upgma(hamming_nj())
+            
+            # Create phylogenetic tree meta data
+            Vis$meta_upgma <- mutate(Vis$meta_upgma, taxa = Index) %>%
+              relocate(taxa)
+            
+            # Get number of included entries calculate start values for tree 
+            if(!is.null(input$upgma_layout)) {
+              if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
+                if(sum(DB$data$Include) < 21) {
+                  Vis$labelsize_upgma <- 5.5
+                  Vis$tippointsize_upgma <- 5.5
+                  Vis$nodepointsize_upgma <- 4
+                  Vis$tiplab_padding_upgma <- 0.25
+                  Vis$branch_size_upgma <- 4.5
+                } else if (between(sum(DB$data$Include), 21, 40)) {
+                  Vis$labelsize_upgma <- 5
+                  Vis$tippointsize_upgma <- 5
+                  Vis$nodepointsize_upgma <- 3.5
+                  Vis$tiplab_padding_upgma <- 0.2
+                  Vis$branch_size_upgma <- 4
+                } else if (between(sum(DB$data$Include), 41, 60)) {
+                  Vis$labelsize_upgma <- 4.5
+                  Vis$tippointsize_upgma <- 4.5
+                  Vis$nodepointsize_upgma <- 3
+                  Vis$tiplab_padding_upgma <- 0.15
+                  Vis$branch_size_upgma <- 3.5
+                } else if (between(sum(DB$data$Include), 61, 80)) {
+                  Vis$labelsize_upgma <- 4
+                  Vis$tippointsize_upgma <- 4
+                  Vis$nodepointsize_upgma <- 2.5
+                  Vis$tiplab_padding_upgma <- 0.1
+                  Vis$branch_size_upgma <- 3
+                } else if (between(sum(DB$data$Include), 81, 100)) {
+                  Vis$labelsize_upgma <- 3.5
+                  Vis$tippointsize_upgma <- 3.5
+                  Vis$nodepointsize_upgma <- 2
+                  Vis$tiplab_padding_upgma <- 0.1
+                  Vis$branch_size_upgma <- 2.5
                 } else {
-                  if(sum(DB$data$Include) < 21) {
-                    Vis$labelsize_upgma <- 5
-                    Vis$tippointsize_upgma <- 5
-                    Vis$nodepointsize_upgma <- 4
-                    Vis$tiplab_padding_upgma <- 0.25
-                    Vis$branch_size_upgma <- 4.5
-                  } else if (between(sum(DB$data$Include), 21, 40)) {
-                    Vis$labelsize_upgma <- 4.5
-                    Vis$tippointsize_upgma <- 4.5
-                    Vis$nodepointsize_upgma <- 3.5
-                    Vis$tiplab_padding_upgma <- 0.2
-                    Vis$branch_size_upgma <- 4
-                  } else if (between(sum(DB$data$Include), 41, 60)) {
-                    Vis$labelsize_upgma <- 4
-                    Vis$tippointsize_upgma <- 4
-                    Vis$nodepointsize_upgma <- 3
-                    Vis$tiplab_padding_upgma <- 0.15
-                    Vis$branch_size_upgma <- 3.5
-                  } else if (between(sum(DB$data$Include), 61, 80)) {
-                    Vis$labelsize_upgma <- 3.5
-                    Vis$tippointsize_upgma <- 3.5
-                    Vis$nodepointsize_upgma <- 2.5
-                    Vis$tiplab_padding_upgma <- 0.1
-                    Vis$branch_size_upgma <- 3
-                  } else if (between(sum(DB$data$Include), 81, 100)) {
-                    Vis$labelsize_upgma <- 3
-                    Vis$tippointsize_upgma <- 3
-                    Vis$nodepointsize_upgma <- 2
-                    Vis$tiplab_padding_upgma <- 0.1
-                    Vis$branch_size_upgma <- 2.5
-                  } else {
-                    Vis$labelsize_upgma <- 2.5
-                    Vis$tippointsize_upgma <- 2.5
-                    Vis$nodepointsize_upgma <- 1.5
-                    Vis$tiplab_padding_upgma <- 0.05
-                    Vis$branch_size_upgma <- 2
-                  }
+                  Vis$labelsize_upgma <- 3
+                  Vis$tippointsize_upgma <- 3
+                  Vis$nodepointsize_upgma <- 1.5
+                  Vis$tiplab_padding_upgma <- 0.05
+                  Vis$branch_size_upgma <- 2
                 }
               } else {
-                Vis$labelsize_upgma <- 4
-                Vis$tippointsize_upgma <- 4
-                Vis$nodepointsize_upgma <- 2.5
-                Vis$tiplab_padding_upgma <- 0.2
-                Vis$branch_size_upgma <- 3.5
+                if(sum(DB$data$Include) < 21) {
+                  Vis$labelsize_upgma <- 5
+                  Vis$tippointsize_upgma <- 5
+                  Vis$nodepointsize_upgma <- 4
+                  Vis$tiplab_padding_upgma <- 0.25
+                  Vis$branch_size_upgma <- 4.5
+                } else if (between(sum(DB$data$Include), 21, 40)) {
+                  Vis$labelsize_upgma <- 4.5
+                  Vis$tippointsize_upgma <- 4.5
+                  Vis$nodepointsize_upgma <- 3.5
+                  Vis$tiplab_padding_upgma <- 0.2
+                  Vis$branch_size_upgma <- 4
+                } else if (between(sum(DB$data$Include), 41, 60)) {
+                  Vis$labelsize_upgma <- 4
+                  Vis$tippointsize_upgma <- 4
+                  Vis$nodepointsize_upgma <- 3
+                  Vis$tiplab_padding_upgma <- 0.15
+                  Vis$branch_size_upgma <- 3.5
+                } else if (between(sum(DB$data$Include), 61, 80)) {
+                  Vis$labelsize_upgma <- 3.5
+                  Vis$tippointsize_upgma <- 3.5
+                  Vis$nodepointsize_upgma <- 2.5
+                  Vis$tiplab_padding_upgma <- 0.1
+                  Vis$branch_size_upgma <- 3
+                } else if (between(sum(DB$data$Include), 81, 100)) {
+                  Vis$labelsize_upgma <- 3
+                  Vis$tippointsize_upgma <- 3
+                  Vis$nodepointsize_upgma <- 2
+                  Vis$tiplab_padding_upgma <- 0.1
+                  Vis$branch_size_upgma <- 2.5
+                } else {
+                  Vis$labelsize_upgma <- 2.5
+                  Vis$tippointsize_upgma <- 2.5
+                  Vis$nodepointsize_upgma <- 1.5
+                  Vis$tiplab_padding_upgma <- 0.05
+                  Vis$branch_size_upgma <- 2
+                }
               }
-              
-              Vis$upgma_tree <- ggtree(Vis$upgma)
-              
-              # Get upper and lower end of x range
-              Vis$upgma_max_x <- max(Vis$upgma_tree$data$x)
-              Vis$upgma_min_x <- min(Vis$upgma_tree$data$x)
-              
-              # Get parent node numbers
-              Vis$upgma_parentnodes <- Vis$upgma_tree$data$parent
-              
-              # Update visualization control inputs
-              if(!is.null(input$upgma_tiplab_size)) {
-                updateNumericInput(session, "upgma_tiplab_size", value = Vis$labelsize_upgma)
-              }
-              if(!is.null(input$upgma_tippoint_size)) {
-                updateSliderInput(session, "upgma_tippoint_size", value = Vis$tippointsize_upgma)
-              }
-              if(!is.null(input$upgma_nodepoint_size)) {
-                updateSliderInput(session, "upgma_nodepoint_size", value = Vis$nodepointsize_upgma)
-              }
-              if(!is.null(input$upgma_tiplab_padding)) {
-                updateSliderInput(session, "upgma_tiplab_padding", value = Vis$tiplab_padding_upgma)
-              }
-              if(!is.null(input$upgma_branch_size)) {
-                updateNumericInput(session, "upgma_branch_size", value = Vis$branch_size_upgma)
-              }
-              if(!is.null(input$upgma_treescale_width)) {
-                updateNumericInput(session, "upgma_treescale_width", value = round(ceiling(Vis$upgma_max_x) * 0.1, 0))
-              }
-              if(!is.null(input$upgma_rootedge_length)) {
-                updateSliderInput(session, "upgma_rootedge_length", value = round(ceiling(Vis$upgma_max_x) * 0.05, 0))
-              }
-              
-              output$tree_upgma <- renderPlot({
-                upgma_tree()
-              })
+            } else {
+              Vis$labelsize_upgma <- 4
+              Vis$tippointsize_upgma <- 4
+              Vis$nodepointsize_upgma <- 2.5
+              Vis$tiplab_padding_upgma <- 0.2
+              Vis$branch_size_upgma <- 3.5
             }
+            
+            Vis$upgma_tree <- ggtree(Vis$upgma)
+            
+            # Get upper and lower end of x range
+            Vis$upgma_max_x <- max(Vis$upgma_tree$data$x)
+            Vis$upgma_min_x <- min(Vis$upgma_tree$data$x)
+            
+            # Get parent node numbers
+            Vis$upgma_parentnodes <- Vis$upgma_tree$data$parent
+            
+            # Update visualization control inputs
+            if(!is.null(input$upgma_tiplab_size)) {
+              updateNumericInput(session, "upgma_tiplab_size", value = Vis$labelsize_upgma)
+            }
+            if(!is.null(input$upgma_tippoint_size)) {
+              updateSliderInput(session, "upgma_tippoint_size", value = Vis$tippointsize_upgma)
+            }
+            if(!is.null(input$upgma_nodepoint_size)) {
+              updateSliderInput(session, "upgma_nodepoint_size", value = Vis$nodepointsize_upgma)
+            }
+            if(!is.null(input$upgma_tiplab_padding)) {
+              updateSliderInput(session, "upgma_tiplab_padding", value = Vis$tiplab_padding_upgma)
+            }
+            if(!is.null(input$upgma_branch_size)) {
+              updateNumericInput(session, "upgma_branch_size", value = Vis$branch_size_upgma)
+            }
+            if(!is.null(input$upgma_treescale_width)) {
+              updateNumericInput(session, "upgma_treescale_width", value = round(ceiling(Vis$upgma_max_x) * 0.1, 0))
+            }
+            if(!is.null(input$upgma_rootedge_length)) {
+              updateSliderInput(session, "upgma_rootedge_length", value = round(ceiling(Vis$upgma_max_x) * 0.05, 0))
+            }
+            
+            output$tree_upgma <- renderPlot({
+              upgma_tree()
+            })
           }
         } else {
+          
+          output$mst_field <- renderUI({
+            addSpinner(
+              visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px")),
+              spin = "dots",
+              color = "#ffffff"
+            )
+          })
           
           if(nrow(DB$meta_true) > 100) {
             show_toast(
@@ -19467,310 +19462,6 @@ server <- function(input, output, session) {
           })
         }
       }
-    }
-  })
-  
-  observeEvent(input$conf_create_nj, {
-    removeModal()
-    
-    Vis$nj_label_pos_x <- list()
-    Vis$nj_label_pos_y <- list()
-    Vis$nj_label_size <- list()
-    Vis$custom_label_nj <- data.frame()
-    
-    Vis$meta_nj <- select(DB$meta_true, -2)
-    
-    if(length(unique(gsub(" ", "_", colnames(Vis$meta_nj)))) < length(gsub(" ", "_", colnames(Vis$meta_nj)))) {
-      show_toast(
-        title = "Conflicting Custom Variable Names",
-        type = "warning",
-        position = "top-end",
-        width = "500px",
-        timer = 6000
-      )
-    } else {
-      
-      # Create phylogenetic tree data
-      Vis$nj <- ape::nj(hamming_nj())
-      
-      # Create phylogenetic tree meta data
-      Vis$meta_nj <- mutate(Vis$meta_nj, taxa = Index) %>%
-        relocate(taxa)
-      
-      # Get number of included entries calculate start values for tree 
-      if(!is.null(input$nj_layout)) {
-        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          if(sum(DB$data$Include) < 21) {
-            Vis$labelsize_nj <- 5.5
-            Vis$tippointsize_nj <- 5.5
-            Vis$nodepointsize_nj <- 4
-            Vis$tiplab_padding_nj <- 0.25
-            Vis$branch_size_nj <- 4.5
-          } else if (between(sum(DB$data$Include), 21, 40)) {
-            Vis$labelsize_nj <- 5
-            Vis$tippointsize_nj <- 5
-            Vis$nodepointsize_nj <- 3.5
-            Vis$tiplab_padding_nj <- 0.2
-            Vis$branch_size_nj <- 4
-          } else if (between(sum(DB$data$Include), 41, 60)) {
-            Vis$labelsize_nj <- 4.5
-            Vis$tippointsize_nj <- 4.5
-            Vis$nodepointsize_nj <- 3
-            Vis$tiplab_padding_nj <- 0.15
-            Vis$branch_size_nj <- 3.5
-          } else if (between(sum(DB$data$Include), 61, 80)) {
-            Vis$labelsize_nj <- 4
-            Vis$tippointsize_nj <- 4
-            Vis$nodepointsize_nj <- 2.5
-            Vis$tiplab_padding_nj <- 0.1
-            Vis$branch_size_nj <- 3
-          } else if (between(sum(DB$data$Include), 81, 100)) {
-            Vis$labelsize_nj <- 3.5
-            Vis$tippointsize_nj <- 3.5
-            Vis$nodepointsize_nj <- 2
-            Vis$tiplab_padding_nj <- 0.1
-            Vis$branch_size_nj <- 2.5
-          } else {
-            Vis$labelsize_nj <- 3
-            Vis$tippointsize_nj <- 3
-            Vis$nodepointsize_nj <- 1.5
-            Vis$tiplab_padding_nj <- 0.05
-            Vis$branch_size_nj <- 2
-          }
-        } else {
-          if(sum(DB$data$Include) < 21) {
-            Vis$labelsize_nj <- 5
-            Vis$tippointsize_nj <- 5
-            Vis$nodepointsize_nj <- 4
-            Vis$tiplab_padding_nj <- 0.25
-            Vis$branch_size_nj <- 4.5
-          } else if (between(sum(DB$data$Include), 21, 40)) {
-            Vis$labelsize_nj <- 4.5
-            Vis$tippointsize_nj <- 4.5
-            Vis$nodepointsize_nj <- 3.5
-            Vis$tiplab_padding_nj <- 0.2
-            Vis$branch_size_nj <- 4
-          } else if (between(sum(DB$data$Include), 41, 60)) {
-            Vis$labelsize_nj <- 4
-            Vis$tippointsize_nj <- 4
-            Vis$nodepointsize_nj <- 3
-            Vis$tiplab_padding_nj <- 0.15
-            Vis$branch_size_nj <- 3.5
-          } else if (between(sum(DB$data$Include), 61, 80)) {
-            Vis$labelsize_nj <- 3.5
-            Vis$tippointsize_nj <- 3.5
-            Vis$nodepointsize_nj <- 2.5
-            Vis$tiplab_padding_nj <- 0.1
-            Vis$branch_size_nj <- 3
-          } else if (between(sum(DB$data$Include), 81, 100)) {
-            Vis$labelsize_nj <- 3
-            Vis$tippointsize_nj <- 3
-            Vis$nodepointsize_nj <- 2
-            Vis$tiplab_padding_nj <- 0.1
-            Vis$branch_size_nj <- 2.5
-          } else {
-            Vis$labelsize_nj <- 2.5
-            Vis$tippointsize_nj <- 2.5
-            Vis$nodepointsize_nj <- 1.5
-            Vis$tiplab_padding_nj <- 0.05
-            Vis$branch_size_nj <- 2
-          }
-        }
-      } else {
-        Vis$labelsize_nj <- 4
-        Vis$tippointsize_nj <- 4
-        Vis$nodepointsize_nj <- 2.5
-        Vis$tiplab_padding_nj <- 0.2
-        Vis$branch_size_nj <- 3.5
-      }
-      
-      Vis$nj_tree <- ggtree(Vis$nj)
-      
-      # Get upper and lower end of x range
-      Vis$nj_max_x <- max(Vis$nj_tree$data$x)
-      Vis$nj_min_x <- min(Vis$nj_tree$data$x)
-      
-      # Get parent node numbers
-      Vis$nj_parentnodes <- Vis$nj_tree$data$parent
-      
-      # Update visualization control inputs
-      if(!is.null(input$nj_tiplab_size)) {
-        updateNumericInput(session, "nj_tiplab_size", value = Vis$labelsize_nj)
-      }
-      if(!is.null(input$nj_tippoint_size)) {
-        updateSliderInput(session, "nj_tippoint_size", value = Vis$tippointsize_nj)
-      }
-      if(!is.null(input$nj_nodepoint_size)) {
-        updateSliderInput(session, "nj_nodepoint_size", value = Vis$nodepointsize_nj)
-      }
-      if(!is.null(input$nj_tiplab_padding)) {
-        updateSliderInput(session, "nj_tiplab_padding", value = Vis$tiplab_padding_nj)
-      }
-      if(!is.null(input$nj_branch_size)) {
-        updateNumericInput(session, "nj_branch_size", value = Vis$branch_size_nj)
-      }
-      if(!is.null(input$nj_treescale_width)) {
-        updateNumericInput(session, "nj_treescale_width", value = round(ceiling(Vis$nj_max_x) * 0.1, 0))
-      }
-      if(!is.null(input$nj_rootedge_length)) {
-        updateSliderInput(session, "nj_rootedge_length", value = round(ceiling(Vis$nj_max_x) * 0.05, 0))
-      }
-      
-      output$tree_nj <- renderPlot({
-        nj_tree()
-      })
-    }
-  })
-  
-  observeEvent(input$conf_create_upgma, {
-    removeModal()
-    
-    Vis$upgma_label_pos_x <- list()
-    Vis$upgma_label_pos_y <- list()
-    Vis$upgma_label_size <- list()
-    Vis$custom_label_upgma <- data.frame()
-    
-    Vis$meta_upgma <- select(DB$meta_true, -2)
-    
-    if(length(unique(gsub(" ", "_", colnames(Vis$meta_upgma)))) < length(gsub(" ", "_", colnames(Vis$meta_upgma)))) {
-      show_toast(
-        title = "Conflicting Custom Variable Names",
-        type = "warning",
-        position = "top-end",
-        width = "500px",
-        timer = 6000
-      )
-    } else {
-      
-      # Create phylogenetic tree data
-      Vis$upgma <- ape::upgma(hamming_upgma())
-      
-      # Create phylogenetic tree meta data
-      Vis$meta_upgma <- mutate(Vis$meta_upgma, taxa = Index) %>%
-        relocate(taxa)
-      
-      # Get number of included entries calculate start values for tree 
-      if(!is.null(input$upgma_layout)) {
-        if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-          if(sum(DB$data$Include) < 21) {
-            Vis$labelsize_upgma <- 5.5
-            Vis$tippointsize_upgma <- 5.5
-            Vis$nodepointsize_upgma <- 4
-            Vis$tiplab_padding_upgma <- 0.25
-            Vis$branch_size_upgma <- 4.5
-          } else if (between(sum(DB$data$Include), 21, 40)) {
-            Vis$labelsize_upgma <- 5
-            Vis$tippointsize_upgma <- 5
-            Vis$nodepointsize_upgma <- 3.5
-            Vis$tiplab_padding_upgma <- 0.2
-            Vis$branch_size_upgma <- 4
-          } else if (between(sum(DB$data$Include), 41, 60)) {
-            Vis$labelsize_upgma <- 4.5
-            Vis$tippointsize_upgma <- 4.5
-            Vis$nodepointsize_upgma <- 3
-            Vis$tiplab_padding_upgma <- 0.15
-            Vis$branch_size_upgma <- 3.5
-          } else if (between(sum(DB$data$Include), 61, 80)) {
-            Vis$labelsize_upgma <- 4
-            Vis$tippointsize_upgma <- 4
-            Vis$nodepointsize_upgma <- 2.5
-            Vis$tiplab_padding_upgma <- 0.1
-            Vis$branch_size_upgma <- 3
-          } else if (between(sum(DB$data$Include), 81, 100)) {
-            Vis$labelsize_upgma <- 3.5
-            Vis$tippointsize_upgma <- 3.5
-            Vis$nodepointsize_upgma <- 2
-            Vis$tiplab_padding_upgma <- 0.1
-            Vis$branch_size_upgma <- 2.5
-          } else {
-            Vis$labelsize_upgma <- 3
-            Vis$tippointsize_upgma <- 3
-            Vis$nodepointsize_upgma <- 1.5
-            Vis$tiplab_padding_upgma <- 0.05
-            Vis$branch_size_upgma <- 2
-          }
-        } else {
-          if(sum(DB$data$Include) < 21) {
-            Vis$labelsize_upgma <- 5
-            Vis$tippointsize_upgma <- 5
-            Vis$nodepointsize_upgma <- 4
-            Vis$tiplab_padding_upgma <- 0.25
-            Vis$branch_size_upgma <- 4.5
-          } else if (between(sum(DB$data$Include), 21, 40)) {
-            Vis$labelsize_upgma <- 4.5
-            Vis$tippointsize_upgma <- 4.5
-            Vis$nodepointsize_upgma <- 3.5
-            Vis$tiplab_padding_upgma <- 0.2
-            Vis$branch_size_upgma <- 4
-          } else if (between(sum(DB$data$Include), 41, 60)) {
-            Vis$labelsize_upgma <- 4
-            Vis$tippointsize_upgma <- 4
-            Vis$nodepointsize_upgma <- 3
-            Vis$tiplab_padding_upgma <- 0.15
-            Vis$branch_size_upgma <- 3.5
-          } else if (between(sum(DB$data$Include), 61, 80)) {
-            Vis$labelsize_upgma <- 3.5
-            Vis$tippointsize_upgma <- 3.5
-            Vis$nodepointsize_upgma <- 2.5
-            Vis$tiplab_padding_upgma <- 0.1
-            Vis$branch_size_upgma <- 3
-          } else if (between(sum(DB$data$Include), 81, 100)) {
-            Vis$labelsize_upgma <- 3
-            Vis$tippointsize_upgma <- 3
-            Vis$nodepointsize_upgma <- 2
-            Vis$tiplab_padding_upgma <- 0.1
-            Vis$branch_size_upgma <- 2.5
-          } else {
-            Vis$labelsize_upgma <- 2.5
-            Vis$tippointsize_upgma <- 2.5
-            Vis$nodepointsize_upgma <- 1.5
-            Vis$tiplab_padding_upgma <- 0.05
-            Vis$branch_size_upgma <- 2
-          }
-        }
-      } else {
-        Vis$labelsize_upgma <- 4
-        Vis$tippointsize_upgma <- 4
-        Vis$nodepointsize_upgma <- 2.5
-        Vis$tiplab_padding_upgma <- 0.2
-        Vis$branch_size_upgma <- 3.5
-      }
-      
-      Vis$upgma_tree <- ggtree(Vis$upgma)
-      
-      # Get upper and lower end of x range
-      Vis$upgma_max_x <- max(Vis$upgma_tree$data$x)
-      Vis$upgma_min_x <- min(Vis$upgma_tree$data$x)
-      
-      # Get parent node numbers
-      Vis$upgma_parentnodes <- Vis$upgma_tree$data$parent
-      
-      # Update visualization control inputs
-      if(!is.null(input$upgma_tiplab_size)) {
-        updateNumericInput(session, "upgma_tiplab_size", value = Vis$labelsize_upgma)
-      }
-      if(!is.null(input$upgma_tippoint_size)) {
-        updateSliderInput(session, "upgma_tippoint_size", value = Vis$tippointsize_upgma)
-      }
-      if(!is.null(input$upgma_nodepoint_size)) {
-        updateSliderInput(session, "upgma_nodepoint_size", value = Vis$nodepointsize_upgma)
-      }
-      if(!is.null(input$upgma_tiplab_padding)) {
-        updateSliderInput(session, "upgma_tiplab_padding", value = Vis$tiplab_padding_upgma)
-      }
-      if(!is.null(input$upgma_branch_size)) {
-        updateNumericInput(session, "upgma_branch_size", value = Vis$branch_size_upgma)
-      }
-      if(!is.null(input$upgma_treescale_width)) {
-        updateNumericInput(session, "upgma_treescale_width", value = round(ceiling(Vis$upgma_max_x) * 0.1, 0))
-      }
-      if(!is.null(input$upgma_rootedge_length)) {
-        updateSliderInput(session, "upgma_rootedge_length", value = round(ceiling(Vis$upgma_max_x) * 0.05, 0))
-      }
-      
-      output$tree_upgma <- renderPlot({
-        upgma_tree()
-      })
     }
   })
   
