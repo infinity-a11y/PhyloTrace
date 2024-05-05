@@ -664,9 +664,9 @@ ui <- dashboardPage(
             br(),
             br(),
             actionButton(
-              "_cgMLST",
-              label = "",
-              icon = icon("")
+              "download_cgMLST",
+              label = "Download",
+              icon = icon("download")
             )
           ),
           column(
@@ -676,8 +676,8 @@ ui <- dashboardPage(
             br(),
             align = "center",
             conditionalPanel(
-              "input._cgMLST >= 1",
-              h4(p("ed Loci"), style = "color:white")
+              "input.download_cgMLST >= 1",
+              h4(p("Downloaded Loci"), style = "color:white")
             )
           )
         ),
@@ -702,7 +702,7 @@ ui <- dashboardPage(
             br(),
             br(),
             conditionalPanel(
-              "input._cgMLST >= 1",
+              "input.download_cgMLST >= 1",
               addSpinner(
                 dataTableOutput("cgmlst_targets"),
                 spin = "dots",
