@@ -82,7 +82,6 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         variants <- readLines(locus_file)
         
         # new variant validation 
-        
         # decision what is reference sequence
         
         # sort by score, then number of gaps then number of bases in the gaps
@@ -92,7 +91,6 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         unique_template_seq <- matches[which(!(duplicated(matches$V16) & duplicated(matches$V17)))]
         
         # loop over all unique template alignments (regarding position)
-        
         variant_valid <- variant_validation(references = unique_template_seq, 
                            start_codons = start_codons, stop_codons = stop_codons)
         
@@ -132,7 +130,6 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   allele_vector <- as.integer(allele_vector)
   
   # Create Results Data Frame 
-  
   if(!any(grepl("Typing", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)))))) {
     
     Database <- list(Typing = data.frame())

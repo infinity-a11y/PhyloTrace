@@ -484,8 +484,9 @@ ui <- dashboardPage(
             align = "left",
             uiOutput("delete_box"),
             uiOutput("compare_allele_box"),
-            uiOutput("_entries"),
-            br(), br(), br(), br(), br(), br(), br(), br(), br()
+            uiOutput("download_entries"),
+            br(), br(), br(), br(), br(), br(), br(), br(),
+            br(), br(), br(), br(), br(), br(), br()
           )
         ),
         br()
@@ -517,7 +518,7 @@ ui <- dashboardPage(
               column(
                 width = 2,
                 align = "left",
-                uiOutput("_scheme_info")
+                uiOutput("download_scheme_info")
               )
             ),
             br(),
@@ -536,7 +537,7 @@ ui <- dashboardPage(
               column(
                 width = 2,
                 align = "left",
-                uiOutput("_loci")
+                uiOutput("download_loci")
               )
             ),
             br(),
@@ -742,12 +743,21 @@ ui <- dashboardPage(
           "input.typing_mode == 'Multi'",
           fluidRow(
             uiOutput("initiate_multi_typing_ui"),
-            uiOutput("test_yes_pending"),
             uiOutput("multi_stop"),
             column(1),
             uiOutput("metadata_multi_box"),
             column(1),
             uiOutput("start_multi_typing_ui")
+          ),
+          fluidRow(
+            column(
+              width = 6,
+              uiOutput("test_yes_pending")
+            ),
+            column(
+              width = 6,
+              uiOutput("multi_typing_results")
+            )
           )
         )
       ),
@@ -5637,7 +5647,8 @@ server <- function(input, output, session) {
                            single_path = data.frame(),
                            progress = 0, 
                            progress_format_start = 0, 
-                           progress_format_end = 0) # reactive variables related to typing process
+                           progress_format_end = 0,
+                           result_list = NULL) # reactive variables related to typing process
   
   Vis <- reactiveValues(cluster = NULL, 
                         metadata = list(),
@@ -5710,12 +5721,15 @@ server <- function(input, output, session) {
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1) != "0") {
       Typing$multi_started <- TRUE
       Typing$pending <- TRUE
+      Typing$multi_help <- TRUE
       Typing$failures <- sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt"), warn = FALSE), "failed"))
       Typing$successes <- sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt"), warn = FALSE), "Successful"))
       Typing$last_scheme <- gsub("_", " ", sub(".*with (.*?) scheme.*", "\\1", readLines(paste0(getwd(), "/execute/script_log.txt"))[1]))
     } else {
       Typing$pending <- FALSE
       Typing$multi_started <- FALSE
+      Typing$multi_help <- FALSE
+      saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
     }
   }
   
@@ -8866,15 +8880,11 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
-    test <<- Vis$nj_label_pos_x
+    result_list <<- Typing$result_list
     
-    another <<- Vis$custom_label_nj
+    multi_help <<- Typing$multi_help
     
-    x_pos <<- Vis$x_pos
-    
-    y_pos <<- Vis$y_pos
-    
-    size <<- Vis$size
+    ulti_result_status <<- Typing$multi_result_status
     
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -20717,6 +20727,11 @@ server <- function(input, output, session) {
       )
     } else {
       
+      # Reset multi typing reset table list
+      saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
+      multi_help <- FALSE
+      Typing$result_list <- NULL
+      
       # Null logfile
       system(paste("chmod +x", paste0(getwd(), "/execute/reset_multi.sh")))
       system(paste0(getwd(), "/execute/reset_multi.sh"), wait = TRUE)
@@ -20766,6 +20781,7 @@ server <- function(input, output, session) {
       Typing$table <- data.frame()
       
       output$test_yes_pending <- NULL
+      output$multi_typing_results <- NULL
     }
   })
   
@@ -20788,9 +20804,15 @@ server <- function(input, output, session) {
     # Reset User Feedback variable
     Typing$pending_format <- 0
     output$test_yes_pending <- NULL
+    output$multi_typing_results <- NULL
     Typing$failures <- 0
     Typing$successes <- 0
     Typing$multi_started <- FALSE
+    
+    # Reset multi typing result table list
+    saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
+    multi_help <- FALSE
+    Typing$result_list <- NULL
     
     output$initiate_multi_typing_ui <- renderUI({
       column(
@@ -20852,70 +20874,49 @@ server <- function(input, output, session) {
           width = "500px"
         )
       } else {
-        showModal(
-          modalDialog(
-            paste0(
-              "Typing multiple assemblies will take a while. Continue?"
-            ),
-            title = "Start multi typing",
-            fade = TRUE,
-            easyClose = TRUE,
-            footer = tagList(
-              modalButton("Cancel"),
-              actionButton("conf_start_multi", "Start", class = "btn btn-default")
-            )
-          )
+        removeModal()
+        
+        show_toast(
+          title = "Multi Typing started",
+          type = "success",
+          position = "top-end",
+          timer = 10000,
+          width = "500px"
         )
         
-        observeEvent(input$Cancel, {
-          removeModal()
-        })
+        # Remove Allelic Typing Controls
+        output$initiate_multi_typing_ui <- NULL
+        
+        output$metadata_multi_box <- NULL
+        
+        output$start_multi_typing_ui <- NULL
+        
+        # Initiate Feedback variables
+        Typing$multi_started <- TRUE
+        Typing$pending <- TRUE
+        Typing$failures <- 0
+        Typing$successes <- 0
+        
+        # Start Multi Typing Script
+        multi_typing_df <- data.frame(
+          db_path = DB$database,
+          wd = getwd(),
+          scheme = paste0(gsub(" ", "_", DB$scheme)),
+          genome_folder = as.character(parseDirPath(roots = c(home = path_home()), input$genome_file_multi)),
+          genome_names = paste(Typing$genome_selected$Files[which(Typing$genome_selected$Include == TRUE)], collapse= " "),
+          alleles = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")
+        )
+        
+        saveRDS(multi_typing_df, "execute/multi_typing_df.rds")
+        
+        # Execute multi kma script  
+        system(paste("chmod +x", paste0(getwd(), "/execute/kma_multi.sh")))
+        system(paste("nohup", paste0(getwd(), "/execute/kma_multi.sh"), "> script.log 2>&1"), wait = FALSE)
       }
     }
     
   })
   
-  observeEvent(input$conf_start_multi, {
-    
-    removeModal()
-    
-    show_toast(
-      title = "Multi Typing started",
-      type = "success",
-      position = "top-end",
-      timer = 6000,
-      width = "500px"
-    )
-    
-    # Remove Allelic Typing Controls
-    output$initiate_multi_typing_ui <- NULL
-    
-    output$metadata_multi_box <- NULL
-    
-    output$start_multi_typing_ui <- NULL
-    
-    # Initiate Feedback variables
-    Typing$multi_started <- TRUE
-    Typing$pending <- TRUE
-    Typing$failures <- 0
-    Typing$successes <- 0
-    
-    # Start Multi Typing Script
-    multi_typing_df <- data.frame(
-      db_path = DB$database,
-      wd = getwd(),
-      scheme = paste0(gsub(" ", "_", DB$scheme)),
-      genome_folder = as.character(parseDirPath(roots = c(home = path_home()), input$genome_file_multi)),
-      genome_names = paste(Typing$genome_selected$Files[which(Typing$genome_selected$Include == TRUE)], collapse= " "),
-      alleles = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")
-    )
-    
-    saveRDS(multi_typing_df, "execute/multi_typing_df.rds")
-    
-    # Execute multi kma script  
-    system(paste("chmod +x", paste0(getwd(), "/execute/kma_multi.sh")))
-    system(paste("nohup", paste0(getwd(), "/execute/kma_multi.sh"), "> script.log 2>&1"), wait = FALSE)
-  })
   
   #### User Feedback ----
   
@@ -20946,6 +20947,7 @@ server <- function(input, output, session) {
     if(str_detect(tail(log, 1), "Attaching")) {
       Typing$status <- "Attaching"
     } else if(str_detect(tail(log, 1), "Successful")) {
+      Typing$multi_help <- TRUE
       Typing$status <- "Successful"
       show_toast(
         title = paste0("Successful", sub(".*Successful", "", tail(log, 1))),
@@ -20969,6 +20971,7 @@ server <- function(input, output, session) {
       if(any(str_detect(tail(log, 2), "Successful"))) {
         
         if(!identical(Typing$last_success, tail(log, 2)[1])) {
+          Typing$multi_help <- TRUE
           show_toast(
             title = paste0("Successful", sub(".*Successful", "", tail(log, 2)[1])),
             type = "success",
@@ -20994,7 +20997,7 @@ server <- function(input, output, session) {
         }
       }
     } else if(str_detect(tail(log, 1), "finalized")) {
-      
+      Typing$multi_help <- TRUE
       Typing$status <- "Finalized"
       
       if(Typing$pending == TRUE) {
@@ -21012,6 +21015,94 @@ server <- function(input, output, session) {
   })
   
   ##### Render Multi Typing UI Feedback ----
+  
+  observe({
+    if(!is.null(input$multi_results_picker)) {
+      Typing$multi_table_length <- nrow(Typing$result_list[[input$multi_results_picker]])
+    } else {
+      Typing$multi_table_length <- NULL
+    }
+  })
+  
+  observe({
+    if(!is.null(Typing$result_list)) {
+      if(is.null(Typing$multi_table_length)) {
+        output$multi_typing_result_table <- renderRHandsontable({
+          rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
+                        stretchH = "all") %>%
+            hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+            hot_cols(columnSorting = TRUE) %>%
+            hot_rows(rowHeights = 25) %>%
+            hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
+        
+      } else {
+        if(Typing$multi_table_length > 15) {
+          output$multi_typing_result_table <- renderRHandsontable({
+            rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
+                          stretchH = "all", height = 500) %>%
+              hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+              hot_cols(columnSorting = TRUE) %>%
+              hot_rows(rowHeights = 25) %>%
+              hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
+        } else {
+          output$multi_typing_result_table <- renderRHandsontable({
+            rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
+                          stretchH = "all") %>%
+              hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+              hot_cols(columnSorting = TRUE) %>%
+              hot_rows(rowHeights = 25) %>%
+              hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
+          
+        }
+      }
+        
+    } else {
+      output$multi_typing_result_table <- NULL
+      }
+  })
+  
+  observe({
+    if(!is.null(Typing$multi_result_status)) {
+      if(Typing$multi_result_status == "start" | Typing$multi_result_status == "finalized"){
+        
+        if(Typing$multi_help == TRUE) {
+          Typing$result_list <- readRDS(paste0(getwd(), "/execute/event_list.rds"))
+          Typing$multi_help <- FALSE
+        }
+      } 
+    }
+  })
+  
+  
+  observe({
+    #Render multi typing result feedback table
+    
+      if(!is.null(Typing$result_list)) {
+        output$multi_typing_results <- renderUI({
+        column(
+          width = 12,
+          fluidRow(
+            column(1),
+            column(
+              width = 8,
+              br(), br(),
+              br(), br(),
+              br(), br(),
+              selectInput(
+                "multi_results_picker",
+                label = h5("Select Typing Results", style = "color:white"),
+                choices = names(Typing$result_list),
+                selected = names(Typing$result_list)[length(names(Typing$result_list))],
+              ),
+              br(),
+              rHandsontableOutput("multi_typing_result_table")
+            )
+          )
+        )
+      })
+    }
+  })
+  
   observe({
     
     # Render log content
@@ -21026,15 +21117,17 @@ server <- function(input, output, session) {
     # Render Pending UI
     if(!grepl("Multi Typing", tail(readLogFile(), n = 1)) & grepl("Start Multi Typing", head(readLogFile(), n = 1))) {
       
+      Typing$multi_result_status <- "start"
+      
       output$initiate_multi_typing_ui <- NULL
       
       output$test_yes_pending <- renderUI({
         fluidRow(
           fluidRow(
             br(), br(),
-            column(width = 1),
+            column(width = 2),
             column(
-              width = 2,
+              width = 4,
               h3(p("Pending Multi Typing ..."), style = "color:white"),
               br(), br(),
               fluidRow(
@@ -21056,9 +21149,9 @@ server <- function(input, output, session) {
           ),
           br(), br(),
           fluidRow(
-            column(width = 1),
+            column(width = 2),
             column(
-              width = 6,
+              width = 10,
               verbatimTextOutput("logText")
             )  
           )
@@ -21066,17 +21159,20 @@ server <- function(input, output, session) {
       })
     } else if(grepl("Multi Typing finalized", tail(readLogFile(), n = 1))) {
       
+      Typing$multi_result_status <- "finalized"
+      
       Typing$last_scheme <- NULL
       
       output$initiate_multi_typing_ui <- NULL
       
       output$test_yes_pending <- renderUI({
+        
         fluidRow(
           fluidRow(
             br(), br(),
-            column(width = 1),
+            column(width = 2),
             column(
-              width = 2,
+              width = 4,
               h3(p("Pending Multi Typing ..."), style = "color:white"),
               br(), br(),
               HTML(paste("<span style='color: white;'>", 
@@ -21108,17 +21204,18 @@ server <- function(input, output, session) {
           ),
           br(), br(),
           fluidRow(
-            column(width = 1),
+            column(width = 2),
             column(
-              width = 6,
+              width = 10,
               verbatimTextOutput("logTextFull"),
-            )  
+            )
           )
         )
       })
       
     } else if (!grepl("Start Multi Typing", head(readLogFile(), n = 1))){
       output$test_yes_pending <- NULL
+      Typing$multi_result_status <- "idle"
     }
   })
   

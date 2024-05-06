@@ -305,7 +305,7 @@ i.far.fa-pen-to-square {
 }
 
 #db_entries, #db_distancematrix, #table_missing_values, 
-#multi_select_table, #typing_result_table {
+#multi_select_table, #typing_result_table, #multi_typing_result_table {
   border-radius: 8px;
   color: black;
 }
@@ -410,6 +410,10 @@ button#edit_button.btn.btn-default.action-button.shiny-bound-input {
 
 #print_log {
   border-color: white;
+}
+
+#logText {
+  margin-top: 5px;
 }
 
 .append_table {

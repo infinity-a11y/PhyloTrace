@@ -95,7 +95,10 @@ variant_validation <- function(references, start_codons, stop_codons) {
   
   for(i in 1:nrow(references)){
     
-    seq <- substring(template, references$V16[i] + 1, references$V17[i])
+    # extract new variant sequence from template
+    contig <- template[(which(template == paste0(">", references$V14[i])) + 1)]
+    
+    seq <- substring(contig, references$V16[i] + 1, references$V17[i])
     
     ref_seq_index <- grep(paste0("^>", references$V10[i], "$"), readLines(locus_file)) + 1
     
