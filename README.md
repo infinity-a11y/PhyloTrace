@@ -1,6 +1,6 @@
-![PhyloTrace](www/PhyloTrace_bw.png#gh-light-mode-only)
-![PhyloTrace](www/PhyloTrace.png#gh-dark-mode-only)
-
+<img src="www/PhyloTrace_bw.png#gh-light-mode-only" width="90%">
+<img src="www/PhyloTrace.png#gh-dark-mode-only" width="90%">
+<br>
 PhyloTrace is a platform for bacterial pathogen monitoring on a genomic level. Its components evolve around allele variant typing, to be more precise: core-genome multi locus sequence typing (cgMLST). Complex analyses and computation are wrapped into an appealing and easy-to-handle graphical user interface. This tool can help to reveal patterns explaining outbreak dynamics and events by connecting genomic information with epidemiologic variables. 
 
 **Features**
@@ -88,13 +88,14 @@ If you use PhyloTrace for your paper or publication, please give us credit by ci
 
 ## 2 Installation
 
-Download the repository as `.zip` and unpack it to a location on your system, or use git clone.
+Download the source code of the latest release and extract/unzip it to a location on your system.<br>
+> [Latest Release Version 1.3.0](https://github.com/infinity-a11y/PhyloTrace/releases/tag/v1.2.0) 
 
+### 2.1 Install Miniconda
 Is ***Miniconda*** or another ***Conda Distribution*** installed on the system?
 - No: Run the installation below and initialize conda. 
 - Yes: Proceed to [2.2 Create Conda Environment](#22-create-conda-environment).
-
-### 2.1 Install Miniconda
+  
 These four commands quickly and quietly install the latest 64-bit version of Miniconda and then clean up after themselves.
 >For installation of Miniconda on system with different architecture, please refer to the [Miniconda documentation](https://docs.anaconda.com/free/miniconda/index.html)
 
@@ -137,7 +138,7 @@ bash install_phylotrace.sh
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
 ### 2.4 Uninstall
-To uninstall PhyloTrace from your system, remove the directory and run the following command to remove the
+To uninstall PhyloTrace from your system, remove the application directory and run the following command to remove the
 desktop launcher:
 ```bash
 rm $HOME/.local/share/applications/PhyloTrace.desktop
