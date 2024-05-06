@@ -148,7 +148,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       data.frame(matrix(
         NA,
         nrow = 0,
-        ncol = 12 + length(frag_files)
+        ncol = 12 + length(psl_files)
       ))
     
     metadata <-
@@ -323,7 +323,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   
 } else {
   
-  failures <- sum(unname(base::sapply(frag_files, file.size)) <= 100) / length(frag_files) * 100
+  failures <- sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) * 100
   
   multi_user_fb <- paste0(
     "#!/bin/bash\n",
