@@ -21,7 +21,7 @@ We want to make cgMLST analysis and genomic pathogen monitoring accessible to a 
 
 <sup><sup> Developed in collaboration with Hochschule Furtwangen University (HFU) and Medical University of Graz (MUG). Featured on ShinyConf 2024. </sup> </sup>
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10996424.svg)](https://doi.org/10.5281/zenodo.10996424)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11121153.svg)](https://doi.org/10.5281/zenodo.11121153)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)
 
@@ -73,7 +73,7 @@ PhyloTrace was tested on the following Linux distributions:
 
 If you use PhyloTrace for your paper or publication, please give us credit by citing:
 
-- *Freisleben, M. & Paskali, F. (2024). PhyloTrace. Zenodo. DOI: 10.5281/zenodo.10996424.*
+- *Freisleben, M. & Paskali, F. (2024). PhyloTrace. Zenodo. DOI: 10.5281/zenodo.11121153.*
 
 *In Bibtex format:*
 ```
@@ -82,8 +82,8 @@ If you use PhyloTrace for your paper or publication, please give us credit by ci
   title        = {PhyloTrace},
   year         = {2024},
   publisher    = {Zenodo},
-  doi          = {10.5281/zenodo.10996424},
-  url          = {https://doi.org/10.5281/zenodo.10996424}
+  doi          = {10.5281/zenodo.11121153},
+  url          = {https://doi.org/10.5281/zenodo.11121153}
 }
 ```
 
