@@ -1,6 +1,9 @@
 # Hand over variables
 meta_info <- readRDS("meta_info_single.rds")
 db_path <- readRDS("single_typing_df.rds")[, "db_path"]
+assembly <- readRDS("single_typing_df.rds")[, "genome"]
+
+source("variant_validation.R")
 
 setwd(meta_info$db_directory)
 
@@ -17,43 +20,116 @@ column_classes <- function(df) {
   })
 }
 
-# List all the .frag.gz files in the folder
-frag_files <-
-  list.files(paste0(getwd(), "/execute/kma_single/results"),
-             pattern = "\\.frag\\.gz$",
-             full.names = TRUE)
+# Define start and stop codons
+start_codons <- c("ATG", "GTG", "TTG")
+stop_codons <- c("TAA", "TAG", "TGA")
 
-# List to store data frames
-frag_data_list <- list()
+# Locate Alleles folder in directory
+allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)), full.names = TRUE)[grep("_alleles", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing))))]
+
+# Read the template (assembly) sequence
+template <- readLines(assembly)[2]
+
+# List all .psl result files from alignment with BLAT
+psl_files <- list.files(paste0(meta_info$db_directory, "/execute/kma_single/results"), pattern = "\\.psl$", full.names = TRUE)
 
 # Initialize an empty vector to store the results
-allele_vector <- integer(length(frag_files))
+allele_vector <- integer(length(psl_files))
 
-if(sum(unname(base::sapply(frag_files, file.size)) <= 100) / length(frag_files) < 0.5) {
-  for (i in seq_along(frag_files)) {
+event_df <- data.frame(Locus = character(0), Event = character(0), Value = character(0))
+
+# if more than 5 % of loci are not typed, assembly typing is considered failed
+if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <= 0.05) {
+  
+  for (i in seq_along(psl_files)) {
+    
     # Extract the base filename without extension
-    frag_filename <- gsub(".frag", "", tools::file_path_sans_ext(basename(frag_files[i])))
+    allele_index <- gsub(".psl", "", tools::file_path_sans_ext(basename(psl_files[i])))
     
     # Check if the file is empty
-    if (file.info(frag_files[i])$size < 100) {
+    if (file.info(psl_files[i])$size <= 427) {
+      
       # Handle empty file: Insert NA in the allele_vector
       allele_vector[[i]] <- NA
-    } else {
-      # Read only the necessary columns (3rd and 7th) from the .frag.gz file into a data table
-      frag_data <- data.table::fread(frag_files[i], select = c(3, 7), sep = "\t", header = FALSE)
       
-      # Find the row with the highest value in the third field and extract the value from the seventh field
-      allele_vector[[i]] <- frag_data[which.max(frag_data$V3), V7]
+      event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "Locus Not Found", Value = "NA"))
+      
+    } else {
+      
+      matches <- data.table::fread(psl_files[i], select = c(1, 5, 6, 7, 8, 10, 11, 16, 17), header = FALSE)
+      
+      # variant count 
+      n_variants <- max(matches$V10)
+      
+      if(any(matches$V1 == matches$V11 & (matches$V5 + matches$V7) == 0)) {
+        
+        perf_match <- matches[which(matches$V1 == matches$V11)]
+        
+        if(sum((perf_match$V5 + perf_match$V7) == 0) > 1) {
+          
+          cat(paste0(allele_index, " has multiple hits.\n"))
+          allele_vector[[i]] <- NA
+          event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "Multiple Hits", Value = "NA"))
+          
+        } else {
+          allele_vector[[i]] <- perf_match$V10[which((perf_match$V5 + perf_match$V7) == 0)]
+        }
+      } else {
+        
+        # select allele fasta file to get present variants in scheme
+        locus_file <- list.files(allele_folder, full.names = TRUE)[grep(allele_index, list.files(allele_folder))]
+        
+        variants <- readLines(locus_file)
+        
+        # new variant validation 
+        # decision what is reference sequence
+        
+        # sort by score, then number of gaps then number of bases in the gaps
+        matches <- dplyr::arrange(matches, desc(V1), desc(V5 + V7), desc(V6 + V7))
+        
+        # check which reference sequences have different alignment positions with the template
+        unique_template_seq <- matches[which(!(duplicated(matches$V16) & duplicated(matches$V17)))]
+        
+        # loop over all unique template alignments (regarding position)
+        variant_valid <- variant_validation(references = unique_template_seq, 
+                           start_codons = start_codons, stop_codons = stop_codons)
+        
+        # if valid variant found 
+        if(variant_valid != FALSE) {
+          
+          # Append new variant number to allele fasta file
+          cat(paste0("\n>", n_variants + 1), file = locus_file, append = TRUE)
+          
+          # Append new variant sequence to allele fasta file
+          cat(paste0("\n", variant_valid, "\n"), file = locus_file, append = TRUE)
+          
+          # Entry in results data frame
+          event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "New Variant", Value = as.character(n_variants + 1)))
+          
+          allele_vector[[i]] <- n_variants + 1
+          
+          cat(paste0(allele_index, " has new variant.\n"))
+          
+        } else {
+          
+          #no valid variant found
+          allele_vector[[i]] <- NA
+          
+          # Entry in results data frame
+          event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "Invalid Sequence", Value = "NA"))
+          
+          cat(paste0(allele_index, " has invalid sequence.\n"))
+        }
+        
+      }
     }
   }
   
+  saveRDS(event_df, "execute/event_df.rds")
+  
   allele_vector <- as.integer(allele_vector)
   
-  # Find Alleles folder in directory
-  allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)), full.names = TRUE)[grep("_alleles", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing))))]
-  
   # Create Results Data Frame 
-  
   if(!any(grepl("Typing", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)))))) {
     
     Database <- list(Typing = data.frame())
@@ -62,7 +138,7 @@ if(sum(unname(base::sapply(frag_files, file.size)) <= 100) / length(frag_files) 
       data.frame(matrix(
         NA,
         nrow = 0,
-        ncol = 12 + length(frag_files)
+        ncol = 12 + length(psl_files)
       ))
     
     metadata <-
@@ -237,7 +313,7 @@ if(sum(unname(base::sapply(frag_files, file.size)) <= 100) / length(frag_files) 
   
 } else {
   
-  failures <- sum(unname(base::sapply(frag_files, file.size)) <= 100) / length(frag_files) * 100
+  failures <- sum(unname(base::sapply(psl_files, file.size)) <= 100) / length(psl_files) * 100
   
   user_fb <- paste0(
     "#!/bin/bash\n",
@@ -261,5 +337,3 @@ if(sum(unname(base::sapply(frag_files, file.size)) <= 100) / length(frag_files) 
   # Execute the script
   system(paste(user_fb_path), wait = FALSE)
 }
-
-

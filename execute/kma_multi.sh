@@ -1,10 +1,8 @@
 #!/bin/bash
 
 cd execute
-
 source ~/miniconda3/etc/profile.d/conda.sh
 conda activate PhyloTrace
-
 unset R_HOME
 
 # Get variables
@@ -63,6 +61,10 @@ genome_filename_noext=""
 
 #Indexing Loop
 for genome in "$selected_genomes"/*; do
+    
+    # Check read names of assembly file
+    Rscript "$base_path/execute/check_duplicate_multi.R"
+    
     if [ -f "$genome" ]; then
     genome_filename=$(basename "$genome")
     genome_filename_noext="${genome_filename%.*}"
@@ -71,13 +73,14 @@ for genome in "$selected_genomes"/*; do
     fi
     mkdir "$results/$genome_filename_noext"
 
-#Running Loop
+    #Running Loop
     for query_file in "$alleles"/*.{fasta,fa,fna}; do
         if [ -f "$query_file" ]; then
         query_filename=$(basename "$query_file")
         query_filename_noext="${query_filename%.*}"
         output_file="$results/$genome_filename_noext/$query_filename_noext"
-        kma -i "$query_file" -o "$output_file" -t_db "$kma_database" -nc -status
+        #kma -i "$query_file" -o "$output_file" -t_db "$kma_database" -nc -status
+        pblat $genome "$query_file" "$output_file.psl"
         fi
     done
     log_message "Attaching $genome_filename"

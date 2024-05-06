@@ -1,6 +1,7 @@
-![PhyloTrace](www/PhyloTrace_bw.png#gh-light-mode-only)
-![PhyloTrace](www/PhyloTrace.png#gh-dark-mode-only)
 
+<img src="www/PhyloTrace_bw.png#gh-light-mode-only" width="90%">
+<img src="www/PhyloTrace.png#gh-dark-mode-only" width="90%">
+<br>
 PhyloTrace is a platform for bacterial pathogen monitoring on a genomic level. Its components evolve around allele variant typing, to be more precise: core-genome multi locus sequence typing (cgMLST). Complex analyses and computation are wrapped into an appealing and easy-to-handle graphical user interface. This tool can help to reveal patterns explaining outbreak dynamics and events by connecting genomic information with epidemiologic variables. 
 
 **Features**
@@ -12,7 +13,7 @@ PhyloTrace is a platform for bacterial pathogen monitoring on a genomic level. I
 - Download and report functionalities
 - *and more*
 
-We want to make cgMLST analysis and genomic pathogen monitoring accessible to a broad spectrum of individuals and organizations. Therefore our goal is to build an interface with convenient user experience and easy handling that doesn't require you to be a bioinformatician. The app is in active development. To get a stable version download only the newest release and not the GitHub version. This tool can be used for research and academic purposes. Note that PhyloTrace is not validated for a clinical use yet, but we are working on achieving that.
+We want to make cgMLST analysis and genomic pathogen monitoring accessible to a broad spectrum of individuals and organizations. Therefore our goal is to build an interface with convenient user experience and easy handling that doesn't require you to be a bioinformatician. The app is in active development. To get a stable version download the newest release. This tool can be used for research and academic purposes. Note that PhyloTrace is not validated for a clinical use yet, but we are working on achieving that.
 
 [www.PhyloTrace.com](https://www.phylotrace.com)  |  [info@phylotrace.com](mailto:info@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans)
 
@@ -41,20 +42,22 @@ We want to make cgMLST analysis and genomic pathogen monitoring accessible to a 
 
 ## 1 Getting Started
 
-The **user manual** containing detailed instructions and informations is available at [www.phylotrace.com/user-manual](https://www.phylotrace.com/user-manual). 
+The **user manual** containing detailed instruction and information is available at [www.phylotrace.com/user-manual](https://www.phylotrace.com/user-manual). 
 
 ### 1.1 Compatibility
 
-#### Minimal System Requirements
+#### Minimum System Requirements
 
 | Component         | Description   |
 | ------------------- | ------------- |
-| Operating System    | Any Linux distribution capable of running R and Conda (e.g. Ubuntu, Fedora, Debian, ArchLinux, OpenSuse) |
-| Web Browser | Compatible with latest version of major browsers (Chrome, Firefox, Brave, Chromium, Opera, Vivaldi) |
-| Storage 		  	  | >= 250GB SSD |
-| RAM				  | >= 8GB |
-| CPU  				  | Multi-core processor, >= 2.5 GHz |
->*These system requirements are provided as estimates, and it's possible for the application to run on lower-spec systems, depending on application workload and usage patterns.*
+| Operating System    | Any Linux distribution capable of running R and Conda (e.g. Ubuntu, Fedora, Debian, ArchLinux, OpenSuse, etc.) |
+| Web Browser | Compatible with latest version of major browsers (Chrome, Brave, Chromium, Opera, Vivaldi) |
+| Storage 		  	  | ≥ 250 GB SSD/HDD |
+| RAM				  | ≥ 8 GB |
+| CPU  				  | Multi-core processor, ≥ 2.5 GHz |
+>*These system requirements are provided as estimates. It is possible for the application to run on lower-spec systems, depending on application workload and usage patterns.*
+
+>*So far there is no compatibility with the **Firefox** browser.*
 
 PhyloTrace was tested on the following Linux distributions:
 
@@ -86,13 +89,14 @@ If you use PhyloTrace for your paper or publication, please give us credit by ci
 
 ## 2 Installation
 
-Download the repository as `.zip` and unpack it to a location on your system, or use git clone.
+Download the source code of the latest release and extract/unzip it to a location on your system.<br>
+> [Latest Release Version 1.3.0](https://github.com/infinity-a11y/PhyloTrace/releases/tag/v1.2.0) 
 
+### 2.1 Install Miniconda
 Is ***Miniconda*** or another ***Conda Distribution*** installed on the system?
 - No: Run the installation below and initialize conda. 
 - Yes: Proceed to [2.2 Create Conda Environment](#22-create-conda-environment).
-
-### 2.1 Install Miniconda
+  
 These four commands quickly and quietly install the latest 64-bit version of Miniconda and then clean up after themselves.
 >For installation of Miniconda on system with different architecture, please refer to the [Miniconda documentation](https://docs.anaconda.com/free/miniconda/index.html)
 
@@ -135,8 +139,8 @@ bash install_phylotrace.sh
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
 ### 2.4 Uninstall
-To uninstall PhyloTrace from your system, remove the Phylotrace directory and run the following command to remove
-Desktop Launcher:
+To uninstall PhyloTrace from your system, remove the application directory and run the following command to remove the
+desktop launcher:
 ```bash
 rm $HOME/.local/share/applications/PhyloTrace.desktop
 rm $HOME/.local/share/icons/hicolor/scalable/apps/PhyloTrace.png
@@ -151,10 +155,11 @@ There are multiple possible sources for issues with the installation. Common mis
 If the installation issues persist feel free to contact us via [info@phylotrace.com](mailto:info@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans) or open an issue.
 
 #### Desktop Launcher not Working
-If the default browser does not work properly, it can be changed, by changing R_BROWSER environment variable. For example, to use Google Chrome, use the following command:
+If the desktop launcher is not working, the currently set default browser is likely not declared properly. To resolve this, change the R_BROWSER environment variable to the executable name of the desired browser (executable names for popular browsers are listed in the table below). For example to use Google Chrome, execute the following command:
 ```bash
 cd path/to/directory
-R_BROWSER=google-chrome bash run_phylotrace.sh
+R_BROWSER=google-chrome
+bash run_phylotrace.sh
 ```
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
@@ -166,10 +171,6 @@ R_BROWSER=google-chrome bash run_phylotrace.sh
 | Opera  | *opera*  |
 | Vivaldi  | *vivaldi*  |
 
-<sub>Executable names for some popular browsers.</sub>
-
-If PhyloTrace is still unable to launch from desktop, a missing default browser was likely not the issue. In this case either open PhyloTrace as described in [3 Using PhyloTrace](#3-using-phylotrace) or contact us via [info@phylotrace.com](mailto:info@phylotrace.com?subject=[GitHub]%20Source%20Han%20Sans).
-
 ## 3 Using PhyloTrace
 
 Start PhyloTrace by using the launcher in Applications Menu. A tab with the app will automatically open in the default browser. 
@@ -178,7 +179,7 @@ The **user manual** containing documentation is available at [www.phylotrace.com
 
 **Alternative Launching:**
 
-If launching from dekstop does not work, the alternative way to run the app is to execute these commands:
+If launching from desktop does not work, the alternative way to run the app is to execute these commands:
 ```bash
 cd path/to/directory
 bash run_phylotrace.sh
@@ -186,7 +187,7 @@ bash run_phylotrace.sh
 >*In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace directory on your system.*
 
 ## 4 Roadmap
-PhyloTrace is under active development with new functions, enhancements and innovations to follow. Next to the points listed on the roadmap we constantly improve existing features.
+PhyloTrace is under active development with new functions, enhancements and innovations to follow. In addition to the points listed on the roadmap, we constantly improve existing features.
 
 - [X] ***"Hello World!"*** - Completion Version 1.0.0
 - [ ] Hash-Based Variant Calling

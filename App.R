@@ -485,7 +485,8 @@ ui <- dashboardPage(
             uiOutput("delete_box"),
             uiOutput("compare_allele_box"),
             uiOutput("download_entries"),
-            br(), br(), br(), br(), br(), br(), br(), br(), br()
+            br(), br(), br(), br(), br(), br(), br(), br(),
+            br(), br(), br(), br(), br(), br(), br()
           )
         ),
         br()
@@ -742,12 +743,21 @@ ui <- dashboardPage(
           "input.typing_mode == 'Multi'",
           fluidRow(
             uiOutput("initiate_multi_typing_ui"),
-            uiOutput("test_yes_pending"),
             uiOutput("multi_stop"),
             column(1),
             uiOutput("metadata_multi_box"),
             column(1),
             uiOutput("start_multi_typing_ui")
+          ),
+          fluidRow(
+            column(
+              width = 6,
+              uiOutput("test_yes_pending")
+            ),
+            column(
+              width = 6,
+              uiOutput("multi_typing_results")
+            )
           )
         )
       ),
@@ -5637,7 +5647,8 @@ server <- function(input, output, session) {
                            single_path = data.frame(),
                            progress = 0, 
                            progress_format_start = 0, 
-                           progress_format_end = 0) # reactive variables related to typing process
+                           progress_format_end = 0,
+                           result_list = NULL) # reactive variables related to typing process
   
   Vis <- reactiveValues(cluster = NULL, 
                         metadata = list(),
@@ -5652,7 +5663,7 @@ server <- function(input, output, session) {
   
   Report <- reactiveValues() # reactive variables related to report functions
   
-  Scheme <- reactiveValues() # reactive variables related to scheme download functions
+  Scheme <- reactiveValues() # reactive variables related to scheme  functions
   
   # Load last used database if possible
   if(paste0(getwd(), "/execute/last_db.rds") %in% dir_ls(paste0(getwd(), "/execute"))) {
@@ -5710,12 +5721,15 @@ server <- function(input, output, session) {
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1) != "0") {
       Typing$multi_started <- TRUE
       Typing$pending <- TRUE
+      Typing$multi_help <- TRUE
       Typing$failures <- sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt"), warn = FALSE), "failed"))
       Typing$successes <- sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt"), warn = FALSE), "Successful"))
       Typing$last_scheme <- gsub("_", " ", sub(".*with (.*?) scheme.*", "\\1", readLines(paste0(getwd(), "/execute/script_log.txt"))[1]))
     } else {
       Typing$pending <- FALSE
       Typing$multi_started <- FALSE
+      Typing$multi_help <- FALSE
+      saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
     }
   }
   
@@ -6555,6 +6569,8 @@ server <- function(input, output, session) {
                 output$single_typing_progress <- NULL
                 
                 output$typing_fin <- NULL
+                
+                output$single_typing_results <- NULL
                 
                 output$typing_formatting <- NULL
                 
@@ -8864,15 +8880,11 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
-    test <<- Vis$nj_label_pos_x
+    result_list <<- Typing$result_list
     
-    another <<- Vis$custom_label_nj
+    multi_help <<- Typing$multi_help
     
-    x_pos <<- Vis$x_pos
-    
-    y_pos <<- Vis$y_pos
-    
-    size <<- Vis$size
+    ulti_result_status <<- Typing$multi_result_status
     
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -9897,7 +9909,7 @@ server <- function(input, output, session) {
     Scheme$target_table <- NULL
     
     # Download Loci Fasta Files
-    download(Scheme$link_cgmlst, dest = "dataset.zip", mode = "wb")
+    download(Scheme$link_cgmlst, dest = "dataset.zip", mode = "wb", timeout = 300)
     
     unzip(
       zipfile = "dataset.zip",
@@ -10012,6 +10024,35 @@ server <- function(input, output, session) {
     list(src = image_path,
          height = 180)
   }, deleteFile = FALSE)
+  
+  # Render tree plot fields
+  
+  output$nj_field <- renderUI(
+    fluidRow(
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br()
+    )
+  )
+  
+  output$mst_field <- renderUI(
+    fluidRow(
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br()
+    )
+  )
+  
+  output$upgma_field <- renderUI(
+    fluidRow(
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+      br(), br(), br(), br(), br(), br(), br(), br(), br(), br()
+    )
+  )
   
   ### Render Visualization Controls ----
   
@@ -15564,36 +15605,6 @@ server <- function(input, output, session) {
     )
   })
   
-  ### Render Plot field ----
-  
-  output$mst_field <- renderUI({
-    if(input$mst_background_transparent == TRUE) {
-      visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px"))
-    } else {
-      addSpinner(
-        visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px")),
-        spin = "dots",
-        color = "white"
-      )
-    }
-  })
-  
-  output$nj_field <- renderUI({
-    addSpinner(
-      plotOutput("tree_nj", width = paste0(as.character(as.numeric(input$nj_scale) * as.numeric(input$nj_ratio)), "px"), height = paste0(as.character(input$nj_scale), "px")) ,
-      spin = "dots",
-      color = "white"
-    )
-  })
-  
-  output$upgma_field <- renderUI({
-    addSpinner(
-      plotOutput("tree_upgma", width = paste0(as.character(as.numeric(input$upgma_scale) * as.numeric(input$upgma_ratio)), "px"), height = paste0(as.character(input$upgma_scale), "px")),
-      spin = "dots",
-      color = "white"
-    )
-  })
-  
   ### Plot Reactives ----
   
   #### MST ----
@@ -19128,321 +19139,317 @@ server <- function(input, output, session) {
         
         if (input$tree_algo == "Neighbour-Joining") {
           
-          if(nrow(Vis$custom_label_nj) > 0) {
-            showModal(
-              modalDialog(
-                paste0("Creating a new Neighbour-Joining tree will remove all custom labels. Continue?"),
-                easyClose = TRUE,
-                title = "Confirm New NJ-Tree",
-                footer = tagList(
-                  modalButton("Cancel"),
-                  actionButton("conf_create_nj", "Create Tree", class = "btn btn-success")
-                )
-              )
+          output$nj_field <- renderUI({
+            addSpinner(
+              plotOutput("tree_nj", width = paste0(as.character(as.numeric(input$nj_scale) * as.numeric(input$nj_ratio)), "px"), height = paste0(as.character(input$nj_scale), "px")),
+              spin = "dots",
+              color = "#ffffff"
+            )
+          })
+          
+          Vis$meta_nj <- select(DB$meta_true, -2)
+          
+          if(length(unique(gsub(" ", "_", colnames(Vis$meta_nj)))) < length(gsub(" ", "_", colnames(Vis$meta_nj)))) {
+            show_toast(
+              title = "Conflicting Custom Variable Names",
+              type = "warning",
+              position = "top-end",
+              width = "500px",
+              timer = 6000
             )
           } else {
-            Vis$meta_nj <- select(DB$meta_true, -2)
             
-            if(length(unique(gsub(" ", "_", colnames(Vis$meta_nj)))) < length(gsub(" ", "_", colnames(Vis$meta_nj)))) {
-              show_toast(
-                title = "Conflicting Custom Variable Names",
-                type = "warning",
-                position = "top-end",
-                width = "500px",
-                timer = 6000
-              )
-            } else {
-              
-              # Create phylogenetic tree data
-              Vis$nj <- ape::nj(hamming_nj())
-              
-              # Create phylogenetic tree meta data
-              Vis$meta_nj <- mutate(Vis$meta_nj, taxa = Index) %>%
-                relocate(taxa)
-              
-              # Get number of included entries calculate start values for tree 
-              if(!is.null(input$nj_layout)) {
-                if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-                  if(sum(DB$data$Include) < 21) {
-                    Vis$labelsize_nj <- 5.5
-                    Vis$tippointsize_nj <- 5.5
-                    Vis$nodepointsize_nj <- 4
-                    Vis$tiplab_padding_nj <- 0.25
-                    Vis$branch_size_nj <- 4.5
-                  } else if (between(sum(DB$data$Include), 21, 40)) {
-                    Vis$labelsize_nj <- 5
-                    Vis$tippointsize_nj <- 5
-                    Vis$nodepointsize_nj <- 3.5
-                    Vis$tiplab_padding_nj <- 0.2
-                    Vis$branch_size_nj <- 4
-                  } else if (between(sum(DB$data$Include), 41, 60)) {
-                    Vis$labelsize_nj <- 4.5
-                    Vis$tippointsize_nj <- 4.5
-                    Vis$nodepointsize_nj <- 3
-                    Vis$tiplab_padding_nj <- 0.15
-                    Vis$branch_size_nj <- 3.5
-                  } else if (between(sum(DB$data$Include), 61, 80)) {
-                    Vis$labelsize_nj <- 4
-                    Vis$tippointsize_nj <- 4
-                    Vis$nodepointsize_nj <- 2.5
-                    Vis$tiplab_padding_nj <- 0.1
-                    Vis$branch_size_nj <- 3
-                  } else if (between(sum(DB$data$Include), 81, 100)) {
-                    Vis$labelsize_nj <- 3.5
-                    Vis$tippointsize_nj <- 3.5
-                    Vis$nodepointsize_nj <- 2
-                    Vis$tiplab_padding_nj <- 0.1
-                    Vis$branch_size_nj <- 2.5
-                  } else {
-                    Vis$labelsize_nj <- 3
-                    Vis$tippointsize_nj <- 3
-                    Vis$nodepointsize_nj <- 1.5
-                    Vis$tiplab_padding_nj <- 0.05
-                    Vis$branch_size_nj <- 2
-                  }
+            # Create phylogenetic tree data
+            Vis$nj <- ape::nj(hamming_nj())
+            
+            # Create phylogenetic tree meta data
+            Vis$meta_nj <- mutate(Vis$meta_nj, taxa = Index) %>%
+              relocate(taxa)
+            
+            # Get number of included entries calculate start values for tree 
+            if(!is.null(input$nj_layout)) {
+              if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+                if(sum(DB$data$Include) < 21) {
+                  Vis$labelsize_nj <- 5.5
+                  Vis$tippointsize_nj <- 5.5
+                  Vis$nodepointsize_nj <- 4
+                  Vis$tiplab_padding_nj <- 0.25
+                  Vis$branch_size_nj <- 4.5
+                } else if (between(sum(DB$data$Include), 21, 40)) {
+                  Vis$labelsize_nj <- 5
+                  Vis$tippointsize_nj <- 5
+                  Vis$nodepointsize_nj <- 3.5
+                  Vis$tiplab_padding_nj <- 0.2
+                  Vis$branch_size_nj <- 4
+                } else if (between(sum(DB$data$Include), 41, 60)) {
+                  Vis$labelsize_nj <- 4.5
+                  Vis$tippointsize_nj <- 4.5
+                  Vis$nodepointsize_nj <- 3
+                  Vis$tiplab_padding_nj <- 0.15
+                  Vis$branch_size_nj <- 3.5
+                } else if (between(sum(DB$data$Include), 61, 80)) {
+                  Vis$labelsize_nj <- 4
+                  Vis$tippointsize_nj <- 4
+                  Vis$nodepointsize_nj <- 2.5
+                  Vis$tiplab_padding_nj <- 0.1
+                  Vis$branch_size_nj <- 3
+                } else if (between(sum(DB$data$Include), 81, 100)) {
+                  Vis$labelsize_nj <- 3.5
+                  Vis$tippointsize_nj <- 3.5
+                  Vis$nodepointsize_nj <- 2
+                  Vis$tiplab_padding_nj <- 0.1
+                  Vis$branch_size_nj <- 2.5
                 } else {
-                  if(sum(DB$data$Include) < 21) {
-                    Vis$labelsize_nj <- 5
-                    Vis$tippointsize_nj <- 5
-                    Vis$nodepointsize_nj <- 4
-                    Vis$tiplab_padding_nj <- 0.25
-                    Vis$branch_size_nj <- 4.5
-                  } else if (between(sum(DB$data$Include), 21, 40)) {
-                    Vis$labelsize_nj <- 4.5
-                    Vis$tippointsize_nj <- 4.5
-                    Vis$nodepointsize_nj <- 3.5
-                    Vis$tiplab_padding_nj <- 0.2
-                    Vis$branch_size_nj <- 4
-                  } else if (between(sum(DB$data$Include), 41, 60)) {
-                    Vis$labelsize_nj <- 4
-                    Vis$tippointsize_nj <- 4
-                    Vis$nodepointsize_nj <- 3
-                    Vis$tiplab_padding_nj <- 0.15
-                    Vis$branch_size_nj <- 3.5
-                  } else if (between(sum(DB$data$Include), 61, 80)) {
-                    Vis$labelsize_nj <- 3.5
-                    Vis$tippointsize_nj <- 3.5
-                    Vis$nodepointsize_nj <- 2.5
-                    Vis$tiplab_padding_nj <- 0.1
-                    Vis$branch_size_nj <- 3
-                  } else if (between(sum(DB$data$Include), 81, 100)) {
-                    Vis$labelsize_nj <- 3
-                    Vis$tippointsize_nj <- 3
-                    Vis$nodepointsize_nj <- 2
-                    Vis$tiplab_padding_nj <- 0.1
-                    Vis$branch_size_nj <- 2.5
-                  } else {
-                    Vis$labelsize_nj <- 2.5
-                    Vis$tippointsize_nj <- 2.5
-                    Vis$nodepointsize_nj <- 1.5
-                    Vis$tiplab_padding_nj <- 0.05
-                    Vis$branch_size_nj <- 2
-                  }
+                  Vis$labelsize_nj <- 3
+                  Vis$tippointsize_nj <- 3
+                  Vis$nodepointsize_nj <- 1.5
+                  Vis$tiplab_padding_nj <- 0.05
+                  Vis$branch_size_nj <- 2
                 }
               } else {
-                Vis$labelsize_nj <- 4
-                Vis$tippointsize_nj <- 4
-                Vis$nodepointsize_nj <- 2.5
-                Vis$tiplab_padding_nj <- 0.2
-                Vis$branch_size_nj <- 3.5
+                if(sum(DB$data$Include) < 21) {
+                  Vis$labelsize_nj <- 5
+                  Vis$tippointsize_nj <- 5
+                  Vis$nodepointsize_nj <- 4
+                  Vis$tiplab_padding_nj <- 0.25
+                  Vis$branch_size_nj <- 4.5
+                } else if (between(sum(DB$data$Include), 21, 40)) {
+                  Vis$labelsize_nj <- 4.5
+                  Vis$tippointsize_nj <- 4.5
+                  Vis$nodepointsize_nj <- 3.5
+                  Vis$tiplab_padding_nj <- 0.2
+                  Vis$branch_size_nj <- 4
+                } else if (between(sum(DB$data$Include), 41, 60)) {
+                  Vis$labelsize_nj <- 4
+                  Vis$tippointsize_nj <- 4
+                  Vis$nodepointsize_nj <- 3
+                  Vis$tiplab_padding_nj <- 0.15
+                  Vis$branch_size_nj <- 3.5
+                } else if (between(sum(DB$data$Include), 61, 80)) {
+                  Vis$labelsize_nj <- 3.5
+                  Vis$tippointsize_nj <- 3.5
+                  Vis$nodepointsize_nj <- 2.5
+                  Vis$tiplab_padding_nj <- 0.1
+                  Vis$branch_size_nj <- 3
+                } else if (between(sum(DB$data$Include), 81, 100)) {
+                  Vis$labelsize_nj <- 3
+                  Vis$tippointsize_nj <- 3
+                  Vis$nodepointsize_nj <- 2
+                  Vis$tiplab_padding_nj <- 0.1
+                  Vis$branch_size_nj <- 2.5
+                } else {
+                  Vis$labelsize_nj <- 2.5
+                  Vis$tippointsize_nj <- 2.5
+                  Vis$nodepointsize_nj <- 1.5
+                  Vis$tiplab_padding_nj <- 0.05
+                  Vis$branch_size_nj <- 2
+                }
               }
-              
-              Vis$nj_tree <- ggtree(Vis$nj)
-              
-              # Get upper and lower end of x range
-              Vis$nj_max_x <- max(Vis$nj_tree$data$x)
-              Vis$nj_min_x <- min(Vis$nj_tree$data$x)
-              
-              # Get parent node numbers
-              Vis$nj_parentnodes <- Vis$nj_tree$data$parent
-              
-              # Update visualization control inputs
-              if(!is.null(input$nj_tiplab_size)) {
-                updateNumericInput(session, "nj_tiplab_size", value = Vis$labelsize_nj)
-              }
-              if(!is.null(input$nj_tippoint_size)) {
-                updateSliderInput(session, "nj_tippoint_size", value = Vis$tippointsize_nj)
-              }
-              if(!is.null(input$nj_nodepoint_size)) {
-                updateSliderInput(session, "nj_nodepoint_size", value = Vis$nodepointsize_nj)
-              }
-              if(!is.null(input$nj_tiplab_padding)) {
-                updateSliderInput(session, "nj_tiplab_padding", value = Vis$tiplab_padding_nj)
-              }
-              if(!is.null(input$nj_branch_size)) {
-                updateNumericInput(session, "nj_branch_size", value = Vis$branch_size_nj)
-              }
-              if(!is.null(input$nj_treescale_width)) {
-                updateNumericInput(session, "nj_treescale_width", value = round(ceiling(Vis$nj_max_x) * 0.1, 0))
-              }
-              if(!is.null(input$nj_rootedge_length)) {
-                updateSliderInput(session, "nj_rootedge_length", value = round(ceiling(Vis$nj_max_x) * 0.05, 0))
-              }
-              
-              output$tree_nj <- renderPlot({
-                nj_tree()
-              })
+            } else {
+              Vis$labelsize_nj <- 4
+              Vis$tippointsize_nj <- 4
+              Vis$nodepointsize_nj <- 2.5
+              Vis$tiplab_padding_nj <- 0.2
+              Vis$branch_size_nj <- 3.5
             }
+            
+            Vis$nj_tree <- ggtree(Vis$nj)
+            
+            # Get upper and lower end of x range
+            Vis$nj_max_x <- max(Vis$nj_tree$data$x)
+            Vis$nj_min_x <- min(Vis$nj_tree$data$x)
+            
+            # Get parent node numbers
+            Vis$nj_parentnodes <- Vis$nj_tree$data$parent
+            
+            # Update visualization control inputs
+            if(!is.null(input$nj_tiplab_size)) {
+              updateNumericInput(session, "nj_tiplab_size", value = Vis$labelsize_nj)
+            }
+            if(!is.null(input$nj_tippoint_size)) {
+              updateSliderInput(session, "nj_tippoint_size", value = Vis$tippointsize_nj)
+            }
+            if(!is.null(input$nj_nodepoint_size)) {
+              updateSliderInput(session, "nj_nodepoint_size", value = Vis$nodepointsize_nj)
+            }
+            if(!is.null(input$nj_tiplab_padding)) {
+              updateSliderInput(session, "nj_tiplab_padding", value = Vis$tiplab_padding_nj)
+            }
+            if(!is.null(input$nj_branch_size)) {
+              updateNumericInput(session, "nj_branch_size", value = Vis$branch_size_nj)
+            }
+            if(!is.null(input$nj_treescale_width)) {
+              updateNumericInput(session, "nj_treescale_width", value = round(ceiling(Vis$nj_max_x) * 0.1, 0))
+            }
+            if(!is.null(input$nj_rootedge_length)) {
+              updateSliderInput(session, "nj_rootedge_length", value = round(ceiling(Vis$nj_max_x) * 0.05, 0))
+            }
+            
+            output$tree_nj <- renderPlot({
+              nj_tree()
+            })
           }
         } else if (input$tree_algo == "UPGMA") {
           
-          if(nrow(Vis$custom_label_upgma) > 0) {
-            showModal(
-              modalDialog(
-                paste0("Creating a new Neighbour-Joining tree will remove all custom labels. Continue?"),
-                easyClose = TRUE,
-                title = "Confirm New UPGMA-Tree",
-                footer = tagList(
-                  modalButton("Cancel"),
-                  actionButton("conf_create_upgma", "Create Tree", class = "btn btn-success")
-                )
-              )
+          output$upgma_field <- renderUI({
+            addSpinner(
+              plotOutput("tree_upgma", width = paste0(as.character(as.numeric(input$upgma_scale) * as.numeric(input$upgma_ratio)), "px"), height = paste0(as.character(input$upgma_scale), "px")),
+              spin = "dots",
+              color = "#ffffff"
+            )
+          })
+          
+          Vis$meta_upgma <- select(DB$meta_true, -2)
+          
+          if(length(unique(gsub(" ", "_", colnames(Vis$meta_upgma)))) < length(gsub(" ", "_", colnames(Vis$meta_upgma)))) {
+            show_toast(
+              title = "Conflicting Custom Variable Names",
+              type = "warning",
+              position = "top-end",
+              width = "500px",
+              timer = 6000
             )
           } else {
-            Vis$meta_upgma <- select(DB$meta_true, -2)
             
-            if(length(unique(gsub(" ", "_", colnames(Vis$meta_upgma)))) < length(gsub(" ", "_", colnames(Vis$meta_upgma)))) {
-              show_toast(
-                title = "Conflicting Custom Variable Names",
-                type = "warning",
-                position = "top-end",
-                width = "500px",
-                timer = 6000
-              )
-            } else {
-              
-              # Create phylogenetic tree data
-              Vis$upgma <- phangorn::upgma(hamming_nj())
-              
-              # Create phylogenetic tree meta data
-              Vis$meta_upgma <- mutate(Vis$meta_upgma, taxa = Index) %>%
-                relocate(taxa)
-              
-              # Get number of included entries calculate start values for tree 
-              if(!is.null(input$upgma_layout)) {
-                if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-                  if(sum(DB$data$Include) < 21) {
-                    Vis$labelsize_upgma <- 5.5
-                    Vis$tippointsize_upgma <- 5.5
-                    Vis$nodepointsize_upgma <- 4
-                    Vis$tiplab_padding_upgma <- 0.25
-                    Vis$branch_size_upgma <- 4.5
-                  } else if (between(sum(DB$data$Include), 21, 40)) {
-                    Vis$labelsize_upgma <- 5
-                    Vis$tippointsize_upgma <- 5
-                    Vis$nodepointsize_upgma <- 3.5
-                    Vis$tiplab_padding_upgma <- 0.2
-                    Vis$branch_size_upgma <- 4
-                  } else if (between(sum(DB$data$Include), 41, 60)) {
-                    Vis$labelsize_upgma <- 4.5
-                    Vis$tippointsize_upgma <- 4.5
-                    Vis$nodepointsize_upgma <- 3
-                    Vis$tiplab_padding_upgma <- 0.15
-                    Vis$branch_size_upgma <- 3.5
-                  } else if (between(sum(DB$data$Include), 61, 80)) {
-                    Vis$labelsize_upgma <- 4
-                    Vis$tippointsize_upgma <- 4
-                    Vis$nodepointsize_upgma <- 2.5
-                    Vis$tiplab_padding_upgma <- 0.1
-                    Vis$branch_size_upgma <- 3
-                  } else if (between(sum(DB$data$Include), 81, 100)) {
-                    Vis$labelsize_upgma <- 3.5
-                    Vis$tippointsize_upgma <- 3.5
-                    Vis$nodepointsize_upgma <- 2
-                    Vis$tiplab_padding_upgma <- 0.1
-                    Vis$branch_size_upgma <- 2.5
-                  } else {
-                    Vis$labelsize_upgma <- 3
-                    Vis$tippointsize_upgma <- 3
-                    Vis$nodepointsize_upgma <- 1.5
-                    Vis$tiplab_padding_upgma <- 0.05
-                    Vis$branch_size_upgma <- 2
-                  }
+            # Create phylogenetic tree data
+            Vis$upgma <- phangorn::upgma(hamming_nj())
+            
+            # Create phylogenetic tree meta data
+            Vis$meta_upgma <- mutate(Vis$meta_upgma, taxa = Index) %>%
+              relocate(taxa)
+            
+            # Get number of included entries calculate start values for tree 
+            if(!is.null(input$upgma_layout)) {
+              if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
+                if(sum(DB$data$Include) < 21) {
+                  Vis$labelsize_upgma <- 5.5
+                  Vis$tippointsize_upgma <- 5.5
+                  Vis$nodepointsize_upgma <- 4
+                  Vis$tiplab_padding_upgma <- 0.25
+                  Vis$branch_size_upgma <- 4.5
+                } else if (between(sum(DB$data$Include), 21, 40)) {
+                  Vis$labelsize_upgma <- 5
+                  Vis$tippointsize_upgma <- 5
+                  Vis$nodepointsize_upgma <- 3.5
+                  Vis$tiplab_padding_upgma <- 0.2
+                  Vis$branch_size_upgma <- 4
+                } else if (between(sum(DB$data$Include), 41, 60)) {
+                  Vis$labelsize_upgma <- 4.5
+                  Vis$tippointsize_upgma <- 4.5
+                  Vis$nodepointsize_upgma <- 3
+                  Vis$tiplab_padding_upgma <- 0.15
+                  Vis$branch_size_upgma <- 3.5
+                } else if (between(sum(DB$data$Include), 61, 80)) {
+                  Vis$labelsize_upgma <- 4
+                  Vis$tippointsize_upgma <- 4
+                  Vis$nodepointsize_upgma <- 2.5
+                  Vis$tiplab_padding_upgma <- 0.1
+                  Vis$branch_size_upgma <- 3
+                } else if (between(sum(DB$data$Include), 81, 100)) {
+                  Vis$labelsize_upgma <- 3.5
+                  Vis$tippointsize_upgma <- 3.5
+                  Vis$nodepointsize_upgma <- 2
+                  Vis$tiplab_padding_upgma <- 0.1
+                  Vis$branch_size_upgma <- 2.5
                 } else {
-                  if(sum(DB$data$Include) < 21) {
-                    Vis$labelsize_upgma <- 5
-                    Vis$tippointsize_upgma <- 5
-                    Vis$nodepointsize_upgma <- 4
-                    Vis$tiplab_padding_upgma <- 0.25
-                    Vis$branch_size_upgma <- 4.5
-                  } else if (between(sum(DB$data$Include), 21, 40)) {
-                    Vis$labelsize_upgma <- 4.5
-                    Vis$tippointsize_upgma <- 4.5
-                    Vis$nodepointsize_upgma <- 3.5
-                    Vis$tiplab_padding_upgma <- 0.2
-                    Vis$branch_size_upgma <- 4
-                  } else if (between(sum(DB$data$Include), 41, 60)) {
-                    Vis$labelsize_upgma <- 4
-                    Vis$tippointsize_upgma <- 4
-                    Vis$nodepointsize_upgma <- 3
-                    Vis$tiplab_padding_upgma <- 0.15
-                    Vis$branch_size_upgma <- 3.5
-                  } else if (between(sum(DB$data$Include), 61, 80)) {
-                    Vis$labelsize_upgma <- 3.5
-                    Vis$tippointsize_upgma <- 3.5
-                    Vis$nodepointsize_upgma <- 2.5
-                    Vis$tiplab_padding_upgma <- 0.1
-                    Vis$branch_size_upgma <- 3
-                  } else if (between(sum(DB$data$Include), 81, 100)) {
-                    Vis$labelsize_upgma <- 3
-                    Vis$tippointsize_upgma <- 3
-                    Vis$nodepointsize_upgma <- 2
-                    Vis$tiplab_padding_upgma <- 0.1
-                    Vis$branch_size_upgma <- 2.5
-                  } else {
-                    Vis$labelsize_upgma <- 2.5
-                    Vis$tippointsize_upgma <- 2.5
-                    Vis$nodepointsize_upgma <- 1.5
-                    Vis$tiplab_padding_upgma <- 0.05
-                    Vis$branch_size_upgma <- 2
-                  }
+                  Vis$labelsize_upgma <- 3
+                  Vis$tippointsize_upgma <- 3
+                  Vis$nodepointsize_upgma <- 1.5
+                  Vis$tiplab_padding_upgma <- 0.05
+                  Vis$branch_size_upgma <- 2
                 }
               } else {
-                Vis$labelsize_upgma <- 4
-                Vis$tippointsize_upgma <- 4
-                Vis$nodepointsize_upgma <- 2.5
-                Vis$tiplab_padding_upgma <- 0.2
-                Vis$branch_size_upgma <- 3.5
+                if(sum(DB$data$Include) < 21) {
+                  Vis$labelsize_upgma <- 5
+                  Vis$tippointsize_upgma <- 5
+                  Vis$nodepointsize_upgma <- 4
+                  Vis$tiplab_padding_upgma <- 0.25
+                  Vis$branch_size_upgma <- 4.5
+                } else if (between(sum(DB$data$Include), 21, 40)) {
+                  Vis$labelsize_upgma <- 4.5
+                  Vis$tippointsize_upgma <- 4.5
+                  Vis$nodepointsize_upgma <- 3.5
+                  Vis$tiplab_padding_upgma <- 0.2
+                  Vis$branch_size_upgma <- 4
+                } else if (between(sum(DB$data$Include), 41, 60)) {
+                  Vis$labelsize_upgma <- 4
+                  Vis$tippointsize_upgma <- 4
+                  Vis$nodepointsize_upgma <- 3
+                  Vis$tiplab_padding_upgma <- 0.15
+                  Vis$branch_size_upgma <- 3.5
+                } else if (between(sum(DB$data$Include), 61, 80)) {
+                  Vis$labelsize_upgma <- 3.5
+                  Vis$tippointsize_upgma <- 3.5
+                  Vis$nodepointsize_upgma <- 2.5
+                  Vis$tiplab_padding_upgma <- 0.1
+                  Vis$branch_size_upgma <- 3
+                } else if (between(sum(DB$data$Include), 81, 100)) {
+                  Vis$labelsize_upgma <- 3
+                  Vis$tippointsize_upgma <- 3
+                  Vis$nodepointsize_upgma <- 2
+                  Vis$tiplab_padding_upgma <- 0.1
+                  Vis$branch_size_upgma <- 2.5
+                } else {
+                  Vis$labelsize_upgma <- 2.5
+                  Vis$tippointsize_upgma <- 2.5
+                  Vis$nodepointsize_upgma <- 1.5
+                  Vis$tiplab_padding_upgma <- 0.05
+                  Vis$branch_size_upgma <- 2
+                }
               }
-              
-              Vis$upgma_tree <- ggtree(Vis$upgma)
-              
-              # Get upper and lower end of x range
-              Vis$upgma_max_x <- max(Vis$upgma_tree$data$x)
-              Vis$upgma_min_x <- min(Vis$upgma_tree$data$x)
-              
-              # Get parent node numbers
-              Vis$upgma_parentnodes <- Vis$upgma_tree$data$parent
-              
-              # Update visualization control inputs
-              if(!is.null(input$upgma_tiplab_size)) {
-                updateNumericInput(session, "upgma_tiplab_size", value = Vis$labelsize_upgma)
-              }
-              if(!is.null(input$upgma_tippoint_size)) {
-                updateSliderInput(session, "upgma_tippoint_size", value = Vis$tippointsize_upgma)
-              }
-              if(!is.null(input$upgma_nodepoint_size)) {
-                updateSliderInput(session, "upgma_nodepoint_size", value = Vis$nodepointsize_upgma)
-              }
-              if(!is.null(input$upgma_tiplab_padding)) {
-                updateSliderInput(session, "upgma_tiplab_padding", value = Vis$tiplab_padding_upgma)
-              }
-              if(!is.null(input$upgma_branch_size)) {
-                updateNumericInput(session, "upgma_branch_size", value = Vis$branch_size_upgma)
-              }
-              if(!is.null(input$upgma_treescale_width)) {
-                updateNumericInput(session, "upgma_treescale_width", value = round(ceiling(Vis$upgma_max_x) * 0.1, 0))
-              }
-              if(!is.null(input$upgma_rootedge_length)) {
-                updateSliderInput(session, "upgma_rootedge_length", value = round(ceiling(Vis$upgma_max_x) * 0.05, 0))
-              }
-              
-              output$tree_upgma <- renderPlot({
-                upgma_tree()
-              })
+            } else {
+              Vis$labelsize_upgma <- 4
+              Vis$tippointsize_upgma <- 4
+              Vis$nodepointsize_upgma <- 2.5
+              Vis$tiplab_padding_upgma <- 0.2
+              Vis$branch_size_upgma <- 3.5
             }
+            
+            Vis$upgma_tree <- ggtree(Vis$upgma)
+            
+            # Get upper and lower end of x range
+            Vis$upgma_max_x <- max(Vis$upgma_tree$data$x)
+            Vis$upgma_min_x <- min(Vis$upgma_tree$data$x)
+            
+            # Get parent node numbers
+            Vis$upgma_parentnodes <- Vis$upgma_tree$data$parent
+            
+            # Update visualization control inputs
+            if(!is.null(input$upgma_tiplab_size)) {
+              updateNumericInput(session, "upgma_tiplab_size", value = Vis$labelsize_upgma)
+            }
+            if(!is.null(input$upgma_tippoint_size)) {
+              updateSliderInput(session, "upgma_tippoint_size", value = Vis$tippointsize_upgma)
+            }
+            if(!is.null(input$upgma_nodepoint_size)) {
+              updateSliderInput(session, "upgma_nodepoint_size", value = Vis$nodepointsize_upgma)
+            }
+            if(!is.null(input$upgma_tiplab_padding)) {
+              updateSliderInput(session, "upgma_tiplab_padding", value = Vis$tiplab_padding_upgma)
+            }
+            if(!is.null(input$upgma_branch_size)) {
+              updateNumericInput(session, "upgma_branch_size", value = Vis$branch_size_upgma)
+            }
+            if(!is.null(input$upgma_treescale_width)) {
+              updateNumericInput(session, "upgma_treescale_width", value = round(ceiling(Vis$upgma_max_x) * 0.1, 0))
+            }
+            if(!is.null(input$upgma_rootedge_length)) {
+              updateSliderInput(session, "upgma_rootedge_length", value = round(ceiling(Vis$upgma_max_x) * 0.05, 0))
+            }
+            
+            output$tree_upgma <- renderPlot({
+              upgma_tree()
+            })
           }
         } else {
+          
+          output$mst_field <- renderUI({
+            addSpinner(
+              visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px")),
+              spin = "dots",
+              color = "#ffffff"
+            )
+          })
           
           if(nrow(DB$meta_true) > 100) {
             show_toast(
@@ -19465,310 +19472,6 @@ server <- function(input, output, session) {
           })
         }
       }
-    }
-  })
-  
-  observeEvent(input$conf_create_nj, {
-    removeModal()
-    
-    Vis$nj_label_pos_x <- list()
-    Vis$nj_label_pos_y <- list()
-    Vis$nj_label_size <- list()
-    Vis$custom_label_nj <- data.frame()
-    
-    Vis$meta_nj <- select(DB$meta_true, -2)
-    
-    if(length(unique(gsub(" ", "_", colnames(Vis$meta_nj)))) < length(gsub(" ", "_", colnames(Vis$meta_nj)))) {
-      show_toast(
-        title = "Conflicting Custom Variable Names",
-        type = "warning",
-        position = "top-end",
-        width = "500px",
-        timer = 6000
-      )
-    } else {
-      
-      # Create phylogenetic tree data
-      Vis$nj <- ape::nj(hamming_nj())
-      
-      # Create phylogenetic tree meta data
-      Vis$meta_nj <- mutate(Vis$meta_nj, taxa = Index) %>%
-        relocate(taxa)
-      
-      # Get number of included entries calculate start values for tree 
-      if(!is.null(input$nj_layout)) {
-        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          if(sum(DB$data$Include) < 21) {
-            Vis$labelsize_nj <- 5.5
-            Vis$tippointsize_nj <- 5.5
-            Vis$nodepointsize_nj <- 4
-            Vis$tiplab_padding_nj <- 0.25
-            Vis$branch_size_nj <- 4.5
-          } else if (between(sum(DB$data$Include), 21, 40)) {
-            Vis$labelsize_nj <- 5
-            Vis$tippointsize_nj <- 5
-            Vis$nodepointsize_nj <- 3.5
-            Vis$tiplab_padding_nj <- 0.2
-            Vis$branch_size_nj <- 4
-          } else if (between(sum(DB$data$Include), 41, 60)) {
-            Vis$labelsize_nj <- 4.5
-            Vis$tippointsize_nj <- 4.5
-            Vis$nodepointsize_nj <- 3
-            Vis$tiplab_padding_nj <- 0.15
-            Vis$branch_size_nj <- 3.5
-          } else if (between(sum(DB$data$Include), 61, 80)) {
-            Vis$labelsize_nj <- 4
-            Vis$tippointsize_nj <- 4
-            Vis$nodepointsize_nj <- 2.5
-            Vis$tiplab_padding_nj <- 0.1
-            Vis$branch_size_nj <- 3
-          } else if (between(sum(DB$data$Include), 81, 100)) {
-            Vis$labelsize_nj <- 3.5
-            Vis$tippointsize_nj <- 3.5
-            Vis$nodepointsize_nj <- 2
-            Vis$tiplab_padding_nj <- 0.1
-            Vis$branch_size_nj <- 2.5
-          } else {
-            Vis$labelsize_nj <- 3
-            Vis$tippointsize_nj <- 3
-            Vis$nodepointsize_nj <- 1.5
-            Vis$tiplab_padding_nj <- 0.05
-            Vis$branch_size_nj <- 2
-          }
-        } else {
-          if(sum(DB$data$Include) < 21) {
-            Vis$labelsize_nj <- 5
-            Vis$tippointsize_nj <- 5
-            Vis$nodepointsize_nj <- 4
-            Vis$tiplab_padding_nj <- 0.25
-            Vis$branch_size_nj <- 4.5
-          } else if (between(sum(DB$data$Include), 21, 40)) {
-            Vis$labelsize_nj <- 4.5
-            Vis$tippointsize_nj <- 4.5
-            Vis$nodepointsize_nj <- 3.5
-            Vis$tiplab_padding_nj <- 0.2
-            Vis$branch_size_nj <- 4
-          } else if (between(sum(DB$data$Include), 41, 60)) {
-            Vis$labelsize_nj <- 4
-            Vis$tippointsize_nj <- 4
-            Vis$nodepointsize_nj <- 3
-            Vis$tiplab_padding_nj <- 0.15
-            Vis$branch_size_nj <- 3.5
-          } else if (between(sum(DB$data$Include), 61, 80)) {
-            Vis$labelsize_nj <- 3.5
-            Vis$tippointsize_nj <- 3.5
-            Vis$nodepointsize_nj <- 2.5
-            Vis$tiplab_padding_nj <- 0.1
-            Vis$branch_size_nj <- 3
-          } else if (between(sum(DB$data$Include), 81, 100)) {
-            Vis$labelsize_nj <- 3
-            Vis$tippointsize_nj <- 3
-            Vis$nodepointsize_nj <- 2
-            Vis$tiplab_padding_nj <- 0.1
-            Vis$branch_size_nj <- 2.5
-          } else {
-            Vis$labelsize_nj <- 2.5
-            Vis$tippointsize_nj <- 2.5
-            Vis$nodepointsize_nj <- 1.5
-            Vis$tiplab_padding_nj <- 0.05
-            Vis$branch_size_nj <- 2
-          }
-        }
-      } else {
-        Vis$labelsize_nj <- 4
-        Vis$tippointsize_nj <- 4
-        Vis$nodepointsize_nj <- 2.5
-        Vis$tiplab_padding_nj <- 0.2
-        Vis$branch_size_nj <- 3.5
-      }
-      
-      Vis$nj_tree <- ggtree(Vis$nj)
-      
-      # Get upper and lower end of x range
-      Vis$nj_max_x <- max(Vis$nj_tree$data$x)
-      Vis$nj_min_x <- min(Vis$nj_tree$data$x)
-      
-      # Get parent node numbers
-      Vis$nj_parentnodes <- Vis$nj_tree$data$parent
-      
-      # Update visualization control inputs
-      if(!is.null(input$nj_tiplab_size)) {
-        updateNumericInput(session, "nj_tiplab_size", value = Vis$labelsize_nj)
-      }
-      if(!is.null(input$nj_tippoint_size)) {
-        updateSliderInput(session, "nj_tippoint_size", value = Vis$tippointsize_nj)
-      }
-      if(!is.null(input$nj_nodepoint_size)) {
-        updateSliderInput(session, "nj_nodepoint_size", value = Vis$nodepointsize_nj)
-      }
-      if(!is.null(input$nj_tiplab_padding)) {
-        updateSliderInput(session, "nj_tiplab_padding", value = Vis$tiplab_padding_nj)
-      }
-      if(!is.null(input$nj_branch_size)) {
-        updateNumericInput(session, "nj_branch_size", value = Vis$branch_size_nj)
-      }
-      if(!is.null(input$nj_treescale_width)) {
-        updateNumericInput(session, "nj_treescale_width", value = round(ceiling(Vis$nj_max_x) * 0.1, 0))
-      }
-      if(!is.null(input$nj_rootedge_length)) {
-        updateSliderInput(session, "nj_rootedge_length", value = round(ceiling(Vis$nj_max_x) * 0.05, 0))
-      }
-      
-      output$tree_nj <- renderPlot({
-        nj_tree()
-      })
-    }
-  })
-  
-  observeEvent(input$conf_create_upgma, {
-    removeModal()
-    
-    Vis$upgma_label_pos_x <- list()
-    Vis$upgma_label_pos_y <- list()
-    Vis$upgma_label_size <- list()
-    Vis$custom_label_upgma <- data.frame()
-    
-    Vis$meta_upgma <- select(DB$meta_true, -2)
-    
-    if(length(unique(gsub(" ", "_", colnames(Vis$meta_upgma)))) < length(gsub(" ", "_", colnames(Vis$meta_upgma)))) {
-      show_toast(
-        title = "Conflicting Custom Variable Names",
-        type = "warning",
-        position = "top-end",
-        width = "500px",
-        timer = 6000
-      )
-    } else {
-      
-      # Create phylogenetic tree data
-      Vis$upgma <- ape::upgma(hamming_upgma())
-      
-      # Create phylogenetic tree meta data
-      Vis$meta_upgma <- mutate(Vis$meta_upgma, taxa = Index) %>%
-        relocate(taxa)
-      
-      # Get number of included entries calculate start values for tree 
-      if(!is.null(input$upgma_layout)) {
-        if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-          if(sum(DB$data$Include) < 21) {
-            Vis$labelsize_upgma <- 5.5
-            Vis$tippointsize_upgma <- 5.5
-            Vis$nodepointsize_upgma <- 4
-            Vis$tiplab_padding_upgma <- 0.25
-            Vis$branch_size_upgma <- 4.5
-          } else if (between(sum(DB$data$Include), 21, 40)) {
-            Vis$labelsize_upgma <- 5
-            Vis$tippointsize_upgma <- 5
-            Vis$nodepointsize_upgma <- 3.5
-            Vis$tiplab_padding_upgma <- 0.2
-            Vis$branch_size_upgma <- 4
-          } else if (between(sum(DB$data$Include), 41, 60)) {
-            Vis$labelsize_upgma <- 4.5
-            Vis$tippointsize_upgma <- 4.5
-            Vis$nodepointsize_upgma <- 3
-            Vis$tiplab_padding_upgma <- 0.15
-            Vis$branch_size_upgma <- 3.5
-          } else if (between(sum(DB$data$Include), 61, 80)) {
-            Vis$labelsize_upgma <- 4
-            Vis$tippointsize_upgma <- 4
-            Vis$nodepointsize_upgma <- 2.5
-            Vis$tiplab_padding_upgma <- 0.1
-            Vis$branch_size_upgma <- 3
-          } else if (between(sum(DB$data$Include), 81, 100)) {
-            Vis$labelsize_upgma <- 3.5
-            Vis$tippointsize_upgma <- 3.5
-            Vis$nodepointsize_upgma <- 2
-            Vis$tiplab_padding_upgma <- 0.1
-            Vis$branch_size_upgma <- 2.5
-          } else {
-            Vis$labelsize_upgma <- 3
-            Vis$tippointsize_upgma <- 3
-            Vis$nodepointsize_upgma <- 1.5
-            Vis$tiplab_padding_upgma <- 0.05
-            Vis$branch_size_upgma <- 2
-          }
-        } else {
-          if(sum(DB$data$Include) < 21) {
-            Vis$labelsize_upgma <- 5
-            Vis$tippointsize_upgma <- 5
-            Vis$nodepointsize_upgma <- 4
-            Vis$tiplab_padding_upgma <- 0.25
-            Vis$branch_size_upgma <- 4.5
-          } else if (between(sum(DB$data$Include), 21, 40)) {
-            Vis$labelsize_upgma <- 4.5
-            Vis$tippointsize_upgma <- 4.5
-            Vis$nodepointsize_upgma <- 3.5
-            Vis$tiplab_padding_upgma <- 0.2
-            Vis$branch_size_upgma <- 4
-          } else if (between(sum(DB$data$Include), 41, 60)) {
-            Vis$labelsize_upgma <- 4
-            Vis$tippointsize_upgma <- 4
-            Vis$nodepointsize_upgma <- 3
-            Vis$tiplab_padding_upgma <- 0.15
-            Vis$branch_size_upgma <- 3.5
-          } else if (between(sum(DB$data$Include), 61, 80)) {
-            Vis$labelsize_upgma <- 3.5
-            Vis$tippointsize_upgma <- 3.5
-            Vis$nodepointsize_upgma <- 2.5
-            Vis$tiplab_padding_upgma <- 0.1
-            Vis$branch_size_upgma <- 3
-          } else if (between(sum(DB$data$Include), 81, 100)) {
-            Vis$labelsize_upgma <- 3
-            Vis$tippointsize_upgma <- 3
-            Vis$nodepointsize_upgma <- 2
-            Vis$tiplab_padding_upgma <- 0.1
-            Vis$branch_size_upgma <- 2.5
-          } else {
-            Vis$labelsize_upgma <- 2.5
-            Vis$tippointsize_upgma <- 2.5
-            Vis$nodepointsize_upgma <- 1.5
-            Vis$tiplab_padding_upgma <- 0.05
-            Vis$branch_size_upgma <- 2
-          }
-        }
-      } else {
-        Vis$labelsize_upgma <- 4
-        Vis$tippointsize_upgma <- 4
-        Vis$nodepointsize_upgma <- 2.5
-        Vis$tiplab_padding_upgma <- 0.2
-        Vis$branch_size_upgma <- 3.5
-      }
-      
-      Vis$upgma_tree <- ggtree(Vis$upgma)
-      
-      # Get upper and lower end of x range
-      Vis$upgma_max_x <- max(Vis$upgma_tree$data$x)
-      Vis$upgma_min_x <- min(Vis$upgma_tree$data$x)
-      
-      # Get parent node numbers
-      Vis$upgma_parentnodes <- Vis$upgma_tree$data$parent
-      
-      # Update visualization control inputs
-      if(!is.null(input$upgma_tiplab_size)) {
-        updateNumericInput(session, "upgma_tiplab_size", value = Vis$labelsize_upgma)
-      }
-      if(!is.null(input$upgma_tippoint_size)) {
-        updateSliderInput(session, "upgma_tippoint_size", value = Vis$tippointsize_upgma)
-      }
-      if(!is.null(input$upgma_nodepoint_size)) {
-        updateSliderInput(session, "upgma_nodepoint_size", value = Vis$nodepointsize_upgma)
-      }
-      if(!is.null(input$upgma_tiplab_padding)) {
-        updateSliderInput(session, "upgma_tiplab_padding", value = Vis$tiplab_padding_upgma)
-      }
-      if(!is.null(input$upgma_branch_size)) {
-        updateNumericInput(session, "upgma_branch_size", value = Vis$branch_size_upgma)
-      }
-      if(!is.null(input$upgma_treescale_width)) {
-        updateNumericInput(session, "upgma_treescale_width", value = round(ceiling(Vis$upgma_max_x) * 0.1, 0))
-      }
-      if(!is.null(input$upgma_rootedge_length)) {
-        updateSliderInput(session, "upgma_rootedge_length", value = round(ceiling(Vis$upgma_max_x) * 0.05, 0))
-      }
-      
-      output$tree_upgma <- renderPlot({
-        upgma_tree()
-      })
     }
   })
   
@@ -19993,6 +19696,78 @@ server <- function(input, output, session) {
   ### Single Typing ----
   
   #### Render UI Elements ----
+  
+  # Render Typing Results if finished
+  observe({
+    if(Typing$progress_format_end == 999999) {
+      if(str_detect(tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1), "Successful")) {
+        output$typing_result_table <- renderRHandsontable({
+          typing_result_table <- readRDS(paste0(getwd(), "/execute/event_df.rds"))
+          if(nrow(typing_result_table) > 0) {
+            if(nrow(typing_result_table) > 15) {
+              rhandsontable(typing_result_table, rowHeaders = NULL, 
+                            stretchH = "all", height = 500) %>%
+                hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+                hot_cols(columnSorting = TRUE) %>%
+                hot_rows(rowHeights = 25) %>%
+                hot_col(1:ncol(typing_result_table), valign = "htMiddle", halign = "htCenter")
+            } else {
+              rhandsontable(typing_result_table, rowHeaders = NULL, 
+                            stretchH = "all") %>%
+                hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+                hot_cols(columnSorting = TRUE) %>%
+                hot_rows(rowHeights = 25) %>%
+                hot_col(1:ncol(typing_result_table), valign = "htMiddle", halign = "htCenter")
+            }
+          }
+        })
+        
+        output$single_typing_results <- renderUI({
+          result_table <- readRDS(paste0(getwd(), "/execute/event_df.rds"))
+          number_events <- nrow(result_table)
+          
+          n_new <- length(grep("New Variant", result_table$Event))
+          
+          n_missing <- number_events - n_new
+          
+          # Show results table only if successful typing 
+          if(str_detect(tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1), "Successful")) {
+            if(number_events > 0) {
+              column(
+                width = 12,
+                HTML(paste("<span style='color: white;'>", 
+                           length(Typing$scheme_loci_f) - number_events,
+                           "loci were assigned a variant from local scheme.")),
+                br(), 
+                HTML(paste("<span style='color: white;'>", 
+                           n_missing,
+                           if(n_missing == 1) " locus not assigned (<i>NA</i>)." else " loci not assigned (<i>NA</i>).")),
+                br(),
+                HTML(paste("<span style='color: white;'>", 
+                           n_new,
+                           if(n_new == 1) " locus with new variant."  else " loci with new variants.")),
+                br(), br(),
+                rHandsontableOutput("typing_result_table")
+              )
+            } else {
+              column(
+                width = 12,
+                HTML(paste("<span style='color: white;'>", 
+                           length(Typing$scheme_loci_f),
+                           "successfully assigned from local scheme."))
+              )
+            }
+          }
+        })
+        
+      } else {
+        
+        output$single_typing_results <- NULL
+        
+      }
+    }
+    
+  })
   
   # Render Initiate Typing UI
   output$initiate_typing_ui <- renderUI({
@@ -20336,26 +20111,39 @@ server <- function(input, output, session) {
               column(
                 width = 4,
                 br(), br(), br(),
-                uiOutput("reset_single_typing"),
-                HTML(
-                  paste(
-                    "<span style='color: white; font-weight: bolder'>",
-                    as.character(Typing$single_path$name)
+                fluidRow(
+                  column(
+                    width = 12,
+                    uiOutput("reset_single_typing"),
+                    HTML(
+                      paste(
+                        "<span style='color: white; font-weight: bolder'>",
+                        as.character(Typing$single_path$name)
+                      )
+                    ),
+                    br(), br(),
+                    progressBar(
+                      "progress_bar",
+                      value = 0,
+                      display_pct = TRUE,
+                      title = ""
+                    )
                   )
                 ),
-                br(), br(),
-                progressBar(
-                  "progress_bar",
-                  value = 0,
-                  display_pct = TRUE,
-                  title = ""
+                fluidRow(
+                  column(
+                    width = 12,
+                    uiOutput("typing_formatting"),
+                    uiOutput("typing_fin")
+                  )
                 )
+              ),
+              column(1),
+              column(
+                width = 3,
+                br(), br(), br(),
+                uiOutput("single_typing_results")
               )
-            ),
-            fluidRow(
-              column(width = 1),
-              uiOutput("typing_formatting"),
-              uiOutput("typing_fin")
             )
           )
         })
@@ -20410,7 +20198,7 @@ server <- function(input, output, session) {
     if (Typing$progress_format_start == 888888) {
       output$typing_formatting <- renderUI({
         column(
-          width = 3,
+          width = 12,
           align = "center",
           br(),
           fluidRow(
@@ -20432,33 +20220,36 @@ server <- function(input, output, session) {
     
     # Render when finalized  
     if (Typing$progress_format_end == 999999) {
+      
       output$typing_formatting <- NULL
       
       output$typing_fin <- renderUI({
-        column(
-          width = 4,
-          align = "center",
-          br(), br(),
-          if(str_detect(tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1), "Successful")) {
-            HTML(paste("<span style='color: white;'>", 
-                       sub(".*Successful", "Successful", tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1)),
-                       "Reset to start another typing process.", sep = '<br/>'))
-          } else {
-            HTML(paste("<span style='color: white;'>", 
-                       sub(".*typing", "Typing", tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1)),
-                       "Reset to start another typing process.", sep = '<br/>'))
-          },
-          br(), br(),
-          actionButton(
-            "reset_single_typing",
-            "Reset",
-            icon = icon("arrows-rotate")
+        fluidRow(
+          column(
+            width = 12,
+            align = "center",
+            br(), br(),
+            if(str_detect(tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1), "Successful")) {
+              HTML(paste("<span style='color: white;'>", 
+                         sub(".*Successful", "Successful", tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1)),
+                         "Reset to start another typing process.", sep = '<br/>'))
+            } else {
+              HTML(paste("<span style='color: white;'>", 
+                         sub(".*typing", "Typing", tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1)),
+                         "Reset to start another typing process.", sep = '<br/>'))
+            },
+            br(), br(),
+            actionButton(
+              "reset_single_typing",
+              "Reset",
+              icon = icon("arrows-rotate")
+            )
           )
         )
       })
-      
     } else {
       output$typing_fin <- NULL
+      output$single_typing_results <- NULL
     }
     
   })
@@ -20531,6 +20322,8 @@ server <- function(input, output, session) {
     output$single_typing_progress <- NULL
     
     output$typing_fin <- NULL
+    
+    output$single_typing_results <- NULL
     
     output$typing_formatting <- NULL
     
@@ -20934,6 +20727,11 @@ server <- function(input, output, session) {
       )
     } else {
       
+      # Reset multi typing reset table list
+      saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
+      multi_help <- FALSE
+      Typing$result_list <- NULL
+      
       # Null logfile
       system(paste("chmod +x", paste0(getwd(), "/execute/reset_multi.sh")))
       system(paste0(getwd(), "/execute/reset_multi.sh"), wait = TRUE)
@@ -20983,6 +20781,7 @@ server <- function(input, output, session) {
       Typing$table <- data.frame()
       
       output$test_yes_pending <- NULL
+      output$multi_typing_results <- NULL
     }
   })
   
@@ -21005,9 +20804,15 @@ server <- function(input, output, session) {
     # Reset User Feedback variable
     Typing$pending_format <- 0
     output$test_yes_pending <- NULL
+    output$multi_typing_results <- NULL
     Typing$failures <- 0
     Typing$successes <- 0
     Typing$multi_started <- FALSE
+    
+    # Reset multi typing result table list
+    saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
+    multi_help <- FALSE
+    Typing$result_list <- NULL
     
     output$initiate_multi_typing_ui <- renderUI({
       column(
@@ -21069,70 +20874,49 @@ server <- function(input, output, session) {
           width = "500px"
         )
       } else {
-        showModal(
-          modalDialog(
-            paste0(
-              "Typing multiple assemblies will take a while. Continue?"
-            ),
-            title = "Start multi typing",
-            fade = TRUE,
-            easyClose = TRUE,
-            footer = tagList(
-              modalButton("Cancel"),
-              actionButton("conf_start_multi", "Start", class = "btn btn-default")
-            )
-          )
+        removeModal()
+        
+        show_toast(
+          title = "Multi Typing started",
+          type = "success",
+          position = "top-end",
+          timer = 10000,
+          width = "500px"
         )
         
-        observeEvent(input$Cancel, {
-          removeModal()
-        })
+        # Remove Allelic Typing Controls
+        output$initiate_multi_typing_ui <- NULL
+        
+        output$metadata_multi_box <- NULL
+        
+        output$start_multi_typing_ui <- NULL
+        
+        # Initiate Feedback variables
+        Typing$multi_started <- TRUE
+        Typing$pending <- TRUE
+        Typing$failures <- 0
+        Typing$successes <- 0
+        
+        # Start Multi Typing Script
+        multi_typing_df <- data.frame(
+          db_path = DB$database,
+          wd = getwd(),
+          scheme = paste0(gsub(" ", "_", DB$scheme)),
+          genome_folder = as.character(parseDirPath(roots = c(home = path_home()), input$genome_file_multi)),
+          genome_names = paste(Typing$genome_selected$Files[which(Typing$genome_selected$Include == TRUE)], collapse= " "),
+          alleles = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")
+        )
+        
+        saveRDS(multi_typing_df, "execute/multi_typing_df.rds")
+        
+        # Execute multi kma script  
+        system(paste("chmod +x", paste0(getwd(), "/execute/kma_multi.sh")))
+        system(paste("nohup", paste0(getwd(), "/execute/kma_multi.sh"), "> script.log 2>&1"), wait = FALSE)
       }
     }
     
   })
   
-  observeEvent(input$conf_start_multi, {
-    
-    removeModal()
-    
-    show_toast(
-      title = "Multi Typing started",
-      type = "success",
-      position = "top-end",
-      timer = 6000,
-      width = "500px"
-    )
-    
-    # Remove Allelic Typing Controls
-    output$initiate_multi_typing_ui <- NULL
-    
-    output$metadata_multi_box <- NULL
-    
-    output$start_multi_typing_ui <- NULL
-    
-    # Initiate Feedback variables
-    Typing$multi_started <- TRUE
-    Typing$pending <- TRUE
-    Typing$failures <- 0
-    Typing$successes <- 0
-    
-    # Start Multi Typing Script
-    multi_typing_df <- data.frame(
-      db_path = DB$database,
-      wd = getwd(),
-      scheme = paste0(gsub(" ", "_", DB$scheme)),
-      genome_folder = as.character(parseDirPath(roots = c(home = path_home()), input$genome_file_multi)),
-      genome_names = paste(Typing$genome_selected$Files[which(Typing$genome_selected$Include == TRUE)], collapse= " "),
-      alleles = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")
-    )
-    
-    saveRDS(multi_typing_df, "execute/multi_typing_df.rds")
-    
-    # Execute multi kma script  
-    system(paste("chmod +x", paste0(getwd(), "/execute/kma_multi.sh")))
-    system(paste("nohup", paste0(getwd(), "/execute/kma_multi.sh"), "> script.log 2>&1"), wait = FALSE)
-  })
   
   #### User Feedback ----
   
@@ -21163,6 +20947,7 @@ server <- function(input, output, session) {
     if(str_detect(tail(log, 1), "Attaching")) {
       Typing$status <- "Attaching"
     } else if(str_detect(tail(log, 1), "Successful")) {
+      Typing$multi_help <- TRUE
       Typing$status <- "Successful"
       show_toast(
         title = paste0("Successful", sub(".*Successful", "", tail(log, 1))),
@@ -21186,6 +20971,7 @@ server <- function(input, output, session) {
       if(any(str_detect(tail(log, 2), "Successful"))) {
         
         if(!identical(Typing$last_success, tail(log, 2)[1])) {
+          Typing$multi_help <- TRUE
           show_toast(
             title = paste0("Successful", sub(".*Successful", "", tail(log, 2)[1])),
             type = "success",
@@ -21211,7 +20997,7 @@ server <- function(input, output, session) {
         }
       }
     } else if(str_detect(tail(log, 1), "finalized")) {
-      
+      Typing$multi_help <- TRUE
       Typing$status <- "Finalized"
       
       if(Typing$pending == TRUE) {
@@ -21229,6 +21015,94 @@ server <- function(input, output, session) {
   })
   
   ##### Render Multi Typing UI Feedback ----
+  
+  observe({
+    if(!is.null(input$multi_results_picker)) {
+      Typing$multi_table_length <- nrow(Typing$result_list[[input$multi_results_picker]])
+    } else {
+      Typing$multi_table_length <- NULL
+    }
+  })
+  
+  observe({
+    if(!is.null(Typing$result_list)) {
+      if(is.null(Typing$multi_table_length)) {
+        output$multi_typing_result_table <- renderRHandsontable({
+          rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
+                        stretchH = "all") %>%
+            hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+            hot_cols(columnSorting = TRUE) %>%
+            hot_rows(rowHeights = 25) %>%
+            hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
+        
+      } else {
+        if(Typing$multi_table_length > 15) {
+          output$multi_typing_result_table <- renderRHandsontable({
+            rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
+                          stretchH = "all", height = 500) %>%
+              hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+              hot_cols(columnSorting = TRUE) %>%
+              hot_rows(rowHeights = 25) %>%
+              hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
+        } else {
+          output$multi_typing_result_table <- renderRHandsontable({
+            rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
+                          stretchH = "all") %>%
+              hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+              hot_cols(columnSorting = TRUE) %>%
+              hot_rows(rowHeights = 25) %>%
+              hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
+          
+        }
+      }
+        
+    } else {
+      output$multi_typing_result_table <- NULL
+      }
+  })
+  
+  observe({
+    if(!is.null(Typing$multi_result_status)) {
+      if(Typing$multi_result_status == "start" | Typing$multi_result_status == "finalized"){
+        
+        if(Typing$multi_help == TRUE) {
+          Typing$result_list <- readRDS(paste0(getwd(), "/execute/event_list.rds"))
+          Typing$multi_help <- FALSE
+        }
+      } 
+    }
+  })
+  
+  
+  observe({
+    #Render multi typing result feedback table
+    
+      if(!is.null(Typing$result_list)) {
+        output$multi_typing_results <- renderUI({
+        column(
+          width = 12,
+          fluidRow(
+            column(1),
+            column(
+              width = 8,
+              br(), br(),
+              br(), br(),
+              br(), br(),
+              selectInput(
+                "multi_results_picker",
+                label = h5("Select Typing Results", style = "color:white"),
+                choices = names(Typing$result_list),
+                selected = names(Typing$result_list)[length(names(Typing$result_list))],
+              ),
+              br(),
+              rHandsontableOutput("multi_typing_result_table")
+            )
+          )
+        )
+      })
+    }
+  })
+  
   observe({
     
     # Render log content
@@ -21243,15 +21117,17 @@ server <- function(input, output, session) {
     # Render Pending UI
     if(!grepl("Multi Typing", tail(readLogFile(), n = 1)) & grepl("Start Multi Typing", head(readLogFile(), n = 1))) {
       
+      Typing$multi_result_status <- "start"
+      
       output$initiate_multi_typing_ui <- NULL
       
       output$test_yes_pending <- renderUI({
         fluidRow(
           fluidRow(
             br(), br(),
-            column(width = 1),
+            column(width = 2),
             column(
-              width = 2,
+              width = 4,
               h3(p("Pending Multi Typing ..."), style = "color:white"),
               br(), br(),
               fluidRow(
@@ -21273,9 +21149,9 @@ server <- function(input, output, session) {
           ),
           br(), br(),
           fluidRow(
-            column(width = 1),
+            column(width = 2),
             column(
-              width = 6,
+              width = 10,
               verbatimTextOutput("logText")
             )  
           )
@@ -21283,17 +21159,20 @@ server <- function(input, output, session) {
       })
     } else if(grepl("Multi Typing finalized", tail(readLogFile(), n = 1))) {
       
+      Typing$multi_result_status <- "finalized"
+      
       Typing$last_scheme <- NULL
       
       output$initiate_multi_typing_ui <- NULL
       
       output$test_yes_pending <- renderUI({
+        
         fluidRow(
           fluidRow(
             br(), br(),
-            column(width = 1),
+            column(width = 2),
             column(
-              width = 2,
+              width = 4,
               h3(p("Pending Multi Typing ..."), style = "color:white"),
               br(), br(),
               HTML(paste("<span style='color: white;'>", 
@@ -21325,17 +21204,18 @@ server <- function(input, output, session) {
           ),
           br(), br(),
           fluidRow(
-            column(width = 1),
+            column(width = 2),
             column(
-              width = 6,
+              width = 10,
               verbatimTextOutput("logTextFull"),
-            )  
+            )
           )
         )
       })
       
     } else if (!grepl("Start Multi Typing", head(readLogFile(), n = 1))){
       output$test_yes_pending <- NULL
+      Typing$multi_result_status <- "idle"
     }
   })
   
