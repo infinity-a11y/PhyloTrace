@@ -2,7 +2,7 @@
 <img src="www/PhyloTrace_bw.png#gh-light-mode-only" width="90%">
 <img src="www/PhyloTrace.png#gh-dark-mode-only" width="90%">
 <br>
-PhyloTrace is a platform for bacterial pathogen monitoring on a genomic level. Its components evolve around allele variant typing, to be more precise: core-genome multi locus sequence typing (cgMLST). Complex analyses and computation are wrapped into an appealing and easy-to-handle graphical user interface. This tool can help to reveal patterns explaining outbreak dynamics and events by connecting genomic information with epidemiologic variables. 
+PhyloTrace is a platform for bacterial pathogen monitoring on a genomic level. Its components evolve around allele variant typing, to be more precise: core-genome multi locus sequence typing (cgMLST). Complex analyses and computation are wrapped into an appealing and easy-to-handle graphical user interface. This tool can help to reveal patterns explaining outbreak dynamics and events by connecting genomic information with epidemiologic variables. <br><br>
 
 **Features**
 
