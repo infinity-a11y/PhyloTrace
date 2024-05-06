@@ -90,7 +90,7 @@ If you use PhyloTrace for your paper or publication, please give us credit by ci
 ## 2 Installation
 
 Download the source code of the latest release and extract/unzip it to a location on your system.<br>
-> [Latest Release Version 1.3.0](https://github.com/infinity-a11y/PhyloTrace/releases/tag/v1.2.0) 
+> [Latest Release Version 1.3.0](https://github.com/infinity-a11y/PhyloTrace/releases/tag/v1.3.0)
 
 ### 2.1 Install Miniconda
 Is ***Miniconda*** or another ***Conda Distribution*** installed on the system?
