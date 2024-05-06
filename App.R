@@ -5721,7 +5721,7 @@ server <- function(input, output, session) {
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1) != "0") {
       Typing$multi_started <- TRUE
       Typing$pending <- TRUE
-      Typing$multi_help <- TRUE
+      Typing$multi_help <- FALSE
       Typing$failures <- sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt"), warn = FALSE), "failed"))
       Typing$successes <- sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt"), warn = FALSE), "Successful"))
       Typing$last_scheme <- gsub("_", " ", sub(".*with (.*?) scheme.*", "\\1", readLines(paste0(getwd(), "/execute/script_log.txt"))[1]))
@@ -8879,12 +8879,6 @@ server <- function(input, output, session) {
   
   # Change scheme
   observeEvent(input$reload_db, {
-    
-    result_list <<- Typing$result_list
-    
-    multi_help <<- Typing$multi_help
-    
-    ulti_result_status <<- Typing$multi_result_status
     
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(

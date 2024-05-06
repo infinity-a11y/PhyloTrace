@@ -1,7 +1,7 @@
 # Hand over variables
 meta_info <- readRDS("meta_info_single.rds")
 db_path <- readRDS("single_typing_df.rds")[, "db_path"]
-assembly <- readRDS("single_typing_df.rds")[, "genome"]
+assembly <- paste0(meta_info$db_directory, "/execute/kma_single/assembly.fasta")
 
 source("variant_validation.R")
 
@@ -28,7 +28,7 @@ stop_codons <- c("TAA", "TAG", "TGA")
 allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)), full.names = TRUE)[grep("_alleles", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing))))]
 
 # Read the template (assembly) sequence
-template <- readLines(assembly)[2]
+template <- readLines(assembly)
 
 # List all .psl result files from alignment with BLAT
 psl_files <- list.files(paste0(meta_info$db_directory, "/execute/kma_single/results"), pattern = "\\.psl$", full.names = TRUE)
@@ -56,7 +56,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       
     } else {
       
-      matches <- data.table::fread(psl_files[i], select = c(1, 5, 6, 7, 8, 10, 11, 16, 17), header = FALSE)
+      matches <- data.table::fread(psl_files[i], select = c(1, 5, 6, 7, 8, 10, 11, 14, 16, 17), header = FALSE)
       
       # variant count 
       n_variants <- max(matches$V10)
