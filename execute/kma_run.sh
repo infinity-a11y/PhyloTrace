@@ -10,9 +10,12 @@ base_path=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'wd'])")
 scheme=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'scheme'])")
 alleles=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'alleles'])")
 
+# Create a new directory
+mkdir "$results"
+
 # Check assembly file and save in the execute folder
 Rscript "$base_path/execute/check_duplicate.R"
-
+wait
 genome="$base_path/execute/kma_single/assembly.fasta"
 
 # Logfile
@@ -34,9 +37,6 @@ results="$base_path/execute/kma_single/results"
 if [ -d "$results" ]; then
     rm -r "$results"
 fi
-
-# Create a new directory
-mkdir "$results"
 
 # Run blat
 count=0
