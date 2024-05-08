@@ -10,6 +10,16 @@ base_path=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'wd'])")
 scheme=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'scheme'])")
 alleles=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'alleles'])")
 
+mkdir "$base_path/execute/kma_single"
+
+# Directory name
+results="$base_path/execute/kma_single/results"
+
+# Remove the existing directory (if it exists)
+if [ -d "$results" ]; then
+    rm -r "$results"
+fi
+
 # Create a new directory
 mkdir "$results"
 
@@ -28,15 +38,6 @@ log_message() {
 
 # Create a log file or truncate if it exists
 echo 0 > "$base_path/execute/progress.fifo"
-mkdir "$base_path/execute/kma_single"
-
-# Directory name
-results="$base_path/execute/kma_single/results"
-
-# Remove the existing directory (if it exists)
-if [ -d "$results" ]; then
-    rm -r "$results"
-fi
 
 # Run blat
 count=0
