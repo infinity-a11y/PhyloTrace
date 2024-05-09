@@ -23,7 +23,7 @@ if(length(names) != length(unique(names))){
   }
   
   # save the new assembly to working directory
-  writeLines(lines, paste0(getwd(), "/kma_single/assembly.fasta"))
+  writeLines(lines, paste0(getwd(), "/blat_single/assembly.fasta"))
 } else {
-  writeLines(lines, paste0(getwd(), "/kma_single/assembly.fasta"))
+  writeLines(lines, paste0(getwd(), "/blat_single/assembly.fasta"))
 }

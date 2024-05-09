@@ -7940,7 +7940,7 @@ server <- function(input, output, session) {
                               actionButton(
                                 "edit_button",
                                 "",
-                                icon = icon("bookmark"),
+                                icon = icon("booblatrk"),
                                 class = "pulsating-button"
                               )
                             ),
@@ -19519,7 +19519,7 @@ server <- function(input, output, session) {
                                      tree = input$tree_algo,
                                      na_handling = if(anyNA(DB$allelic_profile_true)){input$na_handling} else {NULL},
                                      distance = "Hamming Distances",
-                                     version = c(phylotraceVersion, "KMA-1.3.23"),
+                                     version = c(phylotraceVersion, "blat-1.3.23"),
                                      plot = "MST")
     } else if(input$tree_algo == "Neighbour-Joining") {
       Report$report_list_nj <- list(entry_table = DB$meta_true[,1:12],
@@ -19527,7 +19527,7 @@ server <- function(input, output, session) {
                                     tree = input$tree_algo,
                                     na_handling = input$na_handling,
                                     distance = "Hamming Distances",
-                                    version = c(phylotraceVersion, "KMA-1.3.23"),
+                                    version = c(phylotraceVersion, "blat-1.3.23"),
                                     plot = "NJ")
     } else {
       Report$report_list_upgma <- list(entry_table = DB$meta_true[,1:12],
@@ -19535,7 +19535,7 @@ server <- function(input, output, session) {
                                        tree = input$tree_algo,
                                        na_handling = input$na_handling,
                                        distance = "Hamming Distances",
-                                       version = c(phylotraceVersion, "KMA-1.3.23"),
+                                       version = c(phylotraceVersion, "blat-1.3.23"),
                                        plot = "UPGMA")
     }
   })
@@ -20022,7 +20022,7 @@ server <- function(input, output, session) {
     
   })
   
-  #### Run KMA ----
+  #### Run blat ----
   
   observeEvent(input$typing_start, {
     
@@ -20062,7 +20062,7 @@ server <- function(input, output, session) {
       
       if (any(grepl(search_string, scheme_folders))) {
         
-        # KMA initiate index
+        # blat initiate index
         scheme_select <-
           as.character(scheme_folders[which(grepl(search_string, scheme_folders))])
         
@@ -20074,7 +20074,7 @@ server <- function(input, output, session) {
           width = "500px"
         )
         
-        ### Run KMA Typing
+        ### Run blat Typing
         
         single_typing_df <- data.frame(
           db_path = DB$database,
@@ -20087,8 +20087,8 @@ server <- function(input, output, session) {
         saveRDS(single_typing_df, "execute/single_typing_df.rds")
         
         # Execute singlye typing script
-        system(paste("chmod +x", paste0(getwd(), "/execute/kma_run.sh")))
-        system(paste0(getwd(), "/execute/kma_run.sh"), wait = FALSE)
+        system(paste("chmod +x", paste0(getwd(), "/execute/blat_run.sh")))
+        system(paste0(getwd(), "/execute/blat_run.sh"), wait = FALSE)
         
         scheme_loci <-
           list.files(path = scheme_select, full.names = TRUE)
@@ -20332,8 +20332,8 @@ server <- function(input, output, session) {
     Typing$single_path <- data.frame()
     
     # Resetting Progress.fifo 
-    system(paste("chmod +x", paste0(getwd(), "/execute/reset_kma.sh")))
-    system(paste0(getwd(), "/execute/reset_kma.sh"), wait = TRUE)
+    system(paste("chmod +x", paste0(getwd(), "/execute/reset_blat.sh")))
+    system(paste0(getwd(), "/execute/reset_blat.sh"), wait = TRUE)
     
     output$initiate_typing_ui <- renderUI({
       column(
@@ -20911,9 +20911,9 @@ server <- function(input, output, session) {
         
         saveRDS(multi_typing_df, "execute/multi_typing_df.rds")
         
-        # Execute multi kma script  
-        system(paste("chmod +x", paste0(getwd(), "/execute/kma_multi.sh")))
-        system(paste("nohup", paste0(getwd(), "/execute/kma_multi.sh"), "> script.log 2>&1"), wait = FALSE)
+        # Execute multi blat script  
+        system(paste("chmod +x", paste0(getwd(), "/execute/blat_multi.sh")))
+        system(paste("nohup", paste0(getwd(), "/execute/blat_multi.sh"), "> script.log 2>&1"), wait = FALSE)
       }
     }
     

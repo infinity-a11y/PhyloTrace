@@ -1,7 +1,7 @@
 # Hand over variables
 meta_info <- readRDS("meta_info_single.rds")
 db_path <- readRDS("single_typing_df.rds")[, "db_path"]
-assembly <- paste0(meta_info$db_directory, "/execute/kma_single/assembly.fasta")
+assembly <- paste0(meta_info$db_directory, "/execute/blat_single/assembly.fasta")
 
 source("variant_validation.R")
 
@@ -31,7 +31,7 @@ allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst
 template <- readLines(assembly)
 
 # List all .psl result files from alignment with BLAT
-psl_files <- list.files(paste0(meta_info$db_directory, "/execute/kma_single/results"), pattern = "\\.psl$", full.names = TRUE)
+psl_files <- list.files(paste0(meta_info$db_directory, "/execute/blat_single/results"), pattern = "\\.psl$", full.names = TRUE)
 
 # Initialize an empty vector to store the results
 allele_vector <- integer(length(psl_files))

@@ -1,7 +1,7 @@
 meta_info <- readRDS("meta_info.rds")
 db_path <- readRDS("multi_typing_df.rds")[, "db_path"]
 assembly_folder <- dir(paste0(getwd(), "/selected_genomes"), full.names = TRUE)
-assembly <- assembly_folder[grep(tail(dir(paste0(getwd(), "/kma_multi/results")), n = 1), assembly_folder)]
+assembly <- assembly_folder[grep(tail(dir(paste0(getwd(), "/blat_multi/results")), n = 1), assembly_folder)]
 
 source("variant_validation.R")
 
@@ -31,7 +31,7 @@ allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst
 template <- readLines(assembly)
 
 # List all .psl result files from alignment with BLAT
-psl_files <- list.files(tail(dir(paste0(meta_info$db_directory, "/execute/kma_multi/results"), full.names = TRUE), n = 1), pattern = "\\.psl$", full.names = TRUE)
+psl_files <- list.files(tail(dir(paste0(meta_info$db_directory, "/execute/blat_multi/results"), full.names = TRUE), n = 1), pattern = "\\.psl$", full.names = TRUE)
 
 # Initialize an empty vector to store the results
 allele_vector <- integer(length(psl_files))
