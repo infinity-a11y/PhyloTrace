@@ -302,7 +302,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   
   failures <- sum(unname(base::sapply(psl_files, file.size)) <= 100) / length(psl_files) * 100
   
-  # Logging successes
+  # Logging failures
   log_message(log_file = paste0(getwd(), "/execute/single_typing_log.txt"), 
               message = paste0("Assembly typing of ", meta_info$assembly_name, " failed. ", failures, "% of loci not typed."))
 }

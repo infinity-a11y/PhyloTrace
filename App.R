@@ -5713,8 +5713,10 @@ server <- function(input, output, session) {
   # Create logfile if not present
   if (!paste0(getwd(), "/execute/script_log.txt") %in% dir_ls(paste0(getwd(), "/execute"))) {
     writeLines("0", paste0(getwd(), "/execute/script_log.txt"))
+  }
+  # create progress file if not present
+  if (!paste0(getwd(), "/execute/progress.txt") %in% dir_ls(paste0(getwd(), "/execute"))) {
     writeLines("0\n", paste0(getwd(), "/execute/progress.txt"))
-    
   }
   
   # Set typing feedback values
@@ -9596,12 +9598,8 @@ server <- function(input, output, session) {
   
   observeEvent(input$conf_delete_all, {
     
-    delete_typing_path <- paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/Typing.rds")
-    
-    saveRDS(delete_typing_path, paste0(getwd(), "/execute/del_local.rds"))
-    
-    system(paste("chmod +x", paste0(getwd(), "/execute", "/delete_typing.sh")))
-    system(paste0(getwd(), "/execute", "/delete_typing.sh"), wait = TRUE)
+    # remove file with typing data
+    file.remove(paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/Typing.rds"))
     
     showModal(
       modalDialog(
@@ -9901,8 +9899,7 @@ server <- function(input, output, session) {
     
     if(length(DB$available) == 0) {
       saveRDS(DB$new_database, paste0(getwd(), "/execute/new_db.rds"))
-      system(paste("chmod +x",  paste0(getwd(), "/execute/make_db.sh")))
-      system(paste0(getwd(), "/execute/make_db.sh"), wait = TRUE)
+      dir.create(file.path(readRDS(paste0(getwd(), "/execute/new_db.rds")), "Database"), recursive = TRUE)
     }
     
     DB$load_selected <- TRUE

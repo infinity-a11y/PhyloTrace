@@ -20,6 +20,11 @@ column_classes <- function(df) {
   })
 }
 
+# Function to log messages to the file
+log_message <- function(log_file, message) {
+  cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "- ", message, "\n", file = log_file, append = TRUE)
+}
+
 # Define start and stop codons
 start_codons <- c("ATG", "GTG", "TTG")
 stop_codons <- c("TAA", "TAG", "TGA")
@@ -299,54 +304,14 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   # Save new Entry in Typing Database
   saveRDS(Database, paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Typing.rds"))
   
-  multi_user_fb <- paste0(
-    "#!/bin/bash\n",
-    'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
-    '# Function to log messages to the file', '\n',
-    'log_message() {', '\n',
-    '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
-    '}', '\n',
-    'log_message "Successful typing of "', shQuote(sub("\\.(fasta|fna|fa)$", "", basename(assembly)))
-  )
-  
-  # Specify the path to save the script
-  multi_user_fb_path <- paste0(getwd(), "/execute/multi_user_fb.sh")
-  
-  # Write the script to a file
-  cat(multi_user_fb, file = multi_user_fb_path)
-  
-  # Make the script executable
-  system(paste("chmod +x", multi_user_fb_path))
-  
-  # Execute the script
-  system(paste(multi_user_fb_path), wait = FALSE)
+  # Logging successes
+  log_message(log_file = paste0(getwd(), "/execute/script_log.txt"), 
+              message = paste0("Successful typing of ", sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
   
 } else {
   
-  failures <- sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) * 100
-  
-  multi_user_fb <- paste0(
-    "#!/bin/bash\n",
-    'log_file=', shQuote(paste0(getwd(), "/execute/script_log.txt")), '\n',
-    '# Function to log messages to the file', '\n',
-    'log_message() {', '\n',
-    '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
-    '}', '\n',
-    'log_message ', shQuote(paste0("Assembly typing failed for ", sub("\\.(fasta|fna|fa)$", "", basename(assembly)))), '\n',
-    shQuote(paste0(failures, "% of loci not typed."))
-  )
-  
-  # Specify the path to save the script
-  multi_user_fb_path <- paste0(getwd(), "/execute/multi_user_fb.sh")
-  
-  # Write the script to a file
-  cat(multi_user_fb, file = multi_user_fb_path)
-  
-  # Make the script executable
-  system(paste("chmod +x", multi_user_fb_path))
-  
-  # Execute the script
-  system(paste(multi_user_fb_path), wait = FALSE)
+  # Logging failures
+  log_message(log_file = paste0(getwd(), "/execute/script_log.txt"), 
+              message = paste0("Assembly typing failed for ", 
+                               sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
 }
-
-
