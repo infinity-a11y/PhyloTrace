@@ -258,7 +258,7 @@ sel_countries <-
 
 ui <- dashboardPage(
   
-  title = "PhyloTrace 1.2.0",
+  title = "PhyloTrace 1.3.1",
   
   # Title
   dashboardHeader(title = span(
@@ -5712,8 +5712,9 @@ server <- function(input, output, session) {
   
   # Create logfile if not present
   if (!paste0(getwd(), "/execute/script_log.txt") %in% dir_ls(paste0(getwd(), "/execute"))) {
-    system(paste("chmod +x", paste0(getwd(), "/execute", "/make_log.sh")))
-    system(paste0(getwd(), "/execute", "/make_log.sh"), wait = TRUE)
+    writeLines("0", paste0(getwd(), "/execute/script_log.txt"))
+    writeLines("0\n", paste0(getwd(), "/execute/progress.txt"))
+    
   }
   
   # Set typing feedback values
@@ -6549,9 +6550,12 @@ server <- function(input, output, session) {
                 DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
                 
                 # Null pipe 
-                system(paste("chmod +x", paste0(getwd(), "/execute/zero_pipe.sh")))
+                con <- file(paste0(getwd(), "/execute/progress.txt"), open = "w")
                 
-                system(paste(paste0(getwd(), "/execute/zero_pipe.sh")), wait = TRUE)
+                cat("0\n", file = con)
+                
+                # Close the file connection
+                close(con)
                 
                 # Reset other reactive typing variables
                 Typing$progress_format_end <- 0 
@@ -7940,7 +7944,7 @@ server <- function(input, output, session) {
                               actionButton(
                                 "edit_button",
                                 "",
-                                icon = icon("booblatrk"),
+                                icon = icon("bookmark"),
                                 class = "pulsating-button"
                               )
                             ),
@@ -8880,6 +8884,9 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
+    process <<- Typing$progress_format_end
+    test <<- Typing$progress
+    
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -8888,7 +8895,7 @@ server <- function(input, output, session) {
         timer = 6000,
         width = "500px"
       )
-    } else if(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[1] != "0") {
+    } else if(readLines(paste0(getwd(), "/execute", "/progress.txt"))[1] != "0") {
       show_toast(
         title = "Pending Single Typing",
         type = "warning",
@@ -20026,7 +20033,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$typing_start, {
     
-    if(tail(readLogFile(), 1)!= "0") {
+    if(tail(readLogFile(), 1) != "0") {
       show_toast(
         title = "Pending Multi Typing",
         type = "warning",
@@ -20164,27 +20171,34 @@ server <- function(input, output, session) {
   # Function to update Progress Bar
   update <- reactive({
     invalidateLater(3000, session)
-    progress <- readLines(paste0(getwd(), "/execute", "/progress.fifo"))[1]
-    if(!is.na(progress)) {
-      if(!is.na(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[2])) {
-        Typing$progress_format_start <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[2])
-        Typing$pending_format <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[2])
+    progress <- readLines(paste0(getwd(), "/execute/progress.txt"))
+    
+    # if typing with blat is finished -> "attaching" phase started
+    if(!is.na(progress[1])) {
+      if(!is.na(progress[2])) {
+        if(progress[2] == "888888") {
+          Typing$progress_format_start <- progress[2]
+          Typing$pending_format <- progress[2]
+        }
       }
-      if(!is.na(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[3])) {
-        Typing$progress_format_end <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[3])
-        Typing$entry_added <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[3])
+      # "attaching" phase completed
+      if(!is.na(progress[3])) {
+        if(progress[3] == "999999") {
+          Typing$progress_format_end <- progress[3]
+          Typing$entry_added <- progress[3]
+        }
       }
-      Typing$progress <- as.numeric(progress)
-      floor((as.numeric(Typing$progress) / length(Typing$scheme_loci_f)) * 100)
+      Typing$progress <- as.numeric(progress[1])
+      floor((Typing$progress / length(Typing$scheme_loci_f)) * 100)
     } else {
-      Typing$progress
+      floor((Typing$progress / length(Typing$scheme_loci_f)) * 100)
     }
   })
   
   # Observe Typing Progress
   observe({
     
-    if(!(tail(readLogFile(), 1)!= "0")) {
+    if(readLogFile()[1] == "0") {
       # Update Progress Bar
       updateProgressBar(
         session = session,
@@ -20331,9 +20345,13 @@ server <- function(input, output, session) {
     
     Typing$single_path <- data.frame()
     
-    # Resetting Progress.fifo 
-    system(paste("chmod +x", paste0(getwd(), "/execute/reset_blat.sh")))
-    system(paste0(getwd(), "/execute/reset_blat.sh"), wait = TRUE)
+    # Resetting single typing progress logfile bar 
+    con <- file(paste0(getwd(), "/execute/progress.txt"), open = "w")
+    
+    cat("0\n", file = con)
+    
+    # Close the file connection
+    close(con)
     
     output$initiate_typing_ui <- renderUI({
       column(
@@ -20735,8 +20753,7 @@ server <- function(input, output, session) {
       Typing$result_list <- NULL
       
       # Null logfile
-      system(paste("chmod +x", paste0(getwd(), "/execute/reset_multi.sh")))
-      system(paste0(getwd(), "/execute/reset_multi.sh"), wait = TRUE)
+      writeLines("0", paste0(getwd(), "/execute/script_log.txt"))
       
       # Reset User Feedback variable
       Typing$pending_format <- 0
@@ -20800,8 +20817,7 @@ server <- function(input, output, session) {
     )
     
     # Kill multi typing and reset logfile  
-    system(paste("chmod +x", paste0(getwd(), "/execute/kill_multi.sh")))
-    system(paste0(getwd(), "/execute/kill_multi.sh"), wait = TRUE)
+    writeLines("0", paste0(getwd(), "/execute/script_log.txt"))
     
     # Reset User Feedback variable
     Typing$pending_format <- 0
@@ -20857,7 +20873,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$start_typ_multi, {
-    if(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[1] != "0") {
+    if(readLines(paste0(getwd(), "/execute", "/progress.txt"))[1] != "0") {
       show_toast(
         title = "Pending Single Typing",
         type = "warning",
