@@ -20744,7 +20744,7 @@ server <- function(input, output, session) {
       )
     } else {
       
-      # Reset multi typing reset table list
+      # Reset multi typing result list
       saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
       multi_help <- FALSE
       Typing$result_list <- NULL
@@ -20805,6 +20805,10 @@ server <- function(input, output, session) {
   observeEvent(input$conf_multi_kill, {
     removeModal()
     
+    # Kill multi typing and reset logfile  
+    system(paste("chmod +x", paste0(getwd(), "/execute/kill_multi.sh")))
+    system(paste0(getwd(), "/execute/kill_multi.sh"), wait = TRUE)
+    
     show_toast(
       title = "Execution cancelled",
       type = "warning",
@@ -20816,6 +20820,11 @@ server <- function(input, output, session) {
     # Kill multi typing and reset logfile  
     writeLines("0", paste0(getwd(), "/execute/script_log.txt"))
     
+    #Reset multi typing result list
+    saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
+    multi_help <- FALSE
+    Typing$result_list <- NULL
+    
     # Reset User Feedback variable
     Typing$pending_format <- 0
     output$test_yes_pending <- NULL
@@ -20823,11 +20832,6 @@ server <- function(input, output, session) {
     Typing$failures <- 0
     Typing$successes <- 0
     Typing$multi_started <- FALSE
-    
-    # Reset multi typing result table list
-    saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
-    multi_help <- FALSE
-    Typing$result_list <- NULL
     
     output$initiate_multi_typing_ui <- renderUI({
       column(
@@ -20889,6 +20893,7 @@ server <- function(input, output, session) {
           width = "500px"
         )
       } else {
+        
         removeModal()
         
         show_toast(
@@ -20926,7 +20931,7 @@ server <- function(input, output, session) {
         
         # Execute multi blat script  
         system(paste("chmod +x", paste0(getwd(), "/execute/blat_multi.sh")))
-        system(paste("nohup", paste0(getwd(), "/execute/blat_multi.sh"), "> script.log 2>&1"), wait = FALSE)
+        system(paste("nohup", paste0(getwd(), "/execute/blat_multi.sh")), wait = FALSE)
       }
     }
     
