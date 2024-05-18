@@ -89,7 +89,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       } else {
         
         # select allele fasta file to get present variants in scheme
-        locus_file <- list.files(allele_folder, full.names = TRUE)[grep(allele_index, list.files(allele_folder))]
+        locus_file <- list.files(allele_folder, full.names = TRUE)[which(sub("\\.f(na|a|asta)$", "", list.files(allele_folder)) == allele_index)]
         
         variants <- readLines(locus_file)
         
