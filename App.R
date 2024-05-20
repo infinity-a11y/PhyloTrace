@@ -258,7 +258,7 @@ sel_countries <-
 
 ui <- dashboardPage(
   
-  title = "PhyloTrace 1.2.0",
+  title = "PhyloTrace 1.3.0",
   
   # Title
   dashboardHeader(title = span(
