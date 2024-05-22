@@ -1,7 +1,7 @@
 ######## PhyloTrace #########
 
 # _______________________ ####
-
+# CRAN Packages
 library(shiny)
 library(R.utils)
 library(igraph)
@@ -12,9 +12,6 @@ library(ggplot2)
 library(ggnewscale)
 library(ggplotify) 
 library(ape)
-library(treeio)
-library(ggtree)
-library(ggtreeExtra)
 library(tidyverse)
 library(rlang)
 library(tidytree)
@@ -36,6 +33,10 @@ library(phangorn)
 library(cowplot)
 library(viridis)
 library(RColorBrewer)
+# Bioconductor Packages
+library(treeio)
+library(ggtree)
+library(ggtreeExtra)
 
 schemes <- c("Acinetobacter_baumanii", "Bacillus_anthracis", "Bordetella_pertussis", 
              "Brucella_melitensis", "Brucella_spp", "Burkholderia_mallei_FLI", 
