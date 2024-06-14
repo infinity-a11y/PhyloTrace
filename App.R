@@ -20932,7 +20932,7 @@ server <- function(input, output, session) {
         
         # Execute multi blat script  
         system(paste("chmod +x", paste0(getwd(), "/execute/blat_multi.sh")))
-        system(paste("nohup", paste0(getwd(), "/execute/blat_multi.sh")), wait = FALSE)
+        system(paste0(getwd(), "/execute/blat_multi.sh"), wait = FALSE)
       }
     }
     

@@ -82,6 +82,6 @@ for genome in "$selected_genomes"/*; do
         fi
     done
     log_message "Attaching $genome_filename"
-    Rscript "$base_path/execute/automatic_typing.R"
+    Rscript "$base_path/execute/automatic_typing.R" "$genome_filename"
 done
 log_message "Multi Typing finalized."

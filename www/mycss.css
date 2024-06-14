@@ -412,7 +412,7 @@ button#edit_button.btn.btn-default.action-button.shiny-bound-input {
   border-color: white;
 }
 
-#logText {
+#logText, #logTextFull {
   margin-top: 5px;
 }
 
