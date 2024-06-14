@@ -8887,8 +8887,8 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
-    process <<- Typing$progress_format_end
-    test <<- Typing$progress
+    res_list <<- Typing$result_list
+    mult_tab_len <<- Typing$multi_table_length
     
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -15614,6 +15614,7 @@ server <- function(input, output, session) {
                          label = label_mst(),
                          value = mst_node_scaling(),
                          opacity = node_opacity())
+    test <<- data$nodes
     data$edges <- mutate(data$edges,
                          length = if(input$mst_scale_edges == FALSE) {
                            input$mst_edge_length
@@ -21047,25 +21048,8 @@ server <- function(input, output, session) {
   
   observe({
     if(!is.null(Typing$result_list)) {
-      if(is.null(Typing$multi_table_length)) {
-        output$multi_typing_result_table <- renderRHandsontable({
-          rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
-                        stretchH = "all") %>%
-            hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
-            hot_cols(columnSorting = TRUE) %>%
-            hot_rows(rowHeights = 25) %>%
-            hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
-        
-      } else {
-        if(Typing$multi_table_length > 15) {
-          output$multi_typing_result_table <- renderRHandsontable({
-            rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
-                          stretchH = "all", height = 500) %>%
-              hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
-              hot_cols(columnSorting = TRUE) %>%
-              hot_rows(rowHeights = 25) %>%
-              hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
-        } else {
+      if(length(Typing$result_list) > 0) {
+        if(is.null(Typing$multi_table_length)) {
           output$multi_typing_result_table <- renderRHandsontable({
             rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
                           stretchH = "all") %>%
@@ -21074,9 +21058,29 @@ server <- function(input, output, session) {
               hot_rows(rowHeights = 25) %>%
               hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
           
+        } else {
+          if(Typing$multi_table_length > 15) {
+            output$multi_typing_result_table <- renderRHandsontable({
+              rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
+                            stretchH = "all", height = 500) %>%
+                hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+                hot_cols(columnSorting = TRUE) %>%
+                hot_rows(rowHeights = 25) %>%
+                hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
+          } else {
+            output$multi_typing_result_table <- renderRHandsontable({
+              rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
+                            stretchH = "all") %>%
+                hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+                hot_cols(columnSorting = TRUE) %>%
+                hot_rows(rowHeights = 25) %>%
+                hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
+            
+          }
         }
+      } else {
+        output$multi_typing_result_table <- NULL
       }
-        
     } else {
       output$multi_typing_result_table <- NULL
       }
@@ -21099,28 +21103,30 @@ server <- function(input, output, session) {
     #Render multi typing result feedback table
     
       if(!is.null(Typing$result_list)) {
-        output$multi_typing_results <- renderUI({
-        column(
-          width = 12,
-          fluidRow(
-            column(1),
+        if(length(Typing$result_list) > 0) {
+          output$multi_typing_results <- renderUI({
             column(
-              width = 8,
-              br(), br(),
-              br(), br(),
-              br(), br(),
-              selectInput(
-                "multi_results_picker",
-                label = h5("Select Typing Results", style = "color:white"),
-                choices = names(Typing$result_list),
-                selected = names(Typing$result_list)[length(names(Typing$result_list))],
-              ),
-              br(),
-              rHandsontableOutput("multi_typing_result_table")
+              width = 12,
+              fluidRow(
+                column(1),
+                column(
+                  width = 8,
+                  br(), br(),
+                  br(), br(),
+                  br(), br(),
+                  selectInput(
+                    "multi_results_picker",
+                    label = h5("Select Typing Results", style = "color:white"),
+                    choices = names(Typing$result_list),
+                    selected = names(Typing$result_list)[length(names(Typing$result_list))],
+                  ),
+                  br(),
+                  rHandsontableOutput("multi_typing_result_table")
+                )
+              )
             )
-          )
-        )
-      })
+          })
+        }
     }
   })
   
