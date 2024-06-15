@@ -8889,9 +8889,6 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
-    res_list <<- Typing$result_list
-    mult_tab_len <<- Typing$multi_table_length
-    
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -15987,14 +15984,14 @@ server <- function(input, output, session) {
   
   # Heatmap scale
   nj_heatmap_scale <- reactive({
-    if(!is.null(input$nj_heatmap_scale)) {
+    if(!is.null(input$nj_heatmap_scale) & !is.null(input$nj_heatmap_div_mid)) {
       if(input$nj_heatmap_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
         if(input$nj_heatmap_div_mid == "Zero") {
           midpoint <- 0
         } else if(input$nj_heatmap_div_mid == "Mean") {
-          midpoint <- mean(Vis$meta_nj[[input$nj_heatmap_select]], na.rm = TRUE)
+          midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_heatmap_select]), na.rm = TRUE)
         } else {
-          midpoint <- median(Vis$meta_nj[[input$nj_heatmap_select]], na.rm = TRUE)
+          midpoint <- median(as.matrix(Vis$meta_nj[input$nj_heatmap_select]), na.rm = TRUE)
         }
         scale_fill_gradient2(low = brewer.pal(3, input$nj_heatmap_scale)[1],
                              mid = brewer.pal(3, input$nj_heatmap_scale)[2],
@@ -16066,14 +16063,14 @@ server <- function(input, output, session) {
   
   # Tippoint Scale
   nj_tippoint_scale <- reactive({
-    if(!is.null(input$nj_tippoint_scale)) {
+    if(!is.null(input$nj_tippoint_scale) & !is.null(input$nj_tipcolor_mapping_div_mid)) {
       if(input$nj_tippoint_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
         if(input$nj_tipcolor_mapping_div_mid == "Zero") {
           midpoint <- 0
         } else if(input$nj_tipcolor_mapping_div_mid == "Mean") {
-          midpoint <- mean(Vis$meta_nj[[input$nj_tipcolor_mapping]], na.rm = TRUE)
+          midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_tipcolor_mapping]), na.rm = TRUE)
         } else {
-          midpoint <- median(Vis$meta_nj[[input$nj_tipcolor_mapping]], na.rm = TRUE)
+          midpoint <- median(as.matrix(Vis$meta_nj[input$nj_tipcolor_mapping]), na.rm = TRUE)
         }
         scale_color_gradient2(low = brewer.pal(3, input$nj_tippoint_scale)[1],
                               mid = brewer.pal(3, input$nj_tippoint_scale)[2],
@@ -16127,14 +16124,14 @@ server <- function(input, output, session) {
   
   # Tiplab Scale
   nj_tiplab_scale <- reactive({
-    if(!is.null(input$nj_tiplab_scale)) {
+    if(!is.null(input$nj_tiplab_scale) & !is.null(input$nj_color_mapping_div_mid)) {
       if(input$nj_tiplab_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
         if(input$nj_color_mapping_div_mid == "Zero") {
           midpoint <- 0
         } else if(input$nj_color_mapping_div_mid == "Mean") {
-          midpoint <- mean(Vis$meta_nj[[input$nj_color_mapping]], na.rm = TRUE)
+          midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_color_mapping]), na.rm = TRUE)
         } else {
-          midpoint <- median(Vis$meta_nj[[input$nj_color_mapping]], na.rm = TRUE)
+          midpoint <- median(as.matrix(Vis$meta_nj[input$nj_color_mapping]), na.rm = TRUE)
         }
         scale_color_gradient2(low = brewer.pal(3, input$nj_tiplab_scale)[1],
                               mid = brewer.pal(3, input$nj_tiplab_scale)[2],
@@ -16247,17 +16244,18 @@ server <- function(input, output, session) {
   
   # Tiles fill color gradient
   nj_gradient <- reactive({
-    if((!is.null(input$nj_tiles_show_1)) & 
-       (!is.null(input$nj_fruit_variable)) & 
-       (!is.null(input$nj_tiles_scale_1))) {
+    if(!is.null(input$nj_tiles_show_1) & 
+       !is.null(input$nj_fruit_variable) & 
+       !is.null(input$nj_tiles_scale_1) & 
+       !is.null(input$nj_tiles_mapping_div_mid_1)) {
       if(input$nj_tiles_show_1 == TRUE) {
         if(input$nj_tiles_scale_1 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$nj_tiles_mapping_div_mid_1 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_1 == "Mean") {
-            midpoint <- mean(Vis$meta_nj[[input$nj_fruit_variable]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable]), na.rm = TRUE)
           }
           scale_fill_gradient2(low = brewer.pal(3, input$nj_tiles_scale_1)[1],
                                mid = brewer.pal(3, input$nj_tiles_scale_1)[2],
@@ -16311,17 +16309,18 @@ server <- function(input, output, session) {
   })
   
   nj_gradient2 <- reactive({
-    if((!is.null(input$nj_tiles_show_2)) & 
-       (!is.null(input$nj_fruit_variable_2)) & 
-       (!is.null(input$nj_tiles_scale_2))) {
+    if(!is.null(input$nj_tiles_show_2) & 
+       !is.null(input$nj_fruit_variable_2) & 
+       !is.null(input$nj_tiles_scale_2) & 
+       !is.null(input$nj_tiles_mapping_div_mid_2)) {
       if(input$nj_tiles_show_2 == TRUE) {
         if(input$nj_tiles_scale_2 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$nj_tiles_mapping_div_mid_2 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_2 == "Mean") {
-            midpoint <- mean(Vis$meta_nj[[input$nj_fruit_variable_2]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_2]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable_2]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_2]), na.rm = TRUE)
           }
           scale_fill_gradient2(low = brewer.pal(3, input$nj_tiles_scale_2)[1],
                                mid = brewer.pal(3, input$nj_tiles_scale_2)[2],
@@ -16375,17 +16374,18 @@ server <- function(input, output, session) {
   })
   
   nj_gradient3 <- reactive({
-    if((!is.null(input$nj_tiles_show_3)) & 
-       (!is.null(input$nj_fruit_variable_3)) & 
-       (!is.null(input$nj_tiles_scale_3))) {
+    if(!is.null(input$nj_tiles_show_3) & 
+       !is.null(input$nj_fruit_variable_3) & 
+       !is.null(input$nj_tiles_scale_3 & 
+       !is.null(input$nj_tiles_mapping_div_mid_3))) {
       if(input$nj_tiles_show_3 == TRUE) {
         if(input$nj_tiles_scale_3 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$nj_tiles_mapping_div_mid_3 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_3 == "Mean") {
-            midpoint <- mean(Vis$meta_nj[[input$nj_fruit_variable_3]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_3]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable_3]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_3]), na.rm = TRUE)
           }
           scale_fill_gradient3(low = brewer.pal(3, input$nj_tiles_scale_3)[1],
                                mid = brewer.pal(3, input$nj_tiles_scale_3)[2],
@@ -16439,17 +16439,18 @@ server <- function(input, output, session) {
   })
   
   nj_gradient4 <- reactive({
-    if((!is.null(input$nj_tiles_show_4)) & 
-       (!is.null(input$nj_fruit_variable_4)) & 
-       (!is.null(input$nj_tiles_scale_4))) {
+    if(!is.null(input$nj_tiles_show_4) & 
+       !is.null(input$nj_fruit_variable_4) & 
+       !is.null(input$nj_tiles_scale_4) & 
+       !is.null(input$nj_tiles_mapping_div_mid_4)) {
       if(input$nj_tiles_show_4 == TRUE) {
         if(input$nj_tiles_scale_4 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$nj_tiles_mapping_div_mid_4 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_4 == "Mean") {
-            midpoint <- mean(Vis$meta_nj[[input$nj_fruit_variable_4]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_4]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable_4]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_4]), na.rm = TRUE)
           }
           scale_fill_gradient4(low = brewer.pal(3, input$nj_tiles_scale_4)[1],
                                mid = brewer.pal(3, input$nj_tiles_scale_4)[2],
@@ -16503,17 +16504,18 @@ server <- function(input, output, session) {
   })
   
   nj_gradient5 <- reactive({
-    if((!is.null(input$nj_tiles_show_5)) & 
-       (!is.null(input$nj_fruit_variable_5)) & 
-       (!is.null(input$nj_tiles_scale_5))) {
+    if(!is.null(input$nj_tiles_show_5) & 
+       !is.null(input$nj_fruit_variable_5) & 
+       !is.null(input$nj_tiles_scale_5) & 
+       !is.null(input$nj_tiles_mapping_div_mid_5)) {
       if(input$nj_tiles_show_5 == TRUE) {
         if(input$nj_tiles_scale_5 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$nj_tiles_mapping_div_mid_5 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_5 == "Mean") {
-            midpoint <- mean(Vis$meta_nj[[input$nj_fruit_variable_5]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_5]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable_5]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_5]), na.rm = TRUE)
           }
           scale_fill_gradient5(low = brewer.pal(3, input$nj_tiles_scale_5)[1],
                                mid = brewer.pal(3, input$nj_tiles_scale_5)[2],
@@ -17372,14 +17374,14 @@ server <- function(input, output, session) {
   
   # Heatmap scale
   upgma_heatmap_scale <- reactive({
-    if(!is.null(input$upgma_heatmap_scale)) {
+    if(!is.null(input$upgma_heatmap_scale) & !is.null(input$upgma_heatmap_div_mid)) {
       if(input$upgma_heatmap_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
         if(input$upgma_heatmap_div_mid == "Zero") {
           midpoint <- 0
         } else if(input$upgma_heatmap_div_mid == "Mean") {
-          midpoint <- mean(Vis$meta_upgma[[input$upgma_heatmap_select]], na.rm = TRUE)
+          midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_heatmap_select]), na.rm = TRUE)
         } else {
-          midpoint <- median(Vis$meta_upgma[[input$upgma_heatmap_select]], na.rm = TRUE)
+          midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_heatmap_select]), na.rm = TRUE)
         }
         scale_fill_gradient2(low = brewer.pal(3, input$upgma_heatmap_scale)[1],
                              mid = brewer.pal(3, input$upgma_heatmap_scale)[2],
@@ -17451,14 +17453,14 @@ server <- function(input, output, session) {
   
   # Tippoint Scale
   upgma_tippoint_scale <- reactive({
-    if(!is.null(input$upgma_tippoint_scale)) {
+    if(!is.null(input$upgma_tippoint_scale) & !is.null(input$upgma_tipcolor_mapping_div_mid)) {
       if(input$upgma_tippoint_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
         if(input$upgma_tipcolor_mapping_div_mid == "Zero") {
           midpoint <- 0
         } else if(input$upgma_tipcolor_mapping_div_mid == "Mean") {
-          midpoint <- mean(Vis$meta_upgma[[input$upgma_tipcolor_mapping]], na.rm = TRUE)
+          midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_tipcolor_mapping]), na.rm = TRUE)
         } else {
-          midpoint <- median(Vis$meta_upgma[[input$upgma_tipcolor_mapping]], na.rm = TRUE)
+          midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_tipcolor_mapping]), na.rm = TRUE)
         }
         scale_color_gradient2(low = brewer.pal(3, input$upgma_tippoint_scale)[1],
                               mid = brewer.pal(3, input$upgma_tippoint_scale)[2],
@@ -17512,14 +17514,14 @@ server <- function(input, output, session) {
   
   # Tiplab Scale
   upgma_tiplab_scale <- reactive({
-    if(!is.null(input$upgma_tiplab_scale)) {
+    if(!is.null(input$upgma_tiplab_scale) & !is.null(input$upgma_color_mapping_div_mid)) {
       if(input$upgma_tiplab_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
         if(input$upgma_color_mapping_div_mid == "Zero") {
           midpoint <- 0
         } else if(input$upgma_color_mapping_div_mid == "Mean") {
-          midpoint <- mean(Vis$meta_upgma[[input$upgma_color_mapping]], na.rm = TRUE)
+          midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_color_mapping]), na.rm = TRUE)
         } else {
-          midpoint <- median(Vis$meta_upgma[[input$upgma_color_mapping]], na.rm = TRUE)
+          midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_color_mapping]), na.rm = TRUE)
         }
         scale_color_gradient2(low = brewer.pal(3, input$upgma_tiplab_scale)[1],
                               mid = brewer.pal(3, input$upgma_tiplab_scale)[2],
@@ -17624,17 +17626,18 @@ server <- function(input, output, session) {
   
   # Tiles fill color gradient
   upgma_gradient <- reactive({
-    if((!is.null(input$upgma_tiles_show_1)) & 
-       (!is.null(input$upgma_fruit_variable)) & 
-       (!is.null(input$upgma_tiles_scale_1))) {
+    if(!is.null(input$upgma_tiles_show_1) & 
+       !is.null(input$upgma_fruit_variable) & 
+       !is.null(input$upgma_tiles_scale_1) &
+       !is.null(input$upgma_tiles_mapping_div_mid_1)) {
       if(input$upgma_tiles_show_1 == TRUE) {
         if(input$upgma_tiles_scale_1 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$upgma_tiles_mapping_div_mid_1 == "Zero") {
             midpoint <- 0
           } else if(input$upgma_tiles_mapping_div_mid_1 == "Mean") {
-            midpoint <- mean(Vis$meta_upgma[[input$upgma_fruit_variable]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_upgma[[input$upgma_fruit_variable]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable]), na.rm = TRUE)
           }
           scale_fill_gradient2(low = brewer.pal(3, input$upgma_tiles_scale_1)[1],
                                mid = brewer.pal(3, input$upgma_tiles_scale_1)[2],
@@ -17688,17 +17691,18 @@ server <- function(input, output, session) {
   })
   
   upgma_gradient2 <- reactive({
-    if((!is.null(input$upgma_tiles_show_2)) & 
-       (!is.null(input$upgma_fruit_variable_2)) & 
-       (!is.null(input$upgma_tiles_scale_2))) {
+    if(!is.null(input$upgma_tiles_show_2) & 
+       !is.null(input$upgma_fruit_variable_2) & 
+       !is.null(input$upgma_tiles_scale_2) &
+       !is.null(input$upgma_tiles_mapping_div_mid_2)) {
       if(input$upgma_tiles_show_2 == TRUE) {
         if(input$upgma_tiles_scale_2 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$upgma_tiles_mapping_div_mid_2 == "Zero") {
             midpoint <- 0
           } else if(input$upgma_tiles_mapping_div_mid_2 == "Mean") {
-            midpoint <- mean(Vis$meta_upgma[[input$upgma_fruit_variable_2]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_2]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_upgma[[input$upgma_fruit_variable_2]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_2]), na.rm = TRUE)
           }
           scale_fill_gradient2(low = brewer.pal(3, input$upgma_tiles_scale_2)[1],
                                mid = brewer.pal(3, input$upgma_tiles_scale_2)[2],
@@ -17752,17 +17756,18 @@ server <- function(input, output, session) {
   })
   
   upgma_gradient3 <- reactive({
-    if((!is.null(input$upgma_tiles_show_3)) & 
-       (!is.null(input$upgma_fruit_variable_3)) & 
-       (!is.null(input$upgma_tiles_scale_3))) {
+    if(!is.null(input$upgma_tiles_show_3) & 
+       !is.null(input$upgma_fruit_variable_3) & 
+       !is.null(input$upgma_tiles_scale_3) &
+       !is.null(input$upgma_tiles_mapping_div_mid_3)) {
       if(input$upgma_tiles_show_3 == TRUE) {
         if(input$upgma_tiles_scale_3 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$upgma_tiles_mapping_div_mid_3 == "Zero") {
             midpoint <- 0
           } else if(input$upgma_tiles_mapping_div_mid_3 == "Mean") {
-            midpoint <- mean(Vis$meta_upgma[[input$upgma_fruit_variable_3]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_3]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_upgma[[input$upgma_fruit_variable_3]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_3]), na.rm = TRUE)
           }
           scale_fill_gradient3(low = brewer.pal(3, input$upgma_tiles_scale_3)[1],
                                mid = brewer.pal(3, input$upgma_tiles_scale_3)[2],
@@ -17816,17 +17821,18 @@ server <- function(input, output, session) {
   })
   
   upgma_gradient4 <- reactive({
-    if((!is.null(input$upgma_tiles_show_4)) & 
-       (!is.null(input$upgma_fruit_variable_4)) & 
-       (!is.null(input$upgma_tiles_scale_4))) {
+    if(!is.null(input$upgma_tiles_show_4) & 
+       !is.null(input$upgma_fruit_variable_4) & 
+       !is.null(input$upgma_tiles_scale_4) &
+       !is.null(input$upgma_tiles_mapping_div_mid_4)) {
       if(input$upgma_tiles_show_4 == TRUE) {
         if(input$upgma_tiles_scale_4 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$upgma_tiles_mapping_div_mid_4 == "Zero") {
             midpoint <- 0
           } else if(input$upgma_tiles_mapping_div_mid_4 == "Mean") {
-            midpoint <- mean(Vis$meta_upgma[[input$upgma_fruit_variable_4]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_4]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_upgma[[input$upgma_fruit_variable_4]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_4]), na.rm = TRUE)
           }
           scale_fill_gradient4(low = brewer.pal(3, input$upgma_tiles_scale_4)[1],
                                mid = brewer.pal(3, input$upgma_tiles_scale_4)[2],
@@ -17880,17 +17886,18 @@ server <- function(input, output, session) {
   })
   
   upgma_gradient5 <- reactive({
-    if((!is.null(input$upgma_tiles_show_5)) & 
-       (!is.null(input$upgma_fruit_variable_5)) & 
-       (!is.null(input$upgma_tiles_scale_5))) {
+    if(!is.null(input$upgma_tiles_show_5) & 
+       !is.null(input$upgma_fruit_variable_5) & 
+       !is.null(input$upgma_tiles_scale_5) &
+       !is.null(input$upgma_tiles_mapping_div_mid_5)) {
       if(input$upgma_tiles_show_5 == TRUE) {
         if(input$upgma_tiles_scale_5 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$upgma_tiles_mapping_div_mid_5 == "Zero") {
             midpoint <- 0
           } else if(input$upgma_tiles_mapping_div_mid_5 == "Mean") {
-            midpoint <- mean(Vis$meta_upgma[[input$upgma_fruit_variable_5]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_5]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_upgma[[input$upgma_fruit_variable_5]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_5]), na.rm = TRUE)
           }
           scale_fill_gradient5(low = brewer.pal(3, input$upgma_tiles_scale_5)[1],
                                mid = brewer.pal(3, input$upgma_tiles_scale_5)[2],
