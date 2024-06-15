@@ -5702,9 +5702,11 @@ server <- function(input, output, session) {
         
         DB$database <- readRDS(paste0(getwd(), "/execute/last_db.rds")) 
         
-        DB$exist <- (length(dir_ls(DB$database)) == 0)  # Logical any local database present
-        
-        DB$available <- gsub("_", " ", basename(dir_ls(DB$database))) # List of local schemes available
+        if(dir_exists(DB$database)) {
+          DB$exist <- (length(dir_ls(DB$database)) == 0)  # Logical any local database present
+          
+          DB$available <- gsub("_", " ", basename(dir_ls(DB$database))) # List of local schemes available
+        }
       }
     }
   })
@@ -19673,23 +19675,25 @@ server <- function(input, output, session) {
   
   # No db typing message
   output$typing_no_db <- renderUI({
-    if(DB$exist) {
-      column(
-        width = 4,
-        align = "left",
-        br(),
-        br(),
-        br(),
-        br(),
-        p(
-          HTML(
-            paste0(
-              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 50px', 'To initiate allelic typing, a cgMLST scheme must be downloaded first.'
+    if(!is.null(DB$exist)) {
+      if(DB$exist) {
+        column(
+          width = 4,
+          align = "left",
+          br(),
+          br(),
+          br(),
+          br(),
+          p(
+            HTML(
+              paste0(
+                tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 50px', 'To initiate allelic typing, a cgMLST scheme must be downloaded first.'
+                )
               )
             )
           )
         )
-      )
+      } else {NULL}
     } else {NULL}
   })
   
