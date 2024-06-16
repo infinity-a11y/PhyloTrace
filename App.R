@@ -5587,12 +5587,8 @@ server <- function(input, output, session) {
         gsub(" ", "_", DB$scheme),
         "/Typing.rds"
       ))) {
-        Database <-
-          readRDS(paste0(
-            DB$database, "/",
-            gsub(" ", "_", DB$scheme),
-            "/Typing.rds"
-          ))
+        
+        Database <- readRDS(paste0(DB$database, "/",gsub(" ", "_", DB$scheme),"/Typing.rds"))
         
         if(is.null(DB$data)) {
           if(nrow(Database[["Typing"]]) == 1) {
@@ -9562,6 +9558,15 @@ server <- function(input, output, session) {
         timer = 4000,
         width = "500px"
       )
+    } else if((readLines(paste0(getwd(), "/execute", "/progress.txt"))[1] != "0") |
+              (tail(readLogFile(), 1) != "0")) {
+      show_toast(
+        title = "Pending Typing",
+        type = "warning",
+        position = "top-end",
+        timer = 4000,
+        width = "500px"
+      )
     } else {
       if( (length(input$select_delete) - nrow(DB$data) ) == 0) {
         showModal(
@@ -9934,6 +9939,14 @@ server <- function(input, output, session) {
   
   observeEvent(input$download_cgMLST, {
     
+    show_toast(
+      title = "Download started",
+      type = "success",
+      position = "top-end",
+      timer = 5000,
+      width = "400px"
+    )
+    
     if(length(DB$available) == 0) {
       saveRDS(DB$new_database, paste0(getwd(), "/execute/new_db.rds"))
       dir.create(file.path(readRDS(paste0(getwd(), "/execute/new_db.rds")), "Database"), recursive = TRUE)
@@ -10007,7 +10020,7 @@ server <- function(input, output, session) {
       type = "success",
       position = "top-end",
       timer = 5000,
-      width = "500px"
+      width = "400px"
     )
     
     showModal(
@@ -20096,6 +20109,7 @@ server <- function(input, output, session) {
         width = "500px"
       )
     } else {
+      
       if(!is.null(DB$data)) {
         if(sum(apply(DB$data, 1, anyNA)) >= 1) {
           DB$no_na_switch <- TRUE
@@ -20115,17 +20129,19 @@ server <- function(input, output, session) {
       output$start_typing_ui <- NULL
       
       # Locate folder containing cgMLST scheme
-      search_string <-
-        paste0(gsub(" ", "_", DB$scheme), "_alleles")
+      search_string <- paste0(gsub(" ", "_", DB$scheme), "_alleles")
       
-      scheme_folders <-
-        dir_ls(paste0(DB$database, "/", gsub(" ", "_", DB$scheme)))
+      scheme_folders <- dir_ls(paste0(DB$database, "/", gsub(" ", "_", DB$scheme)))
       
       if (any(grepl(search_string, scheme_folders))) {
         
+        # reset results file 
+        if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
+          unlink(list.files(paste0(getwd(), "/execute/blat_single/results"), full.names = TRUE), recursive = TRUE)
+        }
+        
         # blat initiate index
-        scheme_select <-
-          as.character(scheme_folders[which(grepl(search_string, scheme_folders))])
+        scheme_select <- as.character(scheme_folders[which(grepl(search_string, scheme_folders))])
         
         show_toast(
           title = "Typing Initiated",
@@ -20147,14 +20163,13 @@ server <- function(input, output, session) {
         
         saveRDS(single_typing_df, "execute/single_typing_df.rds")
         
-        # Execute singlye typing script
+        # Execute single typing script
         system(paste("chmod +x", paste0(getwd(), "/execute/blat_run.sh")))
         system(paste0(getwd(), "/execute/blat_run.sh"), wait = FALSE)
         
-        scheme_loci <-
-          list.files(path = scheme_select, full.names = TRUE)
+        scheme_loci <- list.files(path = scheme_select, full.names = TRUE)
         
-        # Filter the files that have the ".fasta" extension
+        # Filter the files that have FASTA extensions
         Typing$scheme_loci_f <-
           scheme_loci[grep("\\.(fasta|fa|fna)$", scheme_loci, ignore.case = TRUE)]
         
@@ -20225,6 +20240,15 @@ server <- function(input, output, session) {
   # Function to update Progress Bar
   update <- reactive({
     invalidateLater(3000, session)
+    
+    # write progress in process tracker
+    cat(
+      c(length(list.files(paste0(getwd(), "/execute/blat_single/results"))),
+        readLines(paste0(getwd(), "/execute/progress.txt"))[-1]), 
+      file = paste0(getwd(), "/execute/progress.txt"),
+      sep = "\n"
+      )
+    
     progress <- readLines(paste0(getwd(), "/execute/progress.txt"))
     
     # if typing with blat is finished -> "attaching" phase started
@@ -20233,6 +20257,7 @@ server <- function(input, output, session) {
         if(progress[2] == "888888") {
           Typing$progress_format_start <- progress[2]
           Typing$pending_format <- progress[2]
+          Typing$status <- "Attaching"
         }
       }
       # "attaching" phase completed
@@ -20240,6 +20265,7 @@ server <- function(input, output, session) {
         if(progress[3] == "999999") {
           Typing$progress_format_end <- progress[3]
           Typing$entry_added <- progress[3]
+          Typing$status <- "Finalized"
         }
       }
       Typing$progress <- as.numeric(progress[1])
