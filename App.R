@@ -263,6 +263,7 @@ ui <- dashboardPage(
   
   # Title
   dashboardHeader(
+    
     title = span(
     div(
       class = "img_logo",
@@ -270,8 +271,11 @@ ui <- dashboardPage(
         src = "PhyloTrace.jpg", width = 190
       )
     )
+    ),
+    tags$li(class = "dropdown", 
+            tags$span(id = "currentTime", style = "color:white; font-weight:bold;")),
+    disable = FALSE
   ),
-  disable = FALSE),
   
   ## Sidebar ----
   dashboardSidebar(
@@ -5631,6 +5635,10 @@ server <- function(input, output, session) {
   ## Startup ----
   shinyjs::addClass(selector = "body", class = "sidebar-collapse")
   shinyjs::removeClass(selector = "body", class = "sidebar-toggle")
+  
+  output$messageMenu <- renderText({
+    HTML(format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"))
+  })
   
   # Declare reactive variables
   Startup <- reactiveValues(sidebar = TRUE, 

@@ -10,6 +10,22 @@ function getCurrentDate() {
   return year + '-' + month + '-' + day; // Formats the date as "YYYY-MM-DD"
 };
 
+// Get time
+function updateTime() {
+        var options = {
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+          timeZoneName: 'short'
+        };
+        var currentTime = new Date().toLocaleTimeString([], options);
+        document.getElementById('currentTime').innerHTML = currentTime;
+      }
+      setInterval(updateTime, 1000);
+      updateTime(); // Initial call to set the time immediately on load
+
 // MST jpeg download
 $(document).on('click', '#save_plot_jpeg', function() {
   
