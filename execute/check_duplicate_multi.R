@@ -1,5 +1,3 @@
-library(stringr)
-
 file_names <- list.files(paste0(getwd(), "/selected_genomes"), full.names = T)
 
 # load selected assemblies
@@ -7,7 +5,7 @@ assemblies <- lapply(list.files(paste0(getwd(), "/selected_genomes"), full.names
 
 # loop through every assembly
 for(i in 1:length(assemblies)){
-  names <- str_extract(assemblies[[i]][seq(1, length(assemblies[[i]]), by = 3)], "^[^\\s]+")
+  names <- stringr::str_extract(assemblies[[i]][seq(1, length(assemblies[[i]]), by = 3)], "^[^\\s]+")
   
   # Test if there are duplicates
   if(length(names) != length(unique(names))){

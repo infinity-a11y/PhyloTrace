@@ -15,6 +15,11 @@ echo 0 > "$base_path/execute/progress.txt"
 scheme=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'scheme'])")
 alleles=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'alleles'])")
 
+# Remove the existing directory (if it exists)
+if [ -d "$base_path/execute/blat_single" ]; then
+    rm -r "$base_path/execute/blat_single"
+fi
+
 mkdir "$base_path/execute/blat_single"
 
 # Directory name
@@ -34,6 +39,7 @@ wait
 genome="$base_path/execute/blat_single/assembly.fasta"
 
 # Run parallelized BLAT
+parallel --citation
 find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name "*.fna" \) | parallel pblat $genome {} "$results/{/.}.psl"
 
 # Start appending results

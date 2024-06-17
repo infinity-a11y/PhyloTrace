@@ -12,16 +12,17 @@ genome_folder=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[,'genome_folder']
 genome_names=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[,'genome_names'])")
 alleles=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[,'alleles'])")
 
-# Directory name
-mkdir $base_path/execute/blat_multi
-results="$base_path/execute/blat_multi/results"
+# Remove the existing multi directory
+if [ -d "$base_path/execute/blat_multi" ]; then
+    rm -r "$base_path/execute/blat_multi"
+fi
+mkdir "$base_path/execute/blat_multi"
 
-# Remove the existing directory (if it exists)
+# Remove the existing results directory
+results="$base_path/execute/blat_multi/results"
 if [ -d "$results" ]; then
     rm -r "$results"
 fi
-
-# Create a new directory
 mkdir "$results"
 
 selected_genomes="$base_path/execute/selected_genomes"

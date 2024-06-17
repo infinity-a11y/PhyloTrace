@@ -1,12 +1,10 @@
-library(stringr)
-
 typing_meta <- readRDS(paste0(getwd(), "/single_typing_df.rds"))
 
 assembly <- typing_meta$genome
 
 lines <- readLines(assembly)
 
-names <- str_extract(lines[seq(1, length(lines), by = 3)], "^[^\\s]+")
+names <- stringr::str_extract(lines[seq(1, length(lines), by = 3)], "^[^\\s]+")
 
 # Test if there are duplicates
 if(length(names) != length(unique(names))){

@@ -6014,7 +6014,8 @@ server <- function(input, output, session) {
       # Resetting single typing progress logfile bar 
       con <- file(paste0(getwd(), "/execute/progress.txt"), open = "w")
       
-      cat("0\n", file = con)    
+      cat("0\n", file = con)   
+      close(con)
     }
     
     # Load app elements based on database availability and missing value presence
@@ -20305,7 +20306,7 @@ server <- function(input, output, session) {
         id = "progress_bar",
         value = update(),
         total = 100,
-        title = paste0(as.character(Typing$progress), "/", length(Typing$scheme_loci_f))
+        title = paste0(as.character(Typing$progress), "/", length(Typing$scheme_loci_f), " loci screened")
       )
     }
     
@@ -20451,11 +20452,10 @@ server <- function(input, output, session) {
       # Resetting single typing progress logfile bar 
       con <- file(paste0(getwd(), "/execute/progress.txt"), open = "w")
       
-      cat("0\n", file = con)    
+      cat("0\n", file = con)   
+      
+      close(con)
     }
-    
-    # Close the file connection
-    close(con)
     
     output$initiate_typing_ui <- renderUI({
       column(
