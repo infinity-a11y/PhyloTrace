@@ -71,16 +71,12 @@ for genome in "$selected_genomes"/*; do
     log_message "Processing $genome_filename"
     fi
     mkdir "$results/$genome_filename_noext"
-
-    #Running Loop
-    for query_file in "$alleles"/*.{fasta,fa,fna}; do
-        if [ -f "$query_file" ]; then
-        query_filename=$(basename "$query_file")
-        query_filename_noext="${query_filename%.*}"
-        output_file="$results/$genome_filename_noext/$query_filename_noext"
-        pblat $genome "$query_file" "$output_file.psl"
-        fi
-    done
+    
+    result_folder="$results/$genome_filename_noext"
+    
+    # Run parallelized BLAT
+    find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name "*.fna" \) | parallel pblat $genome {} "$result_folder/{/.}.psl"
+    
     log_message "Attaching $genome_filename"
     Rscript "$base_path/execute/automatic_typing.R" "$genome_filename"
 done

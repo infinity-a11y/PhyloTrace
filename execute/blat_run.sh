@@ -33,8 +33,8 @@ Rscript "$base_path/execute/check_duplicate.R"
 wait
 genome="$base_path/execute/blat_single/assembly.fasta"
 
-# Run blat in parallel
-find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name "*.fna" \) | parallel -j 4 pblat $genome {} "$results/{/.}.psl"
+# Run parallelized BLAT
+find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name "*.fna" \) | parallel pblat $genome {} "$results/{/.}.psl"
 
 # Start appending results
 echo 888888 >> "$base_path/execute/progress.txt"

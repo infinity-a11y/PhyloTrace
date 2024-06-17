@@ -262,7 +262,8 @@ ui <- dashboardPage(
   title = "PhyloTrace 1.3.1",
   
   # Title
-  dashboardHeader(title = span(
+  dashboardHeader(
+    title = span(
     div(
       class = "img_logo",
       img(
@@ -5998,6 +5999,15 @@ server <- function(input, output, session) {
   ### Load app event ----
   
   observeEvent(input$load, {
+    
+    # reset results file 
+    if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
+      unlink(list.files(paste0(getwd(), "/execute/blat_single/results"), full.names = TRUE), recursive = TRUE)
+      # Resetting single typing progress logfile bar 
+      con <- file(paste0(getwd(), "/execute/progress.txt"), open = "w")
+      
+      cat("0\n", file = con)    
+    }
     
     # Load app elements based on database availability and missing value presence
     if(!is.null(DB$select_new)) {
@@ -20425,10 +20435,14 @@ server <- function(input, output, session) {
     
     Typing$single_path <- data.frame()
     
-    # Resetting single typing progress logfile bar 
-    con <- file(paste0(getwd(), "/execute/progress.txt"), open = "w")
-    
-    cat("0\n", file = con)
+    # reset results file 
+    if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
+      unlink(list.files(paste0(getwd(), "/execute/blat_single/results"), full.names = TRUE), recursive = TRUE)
+      # Resetting single typing progress logfile bar 
+      con <- file(paste0(getwd(), "/execute/progress.txt"), open = "w")
+      
+      cat("0\n", file = con)    
+    }
     
     # Close the file connection
     close(con)
