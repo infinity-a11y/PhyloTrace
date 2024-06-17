@@ -6638,6 +6638,7 @@ server <- function(input, output, session) {
                       multiple = FALSE,
                       buttonType = "default",
                       class = NULL,
+                      filetypes = c('fasta', 'fna', 'fa'),
                       root = path_home()
                     ),
                     br(),
@@ -20109,7 +20110,8 @@ server <- function(input, output, session) {
     shinyFileChoose(input,
                     "genome_file",
                     roots = c(home = path_home()),
-                    session = session)
+                    session = session,
+                    filetypes = c('', 'fasta', 'fna', 'fa'))
     Typing$single_path <- parseFilePaths(roots = c(home = path_home()), input$genome_file)
     
   })
@@ -20720,7 +20722,8 @@ server <- function(input, output, session) {
     shinyDirChoose(input,
                    "genome_file_multi",
                    roots = c(home = path_home()),
-                   session = session)
+                   session = session,
+                   filetypes = c('', 'fasta', 'fna', 'fa'))
     
     Typing$table <-
       data.frame(Include = rep(TRUE, length(list.files(
