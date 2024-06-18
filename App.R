@@ -5396,6 +5396,11 @@ server <- function(input, output, session) {
   
   phylotraceVersion <- paste("PhyloTrace-1.1.1", Sys.Date())
   
+  # Kill server on session end
+  session$onSessionEnded( function() {
+    stopApp()
+  })
+  
   # Disable MST variable mappings
   shinyjs::disable('mst_edge_label') 
   shinyjs::disable('mst_color_var') 
@@ -5719,32 +5724,23 @@ server <- function(input, output, session) {
   
   ### Set up typing environment ----
   
-  # Create logfile if not present
-  if (!paste0(getwd(), "/execute/script_log.txt") %in% dir_ls(paste0(getwd(), "/execute"))) {
-    writeLines("0", paste0(getwd(), "/execute/script_log.txt"))
-  }
-  # create progress file if not present
-  if (!paste0(getwd(), "/execute/progress.txt") %in% dir_ls(paste0(getwd(), "/execute"))) {
-    writeLines("0\n", paste0(getwd(), "/execute/progress.txt"))
+  # Null typing progress trackers
+  writeLines("0", paste0(getwd(), "/execute/script_log.txt"))
+  
+  if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
+    unlink(list.files(paste0(getwd(), "/execute/blat_single/results"), full.names = TRUE), recursive = TRUE)
+    # Resetting single typing progress logfile bar 
+    con <- file(paste0(getwd(), "/execute/progress.txt"), open = "w")
+    
+    cat("0\n", file = con)   
+    close(con)
   }
   
-  # Set typing feedback values
-  if(file.exists(paste0(getwd(), "/execute/script_log.txt"))) {
-    if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1) != "0") {
-      Typing$multi_started <- TRUE
-      Typing$pending <- TRUE
-      Typing$multi_help <- FALSE
-      Typing$failures <- sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt"), warn = FALSE), "failed"))
-      Typing$successes <- sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt"), warn = FALSE), "Successful"))
-      Typing$last_scheme <- gsub("_", " ", sub(".*with (.*?) scheme.*", "\\1", readLines(paste0(getwd(), "/execute/script_log.txt"))[1]))
-    } else {
-      Typing$pending <- FALSE
-      Typing$multi_started <- FALSE
-      Typing$multi_help <- FALSE
-      saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
-    }
-  }
-  
+  # Reset typing feedback values
+  Typing$pending <- FALSE
+  Typing$multi_started <- FALSE
+  Typing$multi_help <- FALSE
+  saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
   Typing$last_success <- "0" # Null last multi typing success name
   Typing$last_failure <- "0" # Null last multi typing failure name
   
@@ -5757,93 +5753,59 @@ server <- function(input, output, session) {
   })
   
   output$start_message <- renderUI({
-    if(!is.null(Typing$last_scheme)) {
-      column(
-        width = 12, 
-        align = "center",
-        br(), br(), br(), br(), br(), br(),
-        div( 
-          class = "image",
-          imageOutput("imageOutput")
-        ),
-        br(), br(), br(),
-        p(
-          tags$span(
-            style='color: white; font-size: 16px;',
-            HTML(
-              paste0(
-                'Pending multi typing for ', 
-                Typing$last_scheme, 
-                "."
-              )
-            )
-          )
-        ),
-        br(), br(),
-        fluidRow(
-          column(
-            width = 12,
-            align = "center",
-            uiOutput("load_db"),
-            br(), br(), br(), br(), br(), br(), br()
+    column(
+      width = 12, 
+      align = "center",
+      br(), br(), br(), br(), br(), br(),
+      div( 
+        class = "image",
+        imageOutput("imageOutput")
+      ),
+      br(), br(), br(),
+      p(
+        HTML(
+          paste(
+            tags$span(style='color: white; font-size: 16px;', 'Proceed by loading a compatible local database or create a new one.')
           )
         )
-      )
-    } else {
-      column(
-        width = 12, 
-        align = "center",
-        br(), br(), br(), br(), br(), br(),
-        div( 
-          class = "image",
-          imageOutput("imageOutput")
-        ),
-        br(), br(), br(),
-        p(
-          HTML(
-            paste(
-              tags$span(style='color: white; font-size: 16px;', 'Proceed by loading a compatible local database or create a new one.')
-            )
+      ),
+      br(), 
+      fluidRow(
+        column(
+          width = 6,
+          align = "right",
+          shinyDirButton(
+            "db_location",
+            "Browse",
+            icon = icon("folder-open"),
+            title = "Locate the database folder",
+            buttonType = "default",
+            root = path_home()
           )
         ),
-        br(), 
-        fluidRow(
-          column(
-            width = 6,
-            align = "right",
-            shinyDirButton(
-              "db_location",
-              "Browse",
-              icon = icon("folder-open"),
-              title = "Locate the database folder",
-              buttonType = "default",
-              root = path_home()
-            )
-          ),
-          column(
-            width = 6,
-            align = "left",
-            shinyDirButton(
-              "create_new_db",
-              "Create New",
-              icon = icon("plus"),
-              title = "Choose location for new PhyloTrace database",
-              buttonType = "default",
-              root = path_home()
-            )
-          )
-        ),
-        br(), br(),
-        fluidRow(
-          column(
-            width = 12,
-            align = "center",
-            uiOutput("load_db"),
-            br(), br(), br(), br(), br(), br(), br()
+        column(
+          width = 6,
+          align = "left",
+          shinyDirButton(
+            "create_new_db",
+            "Create New",
+            icon = icon("plus"),
+            title = "Choose location for new PhyloTrace database",
+            buttonType = "default",
+            root = path_home()
           )
         )
+      ),
+      br(), br(),
+      fluidRow(
+        column(
+          width = 12,
+          align = "center",
+          uiOutput("load_db"),
+          br(), br(), br(), br(), br(), br(), br()
+        )
       )
-    }
+    )
   })
   
   # User selection new db or load db
@@ -6007,16 +5969,6 @@ server <- function(input, output, session) {
   ### Load app event ----
   
   observeEvent(input$load, {
-    
-    # reset results file 
-    if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
-      unlink(list.files(paste0(getwd(), "/execute/blat_single/results"), full.names = TRUE), recursive = TRUE)
-      # Resetting single typing progress logfile bar 
-      con <- file(paste0(getwd(), "/execute/progress.txt"), open = "w")
-      
-      cat("0\n", file = con)   
-      close(con)
-    }
     
     # Load app elements based on database availability and missing value presence
     if(!is.null(DB$select_new)) {

@@ -11,7 +11,7 @@ log_message() {
 }
 
 # Find the process ID (PID) of the script
-PID=$(pgrep -f "$blat_multi")
+PID=$(pgrep -f $blat_multi)
 if [ -z "$PID" ]; then
   echo "No process found for $blat_multi"
 else
@@ -19,6 +19,9 @@ else
   echo "Killing process $PID for $blat_multi"
   kill "$PID"
 fi
+
+# Kill parallel
+killall -TERM perl
 
 # Find the process ID (PID) of the script
 PID=$(pgrep -f "$automatic_typing")
