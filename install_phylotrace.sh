@@ -31,6 +31,9 @@ else
 fi
 EOF
 
+# Install visNetwork modification
+Rscript -e "remotes::install_github('fpaskali/visNetwork')"
+
 # Setting up the Desktop Icon
 mkdir -p $HOME/.local/share/applications
 mkdir -p $HOME/.local/share/icons/hicolor/scalable/apps

@@ -5,6 +5,7 @@ channels:
   - defaults
 dependencies:
   - r-base=4.3.2
+  - r-remotes=2.5.0
   - kma=1.4.14
   - parallel=20240522
   - pblat=2.5.1
