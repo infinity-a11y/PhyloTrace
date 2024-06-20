@@ -2,6 +2,9 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 CONDA_PATH=$( conda info --base )/bin/conda
 
+eval "$($CONDA_PATH shell.bash hook)"
+conda activate PhyloTrace
+
 # Generate PhyloTrace Desktop Entry
 cat > PhyloTrace.desktop << EOF
 [Desktop Entry]
