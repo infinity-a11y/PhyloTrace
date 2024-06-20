@@ -469,6 +469,10 @@ border-color: white;
   margin-left: 3px;
 }
 
+#maindivtree_mst, #graphtree_mst {
+  border-radius: 10px;
+}
+
 button#create_tree {
 position: relative;
 overflow: hidden;
@@ -687,11 +691,30 @@ button#mst_col_map_menu {
   bottom: -1px
 }
 
-#tree_mst, #titletree_mst {
+#tree_mst {
   border-radius: 10px;
 }
 
+#titletree_mst {
+  border-radius: 10px;
+  margin-bottom: 10px;
+  margin-left: 100px;
+  text-align: left !important;
+}
+
+#subtitletree_mst {
+  margin-bottom: 10px;
+  margin-left: 100px;
+  text-align: left !important;
+}
+
 #footertree_mst {
+  border-radius: 10px;
+  position: relative;
+  top: -10px;
+}
+
+#legendtree_mst {
   border-radius: 10px;
   position: relative;
   top: -10px;

@@ -32,7 +32,7 @@ fi
 EOF
 
 # Install visNetwork modification
-Rscript -e "remotes::install_github('fpaskali/visNetwork')"
+Rscript -e "remotes::install_github('fpaskali/visNetwork', force = TRUE)"
 
 # Setting up the Desktop Icon
 mkdir -p $HOME/.local/share/applications

@@ -858,7 +858,7 @@ ui <- dashboardPage(
                                 numericInput(
                                   "mst_title_size",
                                   label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                                  value = 30,
+                                  value = 40,
                                   min = 15,
                                   max = 40,
                                   step = 1,
@@ -918,7 +918,7 @@ ui <- dashboardPage(
                                 numericInput(
                                   "mst_subtitle_size",
                                   label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                                  value = 30,
+                                  value = 20,
                                   min = 15,
                                   max = 40,
                                   step = 1,
@@ -15796,29 +15796,39 @@ server <- function(input, output, session) {
                             };
                         }")
     
+    Typing$var_cols <- NULL
+    
     # Generate pie charts as nodes
     if(input$mst_color_var == TRUE & (!is.null(input$mst_col_var))) {
       
-      group <- character(nrow(data$nodes))
-      for (i in 1:length(unique(DB$meta_true[[input$mst_col_var]]))) {
-        group[i] <- unique(DB$meta_true[[input$mst_col_var]])[i]
-      }
+      # nodes <<- data$nodes
+      # var1 <<- DB$meta_true[[input$mst_col_var]]
+      # 
+      # if(length(unique(DB$meta_true[[input$mst_col_var]])) > nrow(data$nodes)) {
+      #   for(i in 1:(length(unique(DB$meta_true[[input$mst_col_var]])) - nrow(data$nodes))) {
+      #     data$nodes <- add_row(data$nodes)
+      #   }
+      # }
+      # 
+      # group <- character()
+      # for (i in 1:length(unique(DB$meta_true[[input$mst_col_var]]))) {
+      #   group[i] <- unique(DB$meta_true[[input$mst_col_var]])[i]
+      # }
       
-      data$nodes <- cbind(data$nodes, data.frame(metadata = character(nrow(data$nodes)),
-                                                 group = group))
+      data$nodes <- cbind(data$nodes, data.frame(metadata = character(nrow(data$nodes))))
       
-      if(length(which(data$nodes$group == "")) != 0) {
-        data$nodes$group[which(data$nodes$group == "")] <- data$nodes$group[1]
-      }
+      #if(length(which(data$nodes$group == "")) != 0) {
+      #  data$nodes$group[which(data$nodes$group == "")] <- data$nodes$group[1]
+      #}
       
       if(is.null(input$mst_col_scale)) {
-        var_cols <- data.frame(value = unique(DB$meta_true[[input$mst_col_var]]),
+        Typing$var_cols <- data.frame(value = unique(DB$meta_true[[input$mst_col_var]]),
                                color = viridis(length(unique(DB$meta_true[[input$mst_col_var]]))))
       } else if (input$mst_col_scale == "Rainbow") {
-        var_cols <- data.frame(value = unique(DB$meta_true[[input$mst_col_var]]),
+        Typing$var_cols <- data.frame(value = unique(DB$meta_true[[input$mst_col_var]]),
                                color = rainbow(length(unique(DB$meta_true[[input$mst_col_var]]))))
       } else if (input$mst_col_scale == "Viridis") {
-        var_cols <- data.frame(value = unique(DB$meta_true[[input$mst_col_var]]),
+        Typing$var_cols <- data.frame(value = unique(DB$meta_true[[input$mst_col_var]]),
                                color = viridis(length(unique(DB$meta_true[[input$mst_col_var]]))))
       }
       
@@ -15831,7 +15841,7 @@ server <- function(input, output, session) {
         for(j in 1:length(unique(values))) {
           
           share <- sum(unique(values)[j] == values) / length(values) * 100
-          color <- var_cols$color[var_cols$value == unique(values)[j]]
+          color <- Typing$var_cols$color[Typing$var_cols$value == unique(values)[j]]
           
           if(j == 1) {
             pie_vec <- paste0('{"value":', share,',"color":"', color,'"}')
@@ -15856,8 +15866,7 @@ server <- function(input, output, session) {
     visNetwork(data$nodes, data$edges, 
                main = mst_title(),
                background = mst_background_color(),
-               submain = mst_subtitle(),
-               footer = mst_footer()) %>%
+               submain = mst_subtitle()) %>%
       visNodes(size = mst_node_size(), 
                shape = input$mst_node_shape,
                shadow = input$mst_shadow,
@@ -15874,13 +15883,34 @@ server <- function(input, output, session) {
       visOptions(collapse = TRUE) %>%
       visInteraction(hover = TRUE) %>%
       visLayout(randomSeed = 1) %>%
-      visGroups(groupname = "A", color = "red") %>%
-      visGroups(groupname = "B", color = "lightblue") %>%
       visLegend(useGroups = FALSE, 
-                main = list(text = "Legend"),
-                addNodes = data.frame(label = c("test", "AAA"), 
-                                      color = c("green", "black"), 
-                                      shape = "dot"))
+                zoom = FALSE,
+                position = "left",
+                ncol = legend_col(),
+                addNodes = mst_legend())
+  })
+  
+  # MST legend
+  legend_col <- reactive({
+    if(!is.null(Typing$var_cols)) {
+      if(nrow(Typing$var_cols) > 10) {
+        3
+      } else if(nrow(Typing$var_cols) > 5) {
+        2
+      } else {
+        1
+      }
+    } else {1}
+  })
+  
+  mst_legend <- reactive({
+    if(is.null(Typing$var_cols)) {
+      NULL
+    } else {
+      legend <- Typing$var_cols
+      names(legend)[1] <- "label"
+      mutate(legend, shape = "dot")
+    }
   })
   
   # Set MST node shape
@@ -19692,11 +19722,15 @@ server <- function(input, output, session) {
         } else {
           
           output$mst_field <- renderUI({
-            addSpinner(
-              visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px")),
-              spin = "dots",
-              color = "#ffffff"
-            )
+            if(input$mst_background_transparent == TRUE) {
+              visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px"))
+            } else {
+              addSpinner(
+                visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px")),
+                spin = "dots",
+                color = "#ffffff"
+              )
+            }
           })
           
           if(nrow(DB$meta_true) > 100) {
