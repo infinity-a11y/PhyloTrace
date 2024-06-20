@@ -188,14 +188,14 @@ bash run_phylotrace.sh
 ## 4 Roadmap
 PhyloTrace is under active development with new functions, enhancements and innovations to follow. In addition to the points listed on the roadmap, we constantly improve existing features.
 
-- [X] ***"Hello World!"*** - Completion Version 1.0.0
-- [ ] Hash-Based Variant Calling
-- [ ] Support for additional cgMLST scheme databases (e.g. pubMLST, EnteroBase, Institut Pasteur)
+- [X] ***"Hello World!"*** - Version 1.0.0
+- [X] More sophisticated MST Graphs (e.g. Pie Charts as Nodes)
+- [ ] Hash-based Decentralized cgMLST
 - [ ] MST Graph Clustering
+- [ ] Support for additional cgMLST scheme databases (e.g. pubMLST, EnteroBase, Institut Pasteur)
+- [ ] Implementation of a NGS Assembly Pipeline
 - [ ] Backwards Compatibility with MLST (ST calling)
 - [ ] Compatibility with Microsoft Windows
 - [ ] Implementation of wgMLST
-- [ ] More sophisticated MST Graphs (e.g. Clustering & Pie Charts as Nodes)
-- [ ] Implementation of a NGS Assembly Pipeline
-- [ ] Validation of PhyloTrace for Clinical Use
 - [ ] Implementation of a Gene Enrichment Analysis
+- [ ] Validation of PhyloTrace for Clinical Use
