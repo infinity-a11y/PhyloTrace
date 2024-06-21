@@ -15857,7 +15857,7 @@ server <- function(input, output, session) {
         group[i] <- unique(DB$meta_true[[input$mst_col_var]])[i]
       }
       
-      data$nodes <- cbind(nodes, data.frame(metadata = character(nrow(data$nodes))))
+      data$nodes <- cbind(data$nodes, data.frame(metadata = character(nrow(data$nodes))))
       
       if(length(which(data$nodes$group == "")) != 0) {
         data$nodes$group[which(data$nodes$group == "")] <- data$nodes$group[1]
