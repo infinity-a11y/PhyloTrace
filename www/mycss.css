@@ -734,7 +734,7 @@ button#mst_col_map_menu {
 
 .slider_edge {
   margin-top: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 13px;
   width: 80%;
   margin-left: -20px;
 }
@@ -805,6 +805,7 @@ button#mst_col_map_menu {
   margin-left: 10px;
   margin-top: 10px;
   margin-block: -2px;
+  margin-bottom: 14px;
 }
 
 .mat-switch-align {
@@ -1203,7 +1204,8 @@ button#nj_clade_menu, button#upgma_clade_menu {
   background: #20E6E5; 
   color: #000000; 
   margin-top: 19px; 
-  border-radius: 5px
+  border-radius: 5px;
+  margin-bottom: 12px;
 }
 
 button#nj_tile_menu, button#nj_tile_menu_2, button#nj_tile_menu_3, 

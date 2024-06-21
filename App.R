@@ -941,21 +941,15 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p("Footer"), style = "color:white; position: relative; right: -15px"),
+                        h4(p("Legend"), style = "color:white; position: relative; right: -15px"),
                         column(
                           width = 12,
                           align = "center",
-                          textInput(
-                            "mst_footer",
-                            label = "",
-                            width = "100%",
-                            placeholder = "Plot Footer"
-                          ),
                           fluidRow(
                             column(
                               width = 7,
                               colorPickr(
-                                inputId = "mst_footer_color",
+                                inputId = "mst_legend_color",
                                 selected = "#000000",
                                 label = "",
                                 update = "changestop",
@@ -969,7 +963,7 @@ ui <- dashboardPage(
                               width = 5,
                               dropMenu(
                                 actionBttn(
-                                  "mst_footer_menu",
+                                  "mst_legend_menu",
                                   label = "",
                                   color = "default",
                                   size = "sm",
@@ -978,15 +972,50 @@ ui <- dashboardPage(
                                 ),
                                 placement = "top-start",
                                 theme = "translucent",
-                                numericInput(
-                                  "mst_footer_size",
-                                  label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                                  value = 15,
-                                  min = 10,
-                                  max = 30,
-                                  step = 1,
-                                  width = "80px"
+                                fluidRow(
+                                  column(
+                                    width = 11,
+                                    sliderInput(
+                                      "mst_font_size",
+                                      label = h5("Font Size", style = "color:white; margin-bottom: 0px;"),
+                                      value = 18,
+                                      min = 15,
+                                      max = 30,
+                                      step = 1,
+                                      ticks = FALSE,
+                                      width = "180px"
+                                    )
+                                  ),
+                                  column(1)
+                                ),
+                                br(),
+                                fluidRow(
+                                  column(
+                                    width = 11,
+                                    sliderInput(
+                                      "mst_symbol_size",
+                                      label = h5("Key Size", style = "color:white; margin-bottom: 0px;"),
+                                      value = 20,
+                                      min = 10,
+                                      max = 30,
+                                      step = 1,
+                                      ticks = FALSE,
+                                      width = "180px"
+                                    )
+                                  ),
+                                  column(1)
                                 )
+                              )
+                            )
+                          ),
+                          fluidRow(
+                            column(
+                              width = 7,
+                              selectInput(
+                                "mst_legend_ori",
+                                label = "",
+                                width = "100%",
+                                choices = c("Left" = "left", "Right" = "right")
                               )
                             )
                           ),
@@ -2846,7 +2875,7 @@ ui <- dashboardPage(
                       fluidRow(
                         column(
                           width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 54px")
+                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 68px")
                         ),
                         column(
                           width = 7,
@@ -4775,7 +4804,7 @@ ui <- dashboardPage(
                       fluidRow(
                         column(
                           width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 54px")
+                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 68px")
                         ),
                         column(
                           width = 7,
@@ -15711,13 +15740,15 @@ server <- function(input, output, session) {
   observeEvent(input$mst_color_var, {
     if(input$mst_color_var == TRUE) {
       updateSelectizeInput(session, inputId = "mst_node_shape", choices = c("Pie Nodes" = "custom"))
-      bslib::update_tooltip(id = "mst_node_col_info", show = TRUE)
+      updateSelectizeInput(session, inputId = "mst_node_label", choices = c("Assembly Name"))
     } else {
       updateSelectizeInput(session, inputId = "mst_node_shape", 
                            choices = list(`Label inside` = c("Circle" = "circle", "Box" = "box", "Text" = "text"),
                                           `Label outside` = c("Diamond" = "diamond", "Hexagon" = "hexagon","Dot" = "dot", "Square" = "square")),
                            selected = c("Dot" = "dot"))
-      bslib::update_tooltip(id = "mst_node_col_info", show = FALSE)
+      updateSelectizeInput(session, inputId = "mst_node_label",
+                           choices = names(DB$meta)[c(1, 3, 4, 6, 7, 8, 9)],
+                           selected = "Assembly Name")
     }
   })
   
@@ -15726,7 +15757,7 @@ server <- function(input, output, session) {
     selectInput(
       "mst_node_label",
       label = "",
-      choices = names(DB$meta)[-c(2, 5, 10, 11, 12)],
+      choices = names(DB$meta)[c(1, 3, 4, 6, 7, 8, 9)],
       selected = "Assembly Name",
       width = "100%"
     )
@@ -15819,16 +15850,12 @@ server <- function(input, output, session) {
     # Generate pie charts as nodes
     if(input$mst_color_var == TRUE & (!is.null(input$mst_col_var))) {
       
-      nodes <<- data$nodes
-      var1 <<- DB$meta_true[[input$mst_col_var]]
-      
-      group <- character(nrow(nodes))
-      for (i in 1:length(unique(var1))) {
-        group[i] <- unique(var1)[i]
+      group <- character(nrow(data$nodes))
+      for (i in 1:length(unique(DB$meta_true[[input$mst_col_var]]))) {
+        group[i] <- unique(DB$meta_true[[input$mst_col_var]])[i]
       }
       
-      data$nodes <- cbind(nodes, data.frame(metadata = character(nrow(nodes)),
-                                                 group = group))
+      data$nodes <- cbind(nodes, data.frame(metadata = character(nrow(data$nodes))))
       
       if(length(which(data$nodes$group == "")) != 0) {
         data$nodes$group[which(data$nodes$group == "")] <- data$nodes$group[1]
@@ -15898,7 +15925,7 @@ server <- function(input, output, session) {
       visLayout(randomSeed = 1) %>%
       visLegend(useGroups = FALSE, 
                 zoom = FALSE,
-                position = "left",
+                position = input$mst_legend_ori,
                 ncol = legend_col(),
                 addNodes = mst_legend())
   })
@@ -15906,10 +15933,10 @@ server <- function(input, output, session) {
   # MST legend
   legend_col <- reactive({
     if(!is.null(Typing$var_cols)) {
-      if(nrow(Typing$var_cols) > 5) {
-        2
-      } else if(nrow(Typing$var_cols) > 10) {
+      if(nrow(Typing$var_cols) > 10) {
         3
+      } else if(nrow(Typing$var_cols) > 5) {
+        2
       } else {
         1
       }
@@ -15922,7 +15949,10 @@ server <- function(input, output, session) {
     } else {
       legend <- Typing$var_cols
       names(legend)[1] <- "label"
-      mutate(legend, shape = "dot")
+      mutate(legend, shape = "dot",
+             font.color = input$mst_legend_color,
+             size = input$mst_symbol_size,
+             font.size = input$mst_font_size)
     }
   })
   
@@ -16026,37 +16056,6 @@ server <- function(input, output, session) {
            "font-size: ", as.character(input$mst_subtitle_size), "px", 
            "; color: ", as.character(input$mst_subtitle_color))
     )
-  })
-  
-  # Set Footer
-  mst_footer <- reactive({
-    if(!is.null(input$mst_footer)) {
-      if(nchar(input$mst_footer) < 1) {
-        list(text = "footer",
-             style = paste0(
-               "font-family:Georgia, Times New Roman, Times, serif;",
-               "text-align:center;",
-               "font-size: ", as.character(input$mst_footer_size), "px", 
-               "; color: ", as.character(mst_background_color()))
-        )
-      } else {
-        list(text = input$mst_footer,
-             style = paste0(
-               "font-family:Georgia, Times New Roman, Times, serif;",
-               "text-align:center;",
-               "font-size: ", as.character(input$mst_footer_size), "px", 
-               "; color: ", as.character(input$mst_footer_color))
-        )
-      }
-    } else {
-      list(text = "footer",
-           style = paste0(
-             "font-family:Georgia, Times New Roman, Times, serif;",
-             "text-align:center;",
-             "font-size: ", as.character(input$mst_footer_size), "px", 
-             "; color: ", as.character(mst_background_color()))
-      )
-    }
   })
   
   # Background color
