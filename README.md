@@ -21,7 +21,7 @@ We want to make cgMLST analysis and genomic pathogen monitoring accessible to a 
 
 <sup><sup> Developed in collaboration with Hochschule Furtwangen University (HFU) and Medical University of Graz (MUG). Featured on ShinyConf 2024. </sup> </sup>
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11121153.svg)](https://doi.org/10.5281/zenodo.11121153)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12205782.svg)](https://doi.org/10.5281/zenodo.12205782)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)
 
