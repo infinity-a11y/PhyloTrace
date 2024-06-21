@@ -412,7 +412,7 @@ button#edit_button.btn.btn-default.action-button.shiny-bound-input {
   border-color: white;
 }
 
-#logText {
+#logText, #logTextFull {
   margin-top: 5px;
 }
 
@@ -467,6 +467,10 @@ border-color: white;
 .switch-mst-edges {
   margin-top: 10px;
   margin-left: 3px;
+}
+
+#maindivtree_mst, #graphtree_mst {
+  border-radius: 10px;
 }
 
 button#create_tree {
@@ -539,7 +543,8 @@ button#mst_node_menu {
   background: #20E6E5; 
   color: #000000; 
   border-radius: 5px; 
-  margin-top: 3px;
+  margin-top: 10px;
+  margin-bottom: -1px;
 }
 
 button#mst_edge_menu {
@@ -581,7 +586,7 @@ button#mst_subtitle_menu {
   border-radius: 5px
 }
 
-button#mst_footer_menu {
+button#mst_legend_menu {
   height: 34px; 
   background: #20E6E5; 
   color: #000000; 
@@ -597,8 +602,47 @@ button#mst_label_menu {
   border-radius: 5px
 }
 
+button#mst_col_menu {
+  height: 34px;
+  background: #20E6E5;
+  color: #000000;
+  margin-top: 11px;
+  margin-bottom: -2px;
+  border-radius: 5px;
+}
+
+button#mst_col_map_menu {
+  height: 34px;
+  background: #20E6E5;
+  color: #000000;
+  margin-top: 10px;
+  margin-left: -10px;
+  border-radius: 5px;
+  margin-bottom: -1px;
+}
+
+.mst_col_sel {
+  margin-top: -10px;
+  margin-bottom: -1px;
+}
+
+.mst_shape_sel {
+  margin-top: -10px;
+  margin-bottom: 19px;
+}
+
+.mst_scale_slider {
+  margin-bottom: -12px;
+  margin-top: -10px;
+}
+
 #mst_color_node {
-  margin-top: -17px
+  margin-top: -10px;
+  margin-bottom: -1px;
+}
+
+#mst_background_color {
+  margin-top: -10px;
 }
 
 #mst_shadow {
@@ -607,7 +651,8 @@ button#mst_label_menu {
 }
 
 #mst_edge_font_color {
-  margin-top: 17px
+  margin-top: 17px;
+  margin-bottom: 17px;
 }
 
 #mst_date_general_select .form-control {
@@ -646,11 +691,30 @@ button#mst_label_menu {
   bottom: -1px
 }
 
-#tree_mst, #titletree_mst {
+#tree_mst {
   border-radius: 10px;
 }
 
+#titletree_mst {
+  border-radius: 10px;
+  margin-bottom: 10px;
+  margin-left: 100px;
+  text-align: left !important;
+}
+
+#subtitletree_mst {
+  margin-bottom: 10px;
+  margin-left: 100px;
+  text-align: left !important;
+}
+
 #footertree_mst {
+  border-radius: 10px;
+  position: relative;
+  top: -10px;
+}
+
+#legendtree_mst {
   border-radius: 10px;
   position: relative;
   top: -10px;
@@ -669,9 +733,10 @@ button#mst_label_menu {
 }
 
 .slider_edge {
-  margin-top: 20px;
-  margin-bottom: -4px;
-  width: 50%;
+  margin-top: 10px;
+  margin-bottom: 13px;
+  width: 80%;
+  margin-left: -20px;
 }
 
 .sel-clade {
@@ -740,6 +805,7 @@ button#mst_label_menu {
   margin-left: 10px;
   margin-top: 10px;
   margin-block: -2px;
+  margin-bottom: 14px;
 }
 
 .mat-switch-align {
@@ -1138,7 +1204,8 @@ button#nj_clade_menu, button#upgma_clade_menu {
   background: #20E6E5; 
   color: #000000; 
   margin-top: 19px; 
-  border-radius: 5px
+  border-radius: 5px;
+  margin-bottom: 12px;
 }
 
 button#nj_tile_menu, button#nj_tile_menu_2, button#nj_tile_menu_3, 

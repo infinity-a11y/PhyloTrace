@@ -10,83 +10,87 @@ function getCurrentDate() {
   return year + '-' + month + '-' + day; // Formats the date as "YYYY-MM-DD"
 };
 
+// Get time
+function updateTime() {
+        var options = {
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+          timeZoneName: 'short'
+        };
+        var currentTime = new Date().toLocaleTimeString([], options);
+        document.getElementById('currentTime').innerHTML = currentTime;
+      }
+      setInterval(updateTime, 1000);
+      updateTime(); // Initial call to set the time immediately on load
+
 // MST jpeg download
 $(document).on('click', '#save_plot_jpeg', function() {
   
-  // Get all canvas elements on the document
-  var canvas = document.querySelector('canvas');
-  
-  // Assuming the canvases are ordered as title, subtitle, main, and footer
-  var titleCanvasID = document.getElementById('titletree_mst');
-  if(!(titleCanvasID.innerText.length === 0)) {
-      var titleCanvas = document.createElement('canvas');
-      var titleCanvasHeight = titleCanvasID.offsetHeight;
-      titleCanvas.width = canvas.width;
-      titleCanvas.height = titleCanvasHeight;
-      
-      // Draw title text on titleCanvas
-      var titleCtx = titleCanvas.getContext('2d');
-      titleCtx.font = window.getComputedStyle(titleCanvasID).getPropertyValue('font');
-      titleCtx.textAlign = window.getComputedStyle(titleCanvasID).getPropertyValue('text-align');
-      titleCtx.fillStyle = window.getComputedStyle(titleCanvasID).getPropertyValue('color');
-      titleCtx.fillText(titleCanvasID.innerText, titleCanvas.width / 2, titleCanvasHeight); 
-  } else {var titleCanvasHeight = 0;}
-  var subtitleCanvasID = document.getElementById('subtitletree_mst');
-  if(!(subtitleCanvasID.innerText.length === 0)) {
-      var subtitleCanvas = document.createElement('canvas');
-      var subtitleCanvasHeight = subtitleCanvasID.offsetHeight;
-      subtitleCanvas.width = canvas.width;
-      subtitleCanvas.height = subtitleCanvasHeight;
-      
-      // Draw subtitle text on subtitleCanvas
-      var subtitleCtx = subtitleCanvas.getContext('2d');
-      subtitleCtx.font = window.getComputedStyle(subtitleCanvasID).getPropertyValue('font');
-      subtitleCtx.textAlign = window.getComputedStyle(subtitleCanvasID).getPropertyValue('text-align');
-      subtitleCtx.fillStyle = window.getComputedStyle(subtitleCanvasID).getPropertyValue('color');
-      subtitleCtx.fillText(subtitleCanvasID.innerText, subtitleCanvas.width / 2, subtitleCanvasHeight);
-  } else {var subtitleCanvasHeight = 0;}
-  var footerCanvasID = document.getElementById('footertree_mst');
-  if(!(footerCanvasID.innerText.length === 0)) {
-      var footerCanvas = document.createElement('canvas');
-      var footerCanvasHeight = footerCanvasID.offsetHeight;
-      footerCanvas.width = canvas.width;
-      footerCanvas.height = footerCanvasHeight;
-      
-      // Draw footer text on footerCanvas
-      var footerCtx = footerCanvas.getContext('2d');
-      footerCtx.font = window.getComputedStyle(footerCanvasID).getPropertyValue('font');
-      footerCtx.textAlign = window.getComputedStyle(footerCanvasID).getPropertyValue('text-align');
-      footerCtx.fillStyle = window.getComputedStyle(footerCanvasID).getPropertyValue('color');
-      footerCtx.fillText(footerCanvasID.innerText, footerCanvas.width / 2, footerCanvasHeight); 
-  } else {var footerCanvasHeight = 0;}
-  
-  // Get the heights of the canvas
-  var mainCanvasHeight = canvas.height;
+  var canvases = document.querySelectorAll('canvas');
 
-  // Get the main canvas context
-  var mainCtx = canvas.getContext('2d');
-  var mainCanvasWidth = canvas.width;
-  
-  // Create a new canvas to merge title, subtitle, main plot, and footer
-  var mergedCanvas = document.createElement('canvas');
-  mergedCanvas.width = canvas.width;
-  mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight + footerCanvasHeight;
+var legendCanvas = canvases[0];
+var plotCanvas = canvases[1];
 
-  var ctx = mergedCanvas.getContext('2d');
+// Assuming the canvases are ordered as title, subtitle, main, and footer
+var titleCanvasID = document.getElementById('titletree_mst');
+if(!(titleCanvasID.innerText.length === 0)) {
+  var titleCanvas = document.createElement('canvas');
+  var titleCanvasHeight = titleCanvasID.offsetHeight;
+  titleCanvas.width = legendCanvas.width + plotCanvas.width;
+  titleCanvas.height = titleCanvasHeight;
   
-  // Draw title, subtitle, main plot, and footer onto the merged canvas
-  ctx.fillStyle = getBackgroundColor();
-  ctx.fillRect(0, 0, canvas.width, mergedCanvas.height);
-  if(!(titleCanvasID.innerText.length === 0)) {
-      ctx.drawImage(titleCanvas, 0, 0);
-  }
-  if(!(subtitleCanvasID.innerText.length === 0)) {
-      ctx.drawImage(subtitleCanvas, 0, titleCanvasHeight);
-  }
-  ctx.drawImage(canvas, 0, titleCanvasHeight + subtitleCanvasHeight);
-  if(!(footerCanvasID.innerText.length === 0)) {
-      ctx.drawImage(footerCanvas, 0, titleCanvasHeight + subtitleCanvasHeight + mainCanvasHeight - footerCanvasHeight);
-  }
+  // Draw title text on titleCanvas
+  var titleCtx = titleCanvas.getContext('2d');
+  titleCtx.font = window.getComputedStyle(titleCanvasID).getPropertyValue('font');
+  titleCtx.textAlign = window.getComputedStyle(titleCanvasID).getPropertyValue('left');
+  titleCtx.fillStyle = window.getComputedStyle(titleCanvasID).getPropertyValue('color');
+  titleCtx.fillText(titleCanvasID.innerText, titleCanvas.width / 20, titleCanvasHeight / 1.5); 
+} else {var titleCanvasHeight = 0;}
+
+var subtitleCanvasID = document.getElementById('subtitletree_mst');
+if(!(subtitleCanvasID.innerText.length === 0)) {
+  var subtitleCanvas = document.createElement('canvas');
+  var subtitleCanvasHeight = subtitleCanvasID.offsetHeight;
+  subtitleCanvas.width = legendCanvas.width + plotCanvas.width;
+  subtitleCanvas.height = subtitleCanvasHeight;
+  
+  // Draw subtitle text on subtitleCanvas
+  var subtitleCtx = subtitleCanvas.getContext('2d');
+  subtitleCtx.font = window.getComputedStyle(subtitleCanvasID).getPropertyValue('font');
+  subtitleCtx.textAlign = window.getComputedStyle(subtitleCanvasID).getPropertyValue('text-align');
+  subtitleCtx.fillStyle = window.getComputedStyle(subtitleCanvasID).getPropertyValue('color');
+  subtitleCtx.fillText(subtitleCanvasID.innerText, subtitleCanvas.width / 20, subtitleCanvasHeight / 1.5);
+} else {var subtitleCanvasHeight = 0;}  
+
+// Get the heights of the canvas
+var mainCanvasHeight = plotCanvas.height;
+
+// Create a new canvas to merge title, subtitle, main plot, and footer
+var mergedCanvas = document.createElement('canvas');
+mergedCanvas.width = legendCanvas.width + plotCanvas.width;
+mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
+var ctx = mergedCanvas.getContext('2d');
+
+// Draw background
+ctx.fillStyle = getBackgroundColorClear();
+ctx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height);
+
+// Draw title
+if (titleCanvasID && titleCanvasID.innerText.length !== 0) {
+  ctx.drawImage(titleCanvas, 0, 0);
+}
+
+// Draw subtitle
+if (subtitleCanvasID && subtitleCanvasID.innerText.length !== 0) {
+  ctx.drawImage(subtitleCanvas, 0, titleCanvasHeight);
+}
+
+// Draw legend and plot canvases side by side
+ctx.drawImage(legendCanvas, 0, titleCanvasHeight + subtitleCanvasHeight);
+ctx.drawImage(plotCanvas, legendCanvas.width, titleCanvasHeight + subtitleCanvasHeight);
 
   // Download the merged canvas as a JPEG image
   const a = document.createElement('a');
@@ -103,81 +107,70 @@ $(document).on('click', '#save_plot_jpeg', function() {
 // MST png Download
 $(document).on('click', '#save_plot_png', function() {
   
-    // Get all canvas elements on the document
-    var canvas = document.querySelector('canvas');
+    var canvases = document.querySelectorAll('canvas');
+    
+    var legendCanvas = canvases[0];
+    var plotCanvas = canvases[1];
     
     // Assuming the canvases are ordered as title, subtitle, main, and footer
     var titleCanvasID = document.getElementById('titletree_mst');
-    if(!(titleCanvasID.innerText.length === 0)) {
-        var titleCanvas = document.createElement('canvas');
-        var titleCanvasHeight = titleCanvasID.offsetHeight;
-        titleCanvas.width = canvas.width;
-        titleCanvas.height = titleCanvasHeight;
-        
-        // Draw title text on titleCanvas
-        var titleCtx = titleCanvas.getContext('2d');
-        titleCtx.font = window.getComputedStyle(titleCanvasID).getPropertyValue('font');
-        titleCtx.textAlign = window.getComputedStyle(titleCanvasID).getPropertyValue('text-align');
-        titleCtx.fillStyle = window.getComputedStyle(titleCanvasID).getPropertyValue('color');
-        titleCtx.fillText(titleCanvasID.innerText, titleCanvas.width / 2, titleCanvasHeight); 
-    } else {var titleCanvasHeight = 0;}
-    var subtitleCanvasID = document.getElementById('subtitletree_mst');
-    if(!(subtitleCanvasID.innerText.length === 0)) {
-        var subtitleCanvas = document.createElement('canvas');
-        var subtitleCanvasHeight = subtitleCanvasID.offsetHeight;
-        subtitleCanvas.width = canvas.width;
-        subtitleCanvas.height = subtitleCanvasHeight;
-        
-        // Draw subtitle text on subtitleCanvas
-        var subtitleCtx = subtitleCanvas.getContext('2d');
-        subtitleCtx.font = window.getComputedStyle(subtitleCanvasID).getPropertyValue('font');
-        subtitleCtx.textAlign = window.getComputedStyle(subtitleCanvasID).getPropertyValue('text-align');
-        subtitleCtx.fillStyle = window.getComputedStyle(subtitleCanvasID).getPropertyValue('color');
-        subtitleCtx.fillText(subtitleCanvasID.innerText, subtitleCanvas.width / 2, subtitleCanvasHeight);
-    } else {var subtitleCanvasHeight = 0;}
-    var footerCanvasID = document.getElementById('footertree_mst');
-    if(!(footerCanvasID.innerText.length === 0)) {
-        var footerCanvas = document.createElement('canvas');
-        var footerCanvasHeight = footerCanvasID.offsetHeight;
-        footerCanvas.width = canvas.width;
-        footerCanvas.height = footerCanvasHeight;
-        
-        // Draw footer text on footerCanvas
-        var footerCtx = footerCanvas.getContext('2d');
-        footerCtx.font = window.getComputedStyle(footerCanvasID).getPropertyValue('font');
-        footerCtx.textAlign = window.getComputedStyle(footerCanvasID).getPropertyValue('text-align');
-        footerCtx.fillStyle = window.getComputedStyle(footerCanvasID).getPropertyValue('color');
-        footerCtx.fillText(footerCanvasID.innerText, footerCanvas.width / 2, footerCanvasHeight); 
-    } else {var footerCanvasHeight = 0;}
+      if(!(titleCanvasID.innerText.length === 0)) {
+          var titleCanvas = document.createElement('canvas');
+          var titleCanvasHeight = titleCanvasID.offsetHeight;
+          titleCanvas.width = legendCanvas.width + plotCanvas.width;
+          titleCanvas.height = titleCanvasHeight;
+          
+          // Draw title text on titleCanvas
+          var titleCtx = titleCanvas.getContext('2d');
+          titleCtx.font = window.getComputedStyle(titleCanvasID).getPropertyValue('font');
+          titleCtx.textAlign = window.getComputedStyle(titleCanvasID).getPropertyValue('left');
+          titleCtx.fillStyle = window.getComputedStyle(titleCanvasID).getPropertyValue('color');
+          titleCtx.fillText(titleCanvasID.innerText, titleCanvas.width / 20, titleCanvasHeight / 1.5); 
+      } else {var titleCanvasHeight = 0;}
+      
+      var subtitleCanvasID = document.getElementById('subtitletree_mst');
+      if(!(subtitleCanvasID.innerText.length === 0)) {
+          var subtitleCanvas = document.createElement('canvas');
+          var subtitleCanvasHeight = subtitleCanvasID.offsetHeight;
+          subtitleCanvas.width = legendCanvas.width + plotCanvas.width;
+          subtitleCanvas.height = subtitleCanvasHeight;
+          
+          // Draw subtitle text on subtitleCanvas
+          var subtitleCtx = subtitleCanvas.getContext('2d');
+          subtitleCtx.font = window.getComputedStyle(subtitleCanvasID).getPropertyValue('font');
+          subtitleCtx.textAlign = window.getComputedStyle(subtitleCanvasID).getPropertyValue('text-align');
+          subtitleCtx.fillStyle = window.getComputedStyle(subtitleCanvasID).getPropertyValue('color');
+          subtitleCtx.fillText(subtitleCanvasID.innerText, subtitleCanvas.width / 20, subtitleCanvasHeight / 1.5);
+      } else {var subtitleCanvasHeight = 0;}  
     
     // Get the heights of the canvas
-    var mainCanvasHeight = canvas.height;
-    
-    // Get the main canvas context
-    var mainCtx = canvas.getContext('2d');
-    var mainCanvasWidth = canvas.width;
+    var mainCanvasHeight = plotCanvas.height;
     
     // Create a new canvas to merge title, subtitle, main plot, and footer
     var mergedCanvas = document.createElement('canvas');
-    mergedCanvas.width = canvas.width;
-    mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight + footerCanvasHeight;
+    mergedCanvas.width = legendCanvas.width + plotCanvas.width;
+    mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
     var ctx = mergedCanvas.getContext('2d');
     
-    // Draw title, subtitle, main plot, and footer onto the merged canvas
+    // Draw background
     ctx.fillStyle = getBackgroundColorClear();
-    ctx.fillRect(0, 0, canvas.width, mergedCanvas.height);
-    if(!(titleCanvasID.innerText.length === 0)) {
+    ctx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height);
+    
+    // Draw title
+    if (titleCanvasID && titleCanvasID.innerText.length !== 0) {
         ctx.drawImage(titleCanvas, 0, 0);
     }
-    if(!(subtitleCanvasID.innerText.length === 0)) {
+
+    // Draw subtitle
+    if (subtitleCanvasID && subtitleCanvasID.innerText.length !== 0) {
         ctx.drawImage(subtitleCanvas, 0, titleCanvasHeight);
     }
-    ctx.drawImage(canvas, 0, titleCanvasHeight + subtitleCanvasHeight);
-    if(!(footerCanvasID.innerText.length === 0)) {
-        ctx.drawImage(footerCanvas, 0, titleCanvasHeight + subtitleCanvasHeight + mainCanvasHeight - footerCanvasHeight);
-    }
- 
-    // Download the merged canvas as a JPEG image
+
+    // Draw legend and plot canvases side by side
+    ctx.drawImage(legendCanvas, 0, titleCanvasHeight + subtitleCanvasHeight);
+    ctx.drawImage(plotCanvas, legendCanvas.width, titleCanvasHeight + subtitleCanvasHeight);
+
+    // Download the merged canvas as a PNG image
     const a = document.createElement('a');
     document.body.append(a);
     a.download = getCurrentDate()+'_MST.png';
@@ -193,81 +186,69 @@ $(document).on('click', '#save_plot_png', function() {
 // MST bmp Download
 $(document).on('click', '#save_plot_bmp', function() {
   
-    // Get all canvas elements on the document
-    var canvas = document.querySelector('canvas');
-    
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
-    var titleCanvasID = document.getElementById('titletree_mst');
-    if(!(titleCanvasID.innerText.length === 0)) {
-        var titleCanvas = document.createElement('canvas');
-        var titleCanvasHeight = titleCanvasID.offsetHeight;
-        titleCanvas.width = canvas.width;
-        titleCanvas.height = titleCanvasHeight;
-        
-        // Draw title text on titleCanvas
-        var titleCtx = titleCanvas.getContext('2d');
-        titleCtx.font = window.getComputedStyle(titleCanvasID).getPropertyValue('font');
-        titleCtx.textAlign = window.getComputedStyle(titleCanvasID).getPropertyValue('text-align');
-        titleCtx.fillStyle = window.getComputedStyle(titleCanvasID).getPropertyValue('color');
-        titleCtx.fillText(titleCanvasID.innerText, titleCanvas.width / 2, titleCanvasHeight); 
-    } else {var titleCanvasHeight = 0;}
-    var subtitleCanvasID = document.getElementById('subtitletree_mst');
-    if(!(subtitleCanvasID.innerText.length === 0)) {
-        var subtitleCanvas = document.createElement('canvas');
-        var subtitleCanvasHeight = subtitleCanvasID.offsetHeight;
-        subtitleCanvas.width = canvas.width;
-        subtitleCanvas.height = subtitleCanvasHeight;
-        
-        // Draw subtitle text on subtitleCanvas
-        var subtitleCtx = subtitleCanvas.getContext('2d');
-        subtitleCtx.font = window.getComputedStyle(subtitleCanvasID).getPropertyValue('font');
-        subtitleCtx.textAlign = window.getComputedStyle(subtitleCanvasID).getPropertyValue('text-align');
-        subtitleCtx.fillStyle = window.getComputedStyle(subtitleCanvasID).getPropertyValue('color');
-        subtitleCtx.fillText(subtitleCanvasID.innerText, subtitleCanvas.width / 2, subtitleCanvasHeight);
-    } else {var subtitleCanvasHeight = 0;}
-    var footerCanvasID = document.getElementById('footertree_mst');
-    if(!(footerCanvasID.innerText.length === 0)) {
-        var footerCanvas = document.createElement('canvas');
-        var footerCanvasHeight = footerCanvasID.offsetHeight;
-        footerCanvas.width = canvas.width;
-        footerCanvas.height = footerCanvasHeight;
-        
-        // Draw footer text on footerCanvas
-        var footerCtx = footerCanvas.getContext('2d');
-        footerCtx.font = window.getComputedStyle(footerCanvasID).getPropertyValue('font');
-        footerCtx.textAlign = window.getComputedStyle(footerCanvasID).getPropertyValue('text-align');
-        footerCtx.fillStyle = window.getComputedStyle(footerCanvasID).getPropertyValue('color');
-        footerCtx.fillText(footerCanvasID.innerText, footerCanvas.width / 2, footerCanvasHeight); 
-    } else {var footerCanvasHeight = 0;}
-    
-    // Get the heights of the canvas
-    var mainCanvasHeight = canvas.height;
+var canvases = document.querySelectorAll('canvas');
 
-    // Get the main canvas context
-    var mainCtx = canvas.getContext('2d');
-    var mainCanvasWidth = canvas.width;
-    
-    // Create a new canvas to merge title, subtitle, main plot, and footer
-    var mergedCanvas = document.createElement('canvas');
-    mergedCanvas.width = canvas.width;
-    mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight + footerCanvasHeight;
+var legendCanvas = canvases[0];
+var plotCanvas = canvases[1];
 
-    var ctx = mergedCanvas.getContext('2d');
-    
-    // Draw title, subtitle, main plot, and footer onto the merged canvas
-    ctx.fillStyle = getBackgroundColorClear();
-    ctx.fillRect(0, 0, canvas.width, mergedCanvas.height);
-    if(!(titleCanvasID.innerText.length === 0)) {
-        ctx.drawImage(titleCanvas, 0, 0);
-    }
-    if(!(subtitleCanvasID.innerText.length === 0)) {
-        ctx.drawImage(subtitleCanvas, 0, titleCanvasHeight);
-    }
-    ctx.drawImage(canvas, 0, titleCanvasHeight + subtitleCanvasHeight);
-    if(!(footerCanvasID.innerText.length === 0)) {
-        ctx.drawImage(footerCanvas, 0, titleCanvasHeight + subtitleCanvasHeight + mainCanvasHeight - footerCanvasHeight);
-    }
- 
+// Assuming the canvases are ordered as title, subtitle, main, and footer
+var titleCanvasID = document.getElementById('titletree_mst');
+if(!(titleCanvasID.innerText.length === 0)) {
+  var titleCanvas = document.createElement('canvas');
+  var titleCanvasHeight = titleCanvasID.offsetHeight;
+  titleCanvas.width = legendCanvas.width + plotCanvas.width;
+  titleCanvas.height = titleCanvasHeight;
+  
+  // Draw title text on titleCanvas
+  var titleCtx = titleCanvas.getContext('2d');
+  titleCtx.font = window.getComputedStyle(titleCanvasID).getPropertyValue('font');
+  titleCtx.textAlign = window.getComputedStyle(titleCanvasID).getPropertyValue('left');
+  titleCtx.fillStyle = window.getComputedStyle(titleCanvasID).getPropertyValue('color');
+  titleCtx.fillText(titleCanvasID.innerText, titleCanvas.width / 20, titleCanvasHeight / 1.5); 
+} else {var titleCanvasHeight = 0;}
+
+var subtitleCanvasID = document.getElementById('subtitletree_mst');
+if(!(subtitleCanvasID.innerText.length === 0)) {
+  var subtitleCanvas = document.createElement('canvas');
+  var subtitleCanvasHeight = subtitleCanvasID.offsetHeight;
+  subtitleCanvas.width = legendCanvas.width + plotCanvas.width;
+  subtitleCanvas.height = subtitleCanvasHeight;
+  
+  // Draw subtitle text on subtitleCanvas
+  var subtitleCtx = subtitleCanvas.getContext('2d');
+  subtitleCtx.font = window.getComputedStyle(subtitleCanvasID).getPropertyValue('font');
+  subtitleCtx.textAlign = window.getComputedStyle(subtitleCanvasID).getPropertyValue('text-align');
+  subtitleCtx.fillStyle = window.getComputedStyle(subtitleCanvasID).getPropertyValue('color');
+  subtitleCtx.fillText(subtitleCanvasID.innerText, subtitleCanvas.width / 20, subtitleCanvasHeight / 1.5);
+} else {var subtitleCanvasHeight = 0;}  
+
+// Get the heights of the canvas
+var mainCanvasHeight = plotCanvas.height;
+
+// Create a new canvas to merge title, subtitle, main plot, and footer
+var mergedCanvas = document.createElement('canvas');
+mergedCanvas.width = legendCanvas.width + plotCanvas.width;
+mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
+var ctx = mergedCanvas.getContext('2d');
+
+// Draw background
+ctx.fillStyle = getBackgroundColorClear();
+ctx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height);
+
+// Draw title
+if (titleCanvasID && titleCanvasID.innerText.length !== 0) {
+  ctx.drawImage(titleCanvas, 0, 0);
+}
+
+// Draw subtitle
+if (subtitleCanvasID && subtitleCanvasID.innerText.length !== 0) {
+  ctx.drawImage(subtitleCanvas, 0, titleCanvasHeight);
+}
+
+// Draw legend and plot canvases side by side
+ctx.drawImage(legendCanvas, 0, titleCanvasHeight + subtitleCanvasHeight);
+ctx.drawImage(plotCanvas, legendCanvas.width, titleCanvasHeight + subtitleCanvasHeight);
+
     // Download the merged canvas as a bmp image
     const a = document.createElement('a');
     document.body.append(a);

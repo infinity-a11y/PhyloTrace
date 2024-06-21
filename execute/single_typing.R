@@ -1,7 +1,7 @@
 # Hand over variables
 meta_info <- readRDS("meta_info_single.rds")
 db_path <- readRDS("single_typing_df.rds")[, "db_path"]
-assembly <- paste0(meta_info$db_directory, "/execute/kma_single/assembly.fasta")
+assembly <- paste0(meta_info$db_directory, "/execute/blat_single/assembly.fasta")
 
 source("variant_validation.R")
 
@@ -20,6 +20,11 @@ column_classes <- function(df) {
   })
 }
 
+# Function to log messages to the file
+log_message <- function(log_file, message) {
+  cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "- ", message, "\n", file = log_file, append = TRUE)
+}
+
 # Define start and stop codons
 start_codons <- c("ATG", "GTG", "TTG")
 stop_codons <- c("TAA", "TAG", "TGA")
@@ -31,7 +36,7 @@ allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst
 template <- readLines(assembly)
 
 # List all .psl result files from alignment with BLAT
-psl_files <- list.files(paste0(meta_info$db_directory, "/execute/kma_single/results"), pattern = "\\.psl$", full.names = TRUE)
+psl_files <- list.files(paste0(meta_info$db_directory, "/execute/blat_single/results"), pattern = "\\.psl$", full.names = TRUE)
 
 # Initialize an empty vector to store the results
 allele_vector <- integer(length(psl_files))
@@ -289,51 +294,15 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   # Save new Entry in Typing Database
   saveRDS(Database, paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Typing.rds"))
   
-  user_fb <- paste0(
-    "#!/bin/bash\n",
-    'log_file=', shQuote(paste0(getwd(), "/execute/single_typing_log.txt")), '\n',
-    '# Function to log messages to the file', '\n',
-    'log_message() {', '\n',
-    '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
-    '}', '\n',
-    'log_message ', shQuote(paste0("Successful typing of ", meta_info$assembly_name))
-  )
-  
-  # Specify the path to save the script
-  user_fb_path <- paste0(getwd(), "/execute/user_fb.sh")
-  
-  # Write the script to a file
-  cat(user_fb, file = user_fb_path)
-  
-  # Make the script executable
-  system(paste("chmod +x", user_fb_path))
-  
-  # Execute the script
-  system(paste(user_fb_path), wait = FALSE)
+  # Logging successes
+  log_message(log_file = paste0(getwd(), "/execute/single_typing_log.txt"), 
+              message = paste0("Successful typing of ", meta_info$assembly_name))
   
 } else {
   
   failures <- sum(unname(base::sapply(psl_files, file.size)) <= 100) / length(psl_files) * 100
   
-  user_fb <- paste0(
-    "#!/bin/bash\n",
-    'log_file=', shQuote(paste0(getwd(), "/execute/single_typing_log.txt")), '\n',
-    '# Function to log messages to the file', '\n',
-    'log_message() {', '\n',
-    '    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"', '\n',
-    '}', '\n',
-    'log_message ', shQuote(paste0("Assembly typing of ", meta_info$assembly_name, " failed. ", failures, "% of loci not typed."))
-  )
-  
-  # Specify the path to save the script
-  user_fb_path <- paste0(getwd(), "/execute/user_fb.sh")
-  
-  # Write the script to a file
-  cat(user_fb, file = user_fb_path)
-  
-  # Make the script executable
-  system(paste("chmod +x", user_fb_path))
-  
-  # Execute the script
-  system(paste(user_fb_path), wait = FALSE)
+  # Logging failures
+  log_message(log_file = paste0(getwd(), "/execute/single_typing_log.txt"), 
+              message = paste0("Assembly typing of ", meta_info$assembly_name, " failed. ", failures, "% of loci not typed."))
 }

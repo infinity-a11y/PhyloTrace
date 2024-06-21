@@ -2,7 +2,7 @@
 unset R_HOME
 
 log_file='execute/script_log.txt'
-kma_multi='execute/kma_multi.sh'
+blat_multi='execute/blat_multi.sh'
 automatic_typing='automatic_typing.R'
 
 # Function to log messages to the file
@@ -11,14 +11,17 @@ log_message() {
 }
 
 # Find the process ID (PID) of the script
-PID=$(pgrep -f "$kma_multi")
+PID=$(pgrep -f $blat_multi)
 if [ -z "$PID" ]; then
-  echo "No process found for $kma_multi"
+  echo "No process found for $blat_multi"
 else
   # Kill the process
-  echo "Killing process $PID for $kma_multi"
+  echo "Killing process $PID for $blat_multi"
   kill "$PID"
 fi
+
+# Kill parallel
+killall -TERM perl
 
 # Find the process ID (PID) of the script
 PID=$(pgrep -f "$automatic_typing")

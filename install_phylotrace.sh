@@ -2,6 +2,9 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 CONDA_PATH=$( conda info --base )/bin/conda
 
+eval "$($CONDA_PATH shell.bash hook)"
+conda activate PhyloTrace
+
 # Generate PhyloTrace Desktop Entry
 cat > PhyloTrace.desktop << EOF
 [Desktop Entry]
@@ -30,6 +33,9 @@ else
    Rscript -e "shiny::runApp('${SCRIPT_DIR}/App.R', launch.browser=TRUE)"
 fi
 EOF
+
+# Install visNetwork modification
+Rscript -e "remotes::install_github('fpaskali/visNetwork', force = TRUE)"
 
 # Setting up the Desktop Icon
 mkdir -p $HOME/.local/share/applications

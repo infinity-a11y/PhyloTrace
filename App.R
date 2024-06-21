@@ -1,7 +1,7 @@
 ######## PhyloTrace #########
 
 # _______________________ ####
-
+# CRAN Packages
 library(shiny)
 library(R.utils)
 library(igraph)
@@ -12,9 +12,6 @@ library(ggplot2)
 library(ggnewscale)
 library(ggplotify) 
 library(ape)
-library(treeio)
-library(ggtree)
-library(ggtreeExtra)
 library(tidyverse)
 library(rlang)
 library(tidytree)
@@ -36,13 +33,19 @@ library(phangorn)
 library(cowplot)
 library(viridis)
 library(RColorBrewer)
+library(bslib)
+library(bsicons)
+# Bioconductor Packages
+library(treeio)
+library(ggtree)
+library(ggtreeExtra)
 
 schemes <- c("Acinetobacter_baumanii", "Bacillus_anthracis", "Bordetella_pertussis", 
              "Brucella_melitensis", "Brucella_spp", "Burkholderia_mallei_FLI", 
              "Burkholderia_mallei_RKI", "Burkholderia_pseudomallei", "Campylobacter_jejuni_coli", 
              "Clostridioides_difficile", "Clostridium_perfringens", "Corynebacterium_diphtheriae",
              "Cronobacter_sakazakii_malonaticus", "Enterococcus_faecalis", "Enterococcus_faecium", 
-             "Escherichia_coli", "Francisella_tularensis", "Klebsiella_pneumoniae_sensu_lato", 
+             "Escherichia_coli", "Francisella_tularensis", "Klebsiella_oxytoca_sensu_lato", "Klebsiella_pneumoniae_sensu_lato", 
              "Legionella_pneumophila", "Listeria_monocytogenes", "Mycobacterium_tuberculosis_complex", 
              "Mycobacteroides_abscessus", "Mycoplasma_gallisepticum", "Paenibacillus_larvae",
              "Pseudomonas_aeruginosa", "Salmonella_enterica", "Serratia_marcescens", 
@@ -258,18 +261,23 @@ sel_countries <-
 
 ui <- dashboardPage(
   
-  title = "PhyloTrace 1.3.0",
+  title = "PhyloTrace 1.4.1",
   
   # Title
-  dashboardHeader(title = span(
-    div(
-      class = "img_logo",
-      img(
-        src = "PhyloTrace.jpg", width = 190
+  dashboardHeader(
+    
+    title = span(
+      div(
+        class = "img_logo",
+        img(
+          src = "PhyloTrace.jpg", width = 190
+        )
       )
-    )
+    ),
+    tags$li(class = "dropdown", 
+            tags$span(id = "currentTime", style = "color:white; font-weight:bold;")),
+    disable = FALSE
   ),
-  disable = FALSE),
   
   ## Sidebar ----
   dashboardSidebar(
@@ -633,6 +641,7 @@ ui <- dashboardPage(
                 "Enterococcus faecium",
                 "Escherichia coli",
                 "Francisella tularensis",
+                "Klebsiella oxytoca sensu lato",
                 "Klebsiella pneumoniae sensu lato",
                 "Legionella pneumophila",
                 "Listeria monocytogenes",
@@ -851,7 +860,7 @@ ui <- dashboardPage(
                                 numericInput(
                                   "mst_title_size",
                                   label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                                  value = 30,
+                                  value = 40,
                                   min = 15,
                                   max = 40,
                                   step = 1,
@@ -911,7 +920,7 @@ ui <- dashboardPage(
                                 numericInput(
                                   "mst_subtitle_size",
                                   label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                                  value = 30,
+                                  value = 20,
                                   min = 15,
                                   max = 40,
                                   step = 1,
@@ -934,21 +943,15 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p("Footer"), style = "color:white; position: relative; right: -15px"),
+                        h4(p("Legend"), style = "color:white; position: relative; right: -15px"),
                         column(
                           width = 12,
                           align = "center",
-                          textInput(
-                            "mst_footer",
-                            label = "",
-                            width = "100%",
-                            placeholder = "Plot Footer"
-                          ),
                           fluidRow(
                             column(
                               width = 7,
                               colorPickr(
-                                inputId = "mst_footer_color",
+                                inputId = "mst_legend_color",
                                 selected = "#000000",
                                 label = "",
                                 update = "changestop",
@@ -962,7 +965,7 @@ ui <- dashboardPage(
                               width = 5,
                               dropMenu(
                                 actionBttn(
-                                  "mst_footer_menu",
+                                  "mst_legend_menu",
                                   label = "",
                                   color = "default",
                                   size = "sm",
@@ -971,15 +974,50 @@ ui <- dashboardPage(
                                 ),
                                 placement = "top-start",
                                 theme = "translucent",
-                                numericInput(
-                                  "mst_footer_size",
-                                  label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                                  value = 15,
-                                  min = 10,
-                                  max = 30,
-                                  step = 1,
-                                  width = "80px"
+                                fluidRow(
+                                  column(
+                                    width = 11,
+                                    sliderInput(
+                                      "mst_font_size",
+                                      label = h5("Font Size", style = "color:white; margin-bottom: 0px;"),
+                                      value = 18,
+                                      min = 15,
+                                      max = 30,
+                                      step = 1,
+                                      ticks = FALSE,
+                                      width = "180px"
+                                    )
+                                  ),
+                                  column(1)
+                                ),
+                                br(),
+                                fluidRow(
+                                  column(
+                                    width = 11,
+                                    sliderInput(
+                                      "mst_symbol_size",
+                                      label = h5("Key Size", style = "color:white; margin-bottom: 0px;"),
+                                      value = 20,
+                                      min = 10,
+                                      max = 30,
+                                      step = 1,
+                                      ticks = FALSE,
+                                      width = "180px"
+                                    )
+                                  ),
+                                  column(1)
                                 )
+                              )
+                            )
+                          ),
+                          fluidRow(
+                            column(
+                              width = 7,
+                              selectInput(
+                                "mst_legend_ori",
+                                label = "",
+                                width = "100%",
+                                choices = c("Left" = "left", "Right" = "right")
                               )
                             )
                           ),
@@ -1033,8 +1071,7 @@ ui <- dashboardPage(
                       )
                     )
                   )
-                ),
-                br()
+                )
               )
             ),
             column(
@@ -1114,84 +1151,30 @@ ui <- dashboardPage(
                           align = "center",
                           fluidRow(
                             column(
-                              width = 12,
+                              width = 10,
                               align = "left",
                               div(
-                                class = "checkbox_bg",
-                                checkboxInput(
+                                class = "mat-switch-mst-nodes",
+                                materialSwitch(
                                   "mst_color_var",
-                                  h5(p("Add variable"), style = "color:white; position: relative; bottom: 6px;"),
-                                  value = FALSE
+                                  h5(p("Add Variable"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                  value = FALSE,
+                                  right = TRUE
                                 )
+                              )
+                            ),
+                            column(
+                              width = 2,
+                              bslib::tooltip(
+                                bsicons::bs_icon("info-circle", title = "Only categorical variables can \nbe mapped to the node color.", color = "white", 
+                                                 height = "12px", width = "12px", position = "relative", top = "27px", right = "56px"),
+                                "Text shown in the tooltip.",
+                                show = FALSE,
+                                id = "mst_node_col_info"
                               )
                             )
                           ),
-                          conditionalPanel(
-                            "input.mst_color_var==false",
-                            fluidRow(
-                              column(
-                                width = 7,
-                                div(
-                                  class = "node_color",
-                                  colorPickr(
-                                    inputId = "mst_color_node",
-                                    width = "100%",
-                                    selected = "#B2FACA",
-                                    label = "",
-                                    update = "changestop",
-                                    interaction = list(clear = FALSE,
-                                                       save = FALSE),
-                                    position = "right-start"
-                                  )
-                                )
-                              ),
-                              column(
-                                width = 5,
-                                dropMenu(
-                                  actionBttn(
-                                    "mst_node_menu",
-                                    label = "",
-                                    color = "default",
-                                    size = "sm",
-                                    style = "material-flat",
-                                    icon = icon("sliders")
-                                  ),
-                                  placement = "top-start",
-                                  theme = "translucent",
-                                  width = 5,
-                                  numericInput(
-                                    "node_opacity",
-                                    label = h5("Opacity", style = "color:white; margin-bottom: 0px;"),
-                                    value = 1,
-                                    step = 0.1,
-                                    min = 0,
-                                    max = 1,
-                                    width = "80px"
-                                  )
-                                )
-                              )
-                            )
-                          ),
-                          conditionalPanel(
-                            "input.mst_color_var==true",
-                            fluidRow(
-                              column(
-                                width = 12,
-                                div(
-                                  class = "label_sel",
-                                  selectInput(
-                                    "mst_col_var",
-                                    label = "",
-                                    choices = c(
-                                      "Host", "Country", "City", "Isolation Date", "Duplicates"
-                                    ),
-                                    selected = c("Host"),
-                                    width = "100%"
-                                  )
-                                )
-                              )
-                            )
-                          )
+                          uiOutput("mst_color_mapping")
                         )
                       )
                     ), br()
@@ -1229,37 +1212,62 @@ ui <- dashboardPage(
                     ),
                     column(
                       width = 12,
-                      align = "center",
-                      br(),
-                      conditionalPanel(
-                        "input.scale_nodes==true",
-                        div(
-                          class = "slider",
-                          sliderInput(
-                            "mst_node_scale",
-                            label = NULL,
-                            min = 1,
-                            max = 80,
-                            value = c(20, 40),
-                            ticks = FALSE
+                      align = "left",
+                      fluidRow(
+                        column(
+                          width = 3,
+                          align = "left",
+                          conditionalPanel(
+                            "input.scale_nodes==true",
+                            HTML(
+                              paste(
+                                tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Range')
+                              )
+                            )
+                          ),
+                          conditionalPanel(
+                            "input.scale_nodes==false",
+                            HTML(
+                              paste(
+                                tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Size')
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 9,
+                          align = "center",
+                          conditionalPanel(
+                            "input.scale_nodes==true",
+                            div(
+                              class = "mst_scale_slider",
+                              sliderInput(
+                                "mst_node_scale",
+                                label = "",
+                                min = 1,
+                                max = 80,
+                                value = c(20, 40),
+                                ticks = FALSE
+                              )
+                            )
+                          ),
+                          conditionalPanel(
+                            "input.scale_nodes==false",
+                            div(
+                              class = "mst_scale_slider",
+                              sliderInput(
+                                inputId = "mst_node_size",
+                                label = "",
+                                min = 1,
+                                max = 100,
+                                value = 30,
+                                ticks = FALSE
+                              ) 
+                            )
                           )
                         )
                       ),
-                      conditionalPanel(
-                        "input.scale_nodes==false",
-                        div(
-                          class = "slider",
-                          sliderInput(
-                            inputId = "mst_node_size",
-                            label = NULL,
-                            min = 1,
-                            max = 100,
-                            value = 30,
-                            ticks = FALSE
-                          ) 
-                        )
-                      ),
-                      br(), br()
+                      br()
                     )
                   ),
                   column(
@@ -1281,7 +1289,7 @@ ui <- dashboardPage(
                                 materialSwitch(
                                   "mst_shadow",
                                   h5(p("Show Shadow"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                  value = FALSE,
+                                  value = TRUE,
                                   right = TRUE
                                 )
                               ),
@@ -1291,20 +1299,23 @@ ui <- dashboardPage(
                                   align = "left",
                                   HTML(
                                     paste(
-                                      tags$span(style='color: white; font-size: 14px; position: relative; bottom: -28px; margin-left: 0px ', 'Shape')
+                                      tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Shape')
                                     )
                                   )
                                 ),
                                 column(
                                   width = 9,
                                   align = "center",
-                                  selectInput(
-                                    "mst_node_shape",
-                                    "",
-                                    choices = list(`Label inside` = c("Circle" = "circle", "Box" = "box", "Text" = "text"),
-                                                   `Label outside` = c("Diamond" = "diamond", "Hexagon" = "hexagon","Dot" = "dot", "Square" = "square")),
-                                    selected = c("Dot" = "dot"),
-                                    width = "85%"
+                                  div(
+                                    class = "mst_shape_sel",
+                                    selectInput(
+                                      "mst_node_shape",
+                                      "",
+                                      choices = list(`Label inside` = c("Circle" = "circle", "Box" = "box", "Text" = "text"),
+                                                     `Label outside` = c("Diamond" = "diamond", "Hexagon" = "hexagon","Dot" = "dot", "Square" = "square")),
+                                      selected = c("Dot" = "dot"),
+                                      width = "85%"
+                                    )
                                   )
                                 )
                               )
@@ -1466,7 +1477,7 @@ ui <- dashboardPage(
                       column(
                         width = 12,
                         align = "left",
-                        h4(p("Size multiplier"), style = "color:white; position: relative; right: -15px; margin-bottom: -5px")
+                        h4(p("Length multiplier"), style = "color:white; position: relative; right: -15px; margin-bottom: -5px")
                       )
                     ),
                     column(
@@ -1477,39 +1488,64 @@ ui <- dashboardPage(
                         class = "switch-mst-edges",
                         materialSwitch(
                           "mst_scale_edges",
-                          h5(p("Scale Edge Length"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                          h5(p("Scale Allelic Distance"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
                           value = FALSE,
                           right = TRUE
                         )
                       ),
-                      conditionalPanel(
-                        "input.mst_scale_edges==true",
-                        div(
-                          class = "slider_edge",
-                          sliderInput(
-                            inputId = "mst_edge_length_scale",
-                            label = NULL,
-                            min = 1,
-                            max = 40,
-                            value = 15,
-                            ticks = FALSE
-                          ) 
+                      fluidRow(
+                        column(
+                          width = 3,
+                          align = "left",
+                          conditionalPanel(
+                            "input.mst_scale_edges==true",
+                            HTML(
+                              paste(
+                                tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Multiplier')
+                              )
+                            )
+                          ),
+                          conditionalPanel(
+                            "input.mst_scale_edges==false",
+                            HTML(
+                              paste(
+                                tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Length')
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 9,
+                          align = "center",
+                          conditionalPanel(
+                            "input.mst_scale_edges==true",
+                            div(
+                              class = "slider_edge",
+                              sliderInput(
+                                inputId = "mst_edge_length_scale",
+                                label = NULL,
+                                min = 1,
+                                max = 40,
+                                value = 15,
+                                ticks = FALSE
+                              ) 
+                            )
+                          ),
+                          conditionalPanel(
+                            "input.mst_scale_edges==false",
+                            div(
+                              class = "slider_edge",
+                              sliderTextInput(
+                                inputId = "mst_edge_length",
+                                label = NULL,
+                                choices = append(seq(0.1, 1, 0.1), 2:100),
+                                selected = 35,
+                                hide_min_max = FALSE
+                              ) 
+                            )
+                          )
                         )
-                      ),
-                      conditionalPanel(
-                        "input.mst_scale_edges==false",
-                        div(
-                          class = "slider_edge",
-                          sliderTextInput(
-                            inputId = "mst_edge_length",
-                            label = NULL,
-                            choices = append(seq(0.1, 1, 0.1), 2:100),
-                            selected = 35,
-                            hide_min_max = TRUE
-                          ) 
-                        )
-                      ),
-                      br(), br()
+                      )
                     )
                   )
                 )
@@ -2841,7 +2877,7 @@ ui <- dashboardPage(
                       fluidRow(
                         column(
                           width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 54px")
+                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 68px")
                         ),
                         column(
                           width = 7,
@@ -4770,7 +4806,7 @@ ui <- dashboardPage(
                       fluidRow(
                         column(
                           width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 54px")
+                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 68px")
                         ),
                         column(
                           width = 7,
@@ -5389,9 +5425,13 @@ server <- function(input, output, session) {
   
   phylotraceVersion <- paste("PhyloTrace-1.1.1", Sys.Date())
   
+  # Kill server on session end
+  session$onSessionEnded( function() {
+    stopApp()
+  })
+  
   # Disable MST variable mappings
   shinyjs::disable('mst_edge_label') 
-  shinyjs::disable('mst_color_var') 
   
   ## Functions ----
   
@@ -5585,12 +5625,8 @@ server <- function(input, output, session) {
         gsub(" ", "_", DB$scheme),
         "/Typing.rds"
       ))) {
-        Database <-
-          readRDS(paste0(
-            DB$database, "/",
-            gsub(" ", "_", DB$scheme),
-            "/Typing.rds"
-          ))
+        
+        Database <- readRDS(paste0(DB$database, "/",gsub(" ", "_", DB$scheme),"/Typing.rds"))
         
         if(is.null(DB$data)) {
           if(nrow(Database[["Typing"]]) == 1) {
@@ -5632,6 +5668,10 @@ server <- function(input, output, session) {
   ## Startup ----
   shinyjs::addClass(selector = "body", class = "sidebar-collapse")
   shinyjs::removeClass(selector = "body", class = "sidebar-toggle")
+  
+  output$messageMenu <- renderText({
+    HTML(format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"))
+  })
   
   # Declare reactive variables
   Startup <- reactiveValues(sidebar = TRUE, 
@@ -5701,38 +5741,30 @@ server <- function(input, output, session) {
         
         DB$database <- readRDS(paste0(getwd(), "/execute/last_db.rds")) 
         
-        DB$exist <- (length(dir_ls(DB$database)) == 0)  # Logical any local database present
-        
-        DB$available <- gsub("_", " ", basename(dir_ls(DB$database))) # List of local schemes available
+        if(dir_exists(DB$database)) {
+          DB$exist <- (length(dir_ls(DB$database)) == 0)  # Logical any local database present
+          
+          DB$available <- gsub("_", " ", basename(dir_ls(DB$database))) # List of local schemes available
+        }
       }
     }
   })
   
   ### Set up typing environment ----
   
-  # Create logfile if not present
-  if (!paste0(getwd(), "/execute/script_log.txt") %in% dir_ls(paste0(getwd(), "/execute"))) {
-    system(paste("chmod +x", paste0(getwd(), "/execute", "/make_log.sh")))
-    system(paste0(getwd(), "/execute", "/make_log.sh"), wait = TRUE)
+  # Null typing progress trackers
+  writeLines("0", paste0(getwd(), "/execute/script_log.txt"))
+  writeLines("0\n", paste0(getwd(), "/execute/progress.txt"))
+  
+  if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
+    unlink(list.files(paste0(getwd(), "/execute/blat_single/results"), full.names = TRUE), recursive = TRUE)
   }
   
-  # Set typing feedback values
-  if(file.exists(paste0(getwd(), "/execute/script_log.txt"))) {
-    if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1) != "0") {
-      Typing$multi_started <- TRUE
-      Typing$pending <- TRUE
-      Typing$multi_help <- FALSE
-      Typing$failures <- sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt"), warn = FALSE), "failed"))
-      Typing$successes <- sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt"), warn = FALSE), "Successful"))
-      Typing$last_scheme <- gsub("_", " ", sub(".*with (.*?) scheme.*", "\\1", readLines(paste0(getwd(), "/execute/script_log.txt"))[1]))
-    } else {
-      Typing$pending <- FALSE
-      Typing$multi_started <- FALSE
-      Typing$multi_help <- FALSE
-      saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
-    }
-  }
-  
+  # Reset typing feedback values
+  Typing$pending <- FALSE
+  Typing$multi_started <- FALSE
+  Typing$multi_help <- FALSE
+  saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
   Typing$last_success <- "0" # Null last multi typing success name
   Typing$last_failure <- "0" # Null last multi typing failure name
   
@@ -5745,93 +5777,59 @@ server <- function(input, output, session) {
   })
   
   output$start_message <- renderUI({
-    if(!is.null(Typing$last_scheme)) {
-      column(
-        width = 12, 
-        align = "center",
-        br(), br(), br(), br(), br(), br(),
-        div( 
-          class = "image",
-          imageOutput("imageOutput")
-        ),
-        br(), br(), br(),
-        p(
-          tags$span(
-            style='color: white; font-size: 16px;',
-            HTML(
-              paste0(
-                'Pending multi typing for ', 
-                Typing$last_scheme, 
-                "."
-              )
-            )
-          )
-        ),
-        br(), br(),
-        fluidRow(
-          column(
-            width = 12,
-            align = "center",
-            uiOutput("load_db"),
-            br(), br(), br(), br(), br(), br(), br()
+    column(
+      width = 12, 
+      align = "center",
+      br(), br(), br(), br(), br(), br(),
+      div( 
+        class = "image",
+        imageOutput("imageOutput")
+      ),
+      br(), br(), br(),
+      p(
+        HTML(
+          paste(
+            tags$span(style='color: white; font-size: 16px;', 'Proceed by loading a compatible local database or create a new one.')
           )
         )
-      )
-    } else {
-      column(
-        width = 12, 
-        align = "center",
-        br(), br(), br(), br(), br(), br(),
-        div( 
-          class = "image",
-          imageOutput("imageOutput")
-        ),
-        br(), br(), br(),
-        p(
-          HTML(
-            paste(
-              tags$span(style='color: white; font-size: 16px;', 'Proceed by loading a compatible local database or create a new one.')
-            )
+      ),
+      br(), 
+      fluidRow(
+        column(
+          width = 6,
+          align = "right",
+          shinyDirButton(
+            "db_location",
+            "Browse",
+            icon = icon("folder-open"),
+            title = "Locate the database folder",
+            buttonType = "default",
+            root = path_home()
           )
         ),
-        br(), 
-        fluidRow(
-          column(
-            width = 6,
-            align = "right",
-            shinyDirButton(
-              "db_location",
-              "Browse",
-              icon = icon("folder-open"),
-              title = "Locate the database folder",
-              buttonType = "default",
-              root = path_home()
-            )
-          ),
-          column(
-            width = 6,
-            align = "left",
-            shinyDirButton(
-              "create_new_db",
-              "Create New",
-              icon = icon("plus"),
-              title = "Choose location for new PhyloTrace database",
-              buttonType = "default",
-              root = path_home()
-            )
-          )
-        ),
-        br(), br(),
-        fluidRow(
-          column(
-            width = 12,
-            align = "center",
-            uiOutput("load_db"),
-            br(), br(), br(), br(), br(), br(), br()
+        column(
+          width = 6,
+          align = "left",
+          shinyDirButton(
+            "create_new_db",
+            "Create New",
+            icon = icon("plus"),
+            title = "Choose location for new PhyloTrace database",
+            buttonType = "default",
+            root = path_home()
           )
         )
+      ),
+      br(), br(),
+      fluidRow(
+        column(
+          width = 12,
+          align = "center",
+          uiOutput("load_db"),
+          br(), br(), br(), br(), br(), br(), br()
+        )
       )
-    }
+    )
   })
   
   # User selection new db or load db
@@ -6549,9 +6547,12 @@ server <- function(input, output, session) {
                 DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
                 
                 # Null pipe 
-                system(paste("chmod +x", paste0(getwd(), "/execute/zero_pipe.sh")))
+                con <- file(paste0(getwd(), "/execute/progress.txt"), open = "w")
                 
-                system(paste(paste0(getwd(), "/execute/zero_pipe.sh")), wait = TRUE)
+                cat("0\n", file = con)
+                
+                # Close the file connection
+                close(con)
                 
                 # Reset other reactive typing variables
                 Typing$progress_format_end <- 0 
@@ -6614,6 +6615,7 @@ server <- function(input, output, session) {
                       multiple = FALSE,
                       buttonType = "default",
                       class = NULL,
+                      filetypes = c('fasta', 'fna', 'fa'),
                       root = path_home()
                     ),
                     br(),
@@ -6736,6 +6738,8 @@ server <- function(input, output, session) {
                       } else {
                         DB$cust_var
                       }
+                    } else if (!is.null(DB$cust_var)) {
+                      DB$cust_var
                     }
                   })
                 
@@ -8888,7 +8892,7 @@ server <- function(input, output, session) {
         timer = 6000,
         width = "500px"
       )
-    } else if(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[1] != "0") {
+    } else if(readLines(paste0(getwd(), "/execute", "/progress.txt"))[1] != "0") {
       show_toast(
         title = "Pending Single Typing",
         type = "warning",
@@ -9552,6 +9556,15 @@ server <- function(input, output, session) {
         timer = 4000,
         width = "500px"
       )
+    } else if((readLines(paste0(getwd(), "/execute", "/progress.txt"))[1] != "0") |
+              (tail(readLogFile(), 1) != "0")) {
+      show_toast(
+        title = "Pending Typing",
+        type = "warning",
+        position = "top-end",
+        timer = 4000,
+        width = "500px"
+      )
     } else {
       if( (length(input$select_delete) - nrow(DB$data) ) == 0) {
         showModal(
@@ -9589,12 +9602,8 @@ server <- function(input, output, session) {
   
   observeEvent(input$conf_delete_all, {
     
-    delete_typing_path <- paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/Typing.rds")
-    
-    saveRDS(delete_typing_path, paste0(getwd(), "/execute/del_local.rds"))
-    
-    system(paste("chmod +x", paste0(getwd(), "/execute", "/delete_typing.sh")))
-    system(paste0(getwd(), "/execute", "/delete_typing.sh"), wait = TRUE)
+    # remove file with typing data
+    file.remove(paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/Typing.rds"))
     
     showModal(
       modalDialog(
@@ -9738,172 +9747,222 @@ server <- function(input, output, session) {
   
   observe({
     if (input$select_cgmlst == "Acinetobacter baumanii") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/3956907/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/3956907/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/3956907/locus/?content-type=csv"
-      Scheme$folder_name <- "Acinetobacter_baumanii"
+      species <- "Abaumannii1907"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
+      Scheme$folder_name <- Scheme$folder_name <- "Acinetobacter_baumanii"
     } else if (input$select_cgmlst == "Bacillus anthracis") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/19008694/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/19008694/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/19008694/locus/?content-type=csv"
+      species <- "Banthracis1917"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Bacillus_anthracis"
     } else if (input$select_cgmlst == "Bordetella pertussis") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/29412358/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/29412358/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/29412358/locus/?content-type=csv"
+      species <- "Bpertussis1917"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Bordetella_pertussis"
     } else if (input$select_cgmlst == "Brucella melitensis") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/6398355/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/6398355/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema//6398355/locus/?content-type=csv"
+      species <- "Bmelitensis1912"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Brucella_melitensis"
     } else if (input$select_cgmlst == "Brucella spp.") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/24062474/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/24062474/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/24062474/locus/?content-type=csv"
+      species <- "Brucella1914"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Brucella_spp"
     } else if (input$select_cgmlst == "Burkholderia mallei (FLI)") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/23721348/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/23721348/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/23721348/locus/?content-type=csv"
+      species <- "Bmallei_fli1911"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Burkholderia_mallei_FLI"
     } else if (input$select_cgmlst == "Burkholderia mallei (RKI)") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/23643739/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/23643739/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/23643739/locus/?content-type=csv"
+      species <- "Bmallei_rki1909"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Burkholderia_mallei_RKI"
     } else if (input$select_cgmlst == "Burkholderia pseudomallei") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/18876117/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/18876117/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/18876117/locus/?content-type=csv"
+      species <- "Bpseudomallei1906"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Burkholderia_pseudomallei"
     } else if (input$select_cgmlst == "Campylobacter jejuni/coli") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/145039/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/145039/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/145039/locus/?content-type=csv"
+      species <- "Cjejuni1911"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Campylobacter_jejuni_coli"
     } else if (input$select_cgmlst == "Clostridioides difficile") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/12556067/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/12556067/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/12556067/locus/?content-type=csv"
+      species <- "Cdifficile1905"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Clostridioides_difficile"
     } else if (input$select_cgmlst == "Clostridium perfringens") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/15017225/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/15017225/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/15017225956907/locus/?content-type=csv"
+      species <- "Cperfringens1907"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Clostridium_perfringens"
     } else if (input$select_cgmlst == "Corynebacterium diphtheriae") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/30589266/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/30589266/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/30589266/locus/?content-type=csv"
+      species <- "Cdiphtheriae1907"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Corynebacterium_diphtheriae"
     } else if (input$select_cgmlst == "Cronobacter sakazakii/malonaticus") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/29420227/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/29420227/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/29420227/locus/?content-type=csv"
+      species <- "Csakazakii1910"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Cronobacter_sakazakii_malonaticus"
     } else if (input$select_cgmlst == "Enterococcus faecalis") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/3887469/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/3887469/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/3887469/locus/?content-type=csv"
+      species <- "Efaecalis1912"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Enterococcus_faecalis"
     } else if (input$select_cgmlst == "Enterococcus faecium") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/991893/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/991893/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/991893/locus/?content-type=csv"
+      species <- "Efaecium1911"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Enterococcus_faecium"
     } else if (input$select_cgmlst == "Escherichia coli") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/5064703/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/5064703/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/5064703/locus/?content-type=csv"
+      species <- "Ecoli1911"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Escherichia_coli"
     } else if (input$select_cgmlst == "Francisella tularensis") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/260204/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/260204/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/260204/locus/?content-type=csv"
+      species <- "Ftularensis1913"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Francisella_tularensis"
+    } else if (input$select_cgmlst == "Klebsiella oxytoca sensu lato") {
+      species <- "Koxytoca717"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
+      Scheme$folder_name <- "Klebsiella_oxytoca_sensu_lato"
     } else if (input$select_cgmlst == "Klebsiella pneumoniae sensu lato") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/2187931/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/2187931/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/2187931/locus/?content-type=csv"
+      species <- "Kpneumoniae1909"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Klebsiella_pneumoniae_sensu_lato"
     } else if (input$select_cgmlst == "Legionella pneumophila") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/1025099/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/1025099/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/1025099/locus/?content-type=csv"
+      species <- "Lpneumophila1911"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Legionella_pneumophila"
     } else if (input$select_cgmlst == "Listeria monocytogenes") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/690488/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/690488/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/690488/locus/?content-type=csv"
+      species <- "Lmonocytogenes1910"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Listeria_monocytogenes"
     } else if (input$select_cgmlst == "Mycobacterium tuberculosis complex") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/741110/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/741110/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/741110/locus/?content-type=csv"
+      species <- "Mtuberculosis1909"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Mycobacterium_tuberculosis_complex"
     } else if (input$select_cgmlst == "Mycobacteroides abscessus") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/22602285/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/22602285/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/22602285/locus/?content-type=csv"
+      species <- "Mabscessus1911"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Mycobacteroides_abscessus"
     } else if (input$select_cgmlst == "Mycoplasma gallisepticum") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/6402012/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/6402012/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/6402012/locus/?content-type=csv"
+      species <- "Mgallisepticum1911"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Mycoplasma_gallisepticum"
     } else if (input$select_cgmlst == "Paenibacillus larvae") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/17414003/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/17414003/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/17414003/locus/?content-type=csv"
+      species <- "Plarvae1902"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Paenibacillus_larvae"
     } else if (input$select_cgmlst == "Pseudomonas aeruginosa") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/16115339/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/16115339/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/16115339/locus/?content-type=csv"
+      species <- "Paeruginosa1911"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Pseudomonas_aeruginosa"
     } else if (input$select_cgmlst == "Salmonella enterica") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/4792159/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/4792159/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/4792159/locus/?content-type=csv"
+      species <- "Senterica1913"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Salmonella_enterica"
     } else if (input$select_cgmlst == "Serratia marcescens") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/24616475/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/24616475/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/24616475/locus/?content-type=csv"
+      species <- "Smarcescens1912"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Serratia_marcescens"
     } else if (input$select_cgmlst == "Staphylococcus aureus") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/141106/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/141106/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/141106/locus/?content-type=csv"
+      species <- "Saureus1908"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Staphylococcus_aureus"
     } else if (input$select_cgmlst == "Staphylococcus capitis") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/26824796/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/26824796/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/26824796/locus/?content-type=csv"
+      species <- "Scapitis1905"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Staphylococcus_capitis"
     } else if (input$select_cgmlst == "Streptococcus pyogenes") {
-      Scheme$link_cgmlst <- "https://www.cgmlst.org/ncs/schema/30585223/alleles/"
-      Scheme$link_scheme <- "https://www.cgmlst.org/ncs/schema/30585223/"
-      Scheme$link_targets <- "https://www.cgmlst.org/ncs/schema/30585223/locus/?content-type=csv"
+      species <- "Spyogenes1904"
+      Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
+      Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
+      Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Streptococcus_pyogenes"
     }
   })
   
   observeEvent(input$download_cgMLST, {
     
+    show_toast(
+      title = "Download started",
+      type = "success",
+      position = "top-end",
+      timer = 5000,
+      width = "400px"
+    )
+    
     if(length(DB$available) == 0) {
       saveRDS(DB$new_database, paste0(getwd(), "/execute/new_db.rds"))
-      system(paste("chmod +x",  paste0(getwd(), "/execute/make_db.sh")))
-      system(paste0(getwd(), "/execute/make_db.sh"), wait = TRUE)
+      dir.create(file.path(readRDS(paste0(getwd(), "/execute/new_db.rds")), "Database"), recursive = TRUE)
     }
     
     DB$load_selected <- TRUE
-    
     Scheme$target_table <- NULL
     
     # Download Loci Fasta Files
-    download(Scheme$link_cgmlst, dest = "dataset.zip", mode = "wb", timeout = 300)
+    
+    options(timeout = 600)
+    
+    tryCatch({
+      download.file(Scheme$link_cgmlst, "dataset.zip")
+      "Download successful!"
+    }, error = function(e) {
+      paste("Error: ", e$message)
+    })
     
     unzip(
       zipfile = "dataset.zip",
@@ -9959,7 +10018,7 @@ server <- function(input, output, session) {
       type = "success",
       position = "top-end",
       timer = 5000,
-      width = "500px"
+      width = "400px"
     )
     
     showModal(
@@ -9972,7 +10031,7 @@ server <- function(input, output, session) {
           } else {DB$available},
           selected = if(!is.null(Typing$last_scheme)) {
             Typing$last_scheme
-          } else {if(!is.null(DB$scheme)) {DB$scheme} else {DB$available[1]}}),
+          } else {if(!is.null(DB$scheme)) {input$select_cgmlst} else {DB$available[1]}}),
         title = "Select a local database to load.",
         footer = tagList(
           actionButton("load", "Load", class = "btn btn-default")
@@ -15588,12 +15647,119 @@ server <- function(input, output, session) {
   
   #### MST controls ----
   
+  # Mst color mapping
+  
+  output$mst_color_mapping <- renderUI({
+    if(input$mst_color_var == FALSE) {
+      fluidRow(
+        column(
+          width = 7,
+          div(
+            class = "node_color",
+            colorPickr(
+              inputId = "mst_color_node",
+              width = "100%",
+              selected = "#B2FACA",
+              label = "",
+              update = "changestop",
+              interaction = list(clear = FALSE,
+                                 save = FALSE),
+              position = "right-start"
+            )
+          )
+        ),
+        column(
+          width = 5,
+          dropMenu(
+            actionBttn(
+              "mst_node_menu",
+              label = "",
+              color = "default",
+              size = "sm",
+              style = "material-flat",
+              icon = icon("sliders")
+            ),
+            placement = "top-start",
+            theme = "translucent",
+            width = 5,
+            numericInput(
+              "node_opacity",
+              label = h5("Opacity", style = "color:white; margin-bottom: 0px;"),
+              value = 1,
+              step = 0.1,
+              min = 0,
+              max = 1,
+              width = "80px"
+            )
+          )
+        )
+      ) 
+    } else {
+      fluidRow(
+        column(
+          width = 9,
+          div(
+            class = "mst_col_sel",
+            selectInput(
+              "mst_col_var",
+              label = "",
+              choices = if(any(DB$cust_var[DB$cust_var$Variable[which(DB$cust_var$Variable %in% c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)]))],]$Type != "categ")) {
+                selection <- c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)])
+                cust_vars <- DB$cust_var$Variable[which(DB$cust_var$Variable %in% selection)]
+                selection[-which(selection == cust_vars[DB$cust_var[cust_vars,]$Type != "categ"])]
+              } else {c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)])},
+              width = "100%"
+            )
+          )
+        ),
+        column(
+          width = 3,
+          dropMenu(
+            actionBttn(
+              "mst_col_menu",
+              label = "",
+              color = "default",
+              size = "sm",
+              style = "material-flat",
+              icon = icon("sliders")
+            ),
+            placement = "top-start",
+            theme = "translucent",
+            width = 5,
+            selectInput(
+              "mst_col_scale",
+              label = h5("Color Scale", style = "color:white; margin-bottom: 0px;"),
+              choices = c("Viridis", "Rainbow"),
+              width = "150px"
+            ),
+            br(), br(), br(), br()
+          )
+        )
+      ) 
+    }
+  })
+  
+  observeEvent(input$mst_color_var, {
+    if(input$mst_color_var == TRUE) {
+      updateSelectizeInput(session, inputId = "mst_node_shape", choices = c("Pie Nodes" = "custom"))
+      updateSelectizeInput(session, inputId = "mst_node_label", choices = c("Assembly Name"))
+    } else {
+      updateSelectizeInput(session, inputId = "mst_node_shape", 
+                           choices = list(`Label inside` = c("Circle" = "circle", "Box" = "box", "Text" = "text"),
+                                          `Label outside` = c("Diamond" = "diamond", "Hexagon" = "hexagon","Dot" = "dot", "Square" = "square")),
+                           selected = c("Dot" = "dot"))
+      updateSelectizeInput(session, inputId = "mst_node_label",
+                           choices = names(DB$meta)[c(1, 3, 4, 6, 7, 8, 9)],
+                           selected = "Assembly Name")
+    }
+  })
+  
   # MST node labels 
   output$mst_node_label <- renderUI({
     selectInput(
       "mst_node_label",
       label = "",
-      choices = names(DB$meta)[-c(2, 5, 10, 11, 12)],
+      choices = names(DB$meta)[c(1, 3, 4, 6, 7, 8, 9)],
       selected = "Assembly Name",
       width = "100%"
     )
@@ -15609,6 +15775,127 @@ server <- function(input, output, session) {
                          label = label_mst(),
                          value = mst_node_scaling(),
                          opacity = node_opacity())
+    
+    ctxRendererJS <- htmlwidgets::JS("({ctx, id, x, y, state: { selected, hover }, style, font, label, metadata}) => {
+                            var pieData = JSON.parse(metadata);
+                            var radius = style.size;
+                            var centerX = x;
+                            var centerY = y;
+                            var total = pieData.reduce((sum, slice) => sum + slice.value, 0)
+                            var startAngle = 0;
+
+                            const drawNode = () => {
+                                // Set shadow properties
+                                if (style.shadow) {
+                                  var shadowSize = style.shadowSize;
+                                  ctx.shadowColor = style.shadowColor;
+                                  ctx.shadowBlur = style.shadowSize;
+                                  ctx.shadowOffsetX = style.shadowX;
+                                  ctx.shadowOffsetY = style.shadowY;
+                                  
+                                  ctx.beginPath();
+                                  ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                                  ctx.fill();
+                                  
+                                  ctx.shadowColor = 'transparent';
+                                  ctx.shadowBlur = 0;
+                                  ctx.shadowOffsetX = 0;
+                                  ctx.shadowOffsetY = 0;
+                                }
+
+                                pieData.forEach(slice => {
+                                    var sliceAngle = 2 * Math.PI * (slice.value / total);
+                                    ctx.beginPath();
+                                    ctx.moveTo(centerX, centerY);
+                                    ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+                                    ctx.closePath();
+                                    ctx.fillStyle = slice.color;
+                                    ctx.fill();
+                                     if (pieData.length > 1) {
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+                                    startAngle += sliceAngle;
+                                });
+                    
+                                // Draw a border
+                                ctx.beginPath();
+                                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                                ctx.strokeStyle = 'black';
+                                ctx.lineWidth = 1;
+                                ctx.stroke();
+                            };
+                            drawLabel = () => {
+                              //Draw the label
+                              var lines = label.split(`\n`);
+                              var lineHeight = font.size;
+                              ctx.font = `${font.size}px ${font.face}`;
+                              ctx.fillStyle = font.color;
+                              ctx.textAlign = 'center';
+                              ctx.textBaseline = 'middle';
+                              lines.forEach((line, index) => {
+                                ctx.fillText(line, centerX, 
+                                centerY + radius + (index + 1) * lineHeight);
+                              })
+                            }
+                            
+                            return {
+                                drawNode,
+                                drawExternalLabel: drawLabel,
+                                nodeDimensions: { width: 2 * radius, height: 2 * radius },
+                            };
+                        }")
+    
+    Typing$var_cols <- NULL
+    
+    # Generate pie charts as nodes
+    if(input$mst_color_var == TRUE & (!is.null(input$mst_col_var))) {
+      
+      group <- character(nrow(data$nodes))
+      for (i in 1:length(unique(DB$meta_true[[input$mst_col_var]]))) {
+        group[i] <- unique(DB$meta_true[[input$mst_col_var]])[i]
+      }
+      
+      data$nodes <- cbind(data$nodes, data.frame(metadata = character(nrow(data$nodes))))
+      
+      if(length(which(data$nodes$group == "")) != 0) {
+        data$nodes$group[which(data$nodes$group == "")] <- data$nodes$group[1]
+      }
+      
+      if(is.null(input$mst_col_scale)) {
+        Typing$var_cols <- data.frame(value = unique(DB$meta_true[[input$mst_col_var]]),
+                               color = viridis(length(unique(DB$meta_true[[input$mst_col_var]]))))
+      } else if (input$mst_col_scale == "Rainbow") {
+        Typing$var_cols <- data.frame(value = unique(DB$meta_true[[input$mst_col_var]]),
+                               color = rainbow(length(unique(DB$meta_true[[input$mst_col_var]]))))
+      } else if (input$mst_col_scale == "Viridis") {
+        Typing$var_cols <- data.frame(value = unique(DB$meta_true[[input$mst_col_var]]),
+                               color = viridis(length(unique(DB$meta_true[[input$mst_col_var]]))))
+      }
+      
+      for(i in 1:nrow(data$nodes)) {
+        
+        iso_subset <- strsplit(data$nodes$label[i], split = "\n")[[1]]
+        variable <- DB$meta_true[[input$mst_col_var]]
+        values <- variable[which(DB$meta_true$`Assembly Name` %in% iso_subset)]
+        
+        for(j in 1:length(unique(values))) {
+          
+          share <- sum(unique(values)[j] == values) / length(values) * 100
+          color <- Typing$var_cols$color[Typing$var_cols$value == unique(values)[j]]
+          
+          if(j == 1) {
+            pie_vec <- paste0('{"value":', share,',"color":"', color,'"}')
+          } else {
+            pie_vec <- paste0(pie_vec, ',{"value":', share,',"color":"', color,'"}')
+          }
+        }
+        
+        data$nodes$metadata[i] <- paste0('[', pie_vec, ']')
+      }
+    }
+    
     data$edges <- mutate(data$edges,
                          length = if(input$mst_scale_edges == FALSE) {
                            input$mst_edge_length
@@ -15621,12 +15908,12 @@ server <- function(input, output, session) {
     visNetwork(data$nodes, data$edges, 
                main = mst_title(),
                background = mst_background_color(),
-               submain = mst_subtitle(),
-               footer = mst_footer()) %>%
+               submain = mst_subtitle()) %>%
       visNodes(size = mst_node_size(), 
-               shape = mst_node_shape(),
+               shape = input$mst_node_shape,
                shadow = input$mst_shadow,
                color = mst_color_node(),
+               ctxRenderer = ctxRendererJS,
                scaling = list(min = mst_node_size_min(), 
                               max = mst_node_size_max()),
                font = list(color = node_font_color(),
@@ -15638,12 +15925,44 @@ server <- function(input, output, session) {
       visOptions(collapse = TRUE) %>%
       visInteraction(hover = TRUE) %>%
       visLayout(randomSeed = 1) %>%
-      visLegend()
+      visLegend(useGroups = FALSE, 
+                zoom = FALSE,
+                position = input$mst_legend_ori,
+                ncol = legend_col(),
+                addNodes = mst_legend())
+  })
+  
+  # MST legend
+  legend_col <- reactive({
+    if(!is.null(Typing$var_cols)) {
+      if(nrow(Typing$var_cols) > 10) {
+        3
+      } else if(nrow(Typing$var_cols) > 5) {
+        2
+      } else {
+        1
+      }
+    } else {1}
+  })
+  
+  mst_legend <- reactive({
+    if(is.null(Typing$var_cols)) {
+      NULL
+    } else {
+      legend <- Typing$var_cols
+      names(legend)[1] <- "label"
+      mutate(legend, shape = "dot",
+             font.color = input$mst_legend_color,
+             size = input$mst_symbol_size,
+             font.size = input$mst_font_size)
+    }
   })
   
   # Set MST node shape
   mst_node_shape <- reactive({
-    if(input$mst_node_shape %in% c("circle", "database", "box", "text")) {
+    if(input$mst_node_shape == "Pie Nodes"){
+      "dot"
+    } else if(input$mst_node_shape %in% c("circle", "database", "box", "text")) {
       shinyjs::disable('scale_nodes') 
       updateCheckboxInput(session, "scale_nodes", value = FALSE)
       shinyjs::disable('mst_node_size') 
@@ -15739,37 +16058,6 @@ server <- function(input, output, session) {
            "font-size: ", as.character(input$mst_subtitle_size), "px", 
            "; color: ", as.character(input$mst_subtitle_color))
     )
-  })
-  
-  # Set Footer
-  mst_footer <- reactive({
-    if(!is.null(input$mst_footer)) {
-      if(nchar(input$mst_footer) < 1) {
-        list(text = "footer",
-             style = paste0(
-               "font-family:Georgia, Times New Roman, Times, serif;",
-               "text-align:center;",
-               "font-size: ", as.character(input$mst_footer_size), "px", 
-               "; color: ", as.character(mst_background_color()))
-        )
-      } else {
-        list(text = input$mst_footer,
-             style = paste0(
-               "font-family:Georgia, Times New Roman, Times, serif;",
-               "text-align:center;",
-               "font-size: ", as.character(input$mst_footer_size), "px", 
-               "; color: ", as.character(input$mst_footer_color))
-        )
-      }
-    } else {
-      list(text = "footer",
-           style = paste0(
-             "font-family:Georgia, Times New Roman, Times, serif;",
-             "text-align:center;",
-             "font-size: ", as.character(input$mst_footer_size), "px", 
-             "; color: ", as.character(mst_background_color()))
-      )
-    }
   })
   
   # Background color
@@ -15979,14 +16267,14 @@ server <- function(input, output, session) {
   
   # Heatmap scale
   nj_heatmap_scale <- reactive({
-    if(!is.null(input$nj_heatmap_scale)) {
+    if(!is.null(input$nj_heatmap_scale) & !is.null(input$nj_heatmap_div_mid)) {
       if(input$nj_heatmap_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
         if(input$nj_heatmap_div_mid == "Zero") {
           midpoint <- 0
         } else if(input$nj_heatmap_div_mid == "Mean") {
-          midpoint <- mean(Vis$meta_nj[[input$nj_heatmap_select]], na.rm = TRUE)
+          midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_heatmap_select]), na.rm = TRUE)
         } else {
-          midpoint <- median(Vis$meta_nj[[input$nj_heatmap_select]], na.rm = TRUE)
+          midpoint <- median(as.matrix(Vis$meta_nj[input$nj_heatmap_select]), na.rm = TRUE)
         }
         scale_fill_gradient2(low = brewer.pal(3, input$nj_heatmap_scale)[1],
                              mid = brewer.pal(3, input$nj_heatmap_scale)[2],
@@ -16058,14 +16346,14 @@ server <- function(input, output, session) {
   
   # Tippoint Scale
   nj_tippoint_scale <- reactive({
-    if(!is.null(input$nj_tippoint_scale)) {
+    if(!is.null(input$nj_tippoint_scale) & !is.null(input$nj_tipcolor_mapping_div_mid)) {
       if(input$nj_tippoint_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
         if(input$nj_tipcolor_mapping_div_mid == "Zero") {
           midpoint <- 0
         } else if(input$nj_tipcolor_mapping_div_mid == "Mean") {
-          midpoint <- mean(Vis$meta_nj[[input$nj_tipcolor_mapping]], na.rm = TRUE)
+          midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_tipcolor_mapping]), na.rm = TRUE)
         } else {
-          midpoint <- median(Vis$meta_nj[[input$nj_tipcolor_mapping]], na.rm = TRUE)
+          midpoint <- median(as.matrix(Vis$meta_nj[input$nj_tipcolor_mapping]), na.rm = TRUE)
         }
         scale_color_gradient2(low = brewer.pal(3, input$nj_tippoint_scale)[1],
                               mid = brewer.pal(3, input$nj_tippoint_scale)[2],
@@ -16119,14 +16407,14 @@ server <- function(input, output, session) {
   
   # Tiplab Scale
   nj_tiplab_scale <- reactive({
-    if(!is.null(input$nj_tiplab_scale)) {
+    if(!is.null(input$nj_tiplab_scale) & !is.null(input$nj_color_mapping_div_mid)) {
       if(input$nj_tiplab_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
         if(input$nj_color_mapping_div_mid == "Zero") {
           midpoint <- 0
         } else if(input$nj_color_mapping_div_mid == "Mean") {
-          midpoint <- mean(Vis$meta_nj[[input$nj_color_mapping]], na.rm = TRUE)
+          midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_color_mapping]), na.rm = TRUE)
         } else {
-          midpoint <- median(Vis$meta_nj[[input$nj_color_mapping]], na.rm = TRUE)
+          midpoint <- median(as.matrix(Vis$meta_nj[input$nj_color_mapping]), na.rm = TRUE)
         }
         scale_color_gradient2(low = brewer.pal(3, input$nj_tiplab_scale)[1],
                               mid = brewer.pal(3, input$nj_tiplab_scale)[2],
@@ -16239,17 +16527,18 @@ server <- function(input, output, session) {
   
   # Tiles fill color gradient
   nj_gradient <- reactive({
-    if((!is.null(input$nj_tiles_show_1)) & 
-       (!is.null(input$nj_fruit_variable)) & 
-       (!is.null(input$nj_tiles_scale_1))) {
+    if(!is.null(input$nj_tiles_show_1) & 
+       !is.null(input$nj_fruit_variable) & 
+       !is.null(input$nj_tiles_scale_1) & 
+       !is.null(input$nj_tiles_mapping_div_mid_1)) {
       if(input$nj_tiles_show_1 == TRUE) {
         if(input$nj_tiles_scale_1 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$nj_tiles_mapping_div_mid_1 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_1 == "Mean") {
-            midpoint <- mean(Vis$meta_nj[[input$nj_fruit_variable]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable]), na.rm = TRUE)
           }
           scale_fill_gradient2(low = brewer.pal(3, input$nj_tiles_scale_1)[1],
                                mid = brewer.pal(3, input$nj_tiles_scale_1)[2],
@@ -16303,17 +16592,18 @@ server <- function(input, output, session) {
   })
   
   nj_gradient2 <- reactive({
-    if((!is.null(input$nj_tiles_show_2)) & 
-       (!is.null(input$nj_fruit_variable_2)) & 
-       (!is.null(input$nj_tiles_scale_2))) {
+    if(!is.null(input$nj_tiles_show_2) & 
+       !is.null(input$nj_fruit_variable_2) & 
+       !is.null(input$nj_tiles_scale_2) & 
+       !is.null(input$nj_tiles_mapping_div_mid_2)) {
       if(input$nj_tiles_show_2 == TRUE) {
         if(input$nj_tiles_scale_2 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$nj_tiles_mapping_div_mid_2 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_2 == "Mean") {
-            midpoint <- mean(Vis$meta_nj[[input$nj_fruit_variable_2]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_2]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable_2]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_2]), na.rm = TRUE)
           }
           scale_fill_gradient2(low = brewer.pal(3, input$nj_tiles_scale_2)[1],
                                mid = brewer.pal(3, input$nj_tiles_scale_2)[2],
@@ -16367,17 +16657,18 @@ server <- function(input, output, session) {
   })
   
   nj_gradient3 <- reactive({
-    if((!is.null(input$nj_tiles_show_3)) & 
-       (!is.null(input$nj_fruit_variable_3)) & 
-       (!is.null(input$nj_tiles_scale_3))) {
+    if(!is.null(input$nj_tiles_show_3) & 
+       !is.null(input$nj_fruit_variable_3) & 
+       !is.null(input$nj_tiles_scale_3 & 
+                !is.null(input$nj_tiles_mapping_div_mid_3))) {
       if(input$nj_tiles_show_3 == TRUE) {
         if(input$nj_tiles_scale_3 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$nj_tiles_mapping_div_mid_3 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_3 == "Mean") {
-            midpoint <- mean(Vis$meta_nj[[input$nj_fruit_variable_3]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_3]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable_3]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_3]), na.rm = TRUE)
           }
           scale_fill_gradient3(low = brewer.pal(3, input$nj_tiles_scale_3)[1],
                                mid = brewer.pal(3, input$nj_tiles_scale_3)[2],
@@ -16431,17 +16722,18 @@ server <- function(input, output, session) {
   })
   
   nj_gradient4 <- reactive({
-    if((!is.null(input$nj_tiles_show_4)) & 
-       (!is.null(input$nj_fruit_variable_4)) & 
-       (!is.null(input$nj_tiles_scale_4))) {
+    if(!is.null(input$nj_tiles_show_4) & 
+       !is.null(input$nj_fruit_variable_4) & 
+       !is.null(input$nj_tiles_scale_4) & 
+       !is.null(input$nj_tiles_mapping_div_mid_4)) {
       if(input$nj_tiles_show_4 == TRUE) {
         if(input$nj_tiles_scale_4 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$nj_tiles_mapping_div_mid_4 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_4 == "Mean") {
-            midpoint <- mean(Vis$meta_nj[[input$nj_fruit_variable_4]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_4]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable_4]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_4]), na.rm = TRUE)
           }
           scale_fill_gradient4(low = brewer.pal(3, input$nj_tiles_scale_4)[1],
                                mid = brewer.pal(3, input$nj_tiles_scale_4)[2],
@@ -16495,17 +16787,18 @@ server <- function(input, output, session) {
   })
   
   nj_gradient5 <- reactive({
-    if((!is.null(input$nj_tiles_show_5)) & 
-       (!is.null(input$nj_fruit_variable_5)) & 
-       (!is.null(input$nj_tiles_scale_5))) {
+    if(!is.null(input$nj_tiles_show_5) & 
+       !is.null(input$nj_fruit_variable_5) & 
+       !is.null(input$nj_tiles_scale_5) & 
+       !is.null(input$nj_tiles_mapping_div_mid_5)) {
       if(input$nj_tiles_show_5 == TRUE) {
         if(input$nj_tiles_scale_5 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$nj_tiles_mapping_div_mid_5 == "Zero") {
             midpoint <- 0
           } else if(input$nj_tiles_mapping_div_mid_5 == "Mean") {
-            midpoint <- mean(Vis$meta_nj[[input$nj_fruit_variable_5]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_5]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_nj[[input$nj_fruit_variable_5]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_5]), na.rm = TRUE)
           }
           scale_fill_gradient5(low = brewer.pal(3, input$nj_tiles_scale_5)[1],
                                mid = brewer.pal(3, input$nj_tiles_scale_5)[2],
@@ -17364,14 +17657,14 @@ server <- function(input, output, session) {
   
   # Heatmap scale
   upgma_heatmap_scale <- reactive({
-    if(!is.null(input$upgma_heatmap_scale)) {
+    if(!is.null(input$upgma_heatmap_scale) & !is.null(input$upgma_heatmap_div_mid)) {
       if(input$upgma_heatmap_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
         if(input$upgma_heatmap_div_mid == "Zero") {
           midpoint <- 0
         } else if(input$upgma_heatmap_div_mid == "Mean") {
-          midpoint <- mean(Vis$meta_upgma[[input$upgma_heatmap_select]], na.rm = TRUE)
+          midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_heatmap_select]), na.rm = TRUE)
         } else {
-          midpoint <- median(Vis$meta_upgma[[input$upgma_heatmap_select]], na.rm = TRUE)
+          midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_heatmap_select]), na.rm = TRUE)
         }
         scale_fill_gradient2(low = brewer.pal(3, input$upgma_heatmap_scale)[1],
                              mid = brewer.pal(3, input$upgma_heatmap_scale)[2],
@@ -17443,14 +17736,14 @@ server <- function(input, output, session) {
   
   # Tippoint Scale
   upgma_tippoint_scale <- reactive({
-    if(!is.null(input$upgma_tippoint_scale)) {
+    if(!is.null(input$upgma_tippoint_scale) & !is.null(input$upgma_tipcolor_mapping_div_mid)) {
       if(input$upgma_tippoint_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
         if(input$upgma_tipcolor_mapping_div_mid == "Zero") {
           midpoint <- 0
         } else if(input$upgma_tipcolor_mapping_div_mid == "Mean") {
-          midpoint <- mean(Vis$meta_upgma[[input$upgma_tipcolor_mapping]], na.rm = TRUE)
+          midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_tipcolor_mapping]), na.rm = TRUE)
         } else {
-          midpoint <- median(Vis$meta_upgma[[input$upgma_tipcolor_mapping]], na.rm = TRUE)
+          midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_tipcolor_mapping]), na.rm = TRUE)
         }
         scale_color_gradient2(low = brewer.pal(3, input$upgma_tippoint_scale)[1],
                               mid = brewer.pal(3, input$upgma_tippoint_scale)[2],
@@ -17504,14 +17797,14 @@ server <- function(input, output, session) {
   
   # Tiplab Scale
   upgma_tiplab_scale <- reactive({
-    if(!is.null(input$upgma_tiplab_scale)) {
+    if(!is.null(input$upgma_tiplab_scale) & !is.null(input$upgma_color_mapping_div_mid)) {
       if(input$upgma_tiplab_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
         if(input$upgma_color_mapping_div_mid == "Zero") {
           midpoint <- 0
         } else if(input$upgma_color_mapping_div_mid == "Mean") {
-          midpoint <- mean(Vis$meta_upgma[[input$upgma_color_mapping]], na.rm = TRUE)
+          midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_color_mapping]), na.rm = TRUE)
         } else {
-          midpoint <- median(Vis$meta_upgma[[input$upgma_color_mapping]], na.rm = TRUE)
+          midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_color_mapping]), na.rm = TRUE)
         }
         scale_color_gradient2(low = brewer.pal(3, input$upgma_tiplab_scale)[1],
                               mid = brewer.pal(3, input$upgma_tiplab_scale)[2],
@@ -17616,17 +17909,18 @@ server <- function(input, output, session) {
   
   # Tiles fill color gradient
   upgma_gradient <- reactive({
-    if((!is.null(input$upgma_tiles_show_1)) & 
-       (!is.null(input$upgma_fruit_variable)) & 
-       (!is.null(input$upgma_tiles_scale_1))) {
+    if(!is.null(input$upgma_tiles_show_1) & 
+       !is.null(input$upgma_fruit_variable) & 
+       !is.null(input$upgma_tiles_scale_1) &
+       !is.null(input$upgma_tiles_mapping_div_mid_1)) {
       if(input$upgma_tiles_show_1 == TRUE) {
         if(input$upgma_tiles_scale_1 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$upgma_tiles_mapping_div_mid_1 == "Zero") {
             midpoint <- 0
           } else if(input$upgma_tiles_mapping_div_mid_1 == "Mean") {
-            midpoint <- mean(Vis$meta_upgma[[input$upgma_fruit_variable]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_upgma[[input$upgma_fruit_variable]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable]), na.rm = TRUE)
           }
           scale_fill_gradient2(low = brewer.pal(3, input$upgma_tiles_scale_1)[1],
                                mid = brewer.pal(3, input$upgma_tiles_scale_1)[2],
@@ -17680,17 +17974,18 @@ server <- function(input, output, session) {
   })
   
   upgma_gradient2 <- reactive({
-    if((!is.null(input$upgma_tiles_show_2)) & 
-       (!is.null(input$upgma_fruit_variable_2)) & 
-       (!is.null(input$upgma_tiles_scale_2))) {
+    if(!is.null(input$upgma_tiles_show_2) & 
+       !is.null(input$upgma_fruit_variable_2) & 
+       !is.null(input$upgma_tiles_scale_2) &
+       !is.null(input$upgma_tiles_mapping_div_mid_2)) {
       if(input$upgma_tiles_show_2 == TRUE) {
         if(input$upgma_tiles_scale_2 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$upgma_tiles_mapping_div_mid_2 == "Zero") {
             midpoint <- 0
           } else if(input$upgma_tiles_mapping_div_mid_2 == "Mean") {
-            midpoint <- mean(Vis$meta_upgma[[input$upgma_fruit_variable_2]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_2]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_upgma[[input$upgma_fruit_variable_2]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_2]), na.rm = TRUE)
           }
           scale_fill_gradient2(low = brewer.pal(3, input$upgma_tiles_scale_2)[1],
                                mid = brewer.pal(3, input$upgma_tiles_scale_2)[2],
@@ -17744,17 +18039,18 @@ server <- function(input, output, session) {
   })
   
   upgma_gradient3 <- reactive({
-    if((!is.null(input$upgma_tiles_show_3)) & 
-       (!is.null(input$upgma_fruit_variable_3)) & 
-       (!is.null(input$upgma_tiles_scale_3))) {
+    if(!is.null(input$upgma_tiles_show_3) & 
+       !is.null(input$upgma_fruit_variable_3) & 
+       !is.null(input$upgma_tiles_scale_3) &
+       !is.null(input$upgma_tiles_mapping_div_mid_3)) {
       if(input$upgma_tiles_show_3 == TRUE) {
         if(input$upgma_tiles_scale_3 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$upgma_tiles_mapping_div_mid_3 == "Zero") {
             midpoint <- 0
           } else if(input$upgma_tiles_mapping_div_mid_3 == "Mean") {
-            midpoint <- mean(Vis$meta_upgma[[input$upgma_fruit_variable_3]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_3]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_upgma[[input$upgma_fruit_variable_3]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_3]), na.rm = TRUE)
           }
           scale_fill_gradient3(low = brewer.pal(3, input$upgma_tiles_scale_3)[1],
                                mid = brewer.pal(3, input$upgma_tiles_scale_3)[2],
@@ -17808,17 +18104,18 @@ server <- function(input, output, session) {
   })
   
   upgma_gradient4 <- reactive({
-    if((!is.null(input$upgma_tiles_show_4)) & 
-       (!is.null(input$upgma_fruit_variable_4)) & 
-       (!is.null(input$upgma_tiles_scale_4))) {
+    if(!is.null(input$upgma_tiles_show_4) & 
+       !is.null(input$upgma_fruit_variable_4) & 
+       !is.null(input$upgma_tiles_scale_4) &
+       !is.null(input$upgma_tiles_mapping_div_mid_4)) {
       if(input$upgma_tiles_show_4 == TRUE) {
         if(input$upgma_tiles_scale_4 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$upgma_tiles_mapping_div_mid_4 == "Zero") {
             midpoint <- 0
           } else if(input$upgma_tiles_mapping_div_mid_4 == "Mean") {
-            midpoint <- mean(Vis$meta_upgma[[input$upgma_fruit_variable_4]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_4]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_upgma[[input$upgma_fruit_variable_4]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_4]), na.rm = TRUE)
           }
           scale_fill_gradient4(low = brewer.pal(3, input$upgma_tiles_scale_4)[1],
                                mid = brewer.pal(3, input$upgma_tiles_scale_4)[2],
@@ -17872,17 +18169,18 @@ server <- function(input, output, session) {
   })
   
   upgma_gradient5 <- reactive({
-    if((!is.null(input$upgma_tiles_show_5)) & 
-       (!is.null(input$upgma_fruit_variable_5)) & 
-       (!is.null(input$upgma_tiles_scale_5))) {
+    if(!is.null(input$upgma_tiles_show_5) & 
+       !is.null(input$upgma_fruit_variable_5) & 
+       !is.null(input$upgma_tiles_scale_5) &
+       !is.null(input$upgma_tiles_mapping_div_mid_5)) {
       if(input$upgma_tiles_show_5 == TRUE) {
         if(input$upgma_tiles_scale_5 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(input$upgma_tiles_mapping_div_mid_5 == "Zero") {
             midpoint <- 0
           } else if(input$upgma_tiles_mapping_div_mid_5 == "Mean") {
-            midpoint <- mean(Vis$meta_upgma[[input$upgma_fruit_variable_5]], na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_5]), na.rm = TRUE)
           } else {
-            midpoint <- median(Vis$meta_upgma[[input$upgma_fruit_variable_5]], na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_5]), na.rm = TRUE)
           }
           scale_fill_gradient5(low = brewer.pal(3, input$upgma_tiles_scale_5)[1],
                                mid = brewer.pal(3, input$upgma_tiles_scale_5)[2],
@@ -19110,13 +19408,13 @@ server <- function(input, output, session) {
       if(any(duplicated(DB$meta$`Assembly Name`))) {
         showModal(
           modalDialog(
-            if(sum(duplicated(DB$meta$`Assembly Name`)) == 1) {
-              HTML(paste0("Entry #", which(duplicated(DB$meta$`Assembly Name`)), 
+            if(sum(duplicated(DB$meta_true$`Assembly Name`)) == 1) {
+              HTML(paste0("Entry #", which(duplicated(DB$meta_true$`Assembly Name`)), 
                           " contains a duplicated assembly name:", "<br><br>",
-                          DB$meta$`Assembly Name`[which(duplicated(DB$meta$`Assembly Name`))]))
+                          DB$meta_true$`Assembly Name`[which(duplicated(DB$meta_true$`Assembly Name`))]))
             } else {
               HTML(append("Entries contain duplicated assembly names: <br><br>", 
-                          paste0(unique(DB$meta$`Assembly Name`[which(duplicated(DB$meta$`Assembly Name`))]), "<br>")))
+                          paste0(unique(DB$meta_true$`Assembly Name`[which(duplicated(DB$meta_true$`Assembly Name`))]), "<br>")))
             },
             title = "Duplicate entries",
             fade = TRUE,
@@ -19438,11 +19736,15 @@ server <- function(input, output, session) {
         } else {
           
           output$mst_field <- renderUI({
-            addSpinner(
-              visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px")),
-              spin = "dots",
-              color = "#ffffff"
-            )
+            if(input$mst_background_transparent == TRUE) {
+              visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px"))
+            } else {
+              addSpinner(
+                visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px")),
+                spin = "dots",
+                color = "#ffffff"
+              )
+            }
           })
           
           if(nrow(DB$meta_true) > 100) {
@@ -19519,7 +19821,7 @@ server <- function(input, output, session) {
                                      tree = input$tree_algo,
                                      na_handling = if(anyNA(DB$allelic_profile_true)){input$na_handling} else {NULL},
                                      distance = "Hamming Distances",
-                                     version = c(phylotraceVersion, "KMA-1.3.23"),
+                                     version = c(phylotraceVersion, "blat-1.3.23"),
                                      plot = "MST")
     } else if(input$tree_algo == "Neighbour-Joining") {
       Report$report_list_nj <- list(entry_table = DB$meta_true[,1:12],
@@ -19527,7 +19829,7 @@ server <- function(input, output, session) {
                                     tree = input$tree_algo,
                                     na_handling = input$na_handling,
                                     distance = "Hamming Distances",
-                                    version = c(phylotraceVersion, "KMA-1.3.23"),
+                                    version = c(phylotraceVersion, "blat-1.3.23"),
                                     plot = "NJ")
     } else {
       Report$report_list_upgma <- list(entry_table = DB$meta_true[,1:12],
@@ -19535,7 +19837,7 @@ server <- function(input, output, session) {
                                        tree = input$tree_algo,
                                        na_handling = input$na_handling,
                                        distance = "Hamming Distances",
-                                       version = c(phylotraceVersion, "KMA-1.3.23"),
+                                       version = c(phylotraceVersion, "blat-1.3.23"),
                                        plot = "UPGMA")
     }
   })
@@ -19667,23 +19969,25 @@ server <- function(input, output, session) {
   
   # No db typing message
   output$typing_no_db <- renderUI({
-    if(DB$exist) {
-      column(
-        width = 4,
-        align = "left",
-        br(),
-        br(),
-        br(),
-        br(),
-        p(
-          HTML(
-            paste0(
-              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 50px', 'To initiate allelic typing, a cgMLST scheme must be downloaded first.'
+    if(!is.null(DB$exist)) {
+      if(DB$exist) {
+        column(
+          width = 4,
+          align = "left",
+          br(),
+          br(),
+          br(),
+          br(),
+          p(
+            HTML(
+              paste0(
+                tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 50px', 'To initiate allelic typing, a cgMLST scheme must be downloaded first.'
+                )
               )
             )
           )
         )
-      )
+      } else {NULL}
     } else {NULL}
   })
   
@@ -20017,16 +20321,17 @@ server <- function(input, output, session) {
     shinyFileChoose(input,
                     "genome_file",
                     roots = c(home = path_home()),
-                    session = session)
+                    session = session,
+                    filetypes = c('', 'fasta', 'fna', 'fa'))
     Typing$single_path <- parseFilePaths(roots = c(home = path_home()), input$genome_file)
     
   })
   
-  #### Run KMA ----
+  #### Run blat ----
   
   observeEvent(input$typing_start, {
     
-    if(tail(readLogFile(), 1)!= "0") {
+    if(tail(readLogFile(), 1) != "0") {
       show_toast(
         title = "Pending Multi Typing",
         type = "warning",
@@ -20035,6 +20340,7 @@ server <- function(input, output, session) {
         width = "500px"
       )
     } else {
+      
       if(!is.null(DB$data)) {
         if(sum(apply(DB$data, 1, anyNA)) >= 1) {
           DB$no_na_switch <- TRUE
@@ -20054,17 +20360,19 @@ server <- function(input, output, session) {
       output$start_typing_ui <- NULL
       
       # Locate folder containing cgMLST scheme
-      search_string <-
-        paste0(gsub(" ", "_", DB$scheme), "_alleles")
+      search_string <- paste0(gsub(" ", "_", DB$scheme), "_alleles")
       
-      scheme_folders <-
-        dir_ls(paste0(DB$database, "/", gsub(" ", "_", DB$scheme)))
+      scheme_folders <- dir_ls(paste0(DB$database, "/", gsub(" ", "_", DB$scheme)))
       
       if (any(grepl(search_string, scheme_folders))) {
         
-        # KMA initiate index
-        scheme_select <-
-          as.character(scheme_folders[which(grepl(search_string, scheme_folders))])
+        # reset results file 
+        if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
+          unlink(list.files(paste0(getwd(), "/execute/blat_single/results"), full.names = TRUE), recursive = TRUE)
+        }
+        
+        # blat initiate index
+        scheme_select <- as.character(scheme_folders[which(grepl(search_string, scheme_folders))])
         
         show_toast(
           title = "Typing Initiated",
@@ -20074,7 +20382,7 @@ server <- function(input, output, session) {
           width = "500px"
         )
         
-        ### Run KMA Typing
+        ### Run blat Typing
         
         single_typing_df <- data.frame(
           db_path = DB$database,
@@ -20086,14 +20394,13 @@ server <- function(input, output, session) {
         
         saveRDS(single_typing_df, "execute/single_typing_df.rds")
         
-        # Execute singlye typing script
-        system(paste("chmod +x", paste0(getwd(), "/execute/kma_run.sh")))
-        system(paste0(getwd(), "/execute/kma_run.sh"), wait = FALSE)
+        # Execute single typing script
+        system(paste("chmod +x", paste0(getwd(), "/execute/blat_run.sh")))
+        system(paste0(getwd(), "/execute/blat_run.sh"), wait = FALSE)
         
-        scheme_loci <-
-          list.files(path = scheme_select, full.names = TRUE)
+        scheme_loci <- list.files(path = scheme_select, full.names = TRUE)
         
-        # Filter the files that have the ".fasta" extension
+        # Filter the files that have FASTA extensions
         Typing$scheme_loci_f <-
           scheme_loci[grep("\\.(fasta|fa|fna)$", scheme_loci, ignore.case = TRUE)]
         
@@ -20164,34 +20471,52 @@ server <- function(input, output, session) {
   # Function to update Progress Bar
   update <- reactive({
     invalidateLater(3000, session)
-    progress <- readLines(paste0(getwd(), "/execute", "/progress.fifo"))[1]
-    if(!is.na(progress)) {
-      if(!is.na(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[2])) {
-        Typing$progress_format_start <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[2])
-        Typing$pending_format <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[2])
+    
+    # write progress in process tracker
+    cat(
+      c(length(list.files(paste0(getwd(), "/execute/blat_single/results"))),
+        readLines(paste0(getwd(), "/execute/progress.txt"))[-1]), 
+      file = paste0(getwd(), "/execute/progress.txt"),
+      sep = "\n"
+    )
+    
+    progress <- readLines(paste0(getwd(), "/execute/progress.txt"))
+    
+    # if typing with blat is finished -> "attaching" phase started
+    if(!is.na(progress[1])) {
+      if(!is.na(progress[2])) {
+        if(progress[2] == "888888") {
+          Typing$progress_format_start <- progress[2]
+          Typing$pending_format <- progress[2]
+          Typing$status <- "Attaching"
+        }
       }
-      if(!is.na(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[3])) {
-        Typing$progress_format_end <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[3])
-        Typing$entry_added <- as.numeric(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[3])
+      # "attaching" phase completed
+      if(!is.na(progress[3])) {
+        if(progress[3] == "999999") {
+          Typing$progress_format_end <- progress[3]
+          Typing$entry_added <- progress[3]
+          Typing$status <- "Finalized"
+        }
       }
-      Typing$progress <- as.numeric(progress)
-      floor((as.numeric(Typing$progress) / length(Typing$scheme_loci_f)) * 100)
+      Typing$progress <- as.numeric(progress[1])
+      floor((Typing$progress / length(Typing$scheme_loci_f)) * 100)
     } else {
-      Typing$progress
+      floor((Typing$progress / length(Typing$scheme_loci_f)) * 100)
     }
   })
   
   # Observe Typing Progress
   observe({
     
-    if(!(tail(readLogFile(), 1)!= "0")) {
+    if(readLogFile()[1] == "0") {
       # Update Progress Bar
       updateProgressBar(
         session = session,
         id = "progress_bar",
         value = update(),
         total = 100,
-        title = paste0(as.character(Typing$progress), "/", length(Typing$scheme_loci_f))
+        title = paste0(as.character(Typing$progress), "/", length(Typing$scheme_loci_f), " loci screened")
       )
     }
     
@@ -20331,9 +20656,16 @@ server <- function(input, output, session) {
     
     Typing$single_path <- data.frame()
     
-    # Resetting Progress.fifo 
-    system(paste("chmod +x", paste0(getwd(), "/execute/reset_kma.sh")))
-    system(paste0(getwd(), "/execute/reset_kma.sh"), wait = TRUE)
+    # reset results file 
+    if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
+      unlink(list.files(paste0(getwd(), "/execute/blat_single/results"), full.names = TRUE), recursive = TRUE)
+      # Resetting single typing progress logfile bar 
+      con <- file(paste0(getwd(), "/execute/progress.txt"), open = "w")
+      
+      cat("0\n", file = con)   
+      
+      close(con)
+    }
     
     output$initiate_typing_ui <- renderUI({
       column(
@@ -20600,7 +20932,8 @@ server <- function(input, output, session) {
     shinyDirChoose(input,
                    "genome_file_multi",
                    roots = c(home = path_home()),
-                   session = session)
+                   session = session,
+                   filetypes = c('', 'fasta', 'fna', 'fa'))
     
     Typing$table <-
       data.frame(Include = rep(TRUE, length(list.files(
@@ -20729,14 +21062,13 @@ server <- function(input, output, session) {
       )
     } else {
       
-      # Reset multi typing reset table list
+      # Reset multi typing result list
       saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
       multi_help <- FALSE
       Typing$result_list <- NULL
       
       # Null logfile
-      system(paste("chmod +x", paste0(getwd(), "/execute/reset_multi.sh")))
-      system(paste0(getwd(), "/execute/reset_multi.sh"), wait = TRUE)
+      writeLines("0", paste0(getwd(), "/execute/script_log.txt"))
       
       # Reset User Feedback variable
       Typing$pending_format <- 0
@@ -20791,6 +21123,10 @@ server <- function(input, output, session) {
   observeEvent(input$conf_multi_kill, {
     removeModal()
     
+    # Kill multi typing and reset logfile  
+    system(paste("chmod +x", paste0(getwd(), "/execute/kill_multi.sh")))
+    system(paste0(getwd(), "/execute/kill_multi.sh"), wait = TRUE)
+    
     show_toast(
       title = "Execution cancelled",
       type = "warning",
@@ -20800,8 +21136,12 @@ server <- function(input, output, session) {
     )
     
     # Kill multi typing and reset logfile  
-    system(paste("chmod +x", paste0(getwd(), "/execute/kill_multi.sh")))
-    system(paste0(getwd(), "/execute/kill_multi.sh"), wait = TRUE)
+    writeLines("0", paste0(getwd(), "/execute/script_log.txt"))
+    
+    #Reset multi typing result list
+    saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
+    multi_help <- FALSE
+    Typing$result_list <- NULL
     
     # Reset User Feedback variable
     Typing$pending_format <- 0
@@ -20810,11 +21150,6 @@ server <- function(input, output, session) {
     Typing$failures <- 0
     Typing$successes <- 0
     Typing$multi_started <- FALSE
-    
-    # Reset multi typing result table list
-    saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
-    multi_help <- FALSE
-    Typing$result_list <- NULL
     
     output$initiate_multi_typing_ui <- renderUI({
       column(
@@ -20857,7 +21192,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$start_typ_multi, {
-    if(readLines(paste0(getwd(), "/execute", "/progress.fifo"))[1] != "0") {
+    if(readLines(paste0(getwd(), "/execute", "/progress.txt"))[1] != "0") {
       show_toast(
         title = "Pending Single Typing",
         type = "warning",
@@ -20876,6 +21211,7 @@ server <- function(input, output, session) {
           width = "500px"
         )
       } else {
+        
         removeModal()
         
         show_toast(
@@ -20911,9 +21247,9 @@ server <- function(input, output, session) {
         
         saveRDS(multi_typing_df, "execute/multi_typing_df.rds")
         
-        # Execute multi kma script  
-        system(paste("chmod +x", paste0(getwd(), "/execute/kma_multi.sh")))
-        system(paste("nohup", paste0(getwd(), "/execute/kma_multi.sh"), "> script.log 2>&1"), wait = FALSE)
+        # Execute multi blat script  
+        system(paste("chmod +x", paste0(getwd(), "/execute/blat_multi.sh")))
+        system(paste0(getwd(), "/execute/blat_multi.sh"), wait = FALSE)
       }
     }
     
@@ -21028,25 +21364,8 @@ server <- function(input, output, session) {
   
   observe({
     if(!is.null(Typing$result_list)) {
-      if(is.null(Typing$multi_table_length)) {
-        output$multi_typing_result_table <- renderRHandsontable({
-          rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
-                        stretchH = "all") %>%
-            hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
-            hot_cols(columnSorting = TRUE) %>%
-            hot_rows(rowHeights = 25) %>%
-            hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
-        
-      } else {
-        if(Typing$multi_table_length > 15) {
-          output$multi_typing_result_table <- renderRHandsontable({
-            rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
-                          stretchH = "all", height = 500) %>%
-              hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
-              hot_cols(columnSorting = TRUE) %>%
-              hot_rows(rowHeights = 25) %>%
-              hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
-        } else {
+      if(length(Typing$result_list) > 0) {
+        if(is.null(Typing$multi_table_length)) {
           output$multi_typing_result_table <- renderRHandsontable({
             rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
                           stretchH = "all") %>%
@@ -21055,12 +21374,32 @@ server <- function(input, output, session) {
               hot_rows(rowHeights = 25) %>%
               hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
           
+        } else {
+          if(Typing$multi_table_length > 15) {
+            output$multi_typing_result_table <- renderRHandsontable({
+              rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
+                            stretchH = "all", height = 500) %>%
+                hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+                hot_cols(columnSorting = TRUE) %>%
+                hot_rows(rowHeights = 25) %>%
+                hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
+          } else {
+            output$multi_typing_result_table <- renderRHandsontable({
+              rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
+                            stretchH = "all") %>%
+                hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+                hot_cols(columnSorting = TRUE) %>%
+                hot_rows(rowHeights = 25) %>%
+                hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
+            
+          }
         }
+      } else {
+        output$multi_typing_result_table <- NULL
       }
-        
     } else {
       output$multi_typing_result_table <- NULL
-      }
+    }
   })
   
   observe({
@@ -21079,29 +21418,31 @@ server <- function(input, output, session) {
   observe({
     #Render multi typing result feedback table
     
-      if(!is.null(Typing$result_list)) {
+    if(!is.null(Typing$result_list)) {
+      if(length(Typing$result_list) > 0) {
         output$multi_typing_results <- renderUI({
-        column(
-          width = 12,
-          fluidRow(
-            column(1),
-            column(
-              width = 8,
-              br(), br(),
-              br(), br(),
-              br(), br(),
-              selectInput(
-                "multi_results_picker",
-                label = h5("Select Typing Results", style = "color:white"),
-                choices = names(Typing$result_list),
-                selected = names(Typing$result_list)[length(names(Typing$result_list))],
-              ),
-              br(),
-              rHandsontableOutput("multi_typing_result_table")
+          column(
+            width = 12,
+            fluidRow(
+              column(1),
+              column(
+                width = 8,
+                br(), br(),
+                br(), br(),
+                br(), br(),
+                selectInput(
+                  "multi_results_picker",
+                  label = h5("Select Typing Results", style = "color:white"),
+                  choices = names(Typing$result_list),
+                  selected = names(Typing$result_list)[length(names(Typing$result_list))],
+                ),
+                br(),
+                rHandsontableOutput("multi_typing_result_table")
+              )
             )
           )
-        )
-      })
+        })
+      }
     }
   })
   

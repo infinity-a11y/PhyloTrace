@@ -12,16 +12,17 @@ genome_folder=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[,'genome_folder']
 genome_names=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[,'genome_names'])")
 alleles=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[,'alleles'])")
 
-# Directory name
-mkdir $base_path/execute/kma_multi
-results="$base_path/execute/kma_multi/results"
+# Remove the existing multi directory
+if [ -d "$base_path/execute/blat_multi" ]; then
+    rm -r "$base_path/execute/blat_multi"
+fi
+mkdir "$base_path/execute/blat_multi"
 
-# Remove the existing directory (if it exists)
+# Remove the existing results directory
+results="$base_path/execute/blat_multi/results"
 if [ -d "$results" ]; then
     rm -r "$results"
 fi
-
-# Create a new directory
 mkdir "$results"
 
 selected_genomes="$base_path/execute/selected_genomes"
@@ -54,9 +55,9 @@ for file in "${file_names[@]}"; do
 done
 
 #INDEXING GENOME AS DATABASE
-kma_database="$base_path/execute/kma_multi/$scheme"
+blat_database="$base_path/execute/blat_multi/$scheme"
 
-#RUNNING KMA Loop
+#RUNNING blat Loop
 genome_filename_noext=""
 
 #Indexing Loop
@@ -69,21 +70,15 @@ for genome in "$selected_genomes"/*; do
     genome_filename=$(basename "$genome")
     genome_filename_noext="${genome_filename%.*}"
     log_message "Processing $genome_filename"
-    kma index -i "$genome" -o "$kma_database"
     fi
     mkdir "$results/$genome_filename_noext"
-
-    #Running Loop
-    for query_file in "$alleles"/*.{fasta,fa,fna}; do
-        if [ -f "$query_file" ]; then
-        query_filename=$(basename "$query_file")
-        query_filename_noext="${query_filename%.*}"
-        output_file="$results/$genome_filename_noext/$query_filename_noext"
-        #kma -i "$query_file" -o "$output_file" -t_db "$kma_database" -nc -status
-        pblat $genome "$query_file" "$output_file.psl"
-        fi
-    done
+    
+    result_folder="$results/$genome_filename_noext"
+    
+    # Run parallelized BLAT
+    find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name "*.fna" \) | parallel pblat $genome {} "$result_folder/{/.}.psl"
+    
     log_message "Attaching $genome_filename"
-    Rscript "$base_path/execute/automatic_typing.R"
+    Rscript "$base_path/execute/automatic_typing.R" "$genome_filename"
 done
 log_message "Multi Typing finalized."

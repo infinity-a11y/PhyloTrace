@@ -139,10 +139,11 @@ bash install_phylotrace.sh
 
 ### 2.4 Uninstall
 To uninstall PhyloTrace from your system, remove the application directory and run the following command to remove the
-desktop launcher:
+desktop launcher and the PhyloTrace conda environment:
 ```bash
 rm $HOME/.local/share/applications/PhyloTrace.desktop
 rm $HOME/.local/share/icons/hicolor/scalable/apps/PhyloTrace.png
+conda remove -n PhyloTrace --all -y
 ```
 
 ### 2.5 Troubleshooting
