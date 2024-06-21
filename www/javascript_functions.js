@@ -186,7 +186,7 @@ $(document).on('click', '#save_plot_png', function() {
 // MST bmp Download
 $(document).on('click', '#save_plot_bmp', function() {
   
-    var canvases = document.querySelectorAll('canvas');
+var canvases = document.querySelectorAll('canvas');
 
 var legendCanvas = canvases[0];
 var plotCanvas = canvases[1];
