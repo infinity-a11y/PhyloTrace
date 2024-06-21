@@ -89,7 +89,9 @@ If you use PhyloTrace for your paper or publication, please give us credit by ci
 
 ## 2 Installation
 
-Download the source code of the latest release [Version 1.3.0](https://github.com/infinity-a11y/PhyloTrace/archive/refs/heads/master.zip) and extract/unzip it to a location on your system.
+Download the source code of the latest release [Version 1.4.0](https://github.com/infinity-a11y/PhyloTrace/archive/refs/tags/v1.4.0.zip) and extract/unzip it to a location on your system. 
+
+> If an older version is already installed on your system, make sure to first uninstall PhyloTrace (see [2.4 Uninstall](#24-uninstall)). Since the local database folder is located outside of the app directory the previous analyses and isolates remain unaffected. To update to the newer version first uninstall the previous one, download the new version and follow the complete installation procedure as described below.
 
 ### 2.1 Install Miniconda
 Is ***Miniconda*** or another ***Conda Distribution*** installed on the system?
