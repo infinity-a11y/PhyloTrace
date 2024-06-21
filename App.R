@@ -33,6 +33,8 @@ library(phangorn)
 library(cowplot)
 library(viridis)
 library(RColorBrewer)
+library(bslib)
+library(bsicons)
 # Bioconductor Packages
 library(treeio)
 library(ggtree)
