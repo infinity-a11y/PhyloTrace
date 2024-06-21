@@ -7,6 +7,20 @@ header img{
 
 }
 
+.btn-linkedin {
+    color: white;
+    background-color: #0077B5;
+}
+
+.btn-linkedin:hover {
+  background-color: #006193;
+  color: white;
+}
+
+.btn-linkedin .fa-linkedin {
+    color: white;
+}
+
 #subtitle {
     color: white;
     text-align: center;
@@ -16,8 +30,8 @@ a {
     color: #0df2dc;
 }
 
-a:hover {
-    color:#0a9183;
+.fa {
+  margin-right: 10px;
 }
 
 body {
@@ -52,8 +66,8 @@ body {
 }
 
 .bottom-buttons button {
-    margin-left: 2vw;
-    margin-right: 2vw;
+    margin-left: 0.5vw;
+    margin-right: 0.5vw;
     min-width: 200px;
 }
 
