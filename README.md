@@ -29,7 +29,7 @@ We want to make cgMLST analysis and genomic pathogen monitoring accessible to a 
 ## Table of Content
 
 * [1 Getting Started](#1-getting-started)
-    * [1.1 Compatibility](#11-workflow)
+    * [1.1 Workflow](#11-workflow)
     * [1.2 Compatibility](#12-compatibility)
     * [1.3 Citation](#13-citation)
 * [2 Installation](#2-installation)
@@ -38,7 +38,7 @@ We want to make cgMLST analysis and genomic pathogen monitoring accessible to a 
     * [2.3 Create Launcher](#23-create-desktop-launcher)
     * [2.4 Uninstall](#24-uninstall)
     * [2.5 Troubleshooting](#25-troubleshooting)
-* [3 Using PhyloTrace](#3-using-phylotrace)
+* [3 Launch PhyloTrace](#3-launch-phylotrace)
 * [4 Roadmap](#4-roadmap)
 
 ## 1 Getting Started
@@ -50,13 +50,15 @@ PhyloTrace is an open-source platform for _in silico_ bacterial typing with core
 The **user manual** containing detailed instruction and information is available at [www.phylotrace.com/user-manual](https://www.phylotrace.com/user-manual). 
 
 **Downloading cgMLST Scheme**  
+
 Download a standardized scheme that defines the genetic targets, nomenclature and variant sequences for the bacterial species of interest from the [cgMLST.org](https://www.cgmlst.org/ncs) public database. The connection to the server including information on the scheme is integrated in the app. Once one of the 32 available species has been selected and downloaded, everything is ready to go. 
 <div style="display: flex; justify-content: space-between;">
-  <img src="docs/resources/preview_11.png" width="48%">
-  <img src="docs/resources/preview_10.png" width="48%">
+  <img src="docs/resources/preview_11.png" width="47.5%">
+  <img src="docs/resources/preview_10.png" width="48.5%">
 </div> <br> 
 
 **Allelic Typing**  
+
 Whole-genome assemblies (`.fasta`) can be entered into the pipeline and are automatically analyzed at high speed. Using the downloaded cgMLST scheme, the bacterial genome is aligned to the known variants at the respective genetic target. By iterating this process over all genes that are part of the core genome, an individual allele profile is generated. If a potential new genetic variant is discovered, it is checked whether the existing allele is still capable of producing a functional protein. Successfully typed assemblies are appended to the local database in real time.  
 <div style="display: flex; justify-content: space-between;">
   <img src="docs/resources/preview_01.png" width="48%">
@@ -80,7 +82,7 @@ Create and customize sophisticated phylogenetic trees (Neighbour-Joining & UPGMA
 </div>
 
 
-### 1.1 Compatibility
+### 1.2 Compatibility
 
 #### Minimum System Requirements
 
@@ -96,7 +98,7 @@ Create and customize sophisticated phylogenetic trees (Neighbour-Joining & UPGMA
 >*The **Firefox** browser has display-issues that might impair the usage.*
 
 
-### 1.2 Citation
+### 1.3 Citation
 
 If you use PhyloTrace for your paper or publication, cite us with 
 
@@ -199,9 +201,11 @@ bash run_phylotrace.sh
 | Opera  | *opera*  |
 | Vivaldi  | *vivaldi*  |
 
-## 3 Using PhyloTrace
+## 3 Launch PhyloTrace
 
-Start PhyloTrace by using the launcher in Applications Menu. A tab with the app will automatically open in the default browser. 
+Start PhyloTrace by using the launcher in Applications Menu. A browser tab with the app will automatically open in the default browser. 
+
+<img src="docs/resources/app_icon.png" width="60%"> <br>
 
 The **user manual** containing documentation is available at [www.phylotrace.com/user-manual](https://www.phylotrace.com/user-manual). 
 
