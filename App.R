@@ -5731,7 +5731,8 @@ server <- function(input, output, session) {
   observe({
     shinyDirChoose(input,
                    "db_location",
-                   roots = c(home = path_home()),
+                   roots = c(Home = path_home(), Root = "/"),
+                   defaultRoot = "Home",
                    session = session)
     
     if(!is.null(DB$select_new)) {
@@ -5739,7 +5740,7 @@ server <- function(input, output, session) {
         if(DB$block_db == FALSE) {
           DB$database <- as.character(
             parseDirPath(
-              roots = c(home = path_home()),
+              roots = c(Home = path_home(), Root = "/"),
               input$db_location
             )
           )
@@ -8943,13 +8944,14 @@ server <- function(input, output, session) {
   observe({
     shinyDirChoose(input,
                    "create_new_db",
-                   roots = c(home = path_home()),
+                   roots = c(Home = path_home(), Root = "/"),
+                   defaultRoot = "Home",
                    session = session)
     
     if(!is.null(input$create_new_db)) {
       DB$new_database <- as.character(
         parseDirPath(
-          roots = c(home = path_home()), 
+          roots = c(Home = path_home(), Root = "/"),
           input$create_new_db
         )
       )
@@ -20340,10 +20342,11 @@ server <- function(input, output, session) {
     # Get selected Genome in Single Mode
     shinyFileChoose(input,
                     "genome_file",
-                    roots = c(home = path_home()),
+                    roots = c(Home = path_home(), Root = "/"),
+                    defaultRoot = "Home",
                     session = session,
                     filetypes = c('', 'fasta', 'fna', 'fa'))
-    Typing$single_path <- parseFilePaths(roots = c(home = path_home()), input$genome_file)
+    Typing$single_path <- parseFilePaths(roots = c(Home = path_home(), Root = "/"), input$genome_file)
     
   })
   
@@ -20951,18 +20954,19 @@ server <- function(input, output, session) {
     # Get selected Genome in Multi Mode
     shinyDirChoose(input,
                    "genome_file_multi",
-                   roots = c(home = path_home()),
+                   roots = c(Home = path_home(), Root = "/"),
+                   defaultRoot = "Home",
                    session = session,
                    filetypes = c('', 'fasta', 'fna', 'fa'))
     
     Typing$table <-
       data.frame(Include = rep(TRUE, length(list.files(
         as.character(parseDirPath(
-          roots = c(home = path_home()), input$genome_file_multi
+          roots = c(Home = path_home(), Root = "/"), input$genome_file_multi
         ))
       ))),
       Files = list.files(as.character(
-        parseDirPath(roots = c(home = path_home()), input$genome_file_multi)
+        parseDirPath(roots = c(Home = path_home(), Root = "/"), input$genome_file_multi)
       )))
     
     if (between(nrow(Typing$table), 1, 15)) {
@@ -21260,7 +21264,7 @@ server <- function(input, output, session) {
           db_path = DB$database,
           wd = getwd(),
           scheme = paste0(gsub(" ", "_", DB$scheme)),
-          genome_folder = as.character(parseDirPath(roots = c(home = path_home()), input$genome_file_multi)),
+          genome_folder = as.character(parseDirPath(roots = c(Home = path_home(), Root = "/"), input$genome_file_multi)),
           genome_names = paste(Typing$genome_selected$Files[which(Typing$genome_selected$Include == TRUE)], collapse= " "),
           alleles = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")
         )
