@@ -5441,11 +5441,10 @@ server <- function(input, output, session) {
   
   phylotraceVersion <- paste("PhyloTrace-1.1.1", Sys.Date())
   
-  #FIXME Uncomment after finish
-  # # Kill server on session end
-  # session$onSessionEnded( function() {
-  #   stopApp()
-  # })
+  # Kill server on session end
+  session$onSessionEnded( function() {
+    stopApp()
+  })
   
   # Disable MST variable mappings
   shinyjs::disable('mst_edge_label') 
