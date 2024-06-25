@@ -9,11 +9,12 @@ unset R_HOME
 base_path=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'wd'])")
 
 # reset progress
-echo 0 > "$base_path/execute/progress.txt"
+echo 0 > "$base_path/logs/progress.txt"
 
 # Get variables
 scheme=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'scheme'])")
 alleles=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'alleles'])")
+genome_name=$(Rscript -e "cat(basename(readRDS('single_typing_df.rds')[,'genome']))")
 
 # Remove the existing directory (if it exists)
 if [ -d "$base_path/execute/blat_single" ]; then
@@ -43,8 +44,11 @@ parallel --citation
 find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name "*.fna" \) | parallel pblat $genome {} "$results/{/.}.psl"
 
 # Start appending results
-echo 888888 >> "$base_path/execute/progress.txt"
+echo 888888 >> "$base_path/logs/progress.txt"
+echo "Initiating addition of $genome_name (attaching)" >> "$base_path/logs/output.log"
 Rscript "$base_path/execute/single_typing.R"
+wait
 
 # Single typing finalized
-echo 999999 >> "$base_path/execute/progress.txt"
+echo 999999 >> "$base_path/logs/progress.txt"
+echo "Finished typing of $genome_name" >> "$base_path/logs/output.log"

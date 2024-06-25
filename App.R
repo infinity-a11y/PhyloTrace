@@ -5439,7 +5439,7 @@ ui <- dashboardPage(
 
 server <- function(input, output, session) {
   
-  phylotraceVersion <- paste("PhyloTrace-1.1.1", Sys.Date())
+  phylotraceVersion <- paste("PhyloTrace-1.4.1", Sys.Date())
   
   # Kill server on session end
   session$onSessionEnded( function() {
@@ -5450,6 +5450,11 @@ server <- function(input, output, session) {
   shinyjs::disable('mst_edge_label') 
   
   ## Functions ----
+  
+  # Function to log messages to logfile
+  log_message <- function(log_file, message, append = TRUE) {
+    cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "-", message, "\n", file = log_file, append = append)
+  }
   
   # Modified gheatmap function
   gheatmap.mod <- function(p, data, offset=0, width=1, low="green", high="red", color="white",
@@ -5689,6 +5694,24 @@ server <- function(input, output, session) {
     HTML(format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"))
   })
   
+  # Initiate logging
+  
+  if(!dir_exists(paste0(getwd(), "/logs"))) {
+    dir_create(paste0(getwd(), "/logs"))
+  }
+  
+  if(!file.exists(paste0(getwd(), "/logs/output.log"))) {
+    file_create(paste0(getwd(), "/logs/output.log"))
+  }
+  
+  out <- file(paste0(getwd(), "/logs/output.log"), open = "wt")
+  
+  sink(file = out, append = TRUE, type = "message")
+  
+  log_message(log_file = out,
+              message = "Session started",
+              append = FALSE)
+  
   # Declare reactive variables
   Startup <- reactiveValues(sidebar = TRUE, 
                             header = TRUE) # reactive variables related to startup process
@@ -5771,7 +5794,7 @@ server <- function(input, output, session) {
   
   # Null typing progress trackers
   writeLines("0", paste0(getwd(), "/execute/script_log.txt"))
-  writeLines("0\n", paste0(getwd(), "/execute/progress.txt"))
+  writeLines("0\n", paste0(getwd(), "/logs/progress.txt"))
   
   if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
     unlink(list.files(paste0(getwd(), "/execute/blat_single/results"), full.names = TRUE), recursive = TRUE)
@@ -5851,10 +5874,12 @@ server <- function(input, output, session) {
   
   # User selection new db or load db
   observeEvent(input$create_new_db, {
+    log_message(out, message = "Input create_new_db")
     DB$select_new <- TRUE
   })
   
   observeEvent(input$db_location, {
+    log_message(out, message = "Input db_location")
     DB$select_new <- FALSE
   })
   
@@ -6011,9 +6036,42 @@ server <- function(input, output, session) {
   
   observeEvent(input$load, {
     
+    log_message(out, message = "Input load")
+    
+    # Null single typing status
+    if(readLines(paste0(getwd(), "/logs/progress.txt"))[1] != "0") {
+      Typing$progress <- 0
+      
+      Typing$progress_format <- 900000
+      
+      output$single_typing_progress <- NULL
+      
+      output$typing_fin <- NULL
+      
+      output$single_typing_results <- NULL
+      
+      output$typing_formatting <- NULL
+      
+      Typing$single_path <- data.frame()
+      
+      # reset results file 
+      if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
+        unlink(list.files(paste0(getwd(), "/execute/blat_single/results"), full.names = TRUE), recursive = TRUE)
+        # Resetting single typing progress logfile bar 
+        con <- file(paste0(getwd(), "/logs/progress.txt"), open = "w")
+        
+        cat("0\n", file = con)   
+        
+        close(con)
+      }
+    }
+    
     # Load app elements based on database availability and missing value presence
     if(!is.null(DB$select_new)) {
       if(DB$select_new & (paste0(DB$new_database, "/Database") %in% dir_ls(DB$new_database))) {
+        
+        log_message(log_file = out, message = "Directory already contains a database")
+        
         show_toast(
           title = "Directory already contains a database",
           type = "error",
@@ -6024,6 +6082,8 @@ server <- function(input, output, session) {
         DB$load_selected <- FALSE
         
       } else if(DB$select_new | (DB$select_new == FALSE & is.null(input$scheme_db))) {
+        
+        log_message(log_file = out, message = paste0("New database created in ", DB$new_database))
         
         DB$check_new_entries <- TRUE
         
@@ -6138,6 +6198,8 @@ server <- function(input, output, session) {
         output$download_loci <- NULL
         output$entry_table_controls <- NULL
       }
+    } else {
+      log_message(log_file = out, message = paste0("Loading existing ", input$scheme_db, " database from ", DB$database))
     }
     
     if(DB$load_selected == TRUE) {
@@ -6196,6 +6258,8 @@ server <- function(input, output, session) {
           if(!any(grepl("alleles", dir_ls(paste0(
             DB$database, "/", 
             gsub(" ", "_", DB$scheme)))))) {
+            
+            log_message(log_file = out, message = "Missing loci files")
             
             # Show message that loci files are missing
             showModal(
@@ -6261,6 +6325,8 @@ server <- function(input, output, session) {
             gsub(" ", "_", DB$scheme)))))) {
             
             output$download_scheme_info <- NULL
+            
+            log_message(log_file = out, message = "Scheme info file missing")
             
             # Show message that scheme info is missing
             showModal(
@@ -6328,6 +6394,8 @@ server <- function(input, output, session) {
             
             # Dont render target download button
             output$download_loci <- NULL
+            
+            log_message(log_file = out, message = "Missing loci info (targets.csv)")
             
             # Show message that scheme info is missing
             showModal(
@@ -6467,6 +6535,8 @@ server <- function(input, output, session) {
             # Check if number of loci/fastq-files of alleles is coherent with number of targets in scheme
             if(number_loci != length(dir_ls(paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")))) {
               
+              log_message(log_file = out, message = paste0("Loci files are missing in the local ", DB$scheme, " folder"))
+              
               # Show message that loci files are missing
               showModal(
                 modalDialog(
@@ -6564,7 +6634,7 @@ server <- function(input, output, session) {
                 DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
                 
                 # Null pipe 
-                con <- file(paste0(getwd(), "/execute/progress.txt"), open = "w")
+                con <- file(paste0(getwd(), "/logs/progress.txt"), open = "w")
                 
                 cat("0\n", file = con)
                 
@@ -8292,23 +8362,25 @@ server <- function(input, output, session) {
                 #### Missing Values UI ----
                 
                 # Missing values calculations and table 
-                NA_table <- DB$allelic_profile[, colSums(is.na(DB$allelic_profile)) != 0]
-                
-                NA_table <- NA_table[rowSums(is.na(NA_table)) != 0,]
-                
-                NA_table[is.na(NA_table)] <- "NA"
-                
-                NA_table <- NA_table %>% 
-                  cbind("Assembly Name" = DB$meta[rownames(NA_table),]$`Assembly Name`) %>%
-                  cbind("Errors" = DB$meta[rownames(NA_table),]$Errors) %>%
-                  relocate("Assembly Name", "Errors")
-                
                 observe({
+                  NA_table <- DB$allelic_profile[, colSums(is.na(DB$allelic_profile)) != 0]
+                  
+                  NA_table <- NA_table[rowSums(is.na(NA_table)) != 0,]
+                  
+                  NA_table[is.na(NA_table)] <- "NA"
+                  
+                  NA_table <- NA_table %>% 
+                    cbind("Assembly Name" = DB$meta[rownames(NA_table),]$`Assembly Name`) %>%
+                    cbind("Errors" = DB$meta[rownames(NA_table),]$Errors) %>%
+                    relocate("Assembly Name", "Errors")
+                  
+                  DB$na_table <- NA_table
+                  
                   if(!is.null(input$miss_val_height)) {
-                    if(nrow(NA_table) < 31) {
+                    if(nrow(DB$na_table) < 31) {
                       output$table_missing_values <- renderRHandsontable({
                         rhandsontable(
-                          NA_table,
+                          DB$na_table,
                           rowHeaders = NULL
                         ) %>%
                           hot_context_menu(allowRowEdit = FALSE,
@@ -8316,12 +8388,12 @@ server <- function(input, output, session) {
                                            allowReadOnly = TRUE) %>%
                           hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                           hot_rows(fixedRowsTop = 0) %>%
-                          hot_col(1:ncol(NA_table), valign = "htMiddle", halign = "htCenter")
+                          hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htCenter")
                       })
                     } else {
                       output$table_missing_values <- renderRHandsontable({
                         rhandsontable(
-                          NA_table,
+                          DB$na_table,
                           rowHeaders = NULL,
                           height = miss.val.height()
                         ) %>%
@@ -8330,7 +8402,7 @@ server <- function(input, output, session) {
                                            allowReadOnly = TRUE) %>%
                           hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                           hot_rows(fixedRowsTop = 0) %>%
-                          hot_col(1:ncol(NA_table), valign = "htMiddle", halign = "htCenter")
+                          hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htCenter")
                       })
                     }
                   }
@@ -8581,6 +8653,8 @@ server <- function(input, output, session) {
           }
         }
       } else {
+        
+        log_message(out, message = "Invalid scheme folder")
         show_toast(
           title = "Invalid scheme folder",
           type = "warning",
@@ -8904,6 +8978,8 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
+    log_message(out, message = "Input reload_db")
+    
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -8912,7 +8988,7 @@ server <- function(input, output, session) {
         timer = 6000,
         width = "500px"
       )
-    } else if(readLines(paste0(getwd(), "/execute", "/progress.txt"))[1] != "0") {
+    } else if(readLines(paste0(getwd(), "/logs/progress.txt"))[1] != "0") {
       show_toast(
         title = "Pending Single Typing",
         type = "warning",
@@ -8959,6 +9035,8 @@ server <- function(input, output, session) {
   
   # Undo db changes
   observeEvent(input$undo_changes, {
+    log_message(out, message = "Input undo_changes")
+    
     Data <- readRDS(paste0(
       DB$database, "/",
       gsub(" ", "_", DB$scheme),
@@ -9218,11 +9296,14 @@ server <- function(input, output, session) {
       }
     }
   })
-  
+   
   DB$count <- 0
   
   observeEvent(input$add_new_variable, {
+    log_message(out, message = "Input add_new_variable")
+    
     if(nchar(input$new_var_name) > 12) {
+      log_message(out, message = "Add variable; max. 10 character")
       show_toast(
         title = "Max. 10 characters",
         type = "warning",
@@ -9232,6 +9313,7 @@ server <- function(input, output, session) {
       )
     } else {
       if (input$new_var_name == "") {
+        log_message(out, message = "Add variable; min. 1 character")
         show_toast(
           title = "Min. 1 character",
           type = "error",
@@ -9241,6 +9323,7 @@ server <- function(input, output, session) {
         )
       } else {
         if(trimws(input$new_var_name) %in% names(DB$meta)) {
+          log_message(out, message = "Add variable; name already existing")
           show_toast(
             title = "Variable name already existing",
             type = "warning",
@@ -9270,6 +9353,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_new_var, {
+    log_message(out, message = "Input conf_new_var")
     
     removeModal()
     
@@ -9299,6 +9383,8 @@ server <- function(input, output, session) {
     
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
     
+    log_message(out, message = paste0("New custom variable added: ", input$new_var_name))
+    
     show_toast(
       title = paste0("Variable ", trimws(input$new_var_name), " added"),
       type = "success",
@@ -9310,7 +9396,10 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$delete_new_variable, {
+    log_message(out, message = "Input delete_new_variable")
+    
     if (input$del_which_var == "") {
+      log_message(out, message = "Delete custom variables; no custom variable")
       show_toast(
         title = "No custom variables",
         type = "error",
@@ -9339,6 +9428,8 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_var_del, {
+    log_message(out, message = "Input conf_var_del")
+    
     DB$change <- TRUE
     
     removeModal()
@@ -9355,6 +9446,8 @@ server <- function(input, output, session) {
       timer = 6000
     )
     
+    log_message(out, message = paste0("Variable ", input$del_which_var, " removed"))
+    
     DB$cust_var <- DB$cust_var[-which(DB$cust_var$Variable == input$del_which_var),]
     DB$data <- select(DB$data, -(input$del_which_var))
     DB$meta <- select(DB$data, 1:(12 + nrow(DB$cust_var)))
@@ -9368,16 +9461,22 @@ server <- function(input, output, session) {
   # Select all button
   
   observeEvent(input$sel_all_entries, {
+    log_message(out, message = "Input sel_all_entries")
+    
     DB$data$Include <- TRUE
   })
   
   observeEvent(input$desel_all_entries, {
+    log_message(out, message = "Input desel_all_entries")
+    
     DB$data$Include <- FALSE
   })
   
   # Switch to entry table
   
   observeEvent(input$change_entries, {
+    log_message(out, message = "Input change_entries")
+    
     removeModal()
     updateTabItems(session, "tabs", selected = "db_browse_entries")
   })
@@ -9386,6 +9485,7 @@ server <- function(input, output, session) {
   
   output$download_na_matrix <- downloadHandler(
     filename = function() {
+      log_message(out, message = paste0("Save missing values table ", paste0(Sys.Date(), "_", gsub(" ", "_", DB$scheme), "_Missing_Values.csv")))
       paste0(Sys.Date(), "_", gsub(" ", "_", DB$scheme), "_Missing_Values.csv")
     },
     content = function(file) {
@@ -9398,6 +9498,8 @@ server <- function(input, output, session) {
   
   output$download_schemeinfo <- downloadHandler(
     filename = function() {
+      log_message(out, message = paste0("Save scheme info table ", paste0(gsub(" ", "_", DB$scheme), "_scheme.csv")))
+      
       paste0(gsub(" ", "_", DB$scheme), "_scheme.csv")
     },
     content = function(file) {
@@ -9416,6 +9518,8 @@ server <- function(input, output, session) {
   
   output$download_loci_info <- downloadHandler(
     filename = function() {
+      log_message(out, message = paste0("Save loci info table ", paste0(gsub(" ", "_", DB$scheme), "_Loci.csv")))
+      
       paste0(gsub(" ", "_", DB$scheme), "_Loci.csv")
     },
     content = function(file) {
@@ -9433,6 +9537,8 @@ server <- function(input, output, session) {
   
   output$download_entry_table <- downloadHandler(
     filename = function() {
+      log_message(out, message = paste0("Save entry table ", paste0(Sys.Date(), "_", gsub(" ", "_", DB$scheme), "_Entries.csv")))
+      
       paste0(Sys.Date(), "_", gsub(" ", "_", DB$scheme), "_Entries.csv")
     },
     content = function(file) {
@@ -9453,6 +9559,8 @@ server <- function(input, output, session) {
   # Save Edits Button
   
   observeEvent(input$edit_button, {
+    log_message(out, message = "Input edit_button")
+    
     showModal(
       modalDialog(
         if(length(DB$deleted_entries > 0)) {
@@ -9480,10 +9588,13 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$Cancel, {
+    log_message(out, message = "Input Cancel")
+    
     removeModal()
   })
   
   observeEvent(input$conf_db_save, {
+    log_message(out, message = "Input conf_db_save")
     
     Data <- readRDS(paste0(
       DB$database, "/",
@@ -9569,7 +9680,10 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$del_button, {
+    log_message(out, message = "Input del_button")
+    
     if (length(input$select_delete) < 1) {
+      log_message(out, message = "Delete entries; no entry selected")
       show_toast(
         title = "No entry selected",
         type = "warning",
@@ -9577,8 +9691,10 @@ server <- function(input, output, session) {
         timer = 4000,
         width = "500px"
       )
-    } else if((readLines(paste0(getwd(), "/execute", "/progress.txt"))[1] != "0") |
+    } else if((readLines(paste0(getwd(), "/logs/progress.txt"))[1] != "0") |
               (tail(readLogFile(), 1) != "0")) {
+      log_message(out, message = "Delete entries; pending typing")
+      
       show_toast(
         title = "Pending Typing",
         type = "warning",
@@ -9622,6 +9738,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_delete_all, {
+    log_message(out, message = "Input conf_delete_all")
     
     # remove file with typing data
     file.remove(paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/Typing.rds"))
@@ -9649,6 +9766,7 @@ server <- function(input, output, session) {
   DB$deleted_entries <- character(0)
   
   observeEvent(input$conf_delete, {
+    log_message(out, message = "Input conf_delete")
     
     DB$deleted_entries <- append(DB$deleted_entries, DB$data$Index[as.numeric(input$select_delete)])
     
@@ -9957,6 +10075,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$download_cgMLST, {
+    log_message(out, message = paste0("Started download of scheme for ", Scheme$folder_name))
     
     show_toast(
       title = "Download started",
@@ -10041,6 +10160,8 @@ server <- function(input, output, session) {
       timer = 5000,
       width = "400px"
     )
+    
+    log_message(out, message = "Download successful")
     
     showModal(
       modalDialog(
@@ -10136,6 +10257,7 @@ server <- function(input, output, session) {
   
   # Add custom label
   observeEvent(input$nj_add_new_label, {
+    
     if(nchar(input$nj_new_label_name) > 0) {
       if(!(input$nj_new_label_name %in% Vis$custom_label_nj)) {
         Vis$custom_label_nj <- rbind(Vis$custom_label_nj, input$nj_new_label_name) 
@@ -10163,6 +10285,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$upgma_add_new_label, {
+    
     if(nchar(input$upgma_new_label_name) > 0) {
       if(!(input$upgma_new_label_name %in% Vis$custom_label_upgma)) {
         Vis$custom_label_upgma <- rbind(Vis$custom_label_upgma, input$upgma_new_label_name) 
@@ -10191,6 +10314,7 @@ server <- function(input, output, session) {
   
   # Delete custom label
   observeEvent(input$nj_del_label, {
+    
     if(nrow(Vis$custom_label_nj) > 1) {
       Vis$custom_label_nj <- Vis$custom_label_nj[-which(Vis$custom_label_nj[,1] == input$nj_custom_label_sel), , drop = FALSE]
     } else if (nrow(Vis$custom_label_nj) == 1) {
@@ -10202,6 +10326,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$upgma_del_label, {
+    
     if(nrow(Vis$custom_label_upgma) > 1) {
       Vis$custom_label_upgma <- Vis$custom_label_upgma[-which(Vis$custom_label_upgma[,1] == input$upgma_custom_label_sel), , drop = FALSE]
     } else if (nrow(Vis$custom_label_upgma) == 1) {
@@ -10374,6 +10499,7 @@ server <- function(input, output, session) {
   
   # Apply custom label changes
   observeEvent(input$nj_cust_label_save, {
+    
     if(!is.null(Vis$nj_label_pos_y) &
        !is.null(Vis$nj_label_pos_x) &
        !is.null(Vis$nj_label_size) &
@@ -10385,6 +10511,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$upgma_cust_label_save, {
+    
     if(!is.null(Vis$upgma_label_pos_y) &
        !is.null(Vis$upgma_label_pos_x) &
        !is.null(Vis$upgma_label_size) &
@@ -11604,6 +11731,7 @@ server <- function(input, output, session) {
   
   # For Layout change update tiles offset position
   observeEvent(input$nj_layout, {
+    
     if(input$nj_layout == "circular" | input$nj_layout == "inward") {
       offset <- 0.05
       step <- 0.01
@@ -11624,6 +11752,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$upgma_layout, {
+    
     if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
       offset <- 0.05
       step <- 0.01
@@ -11740,6 +11869,7 @@ server <- function(input, output, session) {
   
   # Update value if new variables added
   observeEvent(input$nj_heatmap_select, {
+    
     length_input <- length(input$nj_heatmap_select)
     if((!(input$nj_layout == "circular")) & (!(input$nj_layout == "inward"))) {
       if(length_input < 3) {
@@ -11764,6 +11894,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$upgma_heatmap_select, {
+    
     length_input <- length(input$upgma_heatmap_select)
     if((!(input$upgma_layout == "circular")) & (!(input$upgma_layout == "inward"))) {
       if(length_input < 3) {
@@ -12009,22 +12140,27 @@ server <- function(input, output, session) {
   
   # Tile number selector update each other
   observeEvent(input$nj_tile_num, {
+    
     updateSelectInput(session, "nj_tile_number", selected = input$nj_tile_num)
   })
   
   observeEvent(input$nj_tile_number, {
+    
     updateSelectInput(session, "nj_tile_num", selected = input$nj_tile_number)
   })
   
   observeEvent(input$nj_tipcolor_mapping_show, {
+    
     updateCheckboxInput(session, "nj_tippoint_show", value = input$nj_tipcolor_mapping_show)
   })
   
   observeEvent(input$nj_tipshape_mapping_show, {
+    
     updateCheckboxInput(session, "nj_tippoint_show", value = input$nj_tipshape_mapping_show)
   })
   
   observeEvent(input$nj_tippoint_show, {
+    
     if(input$nj_tippoint_show == FALSE) {
       updateCheckboxInput(session, "nj_tipcolor_mapping_show", value = FALSE)
       updateCheckboxInput(session, "nj_tipshape_mapping_show", value = FALSE)
@@ -12032,22 +12168,27 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$upgma_tile_num, {
+    
     updateSelectInput(session, "upgma_tile_number", selected = input$upgma_tile_num)
   })
   
   observeEvent(input$upgma_tile_number, {
+    
     updateSelectInput(session, "upgma_tile_num", selected = input$upgma_tile_number)
   })
   
   observeEvent(input$upgma_tipcolor_mapping_show, {
+    
     updateCheckboxInput(session, "upgma_tippoint_show", value = input$upgma_tipcolor_mapping_show)
   })
   
   observeEvent(input$upgma_tipshape_mapping_show, {
+    
     updateCheckboxInput(session, "upgma_tippoint_show", value = input$upgma_tipshape_mapping_show)
   })
   
   observeEvent(input$upgma_tippoint_show, {
+    
     if(input$upgma_tippoint_show == FALSE) {
       updateCheckboxInput(session, "upgma_tipcolor_mapping_show", value = FALSE)
       updateCheckboxInput(session, "upgma_tipshape_mapping_show", value = FALSE)
@@ -15761,6 +15902,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$mst_color_var, {
+    
     if(input$mst_color_var == TRUE) {
       updateSelectizeInput(session, inputId = "mst_node_shape", choices = c("Pie Nodes" = "custom"))
       updateSelectizeInput(session, inputId = "mst_node_label", choices = c("Assembly Name"))
@@ -18886,6 +19028,7 @@ server <- function(input, output, session) {
   ### Save MST Plot ----
   output$save_plot_html <- downloadHandler(
     filename = function() {
+      log_message(out, message = paste0("Save MST;", paste0("MST_", Sys.Date(), ".html")))
       paste0("MST_", Sys.Date(), ".html")
     },
     content = function(file) {
@@ -18899,6 +19042,7 @@ server <- function(input, output, session) {
   
   output$download_nj <- downloadHandler(
     filename = function() {
+      log_message(out, message = paste0("Save NJ;", paste0("NJ_", Sys.Date(), ".", input$filetype_nj)))
       paste0("NJ_", Sys.Date(), ".", input$filetype_nj)
     },
     content = function(file) {
@@ -18928,6 +19072,7 @@ server <- function(input, output, session) {
   
   output$download_upgma <- downloadHandler(
     filename = function() {
+      log_message(out, message = paste0("Save UPGMA;", paste0("UPGMA_", Sys.Date(), ".", input$filetype_upgma)))
       paste0("UPGMA_", Sys.Date(), ".", input$filetype_upgma)
     },
     content = function(file) {
@@ -19408,7 +19553,11 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$create_tree, {
+    log_message(out, message = "Input create_tree")
+    
     if(is.null(DB$data)) {
+      log_message(out, message = "Missing data")
+      
       show_toast(
         title = "Missing data",
         type = "error",
@@ -19417,6 +19566,8 @@ server <- function(input, output, session) {
         width = "500px"
       )
     } else if(nrow(DB$allelic_profile_true) < 3) {
+      log_message(out, message = "Min. of 3 entries required for visualization")
+      
       show_toast(
         title = "Min. of 3 entries required for visualization",
         type = "error",
@@ -19427,6 +19578,7 @@ server <- function(input, output, session) {
     } else {
       
       if(any(duplicated(DB$meta$`Assembly Name`))) {
+        log_message(out, message = "Duplicated assemblies")
         showModal(
           modalDialog(
             if(sum(duplicated(DB$meta_true$`Assembly Name`)) == 1) {
@@ -19451,6 +19603,8 @@ server <- function(input, output, session) {
         set.seed(1)
         
         if (input$tree_algo == "Neighbour-Joining") {
+          
+          log_message(out, message = "Rendering NJ tree")
           
           output$nj_field <- renderUI({
             addSpinner(
@@ -19604,6 +19758,8 @@ server <- function(input, output, session) {
           }
         } else if (input$tree_algo == "UPGMA") {
           
+          log_message(out, message = "Rendering UPGMA tree")
+          
           output$upgma_field <- renderUI({
             addSpinner(
               plotOutput("tree_upgma", width = paste0(as.character(as.numeric(input$upgma_scale) * as.numeric(input$upgma_ratio)), "px"), height = paste0(as.character(input$upgma_scale), "px")),
@@ -19756,6 +19912,8 @@ server <- function(input, output, session) {
           }
         } else {
           
+          log_message(out, message = "Rendering MST graph")
+          
           output$mst_field <- renderUI({
             if(input$mst_background_transparent == TRUE) {
               visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px"))
@@ -19769,6 +19927,9 @@ server <- function(input, output, session) {
           })
           
           if(nrow(DB$meta_true) > 100) {
+            
+            log_message(out, message = "Over 100 isolates in MST graph")
+            
             show_toast(
               title = "Computation might take a while",
               type = "warning",
@@ -19896,12 +20057,22 @@ server <- function(input, output, session) {
         
         # Save data to an RDS file if any elements were selected
         if (!is.null(report)) {
+          
+          log_message(out, message = "Creating UPGMA report")
+          
           saveRDS(report, file = paste0(getwd(), "/Report/selected_elements.rds"))
+          
+          rmarkdown::render(paste0(getwd(), "/Report/Report.Rmd"))
+          
+          file.copy(paste0(getwd(), "/Report/Report.html"), file)
+          
+          
+        } else {
+          log_message(out,
+                      message = "Creating UPGMA report failed (report is null)")
         }
         
-        rmarkdown::render(paste0(getwd(), "/Report/Report.Rmd"))
         
-        file.copy(paste0(getwd(), "/Report/Report.html"), file)
         
       } else if(input$tree_algo == "Neighbour-Joining") {
         plot.report()
@@ -19914,12 +20085,16 @@ server <- function(input, output, session) {
         
         # Save data to an RDS file if any elements were selected
         if (!is.null(report)) {
+          log_message(out, message = "Creating NJ report")
+          
           saveRDS(report, file = paste0(getwd(), "/Report/selected_elements.rds"))
+          
+          rmarkdown::render(paste0(getwd(), "/Report/Report.Rmd"))
+          
+          file.copy(paste0(getwd(), "/Report/Report.html"), file)
+        } else {
+          log_message(out, message = "Creating NJ report failed (report is null)")
         }
-        
-        rmarkdown::render(paste0(getwd(), "/Report/Report.Rmd"))
-        
-        file.copy(paste0(getwd(), "/Report/Report.html"), file)
         
       } else {
         plot.report()
@@ -19932,12 +20107,16 @@ server <- function(input, output, session) {
         
         # Save data to an RDS file if any elements were selected
         if (!is.null(report)) {
+          log_message(out, message = "Creating MST report")
+          
           saveRDS(report, file = paste0(getwd(), "/Report/selected_elements.rds"))
+          
+          rmarkdown::render(paste0(getwd(), "/Report/Report.Rmd"))
+          
+          file.copy(paste0(getwd(), "/Report/Report.html"), file)
+        } else {
+          log_message(out, message = "Creating MST report failed (report is null)")
         }
-        
-        rmarkdown::render(paste0(getwd(), "/Report/Report.Rmd"))
-        
-        file.copy(paste0(getwd(), "/Report/Report.html"), file)
         
       }
     }
@@ -20353,7 +20532,11 @@ server <- function(input, output, session) {
   
   observeEvent(input$typing_start, {
     
+    log_message(out, message = "Input typing_start")
+    
     if(tail(readLogFile(), 1) != "0") {
+      log_message(out, message = "Pending multi typing")
+      
       show_toast(
         title = "Pending Multi Typing",
         type = "warning",
@@ -20404,6 +20587,8 @@ server <- function(input, output, session) {
           width = "500px"
         )
         
+        log_message(out, message = "Initiated single typing")
+        
         ### Run blat Typing
         
         single_typing_df <- data.frame(
@@ -20418,7 +20603,8 @@ server <- function(input, output, session) {
         
         # Execute single typing script
         system(paste("chmod +x", paste0(getwd(), "/execute/blat_run.sh")))
-        system(paste0(getwd(), "/execute/blat_run.sh"), wait = FALSE)
+        system(paste(paste0(getwd(), "/execute/blat_run.sh"), ">>", paste0(getwd(), "/logs/output.log"), "2>&1"), 
+               wait = FALSE)
         
         scheme_loci <- list.files(path = scheme_select, full.names = TRUE)
         
@@ -20477,6 +20663,8 @@ server <- function(input, output, session) {
           )
         })
       } else {
+        log_message(out, message = "Folder containing cgMLST alleles not in working directory")
+        
         show_alert(
           title = "Error",
           text = paste0(
@@ -20497,12 +20685,12 @@ server <- function(input, output, session) {
     # write progress in process tracker
     cat(
       c(length(list.files(paste0(getwd(), "/execute/blat_single/results"))),
-        readLines(paste0(getwd(), "/execute/progress.txt"))[-1]), 
-      file = paste0(getwd(), "/execute/progress.txt"),
+        readLines(paste0(getwd(), "/logs/progress.txt"))[-1]), 
+      file = paste0(getwd(), "/logs/progress.txt"),
       sep = "\n"
     )
     
-    progress <- readLines(paste0(getwd(), "/execute/progress.txt"))
+    progress <- readLines(paste0(getwd(), "/logs/progress.txt"))
     
     # if typing with blat is finished -> "attaching" phase started
     if(!is.na(progress[1])) {
@@ -20606,6 +20794,7 @@ server <- function(input, output, session) {
   #### Declare Metadata  ----
   
   observeEvent(input$conf_meta_single, {
+    log_message(out, message = "Single typing metadata confirmed")
     
     meta_info <- data.frame(assembly_id = trimws(input$assembly_id),
                             assembly_name = trimws(input$assembly_name),
@@ -20663,6 +20852,7 @@ server <- function(input, output, session) {
   ####  Events Single Typing ----
   
   observeEvent(input$reset_single_typing, {
+    log_message(out, message = "Reset single typing")
     
     Typing$progress <- 0
     
@@ -20682,7 +20872,7 @@ server <- function(input, output, session) {
     if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
       unlink(list.files(paste0(getwd(), "/execute/blat_single/results"), full.names = TRUE), recursive = TRUE)
       # Resetting single typing progress logfile bar 
-      con <- file(paste0(getwd(), "/execute/progress.txt"), open = "w")
+      con <- file(paste0(getwd(), "/logs/progress.txt"), open = "w")
       
       cat("0\n", file = con)   
       
@@ -21004,6 +21194,7 @@ server <- function(input, output, session) {
   
   
   observeEvent(input$conf_meta_multi, {
+    log_message(out, message = "Multi typing metadata confirmed")
     
     meta_info <- data.frame(cgmlst_typing = DB$scheme,
                             append_isodate = trimws(input$append_isodate_multi),
@@ -21013,10 +21204,7 @@ server <- function(input, output, session) {
                             append_analysisdate = input$append_analysisdate_multi,
                             db_directory = getwd())
     
-    saveRDS(meta_info, paste0(
-      getwd(),
-      "/execute/meta_info.rds"
-    ))
+    saveRDS(meta_info, paste0(getwd(), "/execute/meta_info.rds"))
     
     show_toast(
       title = "Metadata declared",
@@ -21059,6 +21247,7 @@ server <- function(input, output, session) {
   # Print Log
   output$print_log <- downloadHandler(
     filename = function() {
+      log_message(out, message = paste0("Save multi typing log ", paste("Multi_Typing_", Sys.Date(), ".txt", sep = "")))
       paste("Multi_Typing_", Sys.Date(), ".txt", sep = "")
     },
     content = function(file) {
@@ -21084,6 +21273,8 @@ server <- function(input, output, session) {
         )
       )
     } else {
+      
+      log_message(out, message = "Reset multi typing")
       
       # Reset multi typing result list
       saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
@@ -21146,9 +21337,12 @@ server <- function(input, output, session) {
   observeEvent(input$conf_multi_kill, {
     removeModal()
     
+    log_message(out, message = "Kill multi typing")
+    
     # Kill multi typing and reset logfile  
     system(paste("chmod +x", paste0(getwd(), "/execute/kill_multi.sh")))
-    system(paste0(getwd(), "/execute/kill_multi.sh"), wait = TRUE)
+    system(paste(paste0(getwd(), "/execute/kill_multi.sh"), ">>", paste0(getwd(), "/logs/output.log"), "2>&1"), 
+           wait = TRUE)
     
     show_toast(
       title = "Execution cancelled",
@@ -21215,7 +21409,10 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$start_typ_multi, {
-    if(readLines(paste0(getwd(), "/execute", "/progress.txt"))[1] != "0") {
+    log_message(out, message = "Initiate multi typing")
+    
+    if(readLines(paste0(getwd(), "/logs/progress.txt"))[1] != "0") {
+      log_message(out, message = "Pending Single Typing")
       show_toast(
         title = "Pending Single Typing",
         type = "warning",
@@ -21225,6 +21422,8 @@ server <- function(input, output, session) {
       )
     } else {
       if (any(!grepl("\\.fasta|\\.fna|\\.fa", str_sub(Typing$genome_selected$Files[which(Typing$genome_selected$Include == TRUE)], start = -6)))) {
+        
+        log_message(out, message = "Wrong file type (include only fasta/fna/fa)")
         
         show_toast(
           title = "Wrong file type (include only fasta/fna/fa)",
@@ -21272,7 +21471,8 @@ server <- function(input, output, session) {
         
         # Execute multi blat script  
         system(paste("chmod +x", paste0(getwd(), "/execute/blat_multi.sh")))
-        system(paste0(getwd(), "/execute/blat_multi.sh"), wait = FALSE)
+        system(paste(paste0(getwd(), "/execute/blat_multi.sh"), ">>", paste0(getwd(), "/logs/output.log"), "2>&1"), 
+               wait = FALSE)
       }
     }
     
@@ -21591,3 +21791,4 @@ server <- function(input, output, session) {
 # Shiny ----
 
 shinyApp(ui = ui, server = server)
+
