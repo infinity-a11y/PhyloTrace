@@ -35,6 +35,7 @@ library(viridis)
 library(RColorBrewer)
 library(bslib)
 library(bsicons)
+library(DT)
 # Bioconductor Packages
 library(treeio)
 library(ggtree)
@@ -806,11 +807,11 @@ ui <- dashboardPage(
           fluidRow(
             column(
               width = 4,
-              align = "center",
               box(
                 solidHeader = TRUE,
                 status = "primary",
                 width = "100%",
+                height = "500px",
                 h3(p("Layout"), style = "color:white"),
                 hr(),
                 fluidRow(
@@ -868,8 +869,7 @@ ui <- dashboardPage(
                                 )
                               )
                             )
-                          ),
-                          br()
+                          )
                         )
                       )
                     )
@@ -928,8 +928,7 @@ ui <- dashboardPage(
                                 )
                               )
                             )
-                          ),
-                          br()
+                          )
                         )
                       )
                     )
@@ -1020,8 +1019,7 @@ ui <- dashboardPage(
                                 choices = c("Left" = "left", "Right" = "right")
                               )
                             )
-                          ),
-                          br()
+                          )
                         )
                       )
                     )
@@ -1065,483 +1063,401 @@ ui <- dashboardPage(
                                 position = "right-start"
                               )
                             )
-                          ),
-                          br()
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            ),
-            column(
-              width = 4,
-              align = "center",
-              box(
-                solidHeader = TRUE,
-                status = "primary",
-                width = "100%",
-                h3(p("Nodes"), style = "color:white"),
-                hr(),
-                fluidRow(
-                  column(
-                    width = 6,
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Label"), style = "color:white;")
-                    ),
-                    column(
-                      width = 12,
-                      align = "center",
-                      div(
-                        class = "label_sel",
-                        uiOutput("mst_node_label")
-                      ),
-                      fluidRow(
-                        column(
-                          width = 7,
-                          colorPickr(
-                            inputId = "node_font_color",
-                            width = "100%",
-                            selected = "#000000",
-                            label = "",
-                            update = "changestop",
-                            interaction = list(clear = FALSE,
-                                               save = FALSE),
-                            position = "right-start"
-                          )
-                        ),
-                        column(
-                          width = 5,
-                          dropMenu(
-                            actionBttn(
-                              "mst_label_menu",
-                              label = "",
-                              color = "default",
-                              size = "sm",
-                              style = "material-flat",
-                              icon = icon("sliders")
-                            ),
-                            placement = "top-start",
-                            theme = "translucent",
-                            numericInput(
-                              "node_label_fontsize",
-                              label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                              value = 14,
-                              min = 8,
-                              max = 30,
-                              step = 1,
-                              width = "80px"
-                            )
-                          )
-                        )
-                      )
-                    )
-                  ),
-                  column(
-                    width = 6,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Color"), style = "color:white; position: relative; right: -15px"),
-                        column(
-                          width = 12,
-                          align = "center",
-                          fluidRow(
-                            column(
-                              width = 10,
-                              align = "left",
-                              div(
-                                class = "mat-switch-mst-nodes",
-                                materialSwitch(
-                                  "mst_color_var",
-                                  h5(p("Add Variable"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                  value = FALSE,
-                                  right = TRUE
-                                )
-                              )
-                            ),
-                            column(
-                              width = 2,
-                              bslib::tooltip(
-                                bsicons::bs_icon("info-circle", title = "Only categorical variables can \nbe mapped to the node color.", color = "white", 
-                                                 height = "12px", width = "12px", position = "relative", top = "27px", right = "56px"),
-                                "Text shown in the tooltip.",
-                                show = FALSE,
-                                id = "mst_node_col_info"
-                              )
-                            )
-                          ),
-                          uiOutput("mst_color_mapping")
-                        )
-                      )
-                    ), br()
-                  )
-                ),
-                hr(),
-                fluidRow(
-                  column(
-                    width = 6,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Size"), style = "color:white; position: relative; right: -15px"),
-                        column(
-                          width = 12,
-                          align = "center",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "left",
-                              div(
-                                class = "mat-switch-mst-nodes",
-                                materialSwitch(
-                                  "scale_nodes",
-                                  h5(p("Scale by Duplicates"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                  value = TRUE,
-                                  right = TRUE
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    ),
-                    column(
-                      width = 12,
-                      align = "left",
-                      fluidRow(
-                        column(
-                          width = 3,
-                          align = "left",
-                          conditionalPanel(
-                            "input.scale_nodes==true",
-                            HTML(
-                              paste(
-                                tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Range')
-                              )
-                            )
-                          ),
-                          conditionalPanel(
-                            "input.scale_nodes==false",
-                            HTML(
-                              paste(
-                                tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Size')
-                              )
-                            )
-                          )
-                        ),
-                        column(
-                          width = 9,
-                          align = "center",
-                          conditionalPanel(
-                            "input.scale_nodes==true",
-                            div(
-                              class = "mst_scale_slider",
-                              sliderInput(
-                                "mst_node_scale",
-                                label = "",
-                                min = 1,
-                                max = 80,
-                                value = c(20, 40),
-                                ticks = FALSE
-                              )
-                            )
-                          ),
-                          conditionalPanel(
-                            "input.scale_nodes==false",
-                            div(
-                              class = "mst_scale_slider",
-                              sliderInput(
-                                inputId = "mst_node_size",
-                                label = "",
-                                min = 1,
-                                max = 100,
-                                value = 30,
-                                ticks = FALSE
-                              ) 
-                            )
-                          )
-                        )
-                      ),
-                      br()
-                    )
-                  ),
-                  column(
-                    width = 6,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Other Elements"), style = "color:white; position: relative; right: -15px"),
-                        column(
-                          width = 12,
-                          align = "center",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "left",
-                              div(
-                                class = "mat-switch-mst-nodes",
-                                materialSwitch(
-                                  "mst_shadow",
-                                  h5(p("Show Shadow"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                  value = TRUE,
-                                  right = TRUE
-                                )
-                              ),
-                              fluidRow(
-                                column(
-                                  width = 3,
-                                  align = "left",
-                                  HTML(
-                                    paste(
-                                      tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Shape')
-                                    )
-                                  )
-                                ),
-                                column(
-                                  width = 9,
-                                  align = "center",
-                                  div(
-                                    class = "mst_shape_sel",
-                                    selectInput(
-                                      "mst_node_shape",
-                                      "",
-                                      choices = list(`Label inside` = c("Circle" = "circle", "Box" = "box", "Text" = "text"),
-                                                     `Label outside` = c("Diamond" = "diamond", "Hexagon" = "hexagon","Dot" = "dot", "Square" = "square")),
-                                      selected = c("Dot" = "dot"),
-                                      width = "85%"
-                                    )
-                                  )
-                                )
-                              )
-                            )
                           )
                         )
                       )
                     )
                   )
                 )
-              )
-            ),
-            column(
-              width = 4,
-              align = "center",
-              box(
-                solidHeader = TRUE,
-                status = "primary",
-                width = "100%",
-                h3(p("Edges"), style = "color:white"),
-                hr(),
-                fluidRow(
-                  column(
-                    width = 6,
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Label"), style = "color:white;")
-                    ),
-                    column(
-                      width = 12,
-                      align = "center",
-                      div(
-                        class = "label_sel",
-                        selectInput(
-                          "mst_edge_label",
-                          label = "",
-                          choices = c(
-                            `Allelic Distance` = "weight",
-                            Index = "index",
-                            `Assembly ID` = "assembly_id",
-                            `Assembly Name` = "assembly_name",
-                            `Isolation Date` = "isolation_date",
-                            Host = "host",
-                            Country = "country",
-                            City = "city"
-                          ),
-                          selected = c(`Allelic Distance` = "weight"),
-                          width = "100%"
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 7,
-                          colorPickr(
-                            inputId = "mst_edge_font_color",
-                            width = "100%",
-                            selected = "#000000",
-                            label = "",
-                            update = "changestop",
-                            interaction = list(clear = FALSE,
-                                               save = FALSE),
-                            position = "right-start"
-                          )
-                        ),
-                        column(
-                          width = 5,
-                          dropMenu(
-                            actionBttn(
-                              "mst_edgelabel_menu",
-                              label = "",
-                              color = "default",
-                              size = "sm",
-                              style = "material-flat",
-                              icon = icon("sliders")
-                            ),
-                            placement = "top-start",
-                            theme = "translucent",
-                            width = 5,
-                            numericInput(
-                              "mst_edge_font_size",
-                              label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                              value = 18,
-                              step = 1,
-                              min = 8,
-                              max = 30,
-                              width = "80px"
-                            )
-                          )
-                        )
-                      ),
-                      br()
-                    )
-                  ),
-                  column(
-                    width = 6,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Color"), style = "color:white; position: relative; right: -15px"),
-                        column(
-                          width = 12,
-                          align = "center",
-                          fluidRow(
-                            column(
-                              width = 7,
-                              div(
-                                class = "node_color",
-                                colorPickr(
-                                  inputId = "mst_color_edge",
-                                  width = "100%",
-                                  selected = "#000000",
-                                  label = "",
-                                  update = "changestop",
-                                  interaction = list(clear = FALSE,
-                                                     save = FALSE),
-                                  position = "right-start"
-                                )
-                              )
-                            ),
-                            column(
-                              width = 5,
-                              dropMenu(
-                                actionBttn(
-                                  "mst_edgecolor_menu",
-                                  label = "",
-                                  color = "default",
-                                  size = "sm",
-                                  style = "material-flat",
-                                  icon = icon("sliders")
-                                ),
-                                placement = "top-start",
-                                theme = "translucent",
-                                width = 5,
-                                sliderInput(
-                                  "mst_edge_opacity",
-                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px;"),
-                                  value = 0.7,
-                                  step = 0.1,
-                                  min = 0,
-                                  max = 1,
-                                  ticks = FALSE,
-                                  width = "150px"
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-                ),
-                hr(style = "margin-top: 3px !important"),
-                fluidRow(
+            )
+          ),
+          column(
+            width = 4,
+            box(
+              solidHeader = TRUE,
+              status = "primary",
+              width = "100%",
+              height = "500px",
+              h3(p("Nodes"), style = "color:white"),
+              hr(),
+              fluidRow(
+                column(
+                  width = 6,
                   column(
                     width = 12,
+                    align = "left",
+                    h4(p("Label"), style = "color:white;")
+                  ),
+                  column(
+                    width = 12,
+                    align = "center",
+                    div(
+                      class = "label_sel",
+                      uiOutput("mst_node_label")
+                    ),
                     fluidRow(
                       column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Length multiplier"), style = "color:white; position: relative; right: -15px; margin-bottom: -5px")
-                      )
-                    ),
-                    column(
-                      width = 6,
-                      align = "left",
-                      br(),
-                      div(
-                        class = "switch-mst-edges",
-                        materialSwitch(
-                          "mst_scale_edges",
-                          h5(p("Scale Allelic Distance"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                          value = FALSE,
-                          right = TRUE
+                        width = 7,
+                        colorPickr(
+                          inputId = "node_font_color",
+                          width = "100%",
+                          selected = "#000000",
+                          label = "",
+                          update = "changestop",
+                          interaction = list(clear = FALSE,
+                                             save = FALSE),
+                          position = "right-start"
                         )
                       ),
-                      fluidRow(
-                        column(
-                          width = 3,
-                          align = "left",
-                          conditionalPanel(
-                            "input.mst_scale_edges==true",
-                            HTML(
-                              paste(
-                                tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Multiplier')
+                      column(
+                        width = 5,
+                        dropMenu(
+                          actionBttn(
+                            "mst_label_menu",
+                            label = "",
+                            color = "default",
+                            size = "sm",
+                            style = "material-flat",
+                            icon = icon("sliders")
+                          ),
+                          placement = "top-start",
+                          theme = "translucent",
+                          numericInput(
+                            "node_label_fontsize",
+                            label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                            value = 14,
+                            min = 8,
+                            max = 30,
+                            step = 1,
+                            width = "80px"
+                          )
+                        )
+                      )
+                    )
+                  )
+                ),
+                column(
+                  width = 6,
+                  fluidRow(
+                    column(
+                      width = 12,
+                      align = "left",
+                      h4(p("Color"), style = "color:white; position: relative; right: -15px"),
+                      column(
+                        width = 12,
+                        align = "center",
+                        fluidRow(
+                          column(
+                            width = 10,
+                            align = "left",
+                            div(
+                              class = "mat-switch-mst-nodes",
+                              materialSwitch(
+                                "mst_color_var",
+                                h5(p("Add Variable"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                value = FALSE,
+                                right = TRUE
                               )
                             )
                           ),
-                          conditionalPanel(
-                            "input.mst_scale_edges==false",
-                            HTML(
-                              paste(
-                                tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Length')
-                              )
+                          column(
+                            width = 2,
+                            bslib::tooltip(
+                              bsicons::bs_icon("info-circle", title = "Only categorical variables can \nbe mapped to the node color.", color = "white", 
+                                               height = "12px", width = "12px", position = "relative", top = "27px", right = "56px"),
+                              "Text shown in the tooltip.",
+                              show = FALSE,
+                              id = "mst_node_col_info"
                             )
                           )
                         ),
-                        column(
-                          width = 9,
-                          align = "center",
-                          conditionalPanel(
-                            "input.mst_scale_edges==true",
+                        uiOutput("mst_color_mapping")
+                      )
+                    )
+                  ), br()
+                )
+              ),
+              hr(),
+              fluidRow(
+                column(
+                  width = 6,
+                  fluidRow(
+                    column(
+                      width = 12,
+                      align = "left",
+                      h4(p("Size"), style = "color:white; position: relative; right: -15px"),
+                      column(
+                        width = 12,
+                        align = "center",
+                        fluidRow(
+                          column(
+                            width = 12,
+                            align = "left",
                             div(
-                              class = "slider_edge",
-                              sliderInput(
-                                inputId = "mst_edge_length_scale",
-                                label = NULL,
-                                min = 1,
-                                max = 40,
-                                value = 15,
-                                ticks = FALSE
-                              ) 
+                              class = "mat-switch-mst-nodes",
+                              materialSwitch(
+                                "scale_nodes",
+                                h5(p("Scale by Duplicates"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                value = TRUE,
+                                right = TRUE
+                              )
+                            )
+                          )
+                        )
+                      )
+                    )
+                  ),
+                  column(
+                    width = 12,
+                    align = "left",
+                    fluidRow(
+                      column(
+                        width = 3,
+                        align = "left",
+                        conditionalPanel(
+                          "input.scale_nodes==true",
+                          HTML(
+                            paste(
+                              tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Range')
+                            )
+                          )
+                        ),
+                        conditionalPanel(
+                          "input.scale_nodes==false",
+                          HTML(
+                            paste(
+                              tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Size')
+                            )
+                          )
+                        )
+                      ),
+                      column(
+                        width = 9,
+                        align = "center",
+                        conditionalPanel(
+                          "input.scale_nodes==true",
+                          div(
+                            class = "mst_scale_slider",
+                            sliderInput(
+                              "mst_node_scale",
+                              label = "",
+                              min = 1,
+                              max = 80,
+                              value = c(20, 40),
+                              ticks = FALSE
+                            )
+                          )
+                        ),
+                        conditionalPanel(
+                          "input.scale_nodes==false",
+                          div(
+                            class = "mst_scale_slider",
+                            sliderInput(
+                              inputId = "mst_node_size",
+                              label = "",
+                              min = 1,
+                              max = 100,
+                              value = 30,
+                              ticks = FALSE
+                            ) 
+                          )
+                        )
+                      )
+                    ),
+                    br()
+                  )
+                ),
+                column(
+                  width = 6,
+                  fluidRow(
+                    column(
+                      width = 12,
+                      align = "left",
+                      h4(p("Other Elements"), style = "color:white; position: relative; right: -15px"),
+                      column(
+                        width = 12,
+                        align = "center",
+                        fluidRow(
+                          column(
+                            width = 12,
+                            align = "left",
+                            div(
+                              class = "mat-switch-mst-nodes",
+                              materialSwitch(
+                                "mst_shadow",
+                                h5(p("Show Shadow"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                value = TRUE,
+                                right = TRUE
+                              )
+                            ),
+                            fluidRow(
+                              column(
+                                width = 3,
+                                align = "left",
+                                HTML(
+                                  paste(
+                                    tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Shape')
+                                  )
+                                )
+                              ),
+                              column(
+                                width = 9,
+                                align = "center",
+                                div(
+                                  class = "mst_shape_sel",
+                                  selectInput(
+                                    "mst_node_shape",
+                                    "",
+                                    choices = list(`Label inside` = c("Circle" = "circle", "Box" = "box", "Text" = "text"),
+                                                   `Label outside` = c("Diamond" = "diamond", "Hexagon" = "hexagon","Dot" = "dot", "Square" = "square")),
+                                    selected = c("Dot" = "dot"),
+                                    width = "85%"
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          column(
+            width = 4,
+            box(
+              solidHeader = TRUE,
+              status = "primary",
+              width = "100%",
+              height = "500px",
+              h3(p("Edges"), style = "color:white"),
+              hr(),
+              fluidRow(
+                column(
+                  width = 6,
+                  column(
+                    width = 12,
+                    align = "left",
+                    h4(p("Label"), style = "color:white;")
+                  ),
+                  column(
+                    width = 12,
+                    align = "center",
+                    div(
+                      class = "label_sel",
+                      selectInput(
+                        "mst_edge_label",
+                        label = "",
+                        choices = c(
+                          `Allelic Distance` = "weight",
+                          Index = "index",
+                          `Assembly ID` = "assembly_id",
+                          `Assembly Name` = "assembly_name",
+                          `Isolation Date` = "isolation_date",
+                          Host = "host",
+                          Country = "country",
+                          City = "city"
+                        ),
+                        selected = c(`Allelic Distance` = "weight"),
+                        width = "100%"
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 7,
+                        colorPickr(
+                          inputId = "mst_edge_font_color",
+                          width = "100%",
+                          selected = "#000000",
+                          label = "",
+                          update = "changestop",
+                          interaction = list(clear = FALSE,
+                                             save = FALSE),
+                          position = "right-start"
+                        )
+                      ),
+                      column(
+                        width = 5,
+                        dropMenu(
+                          actionBttn(
+                            "mst_edgelabel_menu",
+                            label = "",
+                            color = "default",
+                            size = "sm",
+                            style = "material-flat",
+                            icon = icon("sliders")
+                          ),
+                          placement = "top-start",
+                          theme = "translucent",
+                          width = 5,
+                          numericInput(
+                            "mst_edge_font_size",
+                            label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                            value = 18,
+                            step = 1,
+                            min = 8,
+                            max = 30,
+                            width = "80px"
+                          )
+                        )
+                      )
+                    ),
+                    br()
+                  )
+                ),
+                column(
+                  width = 6,
+                  fluidRow(
+                    column(
+                      width = 12,
+                      align = "left",
+                      h4(p("Color"), style = "color:white; position: relative; right: -15px"),
+                      column(
+                        width = 12,
+                        align = "center",
+                        fluidRow(
+                          column(
+                            width = 7,
+                            div(
+                              class = "node_color",
+                              colorPickr(
+                                inputId = "mst_color_edge",
+                                width = "100%",
+                                selected = "#000000",
+                                label = "",
+                                update = "changestop",
+                                interaction = list(clear = FALSE,
+                                                   save = FALSE),
+                                position = "right-start"
+                              )
                             )
                           ),
-                          conditionalPanel(
-                            "input.mst_scale_edges==false",
-                            div(
-                              class = "slider_edge",
-                              sliderTextInput(
-                                inputId = "mst_edge_length",
-                                label = NULL,
-                                choices = append(seq(0.1, 1, 0.1), 2:100),
-                                selected = 35,
-                                hide_min_max = FALSE
-                              ) 
+                          column(
+                            width = 5,
+                            dropMenu(
+                              actionBttn(
+                                "mst_edgecolor_menu",
+                                label = "",
+                                color = "default",
+                                size = "sm",
+                                style = "material-flat",
+                                icon = icon("sliders")
+                              ),
+                              placement = "top-start",
+                              theme = "translucent",
+                              width = 5,
+                              sliderInput(
+                                "mst_edge_opacity",
+                                label = h5("Opacity", style = "color:white; margin-bottom: 0px;"),
+                                value = 0.7,
+                                step = 0.1,
+                                min = 0,
+                                max = 1,
+                                ticks = FALSE,
+                                width = "150px"
+                              )
                             )
                           )
                         )
@@ -1550,10 +1466,90 @@ ui <- dashboardPage(
                   )
                 )
               ),
-              br(), br(), br(), br(), br(), br(), br()
-            )
+              hr(style = "margin-top: 3px !important"),
+              fluidRow(
+                column(
+                  width = 12,
+                  fluidRow(
+                    column(
+                      width = 12,
+                      align = "left",
+                      h4(p("Length multiplier"), style = "color:white; position: relative; right: -15px; margin-bottom: -5px")
+                    )
+                  ),
+                  column(
+                    width = 6,
+                    align = "left",
+                    br(),
+                    div(
+                      class = "switch-mst-edges",
+                      materialSwitch(
+                        "mst_scale_edges",
+                        h5(p("Scale Allelic Distance"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                        value = FALSE,
+                        right = TRUE
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 3,
+                        align = "left",
+                        conditionalPanel(
+                          "input.mst_scale_edges==true",
+                          HTML(
+                            paste(
+                              tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Multiplier')
+                            )
+                          )
+                        ),
+                        conditionalPanel(
+                          "input.mst_scale_edges==false",
+                          HTML(
+                            paste(
+                              tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Length')
+                            )
+                          )
+                        )
+                      ),
+                      column(
+                        width = 9,
+                        align = "center",
+                        conditionalPanel(
+                          "input.mst_scale_edges==true",
+                          div(
+                            class = "slider_edge",
+                            sliderInput(
+                              inputId = "mst_edge_length_scale",
+                              label = NULL,
+                              min = 1,
+                              max = 40,
+                              value = 15,
+                              ticks = FALSE
+                            ) 
+                          )
+                        ),
+                        conditionalPanel(
+                          "input.mst_scale_edges==false",
+                          div(
+                            class = "slider_edge",
+                            sliderTextInput(
+                              inputId = "mst_edge_length",
+                              label = NULL,
+                              choices = append(seq(0.1, 1, 0.1), 2:100),
+                              selected = 35,
+                              hide_min_max = FALSE
+                            ) 
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            ), br(), br(), br()
           )
-        ),
+        )
+      ),
         
         ### Control Panels NJ ----
         
@@ -1577,6 +1573,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "250px",
                   column(
                     width = 12,
                     align = "left",
@@ -1698,6 +1695,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "250px",
                   column(
                     width = 12,
                     align = "left",
@@ -1751,6 +1749,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "250px",
                   column(
                     width = 12,
                     align = "left",
@@ -1838,6 +1837,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "250px",
                   column(
                     width = 12,
                     align = "left",
@@ -1954,6 +1954,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "250px",
                   column(
                     width = 12,
                     align = "left",
@@ -2092,6 +2093,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "280px",
                   column(
                     width = 12,
                     fluidRow(
@@ -2318,6 +2320,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "280px",
                   column(
                     width = 12,
                     fluidRow(
@@ -2436,8 +2439,7 @@ ui <- dashboardPage(
                           interaction = list(clear = FALSE,
                                              save = FALSE),
                           position = "right-start"
-                        ),
-                        br(), br()
+                        )
                       )
                     )
                   )
@@ -2449,6 +2451,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "280px",
                   column(
                     width = 12,
                     fluidRow(
@@ -2532,6 +2535,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "295px",
                   column(
                     width = 12,
                     align = "left",
@@ -2633,8 +2637,7 @@ ui <- dashboardPage(
                         conditionalPanel(
                           "input.nj_tipshape_mapping_show==true",
                           h5(p("Variable assigned"), style = "color:white; position: relative; right: -15px; margin-top: 30px; font-style: italic")
-                        ),
-                        br()
+                        )
                       )
                     )
                   )
@@ -2646,6 +2649,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "295px",
                   column(
                     width = 12,
                     align = "left",
@@ -2737,8 +2741,7 @@ ui <- dashboardPage(
                             Cross = "cross", 
                             Asterisk = "asterisk"
                           )
-                        ),
-                        br()
+                        )
                       )
                     )
                   )
@@ -2750,6 +2753,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "295px",
                   column(
                     width = 12,
                     align = "left",
@@ -2991,7 +2995,6 @@ ui <- dashboardPage(
                           width = 7,
                           align = "center",
                           uiOutput("nj_fruit_offset_circ_5"),
-                          br()
                         )
                       )
                     )
@@ -3004,6 +3007,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "295px",
                   column(
                     width = 12,
                     align = "left",
@@ -3084,6 +3088,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "295px",
                   column(
                     width = 12,
                     align = "left",
@@ -3506,6 +3511,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "250px",
                   column(
                     width = 12,
                     align = "left",
@@ -3627,6 +3633,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "250px",
                   column(
                     width = 12,
                     align = "left",
@@ -3669,8 +3676,7 @@ ui <- dashboardPage(
                           position = "right-start"
                         )
                       )
-                    ), 
-                    br()
+                    )
                   )
                 )
               ),
@@ -3680,6 +3686,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "250px",
                   column(
                     width = 12,
                     align = "left",
@@ -3755,8 +3762,7 @@ ui <- dashboardPage(
                             )
                           )
                         )
-                      ),
-                      br()
+                      )
                     )
                   )
                 )
@@ -3767,6 +3773,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "250px",
                   column(
                     width = 12,
                     align = "left",
@@ -3883,6 +3890,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "250px",
                   column(
                     width = 12,
                     align = "left",
@@ -4021,6 +4029,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "280px",
                   column(
                     width = 12,
                     fluidRow(
@@ -4247,6 +4256,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "280px",
                   column(
                     width = 12,
                     fluidRow(
@@ -4378,6 +4388,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "280px",
                   column(
                     width = 12,
                     fluidRow(
@@ -4461,6 +4472,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "295px",
                   column(
                     width = 12,
                     align = "left",
@@ -4575,6 +4587,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "295px",
                   column(
                     width = 12,
                     align = "left",
@@ -4679,6 +4692,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "295px",
                   column(
                     width = 12,
                     align = "left",
@@ -4933,6 +4947,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "295px",
                   column(
                     width = 12,
                     align = "left",
@@ -5013,6 +5028,7 @@ ui <- dashboardPage(
                   solidHeader = TRUE,
                   status = "info",
                   width = "100%",
+                  height = "295px",
                   column(
                     width = 12,
                     align = "left",
@@ -5737,7 +5753,8 @@ server <- function(input, output, session) {
   observe({
     shinyDirChoose(input,
                    "db_location",
-                   roots = c(home = path_home()),
+                   roots = c(Home = path_home(), Root = "/"),
+                   defaultRoot = "Home",
                    session = session)
     
     if(!is.null(DB$select_new)) {
@@ -5745,7 +5762,7 @@ server <- function(input, output, session) {
         if(DB$block_db == FALSE) {
           DB$database <- as.character(
             parseDirPath(
-              roots = c(home = path_home()),
+              roots = c(Home = path_home(), Root = "/"),
               input$db_location
             )
           )
@@ -6911,6 +6928,7 @@ server <- function(input, output, session) {
                           column(
                             width = 8,
                             div(
+                              style = "max-width: 150px",
                               class = "format",
                               selectInput(
                                 inputId = "mst_plot_format",
@@ -6988,6 +7006,7 @@ server <- function(input, output, session) {
                           column(
                             width = 8,
                             div(
+                              style = "max-width: 150px",
                               class = "format",
                               selectInput(
                                 inputId = "filetype_nj",
@@ -7028,6 +7047,7 @@ server <- function(input, output, session) {
                           column(
                             width = 8,
                             div(
+                              style = "max-width: 150px",
                               class = "format",
                               selectInput(
                                 inputId = "filetype_upgma",
@@ -8187,40 +8207,40 @@ server <- function(input, output, session) {
                 
                 # Render delete entry box UI
                 output$delete_box <- renderUI({
-                  box(
-                    solidHeader = TRUE,
-                    status = "primary",
-                    width = "100%",
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "center",
-                        h3(p("Delete Entries"), style = "color:white")
-                      )
-                    ),
-                    hr(),
-                    fluidRow(
-                      column(width = 1),
-                      column(
-                        width = 2,
-                        align = "right",
-                        br(),
-                        h5("Index", style = "color:white; margin-bottom: 0px;")
+                    box(
+                      solidHeader = TRUE,
+                      status = "primary",
+                      width = "100%",
+                      fluidRow(
+                        column(
+                          width = 12,
+                          align = "center",
+                          h3(p("Delete Entries"), style = "color:white")
+                        )
                       ),
-                      column(
-                        width = 6,
-                        align = "center",
-                        uiOutput("delete_select")
+                      hr(),
+                      fluidRow(
+                        column(
+                          width = 2,
+                          offset = 1,
+                          align = "right",
+                          br(),
+                          h5("Index", style = "color:white; margin-bottom: 0px;")
+                        ),
+                        column(
+                          width = 6,
+                          align = "center",
+                          uiOutput("delete_select")
+                        ),
+                        column(
+                          width = 2,
+                          align = "center",
+                          br(),
+                          uiOutput("del_bttn")
+                        )
                       ),
-                      column(
-                        width = 2,
-                        align = "center",
-                        br(),
-                        uiOutput("del_bttn")
-                      )
-                    ),
-                    br()
-                  )
+                      br()
+                    )
                 })
                 
                 # Render loci comparison box UI
@@ -8999,13 +9019,14 @@ server <- function(input, output, session) {
   observe({
     shinyDirChoose(input,
                    "create_new_db",
-                   roots = c(home = path_home()),
+                   roots = c(Home = path_home(), Root = "/"),
+                   defaultRoot = "Home",
                    session = session)
     
     if(!is.null(input$create_new_db)) {
       DB$new_database <- as.character(
         parseDirPath(
-          roots = c(home = path_home()), 
+          roots = c(Home = path_home(), Root = "/"),
           input$create_new_db
         )
       )
@@ -20499,10 +20520,11 @@ server <- function(input, output, session) {
     # Get selected Genome in Single Mode
     shinyFileChoose(input,
                     "genome_file",
-                    roots = c(home = path_home()),
+                    roots = c(Home = path_home(), Root = "/"),
+                    defaultRoot = "Home",
                     session = session,
                     filetypes = c('', 'fasta', 'fna', 'fa'))
-    Typing$single_path <- parseFilePaths(roots = c(home = path_home()), input$genome_file)
+    Typing$single_path <- parseFilePaths(roots = c(Home = path_home(), Root = "/"), input$genome_file)
     
   })
   
@@ -21121,12 +21143,20 @@ server <- function(input, output, session) {
     # Get selected Genome in Multi Mode
     shinyDirChoose(input,
                    "genome_file_multi",
-                   roots = c(home = path_home()),
+                   roots = c(Home = path_home(), Root = "/"),
+                   defaultRoot = "Home",
                    session = session,
                    filetypes = c('', 'fasta', 'fna', 'fa'))
     
-    Typing$table <- data.frame(Include = rep(TRUE, length(list.files(as.character(parseDirPath(roots = c(home = path_home()), input$genome_file_multi))))),
-                               Files = list.files(as.character(parseDirPath(roots = c(home = path_home()), input$genome_file_multi))))
+    Typing$table <-
+      data.frame(Include = rep(TRUE, length(list.files(
+        as.character(parseDirPath(
+          roots = c(Home = path_home(), Root = "/"), input$genome_file_multi
+        ))
+      ))),
+      Files = list.files(as.character(
+        parseDirPath(roots = c(Home = path_home(), Root = "/"), input$genome_file_multi)
+      )))
     
     if (between(nrow(Typing$table), 1, 15)) {
       output$multi_select_table <- renderRHandsontable({
@@ -21432,7 +21462,7 @@ server <- function(input, output, session) {
           db_path = DB$database,
           wd = getwd(),
           scheme = paste0(gsub(" ", "_", DB$scheme)),
-          genome_folder = as.character(parseDirPath(roots = c(home = path_home()), input$genome_file_multi)),
+          genome_folder = as.character(parseDirPath(roots = c(Home = path_home(), Root = "/"), input$genome_file_multi)),
           genome_names = paste(Typing$genome_selected$Files[which(Typing$genome_selected$Include == TRUE)], collapse= " "),
           alleles = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")
         )
