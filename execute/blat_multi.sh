@@ -27,11 +27,9 @@ mkdir "$results"
 
 selected_genomes="$base_path/execute/selected_genomes"
 log_file="$base_path/execute/script_log.txt"
+output_file="$base_path/logs/output.log"
 
-# Function to log messages to the file
-log_message() {
-    echo "$(date +"%Y-%m-%d %H:%M:%S") - $1" >> "$log_file"
-}
+echo "$(date +"%Y-%m-%d %H:%M:%S") - Initiated blat_multi.sh" >> "$output_file"
 
 # Create a log file or truncate if it exists
 echo "Start Multi Typing with $scheme scheme." > "$log_file"
@@ -48,9 +46,11 @@ file_names=($genome_names)
 for file in "${file_names[@]}"; do
     if [ -f "$genome_folder/$file" ]; then
         cp "$genome_folder/$file" "$selected_genomes/"
-        log_message "Initiated $file"
+        echo "$(date +"%Y-%m-%d %H:%M:%S") - Initiated $file" >> "$log_file"
+        echo "$(date +"%Y-%m-%d %H:%M:%S") - Initiated $file" >> "$output_file"
     else
-        log_message "$file not found in $genome_folder"
+        echo "$(date +"%Y-%m-%d %H:%M:%S") - $file not found in $genome_folder" >> "$log_file"
+        echo "$(date +"%Y-%m-%d %H:%M:%S") - $file not found in $genome_folder" >> "$output_file"
     fi
 done
 
@@ -64,12 +64,13 @@ genome_filename_noext=""
 for genome in "$selected_genomes"/*; do
     
     # Check read names of assembly file
-    Rscript "$base_path/execute/check_duplicate_multi.R"
+    Rscript "$base_path/execute/check_duplicate_multi.R" "$base_path"
     
     if [ -f "$genome" ]; then
     genome_filename=$(basename "$genome")
     genome_filename_noext="${genome_filename%.*}"
-    log_message "Processing $genome_filename"
+    echo "$(date +"%Y-%m-%d %H:%M:%S") - Processing $genome_filename" >> "$log_file"
+    echo "$(date +"%Y-%m-%d %H:%M:%S") - Processing $genome_filename" >> "$output_file"
     fi
     mkdir "$results/$genome_filename_noext"
     
@@ -78,7 +79,9 @@ for genome in "$selected_genomes"/*; do
     # Run parallelized BLAT
     find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name "*.fna" \) | parallel pblat $genome {} "$result_folder/{/.}.psl"
     
-    log_message "Attaching $genome_filename"
+    echo "$(date +"%Y-%m-%d %H:%M:%S") - Attaching $genome_filename" >> "$log_file"
+    echo "$(date +"%Y-%m-%d %H:%M:%S") - Initiating addition of $genome_filename (attaching)" >> "$output_file"
     Rscript "$base_path/execute/automatic_typing.R" "$genome_filename"
 done
-log_message "Multi Typing finalized."
+echo "$(date +"%Y-%m-%d %H:%M:%S") - Multi Typing finalized." >> "$log_file"
+echo "$(date +"%Y-%m-%d %H:%M:%S") - Multi Typing finalized." >> "$output_file"
