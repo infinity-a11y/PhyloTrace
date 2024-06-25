@@ -48,8 +48,8 @@ PhyloTrace is an open-source platform for _in silico_ bacterial typing with core
 ## 1.1 Workflow
 
 The **user manual** containing detailed instruction and information is available at [www.phylotrace.com/user-manual](https://www.phylotrace.com/user-manual). 
-<details>
-  <summary> <b>Downloading cgMLST Scheme</b> <i>  - (Click me!)</i> </summary>
+<details open>
+  <summary> <b>Downloading cgMLST Scheme</b></summary>
 <br>
 
 Download a standardized scheme that defines the genetic targets, nomenclature and variant sequences for the bacterial species of interest from the [cgMLST.org](https://www.cgmlst.org/ncs) public database. The connection to the server including information on the scheme is integrated in the app. Once one of the 32 available species has been selected and downloaded, everything is ready to go. 
