@@ -20602,8 +20602,7 @@ server <- function(input, output, session) {
         saveRDS(single_typing_df, "execute/single_typing_df.rds")
         
         # Execute single typing script
-        system(paste("chmod +x", paste0(getwd(), "/execute/blat_run.sh")))
-        system(paste(paste0(getwd(), "/execute/blat_run.sh"), ">>", paste0(getwd(), "/logs/output.log"), "2>&1"), 
+        system(paste("bash", paste0(getwd(), "/execute/blat_run.sh"), ">>", paste0(getwd(), "/logs/output.log"), "2>&1"), 
                wait = FALSE)
         
         scheme_loci <- list.files(path = scheme_select, full.names = TRUE)
@@ -21340,8 +21339,7 @@ server <- function(input, output, session) {
     log_message(out, message = "Kill multi typing")
     
     # Kill multi typing and reset logfile  
-    system(paste("chmod +x", paste0(getwd(), "/execute/kill_multi.sh")))
-    system(paste(paste0(getwd(), "/execute/kill_multi.sh"), ">>", paste0(getwd(), "/logs/output.log"), "2>&1"), 
+    system(paste("bash", paste0(getwd(), "/execute/kill_multi.sh"), ">>", paste0(getwd(), "/logs/output.log"), "2>&1"), 
            wait = TRUE)
     
     show_toast(
@@ -21470,8 +21468,7 @@ server <- function(input, output, session) {
         saveRDS(multi_typing_df, "execute/multi_typing_df.rds")
         
         # Execute multi blat script  
-        system(paste("chmod +x", paste0(getwd(), "/execute/blat_multi.sh")))
-        system(paste(paste0(getwd(), "/execute/blat_multi.sh"), ">>", paste0(getwd(), "/logs/output.log"), "2>&1"), 
+        system(paste("bash", paste0(getwd(), "/execute/blat_multi.sh"), ">>", paste0(getwd(), "/logs/output.log"), "2>&1"), 
                wait = FALSE)
       }
     }
