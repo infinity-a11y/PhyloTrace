@@ -21,7 +21,7 @@ We want to make cgMLST analysis and genomic pathogen monitoring accessible to a 
 
 <sup><sup> Developed in collaboration with Hochschule Furtwangen University (HFU) and Medical University of Graz (MUG). Featured on ShinyConf 2024. </sup> </sup>
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12205782.svg)](https://doi.org/10.5281/zenodo.12205782)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10996423.svg)](https://doi.org/10.5281/zenodo.10996423)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)
 
@@ -43,44 +43,54 @@ We want to make cgMLST analysis and genomic pathogen monitoring accessible to a 
 
 ## 1 Getting Started
 
-PhyloTrace is an open-source platform for _in silico_ bacterial typing with core-genome multilocus sequence typing (cgMLST). This method allows pathogen monitoring on a genomic level by typing allele variants in order to profile the present genetic constitution for individual isolates of a bacterial population. Comparing the allelic profile to other isolates of the same species might reveal coherences that are not visible by the bare eye. Visualizing the generated data enables humans to identify patterns of epidemiologic dynamics (transmission, outbreak variants, source identification), relatedness and population structure. To work with PhyloTrace all that is needed are whole-genome assemblies which demarcate the starting point of the workflow. Easily pipe the files into the cgMLST analysis and step-by-step build up a local database, which can be managed with full control through the app. Visualize and export results in a publication-ready format  
+PhyloTrace is an open-source platform for _in silico_ bacterial typing with core-genome multilocus sequence typing (cgMLST). This method allows pathogen monitoring on a genomic level by typing allele variants in order to profile the present genetic constitution for individual isolates of a bacterial population. Comparing the allelic profile to other isolates of the same species might reveal coherences that are not visible by the bare eye. Visualizing the generated data enables humans to identify patterns of epidemiologic dynamics (transmission, outbreak variants, source identification), relatedness and population structure. To work with PhyloTrace all that is needed are whole-genome assemblies which demarcate the starting point of the workflow. Easily pipe the files into the cgMLST analysis and step-by-step build up a local database, which can be managed with full control through the app. Visualize and export results in a publication-ready format.  
 
 ## 1.1 Workflow
 
 The **user manual** containing detailed instruction and information is available at [www.phylotrace.com/user-manual](https://www.phylotrace.com/user-manual). 
-
-**Downloading cgMLST Scheme**  
+<details>
+  <summary> <b>Downloading cgMLST Scheme</b> <i>  - (Click me!)</i> </summary>
+<br>
 
 Download a standardized scheme that defines the genetic targets, nomenclature and variant sequences for the bacterial species of interest from the [cgMLST.org](https://www.cgmlst.org/ncs) public database. The connection to the server including information on the scheme is integrated in the app. Once one of the 32 available species has been selected and downloaded, everything is ready to go. 
 <div style="display: flex; justify-content: space-between;">
   <img src="docs/resources/preview_11.png" width="47.5%">
   <img src="docs/resources/preview_10.png" width="48.5%">
 </div> <br> 
+</details>
 
-**Allelic Typing**  
+<details>
+  <summary> <b>Allelic Typing</b> </summary>
+<br>
 
 Whole-genome assemblies (`.fasta`) can be entered into the pipeline and are automatically analyzed at high speed. Using the downloaded cgMLST scheme, the bacterial genome is aligned to the known variants at the respective genetic target. By iterating this process over all genes that are part of the core genome, an individual allele profile is generated. If a potential new genetic variant is discovered, it is checked whether the existing allele is still capable of producing a functional protein. Successfully typed assemblies are appended to the local database in real time.  
 <div style="display: flex; justify-content: space-between;">
   <img src="docs/resources/preview_01.png" width="48%">
   <img src="docs/resources/preview_02.png" width="48%">
 </div> <br> 
+</details>
 
-**Building and Managing Database**
+<details>
+  <summary> <b>Building and Managing Database</b> </summary>
+<br>
 
 Step-by-step the database is filled with typed isolates and the connected metadata. The database browser provides full control allowing to edit, delete and inspect the entries that were added so far. It features several functions, e.g. to export the table, compare allelic profiles or to introduce custom variables with information about presence/absence of antimicrobial resistances, gene expression values or any other characteristic, to answer individual research questions. 
 <div style="display: flex; justify-content: space-between;">
   <img src="docs/resources/preview_08.png" width="48%">
   <img src="docs/resources/preview_09.png" width="48%">
 </div>  <br> 
+</details>
 
-**Visualizing Results**  
+<details>
+  <summary> <b>Visualizing Results</b> </summary>
+<br>
 
 Create and customize sophisticated phylogenetic trees (Neighbour-Joining & UPGMA) or networks (Minimum-spanning) to visualize the underlying relationship between the isolates in your local database. The plots can be heavily modified and enriched with useful information e.g. by mapping previously added custom variables. The resulting visuals can be saved in multiple formats and even included in a report document that can be generated from within the app.  
 <div style="display: flex; justify-content: space-between;">
   <img src="docs/resources/preview_07.png" width="53%">
   <img src="docs/resources/preview_05.png" width="43%">
-</div>
-
+</div>  <br> 
+</details>
 
 ### 1.2 Compatibility
 
@@ -102,7 +112,7 @@ Create and customize sophisticated phylogenetic trees (Neighbour-Joining & UPGMA
 
 If you use PhyloTrace for your paper or publication, cite us with 
 
-- *Freisleben, M. & Paskali, F. (2024). PhyloTrace. Zenodo. DOI: 10.5281/zenodo.11121153.*
+- *Freisleben, M. & Paskali, F. (2024). PhyloTrace. Zenodo. DOI: 10.5281/zenodo.10996423.*
 
 ```
 @software{Freisleben_Paskali_2024,
@@ -110,8 +120,8 @@ If you use PhyloTrace for your paper or publication, cite us with
   title        = {PhyloTrace},
   year         = {2024},
   publisher    = {Zenodo},
-  doi          = {10.5281/zenodo.11121153},
-  url          = {https://doi.org/10.5281/zenodo.11121153}
+  doi          = {10.5281/zenodo.10996423},
+  url          = {https://doi.org/10.5281/zenodo.10996423}
 }
 ```
 
