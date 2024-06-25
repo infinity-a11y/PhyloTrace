@@ -1546,7 +1546,7 @@ ui <- dashboardPage(
                   )
                 )
               )
-            )
+            ), br(), br(), br()
           )
         )
       ),
