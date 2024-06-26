@@ -47,10 +47,14 @@ label {
 }
 
 .main-sidebar .sidebar .sidebar-menu .treeview-menu li:hover a {
-  color: #000000 !important; 
+  color: #000000; 
   border-radius: 20px; 
   margin-top: 7px; 
   margin-bottom: 7px;
+}
+
+.skin-blue .main-sidebar .sidebar .sidebar-menu a:hover {
+  color: rgb(0 0 0) !important;
 }
 
 .main-sidebar .sidebar .sidebar-menu li:hover a {
