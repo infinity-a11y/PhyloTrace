@@ -1,9 +1,3 @@
----
-editor_options: 
-  markdown: 
-    wrap: 100
----
-
 <img src="www/PhyloTrace_bw.png#gh-light-mode-only" width="90%"/>
 <img src="www/PhyloTrace.png#gh-dark-mode-only" width="90%"/> <br> PhyloTrace is a platform for
 bacterial pathogen monitoring by core-genome multilocus sequence typing (cgMLST) using
@@ -89,10 +83,10 @@ for the bacterial species of interest from the [cgMLST.org](https://www.cgmlst.o
 database. The connection to the server including information on the scheme is integrated in the app.
 Once one of the 32 available species has been selected and downloaded, everything is ready to go.
 
-::: {style="display: flex; justify-content: space-between;"}
+<div style="display: flex; justify-content: space-between;">
 <img src="docs/resources/preview_11.png" width="47.5%"/>
 <img src="docs/resources/preview_10.png" width="48.5%"/>
-:::
+</div>
 
 <br>
 
@@ -111,10 +105,10 @@ the core genome, an individual allele profile is generated. If a potential new g
 discovered, it is checked whether the existing allele is still capable of producing a functional
 protein. Successfully typed assemblies are appended to the local database in real time.\
 
-::: {style="display: flex; justify-content: space-between;"}
+<div style="display: flex; justify-content: space-between;">
 <img src="docs/resources/preview_01.png" width="48%"/>
 <img src="docs/resources/preview_02.png" width="48%"/>
-:::
+</div>
 
 <br>
 
@@ -132,10 +126,10 @@ far. It features several functions, e.g. to export the table, compare allelic pr
 introduce custom variables with information about presence/absence of antimicrobial resistances,
 gene expression values or any other characteristic, to answer individual research questions.
 
-::: {style="display: flex; justify-content: space-between;"}
+<div style="display: flex; justify-content: space-between;">
 <img src="docs/resources/preview_08.png" width="48%"/>
 <img src="docs/resources/preview_09.png" width="48%"/>
-:::
+</div>
 
 <br>
 
@@ -153,10 +147,10 @@ database. The plots can be heavily modified and enriched with useful information
 previously added custom variables. The resulting visuals can be saved in multiple formats and even
 included in a report document that can be generated from within the app.\
 
-::: {style="display: flex; justify-content: space-between;"}
+<div style="display: flex; justify-content: space-between;">
 <img src="docs/resources/preview_07.png" width="53%"/>
 <img src="docs/resources/preview_05.png" width="43%"/>
-:::
+</div>
 
 <br>
 
@@ -378,12 +372,12 @@ In addition to the points listed on the roadmap, we constantly improve existing 
 
 ✅ ***"Hello World!"*** - Version 1.0.0\
 ✅ Sophisticated MST Graphs (e.g. Pie Charts as Nodes)\
+✅ Compatibility with Microsoft Windows\
 🔲 Hash-based Decentralized cgMLST\
 🔲 MST Graph Clustering\
 🔲 Support for additional cgMLST scheme databases (e.g. pubMLST, EnteroBase, Institut Pasteur)\
 🔲 Implementation of a NGS Assembly Pipeline\
 🔲 Backwards Compatibility with MLST (ST calling)\
-🔲 Compatibility with Microsoft Windows\
 🔲 Implementation of wgMLST\
 🔲 Implementation of a Gene Enrichment Analysis\
 🔲 Validation of PhyloTrace for Clinical Use
