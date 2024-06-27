@@ -10,9 +10,57 @@ label {
   color: white;
 }
 
-.btn-default:active:hover {
+.btn-default:active:hover.
+.btn-primary:active:hover{
   color: white !important;
   background-color: #282F38 !important;
+}
+
+.btn-primary.focus, .btn-primary:focus {
+    color: #000000;
+    background-color: #20E6E5;  
+    border-color: #20E6E5;  
+}
+
+.btn-primary.focus, .btn-primary:active:focus {
+  color: #ffffff;
+  background-color: #282F38;  
+  border-color: white;  
+}
+
+.datepicker table tr td.active:active, .datepicker table tr td.active.active, .datepicker table tr td.active.highlighted:active, .datepicker table tr td.active.highlighted.active {
+  color: #000000;
+  background-color: #20E6E5;  
+  border-color: #20E6E5;  
+}
+
+.table>caption+thead>tr:first-child>td, .table>caption+thead>tr:first-child>th, .table>colgroup+thead>tr:first-child>td, .table>colgroup+thead>tr:first-child>th, .table>thead:first-child>tr:first-child>td, .table>thead:first-child>tr:first-child>th,
+.table>caption+thead>tr:last-child>td, .table>caption+thead>tr:last-child>th, .table>colgroup+thead>tr:last-child>td, .table>colgroup+thead>tr:last-child>th, .table>thead:last-child>tr:last-child>td, .table>thead:last-child>tr:last-child>th {
+    border-top: 1px !important;
+    border-radius: 5px;
+}
+
+.dropdown-menu>li.selected {
+    color: #ffffff;
+    background-color: #282F38;  
+}
+
+.dropdown-menu>li>a.selected{
+  color: #ffffff;
+}
+
+.dropdown-menu>li>a {
+  color: black;
+}
+
+.dropdown-menu>li>a:hover {
+    color: #000000;
+    background-color: #20E6E5;  
+}
+
+.selectize-dropdown .selected {
+  background-color: #20E6E5;
+  color: black;
 }
 
 .bs-searchbox .form-control {
@@ -405,6 +453,11 @@ i.fas.fa-xmark, i.fas.fa-download, i.far.fa-bookmark {
   margin-right: 0px;
 }
 
+i.fas.fa-download {
+  position: relative;
+  top: -1px;
+}
+
 i.fas.fa-triangle-exclamation {
   color: yellow;
 }
@@ -433,6 +486,11 @@ i.far.fa-pen-to-square {
 
 #cgmlst_scheme {
   margin-top: 41px;
+}
+
+.dropdown-menu>.active>a, .dropdown-menu>.active>a:focus, .dropdown-menu>.active>a:hover {
+    color: #ffffff !important;
+    background-color: #282F38 !important;
 }
 
 #shiny-tab-db_browse_entries > div:nth-child(11) > div.col-sm-1,
@@ -512,7 +570,29 @@ button#download_cgMLST {
   background: #282F38;
   color: #ffffff;
   border: 1px solid white;
-  transition: border-color 0.3s ease; /* Smooth transition for border color */
+}
+
+.btn-primary:hover {
+  background-color: #20e6e5;
+  border-color: #20e6e5;
+  color: black;
+  border-radius: 5px;
+  height: 35px;
+}
+
+.btn-primary {
+  background: #282F38;
+  color: #ffffff;
+  border-color: #282F38;
+  border-radius: 5px;
+  height: 35px;
+  padding: 6px 12px;
+}
+
+.btn-default:hover {
+  border-color: #20e6e5 !important;
+  background: #20e6e5 !important;
+  color: black !important;
 }
 
 button#download_cgMLST i.fas.fa-download {
@@ -658,7 +738,7 @@ z-index: 0;
 }
 
 button#create_tree:hover {
-background: #3c8c56; 
+background: #3c8c56 !important; 
   border: none;
 box-shadow: 0px 0px 20px 15px rgba(40, 47, 56, 1);
 }
@@ -792,6 +872,11 @@ button#mst_col_map_menu {
   margin-left: -10px;
   border-radius: 5px;
   margin-bottom: -1px;
+}
+
+.mst_shape_sel div>.selectize-dropdown {
+  bottom: 100% !important; 
+  top:auto!important;
 }
 
 .mst_col_sel {
@@ -1062,6 +1147,7 @@ button#mst_col_map_menu {
 
 .heatmap-picker .btn-default {
   background: white;
+  color: black;
 }
 
 .heatmap-picker .dropdown-menu>li>a>.glyphicon {
@@ -1157,7 +1243,6 @@ button#save_plot_jpeg {
   background: #282F38;
   color: #ffffff;
   border: 1px solid white;
-  transition: border-color 0.3s ease; /* Smooth transition for border color */
   position: relative; 
   top: 10px; 
   right: 20px
@@ -1169,7 +1254,6 @@ button#save_plot_png {
   background: #282F38;
   color: #ffffff;
   border: 1px solid white;
-  transition: border-color 0.3s ease; /* Smooth transition for border color */
   position: relative; 
   top: 10px; 
   right: 20px
@@ -1181,7 +1265,6 @@ button#save_plot_bmp {
   background: #282F38;
   color: #ffffff;
   border: 1px solid white;
-  transition: border-color 0.3s ease; /* Smooth transition for border color */
   position: relative; 
   top: 10px; 
   right: 20px;
@@ -1196,7 +1279,6 @@ button#save_plot_html_bttn {
   background: #282F38;
   color: #ffffff;
   border: 1px solid white;
-  transition: border-color 0.3s ease; /* Smooth transition for border color */
 }
 
 button#download_nj_bttn, button#download_upgma_bttn {
@@ -1208,7 +1290,6 @@ button#download_nj_bttn, button#download_upgma_bttn {
   background: #282F38;
   color: #ffffff;
   border: 1px solid white;
-  transition: border-color 0.3s ease; /* Smooth transition for border color */
 }
 
 #nj_ratio, #upgma_ratio {
@@ -1223,7 +1304,6 @@ button#download_report_bttn {
   background: #282F38;
   color: #ffffff;
   border: 1px solid white;
-  transition: border-color 0.3s ease; /* Smooth transition for border color */
   position: relative; 
   top: -25px;
 }
@@ -1286,7 +1366,6 @@ button#download_report_bttn {
 .heatmap-scale div>.selectize-dropdown {
   bottom: 100% !important; 
   top:auto!important;
-  
 }
 
 #nj_branch_label_color, #upgma_branch_label_color {

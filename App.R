@@ -9882,6 +9882,8 @@ server <- function(input, output, session) {
     
     mode(hamming_matrix) <- "integer"
     
+    test <<- hamming_matrix
+    
     DB$ham_matrix <- hamming_matrix %>%
       as.data.frame() %>%
       mutate(Index = colnames(hamming_matrix)) %>%
