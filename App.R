@@ -8363,49 +8363,53 @@ server <- function(input, output, session) {
                 
                 # Missing values calculations and table 
                 observe({
-                  NA_table <- DB$allelic_profile[, colSums(is.na(DB$allelic_profile)) != 0]
                   
-                  NA_table <- NA_table[rowSums(is.na(NA_table)) != 0,]
-                  
-                  NA_table[is.na(NA_table)] <- "NA"
-                  
-                  NA_table <- NA_table %>% 
-                    cbind("Assembly Name" = DB$meta[rownames(NA_table),]$`Assembly Name`) %>%
-                    cbind("Errors" = DB$meta[rownames(NA_table),]$Errors) %>%
-                    relocate("Assembly Name", "Errors")
-                  
-                  DB$na_table <- NA_table
-                  
-                  if(!is.null(input$miss_val_height)) {
-                    if(nrow(DB$na_table) < 31) {
-                      output$table_missing_values <- renderRHandsontable({
-                        rhandsontable(
-                          DB$na_table,
-                          rowHeaders = NULL
-                        ) %>%
-                          hot_context_menu(allowRowEdit = FALSE,
-                                           allowColEdit = FALSE,
-                                           allowReadOnly = TRUE) %>%
-                          hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                          hot_rows(fixedRowsTop = 0) %>%
-                          hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htCenter")
-                      })
-                    } else {
-                      output$table_missing_values <- renderRHandsontable({
-                        rhandsontable(
-                          DB$na_table,
-                          rowHeaders = NULL,
-                          height = miss.val.height()
-                        ) %>%
-                          hot_context_menu(allowRowEdit = FALSE,
-                                           allowColEdit = FALSE,
-                                           allowReadOnly = TRUE) %>%
-                          hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                          hot_rows(fixedRowsTop = 0) %>%
-                          hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htCenter")
-                      })
+                  if (!is.null(DB$allelic_profile)) {
+                    NA_table <- DB$allelic_profile[, colSums(is.na(DB$allelic_profile)) != 0]
+                    
+                    NA_table <- NA_table[rowSums(is.na(NA_table)) != 0,]
+                    
+                    NA_table[is.na(NA_table)] <- "NA"
+                    
+                    NA_table <- NA_table %>% 
+                      cbind("Assembly Name" = DB$meta[rownames(NA_table),]$`Assembly Name`) %>%
+                      cbind("Errors" = DB$meta[rownames(NA_table),]$Errors) %>%
+                      relocate("Assembly Name", "Errors")
+                    
+                    DB$na_table <- NA_table
+                    
+                    if(!is.null(input$miss_val_height)) {
+                      if(nrow(DB$na_table) < 31) {
+                        output$table_missing_values <- renderRHandsontable({
+                          rhandsontable(
+                            DB$na_table,
+                            rowHeaders = NULL
+                          ) %>%
+                            hot_context_menu(allowRowEdit = FALSE,
+                                             allowColEdit = FALSE,
+                                             allowReadOnly = TRUE) %>%
+                            hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                            hot_rows(fixedRowsTop = 0) %>%
+                            hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htCenter")
+                        })
+                      } else {
+                        output$table_missing_values <- renderRHandsontable({
+                          rhandsontable(
+                            DB$na_table,
+                            rowHeaders = NULL,
+                            height = miss.val.height()
+                          ) %>%
+                            hot_context_menu(allowRowEdit = FALSE,
+                                             allowColEdit = FALSE,
+                                             allowReadOnly = TRUE) %>%
+                            hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                            hot_rows(fixedRowsTop = 0) %>%
+                            hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htCenter")
+                        })
+                      }
                     }
                   }
+                  
                 })
                 
                 # Render missing value informatiojn box UI
