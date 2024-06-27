@@ -10,6 +10,20 @@ label {
   color: white;
 }
 
+.form-control, .selectize-input .items .full .has-options .has-items {
+  height: auto !important;
+  min-height: auto !important; 
+}
+
+.shiny-input-text .form-control .shinyjs-resettable .shiny-bound-input {
+  height: 35px;
+}
+
+.form-control, .selectize-input .items .full .has-options .has-items .dropdown-active .focus .input.active{
+  height: auto !important;
+  min-height: auto !important; 
+}
+
 .bs-searchbox .form-control {
   border-color: black;
 }
@@ -33,6 +47,46 @@ label {
   border-radius: 20px; 
   margin-top: 7px; 
   margin-bottom: 7px;
+  margin-right: 20px;
+}
+
+
+.bttn-material-flat {
+  border: 1px solid #00000000;
+  border-width: 1px;
+  display: inline-block; /* Make the element inline-block */
+  transition: border-color 0.3s ease; /* Smooth transition for border color */
+}
+
+.bttn-material-flat:hover{
+  border-color: #20E6E5;
+}
+
+.action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input {
+  background: #282F38 !important;
+  border: 1px solid transparent; /* Default border color */
+  display: inline-block; /* Make the element inline-block */
+  transition: border-color 0.3s ease; /* Smooth transition for border color */
+  border-width: 1px !important;
+  border-color: white !important;
+  color: white !important;
+  transition: background 0.3s ease; /* Smooth transition for border color */
+  transition: color 0.3s ease; /* Smooth transition for border color */
+}
+
+.action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input:hover {
+  border-color: transparent !important; /* Change border color to white on hover */
+  background: #20E6E5 !important;
+  color: black !important;
+}
+
+.shiny-input-container input[type = "text"] {
+  border: 2px solid transparent !important;
+  transition: border-color 0.3s ease; /* Smooth transition for border color */
+}
+
+.shiny-input-container input[type = "text"]:hover {
+  border-color: #20E6E5 !important;
 }
 
 .main-sidebar .sidebar .sidebar-menu a {
@@ -560,8 +614,6 @@ button#mst_edge_menu {
 
 button#mst_title_menu {
   height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
   margin-top: 20px; 
   border-radius: 5px
 }
@@ -818,33 +870,61 @@ button#mst_col_map_menu {
 }
 
 .material-switch>label.switch:before {
-      background: #20E6E5 !important;
-    border-radius: 8px;
-    content: "";
-    height: 13px;
-    margin-top: -10px;
-    opacity: .3;
-    position: absolute;
-    transition: all .4s ease-in-out;
-    width: 40px;
+  background: #20e6e559 !important;
+  border-radius: 8px;
+  content: "";
+  height: 13px;
+  margin-top: -10px;
+  opacity: 1;
+  position: absolute;
+  width: 40px;
+  transition: all 0.3s ease-in-out;
+  border: 1px solid transparent;
 }
 
+.material-switch>label.switch:hover:before {
+  border: 1px solid #20e6e5;
+}
+  
 .material-switch>input[type=checkbox]:checked+label.switch:before {
+  background: #20e6e5 !important;
+  border-radius: 8px;
+  content: "";
+  height: 13px;
+  margin-top: -10px;
   opacity: 1;
+  position: absolute;
+  width: 40px;
+  transition: all 0.3s ease-in-out;
+  border: 1px solid #20e6e559;
+}
+
+.material-switch>input[type=checkbox]:checked+label.switch:hover:before {
+  border: 1px solid black;
 }
 
 .material-switch>label.switch:after {
-    background: #E6E6E6 !important;
-    border-radius: 1pc;
-    box-shadow: 0 0 5px rgba(0,0,0,.3);
-    content: "";
-    height: 20px;
-    left: -4px;
-    margin-top: -10px;
-    position: absolute;
-    top: -4px;
-    transition: all .3s ease-in-out;
-    width: 20px;
+  background: #E6E6E6 !important;
+  border-radius: 1pc;
+  box-shadow: 0 0 5px rgba(0,0,0,.3);
+  content: "";
+  height: 20px;
+  opacity: 1;
+  left: -4px;
+  margin-top: -10px;
+  position: absolute;
+  top: -4px;
+  transition: all 0.3s ease-in-out;
+  width: 20px;
+  border: 1px solid transparent;
+}
+
+.material-switch>label.switch:hover:after {
+  border: 1px solid #20e6e5 !important;
+}
+
+.material-switch>input[type=checkbox]:checked+label.switch:hover:after {
+  border: 1px solid black !important;
 }
 
 .ratio-sel {
@@ -1033,6 +1113,7 @@ button#download_report_bttn {
 #nj_bg, #upgma_bg {
   margin-bottom: 10px;
   margin-left: 10px;
+  margin-top: -22px;
 }
 
 #nj_color, #upgma_color {

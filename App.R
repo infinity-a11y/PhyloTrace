@@ -812,7 +812,7 @@ ui <- dashboardPage(
                 status = "primary",
                 width = "100%",
                 height = "500px",
-                h3(p("Layout"), style = "color:white"),
+                h3(p("Layout"), style = "color:white; position:relative; right:-15px"),
                 hr(),
                 fluidRow(
                   column(
@@ -1078,7 +1078,7 @@ ui <- dashboardPage(
               status = "primary",
               width = "100%",
               height = "500px",
-              h3(p("Nodes"), style = "color:white"),
+              h3(p("Nodes"), style = "color:white; position:relative; right:-15px"),
               hr(),
               fluidRow(
                 column(
@@ -1332,7 +1332,7 @@ ui <- dashboardPage(
               status = "primary",
               width = "100%",
               height = "500px",
-              h3(p("Edges"), style = "color:white"),
+              h3(p("Edges"), style = "color:white; position:relative; right:-15px"),
               hr(),
               fluidRow(
                 column(
@@ -1546,7 +1546,7 @@ ui <- dashboardPage(
                   )
                 )
               )
-            ), br(), br(), br()
+            ), br(), br(), br(), br(), br(), br()
           )
         )
       ),
@@ -1723,7 +1723,7 @@ ui <- dashboardPage(
                     fluidRow(
                       column(
                         width = 5,
-                        h5(p("Background"), style = "color:white; position: relative; right: -15px; margin-top: 30px; margin-bottom: 38px")
+                        h5(p("Background"), style = "color:white; position: relative; right: -15px; margin-top: 7px; margin-bottom: 38px")
                       ),
                       column(
                         width = 7,
@@ -3661,7 +3661,7 @@ ui <- dashboardPage(
                     fluidRow(
                       column(
                         width = 5,
-                        h5(p("Background"), style = "color:white; position: relative; right: -15px; margin-top: 30px; margin-bottom: 38px")
+                        h5(p("Background"), style = "color:white; position: relative; right: -15px; margin-top: 7px; margin-bottom: 38px")
                       ),
                       column(
                         width = 7,
@@ -21788,4 +21788,3 @@ server <- function(input, output, session) {
 # Shiny ----
 
 shinyApp(ui = ui, server = server)
-
