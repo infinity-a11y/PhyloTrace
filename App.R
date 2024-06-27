@@ -8939,12 +8939,29 @@ server <- function(input, output, session) {
       }
       
       if (!is.null(DB$loci_info)) {
+        loci_info <- DB$loci_info
+        names(loci_info)[6] <- "Allele Count"
+        
         output$db_loci <- renderDataTable(
-          DB$loci_info,
+          loci_info,
           options = list(pageLength = 10,
-                         columnDefs = list(list(searchable = FALSE,
-                                                targets = "_all")
-                         )))
+                         columnDefs = list(list(searchable = TRUE,
+                                                targets = "_all")),
+                         initComplete = DT::JS(
+                           "function(settings, json) {",
+                           "$('th:first-child').css({'border-top-left-radius': '5px'});",
+                           "$('th:last-child').css({'border-top-right-radius': '5px'});",
+                           "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                           "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                           "}"
+                         ),
+                         drawCallback = DT::JS(
+                           "function(settings) {",
+                           "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                           "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                           "}"
+                         ))
+          )
         
         output$loci_header <- renderUI(h3(p("Loci"), style = "color:white"))
         
