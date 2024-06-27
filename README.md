@@ -241,7 +241,7 @@ Is ***Miniconda*** or another ***Conda Distribution*** installed on the system?
 
 **No**  :arrow_right: Run the installation below and initialize conda  <br>
  
-**Yes** :arrow_right: Proceed to [2.2 Create Conda Environment](#22-create-conda-environment). 
+**Yes** :arrow_right: Proceed to [2.2 Create Conda Environment](#22-create-conda-environment) 
 
 These four commands quickly and quietly install the latest 64-bit version of Miniconda and then
 clean up after themselves. \>For installation of Miniconda on system with different architecture,
