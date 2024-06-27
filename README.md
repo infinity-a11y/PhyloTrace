@@ -192,7 +192,20 @@ If you use PhyloTrace for your paper or publication, cite us with
 
 ## 2 Installation
 
+PhyloTrace can be installed in a linux environment and, using Windows Subsystem for Linux (WSL) also on Microsoft Windows. In both cases, the source code of the latest stable version must be downloaded.
+
+:arrow_right: Download the source code of the latest release [Version 1.4.0](https://github.com/infinity-a11y/PhyloTrace/archive/refs/tags/v1.4.0.zip) and extract/unzip it to a location on your system. 
+
+> <i>If an older version is already installed on your system, make sure to first uninstall PhyloTrace
+> (see [2.4 Uninstall](#24-uninstall)). Since the local database folder is located outside of the
+> app directory the previous analyses and isolates remain unaffected. To update to the newer version
+> first uninstall the previous one, download the new version and follow the complete installation
+> procedure as described below.</i>
+
+For the installation on a linux OS follow the steps starting from [2.1 Install Miniconda](#21-install-miniconda). If you want to install PhyloTrace on Microsoft Windows, you must first follow the steps found in the collapsible menu below before the other steps.
+
 <details>
+<br>
 <summary><b>Installing PhyloTrace on Windows using WSL (Windows Subsystem for Linux)</b></summary>
 
 To install Ubuntu on WSL, start PowerShell as administrator and run the following command:
@@ -211,43 +224,28 @@ following commands:
 ``` bash
 sudo add-apt-repository ppa:wslutilites/wslu
 sudo apt update
+```
+
+Install the WSL utilities.
+``` bash
 sudo apt install wslu
 ```
 
-After this, the instructions from [2.1 Install Miniconda](#21-install-miniconda) should be followed
-
-To start Phylotrace using WSL on Windows, start the following command:
-
-``` bash
-cd path/to/phylotrace
-bash run_phylotrace.sh
-```
-
-> To install and use PhyloTrace on Windows, a user account with administartion rights is required
+After this, the instructions from [2.1 Install Miniconda](#21-install-miniconda) should be followed.
 
 </details>
 
-
-Download the source code of the latest release
-``` bash
-git clone https://github.com/infinity-a11y/PhyloTrace.git
-```
-
-> If an older version is already installed on your system, make sure to first uninstall PhyloTrace
-> (see [2.4 Uninstall](#24-uninstall)). Since the local database folder is located outside of the
-> app directory the previous analyses and isolates remain unaffected. To update to the newer version
-> first uninstall the previous one, download the new version and follow the complete installation
-> procedure as described below.
-
 ### 2.1 Install Miniconda
 
-Is ***Miniconda*** or another ***Conda Distribution*** installed on the system? - No: Run the
-installation below and initialize conda. - Yes: Proceed to [2.2 Create Conda
-Environment](#22-create-conda-environment).
+Is ***Miniconda*** or another ***Conda Distribution*** installed on the system?  
+
+**No**  :arrow_right: Run the installation below and initialize conda  <br>
+ 
+**Yes** :arrow_right: Proceed to [2.2 Create Conda Environment](#22-create-conda-environment). 
 
 These four commands quickly and quietly install the latest 64-bit version of Miniconda and then
 clean up after themselves. \>For installation of Miniconda on system with different architecture,
-please refer to the [Miniconda documentation](https://docs.anaconda.com/free/miniconda/index.html)
+please refer to the [Miniconda documentation](https://docs.anaconda.com/free/miniconda/index.html).
 
 ``` bash
 mkdir -p ~/miniconda3
@@ -276,11 +274,11 @@ conda config --set auto_activate_base false
 Create a conda environment containing necessary dependencies and packages.
 
 ``` bash
-cd path/to/directory
+cd path/to/phylotrace
 conda env create -f PhyloTrace.yml
 ```
 
-> *In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace
+> *In the command above, replace `path/to/phylotrace` with the actual path linking to the PhyloTrace
 > directory on your system.* *This process might take a while (depends on system performance).*
 
 ### 2.3 Create Desktop Launcher
@@ -289,11 +287,11 @@ Run install script to generate a run script and include PhyloTrace desktop icon 
 Menu.
 
 ``` bash
-cd path/to/directory
+cd path/to/phylotrace
 bash install_phylotrace.sh
 ```
 
-> *In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace
+> *In the command above, replace `path/to/phylotrace` with the actual path linking to the PhyloTrace
 > directory on your system.*
 
 ### 2.4 Uninstall
@@ -310,7 +308,7 @@ conda remove -n PhyloTrace --all -y
 ### 2.5 Troubleshooting
 
 There are multiple possible sources for issues with the installation. Common mistakes during the
-installation are: - Change `path/to/directory` in the command chunks with the actual path of the
+installation are: - Change `path/to/phylotrace` in the command chunks with the actual path of the
 repository containing all PhyloTrace files - Before installation make sure the whole repository is
 unzipped to a writable location in your system
 
@@ -326,12 +324,12 @@ desired browser (executable names for popular browsers are listed in the table b
 to use Google Chrome, execute the following command:
 
 ``` bash
-cd path/to/directory
+cd path/to/phylotrace
 R_BROWSER=google-chrome
 bash run_phylotrace.sh
 ```
 
-> *In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace
+> *In the command above, replace `path/to/phylotrace` with the actual path linking to the PhyloTrace
 > directory on your system.*
 
 | Browser       | *browser-name*                                |
@@ -344,26 +342,28 @@ bash run_phylotrace.sh
 
 ## 3 Launch PhyloTrace
 
-Start PhyloTrace by using the launcher in Applications Menu. A browser tab with the app will
+**Linux** - Start PhyloTrace by using the launcher in Applications Menu. A browser tab with the app will
 automatically open in the default browser.
 
 <img src="docs/resources/app_icon.png" width="60%"/> <br>
 
-The **user manual** containing documentation is available at
-[www.phylotrace.com/user-manual](https://www.phylotrace.com/user-manual).
+**Launching from terminal (and for Microsoft Windows)**
 
-**Alternative Launching:**
-
-If launching from desktop does not work, the alternative way to run the app is to execute these
+For Windows users, or if launching from the Linux desktop does not work, the alternative way to run the app is to execute these
 commands:
 
 ``` bash
-cd path/to/directory
+cd path/to/phylotrace
 bash run_phylotrace.sh
 ```
 
-> *In the command above, replace `path/to/directory` with the actual path linking to the PhyloTrace
+> *In the command above, replace `path/to/phylotrace` with the actual path linking to the PhyloTrace
 > directory on your system.*
+
+> _To install and use PhyloTrace on Windows, a user account with administration rights is required._
+
+The **user manual** containing documentation is available at
+[www.phylotrace.com/user-manual](https://www.phylotrace.com/user-manual).
 
 ## 4 Roadmap
 
