@@ -216,6 +216,7 @@ button#reload_db.btn.btn-default.action-button.shiny-bound-input {
   width: 30px; 
   position: relative; 
   left: -20px;
+  border: 1px solid white;
 }
 
 .irs.irs--shiny.js-irs-0 {
@@ -429,6 +430,29 @@ input.form-control.pickr-color {
   animation: none;
 }
 
+button#copy_seq {
+    background: #282F38;
+    color: #ffffff;
+    border: 1px solid white;
+    transition: border-color 0.3s ease;
+}
+
+button#get_locus_bttn {
+    background: #282F38;
+    color: #ffffff;
+    border: 1px solid white;
+    transition: border-color 0.3s ease;
+    opacity: 1;
+    font-size: 15px;
+    width: 147px;
+}
+
+button#get_locus_bttn i.fas.fa-download {
+    position: relative;
+    top: -1px;
+    left: -6px;
+}
+
 /* Icons */
 
 i.fas {
@@ -527,6 +551,10 @@ i.far.fa-pen-to-square {
 #multi_select_table, #typing_result_table, #multi_typing_result_table {
   border-radius: 8px;
   color: black;
+}
+
+#multi_typing_result_table {
+  margin-top: -15px;
 }
 
 #add_new_variable {

@@ -1,3 +1,8 @@
+// Copy sequence clipboard
+Shiny.addCustomMessageHandler('txt', function (txt) {
+                navigator.clipboard.writeText(txt);
+            });
+
 // Get date format
 function getCurrentDate() {
   var currentDate = new Date();

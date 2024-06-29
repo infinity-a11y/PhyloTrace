@@ -515,8 +515,9 @@ ui <- dashboardPage(
         hr(), br(), br(), br(),
         uiOutput("no_scheme_info"),
         fluidRow(
+          column(2),
           column(
-            width = 5,
+            width = 7,
             align = "center",
             fluidRow(
               column(
@@ -533,9 +534,26 @@ ui <- dashboardPage(
             br(),
             br(),
             uiOutput("scheme_info")
-          ),
+          )
+        )
+      ),
+      
+      ### Tab Loci Info  ----  
+      
+      tabItem(
+        tabName = "db_loci_info",
+        fluidRow(
           column(
-            width = 7,
+            width = 3,
+            align = "center",
+            h2(p("Loci Info"), style = "color:white")
+          )
+        ),
+        hr(), br(), br(), br(),
+        fluidRow(
+          column(1),
+          column(
+            width = 10,
             align = "center",
             fluidRow(
               column(
@@ -552,6 +570,17 @@ ui <- dashboardPage(
             br(),
             div(class = "loci_table",
                 dataTableOutput("db_loci"))
+          )
+        ),
+        br(), br(),
+        fluidRow(
+          column(1),
+          uiOutput("sequence_selector"), 
+          column(1),
+          column(
+            width = 7,
+            br(),
+            uiOutput("loci_sequences")
           )
         )
       ),
@@ -5451,6 +5480,39 @@ server <- function(input, output, session) {
   
   ## Functions ----
   
+  # Function to read and format FASTA sequences
+  format_fasta <- function(filepath) {
+    fasta <- readLines(filepath)
+    formatted_fasta <- list()
+    current_sequence <- ""
+    
+    for (line in fasta) {
+      if (startsWith(line, ">")) {
+        if (current_sequence != "") {
+          formatted_fasta <- append(formatted_fasta, list(current_sequence))
+          current_sequence <- ""
+        }
+        formatted_fasta <- append(formatted_fasta, list(line))
+      } else {
+        current_sequence <- paste0(current_sequence, line)
+      }
+    }
+    if (current_sequence != "") {
+      formatted_fasta <- append(formatted_fasta, list(current_sequence))
+    }
+    
+    formatted_fasta
+  }
+  
+  # Function to color-code the bases in a sequence
+  color_sequence <- function(sequence) {
+    sequence <- gsub("A", "<span class='base-a'>A</span>", sequence)
+    sequence <- gsub("T", "<span class='base-t'>T</span>", sequence)
+    sequence <- gsub("G", "<span class='base-g'>G</span>", sequence)
+    sequence <- gsub("C", "<span class='base-c'>C</span>", sequence)
+    sequence
+  }
+  
   # Function to log messages to logfile
   log_message <- function(log_file, message, append = TRUE) {
     cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "-", message, "\n", file = log_file, append = append)
@@ -5706,7 +5768,7 @@ server <- function(input, output, session) {
   
   out <- file(paste0(getwd(), "/logs/output.log"), open = "wt")
   
-  sink(file = out, append = TRUE, type = "message")
+  #sink(file = out, append = TRUE, type = "message")
   
   log_message(log_file = out,
               message = "Session started",
@@ -6155,6 +6217,10 @@ server <- function(input, output, session) {
                 tabName = "db_schemeinfo"
               ),
               menuSubItem(
+                text = "Loci Info",
+                tabName = "db_loci_info"
+              ),
+              menuSubItem(
                 text = "Distance Matrix",
                 tabName = "db_distmatrix"
               )
@@ -6293,6 +6359,10 @@ server <- function(input, output, session) {
                     tabName = "db_schemeinfo"
                   ),
                   menuSubItem(
+                    text = "Loci Info",
+                    tabName = "db_loci_info"
+                  ),
+                  menuSubItem(
                     text = "Distance Matrix",
                     tabName = "db_distmatrix"
                   ),
@@ -6358,6 +6428,10 @@ server <- function(input, output, session) {
                   menuSubItem(
                     text = "Scheme Info",
                     tabName = "db_schemeinfo"
+                  ),
+                  menuSubItem(
+                    text = "Loci Info",
+                    tabName = "db_loci_info"
                   ),
                   menuSubItem(
                     text = "Distance Matrix",
@@ -6427,6 +6501,10 @@ server <- function(input, output, session) {
                   menuSubItem(
                     text = "Scheme Info",
                     tabName = "db_schemeinfo"
+                  ),
+                  menuSubItem(
+                    text = "Loci Info",
+                    tabName = "db_loci_info"
                   ),
                   menuSubItem(
                     text = "Distance Matrix",
@@ -6567,6 +6645,10 @@ server <- function(input, output, session) {
                     menuSubItem(
                       text = "Scheme Info",
                       tabName = "db_schemeinfo"
+                    ),
+                    menuSubItem(
+                      text = "Loci Info",
+                      tabName = "db_loci_info"
                     ),
                     menuSubItem(
                       text = "Distance Matrix",
@@ -6734,6 +6816,10 @@ server <- function(input, output, session) {
                           tabName = "db_schemeinfo"
                         ),
                         menuSubItem(
+                          text = "Loci Info",
+                          tabName = "db_loci_info"
+                        ),
+                        menuSubItem(
                           text = "Distance Matrix",
                           tabName = "db_distmatrix"
                         )
@@ -6771,6 +6857,10 @@ server <- function(input, output, session) {
                         menuSubItem(
                           text = "Scheme Info",
                           tabName = "db_schemeinfo"
+                        ),
+                        menuSubItem(
+                          text = "Loci Info",
+                          tabName = "db_loci_info"
                         ),
                         menuSubItem(
                           text = "Distance Matrix",
@@ -7723,7 +7813,8 @@ server <- function(input, output, session) {
                                 rowHeaders = NULL,
                                 duplicated_highlight = duplicated_rows()-1,
                                 row_highlight = row_highlight
-                              ) %>%
+                              )  %>%
+                                hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
                                 hot_col((12 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var))+length(input$compare_select)), 
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
@@ -8497,6 +8588,10 @@ server <- function(input, output, session) {
                         tabName = "db_schemeinfo"
                       ),
                       menuSubItem(
+                        text = "Loci Info",
+                        tabName = "db_loci_info"
+                      ),
+                      menuSubItem(
                         text = "Distance Matrix",
                         tabName = "db_distmatrix"
                       )
@@ -8826,6 +8921,10 @@ server <- function(input, output, session) {
                   tabName = "db_schemeinfo"
                 ),
                 menuSubItem(
+                  text = "Loci Info",
+                  tabName = "db_loci_info"
+                ),
+                menuSubItem(
                   text = "Distance Matrix",
                   tabName = "db_distmatrix"
                 ),
@@ -8870,6 +8969,10 @@ server <- function(input, output, session) {
               menuSubItem(
                 text = "Scheme Info",
                 tabName = "db_schemeinfo"
+              ),
+              menuSubItem(
+                text = "Loci Info",
+                tabName = "db_loci_info"
               ),
               menuSubItem(
                 text = "Distance Matrix",
@@ -8948,6 +9051,7 @@ server <- function(input, output, session) {
         
         output$db_loci <- renderDataTable(
           loci_info,
+          selection = "single",
           options = list(pageLength = 10,
                          columnDefs = list(list(searchable = TRUE,
                                                 targets = "_all")),
@@ -9900,6 +10004,118 @@ server <- function(input, output, session) {
       download_matrix <- hot_to_r(input$db_distancematrix)
       download_matrix[is.na(download_matrix)] <- ""
       write.csv(download_matrix, file, row.names=FALSE, quote=FALSE) 
+    }
+  )
+  
+  # _______________________ ####
+  
+  ## Locus sequences ----
+  
+  observe({
+    if(!is.null(DB$database) & !is.null(DB$scheme)) {
+      DB$loci <- list.files(
+        path = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles"),
+        pattern = "\\.(fasta|fa|fna)$",
+        full.names = TRUE
+      )
+    }
+  })
+  
+  output$loci_sequences <- renderUI({
+    req(DB$loci, input$db_loci_rows_selected, input$seq_sel)
+    
+    fasta <- format_fasta(DB$loci[input$db_loci_rows_selected])
+    
+    seq <- fasta[[which(fasta == paste0(">", gsub("Variant ", "",sub(" -.*", "", input$seq_sel)))) + 1]]
+    
+    DB$seq <- seq
+    
+    tags$pre(HTML(color_sequence(seq)), class = "sequence")
+  })
+  
+  output$sequence_selector <- renderUI({
+    if(!is.null(input$db_loci_rows_selected)) {
+      
+      fasta <- format_fasta(DB$loci[input$db_loci_rows_selected])
+      
+      seq_names <- c()
+      for (i in seq_along(fasta)) {
+        if (startsWith(fasta[[i]], ">")) {
+          name <- sub(">", "", fasta[[i]])
+          seq_names <- c(seq_names, name)
+        }
+      }
+      
+      var_count <- table(DB$allelic_profile[gsub(".fasta", "", (basename(DB$loci[input$db_loci_rows_selected])))])
+      
+      vec <- prop.table(var_count)
+      
+      perc <- sapply(unname(vec), scales::percent, accuracy = 0.1)
+      
+      names(perc) <- names(vec)
+      
+      choices <- seq_names
+      
+      present <- which(choices %in% names(vec))
+      absent <- which(!(choices %in% names(vec)))
+      
+      choices[present] <- paste0("Variant ", choices[present], " - ", unname(var_count), " times in DB (", unname(perc), ")")
+      
+      choices[absent] <- paste0("Variant ", choices[absent], " - not present")
+      
+      choices <- c(choices[present], choices[absent])
+      
+      column(
+        width = 3,
+        selectInput(
+          "seq_sel",
+          h5("Select Variant", style = "color:white;"),
+          choices = choices,
+          width = "80%"
+        ),
+        br(),
+        fluidRow(
+          column(
+            width = 8,
+            align = "left",
+            actionButton("copy_seq", "Copy Sequence",
+                         icon = icon("copy"))
+          )
+        ),
+        br(),
+        fluidRow(
+          column(
+            width = 8,
+            align = "left",
+            downloadBttn(
+              "get_locus",
+              style = "simple",
+              label = "Save .fasta",
+              size = "sm",
+              icon = icon("download")
+            )
+          )
+        ),
+        br(), br(), br(), br(), br(), br(), br()
+      )
+    }
+  })
+  
+  observeEvent(input$copy_seq, {
+    if(!is.null(DB$seq)) {
+      session$sendCustomMessage("txt", DB$seq)
+    }
+  })
+  
+  output$get_locus <- downloadHandler(
+    filename = function() {
+      fname <- basename(DB$loci[input$db_loci_rows_selected])
+      log_message(out, message = paste0("Get locus fasta ", fname))
+      fname
+    },
+    content = function(file) {
+      cont <- readLines(DB$loci[input$db_loci_rows_selected])
+      writeLines(cont, file)
     }
   )
   
@@ -21612,7 +21828,8 @@ server <- function(input, output, session) {
           output$multi_typing_result_table <- renderRHandsontable({
             rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
                           stretchH = "all") %>%
-              hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+              hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE,
+                               allowReadOnly = TRUE) %>%
               hot_cols(columnSorting = TRUE) %>%
               hot_rows(rowHeights = 25) %>%
               hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
@@ -21622,7 +21839,8 @@ server <- function(input, output, session) {
             output$multi_typing_result_table <- renderRHandsontable({
               rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
                             stretchH = "all", height = 500) %>%
-                hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+                hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE,
+                                 allowReadOnly = TRUE) %>%
                 hot_cols(columnSorting = TRUE) %>%
                 hot_rows(rowHeights = 25) %>%
                 hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
@@ -21630,7 +21848,8 @@ server <- function(input, output, session) {
             output$multi_typing_result_table <- renderRHandsontable({
               rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
                             stretchH = "all") %>%
-                hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+                hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE,
+                                 allowReadOnly = TRUE) %>%
                 hot_cols(columnSorting = TRUE) %>%
                 hot_rows(rowHeights = 25) %>%
                 hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
@@ -21669,10 +21888,10 @@ server <- function(input, output, session) {
             fluidRow(
               column(1),
               column(
-                width = 8,
+                width = 9,
                 br(), br(),
                 br(), br(),
-                br(), br(),
+                br(), 
                 selectInput(
                   "multi_results_picker",
                   label = h5("Select Typing Results", style = "color:white"),

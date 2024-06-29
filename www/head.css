@@ -1,3 +1,22 @@
+/* Style sequence display*/
+.base-a { color: black; text-shadow: 0px 0px 4px red; }
+.base-t { color: black; text-shadow: 0px 0px 4px green; }
+.base-g { color: black; text-shadow: 0px 0px 4px blue; }
+.base-c { color: black; text-shadow: 0px 0px 4px orange; }
+
+.sequence { 
+  font-family: monospace; 
+  white-space: pre-wrap; 
+  word-wrap: break-word;
+  position: relative; right: 160px
+}
+
+.clipboard-button { margin-left: 10px; cursor: pointer; border: none; background: none;}
+
+#loci_sequences {
+  color: white;
+}
+
 /* Scrollbar Styling */
 *::-webkit-scrollbar {
   width: 15px;
