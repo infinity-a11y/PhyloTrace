@@ -7619,13 +7619,17 @@ server <- function(input, output, session) {
                 
                 # Render scheme info download button
                 output$download_loci <- renderUI({
-                  downloadBttn(
-                    "download_loci_info",
-                    style = "simple",
-                    label = "",
-                    size = "sm",
-                    icon = icon("download"),
-                    color = "primary"
+                  column(
+                    12,
+                    downloadBttn(
+                      "download_loci_info",
+                      style = "simple",
+                      label = "",
+                      size = "sm",
+                      icon = icon("download"),
+                      color = "primary"
+                    ),
+                    bsTooltip("download_loci_info_bttn", HTML("Save loci information <br> (without sequence)"), placement = "top", trigger = "hover")
                   )
                 })
                 
@@ -10026,11 +10030,20 @@ server <- function(input, output, session) {
     
     fasta <- format_fasta(DB$loci[input$db_loci_rows_selected])
     
-    seq <- fasta[[which(fasta == paste0(">", gsub("Variant ", "",sub(" -.*", "", input$seq_sel)))) + 1]]
+    seq <- fasta[[which(fasta == paste0(">", gsub("Variant ", "", sub(" -.*", "", input$seq_sel)))) + 1]]
     
     DB$seq <- seq
     
-    tags$pre(HTML(color_sequence(seq)), class = "sequence")
+    column(
+      width = 12,
+      HTML(
+        paste(
+          tags$span(style='color: white; font-size: 15px; position: relative; top: -15px; left: -50px', 
+                    sub(" -.*", "", input$seq_sel))
+        )
+      ),
+      tags$pre(HTML(color_sequence(seq)), class = "sequence")
+    )
   })
   
   output$sequence_selector <- renderUI({
@@ -10079,7 +10092,8 @@ server <- function(input, output, session) {
             width = 8,
             align = "left",
             actionButton("copy_seq", "Copy Sequence",
-                         icon = icon("copy"))
+                         icon = icon("copy")),
+            bsTooltip("copy_seq", "Copy the variant sequence to clipboard", placement = "top", trigger = "hover")
           )
         ),
         br(),
@@ -10093,7 +10107,8 @@ server <- function(input, output, session) {
               label = "Save .fasta",
               size = "sm",
               icon = icon("download")
-            )
+            ),
+            bsTooltip("get_locus_bttn", "Save locus file with all variants", placement = "top", trigger = "hover")
           )
         ),
         br(), br(), br(), br(), br(), br(), br()
@@ -10105,6 +10120,13 @@ server <- function(input, output, session) {
     if(!is.null(DB$seq)) {
       session$sendCustomMessage("txt", DB$seq)
     }
+    show_toast(
+      title = "Copied sequence",
+      type = "success",
+      position = "top-end",
+      timer = 3000,
+      width = "400px"
+    )
   })
   
   output$get_locus <- downloadHandler(
