@@ -36,6 +36,7 @@ library(RColorBrewer)
 library(bslib)
 library(bsicons)
 library(DT)
+library(shinyBS)
 # Bioconductor Packages
 library(treeio)
 library(ggtree)
@@ -283,7 +284,7 @@ ui <- dashboardPage(
   ## Sidebar ----
   dashboardSidebar(
     tags$head(includeCSS("www/head.css")),
-    tags$style(includeCSS("www/mycss.css")),
+    tags$style(includeCSS("www/body.css")),
     tags$style(HTML(
       "@keyframes pulsate {
           0% { transform: scale(1); }
@@ -5734,9 +5735,15 @@ server <- function(input, output, session) {
     }
   })
   
+  err_thresh <- reactive({
+    if (!is.null(DB$data) & !is.null(DB$number_loci)) {
+      which(as.numeric(DB$data[["Errors"]]) >= (DB$number_loci * 0.05)) 
+    }
+  })
+  
   true_rows <- reactive({
     if (!is.null(DB$data)) {
-      which(DB$data$Include == TRUE, )
+      which(DB$data$Include == TRUE)
     }
   })
   
@@ -6099,6 +6106,11 @@ server <- function(input, output, session) {
   observeEvent(input$load, {
     
     log_message(out, message = "Input load")
+    
+    # Null database loci selector
+    # if(!is.null(input$compare_select)) {
+    #   updatePickerInput(session, "compare_select", selected = "", choices = "")
+    # }
     
     # Null single typing status
     if(readLines(paste0(getwd(), "/logs/progress.txt"))[1] != "0") {
@@ -6586,7 +6598,7 @@ server <- function(input, output, session) {
             names(schemeinfo) <- NULL
             DB$schemeinfo <- schemeinfo
             number_loci <- as.vector(DB$schemeinfo[6, 2])
-            number_loci <- as.numeric(gsub(",", "", number_loci))
+            DB$number_loci <- as.numeric(gsub(",", "", number_loci))
             
             # Produce Loci Info table
             DB$loci_info <- read.csv(
@@ -6611,7 +6623,7 @@ server <- function(input, output, session) {
             )
             
             # Check if number of loci/fastq-files of alleles is coherent with number of targets in scheme
-            if(number_loci != length(dir_ls(paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")))) {
+            if(DB$number_loci != length(dir_ls(paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")))) {
               
               log_message(log_file = out, message = paste0("Loci files are missing in the local ", DB$scheme, " folder"))
               
@@ -6890,8 +6902,8 @@ server <- function(input, output, session) {
                     )
                   )
                 }
-                # Render custom variable display
                 
+                # Render custom variable display
                 output$show_cust_var <- renderTable(
                   width = "100%", 
                   {
@@ -6924,6 +6936,7 @@ server <- function(input, output, session) {
                 observe({
                   Vis$tree_algo <- input$tree_algo
                 })
+                
                 output$visualization_sidebar <- renderUI({
                   if(!is.null(DB$data)) {
                     column(
@@ -7223,7 +7236,9 @@ server <- function(input, output, session) {
                                 width = 7,
                                 dateInput(
                                   "mst_date_general_select",
-                                  ""
+                                  "",
+                                  format = "mm/dd/yyyy",
+                                  max = Sys.Date()
                                 )
                               )
                             ),
@@ -7727,7 +7742,6 @@ server <- function(input, output, session) {
                   } else {
                     if(!is.null(input$compare_difference)) {
                       if (input$compare_difference == FALSE) {
-                        DB$allelic_profile
                         pickerInput(
                           inputId = "compare_select",
                           label = "",
@@ -7787,12 +7801,17 @@ server <- function(input, output, session) {
                           output$db_entries <- renderRHandsontable({
                             rhandsontable(
                               select(DB$data, 1:(12 + nrow(DB$cust_var))),
-                              rowHeaders = NULL
+                              error_highlight = err_thresh() - 1,                              
+                              rowHeaders = NULL,
+                              contextMenu = FALSE,
+                              highlightCol = TRUE, 
+                              highlightRow = TRUE
                             ) %>%
                               hot_col(1, 
-                                      readOnly = TRUE,
                                       valign = "htMiddle",
                                       halign = "htCenter") %>%
+                              hot_col(c(1, 5, 10, 11, 12),
+                                      readOnly = TRUE) %>%
                               hot_col(3:(12 + nrow(DB$cust_var)), 
                                       valign = "htMiddle",
                                       halign = "htLeft") %>%
@@ -7800,38 +7819,45 @@ server <- function(input, output, session) {
                               hot_col(2, type = "checkbox", width = "auto",
                                       valign = "htTop",
                                       halign = "htCenter") %>%
-                              hot_context_menu(allowRowEdit = FALSE,
-                                               allowColEdit = FALSE,
-                                               allowReadOnly = FALSE) %>%
-                              hot_rows(fixedRowsTop = 0)
+                              hot_rows(fixedRowsTop = 0) %>%
+                              hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                           Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                           if (instance.params) {
+                                                             hrows = instance.params.error_highlight
+                                                             hrows = hrows instanceof Array ? hrows : [hrows]
+                                                             if (hrows.includes(row)) { 
+                                                               td.style.backgroundColor = 'rgbA(255, 80, 1, 0.8)' 
+                                                             }
+                                                           }
+                                                       }") 
                           })
                         }
                       } else if (between(nrow(DB$data), 1, 40)) {
                         if (length(input$compare_select) > 0) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
                             output$db_entries <- renderRHandsontable({
-                              row_highlight <- true_rows()-1
                               rhandsontable(
                                 select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
-                                col_highlight = diff_allele()-1,
+                                col_highlight = diff_allele() - 1,
+                                duplicated_highlight = duplicated_rows() - 1,
+                                row_highlight = true_rows() - 1,
+                                error_highlight = err_thresh() - 1,
                                 rowHeaders = NULL,
-                                duplicated_highlight = duplicated_rows()-1,
-                                row_highlight = row_highlight
+                                highlightCol = TRUE, 
+                                highlightRow = TRUE,
+                                contextMenu = FALSE
                               )  %>%
-                                hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
-                                hot_col((12 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var))+length(input$compare_select)), 
+                                hot_col((13 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var)) + length(input$compare_select)), 
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
                                 hot_col(1, 
-                                        readOnly = TRUE,
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
+                                hot_col(c(1, 5, 10, 11, 12),
+                                        readOnly = TRUE) %>%
                                 hot_col(3:(12 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
                                         halign = "htLeft") %>%
-                                hot_context_menu(allowRowEdit = FALSE,
-                                                 allowColEdit = FALSE,
-                                                 allowReadOnly = FALSE) %>%
                                 hot_col(2, type = "checkbox", width = "auto",
                                         valign = "htTop",
                                         halign = "htCenter",
@@ -7849,7 +7875,7 @@ server <- function(input, output, session) {
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
+                           td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)' 
                          }
   
                        }
@@ -7865,7 +7891,7 @@ server <- function(input, output, session) {
                         }
   
                     if (instance.params && hcols.includes(col)) {
-                      td.style.background = '#FF8F8F';
+                      td.style.background = 'rgb(116, 188, 139)';
                     }
                 }"
                                 ) %>%
@@ -7881,33 +7907,44 @@ server <- function(input, output, session) {
                            td.style.backgroundColor = 'rgb(224, 179, 0)' 
                          }
                        }
-              }") 
+              }") %>%
+                                hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                           Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                           if (instance.params) {
+                                                             hrows = instance.params.error_highlight
+                                                             hrows = hrows instanceof Array ? hrows : [hrows]
+                                                             if (hrows.includes(row)) { 
+                                                               td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)' 
+                                                             }
+                                                           }
+                                                       }") 
                             })
                           }
                         } else {
                           if(!is.null(DB$data) & !is.null(DB$cust_var)) {
                             output$db_entries <- renderRHandsontable({
-                              row_highlight <- true_rows()-1
                               rhandsontable(
                                 select(DB$data, 1:(12 + nrow(DB$cust_var))),
                                 rowHeaders = NULL,
-                                row_highlight = row_highlight,
-                                duplicated_highlight = duplicated_rows()-1
+                                row_highlight = true_rows() - 1,
+                                duplicated_highlight = duplicated_rows()- 1,
+                                error_highlight = err_thresh() - 1,
+                                contextMenu = FALSE,
+                                highlightCol = TRUE, 
+                                highlightRow = TRUE
                               ) %>%
                                 hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                                 hot_col(1, 
-                                        readOnly = TRUE,
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
+                                hot_col(c(1, 5, 10, 11, 12),
+                                        readOnly = TRUE) %>%
                                 hot_col(3:(12 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
                                         halign = "htLeft") %>%
                                 hot_col(2, type = "checkbox", width = "auto",
                                         valign = "htTop",
                                         halign = "htCenter") %>%
-                                hot_context_menu(allowRowEdit = FALSE,
-                                                 allowColEdit = FALSE,
-                                                 allowReadOnly = FALSE) %>%
                                 hot_rows(fixedRowsTop = 0) %>%
                                 hot_col(1, renderer = "
               function (instance, td, row, col, prop, value, cellProperties) {
@@ -7918,7 +7955,7 @@ server <- function(input, output, session) {
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
+                           td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)' 
                          }
   
                        }
@@ -7935,7 +7972,17 @@ server <- function(input, output, session) {
                            td.style.backgroundColor = 'rgb(224, 179, 0)' 
                          }
                        }
-              }")
+              }") %>%
+                                hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                           Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                           if (instance.params) {
+                                                             hrows = instance.params.error_highlight
+                                                             hrows = hrows instanceof Array ? hrows : [hrows]
+                                                             if (hrows.includes(row)) { 
+                                                               td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)' 
+                                                             }
+                                                           }
+                                                       }") 
                             })    
                           }
                         }
@@ -7945,25 +7992,28 @@ server <- function(input, output, session) {
                             output$db_entries <- renderRHandsontable({
                               rhandsontable(
                                 select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
-                                col_highlight = diff_allele()-1,
+                                col_highlight = diff_allele() - 1,
                                 rowHeaders = NULL,
                                 height = table_height(),
-                                row_highlight = true_rows()-1,
-                                duplicated_highlight = duplicated_rows()-1
+                                row_highlight = true_rows() - 1,
+                                duplicated_highlight = duplicated_rows() - 1,
+                                error_highlight = err_thresh() - 1,
+                                contextMenu = FALSE,
+                                highlightCol = TRUE, 
+                                highlightRow = TRUE
                               ) %>%
-                                hot_col((12 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var))+length(input$compare_select)), 
+                                hot_col((13 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var)) + length(input$compare_select)),
+                                        readOnly = TRUE, 
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
                                 hot_col(3:(12 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
                                         halign = "htLeft") %>%
+                                hot_col(c(1, 5, 10, 11, 12),
+                                        readOnly = TRUE) %>%
                                 hot_col(1, 
-                                        readOnly = TRUE,
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
-                                hot_context_menu(allowRowEdit = FALSE,
-                                                 allowColEdit = FALSE,
-                                                 allowReadOnly = FALSE)  %>%
                                 hot_col(2, type = "checkbox", width = "auto",
                                         valign = "htTop",
                                         halign = "htCenter",
@@ -7972,20 +8022,26 @@ server <- function(input, output, session) {
                                 ) %>%
                                 hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                                 hot_rows(fixedRowsTop = 0) %>%
-                                hot_col(1, renderer = "
-              function (instance, td, row, col, prop, value, cellProperties) {
-                       Handsontable.renderers.TextRenderer.apply(this, arguments);
-  
-                       if (instance.params) {
-                         hrows = instance.params.row_highlight
-                         hrows = hrows instanceof Array ? hrows : [hrows]
-  
-                         if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
-                         }
-  
-                       }
-              }") %>%
+                                hot_col(1, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                           Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                           if (instance.params) {
+                                                             hrows = instance.params.row_highlight
+                                                             hrows = hrows instanceof Array ? hrows : [hrows]
+                                                             if (hrows.includes(row)) { 
+                                                               td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)' 
+                                                             }
+                                                           }
+                                                       }") %>%
+                                hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                           Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                           if (instance.params) {
+                                                             hrows = instance.params.error_highlight
+                                                             hrows = hrows instanceof Array ? hrows : [hrows]
+                                                             if (hrows.includes(row)) { 
+                                                               td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)' 
+                                                             }
+                                                           }
+                                                       }") %>%
                                 hot_col(4, renderer = "
               function (instance, td, row, col, prop, value, cellProperties) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -8010,7 +8066,7 @@ server <- function(input, output, session) {
                         }
   
                     if (instance.params && hcols.includes(col)) {
-                      td.style.background = '#FF8F8F';
+                      td.style.background = 'rgb(116, 188, 139)';
                     }
                 }") 
                             })    
@@ -8022,20 +8078,22 @@ server <- function(input, output, session) {
                                 select(DB$data, 1:(12 + nrow(DB$cust_var))),
                                 rowHeaders = NULL,
                                 height = table_height(),
-                                duplicated_highlight = duplicated_rows()-1,
-                                row_highlight = true_rows()-1
+                                duplicated_highlight = duplicated_rows() - 1,
+                                row_highlight = true_rows() - 1,
+                                error_highlight = err_thresh() - 1,
+                                contextMenu = FALSE,
+                                highlightCol = TRUE, 
+                                highlightRow = TRUE
                               ) %>%
                                 hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                                 hot_col(1, 
-                                        readOnly = TRUE,
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
+                                hot_col(c(1, 5, 10, 11, 12),
+                                        readOnly = TRUE) %>%
                                 hot_col(3:(12 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
                                         halign = "htLeft") %>%
-                                hot_context_menu(allowRowEdit = FALSE,
-                                                 allowColEdit = FALSE,
-                                                 allowReadOnly = FALSE) %>%
                                 hot_rows(fixedRowsTop = 0) %>%
                                 hot_col(1, renderer = "
               function (instance, td, row, col, prop, value, cellProperties) {
@@ -8046,7 +8104,7 @@ server <- function(input, output, session) {
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
+                           td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)' 
                          }
                        }
               }") %>%
@@ -8064,14 +8122,22 @@ server <- function(input, output, session) {
                            td.style.backgroundColor = 'rgb(224, 179, 0)' 
                          }
                        }
-              }") 
+              }") %>%
+                                hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                           Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                           if (instance.params) {
+                                                             hrows = instance.params.error_highlight
+                                                             hrows = hrows instanceof Array ? hrows : [hrows]
+                                                             if (hrows.includes(row)) { 
+                                                               td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)' 
+                                                             }
+                                                           }
+                                                       }") 
                             })
                           }
                         }
                       }
                     }
-                    
-                    
                     
                     # Dynamic save button when rhandsontable changes or new entries
                     output$edit_entry_table <- renderUI({
@@ -8371,60 +8437,117 @@ server <- function(input, output, session) {
                 
                 # Render entry table download box UI
                 output$download_entries <- renderUI({
-                  box(
-                    solidHeader = TRUE,
-                    status = "primary",
-                    width = "100%",
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "center",
-                        h3(p("Download Table"), style = "color:white")
-                      )
-                    ),
-                    hr(),
-                    fluidRow(
-                      column(2),
-                      column(
-                        width = 10,
-                        align = "left",
-                        br(),
-                        div(
-                          class = "mat-switch-db",
-                          materialSwitch(
-                            "download_table_include",
-                            h5(p("Only Included Entries"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
+                  fluidRow(
+                    column(
+                      width = 12,
+                      box(
+                        solidHeader = TRUE,
+                        status = "primary",
+                        width = "100%",
+                        fluidRow(
+                          column(
+                            width = 12,
+                            align = "center",
+                            h3(p("Download Table"), style = "color:white")
                           )
                         ),
-                        div(
-                          class = "mat-switch-db",
-                          materialSwitch(
-                            "download_table_loci",
-                            h5(p("Include Displayed Loci"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
+                        hr(),
+                        fluidRow(
+                          column(2),
+                          column(
+                            width = 10,
+                            align = "left",
+                            br(),
+                            div(
+                              class = "mat-switch-db",
+                              materialSwitch(
+                                "download_table_include",
+                                h5(p("Only Included Entries"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                value = FALSE,
+                                right = TRUE
+                              )
+                            ),
+                            div(
+                              class = "mat-switch-db",
+                              materialSwitch(
+                                "download_table_loci",
+                                h5(p("Include Displayed Loci"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                value = FALSE,
+                                right = TRUE
+                              )
+                            ),
+                            br(),
                           )
                         ),
-                        br(),
+                        fluidRow(
+                          column(
+                            width = 12,
+                            align = "center",
+                            downloadBttn(
+                              "download_entry_table",
+                              style = "simple",
+                              label = "",
+                              size = "sm",
+                              icon = icon("download"),
+                              color = "primary"
+                            )
+                          )
+                        ),
+                        br()
                       )
                     ),
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "center",
-                        downloadBttn(
-                          "download_entry_table",
-                          style = "simple",
-                          label = "",
-                          size = "sm",
-                          icon = icon("download"),
-                          color = "primary"
+                    column(
+                      width = 12,
+                      fluidRow(
+                        column(
+                          width = 2,
+                          div(
+                            class = "rectangle-blue" 
+                          ),
+                          div(
+                            class = "rectangle-orange" 
+                          ),
+                          div(
+                            class = "rectangle-red" 
+                          ),
+                          div(
+                            class = "rectangle-green" 
+                          )
+                        ),
+                        column(
+                          width = 10,
+                          align = "left",
+                          p(
+                            HTML(
+                              paste(
+                                tags$span(style="color: white; font-size: 15px; margin-left: 25px; position: relative; bottom: -12px", " = included for analyses")
+                              )
+                            )
+                          ),
+                          p(
+                            HTML(
+                              paste(
+                                tags$span(style="color: white; font-size: 15px; margin-left: 25px; position: relative; bottom: -13px", " =  duplicated name")
+                              )
+                            )
+                          ),
+                          p(
+                            HTML(
+                              paste(
+                                tags$span(style="color: white; font-size: 15px; margin-left: 25px; position: relative; bottom: -14px", " =  ≥ 5% of loci missing")
+                              )
+                            )
+                          ),
+                          p(
+                            HTML(
+                              paste(
+                                tags$span(style="color: white; font-size: 15px; margin-left: 25px; position: relative; bottom: -15px", " =  locus contains multiple variants")
+                              )
+                            )
+                          ),
                         )
                       )
-                    ),
-                    br()
+                    )
                   )
                 })
                 
@@ -9107,6 +9230,8 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
+    updatePickerInput(session, "compare_select", selected = NULL, choices = NULL)
+    
     log_message(out, message = "Input reload_db")
     
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
@@ -9200,212 +9325,344 @@ server <- function(input, output, session) {
     observe({
       if (!is.null(DB$data)) {
         if (nrow(DB$data) == 1) {
-          output$db_entries <- renderRHandsontable({
-            rhandsontable(
-              select(DB$data, 1:(12 + nrow(DB$cust_var))),
-              rowHeaders = NULL
-            ) %>%
-              hot_col(1, 
-                      readOnly = TRUE,
-                      valign = "htMiddle",
-                      halign = "htCenter") %>%
-              hot_col(3:(12 + nrow(DB$cust_var)), 
-                      valign = "htMiddle",
-                      halign = "htLeft") %>%
-              hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-              hot_col(2, type = "checkbox", width = "auto",
-                      valign = "htTop",
-                      halign = "htCenter") %>%
-              hot_context_menu(allowRowEdit = FALSE,
-                               allowColEdit = FALSE,
-                               allowReadOnly = FALSE) %>%
-              hot_rows(fixedRowsTop = 0)
-          })
-        } else if (between(nrow(DB$data), 1, 40)) {
-          
-          if (length(input$compare_select) > 0) {
-            
+          if(!is.null(DB$data) & !is.null(DB$cust_var)) {
             output$db_entries <- renderRHandsontable({
-              row_highlight <- true_rows()-1
-              rhandsontable(
-                select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
-                col_highlight = diff_allele()-1,
-                rowHeaders = NULL,
-                row_highlight = row_highlight
-              ) %>%
-                hot_col((12 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var))+length(input$compare_select)), 
-                        valign = "htMiddle",
-                        halign = "htCenter") %>%
-                hot_col(1, 
-                        readOnly = TRUE,
-                        valign = "htMiddle",
-                        halign = "htCenter") %>%
-                hot_col(3:(12 + nrow(DB$cust_var)), 
-                        valign = "htMiddle",
-                        halign = "htLeft") %>%
-                hot_context_menu(allowRowEdit = FALSE,
-                                 allowColEdit = FALSE,
-                                 allowReadOnly = FALSE) %>%
-                hot_col(2, type = "checkbox", width = "auto",
-                        valign = "htTop",
-                        halign = "htCenter",
-                        strict = TRUE,
-                        allowInvalid = FALSE,
-                        copyable = TRUE) %>%
-                hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                hot_rows(fixedRowsTop = 0) %>%
-                hot_col(1, renderer = "
-                    function (instance, td, row, col, prop, value, cellProperties) {
-                      Handsontable.renderers.TextRenderer.apply(this, arguments);
-                      if (instance.params) {
-                        hrows = instance.params.row_highlight
-                        hrows = hrows instanceof Array ? hrows : [hrows]
-                        if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
-                        }
-                      }
-                    }") %>%
-                hot_col(diff_allele(),
-                        renderer = "
-                    function(instance, td, row, col, prop, value, cellProperties) {
-                      Handsontable.renderers.NumericRenderer.apply(this, arguments);
-                      if (instance.params) {
-                        hcols = instance.params.col_highlight;
-                        hcols = hcols instanceof Array ? hcols : [hcols];
-                      }
-                      
-                      if (instance.params && hcols.includes(col)) {
-                        td.style.background = '#FF8F8F';
-                      }
-                    }")
-            })
-          } else {
-            output$db_entries <- renderRHandsontable({
-              row_highlight <- true_rows()-1
               rhandsontable(
                 select(DB$data, 1:(12 + nrow(DB$cust_var))),
+                error_highlight = err_thresh() - 1,                              
                 rowHeaders = NULL,
-                row_highlight = row_highlight
+                contextMenu = FALSE,
+                highlightCol = TRUE, 
+                highlightRow = TRUE
               ) %>%
-                hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                 hot_col(1, 
-                        readOnly = TRUE,
                         valign = "htMiddle",
                         halign = "htCenter") %>%
+                hot_col(c(1, 5, 10, 11, 12),
+                        readOnly = TRUE) %>%
                 hot_col(3:(12 + nrow(DB$cust_var)), 
                         valign = "htMiddle",
                         halign = "htLeft") %>%
+                hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                 hot_col(2, type = "checkbox", width = "auto",
                         valign = "htTop",
                         halign = "htCenter") %>%
-                hot_context_menu(allowRowEdit = FALSE,
-                                 allowColEdit = FALSE,
-                                 allowReadOnly = FALSE) %>%
                 hot_rows(fixedRowsTop = 0) %>%
-                hot_col(1, renderer = "
-                    function (instance, td, row, col, prop, value, cellProperties) {
-                      Handsontable.renderers.TextRenderer.apply(this, arguments);
-                      
-                      if (instance.params) {
-                        hrows = instance.params.row_highlight
-                        hrows = hrows instanceof Array ? hrows : [hrows]
-                        if (hrows.includes(row)) { 
-                          td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
-                        }
-                      }
-                    }")
+                hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                           Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                           if (instance.params) {
+                                                             hrows = instance.params.error_highlight
+                                                             hrows = hrows instanceof Array ? hrows : [hrows]
+                                                             if (hrows.includes(row)) { 
+                                                               td.style.backgroundColor = 'rgbA(255, 80, 1, 0.8)' 
+                                                             }
+                                                           }
+                                                       }") 
             })
+          }
+        } else if (between(nrow(DB$data), 1, 40)) {
+          if (length(input$compare_select) > 0) {
+            if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
+              output$db_entries <- renderRHandsontable({
+                rhandsontable(
+                  select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
+                  col_highlight = diff_allele() - 1,
+                  duplicated_highlight = duplicated_rows() - 1,
+                  row_highlight = true_rows() - 1,
+                  error_highlight = err_thresh() - 1,
+                  rowHeaders = NULL,
+                  highlightCol = TRUE, 
+                  highlightRow = TRUE,
+                  contextMenu = FALSE
+                )  %>%
+                  hot_col((13 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var)) + length(input$compare_select)), 
+                          valign = "htMiddle",
+                          halign = "htCenter") %>%
+                  hot_col(1, 
+                          valign = "htMiddle",
+                          halign = "htCenter") %>%
+                  hot_col(c(1, 5, 10, 11, 12),
+                          readOnly = TRUE) %>%
+                  hot_col(3:(12 + nrow(DB$cust_var)), 
+                          valign = "htMiddle",
+                          halign = "htLeft") %>%
+                  hot_col(2, type = "checkbox", width = "auto",
+                          valign = "htTop",
+                          halign = "htCenter",
+                          strict = TRUE,
+                          allowInvalid = FALSE,
+                          copyable = TRUE) %>%
+                  hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                  hot_rows(fixedRowsTop = 0) %>%
+                  hot_col(1, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.row_highlight
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)' 
+                         }
+  
+                       }
+              }") %>%
+                  hot_col(diff_allele(),
+                          renderer = "
+                  function(instance, td, row, col, prop, value, cellProperties) {
+                    Handsontable.renderers.NumericRenderer.apply(this, arguments);
+  
+                    if (instance.params) {
+                          hcols = instance.params.col_highlight;
+                          hcols = hcols instanceof Array ? hcols : [hcols];
+                        }
+  
+                    if (instance.params && hcols.includes(col)) {
+                      td.style.background = 'rgb(116, 188, 139)';
+                    }
+                }"
+                  ) %>%
+                  hot_col(4, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.duplicated_highlight
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                  hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                           Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                           if (instance.params) {
+                                                             hrows = instance.params.error_highlight
+                                                             hrows = hrows instanceof Array ? hrows : [hrows]
+                                                             if (hrows.includes(row)) { 
+                                                               td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)' 
+                                                             }
+                                                           }
+                                                       }") 
+              })
+            }
+          } else {
+            if(!is.null(DB$data) & !is.null(DB$cust_var)) {
+              output$db_entries <- renderRHandsontable({
+                rhandsontable(
+                  select(DB$data, 1:(12 + nrow(DB$cust_var))),
+                  rowHeaders = NULL,
+                  row_highlight = true_rows() - 1,
+                  duplicated_highlight = duplicated_rows() - 1,
+                  error_highlight = err_thresh() - 1,
+                  contextMenu = FALSE,
+                  highlightCol = TRUE, 
+                  highlightRow = TRUE
+                ) %>%
+                  hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                  hot_col(1, 
+                          valign = "htMiddle",
+                          halign = "htCenter") %>%
+                  hot_col(c(1, 5, 10, 11, 12),
+                          readOnly = TRUE) %>%
+                  hot_col(3:(12 + nrow(DB$cust_var)), 
+                          valign = "htMiddle",
+                          halign = "htLeft") %>%
+                  hot_col(2, type = "checkbox", width = "auto",
+                          valign = "htTop",
+                          halign = "htCenter") %>%
+                  hot_rows(fixedRowsTop = 0) %>%
+                  hot_col(1, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.row_highlight
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)' 
+                         }
+  
+                       }
+              }") %>%
+                  hot_col(4, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.duplicated_highlight
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                  hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                           Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                           if (instance.params) {
+                                                             hrows = instance.params.error_highlight
+                                                             hrows = hrows instanceof Array ? hrows : [hrows]
+                                                             if (hrows.includes(row)) { 
+                                                               td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)' 
+                                                             }
+                                                           }
+                                                       }") 
+              })    
+            }
           }
         } else {
           if (length(input$compare_select) > 0) {
-            output$db_entries <- renderRHandsontable({
-              rhandsontable(
-                select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
-                col_highlight = diff_allele()-1,
-                rowHeaders = NULL,
-                height = table_height(),
-                row_highlight = true_rows()-1
-              ) %>%
-                hot_col((12 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var))+length(input$compare_select)), 
-                        valign = "htMiddle",
-                        halign = "htCenter") %>%
-                hot_col(3:(12 + nrow(DB$cust_var)), 
-                        valign = "htMiddle",
-                        halign = "htLeft") %>%
-                hot_col(1, 
-                        readOnly = TRUE,
-                        valign = "htMiddle",
-                        halign = "htCenter") %>%
-                hot_context_menu(allowRowEdit = FALSE,
-                                 allowColEdit = FALSE,
-                                 allowReadOnly = FALSE)  %>%
-                hot_col(2, type = "checkbox", width = "auto",
-                        valign = "htTop",
-                        halign = "htCenter",
-                        allowInvalid = FALSE,
-                        copyable = TRUE,
+            if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height) & !is.null(input$compare_select)) {
+              output$db_entries <- renderRHandsontable({
+                rhandsontable(
+                  select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
+                  col_highlight = diff_allele()-1,
+                  rowHeaders = NULL,
+                  height = table_height(),
+                  row_highlight = true_rows() - 1,
+                  duplicated_highlight = duplicated_rows() - 1,
+                  error_highlight = err_thresh() - 1,
+                  contextMenu = FALSE,
+                  highlightCol = TRUE, 
+                  highlightRow = TRUE
                 ) %>%
-                hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                hot_rows(fixedRowsTop = 0) %>%
-                hot_col(1, renderer = "
-                    function (instance, td, row, col, prop, value, cellProperties) {
-                      Handsontable.renderers.TextRenderer.apply(this, arguments);
-                      if (instance.params) {
-                        hrows = instance.params.row_highlight
-                        hrows = hrows instanceof Array ? hrows : [hrows]
-                        if (hrows.includes(row)) { 
-                          td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
+                  hot_col((13 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var))+length(input$compare_select)),
+                          readOnly = TRUE, 
+                          valign = "htMiddle",
+                          halign = "htCenter") %>%
+                  hot_col(3:(12 + nrow(DB$cust_var)), 
+                          valign = "htMiddle",
+                          halign = "htLeft") %>%
+                  hot_col(c(1, 5, 10, 11, 12),
+                          readOnly = TRUE) %>%
+                  hot_col(1, 
+                          valign = "htMiddle",
+                          halign = "htCenter") %>%
+                  hot_col(2, type = "checkbox", width = "auto",
+                          valign = "htTop",
+                          halign = "htCenter",
+                          allowInvalid = FALSE,
+                          copyable = TRUE,
+                  ) %>%
+                  hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                  hot_rows(fixedRowsTop = 0) %>%
+                  hot_col(1, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                           Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                           if (instance.params) {
+                                                             hrows = instance.params.row_highlight
+                                                             hrows = hrows instanceof Array ? hrows : [hrows]
+                                                             if (hrows.includes(row)) { 
+                                                               td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)' 
+                                                             }
+                                                           }
+                                                       }") %>%
+                  hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                           Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                           if (instance.params) {
+                                                             hrows = instance.params.error_highlight
+                                                             hrows = hrows instanceof Array ? hrows : [hrows]
+                                                             if (hrows.includes(row)) { 
+                                                               td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)' 
+                                                             }
+                                                           }
+                                                       }") %>%
+                  hot_col(4, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.duplicated_highlight
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                  hot_col(diff_allele(),
+                          renderer = "
+                  function(instance, td, row, col, prop, value, cellProperties) {
+                    Handsontable.renderers.NumericRenderer.apply(this, arguments);
+  
+                    if (instance.params) {
+                          hcols = instance.params.col_highlight;
+                          hcols = hcols instanceof Array ? hcols : [hcols];
                         }
-                      }
-                    }") %>%
-                hot_col(diff_allele(),
-                        renderer = "
-                    function(instance, td, row, col, prop, value, cellProperties) {
-                      Handsontable.renderers.NumericRenderer.apply(this, arguments);
-                      if (instance.params) {
-                        hcols = instance.params.col_highlight;
-                        hcols = hcols instanceof Array ? hcols : [hcols];
-                      }
-                      if (instance.params && hcols.includes(col)) {
-                        td.style.background = '#FF8F8F';
-                      }
-                    }") 
-            })
+  
+                    if (instance.params && hcols.includes(col)) {
+                      td.style.background = 'rgb(116, 188, 139)';
+                    }
+                }") 
+              })    
+            }
           } else {
-            output$db_entries <- renderRHandsontable({
-              row_highlight <- true_rows()-1
-              rhandsontable(
-                select(DB$data, 1:(12 + nrow(DB$cust_var))),
-                rowHeaders = NULL,
-                height = table_height(),
-                row_highlight = row_highlight
-              ) %>%
-                hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
-                hot_col(1, 
-                        readOnly = TRUE,
-                        valign = "htMiddle",
-                        halign = "htCenter") %>%
-                hot_col(3:(12 + nrow(DB$cust_var)), 
-                        valign = "htMiddle",
-                        halign = "htLeft") %>%
-                hot_context_menu(allowRowEdit = FALSE,
-                                 allowColEdit = FALSE,
-                                 allowReadOnly = FALSE) %>%
-                hot_rows(fixedRowsTop = 0) %>%
-                hot_col(1, renderer = "
-                    function (instance, td, row, col, prop, value, cellProperties) {
-                      Handsontable.renderers.TextRenderer.apply(this, arguments);
-                      if (instance.params) {
-                        hrows = instance.params.row_highlight
-                        hrows = hrows instanceof Array ? hrows : [hrows]
-                        if (hrows.includes(row)) { 
-                          td.style.backgroundColor = 'rgba(3, 227, 77, 0.2)' 
-                        }
-                      }
-                    }") %>%
-                hot_col(2, type = "checkbox", width = "auto",
-                        valign = "htTop", halign = "htCenter")
-            })
+            if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height)) {
+              output$db_entries <- renderRHandsontable({
+                rhandsontable(
+                  select(DB$data, 1:(12 + nrow(DB$cust_var))),
+                  rowHeaders = NULL,
+                  height = table_height(),
+                  duplicated_highlight = duplicated_rows() - 1,
+                  row_highlight = true_rows() - 1,
+                  error_highlight = err_thresh() - 1,
+                  contextMenu = FALSE,
+                  highlightCol = TRUE, 
+                  highlightRow = TRUE
+                ) %>%
+                  hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                  hot_col(1, 
+                          valign = "htMiddle",
+                          halign = "htCenter") %>%
+                  hot_col(c(1, 5, 10, 11, 12),
+                          readOnly = TRUE) %>%
+                  hot_col(3:(12 + nrow(DB$cust_var)), 
+                          valign = "htMiddle",
+                          halign = "htLeft") %>%
+                  hot_rows(fixedRowsTop = 0) %>%
+                  hot_col(1, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.row_highlight
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)' 
+                         }
+                       }
+              }") %>%
+                  hot_col(2, type = "checkbox", width = "auto",
+                          valign = "htTop", halign = "htCenter") %>%
+                  hot_col(4, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.duplicated_highlight
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                  hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                           Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                           if (instance.params) {
+                                                             hrows = instance.params.error_highlight
+                                                             hrows = hrows instanceof Array ? hrows : [hrows]
+                                                             if (hrows.includes(row)) { 
+                                                               td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)' 
+                                                             }
+                                                           }
+                                                       }") 
+              })
+            }
           }
         }
       }
@@ -9990,8 +10247,6 @@ server <- function(input, output, session) {
     
     mode(hamming_matrix) <- "integer"
     
-    test <<- hamming_matrix
-    
     DB$ham_matrix <- hamming_matrix %>%
       as.data.frame() %>%
       mutate(Index = colnames(hamming_matrix)) %>%
@@ -10093,7 +10348,7 @@ server <- function(input, output, session) {
             align = "left",
             actionButton("copy_seq", "Copy Sequence",
                          icon = icon("copy")),
-            bsTooltip("copy_seq", "Copy the variant sequence to clipboard", placement = "top", trigger = "hover")
+            bsTooltip("copy_seq", "Copy the variant sequence <br> to clipboard", placement = "top", trigger = "hover")
           )
         ),
         br(),
@@ -20657,7 +20912,9 @@ server <- function(input, output, session) {
                     class = "append_table",
                     dateInput("append_isodate",
                               label = "",
-                              width = "80%")
+                              width = "80%",
+                              format = "mm/dd/yyyy",
+                              max = Sys.Date())
                   )
                 )
               ),
@@ -20733,15 +20990,7 @@ server <- function(input, output, session) {
                 column(
                   width = 7,
                   align = "left",
-                  div(
-                    class = "append_table",
-                    dateInput(
-                      "append_analysisdate",
-                      label = "",
-                      value = Sys.Date(),
-                      width = "80%"
-                    )
-                  )
+                  h5(paste0("Current: ", format(Sys.Date(), "%m/%d/%Y")), style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
                 )
               ),
               fluidRow(
@@ -21059,11 +21308,11 @@ server <- function(input, output, session) {
     meta_info <- data.frame(assembly_id = trimws(input$assembly_id),
                             assembly_name = trimws(input$assembly_name),
                             cgmlst_typing = DB$scheme,
-                            append_isodate = input$append_isodate,
+                            append_isodate = format(input$append_isodate, "%m/%d/%Y"),
                             append_host = trimws(input$append_host),
                             append_country = trimws(input$append_country),
                             append_city = trimws(input$append_city),
-                            append_analysisdate = input$append_analysisdate,
+                            append_analysisdate = format(Sys.Date(), "%m/%d/%Y"),
                             db_directory = getwd()) 
     
     saveRDS(meta_info, paste0(
@@ -21288,7 +21537,9 @@ server <- function(input, output, session) {
                   class = "append_table",
                   dateInput("append_isodate_multi",
                             label = "",
-                            width = "80%")
+                            width = "80%",
+                            format = "mm/dd/yyyy",
+                            max = Sys.Date())
                 )
               )
             ),
@@ -21362,15 +21613,7 @@ server <- function(input, output, session) {
               column(
                 width = 7,
                 align = "left",
-                div(
-                  class = "append_table",
-                  dateInput(
-                    "append_analysisdate_multi",
-                    label = "",
-                    value = Sys.Date(),
-                    width = "80%"
-                  )
-                )
+                h5(paste0("Current: ", format(Sys.Date(), "%m/%d/%Y")), style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
               )
             ),
             fluidRow(
@@ -21449,19 +21692,17 @@ server <- function(input, output, session) {
     } else {
       output$multi_select_table <- NULL
     }
-    
   })
-  
   
   observeEvent(input$conf_meta_multi, {
     log_message(out, message = "Multi typing metadata confirmed")
     
     meta_info <- data.frame(cgmlst_typing = DB$scheme,
-                            append_isodate = trimws(input$append_isodate_multi),
+                            append_isodate = trimws(format(input$append_isodate_multi, "%m/%d/%Y")),
                             append_host = trimws(input$append_host_multi),
                             append_country = trimws(input$append_country_multi),
                             append_city = trimws(input$append_city_multi),
-                            append_analysisdate = input$append_analysisdate_multi,
+                            append_analysisdate = format(Sys.Date(), "%m/%d/%Y"),
                             db_directory = getwd())
     
     saveRDS(meta_info, paste0(getwd(), "/execute/meta_info.rds"))

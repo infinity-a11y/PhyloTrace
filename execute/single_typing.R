@@ -142,33 +142,26 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
     
     Database <- list(Typing = data.frame())
     
-    Typing <-
-      data.frame(matrix(
-        NA,
-        nrow = 0,
-        ncol = 12 + length(psl_files)
-      ))
+    Typing <- data.frame(matrix(NA, nrow = 0, ncol = 12 + length(psl_files)))
     
-    metadata <-
-      c(
-        1,
-        TRUE,
-        meta_info$assembly_id,
-        meta_info$assembly_name,
-        meta_info$cgmlst_typing,
-        as.character(meta_info$append_isodate),
-        meta_info$append_host,
-        meta_info$append_country,
-        meta_info$append_city,
-        as.character(meta_info$append_analysisdate),
-        length(allele_vector) - sum(sapply(allele_vector, is.na)),
-        sum(sapply(allele_vector, is.na))
-      )
+    metadata <- c(
+      1,
+      TRUE,
+      meta_info$assembly_id,
+      meta_info$assembly_name,
+      meta_info$cgmlst_typing,
+      meta_info$append_isodate,
+      meta_info$append_host,
+      meta_info$append_country,
+      meta_info$append_city,
+      meta_info$append_analysisdate,
+      length(allele_vector) - sum(sapply(allele_vector, is.na)),
+      sum(sapply(allele_vector, is.na))
+    )
     
     new_row <- c(metadata, allele_vector)
     
     Typing <- rbind(Typing, new_row)
-    
     
     colnames(Typing) <-
       append(
@@ -211,11 +204,11 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         meta_info$assembly_id,
         meta_info$assembly_name,
         meta_info$cgmlst_typing,
-        as.character(meta_info$append_isodate),
+        meta_info$append_isodate,
         meta_info$append_host,
         meta_info$append_country,
         meta_info$append_city,
-        as.character(meta_info$append_analysisdate),
+        meta_info$append_analysisdate,
         length(allele_vector) - sum(sapply(allele_vector, is.na)),
         sum(sapply(allele_vector, is.na))
       )

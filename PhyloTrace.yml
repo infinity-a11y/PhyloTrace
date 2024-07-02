@@ -138,6 +138,7 @@ dependencies:
   - r-scales=1.2.1
   - r-selectr=0.4_2
   - r-shiny=1.7.5
+  - r-shinybs=0.61.1
   - r-shinyFiles=0.9.3
   - r-shinyWidgets=0.8.0
   - r-shinydashboard=0.7.2
