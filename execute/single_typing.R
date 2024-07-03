@@ -150,11 +150,11 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       meta_info$assembly_id,
       meta_info$assembly_name,
       meta_info$cgmlst_typing,
-      meta_info$append_isodate,
+      as.character(meta_info$append_isodate),
       meta_info$append_host,
       meta_info$append_country,
       meta_info$append_city,
-      meta_info$append_analysisdate,
+      as.character(meta_info$append_analysisdate),
       length(allele_vector) - sum(sapply(allele_vector, is.na)),
       sum(sapply(allele_vector, is.na))
     )
@@ -204,11 +204,11 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         meta_info$assembly_id,
         meta_info$assembly_name,
         meta_info$cgmlst_typing,
-        meta_info$append_isodate,
+        as.character(meta_info$append_isodate),
         meta_info$append_host,
         meta_info$append_country,
         meta_info$append_city,
-        meta_info$append_analysisdate,
+        as.character(meta_info$append_analysisdate),
         length(allele_vector) - sum(sapply(allele_vector, is.na)),
         sum(sapply(allele_vector, is.na))
       )

@@ -687,7 +687,6 @@ ui <- dashboardPage(
                 "Staphylococcus capitis",
                 "Streptococcus pyogenes"
               ),
-              selected = "Bordetella pertussis",
               width = "300px",
               options = list(
                 `live-search` = TRUE,
@@ -7815,6 +7814,30 @@ server <- function(input, output, session) {
                               hot_col(3:(12 + nrow(DB$cust_var)), 
                                       valign = "htMiddle",
                                       halign = "htLeft") %>%
+                              hot_col(8, type = "dropdown", source = country_names) %>%
+                              hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                                      validator = "
+                                function (value, callback) {
+                                  var today_date = new Date();
+                                  today_date.setHours(0, 0, 0, 0);
+                                  
+                                  var new_date = new Date(value);
+                                  new_date.setHours(0, 0, 0, 0);
+                                  
+                                  try {
+                                    if (new_date <= today_date) {
+                                      callback(true);
+                                      Shiny.setInputValue('invalid_date', false);
+                                    } else {
+                                      callback(false); 
+                                      Shiny.setInputValue('invalid_date', true);
+                                    }
+                                  } catch (err) {
+                                    console.log(err);
+                                    callback(false); 
+                                    Shiny.setInputValue('invalid_date', true);
+                                  }
+                                }") %>%
                               hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                               hot_col(2, type = "checkbox", width = "auto",
                                       valign = "htTop",
@@ -7858,6 +7881,30 @@ server <- function(input, output, session) {
                                 hot_col(3:(12 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
                                         halign = "htLeft") %>%
+                                hot_col(8, type = "dropdown", source = country_names) %>%
+                                hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                                        validator = "
+                                function (value, callback) {
+                                  var today_date = new Date();
+                                  today_date.setHours(0, 0, 0, 0);
+                                  
+                                  var new_date = new Date(value);
+                                  new_date.setHours(0, 0, 0, 0);
+                                  
+                                  try {
+                                    if (new_date <= today_date) {
+                                      callback(true);
+                                      Shiny.setInputValue('invalid_date', false);
+                                    } else {
+                                      callback(false); 
+                                      Shiny.setInputValue('invalid_date', true);
+                                    }
+                                  } catch (err) {
+                                    console.log(err);
+                                    callback(false); 
+                                    Shiny.setInputValue('invalid_date', true);
+                                  }
+                                }") %>%
                                 hot_col(2, type = "checkbox", width = "auto",
                                         valign = "htTop",
                                         halign = "htCenter",
@@ -7942,6 +7989,30 @@ server <- function(input, output, session) {
                                 hot_col(3:(12 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
                                         halign = "htLeft") %>%
+                                hot_col(8, type = "dropdown", source = country_names) %>%
+                                hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                                        validator = "
+                                function (value, callback) {
+                                  var today_date = new Date();
+                                  today_date.setHours(0, 0, 0, 0);
+                                  
+                                  var new_date = new Date(value);
+                                  new_date.setHours(0, 0, 0, 0);
+                                  
+                                  try {
+                                    if (new_date <= today_date) {
+                                      callback(true);
+                                      Shiny.setInputValue('invalid_date', false);
+                                    } else {
+                                      callback(false); 
+                                      Shiny.setInputValue('invalid_date', true);
+                                    }
+                                  } catch (err) {
+                                    console.log(err);
+                                    callback(false); 
+                                    Shiny.setInputValue('invalid_date', true);
+                                  }
+                                }") %>%
                                 hot_col(2, type = "checkbox", width = "auto",
                                         valign = "htTop",
                                         halign = "htCenter") %>%
@@ -8011,6 +8082,30 @@ server <- function(input, output, session) {
                                         halign = "htLeft") %>%
                                 hot_col(c(1, 5, 10, 11, 12),
                                         readOnly = TRUE) %>%
+                                hot_col(8, type = "dropdown", source = country_names) %>%
+                                hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                                        validator = "
+                                function (value, callback) {
+                                  var today_date = new Date();
+                                  today_date.setHours(0, 0, 0, 0);
+                                  
+                                  var new_date = new Date(value);
+                                  new_date.setHours(0, 0, 0, 0);
+                                  
+                                  try {
+                                    if (new_date <= today_date) {
+                                      callback(true);
+                                      Shiny.setInputValue('invalid_date', false);
+                                    } else {
+                                      callback(false); 
+                                      Shiny.setInputValue('invalid_date', true);
+                                    }
+                                  } catch (err) {
+                                    console.log(err);
+                                    callback(false); 
+                                    Shiny.setInputValue('invalid_date', true);
+                                  }
+                                }") %>%
                                 hot_col(1, 
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
@@ -8018,8 +8113,7 @@ server <- function(input, output, session) {
                                         valign = "htTop",
                                         halign = "htCenter",
                                         allowInvalid = FALSE,
-                                        copyable = TRUE,
-                                ) %>%
+                                        copyable = TRUE) %>%
                                 hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                                 hot_rows(fixedRowsTop = 0) %>%
                                 hot_col(1, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
@@ -8091,6 +8185,30 @@ server <- function(input, output, session) {
                                         halign = "htCenter") %>%
                                 hot_col(c(1, 5, 10, 11, 12),
                                         readOnly = TRUE) %>%
+                                hot_col(8, type = "dropdown", source = country_names) %>%
+                                hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                                        validator = "
+                                function (value, callback) {
+                                  var today_date = new Date();
+                                  today_date.setHours(0, 0, 0, 0);
+                                  
+                                  var new_date = new Date(value);
+                                  new_date.setHours(0, 0, 0, 0);
+                                  
+                                  try {
+                                    if (new_date <= today_date) {
+                                      callback(true);
+                                      Shiny.setInputValue('invalid_date', false);
+                                    } else {
+                                      callback(false); 
+                                      Shiny.setInputValue('invalid_date', true);
+                                    }
+                                  } catch (err) {
+                                    console.log(err);
+                                    callback(false); 
+                                    Shiny.setInputValue('invalid_date', true);
+                                  }
+                                }") %>%
                                 hot_col(3:(12 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
                                         halign = "htLeft") %>%
@@ -9227,6 +9345,23 @@ server <- function(input, output, session) {
   
   ### Database Events ----
   
+  # Invalid entries table input
+  
+  observe({
+    if (isTRUE(input$invalid_date)) {
+      show_toast(
+        title = "Invalid date",
+        type = "warning",
+        position = "top-end",
+        timer = 6000,
+        width = "300px"
+      )
+      DB$inhibit_change <- TRUE
+    } else {
+      DB$inhibit_change <- FALSE
+    }
+  })
+  
   # Change scheme
   observeEvent(input$reload_db, {
     
@@ -9343,6 +9478,30 @@ server <- function(input, output, session) {
                 hot_col(3:(12 + nrow(DB$cust_var)), 
                         valign = "htMiddle",
                         halign = "htLeft") %>%
+                hot_col(8, type = "dropdown", source = country_names) %>%
+                hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                        validator = "
+                                function (value, callback) {
+                                  var today_date = new Date();
+                                  today_date.setHours(0, 0, 0, 0);
+                                  
+                                  var new_date = new Date(value);
+                                  new_date.setHours(0, 0, 0, 0);
+                                  
+                                  try {
+                                    if (new_date <= today_date) {
+                                      callback(true);
+                                      Shiny.setInputValue('invalid_date', false);
+                                    } else {
+                                      callback(false); 
+                                      Shiny.setInputValue('invalid_date', true);
+                                    }
+                                  } catch (err) {
+                                    console.log(err);
+                                    callback(false); 
+                                    Shiny.setInputValue('invalid_date', true);
+                                  }
+                                }") %>%
                 hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                 hot_col(2, type = "checkbox", width = "auto",
                         valign = "htTop",
@@ -9386,6 +9545,30 @@ server <- function(input, output, session) {
                   hot_col(3:(12 + nrow(DB$cust_var)), 
                           valign = "htMiddle",
                           halign = "htLeft") %>%
+                  hot_col(8, type = "dropdown", source = country_names) %>%
+                  hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                          validator = "
+                                function (value, callback) {
+                                  var today_date = new Date();
+                                  today_date.setHours(0, 0, 0, 0);
+                                  
+                                  var new_date = new Date(value);
+                                  new_date.setHours(0, 0, 0, 0);
+                                  
+                                  try {
+                                    if (new_date <= today_date) {
+                                      callback(true);
+                                      Shiny.setInputValue('invalid_date', false);
+                                    } else {
+                                      callback(false); 
+                                      Shiny.setInputValue('invalid_date', true);
+                                    }
+                                  } catch (err) {
+                                    console.log(err);
+                                    callback(false); 
+                                    Shiny.setInputValue('invalid_date', true);
+                                  }
+                                }") %>%
                   hot_col(2, type = "checkbox", width = "auto",
                           valign = "htTop",
                           halign = "htCenter",
@@ -9455,7 +9638,7 @@ server <- function(input, output, session) {
                   select(DB$data, 1:(12 + nrow(DB$cust_var))),
                   rowHeaders = NULL,
                   row_highlight = true_rows() - 1,
-                  duplicated_highlight = duplicated_rows() - 1,
+                  duplicated_highlight = duplicated_rows()- 1,
                   error_highlight = err_thresh() - 1,
                   contextMenu = FALSE,
                   highlightCol = TRUE, 
@@ -9470,6 +9653,30 @@ server <- function(input, output, session) {
                   hot_col(3:(12 + nrow(DB$cust_var)), 
                           valign = "htMiddle",
                           halign = "htLeft") %>%
+                  hot_col(8, type = "dropdown", source = country_names) %>%
+                  hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                          validator = "
+                                function (value, callback) {
+                                  var today_date = new Date();
+                                  today_date.setHours(0, 0, 0, 0);
+                                  
+                                  var new_date = new Date(value);
+                                  new_date.setHours(0, 0, 0, 0);
+                                  
+                                  try {
+                                    if (new_date <= today_date) {
+                                      callback(true);
+                                      Shiny.setInputValue('invalid_date', false);
+                                    } else {
+                                      callback(false); 
+                                      Shiny.setInputValue('invalid_date', true);
+                                    }
+                                  } catch (err) {
+                                    console.log(err);
+                                    callback(false); 
+                                    Shiny.setInputValue('invalid_date', true);
+                                  }
+                                }") %>%
                   hot_col(2, type = "checkbox", width = "auto",
                           valign = "htTop",
                           halign = "htCenter") %>%
@@ -9520,7 +9727,7 @@ server <- function(input, output, session) {
               output$db_entries <- renderRHandsontable({
                 rhandsontable(
                   select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
-                  col_highlight = diff_allele()-1,
+                  col_highlight = diff_allele() - 1,
                   rowHeaders = NULL,
                   height = table_height(),
                   row_highlight = true_rows() - 1,
@@ -9530,7 +9737,7 @@ server <- function(input, output, session) {
                   highlightCol = TRUE, 
                   highlightRow = TRUE
                 ) %>%
-                  hot_col((13 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var))+length(input$compare_select)),
+                  hot_col((13 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var)) + length(input$compare_select)),
                           readOnly = TRUE, 
                           valign = "htMiddle",
                           halign = "htCenter") %>%
@@ -9539,6 +9746,30 @@ server <- function(input, output, session) {
                           halign = "htLeft") %>%
                   hot_col(c(1, 5, 10, 11, 12),
                           readOnly = TRUE) %>%
+                  hot_col(8, type = "dropdown", source = country_names) %>%
+                  hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                          validator = "
+                                function (value, callback) {
+                                  var today_date = new Date();
+                                  today_date.setHours(0, 0, 0, 0);
+                                  
+                                  var new_date = new Date(value);
+                                  new_date.setHours(0, 0, 0, 0);
+                                  
+                                  try {
+                                    if (new_date <= today_date) {
+                                      callback(true);
+                                      Shiny.setInputValue('invalid_date', false);
+                                    } else {
+                                      callback(false); 
+                                      Shiny.setInputValue('invalid_date', true);
+                                    }
+                                  } catch (err) {
+                                    console.log(err);
+                                    callback(false); 
+                                    Shiny.setInputValue('invalid_date', true);
+                                  }
+                                }") %>%
                   hot_col(1, 
                           valign = "htMiddle",
                           halign = "htCenter") %>%
@@ -9546,8 +9777,7 @@ server <- function(input, output, session) {
                           valign = "htTop",
                           halign = "htCenter",
                           allowInvalid = FALSE,
-                          copyable = TRUE,
-                  ) %>%
+                          copyable = TRUE) %>%
                   hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
                   hot_rows(fixedRowsTop = 0) %>%
                   hot_col(1, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
@@ -9619,6 +9849,30 @@ server <- function(input, output, session) {
                           halign = "htCenter") %>%
                   hot_col(c(1, 5, 10, 11, 12),
                           readOnly = TRUE) %>%
+                  hot_col(8, type = "dropdown", source = country_names) %>%
+                  hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                          validator = "
+                                function (value, callback) {
+                                  var today_date = new Date();
+                                  today_date.setHours(0, 0, 0, 0);
+                                  
+                                  var new_date = new Date(value);
+                                  new_date.setHours(0, 0, 0, 0);
+                                  
+                                  try {
+                                    if (new_date <= today_date) {
+                                      callback(true);
+                                      Shiny.setInputValue('invalid_date', false);
+                                    } else {
+                                      callback(false); 
+                                      Shiny.setInputValue('invalid_date', true);
+                                    }
+                                  } catch (err) {
+                                    console.log(err);
+                                    callback(false); 
+                                    Shiny.setInputValue('invalid_date', true);
+                                  }
+                                }") %>%
                   hot_col(3:(12 + nrow(DB$cust_var)), 
                           valign = "htMiddle",
                           halign = "htLeft") %>%
@@ -9945,32 +10199,43 @@ server <- function(input, output, session) {
   # Save Edits Button
   
   observeEvent(input$edit_button, {
-    log_message(out, message = "Input edit_button")
     
-    showModal(
-      modalDialog(
-        if(length(DB$deleted_entries > 0)) {
-          paste0(
-            "Overwriting previous metadata of local ",
-            DB$scheme,
-            " database. Deleted entries will be irreversibly removed. Continue?"
+    if(!isTRUE(DB$inhibit_change)) {
+      log_message(out, message = "Input edit_button")
+      
+      showModal(
+        modalDialog(
+          if(length(DB$deleted_entries > 0)) {
+            paste0(
+              "Overwriting previous metadata of local ",
+              DB$scheme,
+              " database. Deleted entries will be irreversibly removed. Continue?"
+            )
+          } else {
+            paste0(
+              "Overwriting previous metadata of local ",
+              DB$scheme,
+              " database. Continue?"
+            )
+          },
+          title = "Save Database",
+          fade = TRUE,
+          easyClose = TRUE,
+          footer = tagList(
+            modalButton("Cancel"),
+            actionButton("conf_db_save", "Save", class = "btn btn-default")
           )
-        } else {
-          paste0(
-            "Overwriting previous metadata of local ",
-            DB$scheme,
-            " database. Continue?"
-          )
-        },
-        title = "Save Database",
-        fade = TRUE,
-        easyClose = TRUE,
-        footer = tagList(
-          modalButton("Cancel"),
-          actionButton("conf_db_save", "Save", class = "btn btn-default")
         )
       )
-    )
+    } else {
+      show_toast(
+        title = "Invalid values entered. Saving not possible.",
+        type = "error",
+        position = "top-end",
+        timer = 6000,
+        width = "600px"
+      )
+    }
   })
   
   observeEvent(input$Cancel, {
@@ -10715,6 +10980,7 @@ server <- function(input, output, session) {
   
   output$cgmlst_targets <- renderDataTable({
     targets_overview <- Scheme$target_table
+    NULL
   },
   options = list(pageLength = 10,
                  columnDefs = list(
@@ -20913,7 +21179,6 @@ server <- function(input, output, session) {
                     dateInput("append_isodate",
                               label = "",
                               width = "80%",
-                              format = "mm/dd/yyyy",
                               max = Sys.Date())
                   )
                 )
@@ -21308,11 +21573,11 @@ server <- function(input, output, session) {
     meta_info <- data.frame(assembly_id = trimws(input$assembly_id),
                             assembly_name = trimws(input$assembly_name),
                             cgmlst_typing = DB$scheme,
-                            append_isodate = format(input$append_isodate, "%m/%d/%Y"),
+                            append_isodate = input$append_isodate,
                             append_host = trimws(input$append_host),
                             append_country = trimws(input$append_country),
                             append_city = trimws(input$append_city),
-                            append_analysisdate = format(Sys.Date(), "%m/%d/%Y"),
+                            append_analysisdate = Sys.Date(),
                             db_directory = getwd()) 
     
     saveRDS(meta_info, paste0(
@@ -21538,7 +21803,6 @@ server <- function(input, output, session) {
                   dateInput("append_isodate_multi",
                             label = "",
                             width = "80%",
-                            format = "mm/dd/yyyy",
                             max = Sys.Date())
                 )
               )
@@ -21698,11 +21962,11 @@ server <- function(input, output, session) {
     log_message(out, message = "Multi typing metadata confirmed")
     
     meta_info <- data.frame(cgmlst_typing = DB$scheme,
-                            append_isodate = trimws(format(input$append_isodate_multi, "%m/%d/%Y")),
+                            append_isodate = trimws(input$append_isodate_multi),
                             append_host = trimws(input$append_host_multi),
                             append_country = trimws(input$append_country_multi),
                             append_city = trimws(input$append_city_multi),
-                            append_analysisdate = format(Sys.Date(), "%m/%d/%Y"),
+                            append_analysisdate = Sys.Date(),
                             db_directory = getwd())
     
     saveRDS(meta_info, paste0(getwd(), "/execute/meta_info.rds"))
