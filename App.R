@@ -9422,6 +9422,10 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
+    loci <<- DB$loci
+    sel_rows <<- input$db_loci_rows_selected
+    seq_sel <<- input$seq_sel
+    
     log_message(out, message = "Input reload_db")
     
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {

@@ -501,7 +501,8 @@ i.far.fa-pen-to-square {
 
 #db_entries > div > div > div > div > table > tbody > tr > td,
 #db_distancematrix > div > div > div > div > table > tbody > tr > td,
-#table_missing_values > div > div > div > div > table > tbody > tr > td {
+#table_missing_values > div > div > div > div > table > tbody > tr > td,
+#multi_select_table > div > div > div > div > table > tbody > tr > td {
   color: black !important;
 }
 
