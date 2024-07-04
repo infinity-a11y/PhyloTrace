@@ -6131,11 +6131,6 @@ server <- function(input, output, session) {
     
     log_message(out, message = "Input load")
     
-    # Null database loci selector
-    # if(!is.null(input$compare_select)) {
-    #   updatePickerInput(session, "compare_select", selected = "", choices = "")
-    # }
-    
     # Null single typing status
     if(readLines(paste0(getwd(), "/logs/progress.txt"))[1] != "0") {
       Typing$progress <- 0
@@ -6151,6 +6146,8 @@ server <- function(input, output, session) {
       output$typing_formatting <- NULL
       
       Typing$single_path <- data.frame()
+      
+      Typing$multi_path <- data.frame()
       
       # reset results file 
       if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
@@ -6782,6 +6779,8 @@ server <- function(input, output, session) {
                 
                 Typing$single_path <- data.frame()
                 
+                Typing$multi_path <- data.frame()
+                
                 # Null multi typing feedback variable
                 Typing$reset <- TRUE
                 
@@ -6823,7 +6822,6 @@ server <- function(input, output, session) {
                       filetypes = c('fasta', 'fna', 'fa'),
                       root = path_home()
                     ),
-                    br(),
                     br(),
                     br(),
                     uiOutput("genome_path")
@@ -9421,7 +9419,8 @@ server <- function(input, output, session) {
   
   # Change scheme
   observeEvent(input$reload_db, {
-    
+    aha <<- Typing$multi_path
+    test <<- Typing$genome_selected
     loci <<- DB$loci
     sel_rows <<- input$db_loci_rows_selected
     seq_sel <<- input$seq_sel
@@ -21143,7 +21142,6 @@ server <- function(input, output, session) {
       ),
       br(),
       br(),
-      br(),
       uiOutput("genome_path")
     )
   })
@@ -21314,7 +21312,7 @@ server <- function(input, output, session) {
                 column(
                   width = 7,
                   align = "left",
-                  h5(paste0("Current: ", format(Sys.Date(), "%m/%d/%Y")), style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
+                  h5(paste0(" ", Sys.Date()), style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
                 )
               ),
               fluidRow(
@@ -21740,7 +21738,6 @@ server <- function(input, output, session) {
         ),
         br(),
         br(),
-        br(),
         uiOutput("genome_path")
       )
     })
@@ -21796,6 +21793,8 @@ server <- function(input, output, session) {
           root = path_home()
         ),
         br(),
+        br(),
+        uiOutput("multi_select_info"),
         br()
       ),
       column(
@@ -21806,165 +21805,185 @@ server <- function(input, output, session) {
     )
   })
   
-  # Render Metadata Select Box after Folder selection
-  observe({
-    if (nrow(Typing$table) > 0) {
-      
-      Typing$genome_selected <- hot_to_r(input$multi_select_table)
-      
-      output$metadata_multi_box <- renderUI({
-        column(
-          width = 3,
-          align = "center",
-          br(),
-          br(),
-          h3(p("Declare Metadata"), style = "color:white"),
-          br(), br(),
-          box(
-            solidHeader = TRUE,
-            status = "primary",
-            width = "90%",
-            fluidRow(
-              column(
-                width = 5,
-                align = "left",
-                h5("Assembly ID", style = "color:white; margin-top: 30px; margin-left: 15px")
-              ),
-              column(
-                width = 7,
-                align = "left",
-                h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
-              )
-            ),
-            fluidRow(
-              column(
-                width = 5,
-                align = "left",
-                h5("Assembly Name", style = "color:white; margin-top: 30px; margin-left: 15px")
-              ),
-              column(
-                width = 7,
-                align = "left",
-                h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
-              )
-            ),
-            fluidRow(
-              column(
-                width = 5,
-                align = "left",
-                h5("Isolation Date", style = "color:white; margin-top: 30px; margin-left: 15px")
-              ),
-              column(
-                width = 7,
-                align = "left",
-                div(
-                  class = "append_table",
-                  dateInput("append_isodate_multi",
-                            label = "",
-                            width = "80%",
-                            max = Sys.Date())
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 5,
-                align = "left",
-                h5("Host", style = "color:white; margin-top: 30px; margin-left: 15px")
-              ),
-              column(
-                width = 7,
-                align = "left",
-                div(
-                  class = "append_table",
-                  textInput("append_host_multi",
-                            label = "",
-                            width = "80%")
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 5,
-                align = "left",
-                h5("Country", style = "color:white; margin-top: 30px; margin-left: 15px")
-              ),
-              column(
-                width = 7,
-                align = "left",
-                div(
-                  class = "append_table_country",
-                  pickerInput(
-                    "append_country_multi",
-                    label = "",
-                    choices = list("Common" = sel_countries,
-                                   "All Countries" = country_names),
-                    options = list(
-                      `live-search` = TRUE,
-                      `actions-box` = TRUE,
-                      size = 10,
-                      style = "background-color: white; border-radius: 5px;"
-                    ),
-                    width = "90%"
-                  )
-                )  
-              )
-            ),
-            fluidRow(
-              column(
-                width = 5,
-                align = "left",
-                h5("City", style = "color:white; margin-top: 30px; margin-left: 15px")
-              ),
-              column(
-                width = 7,
-                align = "left",
-                div(
-                  class = "append_table",
-                  textInput("append_city_multi",
-                            label = "",
-                            width = "80%")
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 5,
-                align = "left",
-                h5("Typing Date", style = "color:white; margin-top: 30px; margin-left: 15px")
-              ),
-              column(
-                width = 7,
-                align = "left",
-                h5(paste0("Current: ", format(Sys.Date(), "%m/%d/%Y")), style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
-              )
-            ),
-            fluidRow(
-              column(
-                width = 12,
-                align = "center",
-                br(), br(),
-                actionButton(
-                  inputId = "conf_meta_multi",
-                  label = "Confirm"
-                ),
-                br()
-              )
-            ),
-            br()
-          )
-        )
-      }) 
-    } else {
-      output$metadata_multi_box <- NULL
+  # Render selection info
+  output$multi_select_info <- renderUI({
+    if(!is.null(Typing$multi_path)) {
+      if(length(Typing$multi_path) < 1) {
+        HTML(paste("<span style='color: white;'>", 
+                   "No files selected."))
+      } else {
+        if(!is.null(Typing$multi_sel_table)) {
+          if(sum(Typing$multi_sel_table$Include == TRUE) < 1) {
+            HTML(paste("<span style='color: white;'>", 
+                       "No files selected."))
+          } else {
+            req(Typing$genome_selected)
+            HTML(paste("<span style='color: white;'>", 
+                       sum(Typing$genome_selected$Include == TRUE),
+                       " files selected."))
+          }
+        }
+      }
     }
   })
   
-  
-  
+  # Render Metadata Select Box after Folder selection
+  observe({
+    if(!is.null(Typing$multi_sel_table)) {
+      if (nrow(Typing$multi_sel_table) > 0) {
+        
+        Typing$genome_selected <- hot_to_r(input$multi_select_table)
+        
+        output$metadata_multi_box <- renderUI({
+          column(
+            width = 3,
+            align = "center",
+            br(),
+            br(),
+            h3(p("Declare Metadata"), style = "color:white"),
+            br(), br(),
+            box(
+              solidHeader = TRUE,
+              status = "primary",
+              width = "90%",
+              fluidRow(
+                column(
+                  width = 5,
+                  align = "left",
+                  h5("Assembly ID", style = "color:white; margin-top: 30px; margin-left: 15px")
+                ),
+                column(
+                  width = 7,
+                  align = "left",
+                  h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 5,
+                  align = "left",
+                  h5("Assembly Name", style = "color:white; margin-top: 30px; margin-left: 15px")
+                ),
+                column(
+                  width = 7,
+                  align = "left",
+                  h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 5,
+                  align = "left",
+                  h5("Isolation Date", style = "color:white; margin-top: 30px; margin-left: 15px")
+                ),
+                column(
+                  width = 7,
+                  align = "left",
+                  div(
+                    class = "append_table",
+                    dateInput("append_isodate_multi",
+                              label = "",
+                              width = "80%",
+                              max = Sys.Date())
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 5,
+                  align = "left",
+                  h5("Host", style = "color:white; margin-top: 30px; margin-left: 15px")
+                ),
+                column(
+                  width = 7,
+                  align = "left",
+                  div(
+                    class = "append_table",
+                    textInput("append_host_multi",
+                              label = "",
+                              width = "80%")
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 5,
+                  align = "left",
+                  h5("Country", style = "color:white; margin-top: 30px; margin-left: 15px")
+                ),
+                column(
+                  width = 7,
+                  align = "left",
+                  div(
+                    class = "append_table_country",
+                    pickerInput(
+                      "append_country_multi",
+                      label = "",
+                      choices = list("Common" = sel_countries,
+                                     "All Countries" = country_names),
+                      options = list(
+                        `live-search` = TRUE,
+                        `actions-box` = TRUE,
+                        size = 10,
+                        style = "background-color: white; border-radius: 5px;"
+                      ),
+                      width = "90%"
+                    )
+                  )  
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 5,
+                  align = "left",
+                  h5("City", style = "color:white; margin-top: 30px; margin-left: 15px")
+                ),
+                column(
+                  width = 7,
+                  align = "left",
+                  div(
+                    class = "append_table",
+                    textInput("append_city_multi",
+                              label = "",
+                              width = "80%")
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 5,
+                  align = "left",
+                  h5("Typing Date", style = "color:white; margin-top: 30px; margin-left: 15px")
+                ),
+                column(
+                  width = 7,
+                  align = "left",
+                  h5(paste0(" ", Sys.Date()), style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 12,
+                  align = "center",
+                  br(), br(),
+                  actionButton(
+                    inputId = "conf_meta_multi",
+                    label = "Confirm"
+                  ),
+                  br()
+                )
+              ),
+              br()
+            )
+          )
+        }) 
+      } else {
+        output$metadata_multi_box <- NULL
+      }
+    }
+  })
   
   # Check if ongoing Multi Typing - Render accordingly
-  
   observe({
     # Get selected Genome in Multi Mode
     shinyDirChoose(input,
@@ -21974,19 +21993,16 @@ server <- function(input, output, session) {
                    session = session,
                    filetypes = c('', 'fasta', 'fna', 'fa'))
     
-    Typing$table <-
-      data.frame(Include = rep(TRUE, length(list.files(
-        as.character(parseDirPath(
-          roots = c(Home = path_home(), Root = "/"), input$genome_file_multi
-        ))
-      ))),
-      Files = list.files(as.character(
-        parseDirPath(roots = c(Home = path_home(), Root = "/"), input$genome_file_multi)
-      )))
+    Typing$multi_path <- parseDirPath(roots = c(Home = path_home(), Root = "/"), input$genome_file_multi)
     
-    if (between(nrow(Typing$table), 1, 15)) {
+    multi_sel_table <- data.frame(Include = rep(TRUE, length(list.files(as.character(Typing$multi_path)))),
+                                  Files = list.files(as.character(Typing$multi_path)))
+    
+    Typing$multi_sel_table <- multi_sel_table[which(grepl("\\.fasta|\\.fna|\\.fa", multi_sel_table$Files)),]
+    
+    if (between(nrow(Typing$multi_sel_table), 1, 15)) {
       output$multi_select_table <- renderRHandsontable({
-        rhandsontable(Typing$table, rowHeaders = NULL, stretchH = "all") %>%
+        rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, stretchH = "all") %>%
           hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
           hot_cols(columnSorting = TRUE) %>%
           hot_rows(rowHeights = 25) %>%
@@ -21998,9 +22014,9 @@ server <- function(input, output, session) {
                   valign = "htTop", 
                   colWidths = 60)
       })
-    } else if(nrow(Typing$table) > 15) {
+    } else if(nrow(Typing$multi_sel_table) > 15) {
       output$multi_select_table <- renderRHandsontable({
-        rhandsontable(Typing$table, rowHeaders = NULL, stretchH = "all", height = 500) %>%
+        rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, stretchH = "all", height = 500) %>%
           hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
           hot_cols(columnSorting = TRUE) %>%
           hot_rows(rowHeights = 25) %>%
@@ -22111,6 +22127,7 @@ server <- function(input, output, session) {
       # Reset User Feedback variable
       Typing$pending_format <- 0
       Typing$multi_started <- FALSE
+      Typing$multi_path <- data.frame()
       
       output$initiate_multi_typing_ui <- renderUI({
         column(
@@ -22140,6 +22157,8 @@ server <- function(input, output, session) {
               root = path_home()
             ),
             br(),
+            br(),
+            uiOutput("multi_select_info"),
             br()
           ),
           column(
@@ -22150,7 +22169,7 @@ server <- function(input, output, session) {
         )
       })
       
-      Typing$table <- data.frame()
+      Typing$multi_sel_table <- data.frame()
       
       output$test_yes_pending <- NULL
       output$multi_typing_results <- NULL
@@ -22219,6 +22238,8 @@ server <- function(input, output, session) {
             root = path_home()
           ),
           br(),
+          br(),
+          uiOutput("multi_select_info"),
           br()
         ),
         column(
@@ -22292,9 +22313,13 @@ server <- function(input, output, session) {
         
         saveRDS(multi_typing_df, "execute/multi_typing_df.rds")
         
+        # Reset selected
+        Typing$genome_selected <- NULL
+        
         # Execute multi blat script  
         system(paste("bash", paste0(getwd(), "/execute/blat_multi.sh"), ">>", paste0(getwd(), "/logs/output.log"), "2>&1"), 
                wait = FALSE)
+        
       }
     }
     
