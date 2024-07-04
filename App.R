@@ -5501,6 +5501,26 @@ server <- function(input, output, session) {
   
   # Function to read and format FASTA sequences
   format_fasta <- function(filepath) {
+    log_message(log_file = out,
+                message = paste0("path: ", filepath),
+                append = TRUE)
+    
+    log_message(log_file = out,
+                message = paste0("db: ", DB$database),
+                append = TRUE)
+    
+    log_message(log_file = out,
+                message = paste0("scheme: ", DB$scheme),
+                append = TRUE)
+    
+    log_message(log_file = out,
+                message = paste0("selected: ", input$db_loci_rows_selected),
+                append = TRUE)                        
+    
+    log_message(log_file = out,
+                message = paste0("loci: ", head(DB$loci, 1)),
+                append = TRUE)
+    
     fasta <- readLines(filepath)
     formatted_fasta <- list()
     current_sequence <- ""
@@ -9419,11 +9439,6 @@ server <- function(input, output, session) {
   
   # Change scheme
   observeEvent(input$reload_db, {
-    aha <<- Typing$multi_path
-    test <<- Typing$genome_selected
-    loci <<- DB$loci
-    sel_rows <<- input$db_loci_rows_selected
-    seq_sel <<- input$seq_sel
     
     log_message(out, message = "Input reload_db")
     
@@ -10604,7 +10619,13 @@ server <- function(input, output, session) {
   })
   
   output$loci_sequences <- renderUI({
-    req(DB$loci, input$db_loci_rows_selected, input$seq_sel)
+    req(input$db_loci_rows_selected, DB$database, DB$scheme)
+    
+    DB$loci <- list.files(
+      path = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles"),
+      pattern = "\\.(fasta|fa|fna)$",
+      full.names = TRUE
+    )
     
     fasta <- format_fasta(DB$loci[input$db_loci_rows_selected])
     
@@ -10626,6 +10647,15 @@ server <- function(input, output, session) {
   
   output$sequence_selector <- renderUI({
     if(!is.null(input$db_loci_rows_selected)) {
+      
+      
+      req(input$db_loci_rows_selected, DB$database, DB$scheme)
+      
+      DB$loci <- list.files(
+        path = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles"),
+        pattern = "\\.(fasta|fa|fna)$",
+        full.names = TRUE
+      )
       
       fasta <- format_fasta(DB$loci[input$db_loci_rows_selected])
       
