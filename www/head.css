@@ -26,6 +26,15 @@
     background-color: #FF7334;
 }
 
+.rectangle-red-space {
+    width: 75px;
+    height: 23px;
+    margin-top: 10px;
+    margin-left: 60px;
+    border: 1px solid #BCBCBC;
+    background-color: #FF7334;
+}
+
 .rectangle-blue {
     width: 75px;
     height: 23px;

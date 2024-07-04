@@ -622,7 +622,26 @@ ui <- dashboardPage(
         fluidRow(
           column(
             width = 3,
-            uiOutput("missing_values")
+            uiOutput("missing_values"),
+            fluidRow(
+              column(
+                width = 2,
+                div(
+                  class = "rectangle-red-space" 
+                )
+              ),
+              column(
+                width = 10,
+                align = "left",
+                p(
+                  HTML(
+                    paste(
+                      tags$span(style="color: white; font-size: 15px; margin-left: 75px; position: relative; bottom: -12px", " =  ≥ 5% of loci missing")
+                    )
+                  )
+                )
+              )
+            )
           ),
           column(
             width = 8,
@@ -5740,6 +5759,12 @@ server <- function(input, output, session) {
     }
   })
   
+  err_thresh_na <- reactive({
+    if (!is.null(DB$na_table) & !is.null(DB$number_loci)) {
+      which(as.numeric(DB$na_table[["Errors"]]) >= (DB$number_loci * 0.05)) 
+    }
+  })
+  
   true_rows <- reactive({
     if (!is.null(DB$data)) {
       which(DB$data$Include == TRUE)
@@ -7838,7 +7863,7 @@ server <- function(input, output, session) {
                                     Shiny.setInputValue('invalid_date', true);
                                   }
                                 }") %>%
-                              hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                              hot_cols(fixedColumnsLeft = 1) %>%
                               hot_col(2, type = "checkbox", width = "auto",
                                       valign = "htTop",
                                       halign = "htCenter") %>%
@@ -7911,7 +7936,7 @@ server <- function(input, output, session) {
                                         strict = TRUE,
                                         allowInvalid = FALSE,
                                         copyable = TRUE) %>%
-                                hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                                hot_cols(fixedColumnsLeft = 1) %>%
                                 hot_rows(fixedRowsTop = 0) %>%
                                 hot_col(1, renderer = "
               function (instance, td, row, col, prop, value, cellProperties) {
@@ -7980,7 +8005,7 @@ server <- function(input, output, session) {
                                 highlightCol = TRUE, 
                                 highlightRow = TRUE
                               ) %>%
-                                hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                                hot_cols(fixedColumnsLeft = 1) %>%
                                 hot_col(1, 
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
@@ -8114,7 +8139,7 @@ server <- function(input, output, session) {
                                         halign = "htCenter",
                                         allowInvalid = FALSE,
                                         copyable = TRUE) %>%
-                                hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                                hot_cols(fixedColumnsLeft = 1) %>%
                                 hot_rows(fixedRowsTop = 0) %>%
                                 hot_col(1, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
                                                            Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -8179,7 +8204,7 @@ server <- function(input, output, session) {
                                 highlightCol = TRUE, 
                                 highlightRow = TRUE
                               ) %>%
-                                hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                                hot_cols(fixedColumnsLeft = 1) %>%
                                 hot_col(1, 
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
@@ -8416,35 +8441,38 @@ server <- function(input, output, session) {
                       output$distancematrix_duplicated <- NULL
                       if(!is.null(DB$data) & !is.null(DB$allelic_profile) & !is.null(DB$allelic_profile_true) & !is.null(DB$cust_var) & !is.null(input$distmatrix_label) & !is.null(input$distmatrix_diag) & !is.null(input$distmatrix_triangle)) {
                         output$db_distancematrix <- renderRHandsontable({
-                          rhandsontable(hamming_df(), digits = 1, 
+                          rhandsontable(hamming_df(), 
+                                        digits = 1, 
+                                        readOnly = TRUE,
+                                        contextMenu = FALSE,
+                                        highlightCol = TRUE, 
+                                        highlightRow = TRUE,
                                         height = distancematrix_height(), rowHeaders = NULL) %>%
-                            hot_heatmap(renderer = paste0("function (instance, td, row, col, prop, value, cellProperties) {
-    Handsontable.renderers.TextRenderer.apply(this, arguments);
-    heatmapScale  = chroma.scale(['#17F556', '#ED6D47']);
-  
-    if (instance.heatmap[col]) {
-      mn = ", DB$matrix_min, ";
-      mx = ", DB$matrix_max, ";
-  
-      pt = (parseInt(value, 10) - mn) / (mx - mn);    
-  
-      td.style.backgroundColor = heatmapScale(pt).hex();
-    }
-  }
-  ")) %>%
+                            hot_heatmap(renderer = paste0("
+                            function (instance, td, row, col, prop, value, cellProperties) {
+                              Handsontable.renderers.TextRenderer.apply(this, arguments);
+                              heatmapScale  = chroma.scale(['#17F556', '#ED6D47']);
+                            
+                              if (instance.heatmap[col]) {
+                                mn = ", DB$matrix_min, ";
+                                mx = ", DB$matrix_max, ";
+                            
+                                pt = (parseInt(value, 10) - mn) / (mx - mn);    
+                            
+                                td.style.backgroundColor = heatmapScale(pt).hex();
+                              }
+                            }")) %>%
                             hot_rows(fixedRowsTop = 0) %>%
                             hot_cols(fixedColumnsLeft = 1) %>%
                             hot_col(1:(dim(DB$ham_matrix)[1]+1),
                                     halign = "htCenter",
                                     valign = "htMiddle") %>%
-                            hot_col(1,
-                                    renderer = "
-                  function(instance, td, row, col, prop, value, cellProperties) {
-                    Handsontable.renderers.NumericRenderer.apply(this, arguments);
-  
-                      td.style.background = '#F0F0F0'
-                }"
-                            ) 
+                            hot_col(1, renderer = "
+                            function(instance, td, row, col, prop, value, cellProperties) {
+                              Handsontable.renderers.NumericRenderer.apply(this, arguments);
+                              td.style.background = '#F0F0F0'
+                            }"
+                            )
                         })  
                       }
                     }
@@ -8719,28 +8747,54 @@ server <- function(input, output, session) {
                         output$table_missing_values <- renderRHandsontable({
                           rhandsontable(
                             DB$na_table,
-                            rowHeaders = NULL
+                            readOnly = TRUE,
+                            rowHeaders = NULL,
+                            contextMenu = FALSE,
+                            highlightCol = TRUE, 
+                            highlightRow = TRUE,
+                            error_highlight = err_thresh_na() - 1
                           ) %>%
-                            hot_context_menu(allowRowEdit = FALSE,
-                                             allowColEdit = FALSE,
-                                             allowReadOnly = TRUE) %>%
-                            hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                            hot_cols(fixedColumnsLeft = 1) %>%
                             hot_rows(fixedRowsTop = 0) %>%
-                            hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htCenter")
+                            hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htLeft") %>%
+                            hot_col(2, renderer = "
+                            function (instance, td, row, col, prop, value, cellProperties) {
+                              Handsontable.renderers.TextRenderer.apply(this, arguments);
+                              if (instance.params) {
+                                hrows = instance.params.error_highlight
+                                hrows = hrows instanceof Array ? hrows : [hrows]
+                                if (hrows.includes(row)) { 
+                                  td.style.backgroundColor = 'rgbA(255, 80, 1, 0.8)' 
+                                }
+                              }
+                            }") 
                         })
                       } else {
                         output$table_missing_values <- renderRHandsontable({
                           rhandsontable(
                             DB$na_table,
+                            readOnly = TRUE,
                             rowHeaders = NULL,
-                            height = miss.val.height()
+                            height = miss.val.height(),
+                            contextMenu = FALSE,
+                            highlightCol = TRUE, 
+                            highlightRow = TRUE,
+                            error_highlight = err_thresh() - 1
                           ) %>%
-                            hot_context_menu(allowRowEdit = FALSE,
-                                             allowColEdit = FALSE,
-                                             allowReadOnly = TRUE) %>%
-                            hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                            hot_cols(fixedColumnsLeft = 1) %>%
                             hot_rows(fixedRowsTop = 0) %>%
-                            hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htCenter")
+                            hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htLeft") %>%
+                            hot_col(2, renderer = "
+                            function (instance, td, row, col, prop, value, cellProperties) {
+                              Handsontable.renderers.TextRenderer.apply(this, arguments);
+                              if (instance.params) {
+                                hrows = instance.params.error_highlight
+                                hrows = hrows instanceof Array ? hrows : [hrows]
+                                if (hrows.includes(row)) { 
+                                  td.style.backgroundColor = 'rgbA(255, 80, 1, 0.8)' 
+                                }
+                              }
+                            }") 
                         })
                       }
                     }
@@ -8750,51 +8804,54 @@ server <- function(input, output, session) {
                 
                 # Render missing value informatiojn box UI
                 output$missing_values <- renderUI({
-                  box(
-                    solidHeader = TRUE,
-                    status = "primary",
-                    width = "100%",
-                    fluidRow(
-                      div(
-                        class = "white",
+                  div(
+                    class = "miss_val_box",
+                    box(
+                      solidHeader = TRUE,
+                      status = "primary",
+                      width = "100%",
+                      fluidRow(
+                        div(
+                          class = "white",
+                          column(
+                            width = 12,
+                            align = "left",
+                            br(), 
+                            HTML(
+                              paste0("There are ", 
+                                     strong(as.character(sum(is.na(DB$data)))), 
+                                     " unsuccessful allele allocations (NA). ",
+                                     strong(sum(sapply(DB$allelic_profile, anyNA))),
+                                     " out of ",
+                                     strong(ncol(DB$allelic_profile)),
+                                     " total loci in this scheme contain NA's (",
+                                     strong(round((sum(sapply(DB$allelic_profile, anyNA)) / ncol(DB$allelic_profile) * 100), 1)),
+                                     " %). ",
+                                     "Decide how these missing values should be treated:")
+                              
+                            ),
+                            br()
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(1),
                         column(
-                          width = 12,
+                          width = 11,
                           align = "left",
-                          br(), 
-                          HTML(
-                            paste0("There are ", 
-                                   strong(as.character(sum(is.na(DB$data)))), 
-                                   " unsuccessful allele allocations (NA). ",
-                                   strong(sum(sapply(DB$allelic_profile, anyNA))),
-                                   " out of ",
-                                   strong(ncol(DB$allelic_profile)),
-                                   " total loci in this scheme contain NA's (",
-                                   strong(round((sum(sapply(DB$allelic_profile, anyNA)) / ncol(DB$allelic_profile) * 100), 1)),
-                                   " %). ",
-                                   "Decide how these missing values should be treated:")
-                            
+                          br(),
+                          prettyRadioButtons(
+                            "na_handling",
+                            "",
+                            choiceNames = c("Ignore missing values for pairwise comparison",
+                                            "Omit loci with missing values for all assemblies",
+                                            "Treat missing values as allele variant"),
+                            choiceValues = c("ignore_na", "omit", "category"),
+                            shape = "curve",
+                            selected = c("ignore_na")
                           ),
                           br()
                         )
-                      )
-                    ),
-                    fluidRow(
-                      column(1),
-                      column(
-                        width = 11,
-                        align = "left",
-                        br(),
-                        prettyRadioButtons(
-                          "na_handling",
-                          "",
-                          choiceNames = c("Ignore missing values for pairwise comparison",
-                                          "Omit loci with missing values for all assemblies",
-                                          "Treat missing values as allele variant"),
-                          choiceValues = c("ignore_na", "omit", "category"),
-                          shape = "curve",
-                          selected = c("ignore_na")
-                        ),
-                        br()
                       )
                     )
                   )
@@ -9365,8 +9422,6 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
-    updatePickerInput(session, "compare_select", selected = NULL, choices = NULL)
-    
     log_message(out, message = "Input reload_db")
     
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
@@ -9502,7 +9557,7 @@ server <- function(input, output, session) {
                                     Shiny.setInputValue('invalid_date', true);
                                   }
                                 }") %>%
-                hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                hot_cols(fixedColumnsLeft = 1) %>%
                 hot_col(2, type = "checkbox", width = "auto",
                         valign = "htTop",
                         halign = "htCenter") %>%
@@ -9575,7 +9630,7 @@ server <- function(input, output, session) {
                           strict = TRUE,
                           allowInvalid = FALSE,
                           copyable = TRUE) %>%
-                  hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                  hot_cols(fixedColumnsLeft = 1) %>%
                   hot_rows(fixedRowsTop = 0) %>%
                   hot_col(1, renderer = "
               function (instance, td, row, col, prop, value, cellProperties) {
@@ -9644,7 +9699,7 @@ server <- function(input, output, session) {
                   highlightCol = TRUE, 
                   highlightRow = TRUE
                 ) %>%
-                  hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                  hot_cols(fixedColumnsLeft = 1) %>%
                   hot_col(1, 
                           valign = "htMiddle",
                           halign = "htCenter") %>%
@@ -9778,7 +9833,7 @@ server <- function(input, output, session) {
                           halign = "htCenter",
                           allowInvalid = FALSE,
                           copyable = TRUE) %>%
-                  hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                  hot_cols(fixedColumnsLeft = 1) %>%
                   hot_rows(fixedRowsTop = 0) %>%
                   hot_col(1, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
                                                            Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -9843,7 +9898,7 @@ server <- function(input, output, session) {
                   highlightCol = TRUE, 
                   highlightRow = TRUE
                 ) %>%
-                  hot_cols(columnSorting = TRUE, fixedColumnsLeft = 1) %>%
+                  hot_cols(fixedColumnsLeft = 1) %>%
                   hot_col(1, 
                           valign = "htMiddle",
                           halign = "htCenter") %>%

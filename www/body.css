@@ -499,9 +499,17 @@ i.far.fa-pen-to-square {
 
 /* Database */
 
-#db_entries > div > div > div > div > table > tbody > tr > td {
+#db_entries > div > div > div > div > table > tbody > tr > td,
+#db_distancematrix > div > div > div > div > table > tbody > tr > td,
+#table_missing_values > div > div > div > div > table > tbody > tr > td {
   color: black !important;
 }
+
+.miss_val_box,
+#table_missing_values{
+  margin-left: 50px;
+}
+
 
 #sel_all_entries, #desel_all_entries, #typing_start, #start_typ_multi, 
 #undo_changes, #genome_file, #genome_file_multi, #reset_multi, #save_cust {
