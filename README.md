@@ -222,12 +222,8 @@ For the full functionality of PhyloTrace, WSL utilities should be installed. Sta
 following commands:
 
 ``` bash
-sudo add-apt-repository ppa:wslutilites/wslu
+sudo add-apt-repository ppa:wslutilities/wslu
 sudo apt update
-```
-
-Install the WSL utilities.
-``` bash
 sudo apt install wslu
 ```
 
