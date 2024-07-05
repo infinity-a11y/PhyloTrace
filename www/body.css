@@ -700,12 +700,52 @@ button#download_na_matrix_bttn {
 button#edit_button.btn.btn-default.action-button.shiny-bound-input {
   background: #20E6E5; 
   color: #000000;
+  box-shadow: inset 0 1px 3px #000000;
 }
 
 /* Typing */
 
 .mult_res_sel {
   margin-bottom: 15px;
+}
+
+body > div.htDatepickerHolder > div > div > table > tbody > tr:nth-child(1) > td.is-selected > button,
+body > div.htDatepickerHolder > div > div > table > tbody > tr:nth-child(1) > td.is-selected,
+.is-selected .pika-button {
+  color: white;
+  background: #282F38;
+  border-radius: 5px;
+  box-shadow: inset 0 1px 3px rgb(0 0 0)
+}
+
+.pika-button:hover {
+  background: #20E6E5; 
+  color: #000000;
+}
+
+.pika-button {
+  text-align: center;
+}
+
+.is-today .pika-button,
+body > div.htDatepickerHolder > div > div > table > tbody > tr:nth-child(1) > td.is-today > button{
+  border: 1px solid rgb(0, 0, 0);
+  font-weight: 900;
+  border-radius: 5px;
+  color: black;
+}
+
+body > div.datepicker.datepicker-dropdown.dropdown-menu.datepicker-orient-left.datepicker-orient-top > div.datepicker-days > table > tbody > tr:nth-child(1) > td.active.day {
+  background: #282F38;
+  color: white;
+    
+}
+
+.datepicker table tr td.day:hover, 
+.datepicker table tr td.focused {
+  color: #000;
+  background: rgba(0,255,213,1);
+  cursor: pointer;
 }
 
 #print_log {

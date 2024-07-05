@@ -7857,6 +7857,40 @@ server <- function(input, output, session) {
                               hot_col(3:(12 + nrow(DB$cust_var)), 
                                       valign = "htMiddle",
                                       halign = "htLeft") %>%
+                              hot_col(3, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
+                              hot_col(4, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
                               hot_col(8, type = "dropdown", source = country_names) %>%
                               hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
                                       validator = "
@@ -7921,6 +7955,40 @@ server <- function(input, output, session) {
                                         halign = "htCenter") %>%
                                 hot_col(c(1, 5, 10, 11, 12),
                                         readOnly = TRUE) %>%
+                                hot_col(3, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
+                                hot_col(4, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
                                 hot_col(3:(12 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
                                         halign = "htLeft") %>%
@@ -8032,6 +8100,40 @@ server <- function(input, output, session) {
                                 hot_col(3:(12 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
                                         halign = "htLeft") %>%
+                                hot_col(3, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
+                                hot_col(4, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
                                 hot_col(8, type = "dropdown", source = country_names) %>%
                                 hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
                                         validator = "
@@ -8123,6 +8225,40 @@ server <- function(input, output, session) {
                                 hot_col(3:(12 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
                                         halign = "htLeft") %>%
+                                hot_col(3, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
+                                hot_col(4, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
                                 hot_col(c(1, 5, 10, 11, 12),
                                         readOnly = TRUE) %>%
                                 hot_col(8, type = "dropdown", source = country_names) %>%
@@ -8228,6 +8364,40 @@ server <- function(input, output, session) {
                                         halign = "htCenter") %>%
                                 hot_col(c(1, 5, 10, 11, 12),
                                         readOnly = TRUE) %>%
+                                hot_col(3, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
+                                hot_col(4, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
                                 hot_col(8, type = "dropdown", source = country_names) %>%
                                 hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
                                         validator = "
@@ -9432,6 +9602,24 @@ server <- function(input, output, session) {
         width = "300px"
       )
       DB$inhibit_change <- TRUE
+    } else if (isTRUE(input$empty_name)) {
+      show_toast(
+        title = "Empty name",
+        type = "warning",
+        position = "top-end",
+        timer = 6000,
+        width = "300px"
+      )
+      DB$inhibit_change <- TRUE
+    } else if (isTRUE(input$empty_id)) {
+      show_toast(
+        title = "Empty ID",
+        type = "warning",
+        position = "top-end",
+        timer = 6000,
+        width = "300px"
+      )
+      DB$inhibit_change <- TRUE
     } else {
       DB$inhibit_change <- FALSE
     }
@@ -9503,6 +9691,8 @@ server <- function(input, output, session) {
   observeEvent(input$undo_changes, {
     log_message(out, message = "Input undo_changes")
     
+    DB$inhibit_change <- FALSE
+    
     Data <- readRDS(paste0(
       DB$database, "/",
       gsub(" ", "_", DB$scheme),
@@ -9555,6 +9745,40 @@ server <- function(input, output, session) {
                 hot_col(3:(12 + nrow(DB$cust_var)), 
                         valign = "htMiddle",
                         halign = "htLeft") %>%
+                hot_col(3, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
+                hot_col(4, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
                 hot_col(8, type = "dropdown", source = country_names) %>%
                 hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
                         validator = "
@@ -9622,6 +9846,40 @@ server <- function(input, output, session) {
                   hot_col(3:(12 + nrow(DB$cust_var)), 
                           valign = "htMiddle",
                           halign = "htLeft") %>%
+                  hot_col(3, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
+                  hot_col(4, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
                   hot_col(8, type = "dropdown", source = country_names) %>%
                   hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
                           validator = "
@@ -9730,6 +9988,40 @@ server <- function(input, output, session) {
                   hot_col(3:(12 + nrow(DB$cust_var)), 
                           valign = "htMiddle",
                           halign = "htLeft") %>%
+                  hot_col(3, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
+                  hot_col(4, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
                   hot_col(8, type = "dropdown", source = country_names) %>%
                   hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
                           validator = "
@@ -9821,6 +10113,40 @@ server <- function(input, output, session) {
                   hot_col(3:(12 + nrow(DB$cust_var)), 
                           valign = "htMiddle",
                           halign = "htLeft") %>%
+                  hot_col(3, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
+                  hot_col(4, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
                   hot_col(c(1, 5, 10, 11, 12),
                           readOnly = TRUE) %>%
                   hot_col(8, type = "dropdown", source = country_names) %>%
@@ -9926,6 +10252,40 @@ server <- function(input, output, session) {
                           halign = "htCenter") %>%
                   hot_col(c(1, 5, 10, 11, 12),
                           readOnly = TRUE) %>%
+                  hot_col(3, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
+                  hot_col(4, validator = "
+                                  function(value, callback) {
+                                    try {
+                                      if (value === null || value.trim() === '') {
+                                        callback(false); // Cell is empty
+                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                      } else {
+                                        callback(true); // Cell is not empty
+                                        Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); // In case of error, consider it as invalid
+                                      Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                    }
+                                  }
+                                ") %>%
                   hot_col(8, type = "dropdown", source = country_names) %>%
                   hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
                           validator = "
@@ -10305,6 +10665,7 @@ server <- function(input, output, session) {
         )
       )
     } else {
+      log_message(out, message = "Input edit_button, invalid values.")
       show_toast(
         title = "Invalid values entered. Saving not possible.",
         type = "error",
@@ -21080,13 +21441,15 @@ server <- function(input, output, session) {
             if(nrow(typing_result_table) > 0) {
               if(nrow(typing_result_table) > 15) {
                 rhandsontable(typing_result_table, rowHeaders = NULL, 
-                              stretchH = "all", height = 500, readOnly = TRUE) %>%
+                              stretchH = "all", height = 500, readOnly = TRUE,
+                              contextMenu = FALSE) %>%
                   hot_cols(columnSorting = TRUE) %>%
                   hot_rows(rowHeights = 25) %>%
                   hot_col(1:ncol(typing_result_table), valign = "htMiddle", halign = "htCenter")
               } else {
                 rhandsontable(typing_result_table, rowHeaders = NULL, 
-                              stretchH = "all", readOnly = TRUE) %>%
+                              stretchH = "all", readOnly = TRUE,
+                              contextMenu = FALSE,) %>%
                   hot_cols(columnSorting = TRUE) %>%
                   hot_rows(rowHeights = 25) %>%
                   hot_col(1:ncol(typing_result_table), valign = "htMiddle", halign = "htCenter")
@@ -21209,6 +21572,11 @@ server <- function(input, output, session) {
         
         # Render metadata declaration box
         output$metadata_single_box <- renderUI({
+          
+          # Render placeholder 
+          updateTextInput(session, "assembly_id", placeholder = as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name))))
+          updateTextInput(session, "assembly_name", placeholder = as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name))))
+          
           column(
             width = 3,
             align = "center",
@@ -21233,6 +21601,7 @@ server <- function(input, output, session) {
                   div(
                     class = "append_table",
                     textInput("assembly_id",
+                              value = "",
                               label = "",
                               width = "80%")
                   )
@@ -21663,8 +22032,20 @@ server <- function(input, output, session) {
   observeEvent(input$conf_meta_single, {
     log_message(out, message = "Single typing metadata confirmed")
     
-    meta_info <- data.frame(assembly_id = trimws(input$assembly_id),
-                            assembly_name = trimws(input$assembly_name),
+    if(nchar(trimws(input$assembly_id)) < 1) {
+      ass_id <- as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name)))
+    } else {
+      ass_id <- trimws(input$assembly_id)
+    }
+    
+    if(nchar(trimws(input$assembly_name)) < 1) {
+      ass_name <- as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name)))
+    } else {
+      ass_name <- trimws(input$assembly_name)
+    }
+    
+    meta_info <- data.frame(assembly_id = ass_id,
+                            assembly_name = ass_name,
                             cgmlst_typing = DB$scheme,
                             append_isodate = input$append_isodate,
                             append_host = trimws(input$append_host),
@@ -22038,7 +22419,8 @@ server <- function(input, output, session) {
     
     if (between(nrow(Typing$multi_sel_table), 1, 15)) {
       output$multi_select_table <- renderRHandsontable({
-        rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, stretchH = "all") %>%
+        rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
+                      stretchH = "all", contextMenu = FALSE) %>%
           hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
           hot_cols(columnSorting = TRUE) %>%
           hot_rows(rowHeights = 25) %>%
@@ -22052,7 +22434,9 @@ server <- function(input, output, session) {
       })
     } else if(nrow(Typing$multi_sel_table) > 15) {
       output$multi_select_table <- renderRHandsontable({
-        rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, stretchH = "all", height = 500) %>%
+        rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
+                      stretchH = "all", height = 500,
+                      contextMenu = FALSE) %>%
           hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
           hot_cols(columnSorting = TRUE) %>%
           hot_rows(rowHeights = 25) %>%
@@ -22475,9 +22859,8 @@ server <- function(input, output, session) {
         if(is.null(Typing$multi_table_length)) {
           output$multi_typing_result_table <- renderRHandsontable({
             rhandsontable(Typing$result_list[[input$multi_results_picker]], 
-                          rowHeaders = NULL, 
-                          stretchH = "all",
-                          readOnly = TRUE) %>%
+                          rowHeaders = NULL, stretchH = "all",
+                          readOnly = TRUE, contextMenu = FALSE) %>%
               hot_rows(rowHeights = 25) %>%
               hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
           
@@ -22486,14 +22869,14 @@ server <- function(input, output, session) {
             output$multi_typing_result_table <- renderRHandsontable({
               rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
                             stretchH = "all", height = 500,
-                            readOnly = TRUE) %>%
+                            readOnly = TRUE, contextMenu = FALSE) %>%
                 hot_rows(rowHeights = 25) %>%
                 hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
           } else {
             output$multi_typing_result_table <- renderRHandsontable({
               rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
-                            stretchH = "all",
-                            readOnly = TRUE) %>%
+                            stretchH = "all", readOnly = TRUE,
+                            contextMenu = FALSE) %>%
                 hot_rows(rowHeights = 25) %>%
                 hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
             
