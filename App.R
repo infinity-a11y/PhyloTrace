@@ -5748,10 +5748,10 @@ server <- function(input, output, session) {
         "/Typing.rds"
       ))) {
         
-        Database <- readRDS(paste0(DB$database, "/",gsub(" ", "_", DB$scheme),"/Typing.rds"))
+        Database <- readRDS(paste0(DB$database, "/", gsub(" ", "_", DB$scheme),"/Typing.rds"))
         
         if(is.null(DB$data)) {
-          if(nrow(Database[["Typing"]]) == 1) {
+          if(nrow(Database[["Typing"]]) >= 1) {
             TRUE
           } else {FALSE}
         } else {
@@ -9440,6 +9440,10 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
+    log_message(out, message = DB$database)
+    log_message(out, message = DB$scheme)
+    log_message(out, message = DB$data[1, 1])
+    log_message(out, message = DB$check_new_entries)
     log_message(out, message = "Input reload_db")
     
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
@@ -10490,6 +10494,7 @@ server <- function(input, output, session) {
   DB$deleted_entries <- character(0)
   
   observeEvent(input$conf_delete, {
+    
     log_message(out, message = "Input conf_delete")
     
     DB$deleted_entries <- append(DB$deleted_entries, DB$data$Index[as.numeric(input$select_delete)])
@@ -10619,7 +10624,7 @@ server <- function(input, output, session) {
   })
   
   output$loci_sequences <- renderUI({
-    req(input$db_loci_rows_selected, DB$database, DB$scheme)
+    req(input$db_loci_rows_selected, DB$database, DB$scheme, input$seq_sel)
     
     DB$loci <- list.files(
       path = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles"),
@@ -21416,6 +21421,9 @@ server <- function(input, output, session) {
         }
       }
       
+      # Activate entry detection
+      DB$check_new_entries <- TRUE
+      
       Typing$single_end <- FALSE
       
       Typing$progress_format_start <- 0
@@ -22320,10 +22328,11 @@ server <- function(input, output, session) {
         
         # Remove Allelic Typing Controls
         output$initiate_multi_typing_ui <- NULL
-        
         output$metadata_multi_box <- NULL
-        
         output$start_multi_typing_ui <- NULL
+        
+        # Activate entry detection
+        DB$check_new_entries <- TRUE
         
         # Initiate Feedback variables
         Typing$multi_started <- TRUE
@@ -22467,11 +22476,10 @@ server <- function(input, output, session) {
       if(length(Typing$result_list) > 0) {
         if(is.null(Typing$multi_table_length)) {
           output$multi_typing_result_table <- renderRHandsontable({
-            rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
-                          stretchH = "all") %>%
-              hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE,
-                               allowReadOnly = TRUE) %>%
-              hot_cols(columnSorting = TRUE) %>%
+            rhandsontable(Typing$result_list[[input$multi_results_picker]], 
+                          rowHeaders = NULL, 
+                          stretchH = "all",
+                          readOnly = TRUE) %>%
               hot_rows(rowHeights = 25) %>%
               hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
           
@@ -22479,18 +22487,16 @@ server <- function(input, output, session) {
           if(Typing$multi_table_length > 15) {
             output$multi_typing_result_table <- renderRHandsontable({
               rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
-                            stretchH = "all", height = 500) %>%
-                hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE,
-                                 allowReadOnly = TRUE) %>%
+                            stretchH = "all", height = 500,
+                            readOnly = TRUE) %>%
                 hot_cols(columnSorting = TRUE) %>%
                 hot_rows(rowHeights = 25) %>%
                 hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
           } else {
             output$multi_typing_result_table <- renderRHandsontable({
               rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
-                            stretchH = "all") %>%
-                hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE,
-                                 allowReadOnly = TRUE) %>%
+                            stretchH = "all",
+                            readOnly = TRUE) %>%
                 hot_cols(columnSorting = TRUE) %>%
                 hot_rows(rowHeights = 25) %>%
                 hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
@@ -22539,7 +22545,7 @@ server <- function(input, output, session) {
                   choices = names(Typing$result_list),
                   selected = names(Typing$result_list)[length(names(Typing$result_list))],
                 ),
-                br(),
+                br(), br(), 
                 rHandsontableOutput("multi_typing_result_table")
               )
             )
