@@ -503,7 +503,8 @@ i.far.fa-pen-to-square {
 #db_distancematrix > div > div > div > div > table > tbody > tr > td,
 #table_missing_values > div > div > div > div > table > tbody > tr > td,
 #multi_select_table > div > div > div > div > table > tbody > tr > td,
-#multi_typing_result_table > div > div > div > div > table > tbody > tr > td {
+#multi_typing_result_table > div > div > div > div > table > tbody > tr > td,
+#typing_result_table > div > div > div > div > table > tbody > tr > td{
   color: black !important;
 }
 
@@ -702,6 +703,10 @@ button#edit_button.btn.btn-default.action-button.shiny-bound-input {
 }
 
 /* Typing */
+
+.mult_res_sel {
+  margin-bottom: 15px;
+}
 
 #print_log {
   border-color: white;

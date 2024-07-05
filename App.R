@@ -21080,15 +21080,13 @@ server <- function(input, output, session) {
             if(nrow(typing_result_table) > 0) {
               if(nrow(typing_result_table) > 15) {
                 rhandsontable(typing_result_table, rowHeaders = NULL, 
-                              stretchH = "all", height = 500) %>%
-                  hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+                              stretchH = "all", height = 500, readOnly = TRUE) %>%
                   hot_cols(columnSorting = TRUE) %>%
                   hot_rows(rowHeights = 25) %>%
                   hot_col(1:ncol(typing_result_table), valign = "htMiddle", halign = "htCenter")
               } else {
                 rhandsontable(typing_result_table, rowHeaders = NULL, 
-                              stretchH = "all") %>%
-                  hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+                              stretchH = "all", readOnly = TRUE) %>%
                   hot_cols(columnSorting = TRUE) %>%
                   hot_rows(rowHeights = 25) %>%
                   hot_col(1:ncol(typing_result_table), valign = "htMiddle", halign = "htCenter")
@@ -22489,7 +22487,6 @@ server <- function(input, output, session) {
               rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
                             stretchH = "all", height = 500,
                             readOnly = TRUE) %>%
-                hot_cols(columnSorting = TRUE) %>%
                 hot_rows(rowHeights = 25) %>%
                 hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
           } else {
@@ -22497,7 +22494,6 @@ server <- function(input, output, session) {
               rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
                             stretchH = "all",
                             readOnly = TRUE) %>%
-                hot_cols(columnSorting = TRUE) %>%
                 hot_rows(rowHeights = 25) %>%
                 hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
             
@@ -22539,11 +22535,14 @@ server <- function(input, output, session) {
                 br(), br(),
                 br(), br(),
                 br(), 
-                selectInput(
-                  "multi_results_picker",
-                  label = h5("Select Typing Results", style = "color:white"),
-                  choices = names(Typing$result_list),
-                  selected = names(Typing$result_list)[length(names(Typing$result_list))],
+                div(
+                  class = "mult_res_sel",
+                  selectInput(
+                    "multi_results_picker",
+                    label = h5("Select Typing Results", style = "color:white"),
+                    choices = names(Typing$result_list),
+                    selected = names(Typing$result_list)[length(names(Typing$result_list))],
+                  )
                 ),
                 br(), br(), 
                 rHandsontableOutput("multi_typing_result_table")
