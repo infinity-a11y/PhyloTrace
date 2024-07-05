@@ -46,11 +46,12 @@ developed.](https://www.repostatus.org/badges/latest/active.svg)
     -   [1.2 Compatibility](#12-compatibility)
     -   [1.3 Citation](#13-citation)
 -   [2 Installation](#2-installation)
-    -   [2.1 Install Miniconda](#21-install-miniconda)
-    -   [2.2 Create Conda Environment](#22-create-conda-environment)
-    -   [2.3 Create Launcher](#23-create-desktop-launcher)
-    -   [2.4 Uninstall](#24-uninstall)
-    -   [2.5 Troubleshooting](#25-troubleshooting)
+    -   [2.1 Install Miniconda](#21-download-source-code)
+    -   [2.2 Install Miniconda](#21-install-miniconda)
+    -   [2.3 Create Conda Environment](#22-create-conda-environment)
+    -   [2.4 Create Launcher](#23-create-desktop-launcher)
+    -   [2.5 Uninstall](#24-uninstall)
+    -   [2.6 Troubleshooting](#25-troubleshooting)
 -   [3 Launch PhyloTrace](#3-launch-phylotrace)
 -   [4 Roadmap](#4-roadmap)
 
@@ -192,17 +193,15 @@ If you use PhyloTrace for your paper or publication, cite us with
 
 ## 2 Installation
 
-PhyloTrace can be installed in a linux environment and, using Windows Subsystem for Linux (WSL) also on Microsoft Windows. In both cases, the source code of the latest stable version must be downloaded.
-
-:arrow_right: Download the source code of the latest release [Version 1.4.0](https://github.com/infinity-a11y/PhyloTrace/archive/refs/tags/v1.4.0.zip) and extract/unzip it to a location on your system. 
+PhyloTrace can be installed in a linux environment and, using Windows Subsystem for Linux (WSL) also on Microsoft Windows. 
 
 > <i>If an older version is already installed on your system, make sure to first uninstall PhyloTrace
-> (see [2.4 Uninstall](#24-uninstall)). Since the local database folder is located outside of the
+> (see [2.5 Uninstall](#25-uninstall)). Since the local database folder is located outside of the
 > app directory the previous analyses and isolates remain unaffected. To update to the newer version
 > first uninstall the previous one, download the new version and follow the complete installation
 > procedure as described below.</i>
 
-For the installation on a linux OS follow the steps starting from [2.1 Install Miniconda](#21-install-miniconda). If you want to install PhyloTrace on Microsoft Windows, you must first follow the steps found in the collapsible menu below before the other steps.
+For the installation on a linux OS follow the steps starting from [2.2 Install Miniconda](#22-install-miniconda). If you want to install PhyloTrace on Microsoft Windows, you must first follow the steps found in the collapsible menu below before proceeding with the other steps.
 
 <details>
 <br>
@@ -227,21 +226,36 @@ sudo apt update
 sudo apt install wslu
 ```
 
-After this, the instructions from [2.1 Install Miniconda](#21-install-miniconda) should be followed.
+After this, the instructions from [2.2 Install Miniconda](#22-install-miniconda) should be followed.
 
 </details>
 
-### 2.1 Install Miniconda
+### 2.1 Download Source Code
+
+Donwload the source code of the latest stable version. 
+
+Use the terminal to navigate to an accessible location on your system ```path/to/phylotrace``` and clone the repository using Git.
+
+```
+cd path/to/phylotrace
+git clone https://github.com/infinity-a11y/PhyloTrace.git
+```
+
+Alternatively download PhyloTrace manually from [Version 1.4.0](https://github.com/infinity-a11y/PhyloTrace/archive/refs/tags/v1.4.0.zip) and extract/unzip it to a location on your system.
+
+
+### 2.2 Install Miniconda
 
 Is ***Miniconda*** or another ***Conda Distribution*** installed on the system?  
 
 **No**  :arrow_right: Run the installation below and initialize conda  <br>
  
-**Yes** :arrow_right: Proceed to [2.2 Create Conda Environment](#22-create-conda-environment) 
+**Yes** :arrow_right: Proceed to [2.3 Create Conda Environment](#23-create-conda-environment) 
 
 These four commands quickly and quietly install the latest 64-bit version of Miniconda and then
-clean up after themselves. \>For installation of Miniconda on system with different architecture,
-please refer to the [Miniconda documentation](https://docs.anaconda.com/free/miniconda/index.html).
+clean up after themselves. 
+
+> _For installation of Miniconda on system with different architecture, please refer to the [Miniconda documentation](https://docs.anaconda.com/free/miniconda/index.html)._
 
 ``` bash
 mkdir -p ~/miniconda3
@@ -265,7 +279,7 @@ To start using conda, the terminal should be restarted.
 conda config --set auto_activate_base false
 ```
 
-### 2.2 Create Conda Environment
+### 2.3 Create Conda Environment
 
 Create a conda environment containing necessary dependencies and packages.
 
@@ -277,7 +291,7 @@ conda env create -f PhyloTrace.yml
 > *In the command above, replace `path/to/phylotrace` with the actual path linking to the PhyloTrace
 > directory on your system.* *This process might take a while (depends on system performance).*
 
-### 2.3 Create Desktop Launcher
+### 2.4 Create Desktop Launcher
 
 Run install script to generate a run script and include PhyloTrace desktop icon in the Applications
 Menu.
@@ -290,7 +304,7 @@ bash install_phylotrace.sh
 > *In the command above, replace `path/to/phylotrace` with the actual path linking to the PhyloTrace
 > directory on your system.*
 
-### 2.4 Uninstall
+### 2.5 Uninstall
 
 To uninstall PhyloTrace from your system, remove the application directory and run the following
 command to remove the desktop launcher and the PhyloTrace conda environment:
@@ -301,7 +315,7 @@ rm $HOME/.local/share/icons/hicolor/scalable/apps/PhyloTrace.png
 conda remove -n PhyloTrace --all -y
 ```
 
-### 2.5 Troubleshooting
+### 2.6 Troubleshooting
 
 There are multiple possible sources for issues with the installation. Common mistakes during the
 installation are: - Change `path/to/phylotrace` in the command chunks with the actual path of the
