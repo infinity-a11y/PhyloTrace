@@ -44,20 +44,23 @@ knitr::include_graphics(paste0(getwd(),"/PhyloTrace_bw.png"))
 
 \
 
-```{r echo=FALSE, fig.align = "center"}
+```{r echo=FALSE, fig.align = "center", out.width='100%'}
 if(!my_loaded_variables[["plot"]] == "MST"){
   if(my_loaded_variables[["report_df.Include"]][13]) {
   knitr::include_graphics(paste0(my_loaded_variables[["plot"]], ".jpeg"))
   }
+} else {
+  if(my_loaded_variables[["report_df.Include"]][13]) {
+  knitr::include_graphics(paste0(my_loaded_variables[["plot"]], ".jpg"))
+  }
 }
-
 ```
 
 \
 
 ```{r echo=FALSE}
 if(my_loaded_variables[["report_df.Include"]][1]) {
-  kable(select(my_loaded_variables[["entry_table"]], -2), 
+  kable(select(my_loaded_variables[["entry_table"]], my_loaded_variables[["table_columns"]]), 
       row.names = FALSE,
       linesep = "") %>%
   kable_styling(bootstrap_options = "striped", full_width = TRUE, font_size = 10) %>%
@@ -90,7 +93,7 @@ if(!is.null(my_loaded_variables[["na_handling"]])){
                           if(my_loaded_variables[["report_df.Include"]][10]){"Distance algorithm"},
                           if(my_loaded_variables[["report_df.Include"]][11]){"Missing value handling"},
                           if(my_loaded_variables[["report_df.Include"]][12]){"PhyloTrace version"},
-                          if(my_loaded_variables[["report_df.Include"]][12]){"KMA version"}),
+                          if(my_loaded_variables[["report_df.Include"]][12]){"pblat version"}),
                  Content = c(if(my_loaded_variables[["report_df.Include"]][9]){my_loaded_variables[["tree"]]},
                              if(my_loaded_variables[["report_df.Include"]][10]){my_loaded_variables[["distance"]]},
                              if(my_loaded_variables[["report_df.Include"]][11]){my_loaded_variables[["na_handling"]]},
@@ -101,7 +104,7 @@ if(!is.null(my_loaded_variables[["na_handling"]])){
   df <- data.frame(Item = c(if(my_loaded_variables[["report_df.Include"]][9]){"Tree construction"},
                           if(my_loaded_variables[["report_df.Include"]][10]){"Distance algorithm"},
                           if(my_loaded_variables[["report_df.Include"]][12]){"PhyloTrace version"},
-                          if(my_loaded_variables[["report_df.Include"]][12]){"KMA version"}),
+                          if(my_loaded_variables[["report_df.Include"]][12]){"pblat version"}),
                  Content = c(if(my_loaded_variables[["report_df.Include"]][9]){my_loaded_variables[["tree"]]},
                              if(my_loaded_variables[["report_df.Include"]][10]){my_loaded_variables[["distance"]]},
                              if(my_loaded_variables[["report_df.Include"]][12]){my_loaded_variables[["version"]][1]},

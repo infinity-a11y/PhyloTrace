@@ -1000,33 +1000,6 @@ button#mst_col_map_menu {
   margin-bottom: 17px;
 }
 
-#mst_date_general_select .form-control {
-  height: 28px; 
-  position: relative; 
-  right: -22px
-}
-
-#mst_operator_general_select {
-  height: 28px; 
-  margin-top: -15px; 
-  position: relative; 
-  right: -22px;
-}
-
-#mst_institute_general_select {
-  height: 28px; 
-  margin-top: -15px; 
-  position: relative; 
-  right: -22px
-}
-
-#mst_comm_general_select {
-  margin-top: -15px; 
-  border-radius: 5px; 
-  position: relative; 
-  right: -22px
-}
-
 #node_font_color {
   margin-top: 17px
 }
@@ -1368,6 +1341,11 @@ button#save_plot_html_bttn {
   border: 1px solid white;
 }
 
+button#create_rep.btn.btn-default.action-button.shiny-bound-input {
+  border: 1px solid white;
+  margin-left: 11px;
+}
+
 button#download_nj_bttn, button#download_upgma_bttn {
   font-size: 14px; 
   height: 34px; 
@@ -1383,16 +1361,6 @@ button#download_nj_bttn, button#download_upgma_bttn {
   position: absolute; 
   right: 36px; 
   top: 23px;
-}
-
-button#download_report_bttn {
-  font-size: 14px; 
-  height: 34px; 
-  background: #282F38;
-  color: #ffffff;
-  border: 1px solid white;
-  position: relative; 
-  top: -25px;
 }
 
 #nj_v, #nj_h, #upgma_h, #upgma_v {
@@ -2750,50 +2718,93 @@ button#upgma_tile_menu_2, button#upgma_tile_menu_3, button#upgma_tile_menu_4, bu
 
 /* Report */
 
-#rep_date_general {
-  margin-top: 17px
-} 
-
-#rep_operator_general {
-  margin-top: 0px;
-}
-
-#rep_institute_general {
-  margin-top: 0px;
-}
-
-#rep_comm_general {
-  margin-top: 0px;
-}
-
-#rep_cgmlst_analysis {
-  margin-top: 19px
-}
-
-#rep_tree_analysis {
-  margin-top: 0px
-}
-
-#rep_distance {
-  margin-top: 0px
-}
-
-#rep_missval {
-  margin-top: 0px
-}
-
-#rep_version {
-  margin-top: 0px
-}
-
 #rep_general {
-  margin-top: -13px;
+  position: absolute;
+  top: -10px;
+  left: -110px;
 }
 
-#rep_analysis {
-  margin-top: -32px;
+#rep_entrytable {
+    position: relative;
+    top: -10px;
+    left: -96px;
 }
 
 #rep_plot_report {
-  margin-top: -51px;
+    position: relative;
+    top: -15px;
+    left: -96px;
+}
+
+#rep_analysis {
+    position: relative;
+    top: -10px;
+    left: -45px;
+}
+
+#mst_date_general_select {
+    margin-top: -14px;
+    width: 100px;
+}
+
+.datepicker { z-index: 99999 !important; }
+
+.rep_tab_sel {
+  margin-top: -25px;
+}
+
+#rep_comm_general,
+#rep_institute_general,
+#rep_operator_general,
+#rep_date_general,
+#rep_cgmlst_analysis,
+#rep_tree_analysis,
+#rep_distance,
+#rep_missval,
+#rep_version,
+#rep_plot_report {
+  margin-top: 10px;
+}
+
+#mst_date_general_select .form-control {
+  height: 28px; 
+  position: relative; 
+  right: -22px;
+  margin-top: 7px;
+}
+
+#mst_operator_general_select {
+    height: 28px;
+    margin-top: -8px;
+    position: relative;
+    right: -22px;
+    width: 250px;
+}
+
+#mst_institute_general_select {
+    height: 28px;
+    margin-top: -8px;
+    position: relative;
+    right: -22px;
+    width: 250px;
+}
+
+#mst_comm_general_select {
+    margin-top: -8px;
+    border-radius: 5px;
+    position: relative;
+    right: -22px;
+    border-color: black;
+}
+
+button#download_report_bttn {
+    font-size: 14px;
+    height: 36px;
+    background: #282F38;
+    color: #ffffff;
+    border: 1px solid white;
+    position: relative;
+    top: 1px;
+    border-radius: 6px;
+    margin-left: 10px;
 }

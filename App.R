@@ -1117,476 +1117,254 @@ ui <- dashboardPage(
                     )
                   )
                 )
-            )
-          ),
-          column(
-            width = 4,
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = "100%",
-              height = "500px",
-              h3(p("Nodes"), style = "color:white; position:relative; right:-15px"),
-              hr(),
-              fluidRow(
-                column(
-                  width = 6,
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Label"), style = "color:white;")
-                  ),
-                  column(
-                    width = 12,
-                    align = "center",
-                    div(
-                      class = "label_sel",
-                      uiOutput("mst_node_label")
-                    ),
-                    fluidRow(
-                      column(
-                        width = 7,
-                        colorPickr(
-                          inputId = "node_font_color",
-                          width = "100%",
-                          selected = "#000000",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        )
-                      ),
-                      column(
-                        width = 5,
-                        dropMenu(
-                          actionBttn(
-                            "mst_label_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-start",
-                          theme = "translucent",
-                          numericInput(
-                            "node_label_fontsize",
-                            label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                            value = 14,
-                            min = 8,
-                            max = 30,
-                            step = 1,
-                            width = "80px"
-                          )
-                        )
-                      )
-                    )
-                  )
-                ),
-                column(
-                  width = 6,
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Color"), style = "color:white; position: relative; right: -15px"),
-                      column(
-                        width = 12,
-                        align = "center",
-                        fluidRow(
-                          column(
-                            width = 10,
-                            align = "left",
-                            div(
-                              class = "mat-switch-mst-nodes",
-                              materialSwitch(
-                                "mst_color_var",
-                                h5(p("Add Variable"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                value = FALSE,
-                                right = TRUE
-                              )
-                            )
-                          ),
-                          column(
-                            width = 2,
-                            bslib::tooltip(
-                              bsicons::bs_icon("info-circle", title = "Only categorical variables can \nbe mapped to the node color.", color = "white", 
-                                               height = "12px", width = "12px", position = "relative", top = "27px", right = "56px"),
-                              "Text shown in the tooltip.",
-                              show = FALSE,
-                              id = "mst_node_col_info"
-                            )
-                          )
-                        ),
-                        uiOutput("mst_color_mapping")
-                      )
-                    )
-                  ), br()
-                )
-              ),
-              hr(),
-              fluidRow(
-                column(
-                  width = 6,
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Size"), style = "color:white; position: relative; right: -15px"),
-                      column(
-                        width = 12,
-                        align = "center",
-                        fluidRow(
-                          column(
-                            width = 12,
-                            align = "left",
-                            div(
-                              class = "mat-switch-mst-nodes",
-                              materialSwitch(
-                                "scale_nodes",
-                                h5(p("Scale by Duplicates"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                value = TRUE,
-                                right = TRUE
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  ),
-                  column(
-                    width = 12,
-                    align = "left",
-                    fluidRow(
-                      column(
-                        width = 3,
-                        align = "left",
-                        conditionalPanel(
-                          "input.scale_nodes==true",
-                          HTML(
-                            paste(
-                              tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Range')
-                            )
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.scale_nodes==false",
-                          HTML(
-                            paste(
-                              tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Size')
-                            )
-                          )
-                        )
-                      ),
-                      column(
-                        width = 9,
-                        align = "center",
-                        conditionalPanel(
-                          "input.scale_nodes==true",
-                          div(
-                            class = "mst_scale_slider",
-                            sliderInput(
-                              "mst_node_scale",
-                              label = "",
-                              min = 1,
-                              max = 80,
-                              value = c(20, 40),
-                              ticks = FALSE
-                            )
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.scale_nodes==false",
-                          div(
-                            class = "mst_scale_slider",
-                            sliderInput(
-                              inputId = "mst_node_size",
-                              label = "",
-                              min = 1,
-                              max = 100,
-                              value = 30,
-                              ticks = FALSE
-                            ) 
-                          )
-                        )
-                      )
-                    ),
-                    br()
-                  )
-                ),
-                column(
-                  width = 6,
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Other Elements"), style = "color:white; position: relative; right: -15px"),
-                      column(
-                        width = 12,
-                        align = "center",
-                        fluidRow(
-                          column(
-                            width = 12,
-                            align = "left",
-                            div(
-                              class = "mat-switch-mst-nodes",
-                              materialSwitch(
-                                "mst_shadow",
-                                h5(p("Show Shadow"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                value = TRUE,
-                                right = TRUE
-                              )
-                            ),
-                            fluidRow(
-                              column(
-                                width = 3,
-                                align = "left",
-                                HTML(
-                                  paste(
-                                    tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Shape')
-                                  )
-                                )
-                              ),
-                              column(
-                                width = 9,
-                                align = "center",
-                                div(
-                                  class = "mst_shape_sel",
-                                  selectInput(
-                                    "mst_node_shape",
-                                    "",
-                                    choices = list(`Label inside` = c("Circle" = "circle", "Box" = "box", "Text" = "text"),
-                                                   `Label outside` = c("Diamond" = "diamond", "Hexagon" = "hexagon","Dot" = "dot", "Square" = "square")),
-                                    selected = c("Dot" = "dot"),
-                                    width = "85%"
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
               )
-            )
-          ),
-          column(
-            width = 4,
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = "100%",
-              height = "500px",
-              h3(p("Edges"), style = "color:white; position:relative; right:-15px"),
-              hr(),
-              fluidRow(
-                column(
-                  width = 6,
+            ),
+            column(
+              width = 4,
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                height = "500px",
+                h3(p("Nodes"), style = "color:white; position:relative; right:-15px"),
+                hr(),
+                fluidRow(
                   column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Label"), style = "color:white;")
-                  ),
-                  column(
-                    width = 12,
-                    align = "center",
-                    div(
-                      class = "label_sel",
-                      selectInput(
-                        "mst_edge_label",
-                        label = "",
-                        choices = c(
-                          `Allelic Distance` = "weight",
-                          Index = "index",
-                          `Assembly ID` = "assembly_id",
-                          `Assembly Name` = "assembly_name",
-                          `Isolation Date` = "isolation_date",
-                          Host = "host",
-                          Country = "country",
-                          City = "city"
-                        ),
-                        selected = c(`Allelic Distance` = "weight"),
-                        width = "100%"
-                      )
+                    width = 6,
+                    column(
+                      width = 12,
+                      align = "left",
+                      h4(p("Label"), style = "color:white;")
                     ),
-                    fluidRow(
-                      column(
-                        width = 7,
-                        colorPickr(
-                          inputId = "mst_edge_font_color",
-                          width = "100%",
-                          selected = "#000000",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        )
+                    column(
+                      width = 12,
+                      align = "center",
+                      div(
+                        class = "label_sel",
+                        uiOutput("mst_node_label")
                       ),
-                      column(
-                        width = 5,
-                        dropMenu(
-                          actionBttn(
-                            "mst_edgelabel_menu",
+                      fluidRow(
+                        column(
+                          width = 7,
+                          colorPickr(
+                            inputId = "node_font_color",
+                            width = "100%",
+                            selected = "#000000",
                             label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-start",
-                          theme = "translucent",
+                            update = "changestop",
+                            interaction = list(clear = FALSE,
+                                               save = FALSE),
+                            position = "right-start"
+                          )
+                        ),
+                        column(
                           width = 5,
-                          numericInput(
-                            "mst_edge_font_size",
-                            label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                            value = 18,
-                            step = 1,
-                            min = 8,
-                            max = 30,
-                            width = "80px"
-                          )
-                        )
-                      )
-                    ),
-                    br()
-                  )
-                ),
-                column(
-                  width = 6,
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Color"), style = "color:white; position: relative; right: -15px"),
-                      column(
-                        width = 12,
-                        align = "center",
-                        fluidRow(
-                          column(
-                            width = 7,
-                            div(
-                              class = "node_color",
-                              colorPickr(
-                                inputId = "mst_color_edge",
-                                width = "100%",
-                                selected = "#000000",
-                                label = "",
-                                update = "changestop",
-                                interaction = list(clear = FALSE,
-                                                   save = FALSE),
-                                position = "right-start"
-                              )
-                            )
-                          ),
-                          column(
-                            width = 5,
-                            dropMenu(
-                              actionBttn(
-                                "mst_edgecolor_menu",
-                                label = "",
-                                color = "default",
-                                size = "sm",
-                                style = "material-flat",
-                                icon = icon("sliders")
-                              ),
-                              placement = "top-start",
-                              theme = "translucent",
-                              width = 5,
-                              sliderInput(
-                                "mst_edge_opacity",
-                                label = h5("Opacity", style = "color:white; margin-bottom: 0px;"),
-                                value = 0.7,
-                                step = 0.1,
-                                min = 0,
-                                max = 1,
-                                ticks = FALSE,
-                                width = "150px"
-                              )
+                          dropMenu(
+                            actionBttn(
+                              "mst_label_menu",
+                              label = "",
+                              color = "default",
+                              size = "sm",
+                              style = "material-flat",
+                              icon = icon("sliders")
+                            ),
+                            placement = "top-start",
+                            theme = "translucent",
+                            numericInput(
+                              "node_label_fontsize",
+                              label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                              value = 14,
+                              min = 8,
+                              max = 30,
+                              step = 1,
+                              width = "80px"
                             )
                           )
                         )
                       )
-                    )
-                  )
-                )
-              ),
-              hr(style = "margin-top: 3px !important"),
-              fluidRow(
-                column(
-                  width = 12,
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Length multiplier"), style = "color:white; position: relative; right: -15px; margin-bottom: -5px")
                     )
                   ),
                   column(
                     width = 6,
-                    align = "left",
-                    br(),
-                    div(
-                      class = "switch-mst-edges",
-                      materialSwitch(
-                        "mst_scale_edges",
-                        h5(p("Scale Allelic Distance"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                        value = FALSE,
-                        right = TRUE
-                      )
-                    ),
                     fluidRow(
                       column(
-                        width = 3,
+                        width = 12,
                         align = "left",
-                        conditionalPanel(
-                          "input.mst_scale_edges==true",
-                          HTML(
-                            paste(
-                              tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Multiplier')
+                        h4(p("Color"), style = "color:white; position: relative; right: -15px"),
+                        column(
+                          width = 12,
+                          align = "center",
+                          fluidRow(
+                            column(
+                              width = 10,
+                              align = "left",
+                              div(
+                                class = "mat-switch-mst-nodes",
+                                materialSwitch(
+                                  "mst_color_var",
+                                  h5(p("Add Variable"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                  value = FALSE,
+                                  right = TRUE
+                                )
+                              )
+                            ),
+                            column(
+                              width = 2,
+                              bslib::tooltip(
+                                bsicons::bs_icon("info-circle", title = "Only categorical variables can \nbe mapped to the node color.", color = "white", 
+                                                 height = "12px", width = "12px", position = "relative", top = "27px", right = "56px"),
+                                "Text shown in the tooltip.",
+                                show = FALSE,
+                                id = "mst_node_col_info"
+                              )
+                            )
+                          ),
+                          uiOutput("mst_color_mapping")
+                        )
+                      )
+                    ), br()
+                  )
+                ),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 6,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p("Size"), style = "color:white; position: relative; right: -15px"),
+                        column(
+                          width = 12,
+                          align = "center",
+                          fluidRow(
+                            column(
+                              width = 12,
+                              align = "left",
+                              div(
+                                class = "mat-switch-mst-nodes",
+                                materialSwitch(
+                                  "scale_nodes",
+                                  h5(p("Scale by Duplicates"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                  value = TRUE,
+                                  right = TRUE
+                                )
+                              )
+                            )
+                          )
+                        )
+                      )
+                    ),
+                    column(
+                      width = 12,
+                      align = "left",
+                      fluidRow(
+                        column(
+                          width = 3,
+                          align = "left",
+                          conditionalPanel(
+                            "input.scale_nodes==true",
+                            HTML(
+                              paste(
+                                tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Range')
+                              )
+                            )
+                          ),
+                          conditionalPanel(
+                            "input.scale_nodes==false",
+                            HTML(
+                              paste(
+                                tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Size')
+                              )
                             )
                           )
                         ),
-                        conditionalPanel(
-                          "input.mst_scale_edges==false",
-                          HTML(
-                            paste(
-                              tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Length')
+                        column(
+                          width = 9,
+                          align = "center",
+                          conditionalPanel(
+                            "input.scale_nodes==true",
+                            div(
+                              class = "mst_scale_slider",
+                              sliderInput(
+                                "mst_node_scale",
+                                label = "",
+                                min = 1,
+                                max = 80,
+                                value = c(20, 40),
+                                ticks = FALSE
+                              )
+                            )
+                          ),
+                          conditionalPanel(
+                            "input.scale_nodes==false",
+                            div(
+                              class = "mst_scale_slider",
+                              sliderInput(
+                                inputId = "mst_node_size",
+                                label = "",
+                                min = 1,
+                                max = 100,
+                                value = 30,
+                                ticks = FALSE
+                              ) 
                             )
                           )
                         )
                       ),
+                      br()
+                    )
+                  ),
+                  column(
+                    width = 6,
+                    fluidRow(
                       column(
-                        width = 9,
-                        align = "center",
-                        conditionalPanel(
-                          "input.mst_scale_edges==true",
-                          div(
-                            class = "slider_edge",
-                            sliderInput(
-                              inputId = "mst_edge_length_scale",
-                              label = NULL,
-                              min = 1,
-                              max = 40,
-                              value = 15,
-                              ticks = FALSE
-                            ) 
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.mst_scale_edges==false",
-                          div(
-                            class = "slider_edge",
-                            sliderTextInput(
-                              inputId = "mst_edge_length",
-                              label = NULL,
-                              choices = append(seq(0.1, 1, 0.1), 2:100),
-                              selected = 35,
-                              hide_min_max = FALSE
-                            ) 
+                        width = 12,
+                        align = "left",
+                        h4(p("Other Elements"), style = "color:white; position: relative; right: -15px"),
+                        column(
+                          width = 12,
+                          align = "center",
+                          fluidRow(
+                            column(
+                              width = 12,
+                              align = "left",
+                              div(
+                                class = "mat-switch-mst-nodes",
+                                materialSwitch(
+                                  "mst_shadow",
+                                  h5(p("Show Shadow"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                  value = TRUE,
+                                  right = TRUE
+                                )
+                              ),
+                              fluidRow(
+                                column(
+                                  width = 3,
+                                  align = "left",
+                                  HTML(
+                                    paste(
+                                      tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Shape')
+                                    )
+                                  )
+                                ),
+                                column(
+                                  width = 9,
+                                  align = "center",
+                                  div(
+                                    class = "mst_shape_sel",
+                                    selectInput(
+                                      "mst_node_shape",
+                                      "",
+                                      choices = list(`Label inside` = c("Circle" = "circle", "Box" = "box", "Text" = "text"),
+                                                     `Label outside` = c("Diamond" = "diamond", "Hexagon" = "hexagon","Dot" = "dot", "Square" = "square")),
+                                      selected = c("Dot" = "dot"),
+                                      width = "85%"
+                                    )
+                                  )
+                                )
+                              )
+                            )
                           )
                         )
                       )
@@ -1594,10 +1372,232 @@ ui <- dashboardPage(
                   )
                 )
               )
-            ), br(), br(), br(), br(), br(), br()
+            ),
+            column(
+              width = 4,
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                height = "500px",
+                h3(p("Edges"), style = "color:white; position:relative; right:-15px"),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 6,
+                    column(
+                      width = 12,
+                      align = "left",
+                      h4(p("Label"), style = "color:white;")
+                    ),
+                    column(
+                      width = 12,
+                      align = "center",
+                      div(
+                        class = "label_sel",
+                        selectInput(
+                          "mst_edge_label",
+                          label = "",
+                          choices = c(
+                            `Allelic Distance` = "weight",
+                            Index = "index",
+                            `Assembly ID` = "assembly_id",
+                            `Assembly Name` = "assembly_name",
+                            `Isolation Date` = "isolation_date",
+                            Host = "host",
+                            Country = "country",
+                            City = "city"
+                          ),
+                          selected = c(`Allelic Distance` = "weight"),
+                          width = "100%"
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 7,
+                          colorPickr(
+                            inputId = "mst_edge_font_color",
+                            width = "100%",
+                            selected = "#000000",
+                            label = "",
+                            update = "changestop",
+                            interaction = list(clear = FALSE,
+                                               save = FALSE),
+                            position = "right-start"
+                          )
+                        ),
+                        column(
+                          width = 5,
+                          dropMenu(
+                            actionBttn(
+                              "mst_edgelabel_menu",
+                              label = "",
+                              color = "default",
+                              size = "sm",
+                              style = "material-flat",
+                              icon = icon("sliders")
+                            ),
+                            placement = "top-start",
+                            theme = "translucent",
+                            width = 5,
+                            numericInput(
+                              "mst_edge_font_size",
+                              label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                              value = 18,
+                              step = 1,
+                              min = 8,
+                              max = 30,
+                              width = "80px"
+                            )
+                          )
+                        )
+                      ),
+                      br()
+                    )
+                  ),
+                  column(
+                    width = 6,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p("Color"), style = "color:white; position: relative; right: -15px"),
+                        column(
+                          width = 12,
+                          align = "center",
+                          fluidRow(
+                            column(
+                              width = 7,
+                              div(
+                                class = "node_color",
+                                colorPickr(
+                                  inputId = "mst_color_edge",
+                                  width = "100%",
+                                  selected = "#000000",
+                                  label = "",
+                                  update = "changestop",
+                                  interaction = list(clear = FALSE,
+                                                     save = FALSE),
+                                  position = "right-start"
+                                )
+                              )
+                            ),
+                            column(
+                              width = 5,
+                              dropMenu(
+                                actionBttn(
+                                  "mst_edgecolor_menu",
+                                  label = "",
+                                  color = "default",
+                                  size = "sm",
+                                  style = "material-flat",
+                                  icon = icon("sliders")
+                                ),
+                                placement = "top-start",
+                                theme = "translucent",
+                                width = 5,
+                                sliderInput(
+                                  "mst_edge_opacity",
+                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px;"),
+                                  value = 0.7,
+                                  step = 0.1,
+                                  min = 0,
+                                  max = 1,
+                                  ticks = FALSE,
+                                  width = "150px"
+                                )
+                              )
+                            )
+                          )
+                        )
+                      )
+                    )
+                  )
+                ),
+                hr(style = "margin-top: 3px !important"),
+                fluidRow(
+                  column(
+                    width = 12,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p("Length multiplier"), style = "color:white; position: relative; right: -15px; margin-bottom: -5px")
+                      )
+                    ),
+                    column(
+                      width = 6,
+                      align = "left",
+                      br(),
+                      div(
+                        class = "switch-mst-edges",
+                        materialSwitch(
+                          "mst_scale_edges",
+                          h5(p("Scale Allelic Distance"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                          value = FALSE,
+                          right = TRUE
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 3,
+                          align = "left",
+                          conditionalPanel(
+                            "input.mst_scale_edges==true",
+                            HTML(
+                              paste(
+                                tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Multiplier')
+                              )
+                            )
+                          ),
+                          conditionalPanel(
+                            "input.mst_scale_edges==false",
+                            HTML(
+                              paste(
+                                tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Length')
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 9,
+                          align = "center",
+                          conditionalPanel(
+                            "input.mst_scale_edges==true",
+                            div(
+                              class = "slider_edge",
+                              sliderInput(
+                                inputId = "mst_edge_length_scale",
+                                label = NULL,
+                                min = 1,
+                                max = 40,
+                                value = 15,
+                                ticks = FALSE
+                              ) 
+                            )
+                          ),
+                          conditionalPanel(
+                            "input.mst_scale_edges==false",
+                            div(
+                              class = "slider_edge",
+                              sliderTextInput(
+                                inputId = "mst_edge_length",
+                                label = NULL,
+                                choices = append(seq(0.1, 1, 0.1), 2:100),
+                                selected = 35,
+                                hide_min_max = FALSE
+                              ) 
+                            )
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              ), br(), br(), br(), br(), br(), br()
+            )
           )
-        )
-      ),
+        ),
         
         ### Control Panels NJ ----
         
@@ -5487,7 +5487,7 @@ ui <- dashboardPage(
 
 server <- function(input, output, session) {
   
-  phylotraceVersion <- paste("PhyloTrace-1.4.1", Sys.Date())
+  phylotraceVersion <- paste("1.4.1")
   
   # Kill server on session end
   session$onSessionEnded( function() {
@@ -7060,74 +7060,64 @@ server <- function(input, output, session) {
                         fluidRow(
                           column(
                             width = 12,
-                            align = "left",
-                            br(),
-                            HTML(
-                              paste(
-                                tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Save Plot")
+                            column(
+                              width = 5,
+                              align = "left",
+                              conditionalPanel(
+                                "input.mst_plot_format=='jpeg'",
+                                actionBttn(
+                                  "save_plot_jpeg",
+                                  style = "simple",
+                                  label = "Save Plot",
+                                  size = "sm",
+                                  icon = NULL,
+                                  color = "primary"
+                                )  
+                              ),
+                              conditionalPanel(
+                                "input.mst_plot_format=='png'",
+                                actionBttn(
+                                  "save_plot_png",
+                                  style = "simple",
+                                  label = "Save Plot",
+                                  size = "sm",
+                                  icon = NULL,
+                                  color = "primary"
+                                )
+                              ),
+                              conditionalPanel(
+                                "input.mst_plot_format=='bmp'",
+                                actionBttn(
+                                  "save_plot_bmp",
+                                  style = "simple",
+                                  label = "Save Plot",
+                                  size = "sm",
+                                  icon = NULL,
+                                  color = "primary"
+                                )  
+                              ),
+                              conditionalPanel(
+                                "input.mst_plot_format=='html'",
+                                downloadBttn(
+                                  "save_plot_html",
+                                  style = "simple",
+                                  label = "Save Plot",
+                                  size = "sm",
+                                  icon = NULL,
+                                  color = "primary"
+                                )
                               )
-                            )
-                          )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 8,
-                            div(
-                              style = "max-width: 150px",
-                              class = "format",
-                              selectInput(
-                                inputId = "mst_plot_format",
-                                label = "",
-                                choices = c("html", 
-                                            "jpeg", "png", "bmp")
-                              )
-                            )
-                          ),
-                          column(
-                            width = 4,
-                            align = "left",
-                            conditionalPanel(
-                              "input.mst_plot_format=='jpeg'",
-                              actionBttn(
-                                "save_plot_jpeg",
-                                style = "simple",
-                                label = "",
-                                size = "sm",
-                                icon = icon("download"),
-                                color = "primary"
-                              )  
                             ),
-                            conditionalPanel(
-                              "input.mst_plot_format=='png'",
-                              actionBttn(
-                                "save_plot_png",
-                                style = "simple",
-                                label = "",
-                                size = "sm",
-                                icon = icon("download"),
-                                color = "primary"
-                              )
-                            ),
-                            conditionalPanel(
-                              "input.mst_plot_format=='bmp'",
-                              actionBttn(
-                                "save_plot_bmp",
-                                style = "simple",
-                                label = "",
-                                size = "sm",
-                                icon = icon("download"),
-                                color = "primary"
-                              )  
-                            ),
-                            conditionalPanel(
-                              "input.mst_plot_format=='html'",
-                              downloadBttn(
-                                "save_plot_html",
-                                style = "simple",
-                                label = "",
-                                size = "sm",
-                                icon = icon("download"),
-                                color = "primary"
+                            column(
+                              width = 7,
+                              div(
+                                style = "max-width: 150px",
+                                class = "format",
+                                selectInput(
+                                  inputId = "mst_plot_format",
+                                  label = "",
+                                  choices = c("html", "jpeg", "png", "bmp")
+                                )
                               )
                             )
                           )
@@ -7138,38 +7128,29 @@ server <- function(input, output, session) {
                         fluidRow(
                           column(
                             width = 12,
-                            align = "left",
-                            br(),
-                            HTML(
-                              paste(
-                                tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Save Plot")
+                            column(
+                              width = 5,
+                              align = "left",
+                              downloadBttn(
+                                "download_nj",
+                                style = "simple",
+                                label = "Save Plot",
+                                size = "sm",
+                                icon = NULL,
+                                color = "primary"
                               )
-                            )
-                          )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 8,
-                            div(
-                              style = "max-width: 150px",
-                              class = "format",
-                              selectInput(
-                                inputId = "filetype_nj",
-                                label = "",
-                                choices = c("png", "jpeg", "bmp", "svg")
+                            ),
+                            column(
+                              width = 7,
+                              div(
+                                style = "max-width: 150px",
+                                class = "format",
+                                selectInput(
+                                  inputId = "filetype_nj",
+                                  label = "",
+                                  choices = c("png", "jpeg", "bmp", "svg")
+                                )
                               )
-                            )
-                          ),
-                          column(
-                            width = 4,
-                            align = "left",
-                            downloadBttn(
-                              "download_nj",
-                              style = "simple",
-                              label = "",
-                              size = "sm",
-                              icon = icon("download"),
-                              color = "primary"
                             )
                           )
                         )
@@ -7179,310 +7160,41 @@ server <- function(input, output, session) {
                         fluidRow(
                           column(
                             width = 12,
-                            align = "left",
-                            br(),
-                            HTML(
-                              paste(
-                                tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Save Plot")
+                            column(
+                              width = 5,
+                              align = "left",
+                              downloadBttn(
+                                "download_upgma",
+                                style = "simple",
+                                label = "Save Plot",
+                                size = "sm",
+                                icon = NULL,
+                                color = "primary"
                               )
-                            )
-                          )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 8,
-                            div(
-                              style = "max-width: 150px",
-                              class = "format",
-                              selectInput(
-                                inputId = "filetype_upgma",
-                                label = "",
-                                choices = c("png", "jpeg", "bmp", "svg")
+                            ),
+                            column(
+                              width = 7,
+                              div(
+                                style = "max-width: 150px",
+                                class = "format",
+                                selectInput(
+                                  inputId = "filetype_upgma",
+                                  label = "",
+                                  choices = c("png", "jpeg", "bmp", "svg")
+                                )
                               )
-                            )
-                          ),
-                          column(
-                            width = 4,
-                            align = "left",
-                            downloadBttn(
-                              "download_upgma",
-                              style = "simple",
-                              label = "",
-                              size = "sm",
-                              icon = icon("download"),
-                              color = "primary"
                             )
                           )
                         )
                       ),
-                      br(),
-                      hr(),
                       fluidRow(
                         column(
-                          width = 12,
+                          width = 6,
                           align = "left",
                           br(),
-                          HTML(
-                            paste(
-                              tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Download Report")
-                            )
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 8,
-                          align = "left",
-                          checkboxInput(
-                            "rep_entrytable",
-                            label = h5("Entry table", style = "color:white; position: absolute; top: -6px"),
-                            value = TRUE
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 6,
-                          align = "left",
-                          checkboxInput(
-                            "rep_general",
-                            label = h5("General", style = "color:white; position: absolute; top: -23px"),
-                            value = TRUE
-                          )
-                        ),
-                        column(
-                          width = 4,
-                          align = "left",
-                          dropMenu(
-                            actionBttn(
-                              "mst_general_menu",
-                              label = "",
-                              color = "default",
-                              size = "sm",
-                              style = "material-flat",
-                              icon = icon("pen-to-square")
-                            ),
-                            placement = "top-start",
-                            padding = "20px",
-                            theme = "translucent",
-                            fluidRow(
-                              column(
-                                width = 3,
-                                checkboxInput(
-                                  "rep_date_general", 
-                                  label = h5("Date", style = "color:white; font-size: 17px; margin-top: 16px;"),
-                                  value = TRUE
-                                )
-                              ),
-                              column(
-                                width = 7,
-                                dateInput(
-                                  "mst_date_general_select",
-                                  "",
-                                  format = "mm/dd/yyyy",
-                                  max = Sys.Date()
-                                )
-                              )
-                            ),
-                            fluidRow(
-                              column(
-                                width = 3,
-                                checkboxInput(
-                                  "rep_operator_general", 
-                                  label = h5("Operator", style = "color:white; font-size: 17px; margin-top: -1px;"),
-                                  value = TRUE
-                                )
-                              ),
-                              column(
-                                width = 8,
-                                textInput(
-                                  "mst_operator_general_select",
-                                  ""
-                                ) 
-                              )
-                            ),
-                            fluidRow(
-                              column(
-                                width = 3,
-                                checkboxInput(
-                                  "rep_institute_general", 
-                                  label = h5("Institute", style = "color:white; font-size: 17px; margin-top: -1px;"),
-                                  value = TRUE
-                                )
-                              ),
-                              column(
-                                width = 8,
-                                textInput(
-                                  "mst_institute_general_select",
-                                  ""
-                                ) 
-                              )
-                            ),
-                            fluidRow(
-                              column(
-                                width = 3,
-                                checkboxInput(
-                                  "rep_comm_general", 
-                                  label = h5("Comment", style = "color:white; font-size: 17px; margin-top: -1px;")
-                                )
-                              ),
-                              column(
-                                width = 8,
-                                textAreaInput(
-                                  inputId = "mst_comm_general_select",
-                                  label = "",
-                                  width = "100%",
-                                  height = "60px",
-                                  cols = NULL,
-                                  rows = NULL,
-                                  placeholder = NULL,
-                                  resize = "vertical"
-                                ) 
-                              )
-                            )
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 6,
-                          align = "left",
-                          checkboxInput(
-                            "rep_analysis",
-                            label = h5("Analysis", style = "color:white; position: absolute; top: -42px"),
-                            value = TRUE
-                          )
-                        ),
-                        column(
-                          width = 4,
-                          align = "left",
-                          dropMenu(
-                            actionBttn(
-                              "mst_analysis_menu",
-                              label = "",
-                              color = "default",
-                              size = "sm",
-                              style = "material-flat",
-                              icon = icon("pen-to-square")
-                            ),
-                            placement = "top-start",
-                            padding = "20px",
-                            theme = "translucent",
-                            fluidRow(
-                              column(
-                                width = 4,
-                                checkboxInput(
-                                  "rep_cgmlst_analysis",
-                                  label = h5("Scheme", style = "color:white; font-size: 17px; margin-top: 18px"),
-                                  value = TRUE
-                                )
-                              ),
-                              column(
-                                width = 8,
-                                align = "right"
-                              )
-                            ),
-                            fluidRow(
-                              column(
-                                width = 4,
-                                checkboxInput(
-                                  "rep_tree_analysis",
-                                  label = h5("Tree", style = "color:white; font-size: 17px; margin-top: -1px"),
-                                  value = TRUE
-                                )
-                              ),
-                              column(
-                                width = 6,
-                                align = "right",
-                                HTML(
-                                  paste(
-                                    tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Tree algorithm')
-                                  )
-                                )
-                              )
-                            ),
-                            fluidRow(
-                              column(
-                                width = 4,
-                                checkboxInput(
-                                  "rep_distance",
-                                  label = h5("Distance", style = "color:white; font-size: 17px; margin-top: -1px"),
-                                  value = TRUE
-                                )
-                              ),
-                              column(
-                                width = 6,
-                                align = "right",
-                                HTML(
-                                  paste(
-                                    tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Distance algorithm')
-                                  )
-                                )
-                              )
-                            ),
-                            fluidRow(
-                              column(
-                                width = 7,
-                                align = "left",
-                                checkboxInput(
-                                  "rep_missval",
-                                  label = h5("NA handling", style = "color:white; font-size: 17px; margin-top: -1px"),
-                                  value = TRUE
-                                )
-                              ),
-                              column(
-                                width = 5,
-                                align = "right",
-                                HTML(
-                                  paste(
-                                    tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: 31px', 'Missing values')
-                                  )
-                                )
-                              )
-                            ),
-                            fluidRow(
-                              column(
-                                width = 4,
-                                checkboxInput(
-                                  "rep_version",
-                                  label = h5("Version", style = "color:white; font-size: 17px; margin-top: -1px"),
-                                  value = TRUE
-                                )
-                              ),
-                              column(
-                                width = 6,
-                                align = "right",
-                                HTML(
-                                  paste(
-                                    tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Version info')
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 8,
-                          align = "left",
-                          checkboxInput(
-                            "rep_plot_report",
-                            label = h5("Attach plot", style = "color:white; position: absolute; top: -61px"),
-                            value = TRUE
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 12,
-                          align = "left",
-                          downloadBttn(
-                            "download_report",
-                            style = "simple",
-                            label = "Save",
-                            size = "sm",
-                            icon = icon("download")
+                          actionButton(
+                            "create_rep",
+                            "Print Report"
                           )
                         )
                       )
@@ -8702,40 +8414,40 @@ server <- function(input, output, session) {
                 
                 # Render delete entry box UI
                 output$delete_box <- renderUI({
-                    box(
-                      solidHeader = TRUE,
-                      status = "primary",
-                      width = "100%",
-                      fluidRow(
-                        column(
-                          width = 12,
-                          align = "center",
-                          h3(p("Delete Entries"), style = "color:white")
-                        )
+                  box(
+                    solidHeader = TRUE,
+                    status = "primary",
+                    width = "100%",
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        h3(p("Delete Entries"), style = "color:white")
+                      )
+                    ),
+                    hr(),
+                    fluidRow(
+                      column(
+                        width = 2,
+                        offset = 1,
+                        align = "right",
+                        br(),
+                        h5("Index", style = "color:white; margin-bottom: 0px;")
                       ),
-                      hr(),
-                      fluidRow(
-                        column(
-                          width = 2,
-                          offset = 1,
-                          align = "right",
-                          br(),
-                          h5("Index", style = "color:white; margin-bottom: 0px;")
-                        ),
-                        column(
-                          width = 6,
-                          align = "center",
-                          uiOutput("delete_select")
-                        ),
-                        column(
-                          width = 2,
-                          align = "center",
-                          br(),
-                          uiOutput("del_bttn")
-                        )
+                      column(
+                        width = 6,
+                        align = "center",
+                        uiOutput("delete_select")
                       ),
-                      br()
-                    )
+                      column(
+                        width = 2,
+                        align = "center",
+                        br(),
+                        uiOutput("del_bttn")
+                      )
+                    ),
+                    br()
+                  )
                 })
                 
                 # Render loci comparison box UI
@@ -9559,7 +9271,7 @@ server <- function(input, output, session) {
                            "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
                            "}"
                          ))
-          )
+        )
         
         output$loci_header <- renderUI(h3(p("Loci"), style = "color:white"))
         
@@ -9628,10 +9340,6 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
-    log_message(out, message = DB$database)
-    log_message(out, message = DB$scheme)
-    log_message(out, message = DB$data[1, 1])
-    log_message(out, message = DB$check_new_entries)
     log_message(out, message = "Input reload_db")
     
     if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
@@ -10373,7 +10081,7 @@ server <- function(input, output, session) {
       }
     }
   })
-   
+  
   DB$count <- 0
   
   observeEvent(input$add_new_variable, {
@@ -11417,11 +11125,7 @@ server <- function(input, output, session) {
     )
   })
   
-  
-  
   # Download Target Info (CSV Table)
-  
-  
   output$cgmlst_scheme <- renderTable({
     scheme_overview <- read_html(Scheme$link_scheme) %>%
       html_table(header = FALSE) %>%
@@ -17264,13 +16968,13 @@ server <- function(input, output, session) {
       
       if(is.null(input$mst_col_scale)) {
         Typing$var_cols <- data.frame(value = unique(DB$meta_true[[input$mst_col_var]]),
-                               color = viridis(length(unique(DB$meta_true[[input$mst_col_var]]))))
+                                      color = viridis(length(unique(DB$meta_true[[input$mst_col_var]]))))
       } else if (input$mst_col_scale == "Rainbow") {
         Typing$var_cols <- data.frame(value = unique(DB$meta_true[[input$mst_col_var]]),
-                               color = rainbow(length(unique(DB$meta_true[[input$mst_col_var]]))))
+                                      color = rainbow(length(unique(DB$meta_true[[input$mst_col_var]]))))
       } else if (input$mst_col_scale == "Viridis") {
         Typing$var_cols <- data.frame(value = unique(DB$meta_true[[input$mst_col_var]]),
-                               color = viridis(length(unique(DB$meta_true[[input$mst_col_var]]))))
+                                      color = viridis(length(unique(DB$meta_true[[input$mst_col_var]]))))
       }
       
       for(i in 1:nrow(data$nodes)) {
@@ -17605,6 +17309,8 @@ server <- function(input, output, session) {
                                           scale = input$nj_zoom,
                                           hjust = input$nj_h,
                                           vjust = input$nj_v)  
+      
+      Typing$nj_true <- TRUE
       
       # Correct background color if zoomed out
       cowplot::ggdraw(Vis$nj_plot) + 
@@ -20332,7 +20038,6 @@ server <- function(input, output, session) {
     }
   )
   
-  
   ### Reactive Events ----
   
   # Shut off "Align Labels" control for UPGMA trees
@@ -20991,6 +20696,8 @@ server <- function(input, output, session) {
             output$tree_nj <- renderPlot({
               nj_tree()
             })
+            
+            Typing$nj_true <- TRUE
           }
         } else if (input$tree_algo == "UPGMA") {
           
@@ -21145,6 +20852,8 @@ server <- function(input, output, session) {
             output$tree_upgma <- renderPlot({
               upgma_tree()
             })
+            
+            Typing$upgma_true <- TRUE
           }
         } else {
           
@@ -21184,6 +20893,8 @@ server <- function(input, output, session) {
           output$tree_mst <- renderVisNetwork({
             mst_tree()
           })
+          
+          Typing$mst_true <- TRUE
         }
       }
     }
@@ -21206,6 +20917,452 @@ server <- function(input, output, session) {
     }
   })
   
+  ### Report creation UI ----
+  
+  observeEvent(input$create_rep, {
+    
+    if((input$tree_algo == "Minimum-Spanning" & isTRUE(Typing$mst_true)) |
+       (input$tree_algo == "UPGMA" & isTRUE(Typing$upgma_true)) |
+       (input$tree_algo == "Neighbour-Joining" & isTRUE(Typing$nj_true))) {
+      # Get currently selected missing value handling option
+      if(input$na_handling == "ignore_na") {
+        na_handling <- "Ignore missing values for pairwise comparison"
+      } else if(input$na_handling == "omit") {
+        na_handling <- "Omit loci with missing values for all assemblies"
+      } else if(input$na_handling == "category") {
+        na_handling <- "Treat missing values as allele variant"
+      }
+      
+      extra_var <- character()
+      if(input$tree_algo == "Minimum-Spanning") {
+        shinyjs::runjs("mstReport();")
+        if(isTRUE(input$mst_color_var)) {
+          extra_var <- c(extra_var, input$mst_col_var)
+        }
+      } else if(input$tree_algo == "Neighbour-Joining") {
+        if(isTRUE(input$nj_mapping_show)) {
+          extra_var <- c(extra_var, input$nj_color_mapping)
+        }
+        if(isTRUE(input$nj_tipcolor_mapping_show)) {
+          extra_var <- c(extra_var, input$nj_tipcolor_mapping)
+        }
+        if(isTRUE(input$nj_tipshape_mapping_show)) {
+          extra_var <- c(extra_var, input$nj_tipshape_mapping)
+        }
+        if(isTRUE(input$nj_tiles_show_1)) {
+          extra_var <- c(extra_var, input$nj_fruit_variable)
+        }
+        if(isTRUE(input$nj_tiles_show_2)) {
+          extra_var <- c(extra_var, input$nj_fruit_variable_2)
+        }
+        if(isTRUE(input$nj_tiles_show_3)) {
+          extra_var <- c(extra_var, input$nj_fruit_variable_3)
+        }
+        if(isTRUE(input$nj_tiles_show_4)) {
+          extra_var <- c(extra_var, input$nj_fruit_variable_4)
+        }
+        if(isTRUE(input$nj_tiles_show_5)) {
+          extra_var <- c(extra_var, input$nj_fruit_variable_5)
+        }
+        if(isTRUE(input$nj_heatmap_show)) {
+          extra_var <- c(extra_var, input$nj_heatmap_select)
+        }
+      } else if(input$tree_algo == "UPGMA") {
+        if(isTRUE(input$UPGMA_mapping_show)) {
+          extra_var <- c(extra_var, input$UPGMA_color_mapping)
+        }
+        if(isTRUE(input$UPGMA_tipcolor_mapping_show)) {
+          extra_var <- c(extra_var, input$UPGMA_tipcolor_mapping)
+        }
+        if(isTRUE(input$UPGMA_tipshape_mapping_show)) {
+          extra_var <- c(extra_var, input$UPGMA_tipshape_mapping)
+        }
+        if(isTRUE(input$UPGMA_tiles_show_1)) {
+          extra_var <- c(extra_var, input$UPGMA_fruit_variable)
+        }
+        if(isTRUE(input$UPGMA_tiles_show_2)) {
+          extra_var <- c(extra_var, input$UPGMA_fruit_variable_2)
+        }
+        if(isTRUE(input$UPGMA_tiles_show_3)) {
+          extra_var <- c(extra_var, input$UPGMA_fruit_variable_3)
+        }
+        if(isTRUE(input$UPGMA_tiles_show_4)) {
+          extra_var <- c(extra_var, input$UPGMA_fruit_variable_4)
+        }
+        if(isTRUE(input$UPGMA_tiles_show_5)) {
+          extra_var <- c(extra_var, input$UPGMA_fruit_variable_5)
+        }
+        if(isTRUE(input$UPGMA_heatmap_show)) {
+          extra_var <- c(extra_var, input$UPGMA_heatmap_select)
+        }
+      }
+      
+      showModal(
+        modalDialog(
+          fluidRow(
+            column(
+              width = 12,
+              fluidRow(
+                column(
+                  width = 4,
+                  align = "left",
+                  HTML(
+                    paste(
+                      tags$span(style='color:black; font-size: 15px; font-weight: 900', 'General')
+                    )
+                  )
+                ),
+                column(
+                  width = 3,
+                  align = "left",
+                  checkboxInput(
+                    "rep_general",
+                    label = "",
+                    value = TRUE
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 12,
+                  align = "left",
+                  fluidRow(
+                    column(
+                      width = 3,
+                      checkboxInput(
+                        "rep_date_general", 
+                        label = h5("Date", style = "color:black;"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 7,
+                      dateInput(
+                        "mst_date_general_select",
+                        "",
+                        max = Sys.Date()
+                      )
+                    )
+                  ),
+                  fluidRow(
+                    column(
+                      width = 3,
+                      checkboxInput(
+                        "rep_operator_general", 
+                        label = h5("Operator", style = "color:black;"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 8,
+                      textInput(
+                        "mst_operator_general_select",
+                        ""
+                      ) 
+                    )
+                  ),
+                  fluidRow(
+                    column(
+                      width = 3,
+                      checkboxInput(
+                        "rep_institute_general", 
+                        label = h5("Institute", style = "color:black;"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 8,
+                      textInput(
+                        "mst_institute_general_select",
+                        ""
+                      ) 
+                    )
+                  ),
+                  fluidRow(
+                    column(
+                      width = 3,
+                      checkboxInput(
+                        "rep_comm_general", 
+                        label = h5("Comment", style = "color:black;")
+                      )
+                    ),
+                    column(
+                      width = 8,
+                      textAreaInput(
+                        inputId = "mst_comm_general_select",
+                        label = "",
+                        width = "100%",
+                        height = "60px",
+                        cols = NULL,
+                        rows = NULL,
+                        placeholder = NULL,
+                        resize = "vertical"
+                      ) 
+                    )
+                  )
+                )
+              ),
+              hr(),
+              fluidRow(
+                column(
+                  width = 4,
+                  align = "left",
+                  HTML(
+                    paste(
+                      tags$span(style='color: black; font-size: 15px; font-weight: 900', 'Isolate Table')
+                    )
+                  )
+                ),
+                column(
+                  width = 3,
+                  align = "left",
+                  checkboxInput(
+                    "rep_entrytable",
+                    label = "",
+                    value = TRUE
+                  )
+                ),
+                column(
+                  width = 4,
+                  align = "left",
+                  HTML(
+                    paste(
+                      tags$span(style='color: black; font-size: 15px; font-weight: 900', 'Include Plot')
+                    )
+                  )
+                ),
+                column(
+                  width = 1,
+                  align = "left",
+                  checkboxInput(
+                    "rep_plot_report",
+                    label = "",
+                    value = TRUE
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 6,
+                  align = "left",
+                  div(
+                    class = "rep_tab_sel",
+                    pickerInput("select_rep_tab",
+                                label = "",
+                                choices = names(DB$meta)[-2],
+                                selected = c("Assembly Name", "Scheme", "Isolation Date",
+                                             "Host", "Country", "City", extra_var),
+                                options = list(
+                                  size = 10,
+                                  `actions-box` = TRUE,
+                                  style = "background-color: white; border-radius: 5px;"
+                                ),
+                                multiple = TRUE)
+                  )
+                )
+              ),
+              hr(),
+              fluidRow(
+                column(
+                  width = 4,
+                  align = "left",
+                  HTML(
+                    paste(
+                      tags$span(style='color: black; font-size: 15px; font-weight: 900', 'Analysis Parameter')
+                    )
+                  )
+                ),
+                column(
+                  width = 3,
+                  align = "left",
+                  checkboxInput(
+                    "rep_analysis",
+                    label = "",
+                    value = TRUE
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 6,
+                  align = "left",
+                  fluidRow(
+                    column(
+                      width = 4,
+                      checkboxInput(
+                        "rep_cgmlst_analysis",
+                        label = h5("Scheme", style = "color:black;"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 8,
+                      align = "right",
+                      HTML(
+                        paste(
+                          tags$span(style='color: black; position: relative; top: 17px; font-style: italic', DB$scheme)
+                        )
+                      )
+                    )
+                  ),
+                  fluidRow(
+                    column(
+                      width = 4,
+                      checkboxInput(
+                        "rep_tree_analysis",
+                        label = h5("Tree", style = "color:black;"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 8,
+                      align = "right",
+                      HTML(
+                        paste(
+                          tags$span(style='color: black; position: relative; top: 17px; font-style: italic', input$tree_algo)
+                        )
+                      )
+                    )
+                  )
+                ),
+                column(
+                  width = 6,
+                  align = "left",
+                  fluidRow(
+                    column(2),
+                    column(
+                      width = 4,
+                      checkboxInput(
+                        "rep_distance",
+                        label = h5("Distance", style = "color:black;"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 5,
+                      align = "right",
+                      HTML(
+                        paste(
+                          tags$span(style='color: black; position: relative; top: 17px; font-style: italic', 'Hamming')
+                        )
+                      )
+                    )
+                  ),
+                  fluidRow(
+                    column(2),
+                    column(
+                      width = 4,
+                      checkboxInput(
+                        "rep_version",
+                        label = h5("Version", style = "color:black;"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 5,
+                      align = "right",
+                      HTML(
+                        paste(
+                          tags$span(style='color:black; position: relative; top: 17px; font-style: italic', phylotraceVersion)
+                        )
+                      )
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 3,
+                  align = "left",
+                  checkboxInput(
+                    "rep_missval",
+                    label = h5("NA handling", style = "color:black;"),
+                    value = TRUE
+                  )
+                ),
+                column(
+                  width = 7,
+                  align = "right",
+                  HTML(
+                    paste(
+                      tags$span(style='color: black; position: relative; top: 17px; font-style: italic; right: 35px;', na_handling)
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          title = "cgMLST Report Generation",
+          easyClose = TRUE,
+          footer = tagList(
+            modalButton("Cancel"),
+            downloadBttn(
+              "download_report",
+              style = "simple",
+              label = "Save",
+              size = "sm",
+              icon = icon("download")
+            )
+          )
+        )
+      )
+    } else {
+      show_toast(
+        title = "No tree created",
+        type = "error",
+        position = "top-end",
+        width = "500px",
+        timer = 6000
+      )
+    }
+  })
+  
+  observe({
+    if(!is.null(input$rep_general)) {
+      if(isFALSE(input$rep_general)) {
+        shinyjs::disable('rep_date_general') 
+        shinyjs::disable('rep_operator_general') 
+        shinyjs::disable('rep_institute_general') 
+        shinyjs::disable('rep_comm_general') 
+        shinyjs::disable('mst_date_general_select') 
+        shinyjs::disable('mst_operator_general_select') 
+        shinyjs::disable('mst_institute_general_select') 
+        shinyjs::disable('mst_comm_general_select') 
+      } else {
+        shinyjs::enable('rep_date_general') 
+        shinyjs::enable('rep_operator_general') 
+        shinyjs::enable('rep_institute_general') 
+        shinyjs::enable('rep_comm_general')
+        shinyjs::enable('mst_date_general_select') 
+        shinyjs::enable('mst_operator_general_select') 
+        shinyjs::enable('mst_institute_general_select') 
+        shinyjs::enable('mst_comm_general_select') 
+      }
+    }
+    
+    if(!is.null(input$rep_analysis)) {
+      if(isFALSE(input$rep_analysis)) {
+        shinyjs::disable('rep_cgmlst_analysis') 
+        shinyjs::disable('rep_tree_analysis') 
+        shinyjs::disable('rep_distance') 
+        shinyjs::disable('rep_missval') 
+        shinyjs::disable('rep_version') 
+      } else {
+        shinyjs::enable('rep_cgmlst_analysis') 
+        shinyjs::enable('rep_tree_analysis') 
+        shinyjs::enable('rep_distance') 
+        shinyjs::enable('rep_missval') 
+        shinyjs::enable('rep_version') 
+      }
+    }
+    
+    if(length(input$select_rep_tab) > 0) {
+      updateCheckboxInput(session, "rep_entrytable", value = TRUE)
+    } else {
+      updateCheckboxInput(session, "rep_entrytable", value = FALSE)
+    }
+  })
+  
   ### Save Report ----
   
   #### Get Report elements ----
@@ -21213,12 +21370,19 @@ server <- function(input, output, session) {
   observe({
     if(!is.null(DB$data)){
       if(!is.null(input$tree_algo)) {
+        req(c(input$rep_entrytable, input$rep_general,
+              input$rep_date_general, input$rep_operator_general,
+              input$rep_institute_general, input$rep_comm_general,
+              input$rep_analysis, input$rep_cgmlst_analysis,
+              input$rep_tree_analysis, input$rep_distance,
+              input$rep_missval, input$rep_version,
+              input$rep_plot_report, input$select_rep_tab))
         Report$report_df <- data.frame(Element = c("entry_table", "general_show",
                                                    "general_date", "operator",
                                                    "institute", "comment",
                                                    "analysis_show", "scheme",
                                                    "tree", "distance", "na_handling", "version",
-                                                   "plot"), 
+                                                   "plot"),
                                        Include = c(input$rep_entrytable, input$rep_general,
                                                    input$rep_date_general, input$rep_operator_general,
                                                    input$rep_institute_general, input$rep_comm_general,
@@ -21234,28 +21398,28 @@ server <- function(input, output, session) {
   
   observeEvent(input$create_tree, {
     if(input$tree_algo == "Minimum-Spanning") {
-      Report$report_list_mst <- list(entry_table = DB$meta_true[,1:12],
+      Report$report_list_mst <- list(entry_table = DB$meta_true,
                                      scheme = DB$schemeinfo, 
                                      tree = input$tree_algo,
                                      na_handling = if(anyNA(DB$allelic_profile_true)){input$na_handling} else {NULL},
                                      distance = "Hamming Distances",
-                                     version = c(phylotraceVersion, "blat-1.3.23"),
+                                     version = c(phylotraceVersion, "2.5.1"),
                                      plot = "MST")
     } else if(input$tree_algo == "Neighbour-Joining") {
-      Report$report_list_nj <- list(entry_table = DB$meta_true[,1:12],
+      Report$report_list_nj <- list(entry_table = DB$meta_true,
                                     scheme = DB$schemeinfo, 
                                     tree = input$tree_algo,
                                     na_handling = input$na_handling,
                                     distance = "Hamming Distances",
-                                    version = c(phylotraceVersion, "blat-1.3.23"),
+                                    version = c(phylotraceVersion, "2.5.1"),
                                     plot = "NJ")
     } else {
-      Report$report_list_upgma <- list(entry_table = DB$meta_true[,1:12],
+      Report$report_list_upgma <- list(entry_table = DB$meta_true,
                                        scheme = DB$schemeinfo, 
                                        tree = input$tree_algo,
                                        na_handling = input$na_handling,
                                        distance = "Hamming Distances",
-                                       version = c(phylotraceVersion, "blat-1.3.23"),
+                                       version = c(phylotraceVersion, "2.5.1"),
                                        plot = "UPGMA")
     }
   })
@@ -21266,10 +21430,14 @@ server <- function(input, output, session) {
       jpeg(paste0(getwd(), "/Report/NJ.jpeg"), width = (as.numeric(input$nj_scale) * as.numeric(input$nj_ratio)), height = as.numeric(input$nj_scale), quality = 100)
       print(nj_tree())
       dev.off()
-    } else {
+    } else if(input$tree_algo == "UPGMA") {
       jpeg(paste0(getwd(), "/Report/UPGMA.jpeg"), width = (as.numeric(input$upgma_scale) * as.numeric(input$upgma_ratio)), height = as.numeric(input$upgma_scale), quality = 100)
       print(upgma_tree())
       dev.off()
+    } else if (input$tree_algo == "Minimum-Spanning") {
+      shinyjs::runjs("mstReport();")
+      decoded_data <- base64enc::base64decode(input$canvas_data)
+      writeBin(decoded_data, paste0(getwd(), "/Report/MST.jpg"))
     }
   })
   
@@ -21284,6 +21452,8 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       if(input$tree_algo == "Minimum-Spanning") {
+        plot.report()
+        
         report <- c(Report$report_list_mst, 
                     "general_date" = as.character(input$mst_date_general_select),
                     "operator" = input$mst_operator_general_select,
@@ -21291,25 +21461,22 @@ server <- function(input, output, session) {
                     "comment" = input$mst_comm_general_select,
                     "report_df" = Report$report_df)
         
+        report[["table_columns"]] <- input$select_rep_tab
+        
         # Save data to an RDS file if any elements were selected
         if (!is.null(report)) {
           
-          log_message(out, message = "Creating UPGMA report")
+          log_message(out, message = "Creating MST report")
           
           saveRDS(report, file = paste0(getwd(), "/Report/selected_elements.rds"))
           
           rmarkdown::render(paste0(getwd(), "/Report/Report.Rmd"))
           
           file.copy(paste0(getwd(), "/Report/Report.html"), file)
-          
-          
         } else {
           log_message(out,
-                      message = "Creating UPGMA report failed (report is null)")
+                      message = "Creating MST report failed (report is null)")
         }
-        
-        
-        
       } else if(input$tree_algo == "Neighbour-Joining") {
         plot.report()
         report <- c(Report$report_list_nj, 
@@ -21318,6 +21485,8 @@ server <- function(input, output, session) {
                     "institute" = input$mst_institute_general_select,
                     "comment" = input$mst_comm_general_select,
                     "report_df" = Report$report_df)
+        
+        report[["table_columns"]] <- input$select_rep_tab
         
         # Save data to an RDS file if any elements were selected
         if (!is.null(report)) {
@@ -21341,9 +21510,11 @@ server <- function(input, output, session) {
                     "comment" = input$mst_comm_general_select,
                     "report_df" = Report$report_df)
         
+        report[["table_columns"]] <- input$select_rep_tab
+        
         # Save data to an RDS file if any elements were selected
         if (!is.null(report)) {
-          log_message(out, message = "Creating MST report")
+          log_message(out, message = "Creating UPGMA report")
           
           saveRDS(report, file = paste0(getwd(), "/Report/selected_elements.rds"))
           
@@ -21351,10 +21522,11 @@ server <- function(input, output, session) {
           
           file.copy(paste0(getwd(), "/Report/Report.html"), file)
         } else {
-          log_message(out, message = "Creating MST report failed (report is null)")
+          log_message(out, message = "Creating UPGMA report failed (report is null)")
         }
         
       }
+      removeModal()
     }
   )
   
@@ -22421,7 +22593,6 @@ server <- function(input, output, session) {
       output$multi_select_table <- renderRHandsontable({
         rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
                       stretchH = "all", contextMenu = FALSE) %>%
-          hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
           hot_cols(columnSorting = TRUE) %>%
           hot_rows(rowHeights = 25) %>%
           hot_col(2,
@@ -22437,7 +22608,6 @@ server <- function(input, output, session) {
         rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
                       stretchH = "all", height = 500,
                       contextMenu = FALSE) %>%
-          hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
           hot_cols(columnSorting = TRUE) %>%
           hot_rows(rowHeights = 25) %>%
           hot_col(2,
