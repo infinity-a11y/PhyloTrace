@@ -37,6 +37,7 @@ library(bslib)
 library(bsicons)
 library(DT)
 library(shinyBS)
+library(openssl)
 # Bioconductor Packages
 library(treeio)
 library(ggtree)
@@ -666,7 +667,6 @@ ui <- dashboardPage(
           column(1),
           column(
             width = 3,
-            align = "center",
             br(),
             br(),
             br(),
@@ -718,7 +718,13 @@ ui <- dashboardPage(
           ),
           column(
             width = 2,
-            align = "center",
+            br(),
+            br(),
+            br(),
+            h5(textOutput("scheme_timestamp"), style = "color: white")
+          ),
+          column(
+            width = 2,
             br(),
             br(),
             br(),
@@ -727,23 +733,12 @@ ui <- dashboardPage(
               label = "Download",
               icon = icon("download")
             )
-          ),
-          column(
-            width = 6,
-            br(),
-            br(),
-            br(),
-            align = "center",
-            conditionalPanel(
-              "input.download_cgMLST >= 1",
-              h4(p("Downloaded Loci"), style = "color:white")
-            )
           )
         ),
         fluidRow(
           column(1),
           column(
-            width = 5,
+            width = 6,
             align = "center",
             br(),
             br(),
@@ -752,21 +747,6 @@ ui <- dashboardPage(
               tableOutput("cgmlst_scheme"),
               spin = "dots",
               color = "#ffffff"
-            )
-          ),
-          column(
-            width = 6,
-            align = "center",
-            br(),
-            br(),
-            br(),
-            conditionalPanel(
-              "input.download_cgMLST >= 1",
-              addSpinner(
-                dataTableOutput("cgmlst_targets"),
-                spin = "dots",
-                color = "#ffffff"
-              )
             )
           )
         )
@@ -5489,10 +5469,11 @@ server <- function(input, output, session) {
   
   phylotraceVersion <- paste("PhyloTrace-1.4.1", Sys.Date())
   
-  # Kill server on session end
-  session$onSessionEnded( function() {
-    stopApp()
-  })
+  # TODO Enable this, or leave disabled
+  # # Kill server on session end
+  # session$onSessionEnded( function() {
+  #   stopApp()
+  # })
   
   # Disable MST variable mappings
   shinyjs::disable('mst_edge_label') 
@@ -5734,6 +5715,30 @@ server <- function(input, output, session) {
         return(class(x))
       }
     })
+  }
+  
+  # Function to hash database
+  hash_database <- function(folder) {
+    loci_files <- list.files(folder)
+    loci_names <- sapply(strsplit(loci_files, "[.]"), function(x) x[1])
+    loci_paths <- file.path(folder, loci_files)
+    
+    hashes <- sapply(loci_paths, hash_locus)
+    names(hashes) <- loci_names
+    hashes
+  }
+  
+  # Function to hash a locus
+  hash_locus <- function(locus_path) {
+    locus_file <- readLines(locus_path)
+    seq_list <- locus_file[seq(2, length(locus_file), 3)]
+    seq_hash <- sha256(seq_list)
+    seq_idx <- paste0(">", seq_hash)
+    
+    locus_file[seq(1, length(locus_file), 3)] <- seq_idx
+    writeLines(locus_file, locus_path)
+    
+    seq_hash
   }
   
   # Function to check single typing log file
@@ -6643,11 +6648,7 @@ server <- function(input, output, session) {
             
             # Produce Loci Info table
             DB$loci_info <- read.csv(
-              paste0(
-                DB$database, "/",
-                gsub(" ", "_", DB$scheme),
-                "/targets.csv"
-              ),
+              file.path(DB$database, gsub(" ", "_", DB$scheme), "targets.csv"),
               header = TRUE,
               sep = "\t",
               row.names = NULL,
@@ -11326,64 +11327,46 @@ server <- function(input, output, session) {
     }
     
     DB$load_selected <- TRUE
-    Scheme$target_table <- NULL
+    
+    # Check if .downloaded_schemes folder exists and if not create it
+    if (!dir.exists(file.path(DB$database, ".downloaded_schemes"))) {
+      dir.create(file.path(DB$database, ".downloaded_schemes"))
+    }
     
     # Download Loci Fasta Files
     
     options(timeout = 600)
     
     tryCatch({
-      download.file(Scheme$link_cgmlst, "dataset.zip")
+      download.file(Scheme$link_cgmlst, 
+                    file.path(DB$database, ".downloaded_schemes", paste0(Scheme$folder_name, ".zip")))
       "Download successful!"
     }, error = function(e) {
       paste("Error: ", e$message)
     })
     
     unzip(
-      zipfile = "dataset.zip",
-      exdir = paste0(
-        DB$database, "/",
-        Scheme$folder_name,
-        paste0("/", Scheme$folder_name, "_alleles")
+      zipfile = file.path(DB$database, ".downloaded_schemes", paste0(Scheme$folder_name, ".zip")),
+      exdir = file.path(DB$database, 
+                        Scheme$folder_name, 
+                        paste0(Scheme$folder_name, "_alleles")
       )
     )
     
-    unlink("dataset.zip")
+    # Hash database
+    hash_database(file.path(DB$database, 
+                            Scheme$folder_name, 
+                            paste0(Scheme$folder_name, "_alleles")))
     
     # Download Scheme Info
     download(
       Scheme$link_scheme,
-      dest = paste0(DB$database, "/", Scheme$folder_name, "/scheme_info.html"),
-      mode = "wb"
-    )
-    
-    # Download Loci Info
-    download(
-      Scheme$link_targets,
-      dest = paste0(DB$database, "/", Scheme$folder_name, "/targets.csv"),
+      dest = file.path(DB$database, Scheme$folder_name, "scheme_info.html"),
       mode = "wb"
     )
     
     # Send downloaded scheme to database browser overview
     DB$available <- gsub("_", " ", basename(dir_ls(DB$database)))
-    
-    Scheme$target_table <-
-      read.csv(
-        paste0(DB$database, "/", Scheme$folder_name, "/targets.csv"),
-        header = TRUE,
-        sep = "\t",
-        row.names = NULL,
-        colClasses = c(
-          "NULL",
-          "character",
-          "character",
-          "integer",
-          "integer",
-          "character",
-          "integer",
-          "NULL"
-        )
-      )
     
     DB$exist <-
       (length(dir_ls(DB$database)) == 0)
@@ -11420,26 +11403,32 @@ server <- function(input, output, session) {
   
   
   # Download Target Info (CSV Table)
-  
-  
-  output$cgmlst_scheme <- renderTable({
+  observe({
+    input$download_cgMLST
+    
     scheme_overview <- read_html(Scheme$link_scheme) %>%
       html_table(header = FALSE) %>%
       as.data.frame(stringsAsFactors = FALSE)
+    
+    last_scheme_change <- strptime(scheme_overview$X2[scheme_overview$X1 == "Last Change"], 
+                            format = "%B %d, %Y, %H:%M %p")
     names(scheme_overview) <- NULL
-    scheme_overview
+    
+    last_file_change <- format(
+      file.info(file.path(DB$database,
+                          ".downloaded_schemes",
+                          paste0(Scheme$folder_name, ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
+    
+    output$cgmlst_scheme <- renderTable({scheme_overview})
+    output$scheme_timestamp <- renderText({
+      req(last_file_change)
+      if (last_file_change < last_scheme_change) {
+        "(Newer scheme available \u274c)"
+      } else {
+        "(Scheme is up-to-date \u2705)"
+      }
+    })
   })
-  
-  ### Display Target Table ----
-  
-  output$cgmlst_targets <- renderDataTable({
-    targets_overview <- Scheme$target_table
-    NULL
-  },
-  options = list(pageLength = 10,
-                 columnDefs = list(
-                   list(searchable = FALSE, targets = "_all")
-                 )))
   
   # _______________________ ####
   
