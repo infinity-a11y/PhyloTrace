@@ -42,7 +42,7 @@ template <- readLines(assembly)
 psl_files <- list.files(paste0(meta_info$db_directory, "/execute/blat_single/results"), pattern = "\\.psl$", full.names = TRUE)
 
 # Initialize an empty vector to store the results
-allele_vector <- integer(length(psl_files))
+allele_vector <- character(length(psl_files))
 
 event_df <- data.frame(Locus = character(0), Event = character(0), Value = character(0))
 
@@ -65,9 +65,6 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
     } else {
       
       matches <- data.table::fread(psl_files[i], select = c(1, 5, 6, 7, 8, 10, 11, 14, 16, 17), header = FALSE)
-      
-      # variant count 
-      n_variants <- max(matches$V10)
       
       if(any(matches$V1 == matches$V11 & (matches$V5 + matches$V7) == 0)) {
         
@@ -105,16 +102,18 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         # if valid variant found 
         if(variant_valid != FALSE) {
           
+          hashed_variant <- openssl::sha256(variant_valid)
+          
           # Append new variant number to allele fasta file
-          cat(paste0("\n>", n_variants + 1), file = locus_file, append = TRUE)
+          cat(paste0("\n>", hashed_variant), file = locus_file, append = TRUE)
           
           # Append new variant sequence to allele fasta file
           cat(paste0("\n", variant_valid, "\n"), file = locus_file, append = TRUE)
           
           # Entry in results data frame
-          event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "New Variant", Value = as.character(n_variants + 1)))
+          event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "New Variant", Value = hashed_variant))
           
-          allele_vector[[i]] <- n_variants + 1
+          allele_vector[[i]] <- hashed_variant
           
           cat(paste0(allele_index, " has new variant.\n"))
           
@@ -128,14 +127,11 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
           
           cat(paste0(allele_index, " has invalid sequence.\n"))
         }
-        
       }
     }
   }
   
   saveRDS(event_df, "execute/event_df.rds")
-  
-  allele_vector <- as.integer(allele_vector)
   
   # Create Results Data Frame 
   if(!any(grepl("Typing", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)))))) {
@@ -184,7 +180,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
     
     Database[["Typing"]] <- Typing
     
-    df2 <- dplyr::mutate_all(dplyr::select(Database$Typing, 13:(12+length(list.files(allele_folder)))), function(x) as.integer(x))
+    df2 <- dplyr::mutate_all(dplyr::select(Database$Typing, 13:(12+length(list.files(allele_folder)))), function(x) as.character(x))
     
     df1 <- dplyr::select(Database$Typing, 1:12)
     df1 <- dplyr::mutate(df1, Include = as.logical(Include))

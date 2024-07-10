@@ -5482,25 +5482,6 @@ server <- function(input, output, session) {
   
   # Function to read and format FASTA sequences
   format_fasta <- function(filepath) {
-    log_message(log_file = out,
-                message = paste0("path: ", filepath),
-                append = TRUE)
-    
-    log_message(log_file = out,
-                message = paste0("db: ", DB$database),
-                append = TRUE)
-    
-    log_message(log_file = out,
-                message = paste0("scheme: ", DB$scheme),
-                append = TRUE)
-    
-    log_message(log_file = out,
-                message = paste0("selected: ", input$db_loci_rows_selected),
-                append = TRUE)                        
-    
-    log_message(log_file = out,
-                message = paste0("loci: ", head(DB$loci, 1)),
-                append = TRUE)
     
     fasta <- readLines(filepath)
     formatted_fasta <- list()
@@ -11311,6 +11292,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$download_cgMLST, {
+    
     log_message(out, message = paste0("Started download of scheme for ", Scheme$folder_name))
     
     show_toast(
@@ -11330,7 +11312,7 @@ server <- function(input, output, session) {
     
     # Check if .downloaded_schemes folder exists and if not create it
     if (!dir.exists(file.path(DB$database, ".downloaded_schemes"))) {
-      dir.create(file.path(DB$database, ".downloaded_schemes"))
+      dir.create(file.path(DB$database, ".downloaded_schemes"), recursive = TRUE)
     }
     
     # Download Loci Fasta Files
@@ -11365,11 +11347,34 @@ server <- function(input, output, session) {
       mode = "wb"
     )
     
+    # Download Loci Info	
+    download(	
+      Scheme$link_targets,	
+      dest = paste0(DB$database, "/", Scheme$folder_name, "/targets.csv"),	
+      mode = "wb"
+    )
+    
     # Send downloaded scheme to database browser overview
     DB$available <- gsub("_", " ", basename(dir_ls(DB$database)))
     
-    DB$exist <-
-      (length(dir_ls(DB$database)) == 0)
+    Scheme$target_table <- read.csv(
+      paste0(DB$database, "/", Scheme$folder_name, "/targets.csv"),	
+      header = TRUE,	
+      sep = "\t",	
+      row.names = NULL,	
+      colClasses = c(	
+        "NULL",	
+        "character",	
+        "character",	
+        "integer",	
+        "integer",	
+        "character",	
+        "integer",	
+        "NULL"	
+      )	
+    )
+    
+    DB$exist <- length(dir_ls(DB$database)) == 0
     
     show_toast(
       title = "Download successful",
