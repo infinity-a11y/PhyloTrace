@@ -651,7 +651,7 @@ ui <- dashboardPage(
         )
       ),
       
-      ## Tab Add Scheme  ----  
+      ## Tab Manage Schemes  ----  
       
       tabItem(
         tabName = "init",
@@ -721,7 +721,7 @@ ui <- dashboardPage(
             br(),
             br(),
             br(),
-            h5(textOutput("scheme_timestamp"), style = "color: white")
+            h5(textOutput("scheme_update_info"), style = "color: white")
           ),
           column(
             width = 2,
@@ -6239,7 +6239,7 @@ server <- function(input, output, session) {
         DB$block_db <- TRUE
         DB$select_new <- FALSE
         
-        # Render menu with Add Scheme as start tab and no Missing values tab
+        # Render menu with Manage Schemes as start tab and no Missing values tab
         output$menu <- renderMenu(
           sidebarMenu(
             menuItem(
@@ -6265,7 +6265,7 @@ server <- function(input, output, session) {
               )
             ),
             menuItem(
-              text = "Add Scheme",
+              text = "Manage Schemes",
               tabName = "init",
               icon = icon("plus"),
               selected = TRUE
@@ -6366,6 +6366,8 @@ server <- function(input, output, session) {
             
             log_message(log_file = out, message = "Missing loci files")
             
+            # TODO Check if changes are needed for robust update changes
+            
             # Show message that loci files are missing
             showModal(
               modalDialog(
@@ -6381,7 +6383,7 @@ server <- function(input, output, session) {
               )
             )
             
-            # Render menu with Add Scheme as start tab
+            # Render menu with Manage Schemes as start tab
             output$menu <- renderMenu(
               sidebarMenu(
                 menuItem(
@@ -6412,7 +6414,7 @@ server <- function(input, output, session) {
                   )
                 ),
                 menuItem(
-                  text = "Add Scheme",
+                  text = "Manage Schemes",
                   tabName = "init",
                   icon = icon("plus"),
                   selected = TRUE
@@ -6435,6 +6437,8 @@ server <- function(input, output, session) {
             
             output$download_scheme_info <- NULL
             
+            # TODO check if changes are needed for robust update changes
+            
             log_message(log_file = out, message = "Scheme info file missing")
             
             # Show message that scheme info is missing
@@ -6452,7 +6456,7 @@ server <- function(input, output, session) {
               )
             )
             
-            # Render menu with Add Scheme as start tab
+            # Render menu with Manage Schemes as start tab
             output$menu <- renderMenu(
               sidebarMenu(
                 menuItem(
@@ -6483,7 +6487,7 @@ server <- function(input, output, session) {
                   )
                 ),
                 menuItem(
-                  text = "Add Scheme",
+                  text = "Manage Schemes",
                   tabName = "init",
                   icon = icon("plus"),
                   selected = TRUE
@@ -6510,6 +6514,8 @@ server <- function(input, output, session) {
             
             log_message(log_file = out, message = "Missing loci info (targets.csv)")
             
+            # TODO check if changes are needed for robust update changes
+            
             # Show message that scheme info is missing
             showModal(
               modalDialog(
@@ -6525,7 +6531,7 @@ server <- function(input, output, session) {
               )
             )
             
-            # Render menu with Add Scheme as start tab
+            # Render menu with Manage Schemes as start tab
             output$menu <- renderMenu(
               sidebarMenu(
                 menuItem(
@@ -6556,7 +6562,7 @@ server <- function(input, output, session) {
                   )
                 ),
                 menuItem(
-                  text = "Add Scheme",
+                  text = "Manage Schemes",
                   tabName = "init",
                   icon = icon("plus"),
                   selected = TRUE
@@ -6645,6 +6651,8 @@ server <- function(input, output, session) {
               )
             )
             
+            # TODO check if changes are needed for robust update
+            
             # Check if number of loci/fastq-files of alleles is coherent with number of targets in scheme
             if(DB$number_loci != length(dir_ls(paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")))) {
               
@@ -6665,7 +6673,7 @@ server <- function(input, output, session) {
                 )
               )
               
-              # Render menu with Add Scheme as start tab
+              # Render menu with Manage Schemes as start tab
               output$menu <- renderMenu(
                 sidebarMenu(
                   menuItem(
@@ -6696,7 +6704,7 @@ server <- function(input, output, session) {
                     )
                   ),
                   menuItem(
-                    text = "Add Scheme",
+                    text = "Manage Schemes",
                     tabName = "init",
                     icon = icon("plus"),
                     selected = TRUE
@@ -6861,7 +6869,7 @@ server <- function(input, output, session) {
                         )
                       ),
                       menuItem(
-                        text = "Add Scheme",
+                        text = "Manage Schemes",
                         tabName = "init",
                         icon = icon("plus")
                       ),
@@ -6909,7 +6917,7 @@ server <- function(input, output, session) {
                         )
                       ),
                       menuItem(
-                        text = "Add Scheme",
+                        text = "Manage Schemes",
                         tabName = "init",
                         icon = icon("plus")
                       ),
@@ -9069,7 +9077,7 @@ server <- function(input, output, session) {
                       )
                     ),
                     menuItem(
-                      text = "Add Scheme",
+                      text = "Manage Schemes",
                       tabName = "init",
                       icon = icon("plus")
                     ),
@@ -9408,7 +9416,7 @@ server <- function(input, output, session) {
                 )
               ),
               menuItem(
-                text = "Add Scheme",
+                text = "Manage Schemes",
                 tabName = "init",
                 icon = icon("plus")
               ),
@@ -9452,7 +9460,7 @@ server <- function(input, output, session) {
               )
             ),
             menuItem(
-              text = "Add Scheme",
+              text = "Manage Schemes",
               tabName = "init",
               icon = icon("plus")
             ),
@@ -11425,7 +11433,7 @@ server <- function(input, output, session) {
                           paste0(Scheme$folder_name, ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
     
     output$cgmlst_scheme <- renderTable({scheme_overview})
-    output$scheme_timestamp <- renderText({
+    output$scheme_update_info <- renderText({
       req(last_file_change)
       if (last_file_change < last_scheme_change) {
         "(Newer scheme available \u274c)"
