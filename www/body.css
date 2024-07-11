@@ -513,6 +513,9 @@ i.far.fa-pen-to-square {
   margin-left: 50px;
 }
 
+#download_na_matrix_bttn > i {
+  top: 1px !important;
+}
 
 #sel_all_entries, #desel_all_entries, #typing_start, #start_typ_multi, 
 #undo_changes, #genome_file, #genome_file_multi, #reset_multi, #save_cust {

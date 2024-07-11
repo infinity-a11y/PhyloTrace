@@ -259,6 +259,8 @@ sel_countries <-
     "United Kingdom",
     "United States of America")
 
+options(ignore.negative.edge=TRUE)
+
 # User Interface ----
 
 ui <- dashboardPage(
@@ -17196,13 +17198,17 @@ server <- function(input, output, session) {
   #### NJ ----
   
   nj_tree <- reactive({
+    
+    # Convert negative edges 
+    Vis$nj[["edge.length"]] <- abs(Vis$nj[["edge.length"]])
+    
     if(input$nj_nodelabel_show == TRUE) {
       ggtree(Vis$nj, alpha = 0.2) + 
         geom_nodelab(aes(label = node), color = "#29303A", size = nj_tiplab_size() + 1, hjust = 0.7) +
         nj_limit() +
         nj_inward() 
     } else {
-      tree <-
+      tree <- 
         ggtree(Vis$nj, 
                color = input$nj_color,
                layout = layout_nj(),
