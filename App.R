@@ -330,6 +330,7 @@ ui <- dashboardPage(
   ),
   
   dashboardBody(
+    tags$head(tags$link(rel = "shortcut icon", href = "favicon.ico")),
     shinyjs::useShinyjs(),
     
     shinyDashboardThemeDIY(
@@ -9305,8 +9306,8 @@ server <- function(input, output, session) {
   ### Database Events ----
   
   # Invalid entries table input
-  
   observe({
+    req(DB$data, input$db_entries)
     if (isTRUE(input$invalid_date)) {
       show_toast(
         title = "Invalid date",
@@ -10068,8 +10069,6 @@ server <- function(input, output, session) {
         }
       }
     })
-    
-    
   })
   
   observe({
@@ -10346,49 +10345,57 @@ server <- function(input, output, session) {
   # Save Edits Button
   
   observeEvent(input$edit_button, {
-    
-    if(!isTRUE(DB$inhibit_change)) {
-      log_message(out, message = "Input edit_button")
-      
-      showModal(
-        modalDialog(
-          if(length(DB$deleted_entries > 0)) {
-            paste0(
-              "Overwriting previous metadata of local ",
-              DB$scheme,
-              " database. Deleted entries will be irreversibly removed. Continue?"
-            )
-          } else {
-            paste0(
-              "Overwriting previous metadata of local ",
-              DB$scheme,
-              " database. Continue?"
-            )
-          },
-          title = "Save Database",
-          fade = TRUE,
-          easyClose = TRUE,
-          footer = tagList(
-            modalButton("Cancel"),
-            actionButton("conf_db_save", "Save", class = "btn btn-default")
-          )
-        )
-      )
-    } else {
-      log_message(out, message = "Input edit_button, invalid values.")
+    if(nrow(hot_to_r(input$db_entries)) > nrow(DB$data)) {
       show_toast(
-        title = "Invalid values entered. Saving not possible.",
+        title = "Invalid rows entered. Saving not possible.",
         type = "error",
         position = "top-end",
         timer = 6000,
         width = "600px"
       )
+    } else {
+      if(!isTRUE(DB$inhibit_change)) {
+        log_message(out, message = "Input edit_button")
+        
+        showModal(
+          modalDialog(
+            if(length(DB$deleted_entries > 0)) {
+              paste0(
+                "Overwriting previous metadata of local ",
+                DB$scheme,
+                " database. Deleted entries will be irreversibly removed. Continue?"
+              )
+            } else {
+              paste0(
+                "Overwriting previous metadata of local ",
+                DB$scheme,
+                " database. Continue?"
+              )
+            },
+            title = "Save Database",
+            fade = TRUE,
+            easyClose = TRUE,
+            footer = tagList(
+              modalButton("Cancel"),
+              actionButton("conf_db_save", "Save", class = "btn btn-default")
+            )
+          )
+        )
+      } else {
+        log_message(out, message = "Input edit_button, invalid values.")
+        show_toast(
+          title = "Invalid values entered. Saving not possible.",
+          type = "error",
+          position = "top-end",
+          timer = 6000,
+          width = "600px"
+        )
+      }
     }
   })
   
   observeEvent(input$Cancel, {
     log_message(out, message = "Input Cancel")
-    
     removeModal()
   })
   
