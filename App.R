@@ -5776,9 +5776,15 @@ server <- function(input, output, session) {
     }
   })
   
-  duplicated_rows <- reactive({
+  duplicated_names <- reactive({
     if (!is.null(DB$meta)) {
       which(duplicated(DB$meta$`Assembly Name`) | duplicated(DB$meta$`Assembly Name`, fromLast = TRUE))
+    }
+  })
+  
+  duplicated_ids <- reactive({
+    if (!is.null(DB$meta)) {
+      which(duplicated(DB$meta$`Assembly ID`) | duplicated(DB$meta$`Assembly ID`, fromLast = TRUE))
     }
   })
   
@@ -7637,7 +7643,8 @@ server <- function(input, output, session) {
                               rhandsontable(
                                 select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
                                 col_highlight = diff_allele() - 1,
-                                duplicated_highlight = duplicated_rows() - 1,
+                                dup_names_high = duplicated_names() - 1,
+                                dup_ids_high = duplicated_ids() - 1,
                                 row_highlight = true_rows() - 1,
                                 error_highlight = err_thresh() - 1,
                                 rowHeaders = NULL,
@@ -7756,7 +7763,20 @@ server <- function(input, output, session) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
                        if (instance.params) {
-                         hrows = instance.params.duplicated_highlight
+                         hrows = instance.params.dup_names_high
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                                hot_col(3, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.dup_ids_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
@@ -7783,7 +7803,8 @@ server <- function(input, output, session) {
                                 select(DB$data, 1:(12 + nrow(DB$cust_var))),
                                 rowHeaders = NULL,
                                 row_highlight = true_rows() - 1,
-                                duplicated_highlight = duplicated_rows()- 1,
+                                dup_names_high = duplicated_names()- 1,
+                                dup_ids_high = duplicated_ids() - 1,
                                 error_highlight = err_thresh() - 1,
                                 contextMenu = FALSE,
                                 highlightCol = TRUE, 
@@ -7879,7 +7900,20 @@ server <- function(input, output, session) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
                        if (instance.params) {
-                         hrows = instance.params.duplicated_highlight
+                         hrows = instance.params.dup_names_high
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                                hot_col(3, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.dup_ids_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
@@ -7910,7 +7944,8 @@ server <- function(input, output, session) {
                                 rowHeaders = NULL,
                                 height = table_height(),
                                 row_highlight = true_rows() - 1,
-                                duplicated_highlight = duplicated_rows() - 1,
+                                dup_names_high = duplicated_names() - 1,
+                                dup_ids_high = duplicated_ids() - 1,
                                 error_highlight = err_thresh() - 1,
                                 contextMenu = FALSE,
                                 highlightCol = TRUE, 
@@ -8018,7 +8053,20 @@ server <- function(input, output, session) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
                        if (instance.params) {
-                         hrows = instance.params.duplicated_highlight
+                         hrows = instance.params.dup_names_high
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                                hot_col(3, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.dup_ids_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
@@ -8049,7 +8097,8 @@ server <- function(input, output, session) {
                                 select(DB$data, 1:(12 + nrow(DB$cust_var))),
                                 rowHeaders = NULL,
                                 height = table_height(),
-                                duplicated_highlight = duplicated_rows() - 1,
+                                dup_names_high = duplicated_names() - 1,
+                                dup_ids_high = duplicated_ids() - 1,
                                 row_highlight = true_rows() - 1,
                                 error_highlight = err_thresh() - 1,
                                 contextMenu = FALSE,
@@ -8144,7 +8193,20 @@ server <- function(input, output, session) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
                        if (instance.params) {
-                         hrows = instance.params.duplicated_highlight
+                         hrows = instance.params.dup_names_high
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                                hot_col(3, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.dup_ids_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
@@ -8293,8 +8355,44 @@ server <- function(input, output, session) {
                 observe({
                   if(!is.null(DB$data)) {
                     
-                    if(any(duplicated(DB$meta$`Assembly Name`))) {
+                    if(any(duplicated(DB$meta$`Assembly Name`)) | any(duplicated(DB$meta$`Assembly ID`))) {
                       output$db_distancematrix <- NULL
+                      
+                      if( (sum(duplicated(DB$meta$`Assembly Name`)) > 0) & (sum(duplicated(DB$meta$`Assembly ID`)) == 0) ) {
+                        duplicated_txt <- paste0(
+                          paste(
+                            paste0("Name  # ", which(duplicated(DB$meta$`Assembly Name`)), " - "),
+                            DB$meta$`Assembly Name`[which(duplicated(DB$meta$`Assembly Name`))]
+                          ),
+                          "<br>"
+                        )
+                      } else if ( (sum(duplicated(DB$meta$`Assembly ID`)) > 0) & (sum(duplicated(DB$meta$`Assembly Name`)) == 0) ){
+                        duplicated_txt <- paste0(
+                          paste(
+                            paste0("ID  # ", which(duplicated(DB$meta$`Assembly ID`)), " - "),
+                            DB$meta$`Assembly ID`[which(duplicated(DB$meta$`Assembly ID`))]
+                          ),
+                          "<br>"
+                        )
+                      } else {
+                        duplicated_txt <- c(
+                          paste0(
+                            paste(
+                              paste0("Name  # ", which(duplicated(DB$meta$`Assembly Name`)), " - "),
+                              DB$meta$`Assembly Name`[which(duplicated(DB$meta$`Assembly Name`))]
+                            ),
+                            "<br>"
+                          ),
+                          paste0(
+                            paste(
+                              paste0("ID  # ", which(duplicated(DB$meta$`Assembly ID`)), " - "),
+                              DB$meta$`Assembly ID`[which(duplicated(DB$meta$`Assembly ID`))]
+                            ),
+                            "<br>"
+                          )
+                        )
+                      }
+                      
                       output$distancematrix_duplicated <- renderUI({
                         column(
                           width = 12,
@@ -8310,13 +8408,7 @@ server <- function(input, output, session) {
                                 "Duplicated:",
                                 append(
                                   "<br>",
-                                  paste0(
-                                    paste(
-                                      paste0("# ", which(duplicated(DB$meta$`Assembly Name`)), " - "),
-                                      DB$meta$`Assembly Name`[which(duplicated(DB$meta$`Assembly Name`))]
-                                    ),
-                                    "<br>"
-                                  )
+                                  duplicated_txt
                                 )
                               )
                             )
@@ -8559,7 +8651,7 @@ server <- function(input, output, session) {
                           p(
                             HTML(
                               paste(
-                                tags$span(style="color: white; font-size: 15px; margin-left: 25px; position: relative; bottom: -13px", " =  duplicated name")
+                                tags$span(style="color: white; font-size: 15px; margin-left: 25px; position: relative; bottom: -13px", " =  duplicated name/ID")
                               )
                             )
                           ),
@@ -9326,9 +9418,6 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
-    widthh <<- paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px")
-    heightt <<- paste0(as.character(input$mst_scale), "px")
-    
     log_message(out, message = "Input reload_db")
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
@@ -9524,7 +9613,8 @@ server <- function(input, output, session) {
                 rhandsontable(
                   select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
                   col_highlight = diff_allele() - 1,
-                  duplicated_highlight = duplicated_rows() - 1,
+                  dup_names_high = duplicated_names() - 1,
+                  dup_ids_high = duplicated_ids() - 1,
                   row_highlight = true_rows() - 1,
                   error_highlight = err_thresh() - 1,
                   rowHeaders = NULL,
@@ -9643,7 +9733,20 @@ server <- function(input, output, session) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
                        if (instance.params) {
-                         hrows = instance.params.duplicated_highlight
+                         hrows = instance.params.dup_names_high
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                  hot_col(3, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.dup_ids_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
@@ -9670,7 +9773,8 @@ server <- function(input, output, session) {
                   select(DB$data, 1:(12 + nrow(DB$cust_var))),
                   rowHeaders = NULL,
                   row_highlight = true_rows() - 1,
-                  duplicated_highlight = duplicated_rows()- 1,
+                  dup_names_high = duplicated_names()- 1,
+                  dup_ids_high = duplicated_ids() - 1,
                   error_highlight = err_thresh() - 1,
                   contextMenu = FALSE,
                   highlightCol = TRUE, 
@@ -9766,7 +9870,20 @@ server <- function(input, output, session) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
                        if (instance.params) {
-                         hrows = instance.params.duplicated_highlight
+                         hrows = instance.params.dup_names_high
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                  hot_col(3, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.dup_ids_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
@@ -9797,7 +9914,8 @@ server <- function(input, output, session) {
                   rowHeaders = NULL,
                   height = table_height(),
                   row_highlight = true_rows() - 1,
-                  duplicated_highlight = duplicated_rows() - 1,
+                  dup_names_high = duplicated_names() - 1,
+                  dup_ids_high = duplicated_ids() - 1,
                   error_highlight = err_thresh() - 1,
                   contextMenu = FALSE,
                   highlightCol = TRUE, 
@@ -9905,7 +10023,20 @@ server <- function(input, output, session) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
                        if (instance.params) {
-                         hrows = instance.params.duplicated_highlight
+                         hrows = instance.params.dup_names_high
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                  hot_col(3, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.dup_ids_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
@@ -9936,7 +10067,8 @@ server <- function(input, output, session) {
                   select(DB$data, 1:(12 + nrow(DB$cust_var))),
                   rowHeaders = NULL,
                   height = table_height(),
-                  duplicated_highlight = duplicated_rows() - 1,
+                  dup_names_high = duplicated_names() - 1,
+                  dup_ids_high = duplicated_ids() - 1,
                   row_highlight = true_rows() - 1,
                   error_highlight = err_thresh() - 1,
                   contextMenu = FALSE,
@@ -10031,7 +10163,20 @@ server <- function(input, output, session) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
                        if (instance.params) {
-                         hrows = instance.params.duplicated_highlight
+                         hrows = instance.params.dup_names_high
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                  hot_col(3, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.dup_ids_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
@@ -20562,17 +20707,33 @@ server <- function(input, output, session) {
       )
     } else {
       
-      if(any(duplicated(DB$meta$`Assembly Name`))) {
+      if(any(duplicated(DB$meta$`Assembly Name`)) | any(duplicated(DB$meta$`Assembly ID`))) {
         log_message(out, message = "Duplicated assemblies")
+        
         showModal(
           modalDialog(
-            if(sum(duplicated(DB$meta_true$`Assembly Name`)) == 1) {
-              HTML(paste0("Entry #", which(duplicated(DB$meta_true$`Assembly Name`)), 
-                          " contains a duplicated assembly name:", "<br><br>",
-                          DB$meta_true$`Assembly Name`[which(duplicated(DB$meta_true$`Assembly Name`))]))
+            if((length(dup_name) + length(dup_id)) == 1) {
+              if(length(dup_name) == 1) {
+                HTML(paste0("Entry #", dup_name,
+                            " contains a duplicated assembly name:", "<br><br>",
+                            DB$meta_true$`Assembly Name`[dup_name]))
+              } else {
+                HTML(paste0("Entry #", dup_id,
+                            " contains a duplicated assembly ID:", "<br><br>",
+                            DB$meta_true$`Assembly ID`[dup_id]))
+              }
             } else {
-              HTML(append("Entries contain duplicated assembly names: <br><br>", 
-                          paste0(unique(DB$meta_true$`Assembly Name`[which(duplicated(DB$meta_true$`Assembly Name`))]), "<br>")))
+              if(length(dup_name) == 0) {
+                HTML(c("Entries contain duplicated IDs <br><br>",
+                            paste0(unique(DB$meta_true$`Assembly ID`[dup_id]), "<br>")))
+              } else if(length(dup_id) == 0) {
+                HTML(c("Entries contain duplicated names<br><br>",
+                            paste0(unique(DB$meta_true$`Assembly Name`[dup_name]), "<br>")))
+              } else {
+                HTML(c("Entries contain duplicated names and IDs <br><br>",
+                       paste0("Name: ", unique(DB$meta_true$`Assembly Name`[dup_name]), "<br>"),
+                       paste0("ID: ", unique(DB$meta_true$`Assembly ID`[dup_id]), "<br>")))
+              }
             },
             title = "Duplicate entries",
             fade = TRUE,
