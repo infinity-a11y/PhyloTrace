@@ -5504,26 +5504,6 @@ server <- function(input, output, session) {
   
   # Function to read and format FASTA sequences
   format_fasta <- function(filepath) {
-    log_message(log_file = out,
-                message = paste0("path: ", filepath),
-                append = TRUE)
-    
-    log_message(log_file = out,
-                message = paste0("db: ", DB$database),
-                append = TRUE)
-    
-    log_message(log_file = out,
-                message = paste0("scheme: ", DB$scheme),
-                append = TRUE)
-    
-    log_message(log_file = out,
-                message = paste0("selected: ", input$db_loci_rows_selected),
-                append = TRUE)                        
-    
-    log_message(log_file = out,
-                message = paste0("loci: ", head(DB$loci, 1)),
-                append = TRUE)
-    
     fasta <- readLines(filepath)
     formatted_fasta <- list()
     current_sequence <- ""
@@ -5822,7 +5802,7 @@ server <- function(input, output, session) {
   
   out <- file(paste0(getwd(), "/logs/output.log"), open = "wt")
   
-  #sink(file = out, append = TRUE, type = "message")
+  sink(file = out, append = TRUE, type = "message")
   
   log_message(log_file = out,
               message = "Session started",
@@ -5909,7 +5889,7 @@ server <- function(input, output, session) {
   ### Set up typing environment ----
   
   # Null typing progress trackers
-  writeLines("0", paste0(getwd(), "/execute/script_log.txt"))
+  writeLines("0", paste0(getwd(), "/logs/script_log.txt"))
   writeLines("0\n", paste0(getwd(), "/logs/progress.txt"))
   
   if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
@@ -9345,7 +9325,7 @@ server <- function(input, output, session) {
     
     log_message(out, message = "Input reload_db")
     
-    if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
+    if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
         type = "warning",
@@ -21551,7 +21531,7 @@ server <- function(input, output, session) {
   
   readLogFile <- reactive({
     invalidateLater(5000, session)
-    readLines(paste0(getwd(), "/execute/script_log.txt"))
+    readLines(paste0(getwd(), "/logs/script_log.txt"))
   })
   
   # Render sidebar dependent on data presence
@@ -21619,8 +21599,8 @@ server <- function(input, output, session) {
   # Render Typing Results if finished
   observe({
     if(Typing$progress_format_end == 999999) {
-      if(file.exists(paste0(getwd(),"/execute/single_typing_log.txt"))) {
-        if(str_detect(tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1), "Successful")) {
+      if(file.exists(paste0(getwd(),"/logs/single_typing_log.txt"))) {
+        if(str_detect(tail(readLines(paste0(getwd(),"/logs/single_typing_log.txt")), 1), "Successful")) {
           output$typing_result_table <- renderRHandsontable({
             typing_result_table <- readRDS(paste0(getwd(), "/execute/event_df.rds"))
             if(nrow(typing_result_table) > 0) {
@@ -21651,8 +21631,8 @@ server <- function(input, output, session) {
             n_missing <- number_events - n_new
             
             # Show results table only if successful typing 
-            if(file.exists(paste0(getwd(),"/execute/single_typing_log.txt"))) {
-              if(str_detect(tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1), "Successful")) {
+            if(file.exists(paste0(getwd(),"/logs/single_typing_log.txt"))) {
+              if(str_detect(tail(readLines(paste0(getwd(),"/logs/single_typing_log.txt")), 1), "Successful")) {
                 if(number_events > 0) {
                   column(
                     width = 12,
@@ -22185,14 +22165,14 @@ server <- function(input, output, session) {
             width = 12,
             align = "center",
             br(), br(),
-            if(file.exists(paste0(getwd(),"/execute/single_typing_log.txt"))) {
-              if(str_detect(tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1), "Successful")) {
+            if(file.exists(paste0(getwd(),"/logs/single_typing_log.txt"))) {
+              if(str_detect(tail(readLines(paste0(getwd(),"/logs/single_typing_log.txt")), 1), "Successful")) {
                 HTML(paste("<span style='color: white;'>", 
-                           sub(".*Successful", "Successful", tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1)),
+                           sub(".*Successful", "Successful", tail(readLines(paste0(getwd(),"/logs/single_typing_log.txt")), 1)),
                            "Reset to start another typing process.", sep = '<br/>'))
               } else {
                 HTML(paste("<span style='color: white;'>", 
-                           sub(".*typing", "Typing", tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1)),
+                           sub(".*typing", "Typing", tail(readLines(paste0(getwd(),"/logs/single_typing_log.txt")), 1)),
                            "Reset to start another typing process.", sep = '<br/>'))
               }
             },
@@ -22694,13 +22674,13 @@ server <- function(input, output, session) {
       paste("Multi_Typing_", Sys.Date(), ".txt", sep = "")
     },
     content = function(file) {
-      writeLines(readLines(paste0(getwd(), "/execute/script_log.txt")), file)
+      writeLines(readLines(paste0(getwd(), "/logs/script_log.txt")), file)
     }
   )
   
   # Reset Multi Typing
   observeEvent(input$reset_multi, {
-    if(!grepl("Multi Typing", tail(readLines(paste0(getwd(),"/execute/script_log.txt")), n = 1))) {
+    if(!grepl("Multi Typing", tail(readLines(paste0(getwd(),"/logs/script_log.txt")), n = 1))) {
       showModal(
         modalDialog(
           paste0(
@@ -22725,7 +22705,7 @@ server <- function(input, output, session) {
       Typing$result_list <- NULL
       
       # Null logfile
-      writeLines("0", paste0(getwd(), "/execute/script_log.txt"))
+      writeLines("0", paste0(getwd(), "/logs/script_log.txt"))
       
       # Reset User Feedback variable
       Typing$pending_format <- 0
@@ -22798,7 +22778,7 @@ server <- function(input, output, session) {
     )
     
     # Kill multi typing and reset logfile  
-    writeLines("0", paste0(getwd(), "/execute/script_log.txt"))
+    writeLines("0", paste0(getwd(), "/logs/script_log.txt"))
     
     #Reset multi typing result list
     saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
@@ -22933,7 +22913,7 @@ server <- function(input, output, session) {
   #### User Feedback ----
   
   observe({
-    if(file.exists(paste0(getwd(), "/execute/script_log.txt"))) {
+    if(file.exists(paste0(getwd(), "/logs/script_log.txt"))) {
       if(Typing$multi_started == TRUE) {
         check_multi_status()
       } else {
@@ -22946,7 +22926,7 @@ server <- function(input, output, session) {
     
     invalidateLater(3000, session)
     
-    log <- readLines(paste0(getwd(), "/execute/script_log.txt"))
+    log <- readLines(paste0(getwd(), "/logs/script_log.txt"))
     
     # Determine if Single or Multi Typing
     if(str_detect(log[1], "Multi")) {
@@ -23128,7 +23108,7 @@ server <- function(input, output, session) {
     })
     
     output$logTextFull <- renderPrint({
-      cat(rev(paste0(readLines(paste0(getwd(), "/execute/script_log.txt")), "\n")))
+      cat(rev(paste0(readLines(paste0(getwd(), "/logs/script_log.txt")), "\n")))
     })
     
     # Render Pending UI
@@ -23193,9 +23173,9 @@ server <- function(input, output, session) {
               h3(p("Pending Multi Typing ..."), style = "color:white"),
               br(), br(),
               HTML(paste("<span style='color: white;'>", 
-                         paste("Typing of", sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt")), "Processing")), "assemblies finalized."),
-                         paste(sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt")), "Successful")), "successes."),
-                         paste(sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt")), "failed")), "failures."),
+                         paste("Typing of", sum(str_detect(readLines(paste0(getwd(), "/logs/script_log.txt")), "Processing")), "assemblies finalized."),
+                         paste(sum(str_detect(readLines(paste0(getwd(), "/logs/script_log.txt")), "Successful")), "successes."),
+                         paste(sum(str_detect(readLines(paste0(getwd(), "/logs/script_log.txt")), "failed")), "failures."),
                          "Reset to start another typing process.", 
                          sep = '<br/>')),
               br(), br(),

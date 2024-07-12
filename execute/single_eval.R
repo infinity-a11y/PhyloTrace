@@ -291,7 +291,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   saveRDS(Database, paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Typing.rds"))
   
   # Logging successes
-  log.message(log_file = paste0(getwd(), "/execute/single_typing_log.txt"), 
+  log.message(log_file = paste0(getwd(), "/logs/single_typing_log.txt"), 
               message = paste0("Successful typing of ", meta_info$assembly_name))
   log.message(log_file = paste0(getwd(), "/logs/output.log"), 
               message = paste0("Successful typing of ", meta_info$assembly_name))
@@ -301,7 +301,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   failures <- sum(unname(base::sapply(psl_files, file.size)) <= 100) / length(psl_files) * 100
   
   # Logging failures
-  log.message(log_file = paste0(getwd(), "/execute/single_typing_log.txt"), 
+  log.message(log_file = paste0(getwd(), "/logs/single_typing_log.txt"), 
               message = paste0("Assembly typing of ", meta_info$assembly_name, " failed. ", failures, "% of loci not typed."))
   log.message(log_file = paste0(getwd(), "/logs/output.log"), 
               message = paste0("Assembly typing of ", meta_info$assembly_name, " failed. ", failures, "% of loci not typed."))

@@ -309,7 +309,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   saveRDS(Database, paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Typing.rds"))
   
   # Logging successes
-  log.message(log_file = paste0(getwd(), "/execute/script_log.txt"), 
+  log.message(log_file = paste0(getwd(), "/logs/script_log.txt"), 
               message = paste0("Successful typing of ", sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
   log.message(log_file = paste0(meta_info$db_directory, "/logs/output.log"), 
               message = paste0("Successful typing of ", sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
@@ -317,7 +317,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
 } else {
   
   # Logging failures
-  log.message(log_file = paste0(getwd(), "/execute/script_log.txt"), 
+  log.message(log_file = paste0(getwd(), "/logs/script_log.txt"), 
               message = paste0("Assembly typing failed for ", 
                                sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
   log.message(log_file = paste0(meta_info$db_directory, "/logs/output.log"), 
