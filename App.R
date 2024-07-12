@@ -1969,6 +1969,7 @@ ui <- dashboardPage(
                             min = 500,
                             max = 1200,
                             value = 800,
+                            step = 5,
                             width = "95%",
                             ticks = FALSE
                           )
@@ -3905,6 +3906,7 @@ ui <- dashboardPage(
                             min = 500,
                             max = 1200,
                             value = 800,
+                            step = 5,
                             width = "95%",
                             ticks = FALSE
                           )
@@ -7032,6 +7034,7 @@ server <- function(input, output, session) {
                               "",
                               min = 500,
                               max = 1200,
+                              step = 5,
                               value = 800,
                               width = "95%",
                               ticks = FALSE
@@ -9323,6 +9326,9 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
+    widthh <<- paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px")
+    heightt <<- paste0(as.character(input$mst_scale), "px")
+    
     log_message(out, message = "Input reload_db")
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
@@ -11181,6 +11187,51 @@ server <- function(input, output, session) {
   ### Render Visualization Controls ----
   
   #### NJ and UPGMA controls ----
+  
+  # Size scaling NJ
+  observe({
+    req(input$nj_ratio)
+    if(input$nj_ratio == "1.6") {
+      updateSliderInput(session, "nj_scale",
+                        step = 5, value = 800, min = 500, max = 1200)
+    } else if(input$nj_ratio == "1.77777777777778") {
+      updateSliderInput(session, "nj_scale",
+                        step = 9, value = 801, min = 504, max = 1197)
+    } else if(input$nj_ratio == "1.33333333333333"){
+      updateSliderInput(session, "nj_scale",
+                        step = 3, value = 801, min = 501, max = 1200)
+    }
+  })
+  
+  # Size scaling UPGMA
+  observe({
+    req(input$upgma_ratio)
+    if(input$upgma_ratio == "1.6") {
+      updateSliderInput(session, "upgma_scale",
+                        step = 5, value = 800, min = 500, max = 1200)
+    } else if(input$upgma_ratio == "1.77777777777778") {
+      updateSliderInput(session, "upgma_scale",
+                        step = 9, value = 801, min = 504, max = 1197)
+    } else if(input$upgma_ratio == "1.33333333333333"){
+      updateSliderInput(session, "upgma_scale",
+                        step = 3, value = 801, min = 501, max = 1200)
+    }
+  })
+  
+  # Size scaling MST
+  observe({
+    req(input$mst_ratio)
+    if(input$mst_ratio == "1.6") {
+      updateSliderInput(session, "mst_scale",
+                        step = 5, value = 800, min = 500, max = 1200)
+    } else if(input$mst_ratio == "1.77777777777778") {
+      updateSliderInput(session, "mst_scale",
+                        step = 9, value = 801, min = 504, max = 1197)
+    } else if(input$mst_ratio == "1.33333333333333"){
+      updateSliderInput(session, "mst_scale",
+                        step = 3, value = 801, min = 501, max = 1200)
+    }
+  })
   
   # Custom Labels
   
