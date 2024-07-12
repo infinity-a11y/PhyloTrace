@@ -81,7 +81,7 @@ for genome in "$selected_genomes"/*; do
     
     echo "$(date +"%Y-%m-%d %H:%M:%S") - Attaching $genome_filename" >> "$log_file"
     echo "$(date +"%Y-%m-%d %H:%M:%S") - Initiating addition of $genome_filename (attaching)" >> "$output_file"
-    Rscript "$base_path/execute/automatic_typing.R" "$genome_filename"
+    Rscript "$base_path/execute/multi_eval.R" "$genome_filename"
 done
 echo "$(date +"%Y-%m-%d %H:%M:%S") - Multi Typing finalized." >> "$log_file"
 echo "$(date +"%Y-%m-%d %H:%M:%S") - Multi Typing finalized." >> "$output_file"

@@ -22024,7 +22024,7 @@ server <- function(input, output, session) {
         saveRDS(single_typing_df, "execute/single_typing_df.rds")
         
         # Execute single typing script
-        system(paste("bash", paste0(getwd(), "/execute/blat_run.sh"), ">>", paste0(getwd(), "/logs/output.log"), "2>&1"), 
+        system(paste("bash", paste0(getwd(), "/execute/single_typing.sh"), ">>", paste0(getwd(), "/logs/output.log"), "2>&1"), 
                wait = FALSE)
         
         scheme_loci <- list.files(path = scheme_select, full.names = TRUE)
@@ -22921,7 +22921,7 @@ server <- function(input, output, session) {
         Typing$genome_selected <- NULL
         
         # Execute multi blat script  
-        system(paste("bash", paste0(getwd(), "/execute/blat_multi.sh"), ">>", paste0(getwd(), "/logs/output.log"), "2>&1"), 
+        system(paste("bash", paste0(getwd(), "/execute/multi_typing.sh"), ">>", paste0(getwd(), "/logs/output.log"), "2>&1"), 
                wait = FALSE)
         
       }
