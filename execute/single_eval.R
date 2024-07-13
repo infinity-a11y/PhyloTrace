@@ -1,3 +1,5 @@
+library(logr)
+
 # Hand over variables
 meta_info <- readRDS("meta_info_single.rds")
 db_path <- readRDS("single_typing_df.rds")[, "db_path"]
@@ -25,8 +27,11 @@ log.message <- function(log_file, message) {
   cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "- ", message, "\n", file = log_file, append = TRUE)
 }
 
-log.message(log_file = paste0(meta_info$db_directory, "/logs/output.log"),
-            message = "Attaching initiated (single_typing.R)")
+logfile <- file.path(paste0(getwd(), "/logs/single_eval.log"))
+
+log <- log_open(logfile, logdir = FALSE)
+
+log_print("Attaching initiated")
 
 # Define start and stop codons
 start_codons <- c("ATG", "GTG", "TTG")
@@ -293,8 +298,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   # Logging successes
   log.message(log_file = paste0(getwd(), "/logs/single_typing_log.txt"), 
               message = paste0("Successful typing of ", meta_info$assembly_name))
-  log.message(log_file = paste0(getwd(), "/logs/output.log"), 
-              message = paste0("Successful typing of ", meta_info$assembly_name))
+  log_print(paste0("Successful typing of ", meta_info$assembly_name))
   
 } else {
   
@@ -303,6 +307,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   # Logging failures
   log.message(log_file = paste0(getwd(), "/logs/single_typing_log.txt"), 
               message = paste0("Assembly typing of ", meta_info$assembly_name, " failed. ", failures, "% of loci not typed."))
-  log.message(log_file = paste0(getwd(), "/logs/output.log"), 
-              message = paste0("Assembly typing of ", meta_info$assembly_name, " failed. ", failures, "% of loci not typed."))
+  log_print(paste0("Assembly typing of ", meta_info$assembly_name, " failed. ", failures, "% of loci not typed."))
 }
+
+log_close()

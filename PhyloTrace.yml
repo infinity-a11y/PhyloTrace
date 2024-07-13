@@ -98,6 +98,7 @@ dependencies:
   - r-lattice=0.22_5
   - r-lazyeval=0.2.2
   - r-lifecycle=1.0.4
+  - r-logr=1.3.8
   - r-lubridate=1.9.3
   - r-magrittr=2.0.3
   - r-memoise=2.0.1
