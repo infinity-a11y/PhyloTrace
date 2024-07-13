@@ -17135,8 +17135,8 @@ server <- function(input, output, session) {
     if(input$mst_color_var == TRUE & (!is.null(input$mst_col_var))) {
       
       group <- character(nrow(data$nodes))
-      for (i in 1:length(unique(DB$meta_true[[input$mst_col_var]]))) {
-        group[i] <- unique(DB$meta_true[[input$mst_col_var]])[i]
+      for (i in 1:length(unique(Vis$meta_mst[[input$mst_col_var]]))) {
+        group[i] <- unique(Vis$meta_mst[[input$mst_col_var]])[i]
       }
       
       data$nodes <- cbind(data$nodes, data.frame(metadata = character(nrow(data$nodes))))
@@ -17146,21 +17146,21 @@ server <- function(input, output, session) {
       }
       
       if(is.null(input$mst_col_scale)) {
-        Typing$var_cols <- data.frame(value = unique(DB$meta_true[[input$mst_col_var]]),
-                                      color = viridis(length(unique(DB$meta_true[[input$mst_col_var]]))))
+        Typing$var_cols <- data.frame(value = unique(Vis$meta_mst[[input$mst_col_var]]),
+                                      color = viridis(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
       } else if (input$mst_col_scale == "Rainbow") {
-        Typing$var_cols <- data.frame(value = unique(DB$meta_true[[input$mst_col_var]]),
-                                      color = rainbow(length(unique(DB$meta_true[[input$mst_col_var]]))))
+        Typing$var_cols <- data.frame(value = unique(Vis$meta_mst[[input$mst_col_var]]),
+                                      color = rainbow(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
       } else if (input$mst_col_scale == "Viridis") {
-        Typing$var_cols <- data.frame(value = unique(DB$meta_true[[input$mst_col_var]]),
-                                      color = viridis(length(unique(DB$meta_true[[input$mst_col_var]]))))
+        Typing$var_cols <- data.frame(value = unique(Vis$meta_mst[[input$mst_col_var]]),
+                                      color = viridis(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
       }
       
       for(i in 1:nrow(data$nodes)) {
         
         iso_subset <- strsplit(data$nodes$label[i], split = "\n")[[1]]
-        variable <- DB$meta_true[[input$mst_col_var]]
-        values <- variable[which(DB$meta_true$`Assembly Name` %in% iso_subset)]
+        variable <- Vis$meta_mst[[input$mst_col_var]]
+        values <- variable[which(Vis$meta_mst$`Assembly Name` %in% iso_subset)]
         
         for(j in 1:length(unique(values))) {
           
@@ -17834,7 +17834,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_1 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$nj_fruit_variable])) == "numeric") {
+            if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
               if(input$nj_tiles_scale_1 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$nj_tiles_scale_1 == "inferno") {
@@ -17899,7 +17899,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_2 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$nj_fruit_variable_2])) == "numeric") {
+            if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_2])) == "numeric") {
               if(input$nj_tiles_scale_2 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$nj_tiles_scale_2 == "inferno") {
@@ -17964,7 +17964,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_3 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$nj_fruit_variable_3])) == "numeric") {
+            if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_3])) == "numeric") {
               if(input$nj_tiles_scale_3 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$nj_tiles_scale_3 == "inferno") {
@@ -18029,7 +18029,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_4 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$nj_fruit_variable])) == "numeric") {
+            if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
               if(input$nj_tiles_scale_4 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$nj_tiles_scale_4 == "inferno") {
@@ -18094,7 +18094,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_5 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$nj_fruit_variable_5])) == "numeric") {
+            if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_5])) == "numeric") {
               if(input$nj_tiles_scale_5 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$nj_tiles_scale_5 == "inferno") {
@@ -18865,8 +18865,8 @@ server <- function(input, output, session) {
       
       # Add heatmap
       if(input$upgma_heatmap_show == TRUE & length(input$upgma_heatmap_select) > 0) {
-        if (!(any(sapply(DB$meta[input$upgma_heatmap_select], is.numeric)) & 
-              any(!sapply(DB$meta[input$upgma_heatmap_select], is.numeric)))) {
+        if (!(any(sapply(Vis$meta_upgma[input$upgma_heatmap_select], is.numeric)) & 
+              any(!sapply(Vis$meta_upgma[input$upgma_heatmap_select], is.numeric)))) {
           tree <- gheatmap.mod(tree, 
                                data = select(Vis$meta_upgma, input$upgma_heatmap_select),
                                offset = upgma_heatmap_offset(),
@@ -18961,7 +18961,7 @@ server <- function(input, output, session) {
                              name = input$upgma_heatmap_title)
       } else {
         if(input$upgma_heatmap_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-          if(class(unlist(DB$meta[input$upgma_heatmap_select])) == "numeric") {
+          if(class(unlist(Vis$meta_upgma[input$upgma_heatmap_select])) == "numeric") {
             if(input$upgma_heatmap_scale == "magma") {
               scale_fill_viridis(option = "A",
                                  name = input$upgma_heatmap_title)
@@ -19039,7 +19039,7 @@ server <- function(input, output, session) {
                               midpoint = midpoint)
       } else {
         if(input$upgma_tippoint_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-          if(class(unlist(DB$meta[input$upgma_tipcolor_mapping])) == "numeric") {
+          if(class(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping])) == "numeric") {
             if(input$upgma_tippoint_scale == "magma") {
               scale_color_viridis(option = "A")
             } else if(input$upgma_tippoint_scale == "inferno") {
@@ -19100,7 +19100,7 @@ server <- function(input, output, session) {
                               midpoint = midpoint)
       } else {
         if(input$upgma_tiplab_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-          if(class(unlist(DB$meta[input$upgma_color_mapping])) == "numeric") {
+          if(class(unlist(Vis$meta_upgma[input$upgma_color_mapping])) == "numeric") {
             if(input$upgma_tiplab_scale == "magma") {
               scale_color_viridis(option = "A")
             } else if(input$upgma_tiplab_scale == "inferno") {
@@ -19216,7 +19216,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$upgma_tiles_scale_1 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$upgma_fruit_variable])) == "numeric") {
+            if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable])) == "numeric") {
               if(input$upgma_tiles_scale_1 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$upgma_tiles_scale_1 == "inferno") {
@@ -19281,7 +19281,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$upgma_tiles_scale_2 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$upgma_fruit_variable_2])) == "numeric") {
+            if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2])) == "numeric") {
               if(input$upgma_tiles_scale_2 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$upgma_tiles_scale_2 == "inferno") {
@@ -19346,7 +19346,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$upgma_tiles_scale_3 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$upgma_fruit_variable_3])) == "numeric") {
+            if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3])) == "numeric") {
               if(input$upgma_tiles_scale_3 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$upgma_tiles_scale_3 == "inferno") {
@@ -19411,7 +19411,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$upgma_tiles_scale_4 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$upgma_fruit_variable])) == "numeric") {
+            if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable])) == "numeric") {
               if(input$upgma_tiles_scale_4 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$upgma_tiles_scale_4 == "inferno") {
@@ -19476,7 +19476,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$upgma_tiles_scale_5 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$upgma_fruit_variable_5])) == "numeric") {
+            if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5])) == "numeric") {
               if(input$upgma_tiles_scale_5 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$upgma_tiles_scale_5 == "inferno") {
@@ -20392,98 +20392,98 @@ server <- function(input, output, session) {
       vector_col <- character(0)
       count <- 1
       for (i in df_unique$col) {
-        vector_col[count] <- DB$meta_true$`Assembly Name`[i]
+        vector_col[count] <- Vis$meta_mst$`Assembly Name`[i]
         count <- count + 1
       }
       
       vector_row <- character(0)
       count <- 1
       for (i in df_unique$row) {
-        vector_row[count] <- DB$meta_true$`Assembly Name`[i]
+        vector_row[count] <- Vis$meta_mst$`Assembly Name`[i]
         count <- count + 1
       }
       
       col_id <- character(0)
       count <- 1
       for (i in df_unique$col) {
-        col_id[count] <- DB$meta_true$`Assembly ID`[i]
+        col_id[count] <- Vis$meta_mst$`Assembly ID`[i]
         count <- count + 1
       }
       
       row_id <- character(0)
       count <- 1
       for (i in df_unique$row) {
-        row_id[count] <- DB$meta_true$`Assembly ID`[i]
+        row_id[count] <- Vis$meta_mst$`Assembly ID`[i]
         count <- count + 1
       }
       
       col_index <- character(0)
       count <- 1
       for (i in df_unique$col) {
-        col_index[count] <- DB$meta_true$Index[i]
+        col_index[count] <- Vis$meta_mst$Index[i]
         count <- count + 1
       }
       
       row_index <- character(0)
       count <- 1
       for (i in df_unique$row) {
-        row_index[count] <- DB$meta_true$Index[i]
+        row_index[count] <- Vis$meta_mst$Index[i]
         count <- count + 1
       }
       
       col_date <- character(0)
       count <- 1
       for (i in df_unique$col) {
-        col_date[count] <- DB$meta_true$`Isolation Date`[i]
+        col_date[count] <- Vis$meta_mst$`Isolation Date`[i]
         count <- count + 1
       }
       
       row_date <- character(0)
       count <- 1
       for (i in df_unique$row) {
-        row_date[count] <- DB$meta_true$`Isolation Date`[i]
+        row_date[count] <- Vis$meta_mst$`Isolation Date`[i]
         count <- count + 1
       }
       
       col_host <- character(0)
       count <- 1
       for (i in df_unique$col) {
-        col_host[count] <- DB$meta_true$Host[i]
+        col_host[count] <- Vis$meta_mst$Host[i]
         count <- count + 1
       }
       
       row_host <- character(0)
       count <- 1
       for (i in df_unique$row) {
-        row_host[count] <- DB$meta_true$Host[i]
+        row_host[count] <- Vis$meta_mst$Host[i]
         count <- count + 1
       }
       
       col_country <- character(0)
       count <- 1
       for (i in df_unique$col) {
-        col_country[count] <- DB$meta_true$Country[i]
+        col_country[count] <- Vis$meta_mst$Country[i]
         count <- count + 1
       }
       
       row_country <- character(0)
       count <- 1
       for (i in df_unique$row) {
-        row_country[count] <- DB$meta_true$Country[i]
+        row_country[count] <- Vis$meta_mst$Country[i]
         count <- count + 1
       }
       
       col_city <- character(0)
       count <- 1
       for (i in df_unique$col) {
-        col_city[count] <- DB$meta_true$City[i]
+        col_city[count] <- Vis$meta_mst$City[i]
         count <- count + 1
       }
       
       row_city <- character(0)
       count <- 1
       for (i in df_unique$row) {
-        row_city[count] <- DB$meta_true$City[i]
+        row_city[count] <- Vis$meta_mst$City[i]
         count <- count + 1
       }
       
@@ -20534,7 +20534,7 @@ server <- function(input, output, session) {
       for(j in 1:length(final_cleaned$Index)) {
         Date <- character(0)
         for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
-          Date <- append(Date, DB$meta_true$`Isolation Date`[which(DB$meta_true$Index == i)])
+          Date <- append(Date, Vis$meta_mst$`Isolation Date`[which(Vis$meta_mst$Index == i)])
         }
         Date_merged <- append(Date_merged, paste(Date, collapse = "\n"))
       }
@@ -20543,7 +20543,7 @@ server <- function(input, output, session) {
       for(j in 1:length(final_cleaned$Index)) {
         Host <- character(0)
         for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
-          Host <- append(Host, DB$meta_true$Host[which(DB$meta_true$Index == i)])
+          Host <- append(Host, Vis$meta_mst$Host[which(Vis$meta_mst$Index == i)])
         }
         Host_merged <- append(Host_merged, paste(Host, collapse = "\n"))
       }
@@ -20552,7 +20552,7 @@ server <- function(input, output, session) {
       for(j in 1:length(final_cleaned$Index)) {
         Country <- character(0)
         for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
-          Country <- append(Country, DB$meta_true$Country[which(DB$meta_true$Index == i)])
+          Country <- append(Country, Vis$meta_mst$Country[which(Vis$meta_mst$Index == i)])
         }
         Country_merged <- append(Country_merged, paste(Country, collapse = "\n"))
       }
@@ -20561,7 +20561,7 @@ server <- function(input, output, session) {
       for(j in 1:length(final_cleaned$Index)) {
         City <- character(0)
         for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
-          City <- append(City, DB$meta_true$City[which(DB$meta_true$Index == i)])
+          City <- append(City, Vis$meta_mst$City[which(Vis$meta_mst$Index == i)])
         }
         City_merged <- append(City_merged, paste(City, collapse = "\n"))
       }
@@ -20573,10 +20573,10 @@ server <- function(input, output, session) {
       # Merging with original data frame / allelic profile
       
       allelic_profile_true <- DB$allelic_profile_true
-      meta_true <- DB$meta_true
+      meta_true <- Vis$meta_mst
       
-      rownames(allelic_profile_true) <- DB$meta_true$`Assembly Name`
-      rownames(meta_true) <- DB$meta_true$`Assembly Name`
+      rownames(allelic_profile_true) <- Vis$meta_mst$`Assembly Name`
+      rownames(meta_true) <- Vis$meta_mst$`Assembly Name`
       
       omit <- unique(append(df_unique$col_name, df_unique$row_name)) %in% final_cleaned$col_name
       
@@ -20665,10 +20665,10 @@ server <- function(input, output, session) {
       
       
     } else {
-      font_size <- rep(12, nrow(DB$meta_true))
-      valign <- rep(-30, nrow(DB$meta_true))
-      size <- rep(1, nrow(DB$meta_true))
-      Vis$unique_meta <- DB$meta_true %>%
+      font_size <- rep(12, nrow(Vis$meta_mst))
+      valign <- rep(-30, nrow(Vis$meta_mst))
+      size <- rep(1, nrow(Vis$meta_mst))
+      Vis$unique_meta <- Vis$meta_mst %>%
         cbind(size , font_size, valign)
       
       dist
@@ -20747,7 +20747,7 @@ server <- function(input, output, session) {
         
         if (input$tree_algo == "Neighbour-Joining") {
           
-           log_print("Rendering NJ tree")
+          log_print("Rendering NJ tree")
           
           output$nj_field <- renderUI({
             addSpinner(
@@ -20903,7 +20903,7 @@ server <- function(input, output, session) {
           }
         } else if (input$tree_algo == "UPGMA") {
           
-           log_print("Rendering UPGMA tree")
+          log_print("Rendering UPGMA tree")
           
           output$upgma_field <- renderUI({
             addSpinner(
@@ -21059,7 +21059,7 @@ server <- function(input, output, session) {
           }
         } else {
           
-           log_print("Rendering MST graph")
+          log_print("Rendering MST graph")
           
           output$mst_field <- renderUI({
             if(input$mst_background_transparent == TRUE) {
@@ -21075,7 +21075,7 @@ server <- function(input, output, session) {
           
           if(nrow(DB$meta_true) > 100) {
             
-             log_print("Over 100 isolates in MST graph")
+            log_print("Over 100 isolates in MST graph")
             
             show_toast(
               title = "Computation might take a while",
@@ -21085,6 +21085,9 @@ server <- function(input, output, session) {
               timer = 10000
             )
           }
+          
+          meta_mst <- DB$meta_true
+          Vis$meta_mst <- meta_mst
           
           # prepare igraph object
           Vis$ggraph_1 <- hamming_mst() |>
