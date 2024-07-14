@@ -711,8 +711,15 @@ button#edit_button.btn.btn-default.action-button.shiny-bound-input {
   margin-bottom: 15px;
 }
 
-body > div.htDatepickerHolder > div > div > table > tbody > tr:nth-child(1) > td.is-selected > button,
-body > div.htDatepickerHolder > div > div > table > tbody > tr:nth-child(1) > td.is-selected,
+body > div.htDatepickerHolder > div > div > table > tbody > tr > td.is-today.is-selected > button{
+  color: white;
+  background: #282F38;
+  border-radius: 5px;
+  box-shadow: inset 0 1px 3px rgb(0 0 0)
+}
+
+body > div.htDatepickerHolder > div > div > table > tbody > tr > td.is-selected > button,
+body > div.htDatepickerHolder > div > div > table > tbody > tr > td.is-selected,
 .is-selected .pika-button {
   color: white;
   background: #282F38;
@@ -730,14 +737,14 @@ body > div.htDatepickerHolder > div > div > table > tbody > tr:nth-child(1) > td
 }
 
 .is-today .pika-button,
-body > div.htDatepickerHolder > div > div > table > tbody > tr:nth-child(1) > td.is-today > button{
+body > div.htDatepickerHolder > div > div > table > tbody > tr > td.is-today > button{
   border: 1px solid rgb(0, 0, 0);
   font-weight: 900;
   border-radius: 5px;
   color: black;
 }
 
-body > div.datepicker.datepicker-dropdown.dropdown-menu.datepicker-orient-left.datepicker-orient-top > div.datepicker-days > table > tbody > tr:nth-child(1) > td.active.day {
+body > div.datepicker.datepicker-dropdown.dropdown-menu.datepicker-orient-left.datepicker-orient-top > div.datepicker-days > table > tbody > tr > td.active.day {
   background: #282F38;
   color: white;
     
@@ -2726,6 +2733,10 @@ button#upgma_tile_menu_2, button#upgma_tile_menu_3, button#upgma_tile_menu_4, bu
 }
 
 /* Report */
+
+#shiny-modal > div > div > div.modal-body > div > div > div:nth-child(5) > div > div > div > div > button {
+  border: 1px solid black;
+}
 
 #rep_general {
   position: absolute;
