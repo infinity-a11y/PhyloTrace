@@ -1064,7 +1064,6 @@ button#mst_col_map_menu {
 }
 
 .sel-clade {
-  margin-left: 15px;
   margin-block: -2px;
 }
 
@@ -1228,9 +1227,7 @@ button#mst_col_map_menu {
   margin-right: 0px;
 }
 
-#nj_ratio.selectize-control.single .selectize-input:not(.no-arrow):after, 
-#upgma_ratio .selectize-control.single .selectize-input:not(.no-arrow):after,
-#nj_ratio-selectized {
+.ratio-sel div.selectize-input.items.full.has-options.has-items::after {
   right: 5px !important;
 }
 

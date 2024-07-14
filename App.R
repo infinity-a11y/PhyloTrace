@@ -3173,8 +3173,11 @@ ui <- dashboardPage(
                     uiOutput("nj_clade_scale"),
                     fluidRow(
                       column(
-                        width = 8,
-                        align = "center",
+                        width = 5,
+                        h5(p("Form"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
+                      ),
+                      column(
+                        width = 7,
                         div(
                           class = "sel-clade",
                           selectInput(
@@ -3184,37 +3187,6 @@ ui <- dashboardPage(
                                         "Round" = "roundrect"),
                             selected = c("Round" = "roundrect")
                           ) 
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        align = "right",
-                        dropMenu(
-                          actionBttn(
-                            "nj_clade_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-end",
-                          theme = "translucent",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "center",
-                              selectInput(
-                                "nj_clade_align",
-                                label = h5("Align", style = "color:white; font-size: 14px;"),
-                                choices = c("None" = "none",
-                                            "Left" = "left",
-                                            "Right" = "right",
-                                            "Both" = "both"),
-                                width = "100px"
-                              )
-                            )
-                          )
                         )
                       )
                     )
@@ -5114,8 +5086,11 @@ ui <- dashboardPage(
                     uiOutput("upgma_clade_scale"),
                     fluidRow(
                       column(
-                        width = 8,
-                        align = "center",
+                        width = 5,
+                        h5(p("Form"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
+                      ),
+                      column(
+                        width = 7,
                         div(
                           class = "sel-clade",
                           selectInput(
@@ -5125,37 +5100,6 @@ ui <- dashboardPage(
                                         "Round" = "roundrect"),
                             selected = c("Round" = "roundrect")
                           ) 
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        align = "right",
-                        dropMenu(
-                          actionBttn(
-                            "upgma_clade_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-end",
-                          theme = "translucent",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "center",
-                              selectInput(
-                                "upgma_clade_align",
-                                label = h5("Align", style = "color:white; font-size: 14px;"),
-                                choices = c("None" = "none",
-                                            "Left" = "left",
-                                            "Right" = "right",
-                                            "Both" = "both"),
-                                width = "100px"
-                              )
-                            )
-                          )
                         )
                       )
                     )
@@ -9412,7 +9356,10 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
-     log_print("Input reload_db")
+    fill1 <<- brewer.pal(3, input$upgma_clade_scale)
+    trest <<- input$upgma_clade_scale
+    
+    log_print("Input reload_db")
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -16026,9 +15973,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16075,9 +16024,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16124,9 +16075,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16173,9 +16126,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16222,9 +16177,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16271,9 +16228,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16320,9 +16279,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16369,9 +16330,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16418,9 +16381,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16467,9 +16432,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -17380,7 +17347,7 @@ server <- function(input, output, session) {
     Vis$nj[["edge.length"]] <- abs(Vis$nj[["edge.length"]])
     
     if(input$nj_nodelabel_show == TRUE) {
-      ggtree(Vis$nj, alpha = 0.2) + 
+      ggtree(Vis$nj, alpha = 0.2, layout = layout_nj()) + 
         geom_nodelab(aes(label = node), color = "#29303A", size = nj_tiplab_size() + 1, hjust = 0.7) +
         nj_limit() +
         nj_inward() 
@@ -17761,40 +17728,21 @@ server <- function(input, output, session) {
         if(length(input$nj_parentnode) == 1) {
           fill <- input$nj_clade_scale
         } else if (length(input$nj_parentnode) == 2) {
-          fill <- brewer.pal(3, input$nj_clade_scale)[1:2]
+          if(startsWith(input$nj_clade_scale, "#")) {
+            fill <- brewer.pal(3, "Set1")[1:2]
+          } else {
+            fill <- brewer.pal(3, input$nj_clade_scale)[1:2]
+          }
         } else {
           fill <- brewer.pal(length(input$nj_parentnode), input$nj_clade_scale)
         }
         geom_hilight(node = as.numeric(input$nj_parentnode),
                      fill = fill,
-                     align = nj_align_clade(),
                      type = input$nj_clade_type,
-                     gradient.direction = nj_clade_grad_dir(),
-                     gradient.length.out = nj_clade_grad_len())
+                     to.bottom = TRUE
+                     )
       } else {NULL}
     }
-  })
-  
-  # Clade highlight align 
-  
-  nj_align_clade <- reactive({
-    if(is.null(input$nj_clade_align)) {
-      input$nj_clade_align
-    } else {input$nj_clade_align}
-  })
-  
-  # Clade highlight gradient direction
-  nj_clade_grad_dir <- reactive({
-    if(input$nj_clade_type == "gradient") {
-      input$nj_clade_grad_dir
-    } else {"rt"}
-  })
-  
-  # Clade hightlight gradient length
-  nj_clade_grad_len <- reactive({
-    if(input$nj_clade_type == "gradient") {
-      nj_clade_grad_len
-    } else {2}
   })
   
   # Legend Position
@@ -18772,7 +18720,7 @@ server <- function(input, output, session) {
   
   upgma_tree <- reactive({
     if(input$upgma_nodelabel_show == TRUE) {
-      ggtree(Vis$upgma, alpha = 0.2) + 
+      ggtree(Vis$upgma, alpha = 0.2, layout = layout_upgma()) + 
         geom_nodelab(aes(label = node), color = "#29303A", size = upgma_tiplab_size() + 1, hjust = 0.7) +
         upgma_limit() +
         upgma_inward() 
@@ -19151,32 +19099,20 @@ server <- function(input, output, session) {
         if(length(input$upgma_parentnode) == 1) {
           fill <- input$upgma_clade_scale
         } else if (length(input$upgma_parentnode) == 2) {
-          fill <- brewer.pal(3, input$upgma_clade_scale)[1:2]
+          if(startsWith(input$upgma_clade_scale, "#")) {
+            fill <- brewer.pal(3, "Set1")[1:2]
+          } else {
+            fill <- brewer.pal(3, input$upgma_clade_scale)[1:2]
+          }
         } else {
           fill <- brewer.pal(length(input$upgma_parentnode), input$upgma_clade_scale)
         }
         geom_hilight(node = as.numeric(input$upgma_parentnode),
                      fill = fill,
-                     align = input$upgma_clade_align,
                      type = input$upgma_clade_type,
-                     gradient.direction = upgma_clade_grad_dir(),
-                     gradient.length.out = upgma_clade_grad_len())
+                     to.bottom = TRUE)
       } else {NULL}
     }
-  })
-  
-  # Clade highlight gradient direction
-  upgma_clade_grad_dir <- reactive({
-    if(input$upgma_clade_type == "gradient") {
-      input$upgma_clade_grad_dir
-    } else {"rt"}
-  })
-  
-  # Clade hightlight gradient length
-  upgma_clade_grad_len <- reactive({
-    if(input$upgma_clade_type == "gradient") {
-      upgma_clade_grad_len
-    } else {2}
   })
   
   # Legend Position
