@@ -17324,7 +17324,7 @@ server <- function(input, output, session) {
                          } else {
                            data$edges$weight * input$mst_edge_length_scale
                          },
-                         label = as.character(weight),
+                         label = as.character(data$edges$weight),
                          opacity = mst_edge_opacity())
     
     visNetwork(data$nodes, data$edges, 
