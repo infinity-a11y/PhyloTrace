@@ -27,10 +27,12 @@ cat >> run_phylotrace.sh << 'EOF'
 # Activate conda
 eval "$($CONDA_PATH shell.bash hook)"
 conda activate PhyloTrace
-if [ "$R_BROWSER" == "" ]; then
-   R_BROWSER=xdg-open Rscript -e "shiny::runApp('${SCRIPT_DIR}/App.R', launch.browser=TRUE)"
-else
+if [ "$R_BROWSER" != "" ]; then
    Rscript -e "shiny::runApp('${SCRIPT_DIR}/App.R', launch.browser=TRUE)"
+elif [[ $(uname -r) == *"microsoft"* ]]; then
+   R_BROWSER=wslview Rscript -e "shiny::runApp('${SCRIPT_DIR}/App.R', launch.browser=TRUE)"
+else
+   R_BROWSER=xdg-open Rscript -e "shiny::runApp('${SCRIPT_DIR}/App.R', launch.browser=TRUE)"
 fi
 EOF
 

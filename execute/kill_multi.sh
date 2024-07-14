@@ -2,8 +2,8 @@
 unset R_HOME
 
 log_file='execute/script_log.txt'
-blat_multi='execute/blat_multi.sh'
-automatic_typing='automatic_typing.R'
+blat_multi='execute/multi_typing.sh'
+automatic_typing='multi_eval.R'
 
 # Function to log messages to the file
 log_message() {

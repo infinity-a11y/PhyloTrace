@@ -35,20 +35,17 @@ fi
 mkdir "$results"
 
 # Check assembly file and save in the execute folder
-Rscript "$base_path/execute/check_duplicate.R"
+Rscript "$base_path/execute/check_duplicate_single.R"
 wait
 genome="$base_path/execute/blat_single/assembly.fasta"
 
 # Run parallelized BLAT
-parallel --citation
-find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name "*.fna" \) | parallel pblat $genome {} "$results/{/.}.psl"
+find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name "*.fna" \) | parallel pblat $genome {} "$results/{/.}.psl" > /dev/null 2>&1
 
 # Start appending results
 echo 888888 >> "$base_path/logs/progress.txt"
-echo "Initiating addition of $genome_name (attaching)" >> "$base_path/logs/output.log"
-Rscript "$base_path/execute/single_typing.R"
+Rscript "$base_path/execute/single_eval.R"
 wait
 
 # Single typing finalized
 echo 999999 >> "$base_path/logs/progress.txt"
-echo "Finished typing of $genome_name" >> "$base_path/logs/output.log"

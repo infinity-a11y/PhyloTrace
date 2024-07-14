@@ -1,3 +1,5 @@
+library(logr)
+
 meta_info <- readRDS("meta_info.rds")
 db_path <- readRDS("multi_typing_df.rds")[, "db_path"]
 assembly_folder <- dir(paste0(getwd(), "/selected_genomes"), full.names = TRUE)
@@ -26,8 +28,11 @@ log.message <- function(log_file, message) {
   cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "-", message, "\n", file = log_file, append = TRUE)
 }
 
-log.message(log_file = paste0(meta_info$db_directory, "/logs/output.log"),
-            message = "Attaching initiated (automatic_typing.R)")
+logfile <- file.path(paste0(getwd(), "/logs/multi_eval.log"))
+
+log <- log_open(logfile, logdir = FALSE)
+
+log_print("Attaching initiated")
 
 # Define start and stop codons
 start_codons <- c("ATG", "GTG", "TTG")
@@ -309,18 +314,18 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   saveRDS(Database, paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Typing.rds"))
   
   # Logging successes
-  log.message(log_file = paste0(getwd(), "/execute/script_log.txt"), 
+  log.message(log_file = paste0(getwd(), "/logs/script_log.txt"), 
               message = paste0("Successful typing of ", sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
-  log.message(log_file = paste0(meta_info$db_directory, "/logs/output.log"), 
-              message = paste0("Successful typing of ", sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
+  log_print(paste0("Successful typing of ", sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
   
 } else {
   
   # Logging failures
-  log.message(log_file = paste0(getwd(), "/execute/script_log.txt"), 
+  log.message(log_file = paste0(getwd(), "/logs/script_log.txt"), 
               message = paste0("Assembly typing failed for ", 
                                sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
-  log.message(log_file = paste0(meta_info$db_directory, "/logs/output.log"), 
-              message = paste0("Assembly typing failed for ", 
-                               sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
+  log_print(paste0("Assembly typing failed for ", 
+                         sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
 }
+
+log_close()

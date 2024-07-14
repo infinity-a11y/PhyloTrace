@@ -1,3 +1,5 @@
+library(logr)
+
 # Hand over variables
 meta_info <- readRDS("meta_info_single.rds")
 db_path <- readRDS("single_typing_df.rds")[, "db_path"]
@@ -25,8 +27,11 @@ log.message <- function(log_file, message) {
   cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "- ", message, "\n", file = log_file, append = TRUE)
 }
 
-log.message(log_file = paste0(meta_info$db_directory, "/logs/output.log"),
-            message = "Attaching initiated (single_typing.R)")
+logfile <- file.path(paste0(getwd(), "/logs/single_eval.log"))
+
+log <- log_open(logfile, logdir = FALSE)
+
+log_print("Attaching initiated")
 
 # Define start and stop codons
 start_codons <- c("ATG", "GTG", "TTG")
@@ -142,33 +147,26 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
     
     Database <- list(Typing = data.frame())
     
-    Typing <-
-      data.frame(matrix(
-        NA,
-        nrow = 0,
-        ncol = 12 + length(psl_files)
-      ))
+    Typing <- data.frame(matrix(NA, nrow = 0, ncol = 12 + length(psl_files)))
     
-    metadata <-
-      c(
-        1,
-        TRUE,
-        meta_info$assembly_id,
-        meta_info$assembly_name,
-        meta_info$cgmlst_typing,
-        as.character(meta_info$append_isodate),
-        meta_info$append_host,
-        meta_info$append_country,
-        meta_info$append_city,
-        as.character(meta_info$append_analysisdate),
-        length(allele_vector) - sum(sapply(allele_vector, is.na)),
-        sum(sapply(allele_vector, is.na))
-      )
+    metadata <- c(
+      1,
+      TRUE,
+      meta_info$assembly_id,
+      meta_info$assembly_name,
+      meta_info$cgmlst_typing,
+      as.character(meta_info$append_isodate),
+      meta_info$append_host,
+      meta_info$append_country,
+      meta_info$append_city,
+      as.character(meta_info$append_analysisdate),
+      length(allele_vector) - sum(sapply(allele_vector, is.na)),
+      sum(sapply(allele_vector, is.na))
+    )
     
     new_row <- c(metadata, allele_vector)
     
     Typing <- rbind(Typing, new_row)
-    
     
     colnames(Typing) <-
       append(
@@ -298,18 +296,18 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   saveRDS(Database, paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Typing.rds"))
   
   # Logging successes
-  log.message(log_file = paste0(getwd(), "/execute/single_typing_log.txt"), 
+  log.message(log_file = paste0(getwd(), "/logs/single_typing_log.txt"), 
               message = paste0("Successful typing of ", meta_info$assembly_name))
-  log.message(log_file = paste0(getwd(), "/logs/output.log"), 
-              message = paste0("Successful typing of ", meta_info$assembly_name))
+  log_print(paste0("Successful typing of ", meta_info$assembly_name))
   
 } else {
   
   failures <- sum(unname(base::sapply(psl_files, file.size)) <= 100) / length(psl_files) * 100
   
   # Logging failures
-  log.message(log_file = paste0(getwd(), "/execute/single_typing_log.txt"), 
+  log.message(log_file = paste0(getwd(), "/logs/single_typing_log.txt"), 
               message = paste0("Assembly typing of ", meta_info$assembly_name, " failed. ", failures, "% of loci not typed."))
-  log.message(log_file = paste0(getwd(), "/logs/output.log"), 
-              message = paste0("Assembly typing of ", meta_info$assembly_name, " failed. ", failures, "% of loci not typed."))
+  log_print(paste0("Assembly typing of ", meta_info$assembly_name, " failed. ", failures, "% of loci not typed."))
 }
+
+log_close()
