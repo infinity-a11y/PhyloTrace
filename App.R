@@ -5441,6 +5441,7 @@ server <- function(input, output, session) {
   
   # Kill server on session end
   session$onSessionEnded( function() {
+    log_close()
     stopApp()
   })
   
