@@ -31,11 +31,14 @@ working on achieving that.
 <sup><sup> Developed in collaboration with Hochschule Furtwangen University (HFU) and Medical
 University of Graz (MUG). Featured on ShinyConf 2024. </sup> </sup>
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10996423.svg)](https://doi.org/10.5281/zenodo.10996423)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.10996423-00e896?labelColor=gray&color=2500ba&logoColor=black)](https://doi.org/10.5281/zenodo.10996423)
 [![License: GPL
 v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![Project Status: Active – The project has reached a stable, usable state and is being actively
 developed.](https://www.repostatus.org/badges/latest/active.svg)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
+![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white)  
+
 
 ----------------------------------------------------------------------------------------------------
 
