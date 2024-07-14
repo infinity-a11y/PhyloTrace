@@ -390,4 +390,3 @@ In addition to the points listed on the roadmap, we constantly improve existing 
 🔲 Backwards Compatibility with MLST (ST calling)\
 🔲 Implementation of wgMLST\
 🔲 Implementation of a Gene Enrichment Analysis\
-🔲 Validation of PhyloTrace for Clinical Use
