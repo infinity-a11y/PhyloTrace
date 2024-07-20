@@ -79,9 +79,6 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       
       matches <- data.table::fread(psl_files[i], select = c(1, 5, 6, 7, 8, 10, 11, 14, 16, 17), header = FALSE)
       
-      # variant count 
-      n_variants <- max(matches$V10)
-      
       if(any(matches$V1 == matches$V11 & (matches$V5 + matches$V7) == 0)) {
         
         perf_match <- matches[which(matches$V1 == matches$V11)]
