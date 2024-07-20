@@ -5722,6 +5722,33 @@ server <- function(input, output, session) {
     seq_hash
   }
   
+  # Get locus hashes
+  get_locus_hashes <- function(locus_path) {
+    locus_file <- readLines(locus_path)
+    hash_list <- locus_file[seq(1, length(locus_file), 3)]
+    hash_list <- sapply(strsplit(hash_list, "[>]"), function(x) x[2])
+  }
+  
+  extract_seq <- function(locus_path, hashes) {
+    locus_file <- readLines(locus_path)
+    hash_list <- sapply(strsplit(locus_file[seq(1, length(locus_file), 3)], "[>]"), function(x) x[2])
+    seq_list <- locus_file[seq(2, length(locus_file), 3)]
+    seq_idx <- hash_list %in% hashes
+    
+    list(
+      idx = hash_list[seq_idx],
+      seq = seq_list[seq_idx]
+    )
+  }
+  
+  add_new_sequences <- function(locus_path, sequences) {
+    locus_file <- file(locus_path, open = "a+")
+    for (i in seq_along(sequences$idx)) {
+      writeLines(c("", paste0(">", sequences$idx[i]), sequences$seq[i]), locus_file)
+    }
+    close(locus_file)
+  }
+  
   # Function to check single typing log file
   check_new_entry <- reactive({
     
@@ -6366,8 +6393,6 @@ server <- function(input, output, session) {
             
             log_message(log_file = out, message = "Missing loci files")
             
-            # TODO Check if changes are needed for robust update changes
-            
             # Show message that loci files are missing
             showModal(
               modalDialog(
@@ -6436,8 +6461,6 @@ server <- function(input, output, session) {
             gsub(" ", "_", DB$scheme)))))) {
             
             output$download_scheme_info <- NULL
-            
-            # TODO check if changes are needed for robust update changes
             
             log_message(log_file = out, message = "Scheme info file missing")
             
@@ -6513,8 +6536,6 @@ server <- function(input, output, session) {
             output$download_loci <- NULL
             
             log_message(log_file = out, message = "Missing loci info (targets.csv)")
-            
-            # TODO check if changes are needed for robust update changes
             
             # Show message that scheme info is missing
             showModal(
@@ -6650,8 +6671,6 @@ server <- function(input, output, session) {
                 "NULL"
               )
             )
-            
-            # TODO check if changes are needed for robust update
             
             # Check if number of loci/fastq-files of alleles is coherent with number of targets in scheme
             if(DB$number_loci != length(dir_ls(paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")))) {
@@ -11320,11 +11339,17 @@ server <- function(input, output, session) {
     
     # Check if .downloaded_schemes folder exists and if not create it
     if (!dir.exists(file.path(DB$database, ".downloaded_schemes"))) {
+      print("Creating download schemes folder")
       dir.create(file.path(DB$database, ".downloaded_schemes"), recursive = TRUE)
     }
     
-    # Download Loci Fasta Files
+    # Check if remains of old temporary folder exists and remove them
+    if (dir.exists(file.path(DB$database, Scheme$folder_name, paste0(Scheme$folder_name, ".tmp")))) {
+      print("Deleting old temporary folder")
+      unlink(file.path(DB$database, Scheme$folder_name, paste0(Scheme$folder_name, ".tmp")), recursive = TRUE)
+    }
     
+    # Download Loci Fasta Files
     options(timeout = 600)
     
     tryCatch({
@@ -11335,18 +11360,93 @@ server <- function(input, output, session) {
       paste("Error: ", e$message)
     })
     
+    print("Unzipping the scheme")
+    # Unzip the scheme in temporary folder
     unzip(
       zipfile = file.path(DB$database, ".downloaded_schemes", paste0(Scheme$folder_name, ".zip")),
       exdir = file.path(DB$database, 
                         Scheme$folder_name, 
-                        paste0(Scheme$folder_name, "_alleles")
+                        paste0(Scheme$folder_name, ".tmp")
       )
     )
     
-    # Hash database
+    print("Producing hashes for the database")
+    # Hash temporary folder
     hash_database(file.path(DB$database, 
                             Scheme$folder_name, 
-                            paste0(Scheme$folder_name, "_alleles")))
+                            paste0(Scheme$folder_name, ".tmp")))
+    
+    # Get list from local database
+    local_db_filelist <- list.files(file.path(DB$database, 
+                                              Scheme$folder_name, 
+                                              paste0(Scheme$folder_name, "_alleles")))
+    if (!is_empty(local_db_filelist)) {
+      print("Old database is not empty, resolving the files!")
+      # Get list from temporary database
+      tmp_db_filelist <- list.files(file.path(DB$database,
+                                              Scheme$folder_name,
+                                              paste0(Scheme$folder_name, ".tmp")))
+      
+      # Find the difference (extra files in local database)
+      local_db_extra <- setdiff(local_db_filelist, tmp_db_filelist)
+      
+      # Copy extra files to temporary folder
+      file.copy(file.path(DB$database,
+                          Scheme$folder_name, 
+                          paste0(Scheme$folder_name, "_alleles"), local_db_extra),
+                file.path(DB$database,
+                          Scheme$folder_name,
+                          paste0(Scheme$folder_name, ".tmp")))
+      
+      # Check differences in file pairs
+      local_db_hashes <- tools::md5sum(file.path(DB$database,
+                                                 Scheme$folder_name,
+                                                 paste0(Scheme$folder_name, "_alleles"),
+                                                 local_db_filelist))
+      tmp_db_hashes <- tools::md5sum(file.path(DB$database,
+                                               Scheme$folder_name,
+                                               paste0(Scheme$folder_name, ".tmp"),
+                                               local_db_filelist))
+      
+      diff_files <- local_db_hashes %in% tmp_db_hashes
+      diff_loci <- names(local_db_hashes)[diff_files == FALSE]
+      diff_loci <- sapply(strsplit(diff_loci, "/"), function(x) x[length(x)])
+      
+      # Check locus hashes
+      for (locus in diff_loci) {
+        local_db_hashes <- get_locus_hashes(file.path(DB$database,
+                                                      Scheme$folder_name,
+                                                      paste0(Scheme$folder_name, "_alleles"),
+                                                      locus))
+        tmp_db_hashes <- get_locus_hashes(file.path(DB$database,
+                                                    Scheme$folder_name,
+                                                    paste0(Scheme$folder_name, ".tmp"),
+                                                    locus))
+        diff_hashes <- setdiff(local_db_hashes, tmp_db_hashes)
+        
+        sequences <- extract_seq(file.path(DB$database,
+                                     Scheme$folder_name,
+                                     paste0(Scheme$folder_name, "_alleles"),
+                                     locus), diff_hashes)
+        if (!is_empty(sequences$idx) && !is_empty(sequences$seq) &&
+            length(sequences$idx) == length(sequences$seq)) {
+          add_new_sequences(file.path(DB$database,
+                                     Scheme$folder_name,
+                                     paste0(Scheme$folder_name, ".tmp"),
+                                     locus), sequences)
+        }
+      }
+    }
+    
+    print("Delete old alleles folder")
+    unlink(file.path(DB$database, Scheme$folder_name, 
+                         paste0(Scheme$folder_name, "_alleles")), recursive = TRUE)
+
+    print("Overwriting old alleles directory with temporary directory")
+    file.rename(file.path(DB$database, Scheme$folder_name,
+                        paste0(Scheme$folder_name, ".tmp")),
+              file.path(DB$database, Scheme$folder_name,
+                      paste0(Scheme$folder_name, "_alleles")))
     
     # Download Scheme Info
     download(
@@ -11358,7 +11458,7 @@ server <- function(input, output, session) {
     # Download Loci Info	
     download(	
       Scheme$link_targets,	
-      dest = paste0(DB$database, "/", Scheme$folder_name, "/targets.csv"),	
+      dest = file.path(DB$database, Scheme$folder_name, "targets.csv"),
       mode = "wb"
     )
     
@@ -11366,7 +11466,7 @@ server <- function(input, output, session) {
     DB$available <- gsub("_", " ", basename(dir_ls(DB$database)))
     
     Scheme$target_table <- read.csv(
-      paste0(DB$database, "/", Scheme$folder_name, "/targets.csv"),	
+      file.path(DB$database, Scheme$folder_name, "targets.csv"),
       header = TRUE,	
       sep = "\t",	
       row.names = NULL,	
@@ -11391,6 +11491,8 @@ server <- function(input, output, session) {
       timer = 5000,
       width = "400px"
     )
+    
+    # TODO Add log message regarding the update of the scheme
     
     log_message(out, message = "Download successful")
     
