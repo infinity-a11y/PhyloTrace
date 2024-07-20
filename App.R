@@ -38,6 +38,7 @@ library(bsicons)
 library(DT)
 library(shinyBS)
 library(openssl)
+library(logr)
 # Bioconductor Packages
 library(treeio)
 library(ggtree)
@@ -260,6 +261,8 @@ sel_countries <-
     "United Kingdom",
     "United States of America")
 
+options(ignore.negative.edge=TRUE)
+
 # User Interface ----
 
 ui <- dashboardPage(
@@ -329,6 +332,7 @@ ui <- dashboardPage(
   ),
   
   dashboardBody(
+    tags$head(tags$link(rel = "shortcut icon", href = "favicon.ico")),
     shinyjs::useShinyjs(),
     
     shinyDashboardThemeDIY(
@@ -1097,476 +1101,254 @@ ui <- dashboardPage(
                     )
                   )
                 )
-            )
-          ),
-          column(
-            width = 4,
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = "100%",
-              height = "500px",
-              h3(p("Nodes"), style = "color:white; position:relative; right:-15px"),
-              hr(),
-              fluidRow(
-                column(
-                  width = 6,
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Label"), style = "color:white;")
-                  ),
-                  column(
-                    width = 12,
-                    align = "center",
-                    div(
-                      class = "label_sel",
-                      uiOutput("mst_node_label")
-                    ),
-                    fluidRow(
-                      column(
-                        width = 7,
-                        colorPickr(
-                          inputId = "node_font_color",
-                          width = "100%",
-                          selected = "#000000",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        )
-                      ),
-                      column(
-                        width = 5,
-                        dropMenu(
-                          actionBttn(
-                            "mst_label_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-start",
-                          theme = "translucent",
-                          numericInput(
-                            "node_label_fontsize",
-                            label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                            value = 14,
-                            min = 8,
-                            max = 30,
-                            step = 1,
-                            width = "80px"
-                          )
-                        )
-                      )
-                    )
-                  )
-                ),
-                column(
-                  width = 6,
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Color"), style = "color:white; position: relative; right: -15px"),
-                      column(
-                        width = 12,
-                        align = "center",
-                        fluidRow(
-                          column(
-                            width = 10,
-                            align = "left",
-                            div(
-                              class = "mat-switch-mst-nodes",
-                              materialSwitch(
-                                "mst_color_var",
-                                h5(p("Add Variable"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                value = FALSE,
-                                right = TRUE
-                              )
-                            )
-                          ),
-                          column(
-                            width = 2,
-                            bslib::tooltip(
-                              bsicons::bs_icon("info-circle", title = "Only categorical variables can \nbe mapped to the node color.", color = "white", 
-                                               height = "12px", width = "12px", position = "relative", top = "27px", right = "56px"),
-                              "Text shown in the tooltip.",
-                              show = FALSE,
-                              id = "mst_node_col_info"
-                            )
-                          )
-                        ),
-                        uiOutput("mst_color_mapping")
-                      )
-                    )
-                  ), br()
-                )
-              ),
-              hr(),
-              fluidRow(
-                column(
-                  width = 6,
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Size"), style = "color:white; position: relative; right: -15px"),
-                      column(
-                        width = 12,
-                        align = "center",
-                        fluidRow(
-                          column(
-                            width = 12,
-                            align = "left",
-                            div(
-                              class = "mat-switch-mst-nodes",
-                              materialSwitch(
-                                "scale_nodes",
-                                h5(p("Scale by Duplicates"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                value = TRUE,
-                                right = TRUE
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  ),
-                  column(
-                    width = 12,
-                    align = "left",
-                    fluidRow(
-                      column(
-                        width = 3,
-                        align = "left",
-                        conditionalPanel(
-                          "input.scale_nodes==true",
-                          HTML(
-                            paste(
-                              tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Range')
-                            )
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.scale_nodes==false",
-                          HTML(
-                            paste(
-                              tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Size')
-                            )
-                          )
-                        )
-                      ),
-                      column(
-                        width = 9,
-                        align = "center",
-                        conditionalPanel(
-                          "input.scale_nodes==true",
-                          div(
-                            class = "mst_scale_slider",
-                            sliderInput(
-                              "mst_node_scale",
-                              label = "",
-                              min = 1,
-                              max = 80,
-                              value = c(20, 40),
-                              ticks = FALSE
-                            )
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.scale_nodes==false",
-                          div(
-                            class = "mst_scale_slider",
-                            sliderInput(
-                              inputId = "mst_node_size",
-                              label = "",
-                              min = 1,
-                              max = 100,
-                              value = 30,
-                              ticks = FALSE
-                            ) 
-                          )
-                        )
-                      )
-                    ),
-                    br()
-                  )
-                ),
-                column(
-                  width = 6,
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Other Elements"), style = "color:white; position: relative; right: -15px"),
-                      column(
-                        width = 12,
-                        align = "center",
-                        fluidRow(
-                          column(
-                            width = 12,
-                            align = "left",
-                            div(
-                              class = "mat-switch-mst-nodes",
-                              materialSwitch(
-                                "mst_shadow",
-                                h5(p("Show Shadow"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                value = TRUE,
-                                right = TRUE
-                              )
-                            ),
-                            fluidRow(
-                              column(
-                                width = 3,
-                                align = "left",
-                                HTML(
-                                  paste(
-                                    tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Shape')
-                                  )
-                                )
-                              ),
-                              column(
-                                width = 9,
-                                align = "center",
-                                div(
-                                  class = "mst_shape_sel",
-                                  selectInput(
-                                    "mst_node_shape",
-                                    "",
-                                    choices = list(`Label inside` = c("Circle" = "circle", "Box" = "box", "Text" = "text"),
-                                                   `Label outside` = c("Diamond" = "diamond", "Hexagon" = "hexagon","Dot" = "dot", "Square" = "square")),
-                                    selected = c("Dot" = "dot"),
-                                    width = "85%"
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
               )
-            )
-          ),
-          column(
-            width = 4,
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = "100%",
-              height = "500px",
-              h3(p("Edges"), style = "color:white; position:relative; right:-15px"),
-              hr(),
-              fluidRow(
-                column(
-                  width = 6,
+            ),
+            column(
+              width = 4,
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                height = "500px",
+                h3(p("Nodes"), style = "color:white; position:relative; right:-15px"),
+                hr(),
+                fluidRow(
                   column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Label"), style = "color:white;")
-                  ),
-                  column(
-                    width = 12,
-                    align = "center",
-                    div(
-                      class = "label_sel",
-                      selectInput(
-                        "mst_edge_label",
-                        label = "",
-                        choices = c(
-                          `Allelic Distance` = "weight",
-                          Index = "index",
-                          `Assembly ID` = "assembly_id",
-                          `Assembly Name` = "assembly_name",
-                          `Isolation Date` = "isolation_date",
-                          Host = "host",
-                          Country = "country",
-                          City = "city"
-                        ),
-                        selected = c(`Allelic Distance` = "weight"),
-                        width = "100%"
-                      )
+                    width = 6,
+                    column(
+                      width = 12,
+                      align = "left",
+                      h4(p("Label"), style = "color:white;")
                     ),
-                    fluidRow(
-                      column(
-                        width = 7,
-                        colorPickr(
-                          inputId = "mst_edge_font_color",
-                          width = "100%",
-                          selected = "#000000",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        )
+                    column(
+                      width = 12,
+                      align = "center",
+                      div(
+                        class = "label_sel",
+                        uiOutput("mst_node_label")
                       ),
-                      column(
-                        width = 5,
-                        dropMenu(
-                          actionBttn(
-                            "mst_edgelabel_menu",
+                      fluidRow(
+                        column(
+                          width = 7,
+                          colorPickr(
+                            inputId = "node_font_color",
+                            width = "100%",
+                            selected = "#000000",
                             label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-start",
-                          theme = "translucent",
+                            update = "changestop",
+                            interaction = list(clear = FALSE,
+                                               save = FALSE),
+                            position = "right-start"
+                          )
+                        ),
+                        column(
                           width = 5,
-                          numericInput(
-                            "mst_edge_font_size",
-                            label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                            value = 18,
-                            step = 1,
-                            min = 8,
-                            max = 30,
-                            width = "80px"
-                          )
-                        )
-                      )
-                    ),
-                    br()
-                  )
-                ),
-                column(
-                  width = 6,
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Color"), style = "color:white; position: relative; right: -15px"),
-                      column(
-                        width = 12,
-                        align = "center",
-                        fluidRow(
-                          column(
-                            width = 7,
-                            div(
-                              class = "node_color",
-                              colorPickr(
-                                inputId = "mst_color_edge",
-                                width = "100%",
-                                selected = "#000000",
-                                label = "",
-                                update = "changestop",
-                                interaction = list(clear = FALSE,
-                                                   save = FALSE),
-                                position = "right-start"
-                              )
-                            )
-                          ),
-                          column(
-                            width = 5,
-                            dropMenu(
-                              actionBttn(
-                                "mst_edgecolor_menu",
-                                label = "",
-                                color = "default",
-                                size = "sm",
-                                style = "material-flat",
-                                icon = icon("sliders")
-                              ),
-                              placement = "top-start",
-                              theme = "translucent",
-                              width = 5,
-                              sliderInput(
-                                "mst_edge_opacity",
-                                label = h5("Opacity", style = "color:white; margin-bottom: 0px;"),
-                                value = 0.7,
-                                step = 0.1,
-                                min = 0,
-                                max = 1,
-                                ticks = FALSE,
-                                width = "150px"
-                              )
+                          dropMenu(
+                            actionBttn(
+                              "mst_label_menu",
+                              label = "",
+                              color = "default",
+                              size = "sm",
+                              style = "material-flat",
+                              icon = icon("sliders")
+                            ),
+                            placement = "top-start",
+                            theme = "translucent",
+                            numericInput(
+                              "node_label_fontsize",
+                              label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                              value = 14,
+                              min = 8,
+                              max = 30,
+                              step = 1,
+                              width = "80px"
                             )
                           )
                         )
                       )
-                    )
-                  )
-                )
-              ),
-              hr(style = "margin-top: 3px !important"),
-              fluidRow(
-                column(
-                  width = 12,
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Length multiplier"), style = "color:white; position: relative; right: -15px; margin-bottom: -5px")
                     )
                   ),
                   column(
                     width = 6,
-                    align = "left",
-                    br(),
-                    div(
-                      class = "switch-mst-edges",
-                      materialSwitch(
-                        "mst_scale_edges",
-                        h5(p("Scale Allelic Distance"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                        value = FALSE,
-                        right = TRUE
-                      )
-                    ),
                     fluidRow(
                       column(
-                        width = 3,
+                        width = 12,
                         align = "left",
-                        conditionalPanel(
-                          "input.mst_scale_edges==true",
-                          HTML(
-                            paste(
-                              tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Multiplier')
+                        h4(p("Color"), style = "color:white; position: relative; right: -15px"),
+                        column(
+                          width = 12,
+                          align = "center",
+                          fluidRow(
+                            column(
+                              width = 10,
+                              align = "left",
+                              div(
+                                class = "mat-switch-mst-nodes",
+                                materialSwitch(
+                                  "mst_color_var",
+                                  h5(p("Add Variable"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                  value = FALSE,
+                                  right = TRUE
+                                )
+                              )
+                            ),
+                            column(
+                              width = 2,
+                              bslib::tooltip(
+                                bsicons::bs_icon("info-circle", title = "Only categorical variables can \nbe mapped to the node color.", color = "white", 
+                                                 height = "12px", width = "12px", position = "relative", top = "27px", right = "56px"),
+                                "Text shown in the tooltip.",
+                                show = FALSE,
+                                id = "mst_node_col_info"
+                              )
+                            )
+                          ),
+                          uiOutput("mst_color_mapping")
+                        )
+                      )
+                    ), br()
+                  )
+                ),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 6,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p("Size"), style = "color:white; position: relative; right: -15px"),
+                        column(
+                          width = 12,
+                          align = "center",
+                          fluidRow(
+                            column(
+                              width = 12,
+                              align = "left",
+                              div(
+                                class = "mat-switch-mst-nodes",
+                                materialSwitch(
+                                  "scale_nodes",
+                                  h5(p("Scale by Duplicates"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                  value = TRUE,
+                                  right = TRUE
+                                )
+                              )
+                            )
+                          )
+                        )
+                      )
+                    ),
+                    column(
+                      width = 12,
+                      align = "left",
+                      fluidRow(
+                        column(
+                          width = 3,
+                          align = "left",
+                          conditionalPanel(
+                            "input.scale_nodes==true",
+                            HTML(
+                              paste(
+                                tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Range')
+                              )
+                            )
+                          ),
+                          conditionalPanel(
+                            "input.scale_nodes==false",
+                            HTML(
+                              paste(
+                                tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Size')
+                              )
                             )
                           )
                         ),
-                        conditionalPanel(
-                          "input.mst_scale_edges==false",
-                          HTML(
-                            paste(
-                              tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Length')
+                        column(
+                          width = 9,
+                          align = "center",
+                          conditionalPanel(
+                            "input.scale_nodes==true",
+                            div(
+                              class = "mst_scale_slider",
+                              sliderInput(
+                                "mst_node_scale",
+                                label = "",
+                                min = 1,
+                                max = 80,
+                                value = c(20, 40),
+                                ticks = FALSE
+                              )
+                            )
+                          ),
+                          conditionalPanel(
+                            "input.scale_nodes==false",
+                            div(
+                              class = "mst_scale_slider",
+                              sliderInput(
+                                inputId = "mst_node_size",
+                                label = "",
+                                min = 1,
+                                max = 100,
+                                value = 30,
+                                ticks = FALSE
+                              ) 
                             )
                           )
                         )
                       ),
+                      br()
+                    )
+                  ),
+                  column(
+                    width = 6,
+                    fluidRow(
                       column(
-                        width = 9,
-                        align = "center",
-                        conditionalPanel(
-                          "input.mst_scale_edges==true",
-                          div(
-                            class = "slider_edge",
-                            sliderInput(
-                              inputId = "mst_edge_length_scale",
-                              label = NULL,
-                              min = 1,
-                              max = 40,
-                              value = 15,
-                              ticks = FALSE
-                            ) 
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.mst_scale_edges==false",
-                          div(
-                            class = "slider_edge",
-                            sliderTextInput(
-                              inputId = "mst_edge_length",
-                              label = NULL,
-                              choices = append(seq(0.1, 1, 0.1), 2:100),
-                              selected = 35,
-                              hide_min_max = FALSE
-                            ) 
+                        width = 12,
+                        align = "left",
+                        h4(p("Other Elements"), style = "color:white; position: relative; right: -15px"),
+                        column(
+                          width = 12,
+                          align = "center",
+                          fluidRow(
+                            column(
+                              width = 12,
+                              align = "left",
+                              div(
+                                class = "mat-switch-mst-nodes",
+                                materialSwitch(
+                                  "mst_shadow",
+                                  h5(p("Show Shadow"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                  value = TRUE,
+                                  right = TRUE
+                                )
+                              ),
+                              fluidRow(
+                                column(
+                                  width = 3,
+                                  align = "left",
+                                  HTML(
+                                    paste(
+                                      tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Shape')
+                                    )
+                                  )
+                                ),
+                                column(
+                                  width = 9,
+                                  align = "center",
+                                  div(
+                                    class = "mst_shape_sel",
+                                    selectInput(
+                                      "mst_node_shape",
+                                      "",
+                                      choices = list(`Label inside` = c("Circle" = "circle", "Box" = "box", "Text" = "text"),
+                                                     `Label outside` = c("Diamond" = "diamond", "Hexagon" = "hexagon","Dot" = "dot", "Square" = "square")),
+                                      selected = c("Dot" = "dot"),
+                                      width = "85%"
+                                    )
+                                  )
+                                )
+                              )
+                            )
                           )
                         )
                       )
@@ -1574,10 +1356,232 @@ ui <- dashboardPage(
                   )
                 )
               )
-            ), br(), br(), br(), br(), br(), br()
+            ),
+            column(
+              width = 4,
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                height = "500px",
+                h3(p("Edges"), style = "color:white; position:relative; right:-15px"),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 6,
+                    column(
+                      width = 12,
+                      align = "left",
+                      h4(p("Label"), style = "color:white;")
+                    ),
+                    column(
+                      width = 12,
+                      align = "center",
+                      div(
+                        class = "label_sel",
+                        selectInput(
+                          "mst_edge_label",
+                          label = "",
+                          choices = c(
+                            `Allelic Distance` = "weight",
+                            Index = "index",
+                            `Assembly ID` = "assembly_id",
+                            `Assembly Name` = "assembly_name",
+                            `Isolation Date` = "isolation_date",
+                            Host = "host",
+                            Country = "country",
+                            City = "city"
+                          ),
+                          selected = c(`Allelic Distance` = "weight"),
+                          width = "100%"
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 7,
+                          colorPickr(
+                            inputId = "mst_edge_font_color",
+                            width = "100%",
+                            selected = "#000000",
+                            label = "",
+                            update = "changestop",
+                            interaction = list(clear = FALSE,
+                                               save = FALSE),
+                            position = "right-start"
+                          )
+                        ),
+                        column(
+                          width = 5,
+                          dropMenu(
+                            actionBttn(
+                              "mst_edgelabel_menu",
+                              label = "",
+                              color = "default",
+                              size = "sm",
+                              style = "material-flat",
+                              icon = icon("sliders")
+                            ),
+                            placement = "top-start",
+                            theme = "translucent",
+                            width = 5,
+                            numericInput(
+                              "mst_edge_font_size",
+                              label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                              value = 18,
+                              step = 1,
+                              min = 8,
+                              max = 30,
+                              width = "80px"
+                            )
+                          )
+                        )
+                      ),
+                      br()
+                    )
+                  ),
+                  column(
+                    width = 6,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p("Color"), style = "color:white; position: relative; right: -15px"),
+                        column(
+                          width = 12,
+                          align = "center",
+                          fluidRow(
+                            column(
+                              width = 7,
+                              div(
+                                class = "node_color",
+                                colorPickr(
+                                  inputId = "mst_color_edge",
+                                  width = "100%",
+                                  selected = "#000000",
+                                  label = "",
+                                  update = "changestop",
+                                  interaction = list(clear = FALSE,
+                                                     save = FALSE),
+                                  position = "right-start"
+                                )
+                              )
+                            ),
+                            column(
+                              width = 5,
+                              dropMenu(
+                                actionBttn(
+                                  "mst_edgecolor_menu",
+                                  label = "",
+                                  color = "default",
+                                  size = "sm",
+                                  style = "material-flat",
+                                  icon = icon("sliders")
+                                ),
+                                placement = "top-start",
+                                theme = "translucent",
+                                width = 5,
+                                sliderInput(
+                                  "mst_edge_opacity",
+                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px;"),
+                                  value = 0.7,
+                                  step = 0.1,
+                                  min = 0,
+                                  max = 1,
+                                  ticks = FALSE,
+                                  width = "150px"
+                                )
+                              )
+                            )
+                          )
+                        )
+                      )
+                    )
+                  )
+                ),
+                hr(style = "margin-top: 3px !important"),
+                fluidRow(
+                  column(
+                    width = 12,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p("Length multiplier"), style = "color:white; position: relative; right: -15px; margin-bottom: -5px")
+                      )
+                    ),
+                    column(
+                      width = 6,
+                      align = "left",
+                      br(),
+                      div(
+                        class = "switch-mst-edges",
+                        materialSwitch(
+                          "mst_scale_edges",
+                          h5(p("Scale Allelic Distance"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                          value = FALSE,
+                          right = TRUE
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 3,
+                          align = "left",
+                          conditionalPanel(
+                            "input.mst_scale_edges==true",
+                            HTML(
+                              paste(
+                                tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Multiplier')
+                              )
+                            )
+                          ),
+                          conditionalPanel(
+                            "input.mst_scale_edges==false",
+                            HTML(
+                              paste(
+                                tags$span(style='color: white; font-size: 14px; position: relative; bottom: -16px; margin-left: 0px ', 'Length')
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 9,
+                          align = "center",
+                          conditionalPanel(
+                            "input.mst_scale_edges==true",
+                            div(
+                              class = "slider_edge",
+                              sliderInput(
+                                inputId = "mst_edge_length_scale",
+                                label = NULL,
+                                min = 1,
+                                max = 40,
+                                value = 15,
+                                ticks = FALSE
+                              ) 
+                            )
+                          ),
+                          conditionalPanel(
+                            "input.mst_scale_edges==false",
+                            div(
+                              class = "slider_edge",
+                              sliderTextInput(
+                                inputId = "mst_edge_length",
+                                label = NULL,
+                                choices = append(seq(0.1, 1, 0.1), 2:100),
+                                selected = 35,
+                                hide_min_max = FALSE
+                              ) 
+                            )
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              ), br(), br(), br(), br(), br(), br()
+            )
           )
-        )
-      ),
+        ),
         
         ### Control Panels NJ ----
         
@@ -1946,6 +1950,7 @@ ui <- dashboardPage(
                             min = 500,
                             max = 1200,
                             value = 800,
+                            step = 5,
                             width = "95%",
                             ticks = FALSE
                           )
@@ -3148,8 +3153,11 @@ ui <- dashboardPage(
                     uiOutput("nj_clade_scale"),
                     fluidRow(
                       column(
-                        width = 8,
-                        align = "center",
+                        width = 5,
+                        h5(p("Form"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
+                      ),
+                      column(
+                        width = 7,
                         div(
                           class = "sel-clade",
                           selectInput(
@@ -3159,37 +3167,6 @@ ui <- dashboardPage(
                                         "Round" = "roundrect"),
                             selected = c("Round" = "roundrect")
                           ) 
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        align = "right",
-                        dropMenu(
-                          actionBttn(
-                            "nj_clade_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-end",
-                          theme = "translucent",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "center",
-                              selectInput(
-                                "nj_clade_align",
-                                label = h5("Align", style = "color:white; font-size: 14px;"),
-                                choices = c("None" = "none",
-                                            "Left" = "left",
-                                            "Right" = "right",
-                                            "Both" = "both"),
-                                width = "100px"
-                              )
-                            )
-                          )
                         )
                       )
                     )
@@ -3882,6 +3859,7 @@ ui <- dashboardPage(
                             min = 500,
                             max = 1200,
                             value = 800,
+                            step = 5,
                             width = "95%",
                             ticks = FALSE
                           )
@@ -5088,8 +5066,11 @@ ui <- dashboardPage(
                     uiOutput("upgma_clade_scale"),
                     fluidRow(
                       column(
-                        width = 8,
-                        align = "center",
+                        width = 5,
+                        h5(p("Form"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
+                      ),
+                      column(
+                        width = 7,
                         div(
                           class = "sel-clade",
                           selectInput(
@@ -5099,37 +5080,6 @@ ui <- dashboardPage(
                                         "Round" = "roundrect"),
                             selected = c("Round" = "roundrect")
                           ) 
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        align = "right",
-                        dropMenu(
-                          actionBttn(
-                            "upgma_clade_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-end",
-                          theme = "translucent",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "center",
-                              selectInput(
-                                "upgma_clade_align",
-                                label = h5("Align", style = "color:white; font-size: 14px;"),
-                                choices = c("None" = "none",
-                                            "Left" = "left",
-                                            "Right" = "right",
-                                            "Both" = "both"),
-                                width = "100px"
-                              )
-                            )
-                          )
                         )
                       )
                     )
@@ -5467,7 +5417,7 @@ ui <- dashboardPage(
 
 server <- function(input, output, session) {
   
-  phylotraceVersion <- paste("PhyloTrace-1.4.1", Sys.Date())
+  phylotraceVersion <- paste("1.4.1")
   
   # TODO Enable this, or leave disabled
   # # Kill server on session end
@@ -5475,14 +5425,13 @@ server <- function(input, output, session) {
   #   stopApp()
   # })
   
-  # Disable MST variable mappings
+  # Disable various user inputs (visualization control)
   shinyjs::disable('mst_edge_label') 
   
   ## Functions ----
   
   # Function to read and format FASTA sequences
   format_fasta <- function(filepath) {
-    
     fasta <- readLines(filepath)
     formatted_fasta <- list()
     current_sequence <- ""
@@ -5804,9 +5753,15 @@ server <- function(input, output, session) {
     }
   })
   
-  duplicated_rows <- reactive({
+  duplicated_names <- reactive({
     if (!is.null(DB$meta)) {
       which(duplicated(DB$meta$`Assembly Name`) | duplicated(DB$meta$`Assembly Name`, fromLast = TRUE))
+    }
+  })
+  
+  duplicated_ids <- reactive({
+    if (!is.null(DB$meta)) {
+      which(duplicated(DB$meta$`Assembly ID`) | duplicated(DB$meta$`Assembly ID`, fromLast = TRUE))
     }
   })
   
@@ -5821,22 +5776,15 @@ server <- function(input, output, session) {
   })
   
   # Initiate logging
-  
   if(!dir_exists(paste0(getwd(), "/logs"))) {
     dir_create(paste0(getwd(), "/logs"))
   }
   
-  if(!file.exists(paste0(getwd(), "/logs/output.log"))) {
-    file_create(paste0(getwd(), "/logs/output.log"))
-  }
+  logfile <- file.path(paste0(getwd(), "/logs/phylotrace.log"))
   
-  out <- file(paste0(getwd(), "/logs/output.log"), open = "wt")
+  log <- log_open(logfile, logdir = FALSE)
   
-  #sink(file = out, append = TRUE, type = "message")
-  
-  log_message(log_file = out,
-              message = "Session started",
-              append = FALSE)
+  log_print("Session started")
   
   # Declare reactive variables
   Startup <- reactiveValues(sidebar = TRUE, 
@@ -5846,7 +5794,7 @@ server <- function(input, output, session) {
                        block_db = FALSE, 
                        load_selected = TRUE,
                        no_na_switch = FALSE,
-                       first_look = FALSE) # reactiive variables related to local database
+                       first_look = FALSE) # reactive variables related to local database
   
   Typing <- reactiveValues(table = data.frame(), 
                            single_path = data.frame(),
@@ -5919,7 +5867,7 @@ server <- function(input, output, session) {
   ### Set up typing environment ----
   
   # Null typing progress trackers
-  writeLines("0", paste0(getwd(), "/execute/script_log.txt"))
+  writeLines("0", paste0(getwd(), "/logs/script_log.txt"))
   writeLines("0\n", paste0(getwd(), "/logs/progress.txt"))
   
   if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
@@ -6000,12 +5948,12 @@ server <- function(input, output, session) {
   
   # User selection new db or load db
   observeEvent(input$create_new_db, {
-    log_message(out, message = "Input create_new_db")
+    log_print("Input create_new_db")
     DB$select_new <- TRUE
   })
   
   observeEvent(input$db_location, {
-    log_message(out, message = "Input db_location")
+     log_print("Input db_location")
     DB$select_new <- FALSE
   })
   
@@ -6162,7 +6110,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$load, {
     
-    log_message(out, message = "Input load")
+     log_print("Input load")
     
     # Null single typing status
     if(readLines(paste0(getwd(), "/logs/progress.txt"))[1] != "0") {
@@ -6198,7 +6146,7 @@ server <- function(input, output, session) {
     if(!is.null(DB$select_new)) {
       if(DB$select_new & (paste0(DB$new_database, "/Database") %in% dir_ls(DB$new_database))) {
         
-        log_message(log_file = out, message = "Directory already contains a database")
+        log_print("Directory already contains a database")
         
         show_toast(
           title = "Directory already contains a database",
@@ -6210,8 +6158,8 @@ server <- function(input, output, session) {
         DB$load_selected <- FALSE
         
       } else if(DB$select_new | (DB$select_new == FALSE & is.null(input$scheme_db))) {
-        
-        log_message(log_file = out, message = paste0("New database created in ", DB$new_database))
+         
+        log_print(paste0("New database created in ", DB$new_database))
         
         DB$check_new_entries <- TRUE
         
@@ -6331,7 +6279,7 @@ server <- function(input, output, session) {
         output$entry_table_controls <- NULL
       }
     } else {
-      log_message(log_file = out, message = paste0("Loading existing ", input$scheme_db, " database from ", DB$database))
+      log_print(paste0("Loading existing ", input$scheme_db, " database from ", DB$database))
     }
     
     if(DB$load_selected == TRUE) {
@@ -6391,7 +6339,7 @@ server <- function(input, output, session) {
             DB$database, "/", 
             gsub(" ", "_", DB$scheme)))))) {
             
-            log_message(log_file = out, message = "Missing loci files")
+            log_print("Missing loci files")
             
             # Show message that loci files are missing
             showModal(
@@ -6462,7 +6410,7 @@ server <- function(input, output, session) {
             
             output$download_scheme_info <- NULL
             
-            log_message(log_file = out, message = "Scheme info file missing")
+             log_print("Scheme info file missing")
             
             # Show message that scheme info is missing
             showModal(
@@ -6535,7 +6483,7 @@ server <- function(input, output, session) {
             # Dont render target download button
             output$download_loci <- NULL
             
-            log_message(log_file = out, message = "Missing loci info (targets.csv)")
+             log_print("Missing loci info (targets.csv)")
             
             # Show message that scheme info is missing
             showModal(
@@ -6675,7 +6623,7 @@ server <- function(input, output, session) {
             # Check if number of loci/fastq-files of alleles is coherent with number of targets in scheme
             if(DB$number_loci != length(dir_ls(paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")))) {
               
-              log_message(log_file = out, message = paste0("Loci files are missing in the local ", DB$scheme, " folder"))
+               log_print(paste0("Loci files are missing in the local ", DB$scheme, " folder"))
               
               # Show message that loci files are missing
               showModal(
@@ -7058,6 +7006,7 @@ server <- function(input, output, session) {
                               "",
                               min = 500,
                               max = 1200,
+                              step = 5,
                               value = 800,
                               width = "95%",
                               ticks = FALSE
@@ -7069,74 +7018,64 @@ server <- function(input, output, session) {
                         fluidRow(
                           column(
                             width = 12,
-                            align = "left",
-                            br(),
-                            HTML(
-                              paste(
-                                tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Save Plot")
+                            column(
+                              width = 5,
+                              align = "left",
+                              conditionalPanel(
+                                "input.mst_plot_format=='jpeg'",
+                                actionBttn(
+                                  "save_plot_jpeg",
+                                  style = "simple",
+                                  label = "Save Plot",
+                                  size = "sm",
+                                  icon = NULL,
+                                  color = "primary"
+                                )  
+                              ),
+                              conditionalPanel(
+                                "input.mst_plot_format=='png'",
+                                actionBttn(
+                                  "save_plot_png",
+                                  style = "simple",
+                                  label = "Save Plot",
+                                  size = "sm",
+                                  icon = NULL,
+                                  color = "primary"
+                                )
+                              ),
+                              conditionalPanel(
+                                "input.mst_plot_format=='bmp'",
+                                actionBttn(
+                                  "save_plot_bmp",
+                                  style = "simple",
+                                  label = "Save Plot",
+                                  size = "sm",
+                                  icon = NULL,
+                                  color = "primary"
+                                )  
+                              ),
+                              conditionalPanel(
+                                "input.mst_plot_format=='html'",
+                                downloadBttn(
+                                  "save_plot_html",
+                                  style = "simple",
+                                  label = "Save Plot",
+                                  size = "sm",
+                                  icon = NULL,
+                                  color = "primary"
+                                )
                               )
-                            )
-                          )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 8,
-                            div(
-                              style = "max-width: 150px",
-                              class = "format",
-                              selectInput(
-                                inputId = "mst_plot_format",
-                                label = "",
-                                choices = c("html", 
-                                            "jpeg", "png", "bmp")
-                              )
-                            )
-                          ),
-                          column(
-                            width = 4,
-                            align = "left",
-                            conditionalPanel(
-                              "input.mst_plot_format=='jpeg'",
-                              actionBttn(
-                                "save_plot_jpeg",
-                                style = "simple",
-                                label = "",
-                                size = "sm",
-                                icon = icon("download"),
-                                color = "primary"
-                              )  
                             ),
-                            conditionalPanel(
-                              "input.mst_plot_format=='png'",
-                              actionBttn(
-                                "save_plot_png",
-                                style = "simple",
-                                label = "",
-                                size = "sm",
-                                icon = icon("download"),
-                                color = "primary"
-                              )
-                            ),
-                            conditionalPanel(
-                              "input.mst_plot_format=='bmp'",
-                              actionBttn(
-                                "save_plot_bmp",
-                                style = "simple",
-                                label = "",
-                                size = "sm",
-                                icon = icon("download"),
-                                color = "primary"
-                              )  
-                            ),
-                            conditionalPanel(
-                              "input.mst_plot_format=='html'",
-                              downloadBttn(
-                                "save_plot_html",
-                                style = "simple",
-                                label = "",
-                                size = "sm",
-                                icon = icon("download"),
-                                color = "primary"
+                            column(
+                              width = 7,
+                              div(
+                                style = "max-width: 150px",
+                                class = "format",
+                                selectInput(
+                                  inputId = "mst_plot_format",
+                                  label = "",
+                                  choices = c("html", "jpeg", "png", "bmp")
+                                )
                               )
                             )
                           )
@@ -7147,38 +7086,29 @@ server <- function(input, output, session) {
                         fluidRow(
                           column(
                             width = 12,
-                            align = "left",
-                            br(),
-                            HTML(
-                              paste(
-                                tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Save Plot")
+                            column(
+                              width = 5,
+                              align = "left",
+                              downloadBttn(
+                                "download_nj",
+                                style = "simple",
+                                label = "Save Plot",
+                                size = "sm",
+                                icon = NULL,
+                                color = "primary"
                               )
-                            )
-                          )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 8,
-                            div(
-                              style = "max-width: 150px",
-                              class = "format",
-                              selectInput(
-                                inputId = "filetype_nj",
-                                label = "",
-                                choices = c("png", "jpeg", "bmp", "svg")
+                            ),
+                            column(
+                              width = 7,
+                              div(
+                                style = "max-width: 150px",
+                                class = "format",
+                                selectInput(
+                                  inputId = "filetype_nj",
+                                  label = "",
+                                  choices = c("png", "jpeg", "bmp", "svg")
+                                )
                               )
-                            )
-                          ),
-                          column(
-                            width = 4,
-                            align = "left",
-                            downloadBttn(
-                              "download_nj",
-                              style = "simple",
-                              label = "",
-                              size = "sm",
-                              icon = icon("download"),
-                              color = "primary"
                             )
                           )
                         )
@@ -7188,310 +7118,41 @@ server <- function(input, output, session) {
                         fluidRow(
                           column(
                             width = 12,
-                            align = "left",
-                            br(),
-                            HTML(
-                              paste(
-                                tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Save Plot")
+                            column(
+                              width = 5,
+                              align = "left",
+                              downloadBttn(
+                                "download_upgma",
+                                style = "simple",
+                                label = "Save Plot",
+                                size = "sm",
+                                icon = NULL,
+                                color = "primary"
                               )
-                            )
-                          )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 8,
-                            div(
-                              style = "max-width: 150px",
-                              class = "format",
-                              selectInput(
-                                inputId = "filetype_upgma",
-                                label = "",
-                                choices = c("png", "jpeg", "bmp", "svg")
+                            ),
+                            column(
+                              width = 7,
+                              div(
+                                style = "max-width: 150px",
+                                class = "format",
+                                selectInput(
+                                  inputId = "filetype_upgma",
+                                  label = "",
+                                  choices = c("png", "jpeg", "bmp", "svg")
+                                )
                               )
-                            )
-                          ),
-                          column(
-                            width = 4,
-                            align = "left",
-                            downloadBttn(
-                              "download_upgma",
-                              style = "simple",
-                              label = "",
-                              size = "sm",
-                              icon = icon("download"),
-                              color = "primary"
                             )
                           )
                         )
                       ),
-                      br(),
-                      hr(),
                       fluidRow(
                         column(
-                          width = 12,
+                          width = 6,
                           align = "left",
                           br(),
-                          HTML(
-                            paste(
-                              tags$span(style='color: white; font-size: 16px; margin-left: 15px', "Download Report")
-                            )
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 8,
-                          align = "left",
-                          checkboxInput(
-                            "rep_entrytable",
-                            label = h5("Entry table", style = "color:white; position: absolute; top: -6px"),
-                            value = TRUE
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 6,
-                          align = "left",
-                          checkboxInput(
-                            "rep_general",
-                            label = h5("General", style = "color:white; position: absolute; top: -23px"),
-                            value = TRUE
-                          )
-                        ),
-                        column(
-                          width = 4,
-                          align = "left",
-                          dropMenu(
-                            actionBttn(
-                              "mst_general_menu",
-                              label = "",
-                              color = "default",
-                              size = "sm",
-                              style = "material-flat",
-                              icon = icon("pen-to-square")
-                            ),
-                            placement = "top-start",
-                            padding = "20px",
-                            theme = "translucent",
-                            fluidRow(
-                              column(
-                                width = 3,
-                                checkboxInput(
-                                  "rep_date_general", 
-                                  label = h5("Date", style = "color:white; font-size: 17px; margin-top: 16px;"),
-                                  value = TRUE
-                                )
-                              ),
-                              column(
-                                width = 7,
-                                dateInput(
-                                  "mst_date_general_select",
-                                  "",
-                                  format = "mm/dd/yyyy",
-                                  max = Sys.Date()
-                                )
-                              )
-                            ),
-                            fluidRow(
-                              column(
-                                width = 3,
-                                checkboxInput(
-                                  "rep_operator_general", 
-                                  label = h5("Operator", style = "color:white; font-size: 17px; margin-top: -1px;"),
-                                  value = TRUE
-                                )
-                              ),
-                              column(
-                                width = 8,
-                                textInput(
-                                  "mst_operator_general_select",
-                                  ""
-                                ) 
-                              )
-                            ),
-                            fluidRow(
-                              column(
-                                width = 3,
-                                checkboxInput(
-                                  "rep_institute_general", 
-                                  label = h5("Institute", style = "color:white; font-size: 17px; margin-top: -1px;"),
-                                  value = TRUE
-                                )
-                              ),
-                              column(
-                                width = 8,
-                                textInput(
-                                  "mst_institute_general_select",
-                                  ""
-                                ) 
-                              )
-                            ),
-                            fluidRow(
-                              column(
-                                width = 3,
-                                checkboxInput(
-                                  "rep_comm_general", 
-                                  label = h5("Comment", style = "color:white; font-size: 17px; margin-top: -1px;")
-                                )
-                              ),
-                              column(
-                                width = 8,
-                                textAreaInput(
-                                  inputId = "mst_comm_general_select",
-                                  label = "",
-                                  width = "100%",
-                                  height = "60px",
-                                  cols = NULL,
-                                  rows = NULL,
-                                  placeholder = NULL,
-                                  resize = "vertical"
-                                ) 
-                              )
-                            )
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 6,
-                          align = "left",
-                          checkboxInput(
-                            "rep_analysis",
-                            label = h5("Analysis", style = "color:white; position: absolute; top: -42px"),
-                            value = TRUE
-                          )
-                        ),
-                        column(
-                          width = 4,
-                          align = "left",
-                          dropMenu(
-                            actionBttn(
-                              "mst_analysis_menu",
-                              label = "",
-                              color = "default",
-                              size = "sm",
-                              style = "material-flat",
-                              icon = icon("pen-to-square")
-                            ),
-                            placement = "top-start",
-                            padding = "20px",
-                            theme = "translucent",
-                            fluidRow(
-                              column(
-                                width = 4,
-                                checkboxInput(
-                                  "rep_cgmlst_analysis",
-                                  label = h5("Scheme", style = "color:white; font-size: 17px; margin-top: 18px"),
-                                  value = TRUE
-                                )
-                              ),
-                              column(
-                                width = 8,
-                                align = "right"
-                              )
-                            ),
-                            fluidRow(
-                              column(
-                                width = 4,
-                                checkboxInput(
-                                  "rep_tree_analysis",
-                                  label = h5("Tree", style = "color:white; font-size: 17px; margin-top: -1px"),
-                                  value = TRUE
-                                )
-                              ),
-                              column(
-                                width = 6,
-                                align = "right",
-                                HTML(
-                                  paste(
-                                    tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Tree algorithm')
-                                  )
-                                )
-                              )
-                            ),
-                            fluidRow(
-                              column(
-                                width = 4,
-                                checkboxInput(
-                                  "rep_distance",
-                                  label = h5("Distance", style = "color:white; font-size: 17px; margin-top: -1px"),
-                                  value = TRUE
-                                )
-                              ),
-                              column(
-                                width = 6,
-                                align = "right",
-                                HTML(
-                                  paste(
-                                    tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Distance algorithm')
-                                  )
-                                )
-                              )
-                            ),
-                            fluidRow(
-                              column(
-                                width = 7,
-                                align = "left",
-                                checkboxInput(
-                                  "rep_missval",
-                                  label = h5("NA handling", style = "color:white; font-size: 17px; margin-top: -1px"),
-                                  value = TRUE
-                                )
-                              ),
-                              column(
-                                width = 5,
-                                align = "right",
-                                HTML(
-                                  paste(
-                                    tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: 31px', 'Missing values')
-                                  )
-                                )
-                              )
-                            ),
-                            fluidRow(
-                              column(
-                                width = 4,
-                                checkboxInput(
-                                  "rep_version",
-                                  label = h5("Version", style = "color:white; font-size: 17px; margin-top: -1px"),
-                                  value = TRUE
-                                )
-                              ),
-                              column(
-                                width = 6,
-                                align = "right",
-                                HTML(
-                                  paste(
-                                    tags$span(style='color: white; font-size: 15px; font-style: italic; position: relative; top: 21px; right: -23px', 'Version info')
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 8,
-                          align = "left",
-                          checkboxInput(
-                            "rep_plot_report",
-                            label = h5("Attach plot", style = "color:white; position: absolute; top: -61px"),
-                            value = TRUE
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 12,
-                          align = "left",
-                          downloadBttn(
-                            "download_report",
-                            style = "simple",
-                            label = "Save",
-                            size = "sm",
-                            icon = icon("download")
+                          actionButton(
+                            "create_rep",
+                            "Print Report"
                           )
                         )
                       )
@@ -7948,7 +7609,8 @@ server <- function(input, output, session) {
                               rhandsontable(
                                 select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
                                 col_highlight = diff_allele() - 1,
-                                duplicated_highlight = duplicated_rows() - 1,
+                                dup_names_high = duplicated_names() - 1,
+                                dup_ids_high = duplicated_ids() - 1,
                                 row_highlight = true_rows() - 1,
                                 error_highlight = err_thresh() - 1,
                                 rowHeaders = NULL,
@@ -8067,7 +7729,20 @@ server <- function(input, output, session) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
                        if (instance.params) {
-                         hrows = instance.params.duplicated_highlight
+                         hrows = instance.params.dup_names_high
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                                hot_col(3, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.dup_ids_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
@@ -8094,7 +7769,8 @@ server <- function(input, output, session) {
                                 select(DB$data, 1:(12 + nrow(DB$cust_var))),
                                 rowHeaders = NULL,
                                 row_highlight = true_rows() - 1,
-                                duplicated_highlight = duplicated_rows()- 1,
+                                dup_names_high = duplicated_names()- 1,
+                                dup_ids_high = duplicated_ids() - 1,
                                 error_highlight = err_thresh() - 1,
                                 contextMenu = FALSE,
                                 highlightCol = TRUE, 
@@ -8190,7 +7866,20 @@ server <- function(input, output, session) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
                        if (instance.params) {
-                         hrows = instance.params.duplicated_highlight
+                         hrows = instance.params.dup_names_high
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                                hot_col(3, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.dup_ids_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
@@ -8221,7 +7910,8 @@ server <- function(input, output, session) {
                                 rowHeaders = NULL,
                                 height = table_height(),
                                 row_highlight = true_rows() - 1,
-                                duplicated_highlight = duplicated_rows() - 1,
+                                dup_names_high = duplicated_names() - 1,
+                                dup_ids_high = duplicated_ids() - 1,
                                 error_highlight = err_thresh() - 1,
                                 contextMenu = FALSE,
                                 highlightCol = TRUE, 
@@ -8329,7 +8019,20 @@ server <- function(input, output, session) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
                        if (instance.params) {
-                         hrows = instance.params.duplicated_highlight
+                         hrows = instance.params.dup_names_high
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                                hot_col(3, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.dup_ids_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
@@ -8360,7 +8063,8 @@ server <- function(input, output, session) {
                                 select(DB$data, 1:(12 + nrow(DB$cust_var))),
                                 rowHeaders = NULL,
                                 height = table_height(),
-                                duplicated_highlight = duplicated_rows() - 1,
+                                dup_names_high = duplicated_names() - 1,
+                                dup_ids_high = duplicated_ids() - 1,
                                 row_highlight = true_rows() - 1,
                                 error_highlight = err_thresh() - 1,
                                 contextMenu = FALSE,
@@ -8455,7 +8159,20 @@ server <- function(input, output, session) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
                        if (instance.params) {
-                         hrows = instance.params.duplicated_highlight
+                         hrows = instance.params.dup_names_high
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                                hot_col(3, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.dup_ids_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
@@ -8604,8 +8321,44 @@ server <- function(input, output, session) {
                 observe({
                   if(!is.null(DB$data)) {
                     
-                    if(any(duplicated(DB$meta$`Assembly Name`))) {
+                    if(any(duplicated(DB$meta$`Assembly Name`)) | any(duplicated(DB$meta$`Assembly ID`))) {
                       output$db_distancematrix <- NULL
+                      
+                      if( (sum(duplicated(DB$meta$`Assembly Name`)) > 0) & (sum(duplicated(DB$meta$`Assembly ID`)) == 0) ) {
+                        duplicated_txt <- paste0(
+                          paste(
+                            paste0("Name  # ", which(duplicated(DB$meta$`Assembly Name`)), " - "),
+                            DB$meta$`Assembly Name`[which(duplicated(DB$meta$`Assembly Name`))]
+                          ),
+                          "<br>"
+                        )
+                      } else if ( (sum(duplicated(DB$meta$`Assembly ID`)) > 0) & (sum(duplicated(DB$meta$`Assembly Name`)) == 0) ){
+                        duplicated_txt <- paste0(
+                          paste(
+                            paste0("ID  # ", which(duplicated(DB$meta$`Assembly ID`)), " - "),
+                            DB$meta$`Assembly ID`[which(duplicated(DB$meta$`Assembly ID`))]
+                          ),
+                          "<br>"
+                        )
+                      } else {
+                        duplicated_txt <- c(
+                          paste0(
+                            paste(
+                              paste0("Name  # ", which(duplicated(DB$meta$`Assembly Name`)), " - "),
+                              DB$meta$`Assembly Name`[which(duplicated(DB$meta$`Assembly Name`))]
+                            ),
+                            "<br>"
+                          ),
+                          paste0(
+                            paste(
+                              paste0("ID  # ", which(duplicated(DB$meta$`Assembly ID`)), " - "),
+                              DB$meta$`Assembly ID`[which(duplicated(DB$meta$`Assembly ID`))]
+                            ),
+                            "<br>"
+                          )
+                        )
+                      }
+                      
                       output$distancematrix_duplicated <- renderUI({
                         column(
                           width = 12,
@@ -8621,13 +8374,7 @@ server <- function(input, output, session) {
                                 "Duplicated:",
                                 append(
                                   "<br>",
-                                  paste0(
-                                    paste(
-                                      paste0("# ", which(duplicated(DB$meta$`Assembly Name`)), " - "),
-                                      DB$meta$`Assembly Name`[which(duplicated(DB$meta$`Assembly Name`))]
-                                    ),
-                                    "<br>"
-                                  )
+                                  duplicated_txt
                                 )
                               )
                             )
@@ -8711,40 +8458,40 @@ server <- function(input, output, session) {
                 
                 # Render delete entry box UI
                 output$delete_box <- renderUI({
-                    box(
-                      solidHeader = TRUE,
-                      status = "primary",
-                      width = "100%",
-                      fluidRow(
-                        column(
-                          width = 12,
-                          align = "center",
-                          h3(p("Delete Entries"), style = "color:white")
-                        )
+                  box(
+                    solidHeader = TRUE,
+                    status = "primary",
+                    width = "100%",
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        h3(p("Delete Entries"), style = "color:white")
+                      )
+                    ),
+                    hr(),
+                    fluidRow(
+                      column(
+                        width = 2,
+                        offset = 1,
+                        align = "right",
+                        br(),
+                        h5("Index", style = "color:white; margin-bottom: 0px;")
                       ),
-                      hr(),
-                      fluidRow(
-                        column(
-                          width = 2,
-                          offset = 1,
-                          align = "right",
-                          br(),
-                          h5("Index", style = "color:white; margin-bottom: 0px;")
-                        ),
-                        column(
-                          width = 6,
-                          align = "center",
-                          uiOutput("delete_select")
-                        ),
-                        column(
-                          width = 2,
-                          align = "center",
-                          br(),
-                          uiOutput("del_bttn")
-                        )
+                      column(
+                        width = 6,
+                        align = "center",
+                        uiOutput("delete_select")
                       ),
-                      br()
-                    )
+                      column(
+                        width = 2,
+                        align = "center",
+                        br(),
+                        uiOutput("del_bttn")
+                      )
+                    ),
+                    br()
+                  )
                 })
                 
                 # Render loci comparison box UI
@@ -8870,7 +8617,7 @@ server <- function(input, output, session) {
                           p(
                             HTML(
                               paste(
-                                tags$span(style="color: white; font-size: 15px; margin-left: 25px; position: relative; bottom: -13px", " =  duplicated name")
+                                tags$span(style="color: white; font-size: 15px; margin-left: 25px; position: relative; bottom: -13px", " =  duplicated name/ID")
                               )
                             )
                           ),
@@ -9252,7 +8999,7 @@ server <- function(input, output, session) {
         }
       } else {
         
-        log_message(out, message = "Invalid scheme folder")
+         log_print("Invalid scheme folder")
         show_toast(
           title = "Invalid scheme folder",
           type = "warning",
@@ -9568,7 +9315,7 @@ server <- function(input, output, session) {
                            "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
                            "}"
                          ))
-          )
+        )
         
         output$loci_header <- renderUI(h3(p("Loci"), style = "color:white"))
         
@@ -9600,8 +9347,8 @@ server <- function(input, output, session) {
   ### Database Events ----
   
   # Invalid entries table input
-  
   observe({
+    req(DB$data, input$db_entries)
     if (isTRUE(input$invalid_date)) {
       show_toast(
         title = "Invalid date",
@@ -9637,13 +9384,12 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
-    log_message(out, message = DB$database)
-    log_message(out, message = DB$scheme)
-    log_message(out, message = DB$data[1, 1])
-    log_message(out, message = DB$check_new_entries)
-    log_message(out, message = "Input reload_db")
+    fill1 <<- brewer.pal(3, input$upgma_clade_scale)
+    trest <<- input$upgma_clade_scale
     
-    if(tail(readLines(paste0(getwd(), "/execute/script_log.txt")), 1)!= "0") {
+    log_print("Input reload_db")
+    
+    if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
         type = "warning",
@@ -9698,7 +9444,7 @@ server <- function(input, output, session) {
   
   # Undo db changes
   observeEvent(input$undo_changes, {
-    log_message(out, message = "Input undo_changes")
+     log_print("Input undo_changes")
     
     DB$inhibit_change <- FALSE
     
@@ -9836,7 +9582,8 @@ server <- function(input, output, session) {
                 rhandsontable(
                   select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
                   col_highlight = diff_allele() - 1,
-                  duplicated_highlight = duplicated_rows() - 1,
+                  dup_names_high = duplicated_names() - 1,
+                  dup_ids_high = duplicated_ids() - 1,
                   row_highlight = true_rows() - 1,
                   error_highlight = err_thresh() - 1,
                   rowHeaders = NULL,
@@ -9955,7 +9702,20 @@ server <- function(input, output, session) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
                        if (instance.params) {
-                         hrows = instance.params.duplicated_highlight
+                         hrows = instance.params.dup_names_high
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                  hot_col(3, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.dup_ids_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
@@ -9982,7 +9742,8 @@ server <- function(input, output, session) {
                   select(DB$data, 1:(12 + nrow(DB$cust_var))),
                   rowHeaders = NULL,
                   row_highlight = true_rows() - 1,
-                  duplicated_highlight = duplicated_rows()- 1,
+                  dup_names_high = duplicated_names()- 1,
+                  dup_ids_high = duplicated_ids() - 1,
                   error_highlight = err_thresh() - 1,
                   contextMenu = FALSE,
                   highlightCol = TRUE, 
@@ -10078,7 +9839,20 @@ server <- function(input, output, session) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
                        if (instance.params) {
-                         hrows = instance.params.duplicated_highlight
+                         hrows = instance.params.dup_names_high
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                  hot_col(3, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.dup_ids_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
@@ -10109,7 +9883,8 @@ server <- function(input, output, session) {
                   rowHeaders = NULL,
                   height = table_height(),
                   row_highlight = true_rows() - 1,
-                  duplicated_highlight = duplicated_rows() - 1,
+                  dup_names_high = duplicated_names() - 1,
+                  dup_ids_high = duplicated_ids() - 1,
                   error_highlight = err_thresh() - 1,
                   contextMenu = FALSE,
                   highlightCol = TRUE, 
@@ -10217,7 +9992,20 @@ server <- function(input, output, session) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
                        if (instance.params) {
-                         hrows = instance.params.duplicated_highlight
+                         hrows = instance.params.dup_names_high
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                  hot_col(3, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.dup_ids_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
@@ -10248,7 +10036,8 @@ server <- function(input, output, session) {
                   select(DB$data, 1:(12 + nrow(DB$cust_var))),
                   rowHeaders = NULL,
                   height = table_height(),
-                  duplicated_highlight = duplicated_rows() - 1,
+                  dup_names_high = duplicated_names() - 1,
+                  dup_ids_high = duplicated_ids() - 1,
                   row_highlight = true_rows() - 1,
                   error_highlight = err_thresh() - 1,
                   contextMenu = FALSE,
@@ -10343,7 +10132,20 @@ server <- function(input, output, session) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
                        if (instance.params) {
-                         hrows = instance.params.duplicated_highlight
+                         hrows = instance.params.dup_names_high
+                         hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                         if (hrows.includes(row)) { 
+                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                         }
+                       }
+              }") %>%
+                  hot_col(3, renderer = "
+              function (instance, td, row, col, prop, value, cellProperties) {
+                       Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                       if (instance.params) {
+                         hrows = instance.params.dup_ids_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
   
                          if (hrows.includes(row)) { 
@@ -10367,8 +10169,6 @@ server <- function(input, output, session) {
         }
       }
     })
-    
-    
   })
   
   observe({
@@ -10382,14 +10182,14 @@ server <- function(input, output, session) {
       }
     }
   })
-   
+  
   DB$count <- 0
   
   observeEvent(input$add_new_variable, {
-    log_message(out, message = "Input add_new_variable")
+     log_print("Input add_new_variable")
     
     if(nchar(input$new_var_name) > 12) {
-      log_message(out, message = "Add variable; max. 10 character")
+       log_print("Add variable; max. 10 character")
       show_toast(
         title = "Max. 10 characters",
         type = "warning",
@@ -10399,7 +10199,7 @@ server <- function(input, output, session) {
       )
     } else {
       if (input$new_var_name == "") {
-        log_message(out, message = "Add variable; min. 1 character")
+         log_print("Add variable; min. 1 character")
         show_toast(
           title = "Min. 1 character",
           type = "error",
@@ -10409,7 +10209,7 @@ server <- function(input, output, session) {
         )
       } else {
         if(trimws(input$new_var_name) %in% names(DB$meta)) {
-          log_message(out, message = "Add variable; name already existing")
+           log_print("Add variable; name already existing")
           show_toast(
             title = "Variable name already existing",
             type = "warning",
@@ -10439,7 +10239,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_new_var, {
-    log_message(out, message = "Input conf_new_var")
+     log_print("Input conf_new_var")
     
     removeModal()
     
@@ -10469,7 +10269,7 @@ server <- function(input, output, session) {
     
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
     
-    log_message(out, message = paste0("New custom variable added: ", input$new_var_name))
+    log_print(paste0("New custom variable added: ", input$new_var_name))
     
     show_toast(
       title = paste0("Variable ", trimws(input$new_var_name), " added"),
@@ -10482,10 +10282,10 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$delete_new_variable, {
-    log_message(out, message = "Input delete_new_variable")
+     log_print("Input delete_new_variable")
     
     if (input$del_which_var == "") {
-      log_message(out, message = "Delete custom variables; no custom variable")
+       log_print("Delete custom variables; no custom variable")
       show_toast(
         title = "No custom variables",
         type = "error",
@@ -10514,7 +10314,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_var_del, {
-    log_message(out, message = "Input conf_var_del")
+     log_print("Input conf_var_del")
     
     DB$change <- TRUE
     
@@ -10532,7 +10332,7 @@ server <- function(input, output, session) {
       timer = 6000
     )
     
-    log_message(out, message = paste0("Variable ", input$del_which_var, " removed"))
+     log_print(paste0("Variable ", input$del_which_var, " removed"))
     
     DB$cust_var <- DB$cust_var[-which(DB$cust_var$Variable == input$del_which_var),]
     DB$data <- select(DB$data, -(input$del_which_var))
@@ -10547,13 +10347,13 @@ server <- function(input, output, session) {
   # Select all button
   
   observeEvent(input$sel_all_entries, {
-    log_message(out, message = "Input sel_all_entries")
+     log_print("Input sel_all_entries")
     
     DB$data$Include <- TRUE
   })
   
   observeEvent(input$desel_all_entries, {
-    log_message(out, message = "Input desel_all_entries")
+     log_print("Input desel_all_entries")
     
     DB$data$Include <- FALSE
   })
@@ -10561,7 +10361,7 @@ server <- function(input, output, session) {
   # Switch to entry table
   
   observeEvent(input$change_entries, {
-    log_message(out, message = "Input change_entries")
+     log_print("Input change_entries")
     
     removeModal()
     updateTabItems(session, "tabs", selected = "db_browse_entries")
@@ -10571,7 +10371,7 @@ server <- function(input, output, session) {
   
   output$download_na_matrix <- downloadHandler(
     filename = function() {
-      log_message(out, message = paste0("Save missing values table ", paste0(Sys.Date(), "_", gsub(" ", "_", DB$scheme), "_Missing_Values.csv")))
+       log_print(paste0("Save missing values table ", paste0(Sys.Date(), "_", gsub(" ", "_", DB$scheme), "_Missing_Values.csv")))
       paste0(Sys.Date(), "_", gsub(" ", "_", DB$scheme), "_Missing_Values.csv")
     },
     content = function(file) {
@@ -10584,7 +10384,7 @@ server <- function(input, output, session) {
   
   output$download_schemeinfo <- downloadHandler(
     filename = function() {
-      log_message(out, message = paste0("Save scheme info table ", paste0(gsub(" ", "_", DB$scheme), "_scheme.csv")))
+       log_print(paste0("Save scheme info table ", paste0(gsub(" ", "_", DB$scheme), "_scheme.csv")))
       
       paste0(gsub(" ", "_", DB$scheme), "_scheme.csv")
     },
@@ -10604,7 +10404,7 @@ server <- function(input, output, session) {
   
   output$download_loci_info <- downloadHandler(
     filename = function() {
-      log_message(out, message = paste0("Save loci info table ", paste0(gsub(" ", "_", DB$scheme), "_Loci.csv")))
+       log_print(paste0("Save loci info table ", paste0(gsub(" ", "_", DB$scheme), "_Loci.csv")))
       
       paste0(gsub(" ", "_", DB$scheme), "_Loci.csv")
     },
@@ -10623,7 +10423,7 @@ server <- function(input, output, session) {
   
   output$download_entry_table <- downloadHandler(
     filename = function() {
-      log_message(out, message = paste0("Save entry table ", paste0(Sys.Date(), "_", gsub(" ", "_", DB$scheme), "_Entries.csv")))
+       log_print(paste0("Save entry table ", paste0(Sys.Date(), "_", gsub(" ", "_", DB$scheme), "_Entries.csv")))
       
       paste0(Sys.Date(), "_", gsub(" ", "_", DB$scheme), "_Entries.csv")
     },
@@ -10645,54 +10445,62 @@ server <- function(input, output, session) {
   # Save Edits Button
   
   observeEvent(input$edit_button, {
-    
-    if(!isTRUE(DB$inhibit_change)) {
-      log_message(out, message = "Input edit_button")
-      
-      showModal(
-        modalDialog(
-          if(length(DB$deleted_entries > 0)) {
-            paste0(
-              "Overwriting previous metadata of local ",
-              DB$scheme,
-              " database. Deleted entries will be irreversibly removed. Continue?"
-            )
-          } else {
-            paste0(
-              "Overwriting previous metadata of local ",
-              DB$scheme,
-              " database. Continue?"
-            )
-          },
-          title = "Save Database",
-          fade = TRUE,
-          easyClose = TRUE,
-          footer = tagList(
-            modalButton("Cancel"),
-            actionButton("conf_db_save", "Save", class = "btn btn-default")
-          )
-        )
-      )
-    } else {
-      log_message(out, message = "Input edit_button, invalid values.")
+    if(nrow(hot_to_r(input$db_entries)) > nrow(DB$data)) {
       show_toast(
-        title = "Invalid values entered. Saving not possible.",
+        title = "Invalid rows entered. Saving not possible.",
         type = "error",
         position = "top-end",
         timer = 6000,
         width = "600px"
       )
+    } else {
+      if(!isTRUE(DB$inhibit_change)) {
+         log_print("Input edit_button")
+        
+        showModal(
+          modalDialog(
+            if(length(DB$deleted_entries > 0)) {
+              paste0(
+                "Overwriting previous metadata of local ",
+                DB$scheme,
+                " database. Deleted entries will be irreversibly removed. Continue?"
+              )
+            } else {
+              paste0(
+                "Overwriting previous metadata of local ",
+                DB$scheme,
+                " database. Continue?"
+              )
+            },
+            title = "Save Database",
+            fade = TRUE,
+            easyClose = TRUE,
+            footer = tagList(
+              modalButton("Cancel"),
+              actionButton("conf_db_save", "Save", class = "btn btn-default")
+            )
+          )
+        )
+      } else {
+         log_print("Input edit_button, invalid values.")
+        show_toast(
+          title = "Invalid values entered. Saving not possible.",
+          type = "error",
+          position = "top-end",
+          timer = 6000,
+          width = "600px"
+        )
+      }
     }
   })
   
   observeEvent(input$Cancel, {
-    log_message(out, message = "Input Cancel")
-    
+     log_print("Input Cancel")
     removeModal()
   })
   
   observeEvent(input$conf_db_save, {
-    log_message(out, message = "Input conf_db_save")
+     log_print("Input conf_db_save")
     
     Data <- readRDS(paste0(
       DB$database, "/",
@@ -10778,10 +10586,10 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$del_button, {
-    log_message(out, message = "Input del_button")
+     log_print("Input del_button")
     
     if (length(input$select_delete) < 1) {
-      log_message(out, message = "Delete entries; no entry selected")
+       log_print("Delete entries; no entry selected")
       show_toast(
         title = "No entry selected",
         type = "warning",
@@ -10791,7 +10599,7 @@ server <- function(input, output, session) {
       )
     } else if((readLines(paste0(getwd(), "/logs/progress.txt"))[1] != "0") |
               (tail(readLogFile(), 1) != "0")) {
-      log_message(out, message = "Delete entries; pending typing")
+       log_print("Delete entries; pending typing")
       
       show_toast(
         title = "Pending Typing",
@@ -10836,7 +10644,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_delete_all, {
-    log_message(out, message = "Input conf_delete_all")
+     log_print("Input conf_delete_all")
     
     # remove file with typing data
     file.remove(paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/Typing.rds"))
@@ -10865,7 +10673,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$conf_delete, {
     
-    log_message(out, message = "Input conf_delete")
+     log_print("Input conf_delete")
     
     DB$deleted_entries <- append(DB$deleted_entries, DB$data$Index[as.numeric(input$select_delete)])
     
@@ -11115,7 +10923,7 @@ server <- function(input, output, session) {
   output$get_locus <- downloadHandler(
     filename = function() {
       fname <- basename(DB$loci[input$db_loci_rows_selected])
-      log_message(out, message = paste0("Get locus fasta ", fname))
+       log_print(paste0("Get locus fasta ", fname))
       fname
     },
     content = function(file) {
@@ -11319,8 +11127,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$download_cgMLST, {
-    
-    log_message(out, message = paste0("Started download of scheme for ", Scheme$folder_name))
+     log_print(paste0("Started download of scheme for ", Scheme$folder_name))
     
     show_toast(
       title = "Download started",
@@ -11493,8 +11300,7 @@ server <- function(input, output, session) {
     )
     
     # TODO Add log message regarding the update of the scheme
-    
-    log_message(out, message = "Download successful")
+     log_print("Download successful")
     
     showModal(
       modalDialog(
@@ -11515,12 +11321,10 @@ server <- function(input, output, session) {
     )
   })
   
-  
-  
   # Download Target Info (CSV Table)
   observe({
     input$download_cgMLST
-    
+
     scheme_overview <- read_html(Scheme$link_scheme) %>%
       html_table(header = FALSE) %>%
       as.data.frame(stringsAsFactors = FALSE)
@@ -11592,6 +11396,93 @@ server <- function(input, output, session) {
   ### Render Visualization Controls ----
   
   #### NJ and UPGMA controls ----
+  
+  # Control enable/disable of variable mapping inputs
+  observe({
+    shinyjs::toggleState(id = "nj_color_mapping", condition = isTRUE(input$nj_mapping_show))
+    shinyjs::toggleState(id = "nj_tiplab_scale", condition = isTRUE(input$nj_mapping_show))
+    shinyjs::toggleState(id = "upgma_color_mapping", condition = isTRUE(input$upgma_mapping_show))
+    shinyjs::toggleState(id = "upgma_tiplab_scale", condition = isTRUE(input$upgma_mapping_show))
+    
+    shinyjs::toggleState(id = "nj_tipcolor_mapping", condition = isTRUE(input$nj_tipcolor_mapping_show))
+    shinyjs::toggleState(id = "nj_tippoint_scale", condition = isTRUE(input$nj_tipcolor_mapping_show))
+    shinyjs::toggleState(id = "upgma_tipcolor_mapping", condition = isTRUE(input$upgma_tipcolor_mapping_show))
+    shinyjs::toggleState(id = "upgma_tippoint_scale", condition = isTRUE(input$upgma_tipcolor_mapping_show))
+    
+    shinyjs::toggleState(id = "nj_tipshape_mapping", condition = isTRUE(input$nj_tipshape_mapping_show))
+    shinyjs::toggleState(id = "upgma_tipshape_mapping", condition = isTRUE(input$upgma_tipshape_mapping_show))
+    
+    shinyjs::toggleState(id = "nj_fruit_variable", condition = isTRUE(input$nj_tiles_show_1))
+    shinyjs::toggleState(id = "upgma_fruit_variable", condition = isTRUE(input$upgma_tiles_show_1))
+    shinyjs::toggleState(id = "nj_fruit_variable_2", condition = isTRUE(input$nj_tiles_show_2))
+    shinyjs::toggleState(id = "upgma_fruit_variable_2", condition = isTRUE(input$upgma_tiles_show_2))
+    shinyjs::toggleState(id = "nj_fruit_variable_3", condition = isTRUE(input$nj_tiles_show_3))
+    shinyjs::toggleState(id = "upgma_fruit_variable_3", condition = isTRUE(input$upgma_tiles_show_3))
+    shinyjs::toggleState(id = "nj_fruit_variable_4", condition = isTRUE(input$nj_tiles_show_4))
+    shinyjs::toggleState(id = "upgma_fruit_variable_4", condition = isTRUE(input$upgma_tiles_show_4))
+    shinyjs::toggleState(id = "nj_fruit_variable_5", condition = isTRUE(input$nj_tiles_show_5))
+    shinyjs::toggleState(id = "upgma_fruit_variable_5", condition = isTRUE(input$upgma_tiles_show_5))
+    shinyjs::toggleState(id = "nj_tiles_scale_1", condition = isTRUE(input$nj_tiles_show_1))
+    shinyjs::toggleState(id = "upgma_tiles_scale_1", condition = isTRUE(input$upgma_tiles_show_1))
+    shinyjs::toggleState(id = "nj_tiles_scale_2", condition = isTRUE(input$nj_tiles_show_2))
+    shinyjs::toggleState(id = "upgma_tiles_scale_2", condition = isTRUE(input$upgma_tiles_show_2))
+    shinyjs::toggleState(id = "nj_tiles_scale_3", condition = isTRUE(input$nj_tiles_show_3))
+    shinyjs::toggleState(id = "upgma_tiles_scale_3", condition = isTRUE(input$upgma_tiles_show_3))
+    shinyjs::toggleState(id = "nj_tiles_scale_4", condition = isTRUE(input$nj_tiles_show_4))
+    shinyjs::toggleState(id = "upgma_tiles_scale_4", condition = isTRUE(input$upgma_tiles_show_4))
+    shinyjs::toggleState(id = "nj_tiles_scale_5", condition = isTRUE(input$nj_tiles_show_5))
+    shinyjs::toggleState(id = "upgma_tiles_scale_5", condition = isTRUE(input$upgma_tiles_show_5))
+    
+    shinyjs::toggleState(id = "nj_heatmap_sel", condition = isTRUE(input$nj_heatmap_show))
+    shinyjs::toggleState(id = "nj_heatmap_scale", condition = isTRUE(input$nj_heatmap_show))
+    shinyjs::toggleState(id = "upgma_heatmap_sel", condition = isTRUE(input$upgma_heatmap_show))
+    shinyjs::toggleState(id = "upgma_heatmap_scale", condition = isTRUE(input$upgma_heatmap_show))
+  })
+  
+  # Size scaling NJ
+  observe({
+    req(input$nj_ratio)
+    if(input$nj_ratio == "1.6") {
+      updateSliderInput(session, "nj_scale",
+                        step = 5, value = 800, min = 500, max = 1200)
+    } else if(input$nj_ratio == "1.77777777777778") {
+      updateSliderInput(session, "nj_scale",
+                        step = 9, value = 801, min = 504, max = 1197)
+    } else if(input$nj_ratio == "1.33333333333333"){
+      updateSliderInput(session, "nj_scale",
+                        step = 3, value = 801, min = 501, max = 1200)
+    }
+  })
+  
+  # Size scaling UPGMA
+  observe({
+    req(input$upgma_ratio)
+    if(input$upgma_ratio == "1.6") {
+      updateSliderInput(session, "upgma_scale",
+                        step = 5, value = 800, min = 500, max = 1200)
+    } else if(input$upgma_ratio == "1.77777777777778") {
+      updateSliderInput(session, "upgma_scale",
+                        step = 9, value = 801, min = 504, max = 1197)
+    } else if(input$upgma_ratio == "1.33333333333333"){
+      updateSliderInput(session, "upgma_scale",
+                        step = 3, value = 801, min = 501, max = 1200)
+    }
+  })
+  
+  # Size scaling MST
+  observe({
+    req(input$mst_ratio)
+    if(input$mst_ratio == "1.6") {
+      updateSliderInput(session, "mst_scale",
+                        step = 5, value = 800, min = 500, max = 1200)
+    } else if(input$mst_ratio == "1.77777777777778") {
+      updateSliderInput(session, "mst_scale",
+                        step = 9, value = 801, min = 504, max = 1197)
+    } else if(input$mst_ratio == "1.33333333333333"){
+      updateSliderInput(session, "mst_scale",
+                        step = 3, value = 801, min = 501, max = 1200)
+    }
+  })
   
   # Custom Labels
   
@@ -13480,59 +13371,19 @@ server <- function(input, output, session) {
   
   # Tile number selector update each other
   observeEvent(input$nj_tile_num, {
-    
     updateSelectInput(session, "nj_tile_number", selected = input$nj_tile_num)
   })
   
   observeEvent(input$nj_tile_number, {
-    
     updateSelectInput(session, "nj_tile_num", selected = input$nj_tile_number)
   })
   
-  observeEvent(input$nj_tipcolor_mapping_show, {
-    
-    updateCheckboxInput(session, "nj_tippoint_show", value = input$nj_tipcolor_mapping_show)
-  })
-  
-  observeEvent(input$nj_tipshape_mapping_show, {
-    
-    updateCheckboxInput(session, "nj_tippoint_show", value = input$nj_tipshape_mapping_show)
-  })
-  
-  observeEvent(input$nj_tippoint_show, {
-    
-    if(input$nj_tippoint_show == FALSE) {
-      updateCheckboxInput(session, "nj_tipcolor_mapping_show", value = FALSE)
-      updateCheckboxInput(session, "nj_tipshape_mapping_show", value = FALSE)
-    }
-  })
-  
   observeEvent(input$upgma_tile_num, {
-    
     updateSelectInput(session, "upgma_tile_number", selected = input$upgma_tile_num)
   })
   
   observeEvent(input$upgma_tile_number, {
-    
     updateSelectInput(session, "upgma_tile_num", selected = input$upgma_tile_number)
-  })
-  
-  observeEvent(input$upgma_tipcolor_mapping_show, {
-    
-    updateCheckboxInput(session, "upgma_tippoint_show", value = input$upgma_tipcolor_mapping_show)
-  })
-  
-  observeEvent(input$upgma_tipshape_mapping_show, {
-    
-    updateCheckboxInput(session, "upgma_tippoint_show", value = input$upgma_tipshape_mapping_show)
-  })
-  
-  observeEvent(input$upgma_tippoint_show, {
-    
-    if(input$upgma_tippoint_show == FALSE) {
-      updateCheckboxInput(session, "upgma_tipcolor_mapping_show", value = FALSE)
-      updateCheckboxInput(session, "upgma_tipshape_mapping_show", value = FALSE)
-    }
   })
   
   # Clade coloring
@@ -13689,40 +13540,12 @@ server <- function(input, output, session) {
   # Heatmap variable color scale
   output$nj_heatmap_scale <- renderUI({
     if(class(unlist(Vis$meta_nj[input$nj_heatmap_select])) == "numeric") {
-      selectInput(
-        "nj_heatmap_scale",
-        "",
-        choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
-        )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_heatmap_select]))) > 7) {
+      shinyjs::disabled(
         selectInput(
           "nj_heatmap_scale",
           "",
           choices = list(
-            Gradient = list(
+            Continous = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -13731,47 +13554,81 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
+            ),
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
             )
-          ),
-          selected = "turbo"
+          )
+        )
+      )
+    } else {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_heatmap_select]))) > 7) {
+        shinyjs::disabled(
+          selectInput(
+            "nj_heatmap_scale",
+            "",
+            choices = list(
+              Gradient = list(
+                "Magma" = "magma",
+                "Inferno" = "inferno",
+                "Plasma" = "plasma",
+                "Viridis" = "viridis",
+                "Cividis" = "cividis",
+                "Rocket" = "rocket",
+                "Mako" = "mako",
+                "Turbo" = "turbo"
+              )
+            ),
+            selected = "turbo"
+          )
         )
       } else {
-        selectInput(
-          "nj_heatmap_scale",
-          "",
-          choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
+        shinyjs::disabled(
+          selectInput(
+            "nj_heatmap_scale",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
+              ),
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
             ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
-          ),
-          selected = "Paired"
+            selected = "Paired"
+          )
         )
       }
     }
@@ -13779,40 +13636,12 @@ server <- function(input, output, session) {
   
   output$upgma_heatmap_scale <- renderUI({
     if(class(unlist(Vis$meta_upgma[input$upgma_heatmap_select])) == "numeric") {
-      selectInput(
-        "upgma_heatmap_scale",
-        "",
-        choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
-        )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_upgma[input$upgma_heatmap_select]))) > 7) {
+      shinyjs::disabled(
         selectInput(
           "upgma_heatmap_scale",
           "",
           choices = list(
-            Gradient = list(
+            Continous = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -13821,47 +13650,81 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
+            ),
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
             )
-          ),
-          selected = "turbo"
+          )
+        )
+      )
+    } else {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_heatmap_select]))) > 7) {
+        shinyjs::disabled(
+          selectInput(
+            "upgma_heatmap_scale",
+            "",
+            choices = list(
+              Gradient = list(
+                "Magma" = "magma",
+                "Inferno" = "inferno",
+                "Plasma" = "plasma",
+                "Viridis" = "viridis",
+                "Cividis" = "cividis",
+                "Rocket" = "rocket",
+                "Mako" = "mako",
+                "Turbo" = "turbo"
+              )
+            ),
+            selected = "turbo"
+          )
         )
       } else {
-        selectInput(
-          "upgma_heatmap_scale",
-          "",
-          choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
+        shinyjs::disabled(
+          selectInput(
+            "upgma_heatmap_scale",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
+              ),
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
             ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
-          ),
-          selected = "Paired"
+            selected = "Paired"
+          )
         )
       }
     }
@@ -13870,40 +13733,12 @@ server <- function(input, output, session) {
   # Tiles variable color scale
   output$nj_tiles_scale_1 <- renderUI({
     if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
-      selectInput(
-        "nj_tiles_scale_1",
-        "",
-        choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
-        )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))) > 7) {
+      shinyjs::disabled(
         selectInput(
           "nj_tiles_scale_1",
           "",
           choices = list(
-            Gradient = list(
+            Continous = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -13912,47 +13747,81 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
+            ),
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
             )
-          ),
-          selected = "turbo"
+          )
+        )
+      )
+    } else {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))) > 7) {
+        shinyjs::disabled(
+          selectInput(
+            "nj_tiles_scale_1",
+            "",
+            choices = list(
+              Gradient = list(
+                "Magma" = "magma",
+                "Inferno" = "inferno",
+                "Plasma" = "plasma",
+                "Viridis" = "viridis",
+                "Cividis" = "cividis",
+                "Rocket" = "rocket",
+                "Mako" = "mako",
+                "Turbo" = "turbo"
+              )
+            ),
+            selected = "turbo"
+          )
         )
       } else {
-        selectInput(
-          "nj_tiles_scale_1",
-          "",
-          choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
+        shinyjs::disabled(
+          selectInput(
+            "nj_tiles_scale_1",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
+              ),
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
             ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
-          ),
-          selected = "Accent"
+            selected = "Accent"
+          )
         )
       }
     }
@@ -13960,40 +13829,12 @@ server <- function(input, output, session) {
   
   output$upgma_tiles_scale_1 <- renderUI({
     if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable])) == "numeric") {
-      selectInput(
-        "upgma_tiles_scale_1",
-        "",
-        choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
-        )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))) > 7) {
+      shinyjs::disabled(
         selectInput(
           "upgma_tiles_scale_1",
           "",
           choices = list(
-            Gradient = list(
+            Continous = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -14002,47 +13843,81 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
+            ),
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
             )
-          ),
-          selected = "turbo"
+          )
+        )
+      )
+    } else {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))) > 7) {
+        shinyjs::disabled(
+          selectInput(
+            "upgma_tiles_scale_1",
+            "",
+            choices = list(
+              Gradient = list(
+                "Magma" = "magma",
+                "Inferno" = "inferno",
+                "Plasma" = "plasma",
+                "Viridis" = "viridis",
+                "Cividis" = "cividis",
+                "Rocket" = "rocket",
+                "Mako" = "mako",
+                "Turbo" = "turbo"
+              )
+            ),
+            selected = "turbo"
+          )
         )
       } else {
-        selectInput(
-          "upgma_tiles_scale_1",
-          "",
-          choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
+        shinyjs::disabled(
+          selectInput(
+            "upgma_tiles_scale_1",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
+              ),
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
             ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
-          ),
-          selected = "Accent"
+            selected = "Accent"
+          )
         )
       }
     }
@@ -14050,40 +13925,12 @@ server <- function(input, output, session) {
   
   output$nj_tiles_scale_2 <- renderUI({
     if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_2])) == "numeric") {
-      selectInput(
-        "nj_tiles_scale_2",
-        "",
-        choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
-        )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))) > 7) {
+      shinyjs::disabled(
         selectInput(
           "nj_tiles_scale_2",
           "",
           choices = list(
-            Gradient = list(
+            Continous = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -14092,47 +13939,81 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
+            ),
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
             )
-          ),
-          selected = "turbo"
+          )
+        )
+      )
+    } else {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))) > 7) {
+        shinyjs::disabled(
+          selectInput(
+            "nj_tiles_scale_2",
+            "",
+            choices = list(
+              Gradient = list(
+                "Magma" = "magma",
+                "Inferno" = "inferno",
+                "Plasma" = "plasma",
+                "Viridis" = "viridis",
+                "Cividis" = "cividis",
+                "Rocket" = "rocket",
+                "Mako" = "mako",
+                "Turbo" = "turbo"
+              )
+            ),
+            selected = "turbo"
+          )
         )
       } else {
-        selectInput(
-          "nj_tiles_scale_2",
-          "",
-          choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
+        shinyjs::disabled(
+          selectInput(
+            "nj_tiles_scale_2",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
+              ),
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
             ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
-          ),
-          selected = "Accent"
+            selected = "Accent"
+          )
         )
       }
     }
@@ -14140,40 +14021,12 @@ server <- function(input, output, session) {
   
   output$upgma_tiles_scale_2 <- renderUI({
     if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2])) == "numeric") {
-      selectInput(
-        "upgma_tiles_scale_2",
-        "",
-        choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
-        )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2]))) > 7) {
+      shinyjs::disabled(
         selectInput(
           "upgma_tiles_scale_2",
           "",
           choices = list(
-            Gradient = list(
+            Continous = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -14182,47 +14035,81 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
+            ),
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
             )
-          ),
-          selected = "turbo"
+          )
+        )
+      )
+    } else {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2]))) > 7) {
+        shinyjs::disabled(
+          selectInput(
+            "upgma_tiles_scale_2",
+            "",
+            choices = list(
+              Gradient = list(
+                "Magma" = "magma",
+                "Inferno" = "inferno",
+                "Plasma" = "plasma",
+                "Viridis" = "viridis",
+                "Cividis" = "cividis",
+                "Rocket" = "rocket",
+                "Mako" = "mako",
+                "Turbo" = "turbo"
+              )
+            ),
+            selected = "turbo"
+          )
         )
       } else {
-        selectInput(
-          "upgma_tiles_scale_2",
-          "",
-          choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
+        shinyjs::disabled(
+          selectInput(
+            "upgma_tiles_scale_2",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
+              ),
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
             ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
-          ),
-          selected = "Accent"
+            selected = "Accent"
+          )
         )
       }
     }
@@ -14230,40 +14117,12 @@ server <- function(input, output, session) {
   
   output$nj_tiles_scale_3 <- renderUI({
     if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_3])) == "numeric") {
-      selectInput(
-        "nj_tiles_scale_3",
-        "",
-        choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
-        )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))) > 7) {
+      shinyjs::disabled(
         selectInput(
           "nj_tiles_scale_3",
           "",
           choices = list(
-            Gradient = list(
+            Continous = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -14272,47 +14131,81 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
+            ),
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
             )
-          ),
-          selected = "turbo"
+          )
+        )
+      )
+    } else {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))) > 7) {
+        shinyjs::disabled(
+          selectInput(
+            "nj_tiles_scale_3",
+            "",
+            choices = list(
+              Gradient = list(
+                "Magma" = "magma",
+                "Inferno" = "inferno",
+                "Plasma" = "plasma",
+                "Viridis" = "viridis",
+                "Cividis" = "cividis",
+                "Rocket" = "rocket",
+                "Mako" = "mako",
+                "Turbo" = "turbo"
+              )
+            ),
+            selected = "turbo"
+          )
         )
       } else {
-        selectInput(
-          "nj_tiles_scale_3",
-          "",
-          choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
+        shinyjs::disabled(
+          selectInput(
+            "nj_tiles_scale_3",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
+              ),
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
             ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
-          ),
-          selected = "Accent"
+            selected = "Accent"
+          )
         )
       }
     }
@@ -14320,40 +14213,12 @@ server <- function(input, output, session) {
   
   output$upgma_tiles_scale_3 <- renderUI({
     if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3])) == "numeric") {
-      selectInput(
-        "upgma_tiles_scale_3",
-        "",
-        choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
-        )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3]))) > 7) {
+      shinyjs::disabled(
         selectInput(
           "upgma_tiles_scale_3",
           "",
           choices = list(
-            Gradient = list(
+            Continous = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -14362,47 +14227,81 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
+            ),
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
             )
-          ),
-          selected = "turbo"
+          )
+        )
+      )
+    } else {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3]))) > 7) {
+        shinyjs::disabled(
+          selectInput(
+            "upgma_tiles_scale_3",
+            "",
+            choices = list(
+              Gradient = list(
+                "Magma" = "magma",
+                "Inferno" = "inferno",
+                "Plasma" = "plasma",
+                "Viridis" = "viridis",
+                "Cividis" = "cividis",
+                "Rocket" = "rocket",
+                "Mako" = "mako",
+                "Turbo" = "turbo"
+              )
+            ),
+            selected = "turbo"
+          )
         )
       } else {
-        selectInput(
-          "upgma_tiles_scale_3",
-          "",
-          choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
+        shinyjs::disabled(
+          selectInput(
+            "upgma_tiles_scale_3",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
+              ),
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
             ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
-          ),
-          selected = "Accent"
+            selected = "Accent"
+          )
         )
       }
     }
@@ -14410,36 +14309,38 @@ server <- function(input, output, session) {
   
   output$nj_tiles_scale_4 <- renderUI({
     if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_4])) == "numeric") {
-      selectInput(
-        "nj_tiles_scale_4",
-        "",
-        choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
+      shinyjs::disabled(
+        selectInput(
+          "nj_tiles_scale_4",
+          "",
+          choices = list(
+            Continous = list(
+              "Magma" = "magma",
+              "Inferno" = "inferno",
+              "Plasma" = "plasma",
+              "Viridis" = "viridis",
+              "Cividis" = "cividis",
+              "Rocket" = "rocket",
+              "Mako" = "mako",
+              "Turbo" = "turbo"
+            ),
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
+            )
           )
         )
       )
     } else {
       if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_4]))) > 7) {
-        selectInput(
+        shinyjs::disabled(selectInput(
           "nj_tiles_scale_4",
           "",
           choices = list(
@@ -14455,44 +14356,46 @@ server <- function(input, output, session) {
             )
           ),
           selected = "turbo"
-        )
+        ))
       } else {
-        selectInput(
-          "nj_tiles_scale_4",
-          "",
-          choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
+        shinyjs::disabled(
+          selectInput(
+            "nj_tiles_scale_4",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
+              ),
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
             ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
-          ),
-          selected = "Accent"
+            selected = "Accent"
+          )
         )
       }
     }
@@ -14500,40 +14403,12 @@ server <- function(input, output, session) {
   
   output$upgma_tiles_scale_4 <- renderUI({
     if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_4])) == "numeric") {
-      selectInput(
-        "upgma_tiles_scale_4",
-        "",
-        choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
-        )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_4]))) > 7) {
+      shinyjs::disabled(
         selectInput(
           "upgma_tiles_scale_4",
           "",
           choices = list(
-            Gradient = list(
+            Continous = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -14542,47 +14417,81 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
+            ),
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
             )
-          ),
-          selected = "turbo"
+          )
+        )
+      )
+    } else {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_4]))) > 7) {
+        shinyjs::disabled(
+          selectInput(
+            "upgma_tiles_scale_4",
+            "",
+            choices = list(
+              Gradient = list(
+                "Magma" = "magma",
+                "Inferno" = "inferno",
+                "Plasma" = "plasma",
+                "Viridis" = "viridis",
+                "Cividis" = "cividis",
+                "Rocket" = "rocket",
+                "Mako" = "mako",
+                "Turbo" = "turbo"
+              )
+            ),
+            selected = "turbo"
+          )
         )
       } else {
-        selectInput(
-          "upgma_tiles_scale_4",
-          "",
-          choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
+        shinyjs::disabled(
+          selectInput(
+            "upgma_tiles_scale_4",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
+              ),
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
             ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
-          ),
-          selected = "Accent"
+            selected = "Accent"
+          )
         )
       }
     }
@@ -14590,40 +14499,12 @@ server <- function(input, output, session) {
   
   output$nj_tiles_scale_5 <- renderUI({
     if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_5])) == "numeric") {
-      selectInput(
-        "nj_tiles_scale_5",
-        "",
-        choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
-        )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))) > 7) {
+      shinyjs::disabled(
         selectInput(
           "nj_tiles_scale_5",
           "",
           choices = list(
-            Gradient = list(
+            Continous = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -14632,47 +14513,81 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
+            ),
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
             )
-          ),
-          selected = "turbo"
+          )
+        )
+      )
+    } else {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))) > 7) {
+        shinyjs::disabled(
+          selectInput(
+            "nj_tiles_scale_5",
+            "",
+            choices = list(
+              Gradient = list(
+                "Magma" = "magma",
+                "Inferno" = "inferno",
+                "Plasma" = "plasma",
+                "Viridis" = "viridis",
+                "Cividis" = "cividis",
+                "Rocket" = "rocket",
+                "Mako" = "mako",
+                "Turbo" = "turbo"
+              )
+            ),
+            selected = "turbo"
+          )
         )
       } else {
-        selectInput(
-          "nj_tiles_scale_5",
-          "",
-          choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
+        shinyjs::disabled(
+          selectInput(
+            "nj_tiles_scale_5",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
+              ),
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
             ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
-          ),
-          selected = "Accent"
+            selected = "Accent"
+          )
         )
       }
     }
@@ -14680,40 +14595,12 @@ server <- function(input, output, session) {
   
   output$upgma_tiles_scale_5 <- renderUI({
     if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5])) == "numeric") {
-      selectInput(
-        "upgma_tiles_scale_5",
-        "",
-        choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
-        )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5]))) > 7) {
+      shinyjs::disabled(
         selectInput(
           "upgma_tiles_scale_5",
           "",
           choices = list(
-            Gradient = list(
+            Continous = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -14722,47 +14609,81 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
+            ),
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
             )
-          ),
-          selected = "turbo"
+          )
+        )
+      )
+    } else {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5]))) > 7) {
+        shinyjs::disabled(
+          selectInput(
+            "upgma_tiles_scale_5",
+            "",
+            choices = list(
+              Gradient = list(
+                "Magma" = "magma",
+                "Inferno" = "inferno",
+                "Plasma" = "plasma",
+                "Viridis" = "viridis",
+                "Cividis" = "cividis",
+                "Rocket" = "rocket",
+                "Mako" = "mako",
+                "Turbo" = "turbo"
+              )
+            ),
+            selected = "turbo"
+          )
         )
       } else {
-        selectInput(
-          "upgma_tiles_scale_5",
-          "",
-          choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
+        shinyjs::disabled(
+          selectInput(
+            "upgma_tiles_scale_5",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
+              ),
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
             ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
-          ),
-          selected = "Accent"
+            selected = "Accent"
+          )
         )
       }
     }
@@ -14771,40 +14692,13 @@ server <- function(input, output, session) {
   # Tip Labels Variable Color Scale
   output$nj_tiplab_scale <- renderUI({
     if(class(unlist(Vis$meta_nj[input$nj_color_mapping])) == "numeric") {
-      selectInput(
-        "nj_tiplab_scale",
-        "",
-        choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
-        )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_color_mapping]))) > 7) {
+      shinyjs::disabled(
         selectInput(
           "nj_tiplab_scale",
           "",
+          selectize = FALSE,
           choices = list(
-            Gradient = list(
+            Continous = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -14813,44 +14707,79 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
+            ),
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
             )
-          ),
-          selected = "turbo"
+          )
+        )
+      )
+    } else {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_color_mapping]))) > 7) {
+        shinyjs::disabled(
+          selectInput(
+            "nj_tiplab_scale",
+            "",
+            selectize = FALSE,
+            choices = list(
+              Gradient = list(
+                "Magma" = "magma",
+                "Inferno" = "inferno",
+                "Plasma" = "plasma",
+                "Viridis" = "viridis",
+                "Cividis" = "cividis",
+                "Rocket" = "rocket",
+                "Mako" = "mako",
+                "Turbo" = "turbo"
+              )
+            ),
+            selected = "turbo"
+          )
         )
       } else {
-        selectInput(
-          "nj_tiplab_scale",
-          "",
-          choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
+        shinyjs::disabled(
+          selectInput(
+            "nj_tiplab_scale",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
+              ),
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
             )
           )
         )
@@ -14860,40 +14789,12 @@ server <- function(input, output, session) {
   
   output$upgma_tiplab_scale <- renderUI({
     if(class(unlist(Vis$meta_upgma[input$upgma_color_mapping])) == "numeric") {
-      selectInput(
-        "upgma_tiplab_scale",
-        "",
-        choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
-        )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_upgma[input$upgma_color_mapping]))) > 7) {
+      shinyjs::disabled(
         selectInput(
           "upgma_tiplab_scale",
           "",
           choices = list(
-            Gradient = list(
+            Continous = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -14902,44 +14803,78 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
+            ),
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
             )
-          ),
-          selected = "turbo"
+          )
+        )
+      )
+    } else {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_color_mapping]))) > 7) {
+        shinyjs::disabled(
+          selectInput(
+            "upgma_tiplab_scale",
+            "",
+            choices = list(
+              Gradient = list(
+                "Magma" = "magma",
+                "Inferno" = "inferno",
+                "Plasma" = "plasma",
+                "Viridis" = "viridis",
+                "Cividis" = "cividis",
+                "Rocket" = "rocket",
+                "Mako" = "mako",
+                "Turbo" = "turbo"
+              )
+            ),
+            selected = "turbo"
+          )
         )
       } else {
-        selectInput(
-          "upgma_tiplab_scale",
-          "",
-          choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
+        shinyjs::disabled(
+          selectInput(
+            "upgma_tiplab_scale",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
+              ),
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
             )
           )
         )
@@ -14951,40 +14886,12 @@ server <- function(input, output, session) {
   output$nj_tippoint_scale <- renderUI({
     if(!is.null(Vis$meta_nj)) {
       if(class(unlist(Vis$meta_nj[input$nj_tipcolor_mapping])) == "numeric") {
-        selectInput(
-          "nj_tippoint_scale",
-          "",
-          choices = list(
-            Continous = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
-            )
-          )
-        )
-      } else {
-        if(length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))) > 7) {
+        shinyjs::disabled(
           selectInput(
             "nj_tippoint_scale",
             "",
             choices = list(
-              Gradient = list(
+              Continous = list(
                 "Magma" = "magma",
                 "Inferno" = "inferno",
                 "Plasma" = "plasma",
@@ -14993,87 +14900,123 @@ server <- function(input, output, session) {
                 "Rocket" = "rocket",
                 "Mako" = "mako",
                 "Turbo" = "turbo"
+              ),
+              Diverging = list(
+                "Spectral",
+                "RdYlGn",
+                "RdYlBu",
+                "RdGy",
+                "RdBu",
+                "PuOr",
+                "PRGn",
+                "PiYG",
+                "BrBG"
               )
-            ),
-            selected = "turbo"
+            )
+          )
+        )
+      } else {
+        if(length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))) > 7) {
+          shinyjs::disabled(
+            selectInput(
+              "nj_tippoint_scale",
+              "",
+              choices = list(
+                Gradient = list(
+                  "Magma" = "magma",
+                  "Inferno" = "inferno",
+                  "Plasma" = "plasma",
+                  "Viridis" = "viridis",
+                  "Cividis" = "cividis",
+                  "Rocket" = "rocket",
+                  "Mako" = "mako",
+                  "Turbo" = "turbo"
+                )
+              ),
+              selected = "turbo"
+            )
           )
         } else {
-          selectInput(
-            "nj_tippoint_scale",
-            "",
-            choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
+          shinyjs::disabled(
+            selectInput(
+              "nj_tippoint_scale",
+              "",
+              choices = list(
+                Qualitative = list(
+                  "Set1",
+                  "Set2",
+                  "Set3",
+                  "Pastel1",
+                  "Pastel2",
+                  "Paired",
+                  "Dark2",
+                  "Accent"
+                ),
+                Sequential = list(
+                  "YlOrRd",
+                  "YlOrBr",
+                  "YlGnBu",
+                  "YlGn",
+                  "Reds",
+                  "RdPu",
+                  "Purples",
+                  "PuRd",
+                  "PuBuGn",
+                  "PuBu",
+                  "OrRd",
+                  "Oranges",
+                  "Greys",
+                  "Greens",
+                  "GnBu",
+                  "BuPu",
+                  "BuGn",
+                  "Blues"
+                )
               ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
-            ),
-            selected = "Set2"
+              selected = "Set2"
+            )
           )
         }
       }
     } else {
-      selectInput(
-        "nj_tippoint_scale",
-        "",
-        choices = list(
-          Qualitative = list(
-            "Set1",
-            "Set2",
-            "Set3",
-            "Pastel1",
-            "Pastel2",
-            "Paired",
-            "Dark2",
-            "Accent"
+      shinyjs::disabled(
+        selectInput(
+          "nj_tippoint_scale",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set1",
+              "Set2",
+              "Set3",
+              "Pastel1",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
+            ),
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
           ),
-          Sequential = list(
-            "YlOrRd",
-            "YlOrBr",
-            "YlGnBu",
-            "YlGn",
-            "Reds",
-            "RdPu",
-            "Purples",
-            "PuRd",
-            "PuBuGn",
-            "PuBu",
-            "OrRd",
-            "Oranges",
-            "Greys",
-            "Greens",
-            "GnBu",
-            "BuPu",
-            "BuGn",
-            "Blues"
-          )
-        ),
-        selected = "Set2"
+          selected = "Set2"
+        )
       )
     }
   })
@@ -15081,41 +15024,12 @@ server <- function(input, output, session) {
   output$upgma_tippoint_scale <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
       if(class(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping])) == "numeric") {
-        selectInput(
-          "upgma_tippoint_scale",
-          "",
-          choices = list(
-            Continous = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
-            )
-          ),
-          selected = c("Viridis" = "viridis")
-        )
-      } else {
-        if(length(unique(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping]))) > 7) {
+        shinyjs::disabled(
           selectInput(
             "upgma_tippoint_scale",
             "",
             choices = list(
-              Gradient = list(
+              Continous = list(
                 "Magma" = "magma",
                 "Inferno" = "inferno",
                 "Plasma" = "plasma",
@@ -15124,87 +15038,124 @@ server <- function(input, output, session) {
                 "Rocket" = "rocket",
                 "Mako" = "mako",
                 "Turbo" = "turbo"
+              ),
+              Diverging = list(
+                "Spectral",
+                "RdYlGn",
+                "RdYlBu",
+                "RdGy",
+                "RdBu",
+                "PuOr",
+                "PRGn",
+                "PiYG",
+                "BrBG"
               )
             ),
-            selected = "turbo"
+            selected = c("Viridis" = "viridis")
+          )
+        )
+      } else {
+        if(length(unique(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping]))) > 7) {
+          shinyjs::disabled(
+            selectInput(
+              "upgma_tippoint_scale",
+              "",
+              choices = list(
+                Gradient = list(
+                  "Magma" = "magma",
+                  "Inferno" = "inferno",
+                  "Plasma" = "plasma",
+                  "Viridis" = "viridis",
+                  "Cividis" = "cividis",
+                  "Rocket" = "rocket",
+                  "Mako" = "mako",
+                  "Turbo" = "turbo"
+                )
+              ),
+              selected = "turbo"
+            )
           )
         } else {
-          selectInput(
-            "upgma_tippoint_scale",
-            "",
-            choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
+          shinyjs::disabled(
+            selectInput(
+              "upgma_tippoint_scale",
+              "",
+              choices = list(
+                Qualitative = list(
+                  "Set1",
+                  "Set2",
+                  "Set3",
+                  "Pastel1",
+                  "Pastel2",
+                  "Paired",
+                  "Dark2",
+                  "Accent"
+                ),
+                Sequential = list(
+                  "YlOrRd",
+                  "YlOrBr",
+                  "YlGnBu",
+                  "YlGn",
+                  "Reds",
+                  "RdPu",
+                  "Purples",
+                  "PuRd",
+                  "PuBuGn",
+                  "PuBu",
+                  "OrRd",
+                  "Oranges",
+                  "Greys",
+                  "Greens",
+                  "GnBu",
+                  "BuPu",
+                  "BuGn",
+                  "Blues"
+                )
               ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
-            ),
-            selected = "Set2"
+              selected = "Set2"
+            )
           )
         }
       }
     } else {
-      selectInput(
-        "upgma_tippoint_scale",
-        "",
-        choices = list(
-          Qualitative = list(
-            "Set1",
-            "Set2",
-            "Set3",
-            "Pastel1",
-            "Pastel2",
-            "Paired",
-            "Dark2",
-            "Accent"
+      shinyjs::disabled(
+        selectInput(
+          "upgma_tippoint_scale",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set1",
+              "Set2",
+              "Set3",
+              "Pastel1",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
+            ),
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
           ),
-          Sequential = list(
-            "YlOrRd",
-            "YlOrBr",
-            "YlGnBu",
-            "YlGn",
-            "Reds",
-            "RdPu",
-            "Purples",
-            "PuRd",
-            "PuBuGn",
-            "PuBu",
-            "OrRd",
-            "Oranges",
-            "Greys",
-            "Greens",
-            "GnBu",
-            "BuPu",
-            "BuGn",
-            "Blues"
-          )
-        ),
-        selected = "Set2"
+          selected = "Set2"
+        )
       )
     }
   })
@@ -15749,40 +15700,44 @@ server <- function(input, output, session) {
       
       div(
         class = "heatmap-picker",
-        pickerInput(
-          inputId = "nj_heatmap_select",
-          label = "",
-          width = "100%",
-          choices = if(ncol(Vis$meta_nj) == 11) {
-            c(
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            )
-          } else {choices},
-          options = list(
-            `dropdown-align-center` = TRUE,
-            size = 10,
-            style = "background-color: white; border-radius: 5px;"
-          ),
-          multiple = TRUE
+        shinyjs::disabled(
+          pickerInput(
+            inputId = "nj_heatmap_select",
+            label = "",
+            width = "100%",
+            choices = if(ncol(Vis$meta_nj) == 11) {
+              c(
+                `Isolation Date` = "Isolation Date",
+                Host = "Host",
+                Country = "Country",
+                City = "City"
+              )
+            } else {choices},
+            options = list(
+              `dropdown-align-center` = TRUE,
+              size = 10,
+              style = "background-color: white; border-radius: 5px;"
+            ),
+            multiple = TRUE
+          )
         )
       )
     } else {
       div(
         class = "heatmap-picker",
-        pickerInput(
-          inputId = "nj_heatmap_select",
-          label = "",
-          width = "100%",
-          choices = c(
-            `Isolation Date` = "Isolation Date",
-            Host = "Host",
-            Country = "Country",
-            City = "City"
-          ),
-          multiple = TRUE
+        shinyjs::disabled(
+          pickerInput(
+            inputId = "nj_heatmap_select",
+            label = "",
+            width = "100%",
+            choices = c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            ),
+            multiple = TRUE
+          )
         )
       )
     }
@@ -15812,40 +15767,44 @@ server <- function(input, output, session) {
       
       div(
         class = "heatmap-picker",
-        pickerInput(
-          inputId = "upgma_heatmap_select",
-          label = "",
-          width = "100%",
-          choices = if(ncol(Vis$meta_upgma) == 11) {
-            c(
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            )
-          } else {choices},
-          options = list(
-            `dropdown-align-center` = TRUE,
-            size = 10,
-            style = "background-color: white; border-radius: 5px;"
-          ),
-          multiple = TRUE
+        shinyjs::disabled(
+          pickerInput(
+            inputId = "upgma_heatmap_select",
+            label = "",
+            width = "100%",
+            choices = if(ncol(Vis$meta_upgma) == 11) {
+              c(
+                `Isolation Date` = "Isolation Date",
+                Host = "Host",
+                Country = "Country",
+                City = "City"
+              )
+            } else {choices},
+            options = list(
+              `dropdown-align-center` = TRUE,
+              size = 10,
+              style = "background-color: white; border-radius: 5px;"
+            ),
+            multiple = TRUE
+          )
         )
       )
     } else {
       div(
         class = "heatmap-picker",
-        pickerInput(
-          inputId = "upgma_heatmap_select",
-          label = "",
-          width = "100%",
-          choices = c(
-            `Isolation Date` = "Isolation Date",
-            Host = "Host",
-            Country = "Country",
-            City = "City"
-          ),
-          multiple = TRUE
+        shinyjs::disabled(
+          pickerInput(
+            inputId = "upgma_heatmap_select",
+            label = "",
+            width = "100%",
+            choices = c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            ),
+            multiple = TRUE
+          )
         )
       )
     }
@@ -15908,32 +15867,36 @@ server <- function(input, output, session) {
   # Geom Fruit select Variable
   output$nj_fruit_variable <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      selectInput(
-        "nj_fruit_variable",
-        "",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
+      shinyjs::disabled(
+        selectInput(
+          "nj_fruit_variable",
+          "",
+          choices = if(ncol(Vis$meta_nj) == 11) {
+            c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {
+            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                   names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+          },
+          selected = c(`Isolation Date` = "Isolation Date"),
+          width = "100%"
+        )
+      )
+    } else {
+      shinyjs::disabled(
+        selectInput(
+          "nj_fruit_variable",
+          "",
+          choices = c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
-        },
-        selected = c(`Isolation Date` = "Isolation Date"),
-        width = "100%"
-      )
-    } else {
-      selectInput(
-        "nj_fruit_variable",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
         )
       )
     }
@@ -15941,32 +15904,36 @@ server <- function(input, output, session) {
   
   output$nj_fruit_variable2 <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      selectInput(
-        "nj_fruit_variable_2",
-        "",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
+      shinyjs::disabled(
+        selectInput(
+          "nj_fruit_variable_2",
+          "",
+          choices = if(ncol(Vis$meta_nj) == 11) {
+            c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {
+            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                   names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+          },
+          selected = c(`Isolation Date` = "Isolation Date"),
+          width = "100%"
+        )
+      )
+    } else {
+      shinyjs::disabled(
+        selectInput(
+          "nj_fruit_variable_2",
+          "",
+          choices = c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
-        },
-        selected = c(`Isolation Date` = "Isolation Date"),
-        width = "100%"
-      )
-    } else {
-      selectInput(
-        "nj_fruit_variable_2",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
         )
       )
     }
@@ -15974,32 +15941,36 @@ server <- function(input, output, session) {
   
   output$nj_fruit_variable3 <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      selectInput(
-        "nj_fruit_variable_3",
-        "",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
+      shinyjs::disabled(
+        selectInput(
+          "nj_fruit_variable_3",
+          "",
+          choices = if(ncol(Vis$meta_nj) == 11) {
+            c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {
+            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                   names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+          },
+          selected = c(`Isolation Date` = "Isolation Date"),
+          width = "100%"
+        )
+      )
+    } else {
+      shinyjs::disabled(
+        selectInput(
+          "nj_fruit_variable_3",
+          "",
+          choices = c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
-        },
-        selected = c(`Isolation Date` = "Isolation Date"),
-        width = "100%"
-      )
-    } else {
-      selectInput(
-        "nj_fruit_variable_3",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
         )
       )
     }
@@ -16007,32 +15978,36 @@ server <- function(input, output, session) {
   
   output$nj_fruit_variable4 <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      selectInput(
-        "nj_fruit_variable_4",
-        "",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
+      shinyjs::disabled(
+        selectInput(
+          "nj_fruit_variable_4",
+          "",
+          choices = if(ncol(Vis$meta_nj) == 11) {
+            c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {
+            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                   names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+          },
+          selected = c(`Isolation Date` = "Isolation Date"),
+          width = "100%"
+        )
+      )
+    } else {
+      shinyjs::disabled(
+        selectInput(
+          "nj_fruit_variable_4",
+          "",
+          choices = c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
-        },
-        selected = c(`Isolation Date` = "Isolation Date"),
-        width = "100%"
-      )
-    } else {
-      selectInput(
-        "nj_fruit_variable_4",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
         )
       )
     }
@@ -16040,32 +16015,36 @@ server <- function(input, output, session) {
   
   output$nj_fruit_variable5 <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      selectInput(
-        "nj_fruit_variable_5",
-        "",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
+      shinyjs::disabled(
+        selectInput(
+          "nj_fruit_variable_5",
+          "",
+          choices = if(ncol(Vis$meta_nj) == 11) {
+            c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {
+            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                   names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+          },
+          selected = c(`Isolation Date` = "Isolation Date"),
+          width = "100%"
+        )
+      )
+    } else {
+      shinyjs::disabled(
+        selectInput(
+          "nj_fruit_variable_5",
+          "",
+          choices = c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
-        },
-        selected = c(`Isolation Date` = "Isolation Date"),
-        width = "100%"
-      )
-    } else {
-      selectInput(
-        "nj_fruit_variable_5",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
         )
       )
     }
@@ -16073,32 +16052,36 @@ server <- function(input, output, session) {
   
   output$upgma_fruit_variable <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
-      selectInput(
-        "upgma_fruit_variable",
-        "",
-        choices = if(ncol(Vis$meta_upgma) == 11) {
-          c(
+      shinyjs::disabled(
+        selectInput(
+          "upgma_fruit_variable",
+          "",
+          choices = if(ncol(Vis$meta_upgma) == 11) {
+            c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {
+            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                   names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+          },
+          selected = c(`Isolation Date` = "Isolation Date"),
+          width = "100%"
+        )
+      )
+    } else {
+      shinyjs::disabled(
+        selectInput(
+          "upgma_fruit_variable",
+          "",
+          choices = c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
-        },
-        selected = c(`Isolation Date` = "Isolation Date"),
-        width = "100%"
-      )
-    } else {
-      selectInput(
-        "upgma_fruit_variable",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
         )
       )
     }
@@ -16106,32 +16089,36 @@ server <- function(input, output, session) {
   
   output$upgma_fruit_variable2 <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
-      selectInput(
-        "upgma_fruit_variable_2",
-        "",
-        choices = if(ncol(Vis$meta_upgma) == 11) {
-          c(
+      shinyjs::disabled(
+        selectInput(
+          "upgma_fruit_variable_2",
+          "",
+          choices = if(ncol(Vis$meta_upgma) == 11) {
+            c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {
+            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                   names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+          },
+          selected = c(`Isolation Date` = "Isolation Date"),
+          width = "100%"
+        )
+      )
+    } else {
+      shinyjs::disabled(
+        selectInput(
+          "upgma_fruit_variable_2",
+          "",
+          choices = c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
-        },
-        selected = c(`Isolation Date` = "Isolation Date"),
-        width = "100%"
-      )
-    } else {
-      selectInput(
-        "upgma_fruit_variable_2",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
         )
       )
     }
@@ -16139,7 +16126,7 @@ server <- function(input, output, session) {
   
   output$upgma_fruit_variable3 <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
-      selectInput(
+      shinyjs::disabled(selectInput(
         "upgma_fruit_variable_3",
         "",
         choices = if(ncol(Vis$meta_upgma) == 11) {
@@ -16155,16 +16142,18 @@ server <- function(input, output, session) {
         },
         selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
-      )
+      ))
     } else {
-      selectInput(
-        "upgma_fruit_variable_3",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
+      shinyjs::disabled(
+        selectInput(
+          "upgma_fruit_variable_3",
+          "",
+          choices = c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
         )
       )
     }
@@ -16172,32 +16161,36 @@ server <- function(input, output, session) {
   
   output$upgma_fruit_variable4 <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
-      selectInput(
-        "upgma_fruit_variable_4",
-        "",
-        choices = if(ncol(Vis$meta_upgma) == 11) {
-          c(
+      shinyjs::disabled(
+        selectInput(
+          "upgma_fruit_variable_4",
+          "",
+          choices = if(ncol(Vis$meta_upgma) == 11) {
+            c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {
+            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                   names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+          },
+          selected = c(`Isolation Date` = "Isolation Date"),
+          width = "100%"
+        )
+      )
+    } else {
+      shinyjs::disabled(
+        selectInput(
+          "upgma_fruit_variable_4",
+          "",
+          choices = c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
-        },
-        selected = c(`Isolation Date` = "Isolation Date"),
-        width = "100%"
-      )
-    } else {
-      selectInput(
-        "upgma_fruit_variable_4",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
         )
       )
     }
@@ -16205,32 +16198,36 @@ server <- function(input, output, session) {
   
   output$upgma_fruit_variable5 <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
-      selectInput(
-        "upgma_fruit_variable_5",
-        "",
-        choices = if(ncol(Vis$meta_upgma) == 11) {
-          c(
+      shinyjs::disabled(
+        selectInput(
+          "upgma_fruit_variable_5",
+          "",
+          choices = if(ncol(Vis$meta_upgma) == 11) {
+            c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {
+            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                   names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+          },
+          selected = c(`Isolation Date` = "Isolation Date"),
+          width = "100%"
+        )
+      )
+    } else {
+      shinyjs::disabled(
+        selectInput(
+          "upgma_fruit_variable_5",
+          "",
+          choices = c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
-        },
-        selected = c(`Isolation Date` = "Isolation Date"),
-        width = "100%"
-      )
-    } else {
-      selectInput(
-        "upgma_fruit_variable_5",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
         )
       )
     }
@@ -16247,9 +16244,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16296,9 +16295,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16345,9 +16346,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16394,9 +16397,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16443,9 +16448,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16492,9 +16499,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16541,9 +16550,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16590,9 +16601,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16639,9 +16652,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16688,9 +16703,11 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0) * 3
+          if(width_calc < 1) {width <- 1}
         } else {
-          width <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          width_calc <- round(ceiling(Vis$upgma_max_x) * 0.033, 0)
+          if(width_calc < 1) {width <- 1}
         }
       }
       sliderInput(
@@ -16779,72 +16796,80 @@ server <- function(input, output, session) {
   # Tip color mapping 
   output$nj_tipcolor_mapping <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      selectInput(
-        "nj_tipcolor_mapping",
-        "",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
+      shinyjs::disabled(
+        selectInput(
+          "nj_tipcolor_mapping",
+          "",
+          choices = if(ncol(Vis$meta_nj) == 11) {
+            c(
+              `Assembly Name` = "Assembly Name",
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {
+            append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                   names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+          },
+          selected = c(City = "City"),
+          width = "100%"
+        )
+      )
+    } else {
+      shinyjs::disabled(
+        selectInput(
+          "nj_tipcolor_mapping",
+          "",
+          choices = c(
             `Assembly Name` = "Assembly Name",
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
-          )
-        } else {
-          append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
-        },
-        selected = c(City = "City"),
-        width = "100%"
-      )
-    } else {
-      selectInput(
-        "nj_tipcolor_mapping",
-        "",
-        choices = c(
-          `Assembly Name` = "Assembly Name",
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        ),
-        selected = c(City = "City")
+          ),
+          selected = c(City = "City")
+        )
       )
     }
   })
   
   output$upgma_tipcolor_mapping <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
-      selectInput(
-        "upgma_tipcolor_mapping",
-        "",
-        choices = if(ncol(Vis$meta_upgma) == 11) {
-          c(
+      shinyjs::disabled(
+        selectInput(
+          "upgma_tipcolor_mapping",
+          "",
+          choices = if(ncol(Vis$meta_upgma) == 11) {
+            c(
+              `Assembly Name` = "Assembly Name",
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {
+            append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                   names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+          },
+          selected = c(City = "City"),
+          width = "100%"
+        )
+      )
+    } else {
+      shinyjs::disabled(
+        selectInput(
+          "upgma_tipcolor_mapping",
+          "",
+          choices = c(
             `Assembly Name` = "Assembly Name",
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
-          )
-        } else {
-          append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
-        },
-        selected = c(City = "City"),
-        width = "100%"
-      )
-    } else {
-      selectInput(
-        "upgma_tipcolor_mapping",
-        "",
-        choices = c(
-          `Assembly Name` = "Assembly Name",
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        ),
-        selected = c(City = "City")
+          ),
+          selected = c(City = "City")
+        )
       )
     }
   })
@@ -16852,70 +16877,78 @@ server <- function(input, output, session) {
   # Tip shape Mapping 
   output$nj_tipshape_mapping <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      selectInput(
-        "nj_tipshape_mapping",
-        "",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
+      shinyjs::disabled(
+        selectInput(
+          "nj_tipshape_mapping",
+          "",
+          choices = if(ncol(Vis$meta_nj) == 11) {
+            c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {
+            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                   names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+          },
+          selected = c("Host" = "Host"),
+          width = "100%"
+        )
+      )
+    } else {
+      shinyjs::disabled(
+        selectInput(
+          "nj_tipshape_mapping",
+          "",
+          choices = c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
-          )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
-        },
-        selected = c("Host" = "Host"),
-        width = "100%"
-      )
-    } else {
-      selectInput(
-        "nj_tipshape_mapping",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        ),
-        selected = c("Host" = "Host"),
-        width = "100%"
+          ),
+          selected = c("Host" = "Host"),
+          width = "100%"
+        )
       )
     }
   })
   
   output$upgma_tipshape_mapping <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
-      selectInput(
-        "upgma_tipshape_mapping",
-        "",
-        choices = if(ncol(Vis$meta_upgma) == 11) {
-          c(
+      shinyjs::disabled(
+        selectInput(
+          "upgma_tipshape_mapping",
+          "",
+          choices = if(ncol(Vis$meta_upgma) == 11) {
+            c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {
+            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                   names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+          },
+          selected = c("Host" = "Host"),
+          width = "100%"
+        )
+      )
+    } else {
+      shinyjs::disabled(
+        selectInput(
+          "upgma_tipshape_mapping",
+          "",
+          choices = c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
-          )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
-        },
-        selected = c("Host" = "Host"),
-        width = "100%"
-      )
-    } else {
-      selectInput(
-        "upgma_tipshape_mapping",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        ),
-        selected = c("Host" = "Host"),
-        width = "100%"
+          ),
+          selected = c("Host" = "Host"),
+          width = "100%"
+        )
       )
     }
   })
@@ -16994,70 +17027,78 @@ server <- function(input, output, session) {
   # Color mapping 
   output$nj_color_mapping <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      selectInput(
-        "nj_color_mapping",
-        "",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
+      shinyjs::disabled(
+        selectInput(
+          "nj_color_mapping",
+          "",
+          choices = if(ncol(Vis$meta_nj) == 11) {
+            c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {
+            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                   names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+          },
+          selected = c(Country = "Country"),
+          width = "100%"
+        )
+      )
+    } else {
+      shinyjs::disabled(
+        selectInput(
+          "nj_color_mapping",
+          "",
+          choices = c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
-          )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
-        },
-        selected = c(Country = "Country"),
-        width = "100%"
-      )
-    } else {
-      selectInput(
-        "nj_color_mapping",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        ),
-        selected = c(Country = "Country"),
-        width = "100%"
+          ),
+          selected = c(Country = "Country"),
+          width = "100%"
+        )
       )
     }
   })
   
   output$upgma_color_mapping <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
-      selectInput(
-        "upgma_color_mapping",
-        "",
-        choices = if(ncol(Vis$meta_upgma) == 11) {
-          c(
+      shinyjs::disabled(
+        selectInput(
+          "upgma_color_mapping",
+          "",
+          choices = if(ncol(Vis$meta_upgma) == 11) {
+            c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {
+            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                   names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+          },
+          selected = c(Country = "Country"),
+          width = "100%"
+        )
+      )
+    } else {
+      shinyjs::disabled(
+        selectInput(
+          "upgma_color_mapping",
+          "",
+          choices = c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
-          )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
-        },
-        selected = c(Country = "Country"),
-        width = "100%"
-      )
-    } else {
-      selectInput(
-        "upgma_color_mapping",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        ),
-        selected = c(Country = "Country"),
-        width = "100%"
+          ),
+          selected = c(Country = "Country"),
+          width = "100%"
+        )
       )
     }
   })
@@ -17356,8 +17397,8 @@ server <- function(input, output, session) {
     if(input$mst_color_var == TRUE & (!is.null(input$mst_col_var))) {
       
       group <- character(nrow(data$nodes))
-      for (i in 1:length(unique(DB$meta_true[[input$mst_col_var]]))) {
-        group[i] <- unique(DB$meta_true[[input$mst_col_var]])[i]
+      for (i in 1:length(unique(Vis$meta_mst[[input$mst_col_var]]))) {
+        group[i] <- unique(Vis$meta_mst[[input$mst_col_var]])[i]
       }
       
       data$nodes <- cbind(data$nodes, data.frame(metadata = character(nrow(data$nodes))))
@@ -17367,21 +17408,21 @@ server <- function(input, output, session) {
       }
       
       if(is.null(input$mst_col_scale)) {
-        Typing$var_cols <- data.frame(value = unique(DB$meta_true[[input$mst_col_var]]),
-                               color = viridis(length(unique(DB$meta_true[[input$mst_col_var]]))))
+        Typing$var_cols <- data.frame(value = unique(Vis$meta_mst[[input$mst_col_var]]),
+                                      color = viridis(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
       } else if (input$mst_col_scale == "Rainbow") {
-        Typing$var_cols <- data.frame(value = unique(DB$meta_true[[input$mst_col_var]]),
-                               color = rainbow(length(unique(DB$meta_true[[input$mst_col_var]]))))
+        Typing$var_cols <- data.frame(value = unique(Vis$meta_mst[[input$mst_col_var]]),
+                                      color = rainbow(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
       } else if (input$mst_col_scale == "Viridis") {
-        Typing$var_cols <- data.frame(value = unique(DB$meta_true[[input$mst_col_var]]),
-                               color = viridis(length(unique(DB$meta_true[[input$mst_col_var]]))))
+        Typing$var_cols <- data.frame(value = unique(Vis$meta_mst[[input$mst_col_var]]),
+                                      color = viridis(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
       }
       
       for(i in 1:nrow(data$nodes)) {
         
         iso_subset <- strsplit(data$nodes$label[i], split = "\n")[[1]]
-        variable <- DB$meta_true[[input$mst_col_var]]
-        values <- variable[which(DB$meta_true$`Assembly Name` %in% iso_subset)]
+        variable <- Vis$meta_mst[[input$mst_col_var]]
+        values <- variable[which(Vis$meta_mst$`Assembly Name` %in% iso_subset)]
         
         for(j in 1:length(unique(values))) {
           
@@ -17405,7 +17446,7 @@ server <- function(input, output, session) {
                          } else {
                            data$edges$weight * input$mst_edge_length_scale
                          },
-                         label = as.character(weight),
+                         label = as.character(data$edges$weight),
                          opacity = mst_edge_opacity())
     
     visNetwork(data$nodes, data$edges, 
@@ -17596,13 +17637,17 @@ server <- function(input, output, session) {
   #### NJ ----
   
   nj_tree <- reactive({
+    
+    # Convert negative edges 
+    Vis$nj[["edge.length"]] <- abs(Vis$nj[["edge.length"]])
+    
     if(input$nj_nodelabel_show == TRUE) {
-      ggtree(Vis$nj, alpha = 0.2) + 
+      ggtree(Vis$nj, alpha = 0.2, layout = layout_nj()) + 
         geom_nodelab(aes(label = node), color = "#29303A", size = nj_tiplab_size() + 1, hjust = 0.7) +
         nj_limit() +
         nj_inward() 
     } else {
-      tree <-
+      tree <- 
         ggtree(Vis$nj, 
                color = input$nj_color,
                layout = layout_nj(),
@@ -17709,6 +17754,8 @@ server <- function(input, output, session) {
                                           scale = input$nj_zoom,
                                           hjust = input$nj_h,
                                           vjust = input$nj_v)  
+      
+      Typing$nj_true <- TRUE
       
       # Correct background color if zoomed out
       cowplot::ggdraw(Vis$nj_plot) + 
@@ -17976,40 +18023,21 @@ server <- function(input, output, session) {
         if(length(input$nj_parentnode) == 1) {
           fill <- input$nj_clade_scale
         } else if (length(input$nj_parentnode) == 2) {
-          fill <- brewer.pal(3, input$nj_clade_scale)[1:2]
+          if(startsWith(input$nj_clade_scale, "#")) {
+            fill <- brewer.pal(3, "Set1")[1:2]
+          } else {
+            fill <- brewer.pal(3, input$nj_clade_scale)[1:2]
+          }
         } else {
           fill <- brewer.pal(length(input$nj_parentnode), input$nj_clade_scale)
         }
         geom_hilight(node = as.numeric(input$nj_parentnode),
                      fill = fill,
-                     align = nj_align_clade(),
                      type = input$nj_clade_type,
-                     gradient.direction = nj_clade_grad_dir(),
-                     gradient.length.out = nj_clade_grad_len())
+                     to.bottom = TRUE
+                     )
       } else {NULL}
     }
-  })
-  
-  # Clade highlight align 
-  
-  nj_align_clade <- reactive({
-    if(is.null(input$nj_clade_align)) {
-      input$nj_clade_align
-    } else {input$nj_clade_align}
-  })
-  
-  # Clade highlight gradient direction
-  nj_clade_grad_dir <- reactive({
-    if(input$nj_clade_type == "gradient") {
-      input$nj_clade_grad_dir
-    } else {"rt"}
-  })
-  
-  # Clade hightlight gradient length
-  nj_clade_grad_len <- reactive({
-    if(input$nj_clade_type == "gradient") {
-      nj_clade_grad_len
-    } else {2}
   })
   
   # Legend Position
@@ -18049,7 +18077,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_1 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$nj_fruit_variable])) == "numeric") {
+            if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
               if(input$nj_tiles_scale_1 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$nj_tiles_scale_1 == "inferno") {
@@ -18114,7 +18142,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_2 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$nj_fruit_variable_2])) == "numeric") {
+            if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_2])) == "numeric") {
               if(input$nj_tiles_scale_2 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$nj_tiles_scale_2 == "inferno") {
@@ -18179,7 +18207,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_3 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$nj_fruit_variable_3])) == "numeric") {
+            if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_3])) == "numeric") {
               if(input$nj_tiles_scale_3 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$nj_tiles_scale_3 == "inferno") {
@@ -18244,7 +18272,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_4 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$nj_fruit_variable])) == "numeric") {
+            if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
               if(input$nj_tiles_scale_4 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$nj_tiles_scale_4 == "inferno") {
@@ -18309,7 +18337,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_5 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$nj_fruit_variable_5])) == "numeric") {
+            if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_5])) == "numeric") {
               if(input$nj_tiles_scale_5 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$nj_tiles_scale_5 == "inferno") {
@@ -18987,7 +19015,7 @@ server <- function(input, output, session) {
   
   upgma_tree <- reactive({
     if(input$upgma_nodelabel_show == TRUE) {
-      ggtree(Vis$upgma, alpha = 0.2) + 
+      ggtree(Vis$upgma, alpha = 0.2, layout = layout_upgma()) + 
         geom_nodelab(aes(label = node), color = "#29303A", size = upgma_tiplab_size() + 1, hjust = 0.7) +
         upgma_limit() +
         upgma_inward() 
@@ -19080,8 +19108,8 @@ server <- function(input, output, session) {
       
       # Add heatmap
       if(input$upgma_heatmap_show == TRUE & length(input$upgma_heatmap_select) > 0) {
-        if (!(any(sapply(DB$meta[input$upgma_heatmap_select], is.numeric)) & 
-              any(!sapply(DB$meta[input$upgma_heatmap_select], is.numeric)))) {
+        if (!(any(sapply(Vis$meta_upgma[input$upgma_heatmap_select], is.numeric)) & 
+              any(!sapply(Vis$meta_upgma[input$upgma_heatmap_select], is.numeric)))) {
           tree <- gheatmap.mod(tree, 
                                data = select(Vis$meta_upgma, input$upgma_heatmap_select),
                                offset = upgma_heatmap_offset(),
@@ -19176,7 +19204,7 @@ server <- function(input, output, session) {
                              name = input$upgma_heatmap_title)
       } else {
         if(input$upgma_heatmap_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-          if(class(unlist(DB$meta[input$upgma_heatmap_select])) == "numeric") {
+          if(class(unlist(Vis$meta_upgma[input$upgma_heatmap_select])) == "numeric") {
             if(input$upgma_heatmap_scale == "magma") {
               scale_fill_viridis(option = "A",
                                  name = input$upgma_heatmap_title)
@@ -19254,7 +19282,7 @@ server <- function(input, output, session) {
                               midpoint = midpoint)
       } else {
         if(input$upgma_tippoint_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-          if(class(unlist(DB$meta[input$upgma_tipcolor_mapping])) == "numeric") {
+          if(class(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping])) == "numeric") {
             if(input$upgma_tippoint_scale == "magma") {
               scale_color_viridis(option = "A")
             } else if(input$upgma_tippoint_scale == "inferno") {
@@ -19315,7 +19343,7 @@ server <- function(input, output, session) {
                               midpoint = midpoint)
       } else {
         if(input$upgma_tiplab_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-          if(class(unlist(DB$meta[input$upgma_color_mapping])) == "numeric") {
+          if(class(unlist(Vis$meta_upgma[input$upgma_color_mapping])) == "numeric") {
             if(input$upgma_tiplab_scale == "magma") {
               scale_color_viridis(option = "A")
             } else if(input$upgma_tiplab_scale == "inferno") {
@@ -19366,32 +19394,20 @@ server <- function(input, output, session) {
         if(length(input$upgma_parentnode) == 1) {
           fill <- input$upgma_clade_scale
         } else if (length(input$upgma_parentnode) == 2) {
-          fill <- brewer.pal(3, input$upgma_clade_scale)[1:2]
+          if(startsWith(input$upgma_clade_scale, "#")) {
+            fill <- brewer.pal(3, "Set1")[1:2]
+          } else {
+            fill <- brewer.pal(3, input$upgma_clade_scale)[1:2]
+          }
         } else {
           fill <- brewer.pal(length(input$upgma_parentnode), input$upgma_clade_scale)
         }
         geom_hilight(node = as.numeric(input$upgma_parentnode),
                      fill = fill,
-                     align = input$upgma_clade_align,
                      type = input$upgma_clade_type,
-                     gradient.direction = upgma_clade_grad_dir(),
-                     gradient.length.out = upgma_clade_grad_len())
+                     to.bottom = TRUE)
       } else {NULL}
     }
-  })
-  
-  # Clade highlight gradient direction
-  upgma_clade_grad_dir <- reactive({
-    if(input$upgma_clade_type == "gradient") {
-      input$upgma_clade_grad_dir
-    } else {"rt"}
-  })
-  
-  # Clade hightlight gradient length
-  upgma_clade_grad_len <- reactive({
-    if(input$upgma_clade_type == "gradient") {
-      upgma_clade_grad_len
-    } else {2}
   })
   
   # Legend Position
@@ -19431,7 +19447,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$upgma_tiles_scale_1 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$upgma_fruit_variable])) == "numeric") {
+            if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable])) == "numeric") {
               if(input$upgma_tiles_scale_1 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$upgma_tiles_scale_1 == "inferno") {
@@ -19496,7 +19512,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$upgma_tiles_scale_2 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$upgma_fruit_variable_2])) == "numeric") {
+            if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2])) == "numeric") {
               if(input$upgma_tiles_scale_2 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$upgma_tiles_scale_2 == "inferno") {
@@ -19561,7 +19577,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$upgma_tiles_scale_3 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$upgma_fruit_variable_3])) == "numeric") {
+            if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3])) == "numeric") {
               if(input$upgma_tiles_scale_3 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$upgma_tiles_scale_3 == "inferno") {
@@ -19626,7 +19642,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$upgma_tiles_scale_4 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$upgma_fruit_variable])) == "numeric") {
+            if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable])) == "numeric") {
               if(input$upgma_tiles_scale_4 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$upgma_tiles_scale_4 == "inferno") {
@@ -19691,7 +19707,7 @@ server <- function(input, output, session) {
                                midpoint = midpoint)
         } else {
           if(input$upgma_tiles_scale_5 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(DB$meta[input$upgma_fruit_variable_5])) == "numeric") {
+            if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5])) == "numeric") {
               if(input$upgma_tiles_scale_5 == "magma") {
                 scale_fill_viridis(option = "A")
               } else if(input$upgma_tiles_scale_5 == "inferno") {
@@ -20368,7 +20384,7 @@ server <- function(input, output, session) {
   ### Save MST Plot ----
   output$save_plot_html <- downloadHandler(
     filename = function() {
-      log_message(out, message = paste0("Save MST;", paste0("MST_", Sys.Date(), ".html")))
+       log_print(paste0("Save MST;", paste0("MST_", Sys.Date(), ".html")))
       paste0("MST_", Sys.Date(), ".html")
     },
     content = function(file) {
@@ -20382,7 +20398,7 @@ server <- function(input, output, session) {
   
   output$download_nj <- downloadHandler(
     filename = function() {
-      log_message(out, message = paste0("Save NJ;", paste0("NJ_", Sys.Date(), ".", input$filetype_nj)))
+       log_print(paste0("Save NJ;", paste0("NJ_", Sys.Date(), ".", input$filetype_nj)))
       paste0("NJ_", Sys.Date(), ".", input$filetype_nj)
     },
     content = function(file) {
@@ -20412,7 +20428,7 @@ server <- function(input, output, session) {
   
   output$download_upgma <- downloadHandler(
     filename = function() {
-      log_message(out, message = paste0("Save UPGMA;", paste0("UPGMA_", Sys.Date(), ".", input$filetype_upgma)))
+       log_print(paste0("Save UPGMA;", paste0("UPGMA_", Sys.Date(), ".", input$filetype_upgma)))
       paste0("UPGMA_", Sys.Date(), ".", input$filetype_upgma)
     },
     content = function(file) {
@@ -20435,7 +20451,6 @@ server <- function(input, output, session) {
       }
     }
   )
-  
   
   ### Reactive Events ----
   
@@ -20608,98 +20623,98 @@ server <- function(input, output, session) {
       vector_col <- character(0)
       count <- 1
       for (i in df_unique$col) {
-        vector_col[count] <- DB$meta_true$`Assembly Name`[i]
+        vector_col[count] <- Vis$meta_mst$`Assembly Name`[i]
         count <- count + 1
       }
       
       vector_row <- character(0)
       count <- 1
       for (i in df_unique$row) {
-        vector_row[count] <- DB$meta_true$`Assembly Name`[i]
+        vector_row[count] <- Vis$meta_mst$`Assembly Name`[i]
         count <- count + 1
       }
       
       col_id <- character(0)
       count <- 1
       for (i in df_unique$col) {
-        col_id[count] <- DB$meta_true$`Assembly ID`[i]
+        col_id[count] <- Vis$meta_mst$`Assembly ID`[i]
         count <- count + 1
       }
       
       row_id <- character(0)
       count <- 1
       for (i in df_unique$row) {
-        row_id[count] <- DB$meta_true$`Assembly ID`[i]
+        row_id[count] <- Vis$meta_mst$`Assembly ID`[i]
         count <- count + 1
       }
       
       col_index <- character(0)
       count <- 1
       for (i in df_unique$col) {
-        col_index[count] <- DB$meta_true$Index[i]
+        col_index[count] <- Vis$meta_mst$Index[i]
         count <- count + 1
       }
       
       row_index <- character(0)
       count <- 1
       for (i in df_unique$row) {
-        row_index[count] <- DB$meta_true$Index[i]
+        row_index[count] <- Vis$meta_mst$Index[i]
         count <- count + 1
       }
       
       col_date <- character(0)
       count <- 1
       for (i in df_unique$col) {
-        col_date[count] <- DB$meta_true$`Isolation Date`[i]
+        col_date[count] <- Vis$meta_mst$`Isolation Date`[i]
         count <- count + 1
       }
       
       row_date <- character(0)
       count <- 1
       for (i in df_unique$row) {
-        row_date[count] <- DB$meta_true$`Isolation Date`[i]
+        row_date[count] <- Vis$meta_mst$`Isolation Date`[i]
         count <- count + 1
       }
       
       col_host <- character(0)
       count <- 1
       for (i in df_unique$col) {
-        col_host[count] <- DB$meta_true$Host[i]
+        col_host[count] <- Vis$meta_mst$Host[i]
         count <- count + 1
       }
       
       row_host <- character(0)
       count <- 1
       for (i in df_unique$row) {
-        row_host[count] <- DB$meta_true$Host[i]
+        row_host[count] <- Vis$meta_mst$Host[i]
         count <- count + 1
       }
       
       col_country <- character(0)
       count <- 1
       for (i in df_unique$col) {
-        col_country[count] <- DB$meta_true$Country[i]
+        col_country[count] <- Vis$meta_mst$Country[i]
         count <- count + 1
       }
       
       row_country <- character(0)
       count <- 1
       for (i in df_unique$row) {
-        row_country[count] <- DB$meta_true$Country[i]
+        row_country[count] <- Vis$meta_mst$Country[i]
         count <- count + 1
       }
       
       col_city <- character(0)
       count <- 1
       for (i in df_unique$col) {
-        col_city[count] <- DB$meta_true$City[i]
+        col_city[count] <- Vis$meta_mst$City[i]
         count <- count + 1
       }
       
       row_city <- character(0)
       count <- 1
       for (i in df_unique$row) {
-        row_city[count] <- DB$meta_true$City[i]
+        row_city[count] <- Vis$meta_mst$City[i]
         count <- count + 1
       }
       
@@ -20750,7 +20765,7 @@ server <- function(input, output, session) {
       for(j in 1:length(final_cleaned$Index)) {
         Date <- character(0)
         for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
-          Date <- append(Date, DB$meta_true$`Isolation Date`[which(DB$meta_true$Index == i)])
+          Date <- append(Date, Vis$meta_mst$`Isolation Date`[which(Vis$meta_mst$Index == i)])
         }
         Date_merged <- append(Date_merged, paste(Date, collapse = "\n"))
       }
@@ -20759,7 +20774,7 @@ server <- function(input, output, session) {
       for(j in 1:length(final_cleaned$Index)) {
         Host <- character(0)
         for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
-          Host <- append(Host, DB$meta_true$Host[which(DB$meta_true$Index == i)])
+          Host <- append(Host, Vis$meta_mst$Host[which(Vis$meta_mst$Index == i)])
         }
         Host_merged <- append(Host_merged, paste(Host, collapse = "\n"))
       }
@@ -20768,7 +20783,7 @@ server <- function(input, output, session) {
       for(j in 1:length(final_cleaned$Index)) {
         Country <- character(0)
         for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
-          Country <- append(Country, DB$meta_true$Country[which(DB$meta_true$Index == i)])
+          Country <- append(Country, Vis$meta_mst$Country[which(Vis$meta_mst$Index == i)])
         }
         Country_merged <- append(Country_merged, paste(Country, collapse = "\n"))
       }
@@ -20777,7 +20792,7 @@ server <- function(input, output, session) {
       for(j in 1:length(final_cleaned$Index)) {
         City <- character(0)
         for(i in strsplit(final_cleaned$Index, "\n")[[j]]) {
-          City <- append(City, DB$meta_true$City[which(DB$meta_true$Index == i)])
+          City <- append(City, Vis$meta_mst$City[which(Vis$meta_mst$Index == i)])
         }
         City_merged <- append(City_merged, paste(City, collapse = "\n"))
       }
@@ -20789,10 +20804,10 @@ server <- function(input, output, session) {
       # Merging with original data frame / allelic profile
       
       allelic_profile_true <- DB$allelic_profile_true
-      meta_true <- DB$meta_true
+      meta_true <- Vis$meta_mst
       
-      rownames(allelic_profile_true) <- DB$meta_true$`Assembly Name`
-      rownames(meta_true) <- DB$meta_true$`Assembly Name`
+      rownames(allelic_profile_true) <- Vis$meta_mst$`Assembly Name`
+      rownames(meta_true) <- Vis$meta_mst$`Assembly Name`
       
       omit <- unique(append(df_unique$col_name, df_unique$row_name)) %in% final_cleaned$col_name
       
@@ -20881,10 +20896,10 @@ server <- function(input, output, session) {
       
       
     } else {
-      font_size <- rep(12, nrow(DB$meta_true))
-      valign <- rep(-30, nrow(DB$meta_true))
-      size <- rep(1, nrow(DB$meta_true))
-      Vis$unique_meta <- DB$meta_true %>%
+      font_size <- rep(12, nrow(Vis$meta_mst))
+      valign <- rep(-30, nrow(Vis$meta_mst))
+      size <- rep(1, nrow(Vis$meta_mst))
+      Vis$unique_meta <- Vis$meta_mst %>%
         cbind(size , font_size, valign)
       
       dist
@@ -20893,10 +20908,10 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$create_tree, {
-    log_message(out, message = "Input create_tree")
+     log_print("Input create_tree")
     
     if(is.null(DB$data)) {
-      log_message(out, message = "Missing data")
+       log_print("Missing data")
       
       show_toast(
         title = "Missing data",
@@ -20906,7 +20921,7 @@ server <- function(input, output, session) {
         width = "500px"
       )
     } else if(nrow(DB$allelic_profile_true) < 3) {
-      log_message(out, message = "Min. of 3 entries required for visualization")
+       log_print("Min. of 3 entries required for visualization")
       
       show_toast(
         title = "Min. of 3 entries required for visualization",
@@ -20917,17 +20932,36 @@ server <- function(input, output, session) {
       )
     } else {
       
-      if(any(duplicated(DB$meta$`Assembly Name`))) {
-        log_message(out, message = "Duplicated assemblies")
+      if(any(duplicated(DB$meta$`Assembly Name`)) | any(duplicated(DB$meta$`Assembly ID`))) {
+         log_print("Duplicated assemblies")
+        
+        dup_name <- which(duplicated(DB$meta_true$`Assembly Name`))
+        dup_id <- which(duplicated(DB$meta_true$`Assembly ID`))
+        
         showModal(
           modalDialog(
-            if(sum(duplicated(DB$meta_true$`Assembly Name`)) == 1) {
-              HTML(paste0("Entry #", which(duplicated(DB$meta_true$`Assembly Name`)), 
-                          " contains a duplicated assembly name:", "<br><br>",
-                          DB$meta_true$`Assembly Name`[which(duplicated(DB$meta_true$`Assembly Name`))]))
+            if((length(dup_name) + length(dup_id)) == 1) {
+              if(length(dup_name) == 1) {
+                HTML(paste0("Entry #", dup_name,
+                            " contains a duplicated assembly name:", "<br><br>",
+                            DB$meta_true$`Assembly Name`[dup_name]))
+              } else {
+                HTML(paste0("Entry #", dup_id,
+                            " contains a duplicated assembly ID:", "<br><br>",
+                            DB$meta_true$`Assembly ID`[dup_id]))
+              }
             } else {
-              HTML(append("Entries contain duplicated assembly names: <br><br>", 
-                          paste0(unique(DB$meta_true$`Assembly Name`[which(duplicated(DB$meta_true$`Assembly Name`))]), "<br>")))
+              if(length(dup_name) == 0) {
+                HTML(c("Entries contain duplicated IDs <br><br>",
+                            paste0(unique(DB$meta_true$`Assembly ID`[dup_id]), "<br>")))
+              } else if(length(dup_id) == 0) {
+                HTML(c("Entries contain duplicated names<br><br>",
+                            paste0(unique(DB$meta_true$`Assembly Name`[dup_name]), "<br>")))
+              } else {
+                HTML(c("Entries contain duplicated names and IDs <br><br>",
+                       paste0("Name: ", unique(DB$meta_true$`Assembly Name`[dup_name]), "<br>"),
+                       paste0("ID: ", unique(DB$meta_true$`Assembly ID`[dup_id]), "<br>")))
+              }
             },
             title = "Duplicate entries",
             fade = TRUE,
@@ -20944,7 +20978,7 @@ server <- function(input, output, session) {
         
         if (input$tree_algo == "Neighbour-Joining") {
           
-          log_message(out, message = "Rendering NJ tree")
+          log_print("Rendering NJ tree")
           
           output$nj_field <- renderUI({
             addSpinner(
@@ -21095,10 +21129,12 @@ server <- function(input, output, session) {
             output$tree_nj <- renderPlot({
               nj_tree()
             })
+            
+            Typing$nj_true <- TRUE
           }
         } else if (input$tree_algo == "UPGMA") {
           
-          log_message(out, message = "Rendering UPGMA tree")
+          log_print("Rendering UPGMA tree")
           
           output$upgma_field <- renderUI({
             addSpinner(
@@ -21249,10 +21285,12 @@ server <- function(input, output, session) {
             output$tree_upgma <- renderPlot({
               upgma_tree()
             })
+            
+            Typing$upgma_true <- TRUE
           }
         } else {
           
-          log_message(out, message = "Rendering MST graph")
+          log_print("Rendering MST graph")
           
           output$mst_field <- renderUI({
             if(input$mst_background_transparent == TRUE) {
@@ -21268,7 +21306,7 @@ server <- function(input, output, session) {
           
           if(nrow(DB$meta_true) > 100) {
             
-            log_message(out, message = "Over 100 isolates in MST graph")
+            log_print("Over 100 isolates in MST graph")
             
             show_toast(
               title = "Computation might take a while",
@@ -21279,6 +21317,9 @@ server <- function(input, output, session) {
             )
           }
           
+          meta_mst <- DB$meta_true
+          Vis$meta_mst <- meta_mst
+          
           # prepare igraph object
           Vis$ggraph_1 <- hamming_mst() |>
             as.matrix() |>
@@ -21288,6 +21329,8 @@ server <- function(input, output, session) {
           output$tree_mst <- renderVisNetwork({
             mst_tree()
           })
+          
+          Typing$mst_true <- TRUE
         }
       }
     }
@@ -21310,6 +21353,452 @@ server <- function(input, output, session) {
     }
   })
   
+  ### Report creation UI ----
+  
+  observeEvent(input$create_rep, {
+    
+    if((input$tree_algo == "Minimum-Spanning" & isTRUE(Typing$mst_true)) |
+       (input$tree_algo == "UPGMA" & isTRUE(Typing$upgma_true)) |
+       (input$tree_algo == "Neighbour-Joining" & isTRUE(Typing$nj_true))) {
+      # Get currently selected missing value handling option
+      if(input$na_handling == "ignore_na") {
+        na_handling <- "Ignore missing values for pairwise comparison"
+      } else if(input$na_handling == "omit") {
+        na_handling <- "Omit loci with missing values for all assemblies"
+      } else if(input$na_handling == "category") {
+        na_handling <- "Treat missing values as allele variant"
+      }
+      
+      extra_var <- character()
+      if(input$tree_algo == "Minimum-Spanning") {
+        shinyjs::runjs("mstReport();")
+        if(isTRUE(input$mst_color_var)) {
+          extra_var <- c(extra_var, input$mst_col_var)
+        }
+      } else if(input$tree_algo == "Neighbour-Joining") {
+        if(isTRUE(input$nj_mapping_show)) {
+          extra_var <- c(extra_var, input$nj_color_mapping)
+        }
+        if(isTRUE(input$nj_tipcolor_mapping_show)) {
+          extra_var <- c(extra_var, input$nj_tipcolor_mapping)
+        }
+        if(isTRUE(input$nj_tipshape_mapping_show)) {
+          extra_var <- c(extra_var, input$nj_tipshape_mapping)
+        }
+        if(isTRUE(input$nj_tiles_show_1)) {
+          extra_var <- c(extra_var, input$nj_fruit_variable)
+        }
+        if(isTRUE(input$nj_tiles_show_2)) {
+          extra_var <- c(extra_var, input$nj_fruit_variable_2)
+        }
+        if(isTRUE(input$nj_tiles_show_3)) {
+          extra_var <- c(extra_var, input$nj_fruit_variable_3)
+        }
+        if(isTRUE(input$nj_tiles_show_4)) {
+          extra_var <- c(extra_var, input$nj_fruit_variable_4)
+        }
+        if(isTRUE(input$nj_tiles_show_5)) {
+          extra_var <- c(extra_var, input$nj_fruit_variable_5)
+        }
+        if(isTRUE(input$nj_heatmap_show)) {
+          extra_var <- c(extra_var, input$nj_heatmap_select)
+        }
+      } else if(input$tree_algo == "UPGMA") {
+        if(isTRUE(input$UPGMA_mapping_show)) {
+          extra_var <- c(extra_var, input$UPGMA_color_mapping)
+        }
+        if(isTRUE(input$UPGMA_tipcolor_mapping_show)) {
+          extra_var <- c(extra_var, input$UPGMA_tipcolor_mapping)
+        }
+        if(isTRUE(input$UPGMA_tipshape_mapping_show)) {
+          extra_var <- c(extra_var, input$UPGMA_tipshape_mapping)
+        }
+        if(isTRUE(input$UPGMA_tiles_show_1)) {
+          extra_var <- c(extra_var, input$UPGMA_fruit_variable)
+        }
+        if(isTRUE(input$UPGMA_tiles_show_2)) {
+          extra_var <- c(extra_var, input$UPGMA_fruit_variable_2)
+        }
+        if(isTRUE(input$UPGMA_tiles_show_3)) {
+          extra_var <- c(extra_var, input$UPGMA_fruit_variable_3)
+        }
+        if(isTRUE(input$UPGMA_tiles_show_4)) {
+          extra_var <- c(extra_var, input$UPGMA_fruit_variable_4)
+        }
+        if(isTRUE(input$UPGMA_tiles_show_5)) {
+          extra_var <- c(extra_var, input$UPGMA_fruit_variable_5)
+        }
+        if(isTRUE(input$UPGMA_heatmap_show)) {
+          extra_var <- c(extra_var, input$UPGMA_heatmap_select)
+        }
+      }
+      
+      showModal(
+        modalDialog(
+          fluidRow(
+            column(
+              width = 12,
+              fluidRow(
+                column(
+                  width = 4,
+                  align = "left",
+                  HTML(
+                    paste(
+                      tags$span(style='color:black; font-size: 15px; font-weight: 900', 'General')
+                    )
+                  )
+                ),
+                column(
+                  width = 3,
+                  align = "left",
+                  checkboxInput(
+                    "rep_general",
+                    label = "",
+                    value = TRUE
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 12,
+                  align = "left",
+                  fluidRow(
+                    column(
+                      width = 3,
+                      checkboxInput(
+                        "rep_date_general", 
+                        label = h5("Date", style = "color:black;"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 7,
+                      dateInput(
+                        "mst_date_general_select",
+                        "",
+                        max = Sys.Date()
+                      )
+                    )
+                  ),
+                  fluidRow(
+                    column(
+                      width = 3,
+                      checkboxInput(
+                        "rep_operator_general", 
+                        label = h5("Operator", style = "color:black;"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 8,
+                      textInput(
+                        "mst_operator_general_select",
+                        ""
+                      ) 
+                    )
+                  ),
+                  fluidRow(
+                    column(
+                      width = 3,
+                      checkboxInput(
+                        "rep_institute_general", 
+                        label = h5("Institute", style = "color:black;"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 8,
+                      textInput(
+                        "mst_institute_general_select",
+                        ""
+                      ) 
+                    )
+                  ),
+                  fluidRow(
+                    column(
+                      width = 3,
+                      checkboxInput(
+                        "rep_comm_general", 
+                        label = h5("Comment", style = "color:black;")
+                      )
+                    ),
+                    column(
+                      width = 8,
+                      textAreaInput(
+                        inputId = "mst_comm_general_select",
+                        label = "",
+                        width = "100%",
+                        height = "60px",
+                        cols = NULL,
+                        rows = NULL,
+                        placeholder = NULL,
+                        resize = "vertical"
+                      ) 
+                    )
+                  )
+                )
+              ),
+              hr(),
+              fluidRow(
+                column(
+                  width = 4,
+                  align = "left",
+                  HTML(
+                    paste(
+                      tags$span(style='color: black; font-size: 15px; font-weight: 900', 'Isolate Table')
+                    )
+                  )
+                ),
+                column(
+                  width = 3,
+                  align = "left",
+                  checkboxInput(
+                    "rep_entrytable",
+                    label = "",
+                    value = TRUE
+                  )
+                ),
+                column(
+                  width = 4,
+                  align = "left",
+                  HTML(
+                    paste(
+                      tags$span(style='color: black; font-size: 15px; font-weight: 900', 'Include Plot')
+                    )
+                  )
+                ),
+                column(
+                  width = 1,
+                  align = "left",
+                  checkboxInput(
+                    "rep_plot_report",
+                    label = "",
+                    value = TRUE
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 6,
+                  align = "left",
+                  div(
+                    class = "rep_tab_sel",
+                    pickerInput("select_rep_tab",
+                                label = "",
+                                choices = names(DB$meta)[-2],
+                                selected = c("Assembly Name", "Scheme", "Isolation Date",
+                                             "Host", "Country", "City", extra_var),
+                                options = list(
+                                  size = 10,
+                                  `actions-box` = TRUE,
+                                  style = "background-color: white; border-radius: 5px;"
+                                ),
+                                multiple = TRUE)
+                  )
+                )
+              ),
+              hr(),
+              fluidRow(
+                column(
+                  width = 4,
+                  align = "left",
+                  HTML(
+                    paste(
+                      tags$span(style='color: black; font-size: 15px; font-weight: 900', 'Analysis Parameter')
+                    )
+                  )
+                ),
+                column(
+                  width = 3,
+                  align = "left",
+                  checkboxInput(
+                    "rep_analysis",
+                    label = "",
+                    value = TRUE
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 6,
+                  align = "left",
+                  fluidRow(
+                    column(
+                      width = 4,
+                      checkboxInput(
+                        "rep_cgmlst_analysis",
+                        label = h5("Scheme", style = "color:black;"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 8,
+                      align = "right",
+                      HTML(
+                        paste(
+                          tags$span(style='color: black; position: relative; top: 17px; font-style: italic', DB$scheme)
+                        )
+                      )
+                    )
+                  ),
+                  fluidRow(
+                    column(
+                      width = 4,
+                      checkboxInput(
+                        "rep_tree_analysis",
+                        label = h5("Tree", style = "color:black;"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 8,
+                      align = "right",
+                      HTML(
+                        paste(
+                          tags$span(style='color: black; position: relative; top: 17px; font-style: italic', input$tree_algo)
+                        )
+                      )
+                    )
+                  )
+                ),
+                column(
+                  width = 6,
+                  align = "left",
+                  fluidRow(
+                    column(2),
+                    column(
+                      width = 4,
+                      checkboxInput(
+                        "rep_distance",
+                        label = h5("Distance", style = "color:black;"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 5,
+                      align = "right",
+                      HTML(
+                        paste(
+                          tags$span(style='color: black; position: relative; top: 17px; font-style: italic', 'Hamming')
+                        )
+                      )
+                    )
+                  ),
+                  fluidRow(
+                    column(2),
+                    column(
+                      width = 4,
+                      checkboxInput(
+                        "rep_version",
+                        label = h5("Version", style = "color:black;"),
+                        value = TRUE
+                      )
+                    ),
+                    column(
+                      width = 5,
+                      align = "right",
+                      HTML(
+                        paste(
+                          tags$span(style='color:black; position: relative; top: 17px; font-style: italic', phylotraceVersion)
+                        )
+                      )
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 3,
+                  align = "left",
+                  checkboxInput(
+                    "rep_missval",
+                    label = h5("NA handling", style = "color:black;"),
+                    value = TRUE
+                  )
+                ),
+                column(
+                  width = 7,
+                  align = "right",
+                  HTML(
+                    paste(
+                      tags$span(style='color: black; position: relative; top: 17px; font-style: italic; right: 35px;', na_handling)
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          title = "cgMLST Report Generation",
+          easyClose = TRUE,
+          footer = tagList(
+            modalButton("Cancel"),
+            downloadBttn(
+              "download_report",
+              style = "simple",
+              label = "Save",
+              size = "sm",
+              icon = icon("download")
+            )
+          )
+        )
+      )
+    } else {
+      show_toast(
+        title = "No tree created",
+        type = "error",
+        position = "top-end",
+        width = "500px",
+        timer = 6000
+      )
+    }
+  })
+  
+  observe({
+    if(!is.null(input$rep_general)) {
+      if(isFALSE(input$rep_general)) {
+        shinyjs::disable('rep_date_general') 
+        shinyjs::disable('rep_operator_general') 
+        shinyjs::disable('rep_institute_general') 
+        shinyjs::disable('rep_comm_general') 
+        shinyjs::disable('mst_date_general_select') 
+        shinyjs::disable('mst_operator_general_select') 
+        shinyjs::disable('mst_institute_general_select') 
+        shinyjs::disable('mst_comm_general_select') 
+      } else {
+        shinyjs::enable('rep_date_general') 
+        shinyjs::enable('rep_operator_general') 
+        shinyjs::enable('rep_institute_general') 
+        shinyjs::enable('rep_comm_general')
+        shinyjs::enable('mst_date_general_select') 
+        shinyjs::enable('mst_operator_general_select') 
+        shinyjs::enable('mst_institute_general_select') 
+        shinyjs::enable('mst_comm_general_select') 
+      }
+    }
+    
+    if(!is.null(input$rep_analysis)) {
+      if(isFALSE(input$rep_analysis)) {
+        shinyjs::disable('rep_cgmlst_analysis') 
+        shinyjs::disable('rep_tree_analysis') 
+        shinyjs::disable('rep_distance') 
+        shinyjs::disable('rep_missval') 
+        shinyjs::disable('rep_version') 
+      } else {
+        shinyjs::enable('rep_cgmlst_analysis') 
+        shinyjs::enable('rep_tree_analysis') 
+        shinyjs::enable('rep_distance') 
+        shinyjs::enable('rep_missval') 
+        shinyjs::enable('rep_version') 
+      }
+    }
+    
+    if(length(input$select_rep_tab) > 0) {
+      updateCheckboxInput(session, "rep_entrytable", value = TRUE)
+    } else {
+      updateCheckboxInput(session, "rep_entrytable", value = FALSE)
+    }
+  })
+  
   ### Save Report ----
   
   #### Get Report elements ----
@@ -21317,12 +21806,19 @@ server <- function(input, output, session) {
   observe({
     if(!is.null(DB$data)){
       if(!is.null(input$tree_algo)) {
+        req(c(input$rep_entrytable, input$rep_general,
+              input$rep_date_general, input$rep_operator_general,
+              input$rep_institute_general, input$rep_comm_general,
+              input$rep_analysis, input$rep_cgmlst_analysis,
+              input$rep_tree_analysis, input$rep_distance,
+              input$rep_missval, input$rep_version,
+              input$rep_plot_report, input$select_rep_tab))
         Report$report_df <- data.frame(Element = c("entry_table", "general_show",
                                                    "general_date", "operator",
                                                    "institute", "comment",
                                                    "analysis_show", "scheme",
                                                    "tree", "distance", "na_handling", "version",
-                                                   "plot"), 
+                                                   "plot"),
                                        Include = c(input$rep_entrytable, input$rep_general,
                                                    input$rep_date_general, input$rep_operator_general,
                                                    input$rep_institute_general, input$rep_comm_general,
@@ -21338,28 +21834,28 @@ server <- function(input, output, session) {
   
   observeEvent(input$create_tree, {
     if(input$tree_algo == "Minimum-Spanning") {
-      Report$report_list_mst <- list(entry_table = DB$meta_true[,1:12],
+      Report$report_list_mst <- list(entry_table = DB$meta_true,
                                      scheme = DB$schemeinfo, 
                                      tree = input$tree_algo,
                                      na_handling = if(anyNA(DB$allelic_profile_true)){input$na_handling} else {NULL},
                                      distance = "Hamming Distances",
-                                     version = c(phylotraceVersion, "blat-1.3.23"),
+                                     version = c(phylotraceVersion, "2.5.1"),
                                      plot = "MST")
     } else if(input$tree_algo == "Neighbour-Joining") {
-      Report$report_list_nj <- list(entry_table = DB$meta_true[,1:12],
+      Report$report_list_nj <- list(entry_table = DB$meta_true,
                                     scheme = DB$schemeinfo, 
                                     tree = input$tree_algo,
                                     na_handling = input$na_handling,
                                     distance = "Hamming Distances",
-                                    version = c(phylotraceVersion, "blat-1.3.23"),
+                                    version = c(phylotraceVersion, "2.5.1"),
                                     plot = "NJ")
     } else {
-      Report$report_list_upgma <- list(entry_table = DB$meta_true[,1:12],
+      Report$report_list_upgma <- list(entry_table = DB$meta_true,
                                        scheme = DB$schemeinfo, 
                                        tree = input$tree_algo,
                                        na_handling = input$na_handling,
                                        distance = "Hamming Distances",
-                                       version = c(phylotraceVersion, "blat-1.3.23"),
+                                       version = c(phylotraceVersion, "2.5.1"),
                                        plot = "UPGMA")
     }
   })
@@ -21370,10 +21866,14 @@ server <- function(input, output, session) {
       jpeg(paste0(getwd(), "/Report/NJ.jpeg"), width = (as.numeric(input$nj_scale) * as.numeric(input$nj_ratio)), height = as.numeric(input$nj_scale), quality = 100)
       print(nj_tree())
       dev.off()
-    } else {
+    } else if(input$tree_algo == "UPGMA") {
       jpeg(paste0(getwd(), "/Report/UPGMA.jpeg"), width = (as.numeric(input$upgma_scale) * as.numeric(input$upgma_ratio)), height = as.numeric(input$upgma_scale), quality = 100)
       print(upgma_tree())
       dev.off()
+    } else if (input$tree_algo == "Minimum-Spanning") {
+      shinyjs::runjs("mstReport();")
+      decoded_data <- base64enc::base64decode(input$canvas_data)
+      writeBin(decoded_data, paste0(getwd(), "/Report/MST.jpg"))
     }
   })
   
@@ -21388,6 +21888,8 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       if(input$tree_algo == "Minimum-Spanning") {
+        plot.report()
+        
         report <- c(Report$report_list_mst, 
                     "general_date" = as.character(input$mst_date_general_select),
                     "operator" = input$mst_operator_general_select,
@@ -21395,25 +21897,21 @@ server <- function(input, output, session) {
                     "comment" = input$mst_comm_general_select,
                     "report_df" = Report$report_df)
         
+        report[["table_columns"]] <- input$select_rep_tab
+        
         # Save data to an RDS file if any elements were selected
         if (!is.null(report)) {
           
-          log_message(out, message = "Creating UPGMA report")
+           log_print("Creating MST report")
           
           saveRDS(report, file = paste0(getwd(), "/Report/selected_elements.rds"))
           
           rmarkdown::render(paste0(getwd(), "/Report/Report.Rmd"))
           
           file.copy(paste0(getwd(), "/Report/Report.html"), file)
-          
-          
         } else {
-          log_message(out,
-                      message = "Creating UPGMA report failed (report is null)")
+          log_print("Creating MST report failed (report is null)")
         }
-        
-        
-        
       } else if(input$tree_algo == "Neighbour-Joining") {
         plot.report()
         report <- c(Report$report_list_nj, 
@@ -21423,9 +21921,11 @@ server <- function(input, output, session) {
                     "comment" = input$mst_comm_general_select,
                     "report_df" = Report$report_df)
         
+        report[["table_columns"]] <- input$select_rep_tab
+        
         # Save data to an RDS file if any elements were selected
         if (!is.null(report)) {
-          log_message(out, message = "Creating NJ report")
+           log_print("Creating NJ report")
           
           saveRDS(report, file = paste0(getwd(), "/Report/selected_elements.rds"))
           
@@ -21433,7 +21933,7 @@ server <- function(input, output, session) {
           
           file.copy(paste0(getwd(), "/Report/Report.html"), file)
         } else {
-          log_message(out, message = "Creating NJ report failed (report is null)")
+           log_print("Creating NJ report failed (report is null)")
         }
         
       } else {
@@ -21445,9 +21945,11 @@ server <- function(input, output, session) {
                     "comment" = input$mst_comm_general_select,
                     "report_df" = Report$report_df)
         
+        report[["table_columns"]] <- input$select_rep_tab
+        
         # Save data to an RDS file if any elements were selected
         if (!is.null(report)) {
-          log_message(out, message = "Creating MST report")
+           log_print("Creating UPGMA report")
           
           saveRDS(report, file = paste0(getwd(), "/Report/selected_elements.rds"))
           
@@ -21455,10 +21957,11 @@ server <- function(input, output, session) {
           
           file.copy(paste0(getwd(), "/Report/Report.html"), file)
         } else {
-          log_message(out, message = "Creating MST report failed (report is null)")
+           log_print("Creating UPGMA report failed (report is null)")
         }
         
       }
+      removeModal()
     }
   )
   
@@ -21470,7 +21973,7 @@ server <- function(input, output, session) {
   
   readLogFile <- reactive({
     invalidateLater(5000, session)
-    readLines(paste0(getwd(), "/execute/script_log.txt"))
+    readLines(paste0(getwd(), "/logs/script_log.txt"))
   })
   
   # Render sidebar dependent on data presence
@@ -21538,8 +22041,8 @@ server <- function(input, output, session) {
   # Render Typing Results if finished
   observe({
     if(Typing$progress_format_end == 999999) {
-      if(file.exists(paste0(getwd(),"/execute/single_typing_log.txt"))) {
-        if(str_detect(tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1), "Successful")) {
+      if(file.exists(paste0(getwd(),"/logs/single_typing_log.txt"))) {
+        if(str_detect(tail(readLines(paste0(getwd(),"/logs/single_typing_log.txt")), 1), "Successful")) {
           output$typing_result_table <- renderRHandsontable({
             typing_result_table <- readRDS(paste0(getwd(), "/execute/event_df.rds"))
             if(nrow(typing_result_table) > 0) {
@@ -21570,8 +22073,8 @@ server <- function(input, output, session) {
             n_missing <- number_events - n_new
             
             # Show results table only if successful typing 
-            if(file.exists(paste0(getwd(),"/execute/single_typing_log.txt"))) {
-              if(str_detect(tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1), "Successful")) {
+            if(file.exists(paste0(getwd(),"/logs/single_typing_log.txt"))) {
+              if(str_detect(tail(readLines(paste0(getwd(),"/logs/single_typing_log.txt")), 1), "Successful")) {
                 if(number_events > 0) {
                   column(
                     width = 12,
@@ -21870,10 +22373,10 @@ server <- function(input, output, session) {
   
   observeEvent(input$typing_start, {
     
-    log_message(out, message = "Input typing_start")
+     log_print("Input typing_start")
     
     if(tail(readLogFile(), 1) != "0") {
-      log_message(out, message = "Pending multi typing")
+       log_print("Pending multi typing")
       
       show_toast(
         title = "Pending Multi Typing",
@@ -21928,7 +22431,7 @@ server <- function(input, output, session) {
           width = "500px"
         )
         
-        log_message(out, message = "Initiated single typing")
+         log_print("Initiated single typing")
         
         ### Run blat Typing
         
@@ -21943,7 +22446,7 @@ server <- function(input, output, session) {
         saveRDS(single_typing_df, "execute/single_typing_df.rds")
         
         # Execute single typing script
-        system(paste("bash", paste0(getwd(), "/execute/blat_run.sh"), ">>", paste0(getwd(), "/logs/output.log"), "2>&1"), 
+        system(paste("bash", paste0(getwd(), "/execute/single_typing.sh")), 
                wait = FALSE)
         
         scheme_loci <- list.files(path = scheme_select, full.names = TRUE)
@@ -22003,7 +22506,7 @@ server <- function(input, output, session) {
           )
         })
       } else {
-        log_message(out, message = "Folder containing cgMLST alleles not in working directory")
+         log_print("Folder containing cgMLST alleles not in working directory")
         
         show_alert(
           title = "Error",
@@ -22104,14 +22607,14 @@ server <- function(input, output, session) {
             width = 12,
             align = "center",
             br(), br(),
-            if(file.exists(paste0(getwd(),"/execute/single_typing_log.txt"))) {
-              if(str_detect(tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1), "Successful")) {
+            if(file.exists(paste0(getwd(),"/logs/single_typing_log.txt"))) {
+              if(str_detect(tail(readLines(paste0(getwd(),"/logs/single_typing_log.txt")), 1), "Successful")) {
                 HTML(paste("<span style='color: white;'>", 
-                           sub(".*Successful", "Successful", tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1)),
+                           sub(".*Successful", "Successful", tail(readLines(paste0(getwd(),"/logs/single_typing_log.txt")), 1)),
                            "Reset to start another typing process.", sep = '<br/>'))
               } else {
                 HTML(paste("<span style='color: white;'>", 
-                           sub(".*typing", "Typing", tail(readLines(paste0(getwd(),"/execute/single_typing_log.txt")), 1)),
+                           sub(".*typing", "Typing", tail(readLines(paste0(getwd(),"/logs/single_typing_log.txt")), 1)),
                            "Reset to start another typing process.", sep = '<br/>'))
               }
             },
@@ -22134,7 +22637,7 @@ server <- function(input, output, session) {
   #### Declare Metadata  ----
   
   observeEvent(input$conf_meta_single, {
-    log_message(out, message = "Single typing metadata confirmed")
+     log_print("Single typing metadata confirmed")
     
     if(nchar(trimws(input$assembly_id)) < 1) {
       ass_id <- as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name)))
@@ -22204,7 +22707,7 @@ server <- function(input, output, session) {
   ####  Events Single Typing ----
   
   observeEvent(input$reset_single_typing, {
-    log_message(out, message = "Reset single typing")
+     log_print("Reset single typing")
     
     Typing$progress <- 0
     
@@ -22525,7 +23028,6 @@ server <- function(input, output, session) {
       output$multi_select_table <- renderRHandsontable({
         rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
                       stretchH = "all", contextMenu = FALSE) %>%
-          hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
           hot_cols(columnSorting = TRUE) %>%
           hot_rows(rowHeights = 25) %>%
           hot_col(2,
@@ -22541,7 +23043,6 @@ server <- function(input, output, session) {
         rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
                       stretchH = "all", height = 500,
                       contextMenu = FALSE) %>%
-          hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
           hot_cols(columnSorting = TRUE) %>%
           hot_rows(rowHeights = 25) %>%
           hot_col(2,
@@ -22558,7 +23059,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_meta_multi, {
-    log_message(out, message = "Multi typing metadata confirmed")
+     log_print("Multi typing metadata confirmed")
     
     meta_info <- data.frame(cgmlst_typing = DB$scheme,
                             append_isodate = trimws(input$append_isodate_multi),
@@ -22611,17 +23112,17 @@ server <- function(input, output, session) {
   # Print Log
   output$print_log <- downloadHandler(
     filename = function() {
-      log_message(out, message = paste0("Save multi typing log ", paste("Multi_Typing_", Sys.Date(), ".txt", sep = "")))
+       log_print(paste0("Save multi typing log ", paste("Multi_Typing_", Sys.Date(), ".txt", sep = "")))
       paste("Multi_Typing_", Sys.Date(), ".txt", sep = "")
     },
     content = function(file) {
-      writeLines(readLines(paste0(getwd(), "/execute/script_log.txt")), file)
+      writeLines(readLines(paste0(getwd(), "/logs/script_log.txt")), file)
     }
   )
   
   # Reset Multi Typing
   observeEvent(input$reset_multi, {
-    if(!grepl("Multi Typing", tail(readLines(paste0(getwd(),"/execute/script_log.txt")), n = 1))) {
+    if(!grepl("Multi Typing", tail(readLines(paste0(getwd(),"/logs/script_log.txt")), n = 1))) {
       showModal(
         modalDialog(
           paste0(
@@ -22638,7 +23139,7 @@ server <- function(input, output, session) {
       )
     } else {
       
-      log_message(out, message = "Reset multi typing")
+       log_print("Reset multi typing")
       
       # Reset multi typing result list
       saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
@@ -22646,7 +23147,7 @@ server <- function(input, output, session) {
       Typing$result_list <- NULL
       
       # Null logfile
-      writeLines("0", paste0(getwd(), "/execute/script_log.txt"))
+      writeLines("0", paste0(getwd(), "/logs/script_log.txt"))
       
       # Reset User Feedback variable
       Typing$pending_format <- 0
@@ -22704,10 +23205,10 @@ server <- function(input, output, session) {
   observeEvent(input$conf_multi_kill, {
     removeModal()
     
-    log_message(out, message = "Kill multi typing")
+    log_print("Kill multi typing")
     
     # Kill multi typing and reset logfile  
-    system(paste("bash", paste0(getwd(), "/execute/kill_multi.sh"), ">>", paste0(getwd(), "/logs/output.log"), "2>&1"), 
+    system(paste("bash", paste0(getwd(), "/execute/kill_multi.sh")), 
            wait = TRUE)
     
     show_toast(
@@ -22719,7 +23220,7 @@ server <- function(input, output, session) {
     )
     
     # Kill multi typing and reset logfile  
-    writeLines("0", paste0(getwd(), "/execute/script_log.txt"))
+    writeLines("0", paste0(getwd(), "/logs/script_log.txt"))
     
     #Reset multi typing result list
     saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
@@ -22777,10 +23278,10 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$start_typ_multi, {
-    log_message(out, message = "Initiate multi typing")
+    log_print("Initiate multi typing")
     
     if(readLines(paste0(getwd(), "/logs/progress.txt"))[1] != "0") {
-      log_message(out, message = "Pending Single Typing")
+      log_print("Pending Single Typing")
       show_toast(
         title = "Pending Single Typing",
         type = "warning",
@@ -22791,7 +23292,7 @@ server <- function(input, output, session) {
     } else {
       if (any(!grepl("\\.fasta|\\.fna|\\.fa", str_sub(Typing$genome_selected$Files[which(Typing$genome_selected$Include == TRUE)], start = -6)))) {
         
-        log_message(out, message = "Wrong file type (include only fasta/fna/fa)")
+         log_print("Wrong file type (include only fasta/fna/fa)")
         
         show_toast(
           title = "Wrong file type (include only fasta/fna/fa)",
@@ -22842,7 +23343,7 @@ server <- function(input, output, session) {
         Typing$genome_selected <- NULL
         
         # Execute multi blat script  
-        system(paste("bash", paste0(getwd(), "/execute/blat_multi.sh"), ">>", paste0(getwd(), "/logs/output.log"), "2>&1"), 
+        system(paste("bash", paste0(getwd(), "/execute/multi_typing.sh")), 
                wait = FALSE)
         
       }
@@ -22854,7 +23355,7 @@ server <- function(input, output, session) {
   #### User Feedback ----
   
   observe({
-    if(file.exists(paste0(getwd(), "/execute/script_log.txt"))) {
+    if(file.exists(paste0(getwd(), "/logs/script_log.txt"))) {
       if(Typing$multi_started == TRUE) {
         check_multi_status()
       } else {
@@ -22867,7 +23368,7 @@ server <- function(input, output, session) {
     
     invalidateLater(3000, session)
     
-    log <- readLines(paste0(getwd(), "/execute/script_log.txt"))
+    log <- readLines(paste0(getwd(), "/logs/script_log.txt"))
     
     # Determine if Single or Multi Typing
     if(str_detect(log[1], "Multi")) {
@@ -23049,7 +23550,7 @@ server <- function(input, output, session) {
     })
     
     output$logTextFull <- renderPrint({
-      cat(rev(paste0(readLines(paste0(getwd(), "/execute/script_log.txt")), "\n")))
+      cat(rev(paste0(readLines(paste0(getwd(), "/logs/script_log.txt")), "\n")))
     })
     
     # Render Pending UI
@@ -23114,9 +23615,9 @@ server <- function(input, output, session) {
               h3(p("Pending Multi Typing ..."), style = "color:white"),
               br(), br(),
               HTML(paste("<span style='color: white;'>", 
-                         paste("Typing of", sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt")), "Processing")), "assemblies finalized."),
-                         paste(sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt")), "Successful")), "successes."),
-                         paste(sum(str_detect(readLines(paste0(getwd(), "/execute/script_log.txt")), "failed")), "failures."),
+                         paste("Typing of", sum(str_detect(readLines(paste0(getwd(), "/logs/script_log.txt")), "Processing")), "assemblies finalized."),
+                         paste(sum(str_detect(readLines(paste0(getwd(), "/logs/script_log.txt")), "Successful")), "successes."),
+                         paste(sum(str_detect(readLines(paste0(getwd(), "/logs/script_log.txt")), "failed")), "failures."),
                          "Reset to start another typing process.", 
                          sep = '<br/>')),
               br(), br(),

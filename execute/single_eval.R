@@ -1,14 +1,15 @@
-meta_info <- readRDS("meta_info.rds")
-db_path <- readRDS("multi_typing_df.rds")[, "db_path"]
-assembly_folder <- dir(paste0(getwd(), "/selected_genomes"), full.names = TRUE)
-assembly <- assembly_folder[which(commandArgs(trailingOnly = TRUE)[1] == basename(assembly_folder))]
-results_folder <- dir(paste0(meta_info$db_directory, "/execute/blat_multi/results"), full.names = TRUE)
+library(logr)
+
+# Hand over variables
+meta_info <- readRDS("meta_info_single.rds")
+db_path <- readRDS("single_typing_df.rds")[, "db_path"]
+assembly <- paste0(meta_info$db_directory, "/execute/blat_single/assembly.fasta")
 
 source("variant_validation.R")
 
 setwd(meta_info$db_directory)
 
-# Function to check custom variable classes
+#Function to check custom variable classes
 column_classes <- function(df) {
   sapply(df, function(x) {
     if (class(x) == "numeric") {
@@ -21,13 +22,16 @@ column_classes <- function(df) {
   })
 }
 
-# Function to log messages 
+# Function to log messages to the file
 log.message <- function(log_file, message) {
-  cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "-", message, "\n", file = log_file, append = TRUE)
+  cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "- ", message, "\n", file = log_file, append = TRUE)
 }
 
-log.message(log_file = paste0(meta_info$db_directory, "/logs/output.log"),
-            message = "Attaching initiated (automatic_typing.R)")
+logfile <- file.path(paste0(getwd(), "/logs/single_eval.log"))
+
+log <- log_open(logfile, logdir = FALSE)
+
+log_print("Attaching initiated")
 
 # Define start and stop codons
 start_codons <- c("ATG", "GTG", "TTG")
@@ -40,19 +44,12 @@ allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst
 template <- readLines(assembly)
 
 # List all .psl result files from alignment with BLAT
-psl_files <- list.files(results_folder[which(sub("\\.(fasta|fna|fa)$", "", basename(assembly)) == basename(results_folder))], pattern = "\\.psl$", full.names = TRUE)
+psl_files <- list.files(paste0(meta_info$db_directory, "/execute/blat_single/results"), pattern = "\\.psl$", full.names = TRUE)
 
 # Initialize an empty vector to store the results
-allele_vector <- integer(length(psl_files))
+allele_vector <- character(length(psl_files))
 
-# Initiate results list 
-if(length(assembly_folder) == 1) {
-  event_list <- list()
-} else {
-  event_list <- readRDS(paste0(getwd(), "/execute/event_list.rds"))
-}
-
-event_list[[basename(assembly)]] <- data.frame(Locus = character(0), Event = character(0), Value = character(0))
+event_df <- data.frame(Locus = character(0), Event = character(0), Value = character(0))
 
 # if more than 5 % of loci are not typed, assembly typing is considered failed
 if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <= 0.05) {
@@ -68,14 +65,11 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       # Handle empty file: Insert NA in the allele_vector
       allele_vector[[i]] <- NA
       
-      event_list[[basename(assembly)]] <- rbind(event_list[[basename(assembly)]], data.frame(Locus = allele_index, Event = "Locus Not Found", Value = "NA"))
+      event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "Locus Not Found", Value = "NA"))
       
     } else {
       
       matches <- data.table::fread(psl_files[i], select = c(1, 5, 6, 7, 8, 10, 11, 14, 16, 17), header = FALSE)
-      
-      # variant count 
-      n_variants <- max(matches$V10)
       
       if(any(matches$V1 == matches$V11 & (matches$V5 + matches$V7) == 0)) {
         
@@ -85,7 +79,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
           
           cat(paste0(allele_index, " has multiple hits.\n"))
           allele_vector[[i]] <- NA
-          event_list[[basename(assembly)]] <- rbind(event_list[[basename(assembly)]], data.frame(Locus = allele_index, Event = "Multiple Hits", Value = "NA"))
+          event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "Multiple Hits", Value = "NA"))
           
         } else {
           allele_vector[[i]] <- perf_match$V10[which((perf_match$V5 + perf_match$V7) == 0)]
@@ -108,21 +102,23 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         
         # loop over all unique template alignments (regarding position)
         variant_valid <- variant_validation(references = unique_template_seq, 
-                                            start_codons = start_codons, stop_codons = stop_codons)
+                           start_codons = start_codons, stop_codons = stop_codons)
         
         # if valid variant found 
         if(variant_valid != FALSE) {
           
+          hashed_variant <- openssl::sha256(variant_valid)
+          
           # Append new variant number to allele fasta file
-          cat(paste0("\n>", n_variants + 1), file = locus_file, append = TRUE)
+          cat(paste0("\n>", hashed_variant), file = locus_file, append = TRUE)
           
           # Append new variant sequence to allele fasta file
           cat(paste0("\n", variant_valid, "\n"), file = locus_file, append = TRUE)
           
           # Entry in results data frame
-          event_list[[basename(assembly)]] <- rbind(event_list[[basename(assembly)]], data.frame(Locus = allele_index, Event = "New Variant", Value = as.character(n_variants + 1)))
+          event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "New Variant", Value = hashed_variant))
           
-          allele_vector[[i]] <- n_variants + 1
+          allele_vector[[i]] <- hashed_variant
           
           cat(paste0(allele_index, " has new variant.\n"))
           
@@ -132,54 +128,41 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
           allele_vector[[i]] <- NA
           
           # Entry in results data frame
-          event_list[[basename(assembly)]] <- rbind(event_list[[basename(assembly)]], data.frame(Locus = allele_index, Event = "Invalid Sequence", Value = "NA"))
+          event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "Invalid Sequence", Value = "NA"))
           
           cat(paste0(allele_index, " has invalid sequence.\n"))
         }
-        
       }
     }
   }
   
-  saveRDS(event_list, "execute/event_list.rds")
-  
-  allele_vector <- as.integer(allele_vector)
-  
-  # Find Alleles folder in directory
-  allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)), full.names = TRUE)[grep("_alleles", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing))))]
+  saveRDS(event_df, "execute/event_df.rds")
   
   # Create Results Data Frame 
   if(!any(grepl("Typing", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)))))) {
     
     Database <- list(Typing = data.frame())
     
-    Typing <-
-      data.frame(matrix(
-        NA,
-        nrow = 0,
-        ncol = 12 + length(psl_files)
-      ))
+    Typing <- data.frame(matrix(NA, nrow = 0, ncol = 12 + length(psl_files)))
     
-    metadata <-
-      c(
-        1,
-        TRUE,
-        sub("\\.(fasta|fna|fa)$", "", basename(assembly)),
-        sub("\\.(fasta|fna|fa)$", "", basename(assembly)),
-        meta_info$cgmlst_typing,
-        as.character(meta_info$append_isodate),
-        meta_info$append_host,
-        meta_info$append_country,
-        meta_info$append_city,
-        as.character(meta_info$append_analysisdate),
-        length(allele_vector) - sum(sapply(allele_vector, is.na)),
-        sum(sapply(allele_vector, is.na))
-      )
+    metadata <- c(
+      1,
+      TRUE,
+      meta_info$assembly_id,
+      meta_info$assembly_name,
+      meta_info$cgmlst_typing,
+      as.character(meta_info$append_isodate),
+      meta_info$append_host,
+      meta_info$append_country,
+      meta_info$append_city,
+      as.character(meta_info$append_analysisdate),
+      length(allele_vector) - sum(sapply(allele_vector, is.na)),
+      sum(sapply(allele_vector, is.na))
+    )
     
     new_row <- c(metadata, allele_vector)
     
     Typing <- rbind(Typing, new_row)
-    
     
     colnames(Typing) <-
       append(
@@ -202,7 +185,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
     
     Database[["Typing"]] <- Typing
     
-    df2 <- dplyr::mutate_all(dplyr::select(Database$Typing, 13:(12+length(list.files(allele_folder)))), function(x) as.integer(x))
+    df2 <- dplyr::mutate_all(dplyr::select(Database$Typing, 13:(12+length(list.files(allele_folder)))), function(x) as.character(x))
     
     df1 <- dplyr::select(Database$Typing, 1:12)
     df1 <- dplyr::mutate(df1, Include = as.logical(Include))
@@ -219,8 +202,8 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       data.frame(
         nrow(Database[["Typing"]]) + 1,
         TRUE,
-        sub("\\.(fasta|fna|fa)$", "", basename(assembly)),
-        sub("\\.(fasta|fna|fa)$", "", basename(assembly)),
+        meta_info$assembly_id,
+        meta_info$assembly_name,
         meta_info$cgmlst_typing,
         as.character(meta_info$append_isodate),
         meta_info$append_host,
@@ -309,18 +292,18 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   saveRDS(Database, paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Typing.rds"))
   
   # Logging successes
-  log.message(log_file = paste0(getwd(), "/execute/script_log.txt"), 
-              message = paste0("Successful typing of ", sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
-  log.message(log_file = paste0(meta_info$db_directory, "/logs/output.log"), 
-              message = paste0("Successful typing of ", sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
+  log.message(log_file = paste0(getwd(), "/logs/single_typing_log.txt"), 
+              message = paste0("Successful typing of ", meta_info$assembly_name))
+  log_print(paste0("Successful typing of ", meta_info$assembly_name))
   
 } else {
   
+  failures <- sum(unname(base::sapply(psl_files, file.size)) <= 100) / length(psl_files) * 100
+  
   # Logging failures
-  log.message(log_file = paste0(getwd(), "/execute/script_log.txt"), 
-              message = paste0("Assembly typing failed for ", 
-                               sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
-  log.message(log_file = paste0(meta_info$db_directory, "/logs/output.log"), 
-              message = paste0("Assembly typing failed for ", 
-                               sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
+  log.message(log_file = paste0(getwd(), "/logs/single_typing_log.txt"), 
+              message = paste0("Assembly typing of ", meta_info$assembly_name, " failed. ", failures, "% of loci not typed."))
+  log_print(paste0("Assembly typing of ", meta_info$assembly_name, " failed. ", failures, "% of loci not typed."))
 }
+
+log_close()

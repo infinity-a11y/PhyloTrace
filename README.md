@@ -31,11 +31,14 @@ working on achieving that.
 <sup><sup> Developed in collaboration with Hochschule Furtwangen University (HFU) and Medical
 University of Graz (MUG). Featured on ShinyConf 2024. </sup> </sup>
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10996423.svg)](https://doi.org/10.5281/zenodo.10996423)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.10996423-00e896?labelColor=gray&color=2500ba&logoColor=black)](https://doi.org/10.5281/zenodo.10996423)
 [![License: GPL
 v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![Project Status: Active – The project has reached a stable, usable state and is being actively
 developed.](https://www.repostatus.org/badges/latest/active.svg)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
+![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white)  
+
 
 ----------------------------------------------------------------------------------------------------
 
@@ -241,7 +244,7 @@ cd path/to/phylotrace
 git clone https://github.com/infinity-a11y/PhyloTrace.git
 ```
 
-Alternatively download PhyloTrace manually from [Version 1.4.0](https://github.com/infinity-a11y/PhyloTrace/archive/refs/tags/v1.4.0.zip) and extract/unzip it to a location on your system.
+Alternatively download PhyloTrace manually from [Version 1.4.1](https://github.com/infinity-a11y/PhyloTrace/archive/refs/tags/v1.4.1.zip) and extract/unzip it to a location on your system.
 
 
 ### 2.2 Install Miniconda
@@ -390,4 +393,3 @@ In addition to the points listed on the roadmap, we constantly improve existing 
 🔲 Backwards Compatibility with MLST (ST calling)\
 🔲 Implementation of wgMLST\
 🔲 Implementation of a Gene Enrichment Analysis\
-🔲 Validation of PhyloTrace for Clinical Use

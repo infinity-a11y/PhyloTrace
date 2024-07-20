@@ -26,10 +26,7 @@ fi
 mkdir "$results"
 
 selected_genomes="$base_path/execute/selected_genomes"
-log_file="$base_path/execute/script_log.txt"
-output_file="$base_path/logs/output.log"
-
-echo "$(date +"%Y-%m-%d %H:%M:%S") - Initiated blat_multi.sh" >> "$output_file"
+log_file="$base_path/logs/script_log.txt"
 
 # Create a log file or truncate if it exists
 echo "Start Multi Typing with $scheme scheme." > "$log_file"
@@ -47,10 +44,8 @@ for file in "${file_names[@]}"; do
     if [ -f "$genome_folder/$file" ]; then
         cp "$genome_folder/$file" "$selected_genomes/"
         echo "$(date +"%Y-%m-%d %H:%M:%S") - Initiated $file" >> "$log_file"
-        echo "$(date +"%Y-%m-%d %H:%M:%S") - Initiated $file" >> "$output_file"
     else
         echo "$(date +"%Y-%m-%d %H:%M:%S") - $file not found in $genome_folder" >> "$log_file"
-        echo "$(date +"%Y-%m-%d %H:%M:%S") - $file not found in $genome_folder" >> "$output_file"
     fi
 done
 
@@ -70,18 +65,15 @@ for genome in "$selected_genomes"/*; do
     genome_filename=$(basename "$genome")
     genome_filename_noext="${genome_filename%.*}"
     echo "$(date +"%Y-%m-%d %H:%M:%S") - Processing $genome_filename" >> "$log_file"
-    echo "$(date +"%Y-%m-%d %H:%M:%S") - Processing $genome_filename" >> "$output_file"
     fi
     mkdir "$results/$genome_filename_noext"
     
     result_folder="$results/$genome_filename_noext"
     
     # Run parallelized BLAT
-    find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name "*.fna" \) | parallel pblat $genome {} "$result_folder/{/.}.psl"
+    find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name "*.fna" \) | parallel pblat $genome {} "$result_folder/{/.}.psl"  > /dev/null 2>&1
     
     echo "$(date +"%Y-%m-%d %H:%M:%S") - Attaching $genome_filename" >> "$log_file"
-    echo "$(date +"%Y-%m-%d %H:%M:%S") - Initiating addition of $genome_filename (attaching)" >> "$output_file"
-    Rscript "$base_path/execute/automatic_typing.R" "$genome_filename"
+    Rscript "$base_path/execute/multi_eval.R" "$genome_filename"
 done
 echo "$(date +"%Y-%m-%d %H:%M:%S") - Multi Typing finalized." >> "$log_file"
-echo "$(date +"%Y-%m-%d %H:%M:%S") - Multi Typing finalized." >> "$output_file"
