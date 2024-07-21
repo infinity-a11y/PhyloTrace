@@ -124,7 +124,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
           cat(paste0("\n", variant_valid, "\n"), file = locus_file, append = TRUE)
           
           # Entry in results data frame
-          event_list[[basename(assembly)]] <- rbind(event_list[[basename(assembly)]], data.frame(Locus = allele_index, Event = "New Variant", Value = hashed_variant))
+          event_list[[basename(assembly)]] <- rbind(event_list[[basename(assembly)]], data.frame(Locus = allele_index, Event = "New Variant", Value = as.character(hashed_variant)))
           
           allele_vector[[i]] <- hashed_variant
           
