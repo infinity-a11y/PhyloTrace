@@ -22046,20 +22046,44 @@ server <- function(input, output, session) {
           output$typing_result_table <- renderRHandsontable({
             typing_result_table <- readRDS(paste0(getwd(), "/execute/event_df.rds"))
             if(nrow(typing_result_table) > 0) {
+              if (input$typing_results_longhash) {
+                renderer <- htmlwidgets::JS(
+                  "function(instance, td, row, col, prop, value, cellProperties) {
+                            if (value.length > 8) {
+                              value = value;
+                            }
+                            td.innerHTML = value;
+                            return td;
+                          }"
+                )
+              } else {
+                renderer <- htmlwidgets::JS(
+                  "function(instance, td, row, col, prop, value, cellProperties) {
+                            if (value.length > 8) {
+                              value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
+                            }
+                            td.innerHTML = value;
+                            return td;
+                          }"
+                )
+              }
+              
               if(nrow(typing_result_table) > 15) {
                 rhandsontable(typing_result_table, rowHeaders = NULL, 
                               stretchH = "all", height = 500, readOnly = TRUE,
                               contextMenu = FALSE) %>%
                   hot_cols(columnSorting = TRUE) %>%
                   hot_rows(rowHeights = 25) %>%
-                  hot_col(1:ncol(typing_result_table), valign = "htMiddle", halign = "htCenter")
+                  hot_col(1:ncol(typing_result_table), valign = "htMiddle", halign = "htCenter") %>%
+                  hot_col("Value", renderer = renderer)
               } else {
                 rhandsontable(typing_result_table, rowHeaders = NULL, 
                               stretchH = "all", readOnly = TRUE,
-                              contextMenu = FALSE,) %>%
+                              contextMenu = FALSE) %>%
                   hot_cols(columnSorting = TRUE) %>%
                   hot_rows(rowHeights = 25) %>%
-                  hot_col(1:ncol(typing_result_table), valign = "htMiddle", halign = "htCenter")
+                  hot_col(1:ncol(typing_result_table), valign = "htMiddle", halign = "htCenter") %>%
+                  hot_col("Value", renderer = renderer)
               }
             }
           })
@@ -22089,7 +22113,14 @@ server <- function(input, output, session) {
                     HTML(paste("<span style='color: white;'>", 
                                n_new,
                                if(n_new == 1) " locus with new variant."  else " loci with new variants.")),
-                    br(), br(),
+                    br(),
+                    materialSwitch(
+                      "typing_results_longhash",
+                      h5(p("Show Long Hash"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                      value = FALSE,
+                      right = TRUE
+                    ),
+                    br(),
                     rHandsontableOutput("typing_result_table")
                   )
                 } else {
@@ -23467,23 +23498,45 @@ server <- function(input, output, session) {
                           rowHeaders = NULL, stretchH = "all",
                           readOnly = TRUE, contextMenu = FALSE) %>%
               hot_rows(rowHeights = 25) %>%
-              hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
-          
+              hot_col(1:3, valign = "htMiddle", halign = "htCenter")
+            })
         } else {
+          if (input$multi_results_longhash) {
+            renderer <- NULL
+          } else {
+            renderer <- htmlwidgets::JS(
+              "function(instance, td, row, col, prop, value, cellProperties) {
+                            if (value.length > 8) {
+                              value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
+                            }
+                            td.innerHTML = value;
+                            td.style.verticalAlign = 'middle';
+                            td.style.textAlign = 'center';
+                            return td;
+                          }"
+            )
+          }
+          
           if(Typing$multi_table_length > 15) {
             output$multi_typing_result_table <- renderRHandsontable({
               rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
                             stretchH = "all", height = 500,
                             readOnly = TRUE, contextMenu = FALSE) %>%
                 hot_rows(rowHeights = 25) %>%
-                hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
+                hot_col(1:3, valign = "htMiddle", halign = "htCenter") %>%
+                hot_col("Value",
+                        renderer = renderer)
+              })
           } else {
             output$multi_typing_result_table <- renderRHandsontable({
               rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
                             stretchH = "all", readOnly = TRUE,
                             contextMenu = FALSE) %>%
                 hot_rows(rowHeights = 25) %>%
-                hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
+                hot_col(1:3, valign = "htMiddle", halign = "htCenter") %>%
+                hot_col("Value",
+                        renderer = renderer)
+              })
             
           }
         }
@@ -23522,17 +23575,26 @@ server <- function(input, output, session) {
                 width = 9,
                 br(), br(),
                 br(), br(),
-                br(), 
-                div(
-                  class = "mult_res_sel",
-                  selectInput(
-                    "multi_results_picker",
-                    label = h5("Select Typing Results", style = "color:white"),
-                    choices = names(Typing$result_list),
-                    selected = names(Typing$result_list)[length(names(Typing$result_list))],
+                br(),
+                fluidRow(
+                  div(
+                    class = "mult_res_sel",
+                    selectInput(
+                      "multi_results_picker",
+                      label = h5("Select Typing Results", style = "color:white"),
+                      choices = names(Typing$result_list),
+                      selected = names(Typing$result_list)[length(names(Typing$result_list))],
+                    )
                   )
                 ),
-                br(), br(), 
+                br(), 
+                materialSwitch(
+                  "multi_results_longhash",
+                  h5(p("Show Long Hash"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                  value = FALSE,
+                  right = TRUE
+                ),
+                br(), 
                 rHandsontableOutput("multi_typing_result_table")
               )
             )
