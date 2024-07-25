@@ -1,4 +1,13 @@
 require(Biostrings, quietly = TRUE)
+
+check_gene_sequence <- function(sequence) {
+  if (grepl("[^atgc]", sequence, ignore.case = TRUE)) {
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }     
+}
+
 # Function to check for length and frameshift of new variant sequence
 check_length_frameshift <- function(seq, ref_seq) {
   
@@ -65,8 +74,8 @@ validate_start_stop <- function(seq, start_codons, stop_codons) {
           }
         }
       }
-    
-    # Check if reverse sequence has start codon    
+      
+      # Check if reverse sequence has start codon    
     } else if (length(reverse_match@ranges) != 0) {
       
       # Verify if stop codon is at other end
@@ -98,6 +107,11 @@ variant_validation <- function(references, start_codons, stop_codons) {
     contig <- template[(which(template == paste0(">", references$V14[i])) + 1)]
     
     seq <- substring(contig, references$V16[i] + 1, references$V17[i])
+    
+    # invalid if nucleic acid code other than ATGC
+    if(check_gene_sequence(seq)) {
+      return("Ambigous Nucleotides")
+    }
     
     ref_seq_index <- grep(paste0("^>", references$V10[i], "$"), readLines(locus_file)) + 1
     

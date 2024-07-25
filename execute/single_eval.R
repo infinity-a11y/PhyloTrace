@@ -91,10 +91,9 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         
         variants <- readLines(locus_file)
         
-        # new variant validation 
-        # decision what is reference sequence
+        ### new variant validation ### 
         
-        # sort by score, then number of gaps then number of bases in the gaps
+        # sort by i) score, ii) number of gaps, iii) number of nt in the gaps
         matches <- dplyr::arrange(matches, desc(V1), desc(V5 + V7), desc(V6 + V7))
         
         # check which reference sequences have different alignment positions with the template
@@ -102,10 +101,15 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         
         # loop over all unique template alignments (regarding position)
         variant_valid <- variant_validation(references = unique_template_seq, 
-                           start_codons = start_codons, stop_codons = stop_codons)
+                                            start_codons = start_codons, stop_codons = stop_codons)
         
         # if valid variant found 
-        if(variant_valid != FALSE) {
+        if(variant_valid == "Ambigous Nucleotides") {
+          allele_vector[[i]] <- NA
+          event_df <- rbind(event_df, data.frame(Locus = allele_index, Event = "Ambigous Nucleotides", Value = "NA"))
+          cat(paste0(allele_index, " Invalid - Ambigous Nucleotides.\n"))
+          
+        } else if(variant_valid != FALSE) {
           
           hashed_variant <- openssl::sha256(variant_valid)
           

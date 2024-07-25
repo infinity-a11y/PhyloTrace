@@ -113,10 +113,18 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
                                             start_codons = start_codons, stop_codons = stop_codons)
         
         # if valid variant found 
-        if(variant_valid != FALSE) {
+        if(variant_valid == "Ambigous Nucleotides") {
+          allele_vector[[i]] <- NA
+          event_list[[basename(assembly)]] <- rbind(event_list[[basename(assembly)]], 
+                                                    data.frame(Locus = allele_index, 
+                                                               Event = "Ambigous Nucleotides Sequence", 
+                                                               Value = "NA"))
+          cat(paste0(allele_index, " Invalid - Ambigous Nucleotides.\n"))
+          
+        } else if(variant_valid != FALSE) {
           
           hashed_variant <- openssl::sha256(variant_valid)
-
+          
           # Append new variant number to allele fasta file
           cat(paste0("\n>", hashed_variant), file = locus_file, append = TRUE)
           
@@ -324,7 +332,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
               message = paste0("Assembly typing failed for ", 
                                sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
   log_print(paste0("Assembly typing failed for ", 
-                         sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
+                   sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
 }
 
 log_close()

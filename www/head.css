@@ -113,12 +113,14 @@ div#bs-select-12::-webkit-scrollbar-thumb,
 #mst_comm_general_select::-webkit-scrollbar-thumb {
 background: #bcbcbc;
   border: 2px solid #F0F0F0;
+min-width: 100px;
 }
 
 *::-webkit-scrollbar-thumb {
   background-color: #F0F0F0;
     border-radius: 10px;
   border: 2px solid #282F38;
+  min-width: 100px;
 } 
 
 *::-webkit-scrollbar-corner {
@@ -130,4 +132,27 @@ background: #bcbcbc;
   padding: 50px;
 position: relative;
 top: 15px;
+}
+
+#statustext {
+position: fixed;
+top: 15px;
+left: 400px;
+}
+
+#databasetext {
+position: fixed;
+top: 15px;
+left: 800px;
+}
+
+.main-header {
+  position: relative;
+  max-height: 100px;
+  z-index: 1030;
+  box-shadow: 0px 4px 5px #080c12;
+}
+
+.img_logo {
+  margin-top: -4px;
 }
