@@ -1502,7 +1502,7 @@ ui <- dashboardPage(
                 hr(style = "margin-top: 3px !important"),
                 fluidRow(
                   column(
-                    width = 12,
+                    width = 6,
                     fluidRow(
                       column(
                         width = 12,
@@ -1511,7 +1511,7 @@ ui <- dashboardPage(
                       )
                     ),
                     column(
-                      width = 6,
+                      width = 12,
                       align = "left",
                       br(),
                       div(
@@ -1577,7 +1577,49 @@ ui <- dashboardPage(
                         )
                       )
                     )
-                  )
+                  ),
+                  column(
+                    width = 6,
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        h4(p("Clustering"), style = "color:white; text-align: left;")
+                      )
+                    ),
+                    br(),
+                    fluidRow(
+                      div(
+                        class = "switch-clusters",
+                        materialSwitch(
+                          "mst_show_clusters",
+                          h5(p("Show Clusters"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                          value = FALSE,
+                          right = TRUE
+                        )
+                      )
+                    ),
+                    column(
+                      width = 3,
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; text-align: left; font-size: 14px; margin: 10px', 'Threshold')
+                        )
+                      )
+                    ),
+                    column(
+                      width = 9,
+                      sliderInput(
+                        inputId = "mst_cluster_threshold",
+                        label = NULL,
+                        min = 0,
+                        max = 10, 
+                        value = 4,
+                        ticks = FALSE
+                      )
+                    )
+                  ),
+                  br(),
                 )
               ), br(), br(), br(), br(), br(), br()
             )
@@ -5407,6 +5449,42 @@ ui <- dashboardPage(
           ),
           br(), br(), br(), br(), br(), br()
         )
+      ),
+      tabItem(
+        tabName = "utilities",
+        fluidRow(
+          column(
+            width = 3,
+            align = "center",
+            h2(p("Utilities"), style = "color:white")
+          )
+        ),
+        br(),
+        hr(),
+        column(
+          width = 5,
+          align = "left",
+          shinyDirButton(
+            "hash_dir",
+            "Hash folder with loci",
+            title = "Locate the folder with loci",
+            buttonType = "default",
+            root = path_home(),
+            style = "border-color: white; margin: 10px; min-width: 200px; text-align: left"
+          ),
+          br(),
+          actionButton(
+            "backup_database",
+            "Create backup",
+            style = "border-color: white; margin: 10px; min-width: 200px; text-align: left"
+          ),
+          br(),
+          actionButton(
+            "import_db_backup",
+            "Restore backup",
+            style = "border-color: white; margin: 10px; min-width: 200px; text-align: left"
+          )
+        )
       )
     ) # End tabItems
   ) # End dashboardPage
@@ -5697,6 +5775,37 @@ server <- function(input, output, session) {
       writeLines(c("", paste0(">", sequences$idx[i]), sequences$seq[i]), locus_file)
     }
     close(locus_file)
+  }
+  
+  # Compute clusters to use in visNetwork
+  compute_clusters <- function(nodes, edges, threshold) {
+    groups <- rep(0, length(nodes$id))
+    
+    edges_table <- data.frame(
+      from = edges$from,
+      to = edges$to,
+      weight = edges$weight
+    )
+    
+    count <- 0
+    while (any(groups == 0)) {
+      group_na <- groups == 0
+      labels <- nodes$id[group_na]
+      
+      cluster <- nodes$id[group_na][1] # Initialize with 1 label
+      while (!is_empty(labels)) {
+        sub_tb <- edges_table[(edges_table$from %in% cluster | edges_table$to %in% cluster) & edges_table$weight <= threshold,]
+        
+        if (nrow(sub_tb) == 0 | length(unique(c(sub_tb$from, sub_tb$to))) == length(cluster)) {
+          count <- count + 1
+          groups[nodes$id %in% cluster] <- paste("Group", count)
+          break
+        } else {
+          cluster <- unique(c(sub_tb$from, sub_tb$to))
+        }
+      }
+    }
+    groups
   }
   
   # Function to check single typing log file
@@ -6399,6 +6508,11 @@ server <- function(input, output, session) {
               text = "Visualization",
               tabName = "visualization",
               icon = icon("chart-line")
+            ),
+            menuItem(
+              text = "Utilities",
+              tabName = "utilities",
+              icon = icon("screwdriver-wrench")
             )
           )
         )
@@ -6545,6 +6659,11 @@ server <- function(input, output, session) {
                   text = "Visualization",
                   tabName = "visualization",
                   icon = icon("chart-line")
+                ),
+                menuItem(
+                  text = "Utilities",
+                  tabName = "utilities",
+                  icon = icon("screwdriver-wrench")
                 )
               )
             )
@@ -6616,6 +6735,11 @@ server <- function(input, output, session) {
                   text = "Visualization",
                   tabName = "visualization",
                   icon = icon("chart-line")
+                ),
+                menuItem(
+                  text = "Utilities",
+                  tabName = "utilities",
+                  icon = icon("screwdriver-wrench")
                 )
               )
             )
@@ -6689,6 +6813,11 @@ server <- function(input, output, session) {
                   text = "Visualization",
                   tabName = "visualization",
                   icon = icon("chart-line")
+                ),
+                menuItem(
+                  text = "Utilities",
+                  tabName = "utilities",
+                  icon = icon("screwdriver-wrench")
                 )
               )
             )
@@ -6791,6 +6920,11 @@ server <- function(input, output, session) {
                     text = "Visualization",
                     tabName = "visualization",
                     icon = icon("chart-line")
+                  ),
+                  menuItem(
+                    text = "Utilities",
+                    tabName = "utilities",
+                    icon = icon("screwdriver-wrench")
                   )
                 )
               )
@@ -6955,6 +7089,11 @@ server <- function(input, output, session) {
                         text = "Visualization",
                         tabName = "visualization",
                         icon = icon("chart-line")
+                      ),
+                      menuItem(
+                        text = "Utilities",
+                        tabName = "utilities",
+                        icon = icon("screwdriver-wrench")
                       )
                     )
                   )
@@ -7003,6 +7142,11 @@ server <- function(input, output, session) {
                         text = "Visualization",
                         tabName = "visualization",
                         icon = icon("chart-line")
+                      ),
+                      menuItem(
+                        text = "Utilities",
+                        tabName = "utilities",
+                        icon = icon("screwdriver-wrench")
                       )
                     )
                   )
@@ -8924,6 +9068,11 @@ server <- function(input, output, session) {
                       text = "Visualization",
                       tabName = "visualization",
                       icon = icon("chart-line")
+                    ),
+                    menuItem(
+                      text = "Utilities",
+                      tabName = "utilities",
+                      icon = icon("screwdriver-wrench")
                     )
                   )
                 )
@@ -9263,6 +9412,11 @@ server <- function(input, output, session) {
                 text = "Visualization",
                 tabName = "visualization",
                 icon = icon("chart-line")
+              ),
+              menuItem(
+                text = "Utilities",
+                tabName = "utilities",
+                icon = icon("screwdriver-wrench")
               )
             )
           )
@@ -9307,6 +9461,11 @@ server <- function(input, output, session) {
               text = "Visualization",
               tabName = "visualization",
               icon = icon("chart-line")
+            ),
+            menuItem(
+              text = "Utilities",
+              tabName = "utilities",
+              icon = icon("screwdriver-wrench")
             )
           )
         )
@@ -17510,31 +17669,44 @@ server <- function(input, output, session) {
                          label = as.character(data$edges$weight),
                          opacity = mst_edge_opacity())
     
-    visNetwork(data$nodes, data$edges, 
-               main = mst_title(),
-               background = mst_background_color(),
-               submain = mst_subtitle()) %>%
-      visNodes(size = mst_node_size(), 
-               shape = input$mst_node_shape,
-               shadow = input$mst_shadow,
-               color = mst_color_node(),
-               ctxRenderer = ctxRendererJS,
-               scaling = list(min = mst_node_size_min(), 
-                              max = mst_node_size_max()),
-               font = list(color = node_font_color(),
-                           size = input$node_label_fontsize)) %>%
-      visEdges(color = mst_color_edge(), 
-               font = list(color = mst_edge_font_color(),
-                           size = mst_edge_font_size(),
-                           strokeWidth = 4)) %>%
-      visOptions(collapse = TRUE) %>%
-      visInteraction(hover = TRUE) %>%
-      visLayout(randomSeed = 1) %>%
-      visLegend(useGroups = FALSE, 
-                zoom = FALSE,
-                position = input$mst_legend_ori,
-                ncol = legend_col(),
-                addNodes = mst_legend())
+    save(data, file="data.Rdata")
+    
+    visNetwork_graph <- visNetwork(data$nodes, data$edges,
+                                   main = mst_title(),
+                                   background = mst_background_color(),
+                                   submain = mst_subtitle()) %>%
+                          visNodes(size = mst_node_size(),
+                                   shape = input$mst_node_shape,
+                                   shadow = input$mst_shadow,
+                                   color = mst_color_node(),
+                                   ctxRenderer = ctxRendererJS,
+                                   scaling = list(min = mst_node_size_min(),
+                                                  max = mst_node_size_max()),
+                                   font = list(color = node_font_color(),
+                                               size = input$node_label_fontsize)) %>%
+                          visEdges(color = mst_color_edge(),
+                                   font = list(color = mst_edge_font_color(),
+                                               size = mst_edge_font_size(),
+                                               strokeWidth = 4)) %>%
+                          visOptions(collapse = TRUE) %>%
+                          visInteraction(hover = TRUE) %>%
+                          visLayout(randomSeed = 1) %>%
+                          visLegend(useGroups = FALSE,
+                                    zoom = FALSE,
+                                    position = input$mst_legend_ori,
+                                    ncol = legend_col(),
+                                    addNodes = mst_legend())
+
+    if (input$mst_show_clusters) {
+      data$nodes$group <- compute_clusters(data$nodes, data$edges, input$mst_cluster_threshold)
+      color_palette <- grDevices::rainbow(length(data$nodes$group))
+
+      for (i in 1:length(unique(data$nodes$group))) {
+        visNetwork_graph <- visNetwork_graph %>% visGroups(groupname = unique(data$nodes$group)[i], color = color_palette[i])
+      }
+    }
+    
+    visNetwork_graph
   })
   
   # MST legend
