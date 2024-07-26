@@ -6126,7 +6126,7 @@ server <- function(input, output, session) {
             tags$li(
               class = "dropdown", 
               tags$span(HTML(
-                paste('<i class="fa-solid fa-table"></i>', 
+                paste('<i class="fa-solid fa-layer-group"></i>', 
                       "Selected scheme:&nbsp;&nbsp;&nbsp;<i>",
                       DB$scheme,
                       "</i>")), 
@@ -6142,7 +6142,7 @@ server <- function(input, output, session) {
             tags$li(
               class = "dropdown", 
               tags$span(HTML(
-                paste('<i class="fa-solid fa-table"></i>', 
+                paste('<i class="fa-solid fa-layer-group"></i>', 
                       "Selected scheme:&nbsp;&nbsp;&nbsp;<i>",
                       DB$scheme,
                       "</i>")), 
