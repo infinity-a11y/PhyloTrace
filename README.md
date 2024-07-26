@@ -29,7 +29,7 @@ working on achieving that.
 ![PartnerLogos](www/partners_logo_round.svg)
 
 <sup><sup> Developed in collaboration with Hochschule Furtwangen University (HFU) and Medical
-University of Graz (MUG). Featured on ShinyConf 2024. </sup> </sup>
+University of Graz (MUG). Featured on ShinyConf 2024 and R/Medicine 2024. </sup> </sup>
 
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.10996423-00e896?labelColor=gray&color=2500ba&logoColor=black)](https://doi.org/10.5281/zenodo.10996423)
 [![License: GPL
