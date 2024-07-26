@@ -17669,8 +17669,6 @@ server <- function(input, output, session) {
                          label = as.character(data$edges$weight),
                          opacity = mst_edge_opacity())
     
-    save(data, file="data.Rdata")
-    
     visNetwork_graph <- visNetwork(data$nodes, data$edges,
                                    main = mst_title(),
                                    background = mst_background_color(),
