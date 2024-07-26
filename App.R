@@ -280,6 +280,7 @@ ui <- dashboardPage(
         )
       )
     ),
+    uiOutput("loaded_scheme"),
     uiOutput("databasetext"),
     uiOutput("statustext"),
     tags$li(class = "dropdown", 
@@ -304,10 +305,8 @@ ui <- dashboardPage(
           animation: none;
         }")),
     br(), br(),
-    uiOutput("loaded_scheme"),
     sidebarMenu(
       id = "tabs",
-      uiOutput("menu_sep1"),
       sidebarMenuOutput("menu"),
       uiOutput("menu_sep2"),
       conditionalPanel(
@@ -6115,8 +6114,61 @@ server <- function(input, output, session) {
     
     log_print("Input load")
     
+    if(Typing$status == "Finalized") {Typing$status <- "Inactive"}
+    
+    #### Render status bar ----
+    observe({
+      req(DB$scheme)
+      
+      if(is.null(input$scheme_position)) {
+        output$loaded_scheme <- renderUI({
+          fluidRow(
+            tags$li(
+              class = "dropdown", 
+              tags$span(HTML(
+                paste('<i class="fa-solid fa-table"></i>', 
+                      "Selected scheme:&nbsp;&nbsp;&nbsp;<i>",
+                      DB$scheme,
+                      "</i>")), 
+                style = "color:white;")
+            )
+          )
+        })
+      } 
+      
+      if(!is.null(input$scheme_position)) {
+        output$loaded_scheme <- renderUI({
+          fluidRow(
+            tags$li(
+              class = "dropdown", 
+              tags$span(HTML(
+                paste('<i class="fa-solid fa-table"></i>', 
+                      "Selected scheme:&nbsp;&nbsp;&nbsp;<i>",
+                      DB$scheme,
+                      "</i>")), 
+                style = "color:white;"),
+              div(
+                class = "reload-bttn",
+                style = paste0("margin-left:", 30 + input$scheme_position, "px; position: relative; top: -24px;"),
+                actionButton(
+                  "reload_db",
+                  label = "",
+                  icon = icon("rotate")
+                )
+              )
+            )
+          )
+        })
+      }
+    })
+    
     observe({
       if(!is.null(DB$database)){
+        if(nchar(DB$database) > 60) {
+          database <- paste0(substring(DB$database, first = 1, last = 60), "...")
+        } else {
+          database <- DB$database
+        }
         output$databasetext <- renderUI({
           fluidRow(
             tags$li(
@@ -6124,10 +6176,14 @@ server <- function(input, output, session) {
               tags$span(HTML(
                 paste('<i class="fa-solid fa-folder-open"></i>', 
                       "Database:&nbsp;&nbsp;&nbsp;<i>",
-                      DB$database,
+                      database,
                       "</i>")), 
                 style = "color:white;")
-            )
+            ),
+            if(nchar(database) > 60) {bsTooltip("databasetext", 
+                                                HTML(DB$database), 
+                                                placement = "bottom", 
+                                                trigger = "hover")}
           )
         })
       }
@@ -6217,6 +6273,21 @@ server <- function(input, output, session) {
       }
     }
     
+    shinyjs::runjs(
+      'if(document.querySelector("#loaded_scheme > div > li > span") !== null) {
+          // Select the span element
+          let spanElement = document.querySelector("#loaded_scheme > div > li > span");
+                    
+          // Get the bounding rectangle of the span element
+          let rect = spanElement.getBoundingClientRect();
+          
+          // Extract the width
+          let width = rect.width;
+          
+          Shiny.setInputValue("scheme_position", width);            
+        }'
+    )
+    
     # Load app elements based on database availability and missing value presence
     if(!is.null(DB$select_new)) {
       if(DB$select_new & (paste0(DB$new_database, "/Database") %in% dir_ls(DB$new_database))) {
@@ -6274,7 +6345,6 @@ server <- function(input, output, session) {
         Startup$sidebar <- FALSE
         Startup$header <- FALSE
         
-        output$menu_sep1 <- renderUI(hr())
         output$menu_sep2 <- renderUI(hr())
         
         # Hide start message
@@ -6402,7 +6472,6 @@ server <- function(input, output, session) {
         Startup$sidebar <- FALSE
         Startup$header <- FALSE
         
-        output$menu_sep1 <- renderUI(hr())
         output$menu_sep2 <- renderUI(hr())
         
         # Hide start message
@@ -6625,44 +6694,6 @@ server <- function(input, output, session) {
             )
             
           } else {
-            # Render scheme selector in sidebar
-            output$loaded_scheme <- renderUI({
-              fluidRow(
-                column(width = 2),
-                column(
-                  width = 6,
-                  div(
-                    class = "scheme_start",
-                    p(
-                      HTML(
-                        paste(
-                          tags$span(style='color: white; font-size: 14px;', strong("Selected scheme:"))
-                        )
-                      )
-                    ),
-                    p(
-                      HTML(
-                        paste(
-                          tags$span(style='color: white; font-size: 13px; font-style: italic', DB$scheme)
-                        )
-                      )
-                    )
-                  )
-                ),
-                column(
-                  width = 2,
-                  div(
-                    class = "reload-bttn",
-                    actionButton(
-                      "reload_db",
-                      label = "",
-                      icon = icon("rotate")
-                    )
-                  )
-                )
-              )
-            })
-            
             # Produce Scheme Info Table
             schemeinfo <-
               read_html(paste0(
@@ -7338,44 +7369,6 @@ server <- function(input, output, session) {
                       )
                     )
                   } 
-                })
-                
-                # Render scheme selector in sidebar
-                output$loaded_scheme <- renderUI({
-                  fluidRow(
-                    column(width = 2),
-                    column(
-                      width = 6,
-                      div(
-                        class = "scheme_start",
-                        p(
-                          HTML(
-                            paste(
-                              tags$span(style='color: white; font-size: 14px;', strong("Selected scheme:"))
-                            )
-                          )
-                        ),
-                        p(
-                          HTML(
-                            paste(
-                              tags$span(style='color: white; font-size: 13px; font-style: italic', DB$scheme)
-                            )
-                          )
-                        )
-                      )
-                    ),
-                    column(
-                      width = 2,
-                      div(
-                        class = "reload-bttn",
-                        actionButton(
-                          "reload_db",
-                          label = "",
-                          icon = icon("rotate")
-                        )
-                      )
-                    )
-                  )
                 })
                 
                 # Render missing values sidebar elements
@@ -8977,7 +8970,7 @@ server <- function(input, output, session) {
                                 HTML(
                                   paste(
                                     "<span style='color: white;'>",
-                                    "No Entries for this scheme available.",
+                                    "No Entries for this scheme available.\n",
                                     "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
                                     sep = '<br/>'
                                   )
@@ -9086,12 +9079,6 @@ server <- function(input, output, session) {
     }
     
   })
-  
-  # _______________________ ####
-  
-  ## Status ----
-  
-  
   
   # _______________________ ####
   
@@ -22795,6 +22782,8 @@ server <- function(input, output, session) {
   
   observeEvent(input$reset_single_typing, {
     log_print("Reset single typing")
+    
+    Typing$status <- "Inactive"
     
     Typing$progress <- 0
     

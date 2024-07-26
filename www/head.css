@@ -1,12 +1,12 @@
 /* Entry table legend */
-  .rectangle-orange {
-    width: 75px;
-    height: 23px;
-    margin-top: 10px;
-    margin-left: 10px;
-    border: 1px solid #BCBCBC;
-    background-color: #DEB200;
-  }
+.rectangle-orange {
+  width: 75px;
+  height: 23px;
+  margin-top: 10px;
+  margin-left: 10px;
+  border: 1px solid #BCBCBC;
+  background-color: #DEB200;
+}
 
 .rectangle-green {
   width: 75px;
@@ -111,16 +111,18 @@ div#bs-select-12::-webkit-scrollbar-thumb,
 #logTextFull::-webkit-scrollbar-thumb,
 .selectize-dropdown-content::-webkit-scrollbar-thumb,
 #mst_comm_general_select::-webkit-scrollbar-thumb {
-background: #bcbcbc;
+  background: #bcbcbc;
   border: 2px solid #F0F0F0;
-min-width: 100px;
+  min-width: 100px;
+  min-height: 100px;
 }
 
 *::-webkit-scrollbar-thumb {
   background-color: #F0F0F0;
-    border-radius: 10px;
+  border-radius: 10px;
   border: 2px solid #282F38;
   min-width: 100px;
+  overflow-y: scroll;
 } 
 
 *::-webkit-scrollbar-corner {
@@ -135,15 +137,21 @@ top: 15px;
 }
 
 #statustext {
-position: fixed;
-top: 15px;
-left: 400px;
+  position: absolute;
+  top: 15px;
+  left: 600px;
 }
 
 #databasetext {
-position: fixed;
-top: 15px;
-left: 800px;
+  position: absolute;
+  top: 15px;
+  left: 900px;
+}
+
+#loaded_scheme {
+  position: absolute;
+  top: 15px;
+  left: 150px;
 }
 
 .main-header {
@@ -154,5 +162,5 @@ left: 800px;
 }
 
 .img_logo {
-  margin-top: -4px;
+  margin-top: -3px;
 }

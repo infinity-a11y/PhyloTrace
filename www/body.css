@@ -1,14 +1,19 @@
 /* CSS Styling for PhyloTrace */
   
-  /* General */
+/* General */
   
-  h1, h2, h3, h4, h5, p, body {
+h1, h2, h3, h4, h5, p, body {
     font-family: 'Liberation Sans', sans-serif;
-  }
+}
 
 label {
   color: white;
 }
+
+.tooltip-inner {
+      white-space: normal;
+      max-width: 800px; /* Adjust the width as needed */
+    }
 
 .btn-default:active:hover.
 .btn-primary:active:hover{
@@ -207,13 +212,13 @@ font-size: 12px;
 
 #reload_db i.fas.fa-rotate {
 position: relative; 
-left: -5px;
-top: -2px;
+left: -6px;
+top: -3px;
 }
 
 button#reload_db.btn.btn-default.action-button.shiny-bound-input {
-height: 30px; 
-width: 30px; 
+height: 27px; 
+width: 27px; 
 position: relative; 
 left: -20px;
 border: 1px solid white;

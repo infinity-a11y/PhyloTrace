@@ -155,8 +155,6 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   
   saveRDS(event_list, "execute/event_list.rds")
   
-  allele_vector <- as.integer(allele_vector)
-  
   # Find Alleles folder in directory
   allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)), full.names = TRUE)[grep("_alleles", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing))))]
   
