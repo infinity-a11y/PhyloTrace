@@ -17669,6 +17669,8 @@ server <- function(input, output, session) {
                          label = as.character(data$edges$weight),
                          opacity = mst_edge_opacity())
     
+    data$nodes$group <- compute_clusters(data$nodes, data$edges, input$mst_cluster_threshold)
+    
     visNetwork_graph <- visNetwork(data$nodes, data$edges,
                                    main = mst_title(),
                                    background = mst_background_color(),
@@ -17695,8 +17697,7 @@ server <- function(input, output, session) {
                                     ncol = legend_col(),
                                     addNodes = mst_legend())
 
-    if (input$mst_show_clusters) {
-      data$nodes$group <- compute_clusters(data$nodes, data$edges, input$mst_cluster_threshold)
+    if (TRUE) {
       color_palette <- grDevices::rainbow(length(data$nodes$group))
 
       for (i in 1:length(unique(data$nodes$group))) {
