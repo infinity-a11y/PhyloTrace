@@ -1589,33 +1589,58 @@ ui <- dashboardPage(
                     ),
                     br(),
                     fluidRow(
-                      div(
-                        class = "switch-clusters",
+                      column(
+                        width = 9,
                         materialSwitch(
                           "mst_show_clusters",
                           h5(p("Show Clusters"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
                           value = FALSE,
                           right = TRUE
                         )
-                      )
-                    ),
-                    column(
-                      width = 3,
-                      HTML(
-                        paste(
-                          tags$span(style='color: white; text-align: left; font-size: 14px; margin: 10px', 'Threshold')
+                      ),
+                      column(
+                        width = 3,
+                        dropMenu(
+                          actionBttn(
+                            "mst_cluster_col_menu",
+                            label = "",
+                            color = "default",
+                            size = "sm",
+                            style = "material-flat",
+                            icon = icon("sliders")
+                          ),
+                          placement = "top-start",
+                          theme = "translucent",
+                          width = 5,
+                          selectInput(
+                            "mst_cluster_col_scale",
+                            label = h5("Color Scale", style = "color:white; margin-bottom: 0px;"),
+                            choices = c("Viridis", "Rainbow"),
+                            width = "150px"
+                          )
                         )
                       )
                     ),
-                    column(
-                      width = 9,
-                      sliderInput(
-                        inputId = "mst_cluster_threshold",
-                        label = NULL,
-                        min = 0,
-                        max = 10, 
-                        value = 4,
-                        ticks = FALSE
+                    br(),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; text-align: left; font-size: 14px; margin: 10px', 'Threshold')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 8,
+                        sliderInput(
+                          inputId = "mst_cluster_threshold",
+                          label = NULL,
+                          min = 0,
+                          max = 20,
+                          value = 4,
+                          ticks = FALSE
+                        )
                       )
                     )
                   ),
@@ -5470,20 +5495,22 @@ ui <- dashboardPage(
             title = "Locate the folder with loci",
             buttonType = "default",
             root = path_home(),
+            roots = c(Home = path_home(), Root = "/"),
+            defaultRoot = "Home",
             style = "border-color: white; margin: 10px; min-width: 200px; text-align: left"
           ),
-          br(),
-          actionButton(
-            "backup_database",
-            "Create backup",
-            style = "border-color: white; margin: 10px; min-width: 200px; text-align: left"
-          ),
-          br(),
-          actionButton(
-            "import_db_backup",
-            "Restore backup",
-            style = "border-color: white; margin: 10px; min-width: 200px; text-align: left"
-          )
+          # br(),
+          # actionButton(
+          #   "backup_database",
+          #   "Create backup",
+          #   style = "border-color: white; margin: 10px; min-width: 200px; text-align: left"
+          # ),
+          # br(),
+          # actionButton(
+          #   "import_db_backup",
+          #   "Restore backup",
+          #   style = "border-color: white; margin: 10px; min-width: 200px; text-align: left"
+          # )
         )
       )
     ) # End tabItems
@@ -11708,6 +11735,13 @@ server <- function(input, output, session) {
     }
   })
   
+  observe({
+    req(DB$schemeinfo)
+    updateSliderInput(session, "mst_cluster_threshold",
+                      max = as.numeric(DB$schemeinfo[[7,2]]) * 2,
+                      value = as.numeric(DB$schemeinfo[[7,2]]))
+  })
+  
   # Custom Labels
   
   # Add custom label
@@ -17669,7 +17703,11 @@ server <- function(input, output, session) {
                          label = as.character(data$edges$weight),
                          opacity = mst_edge_opacity())
     
-    data$nodes$group <- compute_clusters(data$nodes, data$edges, input$mst_cluster_threshold)
+    if (input$mst_show_clusters) {
+      data$nodes$group <- compute_clusters(data$nodes, data$edges, input$mst_cluster_threshold)
+    }
+    
+    updateSliderInput(session, "mst_cluster_threshold", max = max(data$edges$weight))
     
     visNetwork_graph <- visNetwork(data$nodes, data$edges,
                                    main = mst_title(),
@@ -17697,11 +17735,16 @@ server <- function(input, output, session) {
                                     ncol = legend_col(),
                                     addNodes = mst_legend())
 
-    if (TRUE) {
-      color_palette <- grDevices::rainbow(length(data$nodes$group))
+    if (input$mst_show_clusters) {
+      if (input$mst_cluster_col_scale == "Viridis") {
+        color_palette <- viridis(length(data$nodes$group))
+      } else {
+        color_palette <- rainbow(length(data$nodes$group))
+      }
 
       for (i in 1:length(unique(data$nodes$group))) {
-        visNetwork_graph <- visNetwork_graph %>% visGroups(groupname = unique(data$nodes$group)[i], color = color_palette[i])
+        visNetwork_graph <- visNetwork_graph %>% 
+          visGroups(groupname = unique(data$nodes$group)[i], color = color_palette[i])
       }
     }
     
