@@ -5494,10 +5494,7 @@ ui <- dashboardPage(
             "Hash folder with loci",
             title = "Locate the folder with loci",
             buttonType = "default",
-            root = path_home(),
-            roots = c(Home = path_home(), Root = "/"),
-            defaultRoot = "Home",
-            style = "border-color: white; margin: 10px; min-width: 200px; text-align: left"
+            style = "border-color: white; margin: 10px; min-width: 200px; text-align: center"
           ),
           # br(),
           # actionButton(
@@ -23945,6 +23942,42 @@ server <- function(input, output, session) {
       output$test_yes_pending <- NULL
       Typing$multi_result_status <- "idle"
     }
+  })
+  
+  observe({
+    # Get selected Genome in Multi Mode
+    shinyDirChoose(input,
+                   "hash_dir",
+                   roots = c(Home = path_home(), Root = "/"),
+                   defaultRoot = "Home",
+                   session = session,
+                   filetypes = c('', 'fasta', 'fna', 'fa'))
+    
+    dir_path <- parseDirPath(roots = c(Home = path_home(), Root = "/"), input$hash_dir)
+    req(dir_path)
+    output$statustext <- renderUI(
+      fluidRow(
+        tags$li(
+          class = "dropdown", 
+          tags$span(HTML(
+            paste('<i class="fa-solid fa-circle-dot" style="color:orange !important;"></i>', 
+                  "Status:&nbsp;&nbsp;&nbsp; <i>hashing directory</i>")),
+            style = "color:white;")
+        )
+      )
+    )
+    hash_database(dir_path)
+    output$statustext <- renderUI(
+      fluidRow(
+        tags$li(
+          class = "dropdown", 
+          tags$span(HTML(
+            paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
+                  "Status:&nbsp;&nbsp;&nbsp; <i>ready</i>")),
+            style = "color:white;")
+        )
+      )
+    )
   })
   
   
