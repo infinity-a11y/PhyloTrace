@@ -44,7 +44,7 @@ library(treeio)
 library(ggtree)
 library(ggtreeExtra)
 
-source("resources.R")
+source("www/resources.R")
 
 options(ignore.negative.edge=TRUE)
 
@@ -9612,7 +9612,7 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
-    test <<- DB$scheme
+    test <<- Screening$single_path$datapath
     
     log_print("Input reload_db")
     
@@ -22331,7 +22331,7 @@ server <- function(input, output, session) {
           ),
           br(), br(),
           uiOutput("genome_path_gs"),
-          br(), br(), br(), hr(), br(), br(),
+          br(), br(), br(), 
           uiOutput("screening_start")
         )
       )
@@ -22380,10 +22380,20 @@ server <- function(input, output, session) {
         })
         
         output$screening_start <- renderUI(
-          actionButton(
-            inputId = "screening_start_button",
-            label = "Start",
-            icon = icon("circle-play")
+          fluidRow(
+            hr(), br(), br(),
+            column(
+              width = 8,
+              actionButton(
+                inputId = "screening_start_button",
+                label = "Start",
+                icon = icon("circle-play")
+              )
+            ),
+            column(
+              width = 4,
+              uiOutput("screening_progress")
+            )
           )
         )
       } else {
@@ -22403,6 +22413,23 @@ server <- function(input, output, session) {
   
   observeEvent(input$screening_start_button, {
     
+    # Start spinner
+    output$screening_progress <- renderUI(
+      HTML('<i class="fa-solid fa-spinner"></i>')
+    )
+    
+    screening_df <- data.frame(wd = getwd(),
+                               assembly_path = Screening$single_path$datapath,
+                               assembly = as.character(basename(Screening$single_path$name)),
+                               species = gsub(" ", "_", DB$scheme))
+    
+    saveRDS(screening_df, paste0(getwd(), "/execute/screening_meta.rds"))
+    
+    # System execution screening.sh
+    system(paste("bash", paste0(getwd(), "/execute/screening.sh")), wait = TRUE)
+    
+    # Stop spinner
+    output$screening_progress <- NULL
   })
   
   ### Screening Feedback ----
