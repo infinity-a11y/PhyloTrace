@@ -44,222 +44,7 @@ library(treeio)
 library(ggtree)
 library(ggtreeExtra)
 
-schemes <- c("Acinetobacter_baumanii", "Bacillus_anthracis", "Bordetella_pertussis", 
-             "Brucella_melitensis", "Brucella_spp", "Burkholderia_mallei_FLI", 
-             "Burkholderia_mallei_RKI", "Burkholderia_pseudomallei", "Campylobacter_jejuni_coli", 
-             "Clostridioides_difficile", "Clostridium_perfringens", "Corynebacterium_diphtheriae",
-             "Cronobacter_sakazakii_malonaticus", "Enterococcus_faecalis", "Enterococcus_faecium", 
-             "Escherichia_coli", "Francisella_tularensis", "Klebsiella_oxytoca_sensu_lato", "Klebsiella_pneumoniae_sensu_lato", 
-             "Legionella_pneumophila", "Listeria_monocytogenes", "Mycobacterium_tuberculosis_complex", 
-             "Mycobacteroides_abscessus", "Mycoplasma_gallisepticum", "Paenibacillus_larvae",
-             "Pseudomonas_aeruginosa", "Salmonella_enterica", "Serratia_marcescens", 
-             "Staphylococcus_aureus", "Staphylococcus_capitis", "Streptococcus_pyogenes"
-)
-
-country_names <- c(
-  "Afghanistan",
-  "Albania",
-  "Algeria",
-  "Andorra",
-  "Angola",
-  "Antigua and Barbuda",
-  "Argentina",
-  "Armenia",
-  "Australia",
-  "Austria",
-  "Azerbaijan",
-  "Bahamas",
-  "Bahrain",
-  "Bangladesh",
-  "Barbados",
-  "Belarus",
-  "Belgium",
-  "Belize",
-  "Benin",
-  "Bhutan",
-  "Bolivia",
-  "Bosnia and Herzegovina",
-  "Botswana",
-  "Brazil",
-  "Brunei",
-  "Bulgaria",
-  "Burkina Faso",
-  "Burundi",
-  "Côte d'Ivoire",
-  "Cabo Verde",
-  "Cambodia",
-  "Cameroon",
-  "Canada",
-  "Central African Republic",
-  "Chad",
-  "Chile",
-  "China",
-  "Colombia",
-  "Comoros",
-  "Congo (Congo-Brazzaville)",
-  "Costa Rica",
-  "Croatia",
-  "Cuba",
-  "Cyprus",
-  "Czechia (Czech Republic)",
-  "Democratic Republic of the Congo",
-  "Denmark",
-  "Djibouti",
-  "Dominica",
-  "Dominican Republic",
-  "Ecuador",
-  "Egypt",
-  "El Salvador",
-  "Equatorial Guinea",
-  "Eritrea",
-  "Estonia",
-  'Eswatini (fmr. "Swaziland")',
-  "Ethiopia",
-  "Fiji",
-  "Finland",
-  "France",
-  "Gabon",
-  "Gambia",
-  "Georgia",
-  "Germany",
-  "Ghana",
-  "Greece",
-  "Grenada",
-  "Guatemala",
-  "Guinea",
-  "Guinea-Bissau",
-  "Guyana",
-  "Haiti",
-  "Holy See",
-  "Honduras",
-  "Hungary",
-  "Iceland",
-  "India",
-  "Indonesia",
-  "Iran",
-  "Iraq",
-  "Ireland",
-  "Israel",
-  "Italy",
-  "Jamaica",
-  "Japan",
-  "Jordan",
-  "Kazakhstan",
-  "Kenya",
-  "Kiribati",
-  "Kuwait",
-  "Kyrgyzstan",
-  "Laos",
-  "Latvia",
-  "Lebanon",
-  "Lesotho",
-  "Liberia",
-  "Libya",
-  "Liechtenstein",
-  "Lithuania",
-  "Luxembourg",
-  "Madagascar",
-  "Malawi",
-  "Malaysia",
-  "Maldives",
-  "Mali",
-  "Malta",
-  "Marshall Islands",
-  "Mauritania",
-  "Mauritius",
-  "Mexico",
-  "Micronesia",
-  "Moldova",
-  "Monaco",
-  "Mongolia",
-  "Montenegro",
-  "Morocco",
-  "Mozambique",
-  "Myanmar (formerly Burma)",
-  "Namibia",
-  "Nauru",
-  "Nepal",
-  "Netherlands",
-  "New Zealand",
-  "Nicaragua",
-  "Niger",
-  "Nigeria",
-  "North Korea",
-  "North Macedonia (formerly Macedonia)",
-  "Norway",
-  "Oman",
-  "Pakistan",
-  "Palau",
-  "Palestine State",
-  "Panama",
-  "Papua New Guinea",
-  "Paraguay",
-  "Peru",
-  "Philippines",
-  "Poland",
-  "Portugal",
-  "Qatar",
-  "Romania",
-  "Russia",
-  "Rwanda",
-  "Saint Kitts and Nevis",
-  "Saint Lucia",
-  "Saint Vincent and the Grenadines",
-  "Samoa",
-  "San Marino",
-  "Sao Tome and Principe",
-  "Saudi Arabia",
-  "Senegal",
-  "Serbia",
-  "Seychelles",
-  "Sierra Leone",
-  "Singapore",
-  "Slovakia",
-  "Slovenia",
-  "Solomon Islands",
-  "Somalia",
-  "South Africa",
-  "South Korea",
-  "South Sudan",
-  "Spain",
-  "Sri Lanka",
-  "Sudan",
-  "Suriname",
-  "Sweden",
-  "Switzerland",
-  "Syria",
-  "Tajikistan",
-  "Tanzania",
-  "Thailand",
-  "Timor-Leste",
-  "Togo",
-  "Tonga",
-  "Trinidad and Tobago",
-  "Tunisia",
-  "Turkey",
-  "Turkmenistan",
-  "Tuvalu",
-  "Uganda",
-  "Ukraine",
-  "United Arab Emirates",
-  "United Kingdom",
-  "United States of America",
-  "Uruguay",
-  "Uzbekistan",
-  "Vanuatu",
-  "Venezuela",
-  "Vietnam",
-  "Yemen",
-  "Zambia",
-  "Zimbabwe"
-)
-
-sel_countries <-
-  c("Austria",
-    "Germany",
-    "Switzerland",
-    "United Kingdom",
-    "United States of America")
+source("resources.R")
 
 options(ignore.negative.edge=TRUE)
 
@@ -5475,6 +5260,9 @@ ui <- dashboardPage(
           br(), br(), br(), br(), br(), br()
         )
       ),
+      
+      ## Tab Utilities -------------------------------------------------------
+      
       tabItem(
         tabName = "utilities",
         fluidRow(
@@ -5508,6 +5296,53 @@ ui <- dashboardPage(
           #   "Restore backup",
           #   style = "border-color: white; margin: 10px; min-width: 200px; text-align: left"
           # )
+        )
+      ),
+      
+      
+      ## Tab Gene Screening -------------------------------------------------------
+      
+      tabItem(
+        tabName = "gs_screening",
+        fluidRow(
+          column(1),
+          column(
+            width = 3,
+            align = "left",
+            h2(p("Gene Screening"), style = "color:white")
+          ),
+          column(
+            width = 7,
+            uiOutput("gene_screening_info")
+          )
+        ),
+        br(),
+        hr(),
+        uiOutput("screening_interface")
+      ),
+      
+      ## Tab Resistance Profile -------------------------------------------------------
+      
+      tabItem(
+        tabName = "gs_profile",
+        fluidRow(
+          column(1),
+          column(
+            width = 3,
+            align = "left",
+            h2(p("Resistance Profiles"), style = "color:white")
+          ),
+          column(
+            width = 7,
+            uiOutput("gene_resistance_info")
+          )
+        ),
+        br(),
+        hr(),
+        column(
+          width = 12,
+          align = "left",
+          
         )
       )
     ) # End tabItems
@@ -5937,6 +5772,8 @@ server <- function(input, output, session) {
                            progress_format_end = 0,
                            result_list = NULL,
                            status = "") # reactive variables related to typing process
+  
+  Screening <- reactiveValues()
   
   Vis <- reactiveValues(cluster = NULL, 
                         metadata = list(),
@@ -6526,12 +6363,26 @@ server <- function(input, output, session) {
             menuItem(
               text = "Allelic Typing",
               tabName = "typing",
-              icon = icon("dna")
+              icon = icon("gears")
+            ),
+            menuItem(
+              text = "Gene Screening",
+              tabName = "gene_screening",
+              icon = icon("dna"),
+              startExpanded = FALSE,
+              menuSubItem(
+                text = "Screen Assembly",
+                tabName = "gs_screening"
+              ),
+              menuSubItem(
+                text = "Resistance Profile",
+                tabName = "gs_profile"
+              )
             ),
             menuItem(
               text = "Visualization",
               tabName = "visualization",
-              icon = icon("chart-line")
+              icon = icon("circle-nodes")
             ),
             menuItem(
               text = "Utilities",
@@ -6677,12 +6528,26 @@ server <- function(input, output, session) {
                 menuItem(
                   text = "Allelic Typing",
                   tabName = "typing",
-                  icon = icon("dna")
+                  icon = icon("gears")
+                ),
+                menuItem(
+                  text = "Gene Screening",
+                  tabName = "gene_screening",
+                  icon = icon("dna"),
+                  startExpanded = FALSE,
+                  menuSubItem(
+                    text = "Screen Assembly",
+                    tabName = "gs_screening"
+                  ),
+                  menuSubItem(
+                    text = "Resistance Profile",
+                    tabName = "gs_profile"
+                  )
                 ),
                 menuItem(
                   text = "Visualization",
                   tabName = "visualization",
-                  icon = icon("chart-line")
+                  icon = icon("circle-nodes")
                 ),
                 menuItem(
                   text = "Utilities",
@@ -6753,12 +6618,26 @@ server <- function(input, output, session) {
                 menuItem(
                   text = "Allelic Typing",
                   tabName = "typing",
-                  icon = icon("dna")
+                  icon = icon("gears")
+                ),
+                menuItem(
+                  text = "Gene Screening",
+                  tabName = "gene_screening",
+                  icon = icon("dna"),
+                  startExpanded = FALSE,
+                  menuSubItem(
+                    text = "Screen Assembly",
+                    tabName = "gs_screening"
+                  ),
+                  menuSubItem(
+                    text = "Resistance Profile",
+                    tabName = "gs_profile"
+                  )
                 ),
                 menuItem(
                   text = "Visualization",
                   tabName = "visualization",
-                  icon = icon("chart-line")
+                  icon = icon("circle-nodes")
                 ),
                 menuItem(
                   text = "Utilities",
@@ -6831,12 +6710,26 @@ server <- function(input, output, session) {
                 menuItem(
                   text = "Allelic Typing",
                   tabName = "typing",
-                  icon = icon("dna")
+                  icon = icon("gears")
+                ),
+                menuItem(
+                  text = "Gene Screening",
+                  tabName = "gene_screening",
+                  icon = icon("dna"),
+                  startExpanded = FALSE,
+                  menuSubItem(
+                    text = "Screen Assembly",
+                    tabName = "gs_screening"
+                  ),
+                  menuSubItem(
+                    text = "Resistance Profile",
+                    tabName = "gs_profile"
+                  )
                 ),
                 menuItem(
                   text = "Visualization",
                   tabName = "visualization",
-                  icon = icon("chart-line")
+                  icon = icon("circle-nodes")
                 ),
                 menuItem(
                   text = "Utilities",
@@ -6938,12 +6831,26 @@ server <- function(input, output, session) {
                   menuItem(
                     text = "Allelic Typing",
                     tabName = "typing",
-                    icon = icon("dna")
+                    icon = icon("gears")
+                  ),
+                  menuItem(
+                    text = "Gene Screening",
+                    tabName = "gene_screening",
+                    icon = icon("dna"),
+                    startExpanded = FALSE,
+                    menuSubItem(
+                      text = "Screen Assembly",
+                      tabName = "gs_screening"
+                    ),
+                    menuSubItem(
+                      text = "Resistance Profile",
+                      tabName = "gs_profile"
+                    )
                   ),
                   menuItem(
                     text = "Visualization",
                     tabName = "visualization",
-                    icon = icon("chart-line")
+                    icon = icon("circle-nodes")
                   ),
                   menuItem(
                     text = "Utilities",
@@ -7107,12 +7014,26 @@ server <- function(input, output, session) {
                       menuItem(
                         text = "Allelic Typing",
                         tabName = "typing",
-                        icon = icon("dna")
+                        icon = icon("gears")
+                      ),
+                      menuItem(
+                        text = "Gene Screening",
+                        tabName = "gene_screening",
+                        icon = icon("dna"),
+                        startExpanded = FALSE,
+                        menuSubItem(
+                          text = "Screen Assembly",
+                          tabName = "gs_screening"
+                        ),
+                        menuSubItem(
+                          text = "Resistance Profile",
+                          tabName = "gs_profile"
+                        )
                       ),
                       menuItem(
                         text = "Visualization",
                         tabName = "visualization",
-                        icon = icon("chart-line")
+                        icon = icon("circle-nodes")
                       ),
                       menuItem(
                         text = "Utilities",
@@ -7160,12 +7081,26 @@ server <- function(input, output, session) {
                       menuItem(
                         text = "Allelic Typing",
                         tabName = "typing",
-                        icon = icon("dna")
+                        icon = icon("gears")
+                      ),
+                      menuItem(
+                        text = "Gene Screening",
+                        tabName = "gene_screening",
+                        icon = icon("dna"),
+                        startExpanded = TRUE,
+                        menuSubItem(
+                          text = "Screen Assembly",
+                          tabName = "gs_screening"
+                        ),
+                        menuSubItem(
+                          text = "Resistance Profile",
+                          tabName = "gs_profile"
+                        )
                       ),
                       menuItem(
                         text = "Visualization",
                         tabName = "visualization",
-                        icon = icon("chart-line")
+                        icon = icon("circle-nodes")
                       ),
                       menuItem(
                         text = "Utilities",
@@ -9086,12 +9021,26 @@ server <- function(input, output, session) {
                     menuItem(
                       text = "Allelic Typing",
                       tabName = "typing",
-                      icon = icon("dna")
+                      icon = icon("gears")
+                    ),
+                    menuItem(
+                      text = "Gene Screening",
+                      tabName = "gene_screening",
+                      icon = icon("dna"),
+                      startExpanded = TRUE,
+                      menuSubItem(
+                        text = "Screen Assembly",
+                        tabName = "gs_screening"
+                      ),
+                      menuSubItem(
+                        text = "Resistance Profile",
+                        tabName = "gs_profile"
+                      )
                     ),
                     menuItem(
                       text = "Visualization",
                       tabName = "visualization",
-                      icon = icon("chart-line")
+                      icon = icon("circle-nodes")
                     ),
                     menuItem(
                       text = "Utilities",
@@ -9430,12 +9379,26 @@ server <- function(input, output, session) {
               menuItem(
                 text = "Allelic Typing",
                 tabName = "typing",
-                icon = icon("dna")
+                icon = icon("gears")
+              ),
+              menuItem(
+                text = "Gene Screening",
+                tabName = "gene_screening",
+                icon = icon("dna"),
+                startExpanded = TRUE,
+                menuSubItem(
+                  text = "Screen Assembly",
+                  tabName = "gs_screening"
+                ),
+                menuSubItem(
+                  text = "Resistance Profile",
+                  tabName = "gs_profile"
+                )
               ),
               menuItem(
                 text = "Visualization",
                 tabName = "visualization",
-                icon = icon("chart-line")
+                icon = icon("circle-nodes")
               ),
               menuItem(
                 text = "Utilities",
@@ -9479,12 +9442,26 @@ server <- function(input, output, session) {
             menuItem(
               text = "Allelic Typing",
               tabName = "typing",
-              icon = icon("dna")
+              icon = icon("gears")
+            ),
+            menuItem(
+              text = "Gene Screening",
+              tabName = "gene_screening",
+              icon = icon("dna"),
+              startExpanded = TRUE,
+              menuSubItem(
+                text = "Screen Assembly",
+                tabName = "gs_screening"
+              ),
+              menuSubItem(
+                text = "Resistance Profile",
+                tabName = "gs_profile"
+              )
             ),
             menuItem(
               text = "Visualization",
               tabName = "visualization",
-              icon = icon("chart-line")
+              icon = icon("circle-nodes")
             ),
             menuItem(
               text = "Utilities",
@@ -9634,6 +9611,8 @@ server <- function(input, output, session) {
   
   # Change scheme
   observeEvent(input$reload_db, {
+    
+    test <<- DB$scheme
     
     log_print("Input reload_db")
     
@@ -17565,12 +17544,12 @@ server <- function(input, output, session) {
   #### MST ----
   
   mst_tree <- reactive({
-    data <- toVisNetworkData(Vis$ggraph_1)
-    data$nodes <- mutate(data$nodes, 
+    Typing$data <- toVisNetworkData(Vis$ggraph_1)
+    Typing$data$nodes <- mutate(Typing$data$nodes, 
                          label = label_mst(),
                          value = mst_node_scaling(),
                          opacity = node_opacity())
-    
+    test <<- Typing$data
     ctxRendererJS <- htmlwidgets::JS("({ctx, id, x, y, state: { selected, hover }, style, font, label, metadata}) => {
                             var pieData = JSON.parse(metadata);
                             var radius = style.size;
@@ -17652,10 +17631,10 @@ server <- function(input, output, session) {
         group[i] <- unique(Vis$meta_mst[[input$mst_col_var]])[i]
       }
       
-      data$nodes <- cbind(data$nodes, data.frame(metadata = character(nrow(data$nodes))))
+      Typing$data$nodes <- cbind(Typing$data$nodes, data.frame(metadata = character(nrow(Typing$data$nodes))))
       
-      if(length(which(data$nodes$group == "")) != 0) {
-        data$nodes$group[which(data$nodes$group == "")] <- data$nodes$group[1]
+      if(length(which(Typing$data$nodes$group == "")) != 0) {
+        Typing$data$nodes$group[which(Typing$data$nodes$group == "")] <- Typing$data$nodes$group[1]
       }
       
       if(is.null(input$mst_col_scale)) {
@@ -17669,9 +17648,9 @@ server <- function(input, output, session) {
                                       color = viridis(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
       }
       
-      for(i in 1:nrow(data$nodes)) {
+      for(i in 1:nrow(Typing$data$nodes)) {
         
-        iso_subset <- strsplit(data$nodes$label[i], split = "\n")[[1]]
+        iso_subset <- strsplit(Typing$data$nodes$label[i], split = "\n")[[1]]
         variable <- Vis$meta_mst[[input$mst_col_var]]
         values <- variable[which(Vis$meta_mst$`Assembly Name` %in% iso_subset)]
         
@@ -17687,26 +17666,26 @@ server <- function(input, output, session) {
           }
         }
         
-        data$nodes$metadata[i] <- paste0('[', pie_vec, ']')
+        Typing$data$nodes$metadata[i] <- paste0('[', pie_vec, ']')
       }
     }
     
-    data$edges <- mutate(data$edges,
+    Typing$data$edges <- mutate(Typing$data$edges,
                          length = if(input$mst_scale_edges == FALSE) {
                            input$mst_edge_length
                          } else {
-                           data$edges$weight * input$mst_edge_length_scale
+                           Typing$data$edges$weight * input$mst_edge_length_scale
                          },
-                         label = as.character(data$edges$weight),
-                         opacity = mst_edge_opacity())
+                         label = as.character(Typing$data$edges$weight),
+                         opacity = input$mst_edge_opacity)
     
     if (input$mst_show_clusters) {
-      data$nodes$group <- compute_clusters(data$nodes, data$edges, input$mst_cluster_threshold)
+      Typing$data$nodes$group <- compute_clusters(Typing$data$nodes, Typing$data$edges, input$mst_cluster_threshold)
     }
     
-    updateSliderInput(session, "mst_cluster_threshold", max = max(data$edges$weight))
+    updateSliderInput(session, "mst_cluster_threshold", max = max(Typing$data$edges$weight))
     
-    visNetwork_graph <- visNetwork(data$nodes, data$edges,
+    visNetwork_graph <- visNetwork(Typing$data$nodes, Typing$data$edges,
                                    main = mst_title(),
                                    background = mst_background_color(),
                                    submain = mst_subtitle()) %>%
@@ -17727,7 +17706,8 @@ server <- function(input, output, session) {
                           visInteraction(hover = TRUE) %>%
                           visLayout(randomSeed = 1) %>%
                           visLegend(useGroups = FALSE,
-                                    zoom = FALSE,
+                                    zoom = TRUE,
+                                    width = legend_width(),
                                     position = input$mst_legend_ori,
                                     ncol = legend_col(),
                                     addNodes = mst_legend())
@@ -17767,11 +17747,20 @@ server <- function(input, output, session) {
     } else {
       legend <- Typing$var_cols
       names(legend)[1] <- "label"
-      mutate(legend, shape = "dot",
+      legend <- mutate(legend, shape = "dot",
              font.color = input$mst_legend_color,
              size = input$mst_symbol_size,
              font.size = input$mst_font_size)
+      
+      legend1 <<- legend
+      dnode <<- Typing$data$nodes
+      legend
     }
+  })
+  
+  # Set MST legend width
+  legend_width <- reactive({
+    0.2
   })
   
   # Set MST node shape
@@ -17884,11 +17873,6 @@ server <- function(input, output, session) {
     } else{
       input$mst_background_color
     }
-  })
-  
-  # Edge Opacity
-  mst_edge_opacity <- reactive({
-    input$mst_edge_opacity
   })
   
   # Edge font color
@@ -22237,6 +22221,202 @@ server <- function(input, output, session) {
     }
   )
   
+  
+  # _______________________ ####
+  
+  ## Gene Screening  ----
+  
+  ### Render UI Elements ----
+  
+  # Availablity feedback
+  output$gene_screening_info <- renderUI({
+    if(gsub(" ", "_", DB$scheme) %in% amrfinder_species) {
+      fluidRow(
+        column(
+          width = 11,
+          align = "left",
+          p(
+            HTML(
+              paste(
+                '<i class="fa-solid fa-check" style="font-size:20px;color:#90EE90; position:relative; top:27px;margin-right: 10px;"></i>',
+                tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
+                          paste(DB$scheme, "available for gene screening with NCBI/AMRFinder."))
+              )
+            )
+          )
+        )
+      )
+    } else {
+      fluidRow(
+        column(
+          width = 11,
+          align = "left",
+          p(
+            HTML(
+              paste(
+                '<i class="fa-solid fa-xmark" style="font-size:20px;color:#ff0000;position:relative; top:27px;margin-right: 10px;"></i>',
+                tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
+                          paste(DB$scheme, " not available for gene screening with NCBI/AMRFinder."))
+              )
+            )
+          )
+        )
+      )
+    }
+  })
+  
+  output$gene_resistance_info <- renderUI({
+    if(gsub(" ", "_", DB$scheme) %in% amrfinder_species) {
+      fluidRow(
+        column(
+          width = 11,
+          align = "left",
+          p(
+            HTML(
+              paste(
+                '<i class="fa-solid fa-check" style="font-size:20px;color:#90EE90; position:relative; top:27px;margin-right: 10px;"></i>',
+                tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
+                          paste(DB$scheme, "available for gene screening with NCBI/AMRFinder."))
+              )
+            )
+          )
+        )
+      )
+    } else {
+      fluidRow(
+        column(
+          width = 11,
+          align = "left",
+          p(
+            HTML(
+              paste(
+                '<i class="fa-solid fa-xmark" style="font-size:20px;color:#ff0000;position:relative; top:27px;margin-right: 10px;"></i>',
+                tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
+                          paste(DB$scheme, " not available for gene screening with NCBI/AMRFinder."))
+              )
+            )
+          )
+        )
+      )
+    }
+  })
+  
+  # Screening Interface
+  
+  output$screening_interface <- renderUI({
+    if(gsub(" ", "_", DB$scheme) %in% amrfinder_species) {
+      fluidRow(
+        column(1),
+        column(
+          width = 3,
+          align = "center",
+          br(),
+          br(),
+          p(
+            HTML(
+              paste(
+                tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File (FASTA)')
+              )
+            )
+          ),
+          shinyFilesButton(
+            "genome_file_gs",
+            "Browse" ,
+            icon = icon("file"),
+            title = "Select the assembly in .fasta/.fna/.fa format:",
+            multiple = FALSE,
+            buttonType = "default",
+            class = NULL,
+            root = path_home()
+          ),
+          br(), br(),
+          uiOutput("genome_path_gs"),
+          br(), br(), br(), hr(), br(), br(),
+          uiOutput("screening_start")
+        )
+      )
+    }
+  })
+  
+  ### Screening Events ----
+  
+  # Get selected Genome in Single Mode
+  
+  observe({
+    shinyFileChoose(input,
+                    "genome_file_gs",
+                    roots = c(Home = path_home(), Root = "/"),
+                    defaultRoot = "Home",
+                    session = session,
+                    filetypes = c('', 'fasta', 'fna', 'fa'))
+    Screening$single_path <- parseFilePaths(roots = c(Home = path_home(), Root = "/"), input$genome_file_gs)
+    
+  })
+  
+  # Get selected assembly
+  
+  observe({
+    if (nrow(Screening$single_path) < 1) {
+      output$genome_path_gs <- renderUI(HTML(
+        paste("<span style='color: white;'>", "No file selected.")
+      ))
+      
+      output$screening_start <- NULL
+      
+    } else if (nrow(Screening$single_path) > 0) {
+      
+      if (str_detect(str_sub(Screening$single_path$name, start = -6), ".fasta") | 
+          str_detect(str_sub(Screening$single_path$name, start = -6), ".fna") | 
+          str_detect(str_sub(Screening$single_path$name, start = -6), ".fa")) {
+        
+        # Render selected assembly path
+        output$genome_path_gs <- renderUI({
+          HTML(
+            paste(
+              "<span style='color: white; font-weight: bolder'>",
+              as.character(Screening$single_path$name)
+            )
+          )
+        })
+        
+        output$screening_start <- renderUI(
+          actionButton(
+            inputId = "screening_start_button",
+            label = "Start",
+            icon = icon("circle-play")
+          )
+        )
+      } else {
+        show_toast(
+          title = "Wrong file type (only fasta/fna/fa)",
+          type = "error",
+          position = "bottom-end",
+          width = "500px",
+          timer = 6000
+        )
+        
+      }
+    }
+  })
+  
+  #### Running Screening ----
+  
+  observeEvent(input$screening_start_button, {
+    
+  })
+  
+  ### Screening Feedback ----
+  
+  # # Set the path to your .got file
+  # file_path <- "test_dna.got"
+  # 
+  # # Read the .got file into a data frame
+  # amrfinder_data <- read.delim(file_path, header = TRUE, sep = "\t")
+  # 
+  # # Check the first few rows of the data
+  # head(amrfinder_data)
+  
+  
   # _______________________ ####
   
   ## Typing  ----
@@ -22626,8 +22806,6 @@ server <- function(input, output, session) {
   })
   
   # Get genome datapath
-  
-  volumes = getVolumes()
   
   observe({
     # Get selected Genome in Single Mode
