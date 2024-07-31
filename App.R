@@ -6880,7 +6880,7 @@ server <- function(input, output, session) {
             )
             
             # Check if number of loci/fastq-files of alleles is coherent with number of targets in scheme
-            if(DB$number_loci != length(dir_ls(paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")))) {
+            if(DB$number_loci > length(dir_ls(paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")))) {
               
               log_print(paste0("Loci files are missing in the local ", DB$scheme, " folder"))
               
@@ -11394,13 +11394,11 @@ server <- function(input, output, session) {
     
     # Check if .downloaded_schemes folder exists and if not create it
     if (!dir.exists(file.path(DB$database, ".downloaded_schemes"))) {
-      print("Creating download schemes folder")
       dir.create(file.path(DB$database, ".downloaded_schemes"), recursive = TRUE)
     }
     
     # Check if remains of old temporary folder exists and remove them
     if (dir.exists(file.path(DB$database, Scheme$folder_name, paste0(Scheme$folder_name, ".tmp")))) {
-      print("Deleting old temporary folder")
       unlink(file.path(DB$database, Scheme$folder_name, paste0(Scheme$folder_name, ".tmp")), recursive = TRUE)
     }
     
@@ -11415,7 +11413,6 @@ server <- function(input, output, session) {
       paste("Error: ", e$message)
     })
     
-    print("Unzipping the scheme")
     # Unzip the scheme in temporary folder
     unzip(
       zipfile = file.path(DB$database, ".downloaded_schemes", paste0(Scheme$folder_name, ".zip")),
@@ -11425,7 +11422,7 @@ server <- function(input, output, session) {
       )
     )
     
-    print("Producing hashes for the database")
+    log_print("Hashing downloaded database")
     # Hash temporary folder
     hash_database(file.path(DB$database, 
                             Scheme$folder_name, 
@@ -11436,7 +11433,6 @@ server <- function(input, output, session) {
                                               Scheme$folder_name, 
                                               paste0(Scheme$folder_name, "_alleles")))
     if (!is_empty(local_db_filelist)) {
-      print("Old database is not empty, resolving the files!")
       # Get list from temporary database
       tmp_db_filelist <- list.files(file.path(DB$database,
                                               Scheme$folder_name,
@@ -11493,11 +11489,9 @@ server <- function(input, output, session) {
       }
     }
     
-    print("Delete old alleles folder")
     unlink(file.path(DB$database, Scheme$folder_name, 
                      paste0(Scheme$folder_name, "_alleles")), recursive = TRUE)
     
-    print("Overwriting old alleles directory with temporary directory")
     file.rename(file.path(DB$database, Scheme$folder_name,
                           paste0(Scheme$folder_name, ".tmp")),
                 file.path(DB$database, Scheme$folder_name,
@@ -11547,7 +11541,6 @@ server <- function(input, output, session) {
       width = "400px"
     )
     
-    # TODO Add log message regarding the update of the scheme
     log_print("Download successful")
     
     showModal(
@@ -17565,6 +17558,7 @@ server <- function(input, output, session) {
   #### MST ----
   
   mst_tree <- reactive({
+    log_print("Generating visNetwork")
     data <- toVisNetworkData(Vis$ggraph_1)
     data$nodes <- mutate(data$nodes, 
                          label = label_mst(),
@@ -17744,7 +17738,7 @@ server <- function(input, output, session) {
           visGroups(groupname = unique(data$nodes$group)[i], color = color_palette[i])
       }
     }
-    
+    log_print("Plotting MST graph")
     visNetwork_graph
   })
   
@@ -23955,6 +23949,7 @@ server <- function(input, output, session) {
     
     dir_path <- parseDirPath(roots = c(Home = path_home(), Root = "/"), input$hash_dir)
     req(dir_path)
+    log_print("Hashing directory using utilities")
     output$statustext <- renderUI(
       fluidRow(
         tags$li(
