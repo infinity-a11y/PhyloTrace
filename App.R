@@ -8947,7 +8947,17 @@ server <- function(input, output, session) {
                                   td.style.backgroundColor = 'rgbA(255, 80, 1, 0.8)' 
                                 }
                               }
-                            }") 
+                            }") %>%
+                            hot_col(3:ncol(DB$na_table), renderer = htmlwidgets::JS(
+                              "function(instance, td, row, col, prop, value, cellProperties) {
+                                if (value.length > 8) {
+                                  value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
+                                }
+                                td.innerHTML = value;
+                                td.style.textAlign = 'center';
+                                return td;
+                               }"
+                            ))
                         })
                       } else {
                         output$table_missing_values <- renderRHandsontable({
@@ -8974,7 +8984,17 @@ server <- function(input, output, session) {
                                   td.style.backgroundColor = 'rgbA(255, 80, 1, 0.8)' 
                                 }
                               }
-                            }") 
+                            }") %>%
+                            hot_col(3:ncol(DB$na_table), renderer = htmlwidgets::JS(
+                              "function(instance, td, row, col, prop, value, cellProperties) {
+                                if (value.length > 8) {
+                                  value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
+                                }
+                                td.innerHTML = value;
+                                td.style.textAlign = 'center';
+                                return td;
+                               }"
+                            ))
                         })
                       }
                     }
@@ -22318,14 +22338,36 @@ server <- function(input, output, session) {
                               contextMenu = FALSE) %>%
                   hot_cols(columnSorting = TRUE) %>%
                   hot_rows(rowHeights = 25) %>%
-                  hot_col(1:ncol(Typing$typing_result_table), valign = "htMiddle", halign = "htCenter")
+                  hot_col(1:ncol(Typing$typing_result_table), valign = "htMiddle", halign = "htCenter",
+                          cellWidths = list(100, 160, NULL)) %>%
+                  hot_col("Value", renderer=htmlwidgets::JS(
+                    "function(instance, td, row, col, prop, value, cellProperties) {
+                      if (value.length > 8) {
+                        value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
+                      }
+                      td.innerHTML = value;
+                      td.style.textAlign = 'center';
+                      return td;
+                     }"
+                  ))
               } else {
                 rhandsontable(Typing$typing_result_table, rowHeaders = NULL, 
                               stretchH = "all", readOnly = TRUE,
                               contextMenu = FALSE,) %>%
                   hot_cols(columnSorting = TRUE) %>%
                   hot_rows(rowHeights = 25) %>%
-                  hot_col(1:ncol(Typing$typing_result_table), valign = "htMiddle", halign = "htCenter")
+                  hot_col(1:ncol(Typing$typing_result_table), valign = "htMiddle", halign = "htCenter",
+                          cellWidths = list(100, 160, NULL)) %>%
+                  hot_col("Value", renderer=htmlwidgets::JS(
+                    "function(instance, td, row, col, prop, value, cellProperties) {
+                      if (value.length > 8) {
+                        value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
+                      }
+                      td.innerHTML = value;
+                      td.style.textAlign = 'center';
+                      return td;
+                     }"
+                  ))
               }
             }
           })
@@ -22767,7 +22809,7 @@ server <- function(input, output, session) {
               ),
               column(1),
               column(
-                width = 3,
+                width = 5,
                 br(), br(), br(),
                 uiOutput("single_typing_results")
               )
@@ -23748,7 +23790,19 @@ server <- function(input, output, session) {
                           rowHeaders = NULL, stretchH = "all",
                           readOnly = TRUE, contextMenu = FALSE) %>%
               hot_rows(rowHeights = 25) %>%
-              hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
+              hot_col(1:3, valign = "htMiddle", halign = "htCenter",
+                      cellWidths = list(100, 160, NULL)) %>%
+              hot_col("Value", renderer=htmlwidgets::JS(
+                "function(instance, td, row, col, prop, value, cellProperties) {
+                  if (value.length > 8) {
+                    value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
+                  }
+                  td.innerHTML = value;
+                  td.style.textAlign = 'center';
+                  return td;
+                 }"
+              ))
+            })
           
         } else {
           if(Typing$multi_table_length > 15) {
@@ -23757,15 +23811,38 @@ server <- function(input, output, session) {
                             stretchH = "all", height = 500,
                             readOnly = TRUE, contextMenu = FALSE) %>%
                 hot_rows(rowHeights = 25) %>%
-                hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
+                hot_col(1:3, valign = "htMiddle", halign = "htCenter",
+                        cellWidths = list(100, 160, NULL)) %>%
+                hot_col("Value", renderer=htmlwidgets::JS(
+                  "function(instance, td, row, col, prop, value, cellProperties) {
+                  if (value.length > 8) {
+                    value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
+                  }
+                  td.innerHTML = value;
+                  td.style.textAlign = 'center';
+                  return td;
+                 }"
+                ))
+              })
           } else {
             output$multi_typing_result_table <- renderRHandsontable({
               rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
                             stretchH = "all", readOnly = TRUE,
                             contextMenu = FALSE) %>%
                 hot_rows(rowHeights = 25) %>%
-                hot_col(1:3, valign = "htMiddle", halign = "htCenter")})
-            
+                hot_col(1:3, valign = "htMiddle", halign = "htCenter",
+                        cellWidths = list(100, 160, NULL)) %>%
+                hot_col("Value", renderer=htmlwidgets::JS(
+                  "function(instance, td, row, col, prop, value, cellProperties) {
+                  if (value.length > 8) {
+                    value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
+                  }
+                  td.innerHTML = value;
+                  td.style.textAlign = 'center';
+                  return td;
+                 }"
+                ))
+              })
           }
         }
       } else {
@@ -23813,10 +23890,10 @@ server <- function(input, output, session) {
                     selected = names(Typing$result_list)[length(names(Typing$result_list))],
                   )
                 ),
-                br(), br(), 
-                rHandsontableOutput("multi_typing_result_table")
+                br(), br()
               )
-            )
+            ),
+            rHandsontableOutput("multi_typing_result_table")
           )
         })
       }
