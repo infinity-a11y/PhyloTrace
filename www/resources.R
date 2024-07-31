@@ -10,8 +10,7 @@ amrfinder_species <- c(
   "Pseudomonas_aeruginosa", "Salmonella_enterica", "Serratia_marcescens", 
   "Staphylococcus_aureus", "Staphylococcus_pseudintermedius", "Streptococcus_agalactiae", 
   "Streptococcus_pneumoniae", "Streptococcus_pyogenes", "Vibrio_cholerae", 
-  "Vibrio_parahaemolyticus", "Vibrio_vulnificus"
-  )
+  "Vibrio_parahaemolyticus", "Vibrio_vulnificus")
 
 schemes <- c("Acinetobacter_baumanii", "Bacillus_anthracis", "Bordetella_pertussis", 
              "Brucella_melitensis", "Brucella_spp", "Burkholderia_mallei_FLI", 
@@ -22,8 +21,7 @@ schemes <- c("Acinetobacter_baumanii", "Bacillus_anthracis", "Bordetella_pertuss
              "Legionella_pneumophila", "Listeria_monocytogenes", "Mycobacterium_tuberculosis_complex", 
              "Mycobacteroides_abscessus", "Mycoplasma_gallisepticum", "Paenibacillus_larvae",
              "Pseudomonas_aeruginosa", "Salmonella_enterica", "Serratia_marcescens", 
-             "Staphylococcus_aureus", "Staphylococcus_capitis", "Streptococcus_pyogenes"
-)
+             "Staphylococcus_aureus", "Staphylococcus_capitis", "Streptococcus_pyogenes")
 
 country_names <- c(
   "Afghanistan",

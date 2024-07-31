@@ -11,7 +11,29 @@ path_assembly=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'assembly_path'])
 assembly=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'assembly'])")
 species=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'species'])")
 
-cat "$path_assembly"
+if [ "$species" = "Escherichia_coli" ]; then
+  species="Escherichia"
+fi
+
+if [ "$species" = "Burkholderia_mallei_FLI" ] || [ "$species" = "Burkholderia_mallei_RKI" ]; then
+species="Burkholderia_mallei"
+fi
+
+if [ "$species" = "Klebsiella_oxytoca_sensu_lato" ]; then
+  species="Klebsiella_oxytoca"
+fi
+
+if [ "$species" = "Salmonella_enterica" ]; then
+  species="Salmonella"
+fi
+
+if [ "$species" = "Campylobacter_jejuni_coli" ]; then
+  species="Campylobacter"
+fi
+
+if [ "$species" = "Klebsiella_pneumoniae_sensu_lato" ]; then
+  species="Klebsiella_pneumoniae"
+fi
 
 # Remove the existing directory (if it exists)
 if [ -d "$base_path/execute/screening" ]; then
@@ -20,20 +42,8 @@ fi
 
 mkdir "$base_path/execute/screening"
 
-# Directory name
-results="$base_path/execute/screening/results"
-
-# Remove the existing directory (if it exists)
-if [ -d "$results" ]; then
-    rm -r "$results"
-fi
-
-# Create a new directory
-mkdir "$results"
-
 # Get cores
 coresall=$(nproc --all)
 cores=$((num_processors - 2))
 
-amrfinder -n "$path_assembly" --threads $cores #--organism "Klebsiella_oxytoca" 
-
+amrfinder -n "$path_assembly" --threads $cores --plus --organism $species -o "screening/output_file.tsv"

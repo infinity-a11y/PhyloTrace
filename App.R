@@ -5755,6 +5755,11 @@ server <- function(input, output, session) {
   
   log_print("Session started")
   
+  # Clear screening file
+  if(file.exists(paste0(getwd(), "/execute/screening/output_file.tsv"))) {
+    file.remove(paste0(getwd(), "/execute/screening/output_file.tsv"))
+  }
+  
   # Declare reactive variables
   Startup <- reactiveValues(sidebar = TRUE, 
                             header = TRUE) # reactive variables related to startup process
@@ -22228,6 +22233,46 @@ server <- function(input, output, session) {
   
   ### Render UI Elements ----
   
+  output$screening_results <- renderUI({
+    if(!is.null(Screening$results)) {
+      dataTableOutput("screening_table")
+    }
+  })
+  
+  observe({
+    if(!is.null(Screening$results)) {
+      output$screening_reset <- renderUI(
+        actionButton(
+          "screening_reset_bttn",
+          "Reset"
+        )
+      )
+      
+      output$screening_table <- renderDataTable(
+        select(Screening$results, c(6, 7, 8, 9, 11)),
+        selection = "single",
+        options = list(pageLength = 10,
+                       columnDefs = list(list(searchable = TRUE,
+                                              targets = "_all")),
+                       initComplete = DT::JS(
+                         "function(settings, json) {",
+                         "$('th:first-child').css({'border-top-left-radius': '5px'});",
+                         "$('th:last-child').css({'border-top-right-radius': '5px'});",
+                         "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                         "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                         "}"
+                       ),
+                       drawCallback = DT::JS(
+                         "function(settings) {",
+                         "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                         "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                         "}"
+                       )))
+    } else {
+      output$screening_reset <- NULL
+    }
+  })
+  
   # Availablity feedback
   output$gene_screening_info <- renderUI({
     if(gsub(" ", "_", DB$scheme) %in% amrfinder_species) {
@@ -22310,8 +22355,7 @@ server <- function(input, output, session) {
         column(
           width = 3,
           align = "center",
-          br(),
-          br(),
+          br(), br(),
           p(
             HTML(
               paste(
@@ -22332,13 +22376,28 @@ server <- function(input, output, session) {
           br(), br(),
           uiOutput("genome_path_gs"),
           br(), br(), br(), 
-          uiOutput("screening_start")
+          uiOutput("screening_start"),
+          br(), br(), br(), 
+          uiOutput("screening_reset")
+        ),
+        column(1),
+        column(
+          width = 6,
+          br(), br(),
+          uiOutput("screening_results")
         )
       )
     }
   })
   
   ### Screening Events ----
+  
+  # Reset screening 
+  observeEvent(input$screening_reset_bttn, {
+    Screening$status <- "idle"
+    file.remove(paste0(getwd(), "/execute/screening/output_file.tsv"))
+    Screening$results <- NULL
+  })
   
   # Get selected Genome in Single Mode
   
@@ -22413,10 +22472,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$screening_start_button, {
     
-    # Start spinner
-    output$screening_progress <- renderUI(
-      HTML('<i class="fa-solid fa-spinner"></i>')
-    )
+    Screening$status <- "started"
     
     screening_df <- data.frame(wd = getwd(),
                                assembly_path = Screening$single_path$datapath,
@@ -22426,24 +22482,37 @@ server <- function(input, output, session) {
     saveRDS(screening_df, paste0(getwd(), "/execute/screening_meta.rds"))
     
     # System execution screening.sh
-    system(paste("bash", paste0(getwd(), "/execute/screening.sh")), wait = TRUE)
-    
-    # Stop spinner
-    output$screening_progress <- NULL
+    system(paste("bash", paste0(getwd(), "/execute/screening.sh")), wait = FALSE)
   })
   
   ### Screening Feedback ----
   
-  # # Set the path to your .got file
-  # file_path <- "test_dna.got"
-  # 
-  # # Read the .got file into a data frame
-  # amrfinder_data <- read.delim(file_path, header = TRUE, sep = "\t")
-  # 
-  # # Check the first few rows of the data
-  # head(amrfinder_data)
+  observe({
+    req(Screening$status)
+    if(Screening$status == "started") {
+      # Start spinner
+      output$screening_progress <- renderUI(
+        HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:20px;color:white"></i>'))
+      )
+      
+      check_screening()
+      
+    } else if (Screening$status == "finished") {
+      output$screening_progress <- NULL
+    }
+  })
   
+  check_screening <- reactive({
+    invalidateLater(2000, session)
+    if(Screening$status == "started"){
+      if(file.exists(paste0(getwd(), "/execute/screening/output_file.tsv"))) {
+        Screening$results <- read.delim(paste0(getwd(), "/execute/screening/output_file.tsv"))
+        Screening$status <- "finished"
+      }
+    }
+  })
   
+
   # _______________________ ####
   
   ## Typing  ----
