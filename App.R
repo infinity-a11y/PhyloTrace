@@ -17734,9 +17734,9 @@ server <- function(input, output, session) {
 
     if (input$mst_show_clusters) {
       if (input$mst_cluster_col_scale == "Viridis") {
-        color_palette <- viridis(length(data$nodes$group))
+        color_palette <- viridis(length(unique(data$nodes$group)))
       } else {
-        color_palette <- rainbow(length(data$nodes$group))
+        color_palette <- rainbow(length(unique(data$nodes$group)))
       }
 
       for (i in 1:length(unique(data$nodes$group))) {
