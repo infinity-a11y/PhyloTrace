@@ -11,6 +11,8 @@ path_assembly=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'assembly_path'])
 assembly=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'assembly'])")
 species=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'species'])")
 
+error_file="screening/error.txt"
+
 if [ "$species" = "Escherichia_coli" ]; then
   species="Escherichia"
 fi
@@ -46,4 +48,20 @@ mkdir "$base_path/execute/screening"
 coresall=$(nproc --all)
 cores=$((num_processors - 2))
 
-amrfinder -n "$path_assembly" --threads $cores --plus --organism $species -o "screening/output_file.tsv"
+amrfinder -n "$path_assembly" --threads $cores --plus --organism $species -o "screening/output_file.tsv" > amrfinder_stdout.txt 2> amrfinder_stderr.txt
+status=$?
+
+# Check if status variable is set and is an integer
+if [ -z "$status" ]; then
+  echo "AMRFinder execution did not set an exit status." > "$base_path/execute/$error_file"
+  exit 1
+fi
+
+if [ "$status" -ne 0 ]; then
+  echo "AMRFinder failed with status $status" > "$base_path/execute/$error_file"
+  echo "Error details:" >> "$base_path/execute/$error_file"
+  cat amrfinder_stderr.txt >> "$base_path/execute/$error_file"
+  exit $status
+fi
+
+echo "AMRFinder completed successfully"

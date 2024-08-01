@@ -5778,7 +5778,7 @@ server <- function(input, output, session) {
                            result_list = NULL,
                            status = "") # reactive variables related to typing process
   
-  Screening <- reactiveValues()
+  Screening <- reactiveValues(status = "idle") # reactive variables related to gene screening
   
   Vis <- reactiveValues(cluster = NULL, 
                         metadata = list(),
@@ -6198,6 +6198,42 @@ server <- function(input, output, session) {
                 tags$span(HTML(
                   paste('<i class="fa-solid fa-circle-dot" style="color:orange !important;"></i>', 
                         "Status:&nbsp;&nbsp;&nbsp;<i> running typing</i>")), 
+                  style = "color:white;")
+              )
+            )
+          )
+        } else if(Screening$status == "started") {
+          output$statustext <- renderUI(
+            fluidRow(
+              tags$li(
+                class = "dropdown", 
+                tags$span(HTML(
+                  paste('<i class="fa-solid fa-circle-dot" style="color:orange !important;"></i>', 
+                        "Status:&nbsp;&nbsp;&nbsp;<i> running gene screening</i>")), 
+                  style = "color:white;")
+              )
+            )
+          )
+        } else if(Screening$status == "finished") {
+          output$statustext <- renderUI(
+            fluidRow(
+              tags$li(
+                class = "dropdown", 
+                tags$span(HTML(
+                  paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
+                        "Status:&nbsp;&nbsp;&nbsp;<i> gene screening finalized</i>")), 
+                  style = "color:white;")
+              )
+            )
+          )
+        } else if(isTRUE(Screening$fail)) {
+          output$statustext <- renderUI(
+            fluidRow(
+              tags$li(
+                class = "dropdown", 
+                tags$span(HTML(
+                  paste('<i class="fa-solid fa-circle-dot" style="color:red !important;"></i>', 
+                        "Status:&nbsp;&nbsp;&nbsp;<i> gene screening failed</i>")), 
                   style = "color:white;")
               )
             )
@@ -22240,13 +22276,19 @@ server <- function(input, output, session) {
   })
   
   observe({
+    if(isTRUE(Screening$fail)) {
+      output$screening_fail <- renderPrint({
+        readLines(paste0(getwd(), "/execute/screening/error.txt"))
+      })
+    } else {
+      output$screening_fail <- NULL
+    }
+  })
+  
+  
+  observe({
     if(!is.null(Screening$results)) {
-      output$screening_reset <- renderUI(
-        actionButton(
-          "screening_reset_bttn",
-          "Reset"
-        )
-      )
+      req(Screening$results)
       
       output$screening_table <- renderDataTable(
         select(Screening$results, c(6, 7, 8, 9, 11)),
@@ -22268,8 +22310,6 @@ server <- function(input, output, session) {
                          "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
                          "}"
                        )))
-    } else {
-      output$screening_reset <- NULL
     }
   })
   
@@ -22350,41 +22390,48 @@ server <- function(input, output, session) {
   
   output$screening_interface <- renderUI({
     if(gsub(" ", "_", DB$scheme) %in% amrfinder_species) {
-      fluidRow(
-        column(1),
-        column(
-          width = 3,
-          align = "center",
-          br(), br(),
-          p(
-            HTML(
-              paste(
-                tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File (FASTA)')
+      column(
+        width = 12,
+        fluidRow(
+          column(1),
+          column(
+            width = 3,
+            align = "center",
+            br(), br(),
+            p(
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File (FASTA)')
+                )
               )
-            )
+            ),
+            shinyFilesButton(
+              "genome_file_gs",
+              "Browse" ,
+              icon = icon("file"),
+              title = "Select the assembly in .fasta/.fna/.fa format:",
+              multiple = FALSE,
+              buttonType = "default",
+              class = NULL,
+              root = path_home()
+            ),
+            br(), br(),
+            uiOutput("genome_path_gs")
           ),
-          shinyFilesButton(
-            "genome_file_gs",
-            "Browse" ,
-            icon = icon("file"),
-            title = "Select the assembly in .fasta/.fna/.fa format:",
-            multiple = FALSE,
-            buttonType = "default",
-            class = NULL,
-            root = path_home()
-          ),
-          br(), br(),
-          uiOutput("genome_path_gs"),
-          br(), br(), br(), 
-          uiOutput("screening_start"),
-          br(), br(), br(), 
-          uiOutput("screening_reset")
+          column(1),
+          column(
+            width = 2,
+            uiOutput("screening_start")
+          )
         ),
-        column(1),
-        column(
-          width = 6,
-          br(), br(),
-          uiOutput("screening_results")
+        fluidRow(
+          column(1),
+          column(
+            width = 10,
+            br(), br(), br(), br(),
+            uiOutput("screening_results"),
+            verbatimTextOutput("screening_fail")
+          )
         )
       )
     }
@@ -22394,9 +22441,13 @@ server <- function(input, output, session) {
   
   # Reset screening 
   observeEvent(input$screening_reset_bttn, {
+    log_print("Reset gene screening")
     Screening$status <- "idle"
     file.remove(paste0(getwd(), "/execute/screening/output_file.tsv"))
+    file.remove(paste0(getwd(), "/execute/screening/error.txt"))
     Screening$results <- NULL
+    Screening$single_path <- data.frame()
+    Screening$fail <- NULL
   })
   
   # Get selected Genome in Single Mode
@@ -22438,23 +22489,31 @@ server <- function(input, output, session) {
           )
         })
         
-        output$screening_start <- renderUI(
+        output$screening_start <- renderUI({
+          
           fluidRow(
-            hr(), br(), br(),
             column(
               width = 8,
-              actionButton(
-                inputId = "screening_start_button",
-                label = "Start",
-                icon = icon("circle-play")
-              )
-            ),
-            column(
-              width = 4,
-              uiOutput("screening_progress")
+              br(), br(), 
+              if(Screening$status == "finished") {
+                actionButton(
+                  "screening_reset_bttn",
+                  "Reset",
+                  icon = icon("arrows-rotate")
+                )
+              } else if(Screening$status == "idle") {
+                actionButton(
+                  inputId = "screening_start_button",
+                  label = "Start",
+                  icon = icon("circle-play")
+                )
+              } else if(Screening$status == "started") {
+                HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:22px;color:white;margin-top:37px;position:relative;left:20px"></i>'))
+              }
             )
           )
-        )
+        })
+        
       } else {
         show_toast(
           title = "Wrong file type (only fasta/fna/fa)",
@@ -22472,17 +22531,47 @@ server <- function(input, output, session) {
   
   observeEvent(input$screening_start_button, {
     
-    Screening$status <- "started"
-    
-    screening_df <- data.frame(wd = getwd(),
-                               assembly_path = Screening$single_path$datapath,
-                               assembly = as.character(basename(Screening$single_path$name)),
-                               species = gsub(" ", "_", DB$scheme))
-    
-    saveRDS(screening_df, paste0(getwd(), "/execute/screening_meta.rds"))
-    
-    # System execution screening.sh
-    system(paste("bash", paste0(getwd(), "/execute/screening.sh")), wait = FALSE)
+    if(tail(readLogFile(), 1) != "0") {
+      show_toast(
+        title = "Pending Multi Typing",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000,
+        width = "500px"
+      )
+    } else if(readLines(paste0(getwd(), "/logs/progress.txt"))[1] != "0") {
+      show_toast(
+        title = "Pending Single Typing",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000,
+        width = "500px"
+      )
+    } else {
+      
+      log_print("Started gene screening")
+      
+      Screening$status <- "started"
+      
+      show_toast(
+        title = "Gene screening started",
+        type = "success",
+        position = "bottom-end",
+        width = "500px",
+        timer = 6000
+      )
+      
+      screening_df <- data.frame(wd = getwd(),
+                                 assembly_path = Screening$single_path$datapath,
+                                 assembly = as.character(basename(Screening$single_path$name)),
+                                 species = gsub(" ", "_", DB$scheme))
+      
+      saveRDS(screening_df, paste0(getwd(), "/execute/screening_meta.rds"))
+      
+      # System execution screening.sh
+      system(paste("bash", paste0(getwd(), "/execute/screening.sh")), wait = FALSE)
+      
+    }
   })
   
   ### Screening Feedback ----
@@ -22490,15 +22579,10 @@ server <- function(input, output, session) {
   observe({
     req(Screening$status)
     if(Screening$status == "started") {
-      # Start spinner
-      output$screening_progress <- renderUI(
-        HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:20px;color:white"></i>'))
-      )
-      
+      shinyjs::disable("genome_file_gs") 
       check_screening()
-      
-    } else if (Screening$status == "finished") {
-      output$screening_progress <- NULL
+    } else if(Screening$status == "idle") {
+      shinyjs::enable("genome_file_gs") 
     }
   })
   
@@ -22508,6 +22592,11 @@ server <- function(input, output, session) {
       if(file.exists(paste0(getwd(), "/execute/screening/output_file.tsv"))) {
         Screening$results <- read.delim(paste0(getwd(), "/execute/screening/output_file.tsv"))
         Screening$status <- "finished"
+        log_print("Finalized gene screening")
+      } else if(file.exists(paste0(getwd(), "/execute/screening/error.txt"))) {
+        Screening$status <- "finished"
+        log_print("Failed gene screening")
+        Screening$fail <- TRUE
       }
     }
   })
@@ -22896,7 +22985,6 @@ server <- function(input, output, session) {
           width = "500px",
           timer = 6000
         )
-        
       }
     }
   })
@@ -22922,10 +23010,16 @@ server <- function(input, output, session) {
     log_print("Input typing_start")
     
     if(tail(readLogFile(), 1) != "0") {
-      log_print("Pending multi typing")
-      
       show_toast(
         title = "Pending Multi Typing",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000,
+        width = "500px"
+      )
+    } else if (Screening$status == "started") {
+      show_toast(
+        title = "Pending Gene Screening",
         type = "warning",
         position = "bottom-end",
         timer = 6000,
@@ -23842,9 +23936,16 @@ server <- function(input, output, session) {
     log_print("Initiate multi typing")
     
     if(readLines(paste0(getwd(), "/logs/progress.txt"))[1] != "0") {
-      log_print("Pending Single Typing")
       show_toast(
         title = "Pending Single Typing",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000,
+        width = "500px"
+      )
+    } else if (Screening$status == "started") {
+      show_toast(
+        title = "Pending Gene Screening",
         type = "warning",
         position = "bottom-end",
         timer = 6000,

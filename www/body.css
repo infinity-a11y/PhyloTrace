@@ -2845,3 +2845,14 @@ top: 1px;
 border-radius: 6px;
 margin-left: 10px;
 }
+
+/* Gene Screening */
+
+#screening_start_button,
+#screening_reset_bttn {
+  margin-top: 31px;
+}
+
+#screening_fail {
+  max-width: 1000px;
+}
