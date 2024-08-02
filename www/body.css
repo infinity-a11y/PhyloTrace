@@ -724,9 +724,13 @@ background: #20E6E5;
 
 /* Typing */
   
-  .mult_res_sel {
-    margin-bottom: 15px;
-  }
+.mult_res_sel {
+  margin-bottom: 15px;
+}
+
+#multi_typing_results .mult_res_sel .selectize-input.items.full.has-options.has-items {
+  width: auto;
+}
 
 body > div.htDatepickerHolder > div > div > table > tbody > tr > td.is-today.is-selected > button{
   color: white;

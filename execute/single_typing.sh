@@ -37,7 +37,7 @@ mkdir "$results"
 # Check assembly file and save in the execute folder
 Rscript "$base_path/execute/check_duplicate_single.R"
 wait
-genome="$base_path/execute/blat_single/assembly.fasta"
+genome="$base_path/execute/blat_single/$genome_name"
 
 # Run parallelized BLAT
 find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name "*.fna" \) | parallel pblat $genome {} "$results/{/.}.psl" > /dev/null 2>&1

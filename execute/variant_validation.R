@@ -104,7 +104,7 @@ variant_validation <- function(references, start_codons, stop_codons) {
   for(i in 1:nrow(references)){
     
     # extract new variant sequence from template
-    contig <- template[(which(template == paste0(">", references$V14[i])) + 1)]
+    contig <- template[(which(sub(" .*", "", template) == paste0(">", references$V14[i])) + 1)]
     
     seq <- substring(contig, references$V16[i] + 1, references$V17[i])
     

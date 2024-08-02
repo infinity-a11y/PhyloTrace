@@ -44,7 +44,7 @@ library(treeio)
 library(ggtree)
 library(ggtreeExtra)
 
-source("www/resources.R")
+source(paste0(getwd(), "/www/resources.R"))
 
 options(ignore.negative.edge=TRUE)
 
@@ -5339,10 +5339,14 @@ ui <- dashboardPage(
         ),
         br(),
         hr(),
-        column(
-          width = 12,
-          align = "left",
-          
+        br(), br(),
+        fluidRow(
+          column(1),
+          column(
+            width = 10,
+            div(class = "loci_table",
+                dataTableOutput("gs_isolate_table"))
+          )
         )
       )
     ) # End tabItems
@@ -5357,12 +5361,12 @@ server <- function(input, output, session) {
   
   phylotraceVersion <- paste("1.4.1")
   
-  # TODO Enable this, or leave disabled
-  # # Kill server on session end
-  # session$onSessionEnded( function() {
-  #   stopApp()
-  # })
-  
+  #TODO Enable this, or leave disabled
+  # Kill server on session end
+  session$onSessionEnded( function() {
+    stopApp()
+  })
+   
   # Disable various user inputs (visualization control)
   shinyjs::disable('mst_edge_label') 
   
@@ -5758,6 +5762,10 @@ server <- function(input, output, session) {
   # Clear screening file
   if(file.exists(paste0(getwd(), "/execute/screening/output_file.tsv"))) {
     file.remove(paste0(getwd(), "/execute/screening/output_file.tsv"))
+  }
+  
+  if(file.exists(paste0(getwd(), "/execute/screening/error.txt"))) {
+    file.remove(paste0(getwd(), "/execute/screening/error.txt"))
   }
   
   # Declare reactive variables
@@ -6215,29 +6223,31 @@ server <- function(input, output, session) {
             )
           )
         } else if(Screening$status == "finished") {
-          output$statustext <- renderUI(
-            fluidRow(
-              tags$li(
-                class = "dropdown", 
-                tags$span(HTML(
-                  paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
-                        "Status:&nbsp;&nbsp;&nbsp;<i> gene screening finalized</i>")), 
-                  style = "color:white;")
+          if(isTRUE(Screening$fail)) {
+            output$statustext <- renderUI(
+              fluidRow(
+                tags$li(
+                  class = "dropdown", 
+                  tags$span(HTML(
+                    paste('<i class="fa-solid fa-circle-dot" style="color:red !important;"></i>', 
+                          "Status:&nbsp;&nbsp;&nbsp;<i> gene screening failed</i>")), 
+                    style = "color:white;")
+                )
               )
             )
-          )
-        } else if(isTRUE(Screening$fail)) {
-          output$statustext <- renderUI(
-            fluidRow(
-              tags$li(
-                class = "dropdown", 
-                tags$span(HTML(
-                  paste('<i class="fa-solid fa-circle-dot" style="color:red !important;"></i>', 
-                        "Status:&nbsp;&nbsp;&nbsp;<i> gene screening failed</i>")), 
-                  style = "color:white;")
+          } else {
+            output$statustext <- renderUI(
+              fluidRow(
+                tags$li(
+                  class = "dropdown", 
+                  tags$span(HTML(
+                    paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
+                          "Status:&nbsp;&nbsp;&nbsp;<i> gene screening finalized</i>")), 
+                    style = "color:white;")
+                )
               )
             )
-          )
+          }
         } else {
           output$statustext <- renderUI(
             fluidRow(
@@ -6322,6 +6332,8 @@ server <- function(input, output, session) {
         
         DB$data <- NULL
         
+        DB$meta_gs <- NULL
+        
         DB$meta <- NULL
         
         DB$meta_true <- NULL
@@ -6398,7 +6410,7 @@ server <- function(input, output, session) {
             menuItem(
               text = "Manage Schemes",
               tabName = "init",
-              icon = icon("plus"),
+              icon = icon("layer-group"),
               selected = TRUE
             ),
             menuItem(
@@ -6467,6 +6479,8 @@ server <- function(input, output, session) {
         DB$check_new_entries <- TRUE
         
         DB$data <- NULL
+        
+        DB$meta_gs <- NULL
         
         DB$meta <- NULL
         
@@ -6563,7 +6577,7 @@ server <- function(input, output, session) {
                 menuItem(
                   text = "Manage Schemes",
                   tabName = "init",
-                  icon = icon("plus"),
+                  icon = icon("layer-group"),
                   selected = TRUE
                 ),
                 menuItem(
@@ -6653,7 +6667,7 @@ server <- function(input, output, session) {
                 menuItem(
                   text = "Manage Schemes",
                   tabName = "init",
-                  icon = icon("plus"),
+                  icon = icon("layer-group"),
                   selected = TRUE
                 ),
                 menuItem(
@@ -6745,7 +6759,7 @@ server <- function(input, output, session) {
                 menuItem(
                   text = "Manage Schemes",
                   tabName = "init",
-                  icon = icon("plus"),
+                  icon = icon("layer-group"),
                   selected = TRUE
                 ),
                 menuItem(
@@ -6866,7 +6880,7 @@ server <- function(input, output, session) {
                   menuItem(
                     text = "Manage Schemes",
                     tabName = "init",
-                    icon = icon("plus"),
+                    icon = icon("layer-group"),
                     selected = TRUE
                   ),
                   menuItem(
@@ -6919,8 +6933,8 @@ server <- function(input, output, session) {
                 DB$data <- Database[["Typing"]]
                 
                 if(!is.null(DB$data)){
-                  if ((ncol(DB$data)-12) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
-                    cust_var <- select(DB$data, 13:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
+                  if ((ncol(DB$data)-13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
+                    cust_var <- select(DB$data, 14:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
                     DB$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
                   } else {
                     DB$cust_var <- data.frame()
@@ -6929,11 +6943,13 @@ server <- function(input, output, session) {
                 
                 DB$change <- FALSE
                 
-                DB$meta <- select(DB$data, 1:(12 + nrow(DB$cust_var)))
+                DB$meta_gs <- select(DB$data, c(1, 3:13))
+                
+                DB$meta <- select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)))
                 
                 DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
                 
-                DB$allelic_profile <- select(DB$data, -(1:(12 + nrow(DB$cust_var))))
+                DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
                 
                 DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
                 
@@ -7050,7 +7066,7 @@ server <- function(input, output, session) {
                       menuItem(
                         text = "Manage Schemes",
                         tabName = "init",
-                        icon = icon("plus")
+                        icon = icon("layer-group")
                       ),
                       menuItem(
                         text = "Allelic Typing",
@@ -7117,7 +7133,7 @@ server <- function(input, output, session) {
                       menuItem(
                         text = "Manage Schemes",
                         tabName = "init",
-                        icon = icon("plus")
+                        icon = icon("layer-group")
                       ),
                       menuItem(
                         text = "Allelic Typing",
@@ -7724,7 +7740,7 @@ server <- function(input, output, session) {
                         if(!is.null(DB$data) & !is.null(DB$cust_var)) {
                           output$db_entries <- renderRHandsontable({
                             rhandsontable(
-                              select(DB$data, 1:(12 + nrow(DB$cust_var))),
+                              select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var))),
                               error_highlight = err_thresh() - 1,                              
                               rowHeaders = NULL,
                               contextMenu = FALSE,
@@ -7819,7 +7835,7 @@ server <- function(input, output, session) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
                             output$db_entries <- renderRHandsontable({
                               rhandsontable(
-                                select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
+                                select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)), input$compare_select),
                                 col_highlight = diff_allele() - 1,
                                 dup_names_high = duplicated_names() - 1,
                                 dup_ids_high = duplicated_ids() - 1,
@@ -7978,7 +7994,7 @@ server <- function(input, output, session) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var)) {
                             output$db_entries <- renderRHandsontable({
                               rhandsontable(
-                                select(DB$data, 1:(12 + nrow(DB$cust_var))),
+                                select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var))),
                                 rowHeaders = NULL,
                                 row_highlight = true_rows() - 1,
                                 dup_names_high = duplicated_names()- 1,
@@ -8117,7 +8133,7 @@ server <- function(input, output, session) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height) & !is.null(input$compare_select)) {
                             output$db_entries <- renderRHandsontable({
                               rhandsontable(
-                                select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
+                                select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)), input$compare_select),
                                 col_highlight = diff_allele() - 1,
                                 rowHeaders = NULL,
                                 height = table_height(),
@@ -8272,7 +8288,7 @@ server <- function(input, output, session) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height)) {
                             output$db_entries <- renderRHandsontable({
                               rhandsontable(
-                                select(DB$data, 1:(12 + nrow(DB$cust_var))),
+                                select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var))),
                                 rowHeaders = NULL,
                                 height = table_height(),
                                 dup_names_high = duplicated_names() - 1,
@@ -9022,6 +9038,8 @@ server <- function(input, output, session) {
                 
                 DB$meta <- NULL
                 
+                DB$meta_gs <- NULL
+                
                 DB$meta_true <- NULL
                 
                 DB$allelic_profile <- NULL
@@ -9057,7 +9075,7 @@ server <- function(input, output, session) {
                     menuItem(
                       text = "Manage Schemes",
                       tabName = "init",
-                      icon = icon("plus")
+                      icon = icon("layer-group")
                     ),
                     menuItem(
                       text = "Allelic Typing",
@@ -9415,7 +9433,7 @@ server <- function(input, output, session) {
               menuItem(
                 text = "Manage Schemes",
                 tabName = "init",
-                icon = icon("plus")
+                icon = icon("layer-group")
               ),
               menuItem(
                 text = "Allelic Typing",
@@ -9478,7 +9496,7 @@ server <- function(input, output, session) {
             menuItem(
               text = "Manage Schemes",
               tabName = "init",
-              icon = icon("plus")
+              icon = icon("layer-group")
             ),
             menuItem(
               text = "Allelic Typing",
@@ -9653,8 +9671,6 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
-    test <<- Screening$single_path$datapath
-    
     log_print("Input reload_db")
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
@@ -9724,8 +9740,8 @@ server <- function(input, output, session) {
     
     DB$data <- Data[["Typing"]]
     
-    if ((ncol(DB$data)-12) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
-      cust_var <- select(DB$data, 13:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
+    if ((ncol(DB$data)-13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
+      cust_var <- select(DB$data, 14:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
       DB$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
     } else {
       DB$cust_var <- data.frame()
@@ -9737,11 +9753,13 @@ server <- function(input, output, session) {
     
     DB$no_na_switch <- TRUE
     
-    DB$meta <- select(DB$data, 1:(12 + nrow(DB$cust_var)))
+    DB$meta_gs <- select(DB$data, c(1, 3:13))
+    
+    DB$meta <- select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)))
     
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
     
-    DB$allelic_profile <- select(DB$data, -(1:(12 + nrow(DB$cust_var))))
+    DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
     
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
     
@@ -9753,7 +9771,7 @@ server <- function(input, output, session) {
           if(!is.null(DB$data) & !is.null(DB$cust_var)) {
             output$db_entries <- renderRHandsontable({
               rhandsontable(
-                select(DB$data, 1:(12 + nrow(DB$cust_var))),
+                select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var))),
                 error_highlight = err_thresh() - 1,                              
                 rowHeaders = NULL,
                 contextMenu = FALSE,
@@ -9848,7 +9866,7 @@ server <- function(input, output, session) {
             if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
               output$db_entries <- renderRHandsontable({
                 rhandsontable(
-                  select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
+                  select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)), input$compare_select),
                   col_highlight = diff_allele() - 1,
                   dup_names_high = duplicated_names() - 1,
                   dup_ids_high = duplicated_ids() - 1,
@@ -10007,7 +10025,7 @@ server <- function(input, output, session) {
             if(!is.null(DB$data) & !is.null(DB$cust_var)) {
               output$db_entries <- renderRHandsontable({
                 rhandsontable(
-                  select(DB$data, 1:(12 + nrow(DB$cust_var))),
+                  select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var))),
                   rowHeaders = NULL,
                   row_highlight = true_rows() - 1,
                   dup_names_high = duplicated_names()- 1,
@@ -10146,7 +10164,7 @@ server <- function(input, output, session) {
             if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height) & !is.null(input$compare_select)) {
               output$db_entries <- renderRHandsontable({
                 rhandsontable(
-                  select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
+                  select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)), input$compare_select),
                   col_highlight = diff_allele() - 1,
                   rowHeaders = NULL,
                   height = table_height(),
@@ -10301,7 +10319,7 @@ server <- function(input, output, session) {
             if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height)) {
               output$db_entries <- renderRHandsontable({
                 rhandsontable(
-                  select(DB$data, 1:(12 + nrow(DB$cust_var))),
+                  select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var))),
                   rowHeaders = NULL,
                   height = table_height(),
                   dup_names_high = duplicated_names() - 1,
@@ -10441,8 +10459,8 @@ server <- function(input, output, session) {
   
   observe({
     if(!is.null(DB$data)){
-      if ((ncol(DB$data)-12) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
-        cust_var <- select(DB$data, 13:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
+      if ((ncol(DB$data)-13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
+        cust_var <- select(DB$data, 14:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
         DB$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
         
       } else {
@@ -10519,21 +10537,24 @@ server <- function(input, output, session) {
     
     if(input$new_var_type == "Categorical (character)") {
       DB$data <- DB$data %>%
-        mutate("{name}" := character(nrow(DB$data)), .after = 12)
+        mutate("{name}" := character(nrow(DB$data)), .after = 13)
       
       DB$cust_var <- rbind(DB$cust_var, data.frame(Variable = name, Type = "categ"))
     } else {
       DB$data <- DB$data %>%
-        mutate("{name}" := numeric(nrow(DB$data)), .after = 12)
+        mutate("{name}" := numeric(nrow(DB$data)), .after = 13)
       
       DB$cust_var <- rbind(DB$cust_var, data.frame(Variable = name, Type = "cont"))
     }
     
-    DB$meta <- select(DB$data, 1:(12 + nrow(DB$cust_var)))
+    
+    DB$meta_gs <- select(DB$data, c(1, 3:13))
+    
+    DB$meta <- select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)))
     
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
     
-    DB$allelic_profile <- select(DB$data, -(1:(12 + nrow(DB$cust_var))))
+    DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
     
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
     
@@ -10603,13 +10624,18 @@ server <- function(input, output, session) {
     log_print(paste0("Variable ", input$del_which_var, " removed"))
     
     DB$cust_var <- DB$cust_var[-which(DB$cust_var$Variable == input$del_which_var),]
+    
     DB$data <- select(DB$data, -(input$del_which_var))
-    DB$meta <- select(DB$data, 1:(12 + nrow(DB$cust_var)))
+    
+    DB$meta_gs <- select(DB$data, c(1, 3:13))
+    
+    DB$meta <- select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)))
+    
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
     
-    DB$allelic_profile <- select(DB$data, -(1:(12 + nrow(DB$cust_var))))
-    DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
+    DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
     
+    DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
   })
   
   # Select all button
@@ -10818,8 +10844,8 @@ server <- function(input, output, session) {
     DB$data <- Database[["Typing"]]
     
     if(!is.null(DB$data)){
-      if ((ncol(DB$data)-12) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
-        cust_var <- select(DB$data, 13:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
+      if ((ncol(DB$data)-13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
+        cust_var <- select(DB$data, 14:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
         DB$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
       } else {
         DB$cust_var <- data.frame()
@@ -10832,11 +10858,13 @@ server <- function(input, output, session) {
     
     DB$no_na_switch <- TRUE
     
-    DB$meta <- select(DB$data, 1:(12 + nrow(DB$cust_var)))
+    DB$meta_gs <- select(DB$data, c(1, 3:13))
+    
+    DB$meta <- select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)))
     
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
     
-    DB$allelic_profile <- select(DB$data, -(1:(12 + nrow(DB$cust_var))))
+    DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
     
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
     
@@ -10953,11 +10981,13 @@ server <- function(input, output, session) {
     
     DB$data <- DB$data[!(DB$data$Index %in% as.numeric(input$select_delete)),]
     
-    DB$meta <- select(DB$data, 1:(12 + nrow(DB$cust_var)))
+    DB$meta_gs <- select(DB$data, c(1, 3:13))
+    
+    DB$meta <- select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)))
     
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
     
-    DB$allelic_profile <- select(DB$data, -(1:(12 + nrow(DB$cust_var))))
+    DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
     
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
     
@@ -11589,33 +11619,34 @@ server <- function(input, output, session) {
     )
   })
   
-  # Download Target Info (CSV Table)
-  observe({
-    input$download_cgMLST
-    
-    scheme_overview <- read_html(Scheme$link_scheme) %>%
-      html_table(header = FALSE) %>%
-      as.data.frame(stringsAsFactors = FALSE)
-    
-    last_scheme_change <- strptime(scheme_overview$X2[scheme_overview$X1 == "Last Change"], 
-                                   format = "%B %d, %Y, %H:%M %p")
-    names(scheme_overview) <- NULL
-    
-    last_file_change <- format(
-      file.info(file.path(DB$database,
-                          ".downloaded_schemes",
-                          paste0(Scheme$folder_name, ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
-    
-    output$cgmlst_scheme <- renderTable({scheme_overview})
-    output$scheme_update_info <- renderText({
-      req(last_file_change)
-      if (last_file_change < last_scheme_change) {
-        "(Newer scheme available \u274c)"
-      } else {
-        "(Scheme is up-to-date \u2705)"
-      }
-    })
-  })
+  # Download Target Info (CSV Table)#
+  #TODO
+  # observe({
+  #   input$download_cgMLST
+  #   
+  #   scheme_overview <- read_html(Scheme$link_scheme) %>%
+  #     html_table(header = FALSE) %>%
+  #     as.data.frame(stringsAsFactors = FALSE)
+  #   
+  #   last_scheme_change <- strptime(scheme_overview$X2[scheme_overview$X1 == "Last Change"], 
+  #                                  format = "%B %d, %Y, %H:%M %p")
+  #   names(scheme_overview) <- NULL
+  #   
+  #   last_file_change <- format(
+  #     file.info(file.path(DB$database,
+  #                         ".downloaded_schemes",
+  #                         paste0(Scheme$folder_name, ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
+  #   
+  #   output$cgmlst_scheme <- renderTable({scheme_overview})
+  #   output$scheme_update_info <- renderText({
+  #     req(last_file_change)
+  #     if (last_file_change < last_scheme_change) {
+  #       "(Newer scheme available \u274c)"
+  #     } else {
+  #       "(Scheme is up-to-date \u2705)"
+  #     }
+  #   })
+  # })
   
   # _______________________ ####
   
@@ -17590,7 +17621,7 @@ server <- function(input, output, session) {
                          label = label_mst(),
                          value = mst_node_scaling(),
                          opacity = node_opacity())
-    test <<- Typing$data
+    
     ctxRendererJS <- htmlwidgets::JS("({ctx, id, x, y, state: { selected, hover }, style, font, label, metadata}) => {
                             var pieData = JSON.parse(metadata);
                             var radius = style.size;
@@ -17788,14 +17819,10 @@ server <- function(input, output, session) {
     } else {
       legend <- Typing$var_cols
       names(legend)[1] <- "label"
-      legend <- mutate(legend, shape = "dot",
+      mutate(legend, shape = "dot",
              font.color = input$mst_legend_color,
              size = input$mst_symbol_size,
              font.size = input$mst_font_size)
-      
-      legend1 <<- legend
-      dnode <<- Typing$data$nodes
-      legend
     }
   })
   
@@ -22269,6 +22296,32 @@ server <- function(input, output, session) {
   
   ### Render UI Elements ----
   
+  observe({
+    req(DB$meta)
+    output$gs_isolate_table <- renderDataTable(
+      DB$meta_gs,
+      selection = "single",
+      rownames= FALSE,
+      options = list(pageLength = 10,
+                     columnDefs = list(list(searchable = TRUE,
+                                            targets = "_all")),
+                     initComplete = DT::JS(
+                       "function(settings, json) {",
+                       "$('th:first-child').css({'border-top-left-radius': '5px'});",
+                       "$('th:last-child').css({'border-top-right-radius': '5px'});",
+                       "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                       "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                       "}"
+                     ),
+                     drawCallback = DT::JS(
+                       "function(settings) {",
+                       "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                       "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                       "}"
+                     ))
+    )
+  })
+  
   output$screening_results <- renderUI({
     if(!is.null(Screening$results)) {
       dataTableOutput("screening_table")
@@ -22430,7 +22483,8 @@ server <- function(input, output, session) {
             width = 10,
             br(), br(), br(), br(),
             uiOutput("screening_results"),
-            verbatimTextOutput("screening_fail")
+            verbatimTextOutput("screening_fail"),
+            br(), br(), br(), br(), br(), br()
           )
         )
       )
@@ -22593,10 +22647,24 @@ server <- function(input, output, session) {
         Screening$results <- read.delim(paste0(getwd(), "/execute/screening/output_file.tsv"))
         Screening$status <- "finished"
         log_print("Finalized gene screening")
+        show_toast(
+          title = "Successful gene screening",
+          type = "success",
+          position = "bottom-end",
+          width = "500px",
+          timer = 6000
+        )
       } else if(file.exists(paste0(getwd(), "/execute/screening/error.txt"))) {
         Screening$status <- "finished"
         log_print("Failed gene screening")
         Screening$fail <- TRUE
+        show_toast(
+          title = "Failed gene screening",
+          type = "error",
+          position = "bottom-end",
+          width = "500px",
+          timer = 6000
+        )
       }
     }
   })
@@ -22682,6 +22750,7 @@ server <- function(input, output, session) {
         if(str_detect(tail(readLines(paste0(getwd(),"/logs/single_typing_log.txt")), 1), "Successful")) {
           output$typing_result_table <- renderRHandsontable({
             Typing$typing_result_table <- readRDS(paste0(getwd(), "/execute/event_df.rds"))
+            Typing$typing_result_table <- mutate_all(Typing$typing_result_table, as.character)
             if(nrow(Typing$typing_result_table) > 0) {
               if(nrow(Typing$typing_result_table) > 15) {
                 rhandsontable(Typing$typing_result_table, rowHeaders = NULL, 

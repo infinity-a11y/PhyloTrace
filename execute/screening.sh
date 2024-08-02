@@ -44,11 +44,7 @@ fi
 
 mkdir "$base_path/execute/screening"
 
-# Get cores
-coresall=$(nproc --all)
-cores=$((num_processors - 2))
-
-amrfinder -n "$path_assembly" --threads $cores --plus --organism $species -o "screening/output_file.tsv" > amrfinder_stdout.txt 2> amrfinder_stderr.txt
+amrfinder -n "$path_assembly" --plus --organism $species -o "screening/output_file.tsv" > amrfinder_stdout.txt 2> amrfinder_stderr.txt
 status=$?
 
 # Check if status variable is set and is an integer
