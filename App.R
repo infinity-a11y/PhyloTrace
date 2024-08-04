@@ -7788,6 +7788,7 @@ server <- function(input, output, session) {
                               hot_col(1, 
                                       valign = "htMiddle",
                                       halign = "htCenter") %>%
+                              hot_col(3, readOnly = TRUE) %>%
                               hot_col(c(1, 5, 10, 11, 12),
                                       readOnly = TRUE) %>%
                               hot_col(3:(12 + nrow(DB$cust_var)), 
@@ -7890,6 +7891,7 @@ server <- function(input, output, session) {
                                 hot_col(1, 
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
+                                hot_col(3, readOnly = TRUE) %>%
                                 hot_col(c(1, 5, 10, 11, 12),
                                         readOnly = TRUE) %>%
                                 hot_col(3, validator = "
@@ -8046,6 +8048,7 @@ server <- function(input, output, session) {
                                 hot_col(1, 
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
+                                hot_col(3, readOnly = TRUE) %>%
                                 hot_col(c(1, 5, 10, 11, 12),
                                         readOnly = TRUE) %>%
                                 hot_col(3:(12 + nrow(DB$cust_var)), 
@@ -8190,6 +8193,7 @@ server <- function(input, output, session) {
                                 hot_col(3:(12 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
                                         halign = "htLeft") %>%
+                                hot_col(3, readOnly = TRUE) %>%
                                 hot_col(3, validator = "
                                   function(value, callback) {
                                     try {
@@ -8341,6 +8345,7 @@ server <- function(input, output, session) {
                                 hot_col(1, 
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
+                                hot_col(3, readOnly = TRUE) %>%
                                 hot_col(c(1, 5, 10, 11, 12),
                                         readOnly = TRUE) %>%
                                 hot_col(3, validator = "
@@ -9819,6 +9824,7 @@ server <- function(input, output, session) {
                 hot_col(1, 
                         valign = "htMiddle",
                         halign = "htCenter") %>%
+                hot_col(3, readOnly = TRUE) %>%
                 hot_col(c(1, 5, 10, 11, 12),
                         readOnly = TRUE) %>%
                 hot_col(3:(12 + nrow(DB$cust_var)), 
@@ -9921,6 +9927,7 @@ server <- function(input, output, session) {
                   hot_col(1, 
                           valign = "htMiddle",
                           halign = "htCenter") %>%
+                  hot_col(3, readOnly = TRUE) %>%
                   hot_col(c(1, 5, 10, 11, 12),
                           readOnly = TRUE) %>%
                   hot_col(3:(12 + nrow(DB$cust_var)), 
@@ -10077,6 +10084,7 @@ server <- function(input, output, session) {
                   hot_col(1, 
                           valign = "htMiddle",
                           halign = "htCenter") %>%
+                  hot_col(3, readOnly = TRUE) %>%
                   hot_col(c(1, 5, 10, 11, 12),
                           readOnly = TRUE) %>%
                   hot_col(3:(12 + nrow(DB$cust_var)), 
@@ -10221,6 +10229,7 @@ server <- function(input, output, session) {
                   hot_col(3:(12 + nrow(DB$cust_var)), 
                           valign = "htMiddle",
                           halign = "htLeft") %>%
+                  hot_col(3, readOnly = TRUE) %>%
                   hot_col(3, validator = "
                                   function(value, callback) {
                                     try {
@@ -10374,6 +10383,7 @@ server <- function(input, output, session) {
                           halign = "htCenter") %>%
                   hot_col(c(1, 5, 10, 11, 12),
                           readOnly = TRUE) %>%
+                  hot_col(3, readOnly = TRUE) %>%
                   hot_col(3, validator = "
                                   function(value, callback) {
                                     try {
@@ -24300,9 +24310,7 @@ server <- function(input, output, session) {
     Typing$new_table <- mutate(hot_to_r(input$multi_select_table),
                                Include = as.logical(Include))
     
-    ahaaa <<- hot_to_r(input$multi_select_table)
-    
-    multi_select_table <<- hot_to_r(input$multi_select_table)[hot_to_r(input$multi_select_table)$Include == TRUE,]
+    multi_select_table <- hot_to_r(input$multi_select_table)[hot_to_r(input$multi_select_table)$Include == TRUE,]
     
     if(any(unlist(gsub(".fasta|.fna|.fa|.fasta.gz|.fna.gz|.fa.gz", "", Typing$genome_selected[which(Typing$genome_selected$Include == TRUE),]$Files)) %in% unlist(DB$data["Assembly ID"]))) {
       show_toast(
