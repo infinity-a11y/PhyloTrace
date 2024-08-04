@@ -23642,7 +23642,7 @@ server <- function(input, output, session) {
        any(duplicated(hot_to_r(input$multi_select_table)$Files))){
       HTML(
         paste(
-          paste("<span style='color: #e0b300;'>",
+          paste("<span style='color: orange;'>",
                 "Some name(s) are already present in local database.<br/>"),
           paste("<span style='color: #ff7334;'>",
                 "Duplicated name(s). <br/>")
@@ -24300,6 +24300,10 @@ server <- function(input, output, session) {
     Typing$new_table <- mutate(hot_to_r(input$multi_select_table),
                                Include = as.logical(Include))
     
+    ahaaa <<- hot_to_r(input$multi_select_table)
+    
+    multi_select_table <<- hot_to_r(input$multi_select_table)[hot_to_r(input$multi_select_table)$Include == TRUE,]
+    
     if(any(unlist(gsub(".fasta|.fna|.fa|.fasta.gz|.fna.gz|.fa.gz", "", Typing$genome_selected[which(Typing$genome_selected$Include == TRUE),]$Files)) %in% unlist(DB$data["Assembly ID"]))) {
       show_toast(
         title = "Assembly ID(s) already present",
@@ -24308,7 +24312,7 @@ server <- function(input, output, session) {
         timer = 3000,
         width = "500px"
       )
-    } else if (any(duplicated(hot_to_r(input$multi_select_table)$Files))) {
+    } else if (any(duplicated(multi_select_table$Files))) {
       show_toast(
         title = "Duplicated file name(s)",
         type = "error",
@@ -24316,7 +24320,7 @@ server <- function(input, output, session) {
         timer = 3000,
         width = "500px"
       )
-    } else if (any(hot_to_r(input$multi_select_table)$Files == "")) {
+    } else if (any(multi_select_table$Files == "")) {
       show_toast(
         title = "Empty file name(s)",
         type = "error",
@@ -24325,7 +24329,7 @@ server <- function(input, output, session) {
         width = "500px"
       )
     } 
-    else if (any(grepl("[/\\:*?\"<>|]", hot_to_r(input$multi_select_table)$Files))) {
+    else if (any(grepl("[/\\:*?\"<>|]", multi_select_table$Files))) {
       show_toast(
         title = "Invalid file name(s). Not allowed: /\\:*?\"<>|",
         type = "error",
@@ -24334,7 +24338,7 @@ server <- function(input, output, session) {
         width = "500px"
       )
     }
-    else if (!any(hot_to_r(input$multi_select_table)$Include == TRUE)) {
+    else if (!any(multi_select_table$Include == TRUE)) {
       show_toast(
         title = "No files selected",
         type = "error",
