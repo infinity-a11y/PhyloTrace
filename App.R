@@ -549,11 +549,13 @@ ui <- dashboardPage(
       
       tabItem(
         tabName = "typing",
-        fluidRow(column(
+        fluidRow(
+          column(
           width = 3,
           align = "center",
           h2(p("Generate Allelic Profile"), style = "color:white")
-        )),
+          )
+        ),
         hr(),
         uiOutput("typing_no_db"),
         conditionalPanel(
@@ -563,7 +565,7 @@ ui <- dashboardPage(
             uiOutput("single_typing_progress"),
             column(1),
             uiOutput("metadata_single_box"),
-            column(width = 1),
+            column(1),
             uiOutput("start_typing_ui")
           )
         ),
@@ -5305,14 +5307,14 @@ ui <- dashboardPage(
       tabItem(
         tabName = "gs_screening",
         fluidRow(
-          column(1),
           column(
             width = 3,
-            align = "left",
-            h2(p("Gene Screening"), style = "color:white")
+            align = "center",
+            h2(p("Gene Screening"), style = "color:white; margin-bottom: -20px;")
           ),
           column(
             width = 7,
+            align = "left",
             uiOutput("gene_screening_info")
           )
         ),
@@ -5326,14 +5328,14 @@ ui <- dashboardPage(
       tabItem(
         tabName = "gs_profile",
         fluidRow(
-          column(1),
           column(
             width = 3,
             align = "left",
-            h2(p("Resistance Profiles"), style = "color:white")
+            h2(p("Resistance Profiles"), style = "color:white; margin-bottom: -20px")
           ),
           column(
             width = 7,
+            align = "left",
             uiOutput("gene_resistance_info")
           )
         ),
@@ -5671,6 +5673,29 @@ server <- function(input, output, session) {
     groups
   }
   
+  #Function to check for duplicate isolate IDs for multi typing start
+  dupl_mult_id <- reactive({
+    req(Typing$multi_sel_table, DB$data)
+    if(!is.null(Typing$new_table)) {
+      selection <- Typing$new_table[which(unlist(Typing$new_table$Files) %in% unlist(DB$data["Assembly ID"])),]
+      as.numeric(rownames(selection[selection$Include == TRUE,]))
+    } else {
+      selection <- Typing$multi_sel_table[which(unlist(Typing$multi_sel_table$Files) %in% unlist(DB$data["Assembly ID"])),]
+      as.numeric(rownames(selection[selection$Include == TRUE,]))
+    }
+  })
+  
+  dupl_mult_id_names <- reactive({
+    req(Typing$multi_sel_table, DB$data)
+    if(!is.null(Typing$new_table)) {
+      selection <- Typing$new_table[which(unlist(Typing$new_table$Files) %in% unlist(DB$data["Assembly ID"])),]
+      selection$Files
+    } else {
+      selection <- Typing$multi_sel_table[which(unlist(Typing$multi_sel_table$Files) %in% unlist(DB$data["Assembly ID"])),]
+      selection$Files
+    }
+  })
+  
   # Function to check single typing log file
   check_new_entry <- reactive({
     
@@ -5962,7 +5987,8 @@ server <- function(input, output, session) {
           br(),
           actionButton(
             "load",
-            "Create"
+            "Create",
+            class = "load-start"
           )
         )
       } else if(length(DB$available) > 0 & !(DB$select_new)) {
@@ -5990,7 +6016,8 @@ server <- function(input, output, session) {
             br(),
             actionButton(
               "load",
-              "Load"
+              "Load",
+              class = "load-start"
             )
           )
         } else {
@@ -6008,7 +6035,8 @@ server <- function(input, output, session) {
             br(), br(),
             actionButton(
               "load",
-              "Load"
+              "Load",
+              class = "load-start"
             )
           )
         }
@@ -6039,7 +6067,8 @@ server <- function(input, output, session) {
             br(),
             actionButton(
               "load",
-              "Load"
+              "Load",
+              class = "load-start"
             )
           )
         } else {
@@ -6057,7 +6086,8 @@ server <- function(input, output, session) {
             br(), br(),
             actionButton(
               "load",
-              "Load"
+              "Load",
+              class = "load-start"
             )
           )
         }
@@ -6075,7 +6105,8 @@ server <- function(input, output, session) {
           br(),
           actionButton(
             "load",
-            "Load"
+            "Load",
+            class = "load-start"
           )
         )
       }
@@ -6422,7 +6453,7 @@ server <- function(input, output, session) {
               text = "Gene Screening",
               tabName = "gene_screening",
               icon = icon("dna"),
-              startExpanded = FALSE,
+              startExpanded = TRUE,
               menuSubItem(
                 text = "Screen Assembly",
                 tabName = "gs_screening"
@@ -6589,7 +6620,7 @@ server <- function(input, output, session) {
                   text = "Gene Screening",
                   tabName = "gene_screening",
                   icon = icon("dna"),
-                  startExpanded = FALSE,
+                  startExpanded = TRUE,
                   menuSubItem(
                     text = "Screen Assembly",
                     tabName = "gs_screening"
@@ -6679,7 +6710,7 @@ server <- function(input, output, session) {
                   text = "Gene Screening",
                   tabName = "gene_screening",
                   icon = icon("dna"),
-                  startExpanded = FALSE,
+                  startExpanded = TRUE,
                   menuSubItem(
                     text = "Screen Assembly",
                     tabName = "gs_screening"
@@ -6771,7 +6802,7 @@ server <- function(input, output, session) {
                   text = "Gene Screening",
                   tabName = "gene_screening",
                   icon = icon("dna"),
-                  startExpanded = FALSE,
+                  startExpanded = TRUE,
                   menuSubItem(
                     text = "Screen Assembly",
                     tabName = "gs_screening"
@@ -6892,7 +6923,7 @@ server <- function(input, output, session) {
                     text = "Gene Screening",
                     tabName = "gene_screening",
                     icon = icon("dna"),
-                    startExpanded = FALSE,
+                    startExpanded = TRUE,
                     menuSubItem(
                       text = "Screen Assembly",
                       tabName = "gs_screening"
@@ -7002,34 +7033,41 @@ server <- function(input, output, session) {
                 
                 output$initiate_typing_ui <- renderUI({
                   column(
-                    width = 3,
+                    width = 4,
                     align = "center",
                     br(),
                     br(),
-                    h3(p("Initiate Typing"), style = "color:white"),
+                    h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
                     br(),
                     br(),
                     p(
                       HTML(
                         paste(
-                          tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File')
+                          tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly File')
                         )
                       )
                     ),
-                    shinyFilesButton(
-                      "genome_file",
-                      "Browse",
-                      icon = icon("folder-open"),
-                      title = "Please select the genome in .fasta/.fna/.fa format:",
-                      multiple = FALSE,
-                      buttonType = "default",
-                      class = NULL,
-                      filetypes = c('fasta', 'fna', 'fa'),
-                      root = path_home()
-                    ),
-                    br(),
-                    br(),
-                    uiOutput("genome_path")
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 11,
+                        align = "center",
+                        shinyFilesButton(
+                          "genome_file",
+                          "Browse" ,
+                          icon = icon("file"),
+                          title = "Select the assembly in .fasta/.fna/.fa format:",
+                          multiple = FALSE,
+                          buttonType = "default",
+                          class = NULL,
+                          root = path_home()
+                        ),
+                        br(),
+                        br(),
+                        uiOutput("genome_path"),
+                        br()
+                      )
+                    )
                   )
                 })
                 
@@ -7077,7 +7115,7 @@ server <- function(input, output, session) {
                         text = "Gene Screening",
                         tabName = "gene_screening",
                         icon = icon("dna"),
-                        startExpanded = FALSE,
+                        startExpanded = TRUE,
                         menuSubItem(
                           text = "Screen Assembly",
                           tabName = "gs_screening"
@@ -8523,7 +8561,7 @@ server <- function(input, output, session) {
                           align = "center",
                           actionButton(
                             "sel_all_entries",
-                            "Select all",
+                            "Select All",
                             icon = icon("check")
                           )
                         ),
@@ -8532,7 +8570,7 @@ server <- function(input, output, session) {
                           align = "left",
                           actionButton(
                             "desel_all_entries",
-                            "Deselect all",
+                            "Deselect All",
                             icon = icon("xmark")
                           )
                         )
@@ -22369,34 +22407,22 @@ server <- function(input, output, session) {
   # Availablity feedback
   output$gene_screening_info <- renderUI({
     if(gsub(" ", "_", DB$scheme) %in% amrfinder_species) {
-      fluidRow(
-        column(
-          width = 11,
-          align = "left",
-          p(
-            HTML(
-              paste(
-                '<i class="fa-solid fa-check" style="font-size:20px;color:#90EE90; position:relative; top:27px;margin-right: 10px;"></i>',
-                tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
-                          paste(DB$scheme, "available for gene screening with NCBI/AMRFinder."))
-              )
-            )
+      p(
+        HTML(
+          paste(
+            '<i class="fa-solid fa-check" style="font-size:20px;color:#90EE90; position:relative; top:27px;margin-right: 10px;"></i>',
+            tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
+                      paste(DB$scheme, "available for gene screening with NCBI/AMRFinder."))
           )
         )
       )
     } else {
-      fluidRow(
-        column(
-          width = 11,
-          align = "left",
-          p(
-            HTML(
-              paste(
-                '<i class="fa-solid fa-xmark" style="font-size:20px;color:#ff0000;position:relative; top:27px;margin-right: 10px;"></i>',
-                tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
-                          paste(DB$scheme, " not available for gene screening with NCBI/AMRFinder."))
-              )
-            )
+      p(
+        HTML(
+          paste(
+            '<i class="fa-solid fa-xmark" style="font-size:20px;color:#ff0000;position:relative; top:27px;margin-right: 10px;"></i>',
+            tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
+                      paste(DB$scheme, " not available for gene screening with NCBI/AMRFinder."))
           )
         )
       )
@@ -22405,34 +22431,22 @@ server <- function(input, output, session) {
   
   output$gene_resistance_info <- renderUI({
     if(gsub(" ", "_", DB$scheme) %in% amrfinder_species) {
-      fluidRow(
-        column(
-          width = 11,
-          align = "left",
-          p(
-            HTML(
-              paste(
-                '<i class="fa-solid fa-check" style="font-size:20px;color:#90EE90; position:relative; top:27px;margin-right: 10px;"></i>',
-                tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
-                          paste(DB$scheme, "available for gene screening with NCBI/AMRFinder."))
-              )
-            )
+      p(
+        HTML(
+          paste(
+            '<i class="fa-solid fa-check" style="font-size:20px;color:#90EE90; position:relative; top:27px;margin-right: 10px;"></i>',
+            tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
+                      paste(DB$scheme, "available for gene screening with NCBI/AMRFinder."))
           )
         )
       )
     } else {
-      fluidRow(
-        column(
-          width = 11,
-          align = "left",
-          p(
-            HTML(
-              paste(
-                '<i class="fa-solid fa-xmark" style="font-size:20px;color:#ff0000;position:relative; top:27px;margin-right: 10px;"></i>',
-                tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
-                          paste(DB$scheme, " not available for gene screening with NCBI/AMRFinder."))
-              )
-            )
+      p(
+        HTML(
+          paste(
+            '<i class="fa-solid fa-xmark" style="font-size:20px;color:#ff0000;position:relative; top:27px;margin-right: 10px;"></i>',
+            tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
+                      paste(DB$scheme, " not available for gene screening with NCBI/AMRFinder."))
           )
         )
       )
@@ -22825,33 +22839,41 @@ server <- function(input, output, session) {
   # Render Initiate Typing UI
   output$initiate_typing_ui <- renderUI({
     column(
-      width = 3,
+      width = 4,
       align = "center",
       br(),
       br(),
-      h3(p("Initiate Typing"), style = "color:white"),
+      h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
       br(),
       br(),
       p(
         HTML(
           paste(
-            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File (FASTA)')
+            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly File (FASTA)')
           )
         )
       ),
-      shinyFilesButton(
-        "genome_file",
-        "Browse" ,
-        icon = icon("file"),
-        title = "Select the assembly in .fasta/.fna/.fa format:",
-        multiple = FALSE,
-        buttonType = "default",
-        class = NULL,
-        root = path_home()
-      ),
-      br(),
-      br(),
-      uiOutput("genome_path")
+      fluidRow(
+        column(1),
+        column(
+          width = 11,
+          align = "center",
+          shinyFilesButton(
+            "genome_file",
+            "Browse" ,
+            icon = icon("file"),
+            title = "Select the assembly in .fasta/.fna/.fa format:",
+            multiple = FALSE,
+            buttonType = "default",
+            class = NULL,
+            root = path_home()
+          ),
+          br(),
+          br(),
+          uiOutput("genome_path"),
+          br()
+        )
+      )
     )
   })
   
@@ -22860,7 +22882,7 @@ server <- function(input, output, session) {
   observe({
     if (nrow(Typing$single_path) < 1) {
       output$genome_path <- renderUI(HTML(
-        paste("<span style='color: white;'>", "No file selected.")
+        paste("<span style='color: white; margin-left:-30px'>", "No file selected.")
       ))
       
       # dont show subsequent metadata declaration and typing start UI
@@ -22877,7 +22899,7 @@ server <- function(input, output, session) {
         output$genome_path <- renderUI({
           HTML(
             paste(
-              "<span style='color: white; font-weight: bolder'>",
+              "<span style='color: white; margin-left:-30px; font-weight: bolder'>",
               as.character(Typing$single_path$name)
             )
           )
@@ -22893,156 +22915,157 @@ server <- function(input, output, session) {
           column(
             width = 3,
             align = "center",
-            br(),
-            br(),
-            h3(p("Declare Metadata"), style = "color:white"),
-            br(),
-            br(),
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = "90%",
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Assembly ID", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table",
-                    textInput("assembly_id",
-                              value = "",
-                              label = "",
-                              width = "80%")
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Assembly Name", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table",
-                    textInput("assembly_name",
-                              label = "",
-                              width = "80%")
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Isolation Date", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table",
-                    dateInput("append_isodate",
-                              label = "",
-                              width = "80%",
-                              max = Sys.Date())
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Host", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table",
-                    textInput("append_host",
-                              label = "",
-                              width = "80%")
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Country", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table_country",
-                    pickerInput(
-                      "append_country",
-                      label = "",
-                      choices = list("Common" = sel_countries,
-                                     "All Countries" = country_names),
-                      options = list(
-                        `live-search` = TRUE,
-                        `actions-box` = TRUE,
-                        size = 10,
-                        style = "background-color: white; border-radius: 5px;"
-                      ),
-                      width = "90%"
-                    )
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("City", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table",
-                    textInput(
-                      "append_city",
-                      label = "",
-                      width = "80%"
-                    )
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Typing Date", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  h5(paste0(" ", Sys.Date()), style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 12,
-                  align = "center",
-                  br(), br(),
-                  actionButton(
-                    inputId = "conf_meta_single",
-                    label = "Confirm"
+            br(), br(),
+            h3(p("Declare Metadata"), style = "color:white; margin-left:-40px"),
+            br(), br(),
+            div(
+              class = "multi_meta_box",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "90%",
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Assembly ID", style = "color:white; margin-top: 30px; margin-left: 15px")
                   ),
-                  br()
-                )
-              ),
-              br()
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table",
+                      textInput("assembly_id",
+                                value = "",
+                                label = "",
+                                width = "80%")
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Assembly Name", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table",
+                      textInput("assembly_name",
+                                label = "",
+                                width = "80%")
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Isolation Date", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table",
+                      dateInput("append_isodate",
+                                label = "",
+                                width = "80%",
+                                max = Sys.Date())
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Host", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table",
+                      textInput("append_host",
+                                label = "",
+                                width = "80%")
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Country", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table_country",
+                      pickerInput(
+                        "append_country",
+                        label = "",
+                        choices = list("Common" = sel_countries,
+                                       "All Countries" = country_names),
+                        options = list(
+                          `live-search` = TRUE,
+                          `actions-box` = TRUE,
+                          size = 10,
+                          style = "background-color: white; border-radius: 5px;"
+                        ),
+                        width = "90%"
+                      )
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("City", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table",
+                      textInput(
+                        "append_city",
+                        label = "",
+                        width = "80%"
+                      )
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Typing Date", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    h5(paste0(" ", Sys.Date()), style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 12,
+                    align = "center",
+                    br(), br(),
+                    actionButton(
+                      inputId = "conf_meta_single",
+                      label = "Confirm"
+                    ),
+                    br()
+                  )
+                ),
+                br()
+              )
             )
           )
         })
@@ -23150,6 +23173,7 @@ server <- function(input, output, session) {
         single_typing_df <- data.frame(
           db_path = DB$database,
           wd = getwd(),
+          save = input$save_assembly_st,
           scheme = paste0(gsub(" ", "_", DB$scheme)),
           genome = Typing$single_path$datapath,
           alleles = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", search_string)
@@ -23359,7 +23383,6 @@ server <- function(input, output, session) {
   #### Declare Metadata  ----
   
   observeEvent(input$conf_meta_single, {
-    log_print("Single typing metadata confirmed")
     
     if(nchar(trimws(input$assembly_id)) < 1) {
       ass_id <- as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name)))
@@ -23373,57 +23396,87 @@ server <- function(input, output, session) {
       ass_name <- trimws(input$assembly_name)
     }
     
-    meta_info <- data.frame(assembly_id = ass_id,
-                            assembly_name = ass_name,
-                            cgmlst_typing = DB$scheme,
-                            append_isodate = input$append_isodate,
-                            append_host = trimws(input$append_host),
-                            append_country = trimws(input$append_country),
-                            append_city = trimws(input$append_city),
-                            append_analysisdate = Sys.Date(),
-                            db_directory = getwd()) 
-    
-    saveRDS(meta_info, paste0(
-      getwd(),
-      "/execute/meta_info_single.rds"
-    ))
-    
-    show_toast(
-      title = "Metadata declared",
-      type = "success",
-      position = "bottom-end",
-      timer = 3000,
-      width = "500px"
-    )
-    
-    # Render Start Typing UI
-    
-    output$start_typing_ui <- renderUI({
-      column(
-        width = 3,
-        align = "center",
-        br(),
-        br(),
-        h3(p("Start Typing"), style = "color:white"),
-        br(),
-        br(),
-        HTML(
-          paste(
-            "<span style='color: white;'>",
-            "Typing by <strong>",
-            DB$scheme,
-            "</strong> scheme."
-          )
-        ),
-        br(), br(),
-        actionButton(
-          inputId = "typing_start",
-          label = "Start",
-          icon = icon("circle-play")
-        )
+    if(ass_id %in% unlist(DB$data["Assembly ID"])) {
+      show_toast(
+        title = "Assembly ID already present",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000,
+        width = "500px"
       )
-    })
-    
+    } else {
+      
+      log_print("Single typing metadata confirmed")
+      
+      meta_info <- data.frame(assembly_id = ass_id,
+                              assembly_name = ass_name,
+                              cgmlst_typing = DB$scheme,
+                              append_isodate = input$append_isodate,
+                              append_host = trimws(input$append_host),
+                              append_country = trimws(input$append_country),
+                              append_city = trimws(input$append_city),
+                              append_analysisdate = Sys.Date(),
+                              db_directory = getwd()) 
+      
+      saveRDS(meta_info, paste0(
+        getwd(),
+        "/execute/meta_info_single.rds"
+      ))
+      
+      show_toast(
+        title = "Metadata declared",
+        type = "success",
+        position = "bottom-end",
+        timer = 3000,
+        width = "500px"
+      )
+      
+      # Render Start Typing UI
+      
+      output$start_typing_ui <- renderUI({
+        div(
+          class = "multi_start_col",
+          column(
+            width = 3,
+            align = "center",
+            br(),
+            br(),
+            h3(p("Start Typing"), style = "color:white"),
+            br(),
+            br(),
+            HTML(
+              paste(
+                "<span style='color: white;'>",
+                "Typing by <strong>",
+                DB$scheme,
+                "</strong> scheme."
+              )
+            ),
+            br(), br(), br(), br(),
+            div(
+              class = "save-assembly",
+              materialSwitch(
+                "save_assembly_st",
+                h5(p("Save Assemblies in Local Database"), style = "color:white; padding-left: 0px; position: relative; top: -3px; right: -20px;"),
+                value = TRUE,
+                right = TRUE)
+            ),
+            HTML(
+              paste(
+                "<span style='color: orange;'>",
+                "Isolates with unsaved assembly files can NOT be applied to screening for resistance genes."
+              )
+            ),
+            br(), br(), br(), br(),
+            actionButton(
+              inputId = "typing_start",
+              label = "Start",
+              icon = icon("circle-play")
+            )
+          )
+        )
+      })
+    }
   })
   
   ####  Events Single Typing ----
@@ -23460,33 +23513,41 @@ server <- function(input, output, session) {
     
     output$initiate_typing_ui <- renderUI({
       column(
-        width = 3,
+        width = 4,
         align = "center",
         br(),
         br(),
-        h3(p("Initiate Typing"), style = "color:white"),
+        h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
         br(),
         br(),
         p(
           HTML(
             paste(
-              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File (FASTA)')
+              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly File (FASTA)')
             )
           )
         ),
-        shinyFilesButton(
-          "genome_file",
-          "Browse",
-          icon = icon("folder-open"),
-          title = "Please select the genome in .fasta/.fna/.fa format:",
-          multiple = FALSE,
-          buttonType = "default",
-          class = NULL,
-          root = path_home()
-        ),
-        br(),
-        br(),
-        uiOutput("genome_path")
+        fluidRow(
+          column(1),
+          column(
+            width = 11,
+            align = "center",
+            shinyFilesButton(
+              "genome_file",
+              "Browse" ,
+              icon = icon("file"),
+              title = "Select the assembly in .fasta/.fna/.fa format:",
+              multiple = FALSE,
+              buttonType = "default",
+              class = NULL,
+              root = path_home()
+            ),
+            br(),
+            br(),
+            uiOutput("genome_path"),
+            br()
+          )
+        )
       )
     })
   })
@@ -23515,40 +23576,47 @@ server <- function(input, output, session) {
   #### Render Multi Typing UI Elements ----
   output$initiate_multi_typing_ui <- renderUI({
     column(
-      width = 3,
+      width = 4,
       align = "center",
       br(),
       br(),
-      h3(p("Initiate Typing"), style = "color:white"),
-      br(),
-      br(),
+      h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
+      br(), br(),
       p(
         HTML(
           paste(
-            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly Folder')
+            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly Folder')
           )
         )
       ),
-      column(
-        width = 12,
-        align = "center",
-        shinyDirButton(
-          "genome_file_multi",
-          "Browse",
-          icon = icon("folder-open"),
-          title = "Select the folder containing the genome assemblies (FASTA)",
-          buttonType = "default",
-          root = path_home()
-        ),
-        br(),
-        br(),
-        uiOutput("multi_select_info"),
-        br()
+      fluidRow(
+        column(1),
+        column(
+          width = 11,
+          align = "center",
+          shinyDirButton(
+            "genome_file_multi",
+            "Browse",
+            icon = icon("folder-open"),
+            title = "Select the folder containing the genome assemblies (FASTA)",
+            buttonType = "default",
+            root = path_home()
+          ),
+          br(),
+          br(),
+          uiOutput("multi_select_info"),
+          br()
+        )
       ),
-      column(
-        width = 12,
-        align = "left",
-        rHandsontableOutput("multi_select_table")
+      uiOutput("multi_select_tab_ctrls"),#
+      br(),
+      fluidRow(
+        column(1),
+        column(
+          width = 11,
+          align = "left",
+          rHandsontableOutput("multi_select_table")
+        )
       )
     )
   })
@@ -23557,21 +23625,52 @@ server <- function(input, output, session) {
   output$multi_select_info <- renderUI({
     if(!is.null(Typing$multi_path)) {
       if(length(Typing$multi_path) < 1) {
-        HTML(paste("<span style='color: white;'>", 
+        HTML(paste("<span style='color: white; margin-left:-30px'>", 
                    "No files selected."))
       } else {
-        if(!is.null(Typing$multi_sel_table)) {
-          if(sum(Typing$multi_sel_table$Include == TRUE) < 1) {
-            HTML(paste("<span style='color: white;'>", 
-                       "No files selected."))
-          } else {
-            req(Typing$genome_selected)
-            HTML(paste("<span style='color: white;'>", 
-                       sum(Typing$genome_selected$Include == TRUE),
-                       " files selected."))
-          }
-        }
+        HTML(paste("<span style='color: white; margin-left:-30px'>",
+                   sum(Typing$genome_selected$Include == TRUE),
+                   " files selected."))
       }
+    }
+  })
+  
+  # Render multi selection table issues
+  output$multi_select_issues <- renderUI({
+    req(Typing$multi_sel_table, Typing$genome_selected, input$multi_select_table)
+    if(any(hot_to_r(input$multi_select_table)$Files %in% dupl_mult_id_names()) & 
+       any(duplicated(hot_to_r(input$multi_select_table)$Files))){
+      HTML(
+        paste(
+          paste("<span style='color: #e0b300;'>",
+                "Some name(s) are already present in local database.<br/>"),
+          paste("<span style='color: #ff7334;'>",
+                "Duplicated name(s). <br/>")
+        )
+      )
+    } else if (any(hot_to_r(input$multi_select_table)$Files %in% dupl_mult_id_names()) & 
+               !any(duplicated(hot_to_r(input$multi_select_table)$Files))) {
+      HTML(
+        paste("<span style='color: #e0b300;'>",
+              "Some name(s) are already present in local database.<br/>")
+      )
+    } else if (!any(hot_to_r(input$multi_select_table)$Files %in% dupl_mult_id_names()) & 
+               any(duplicated(hot_to_r(input$multi_select_table)$Files))) {
+      HTML(
+        paste("<span style='color: #ff7334;'>",
+              "Duplicated name(s). <br/>")
+      )
+    }
+  })
+  
+  output$multi_select_issue_info <- renderUI({
+    req(Typing$multi_sel_table, Typing$genome_selected, input$multi_select_table)
+    if(any(hot_to_r(input$multi_select_table)$Files %in% dupl_mult_id_names()) | 
+       any(duplicated(hot_to_r(input$multi_select_table)$Files))) {
+      HTML(
+        paste("<span style='color: orange; font-style:italic'>",
+              "Rename highlighted isolates.")
+      )
     }
   })
   
@@ -23579,6 +23678,37 @@ server <- function(input, output, session) {
   observe({
     if(!is.null(Typing$multi_sel_table)) {
       if (nrow(Typing$multi_sel_table) > 0) {
+        
+        output$multi_select_tab_ctrls <- renderUI(
+          fluidRow(
+            column(1),
+            column(
+              width = 2,
+              align = "left",
+              actionButton(
+                "sel_all_mt",
+                "All",
+                icon = icon("check")
+              )
+            ),
+            column(
+              width = 2,
+              align = "left",
+              actionButton(
+                "desel_all_mt",
+                "None",
+                icon = icon("xmark")
+              )
+            ),
+            column(2),
+            column(
+              width = 5,
+              align = "right",
+              br(),
+              uiOutput("multi_select_issues")
+            )
+          )
+        )
         
         Typing$genome_selected <- hot_to_r(input$multi_select_table)
         
@@ -23588,140 +23718,143 @@ server <- function(input, output, session) {
             align = "center",
             br(),
             br(),
-            h3(p("Declare Metadata"), style = "color:white"),
+            h3(p("Declare Metadata"), style = "color:white;margin-left:-40px"),
             br(), br(),
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = "90%",
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Assembly ID", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Assembly Name", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Isolation Date", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table",
-                    dateInput("append_isodate_multi",
-                              label = "",
-                              width = "80%",
-                              max = Sys.Date())
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Host", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table",
-                    textInput("append_host_multi",
-                              label = "",
-                              width = "80%")
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Country", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table_country",
-                    pickerInput(
-                      "append_country_multi",
-                      label = "",
-                      choices = list("Common" = sel_countries,
-                                     "All Countries" = country_names),
-                      options = list(
-                        `live-search` = TRUE,
-                        `actions-box` = TRUE,
-                        size = 10,
-                        style = "background-color: white; border-radius: 5px;"
-                      ),
-                      width = "90%"
-                    )
-                  )  
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("City", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table",
-                    textInput("append_city_multi",
-                              label = "",
-                              width = "80%")
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Typing Date", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  h5(paste0(" ", Sys.Date()), style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 12,
-                  align = "center",
-                  br(), br(),
-                  actionButton(
-                    inputId = "conf_meta_multi",
-                    label = "Confirm"
+            div(
+              class = "multi_meta_box",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "90%",
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Assembly ID", style = "color:white; margin-top: 30px; margin-left: 15px")
                   ),
-                  br()
+                  column(
+                    width = 7,
+                    align = "left",
+                    h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Assembly Name", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Isolation Date", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table",
+                      dateInput("append_isodate_multi",
+                                label = "",
+                                width = "80%",
+                                max = Sys.Date())
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Host", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table",
+                      textInput("append_host_multi",
+                                label = "",
+                                width = "80%")
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Country", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table_country",
+                      pickerInput(
+                        "append_country_multi",
+                        label = "",
+                        choices = list("Common" = sel_countries,
+                                       "All Countries" = country_names),
+                        options = list(
+                          `live-search` = TRUE,
+                          `actions-box` = TRUE,
+                          size = 10,
+                          style = "background-color: white; border-radius: 5px;"
+                        ),
+                        width = "90%"
+                      )
+                    )  
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("City", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table",
+                      textInput("append_city_multi",
+                                label = "",
+                                width = "80%")
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Typing Date", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    h5(paste0(" ", Sys.Date()), style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 12,
+                    align = "center",
+                    br(), br(),
+                    actionButton(
+                      inputId = "conf_meta_multi",
+                      label = "Confirm"
+                    ),
+                    br(), br(),
+                    uiOutput("multi_select_issue_info")
+                  )
                 )
-              ),
-              br()
+              )    
             )
           )
         }) 
@@ -23743,95 +23876,550 @@ server <- function(input, output, session) {
     
     Typing$multi_path <- parseDirPath(roots = c(Home = path_home(), Root = "/"), input$genome_file_multi)
     
-    multi_sel_table <- data.frame(Include = rep(TRUE, length(list.files(as.character(Typing$multi_path)))),
-                                  Files = list.files(as.character(Typing$multi_path)))
+    selected_files <- list.files(as.character(Typing$multi_path))[which(!endsWith(list.files(as.character(Typing$multi_path)), ".gz"))]
     
-    Typing$multi_sel_table <- multi_sel_table[which(grepl("\\.fasta|\\.fna|\\.fa", multi_sel_table$Files)),]
+    Typing$multi_sel_table <- data.frame(
+      Include = rep(TRUE, length(selected_files)),
+      Files = gsub(".fasta|.fna|.fa|.fasta.gz|.fna.gz|.fa.gz", "", 
+                   selected_files),
+      Type = sub(".*(\\.fasta|\\.fasta\\.gz|\\.fna|\\.fna\\.gz|\\.fa|\\.fa\\.gz)$",
+                 "\\1", selected_files, perl = F))
     
-    if (between(nrow(Typing$multi_sel_table), 1, 15)) {
-      output$multi_select_table <- renderRHandsontable({
-        rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
-                      stretchH = "all", contextMenu = FALSE) %>%
-          hot_cols(columnSorting = TRUE) %>%
-          hot_rows(rowHeights = 25) %>%
-          hot_col(2,
-                  readOnly = TRUE,
-                  valign = "htBottom") %>%
-          hot_col(1,
-                  halign = "htCenter",
-                  valign = "htTop", 
-                  colWidths = 60)
-      })
+    if(nrow(Typing$multi_sel_table) > 0) {
+      output$multi_select_tab_ctrls <- renderUI(
+        fluidRow(
+          column(1),
+          column(
+            width = 2,
+            align = "left",
+            actionButton(
+              "sel_all_mt",
+              "All",
+              icon = icon("check")
+            )
+          ),
+          column(
+            width = 2,
+            align = "left",
+            actionButton(
+              "desel_all_mt",
+              "None",
+              icon = icon("xmark")
+            )
+          ),
+          column(2),
+          column(
+            width = 5,
+            align = "left",
+            uiOutput("multi_select_issues")
+          )
+        )
+      )
+    } else {
+      output$multi_select_tab_ctrls <- NULL
+    }
+    
+     if (between(nrow(Typing$multi_sel_table), 1, 15)) {
+       if(!is.null(Typing$new_table)) {
+         output$multi_select_table <- renderRHandsontable({
+           rht <- rhandsontable(Typing$new_table, rowHeaders = NULL, 
+                         stretchH = "all", contextMenu = FALSE
+           ) %>%
+             hot_cols(columnSorting = TRUE) %>%
+             hot_rows(rowHeights = 25) %>%
+             hot_col(2,
+                     readOnly = FALSE,
+                     valign = "htBottom") %>%
+             hot_col(3, readOnly = TRUE) %>%
+             hot_col(1,
+                     halign = "htCenter",
+                     valign = "htTop", 
+                     colWidths = 60)
+           
+           htmlwidgets::onRender(rht, sprintf(
+             "function(el, x) {
+        var hot = this.hot;
+        
+        var columnData = hot.getDataAtCol(1); // Change column index if needed
+        var duplicates = {};
+          
+        var highlightInvalidAndDuplicates = function(invalidValues) {
+          
+          var columnData = hot.getDataAtCol(1); // Change column index if needed
+          var duplicates = {};
+
+          // Find all duplicate values
+          for (var i = 0; i < columnData.length; i++) {
+            var value = columnData[i];
+            if (value !== null && value !== undefined) {
+              if (duplicates[value]) {
+                duplicates[value].push(i);
+              } else {
+                duplicates[value] = [i];
+              }
+            }
+          }
+
+          // Reset all cell backgrounds in the column
+          for (var i = 0; i < columnData.length; i++) {
+            var cell = hot.getCell(i, 1); // Change column index if needed
+            if (cell) {
+              cell.style.background = 'white';
+            }
+          }
+
+          // Highlight duplicates and invalid values
+          for (var i = 0; i < columnData.length; i++) {
+            var cell = hot.getCell(i, 1); // Change column index if needed
+            var value = columnData[i];
+            if (cell) {
+              if (invalidValues.includes(value)) {
+                cell.style.background = 'rgb(224, 179, 0)'; // Highlight color for invalid values
+              } else if (duplicates[value] && duplicates[value].length > 1) {
+                cell.style.background = '#FF7334'; // Highlight color for duplicates
+              }
+            }
+          }
+        };
+
+        var changefn = function(changes, source) {
+          if (source === 'edit' || source === 'undo' || source === 'autofill' || source === 'paste') {
+            highlightInvalidAndDuplicates(%s);
+          }
+        };
+
+        hot.addHook('afterChange', changefn);
+        hot.addHook('afterLoadData', function() {
+          highlightInvalidAndDuplicates(%s);
+        });
+        hot.addHook('afterRender', function() {
+          highlightInvalidAndDuplicates(%s);
+        });
+
+        highlightInvalidAndDuplicates(%s); // Initial highlight on load
+        
+        Shiny.addCustomMessageHandler('setColumnValue', function(message) {
+          var colData = hot.getDataAtCol(0);
+          for (var i = 0; i < colData.length; i++) {
+            hot.setDataAtCell(i, 0, message.value);
+          }
+          hot.render(); // Re-render the table
+        });
+      }", 
+             jsonlite::toJSON(dupl_mult_id_names()), 
+             jsonlite::toJSON(dupl_mult_id_names()), 
+             jsonlite::toJSON(dupl_mult_id_names()), 
+             jsonlite::toJSON(dupl_mult_id_names())))
+         })
+       } else {
+         output$multi_select_table <- renderRHandsontable({
+           rht <- rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
+                         stretchH = "all", contextMenu = FALSE
+           ) %>%
+             hot_cols(columnSorting = TRUE) %>%
+             hot_rows(rowHeights = 25) %>%
+             hot_col(2,
+                     readOnly = FALSE,
+                     valign = "htBottom") %>%
+             hot_col(3, readOnly = TRUE) %>%
+             hot_col(1,
+                     halign = "htCenter",
+                     valign = "htTop", 
+                     colWidths = 60)
+           
+           htmlwidgets::onRender(rht, sprintf(
+             "function(el, x) {
+        var hot = this.hot;
+        
+        var columnData = hot.getDataAtCol(1); // Change column index if needed
+        var duplicates = {};
+          
+        var highlightInvalidAndDuplicates = function(invalidValues) {
+          
+          var columnData = hot.getDataAtCol(1); // Change column index if needed
+          var duplicates = {};
+
+          // Find all duplicate values
+          for (var i = 0; i < columnData.length; i++) {
+            var value = columnData[i];
+            if (value !== null && value !== undefined) {
+              if (duplicates[value]) {
+                duplicates[value].push(i);
+              } else {
+                duplicates[value] = [i];
+              }
+            }
+          }
+
+          // Reset all cell backgrounds in the column
+          for (var i = 0; i < columnData.length; i++) {
+            var cell = hot.getCell(i, 1); // Change column index if needed
+            if (cell) {
+              cell.style.background = 'white';
+            }
+          }
+
+          // Highlight duplicates and invalid values
+          for (var i = 0; i < columnData.length; i++) {
+            var cell = hot.getCell(i, 1); // Change column index if needed
+            var value = columnData[i];
+            if (cell) {
+              if (invalidValues.includes(value)) {
+                cell.style.background = 'rgb(224, 179, 0)'; // Highlight color for invalid values
+              } else if (duplicates[value] && duplicates[value].length > 1) {
+                cell.style.background = '#FF7334'; // Highlight color for duplicates
+              }
+            }
+          }
+        };
+
+        var changefn = function(changes, source) {
+          if (source === 'edit' || source === 'undo' || source === 'autofill' || source === 'paste') {
+            highlightInvalidAndDuplicates(%s);
+          }
+        };
+
+        hot.addHook('afterChange', changefn);
+        hot.addHook('afterLoadData', function() {
+          highlightInvalidAndDuplicates(%s);
+        });
+        hot.addHook('afterRender', function() {
+          highlightInvalidAndDuplicates(%s);
+        });
+
+        highlightInvalidAndDuplicates(%s); // Initial highlight on load
+        
+        Shiny.addCustomMessageHandler('setColumnValue', function(message) {
+          var colData = hot.getDataAtCol(0);
+          for (var i = 0; i < colData.length; i++) {
+            hot.setDataAtCell(i, 0, message.value);
+          }
+          hot.render(); // Re-render the table
+        });
+      }", 
+             jsonlite::toJSON(dupl_mult_id_names()), 
+             jsonlite::toJSON(dupl_mult_id_names()), 
+             jsonlite::toJSON(dupl_mult_id_names()), 
+             jsonlite::toJSON(dupl_mult_id_names())))
+         })
+       }
     } else if(nrow(Typing$multi_sel_table) > 15) {
-      output$multi_select_table <- renderRHandsontable({
-        rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
-                      stretchH = "all", height = 500,
-                      contextMenu = FALSE) %>%
-          hot_cols(columnSorting = TRUE) %>%
-          hot_rows(rowHeights = 25) %>%
-          hot_col(2,
-                  readOnly = TRUE,
-                  valign = "htBottom") %>%
-          hot_col(1,
-                  halign = "htCenter",
-                  valign = "htTop", 
-                  colWidths = 60)
-      })
+      if(!is.null(Typing$new_table)) {
+        output$multi_select_table <- renderRHandsontable({
+          rht <- rhandsontable(Typing$new_table, rowHeaders = NULL, 
+                        stretchH = "all", height = 500,
+                        contextMenu = FALSE
+          ) %>%
+            hot_cols(columnSorting = TRUE) %>%
+            hot_rows(rowHeights = 25) %>%
+            hot_col(2,
+                    readOnly = FALSE,
+                    valign = "htBottom") %>%
+            hot_col(3, readOnly = TRUE) %>%
+            hot_col(1,
+                    halign = "htCenter",
+                    valign = "htTop", 
+                    colWidths = 60)
+          
+          htmlwidgets::onRender(rht, sprintf(
+            "function(el, x) {
+        var hot = this.hot;
+        
+        var columnData = hot.getDataAtCol(1); // Change column index if needed
+        var duplicates = {};
+          
+        var highlightInvalidAndDuplicates = function(invalidValues) {
+          
+          var columnData = hot.getDataAtCol(1); // Change column index if needed
+          var duplicates = {};
+
+          // Find all duplicate values
+          for (var i = 0; i < columnData.length; i++) {
+            var value = columnData[i];
+            if (value !== null && value !== undefined) {
+              if (duplicates[value]) {
+                duplicates[value].push(i);
+              } else {
+                duplicates[value] = [i];
+              }
+            }
+          }
+
+          // Reset all cell backgrounds in the column
+          for (var i = 0; i < columnData.length; i++) {
+            var cell = hot.getCell(i, 1); // Change column index if needed
+            if (cell) {
+              cell.style.background = 'white';
+            }
+          }
+
+          // Highlight duplicates and invalid values
+          for (var i = 0; i < columnData.length; i++) {
+            var cell = hot.getCell(i, 1); // Change column index if needed
+            var value = columnData[i];
+            if (cell) {
+              if (invalidValues.includes(value)) {
+                cell.style.background = 'rgb(224, 179, 0)'; // Highlight color for invalid values
+              } else if (duplicates[value] && duplicates[value].length > 1) {
+                cell.style.background = '#FF7334'; // Highlight color for duplicates
+              }
+            }
+          }
+        };
+
+        var changefn = function(changes, source) {
+          if (source === 'edit' || source === 'undo' || source === 'autofill' || source === 'paste') {
+            highlightInvalidAndDuplicates(%s);
+          }
+        };
+
+        hot.addHook('afterChange', changefn);
+        hot.addHook('afterLoadData', function() {
+          highlightInvalidAndDuplicates(%s);
+        });
+        hot.addHook('afterRender', function() {
+          highlightInvalidAndDuplicates(%s);
+        });
+
+        highlightInvalidAndDuplicates(%s); // Initial highlight on load
+        
+        Shiny.addCustomMessageHandler('setColumnValue', function(message) {
+          var colData = hot.getDataAtCol(0);
+          for (var i = 0; i < colData.length; i++) {
+            hot.setDataAtCell(i, 0, message.value);
+          }
+          hot.render(); // Re-render the table
+        });
+      }", 
+            jsonlite::toJSON(dupl_mult_id_names()), 
+            jsonlite::toJSON(dupl_mult_id_names()), 
+            jsonlite::toJSON(dupl_mult_id_names()), 
+            jsonlite::toJSON(dupl_mult_id_names())))
+        })
+      } else {
+        output$multi_select_table <- renderRHandsontable({
+          rht <- rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
+                        stretchH = "all", height = 500,
+                        contextMenu = FALSE
+          ) %>%
+            hot_cols(columnSorting = TRUE) %>%
+            hot_rows(rowHeights = 25) %>%
+            hot_col(2,
+                    readOnly = FALSE,
+                    valign = "htBottom") %>%
+            hot_col(3, readOnly = TRUE) %>%
+            hot_col(1,
+                    halign = "htCenter",
+                    valign = "htTop", 
+                    colWidths = 60)
+          
+          htmlwidgets::onRender(rht, sprintf(
+            "function(el, x) {
+        var hot = this.hot;
+        
+        var columnData = hot.getDataAtCol(1); // Change column index if needed
+        var duplicates = {};
+          
+        var highlightInvalidAndDuplicates = function(invalidValues) {
+          
+          var columnData = hot.getDataAtCol(1); // Change column index if needed
+          var duplicates = {};
+
+          // Find all duplicate values
+          for (var i = 0; i < columnData.length; i++) {
+            var value = columnData[i];
+            if (value !== null && value !== undefined) {
+              if (duplicates[value]) {
+                duplicates[value].push(i);
+              } else {
+                duplicates[value] = [i];
+              }
+            }
+          }
+
+          // Reset all cell backgrounds in the column
+          for (var i = 0; i < columnData.length; i++) {
+            var cell = hot.getCell(i, 1); // Change column index if needed
+            if (cell) {
+              cell.style.background = 'white';
+            }
+          }
+
+          // Highlight duplicates and invalid values
+          for (var i = 0; i < columnData.length; i++) {
+            var cell = hot.getCell(i, 1); // Change column index if needed
+            var value = columnData[i];
+            if (cell) {
+              if (invalidValues.includes(value)) {
+                cell.style.background = 'rgb(224, 179, 0)'; // Highlight color for invalid values
+              } else if (duplicates[value] && duplicates[value].length > 1) {
+                cell.style.background = '#FF7334'; // Highlight color for duplicates
+              }
+            }
+          }
+        };
+
+        var changefn = function(changes, source) {
+          if (source === 'edit' || source === 'undo' || source === 'autofill' || source === 'paste') {
+            highlightInvalidAndDuplicates(%s);
+          }
+        };
+
+        hot.addHook('afterChange', changefn);
+        hot.addHook('afterLoadData', function() {
+          highlightInvalidAndDuplicates(%s);
+        });
+        hot.addHook('afterRender', function() {
+          highlightInvalidAndDuplicates(%s);
+        });
+
+        highlightInvalidAndDuplicates(%s); // Initial highlight on load
+        
+        Shiny.addCustomMessageHandler('setColumnValue', function(message) {
+          var colData = hot.getDataAtCol(0);
+          for (var i = 0; i < colData.length; i++) {
+            hot.setDataAtCell(i, 0, message.value);
+          }
+          hot.render(); // Re-render the table
+        });
+      }", 
+            jsonlite::toJSON(dupl_mult_id_names()), 
+            jsonlite::toJSON(dupl_mult_id_names()), 
+            jsonlite::toJSON(dupl_mult_id_names()), 
+            jsonlite::toJSON(dupl_mult_id_names())))
+          
+        })
+      }
     } else {
       output$multi_select_table <- NULL
     }
   })
   
   observeEvent(input$conf_meta_multi, {
-    log_print("Multi typing metadata confirmed")
     
-    meta_info <- data.frame(cgmlst_typing = DB$scheme,
-                            append_isodate = trimws(input$append_isodate_multi),
-                            append_host = trimws(input$append_host_multi),
-                            append_country = trimws(input$append_country_multi),
-                            append_city = trimws(input$append_city_multi),
-                            append_analysisdate = Sys.Date(),
-                            db_directory = getwd())
+    Typing$new_table <- mutate(hot_to_r(input$multi_select_table),
+                               Include = as.logical(Include))
     
-    saveRDS(meta_info, paste0(getwd(), "/execute/meta_info.rds"))
-    
-    show_toast(
-      title = "Metadata declared",
-      type = "success",
-      position = "bottom-end",
-      timer = 3000,
-      width = "500px"
-    )
-    
-    output$start_multi_typing_ui <- renderUI({
-      column(
-        width = 3,
-        align = "center",
-        br(),
-        br(),
-        h3(p("Start Typing"), style = "color:white"),
-        br(),
-        br(),
-        HTML(
-          paste(
-            "<span style='color: white;'>",
-            "Typing by <strong>",
-            DB$scheme,
-            "</strong> scheme."
-          )
-        ),
-        br(), br(),
-        actionButton(
-          "start_typ_multi",
-          "Start",
-          icon = icon("circle-play")
-        )
+    if(any(unlist(gsub(".fasta|.fna|.fa|.fasta.gz|.fna.gz|.fa.gz", "", Typing$genome_selected[which(Typing$genome_selected$Include == TRUE),]$Files)) %in% unlist(DB$data["Assembly ID"]))) {
+      show_toast(
+        title = "Assembly ID(s) already present",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000,
+        width = "500px"
       )
-    })
-    
+    } else if (any(duplicated(hot_to_r(input$multi_select_table)$Files))) {
+      show_toast(
+        title = "Duplicated file name(s)",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000,
+        width = "500px"
+      )
+    } else if (any(hot_to_r(input$multi_select_table)$Files == "")) {
+      show_toast(
+        title = "Empty file name(s)",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000,
+        width = "500px"
+      )
+    } 
+    else if (any(grepl("[/\\:*?\"<>|]", hot_to_r(input$multi_select_table)$Files))) {
+      show_toast(
+        title = "Invalid file name(s). Not allowed: /\\:*?\"<>|",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000,
+        width = "500px"
+      )
+    }
+    else if (!any(hot_to_r(input$multi_select_table)$Include == TRUE)) {
+      show_toast(
+        title = "No files selected",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000,
+        width = "500px"
+      )
+    }
+    else {
+      
+      log_print("Multi typing metadata confirmed")
+      
+      meta_info <- data.frame(cgmlst_typing = DB$scheme,
+                              append_isodate = trimws(input$append_isodate_multi),
+                              append_host = trimws(input$append_host_multi),
+                              append_country = trimws(input$append_country_multi),
+                              append_city = trimws(input$append_city_multi),
+                              append_analysisdate = Sys.Date(),
+                              db_directory = getwd())
+      
+      saveRDS(meta_info, paste0(getwd(), "/execute/meta_info.rds"))
+      
+      show_toast(
+        title = "Metadata declared",
+        type = "success",
+        position = "bottom-end",
+        timer = 3000,
+        width = "500px"
+      )
+      
+      output$start_multi_typing_ui <- renderUI({
+        div(
+          class = "multi_start_col",
+          column(
+            width = 3,
+            align = "center",
+            br(),
+            br(),
+            h3(p("Start Typing"), style = "color:white"),
+            br(),
+            br(),
+            HTML(
+              paste(
+                "<span style='color: white;'>",
+                "Typing by <strong>",
+                DB$scheme,
+                "</strong> scheme."
+              )
+            ),
+            br(), br(), br(), br(),
+            div(
+              class = "save-assembly",
+              materialSwitch(
+                "save_assembly_mt",
+                h5(p("Save Assemblies in Local Database"), style = "color:white; padding-left: 0px; position: relative; top: -3px; right: -20px;"),
+                value = TRUE,
+                right = TRUE)
+            ),
+            HTML(
+              paste(
+                "<span style='color: orange;font-style:italic'>",
+                "Isolates with unsaved assembly files can NOT be applied to screening for resistance genes."
+              )
+            ),
+            br(), br(), br(), br(),
+            actionButton(
+              "start_typ_multi",
+              "Start",
+              icon = icon("circle-play")
+            )
+          )
+        )
+      })
+    }
   })
   
   #### Events Multi Typing ----
+  
+  observeEvent(input$sel_all_mt, {
+    session$sendCustomMessage(type = "setColumnValue", message = list(value = TRUE))
+  })
+  
+  observeEvent(input$desel_all_mt, {
+    session$sendCustomMessage(type = "setColumnValue", message = list(value = FALSE))
+  })
   
   # Print Log
   output$print_log <- downloadHandler(
@@ -23880,40 +24468,46 @@ server <- function(input, output, session) {
       
       output$initiate_multi_typing_ui <- renderUI({
         column(
-          width = 3,
+          width = 4,
           align = "center",
           br(),
           br(),
-          h3(p("Initiate Typing"), style = "color:white"),
+          h3(p("Initiate Typing"), style = "color:white, margin-left: 15px"),
           br(),
           br(),
           p(
             HTML(
               paste(
-                tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly Folder')
+                tags$span(style='color: white; font-size: 15px; margin-left: 15px', 'Select Assembly Folder')
               )
             )
           ),
-          column(
-            width = 12,
-            align = "center",
-            shinyDirButton(
-              "genome_file_multi",
-              "Browse",
-              icon = icon("folder-open"),
-              title = "Select the folder containing the genome assemblies (FASTA)",
-              buttonType = "default",
-              root = path_home()
-            ),
-            br(),
-            br(),
-            uiOutput("multi_select_info"),
-            br()
+          fluidRow(
+            column(1),
+            column(
+              width = 11,
+              align = "center",
+              shinyDirButton(
+                "genome_file_multi",
+                "Browse",
+                icon = icon("folder-open"),
+                title = "Select the folder containing the genome assemblies (FASTA)",
+                buttonType = "default",
+                root = path_home()
+              ),
+              br(),
+              br(),
+              uiOutput("multi_select_info"),
+              br()
+            )
           ),
-          column(
-            width = 12,
-            align = "left",
-            rHandsontableOutput("multi_select_table")
+          fluidRow(
+            column(1),
+            column(
+              width = 11,
+              align = "left",
+              rHandsontableOutput("multi_select_table")
+            )
           )
         )
       })
@@ -23961,40 +24555,46 @@ server <- function(input, output, session) {
     
     output$initiate_multi_typing_ui <- renderUI({
       column(
-        width = 3,
+        width = 4,
         align = "center",
         br(),
         br(),
-        h3(p("Initiate Typing"), style = "color:white"),
+        h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
         br(),
         br(),
         p(
           HTML(
             paste(
-              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly Folder')
+              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly Folder')
             )
           )
         ),
-        column(
-          width = 12,
-          align = "center",
-          shinyDirButton(
-            "genome_file_multi",
-            "Browse",
-            icon = icon("folder-open"),
-            title = "Please select the folder containing the genome assemblies (FASTA)",
-            buttonType = "default",
-            root = path_home()
-          ),
-          br(),
-          br(),
-          uiOutput("multi_select_info"),
-          br()
+        fluidRow(
+          column(1),
+          column(
+            width = 11,
+            align = "center",
+            shinyDirButton(
+              "genome_file_multi",
+              "Browse",
+              icon = icon("folder-open"),
+              title = "Select the folder containing the genome assemblies (FASTA)",
+              buttonType = "default",
+              root = path_home()
+            ),
+            br(),
+            br(),
+            uiOutput("multi_select_info"),
+            br()
+          )
         ),
-        column(
-          width = 12,
-          align = "left",
-          rHandsontableOutput("multi_select_table")
+        fluidRow(
+          column(1),
+          column(
+            width = 11,
+            align = "left",
+            rHandsontableOutput("multi_select_table")
+          )
         )
       )
     })
@@ -24044,6 +24644,8 @@ server <- function(input, output, session) {
           width = "500px"
         )
         
+        Typing$new_table <- NULL
+        
         # Remove Allelic Typing Controls
         output$initiate_multi_typing_ui <- NULL
         output$metadata_multi_box <- NULL
@@ -24062,6 +24664,7 @@ server <- function(input, output, session) {
         multi_typing_df <- data.frame(
           db_path = DB$database,
           wd = getwd(),
+          save = input$save_assembly_mt,
           scheme = paste0(gsub(" ", "_", DB$scheme)),
           genome_folder = as.character(parseDirPath(roots = c(Home = path_home(), Root = "/"), input$genome_file_multi)),
           genome_names = paste(Typing$genome_selected$Files[which(Typing$genome_selected$Include == TRUE)], collapse= " "),

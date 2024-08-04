@@ -85,6 +85,22 @@ label {
   font-size: 16px;
 }
 
+.pretty input:checked~.state.p-primary label:after, .pretty.p-toggle .state.p-primary label:after {
+  background-color: #20E6E5 !important;
+}
+
+.irs--shiny .irs-bar {
+  border-color: #20E6E5;
+  background: #20E6E5;
+}
+
+.irs--shiny .irs-to,
+.irs--shiny .irs-from,
+.irs--shiny .irs-single{
+  background-color: #20E6E5;
+  color: black;
+}
+
 .main-sidebar .sidebar .sidebar-menu .treeview-menu a {
   color: #ffffff !important; 
     margin-left: 25px; 
@@ -224,6 +240,10 @@ left: -20px;
 border: 1px solid white;
 }
 
+#db_location {
+  width: 121px
+}
+
 .irs.irs--shiny.js-irs-0 {
   margin-right: -15px;
 }
@@ -276,7 +296,7 @@ margin-top: -15px;
 }
 
 button#load.pulsating-button.btn.btn-default.action-button.shiny-bound-input {
-background: #20E6E5; 
+  background: #20E6E5; 
   color: #000000; 
   width: 40px;
 }
@@ -286,13 +306,31 @@ background: #20E6E5;
 }
 
 #load .fas.fa-rotate {
-position: relative; 
-left: 0px !important;
+  position: relative; 
+  left: 0px !important;
 }
+
+.load-start {
+  width: 150px;
+  font-size: 17px;
+  overflow: hidden;
+  box-shadow: 0px 0px 20px 10px rgba(255, 255, 255, 0.23);
+  transition: box-shadow 0.5s ease;
+  border: none;
+  height: 45px;
+  z-index: 0;
+}
+
+.load-start:hover {
+  background: #3c8c56 !important; 
+  border: none;
+  color: white !important;
+  box-shadow: 0px 0px 20px 15px rgba(40, 47, 56, 1);
+}
+
 
 .shiny-input-container input[type="text"] {
   border-radius: 5px;
-  
 }
 
 .box.box-solid.box-primary>.box-header {
@@ -459,10 +497,18 @@ left: -6px;
 }
 
 /* Icons */
-  
-  i.fas {
-    margin-right: 5px;
-  }
+
+i.fa-solid .fa-arrow-right-long {
+  font-size: 30px;
+  color: white;
+  position: relative;
+  top: -38px;
+  left: 300px;
+}
+
+i.fas {
+  margin-right: 5px;
+}
 
 i.greenstatus.fa-solid.fa-circle-dot. {
   lightgreen
@@ -537,6 +583,11 @@ top: 1px !important;
 #sel_all_entries, #desel_all_entries, #typing_start, #start_typ_multi, 
 #undo_changes, #genome_file, #genome_file_multi, #reset_multi, #save_cust {
 border-color: white;
+}
+
+#genome_file_multi,
+#genome_file {
+  margin-left: -30px;
 }
 
 .btn-default:hover {
@@ -723,9 +774,32 @@ background: #20E6E5;
   }
 
 /* Typing */
+
+#sel_all_mt {
+  margin-left: 10px;
+}
+
+#sel_all_mt,
+#desel_all_mt{
+  margin-top: 27px;
+  margin-bottom: 25px;
+}
+
+#multi_select_issues {
+  margin-top: 5px;
+}
   
 .mult_res_sel {
   margin-bottom: 15px;
+}
+
+.multi_meta_box {
+  margin-left: -40px;
+}
+
+.multi_start_col {
+  position: relative;
+  left: -40px;
 }
 
 #multi_typing_results .mult_res_sel .selectize-input.items.full.has-options.has-items {
@@ -1166,9 +1240,23 @@ top: -10px;
 
 .material-switch>label.switch:before {
   background: #20e6e559 !important;
-    border-radius: 8px;
+  border-radius: 8px;
   content: "";
   height: 13px;
+  margin-top: -10px;
+  opacity: 1;
+  position: absolute;
+  width: 40px;
+  transition: all 0.3s ease-in-out;
+  border: 1px solid transparent;
+}
+
+.save-assembly .material-switch>label.switch:before {
+  background: #20e6e559 !important;
+  border-radius: 8px;
+  content: "";
+  height: 13px;
+  left: -10px;
   margin-top: -10px;
   opacity: 1;
   position: absolute;
@@ -1183,9 +1271,23 @@ top: -10px;
 
 .material-switch>input[type=checkbox]:checked+label.switch:before {
   background: #20e6e5 !important;
-    border-radius: 8px;
+  border-radius: 8px;
   content: "";
   height: 13px;
+  margin-top: -10px;
+  opacity: 1;
+  position: absolute;
+  width: 40px;
+  transition: all 0.3s ease-in-out;
+  border: 1px solid #20e6e559;
+}
+
+.save-assembly .material-switch>input[type=checkbox]:checked+label.switch:before {
+  background: #20e6e5 !important;
+  border-radius: 8px;
+  content: "";
+  height: 13px;
+  left: -10px;
   margin-top: -10px;
   opacity: 1;
   position: absolute;
@@ -1206,6 +1308,22 @@ top: -10px;
   height: 20px;
   opacity: 1;
   left: -4px;
+  margin-top: -10px;
+  position: absolute;
+  top: -4px;
+  transition: all 0.3s ease-in-out;
+  width: 20px;
+  border: 1px solid transparent;
+}
+
+.save-assembly .material-switch>label.switch:after {
+  background: #E6E6E6 !important;
+    border-radius: 1pc;
+  box-shadow: 0 0 5px rgba(0,0,0,.3);
+  content: "";
+  height: 20px;
+  opacity: 1;
+  left: -20px;
   margin-top: -10px;
   position: absolute;
   top: -4px;

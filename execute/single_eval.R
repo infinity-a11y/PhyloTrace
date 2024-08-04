@@ -3,6 +3,7 @@ library(logr)
 # Hand over variables
 meta_info <- readRDS("meta_info_single.rds")
 db_path <- readRDS("single_typing_df.rds")[, "db_path"]
+save_assembly <- readRDS("multi_typing_df.rds")[, "save"]
 file_list <- list.files(paste0(meta_info$db_directory, "/execute/blat_single"), 
                         full.names = TRUE)
 assembly <- file_list[which(list.files(paste0(meta_info$db_directory, "/execute/blat_single")) != "results")]
@@ -307,40 +308,43 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
               message = paste0("Successful typing of ", meta_info$assembly_name))
   log_print(paste0("Successful typing of ", meta_info$assembly_name))
   
-  if(dir.exists(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Isolates"))) {
-    
-    # Create folder for new isolate
-    dir.create(paste0(db_path, "/", 
-                      gsub(" ", "_", meta_info$cgmlst_typing), 
-                      "/Isolates/", meta_info$assembly_id))
-    
-    # Copy assembly file in isolate directory
-    file.copy(assembly, paste0(db_path, "/", 
-                               gsub(" ", "_", meta_info$cgmlst_typing), 
-                               "/Isolates/", meta_info$assembly_id))
-    
-    log_print(paste0("Saved assembly of ", meta_info$assembly_id))
-    
-  } else {
-    
-    log_print("No isolate folder present yet. Isolate directory created.")
-    
-    # Create isolate filder for species
-    dir.create(paste0(db_path, "/", 
-                      gsub(" ", "_", meta_info$cgmlst_typing), 
-                      "/Isolates"))
-    
-    # Create folder for new isolate
-    dir.create(paste0(db_path, "/", 
-                      gsub(" ", "_", meta_info$cgmlst_typing), 
-                      "/Isolates/", meta_info$assembly_id))
-    
-    # Copy assembly file in isolate directory
-    file.copy(assembly, paste0(db_path, "/", 
-                               gsub(" ", "_", meta_info$cgmlst_typing), 
-                               "/Isolates/", meta_info$assembly_id))
-    
-    log_print(paste0("Saved assembly of ", meta_info$assembly_id))
+  # Save assembly file if TRUE
+  if(save_assembly) {
+    if(dir.exists(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Isolates"))) {
+      
+      # Create folder for new isolate
+      dir.create(paste0(db_path, "/", 
+                        gsub(" ", "_", meta_info$cgmlst_typing), 
+                        "/Isolates/", meta_info$assembly_id))
+      
+      # Copy assembly file in isolate directory
+      file.copy(assembly, paste0(db_path, "/", 
+                                 gsub(" ", "_", meta_info$cgmlst_typing), 
+                                 "/Isolates/", meta_info$assembly_id))
+      
+      log_print(paste0("Saved assembly of ", meta_info$assembly_id))
+      
+    } else {
+      
+      log_print("No isolate folder present yet. Isolate directory created.")
+      
+      # Create isolate filder for species
+      dir.create(paste0(db_path, "/", 
+                        gsub(" ", "_", meta_info$cgmlst_typing), 
+                        "/Isolates"))
+      
+      # Create folder for new isolate
+      dir.create(paste0(db_path, "/", 
+                        gsub(" ", "_", meta_info$cgmlst_typing), 
+                        "/Isolates/", meta_info$assembly_id))
+      
+      # Copy assembly file in isolate directory
+      file.copy(assembly, paste0(db_path, "/", 
+                                 gsub(" ", "_", meta_info$cgmlst_typing), 
+                                 "/Isolates/", meta_info$assembly_id))
+      
+      log_print(paste0("Saved assembly of ", meta_info$assembly_id))
+    }
   }
   
 } else {
