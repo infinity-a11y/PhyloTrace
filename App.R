@@ -7744,10 +7744,8 @@ server <- function(input, output, session) {
                   observe({
                     
                     if (!is.null(DB$data)) {
-                      save(DB, file="database.Rdata")
                       if (nrow(DB$data) == 1) {
                         if(!is.null(DB$data) & !is.null(DB$cust_var)) {
-                          write.csv(DB$data, "dataframe.csv")
                           output$db_entries <- renderRHandsontable({
                             rhandsontable(
                               select(DB$data, 1:(12 + nrow(DB$cust_var))),
