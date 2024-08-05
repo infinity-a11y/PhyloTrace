@@ -5330,7 +5330,7 @@ ui <- dashboardPage(
         fluidRow(
           column(
             width = 3,
-            align = "left",
+            align = "center",
             h2(p("Resistance Profiles"), style = "color:white; margin-bottom: -20px")
           ),
           column(
@@ -6128,8 +6128,11 @@ server <- function(input, output, session) {
     
     log_print("Input load")
     
+    # reset typing status on start(
     if(Typing$status == "Finalized") {Typing$status <- "Inactive"}
-    
+    if(!is.null(Typing$single_path)) {Typing$single_path <- data.frame()}
+    if(!is.null(Screening$single_path)) {Screening$single_path <- data.frame()}
+   
     #### Render status bar ----
     observe({
       req(DB$scheme)
@@ -6495,6 +6498,14 @@ server <- function(input, output, session) {
         output$download_scheme_info <- NULL
         output$download_loci <- NULL
         output$entry_table_controls <- NULL
+        output$multi_stop <- NULL
+        output$metadata_multi_box <- NULL
+        output$start_multi_typing_ui <- NULL
+        output$test_yes_pending <- NULL
+        output$multi_typing_results <- NULL
+        output$single_typing_progress <- NULL
+        output$metadata_single_box <- NULL
+        output$start_typing_ui <- NULL
       }
     } else {
       log_print(paste0("Loading existing ", input$scheme_db, " database from ", DB$database))
@@ -6529,6 +6540,16 @@ server <- function(input, output, session) {
         output$tree_mst <- NULL
         output$tree_nj <- NULL
         output$tree_upgma <- NULL
+        
+        # null typing initiation UI
+        output$multi_stop <- NULL
+        output$metadata_multi_box <- NULL
+        output$start_multi_typing_ui <- NULL
+        output$test_yes_pending <- NULL
+        output$multi_typing_results <- NULL
+        output$single_typing_progress <- NULL
+        output$metadata_single_box <- NULL
+        output$start_typing_ui <- NULL
         
         # null report values
         Report$report_list_mst <- list()
@@ -7066,6 +7087,53 @@ server <- function(input, output, session) {
                         br(),
                         uiOutput("genome_path"),
                         br()
+                      )
+                    )
+                  )
+                })
+                
+                output$initiate_multi_typing_ui <- renderUI({
+                  column(
+                    width = 4,
+                    align = "center",
+                    br(),
+                    br(),
+                    h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
+                    br(), br(),
+                    p(
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly Folder')
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 11,
+                        align = "center",
+                        shinyDirButton(
+                          "genome_file_multi",
+                          "Browse",
+                          icon = icon("folder-open"),
+                          title = "Select the folder containing the genome assemblies (FASTA)",
+                          buttonType = "default",
+                          root = path_home()
+                        ),
+                        br(),
+                        br(),
+                        uiOutput("multi_select_info"),
+                        br()
+                      )
+                    ),
+                    uiOutput("multi_select_tab_ctrls"),#
+                    br(),
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 11,
+                        align = "left",
+                        rHandsontableOutput("multi_select_table")
                       )
                     )
                   )
@@ -9284,6 +9352,14 @@ server <- function(input, output, session) {
                 output$missing_values <- NULL
                 output$delete_box <- NULL
                 output$entry_table_controls <- NULL
+                output$multi_stop <- NULL
+                output$metadata_multi_box <- NULL
+                output$start_multi_typing_ui <- NULL
+                output$test_yes_pending <- NULL
+                output$multi_typing_results <- NULL
+                output$single_typing_progress <- NULL
+                output$metadata_single_box <- NULL
+                output$start_typing_ui <- NULL
                 
               }
             }
@@ -11667,34 +11743,33 @@ server <- function(input, output, session) {
     )
   })
   
-  # Download Target Info (CSV Table)#
-  #TODO
-  # observe({
-  #   input$download_cgMLST
-  #   
-  #   scheme_overview <- read_html(Scheme$link_scheme) %>%
-  #     html_table(header = FALSE) %>%
-  #     as.data.frame(stringsAsFactors = FALSE)
-  #   
-  #   last_scheme_change <- strptime(scheme_overview$X2[scheme_overview$X1 == "Last Change"], 
-  #                                  format = "%B %d, %Y, %H:%M %p")
-  #   names(scheme_overview) <- NULL
-  #   
-  #   last_file_change <- format(
-  #     file.info(file.path(DB$database,
-  #                         ".downloaded_schemes",
-  #                         paste0(Scheme$folder_name, ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
-  #   
-  #   output$cgmlst_scheme <- renderTable({scheme_overview})
-  #   output$scheme_update_info <- renderText({
-  #     req(last_file_change)
-  #     if (last_file_change < last_scheme_change) {
-  #       "(Newer scheme available \u274c)"
-  #     } else {
-  #       "(Scheme is up-to-date \u2705)"
-  #     }
-  #   })
-  # })
+  # Download Target Info (CSV Table)
+  observe({
+    input$download_cgMLST
+
+    scheme_overview <- read_html(Scheme$link_scheme) %>%
+      html_table(header = FALSE) %>%
+      as.data.frame(stringsAsFactors = FALSE)
+
+    last_scheme_change <- strptime(scheme_overview$X2[scheme_overview$X1 == "Last Change"],
+                                   format = "%B %d, %Y, %H:%M %p")
+    names(scheme_overview) <- NULL
+
+    last_file_change <- format(
+      file.info(file.path(DB$database,
+                          ".downloaded_schemes",
+                          paste0(Scheme$folder_name, ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
+
+    output$cgmlst_scheme <- renderTable({scheme_overview})
+    output$scheme_update_info <- renderText({
+      req(last_file_change)
+      if (last_file_change < last_scheme_change) {
+        "(Newer scheme available \u274c)"
+      } else {
+        "(Scheme is up-to-date \u2705)"
+      }
+    })
+  })
   
   # _______________________ ####
   
@@ -23886,14 +23961,16 @@ server <- function(input, output, session) {
     
     Typing$multi_path <- parseDirPath(roots = c(Home = path_home(), Root = "/"), input$genome_file_multi)
     
-    selected_files <- list.files(as.character(Typing$multi_path))[which(!endsWith(list.files(as.character(Typing$multi_path)), ".gz"))]
+    files_selected <- list.files(as.character(Typing$multi_path))
+    files_filtered <- files_selected[which(!endsWith(files_selected, ".gz") &
+                                             grepl("\\.fasta|\\.fna|\\.fa", files_selected))]
     
     Typing$multi_sel_table <- data.frame(
-      Include = rep(TRUE, length(selected_files)),
+      Include = rep(TRUE, length(files_filtered)),
       Files = gsub(".fasta|.fna|.fa|.fasta.gz|.fna.gz|.fa.gz", "", 
-                   selected_files),
+                   files_filtered),
       Type = sub(".*(\\.fasta|\\.fasta\\.gz|\\.fna|\\.fna\\.gz|\\.fa|\\.fa\\.gz)$",
-                 "\\1", selected_files, perl = F))
+                 "\\1", files_filtered, perl = F))
     
     if(nrow(Typing$multi_sel_table) > 0) {
       output$multi_select_tab_ctrls <- renderUI(
@@ -23920,7 +23997,8 @@ server <- function(input, output, session) {
           column(2),
           column(
             width = 5,
-            align = "left",
+            align = "right",
+            br(),
             uiOutput("multi_select_issues")
           )
         )
@@ -24312,7 +24390,7 @@ server <- function(input, output, session) {
     
     multi_select_table <- hot_to_r(input$multi_select_table)[hot_to_r(input$multi_select_table)$Include == TRUE,]
     
-    if(any(unlist(gsub(".fasta|.fna|.fa|.fasta.gz|.fna.gz|.fa.gz", "", Typing$genome_selected[which(Typing$genome_selected$Include == TRUE),]$Files)) %in% unlist(DB$data["Assembly ID"]))) {
+    if(any(unlist(gsub(".fasta|.fna|.fa|.fasta.gz|.fna.gz|.fa.gz", "", multi_select_table$Files)) %in% unlist(DB$data["Assembly ID"]))) {
       show_toast(
         title = "Assembly ID(s) already present",
         type = "error",
@@ -24484,13 +24562,12 @@ server <- function(input, output, session) {
           align = "center",
           br(),
           br(),
-          h3(p("Initiate Typing"), style = "color:white, margin-left: 15px"),
-          br(),
-          br(),
+          h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
+          br(), br(),
           p(
             HTML(
               paste(
-                tags$span(style='color: white; font-size: 15px; margin-left: 15px', 'Select Assembly Folder')
+                tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly Folder')
               )
             )
           ),
@@ -24513,6 +24590,8 @@ server <- function(input, output, session) {
               br()
             )
           ),
+          uiOutput("multi_select_tab_ctrls"),#
+          br(),
           fluidRow(
             column(1),
             column(
@@ -24572,8 +24651,7 @@ server <- function(input, output, session) {
         br(),
         br(),
         h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
-        br(),
-        br(),
+        br(), br(),
         p(
           HTML(
             paste(
@@ -24600,6 +24678,8 @@ server <- function(input, output, session) {
             br()
           )
         ),
+        uiOutput("multi_select_tab_ctrls"),#
+        br(),
         fluidRow(
           column(1),
           column(
