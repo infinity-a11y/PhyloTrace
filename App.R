@@ -7744,8 +7744,10 @@ server <- function(input, output, session) {
                   observe({
                     
                     if (!is.null(DB$data)) {
+                      save(DB, file="database.Rdata")
                       if (nrow(DB$data) == 1) {
                         if(!is.null(DB$data) & !is.null(DB$cust_var)) {
+                          write.csv(DB$data, "dataframe.csv")
                           output$db_entries <- renderRHandsontable({
                             rhandsontable(
                               select(DB$data, 1:(12 + nrow(DB$cust_var))),
@@ -7838,7 +7840,7 @@ server <- function(input, output, session) {
                                                        }") 
                           })
                         }
-                      } else if (between(nrow(DB$data), 1, 40)) {
+                      } else if (between(nrow(DB$data), 2, 40)) {
                         if (length(input$compare_select) > 0) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
                             output$db_entries <- renderRHandsontable({
@@ -7856,7 +7858,18 @@ server <- function(input, output, session) {
                               )  %>%
                                 hot_col((13 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var)) + length(input$compare_select)), 
                                         valign = "htMiddle",
-                                        halign = "htCenter") %>%
+                                        halign = "htCenter",
+                                        renderer = htmlwidgets::JS(
+                                          "function(instance, td, row, col, prop, value, cellProperties) {
+                                            if (value.length > 8) {
+                                              value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
+                                            }
+                                            td.innerHTML = value;
+                                            td.style.textAlign = 'center';
+                                            return td;
+                                           }"
+                                          )
+                                        ) %>%
                                 hot_col(1, 
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
@@ -8156,7 +8169,17 @@ server <- function(input, output, session) {
                                 hot_col((13 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var)) + length(input$compare_select)),
                                         readOnly = TRUE, 
                                         valign = "htMiddle",
-                                        halign = "htCenter") %>%
+                                        halign = "htCenter",
+                                        renderer = htmlwidgets::JS(
+                                          "function(instance, td, row, col, prop, value, cellProperties) {
+                                            if (value.length > 8) {
+                                              value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
+                                            }
+                                            td.innerHTML = value;
+                                            td.style.textAlign = 'center';
+                                            return td;
+                                           }")
+                                        ) %>%
                                 hot_col(3:(12 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
                                         halign = "htLeft") %>%
@@ -9861,7 +9884,17 @@ server <- function(input, output, session) {
                 )  %>%
                   hot_col((13 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var)) + length(input$compare_select)), 
                           valign = "htMiddle",
-                          halign = "htCenter") %>%
+                          halign = "htCenter",
+                          renderer = htmlwidgets::JS(
+                            "function(instance, td, row, col, prop, value, cellProperties) {
+                                            if (value.length > 8) {
+                                              value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
+                                            }
+                                            td.innerHTML = value;
+                                            td.style.textAlign = 'center';
+                                            return td;
+                                           }")
+                          ) %>%
                   hot_col(1, 
                           valign = "htMiddle",
                           halign = "htCenter") %>%
@@ -10161,7 +10194,17 @@ server <- function(input, output, session) {
                   hot_col((13 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var)) + length(input$compare_select)),
                           readOnly = TRUE, 
                           valign = "htMiddle",
-                          halign = "htCenter") %>%
+                          halign = "htCenter",
+                          renderer = htmlwidgets::JS(
+                            "function(instance, td, row, col, prop, value, cellProperties) {
+                                            if (value.length > 8) {
+                                              value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
+                                            }
+                                            td.innerHTML = value;
+                                            td.style.textAlign = 'center';
+                                            return td;
+                                           }")
+                          ) %>%
                   hot_col(3:(12 + nrow(DB$cust_var)), 
                           valign = "htMiddle",
                           halign = "htLeft") %>%
