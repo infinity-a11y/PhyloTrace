@@ -11080,7 +11080,7 @@ server <- function(input, output, session) {
     
     fasta <- format_fasta(DB$loci[input$db_loci_rows_selected])
     
-    seq <- fasta[[which(fasta == paste0(">", gsub("Variant ", "", sub(" -.*", "", input$seq_sel)))) + 1]]
+    seq <- fasta[[which(fasta == paste0(">", gsub("Allele ", "", sub(" -.*", "", input$seq_sel)))) + 1]]
     
     DB$seq <- seq
     
@@ -11131,11 +11131,17 @@ server <- function(input, output, session) {
       present <- which(choices %in% names(vec))
       absent <- which(!(choices %in% names(vec)))
       
-      choices[present] <- paste0("Variant ", choices[present], " - ", unname(var_count), " times in DB (", unname(perc), ")")
+      choices[present] <- paste0("Allele ", choices[present], " - ", unname(var_count), " times in DB (", unname(perc), ")")
       
-      choices[absent] <- paste0("Variant ", choices[absent], " - not present")
+      choices[absent] <- paste0("Allele ", choices[absent], " - not present")
       
       choices <- c(choices[present], choices[absent])
+      
+      names(choices) <- sapply(choices, function(x) {
+        x <- strsplit(x, " ")[[1]]
+        x[2] <- paste0(substr(x[2], 1, 4), "...", substr(x[2], nchar(x[2])-3, nchar(x[2])))
+        paste(x, collapse = " ")
+      })
       
       column(
         width = 3,
