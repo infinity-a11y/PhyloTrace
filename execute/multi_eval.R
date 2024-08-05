@@ -123,7 +123,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
           
         } else if(variant_valid != FALSE) {
           
-          hashed_variant <- openssl::sha256(variant_valid)
+          hashed_variant <- as.character(openssl::sha256(variant_valid))
           
           # Append new variant number to allele fasta file
           cat(paste0("\n>", hashed_variant), file = locus_file, append = TRUE)
@@ -132,7 +132,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
           cat(paste0("\n", variant_valid, "\n"), file = locus_file, append = TRUE)
           
           # Entry in results data frame
-          event_list[[basename(assembly)]] <- rbind(event_list[[basename(assembly)]], data.frame(Locus = allele_index, Event = "New Variant", Value = as.character(hashed_variant)))
+          event_list[[basename(assembly)]] <- rbind(event_list[[basename(assembly)]], data.frame(Locus = allele_index, Event = "New Variant", Value = hashed_variant))
           
           allele_vector[[i]] <- hashed_variant
           

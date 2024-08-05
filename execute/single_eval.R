@@ -111,7 +111,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
           
         } else if(variant_valid != FALSE) {
           
-          hashed_variant <- openssl::sha256(variant_valid)
+          hashed_variant <- as.character(openssl::sha256(variant_valid))
           
           # Append new variant number to allele fasta file
           cat(paste0("\n>", hashed_variant), file = locus_file, append = TRUE)
