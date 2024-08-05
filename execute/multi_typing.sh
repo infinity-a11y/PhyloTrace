@@ -41,13 +41,17 @@ file_names=($genome_names)
 
 # Loop through the list of file names and copy them to the new folder
 for file in "${file_names[@]}"; do
-    if [ -f "$genome_folder/$file" ]; then
-        cp "$genome_folder/$file" "$selected_genomes/"
-        echo "$(date +"%Y-%m-%d %H:%M:%S") - Initiated $file" >> "$log_file"
+    # Replace tilde with space in the filename
+    new_file="${file//\~/ }"
+    
+    if [ -f "$genome_folder/$new_file" ]; then
+        cp "$genome_folder/$new_file" "$selected_genomes/"
+        echo "$(date +"%Y-%m-%d %H:%M:%S") - Initiated $new_file" >> "$log_file"
     else
-        echo "$(date +"%Y-%m-%d %H:%M:%S") - $file not found in $genome_folder" >> "$log_file"
+        echo "$(date +"%Y-%m-%d %H:%M:%S") - $new_file not found in $genome_folder" >> "$log_file"
     fi
 done
+
 
 #INDEXING GENOME AS DATABASE
 blat_database="$base_path/execute/blat_multi/$scheme"

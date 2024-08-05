@@ -551,9 +551,9 @@ ui <- dashboardPage(
         tabName = "typing",
         fluidRow(
           column(
-          width = 3,
-          align = "center",
-          h2(p("Generate Allelic Profile"), style = "color:white")
+            width = 3,
+            align = "center",
+            h2(p("Generate Allelic Profile"), style = "color:white")
           )
         ),
         hr(),
@@ -5368,7 +5368,7 @@ server <- function(input, output, session) {
   session$onSessionEnded( function() {
     stopApp()
   })
-   
+  
   # Disable various user inputs (visualization control)
   shinyjs::disable('mst_edge_label') 
   
@@ -5675,25 +5675,11 @@ server <- function(input, output, session) {
   
   #Function to check for duplicate isolate IDs for multi typing start
   dupl_mult_id <- reactive({
-    req(Typing$multi_sel_table, DB$data)
-    if(!is.null(Typing$new_table)) {
-      selection <- Typing$new_table[which(unlist(Typing$new_table$Files) %in% unlist(DB$data["Assembly ID"])),]
-      as.numeric(rownames(selection[selection$Include == TRUE,]))
-    } else {
-      selection <- Typing$multi_sel_table[which(unlist(Typing$multi_sel_table$Files) %in% unlist(DB$data["Assembly ID"])),]
-      as.numeric(rownames(selection[selection$Include == TRUE,]))
-    }
-  })
-  
-  dupl_mult_id_names <- reactive({
-    req(Typing$multi_sel_table, DB$data)
-    if(!is.null(Typing$new_table)) {
-      selection <- Typing$new_table[which(unlist(Typing$new_table$Files) %in% unlist(DB$data["Assembly ID"])),]
-      selection$Files
-    } else {
+    req(Typing$multi_sel_table)
+    if(!is.null(DB$data)) {
       selection <- Typing$multi_sel_table[which(unlist(Typing$multi_sel_table$Files) %in% unlist(DB$data["Assembly ID"])),]
       selection$Files
-    }
+    } else {""}
   })
   
   # Function to check single typing log file
@@ -6132,7 +6118,7 @@ server <- function(input, output, session) {
     if(Typing$status == "Finalized") {Typing$status <- "Inactive"}
     if(!is.null(Typing$single_path)) {Typing$single_path <- data.frame()}
     if(!is.null(Screening$single_path)) {Screening$single_path <- data.frame()}
-   
+    
     #### Render status bar ----
     observe({
       req(DB$scheme)
@@ -6313,8 +6299,6 @@ server <- function(input, output, session) {
       output$typing_formatting <- NULL
       
       Typing$single_path <- data.frame()
-      
-      Typing$multi_path <- data.frame()
       
       # reset results file 
       if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
@@ -6519,19 +6503,12 @@ server <- function(input, output, session) {
         saveRDS(DB$database, paste0(getwd(), "/execute/last_db.rds"))
         
         DB$check_new_entries <- TRUE
-        
         DB$data <- NULL
-        
         DB$meta_gs <- NULL
-        
         DB$meta <- NULL
-        
         DB$meta_true <- NULL
-        
         DB$allelic_profile <- NULL
-        
         DB$allelic_profile_true <- NULL
-        
         DB$scheme <- input$scheme_db
         
         # null Distance matrix, entry table and plots
@@ -7036,8 +7013,6 @@ server <- function(input, output, session) {
                 
                 Typing$single_path <- data.frame()
                 
-                Typing$multi_path <- data.frame()
-                
                 # Null multi typing feedback variable
                 Typing$reset <- TRUE
                 
@@ -7126,7 +7101,7 @@ server <- function(input, output, session) {
                         br()
                       )
                     ),
-                    uiOutput("multi_select_tab_ctrls"),#
+                    uiOutput("multi_select_tab_ctrls"),
                     br(),
                     fluidRow(
                       column(1),
@@ -9361,6 +9336,132 @@ server <- function(input, output, session) {
                 output$metadata_single_box <- NULL
                 output$start_typing_ui <- NULL
                 
+                output$initiate_typing_ui <- renderUI({
+                  column(
+                    width = 4,
+                    align = "center",
+                    br(),
+                    br(),
+                    h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
+                    br(),
+                    br(),
+                    p(
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly File')
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 11,
+                        align = "center",
+                        shinyFilesButton(
+                          "genome_file",
+                          "Browse" ,
+                          icon = icon("file"),
+                          title = "Select the assembly in .fasta/.fna/.fa format:",
+                          multiple = FALSE,
+                          buttonType = "default",
+                          class = NULL,
+                          root = path_home()
+                        ),
+                        br(),
+                        br(),
+                        uiOutput("genome_path"),
+                        br()
+                      )
+                    )
+                  )
+                })
+                
+                output$initiate_typing_ui <- renderUI({
+                  column(
+                    width = 4,
+                    align = "center",
+                    br(),
+                    br(),
+                    h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
+                    br(),
+                    br(),
+                    p(
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly File')
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 11,
+                        align = "center",
+                        shinyFilesButton(
+                          "genome_file",
+                          "Browse" ,
+                          icon = icon("file"),
+                          title = "Select the assembly in .fasta/.fna/.fa format:",
+                          multiple = FALSE,
+                          buttonType = "default",
+                          class = NULL,
+                          root = path_home()
+                        ),
+                        br(),
+                        br(),
+                        uiOutput("genome_path"),
+                        br()
+                      )
+                    )
+                  )
+                })
+                
+                output$initiate_multi_typing_ui <- renderUI({
+                  column(
+                    width = 4,
+                    align = "center",
+                    br(),
+                    br(),
+                    h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
+                    br(), br(),
+                    p(
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly Folder')
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 11,
+                        align = "center",
+                        shinyDirButton(
+                          "genome_file_multi",
+                          "Browse",
+                          icon = icon("folder-open"),
+                          title = "Select the folder containing the genome assemblies (FASTA)",
+                          buttonType = "default",
+                          root = path_home()
+                        ),
+                        br(),
+                        br(),
+                        uiOutput("multi_select_info"),
+                        br()
+                      )
+                    ),
+                    uiOutput("multi_select_tab_ctrls"),
+                    br(),
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 11,
+                        align = "left",
+                        rHandsontableOutput("multi_select_table")
+                      )
+                    )
+                  )
+                })
               }
             }
           }
@@ -11746,20 +11847,20 @@ server <- function(input, output, session) {
   # Download Target Info (CSV Table)
   observe({
     input$download_cgMLST
-
+    
     scheme_overview <- read_html(Scheme$link_scheme) %>%
       html_table(header = FALSE) %>%
       as.data.frame(stringsAsFactors = FALSE)
-
+    
     last_scheme_change <- strptime(scheme_overview$X2[scheme_overview$X1 == "Last Change"],
                                    format = "%B %d, %Y, %H:%M %p")
     names(scheme_overview) <- NULL
-
+    
     last_file_change <- format(
       file.info(file.path(DB$database,
                           ".downloaded_schemes",
                           paste0(Scheme$folder_name, ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
-
+    
     output$cgmlst_scheme <- renderTable({scheme_overview})
     output$scheme_update_info <- renderText({
       req(last_file_change)
@@ -17741,9 +17842,9 @@ server <- function(input, output, session) {
   mst_tree <- reactive({
     Typing$data <- toVisNetworkData(Vis$ggraph_1)
     Typing$data$nodes <- mutate(Typing$data$nodes, 
-                         label = label_mst(),
-                         value = mst_node_scaling(),
-                         opacity = node_opacity())
+                                label = label_mst(),
+                                value = mst_node_scaling(),
+                                opacity = node_opacity())
     
     ctxRendererJS <- htmlwidgets::JS("({ctx, id, x, y, state: { selected, hover }, style, font, label, metadata}) => {
                             var pieData = JSON.parse(metadata);
@@ -17866,13 +17967,13 @@ server <- function(input, output, session) {
     }
     
     Typing$data$edges <- mutate(Typing$data$edges,
-                         length = if(input$mst_scale_edges == FALSE) {
-                           input$mst_edge_length
-                         } else {
-                           Typing$data$edges$weight * input$mst_edge_length_scale
-                         },
-                         label = as.character(Typing$data$edges$weight),
-                         opacity = input$mst_edge_opacity)
+                                length = if(input$mst_scale_edges == FALSE) {
+                                  input$mst_edge_length
+                                } else {
+                                  Typing$data$edges$weight * input$mst_edge_length_scale
+                                },
+                                label = as.character(Typing$data$edges$weight),
+                                opacity = input$mst_edge_opacity)
     
     if (input$mst_show_clusters) {
       Typing$data$nodes$group <- compute_clusters(Typing$data$nodes, Typing$data$edges, input$mst_cluster_threshold)
@@ -17884,36 +17985,36 @@ server <- function(input, output, session) {
                                    main = mst_title(),
                                    background = mst_background_color(),
                                    submain = mst_subtitle()) %>%
-                          visNodes(size = mst_node_size(),
-                                   shape = input$mst_node_shape,
-                                   shadow = input$mst_shadow,
-                                   color = mst_color_node(),
-                                   ctxRenderer = ctxRendererJS,
-                                   scaling = list(min = mst_node_size_min(),
-                                                  max = mst_node_size_max()),
-                                   font = list(color = node_font_color(),
-                                               size = input$node_label_fontsize)) %>%
-                          visEdges(color = mst_color_edge(),
-                                   font = list(color = mst_edge_font_color(),
-                                               size = mst_edge_font_size(),
-                                               strokeWidth = 4)) %>%
-                          visOptions(collapse = TRUE) %>%
-                          visInteraction(hover = TRUE) %>%
-                          visLayout(randomSeed = 1) %>%
-                          visLegend(useGroups = FALSE,
-                                    zoom = TRUE,
-                                    width = legend_width(),
-                                    position = input$mst_legend_ori,
-                                    ncol = legend_col(),
-                                    addNodes = mst_legend())
-
+      visNodes(size = mst_node_size(),
+               shape = input$mst_node_shape,
+               shadow = input$mst_shadow,
+               color = mst_color_node(),
+               ctxRenderer = ctxRendererJS,
+               scaling = list(min = mst_node_size_min(),
+                              max = mst_node_size_max()),
+               font = list(color = node_font_color(),
+                           size = input$node_label_fontsize)) %>%
+      visEdges(color = mst_color_edge(),
+               font = list(color = mst_edge_font_color(),
+                           size = mst_edge_font_size(),
+                           strokeWidth = 4)) %>%
+      visOptions(collapse = TRUE) %>%
+      visInteraction(hover = TRUE) %>%
+      visLayout(randomSeed = 1) %>%
+      visLegend(useGroups = FALSE,
+                zoom = TRUE,
+                width = legend_width(),
+                position = input$mst_legend_ori,
+                ncol = legend_col(),
+                addNodes = mst_legend())
+    
     if (input$mst_show_clusters) {
       if (input$mst_cluster_col_scale == "Viridis") {
         color_palette <- viridis(length(data$nodes$group))
       } else {
         color_palette <- rainbow(length(data$nodes$group))
       }
-
+      
       for (i in 1:length(unique(data$nodes$group))) {
         visNetwork_graph <- visNetwork_graph %>% 
           visGroups(groupname = unique(data$nodes$group)[i], color = color_palette[i])
@@ -22768,7 +22869,7 @@ server <- function(input, output, session) {
     }
   })
   
-
+  
   # _______________________ ####
   
   ## Typing  ----
@@ -23693,7 +23794,7 @@ server <- function(input, output, session) {
           br()
         )
       ),
-      uiOutput("multi_select_tab_ctrls"),#
+      uiOutput("multi_select_tab_ctrls"),
       br(),
       fluidRow(
         column(1),
@@ -23708,13 +23809,14 @@ server <- function(input, output, session) {
   
   # Render selection info
   output$multi_select_info <- renderUI({
+    
     if(!is.null(Typing$multi_path)) {
       if(length(Typing$multi_path) < 1) {
         HTML(paste("<span style='color: white; margin-left:-30px'>", 
                    "No files selected."))
       } else {
         HTML(paste("<span style='color: white; margin-left:-30px'>",
-                   sum(Typing$genome_selected$Include == TRUE),
+                   sum(hot_to_r(input$multi_select_table)$Include == TRUE),
                    " files selected."))
       }
     }
@@ -23722,8 +23824,8 @@ server <- function(input, output, session) {
   
   # Render multi selection table issues
   output$multi_select_issues <- renderUI({
-    req(Typing$multi_sel_table, Typing$genome_selected, input$multi_select_table)
-    if(any(hot_to_r(input$multi_select_table)$Files %in% dupl_mult_id_names()) & 
+    req(Typing$multi_sel_table, input$multi_select_table)
+    if(any(hot_to_r(input$multi_select_table)$Files %in% dupl_mult_id()) & 
        any(duplicated(hot_to_r(input$multi_select_table)$Files))){
       HTML(
         paste(
@@ -23733,13 +23835,13 @@ server <- function(input, output, session) {
                 "Duplicated name(s). <br/>")
         )
       )
-    } else if (any(hot_to_r(input$multi_select_table)$Files %in% dupl_mult_id_names()) & 
+    } else if (any(hot_to_r(input$multi_select_table)$Files %in% dupl_mult_id()) & 
                !any(duplicated(hot_to_r(input$multi_select_table)$Files))) {
       HTML(
         paste("<span style='color: #e0b300;'>",
               "Some name(s) are already present in local database.<br/>")
       )
-    } else if (!any(hot_to_r(input$multi_select_table)$Files %in% dupl_mult_id_names()) & 
+    } else if (!any(hot_to_r(input$multi_select_table)$Files %in% dupl_mult_id()) & 
                any(duplicated(hot_to_r(input$multi_select_table)$Files))) {
       HTML(
         paste("<span style='color: #ff7334;'>",
@@ -23749,13 +23851,32 @@ server <- function(input, output, session) {
   })
   
   output$multi_select_issue_info <- renderUI({
-    req(Typing$multi_sel_table, Typing$genome_selected, input$multi_select_table)
-    if(any(hot_to_r(input$multi_select_table)$Files %in% dupl_mult_id_names()) | 
-       any(duplicated(hot_to_r(input$multi_select_table)$Files))) {
-      HTML(
-        paste("<span style='color: orange; font-style:italic'>",
-              "Rename highlighted isolates.")
-      )
+    req(Typing$multi_sel_table, input$multi_select_table)
+    
+    multi_select_table <- hot_to_r(input$multi_select_table)
+    
+    if(any(multi_select_table$Files[which(multi_select_table$Include == TRUE)] %in% dupl_mult_id()) | 
+       any(duplicated(multi_select_table$Files[which(multi_select_table$Include == TRUE)])) |
+       any(grepl(" ", multi_select_table$Files[which(multi_select_table$Include == TRUE)]))) {
+      
+      if(any(grepl(" ", multi_select_table$Files[which(multi_select_table$Include == TRUE)])))  {
+        
+        if(any(multi_select_table$Files[which(multi_select_table$Include == TRUE)] %in% dupl_mult_id()) | 
+           any(duplicated(multi_select_table$Files[which(multi_select_table$Include == TRUE)]))) {
+          HTML(paste(
+            paste("<span style='color: orange; font-style:italic'>",
+                  "Rename highlighted isolates or deselect them.</br>"),
+            paste("<span style='color: orange; font-style:italic'>",
+                  "Filename(s) contain(s) empty spaces.")
+          ))
+        } else {
+          HTML(paste("<span style='color: orange; font-style:italic'>",
+                     "Filename(s) contain(s) empty spaces."))
+        }
+      } else {
+        HTML(paste("<span style='color: orange; font-style:italic'>", 
+                   "Rename highlighted isolates or deselect them."))
+      }
     }
   })
   
@@ -23794,8 +23915,6 @@ server <- function(input, output, session) {
             )
           )
         )
-        
-        Typing$genome_selected <- hot_to_r(input$multi_select_table)
         
         output$metadata_multi_box <- renderUI({
           column(
@@ -23962,15 +24081,15 @@ server <- function(input, output, session) {
     Typing$multi_path <- parseDirPath(roots = c(Home = path_home(), Root = "/"), input$genome_file_multi)
     
     files_selected <- list.files(as.character(Typing$multi_path))
-    files_filtered <- files_selected[which(!endsWith(files_selected, ".gz") &
-                                             grepl("\\.fasta|\\.fna|\\.fa", files_selected))]
+    Typing$files_filtered <- files_selected[which(!endsWith(files_selected, ".gz") &
+                                                    grepl("\\.fasta|\\.fna|\\.fa", files_selected))]
     
     Typing$multi_sel_table <- data.frame(
-      Include = rep(TRUE, length(files_filtered)),
+      Include = rep(TRUE, length(Typing$files_filtered)),
       Files = gsub(".fasta|.fna|.fa|.fasta.gz|.fna.gz|.fa.gz", "", 
-                   files_filtered),
+                   Typing$files_filtered),
       Type = sub(".*(\\.fasta|\\.fasta\\.gz|\\.fna|\\.fna\\.gz|\\.fa|\\.fa\\.gz)$",
-                 "\\1", files_filtered, perl = F))
+                 "\\1", Typing$files_filtered, perl = F))
     
     if(nrow(Typing$multi_sel_table) > 0) {
       output$multi_select_tab_ctrls <- renderUI(
@@ -24007,25 +24126,23 @@ server <- function(input, output, session) {
       output$multi_select_tab_ctrls <- NULL
     }
     
-     if (between(nrow(Typing$multi_sel_table), 1, 15)) {
-       if(!is.null(Typing$new_table)) {
-         output$multi_select_table <- renderRHandsontable({
-           rht <- rhandsontable(Typing$new_table, rowHeaders = NULL, 
-                         stretchH = "all", contextMenu = FALSE
-           ) %>%
-             hot_cols(columnSorting = TRUE) %>%
-             hot_rows(rowHeights = 25) %>%
-             hot_col(2,
-                     readOnly = FALSE,
-                     valign = "htBottom") %>%
-             hot_col(3, readOnly = TRUE) %>%
-             hot_col(1,
-                     halign = "htCenter",
-                     valign = "htTop", 
-                     colWidths = 60)
-           
-           htmlwidgets::onRender(rht, sprintf(
-             "function(el, x) {
+    if(between(nrow(Typing$multi_sel_table), 1, 15)) {
+      output$multi_select_table <- renderRHandsontable({
+        rht <- rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
+                             stretchH = "all", contextMenu = FALSE
+        ) %>%
+          hot_cols(columnSorting = TRUE) %>%
+          hot_rows(rowHeights = 25) %>%
+          hot_col(2, readOnly = FALSE,
+                  valign = "htBottom") %>%
+          hot_col(3, readOnly = TRUE) %>%
+          hot_col(1,
+                  halign = "htCenter",
+                  valign = "htTop", 
+                  colWidths = 60)
+        
+        htmlwidgets::onRender(rht, sprintf(
+          "function(el, x) {
         var hot = this.hot;
         
         var columnData = hot.getDataAtCol(1); // Change column index if needed
@@ -24094,123 +24211,31 @@ server <- function(input, output, session) {
           hot.render(); // Re-render the table
         });
       }", 
-             jsonlite::toJSON(dupl_mult_id_names()), 
-             jsonlite::toJSON(dupl_mult_id_names()), 
-             jsonlite::toJSON(dupl_mult_id_names()), 
-             jsonlite::toJSON(dupl_mult_id_names())))
-         })
-       } else {
-         output$multi_select_table <- renderRHandsontable({
-           rht <- rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
-                         stretchH = "all", contextMenu = FALSE
-           ) %>%
-             hot_cols(columnSorting = TRUE) %>%
-             hot_rows(rowHeights = 25) %>%
-             hot_col(2,
-                     readOnly = FALSE,
-                     valign = "htBottom") %>%
-             hot_col(3, readOnly = TRUE) %>%
-             hot_col(1,
-                     halign = "htCenter",
-                     valign = "htTop", 
-                     colWidths = 60)
-           
-           htmlwidgets::onRender(rht, sprintf(
-             "function(el, x) {
-        var hot = this.hot;
-        
-        var columnData = hot.getDataAtCol(1); // Change column index if needed
-        var duplicates = {};
-          
-        var highlightInvalidAndDuplicates = function(invalidValues) {
-          
-          var columnData = hot.getDataAtCol(1); // Change column index if needed
-          var duplicates = {};
-
-          // Find all duplicate values
-          for (var i = 0; i < columnData.length; i++) {
-            var value = columnData[i];
-            if (value !== null && value !== undefined) {
-              if (duplicates[value]) {
-                duplicates[value].push(i);
-              } else {
-                duplicates[value] = [i];
-              }
-            }
-          }
-
-          // Reset all cell backgrounds in the column
-          for (var i = 0; i < columnData.length; i++) {
-            var cell = hot.getCell(i, 1); // Change column index if needed
-            if (cell) {
-              cell.style.background = 'white';
-            }
-          }
-
-          // Highlight duplicates and invalid values
-          for (var i = 0; i < columnData.length; i++) {
-            var cell = hot.getCell(i, 1); // Change column index if needed
-            var value = columnData[i];
-            if (cell) {
-              if (invalidValues.includes(value)) {
-                cell.style.background = 'rgb(224, 179, 0)'; // Highlight color for invalid values
-              } else if (duplicates[value] && duplicates[value].length > 1) {
-                cell.style.background = '#FF7334'; // Highlight color for duplicates
-              }
-            }
-          }
-        };
-
-        var changefn = function(changes, source) {
-          if (source === 'edit' || source === 'undo' || source === 'autofill' || source === 'paste') {
-            highlightInvalidAndDuplicates(%s);
-          }
-        };
-
-        hot.addHook('afterChange', changefn);
-        hot.addHook('afterLoadData', function() {
-          highlightInvalidAndDuplicates(%s);
-        });
-        hot.addHook('afterRender', function() {
-          highlightInvalidAndDuplicates(%s);
-        });
-
-        highlightInvalidAndDuplicates(%s); // Initial highlight on load
-        
-        Shiny.addCustomMessageHandler('setColumnValue', function(message) {
-          var colData = hot.getDataAtCol(0);
-          for (var i = 0; i < colData.length; i++) {
-            hot.setDataAtCell(i, 0, message.value);
-          }
-          hot.render(); // Re-render the table
-        });
-      }", 
-             jsonlite::toJSON(dupl_mult_id_names()), 
-             jsonlite::toJSON(dupl_mult_id_names()), 
-             jsonlite::toJSON(dupl_mult_id_names()), 
-             jsonlite::toJSON(dupl_mult_id_names())))
-         })
-       }
+          jsonlite::toJSON(dupl_mult_id()), 
+          jsonlite::toJSON(dupl_mult_id()), 
+          jsonlite::toJSON(dupl_mult_id()), 
+          jsonlite::toJSON(dupl_mult_id())))
+      })
+      
     } else if(nrow(Typing$multi_sel_table) > 15) {
-      if(!is.null(Typing$new_table)) {
-        output$multi_select_table <- renderRHandsontable({
-          rht <- rhandsontable(Typing$new_table, rowHeaders = NULL, 
-                        stretchH = "all", height = 500,
-                        contextMenu = FALSE
-          ) %>%
-            hot_cols(columnSorting = TRUE) %>%
-            hot_rows(rowHeights = 25) %>%
-            hot_col(2,
-                    readOnly = FALSE,
-                    valign = "htBottom") %>%
-            hot_col(3, readOnly = TRUE) %>%
-            hot_col(1,
-                    halign = "htCenter",
-                    valign = "htTop", 
-                    colWidths = 60)
-          
-          htmlwidgets::onRender(rht, sprintf(
-            "function(el, x) {
+      output$multi_select_table <- renderRHandsontable({
+        rht <- rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
+                             stretchH = "all", height = 500,
+                             contextMenu = FALSE
+        ) %>%
+          hot_cols(columnSorting = TRUE) %>%
+          hot_rows(rowHeights = 25) %>%
+          hot_col(2,
+                  readOnly = FALSE,
+                  valign = "htBottom") %>%
+          hot_col(3, readOnly = TRUE) %>%
+          hot_col(1,
+                  halign = "htCenter",
+                  valign = "htTop", 
+                  colWidths = 60)
+        
+        htmlwidgets::onRender(rht, sprintf(
+          "function(el, x) {
         var hot = this.hot;
         
         var columnData = hot.getDataAtCol(1); // Change column index if needed
@@ -24279,114 +24304,19 @@ server <- function(input, output, session) {
           hot.render(); // Re-render the table
         });
       }", 
-            jsonlite::toJSON(dupl_mult_id_names()), 
-            jsonlite::toJSON(dupl_mult_id_names()), 
-            jsonlite::toJSON(dupl_mult_id_names()), 
-            jsonlite::toJSON(dupl_mult_id_names())))
-        })
-      } else {
-        output$multi_select_table <- renderRHandsontable({
-          rht <- rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
-                        stretchH = "all", height = 500,
-                        contextMenu = FALSE
-          ) %>%
-            hot_cols(columnSorting = TRUE) %>%
-            hot_rows(rowHeights = 25) %>%
-            hot_col(2,
-                    readOnly = FALSE,
-                    valign = "htBottom") %>%
-            hot_col(3, readOnly = TRUE) %>%
-            hot_col(1,
-                    halign = "htCenter",
-                    valign = "htTop", 
-                    colWidths = 60)
-          
-          htmlwidgets::onRender(rht, sprintf(
-            "function(el, x) {
-        var hot = this.hot;
+          jsonlite::toJSON(dupl_mult_id()), 
+          jsonlite::toJSON(dupl_mult_id()), 
+          jsonlite::toJSON(dupl_mult_id()), 
+          jsonlite::toJSON(dupl_mult_id())))
         
-        var columnData = hot.getDataAtCol(1); // Change column index if needed
-        var duplicates = {};
-          
-        var highlightInvalidAndDuplicates = function(invalidValues) {
-          
-          var columnData = hot.getDataAtCol(1); // Change column index if needed
-          var duplicates = {};
-
-          // Find all duplicate values
-          for (var i = 0; i < columnData.length; i++) {
-            var value = columnData[i];
-            if (value !== null && value !== undefined) {
-              if (duplicates[value]) {
-                duplicates[value].push(i);
-              } else {
-                duplicates[value] = [i];
-              }
-            }
-          }
-
-          // Reset all cell backgrounds in the column
-          for (var i = 0; i < columnData.length; i++) {
-            var cell = hot.getCell(i, 1); // Change column index if needed
-            if (cell) {
-              cell.style.background = 'white';
-            }
-          }
-
-          // Highlight duplicates and invalid values
-          for (var i = 0; i < columnData.length; i++) {
-            var cell = hot.getCell(i, 1); // Change column index if needed
-            var value = columnData[i];
-            if (cell) {
-              if (invalidValues.includes(value)) {
-                cell.style.background = 'rgb(224, 179, 0)'; // Highlight color for invalid values
-              } else if (duplicates[value] && duplicates[value].length > 1) {
-                cell.style.background = '#FF7334'; // Highlight color for duplicates
-              }
-            }
-          }
-        };
-
-        var changefn = function(changes, source) {
-          if (source === 'edit' || source === 'undo' || source === 'autofill' || source === 'paste') {
-            highlightInvalidAndDuplicates(%s);
-          }
-        };
-
-        hot.addHook('afterChange', changefn);
-        hot.addHook('afterLoadData', function() {
-          highlightInvalidAndDuplicates(%s);
-        });
-        hot.addHook('afterRender', function() {
-          highlightInvalidAndDuplicates(%s);
-        });
-
-        highlightInvalidAndDuplicates(%s); // Initial highlight on load
-        
-        Shiny.addCustomMessageHandler('setColumnValue', function(message) {
-          var colData = hot.getDataAtCol(0);
-          for (var i = 0; i < colData.length; i++) {
-            hot.setDataAtCell(i, 0, message.value);
-          }
-          hot.render(); // Re-render the table
-        });
-      }", 
-            jsonlite::toJSON(dupl_mult_id_names()), 
-            jsonlite::toJSON(dupl_mult_id_names()), 
-            jsonlite::toJSON(dupl_mult_id_names()), 
-            jsonlite::toJSON(dupl_mult_id_names())))
-          
-        })
-      }
+      })
+      
     } else {
       output$multi_select_table <- NULL
-    }
+    } 
   })
   
   observeEvent(input$conf_meta_multi, {
-    
-    Typing$new_table <- mutate(hot_to_r(input$multi_select_table),
-                               Include = as.logical(Include))
     
     multi_select_table <- hot_to_r(input$multi_select_table)[hot_to_r(input$multi_select_table)$Include == TRUE,]
     
@@ -24400,7 +24330,7 @@ server <- function(input, output, session) {
       )
     } else if (any(duplicated(multi_select_table$Files))) {
       show_toast(
-        title = "Duplicated file name(s)",
+        title = "Duplicated filename(s)",
         type = "error",
         position = "bottom-end",
         timer = 3000,
@@ -24408,23 +24338,21 @@ server <- function(input, output, session) {
       )
     } else if (any(multi_select_table$Files == "")) {
       show_toast(
-        title = "Empty file name(s)",
+        title = "Empty filename(s)",
         type = "error",
         position = "bottom-end",
         timer = 3000,
         width = "500px"
       )
-    } 
-    else if (any(grepl("[/\\:*?\"<>|]", multi_select_table$Files))) {
+    } else if (any(grepl("[/\\:*?\"<>|]", multi_select_table$Files))) {
       show_toast(
-        title = "Invalid file name(s). Not allowed: /\\:*?\"<>|",
+        title = "Invalid filename(s). Not allowed: /\\:*?\"<>|",
         type = "error",
         position = "bottom-end",
         timer = 3000,
         width = "500px"
       )
-    }
-    else if (!any(multi_select_table$Include == TRUE)) {
+    } else if (!any(multi_select_table$Include == TRUE)) {
       show_toast(
         title = "No files selected",
         type = "error",
@@ -24432,8 +24360,15 @@ server <- function(input, output, session) {
         timer = 3000,
         width = "500px"
       )
-    }
-    else {
+    } else if(any(grepl(" ", multi_select_table$Files[which(multi_select_table$Include == TRUE)]))) {
+      show_toast(
+        title = "Empty spaces in filename(s) not allowed",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000,
+        width = "500px"
+      )
+    } else {
       
       log_print("Multi typing metadata confirmed")
       
@@ -24554,7 +24489,6 @@ server <- function(input, output, session) {
       # Reset User Feedback variable
       Typing$pending_format <- 0
       Typing$multi_started <- FALSE
-      Typing$multi_path <- data.frame()
       
       output$initiate_multi_typing_ui <- renderUI({
         column(
@@ -24590,7 +24524,7 @@ server <- function(input, output, session) {
               br()
             )
           ),
-          uiOutput("multi_select_tab_ctrls"),#
+          uiOutput("multi_select_tab_ctrls"),
           br(),
           fluidRow(
             column(1),
@@ -24602,8 +24536,6 @@ server <- function(input, output, session) {
           )
         )
       })
-      
-      Typing$multi_sel_table <- data.frame()
       
       output$test_yes_pending <- NULL
       output$multi_typing_results <- NULL
@@ -24678,7 +24610,7 @@ server <- function(input, output, session) {
             br()
           )
         ),
-        uiOutput("multi_select_tab_ctrls"),#
+        uiOutput("multi_select_tab_ctrls"),
         br(),
         fluidRow(
           column(1),
@@ -24713,68 +24645,58 @@ server <- function(input, output, session) {
         width = "500px"
       )
     } else {
-      if (any(!grepl("\\.fasta|\\.fna|\\.fa", str_sub(Typing$genome_selected$Files[which(Typing$genome_selected$Include == TRUE)], start = -6)))) {
-        
-        log_print("Wrong file type (include only fasta/fna/fa)")
-        
-        show_toast(
-          title = "Wrong file type (include only fasta/fna/fa)",
-          type = "error",
-          position = "bottom-end",
-          timer = 6000,
-          width = "500px"
-        )
-      } else {
-        
-        removeModal()
-        
-        show_toast(
-          title = "Multi Typing started",
-          type = "success",
-          position = "bottom-end",
-          timer = 10000,
-          width = "500px"
-        )
-        
-        Typing$new_table <- NULL
-        
-        # Remove Allelic Typing Controls
-        output$initiate_multi_typing_ui <- NULL
-        output$metadata_multi_box <- NULL
-        output$start_multi_typing_ui <- NULL
-        
-        # Activate entry detection
-        DB$check_new_entries <- TRUE
-        
-        # Initiate Feedback variables
-        Typing$multi_started <- TRUE
-        Typing$pending <- TRUE
-        Typing$failures <- 0
-        Typing$successes <- 0
-        
-        # Start Multi Typing Script
-        multi_typing_df <- data.frame(
-          db_path = DB$database,
-          wd = getwd(),
-          save = input$save_assembly_mt,
-          scheme = paste0(gsub(" ", "_", DB$scheme)),
-          genome_folder = as.character(parseDirPath(roots = c(Home = path_home(), Root = "/"), input$genome_file_multi)),
-          genome_names = paste(Typing$genome_selected$Files[which(Typing$genome_selected$Include == TRUE)], collapse= " "),
-          alleles = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")
-        )
-        
-        saveRDS(multi_typing_df, "execute/multi_typing_df.rds")
-        
-        # Reset selected
-        Typing$genome_selected <- NULL
-        
-        # Execute multi blat script  
-        system(paste("bash", paste0(getwd(), "/execute/multi_typing.sh")), 
-               wait = FALSE)
-        
-      }
+      removeModal()
+      
+      show_toast(
+        title = "Multi Typing started",
+        type = "success",
+        position = "bottom-end",
+        timer = 10000,
+        width = "500px"
+      )
+      
+      Typing$new_table <- NULL
+      
+      # Remove Allelic Typing Controls
+      output$initiate_multi_typing_ui <- NULL
+      output$metadata_multi_box <- NULL
+      output$start_multi_typing_ui <- NULL
+      
+      # Activate entry detection
+      DB$check_new_entries <- TRUE
+      
+      # Initiate Feedback variables
+      Typing$multi_started <- TRUE
+      Typing$pending <- TRUE
+      Typing$failures <- 0
+      Typing$successes <- 0
+      
+      # get selected file table
+      multi_select_table <- hot_to_r(input$multi_select_table)
+      
+      filenames <- paste(multi_select_table$Files[which(multi_select_table$Include == TRUE)], collapse = " ")
+      
+      files <- Typing$multi_sel_table$Files[which(multi_select_table$Include == TRUE)]
+      type <- Typing$multi_sel_table$Type[which(multi_select_table$Include == TRUE)]
+      genome_names <- paste(paste0(gsub(" ", "~", files), type), collapse = " ")
+      
+      # Start Multi Typing Script
+      multi_typing_df <- data.frame(
+        db_path = DB$database,
+        wd = getwd(),
+        save = input$save_assembly_mt,
+        scheme = paste0(gsub(" ", "_", DB$scheme)),
+        genome_folder = as.character(parseDirPath(roots = c(Home = path_home(), Root = "/"), input$genome_file_multi)),
+        filenames = paste0(filenames, collapse= " "),
+        genome_names = genome_names,
+        alleles = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")
+      )
+      
+      saveRDS(multi_typing_df, "execute/multi_typing_df.rds")
+      
+      # Execute multi blat script  
+      system(paste("bash", paste0(getwd(), "/execute/multi_typing.sh")), wait = FALSE)
     }
-    
   })
   
   
@@ -25118,8 +25040,6 @@ server <- function(input, output, session) {
       )
     )
   })
-  
-  
   
 } # end server
 
