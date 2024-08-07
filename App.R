@@ -6114,6 +6114,9 @@ server <- function(input, output, session) {
     
     log_print("Input load")
     
+    # set typing start control variable
+    Typing$reload <- TRUE
+    
     # reset typing status on start(
     if(Typing$status == "Finalized") {Typing$status <- "Inactive"}
     if(!is.null(Typing$single_path)) {Typing$single_path <- data.frame()}
@@ -6336,7 +6339,6 @@ server <- function(input, output, session) {
         show_toast(
           title = "Directory already contains a database",
           type = "error",
-          width = "500px",
           position = "bottom-end",
           timer = 6000
         )
@@ -8513,6 +8515,7 @@ server <- function(input, output, session) {
                     # Dynamic save button when rhandsontable changes or new entries
                     output$edit_entry_table <- renderUI({
                       if(check_new_entry() & DB$check_new_entries) {
+                        Typing$reload <- FALSE
                         fluidRow(
                           column(
                             width = 8,
@@ -9473,7 +9476,6 @@ server <- function(input, output, session) {
           title = "Invalid scheme folder",
           type = "warning",
           position = "bottom-end",
-          width = "500px",
           timer = 4000
         )
       }
@@ -9861,8 +9863,7 @@ server <- function(input, output, session) {
         title = "Invalid date",
         type = "warning",
         position = "bottom-end",
-        timer = 6000,
-        width = "300px"
+        timer = 6000
       )
       DB$inhibit_change <- TRUE
     } else if (isTRUE(input$empty_name)) {
@@ -9870,8 +9871,7 @@ server <- function(input, output, session) {
         title = "Empty name",
         type = "warning",
         position = "bottom-end",
-        timer = 6000,
-        width = "300px"
+        timer = 6000
       )
       DB$inhibit_change <- TRUE
     } else if (isTRUE(input$empty_id)) {
@@ -9879,8 +9879,7 @@ server <- function(input, output, session) {
         title = "Empty ID",
         type = "warning",
         position = "bottom-end",
-        timer = 6000,
-        width = "300px"
+        timer = 6000
       )
       DB$inhibit_change <- TRUE
     } else {
@@ -9898,16 +9897,14 @@ server <- function(input, output, session) {
         title = "Pending Multi Typing",
         type = "warning",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
       )
     } else if(readLines(paste0(getwd(), "/logs/progress.txt"))[1] != "0") {
       show_toast(
         title = "Pending Single Typing",
         type = "warning",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
       )
     } else {
       showModal(
@@ -10705,7 +10702,6 @@ server <- function(input, output, session) {
         title = "Max. 10 characters",
         type = "warning",
         position = "bottom-end",
-        width = "500px",
         timer = 6000
       )
     } else {
@@ -10715,7 +10711,6 @@ server <- function(input, output, session) {
           title = "Min. 1 character",
           type = "error",
           position = "bottom-end",
-          width = "500px",
           timer = 6000
         )
       } else {
@@ -10725,7 +10720,6 @@ server <- function(input, output, session) {
             title = "Variable name already existing",
             type = "warning",
             position = "bottom-end",
-            width = "500px",
             timer = 6000
           )
         } else {
@@ -10789,7 +10783,6 @@ server <- function(input, output, session) {
       title = paste0("Variable ", trimws(input$new_var_name), " added"),
       type = "success",
       position = "bottom-end",
-      width = "500px",
       timer = 6000
     )
     
@@ -10804,7 +10797,6 @@ server <- function(input, output, session) {
         title = "No custom variables",
         type = "error",
         position = "bottom-end",
-        width = "500px",
         timer = 6000
       )
     } else {
@@ -10842,7 +10834,6 @@ server <- function(input, output, session) {
       title = paste0("Variable ", input$del_which_var, " removed"),
       type = "warning",
       position = "bottom-end",
-      width = "500px",
       timer = 6000
     )
     
@@ -10969,8 +10960,7 @@ server <- function(input, output, session) {
         title = "Invalid rows entered. Saving not possible.",
         type = "error",
         position = "bottom-end",
-        timer = 6000,
-        width = "600px"
+        timer = 6000
       )
     } else {
       if(!isTRUE(DB$inhibit_change)) {
@@ -11006,8 +10996,7 @@ server <- function(input, output, session) {
           title = "Invalid values entered. Saving not possible.",
           type = "error",
           position = "bottom-end",
-          timer = 6000,
-          width = "600px"
+          timer = 6000
         )
       }
     }
@@ -11101,8 +11090,7 @@ server <- function(input, output, session) {
       title = "Database successfully saved",
       type = "success",
       position = "bottom-end",
-      timer = 4000,
-      width = "500px"
+      timer = 4000
     )
   })
   
@@ -11115,8 +11103,7 @@ server <- function(input, output, session) {
         title = "No entry selected",
         type = "warning",
         position = "bottom-end",
-        timer = 4000,
-        width = "500px"
+        timer = 4000
       )
     } else if((readLines(paste0(getwd(), "/logs/progress.txt"))[1] != "0") |
               (tail(readLogFile(), 1) != "0")) {
@@ -11126,8 +11113,7 @@ server <- function(input, output, session) {
         title = "Pending Typing",
         type = "warning",
         position = "bottom-end",
-        timer = 4000,
-        width = "500px"
+        timer = 4000
       )
     } else {
       if( (length(input$select_delete) - nrow(DB$data) ) == 0) {
@@ -11222,16 +11208,14 @@ server <- function(input, output, session) {
         title = "Entries deleted",
         type = "success",
         position = "bottom-end",
-        timer = 4000,
-        width = "500px"
+        timer = 4000
       )
     } else {
       show_toast(
         title = "Entry deleted",
         type = "success",
         position = "bottom-end",
-        timer = 4000,
-        width = "500px"
+        timer = 4000
       )
     }
   })
@@ -11438,8 +11422,7 @@ server <- function(input, output, session) {
       title = "Copied sequence",
       type = "success",
       position = "bottom-end",
-      timer = 3000,
-      width = "400px"
+      timer = 3000
     )
   })
   
@@ -11656,8 +11639,7 @@ server <- function(input, output, session) {
       title = "Download started",
       type = "success",
       position = "bottom-end",
-      timer = 5000,
-      width = "400px"
+      timer = 5000
     )
     
     if(length(DB$available) == 0) {
@@ -11818,8 +11800,7 @@ server <- function(input, output, session) {
       title = "Download successful",
       type = "success",
       position = "bottom-end",
-      timer = 5000,
-      width = "400px"
+      timer = 5000
     )
     
     # TODO Add log message regarding the update of the scheme
@@ -12030,8 +12011,7 @@ server <- function(input, output, session) {
           title = "Label already exists",
           type = "error",
           position = "bottom-end",
-          timer = 6000,
-          width = "500px"
+          timer = 6000
         )
       }
     } else {
@@ -12039,8 +12019,7 @@ server <- function(input, output, session) {
         title = "Min. 1 character",
         type = "error",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
       )
     }
   })
@@ -12058,8 +12037,7 @@ server <- function(input, output, session) {
           title = "Label already exists",
           type = "error",
           position = "bottom-end",
-          timer = 6000,
-          width = "500px"
+          timer = 6000
         )
       }
     } else {
@@ -12067,8 +12045,7 @@ server <- function(input, output, session) {
         title = "Min. 1 character",
         type = "error",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
       )
     }
   })
@@ -21465,8 +21442,7 @@ server <- function(input, output, session) {
         title = "Missing data",
         type = "error",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
       )
     } else if(nrow(DB$allelic_profile_true) < 3) {
       log_print("Min. of 3 entries required for visualization")
@@ -21475,8 +21451,7 @@ server <- function(input, output, session) {
         title = "Min. of 3 entries required for visualization",
         type = "error",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
       )
     } else {
       
@@ -21543,7 +21518,6 @@ server <- function(input, output, session) {
               title = "Conflicting Custom Variable Names",
               type = "warning",
               position = "bottom-end",
-              width = "500px",
               timer = 6000
             )
           } else {
@@ -21699,7 +21673,6 @@ server <- function(input, output, session) {
               title = "Conflicting Custom Variable Names",
               type = "warning",
               position = "bottom-end",
-              width = "500px",
               timer = 6000
             )
           } else {
@@ -21860,7 +21833,6 @@ server <- function(input, output, session) {
               title = "Computation might take a while",
               type = "warning",
               position = "bottom-end",
-              width = "500px",
               timer = 10000
             )
           }
@@ -22295,7 +22267,6 @@ server <- function(input, output, session) {
         title = "No tree created",
         type = "error",
         position = "bottom-end",
-        width = "500px",
         timer = 6000
       )
     }
@@ -22773,7 +22744,6 @@ server <- function(input, output, session) {
           title = "Wrong file type (only fasta/fna/fa)",
           type = "error",
           position = "bottom-end",
-          width = "500px",
           timer = 6000
         )
         
@@ -22790,16 +22760,14 @@ server <- function(input, output, session) {
         title = "Pending Multi Typing",
         type = "warning",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
       )
     } else if(readLines(paste0(getwd(), "/logs/progress.txt"))[1] != "0") {
       show_toast(
         title = "Pending Single Typing",
         type = "warning",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
       )
     } else {
       
@@ -22811,7 +22779,6 @@ server <- function(input, output, session) {
         title = "Gene screening started",
         type = "success",
         position = "bottom-end",
-        width = "500px",
         timer = 6000
       )
       
@@ -22851,7 +22818,6 @@ server <- function(input, output, session) {
           title = "Successful gene screening",
           type = "success",
           position = "bottom-end",
-          width = "500px",
           timer = 6000
         )
       } else if(file.exists(paste0(getwd(), "/execute/screening/error.txt"))) {
@@ -22862,7 +22828,6 @@ server <- function(input, output, session) {
           title = "Failed gene screening",
           type = "error",
           position = "bottom-end",
-          width = "500px",
           timer = 6000
         )
       }
@@ -22942,6 +22907,42 @@ server <- function(input, output, session) {
   ### Single Typing ----
   
   #### Render UI Elements ----
+  
+  # Render single typing naming issues
+  output$single_select_issues <- renderUI({
+    req(input$assembly_id)
+    
+    if(nchar(trimws(input$assembly_id)) < 1) {
+      ass_id <- as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name)))
+    } else {
+      ass_id <- trimws(input$assembly_id)
+    }
+    
+    if(ass_id %in% unlist(DB$data["Assembly ID"])) {
+      HTML(paste(
+        '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
+        paste("<span style='color: white; font-style:italic'>", 
+              "&nbsp Assembly ID already present in database.")))
+    } else if (ass_id == "") {
+      HTML(paste(
+        '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
+        paste("<span style='color: white; font-style:italic'>", 
+              "&nbsp Empty Assembly ID.")))
+    } else if (grepl("[()/\\:*?\"<>|]", ass_id)) {
+      HTML(paste(
+        '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
+        paste("<span style='color: white; font-style:italic'>", 
+              "&nbsp Invalid Assembly ID. Avoid special characters.")))
+    } else if(grepl(" ", ass_id)) {
+      HTML(paste(
+        '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
+        paste("<span style='color: white; font-style:italic'>", 
+              "&nbsp Invalid Assembly ID. Avoid empty spaces.")))
+    } else {HTML(paste(
+      '<i class="fa-solid fa-circle-check" style="font-size:15px;color:lightgreen"></i>',
+      paste("<span style='color: white; font-style:italic'>",
+            "&nbsp Assembly ID compatible with local database.")))}
+  })
   
   # Render Typing Results if finished
   observe({
@@ -23095,8 +23096,8 @@ server <- function(input, output, session) {
         output$metadata_single_box <- renderUI({
           
           # Render placeholder 
-          updateTextInput(session, "assembly_id", placeholder = as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name))))
-          updateTextInput(session, "assembly_name", placeholder = as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name))))
+          updateTextInput(session, "assembly_id", value = as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name))))
+          updateTextInput(session, "assembly_name", value = as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name))))
           
           column(
             width = 3,
@@ -23126,6 +23127,12 @@ server <- function(input, output, session) {
                                 label = "",
                                 width = "80%")
                     )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 12,
+                    uiOutput("single_select_issues")
                   )
                 ),
                 fluidRow(
@@ -23260,7 +23267,6 @@ server <- function(input, output, session) {
           title = "Wrong file type (only fasta/fna/fa)",
           type = "error",
           position = "bottom-end",
-          width = "500px",
           timer = 6000
         )
       }
@@ -23292,16 +23298,14 @@ server <- function(input, output, session) {
         title = "Pending Multi Typing",
         type = "warning",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
       )
     } else if (Screening$status == "started") {
       show_toast(
         title = "Pending Gene Screening",
         type = "warning",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
       )
     } else {
       
@@ -23348,8 +23352,7 @@ server <- function(input, output, session) {
           title = "Typing Initiated",
           type = "success",
           position = "bottom-end",
-          timer = 6000,
-          width = "400px"
+          timer = 6000
         )
         
         log_print("Initiated single typing")
@@ -23587,8 +23590,35 @@ server <- function(input, output, session) {
         title = "Assembly ID already present",
         type = "error",
         position = "bottom-end",
-        timer = 3000,
-        width = "500px"
+        timer = 3000
+      )
+    } else if (isFALSE(Typing$reload)) {
+      show_toast(
+        title = "Reload Database first",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000
+      )
+    }  else if (ass_id == "") {
+    show_toast(
+      title = "Empty Assembly ID",
+      type = "error",
+      position = "bottom-end",
+      timer = 3000
+      )
+    } else if (grepl("[()/\\:*?\"<>|]", ass_id)) {
+      show_toast(
+        title = "Invalid Assembly ID. No special characters allowed: ()/\\:*?\"<>|",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000
+      )
+    } else if(grepl(" ", ass_id)) {
+      show_toast(
+        title = "Empty spaces in Assembly ID not allowed",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000
       )
     } else {
       
@@ -23613,12 +23643,10 @@ server <- function(input, output, session) {
         title = "Metadata declared",
         type = "success",
         position = "bottom-end",
-        timer = 3000,
-        width = "500px"
+        timer = 3000
       )
       
       # Render Start Typing UI
-      
       output$start_typing_ui <- renderUI({
         div(
           class = "multi_start_col",
@@ -23749,8 +23777,7 @@ server <- function(input, output, session) {
           title = "Single Typing finalized",
           type = "success",
           position = "bottom-end",
-          timer = 8000,
-          width = "500px"
+          timer = 8000
         )
         Typing$single_end <- TRUE
       }
@@ -24338,48 +24365,49 @@ server <- function(input, output, session) {
         title = "Assembly ID(s) already present",
         type = "error",
         position = "bottom-end",
-        timer = 3000,
-        width = "500px"
+        timer = 3000
       )
     } else if (any(duplicated(multi_select_table$Files))) {
       show_toast(
         title = "Duplicated filename(s)",
         type = "error",
         position = "bottom-end",
-        timer = 3000,
-        width = "500px"
+        timer = 3000
       )
     } else if (any(multi_select_table$Files == "")) {
       show_toast(
         title = "Empty filename(s)",
         type = "error",
         position = "bottom-end",
-        timer = 3000,
-        width = "500px"
+        timer = 3000
       )
     } else if (any(grepl("[()/\\:*?\"<>|]", multi_select_table$Files))) {
       show_toast(
         title = "Invalid filename(s). No special characters allowed: ()/\\:*?\"<>|",
         type = "error",
         position = "bottom-end",
-        timer = 3000,
-        width = "500px"
+        timer = 3000
       )
     } else if (!any(multi_select_table$Include == TRUE)) {
       show_toast(
         title = "No files selected",
         type = "error",
         position = "bottom-end",
-        timer = 3000,
-        width = "500px"
+        timer = 3000
       )
     } else if(any(grepl(" ", multi_select_table$Files[which(multi_select_table$Include == TRUE)]))) {
       show_toast(
         title = "Empty spaces in filename(s) not allowed",
         type = "error",
         position = "bottom-end",
-        timer = 3000,
-        width = "500px"
+        timer = 3000
+      )
+    } else if (isFALSE(Typing$reload)) {
+      show_toast(
+        title = "Reload Database first",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000
       )
     } else {
       
@@ -24399,8 +24427,7 @@ server <- function(input, output, session) {
         title = "Metadata declared",
         type = "success",
         position = "bottom-end",
-        timer = 3000,
-        width = "500px"
+        timer = 3000
       )
       
       output$start_multi_typing_ui <- renderUI({
@@ -24569,8 +24596,7 @@ server <- function(input, output, session) {
       title = "Execution cancelled",
       type = "warning",
       position = "bottom-end",
-      timer = 6000,
-      width = "500px"
+      timer = 6000
     )
     
     # Kill multi typing and reset logfile  
@@ -24646,16 +24672,14 @@ server <- function(input, output, session) {
         title = "Pending Single Typing",
         type = "warning",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
       )
     } else if (Screening$status == "started") {
       show_toast(
         title = "Pending Gene Screening",
         type = "warning",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
       )
     } else {
       removeModal()
@@ -24664,8 +24688,7 @@ server <- function(input, output, session) {
         title = "Multi Typing started",
         type = "success",
         position = "bottom-end",
-        timer = 10000,
-        width = "500px"
+        timer = 10000
       )
       
       Typing$new_table <- NULL
@@ -24747,7 +24770,6 @@ server <- function(input, output, session) {
       show_toast(
         title = paste0("Successful", sub(".*Successful", "", tail(log, 1))),
         type = "success",
-        width = "500px",
         position = "bottom-end",
         timer = 8000
       )
@@ -24756,7 +24778,6 @@ server <- function(input, output, session) {
       show_toast(
         title = sub(".* - ", "", tail(log, 1)),
         type = "error",
-        width = "700px",
         position = "bottom-end",
         timer = 8000
       )
@@ -24770,7 +24791,6 @@ server <- function(input, output, session) {
           show_toast(
             title = paste0("Successful", sub(".*Successful", "", tail(log, 2)[1])),
             type = "success",
-            width = "500px",
             position = "bottom-end",
             timer = 8000
           )
@@ -24784,7 +24804,6 @@ server <- function(input, output, session) {
           show_toast(
             title = sub(".* - ", "", tail(log, 2)[1]),
             type = "error",
-            width = "500px",
             position = "bottom-end",
             timer = 8000
           )
@@ -24800,7 +24819,6 @@ server <- function(input, output, session) {
         show_toast(
           title = "Typing finalized",
           type = "success",
-          width = "500px",
           position = "bottom-end",
           timer = 8000
         )

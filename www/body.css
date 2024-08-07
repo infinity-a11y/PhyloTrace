@@ -16,6 +16,11 @@ input[type="checkbox"] {
   width: 15px;
 }
 
+.swal2-container .swal2-bottom-end .swal2-backdrop-show,
+body > div.swal2-container.swal2-bottom-end.swal2-backdrop-show {
+  width: auto;
+}
+
 .sF-fileList>div.selected .sF-file-name div, .sF-dirList div.selected>.sF-file-name>div {
   background: #20E6E5;
   color: black;
@@ -793,6 +798,11 @@ background: #20E6E5;
   }
 
 /* Typing */
+
+#single_select_issues {
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
 
 #sel_all_mt {
   margin-left: 10px;

@@ -325,18 +325,26 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   # Save new Entry in Typing Database
   saveRDS(Database, paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Typing.rds"))
   
+  isolate_dir <- file.path(db_path, gsub(" ", "_", meta_info$cgmlst_typing), "Isolates")
+  
   # Save assembly file if TRUE
   if(save_assembly) {
-    if(dir.exists(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Isolates"))) {
+    if(dir.exists(isolate_dir)) {
       
       # Create folder for new isolate
-      dir.create(paste0(db_path, "/", 
-                        gsub(" ", "_", meta_info$cgmlst_typing), 
-                        "/Isolates/", filename))
+      dir.create(file.path(isolate_dir, filename))
       
       # Copy assembly file in isolate directory
-      file.copy(paste0(getwd(), "/execute/selected_genomes/", filename, ".fasta"), 
-                paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Isolates/", filename))
+      file.copy(file.path(getwd(), "execute/selected_genomes", paste0(filename, ".fasta")), 
+                file.path(isolate_dir, filename))
+      
+      setwd(file.path(isolate_dir, filename))
+      
+      zip(zipfile = paste0(filename, ".zip"),
+          files = paste0(filename, ".fasta"),
+          zip = "zip") 
+      
+      file.remove(paste0(filename, ".fasta"))
       
       log_print(paste0("Saved assembly of ", basename(assembly)))
       
@@ -345,22 +353,28 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       log_print("No isolate folder present yet. Isolate directory created.")
       
       # Create isolate filder for species
-      dir.create(paste0(db_path, "/", 
-                        gsub(" ", "_", meta_info$cgmlst_typing), 
-                        "/Isolates"))
+      dir.create(isolate_dir)
       
       # Create folder for new isolate
-      dir.create(paste0(db_path, "/", 
-                        gsub(" ", "_", meta_info$cgmlst_typing), 
-                        "/Isolates/", filename))
+      dir.create(file.path(isolate_dir, filename))
       
       # Copy assembly file in isolate directory
-      file.copy(paste0(getwd(), "/execute/selected_genomes/", filename, ".fasta"), 
-                paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Isolates/", filename))
+      file.copy(paste0(getwd(), "/execute/selected_genomes/", filename, ".fasta") , 
+                file.path(isolate_dir, filename))
+      
+      setwd(file.path(isolate_dir, filename))
+      
+      zip(zipfile = paste0(filename, ".zip"),
+          files = paste0(filename, ".fasta"),
+          zip = "zip") 
+      
+      file.remove(paste0(filename, ".fasta"))
       
       log_print(paste0("Saved assembly of ", basename(assembly)))
     }
   }
+  
+  setwd(meta_info$db_directory)
   
   # Logging successes
   log.message(log_file = paste0(getwd(), "/logs/script_log.txt"), 
@@ -368,6 +382,8 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   log_print(paste0("Successful typing of ", sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
   
 } else {
+  
+  setwd(meta_info$db_directory)
   
   # Logging failures
   log.message(log_file = paste0(getwd(), "/logs/script_log.txt"), 

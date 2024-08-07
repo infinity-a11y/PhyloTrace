@@ -15,6 +15,8 @@ echo 0 > "$base_path/logs/progress.txt"
 scheme=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'scheme'])")
 alleles=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'alleles'])")
 genome_name=$(Rscript -e "cat(basename(readRDS('single_typing_df.rds')[,'genome']))")
+genome_name=$(echo "$genome_name" | sed 's/~/ /g')
+rename_file=$(Rscript -e "cat(readRDS('meta_info_single.rds')[, 'assembly_id'])")
 
 # Remove the existing directory (if it exists)
 if [ -d "$base_path/execute/blat_single" ]; then
@@ -39,8 +41,11 @@ Rscript "$base_path/execute/check_duplicate_single.R"
 wait
 genome="$base_path/execute/blat_single/$genome_name"
 
+# Rename file
+mv "$genome" "$base_path/execute/blat_single/$rename_file.fasta"
+
 # Run parallelized BLAT
-find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name "*.fna" \) | parallel pblat $genome {} "$results/{/.}.psl" > /dev/null 2>&1
+find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name "*.fna" \) | parallel pblat "$base_path/execute/blat_single/$rename_file.fasta" {} "$results/{/.}.psl" > /dev/null 2>&1
 
 # Start appending results
 echo 888888 >> "$base_path/logs/progress.txt"
