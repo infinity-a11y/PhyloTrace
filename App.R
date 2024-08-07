@@ -23864,19 +23864,32 @@ server <- function(input, output, session) {
         if(any(multi_select_table$Files[which(multi_select_table$Include == TRUE)] %in% dupl_mult_id()) | 
            any(duplicated(multi_select_table$Files[which(multi_select_table$Include == TRUE)]))) {
           HTML(paste(
-            paste("<span style='color: orange; font-style:italic'>",
-                  "Rename highlighted isolates or deselect them.</br>"),
-            paste("<span style='color: orange; font-style:italic'>",
-                  "Filename(s) contain(s) empty spaces.")
+            paste(
+              '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
+              paste("<span style='color: white; font-style:italic'>",
+                  "&nbspRename highlighted isolates or deselect them.</br>")),
+            paste(
+              '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
+              paste("<span style='color: white; font-style:italic'>",
+                  "&nbspFilename(s) contain(s) empty spaces."))
           ))
         } else {
-          HTML(paste("<span style='color: orange; font-style:italic'>",
-                     "Filename(s) contain(s) empty spaces."))
+          HTML(paste(
+            '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
+            paste("<span style='color: white; font-style:italic'>",
+                     "&nbspFilename(s) contain(s) empty spaces.")))
         }
       } else {
-        HTML(paste("<span style='color: orange; font-style:italic'>", 
-                   "Rename highlighted isolates or deselect them."))
+        HTML(paste(
+          '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
+          paste("<span style='color: white; font-style:italic'>", 
+                   "&nbspRename highlighted isolates or deselect them.")))
       }
+    } else {
+      HTML(paste(
+        '<i class="fa-solid fa-circle-check" style="font-size:15px;color:lightgreen"></i>',
+        paste("<span style='color: white; font-style:italic'>",
+              "&nbspFiles ready for allelic typing.")))
     }
   })
   
@@ -24131,7 +24144,7 @@ server <- function(input, output, session) {
         rht <- rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
                              stretchH = "all", contextMenu = FALSE
         ) %>%
-          hot_cols(columnSorting = TRUE) %>%
+          hot_cols(columnSorting = FALSE) %>%
           hot_rows(rowHeights = 25) %>%
           hot_col(2, readOnly = FALSE,
                   valign = "htBottom") %>%
@@ -24223,7 +24236,7 @@ server <- function(input, output, session) {
                              stretchH = "all", height = 500,
                              contextMenu = FALSE
         ) %>%
-          hot_cols(columnSorting = TRUE) %>%
+          hot_cols(columnSorting = FALSE) %>%
           hot_rows(rowHeights = 25) %>%
           hot_col(2,
                   readOnly = FALSE,
@@ -24344,9 +24357,9 @@ server <- function(input, output, session) {
         timer = 3000,
         width = "500px"
       )
-    } else if (any(grepl("[/\\:*?\"<>|]", multi_select_table$Files))) {
+    } else if (any(grepl("[()/\\:*?\"<>|]", multi_select_table$Files))) {
       show_toast(
-        title = "Invalid filename(s). Not allowed: /\\:*?\"<>|",
+        title = "Invalid filename(s). No special characters allowed: ()/\\:*?\"<>|",
         type = "error",
         position = "bottom-end",
         timer = 3000,
@@ -24741,9 +24754,9 @@ server <- function(input, output, session) {
     } else if(str_detect(tail(log, 1), "failed")) {
       Typing$status <- "Failed"
       show_toast(
-        title = paste0("Failed typing of ", sub(".*failed for ", "", tail(log, 1))),
+        title = sub(".* - ", "", tail(log, 1)),
         type = "error",
-        width = "500px",
+        width = "700px",
         position = "bottom-end",
         timer = 8000
       )
@@ -24764,11 +24777,12 @@ server <- function(input, output, session) {
           
           Typing$last_success <- tail(log, 2)[1]
         }
-      } else if(any(str_detect(tail(log, 2), "failed for"))) {
+      } else if(any(str_detect(tail(log, 2), "failed"))) {
         
         if(!identical(Typing$last_failure, tail(log, 2)[1])) {
+          
           show_toast(
-            title = paste0("Failed typing of ", sub(".*failed for ", "", tail(log, 2)[1])),
+            title = sub(".* - ", "", tail(log, 2)[1]),
             type = "error",
             width = "500px",
             position = "bottom-end",

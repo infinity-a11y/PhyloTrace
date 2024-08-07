@@ -3,10 +3,13 @@ library(logr)
 meta_info <- readRDS("meta_info.rds")
 db_path <- readRDS("multi_typing_df.rds")[, "db_path"]
 save_assembly <- readRDS("multi_typing_df.rds")[, "save"]
-filename <- stringr::str_split(readRDS("multi_typing_df.rds")[, "filenames"], " ")[which(commandArgs(trailingOnly = TRUE)[1] == basename(assembly_folder))]
-assembly_folder <- dir(paste0(getwd(), "/selected_genomes"), full.names = TRUE)
+assembly_folder <- paste0(paste0(getwd(), "/selected_genomes/"), 
+                          paste0(stringr::str_split_1(readRDS("multi_typing_df.rds")[, "filenames"], " "), 
+                                 ".fasta"))
 assembly <- assembly_folder[which(commandArgs(trailingOnly = TRUE)[1] == basename(assembly_folder))]
-results_folder <- dir(paste0(meta_info$db_directory, "/execute/blat_multi/results"), full.names = TRUE)
+filename <- stringr::str_split_1(readRDS("multi_typing_df.rds")[, "filenames"], " ")[which(commandArgs(trailingOnly = TRUE)[1] == basename(assembly_folder))]
+results_folder <- paste0(paste0(meta_info$db_directory, "/execute/blat_multi/results/"),
+                         stringr::str_split_1(readRDS("multi_typing_df.rds")[, "filenames"], " "))
 
 source("variant_validation.R")
 
@@ -156,9 +159,6 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   }
   
   saveRDS(event_list, "execute/event_list.rds")
-  
-  # Find Alleles folder in directory
-  allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)), full.names = TRUE)[grep("_alleles", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing))))]
   
   # Create Results Data Frame 
   if(!any(grepl("Typing", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)))))) {
@@ -332,19 +332,11 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       # Create folder for new isolate
       dir.create(paste0(db_path, "/", 
                         gsub(" ", "_", meta_info$cgmlst_typing), 
-                        "/Isolates/", basename(assembly)))
+                        "/Isolates/", filename))
       
       # Copy assembly file in isolate directory
-      file.copy(assembly, paste0(db_path, "/", 
-                                 gsub(" ", "_", meta_info$cgmlst_typing), 
-                                 "/Isolates/", basename(assembly)))
-      
-      file.rename(paste0(db_path, "/", 
-                         gsub(" ", "_", meta_info$cgmlst_typing), 
-                         "/Isolates/", basename(assembly)),
-                  filename)
-      
-      save_assembly <- readRDS("multi_typing_df.rds")[, "save"]
+      file.copy(paste0(getwd(), "/execute/selected_genomes/", filename, ".fasta"), 
+                paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Isolates/", filename))
       
       log_print(paste0("Saved assembly of ", basename(assembly)))
       
@@ -360,17 +352,11 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       # Create folder for new isolate
       dir.create(paste0(db_path, "/", 
                         gsub(" ", "_", meta_info$cgmlst_typing), 
-                        "/Isolates/", basename(assembly)))
+                        "/Isolates/", filename))
       
       # Copy assembly file in isolate directory
-      file.copy(assembly, paste0(db_path, "/", 
-                                 gsub(" ", "_", meta_info$cgmlst_typing), 
-                                 "/Isolates/", basename(assembly)))
-      
-      file.rename(paste0(db_path, "/", 
-                         gsub(" ", "_", meta_info$cgmlst_typing), 
-                         "/Isolates/", basename(assembly)),
-                  filename)
+      file.copy(paste0(getwd(), "/execute/selected_genomes/", filename, ".fasta"), 
+                paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Isolates/", filename))
       
       log_print(paste0("Saved assembly of ", basename(assembly)))
     }

@@ -10,10 +10,29 @@ label {
   color: white;
 }
 
+input[type="checkbox"] {
+  accent-color: #20E6E5;
+  height: 15px;
+  width: 15px;
+}
+
+.sF-fileList>div.selected .sF-file-name div, .sF-dirList div.selected>.sF-file-name>div {
+  background: #20E6E5;
+  color: black;
+}
+
+.handsontableInput {
+  box-shadow: inset 0 0 0 2px #20e6e5;
+}
+
+.handsontable .wtBorder.current {
+  background-color: #282F38 !important;
+}
+
 .tooltip-inner {
-      white-space: normal;
-      max-width: 800px; /* Adjust the width as needed */
-    }
+  white-space: normal;
+  max-width: 800px; /* Adjust the width as needed */
+}
 
 .btn-default:active:hover.
 .btn-primary:active:hover{
@@ -23,8 +42,8 @@ label {
 
 .btn-primary.focus, .btn-primary:focus {
   color: #000000;
-    background-color: #20E6E5;  
-    border-color: #20E6E5;  
+  background-color: #20E6E5;  
+  border-color: #20E6E5;  
 }
 
 .btn-primary.focus, .btn-primary:active:focus {

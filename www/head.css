@@ -91,7 +91,8 @@ div#bs-select-12::-webkit-scrollbar-track,
 #logTextFull::-webkit-scrollbar-track,
 #screening_fail::-webkit-scrollbar-track,
 .selectize-dropdown-content::-webkit-scrollbar-track,
-#mst_comm_general_select::-webkit-scrollbar-track {
+#mst_comm_general_select::-webkit-scrollbar-track,
+.sF-dirInfo>div::-webkit-scrollbar-track{
 background: #F0F0F0;
   }
 
@@ -112,7 +113,8 @@ div#bs-select-12::-webkit-scrollbar-thumb,
 #logTextFull::-webkit-scrollbar-thumb,
 #screening_fail::-webkit-scrollbar-thumb,
 .selectize-dropdown-content::-webkit-scrollbar-thumb,
-#mst_comm_general_select::-webkit-scrollbar-thumb {
+#mst_comm_general_select::-webkit-scrollbar-thumb,
+.sF-dirInfo>div::-webkit-scrollbar-thumb {
   background: #bcbcbc;
   border: 2px solid #F0F0F0;
   min-width: 100px;
