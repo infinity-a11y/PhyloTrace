@@ -11010,6 +11010,14 @@ server <- function(input, output, session) {
   observeEvent(input$conf_db_save, {
     log_print("Input conf_db_save")
     
+    # Remove isolate assembly file if present
+    if(!is.null(DB$remove_iso)) {
+      if(length(DB$remove_iso) > 0) {
+        lapply(DB$remove_iso, unlink, recursive = TRUE, force = FALSE, expand = TRUE)
+      }
+    }
+    DB$remove_iso <- NULL
+    
     Data <- readRDS(paste0(
       DB$database, "/",
       gsub(" ", "_", DB$scheme),
@@ -11119,7 +11127,7 @@ server <- function(input, output, session) {
       if( (length(input$select_delete) - nrow(DB$data) ) == 0) {
         showModal(
           modalDialog(
-            paste0("Deleting will lead to removal of all entries from local ", DB$scheme, " database. The data can not be recovered afterwards. Continue?"),
+            paste0("Deleting will lead to removal of all entries and assemblies from local ", DB$scheme, " database. The data can not be recovered afterwards. Continue?"),
             easyClose = TRUE,
             title = "Deleting Entries",
             footer = tagList(
@@ -11132,7 +11140,7 @@ server <- function(input, output, session) {
         showModal(
           modalDialog(
             paste0(
-              "Confirmation will lead to irreversible removal of selected entries. Continue?"
+              "Confirmation will lead to irreversible removal of selected entries and the respectively saved assembly. Continue?"
             ),
             title = "Deleting Entries",
             fade = TRUE,
@@ -11154,7 +11162,8 @@ server <- function(input, output, session) {
     log_print("Input conf_delete_all")
     
     # remove file with typing data
-    file.remove(paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/Typing.rds"))
+    file.remove(file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
+    unlink(file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates"), recursive = TRUE, force = FALSE, expand =TRUE)
     
     showModal(
       modalDialog(
@@ -11182,27 +11191,29 @@ server <- function(input, output, session) {
     
     log_print("Input conf_delete")
     
+    # Get isolates selected for deletion
     DB$deleted_entries <- append(DB$deleted_entries, DB$data$Index[as.numeric(input$select_delete)])
     
+    # Set reactive status variables
     DB$no_na_switch <- TRUE
-    
     DB$change <- TRUE
-    
     DB$check_new_entries <- FALSE
     
+    # Set isolate directory deletion variables
+    isopath <- dir_ls(file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates"))
+    DB$remove_iso <- isopath[which(basename(isopath) == DB$data$`Assembly ID`[as.numeric(input$select_delete)])]
+    
+    # Reload updated database reactive variables
     DB$data <- DB$data[!(DB$data$Index %in% as.numeric(input$select_delete)),]
-    
     DB$meta_gs <- select(DB$data, c(1, 3:13))
-    
     DB$meta <- select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)))
-    
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
-    
     DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
-    
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
     
+    # User feedback
     removeModal()
+    
     if(length(input$select_delete) > 1) {
       show_toast(
         title = "Entries deleted",

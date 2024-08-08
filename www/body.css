@@ -57,6 +57,10 @@ body > div.swal2-container.swal2-bottom-end.swal2-backdrop-show {
     border-color: white;  
 }
 
+#conf_delete .btn-default:hover {
+  background-color: #FF5964 !important;
+}
+
 .datepicker table tr td.active:active, .datepicker table tr td.active.active, .datepicker table tr td.active.highlighted:active, .datepicker table tr td.active.highlighted.active {
   color: #000000;
     background-color: #20E6E5;  
