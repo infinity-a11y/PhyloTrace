@@ -5522,7 +5522,7 @@ server <- function(input, output, session) {
   get.entry.table.meta <- reactive({
     if(!is.null(hot_to_r(input$db_entries))){
       table <- hot_to_r(input$db_entries)
-      select(table, 1:(12 + nrow(DB$cust_var)))
+      select(table, 1:(13 + nrow(DB$cust_var)))
     }
   })
   
@@ -6976,7 +6976,7 @@ server <- function(input, output, session) {
                 
                 DB$meta_gs <- select(DB$data, c(1, 3:13))
                 
-                DB$meta <- select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)))
+                DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
                 
                 DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
                 
@@ -7823,7 +7823,7 @@ server <- function(input, output, session) {
                         if(!is.null(DB$data) & !is.null(DB$cust_var)) {
                           output$db_entries <- renderRHandsontable({
                             rhandsontable(
-                              select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var))),
+                              select(DB$data, 1:(13 + nrow(DB$cust_var))),
                               error_highlight = err_thresh() - 1,                              
                               rowHeaders = NULL,
                               contextMenu = FALSE,
@@ -7919,7 +7919,7 @@ server <- function(input, output, session) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
                             output$db_entries <- renderRHandsontable({
                               rhandsontable(
-                                select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)), input$compare_select),
+                                select(DB$data, 1:(13 + nrow(DB$cust_var)), input$compare_select),
                                 col_highlight = diff_allele() - 1,
                                 dup_names_high = duplicated_names() - 1,
                                 dup_ids_high = duplicated_ids() - 1,
@@ -8079,7 +8079,7 @@ server <- function(input, output, session) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var)) {
                             output$db_entries <- renderRHandsontable({
                               rhandsontable(
-                                select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var))),
+                                select(DB$data, 1:(13 + nrow(DB$cust_var))),
                                 rowHeaders = NULL,
                                 row_highlight = true_rows() - 1,
                                 dup_names_high = duplicated_names()- 1,
@@ -8219,7 +8219,7 @@ server <- function(input, output, session) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height) & !is.null(input$compare_select)) {
                             output$db_entries <- renderRHandsontable({
                               rhandsontable(
-                                select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)), input$compare_select),
+                                select(DB$data, 1:(13 + nrow(DB$cust_var)), input$compare_select),
                                 col_highlight = diff_allele() - 1,
                                 rowHeaders = NULL,
                                 height = table_height(),
@@ -8375,7 +8375,7 @@ server <- function(input, output, session) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height)) {
                             output$db_entries <- renderRHandsontable({
                               rhandsontable(
-                                select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var))),
+                                select(DB$data, 1:(13 + nrow(DB$cust_var))),
                                 rowHeaders = NULL,
                                 height = table_height(),
                                 dup_names_high = duplicated_names() - 1,
@@ -9889,8 +9889,13 @@ server <- function(input, output, session) {
   
   # Change scheme
   observeEvent(input$reload_db, {
-    
     log_print("Input reload_db")
+    
+    cust_var2 <<- DB$cust_var
+    dataa2 <<- DB$data
+    meta_gs2 <<- DB$meta_gs
+    meta2 <<- DB$meta
+    allelic_profile2 <<- DB$allelic_profile
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -9972,7 +9977,7 @@ server <- function(input, output, session) {
     
     DB$meta_gs <- select(DB$data, c(1, 3:13))
     
-    DB$meta <- select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)))
+    DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
     
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
     
@@ -9988,7 +9993,7 @@ server <- function(input, output, session) {
           if(!is.null(DB$data) & !is.null(DB$cust_var)) {
             output$db_entries <- renderRHandsontable({
               rhandsontable(
-                select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var))),
+                select(DB$data, 1:(13 + nrow(DB$cust_var))),
                 error_highlight = err_thresh() - 1,                              
                 rowHeaders = NULL,
                 contextMenu = FALSE,
@@ -10084,7 +10089,7 @@ server <- function(input, output, session) {
             if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
               output$db_entries <- renderRHandsontable({
                 rhandsontable(
-                  select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)), input$compare_select),
+                  select(DB$data, 1:(13 + nrow(DB$cust_var)), input$compare_select),
                   col_highlight = diff_allele() - 1,
                   dup_names_high = duplicated_names() - 1,
                   dup_ids_high = duplicated_ids() - 1,
@@ -10244,7 +10249,7 @@ server <- function(input, output, session) {
             if(!is.null(DB$data) & !is.null(DB$cust_var)) {
               output$db_entries <- renderRHandsontable({
                 rhandsontable(
-                  select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var))),
+                  select(DB$data, 1:(13 + nrow(DB$cust_var))),
                   rowHeaders = NULL,
                   row_highlight = true_rows() - 1,
                   dup_names_high = duplicated_names()- 1,
@@ -10384,7 +10389,7 @@ server <- function(input, output, session) {
             if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height) & !is.null(input$compare_select)) {
               output$db_entries <- renderRHandsontable({
                 rhandsontable(
-                  select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)), input$compare_select),
+                  select(DB$data, 1:(13 + nrow(DB$cust_var)), input$compare_select),
                   col_highlight = diff_allele() - 1,
                   rowHeaders = NULL,
                   height = table_height(),
@@ -10540,7 +10545,7 @@ server <- function(input, output, session) {
             if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height)) {
               output$db_entries <- renderRHandsontable({
                 rhandsontable(
-                  select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var))),
+                  select(DB$data, 1:(13 + nrow(DB$cust_var))),
                   rowHeaders = NULL,
                   height = table_height(),
                   dup_names_high = duplicated_names() - 1,
@@ -10746,12 +10751,12 @@ server <- function(input, output, session) {
   observeEvent(input$conf_new_var, {
     log_print("Input conf_new_var")
     
+    # User feedback variables
     removeModal()
-    
     DB$count <- DB$count + 1
-    
     DB$change <- TRUE
     
+    # Format variable name
     name <- trimws(input$new_var_name)
     
     if(input$new_var_type == "Categorical (character)") {
@@ -10765,16 +10770,20 @@ server <- function(input, output, session) {
       
       DB$cust_var <- rbind(DB$cust_var, data.frame(Variable = name, Type = "cont"))
     }
-    
+    dataa <<- DB$data
+    cust_var <<- DB$cust_var
     
     DB$meta_gs <- select(DB$data, c(1, 3:13))
     
-    DB$meta <- select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)))
+    meta_gs <<- DB$meta_gs
+    
+    DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
+    meta <<- DB$meta
     
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
     
     DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
-    
+    allelic_profile <<- DB$allelic_profile
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
     
     log_print(paste0("New custom variable added: ", input$new_var_name))
@@ -10845,7 +10854,7 @@ server <- function(input, output, session) {
     
     DB$meta_gs <- select(DB$data, c(1, 3:13))
     
-    DB$meta <- select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)))
+    DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
     
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
     
@@ -11018,37 +11027,35 @@ server <- function(input, output, session) {
     }
     DB$remove_iso <- NULL
     
-    Data <- readRDS(paste0(
-      DB$database, "/",
-      gsub(" ", "_", DB$scheme),
-      "/Typing.rds"
-    ))
+    Data <<- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme),"Typing.rds"))
     
-    if ((ncol(Data[["Typing"]])-12) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
-      cust_vars_pre <- select(Data[["Typing"]], 13:(ncol(Data[["Typing"]]) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
-      cust_vars_pre <- names(cust_vars_pre)
+    if ((ncol(Data[["Typing"]]) - 13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
+      cust_vars_pre <- select(Data[["Typing"]], 
+                              14:(ncol(Data[["Typing"]]) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
+      cust_vars_pre <<- names(cust_vars_pre)
     } else {
-      cust_vars_pre <- character()
+      cust_vars_pre <<- character()
     }
     
-    Data[["Typing"]] <- select(Data[["Typing"]], -(1:(12 + length(cust_vars_pre))))
+    checkpoint <<- select(Data[["Typing"]], -(1:(13 + length(cust_vars_pre))))
+    Data[["Typing"]] <- select(Data[["Typing"]], -(1:(13 + length(cust_vars_pre))))
     
-    meta_hot <- hot_to_r(input$db_entries)
+    meta_hot <<- hot_to_r(input$db_entries)
     
-    if(length(DB$deleted_entries > 0)){
+    if(length(DB$deleted_entries > 0)) {
       
       meta_hot <- mutate(meta_hot, Index = as.character(1:nrow(DB$data)))
       
-      Data[["Typing"]] <- mutate(Data[["Typing"]][-as.numeric(DB$deleted_entries),], meta_hot, .before = 1)
+      Data[["Typing"]] <- mutate(Data[["Typing"]][-as.numeric(DB$deleted_entries),  ], 
+                                 meta_hot, .before = 1)
       rownames(Data[["Typing"]]) <- Data[["Typing"]]$Index
     } else {
       Data[["Typing"]] <- mutate(Data[["Typing"]], meta_hot, .before = 1)
-      
     }
     
     # Ensure correct logical data type
     Data[["Typing"]][["Include"]] <- as.logical(Data[["Typing"]][["Include"]])
-    
+    testdata <<- Data
     saveRDS(Data, paste0(
       DB$database, "/",
       gsub(" ", "_", DB$scheme),
@@ -11064,6 +11071,8 @@ server <- function(input, output, session) {
       ))
     
     DB$data <- Database[["Typing"]]
+    
+    dataa <- DB$data
     
     if(!is.null(DB$data)){
       if ((ncol(DB$data)-13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
@@ -11082,7 +11091,7 @@ server <- function(input, output, session) {
     
     DB$meta_gs <- select(DB$data, c(1, 3:13))
     
-    DB$meta <- select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)))
+    DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
     
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
     
@@ -11206,7 +11215,7 @@ server <- function(input, output, session) {
     # Reload updated database reactive variables
     DB$data <- DB$data[!(DB$data$Index %in% as.numeric(input$select_delete)),]
     DB$meta_gs <- select(DB$data, c(1, 3:13))
-    DB$meta <- select(select(DB$data, -13), 1:(12 + nrow(DB$cust_var)))
+    DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
     DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
