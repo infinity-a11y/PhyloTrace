@@ -807,6 +807,16 @@ background: #20E6E5;
 
 /* Typing */
 
+#assembly_files {
+  width: 140px;
+  border: 1px solid white;
+}
+
+#assembly_folder {
+  width: 140px;
+  border: 1px solid white;
+}
+
 #single_select_issues {
   margin-top: 15px;
   margin-bottom: 10px;
@@ -816,10 +826,15 @@ background: #20E6E5;
   margin-left: 10px;
 }
 
+#desel_all_mt {
+  margin-left: 15px;
+}
+
 #sel_all_mt,
 #desel_all_mt{
-  margin-top: 27px;
+  margin-top: 20px;
   margin-bottom: 25px;
+  border: 1px solid white;
 }
 
 #multi_select_issues {

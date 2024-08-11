@@ -575,8 +575,6 @@ ui <- dashboardPage(
             uiOutput("initiate_multi_typing_ui"),
             uiOutput("multi_stop"),
             column(1),
-            uiOutput("metadata_multi_box"),
-            column(1),
             uiOutput("start_multi_typing_ui")
           ),
           fluidRow(
@@ -7071,46 +7069,93 @@ server <- function(input, output, session) {
                 
                 output$initiate_multi_typing_ui <- renderUI({
                   column(
-                    width = 4,
-                    align = "center",
-                    br(),
-                    br(),
-                    h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
-                    br(), br(),
-                    p(
-                      HTML(
-                        paste(
-                          tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly Folder')
-                        )
-                      )
-                    ),
+                    width = 12,
                     fluidRow(
-                      column(1),
                       column(
-                        width = 11,
+                        width = 4,
                         align = "center",
-                        shinyDirButton(
-                          "genome_file_multi",
-                          "Browse",
-                          icon = icon("folder-open"),
-                          title = "Select the folder containing the genome assemblies (FASTA)",
-                          buttonType = "default",
-                          root = path_home()
+                        br(),
+                        br(),
+                        fluidRow(
+                          column(1),
+                          column(
+                            width = 11,
+                            align = "left",
+                            h3(p("Assembly Selection"), style = "color:white; margin-left: 45px"),
+                          )
                         ),
-                        br(),
-                        br(),
-                        uiOutput("multi_select_info"),
-                        br()
-                      )
-                    ),
-                    uiOutput("multi_select_tab_ctrls"),
-                    br(),
-                    fluidRow(
-                      column(1),
+                        br(), br(),
+                        fluidRow(
+                          column(1),
+                          column(
+                            width = 11,
+                            align = "center",
+                            fluidRow(
+                              column(
+                                width = 6,
+                                align = "center",
+                                shinyFilesButton(
+                                  "assembly_files",
+                                  "Select File(s)" ,
+                                  icon = icon("file"),
+                                  title = "Select Assembly File(s)",
+                                  multiple = TRUE,
+                                  buttonType = "default",
+                                  class = NULL,
+                                  width = "120px",
+                                  root = path_home()
+                                )
+                              ),
+                              column(
+                                width = 6,
+                                align = "left",
+                                uiOutput("multi_file_sel_info")
+                              )
+                            ),
+                            br(), 
+                            fluidRow(
+                              column(
+                                width = 6,
+                                align = "center",
+                                shinyDirButton(
+                                  "assembly_folder",
+                                  "Select Folder",
+                                  icon = icon("folder-open"),
+                                  title = "Select the folder containing the genome assemblies (FASTA)",
+                                  buttonType = "default",
+                                  root = path_home()
+                                )
+                              ),
+                              column(
+                                width = 6,
+                                align = "left",
+                                uiOutput("multi_folder_sel_info")
+                              )
+                            ),
+                            br(), br(), br(),
+                            fluidRow(
+                              column(1),
+                              uiOutput("metadata_multi_box")
+                            )
+                          )
+                        )
+                      ),
                       column(
-                        width = 11,
-                        align = "left",
-                        rHandsontableOutput("multi_select_table")
+                        width = 7,
+                        br(),
+                        br(),
+                        fluidRow(
+                          column(
+                            width = 10,
+                            uiOutput("multi_select_tab_ctrls"),
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            width = 12,
+                            rHandsontableOutput("multi_select_table")
+                          )
+                        )
                       )
                     )
                   )
@@ -9439,17 +9484,38 @@ server <- function(input, output, session) {
                       column(
                         width = 11,
                         align = "center",
-                        shinyDirButton(
-                          "genome_file_multi",
-                          "Browse",
-                          icon = icon("folder-open"),
-                          title = "Select the folder containing the genome assemblies (FASTA)",
-                          buttonType = "default",
-                          root = path_home()
+                        fluidRow(
+                          column(2),
+                          column(
+                            width = 3,
+                            align = "center",
+                            shinyFilesButton(
+                              "assembly_files",
+                              "Browse" ,
+                              icon = icon("file"),
+                              title = "Select Assembly File(s)",
+                              multiple = TRUE,
+                              buttonType = "default",
+                              class = NULL,
+                              root = path_home()
+                            )
+                          ),
+                          column(
+                            width = 3,
+                            align = "left",
+                            shinyDirButton(
+                              "assembly_folder",
+                              "Browse",
+                              icon = icon("folder-open"),
+                              title = "Select the folder containing the genome assemblies (FASTA)",
+                              buttonType = "default",
+                              root = path_home()
+                            )
+                          )
                         ),
                         br(),
                         br(),
-                        uiOutput("multi_select_info"),
+                        uiOutput("multi_folder_sel_info"),
                         br()
                       )
                     ),
@@ -23827,17 +23893,38 @@ server <- function(input, output, session) {
         column(
           width = 11,
           align = "center",
-          shinyDirButton(
-            "genome_file_multi",
-            "Browse",
-            icon = icon("folder-open"),
-            title = "Select the folder containing the genome assemblies (FASTA)",
-            buttonType = "default",
-            root = path_home()
+          fluidRow(
+            column(2),
+            column(
+              width = 3,
+              align = "center",
+              shinyFilesButton(
+                "assembly_files",
+                "Browse" ,
+                icon = icon("file"),
+                title = "Select Assembly File(s)",
+                multiple = TRUE,
+                buttonType = "default",
+                class = NULL,
+                root = path_home()
+              )
+            ),
+            column(
+              width = 3,
+              align = "center",
+              shinyDirButton(
+                "assembly_folder",
+                "Browse",
+                icon = icon("folder-open"),
+                title = "Select the folder containing the genome assemblies (FASTA)",
+                buttonType = "default",
+                root = path_home()
+              )
+            )
           ),
           br(),
           br(),
-          uiOutput("multi_select_info"),
+          uiOutput("multi_folder_sel_info"),
           br()
         )
       ),
@@ -23855,17 +23942,35 @@ server <- function(input, output, session) {
   })
   
   # Render selection info
-  output$multi_select_info <- renderUI({
-    
-    if(!is.null(Typing$multi_path)) {
-      if(length(Typing$multi_path) < 1) {
-        HTML(paste("<span style='color: white; margin-left:-30px'>", 
-                   "No files selected."))
+  output$multi_folder_sel_info <- renderUI({
+    if(!is.null(Typing$assembly_folder_path)) {
+      if(length(Typing$assembly_folder_path) < 1) {
+        HTML(paste("<span style='color: white; margin-left:-30px; position:relative; top:7px'>", 
+                   "No files selected"))
       } else {
-        HTML(paste("<span style='color: white; margin-left:-30px'>",
-                   sum(hot_to_r(input$multi_select_table)$Include == TRUE),
-                   " files selected."))
+        HTML(paste("<span style='color: white; margin-left:-30px; position:relative; top:7px'>",
+                   length(Typing$files_filtered),
+                   if(length(Typing$files_filtered) == 1) {
+                     " file selected"
+                   } else {" files selected"}))
       }
+    } else {
+      HTML(paste("<span style='color: white; margin-left:-30px; position:relative; top:7px'>", 
+                 "No files selected"))
+    }
+  })
+  
+  output$multi_file_sel_info <- renderUI({
+    req(Typing$assembly_files_path)
+    if(nrow(Typing$assembly_files_path) < 1) {
+      HTML(paste("<span style='color: white; margin-left:-30px; position:relative; top:7px'>", 
+                 "No files selected"))
+    } else {
+      HTML(paste("<span style='color: white; margin-left:-30px; position:relative; top:7px'>",
+                 nrow(Typing$assembly_files_path),
+                 if(nrow(Typing$assembly_files_path) == 1) {
+                   " file selected" 
+                 } else {" files selected"}))
     }
   })
   
@@ -23876,8 +23981,8 @@ server <- function(input, output, session) {
        any(duplicated(hot_to_r(input$multi_select_table)$Files))){
       HTML(
         paste(
-          paste("<span style='color: orange;'>",
-                "Some name(s) are already present in local database.<br/>"),
+          paste("<span style='color: orange; position:relative; top:2px'>",
+                "Some name(s) are already present in local database<br/>"),
           paste("<span style='color: #ff7334;'>",
                 "Duplicated name(s). <br/>")
         )
@@ -23885,14 +23990,14 @@ server <- function(input, output, session) {
     } else if (any(hot_to_r(input$multi_select_table)$Files %in% dupl_mult_id()) & 
                !any(duplicated(hot_to_r(input$multi_select_table)$Files))) {
       HTML(
-        paste("<span style='color: #e0b300;'>",
-              "Some name(s) are already present in local database.<br/>")
+        paste("<span style='color: #e0b300; position:relative; top:2px'>",
+              "Some name(s) are already present in local database<br/>")
       )
     } else if (!any(hot_to_r(input$multi_select_table)$Files %in% dupl_mult_id()) & 
                any(duplicated(hot_to_r(input$multi_select_table)$Files))) {
       HTML(
-        paste("<span style='color: #ff7334;'>",
-              "Duplicated name(s). <br/>")
+        paste("<span style='color: #ff7334; position:relative; top:2px'>",
+              "Duplicated name(s) <br/>")
       )
     }
   })
@@ -23905,6 +24010,8 @@ server <- function(input, output, session) {
     if(any(multi_select_table$Files[which(multi_select_table$Include == TRUE)] %in% dupl_mult_id()) | 
        any(duplicated(multi_select_table$Files[which(multi_select_table$Include == TRUE)])) |
        any(grepl(" ", multi_select_table$Files[which(multi_select_table$Include == TRUE)]))) {
+      
+      shinyjs::disable("conf_meta_multi")
       
       if(any(grepl(" ", multi_select_table$Files[which(multi_select_table$Include == TRUE)])))  {
         
@@ -23933,6 +24040,7 @@ server <- function(input, output, session) {
                    "&nbspRename highlighted isolates or deselect them.")))
       }
     } else {
+      shinyjs::enable("conf_meta_multi")
       HTML(paste(
         '<i class="fa-solid fa-circle-check" style="font-size:15px;color:lightgreen"></i>',
         paste("<span style='color: white; font-style:italic'>",
@@ -23947,9 +24055,10 @@ server <- function(input, output, session) {
         
         output$multi_select_tab_ctrls <- renderUI(
           fluidRow(
-            column(1),
+            h3(p("Metadata Declaration"), style = "color:white; margin-left: 15px"),
+            br(),
             column(
-              width = 2,
+              width = 1,
               align = "left",
               actionButton(
                 "sel_all_mt",
@@ -23958,7 +24067,7 @@ server <- function(input, output, session) {
               )
             ),
             column(
-              width = 2,
+              width = 1,
               align = "left",
               actionButton(
                 "desel_all_mt",
@@ -23966,10 +24075,9 @@ server <- function(input, output, session) {
                 icon = icon("xmark")
               )
             ),
-            column(2),
             column(
-              width = 5,
-              align = "right",
+              width = 10,
+              align = "center",
               br(),
               uiOutput("multi_select_issues")
             )
@@ -23978,147 +24086,13 @@ server <- function(input, output, session) {
         
         output$metadata_multi_box <- renderUI({
           column(
-            width = 3,
-            align = "center",
-            br(),
-            br(),
-            h3(p("Declare Metadata"), style = "color:white;margin-left:-40px"),
+            width = 10,
+            align = "left",
+            uiOutput("multi_select_issue_info"),
             br(), br(),
-            div(
-              class = "multi_meta_box",
-              box(
-                solidHeader = TRUE,
-                status = "primary",
-                width = "90%",
-                fluidRow(
-                  column(
-                    width = 5,
-                    align = "left",
-                    h5("Assembly ID", style = "color:white; margin-top: 30px; margin-left: 15px")
-                  ),
-                  column(
-                    width = 7,
-                    align = "left",
-                    h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 5,
-                    align = "left",
-                    h5("Assembly Name", style = "color:white; margin-top: 30px; margin-left: 15px")
-                  ),
-                  column(
-                    width = 7,
-                    align = "left",
-                    h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 5,
-                    align = "left",
-                    h5("Isolation Date", style = "color:white; margin-top: 30px; margin-left: 15px")
-                  ),
-                  column(
-                    width = 7,
-                    align = "left",
-                    div(
-                      class = "append_table",
-                      dateInput("append_isodate_multi",
-                                label = "",
-                                width = "80%",
-                                max = Sys.Date())
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 5,
-                    align = "left",
-                    h5("Host", style = "color:white; margin-top: 30px; margin-left: 15px")
-                  ),
-                  column(
-                    width = 7,
-                    align = "left",
-                    div(
-                      class = "append_table",
-                      textInput("append_host_multi",
-                                label = "",
-                                width = "80%")
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 5,
-                    align = "left",
-                    h5("Country", style = "color:white; margin-top: 30px; margin-left: 15px")
-                  ),
-                  column(
-                    width = 7,
-                    align = "left",
-                    div(
-                      class = "append_table_country",
-                      pickerInput(
-                        "append_country_multi",
-                        label = "",
-                        choices = list("Common" = sel_countries,
-                                       "All Countries" = country_names),
-                        options = list(
-                          `live-search` = TRUE,
-                          `actions-box` = TRUE,
-                          size = 10,
-                          style = "background-color: white; border-radius: 5px;"
-                        ),
-                        width = "90%"
-                      )
-                    )  
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 5,
-                    align = "left",
-                    h5("City", style = "color:white; margin-top: 30px; margin-left: 15px")
-                  ),
-                  column(
-                    width = 7,
-                    align = "left",
-                    div(
-                      class = "append_table",
-                      textInput("append_city_multi",
-                                label = "",
-                                width = "80%")
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 5,
-                    align = "left",
-                    h5("Typing Date", style = "color:white; margin-top: 30px; margin-left: 15px")
-                  ),
-                  column(
-                    width = 7,
-                    align = "left",
-                    h5(paste0(" ", Sys.Date()), style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 12,
-                    align = "center",
-                    br(), br(),
-                    actionButton(
-                      inputId = "conf_meta_multi",
-                      label = "Confirm"
-                    ),
-                    br(), br(),
-                    uiOutput("multi_select_issue_info")
-                  )
-                )
-              )    
+            actionButton(
+              inputId = "conf_meta_multi",
+              label = "Confirm"
             )
           )
         }) 
@@ -24130,17 +24104,30 @@ server <- function(input, output, session) {
   
   # Check if ongoing Multi Typing - Render accordingly
   observe({
-    # Get selected Genome in Multi Mode
+    
+    # Folder selection
     shinyDirChoose(input,
-                   "genome_file_multi",
+                   "assembly_folder",
                    roots = c(Home = path_home(), Root = "/"),
                    defaultRoot = "Home",
                    session = session,
                    filetypes = c('', 'fasta', 'fna', 'fa'))
     
-    Typing$multi_path <- parseDirPath(roots = c(Home = path_home(), Root = "/"), input$genome_file_multi)
+    Typing$assembly_folder_path <- parseDirPath(roots = c(Home = path_home(), Root = "/"), input$assembly_folder)
     
-    files_selected <- list.files(as.character(Typing$multi_path))
+    # File(s) selection
+    shinyFileChoose(input,
+                    "assembly_files",
+                    roots = c(Home = path_home(), Root = "/"),
+                    defaultRoot = "Home",
+                    session = session,
+                    filetypes = c('', 'fasta', 'fna', 'fa'))
+    
+    Typing$assembly_files_path <- parseFilePaths(roots = c(Home = path_home(), Root = "/"), input$assembly_files)
+    test <<- Typing$assembly_files_path
+    
+    # Format selection
+    files_selected <- list.files(as.character(Typing$assembly_folder_path))
     Typing$files_filtered <- files_selected[which(!endsWith(files_selected, ".gz") &
                                                     grepl("\\.fasta|\\.fna|\\.fa", files_selected))]
     
@@ -24154,9 +24141,10 @@ server <- function(input, output, session) {
     if(nrow(Typing$multi_sel_table) > 0) {
       output$multi_select_tab_ctrls <- renderUI(
         fluidRow(
-          column(1),
+          h3(p("Metadata Declaration"), style = "color:white; margin-left: 15px"),
+          br(),
           column(
-            width = 2,
+            width = 1,
             align = "left",
             actionButton(
               "sel_all_mt",
@@ -24165,7 +24153,7 @@ server <- function(input, output, session) {
             )
           ),
           column(
-            width = 2,
+            width = 1,
             align = "left",
             actionButton(
               "desel_all_mt",
@@ -24173,10 +24161,9 @@ server <- function(input, output, session) {
               icon = icon("xmark")
             )
           ),
-          column(2),
           column(
-            width = 5,
-            align = "right",
+            width = 10,
+            align = "center",
             br(),
             uiOutput("multi_select_issues")
           )
@@ -24570,17 +24557,39 @@ server <- function(input, output, session) {
             column(
               width = 11,
               align = "center",
-              shinyDirButton(
-                "genome_file_multi",
-                "Browse",
-                icon = icon("folder-open"),
-                title = "Select the folder containing the genome assemblies (FASTA)",
-                buttonType = "default",
-                root = path_home()
+              fluidRow(
+                column(2),
+                column(
+                  width = 3,
+                  align = "center",
+                  shinyFilesButton(
+                    "assembly_files",
+                    "Browse" ,
+                    icon = icon("file"),
+                    title = "Select Assembly File(s)",
+                    multiple = TRUE,
+                    buttonType = "default",
+                    class = NULL,
+                    width = "120px",
+                    root = path_home()
+                  )
+                ),
+                column(
+                  width = 3,
+                  align = "center",
+                  shinyDirButton(
+                    "assembly_folder",
+                    "Browse",
+                    icon = icon("folder-open"),
+                    title = "Select the folder containing the genome assemblies (FASTA)",
+                    buttonType = "default",
+                    root = path_home()
+                  )
+                )
               ),
               br(),
               br(),
-              uiOutput("multi_select_info"),
+              uiOutput("multi_folder_sel_info"),
               br()
             )
           ),
@@ -24655,17 +24664,38 @@ server <- function(input, output, session) {
           column(
             width = 11,
             align = "center",
-            shinyDirButton(
-              "genome_file_multi",
-              "Browse",
-              icon = icon("folder-open"),
-              title = "Select the folder containing the genome assemblies (FASTA)",
-              buttonType = "default",
-              root = path_home()
+            fluidRow(
+              column(2),
+              column(
+                width = 3,
+                align = "center",
+                shinyFilesButton(
+                  "assembly_files",
+                  "Browse" ,
+                  icon = icon("file"),
+                  title = "Select Assembly File(s)",
+                  multiple = TRUE,
+                  buttonType = "default",
+                  class = NULL,
+                  root = path_home()
+                )
+              ),
+              column(
+                width = 3,
+                align = "center",
+                shinyDirButton(
+                  "assembly_folder",
+                  "Browse",
+                  icon = icon("folder-open"),
+                  title = "Select the folder containing the genome assemblies (FASTA)",
+                  buttonType = "default",
+                  root = path_home()
+                )
+              )
             ),
             br(),
             br(),
-            uiOutput("multi_select_info"),
+            uiOutput("multi_folder_sel_info"),
             br()
           )
         ),
@@ -24742,7 +24772,7 @@ server <- function(input, output, session) {
         wd = getwd(),
         save = input$save_assembly_mt,
         scheme = paste0(gsub(" ", "_", DB$scheme)),
-        genome_folder = as.character(parseDirPath(roots = c(Home = path_home(), Root = "/"), input$genome_file_multi)),
+        genome_folder = as.character(parseDirPath(roots = c(Home = path_home(), Root = "/"), input$assembly_folder)),
         filenames = paste0(filenames, collapse= " "),
         genome_names = genome_names,
         alleles = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")
