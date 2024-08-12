@@ -5302,7 +5302,7 @@ ui <- dashboardPage(
       ),
       
       
-      ## Tab Gene Screening -------------------------------------------------------
+      ## Tab Screening -------------------------------------------------------
       
       tabItem(
         tabName = "gs_screening",
@@ -5310,7 +5310,7 @@ ui <- dashboardPage(
           column(
             width = 3,
             align = "center",
-            h2(p("Gene Screening"), style = "color:white; margin-bottom: -20px;")
+            h2(p("Screening"), style = "color:white; margin-bottom: -20px;")
           ),
           column(
             width = 7,
@@ -5331,7 +5331,7 @@ ui <- dashboardPage(
           column(
             width = 3,
             align = "center",
-            h2(p("Resistance Profiles"), style = "color:white; margin-bottom: -20px")
+            h2(p("Browse Entries"), style = "color:white; margin-bottom: -20px")
           ),
           column(
             width = 7,
@@ -5673,7 +5673,33 @@ server <- function(input, output, session) {
     groups
   }
   
-  #Function to check for duplicate isolate IDs for multi typing start
+  # Check gene screening status
+  check_status <- function(isolate) {
+    iso_name <- gsub(".zip", "", basename(isolate))
+    if(file.exists(file.path(DB$database, gsub(" ", "_", DB$scheme),
+                             "Isolates", iso_name, "status.txt"))) {
+      if(str_detect(readLines(file.path(DB$database, gsub(" ", "_", DB$scheme),
+                                        "Isolates", iso_name, "status.txt"))[1], 
+                    "successfully")) {
+        return("success")
+      } else {
+        return("fail")
+      }
+    } else {return("unfinished")}
+  }
+  
+  # Reset gene screening status
+  remove.screening.status <- function(isolate) {
+    file.remove(
+      file.path(DB$database, 
+                gsub(" ", "_", DB$scheme),
+                "Isolates",
+                Screening$status_df$isolate,
+                "status.txt")
+    )
+  }
+  
+  # Function to check for duplicate isolate IDs for multi typing start
   dupl_mult_id <- reactive({
     req(Typing$multi_sel_table)
     if(!is.null(DB$data)) {
@@ -6120,7 +6146,6 @@ server <- function(input, output, session) {
     # reset typing status on start(
     if(Typing$status == "Finalized") {Typing$status <- "Inactive"}
     if(!is.null(Typing$single_path)) {Typing$single_path <- data.frame()}
-    if(!is.null(Screening$single_path)) {Screening$single_path <- data.frame()}
     
     #### Render status bar ----
     observe({
@@ -6439,17 +6464,17 @@ server <- function(input, output, session) {
               icon = icon("gears")
             ),
             menuItem(
-              text = "Gene Screening",
+              text = "Resistance Profile",
               tabName = "gene_screening",
               icon = icon("dna"),
               startExpanded = TRUE,
               menuSubItem(
-                text = "Screen Assembly",
-                tabName = "gs_screening"
+                text = "Browse entries",
+                tabName = "gs_profile"
               ),
               menuSubItem(
-                text = "Resistance Profile",
-                tabName = "gs_profile"
+                text = "Screening",
+                tabName = "gs_screening"
               )
             ),
             menuItem(
@@ -6617,17 +6642,17 @@ server <- function(input, output, session) {
                   icon = icon("gears")
                 ),
                 menuItem(
-                  text = "Gene Screening",
+                  text = "Resistance Profile",
                   tabName = "gene_screening",
                   icon = icon("dna"),
                   startExpanded = TRUE,
                   menuSubItem(
-                    text = "Screen Assembly",
-                    tabName = "gs_screening"
+                    text = "Browse entries",
+                    tabName = "gs_profile"
                   ),
                   menuSubItem(
-                    text = "Resistance Profile",
-                    tabName = "gs_profile"
+                    text = "Screening",
+                    tabName = "gs_screening"
                   )
                 ),
                 menuItem(
@@ -6707,17 +6732,17 @@ server <- function(input, output, session) {
                   icon = icon("gears")
                 ),
                 menuItem(
-                  text = "Gene Screening",
+                  text = "Resistance Profile",
                   tabName = "gene_screening",
                   icon = icon("dna"),
                   startExpanded = TRUE,
                   menuSubItem(
-                    text = "Screen Assembly",
-                    tabName = "gs_screening"
+                    text = "Browse entries",
+                    tabName = "gs_profile"
                   ),
                   menuSubItem(
-                    text = "Resistance Profile",
-                    tabName = "gs_profile"
+                    text = "Screening",
+                    tabName = "gs_screening"
                   )
                 ),
                 menuItem(
@@ -6799,17 +6824,17 @@ server <- function(input, output, session) {
                   icon = icon("gears")
                 ),
                 menuItem(
-                  text = "Gene Screening",
+                  text = "Resistance Profile",
                   tabName = "gene_screening",
                   icon = icon("dna"),
                   startExpanded = TRUE,
                   menuSubItem(
-                    text = "Screen Assembly",
-                    tabName = "gs_screening"
+                    text = "Browse entries",
+                    tabName = "gs_profile"
                   ),
                   menuSubItem(
-                    text = "Resistance Profile",
-                    tabName = "gs_profile"
+                    text = "Screening",
+                    tabName = "gs_screening"
                   )
                 ),
                 menuItem(
@@ -6920,17 +6945,17 @@ server <- function(input, output, session) {
                     icon = icon("gears")
                   ),
                   menuItem(
-                    text = "Gene Screening",
+                    text = "Resistance Profile",
                     tabName = "gene_screening",
                     icon = icon("dna"),
                     startExpanded = TRUE,
                     menuSubItem(
-                      text = "Screen Assembly",
-                      tabName = "gs_screening"
+                      text = "Browse entries",
+                      tabName = "gs_profile"
                     ),
                     menuSubItem(
-                      text = "Resistance Profile",
-                      tabName = "gs_profile"
+                      text = "Screening",
+                      tabName = "gs_screening"
                     )
                   ),
                   menuItem(
@@ -7157,17 +7182,17 @@ server <- function(input, output, session) {
                         icon = icon("gears")
                       ),
                       menuItem(
-                        text = "Gene Screening",
+                        text = "Resistance Profile",
                         tabName = "gene_screening",
                         icon = icon("dna"),
                         startExpanded = TRUE,
                         menuSubItem(
-                          text = "Screen Assembly",
-                          tabName = "gs_screening"
+                          text = "Browse entries",
+                          tabName = "gs_profile"
                         ),
                         menuSubItem(
-                          text = "Resistance Profile",
-                          tabName = "gs_profile"
+                          text = "Screening",
+                          tabName = "gs_screening"
                         )
                       ),
                       menuItem(
@@ -7224,17 +7249,17 @@ server <- function(input, output, session) {
                         icon = icon("gears")
                       ),
                       menuItem(
-                        text = "Gene Screening",
+                        text = "Resistance Profile",
                         tabName = "gene_screening",
                         icon = icon("dna"),
                         startExpanded = TRUE,
                         menuSubItem(
-                          text = "Screen Assembly",
-                          tabName = "gs_screening"
+                          text = "Browse entries",
+                          tabName = "gs_profile"
                         ),
                         menuSubItem(
-                          text = "Resistance Profile",
-                          tabName = "gs_profile"
+                          text = "Screening",
+                          tabName = "gs_screening"
                         )
                       ),
                       menuItem(
@@ -9172,17 +9197,17 @@ server <- function(input, output, session) {
                       icon = icon("gears")
                     ),
                     menuItem(
-                      text = "Gene Screening",
+                      text = "Resistance Profile",
                       tabName = "gene_screening",
                       icon = icon("dna"),
                       startExpanded = TRUE,
                       menuSubItem(
-                        text = "Screen Assembly",
-                        tabName = "gs_screening"
+                        text = "Browse entries",
+                        tabName = "gs_profile"
                       ),
                       menuSubItem(
-                        text = "Resistance Profile",
-                        tabName = "gs_profile"
+                        text = "Screening",
+                        tabName = "gs_screening"
                       )
                     ),
                     menuItem(
@@ -9663,17 +9688,17 @@ server <- function(input, output, session) {
                 icon = icon("gears")
               ),
               menuItem(
-                text = "Gene Screening",
+                text = "Resistance Profile",
                 tabName = "gene_screening",
                 icon = icon("dna"),
                 startExpanded = TRUE,
                 menuSubItem(
-                  text = "Screen Assembly",
-                  tabName = "gs_screening"
+                  text = "Browse entries",
+                  tabName = "gs_profile"
                 ),
                 menuSubItem(
-                  text = "Resistance Profile",
-                  tabName = "gs_profile"
+                  text = "Screening",
+                  tabName = "gs_screening"
                 )
               ),
               menuItem(
@@ -9726,17 +9751,17 @@ server <- function(input, output, session) {
               icon = icon("gears")
             ),
             menuItem(
-              text = "Gene Screening",
+              text = "Resistance Profile",
               tabName = "gene_screening",
               icon = icon("dna"),
               startExpanded = TRUE,
               menuSubItem(
-                text = "Screen Assembly",
-                tabName = "gs_screening"
+                text = "Browse entries",
+                tabName = "gs_profile"
               ),
               menuSubItem(
-                text = "Resistance Profile",
-                tabName = "gs_profile"
+                text = "Screening",
+                tabName = "gs_screening"
               )
             ),
             menuItem(
@@ -9891,11 +9916,7 @@ server <- function(input, output, session) {
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
     
-    cust_var2 <<- DB$cust_var
-    dataa2 <<- DB$data
-    meta_gs2 <<- DB$meta_gs
-    meta2 <<- DB$meta
-    allelic_profile2 <<- DB$allelic_profile
+    test <<- Screening$status_df
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -22537,48 +22558,37 @@ server <- function(input, output, session) {
     )
   })
   
-  output$screening_results <- renderUI({
-    if(!is.null(Screening$results)) {
-      dataTableOutput("screening_table")
-    }
-  })
-  
   observe({
-    if(isTRUE(Screening$fail)) {
-      output$screening_fail <- renderPrint({
-        readLines(paste0(getwd(), "/execute/screening/error.txt"))
-      })
-    } else {
-      output$screening_fail <- NULL
-    }
-  })
-  
-  
-  observe({
-    if(!is.null(Screening$results)) {
-      req(Screening$results)
-      
-      output$screening_table <- renderDataTable(
-        select(Screening$results, c(6, 7, 8, 9, 11)),
-        selection = "single",
-        options = list(pageLength = 10,
-                       columnDefs = list(list(searchable = TRUE,
-                                              targets = "_all")),
-                       initComplete = DT::JS(
-                         "function(settings, json) {",
-                         "$('th:first-child').css({'border-top-left-radius': '5px'});",
-                         "$('th:last-child').css({'border-top-right-radius': '5px'});",
-                         "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
-                         "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
-                         "}"
-                       ),
-                       drawCallback = DT::JS(
-                         "function(settings) {",
-                         "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
-                         "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
-                         "}"
-                       )))
-    }
+      req(input$screening_res_sel, DB$database, DB$scheme, Screening$status_df)
+      if(length(input$screening_res_sel) > 0) {
+        if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "success") {
+          results <- read.delim(file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates", 
+                                          input$screening_res_sel, "resProfile.tsv"))
+          
+          output$screening_table <- renderDataTable(
+            select(results, c(6, 7, 8, 9, 11)),
+            selection = "single",
+            options = list(pageLength = 10,
+                           columnDefs = list(list(searchable = TRUE,
+                                                  targets = "_all")),
+                           initComplete = DT::JS(
+                             "function(settings, json) {",
+                             "$('th:first-child').css({'border-top-left-radius': '5px'});",
+                             "$('th:last-child').css({'border-top-right-radius': '5px'});",
+                             "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                             "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                             "}"
+                           ),
+                           drawCallback = DT::JS(
+                             "function(settings) {",
+                             "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                             "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                             "}"
+                           )))
+        } else {output$screening_table <- NULL}
+      } else {
+        output$screening_table <- NULL
+      }
   })
   
   # Availablity feedback
@@ -22639,26 +22649,67 @@ server <- function(input, output, session) {
         fluidRow(
           column(1),
           column(
-            width = 3,
+            width = 4,
             align = "center",
             br(), br(),
             p(
               HTML(
                 paste(
-                  tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File (FASTA)')
+                  tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Isolates for Screening')
                 )
               )
             ),
-            shinyFilesButton(
-              "genome_file_gs",
-              "Browse" ,
-              icon = icon("file"),
-              title = "Select the assembly in .fasta/.fna/.fa format:",
-              multiple = FALSE,
-              buttonType = "default",
-              class = NULL,
-              root = path_home()
-            ),
+            if(length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) > 0 &
+               length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) > 0) {
+              div(
+                class = "screening_div",
+                pickerInput(
+                  "screening_select",
+                  "",
+                  choices = list(Unscreened = DB$data$`Assembly ID`[which(DB$data$Screened == "No")],
+                                 Screened = DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]),
+                  options = list(
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE,
+                    size = 10,
+                    style = "background-color: white; border-radius: 5px;"
+                  ),
+                  multiple = TRUE
+                ) 
+              )
+            } else if(length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) > 0) {
+              div(
+                class = "screening_div",
+                pickerInput(
+                  "screening_select",
+                  "",
+                  choices = list(Unscreened = DB$data$`Assembly ID`[which(DB$data$Screened == "No")]),
+                  options = list(
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE,
+                    size = 10,
+                    style = "background-color: white; border-radius: 5px;"
+                  ),
+                  multiple = TRUE
+                ) 
+              )
+            } else {
+              div(
+                class = "screening_div",
+                pickerInput(
+                  "screening_select",
+                  "",
+                  choices = list(Screened = DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]),
+                  options = list(
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE,
+                    size = 10,
+                    style = "background-color: white; border-radius: 5px;"
+                  ),
+                  multiple = TRUE
+                )
+              )
+            },
             br(), br(),
             uiOutput("genome_path_gs")
           ),
@@ -22666,18 +22717,33 @@ server <- function(input, output, session) {
           column(
             width = 2,
             uiOutput("screening_start")
-          )
+          ),
+          column(1)
+          # column(
+          #   width = 3,
+          #   align = "left",
+          #   box(
+          #     solidHeader = TRUE,
+          #     status = "primary",
+          #     width = "90%",
+          #     HTML(paste("<span style='color: white; font-size: 17px'>", 
+          #                "AMRFinder Database Status")),
+          #     
+          #   )
+          # )
         ),
         fluidRow(
           column(1),
           column(
             width = 10,
             br(), br(), br(), br(),
-            uiOutput("screening_results"),
-            verbatimTextOutput("screening_fail"),
-            br(), br(), br(), br(), br(), br()
+            uiOutput("screening_result_sel"),
+            br(),
+            uiOutput("screening_result"),
+            br(), br(), br(), br(), br(), br(), br(), br(), br()
           )
-        )
+        ),
+        br(), br(), br(), br(), br(), br(), br(), br()
       )
     }
   })
@@ -22688,86 +22754,49 @@ server <- function(input, output, session) {
   observeEvent(input$screening_reset_bttn, {
     log_print("Reset gene screening")
     Screening$status <- "idle"
-    file.remove(paste0(getwd(), "/execute/screening/output_file.tsv"))
-    file.remove(paste0(getwd(), "/execute/screening/error.txt"))
+    sapply(Screening$status_df$isolate, remove.screening.status)
     Screening$results <- NULL
-    Screening$single_path <- data.frame()
     Screening$fail <- NULL
-  })
-  
-  # Get selected Genome in Single Mode
-  
-  observe({
-    shinyFileChoose(input,
-                    "genome_file_gs",
-                    roots = c(Home = path_home(), Root = "/"),
-                    defaultRoot = "Home",
-                    session = session,
-                    filetypes = c('', 'fasta', 'fna', 'fa'))
-    Screening$single_path <- parseFilePaths(roots = c(Home = path_home(), Root = "/"), input$genome_file_gs)
-    
+    output$screening_table <- NULL
+    Screening$status_df <- NULL
   })
   
   # Get selected assembly
   
   observe({
-    if (nrow(Screening$single_path) < 1) {
+    if (length(input$screening_select) < 1) {
       output$genome_path_gs <- renderUI(HTML(
-        paste("<span style='color: white;'>", "No file selected.")
+        paste("<span style='color: white;'>", length(input$screening_select), " isolates queried for screening.")
       ))
       
       output$screening_start <- NULL
       
-    } else if (nrow(Screening$single_path) > 0) {
+    } else if (length(input$screening_select) > 0) {
       
-      if (str_detect(str_sub(Screening$single_path$name, start = -6), ".fasta") | 
-          str_detect(str_sub(Screening$single_path$name, start = -6), ".fna") | 
-          str_detect(str_sub(Screening$single_path$name, start = -6), ".fa")) {
+      output$screening_start <- renderUI({
         
-        # Render selected assembly path
-        output$genome_path_gs <- renderUI({
-          HTML(
-            paste(
-              "<span style='color: white; font-weight: bolder'>",
-              as.character(Screening$single_path$name)
-            )
+        fluidRow(
+          column(
+            width = 8,
+            br(), br(), 
+            if(Screening$status == "finished") {
+              actionButton(
+                "screening_reset_bttn",
+                "Reset",
+                icon = icon("arrows-rotate")
+              )
+            } else if(Screening$status == "idle") {
+              actionButton(
+                inputId = "screening_start_button",
+                label = "Start",
+                icon = icon("circle-play")
+              )
+            } else if(Screening$status == "started") {
+              HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:22px;color:white;margin-top:37px;position:relative;left:20px"></i>'))
+            }
           )
-        })
-        
-        output$screening_start <- renderUI({
-          
-          fluidRow(
-            column(
-              width = 8,
-              br(), br(), 
-              if(Screening$status == "finished") {
-                actionButton(
-                  "screening_reset_bttn",
-                  "Reset",
-                  icon = icon("arrows-rotate")
-                )
-              } else if(Screening$status == "idle") {
-                actionButton(
-                  inputId = "screening_start_button",
-                  label = "Start",
-                  icon = icon("circle-play")
-                )
-              } else if(Screening$status == "started") {
-                HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:22px;color:white;margin-top:37px;position:relative;left:20px"></i>'))
-              }
-            )
-          )
-        })
-        
-      } else {
-        show_toast(
-          title = "Wrong file type (only fasta/fna/fa)",
-          type = "error",
-          position = "bottom-end",
-          timer = 6000
         )
-        
-      }
+      })
     }
   })
   
@@ -22802,57 +22831,134 @@ server <- function(input, output, session) {
         timer = 6000
       )
       
-      screening_df <- data.frame(wd = getwd(),
-                                 assembly_path = Screening$single_path$datapath,
-                                 assembly = as.character(basename(Screening$single_path$name)),
+      Screening$meta_df <- data.frame(wd = getwd(),
+                                 selected = paste(
+                                   file.path(DB$database, gsub(" ", "_", DB$scheme),
+                                             "Isolates", input$screening_select,
+                                             paste0(input$screening_select, ".zip")), 
+                                   collapse = " "),
                                  species = gsub(" ", "_", DB$scheme))
       
-      saveRDS(screening_df, paste0(getwd(), "/execute/screening_meta.rds"))
+      Screening$status_df <- data.frame(isolate = basename(gsub(".zip", "", str_split_1(Screening$meta_df$selected, " "))), 
+                                        status = "unfinished", shown = FALSE)
+      
+      # Reset screening status
+      sapply(Screening$status_df$isolate, remove.screening.status)
+      
+      saveRDS(Screening$meta_df, paste0(getwd(), "/execute/screening_meta.rds"))
       
       # System execution screening.sh
       system(paste("bash", paste0(getwd(), "/execute/screening.sh")), wait = FALSE)
-      
     }
   })
   
   ### Screening Feedback ----
   
   observe({
-    req(Screening$status)
-    if(Screening$status == "started") {
-      shinyjs::disable("genome_file_gs") 
-      check_screening()
-    } else if(Screening$status == "idle") {
-      shinyjs::enable("genome_file_gs") 
+    req(Screening$status, Screening$status_df, input$screening_res_sel)
+    if(Screening$status != "idle") {
+      if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "success") {
+        output$screening_result <- renderUI(
+          dataTableOutput("screening_table") 
+        )
+      } else {
+        output$screening_result <- renderUI(
+          verbatimTextOutput("screening_fail")
+        )
+      }
+    } else {
+      output$screening_result <- NULL
     }
   })
   
-  check_screening <- reactive({
-    invalidateLater(2000, session)
-    if(Screening$status == "started"){
-      if(file.exists(paste0(getwd(), "/execute/screening/output_file.tsv"))) {
-        Screening$results <- read.delim(paste0(getwd(), "/execute/screening/output_file.tsv"))
-        Screening$status <- "finished"
-        log_print("Finalized gene screening")
-        show_toast(
-          title = "Successful gene screening",
-          type = "success",
-          position = "bottom-end",
-          timer = 6000
-        )
-      } else if(file.exists(paste0(getwd(), "/execute/screening/error.txt"))) {
-        Screening$status <- "finished"
-        log_print("Failed gene screening")
-        Screening$fail <- TRUE
-        show_toast(
-          title = "Failed gene screening",
-          type = "error",
-          position = "bottom-end",
-          timer = 6000
-        )
+  observe({
+    req(req(Screening$status, Screening$status_df, input$screening_res_sel))
+    if(Screening$status != "idle") {
+      if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "fail") {
+        output$screening_fail <- renderPrint({
+          readLines(file.path(DB$database, gsub(" ", "_", DB$scheme),
+                              "Isolates", input$screening_res_sel, "status.txt"))
+        })
       }
     }
   })
+  
+   observe({
+     req(Screening$status)
+     if(Screening$status == "started") {
+       
+       # start status screening for user feedback
+       check_screening()
+       
+       if(isTRUE(Screening$first_result)) {
+         output$screening_result_sel <- renderUI(
+           selectInput(
+             "screening_res_sel",
+             "Select Result",
+             choices = ""
+           )
+         )
+         
+         Screening$first_result <- FALSE
+       }
+     } else if(Screening$status == "idle") {
+       output$screening_result_sel <- NULL
+     }
+   })
+    
+   check_screening <- reactive({
+     invalidateLater(2000, session)
+     
+     req(Screening$status_df)
+     
+     if(Screening$status == "started") {
+       
+       Screening$status_df$status <- sapply(Screening$status_df$isolate, check_status)
+       
+       if(any("unfinished" != Screening$status_df$status) &
+          !identical(Screening$choices, Screening$status_df$isolate[which(Screening$status_df$status == "success")])) {
+         
+         status_df <- Screening$status_df[which(Screening$status_df$status != "unfinished"),]
+         
+         Screening$choices <- Screening$status_df$isolate[which(Screening$status_df$status == "success" |
+                                                                  Screening$status_df$status == "fail")]
+         
+         if(sum("unfinished" != Screening$status_df$status) == 1) {
+           Screening$first_result <- TRUE
+         }
+         
+         if(tail(status_df$status, 1) == "success") {
+           
+           show_toast(
+             title = paste("Successful screening of", tail(Screening$choices, 1)),
+             type = "success",
+             position = "bottom-end",
+             timer = 6000)
+           
+           updateSelectInput(session = session,
+                             inputId = "screening_res_sel",
+                             choices = Screening$choices,
+                             selected = tail(Screening$choices, 1))
+           
+         } else if(tail(status_df$status, 1) == "fail") {
+           show_toast(
+             title = paste("Failed screening of", tail(status_df$isolate, 1)),
+             type = "error",
+             position = "bottom-end",
+             timer = 6000)
+           
+           updateSelectInput(session = session,
+                             inputId = "screening_res_sel",
+                             choices = Screening$choices,
+                             selected = tail(Screening$choices, 1))
+         }
+         
+         if(sum("unfinished" != Screening$status_df$status) == length(Screening$status_df$status)) {
+           Screening$status <- "finished"
+         }
+       } 
+     }
+   })
   
   
   # _______________________ ####
