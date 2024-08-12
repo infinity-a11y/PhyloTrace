@@ -582,7 +582,7 @@ ui <- dashboardPage(
           fluidRow(
             column(
               width = 6,
-              uiOutput("test_yes_pending")
+              uiOutput("pending_typing")
             ),
             column(
               width = 6,
@@ -5320,7 +5320,9 @@ ui <- dashboardPage(
         ),
         br(),
         hr(),
-        uiOutput("screening_interface")
+        fluidRow(
+          uiOutput("screening_interface")
+        )
       ),
       
       ## Tab Resistance Profile -------------------------------------------------------
@@ -5690,13 +5692,19 @@ server <- function(input, output, session) {
   
   # Reset gene screening status
   remove.screening.status <- function(isolate) {
-    file.remove(
-      file.path(DB$database, 
-                gsub(" ", "_", DB$scheme),
-                "Isolates",
-                Screening$status_df$isolate,
-                "status.txt")
-    )
+    if(file.exists(file.path(DB$database, 
+                             gsub(" ", "_", DB$scheme),
+                             "Isolates",
+                             isolate,
+                             "status.txt"))) {
+      file.remove(
+        file.path(DB$database, 
+                  gsub(" ", "_", DB$scheme),
+                  "Isolates",
+                  isolate,
+                  "status.txt")
+      )
+    }
   }
   
   # Function to check for duplicate isolate IDs for multi typing start
@@ -6469,7 +6477,7 @@ server <- function(input, output, session) {
               icon = icon("dna"),
               startExpanded = TRUE,
               menuSubItem(
-                text = "Browse entries",
+                text = "Browse Entries",
                 tabName = "gs_profile"
               ),
               menuSubItem(
@@ -6512,7 +6520,7 @@ server <- function(input, output, session) {
         output$multi_stop <- NULL
         output$metadata_multi_box <- NULL
         output$start_multi_typing_ui <- NULL
-        output$test_yes_pending <- NULL
+        output$pending_typing <- NULL
         output$multi_typing_results <- NULL
         output$single_typing_progress <- NULL
         output$metadata_single_box <- NULL
@@ -6549,7 +6557,7 @@ server <- function(input, output, session) {
         output$multi_stop <- NULL
         output$metadata_multi_box <- NULL
         output$start_multi_typing_ui <- NULL
-        output$test_yes_pending <- NULL
+        output$pending_typing <- NULL
         output$multi_typing_results <- NULL
         output$single_typing_progress <- NULL
         output$metadata_single_box <- NULL
@@ -6647,7 +6655,7 @@ server <- function(input, output, session) {
                   icon = icon("dna"),
                   startExpanded = TRUE,
                   menuSubItem(
-                    text = "Browse entries",
+                    text = "Browse Entries",
                     tabName = "gs_profile"
                   ),
                   menuSubItem(
@@ -6737,7 +6745,7 @@ server <- function(input, output, session) {
                   icon = icon("dna"),
                   startExpanded = TRUE,
                   menuSubItem(
-                    text = "Browse entries",
+                    text = "Browse Entries",
                     tabName = "gs_profile"
                   ),
                   menuSubItem(
@@ -6829,7 +6837,7 @@ server <- function(input, output, session) {
                   icon = icon("dna"),
                   startExpanded = TRUE,
                   menuSubItem(
-                    text = "Browse entries",
+                    text = "Browse Entries",
                     tabName = "gs_profile"
                   ),
                   menuSubItem(
@@ -6950,7 +6958,7 @@ server <- function(input, output, session) {
                     icon = icon("dna"),
                     startExpanded = TRUE,
                     menuSubItem(
-                      text = "Browse entries",
+                      text = "Browse Entries",
                       tabName = "gs_profile"
                     ),
                     menuSubItem(
@@ -7187,7 +7195,7 @@ server <- function(input, output, session) {
                         icon = icon("dna"),
                         startExpanded = TRUE,
                         menuSubItem(
-                          text = "Browse entries",
+                          text = "Browse Entries",
                           tabName = "gs_profile"
                         ),
                         menuSubItem(
@@ -7254,7 +7262,7 @@ server <- function(input, output, session) {
                         icon = icon("dna"),
                         startExpanded = TRUE,
                         menuSubItem(
-                          text = "Browse entries",
+                          text = "Browse Entries",
                           tabName = "gs_profile"
                         ),
                         menuSubItem(
@@ -9202,7 +9210,7 @@ server <- function(input, output, session) {
                       icon = icon("dna"),
                       startExpanded = TRUE,
                       menuSubItem(
-                        text = "Browse entries",
+                        text = "Browse Entries",
                         tabName = "gs_profile"
                       ),
                       menuSubItem(
@@ -9358,7 +9366,7 @@ server <- function(input, output, session) {
                 output$multi_stop <- NULL
                 output$metadata_multi_box <- NULL
                 output$start_multi_typing_ui <- NULL
-                output$test_yes_pending <- NULL
+                output$pending_typing <- NULL
                 output$multi_typing_results <- NULL
                 output$single_typing_progress <- NULL
                 output$metadata_single_box <- NULL
@@ -9693,7 +9701,7 @@ server <- function(input, output, session) {
                 icon = icon("dna"),
                 startExpanded = TRUE,
                 menuSubItem(
-                  text = "Browse entries",
+                  text = "Browse Entries",
                   tabName = "gs_profile"
                 ),
                 menuSubItem(
@@ -9756,7 +9764,7 @@ server <- function(input, output, session) {
               icon = icon("dna"),
               startExpanded = TRUE,
               menuSubItem(
-                text = "Browse entries",
+                text = "Browse Entries",
                 tabName = "gs_profile"
               ),
               menuSubItem(
@@ -22559,7 +22567,8 @@ server <- function(input, output, session) {
   })
   
   observe({
-      req(input$screening_res_sel, DB$database, DB$scheme, Screening$status_df)
+    req(input$screening_res_sel, DB$database, DB$scheme)
+    if(!is.null(Screening$status_df)) {
       if(length(input$screening_res_sel) > 0) {
         if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "success") {
           results <- read.delim(file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates", 
@@ -22589,6 +22598,10 @@ server <- function(input, output, session) {
       } else {
         output$screening_table <- NULL
       }
+    } else {
+      output$screening_table <- NULL
+    }
+      
   })
   
   # Availablity feedback
@@ -22649,7 +22662,7 @@ server <- function(input, output, session) {
         fluidRow(
           column(1),
           column(
-            width = 4,
+            width = 3,
             align = "center",
             br(), br(),
             p(
@@ -22713,10 +22726,15 @@ server <- function(input, output, session) {
             br(), br(),
             uiOutput("genome_path_gs")
           ),
-          column(1),
           column(
-            width = 2,
+            width = 3,
             uiOutput("screening_start")
+          ),
+          column(
+            width = 3,
+            align = "center",
+            br(), br(),
+            uiOutput("screening_result_sel")
           ),
           column(1)
           # column(
@@ -22736,14 +22754,11 @@ server <- function(input, output, session) {
           column(1),
           column(
             width = 10,
-            br(), br(), br(), br(),
-            uiOutput("screening_result_sel"),
-            br(),
+            br(), br(), 
             uiOutput("screening_result"),
-            br(), br(), br(), br(), br(), br(), br(), br(), br()
+            br(), br(), br(), br()
           )
-        ),
-        br(), br(), br(), br(), br(), br(), br(), br()
+        )
       )
     }
   })
@@ -22753,12 +22768,54 @@ server <- function(input, output, session) {
   # Reset screening 
   observeEvent(input$screening_reset_bttn, {
     log_print("Reset gene screening")
-    Screening$status <- "idle"
+    
+    # reset status file
     sapply(Screening$status_df$isolate, remove.screening.status)
+    
+    # set feedback variables
+    Screening$status <- "idle"
     Screening$results <- NULL
     Screening$fail <- NULL
-    output$screening_table <- NULL
     Screening$status_df <- NULL
+    
+    # change reactive UI
+    output$screening_table <- NULL
+    output$screening_result <- NULL
+    output$screening_fail <- NULL
+    
+    updatePickerInput(session, "screening_select", selected = character(0))
+    
+    # disable isolate picker
+    shinyjs::runjs("$('#screening_select').prop('disabled', false);")
+    shinyjs::runjs("$('#screening_select').selectpicker('refresh');")
+  })
+  
+  # Cancel screening
+  observeEvent(input$screening_cancel, {
+    log_print("Cancelled gene screening")
+    
+    # terminate screening
+    system(paste("kill $(pgrep -f 'execute/screening.sh')"), wait = FALSE)
+    system(paste("killall -TERM tblastn"), wait = FALSE)
+    
+    # reset status file
+    sapply(Screening$status_df$isolate, remove.screening.status)
+    
+    # set feedback variables
+    Screening$status <- "idle"
+    Screening$results <- NULL
+    Screening$fail <- NULL
+    Screening$status_df <- NULL
+    
+    # change reactive UI
+    output$screening_table <- NULL
+    output$screening_result <- NULL
+    
+    updatePickerInput(session, "screening_select", selected = character(0))
+    
+    # disable isolate picker
+    shinyjs::runjs("$('#screening_select').prop('disabled', false);")
+    shinyjs::runjs("$('#screening_select').selectpicker('refresh');")
   })
   
   # Get selected assembly
@@ -22777,22 +22834,91 @@ server <- function(input, output, session) {
         
         fluidRow(
           column(
-            width = 8,
+            width = 12,
             br(), br(), 
-            if(Screening$status == "finished") {
-              actionButton(
-                "screening_reset_bttn",
-                "Reset",
-                icon = icon("arrows-rotate")
+            if(length(input$screening_select) < 1) {
+              column(
+                width = 12,
+                align = "center",
+                p(
+                  HTML(paste(
+                    '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
+                    paste("<span style='color: white; font-style:italic'>", 
+                          "&nbsp Select Isolate(s) for Screening")))
+                )
+              )
+            } else if(Screening$status == "finished") {
+              column(
+                width = 12,
+                align = "center",
+                p(
+                  HTML(paste(
+                    '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:white"></i>',
+                    paste("<span style='color: white; font-style:italic'>", 
+                          "&nbsp Reset to Perform Screening Again")))
+                ),
+                actionButton(
+                  "screening_reset_bttn",
+                  "Reset",
+                  icon = icon("arrows-rotate")
+                ),
+                if(!is.null(Screening$status_df)) {
+                  p(
+                    HTML(paste("<span style='color: white; font-style:italic; position: relative; top:41px'>", 
+                               sum(Screening$status_df$status != "unfinished"), "/",
+                               nrow(Screening$status_df), " Isolate(s) screened"))
+                  )
+                }
               )
             } else if(Screening$status == "idle") {
-              actionButton(
-                inputId = "screening_start_button",
-                label = "Start",
-                icon = icon("circle-play")
+              column(
+                width = 12,
+                align = "center",
+                p(
+                  HTML(paste(
+                    '<i class="fa-solid fa-circle-check" style="font-size:15px;color:lightgreen"></i>',
+                    paste("<span style='color: white; font-style:italic'>",
+                          "&nbsp Screening Ready")))
+                ),
+                actionButton(
+                  inputId = "screening_start_button",
+                  label = "Start",
+                  icon = icon("circle-play")
+                )
               )
             } else if(Screening$status == "started") {
-              HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:22px;color:white;margin-top:37px;position:relative;left:20px"></i>'))
+              column(
+                width = 12,
+                align = "center",
+                p(
+                  HTML(paste(
+                    '<i class="fa-solid fa-clock" style="font-size:15px;color:white"></i>',
+                    paste("<span style='color: white; font-style:italic'>",
+                          "&nbsp Running Screening ...")))
+                ),
+                fluidRow(
+                  column(3),
+                  column(
+                    width = 3,
+                    actionButton(
+                      inputId = "screening_cancel",
+                      label = "Terminate",
+                      icon = icon("ban")
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:22px;color:white;margin-top:27px;position:relative;left:20px"></i>'))
+                  )
+                ),
+                if(!is.null(Screening$status_df)) {
+                  p(
+                    HTML(paste("<span style='color: white; font-style:italic; position: relative; top:41px'>", 
+                               sum(Screening$status_df$status != "unfinished"), "/",
+                               nrow(Screening$status_df), " Isolate(s) screened"))
+                  )
+                }
+              )
             }
           )
         )
@@ -22823,6 +22949,9 @@ server <- function(input, output, session) {
       log_print("Started gene screening")
       
       Screening$status <- "started"
+      
+      shinyjs::runjs("$('#screening_select').prop('disabled', true);")
+      shinyjs::runjs("$('#screening_select').selectpicker('refresh');")
       
       show_toast(
         title = "Gene screening started",
@@ -22855,16 +22984,28 @@ server <- function(input, output, session) {
   ### Screening Feedback ----
   
   observe({
-    req(Screening$status, Screening$status_df, input$screening_res_sel)
-    if(Screening$status != "idle") {
-      if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "success") {
-        output$screening_result <- renderUI(
-          dataTableOutput("screening_table") 
-        )
+    req(Screening$status, input$screening_res_sel)
+    if(!is.null(Screening$status_df)) {
+      if(Screening$status != "idle") {
+        if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "success") {
+          output$screening_result <- renderUI(
+            column(
+              width = 12,
+              hr(), br(),
+              dataTableOutput("screening_table") 
+            )
+          )
+        } else {
+          output$screening_result <- renderUI(
+            column(
+              width = 12,
+              hr(), br(),
+              verbatimTextOutput("screening_fail")
+            )
+          )
+        }
       } else {
-        output$screening_result <- renderUI(
-          verbatimTextOutput("screening_fail")
-        )
+        output$screening_result <- NULL
       }
     } else {
       output$screening_result <- NULL
@@ -22872,93 +23013,99 @@ server <- function(input, output, session) {
   })
   
   observe({
-    req(req(Screening$status, Screening$status_df, input$screening_res_sel))
-    if(Screening$status != "idle") {
-      if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "fail") {
-        output$screening_fail <- renderPrint({
-          readLines(file.path(DB$database, gsub(" ", "_", DB$scheme),
-                              "Isolates", input$screening_res_sel, "status.txt"))
-        })
+    req(Screening$status, input$screening_res_sel)
+    if(!is.null(Screening$status_df)) {
+      if(Screening$status != "idle") {
+        if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "fail") {
+          output$screening_fail <- renderPrint({
+            cat(paste(readLines(file.path(DB$database, gsub(" ", "_", DB$scheme),
+                                          "Isolates", input$screening_res_sel, "status.txt")),"\n"))
+          })
+        }
+      } else {
+        output$screening_fail <- NULL
       }
+    } else {
+      output$screening_fail <- NULL
     }
   })
   
-   observe({
-     req(Screening$status)
-     if(Screening$status == "started") {
-       
-       # start status screening for user feedback
-       check_screening()
-       
-       if(isTRUE(Screening$first_result)) {
-         output$screening_result_sel <- renderUI(
-           selectInput(
-             "screening_res_sel",
-             "Select Result",
-             choices = ""
-           )
-         )
-         
-         Screening$first_result <- FALSE
-       }
-     } else if(Screening$status == "idle") {
-       output$screening_result_sel <- NULL
-     }
-   })
+  observe({
+    req(Screening$status)
+    if(Screening$status == "started") {
+      
+      # start status screening for user feedback
+      check_screening()
+      
+      if(isTRUE(Screening$first_result)) {
+        output$screening_result_sel <- renderUI(
+          selectInput(
+            "screening_res_sel",
+            label = h5("Select Result", style = "color:white; margin-bottom: 32px; margin-top: -10px;"),
+            choices = ""
+          )
+        )
+        
+        Screening$first_result <- FALSE
+      }
+    } else if(Screening$status == "idle") {
+      output$screening_result_sel <- NULL
+    }
+  }) 
     
-   check_screening <- reactive({
-     invalidateLater(2000, session)
-     
-     req(Screening$status_df)
-     
-     if(Screening$status == "started") {
-       
-       Screening$status_df$status <- sapply(Screening$status_df$isolate, check_status)
-       
-       if(any("unfinished" != Screening$status_df$status) &
-          !identical(Screening$choices, Screening$status_df$isolate[which(Screening$status_df$status == "success")])) {
-         
-         status_df <- Screening$status_df[which(Screening$status_df$status != "unfinished"),]
-         
-         Screening$choices <- Screening$status_df$isolate[which(Screening$status_df$status == "success" |
-                                                                  Screening$status_df$status == "fail")]
-         
-         if(sum("unfinished" != Screening$status_df$status) == 1) {
-           Screening$first_result <- TRUE
-         }
-         
-         if(tail(status_df$status, 1) == "success") {
-           
-           show_toast(
-             title = paste("Successful screening of", tail(Screening$choices, 1)),
-             type = "success",
-             position = "bottom-end",
-             timer = 6000)
-           
-           updateSelectInput(session = session,
-                             inputId = "screening_res_sel",
-                             choices = Screening$choices,
-                             selected = tail(Screening$choices, 1))
-           
-         } else if(tail(status_df$status, 1) == "fail") {
-           show_toast(
-             title = paste("Failed screening of", tail(status_df$isolate, 1)),
-             type = "error",
-             position = "bottom-end",
-             timer = 6000)
-           
-           updateSelectInput(session = session,
-                             inputId = "screening_res_sel",
-                             choices = Screening$choices,
-                             selected = tail(Screening$choices, 1))
-         }
-         
-         if(sum("unfinished" != Screening$status_df$status) == length(Screening$status_df$status)) {
-           Screening$status <- "finished"
-         }
-       } 
-     }
-   })
+  check_screening <- reactive({
+    invalidateLater(2000, session)
+    
+    req(Screening$status_df)
+    
+    if(Screening$status == "started") {
+      
+      Screening$status_df$status <- sapply(Screening$status_df$isolate, check_status)
+      
+      if(any("unfinished" != Screening$status_df$status) &
+         !identical(Screening$choices, Screening$status_df$isolate[which(Screening$status_df$status != "unfinished")])) {
+        
+        status_df <- Screening$status_df[which(Screening$status_df$status != "unfinished"),]
+        
+        Screening$choices <- Screening$status_df$isolate[which(Screening$status_df$status == "success" |
+                                                                 Screening$status_df$status == "fail")]
+        
+        if(sum("unfinished" != Screening$status_df$status) == 1) {
+          Screening$first_result <- TRUE
+        }
+        
+        if(tail(status_df$status, 1) == "success") {
+          
+          show_toast(
+            title = paste("Successful screening of", tail(Screening$choices, 1)),
+            type = "success",
+            position = "bottom-end",
+            timer = 6000)
+          
+          updateSelectInput(session = session,
+                            inputId = "screening_res_sel",
+                            choices = Screening$choices,
+                            selected = tail(Screening$choices, 1))
+          
+        } else if(tail(status_df$status, 1) == "fail") {
+          show_toast(
+            title = paste("Failed screening of", tail(status_df$isolate, 1)),
+            type = "error",
+            position = "bottom-end",
+            timer = 6000)
+          
+          updateSelectInput(session = session,
+                            inputId = "screening_res_sel",
+                            choices = Screening$choices,
+                            selected = tail(Screening$choices, 1))
+        }
+        
+        if(sum("unfinished" != Screening$status_df$status) == length(Screening$status_df$status)) {
+          Screening$status <- "finished"
+        }
+      } 
+    }
+  }) 
   
   
   # _______________________ ####
@@ -24703,7 +24850,7 @@ server <- function(input, output, session) {
         )
       })
       
-      output$test_yes_pending <- NULL
+      output$pending_typing <- NULL
       output$multi_typing_results <- NULL
     }
   })
@@ -24735,7 +24882,7 @@ server <- function(input, output, session) {
     
     # Reset User Feedback variable
     Typing$pending_format <- 0
-    output$test_yes_pending <- NULL
+    output$pending_typing <- NULL
     output$multi_typing_results <- NULL
     Typing$failures <- 0
     Typing$successes <- 0
@@ -25066,14 +25213,14 @@ server <- function(input, output, session) {
       
       output$initiate_multi_typing_ui <- NULL
       
-      output$test_yes_pending <- renderUI({
+      output$pending_typing <- renderUI({
         fluidRow(
           fluidRow(
             br(), br(),
             column(width = 2),
             column(
               width = 4,
-              h3(p("Pending Multi Typing ..."), style = "color:white"),
+              h3(p("Pending Typing ..."), style = "color:white"),
               br(), br(),
               fluidRow(
                 column(
@@ -25110,7 +25257,7 @@ server <- function(input, output, session) {
       
       output$initiate_multi_typing_ui <- NULL
       
-      output$test_yes_pending <- renderUI({
+      output$pending_typing <- renderUI({
         
         fluidRow(
           fluidRow(
@@ -25158,7 +25305,7 @@ server <- function(input, output, session) {
         )
       })
     } else if (!grepl("Start Multi Typing", head(readLogFile(), n = 1))){
-      output$test_yes_pending <- NULL
+      output$pending_typing <- NULL
       Typing$multi_result_status <- "idle"
     }
   })

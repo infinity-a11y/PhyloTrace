@@ -159,7 +159,7 @@ body > div.swal2-container.swal2-bottom-end.swal2-backdrop-show {
   border: 1px solid #00000000;
   border-width: 1px;
   display: inline-block; /* Make the element inline-block */
-    transition: border-color 0.3s ease; /* Smooth transition for border color */
+  transition: border-color 0.3s ease; /* Smooth transition for border color */
 }
 
 .bttn-material-flat:hover{
@@ -168,20 +168,20 @@ body > div.swal2-container.swal2-bottom-end.swal2-backdrop-show {
 
 .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input {
   background: #282F38 !important;
-    border: 1px solid transparent; /* Default border color */
-    display: inline-block; /* Make the element inline-block */
-    transition: border-color 0.3s ease; /* Smooth transition for border color */
-    border-width: 1px !important;
+  border: 1px solid transparent; /* Default border color */
+  display: inline-block; /* Make the element inline-block */
+  transition: border-color 0.3s ease; /* Smooth transition for border color */
+  border-width: 1px !important;
   border-color: white !important;
   color: white !important;
   transition: background 0.3s ease; /* Smooth transition for border color */
-    transition: color 0.3s ease; /* Smooth transition for border color */
+  transition: color 0.3s ease; /* Smooth transition for border color */
 }
 
 .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input:hover {
   border-color: transparent !important; /* Change border color to white on hover */
-    background: #20E6E5 !important;
-    color: black !important;
+  background: #20E6E5 !important;
+  color: black !important;
 }
 
 .shiny-input-container input[type = "text"]:hover {
@@ -194,14 +194,14 @@ body > div.swal2-container.swal2-bottom-end.swal2-backdrop-show {
 
 .main-sidebar .sidebar .sidebar-menu .treeview-menu li.active a {
   color: #000000 !important; 
-    border-radius: 20px; 
+  border-radius: 20px; 
   margin-top: 7px; 
   margin-bottom: 7px;
 }
 
 .main-sidebar .sidebar .sidebar-menu .treeview-menu li:hover a {
   color: #000000; 
-    border-radius: 20px; 
+  border-radius: 20px; 
   margin-top: 7px; 
   margin-bottom: 7px;
 }
@@ -212,7 +212,7 @@ body > div.swal2-container.swal2-bottom-end.swal2-backdrop-show {
 
 .main-sidebar .sidebar .sidebar-menu li:hover a {
   color: #000000; 
-    border: none;
+  border: none;
 }
 
 file.select {
@@ -221,17 +221,17 @@ file.select {
 
 .box.box-solid.box-info{
   background: #282F38;
-    margin-top: 20px;
+  margin-top: 20px;
   position: relative;
   left: 30px;
 }
 
 .box.box-solid.box-info, .box.box-info {
   border-color: #ffffff;
-    border-left-color: #ffffff;
-    border-right-color: #ffffff;
-    border-top-color: #ffffff;
-    border-radius: 7px;
+  border-left-color: #ffffff;
+  border-right-color: #ffffff;
+  border-top-color: #ffffff;
+  border-radius: 7px;
 }
 
 .selectize-control.single .selectize-input:after {
@@ -1847,108 +1847,108 @@ margin-left: -5px
 }
 
 #nj_tiplab_show, #upgma_tiplab_show {
-margin-top: 17px; 
-margin-left: -5px
+  margin-top: 17px; 
+  margin-left: -5px
 }
 
 #nj_fruit_offset, #upgma_fruit_offset {
-position: relative; 
-top: -20px
+  position: relative; 
+  top: -20px
 }
 
 #nj_layout .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y,
 #upgma_layout .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y{
-margin-bottom: 16px
+  margin-bottom: 16px
 }
 
 #nj_div_tiles, #upgma_div_tiles {
-position: absolute; 
-bottom: 4px; 
-margin-left: -5px
+  position: absolute; 
+  bottom: 4px; 
+  margin-left: -5px
 }
 
 #nj_fruit_offset_2, #upgma_fruit_offset_2 {
-position: relative; 
-top: -20px
+  position: relative; 
+  top: -20px
 }
 
 #nj_layout_2 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y,
 #upgma_layout_2 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y{
-margin-bottom: 16px
+  margin-bottom: 16px
 }
 
 #nj_div_tiles_2, #upgma_div_tiles_2 {
-position: absolute; 
-bottom: 4px; 
-margin-left: -5px
+  position: absolute; 
+  bottom: 4px; 
+  margin-left: -5px
 }
 
 #nj_fruit_offset_3, #upgma_fruit_offset_3 {
-position: relative; 
-top: -20px
+  position: relative; 
+  top: -20px
 }
 
 #nj_layout_3 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y,
 #upgma_layout_3 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y{
-margin-bottom: 16px
+  margin-bottom: 16px
 }
 
 #nj_div_tiles_3, #upgma_div_tiles_3 {
-position: absolute; 
-bottom: 4px; 
-margin-left: -5px
+  position: absolute; 
+  bottom: 4px; 
+  margin-left: -5px
 }
 
 #nj_fruit_offset_4, #upgma_fruit_offset_4 {
-position: relative; 
-top: -20px
+  position: relative; 
+  top: -20px
 }
 
 #nj_layout_4 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y,
 #upgma_layout_4 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y{
-margin-bottom: 16px
+  margin-bottom: 16px
 }
 
 #nj_div_tiles_4, #upgma_div_tiles_4 {
-position: absolute; 
-bottom: 4px; 
-margin-left: -5px
+  position: absolute; 
+  bottom: 4px; 
+  margin-left: -5px
 }
 
 #nj_fruit_offset_5, #upgma_fruit_offset_5 {
-position: relative; 
-top: -20px
+  position: relative; 
+  top: -20px
 }
 
 #nj_layout_5 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y,
 #upgma_layout_5 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {
-margin-bottom: 16px
+  margin-bottom: 16px
 }
 
 #nj_div_tiles_5, #upgma_div_tiles_5 {
-position: absolute; 
-bottom: 4px; 
-margin-left: -5px
+  position: absolute; 
+  bottom: 4px; 
+  margin-left: -5px
 }
 
 #nj_heatmap_width, #upgma_heatmap_width {
-margin-top: 8px;
+  margin-top: 8px;
 }
 
 #nj_heatmap_offset, #upgma_heatmap_offset {
-margin-top: 4px;
-margin-bottom: 2px;
+  margin-top: 4px;
+  margin-bottom: 2px;
 }
 
 #nj_fruit_width, #nj_fruit_width2, #nj_fruit_width3, #nj_fruit_width4, #nj_fruit_width5,
 #upgma_fruit_width, #upgma_fruit_width2, #upgma_fruit_width3, #upgma_fruit_width4, #upgma_fruit_width5{
-margin-top: -5px;
-margin-bottom: -15px;
+  margin-top: -5px;
+  margin-bottom: -15px;
 }
 
 #nj_heatmap_show, #upgma_heatmap_show {
-margin-top: 18px; 
-margin-left: -5px;
+  margin-top: 18px; 
+  margin-left: -5px;
 }
 
 #nj_nodepoint_show, #nj_tippoint_show, #upgma_nodepoint_show, #upgma_tippoint_show {
@@ -2524,10 +2524,10 @@ background: linear-gradient(to right, #F7FCFD 0%, #F7FCFD 11.1111%, #E0ECF4 11.1
 #upgma_tiles_scale_5 .option[data-value="BuGn"], 
 #upgma_heatmap_scale .option[data-value="BuGn"],
 #upgma_clade_scale .option[data-value="BuGn"] {
-background: linear-gradient(to right, #F7FCFD 0%, #F7FCFD 11.1111%, #E5F5F9 11.1111%, #E5F5F9 22.2222%, #CCECE6 22.2222%, #CCECE6 33.3333%, #99D8C9 33.3333%, #99D8C9 44.4444%, #66C2A4 44.4444%, #66C2A4 55.5556%, #41AE76 55.5556%, #41AE76 66.6667%, #238B45 66.6667%, #238B45 77.7778%, #006D2C 77.7778%, #006D2C 88.8889%, #00441B 88.8889%, #00441B 100%);
-                            color: white;
-                            margin-bottom: 2px;
-                            }
+  background: linear-gradient(to right, #F7FCFD 0%, #F7FCFD 11.1111%, #E5F5F9 11.1111%, #E5F5F9 22.2222%, #CCECE6 22.2222%, #CCECE6 33.3333%,   #99D8C9 33.3333%, #99D8C9 44.4444%, #66C2A4 44.4444%, #66C2A4 55.5556%, #41AE76 55.5556%, #41AE76 66.6667%, #238B45 66.6667%, #238B45 77     .7778%, #006D2C 77.7778%, #006D2C 88.8889%, #00441B 88.8889%, #00441B 100%);
+  color: white;
+  margin-bottom: 2px;
+}
 
 #nj_tiplab_scale .option[data-value="Blues"], 
 #nj_tippoint_scale .option[data-value="Blues"], 
@@ -2547,10 +2547,10 @@ background: linear-gradient(to right, #F7FCFD 0%, #F7FCFD 11.1111%, #E5F5F9 11.1
 #upgma_tiles_scale_5 .option[data-value="Blues"], 
 #upgma_heatmap_scale .option[data-value="Blues"],
 #upgma_clade_scale .option[data-value="Blues"] {
-background: linear-gradient(to right, #F7FBFF 0%, #F7FBFF 11.1111%, #DEEBF7 11.1111%, #DEEBF7 22.2222%, #C6DBEF 22.2222%, #C6DBEF 33.3333%, #9ECAE1 33.3333%, #9ECAE1 44.4444%, #6BAED6 44.4444%, #6BAED6 55.5556%, #4292C6 55.5556%, #4292C6 66.6667%, #2171B5 66.6667%, #2171B5 77.7778%, #08519C 77.7778%, #08519C 88.8889%, #08306B 88.8889%, #08306B 100%);
-                            color: white;
-                            margin-bottom: 2px;
-                            }
+  background: linear-gradient(to right, #F7FBFF 0%, #F7FBFF 11.1111%, #DEEBF7 11.1111%, #DEEBF7 22.2222%, #C6DBEF 22.2222%, #C6DBEF 33.3333%,   #9ECAE1 33.3333%, #9ECAE1 44.4444%, #6BAED6 44.4444%, #6BAED6 55.5556%, #4292C6 55.5556%, #4292C6 66.6667%, #2171B5 66.6667%, #2171B5 77     .7778%, #08519C 77.7778%, #08519C 88.8889%, #08306B 88.8889%, #08306B 100%);
+  color: white;
+  margin-bottom: 2px;
+}
 
 #nj_tiplab_scale .option[data-value="magma"], 
 #nj_tippoint_scale .option[data-value="magma"], 
@@ -2568,10 +2568,10 @@ background: linear-gradient(to right, #F7FBFF 0%, #F7FBFF 11.1111%, #DEEBF7 11.1
 #upgma_tiles_scale_4 .option[data-value="magma"], 
 #upgma_tiles_scale_5 .option[data-value="magma"], 
 #upgma_heatmap_scale .option[data-value="magma"] {
-background: linear-gradient(to right, #000004FF, #07071DFF, #160F3BFF, #29115AFF, #400F73FF, #56147DFF, #6B1D81FF, #802582FF, #952C80FF, #AB337CFF, #C03A76FF, #D6456CFF, #E85362FF, #F4685CFF, #FA815FFF, #FD9A6AFF, #FEB37BFF, #FECC8FFF, #FDE4A6FF, #FCFDBFFF);
-                            color: white;
-                            margin-bottom: 2px;
-                            }
+  background: linear-gradient(to right, #000004FF, #07071DFF, #160F3BFF, #29115AFF, #400F73FF, #56147DFF, #6B1D81FF, #802582FF, #952C80FF,     #AB337CFF, #C03A76FF, #D6456CFF, #E85362FF, #F4685CFF, #FA815FFF, #FD9A6AFF, #FEB37BFF, #FECC8FFF, #FDE4A6FF, #FCFDBFFF);
+  color: white;
+  margin-bottom: 2px;
+}
 
 #nj_tiplab_scale .option[data-value="inferno"], 
 #nj_tippoint_scale .option[data-value="inferno"], 
@@ -2589,10 +2589,10 @@ background: linear-gradient(to right, #000004FF, #07071DFF, #160F3BFF, #29115AFF
 #upgma_tiles_scale_4 .option[data-value="inferno"], 
 #upgma_tiles_scale_5 .option[data-value="inferno"], 
 #upgma_heatmap_scale .option[data-value="inferno"] {
-background: linear-gradient(to right, #000004FF, #08051EFF, #190C3EFF, #300A5BFF, #460B6AFF, #5C126EFF, #711A6EFF, #87216BFF, #9C2964FF, #B1325AFF, #C43C4EFF, #D64B40FF, #E55C30FF, #F17020FF, #F8870EFF, #FCA007FF, #FBB91FFF, #F7D340FF, #F1ED6FFF, #FCFFA4FF);
-                            color: white;
-                            margin-bottom: 2px;
-                            }
+  background: linear-gradient(to right, #000004FF, #08051EFF, #190C3EFF, #300A5BFF, #460B6AFF, #5C126EFF, #711A6EFF, #87216BFF, #9C2964FF,     #B1325AFF, #C43C4EFF, #D64B40FF, #E55C30FF, #F17020FF, #F8870EFF, #FCA007FF, #FBB91FFF, #F7D340FF, #F1ED6FFF, #FCFFA4FF);
+  color: white;
+  margin-bottom: 2px;
+}
 
 #nj_tiplab_scale .option[data-value="plasma"], 
 #nj_tippoint_scale .option[data-value="plasma"], 
@@ -2610,10 +2610,10 @@ background: linear-gradient(to right, #000004FF, #08051EFF, #190C3EFF, #300A5BFF
 #upgma_tiles_scale_4 .option[data-value="plasma"], 
 #upgma_tiles_scale_5 .option[data-value="plasma"], 
 #upgma_heatmap_scale .option[data-value="plasma"] {
-background: linear-gradient(to right, #0D0887FF, #2D0594FF, #44039EFF, #5901A5FF, #6F00A8FF, #8305A7FF, #9512A1FF, #A72197FF, #B6308BFF, #C5407EFF, #D14E72FF, #DD5E66FF, #E76E5BFF, #EF7F4FFF, #F79044FF, #FBA238FF, #FEB72DFF, #FDCB26FF, #F7E225FF, #F0F921FF);
-                            color: white;
-                            margin-bottom: 2px;
-                            }
+  background: linear-gradient(to right, #0D0887FF, #2D0594FF, #44039EFF, #5901A5FF, #6F00A8FF, #8305A7FF, #9512A1FF, #A72197FF, #B6308BFF,     #C5407EFF, #D14E72FF, #DD5E66FF, #E76E5BFF, #EF7F4FFF, #F79044FF, #FBA238FF, #FEB72DFF, #FDCB26FF, #F7E225FF, #F0F921FF);
+  color: white;
+  margin-bottom: 2px;
+}
 
 #nj_tiplab_scale .option[data-value="viridis"], 
 #nj_tippoint_scale .option[data-value="viridis"], 
@@ -2631,10 +2631,10 @@ background: linear-gradient(to right, #0D0887FF, #2D0594FF, #44039EFF, #5901A5FF
 #upgma_tiles_scale_4 .option[data-value="viridis"], 
 #upgma_tiles_scale_5 .option[data-value="viridis"], 
 #upgma_heatmap_scale .option[data-value="viridis"] {
-background: linear-gradient(to right, #440154FF, #481568FF, #482677FF, #453781FF, #3F4788FF, #39558CFF, #32648EFF, #2D718EFF, #287D8EFF, #238A8DFF, #1F968BFF, #20A386FF, #29AF7FFF, #3CBC75FF, #56C667FF, #74D055FF, #94D840FF, #B8DE29FF, #DCE318FF, #FDE725FF);
-                            color: white;
-                            margin-bottom: 2px;
-                            }
+  background: linear-gradient(to right, #440154FF, #481568FF, #482677FF, #453781FF, #3F4788FF, #39558CFF, #32648EFF, #2D718EFF, #287D8EFF,     #238A8DFF, #1F968BFF, #20A386FF, #29AF7FFF, #3CBC75FF, #56C667FF, #74D055FF, #94D840FF, #B8DE29FF, #DCE318FF, #FDE725FF);
+  color: white;
+  margin-bottom: 2px;
+}
 
 #nj_tiplab_scale .option[data-value="cividis"], 
 #nj_tippoint_scale .option[data-value="cividis"], 
@@ -2652,10 +2652,10 @@ background: linear-gradient(to right, #440154FF, #481568FF, #482677FF, #453781FF
 #upgma_tiles_scale_4 .option[data-value="cividis"], 
 #upgma_tiles_scale_5 .option[data-value="cividis"], 
 #upgma_heatmap_scale .option[data-value="cividis"] {
-background: linear-gradient(to right, #00204DFF, #002A64FF, #00336FFF, #1F3C6DFF, #35466BFF, #444F6BFF, #53596CFF, #5F636EFF, #6B6C71FF, #777776FF, #838079FF, #908B79FF, #9D9677FF, #ABA074FF, #B9AC70FF, #C7B76BFF, #D7C463FF, #E5D05AFF, #F5DD4DFF, #FFEA46FF);
-                            color: white;
-                            margin-bottom: 2px;
-                            }
+  background: linear-gradient(to right, #00204DFF, #002A64FF, #00336FFF, #1F3C6DFF, #35466BFF, #444F6BFF, #53596CFF, #5F636EFF, #6B6C71FF,     #777776FF, #838079FF, #908B79FF, #9D9677FF, #ABA074FF, #B9AC70FF, #C7B76BFF, #D7C463FF, #E5D05AFF, #F5DD4DFF, #FFEA46FF);
+  color: white;
+  margin-bottom: 2px;
+}
 
 #nj_tiplab_scale .option[data-value="rocket"], 
 #nj_tippoint_scale .option[data-value="rocket"], 
@@ -2673,10 +2673,10 @@ background: linear-gradient(to right, #00204DFF, #002A64FF, #00336FFF, #1F3C6DFF
 #upgma_tiles_scale_4 .option[data-value="rocket"], 
 #upgma_tiles_scale_5 .option[data-value="rocket"], 
 #upgma_heatmap_scale .option[data-value="rocket"] {
-background: linear-gradient(to right, #03051AFF, #150E26FF, #281535FF, #3C1A42FF, #511E4DFF, #661F54FF, #7C1F5AFF, #931C5BFF, #AA185AFF, #C11754FF, #D3214BFF, #E33541FF, #ED4E3EFF, #F26847FF, #F4815AFF, #F5986FFF, #F6AE86FF, #F7C2A2FF, #F8D7BFFF, #FAEBDDFF);
-                            color: white;
-                            margin-bottom: 2px;
-                            }
+  background: linear-gradient(to right, #03051AFF, #150E26FF, #281535FF, #3C1A42FF, #511E4DFF, #661F54FF, #7C1F5AFF, #931C5BFF, #AA185AFF,     #C11754FF, #D3214BFF, #E33541FF, #ED4E3EFF, #F26847FF, #F4815AFF, #F5986FFF, #F6AE86FF, #F7C2A2FF, #F8D7BFFF, #FAEBDDFF);
+  color: white;
+  margin-bottom: 2px;
+}
 
 #nj_tiplab_scale .option[data-value="mako"], 
 #nj_tippoint_scale .option[data-value="mako"], 
@@ -2694,10 +2694,10 @@ background: linear-gradient(to right, #03051AFF, #150E26FF, #281535FF, #3C1A42FF
 #upgma_tiles_scale_4 .option[data-value="mako"], 
 #upgma_tiles_scale_5 .option[data-value="mako"], 
 #upgma_heatmap_scale .option[data-value="mako"]{
-background: linear-gradient(to right, #0B0405FF, #190E19FF, #27182DFF, #312142FF, #3A2C59FF, #3F3770FF, #414388FF, #3C5397FF, #38639DFF, #3573A1FF, #3482A4FF, #3491A8FF, #35A0ABFF, #3AAEADFF, #46BEADFF, #5ACCADFF, #7ED7AFFF, #A4E0BBFF, #C3E9CEFF, #DEF5E5FF);
-                            color: white;
-                            margin-bottom: 2px;
-                            }
+  background: linear-gradient(to right, #0B0405FF, #190E19FF, #27182DFF, #312142FF, #3A2C59FF, #3F3770FF, #414388FF, #3C5397FF, #38639DFF,     #3573A1FF, #3482A4FF, #3491A8FF, #35A0ABFF, #3AAEADFF, #46BEADFF, #5ACCADFF, #7ED7AFFF, #A4E0BBFF, #C3E9CEFF, #DEF5E5FF);
+  color: white;
+  margin-bottom: 2px;
+}
 
 #nj_tiplab_scale .option[data-value="turbo"], 
 #nj_tippoint_scale .option[data-value="turbo"], 
@@ -2715,9 +2715,9 @@ background: linear-gradient(to right, #0B0405FF, #190E19FF, #27182DFF, #312142FF
 #upgma_tiles_scale_4 .option[data-value="turbo"], 
 #upgma_tiles_scale_5 .option[data-value="turbo"], 
 #upgma_heatmap_scale .option[data-value="turbo"] {
-background: linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF, #3AA2FCFF, #23C3E4FF, #18DEC1FF, #2CF09EFF, #5BFB72FF, #8EFF49FF, #B5F836FF, #D6E635FF, #EFCD3AFF, #FCB036FF, #FD8A26FF, #F36215FF, #E14209FF, #C82803FF, #A51301FF, #7A0403FF);
-                            color: white;
-                            }
+  background: linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF, #3AA2FCFF, #23C3E4FF, #18DEC1FF, #2CF09EFF, #5BFB72FF,     #8EFF49FF, #B5F836FF, #D6E635FF, #EFCD3AFF, #FCB036FF, #FD8A26FF, #F36215FF, #E14209FF, #C82803FF, #A51301FF, #7A0403FF);
+  color: white;
+}
 
 #nj_tiplab_scale .option[data-value="Spectral"], 
 #nj_tippoint_scale .option[data-value="Spectral"], 
@@ -2735,10 +2735,10 @@ background: linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF
 #upgma_tiles_scale_4 .option[data-value="Spectral"], 
 #upgma_tiles_scale_5 .option[data-value="Spectral"], 
 #upgma_heatmap_scale .option[data-value="Spectral"]{
-background: linear-gradient(to right, #9E0142, #D53E4F, #F46D43, #FDAE61, #FEE08B, #FFFFBF, #E6F598, #ABDDA4, #66C2A5, #3288BD, #5E4FA2);
-                            color: black;
-                            margin-bottom: 2px;
-                            }
+  background: linear-gradient(to right, #9E0142, #D53E4F, #F46D43, #FDAE61, #FEE08B, #FFFFBF, #E6F598, #ABDDA4, #66C2A5, #3288BD, #5E4FA2);
+  color: black;
+  margin-bottom: 2px;
+}
 
 #nj_tiplab_scale .option[data-value="RdYlGn"], 
 #nj_tippoint_scale .option[data-value="RdYlGn"], 
@@ -2756,10 +2756,10 @@ background: linear-gradient(to right, #9E0142, #D53E4F, #F46D43, #FDAE61, #FEE08
 #upgma_tiles_scale_4 .option[data-value="RdYlGn"], 
 #upgma_tiles_scale_5 .option[data-value="RdYlGn"], 
 #upgma_heatmap_scale .option[data-value="RdYlGn"]{
-background: linear-gradient(to right, #A50026, #D73027, #F46D43, #FDAE61, #FEE08B, #FFFFBF, #D9EF8B, #A6D96A, #66BD63, #1A9850, #006837);
-                            color: black;
-                            margin-bottom: 2px;
-                            }
+  background: linear-gradient(to right, #A50026, #D73027, #F46D43, #FDAE61, #FEE08B, #FFFFBF, #D9EF8B, #A6D96A, #66BD63, #1A9850, #006837);
+  color: black;
+  margin-bottom: 2px;
+}
 
 #nj_tiplab_scale .option[data-value="RdYlBu"], 
 #nj_tippoint_scale .option[data-value="RdYlBu"], 
@@ -2777,10 +2777,10 @@ background: linear-gradient(to right, #A50026, #D73027, #F46D43, #FDAE61, #FEE08
 #upgma_tiles_scale_4 .option[data-value="RdYlBu"], 
 #upgma_tiles_scale_5 .option[data-value="RdYlBu"], 
 #upgma_heatmap_scale .option[data-value="RdYlBu"]{
-background: linear-gradient(to right, #A50026, #D73027, #F46D43, #FDAE61, #FEE090, #FFFFBF, #E0F3F8, #ABD9E9, #74ADD1, #4575B4, #313695);
-                            color: black;
-                            margin-bottom: 2px;
-                            }
+  background: linear-gradient(to right, #A50026, #D73027, #F46D43, #FDAE61, #FEE090, #FFFFBF, #E0F3F8, #ABD9E9, #74ADD1, #4575B4, #313695);
+  color: black;
+  margin-bottom: 2px;
+}
 
 #nj_tiplab_scale .option[data-value="RdGy"], 
 #nj_tippoint_scale .option[data-value="RdGy"], 
@@ -2798,10 +2798,10 @@ background: linear-gradient(to right, #A50026, #D73027, #F46D43, #FDAE61, #FEE09
 #upgma_tiles_scale_4 .option[data-value="RdGy"], 
 #upgma_tiles_scale_5 .option[data-value="RdGy"], 
 #upgma_heatmap_scale .option[data-value="RdGy"] {
-background: linear-gradient(to right, #67001F, #B2182B, #D6604D, #F4A582, #FDDBC7, #FFFFFF, #E0E0E0, #BABABA, #878787, #4D4D4D, #1A1A1A);
-                            color: black;
-                            margin-bottom: 2px;
-                            }
+  background: linear-gradient(to right, #67001F, #B2182B, #D6604D, #F4A582, #FDDBC7, #FFFFFF, #E0E0E0, #BABABA, #878787, #4D4D4D, #1A1A1A);
+  color: black;
+  margin-bottom: 2px;
+}
 
 #nj_tiplab_scale .option[data-value="RdBu"], 
 #nj_tippoint_scale .option[data-value="RdBu"], 
@@ -2819,10 +2819,10 @@ background: linear-gradient(to right, #67001F, #B2182B, #D6604D, #F4A582, #FDDBC
 #upgma_tiles_scale_4 .option[data-value="RdBu"], 
 #upgma_tiles_scale_5 .option[data-value="RdBu"], 
 #upgma_heatmap_scale .option[data-value="RdBu"] {
-background: linear-gradient(to right, #67001F, #B2182B, #D6604D, #F4A582, #FDDBC7, #F7F7F7, #D1E5F0, #92C5DE, #4393C3, #2166AC, #053061);
-                            color: black;
-                            margin-bottom: 2px;
-                            }
+  background: linear-gradient(to right, #67001F, #B2182B, #D6604D, #F4A582, #FDDBC7, #F7F7F7, #D1E5F0, #92C5DE, #4393C3, #2166AC, #053061);
+  color: black;
+  margin-bottom: 2px;
+}
 
 #nj_tiplab_scale .option[data-value="PuOr"], 
 #nj_tippoint_scale .option[data-value="PuOr"], 
@@ -2840,10 +2840,10 @@ background: linear-gradient(to right, #67001F, #B2182B, #D6604D, #F4A582, #FDDBC
 #upgma_tiles_scale_4 .option[data-value="PuOr"], 
 #upgma_tiles_scale_5 .option[data-value="PuOr"], 
 #upgma_heatmap_scale .option[data-value="PuOr"] {
-background: linear-gradient(to right, #7F3B08, #B35806, #E08214, #FDB863, #FEE0B6, #F7F7F7, #D8DAEB, #B2ABD2, #8073AC, #542788, #2D004B);
-                            color: black;
-                            margin-bottom: 2px;
-                            }
+  background: linear-gradient(to right, #7F3B08, #B35806, #E08214, #FDB863, #FEE0B6, #F7F7F7, #D8DAEB, #B2ABD2, #8073AC, #542788, #2D004B);
+  color: black;
+  margin-bottom: 2px;
+}
 
 #nj_tiplab_scale .option[data-value="PRGn"], 
 #nj_tippoint_scale .option[data-value="PRGn"], 
@@ -2861,10 +2861,10 @@ background: linear-gradient(to right, #7F3B08, #B35806, #E08214, #FDB863, #FEE0B
 #upgma_tiles_scale_4 .option[data-value="PRGn"], 
 #upgma_tiles_scale_5 .option[data-value="PRGn"], 
 #upgma_heatmap_scale .option[data-value="PRGn"] {
-background: linear-gradient(to right, #40004B, #762A83, #9970AB, #C2A5CF, #E7D4E8, #F7F7F7, #D9F0D3, #A6DBA0, #5AAE61, #1B7837, #00441B);
-                            color: black;
-                            margin-bottom: 2px;
-                            }
+  background: linear-gradient(to right, #40004B, #762A83, #9970AB, #C2A5CF, #E7D4E8, #F7F7F7, #D9F0D3, #A6DBA0, #5AAE61, #1B7837, #00441B);
+  color: black;
+  margin-bottom: 2px;
+}
 
 #nj_tiplab_scale .option[data-value="PiYG"], 
 #nj_tippoint_scale .option[data-value="PiYG"], 
@@ -2882,10 +2882,10 @@ background: linear-gradient(to right, #40004B, #762A83, #9970AB, #C2A5CF, #E7D4E
 #upgma_tiles_scale_4 .option[data-value="PiYG"], 
 #upgma_tiles_scale_5 .option[data-value="PiYG"], 
 #upgma_heatmap_scale .option[data-value="PiYG"] {
-background: linear-gradient(to right, #8E0152, #C51B7D, #DE77AE, #F1B6DA, #FDE0EF, #F7F7F7, #E6F5D0, #B8E186, #7FBC41, #4D9221, #276419);
-                            color: black;
-                            margin-bottom: 2px;
-                            }
+  background: linear-gradient(to right, #8E0152, #C51B7D, #DE77AE, #F1B6DA, #FDE0EF, #F7F7F7, #E6F5D0, #B8E186, #7FBC41, #4D9221, #276419);
+  color: black;
+  margin-bottom: 2px;
+}
 
 #nj_tiplab_scale .option[data-value="BrBG"], 
 #nj_tippoint_scale .option[data-value="BrBG"], 
@@ -2903,47 +2903,49 @@ background: linear-gradient(to right, #8E0152, #C51B7D, #DE77AE, #F1B6DA, #FDE0E
 #upgma_tiles_scale_4 .option[data-value="BrBG"], 
 #upgma_tiles_scale_5 .option[data-value="BrBG"], 
 #upgma_heatmap_scale .option[data-value="BrBG"] {
-background: linear-gradient(to right, #543005, #8C510A, #BF812D, #DFC27D, #F6E8C3, #F5F5F5, #C7EAE5, #80CDC1, #35978F, #01665E, #003C30);
-                            color: black;
-                            margin-bottom: 2px;
-                            }
+  background: linear-gradient(to right, #543005, #8C510A, #BF812D, #DFC27D, #F6E8C3, #F5F5F5, #C7EAE5, #80CDC1, #35978F, #01665E, #003C30);
+  color: black;
+  margin-bottom: 2px;
+}
 
 /* Report */
   
-  #shiny-modal > div > div > div.modal-body > div > div > div:nth-child(5) > div > div > div > div > button {
+#shiny-modal > div > div > div.modal-body > div > div > div:nth-child(5) > div > div > div > div > button {
   border: 1px solid black;
 }
 
 #rep_general {
-position: absolute;
-top: -10px;
-left: -110px;
+  position: absolute;
+  top: -10px;
+  left: -110px;
 }
 
 #rep_entrytable {
-position: relative;
-top: -10px;
-left: -96px;
+  position: relative;
+  top: -10px;
+  left: -96px;
 }
 
 #rep_plot_report {
-position: relative;
-top: -15px;
-left: -96px;
+  position: relative;
+  top: -15px;
+  left: -96px;
 }
 
 #rep_analysis {
-position: relative;
-top: -10px;
-left: -45px;
+  position: relative;
+  top: -10px;
+  left: -45px;
 }
 
 #mst_date_general_select {
-margin-top: -14px;
-width: 100px;
+  margin-top: -14px;
+  width: 100px;
 }
 
-.datepicker { z-index: 99999 !important; }
+.datepicker { 
+  z-index: 99999 !important; 
+}
 
 .rep_tab_sel {
   margin-top: -25px;
@@ -2959,7 +2961,7 @@ width: 100px;
 #rep_missval,
 #rep_version,
 #rep_plot_report {
-margin-top: 10px;
+  margin-top: 10px;
 }
 
 #mst_date_general_select .form-control {
@@ -2970,46 +2972,48 @@ margin-top: 7px;
 }
 
 #mst_operator_general_select {
-height: 28px;
-margin-top: -8px;
-position: relative;
-right: -22px;
-width: 250px;
+  height: 28px;
+  margin-top: -8px;
+  position: relative;
+  right: -22px;
+  width: 250px;
 }
 
 #mst_institute_general_select {
-height: 28px;
-margin-top: -8px;
-position: relative;
-right: -22px;
-width: 250px;
+  height: 28px;
+  margin-top: -8px;
+  position: relative;
+  right: -22px;
+  width: 250px;
 }
 
 #mst_comm_general_select {
-margin-top: -8px;
-border-radius: 5px;
-position: relative;
-right: -22px;
-border-color: black;
+  margin-top: -8px;
+  border-radius: 5px;
+  position: relative;
+  right: -22px;
+  border-color: black;
 }
 
 button#download_report_bttn {
-font-size: 14px;
-height: 36px;
-background: #282F38;
+  font-size: 14px;
+  height: 36px;
+  background: #282F38;
   color: #ffffff;
   border: 1px solid white;
-position: relative;
-top: 1px;
-border-radius: 6px;
-margin-left: 10px;
+  position: relative;
+  top: 1px;
+  border-radius: 6px;
+  margin-left: 10px;
 }
 
 /* Gene Screening */
 
 #screening_start_button,
-#screening_reset_bttn {
-  margin-top: 31px;
+#screening_reset_bttn,
+#screening_cancel {
+  margin-top: 20px;
+  border: 1px solid white;
 }
 
 #screening_fail {
