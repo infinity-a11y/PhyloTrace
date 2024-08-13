@@ -93,8 +93,20 @@ div#bs-select-12::-webkit-scrollbar-track,
 .selectize-dropdown-content::-webkit-scrollbar-track,
 #mst_comm_general_select::-webkit-scrollbar-track,
 .sF-dirInfo>div::-webkit-scrollbar-track{
-background: #F0F0F0;
-  }
+  background: #F0F0F0;
+}
+  
+#DataTables_Table_8_wrapper > div.dataTables_scroll > div.dataTables_scrollBody::-webkit-scrollbar-track,
+.display .dataTable .no-footer::-webkit-scrollbar-track,
+#DataTables_Table_8::-webkit-scrollbar-track,
+.dataTables_scrollBody::-webkit-scrollbar-track,
+div#gs_profile_table::-webkit-scrollbar-track,
+#gs_profile_table::-webkit-scrollbar-track {
+  background: #F0F0F0;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+  
 
 .wtHolder::-webkit-scrollbar-thumb,
 div#bs-select-1::-webkit-scrollbar-thumb,
@@ -114,7 +126,13 @@ div#bs-select-12::-webkit-scrollbar-thumb,
 #screening_fail::-webkit-scrollbar-thumb,
 .selectize-dropdown-content::-webkit-scrollbar-thumb,
 #mst_comm_general_select::-webkit-scrollbar-thumb,
-.sF-dirInfo>div::-webkit-scrollbar-thumb {
+.sF-dirInfo>div::-webkit-scrollbar-thumb,
+#DataTables_Table_8_wrapper > div.dataTables_scroll > div.dataTables_scrollBody::-webkit-scrollbar-thumb,
+.display .dataTable .no-footer::-webkit-scrollbar-thumb,
+#DataTables_Table_8::-webkit-scrollbar-thumb,
+.dataTables_scrollBody::-webkit-scrollbar-thumb,
+#gs_profile_table::-webkit-scrollbar-thumb,
+div#gs_profile_table::-webkit-scrollbar-thumb {
   background: #bcbcbc;
   border: 2px solid #F0F0F0;
   min-width: 100px;

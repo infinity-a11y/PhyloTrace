@@ -5351,6 +5351,15 @@ ui <- dashboardPage(
             div(class = "loci_table",
                 dataTableOutput("gs_isolate_table"))
           )
+        ),
+        hr(),
+        fluidRow(
+          column(1),
+          column(
+            width = 10,
+            div(class = "loci_table",
+                DT::dataTableOutput("gs_profile_table"))
+          )
         )
       )
     ) # End tabItems
@@ -5524,7 +5533,7 @@ server <- function(input, output, session) {
   get.entry.table.meta <- reactive({
     if(!is.null(hot_to_r(input$db_entries))){
       table <- hot_to_r(input$db_entries)
-      select(table, 1:(13 + nrow(DB$cust_var)))
+      select(select(table, -13), 1:(12 + nrow(DB$cust_var)))
     }
   })
   
@@ -5722,13 +5731,13 @@ server <- function(input, output, session) {
     invalidateLater(5000, session)
     
     if(!is.null(DB$database)) {
-      if(file_exists(paste0(
-        DB$database, "/",
+      if(file_exists(file.path(
+        DB$database,
         gsub(" ", "_", DB$scheme),
-        "/Typing.rds"
+        "Typing.rds"
       ))) {
         
-        Database <- readRDS(paste0(DB$database, "/", gsub(" ", "_", DB$scheme),"/Typing.rds"))
+        Database <- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme),"Typing.rds"))
         
         if(is.null(DB$data)) {
           if(nrow(Database[["Typing"]]) >= 1) {
@@ -5831,7 +5840,8 @@ server <- function(input, output, session) {
                            result_list = NULL,
                            status = "") # reactive variables related to typing process
   
-  Screening <- reactiveValues(status = "idle") # reactive variables related to gene screening
+  Screening <- reactiveValues(status = "idle",
+                              picker_status = TRUE) # reactive variables related to gene screening
   
   Vis <- reactiveValues(cluster = NULL, 
                         metadata = list(),
@@ -8572,7 +8582,7 @@ server <- function(input, output, session) {
                             HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:20px; color:white; margin-top: 10px"></i>'))
                           )
                         )
-                      } else if((DB$change == TRUE) | !identical(get.entry.table.meta(), DB$meta)) {
+                      } else if((DB$change == TRUE) | !identical(get.entry.table.meta(), select(DB$meta, -13))) {
                         if(!is.null(input$db_entries)) {
                           fluidRow(
                             column(
@@ -9909,6 +9919,9 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
+    
+    pick_stat <<- Screening$picker_status
+    ttest <<- input$screening_select
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -11359,7 +11372,6 @@ server <- function(input, output, session) {
   
   output$sequence_selector <- renderUI({
     if(!is.null(input$db_loci_rows_selected)) {
-      
       
       req(input$db_loci_rows_selected, DB$database, DB$scheme)
       
@@ -22513,10 +22525,65 @@ server <- function(input, output, session) {
   
   ### Render UI Elements ----
   
+  # Resistance profile table
+  observe({
+    req(DB$meta_gs, input$gs_isolate_table_rows_selected, DB$database, DB$scheme)
+    
+    if(DB$meta_gs$Screened[input$gs_isolate_table_rows_selected] == "Yes") {
+      iso_select <- DB$meta_gs$`Assembly ID`[input$gs_isolate_table_rows_selected]
+      iso_path <- file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates", 
+                            iso_select, "resProfile.tsv")
+      res_profile <- read.delim(iso_path)
+      
+      colnames(res_profile) <- c(
+        "Protein Identifier",	"Contig ID", "Start", "Stop", "Strand", "Gene Symbol", 
+        "Sequence Name", "Scope", "Element Type",  "Element Subtype", "Class", 
+        "Subclass", "Method", "Target Length", "Reference Sequence Length",	
+        "% Coverage of Reference Sequence", "% Identity to Reference Sequence", 
+        "Alignment Length", "Accession of Closest Sequence", 
+        "Name of Closest Sequence", "HMM ID", "HMM Description")
+      
+      
+      res_profile <- res_profile %>%
+        relocate(c("Gene Symbol", "Sequence Name", "Element Subtype", "Class", 
+                   "Subclass", "Scope", "Contig ID", "Target Length", "Alignment Length",
+                   "Start", "Stop", "Strand"))
+      
+      # Generate gene profile table
+      output$gs_profile_table <- DT::renderDataTable(
+        res_profile,
+        selection = "single",
+        rownames= FALSE,
+        options = list(pageLength = 10, scrollX = TRUE,
+                       autoWidth = TRUE,
+                       columnDefs = list(list(width = '400px', targets = c("Sequence Name"))),
+                       columnDefs = list(list(searchable = TRUE,
+                                              targets = "_all")),
+                       initComplete = DT::JS(
+                         "function(settings, json) {",
+                         "$('th:first-child').css({'border-top-left-radius': '5px'});",
+                         "$('th:last-child').css({'border-top-right-radius': '5px'});",
+                         # "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                         # "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                         "}"
+                       ),
+                       drawCallback = DT::JS(
+                         "function(settings) {",
+                         # "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                         # "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                         "}"
+                       ))
+      )
+    } else {
+      output$gs_profile_table <- NULL
+    }
+  })
+
+  #Resistance profile selection table
   observe({
     req(DB$meta)
     output$gs_isolate_table <- renderDataTable(
-      DB$meta_gs,
+      select(DB$meta_gs, -c(2, 4, 10, 11, 12)),
       selection = "single",
       rownames= FALSE,
       options = list(pageLength = 10,
@@ -22633,7 +22700,7 @@ server <- function(input, output, session) {
   
   # Screening Interface
   
-  output$screening_interface <- renderUI({
+  output$screening_interface <- renderUI(
     if(gsub(" ", "_", DB$scheme) %in% amrfinder_species) {
       column(
         width = 12,
@@ -22650,47 +22717,30 @@ server <- function(input, output, session) {
                 )
               )
             ),
-            if(length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) > 0 &
-               length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) > 0) {
+            if(Screening$picker_status) {
               div(
                 class = "screening_div",
                 pickerInput(
                   "screening_select",
                   "",
-                  choices = list(Unscreened = DB$data$`Assembly ID`[which(DB$data$Screened == "No")],
-                                 Screened = DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]),
-                  options = list(
-                    `live-search` = TRUE,
-                    `actions-box` = TRUE,
-                    size = 10,
-                    style = "background-color: white; border-radius: 5px;"
+                  choices = list(
+                    Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
+                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
+                    } else {
+                      DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
+                    },
+                    Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
+                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
+                    } else {
+                      DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+                    }
                   ),
-                  multiple = TRUE
-                ) 
-              )
-            } else if(length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) > 0) {
-              div(
-                class = "screening_div",
-                pickerInput(
-                  "screening_select",
-                  "",
-                  choices = list(Unscreened = DB$data$`Assembly ID`[which(DB$data$Screened == "No")]),
-                  options = list(
-                    `live-search` = TRUE,
-                    `actions-box` = TRUE,
-                    size = 10,
-                    style = "background-color: white; border-radius: 5px;"
+                  choicesOpt = list(
+                    disabled = c(
+                      rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
+                      rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]))
+                    )
                   ),
-                  multiple = TRUE
-                ) 
-              )
-            } else {
-              div(
-                class = "screening_div",
-                pickerInput(
-                  "screening_select",
-                  "",
-                  choices = list(Screened = DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]),
                   options = list(
                     `live-search` = TRUE,
                     `actions-box` = TRUE,
@@ -22699,6 +22749,23 @@ server <- function(input, output, session) {
                   ),
                   multiple = TRUE
                 )
+              )
+            } else {
+              div(
+                class = "screening_div",
+                pickerInput(
+                  "screening_select",
+                  "",
+                  choices = Screening$picker_choices,
+                  selected = Screening$picker_selected,
+                  options = list(
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE,
+                    size = 10,
+                    style = "background-color: white; border-radius: 5px;"
+                  ),
+                  multiple = TRUE
+                ) 
               )
             },
             br(), br(),
@@ -22739,7 +22806,7 @@ server <- function(input, output, session) {
         )
       )
     }
-  })
+  )
   
   ### Screening Events ----
   
@@ -22754,6 +22821,7 @@ server <- function(input, output, session) {
     Screening$status <- "idle"
     Screening$status_df <- NULL
     Screening$choices <- NULL
+    Screening$picker_status <- TRUE
     
     # change reactive UI
     output$screening_table <- NULL
@@ -22800,6 +22868,7 @@ server <- function(input, output, session) {
     Screening$status <- "idle"
     Screening$status_df <- NULL
     Screening$choices <- NULL
+    Screening$picker_status <- TRUE
     
     # change reactive UI
     output$screening_table <- NULL
@@ -22816,7 +22885,7 @@ server <- function(input, output, session) {
   observe({
     if (length(input$screening_select) < 1) {
       output$genome_path_gs <- renderUI(HTML(
-        paste("<span style='color: white; font-style:italic'>", length(input$screening_select), " isolate(s) queried for screening")
+        paste("<span style='color: white; font-style:italic'>", length(input$screening_select), " Isolate(s) queried for screening")
       ))
       
       output$screening_start <- NULL
@@ -22942,9 +23011,22 @@ server <- function(input, output, session) {
       log_print("Started gene screening")
       
       Screening$status <- "started"
-      
-      shinyjs::runjs("$('#screening_select').prop('disabled', true);")
-      shinyjs::runjs("$('#screening_select').selectpicker('refresh');")
+      Screening$picker_choices <- list(
+        Unscreened = if (sum(DB$data$Screened == "No") == 1) {
+          as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
+        } else {
+          DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
+        },
+        Screened =  if (sum(DB$data$Screened == "Yes") == 1) {
+          as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
+        } else {
+          DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+        }
+      )
+      pick_choices <<- Screening$picker_choices
+      Screening$picker_selected <- input$screening_select
+      okayy <<- Screening$picker_selected
+      Screening$picker_status <- FALSE
       
       show_toast(
         title = "Gene screening started",
@@ -22964,11 +23046,15 @@ server <- function(input, output, session) {
       Screening$status_df <- data.frame(isolate = basename(gsub(".zip", "", str_split_1(Screening$meta_df$selected, " "))), 
                                         status = "unfinished")
       
-      # Reset screening status
+       # Reset screening status
       sapply(Screening$status_df$isolate, remove.screening.status)
       
       saveRDS(Screening$meta_df, paste0(getwd(), "/execute/screening_meta.rds"))
       
+      # Disable pickerInput
+      shinyjs::delay(200, shinyjs::runjs("$('#screening_select').prop('disabled', true);"))
+      shinyjs::delay(200, shinyjs::runjs("$('#screening_select').selectpicker('refresh');"))
+    
       # System execution screening.sh
       system(paste("bash", paste0(getwd(), "/execute/screening.sh")), wait = FALSE)
     }
@@ -23042,10 +23128,27 @@ server <- function(input, output, session) {
         
         if(isTRUE(Screening$first_result)) {
           output$screening_result_sel <- renderUI(
-            selectInput(
-              "screening_res_sel",
-              label = h5("Select Result", style = "color:white; margin-bottom: 28px; margin-top: -10px;"),
-              choices = ""
+            column(
+              width = 12,
+              align = "center",
+              selectInput(
+                "screening_res_sel",
+                label = h5("Select Result", style = "color:white; margin-bottom: 28px; margin-top: -10px;"),
+                choices = ""
+              ),
+              if(!is.null(Screening$status_df)) {
+                p(HTML(paste("<span style='color: white; font-style:italic; position: relative; top:41px'>", 
+                             if(sum(Screening$status_df$status == "success") == 1) {
+                               "1 success &nbsp / &nbsp"
+                             } else {
+                               paste0(sum(Screening$status_df$status == "success"), " successes &nbsp / &nbsp")
+                             },
+                             if(sum(Screening$status_df$status == "fail") == 1) {
+                               "1 failure"
+                             } else {
+                               paste0(sum(Screening$status_df$status == "fail"), " failures")
+                             })))
+              }
             )
           )
           
@@ -23069,8 +23172,6 @@ server <- function(input, output, session) {
       if(any("unfinished" != Screening$status_df$status) &
          !identical(Screening$choices, Screening$status_df$isolate[which(Screening$status_df$status != "unfinished")])) {
         
-        # Screening$first_check <- FALSE
-        
         status_df <- Screening$status_df[which(Screening$status_df$status != "unfinished"),]
         
         Screening$choices <- Screening$status_df$isolate[which(Screening$status_df$status == "success" |
@@ -23082,11 +23183,15 @@ server <- function(input, output, session) {
         
         if(tail(status_df$status, 1) == "success") {
           
-          #TODO
-          # hjier einfügen laden der rds datenbank, ändern direkt lokal
+          # Changing "Screened" metadata variable in database
+          Database <- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
           
-          #DB$meta$Screened[which(DB$meta["Assembly ID"] == tail(Screening$choices, 1))] <- "Yes"
-          
+          Database[["Typing"]]$Screened[which(Database[["Typing"]]["Assembly ID"] == tail(Screening$choices, 1))] <- "Yes"
+
+          saveRDS(Database, file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
+
+          DB$data$Screened[which(DB$data["Assembly ID"] == tail(Screening$choices, 1))] <- "Yes"
+
           show_toast(
             title = paste("Successful screening of", tail(Screening$choices, 1)),
             type = "success",

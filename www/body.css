@@ -411,6 +411,12 @@ table.dataTable tbody tr {
   border-radius: 5px !important;
 }
 
+#gs_profile_table table.dataTable tbody tr {
+  background-color: transparent;
+  border-bottom-left-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
+}
+
 table.dataTable.stripe>tbody>tr.odd.selected>*, table.dataTable.display>tbody>tr.odd.selected>* {
   box-shadow: inset 0 0 0 9999px #282F38;
   box-shadow: inset 0 0 0 9999px #282F38;
@@ -529,6 +535,10 @@ left: -6px;
 }
 
 /* Icons */
+
+.bootstrap-select.show-tick .dropdown-menu .selected span.check-mark {
+  right: 0px !important;
+}
 
 i.fa-solid .fa-arrow-right-long {
   font-size: 30px;
@@ -3008,6 +3018,15 @@ button#download_report_bttn {
 }
 
 /* Gene Screening */
+
+.dataTables_wrapper.no-footer .dataTables_scrollBody {
+  border-bottom: none;
+}
+
+#DataTables_Table_8_wrapper > div.dataTables_scroll > div.dataTables_scrollBody,
+.display .dataTable .no-footer,
+#DataTables_Table_8,
+.dataTables_scrollBody
 
 #screening_start_button,
 #screening_reset_bttn,
