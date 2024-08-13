@@ -6279,31 +6279,17 @@ server <- function(input, output, session) {
             )
           )
         } else if(Screening$status == "finished") {
-          if(isTRUE(Screening$fail)) {
-            output$statustext <- renderUI(
-              fluidRow(
-                tags$li(
-                  class = "dropdown", 
-                  tags$span(HTML(
-                    paste('<i class="fa-solid fa-circle-dot" style="color:red !important;"></i>', 
-                          "Status:&nbsp;&nbsp;&nbsp;<i> gene screening failed</i>")), 
-                    style = "color:white;")
-                )
+          output$statustext <- renderUI(
+            fluidRow(
+              tags$li(
+                class = "dropdown", 
+                tags$span(HTML(
+                  paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
+                        "Status:&nbsp;&nbsp;&nbsp;<i> gene screening finalized</i>")), 
+                  style = "color:white;")
               )
             )
-          } else {
-            output$statustext <- renderUI(
-              fluidRow(
-                tags$li(
-                  class = "dropdown", 
-                  tags$span(HTML(
-                    paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
-                          "Status:&nbsp;&nbsp;&nbsp;<i> gene screening finalized</i>")), 
-                    style = "color:white;")
-                )
-              )
-            )
-          }
+          )
         } else {
           output$statustext <- renderUI(
             fluidRow(
@@ -7867,7 +7853,7 @@ server <- function(input, output, session) {
                                       valign = "htMiddle",
                                       halign = "htCenter") %>%
                               hot_col(3, readOnly = TRUE) %>%
-                              hot_col(c(1, 5, 10, 11, 12),
+                              hot_col(c(1, 5, 10, 11, 12, 13),
                                       readOnly = TRUE) %>%
                               hot_col(3:(12 + nrow(DB$cust_var)), 
                                       valign = "htMiddle",
@@ -7970,7 +7956,7 @@ server <- function(input, output, session) {
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
                                 hot_col(3, readOnly = TRUE) %>%
-                                hot_col(c(1, 5, 10, 11, 12),
+                                hot_col(c(1, 5, 10, 11, 12, 13),
                                         readOnly = TRUE) %>%
                                 hot_col(3, validator = "
                                   function(value, callback) {
@@ -8127,7 +8113,7 @@ server <- function(input, output, session) {
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
                                 hot_col(3, readOnly = TRUE) %>%
-                                hot_col(c(1, 5, 10, 11, 12),
+                                hot_col(c(1, 5, 10, 11, 12, 13),
                                         readOnly = TRUE) %>%
                                 hot_col(3:(12 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
@@ -8306,7 +8292,7 @@ server <- function(input, output, session) {
                                     }
                                   }
                                 ") %>%
-                                hot_col(c(1, 5, 10, 11, 12),
+                                hot_col(c(1, 5, 10, 11, 12, 13),
                                         readOnly = TRUE) %>%
                                 hot_col(8, type = "dropdown", source = country_names) %>%
                                 hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
@@ -8424,7 +8410,7 @@ server <- function(input, output, session) {
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
                                 hot_col(3, readOnly = TRUE) %>%
-                                hot_col(c(1, 5, 10, 11, 12),
+                                hot_col(c(1, 5, 10, 11, 12, 13),
                                         readOnly = TRUE) %>%
                                 hot_col(3, validator = "
                                   function(value, callback) {
@@ -9924,8 +9910,6 @@ server <- function(input, output, session) {
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
     
-    test <<- Screening$status_df
-    
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -10033,7 +10017,7 @@ server <- function(input, output, session) {
                         valign = "htMiddle",
                         halign = "htCenter") %>%
                 hot_col(3, readOnly = TRUE) %>%
-                hot_col(c(1, 5, 10, 11, 12),
+                hot_col(c(1, 5, 10, 11, 12, 13),
                         readOnly = TRUE) %>%
                 hot_col(3:(12 + nrow(DB$cust_var)), 
                         valign = "htMiddle",
@@ -10136,7 +10120,7 @@ server <- function(input, output, session) {
                           valign = "htMiddle",
                           halign = "htCenter") %>%
                   hot_col(3, readOnly = TRUE) %>%
-                  hot_col(c(1, 5, 10, 11, 12),
+                  hot_col(c(1, 5, 10, 11, 12, 13),
                           readOnly = TRUE) %>%
                   hot_col(3:(12 + nrow(DB$cust_var)), 
                           valign = "htMiddle",
@@ -10293,7 +10277,7 @@ server <- function(input, output, session) {
                           valign = "htMiddle",
                           halign = "htCenter") %>%
                   hot_col(3, readOnly = TRUE) %>%
-                  hot_col(c(1, 5, 10, 11, 12),
+                  hot_col(c(1, 5, 10, 11, 12, 13),
                           readOnly = TRUE) %>%
                   hot_col(3:(12 + nrow(DB$cust_var)), 
                           valign = "htMiddle",
@@ -10472,7 +10456,7 @@ server <- function(input, output, session) {
                                     }
                                   }
                                 ") %>%
-                  hot_col(c(1, 5, 10, 11, 12),
+                  hot_col(c(1, 5, 10, 11, 12, 13),
                           readOnly = TRUE) %>%
                   hot_col(8, type = "dropdown", source = country_names) %>%
                   hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
@@ -10589,7 +10573,7 @@ server <- function(input, output, session) {
                   hot_col(1, 
                           valign = "htMiddle",
                           halign = "htCenter") %>%
-                  hot_col(c(1, 5, 10, 11, 12),
+                  hot_col(c(1, 5, 10, 11, 12, 13),
                           readOnly = TRUE) %>%
                   hot_col(3, readOnly = TRUE) %>%
                   hot_col(3, validator = "
@@ -10799,20 +10783,11 @@ server <- function(input, output, session) {
       
       DB$cust_var <- rbind(DB$cust_var, data.frame(Variable = name, Type = "cont"))
     }
-    dataa <<- DB$data
-    cust_var <<- DB$cust_var
     
     DB$meta_gs <- select(DB$data, c(1, 3:13))
-    
-    meta_gs <<- DB$meta_gs
-    
     DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
-    meta <<- DB$meta
-    
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
-    
     DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
-    allelic_profile <<- DB$allelic_profile
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
     
     log_print(paste0("New custom variable added: ", input$new_var_name))
@@ -11056,20 +11031,19 @@ server <- function(input, output, session) {
     }
     DB$remove_iso <- NULL
     
-    Data <<- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme),"Typing.rds"))
+    Data <- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme),"Typing.rds"))
     
     if ((ncol(Data[["Typing"]]) - 13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
       cust_vars_pre <- select(Data[["Typing"]], 
                               14:(ncol(Data[["Typing"]]) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
-      cust_vars_pre <<- names(cust_vars_pre)
+      cust_vars_pre <- names(cust_vars_pre)
     } else {
-      cust_vars_pre <<- character()
+      cust_vars_pre <- character()
     }
     
-    checkpoint <<- select(Data[["Typing"]], -(1:(13 + length(cust_vars_pre))))
     Data[["Typing"]] <- select(Data[["Typing"]], -(1:(13 + length(cust_vars_pre))))
     
-    meta_hot <<- hot_to_r(input$db_entries)
+    meta_hot <- hot_to_r(input$db_entries)
     
     if(length(DB$deleted_entries > 0)) {
       
@@ -11084,7 +11058,6 @@ server <- function(input, output, session) {
     
     # Ensure correct logical data type
     Data[["Typing"]][["Include"]] <- as.logical(Data[["Typing"]][["Include"]])
-    testdata <<- Data
     saveRDS(Data, paste0(
       DB$database, "/",
       gsub(" ", "_", DB$scheme),
@@ -22568,33 +22541,38 @@ server <- function(input, output, session) {
   
   observe({
     req(input$screening_res_sel, DB$database, DB$scheme)
-    if(!is.null(Screening$status_df)) {
+    if(!is.null(Screening$status_df) &
+       !is.null(input$screening_res_sel) & 
+       !is.null(Screening$status_df$status) & 
+       !is.null(Screening$status_df$isolate)) {
       if(length(input$screening_res_sel) > 0) {
-        if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "success") {
-          results <- read.delim(file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates", 
-                                          input$screening_res_sel, "resProfile.tsv"))
-          
-          output$screening_table <- renderDataTable(
-            select(results, c(6, 7, 8, 9, 11)),
-            selection = "single",
-            options = list(pageLength = 10,
-                           columnDefs = list(list(searchable = TRUE,
-                                                  targets = "_all")),
-                           initComplete = DT::JS(
-                             "function(settings, json) {",
-                             "$('th:first-child').css({'border-top-left-radius': '5px'});",
-                             "$('th:last-child').css({'border-top-right-radius': '5px'});",
-                             "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
-                             "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
-                             "}"
-                           ),
-                           drawCallback = DT::JS(
-                             "function(settings) {",
-                             "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
-                             "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
-                             "}"
-                           )))
-        } else {output$screening_table <- NULL}
+        if(any(Screening$status_df$isolate == input$screening_res_sel)) {
+          if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "success") {
+            results <- read.delim(file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates", 
+                                            input$screening_res_sel, "resProfile.tsv"))
+            
+            output$screening_table <- renderDataTable(
+              select(results, c(6, 7, 8, 9, 11)),
+              selection = "single",
+              options = list(pageLength = 10,
+                             columnDefs = list(list(searchable = TRUE,
+                                                    targets = "_all")),
+                             initComplete = DT::JS(
+                               "function(settings, json) {",
+                               "$('th:first-child').css({'border-top-left-radius': '5px'});",
+                               "$('th:last-child').css({'border-top-right-radius': '5px'});",
+                               "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                               "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                               "}"
+                             ),
+                             drawCallback = DT::JS(
+                               "function(settings) {",
+                               "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                               "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                               "}"
+                             )))
+          } else {output$screening_table <- NULL}
+        }
       } else {
         output$screening_table <- NULL
       }
@@ -22774,9 +22752,8 @@ server <- function(input, output, session) {
     
     # set feedback variables
     Screening$status <- "idle"
-    Screening$results <- NULL
-    Screening$fail <- NULL
     Screening$status_df <- NULL
+    Screening$choices <- NULL
     
     # change reactive UI
     output$screening_table <- NULL
@@ -22792,7 +22769,25 @@ server <- function(input, output, session) {
   
   # Cancel screening
   observeEvent(input$screening_cancel, {
+    showModal(
+      modalDialog(
+        paste0(
+          "Gene screening is still pending. Stopping this process will cancel the screening."
+        ),
+        title = "Reset Multi Typing",
+        fade = TRUE,
+        easyClose = TRUE,
+        footer = tagList(
+          modalButton("Cancel"),
+          actionButton("conf_screening_cancel", "Stop", class = "btn btn-danger")
+        )
+      )
+    )
+  })
+  
+  observeEvent(input$conf_screening_cancel, {
     log_print("Cancelled gene screening")
+    removeModal()
     
     # terminate screening
     system(paste("kill $(pgrep -f 'execute/screening.sh')"), wait = FALSE)
@@ -22803,9 +22798,8 @@ server <- function(input, output, session) {
     
     # set feedback variables
     Screening$status <- "idle"
-    Screening$results <- NULL
-    Screening$fail <- NULL
     Screening$status_df <- NULL
+    Screening$choices <- NULL
     
     # change reactive UI
     output$screening_table <- NULL
@@ -22819,11 +22813,10 @@ server <- function(input, output, session) {
   })
   
   # Get selected assembly
-  
   observe({
     if (length(input$screening_select) < 1) {
       output$genome_path_gs <- renderUI(HTML(
-        paste("<span style='color: white;'>", length(input$screening_select), " isolates queried for screening.")
+        paste("<span style='color: white; font-style:italic'>", length(input$screening_select), " isolate(s) queried for screening")
       ))
       
       output$screening_start <- NULL
@@ -22877,7 +22870,7 @@ server <- function(input, output, session) {
                 p(
                   HTML(paste(
                     '<i class="fa-solid fa-circle-check" style="font-size:15px;color:lightgreen"></i>',
-                    paste("<span style='color: white; font-style:italic'>",
+                    paste("<span style='color: white;'>",
                           "&nbsp Screening Ready")))
                 ),
                 actionButton(
@@ -22893,7 +22886,7 @@ server <- function(input, output, session) {
                 p(
                   HTML(paste(
                     '<i class="fa-solid fa-clock" style="font-size:15px;color:white"></i>',
-                    paste("<span style='color: white; font-style:italic'>",
+                    paste("<span style='color: white;'>",
                           "&nbsp Running Screening ...")))
                 ),
                 fluidRow(
@@ -22915,7 +22908,7 @@ server <- function(input, output, session) {
                   p(
                     HTML(paste("<span style='color: white; font-style:italic; position: relative; top:41px'>", 
                                sum(Screening$status_df$status != "unfinished"), "/",
-                               nrow(Screening$status_df), " Isolate(s) screened"))
+                               nrow(Screening$status_df), " isolate(s) screened"))
                   )
                 }
               )
@@ -22969,7 +22962,7 @@ server <- function(input, output, session) {
                                  species = gsub(" ", "_", DB$scheme))
       
       Screening$status_df <- data.frame(isolate = basename(gsub(".zip", "", str_split_1(Screening$meta_df$selected, " "))), 
-                                        status = "unfinished", shown = FALSE)
+                                        status = "unfinished")
       
       # Reset screening status
       sapply(Screening$status_df$isolate, remove.screening.status)
@@ -22984,25 +22977,30 @@ server <- function(input, output, session) {
   ### Screening Feedback ----
   
   observe({
-    req(Screening$status, input$screening_res_sel)
-    if(!is.null(Screening$status_df)) {
-      if(Screening$status != "idle") {
-        if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "success") {
-          output$screening_result <- renderUI(
-            column(
-              width = 12,
-              hr(), br(),
-              dataTableOutput("screening_table") 
+    req(Screening$status, input$screening_res_sel, Screening$status_df)
+    if(!is.null(Screening$status_df) &
+       !is.null(Screening$status_df$status) & 
+       !is.null(Screening$status_df$isolate) &
+       !is.null(input$screening_res_sel)) {
+      if(Screening$status != "idle" & length(input$screening_res_sel) > 0) {
+        if(any(Screening$status_df$isolate == input$screening_res_sel)) {
+          if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "success") {
+            output$screening_result <- renderUI(
+              column(
+                width = 12,
+                hr(), br(),
+                dataTableOutput("screening_table") 
+              )
             )
-          )
-        } else {
-          output$screening_result <- renderUI(
-            column(
-              width = 12,
-              hr(), br(),
-              verbatimTextOutput("screening_fail")
+          } else {
+            output$screening_result <- renderUI(
+              column(
+                width = 12,
+                hr(), br(),
+                verbatimTextOutput("screening_fail")
+              )
             )
-          )
+          }
         }
       } else {
         output$screening_result <- NULL
@@ -23014,13 +23012,18 @@ server <- function(input, output, session) {
   
   observe({
     req(Screening$status, input$screening_res_sel)
-    if(!is.null(Screening$status_df)) {
-      if(Screening$status != "idle") {
-        if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "fail") {
-          output$screening_fail <- renderPrint({
-            cat(paste(readLines(file.path(DB$database, gsub(" ", "_", DB$scheme),
-                                          "Isolates", input$screening_res_sel, "status.txt")),"\n"))
-          })
+    if(!is.null(Screening$status_df) &
+       !is.null(Screening$status_df$status) & 
+       !is.null(Screening$status_df$isolate) &
+       !is.null(input$screening_res_sel)) {
+      if(Screening$status != "idle" & length(input$screening_res_sel) > 0) {
+        if(any(Screening$status_df$isolate == input$screening_res_sel)) {
+          if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "fail") {
+            output$screening_fail <- renderPrint({
+              cat(paste(readLines(file.path(DB$database, gsub(" ", "_", DB$scheme),
+                                            "Isolates", input$screening_res_sel, "status.txt")),"\n"))
+            })
+          }
         }
       } else {
         output$screening_fail <- NULL
@@ -23031,25 +23034,26 @@ server <- function(input, output, session) {
   })
   
   observe({
-    req(Screening$status)
-    if(Screening$status == "started") {
-      
-      # start status screening for user feedback
-      check_screening()
-      
-      if(isTRUE(Screening$first_result)) {
-        output$screening_result_sel <- renderUI(
-          selectInput(
-            "screening_res_sel",
-            label = h5("Select Result", style = "color:white; margin-bottom: 32px; margin-top: -10px;"),
-            choices = ""
-          )
-        )
+    if(!is.null(Screening$status)) {
+      if(Screening$status != "idle") {
         
-        Screening$first_result <- FALSE
+        # start status screening for user feedback
+        check_screening()
+        
+        if(isTRUE(Screening$first_result)) {
+          output$screening_result_sel <- renderUI(
+            selectInput(
+              "screening_res_sel",
+              label = h5("Select Result", style = "color:white; margin-bottom: 28px; margin-top: -10px;"),
+              choices = ""
+            )
+          )
+          
+          Screening$first_result <- FALSE
+        }
+      } else if(Screening$status == "idle") {
+        output$screening_result_sel <- NULL
       }
-    } else if(Screening$status == "idle") {
-      output$screening_result_sel <- NULL
     }
   }) 
     
@@ -23065,6 +23069,8 @@ server <- function(input, output, session) {
       if(any("unfinished" != Screening$status_df$status) &
          !identical(Screening$choices, Screening$status_df$isolate[which(Screening$status_df$status != "unfinished")])) {
         
+        # Screening$first_check <- FALSE
+        
         status_df <- Screening$status_df[which(Screening$status_df$status != "unfinished"),]
         
         Screening$choices <- Screening$status_df$isolate[which(Screening$status_df$status == "success" |
@@ -23075,6 +23081,11 @@ server <- function(input, output, session) {
         }
         
         if(tail(status_df$status, 1) == "success") {
+          
+          #TODO
+          # hjier einfügen laden der rds datenbank, ändern direkt lokal
+          
+          #DB$meta$Screened[which(DB$meta["Assembly ID"] == tail(Screening$choices, 1))] <- "Yes"
           
           show_toast(
             title = paste("Successful screening of", tail(Screening$choices, 1)),
@@ -23088,6 +23099,7 @@ server <- function(input, output, session) {
                             selected = tail(Screening$choices, 1))
           
         } else if(tail(status_df$status, 1) == "fail") {
+          
           show_toast(
             title = paste("Failed screening of", tail(status_df$isolate, 1)),
             type = "error",
@@ -23103,7 +23115,15 @@ server <- function(input, output, session) {
         if(sum("unfinished" != Screening$status_df$status) == length(Screening$status_df$status)) {
           Screening$status <- "finished"
         }
-      } 
+      } else {
+        if(sum("unfinished" != Screening$status_df$status) == length(Screening$status_df$status)) {
+          Screening$status <- "finished"
+        }
+      }
+      
+      if(sum("unfinished" != Screening$status_df$status) == length(Screening$status_df$status)) {
+        Screening$status <- "finished"
+      }
     }
   }) 
   
