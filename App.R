@@ -558,34 +558,20 @@ ui <- dashboardPage(
         ),
         hr(),
         uiOutput("typing_no_db"),
-        conditionalPanel(
-          "input.typing_mode == 'Single'",
-          fluidRow(
-            uiOutput("initiate_typing_ui"),
-            uiOutput("single_typing_progress"),
-            column(1),
-            uiOutput("metadata_single_box"),
-            column(1),
-            uiOutput("start_typing_ui")
-          )
+        fluidRow(
+          uiOutput("initiate_multi_typing_ui"),
+          uiOutput("multi_stop"),
+          column(1),
+          uiOutput("start_multi_typing_ui")
         ),
-        conditionalPanel(
-          "input.typing_mode == 'Multi'",
-          fluidRow(
-            uiOutput("initiate_multi_typing_ui"),
-            uiOutput("multi_stop"),
-            column(1),
-            uiOutput("start_multi_typing_ui")
+        fluidRow(
+          column(
+            width = 6,
+            uiOutput("test_yes_pending")
           ),
-          fluidRow(
-            column(
-              width = 6,
-              uiOutput("test_yes_pending")
-            ),
-            column(
-              width = 6,
-              uiOutput("multi_typing_results")
-            )
+          column(
+            width = 6,
+            uiOutput("multi_typing_results")
           )
         )
       ),
@@ -5793,7 +5779,8 @@ server <- function(input, output, session) {
                            progress_format_start = 0, 
                            progress_format_end = 0,
                            result_list = NULL,
-                           status = "") # reactive variables related to typing process
+                           status = "",
+                           file_selection = "") # reactive variables related to typing process
   
   Screening <- reactiveValues(status = "idle") # reactive variables related to gene screening
   
@@ -7029,7 +7016,7 @@ server <- function(input, output, session) {
                 
                 output$initiate_typing_ui <- renderUI({
                   column(
-                    width = 4,
+                    width = 3,
                     align = "center",
                     br(),
                     br(),
@@ -7067,99 +7054,7 @@ server <- function(input, output, session) {
                   )
                 })
                 
-                output$initiate_multi_typing_ui <- renderUI({
-                  column(
-                    width = 12,
-                    fluidRow(
-                      column(
-                        width = 4,
-                        align = "center",
-                        br(),
-                        br(),
-                        fluidRow(
-                          column(1),
-                          column(
-                            width = 11,
-                            align = "left",
-                            h3(p("Assembly Selection"), style = "color:white; margin-left: 45px"),
-                          )
-                        ),
-                        br(), br(),
-                        fluidRow(
-                          column(1),
-                          column(
-                            width = 11,
-                            align = "center",
-                            fluidRow(
-                              column(
-                                width = 6,
-                                align = "center",
-                                shinyFilesButton(
-                                  "assembly_files",
-                                  "Select File(s)" ,
-                                  icon = icon("file"),
-                                  title = "Select Assembly File(s)",
-                                  multiple = TRUE,
-                                  buttonType = "default",
-                                  class = NULL,
-                                  width = "120px",
-                                  root = path_home()
-                                )
-                              ),
-                              column(
-                                width = 6,
-                                align = "left",
-                                uiOutput("multi_file_sel_info")
-                              )
-                            ),
-                            br(), 
-                            fluidRow(
-                              column(
-                                width = 6,
-                                align = "center",
-                                shinyDirButton(
-                                  "assembly_folder",
-                                  "Select Folder",
-                                  icon = icon("folder-open"),
-                                  title = "Select the folder containing the genome assemblies (FASTA)",
-                                  buttonType = "default",
-                                  root = path_home()
-                                )
-                              ),
-                              column(
-                                width = 6,
-                                align = "left",
-                                uiOutput("multi_folder_sel_info")
-                              )
-                            ),
-                            br(), br(), br(),
-                            fluidRow(
-                              column(1),
-                              uiOutput("metadata_multi_box")
-                            )
-                          )
-                        )
-                      ),
-                      column(
-                        width = 7,
-                        br(),
-                        br(),
-                        fluidRow(
-                          column(
-                            width = 10,
-                            uiOutput("multi_select_tab_ctrls"),
-                          )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 12,
-                            rHandsontableOutput("multi_select_table")
-                          )
-                        )
-                      )
-                    )
-                  )
-                })
+                output$initiate_multi_typing_ui <- initiate_multi_typing_ui
                 
                 if(!anyNA(DB$allelic_profile)) {
                   
@@ -9464,73 +9359,7 @@ server <- function(input, output, session) {
                   )
                 })
                 
-                output$initiate_multi_typing_ui <- renderUI({
-                  column(
-                    width = 4,
-                    align = "center",
-                    br(),
-                    br(),
-                    h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
-                    br(), br(),
-                    p(
-                      HTML(
-                        paste(
-                          tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly Folder')
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(1),
-                      column(
-                        width = 11,
-                        align = "center",
-                        fluidRow(
-                          column(2),
-                          column(
-                            width = 3,
-                            align = "center",
-                            shinyFilesButton(
-                              "assembly_files",
-                              "Browse" ,
-                              icon = icon("file"),
-                              title = "Select Assembly File(s)",
-                              multiple = TRUE,
-                              buttonType = "default",
-                              class = NULL,
-                              root = path_home()
-                            )
-                          ),
-                          column(
-                            width = 3,
-                            align = "left",
-                            shinyDirButton(
-                              "assembly_folder",
-                              "Browse",
-                              icon = icon("folder-open"),
-                              title = "Select the folder containing the genome assemblies (FASTA)",
-                              buttonType = "default",
-                              root = path_home()
-                            )
-                          )
-                        ),
-                        br(),
-                        br(),
-                        uiOutput("multi_folder_sel_info"),
-                        br()
-                      )
-                    ),
-                    uiOutput("multi_select_tab_ctrls"),
-                    br(),
-                    fluidRow(
-                      column(1),
-                      column(
-                        width = 11,
-                        align = "left",
-                        rHandsontableOutput("multi_select_table")
-                      )
-                    )
-                  )
-                })
+                output$initiate_multi_typing_ui <- initiate_multi_typing_ui
               }
             }
           }
@@ -9956,12 +9785,6 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
-    
-    cust_var2 <<- DB$cust_var
-    dataa2 <<- DB$data
-    meta_gs2 <<- DB$meta_gs
-    meta2 <<- DB$meta
-    allelic_profile2 <<- DB$allelic_profile
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -10836,20 +10659,10 @@ server <- function(input, output, session) {
       
       DB$cust_var <- rbind(DB$cust_var, data.frame(Variable = name, Type = "cont"))
     }
-    dataa <<- DB$data
-    cust_var <<- DB$cust_var
-    
     DB$meta_gs <- select(DB$data, c(1, 3:13))
-    
-    meta_gs <<- DB$meta_gs
-    
     DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
-    meta <<- DB$meta
-    
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
-    
     DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
-    allelic_profile <<- DB$allelic_profile
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
     
     log_print(paste0("New custom variable added: ", input$new_var_name))
@@ -11093,20 +10906,19 @@ server <- function(input, output, session) {
     }
     DB$remove_iso <- NULL
     
-    Data <<- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme),"Typing.rds"))
+    Data <- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme),"Typing.rds"))
     
     if ((ncol(Data[["Typing"]]) - 13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
       cust_vars_pre <- select(Data[["Typing"]], 
                               14:(ncol(Data[["Typing"]]) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
-      cust_vars_pre <<- names(cust_vars_pre)
+      cust_vars_pre <- names(cust_vars_pre)
     } else {
-      cust_vars_pre <<- character()
+      cust_vars_pre <- character()
     }
     
-    checkpoint <<- select(Data[["Typing"]], -(1:(13 + length(cust_vars_pre))))
     Data[["Typing"]] <- select(Data[["Typing"]], -(1:(13 + length(cust_vars_pre))))
     
-    meta_hot <<- hot_to_r(input$db_entries)
+    meta_hot <- hot_to_r(input$db_entries)
     
     if(length(DB$deleted_entries > 0)) {
       
@@ -11121,7 +10933,7 @@ server <- function(input, output, session) {
     
     # Ensure correct logical data type
     Data[["Typing"]][["Include"]] <- as.logical(Data[["Typing"]][["Include"]])
-    testdata <<- Data
+    
     saveRDS(Data, paste0(
       DB$database, "/",
       gsub(" ", "_", DB$scheme),
@@ -22938,32 +22750,8 @@ server <- function(input, output, session) {
     if(!is.null(DB$exist)) {
       if(DB$exist) {
         NULL
-      } else {
-        column(
-          width = 12,
-          align = "center",
-          br(), br(),
-          p(
-            HTML(
-              paste(
-                tags$span(style='color: white; font-size: 18px; margin-bottom: 0px', 'Typing Mode')
-              )
-            )
-          ),
-          radioGroupButtons(
-            inputId = "typing_mode",
-            choices = c("Single", "Multi"),
-            selected = "Single",
-            checkIcon = list(
-              yes = icon("square-check"),
-              no = icon("square")
-            )
-          ),
-          br()
-        )
-      }
+      } else {NULL}
     }
-    
   })
   
   # No db typing message
@@ -23873,105 +23661,41 @@ server <- function(input, output, session) {
   ### Multi Typing ----
   
   #### Render Multi Typing UI Elements ----
-  output$initiate_multi_typing_ui <- renderUI({
-    column(
-      width = 4,
-      align = "center",
-      br(),
-      br(),
-      h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
-      br(), br(),
-      p(
-        HTML(
-          paste(
-            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly Folder')
-          )
-        )
-      ),
-      fluidRow(
-        column(1),
-        column(
-          width = 11,
-          align = "center",
-          fluidRow(
-            column(2),
-            column(
-              width = 3,
-              align = "center",
-              shinyFilesButton(
-                "assembly_files",
-                "Browse" ,
-                icon = icon("file"),
-                title = "Select Assembly File(s)",
-                multiple = TRUE,
-                buttonType = "default",
-                class = NULL,
-                root = path_home()
-              )
-            ),
-            column(
-              width = 3,
-              align = "center",
-              shinyDirButton(
-                "assembly_folder",
-                "Browse",
-                icon = icon("folder-open"),
-                title = "Select the folder containing the genome assemblies (FASTA)",
-                buttonType = "default",
-                root = path_home()
-              )
-            )
-          ),
-          br(),
-          br(),
-          uiOutput("multi_folder_sel_info"),
-          br()
-        )
-      ),
-      uiOutput("multi_select_tab_ctrls"),
-      br(),
-      fluidRow(
-        column(1),
-        column(
-          width = 11,
-          align = "left",
-          rHandsontableOutput("multi_select_table")
-        )
-      )
-    )
-  })
+  output$initiate_multi_typing_ui <- initiate_multi_typing_ui
   
   # Render selection info
   output$multi_folder_sel_info <- renderUI({
-    if(!is.null(Typing$assembly_folder_path)) {
+    if(!is.null(Typing$assembly_folder_path) & Typing$file_selection == "folder") {
       if(length(Typing$assembly_folder_path) < 1) {
-        HTML(paste("<span style='color: white; margin-left:-30px; position:relative; top:7px'>", 
+        HTML(paste("<span style='color: white; position:relative; top:8px; font-style: italic'>", 
                    "No files selected"))
       } else {
-        HTML(paste("<span style='color: white; margin-left:-30px; position:relative; top:7px'>",
+        HTML(paste("<span style='color: white; position:relative; top:8px; font-style: italic'>",
+                   '<i class="fa-solid fa-arrow-right" style="font-size:15px;color:white"></i>',
+                   "&nbsp",
                    length(Typing$files_filtered),
                    if(length(Typing$files_filtered) == 1) {
                      " file selected"
                    } else {" files selected"}))
       }
-    } else {
-      HTML(paste("<span style='color: white; margin-left:-30px; position:relative; top:7px'>", 
-                 "No files selected"))
-    }
+    } else {NULL}
   })
   
   output$multi_file_sel_info <- renderUI({
-    req(Typing$assembly_files_path)
-    if(nrow(Typing$assembly_files_path) < 1) {
-      HTML(paste("<span style='color: white; margin-left:-30px; position:relative; top:7px'>", 
-                 "No files selected"))
-    } else {
-      HTML(paste("<span style='color: white; margin-left:-30px; position:relative; top:7px'>",
-                 nrow(Typing$assembly_files_path),
-                 if(nrow(Typing$assembly_files_path) == 1) {
-                   " file selected" 
-                 } else {" files selected"}))
-    }
+    if(!is.null(Typing$assembly_files_path) & Typing$file_selection == "files") {
+      if(nrow(Typing$assembly_files_path) < 1) {
+        HTML(paste("<span style='color: white; position:relative; top:7px; font-style: italic'>", 
+                   "No files selected"))
+      } else {
+        HTML(paste("<span style='color: white; position:relative; top:7px; font-style: italic'>",
+                   '<i class="fa-solid fa-arrow-right" style="font-size:15px;color:white"></i>',
+                   "&nbsp",
+                   length(Typing$files_filtered),
+                   if(length(Typing$files_filtered) == 1) {
+                     " file selected"
+                   } else {" files selected"}))
+      }
+    } else {NULL}
   })
   
   # Render multi selection table issues
@@ -24086,13 +23810,15 @@ server <- function(input, output, session) {
         
         output$metadata_multi_box <- renderUI({
           column(
-            width = 10,
+            width = 11,
             align = "left",
+            hr(), br(),
             uiOutput("multi_select_issue_info"),
             br(), br(),
             actionButton(
               inputId = "conf_meta_multi",
-              label = "Confirm"
+              label = "Confirm",
+              icon = icon("arrow-right")
             )
           )
         }) 
@@ -24124,19 +23850,33 @@ server <- function(input, output, session) {
                     filetypes = c('', 'fasta', 'fna', 'fa'))
     
     Typing$assembly_files_path <- parseFilePaths(roots = c(Home = path_home(), Root = "/"), input$assembly_files)
-    test <<- Typing$assembly_files_path
     
     # Format selection
-    files_selected <- list.files(as.character(Typing$assembly_folder_path))
-    Typing$files_filtered <- files_selected[which(!endsWith(files_selected, ".gz") &
-                                                    grepl("\\.fasta|\\.fna|\\.fa", files_selected))]
+    if(Typing$file_selection != "") {
+      if((!is.null(Typing$assembly_files_path) | !is.null(Typing$assembly_folder_path)) & 
+         !is.null(Typing$file_selection)) {
+        if(Typing$file_selection == "files") {
+          Typing$files_filtered <- Typing$assembly_files_path$name[which(!endsWith(Typing$assembly_files_path$name, ".gz") &
+                                                          grepl("\\.fasta|\\.fna|\\.fa", Typing$assembly_files_path$name))]
+        } else if(Typing$file_selection == "folder") {
+          files_selected <- list.files(as.character(Typing$assembly_folder_path))
+          Typing$files_filtered <- files_selected[which(!endsWith(files_selected, ".gz") &
+                                                          grepl("\\.fasta|\\.fna|\\.fa", files_selected))]
+        } 
+      }
+    }
     
+     
     Typing$multi_sel_table <- data.frame(
       Include = rep(TRUE, length(Typing$files_filtered)),
       Files = gsub(".fasta|.fna|.fa|.fasta.gz|.fna.gz|.fa.gz", "", 
                    Typing$files_filtered),
       Type = sub(".*(\\.fasta|\\.fasta\\.gz|\\.fna|\\.fna\\.gz|\\.fa|\\.fa\\.gz)$",
-                 "\\1", Typing$files_filtered, perl = F))
+                 "\\1", Typing$files_filtered, perl = F),
+      Host = rep("", length(Typing$files_filtered)),
+      Country = rep("", length(Typing$files_filtered)),
+      City = rep("", length(Typing$files_filtered)),
+      `Isolation Date` = rep(Sys.Date(), length(Typing$files_filtered)))
     
     if(nrow(Typing$multi_sel_table) > 0) {
       output$multi_select_tab_ctrls <- renderUI(
@@ -24363,9 +24103,12 @@ server <- function(input, output, session) {
     } 
   })
   
+  #### Events Multi Typing ----
+  
+  # Confirm typing metadata
   observeEvent(input$conf_meta_multi, {
     
-    multi_select_table <- hot_to_r(input$multi_select_table)[hot_to_r(input$multi_select_table)$Include == TRUE,]
+    multi_select_table <- hot_to_r(input$multi_select_table)[which(hot_to_r(input$multi_select_table)$Include == TRUE), ]
     
     if(any(unlist(gsub(".fasta|.fna|.fa|.fasta.gz|.fna.gz|.fa.gz", "", multi_select_table$Files)) %in% unlist(DB$data["Assembly ID"]))) {
       show_toast(
@@ -24418,72 +24161,77 @@ server <- function(input, output, session) {
       )
     } else {
       
-      log_print("Multi typing metadata confirmed")
-      
-      meta_info <- data.frame(cgmlst_typing = DB$scheme,
-                              append_isodate = trimws(input$append_isodate_multi),
-                              append_host = trimws(input$append_host_multi),
-                              append_country = trimws(input$append_country_multi),
-                              append_city = trimws(input$append_city_multi),
-                              append_analysisdate = Sys.Date(),
-                              db_directory = getwd())
-      
-      saveRDS(meta_info, paste0(getwd(), "/execute/meta_info.rds"))
-      
-      show_toast(
-        title = "Metadata declared",
-        type = "success",
-        position = "bottom-end",
-        timer = 3000
-      )
-      
-      output$start_multi_typing_ui <- renderUI({
+      showModal(
         div(
-          class = "multi_start_col",
-          column(
-            width = 3,
-            align = "center",
-            br(),
-            br(),
-            h3(p("Start Typing"), style = "color:white"),
-            br(),
-            br(),
-            HTML(
-              paste(
-                "<span style='color: white;'>",
-                "Typing by <strong>",
-                DB$scheme,
-                "</strong> scheme."
+          class = "typing-modal",
+          modalDialog(
+            column(
+              width = 12,
+              align = "left",
+              br(),
+              br(),
+              HTML(
+                paste(
+                  '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:white"></i>',
+                  "<span style='color: white;'>",
+                  "&nbsp",
+                  nrow(multi_select_table),
+                  " assemblies queried for Allelic Typing\n"
+                )
+              ),
+              br(), br(),
+              HTML(
+                paste(
+                  '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:white"></i>',
+                  "<span style='color: white;'>",
+                  "&nbsp",
+                  "Typing by <strong>",
+                  DB$scheme,
+                  "</strong> scheme."
+                )
+              ),
+              br(), br(), br(),
+              div(
+                class = "save-assembly",
+                materialSwitch(
+                  "save_assembly_mt",
+                  h5(p("Save Assemblies in Local Database"), style = "color:white; padding-left: 0px; position: relative; top: -3px; right: -20px;"),
+                  value = TRUE,
+                  right = TRUE)
+              ),
+              HTML(
+                paste(
+                  "<span style='color: orange;font-style:italic'>",
+                  "Isolates with unsaved assembly files can NOT be applied to screening for resistance genes."
+                )
+              ),
+              br(), br(), br(), br(),
+            ),
+            title = "Start Allelic Typing",
+            fade = TRUE,
+            easyClose = TRUE,
+            footer = tagList(
+              modalButton("Cancel"),
+              actionButton(
+                "start_typ_multi",
+                "Start",
+                icon = icon("circle-play")
               )
-            ),
-            br(), br(), br(), br(),
-            div(
-              class = "save-assembly",
-              materialSwitch(
-                "save_assembly_mt",
-                h5(p("Save Assemblies in Local Database"), style = "color:white; padding-left: 0px; position: relative; top: -3px; right: -20px;"),
-                value = TRUE,
-                right = TRUE)
-            ),
-            HTML(
-              paste(
-                "<span style='color: orange;font-style:italic'>",
-                "Isolates with unsaved assembly files can NOT be applied to screening for resistance genes."
-              )
-            ),
-            br(), br(), br(), br(),
-            actionButton(
-              "start_typ_multi",
-              "Start",
-              icon = icon("circle-play")
             )
-          )
+          )    
         )
-      })
+      )
     }
   })
   
-  #### Events Multi Typing ----
+  # Set reactive variable to distinguish files/folder selection
+  observeEvent(input$assembly_files, {
+    Typing$file_selection <- "files"
+  })
+  
+  observeEvent(input$assembly_folder, {
+    Typing$file_selection <- "folder"
+  })
   
   observeEvent(input$sel_all_mt, {
     session$sendCustomMessage(type = "setColumnValue", message = list(value = TRUE))
@@ -24537,74 +24285,7 @@ server <- function(input, output, session) {
       Typing$pending_format <- 0
       Typing$multi_started <- FALSE
       
-      output$initiate_multi_typing_ui <- renderUI({
-        column(
-          width = 4,
-          align = "center",
-          br(),
-          br(),
-          h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
-          br(), br(),
-          p(
-            HTML(
-              paste(
-                tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly Folder')
-              )
-            )
-          ),
-          fluidRow(
-            column(1),
-            column(
-              width = 11,
-              align = "center",
-              fluidRow(
-                column(2),
-                column(
-                  width = 3,
-                  align = "center",
-                  shinyFilesButton(
-                    "assembly_files",
-                    "Browse" ,
-                    icon = icon("file"),
-                    title = "Select Assembly File(s)",
-                    multiple = TRUE,
-                    buttonType = "default",
-                    class = NULL,
-                    width = "120px",
-                    root = path_home()
-                  )
-                ),
-                column(
-                  width = 3,
-                  align = "center",
-                  shinyDirButton(
-                    "assembly_folder",
-                    "Browse",
-                    icon = icon("folder-open"),
-                    title = "Select the folder containing the genome assemblies (FASTA)",
-                    buttonType = "default",
-                    root = path_home()
-                  )
-                )
-              ),
-              br(),
-              br(),
-              uiOutput("multi_folder_sel_info"),
-              br()
-            )
-          ),
-          uiOutput("multi_select_tab_ctrls"),
-          br(),
-          fluidRow(
-            column(1),
-            column(
-              width = 11,
-              align = "left",
-              rHandsontableOutput("multi_select_table")
-            )
-          )
-        )
-      })
+      output$initiate_multi_typing_ui <- initiate_multi_typing_ui
       
       output$test_yes_pending <- NULL
       output$multi_typing_results <- NULL
@@ -24644,73 +24325,7 @@ server <- function(input, output, session) {
     Typing$successes <- 0
     Typing$multi_started <- FALSE
     
-    output$initiate_multi_typing_ui <- renderUI({
-      column(
-        width = 4,
-        align = "center",
-        br(),
-        br(),
-        h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
-        br(), br(),
-        p(
-          HTML(
-            paste(
-              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly Folder')
-            )
-          )
-        ),
-        fluidRow(
-          column(1),
-          column(
-            width = 11,
-            align = "center",
-            fluidRow(
-              column(2),
-              column(
-                width = 3,
-                align = "center",
-                shinyFilesButton(
-                  "assembly_files",
-                  "Browse" ,
-                  icon = icon("file"),
-                  title = "Select Assembly File(s)",
-                  multiple = TRUE,
-                  buttonType = "default",
-                  class = NULL,
-                  root = path_home()
-                )
-              ),
-              column(
-                width = 3,
-                align = "center",
-                shinyDirButton(
-                  "assembly_folder",
-                  "Browse",
-                  icon = icon("folder-open"),
-                  title = "Select the folder containing the genome assemblies (FASTA)",
-                  buttonType = "default",
-                  root = path_home()
-                )
-              )
-            ),
-            br(),
-            br(),
-            uiOutput("multi_folder_sel_info"),
-            br()
-          )
-        ),
-        uiOutput("multi_select_tab_ctrls"),
-        br(),
-        fluidRow(
-          column(1),
-          column(
-            width = 11,
-            align = "left",
-            rHandsontableOutput("multi_select_table")
-          )
-        )
-      )
-    })
+    output$initiate_multi_typing_ui <- initiate_multi_typing_ui
     
   })
   
@@ -24757,22 +24372,28 @@ server <- function(input, output, session) {
       Typing$failures <- 0
       Typing$successes <- 0
       
-      # get selected file table
+      # Arrange metadata
       multi_select_table <- hot_to_r(input$multi_select_table)
       
       filenames <- paste(multi_select_table$Files[which(multi_select_table$Include == TRUE)], collapse = " ")
-      
-      files <- Typing$multi_sel_table$Files[which(multi_select_table$Include == TRUE)]
       type <- Typing$multi_sel_table$Type[which(multi_select_table$Include == TRUE)]
+      files <- Typing$multi_sel_table$Files[which(multi_select_table$Include == TRUE)]
       genome_names <- paste(paste0(gsub(" ", "~", files), type), collapse = " ")
       
-      # Start Multi Typing Script
-      multi_typing_df <- data.frame(
+      if(Typing$file_selection == "folder") {
+        genome_folder <- as.character(parseDirPath(roots = c(Home = path_home(), Root = "/"), input$assembly_folder))
+      } else if(Typing$file_selection == "files") {
+        genome_folder <- dirname(Typing$assembly_files_path$datapath[1])
+      }
+      
+      # Save metadata RDS file for bash script
+      multi_typing_df <- list(
         db_path = DB$database,
         wd = getwd(),
+        metadata = hot_to_r(input$multi_select_table)[hot_to_r(input$multi_select_table)$Include == TRUE,],
         save = input$save_assembly_mt,
         scheme = paste0(gsub(" ", "_", DB$scheme)),
-        genome_folder = as.character(parseDirPath(roots = c(Home = path_home(), Root = "/"), input$assembly_folder)),
+        genome_folder = genome_folder,
         filenames = paste0(filenames, collapse= " "),
         genome_names = genome_names,
         alleles = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")
