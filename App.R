@@ -5358,7 +5358,17 @@ ui <- dashboardPage(
           column(
             width = 10,
             div(class = "loci_table",
-                DT::dataTableOutput("gs_profile_table"))
+                DT::dataTableOutput("gs_profile_table")),
+            br(),
+            HTML(
+              paste0("<span style='color: white; font-size: 12px'>", 
+                     '<strong>RSL</strong> = <em>Reference Sequence Length</em>&nbsp&nbsp|&nbsp&nbsp',
+                     '<strong>%CRS</strong> = <em>% Coverage of Reference Sequence</em>&nbsp&nbsp|&nbsp&nbsp',
+                     '<strong>%IRS</strong> = <em>% Identity to Reference Sequence</em>&nbsp&nbsp|&nbsp&nbsp',
+                     '<strong>ACS</strong> = <em>Accession of Closest Sequence</em>&nbsp&nbsp|&nbsp&nbsp',
+                     '<strong>NCS</strong> = <em>Name of Closest Sequence</em>')
+              
+            )
           )
         )
       )
@@ -22534,15 +22544,17 @@ server <- function(input, output, session) {
       iso_path <- file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates", 
                             iso_select, "resProfile.tsv")
       res_profile <- read.delim(iso_path)
-      
+      # 
+      # colnames(res_profile) <- c(
+      #   "Protein Identifier",	"Contig ID", "Start", "Stop", "Strand", "Gene Symbol", 
+      #   "Sequence Name", "Scope", "Element Type",  "Element Subtype", "Class", 
+      #   "Subclass", "Method", "Target Length", "RSL",	"%CRS", "%IRS", "Alignment Length", 
+      #   "ACS", "NCS", "HMM ID", "HMM Description")
       colnames(res_profile) <- c(
         "Protein Identifier",	"Contig ID", "Start", "Stop", "Strand", "Gene Symbol", 
         "Sequence Name", "Scope", "Element Type",  "Element Subtype", "Class", 
-        "Subclass", "Method", "Target Length", "Reference Sequence Length",	
-        "% Coverage of Reference Sequence", "% Identity to Reference Sequence", 
-        "Alignment Length", "Accession of Closest Sequence", 
-        "Name of Closest Sequence", "HMM ID", "HMM Description")
-      
+        "Subclass", "Method", "Target Length", "RSL",	"%CRS", "%IRS", 
+        "Alignment Length", "ACS", "Name of Closest Sequence", "HMM ID", "HMM Description")
       
       res_profile <- res_profile %>%
         relocate(c("Gene Symbol", "Sequence Name", "Element Subtype", "Class", 
@@ -22556,7 +22568,9 @@ server <- function(input, output, session) {
         rownames= FALSE,
         options = list(pageLength = 10, scrollX = TRUE,
                        autoWidth = TRUE,
-                       columnDefs = list(list(width = '400px', targets = c("Sequence Name"))),
+                       columnDefs = list(list(width = '400px', targets = c("Sequence Name",
+                                                                           "Name of Closest Sequence"))),
+                       columnDefs = list(list(width = 'auto', targets = "_all")),
                        columnDefs = list(list(searchable = TRUE,
                                               targets = "_all")),
                        initComplete = DT::JS(
