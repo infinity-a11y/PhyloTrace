@@ -737,7 +737,10 @@ ui <- dashboardPage(
               "download_cgMLST",
               label = "Download",
               icon = icon("download")
-            )
+            ),
+            shinyjs::hidden(
+              div(id = "loading",
+                  HTML('<i class="fa fa-spinner fa-spin fa-fw fa-2x" style="color:white"></i>')))
           )
         ),
         fluidRow(
@@ -11444,6 +11447,21 @@ server <- function(input, output, session) {
   observeEvent(input$download_cgMLST, {
     log_print(paste0("Started download of scheme for ", Scheme$folder_name))
     
+    shinyjs::hide("download_cgMLST")
+    shinyjs::show("loading")
+    
+    output$statustext <- renderUI(
+      fluidRow(
+        tags$li(
+          class = "dropdown", 
+          tags$span(HTML(
+            paste('<i class="fa-solid fa-circle-dot" style="color:orange !important;"></i>', 
+                  "Status:&nbsp;&nbsp;&nbsp; <i>Downloading scheme...</i>")),
+            style = "color:white;")
+        )
+      )
+    )
+    
     show_toast(
       title = "Download started",
       type = "success",
@@ -11599,6 +11617,21 @@ server <- function(input, output, session) {
     )
     
     DB$exist <- length(dir_ls(DB$database)) == 0
+    
+    shinyjs::show("download_cgMLST")
+    shinyjs::hide("loading")
+    
+    output$statustext <- renderUI(
+      fluidRow(
+        tags$li(
+          class = "dropdown", 
+          tags$span(HTML(
+            paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
+                  "Status:&nbsp;&nbsp;&nbsp; <i>ready</i>")),
+            style = "color:white;")
+        )
+      )
+    )
     
     show_toast(
       title = "Download successful",
