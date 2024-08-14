@@ -23866,8 +23866,7 @@ server <- function(input, output, session) {
       }
     }
     
-     
-    Typing$multi_sel_table <- data.frame(
+    multi_sel_table <- data.frame(
       Include = rep(TRUE, length(Typing$files_filtered)),
       Files = gsub(".fasta|.fna|.fa|.fasta.gz|.fna.gz|.fa.gz", "", 
                    Typing$files_filtered),
@@ -23876,7 +23875,11 @@ server <- function(input, output, session) {
       Host = rep("", length(Typing$files_filtered)),
       Country = rep("", length(Typing$files_filtered)),
       City = rep("", length(Typing$files_filtered)),
-      `Isolation Date` = rep(Sys.Date(), length(Typing$files_filtered)))
+      Isolation.Date = rep(format(Sys.Date()), length(Typing$files_filtered)))
+    
+    colnames(multi_sel_table)[7] <- "Isolation Date"
+    
+    Typing$multi_sel_table <- multi_sel_table
     
     if(nrow(Typing$multi_sel_table) > 0) {
       output$multi_select_tab_ctrls <- renderUI(
@@ -23926,7 +23929,30 @@ server <- function(input, output, session) {
           hot_col(1,
                   halign = "htCenter",
                   valign = "htTop", 
-                  colWidths = 60)
+                  colWidths = 60) %>%
+          hot_col(7, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                  validator = "
+                                function (value, callback) {
+                                  var today_date = new Date();
+                                  today_date.setHours(0, 0, 0, 0);
+                                  
+                                  var new_date = new Date(value);
+                                  new_date.setHours(0, 0, 0, 0);
+                                  
+                                  try {
+                                    if (new_date <= today_date) {
+                                      callback(true);
+                                      Shiny.setInputValue('invalid_date', false);
+                                    } else {
+                                      callback(false); 
+                                      Shiny.setInputValue('invalid_date', true);
+                                    }
+                                  } catch (err) {
+                                    console.log(err);
+                                    callback(false); 
+                                    Shiny.setInputValue('invalid_date', true);
+                                  }
+                                }")
         
         htmlwidgets::onRender(rht, sprintf(
           "function(el, x) {
@@ -24019,7 +24045,30 @@ server <- function(input, output, session) {
           hot_col(1,
                   halign = "htCenter",
                   valign = "htTop", 
-                  colWidths = 60)
+                  colWidths = 60) %>%
+          hot_col(7, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                  validator = "
+                                function (value, callback) {
+                                  var today_date = new Date();
+                                  today_date.setHours(0, 0, 0, 0);
+                                  
+                                  var new_date = new Date(value);
+                                  new_date.setHours(0, 0, 0, 0);
+                                  
+                                  try {
+                                    if (new_date <= today_date) {
+                                      callback(true);
+                                      Shiny.setInputValue('invalid_date', false);
+                                    } else {
+                                      callback(false); 
+                                      Shiny.setInputValue('invalid_date', true);
+                                    }
+                                  } catch (err) {
+                                    console.log(err);
+                                    callback(false); 
+                                    Shiny.setInputValue('invalid_date', true);
+                                  }
+                                }")
         
         htmlwidgets::onRender(rht, sprintf(
           "function(el, x) {
@@ -24373,7 +24422,7 @@ server <- function(input, output, session) {
       Typing$successes <- 0
       
       # Arrange metadata
-      multi_select_table <- hot_to_r(input$multi_select_table)
+      multi_select_table <<- hot_to_r(input$multi_select_table)
       
       filenames <- paste(multi_select_table$Files[which(multi_select_table$Include == TRUE)], collapse = " ")
       type <- Typing$multi_sel_table$Type[which(multi_select_table$Include == TRUE)]
@@ -24396,7 +24445,7 @@ server <- function(input, output, session) {
         genome_folder = genome_folder,
         filenames = paste0(filenames, collapse= " "),
         genome_names = genome_names,
-        alleles = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")
+        alleles = file.path(DB$database, gsub(" ", "_", DB$scheme), paste0(gsub(" ", "_", DB$scheme), "_alleles"))
       )
       
       saveRDS(multi_typing_df, "execute/multi_typing_df.rds")

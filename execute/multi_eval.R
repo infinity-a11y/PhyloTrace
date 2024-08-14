@@ -1,19 +1,18 @@
 library(logr)
 
-meta_info <- readRDS("meta_info.rds")
-db_path <- readRDS("multi_typing_df.rds")[, "db_path"]
-save_assembly <- readRDS("multi_typing_df.rds")[, "save"]
+iteration <- commandArgs(trailingOnly = TRUE)[1]
+meta_info <- readRDS("multi_typing_df.rds")
 assembly_folder <- paste0(paste0(getwd(), "/selected_genomes/"), 
-                          paste0(stringr::str_split_1(readRDS("multi_typing_df.rds")[, "filenames"], " "), 
-                                 ".fasta"))
-assembly <- assembly_folder[which(commandArgs(trailingOnly = TRUE)[1] == basename(assembly_folder))]
-filename <- stringr::str_split_1(readRDS("multi_typing_df.rds")[, "filenames"], " ")[which(commandArgs(trailingOnly = TRUE)[1] == basename(assembly_folder))]
-results_folder <- paste0(paste0(meta_info$db_directory, "/execute/blat_multi/results/"),
-                         stringr::str_split_1(readRDS("multi_typing_df.rds")[, "filenames"], " "))
+                          paste0(stringr::str_split_1(meta_info$filenames, " "), ".fasta"))
+assembly <- assembly_folder[which(iteration == basename(assembly_folder))]
+filename <- stringr::str_split_1(meta_info$filenames, " ")[which(iteration == basename(assembly_folder))]
+results_folder <- paste0(paste0(meta_info$wd, "/execute/blat_multi/results/"), 
+                         stringr::str_split_1(meta_info$filenames, " "))
+meta_table <- meta_info$metadata[which(meta_info$metadata$Files == filename),]
 
 source("variant_validation.R")
 
-setwd(meta_info$db_directory)
+setwd(meta_info$wd)
 
 # Function to check custom variable classes
 column_classes <- function(df) {
@@ -42,9 +41,6 @@ log_print("Attaching initiated")
 # Define start and stop codons
 start_codons <- c("ATG", "GTG", "TTG")
 stop_codons <- c("TAA", "TAG", "TGA")
-
-# Locate Alleles folder in directory
-allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)), full.names = TRUE)[grep("_alleles", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing))))]
 
 # Read the template (assembly) sequence
 template <- readLines(assembly)
@@ -100,7 +96,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       } else {
         
         # select allele fasta file to get present variants in scheme
-        locus_file <- list.files(allele_folder, full.names = TRUE)[which(sub("\\.f(na|a|asta)$", "", list.files(allele_folder)) == allele_index)]
+        locus_file <- list.files(meta_info$alleles, full.names = TRUE)[which(sub("\\.f(na|a|asta)$", "", list.files(meta_info$alleles)) == allele_index)]
         
         variants <- readLines(locus_file)
         
@@ -161,7 +157,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   saveRDS(event_list, "execute/event_list.rds")
   
   # Create Results Data Frame 
-  if(!any(grepl("Typing", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)))))) {
+  if(!any(grepl("Typing", list.files(file.path(meta_info$db_path, meta_info$scheme))))) {
     
     Database <- list(Typing = data.frame())
     
@@ -172,27 +168,23 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         ncol = 13 + length(psl_files)
       ))
     
-    metadata <-
-      c(
-        1,
-        TRUE,
-        sub("\\.(fasta|fna|fa)$", "", basename(assembly)),
-        sub("\\.(fasta|fna|fa)$", "", basename(assembly)),
-        meta_info$cgmlst_typing,
-        as.character(meta_info$append_isodate),
-        meta_info$append_host,
-        meta_info$append_country,
-        meta_info$append_city,
-        as.character(meta_info$append_analysisdate),
-        length(allele_vector) - sum(sapply(allele_vector, is.na)),
-        sum(sapply(allele_vector, is.na)),
-        "No"
-      )
+    metadata <- c(1,
+                  TRUE,
+                  meta_table$Files,
+                  meta_table$Files,
+                  meta_info$scheme,
+                  meta_table$`Isolation Date`,
+                  meta_table$Host,
+                  meta_table$Country,
+                  meta_table$City,
+                  format(Sys.Date()),
+                  length(allele_vector) - sum(sapply(allele_vector, is.na)),
+                  sum(sapply(allele_vector, is.na)),
+                  "No")
     
     new_row <- c(metadata, allele_vector)
     
     Typing <- rbind(Typing, new_row)
-    
     
     colnames(Typing) <-
       append(
@@ -211,12 +203,12 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
           "Errors",
           "Screened"
         ),
-        gsub(".fasta", "", basename(list.files(allele_folder)))
+        gsub(".fasta", "", basename(list.files(meta_info$alleles)))
       )
     
     Database[["Typing"]] <- Typing
     
-    df2 <- dplyr::mutate_all(dplyr::select(Database$Typing, 14:(13+length(list.files(allele_folder)))), function(x) as.character(x))
+    df2 <- dplyr::mutate_all(dplyr::select(Database$Typing, 14:(13+length(list.files(meta_info$alleles)))), function(x) as.character(x))
     
     df1 <- dplyr::select(Database$Typing, 1:13)
     df1 <- dplyr::mutate(df1, Include = as.logical(Include))
@@ -227,26 +219,23 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
     
   } else {
     
-    Database <- readRDS(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Typing.rds"))
+    Database <- readRDS(file.path(meta_info$db_path, meta_info$scheme, "Typing.rds"))
     
-    metadata <-
-      data.frame(
-        nrow(Database[["Typing"]]) + 1,
-        TRUE,
-        sub("\\.(fasta|fna|fa)$", "", basename(assembly)),
-        sub("\\.(fasta|fna|fa)$", "", basename(assembly)),
-        meta_info$cgmlst_typing,
-        as.character(meta_info$append_isodate),
-        meta_info$append_host,
-        meta_info$append_country,
-        meta_info$append_city,
-        as.character(meta_info$append_analysisdate),
-        length(allele_vector) - sum(sapply(allele_vector, is.na)),
-        sum(sapply(allele_vector, is.na)),
-        "No"
-      )
+    metadata <- data.frame(nrow(Database[["Typing"]]) + 1,
+                           TRUE,
+                           meta_table$Files,
+                           meta_table$Files,
+                           meta_info$scheme,
+                           meta_table$`Isolation Date`,
+                           meta_table$Host,
+                           meta_table$Country,
+                           meta_table$City,
+                           format(Sys.Date()),
+                           length(allele_vector) - sum(sapply(allele_vector, is.na)),
+                           sum(sapply(allele_vector, is.na)),
+                           "No")
     
-    if ((ncol(Database$Typing)-13) != length(allele_vector)) {
+    if ((ncol(Database$Typing) - 13) != length(allele_vector)) {
       
       cust_var <- dplyr::select(Database$Typing, 14:(ncol(Database$Typing) - length(allele_vector)))
       cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
@@ -267,7 +256,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
     
     merged <- cbind(metadata, df_profile)
     
-    if ((ncol(Database$Typing)-13) != length(allele_vector)) {
+    if ((ncol(Database$Typing) - 13) != length(allele_vector)) {
       names_vec <- character(0)
       # Add new columns to df1
       for (i in 1:nrow(cust_var)) {
@@ -292,7 +281,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
             "Screened"
           ),
           names_vec,
-          gsub(".fasta", "", basename(list.files(allele_folder)))
+          gsub(".fasta", "", basename(list.files(meta_info$alleles)))
         )
     } else {
       colnames(merged) <-
@@ -312,7 +301,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
             "Errors",
             "Screened"
           ),
-          gsub(".fasta", "", basename(list.files(allele_folder)))
+          gsub(".fasta", "", basename(list.files(meta_info$alleles)))
         )
     }
     
@@ -323,12 +312,12 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   }
   
   # Save new Entry in Typing Database
-  saveRDS(Database, paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Typing.rds"))
+  saveRDS(Database, file.path(meta_info$db_path, meta_info$scheme, "Typing.rds"))
   
-  isolate_dir <- file.path(db_path, gsub(" ", "_", meta_info$cgmlst_typing), "Isolates")
+  isolate_dir <- file.path(meta_info$db_path, meta_info$scheme, "Isolates")
   
   # Save assembly file if TRUE
-  if(save_assembly) {
+  if(meta_info$save) {
     if(dir.exists(isolate_dir)) {
       
       # Create folder for new isolate
@@ -374,7 +363,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
     }
   }
   
-  setwd(meta_info$db_directory)
+  setwd(meta_info$wd)
   
   # Logging successes
   log.message(log_file = paste0(getwd(), "/logs/script_log.txt"), 
@@ -383,7 +372,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   
 } else {
   
-  setwd(meta_info$db_directory)
+  setwd(meta_info$wd)
   
   # Logging failures
   log.message(log_file = paste0(getwd(), "/logs/script_log.txt"), 

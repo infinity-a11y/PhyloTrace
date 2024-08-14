@@ -261,7 +261,7 @@ initiate_multi_typing_ui <- renderUI({
                   "assembly_files",
                   "Select File(s)" ,
                   icon = icon("file"),
-                  title = "Select Assembly File(s)",
+                  title = "Select one or multiple assembly file(s)",
                   multiple = TRUE,
                   buttonType = "default",
                   class = NULL,
@@ -284,7 +284,7 @@ initiate_multi_typing_ui <- renderUI({
                   "assembly_folder",
                   "Select Folder",
                   icon = icon("folder-open"),
-                  title = "Select the folder containing the genome assemblies (FASTA)",
+                  title = "Select folder containing assembly file(s)",
                   buttonType = "default",
                   root = path_home()
                 )
