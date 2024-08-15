@@ -172,6 +172,8 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         ncol = 13 + length(psl_files)
       ))
     
+    if(!save_assembly) {screen <- "NA"} else {screen <- "No"}
+    
     metadata <-
       c(
         1,
@@ -186,7 +188,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         as.character(meta_info$append_analysisdate),
         length(allele_vector) - sum(sapply(allele_vector, is.na)),
         sum(sapply(allele_vector, is.na)),
-        "No"
+        screen
       )
     
     new_row <- c(metadata, allele_vector)
@@ -229,6 +231,8 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
     
     Database <- readRDS(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Typing.rds"))
     
+    if(!save_assembly) {screen <- "NA"} else {screen <- "No"}
+    
     metadata <-
       data.frame(
         nrow(Database[["Typing"]]) + 1,
@@ -243,7 +247,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         as.character(meta_info$append_analysisdate),
         length(allele_vector) - sum(sapply(allele_vector, is.na)),
         sum(sapply(allele_vector, is.na)),
-        "No"
+        screen
       )
     
     if ((ncol(Database$Typing)-13) != length(allele_vector)) {

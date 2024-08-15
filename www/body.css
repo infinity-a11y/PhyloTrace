@@ -3045,8 +3045,12 @@ button#download_resistance_profile_bttn {
 #screening_start_button,
 #screening_reset_bttn,
 #screening_cancel {
-  margin-top: 20px;
+  margin-top: 20px !important;
   border: 1px solid white;
+}
+
+#screening_start_button {
+  margin-top: 20px !important;
 }
 
 #screening_fail {

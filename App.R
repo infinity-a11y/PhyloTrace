@@ -6148,6 +6148,21 @@ server <- function(input, output, session) {
   
   observeEvent(input$load, {
     
+    # Reset reactive screening variables 
+    output$screening_start <- NULL
+    output$screening_result_sel <- NULL
+    output$screening_result <- NULL
+    output$screening_fail <- NULL
+    Screening$status_df <- NULL
+    Screening$choices <- NULL
+    Screening$picker_status <- TRUE
+    Screening$status <- "idle"
+    if(!is.null(input$screening_select)) {
+      if(!is.null(DB$data)) {
+        updatePickerInput(session, "screening_select", selected = character(0))
+      }
+    }
+    
     log_print("Input load")
     
     # set typing start control variable
@@ -6263,7 +6278,7 @@ server <- function(input, output, session) {
                 class = "dropdown", 
                 tags$span(HTML(
                   paste('<i class="fa-solid fa-circle-dot" style="color:orange !important;"></i>', 
-                        "Status:&nbsp;&nbsp;&nbsp;<i> running typing</i>")), 
+                        "Status:&nbsp;&nbsp;&nbsp;<i> pending typing</i>")), 
                   style = "color:white;")
               )
             )
@@ -6275,7 +6290,7 @@ server <- function(input, output, session) {
                 class = "dropdown", 
                 tags$span(HTML(
                   paste('<i class="fa-solid fa-circle-dot" style="color:orange !important;"></i>', 
-                        "Status:&nbsp;&nbsp;&nbsp;<i> running gene screening</i>")), 
+                        "Status:&nbsp;&nbsp;&nbsp;<i> pending gene screening</i>")), 
                   style = "color:white;")
               )
             )
@@ -6370,19 +6385,12 @@ server <- function(input, output, session) {
         log_print(paste0("New database created in ", DB$new_database))
         
         DB$check_new_entries <- TRUE
-        
         DB$data <- NULL
-        
         DB$meta_gs <- NULL
-        
         DB$meta <- NULL
-        
         DB$meta_true <- NULL
-        
         DB$allelic_profile <- NULL
-        
         DB$allelic_profile_true <- NULL
-        
         DB$scheme <- input$scheme_db
         
         # null Distance matrix, entry table and plots
@@ -6513,6 +6521,7 @@ server <- function(input, output, session) {
         output$single_typing_progress <- NULL
         output$metadata_single_box <- NULL
         output$start_typing_ui <- NULL
+        
       }
     } else {
       log_print(paste0("Loading existing ", input$scheme_db, " database from ", DB$database))
@@ -6975,12 +6984,9 @@ server <- function(input, output, session) {
               ))))) {
                 
                 # Load database from files  
-                Database <-
-                  readRDS(paste0(
-                    DB$database, "/",
-                    gsub(" ", "_", DB$scheme),
-                    "/Typing.rds"
-                  ))
+                Database <- readRDS(file.path(DB$database, 
+                                              gsub(" ", "_", DB$scheme), 
+                                              "Typing.rds"))
                 
                 DB$data <- Database[["Typing"]]
                 
@@ -6994,15 +7000,10 @@ server <- function(input, output, session) {
                 }
                 
                 DB$change <- FALSE
-                
                 DB$meta_gs <- select(DB$data, c(1, 3:13))
-                
                 DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
-                
                 DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
-                
                 DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
-                
                 DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
                 
                 # Null pipe 
@@ -7015,25 +7016,15 @@ server <- function(input, output, session) {
                 
                 # Reset other reactive typing variables
                 Typing$progress_format_end <- 0 
-                
                 Typing$progress_format_start <- 0
-                
                 Typing$pending_format <- 0
-                
                 Typing$entry_added <- 0
-                
                 Typing$progress <- 0
-                
                 Typing$progress_format <- 900000
-                
                 output$single_typing_progress <- NULL
-                
                 output$typing_fin <- NULL
-                
                 output$single_typing_results <- NULL
-                
                 output$typing_formatting <- NULL
-                
                 Typing$single_path <- data.frame()
                 
                 # Null multi typing feedback variable
@@ -9145,15 +9136,10 @@ server <- function(input, output, session) {
                 # null underlying database
                 
                 DB$data <- NULL
-                
                 DB$meta <- NULL
-                
                 DB$meta_gs <- NULL
-                
                 DB$meta_true <- NULL
-                
                 DB$allelic_profile <- NULL
-                
                 DB$allelic_profile_true <- NULL
                 
                 # Render menu without missing values tab
@@ -9926,6 +9912,13 @@ server <- function(input, output, session) {
         position = "bottom-end",
         timer = 6000
       )
+    } else if(Screening$status == "started") {
+      show_toast(
+        title = "Pending Screening",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000
+      )
     } else {
       showModal(
         modalDialog(
@@ -9985,21 +9978,13 @@ server <- function(input, output, session) {
     }
     
     DB$change <- FALSE
-    
     DB$count <- 0
-    
     DB$no_na_switch <- TRUE
-    
     DB$meta_gs <- select(DB$data, c(1, 3:13))
-    
     DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
-    
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
-    
     DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
-    
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
-    
     DB$deleted_entries <- character(0)
     
     observe({
@@ -10855,17 +10840,11 @@ server <- function(input, output, session) {
     log_print(paste0("Variable ", input$del_which_var, " removed"))
     
     DB$cust_var <- DB$cust_var[-which(DB$cust_var$Variable == input$del_which_var),]
-    
     DB$data <- select(DB$data, -(input$del_which_var))
-    
     DB$meta_gs <- select(DB$data, c(1, 3:13))
-    
     DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
-    
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
-    
     DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
-    
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
   })
   
@@ -11076,8 +11055,6 @@ server <- function(input, output, session) {
     
     DB$data <- Database[["Typing"]]
     
-    dataa <- DB$data
-    
     if(!is.null(DB$data)){
       if ((ncol(DB$data)-13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
         cust_var <- select(DB$data, 14:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
@@ -11088,21 +11065,13 @@ server <- function(input, output, session) {
     }
     
     DB$change <- FALSE
-    
     DB$count <- 0
-    
     DB$no_na_switch <- TRUE
-    
     DB$meta_gs <- select(DB$data, c(1, 3:13))
-    
     DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
-    
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
-    
     DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
-    
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
-    
     DB$deleted_entries <- character(0)
     
     removeModal()
@@ -22516,6 +22485,7 @@ server <- function(input, output, session) {
   
   # Rendering results table
   output$gs_results_table <- renderUI({
+    req(DB$data)
     if(!is.null(Screening$selected_isolate)) {
       if(length(Screening$selected_isolate) > 0) {
         fluidRow(
@@ -22560,6 +22530,7 @@ server <- function(input, output, session) {
   
   # Gene screening download button
   output$gs_download <- renderUI({
+    req(DB$data)
     if(!is.null(Screening$selected_isolate)) {
       if(length(Screening$selected_isolate) > 0) {
         fluidRow(
@@ -22582,7 +22553,7 @@ server <- function(input, output, session) {
   
   # Conditionally render table selectiom interface
   output$gs_table_selection <- renderUI({
-    req(input$gs_view)
+    req(DB$data, input$gs_view)
     if(input$gs_view == "Table") {
       fluidRow(
         column(1),
@@ -22597,6 +22568,7 @@ server <- function(input, output, session) {
   
   # Resistance profile table output display
   output$gs_profile_display <- renderUI({
+    req(DB$data)
     if(!is.null(DB$meta_gs) & !is.null(input$gs_view)) {
       if(input$gs_view == "Table") {
         column(
@@ -22654,12 +22626,18 @@ server <- function(input, output, session) {
                       as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
                     } else {
                       DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
+                    },
+                    `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
+                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
+                    } else {
+                      DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
                     }
                   ),
                   choicesOpt = list(
                     disabled = c(
+                      rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
                       rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
-                      rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]))
+                      rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
                     )
                   ),
                   options = list(
@@ -22684,6 +22662,7 @@ server <- function(input, output, session) {
   
   # Screening sidebar
   output$screening_sidebar <- renderUI({
+    req(DB$data)
     if(!is.null(DB$meta_gs)) {
       column(
         width = 12,
@@ -22712,7 +22691,7 @@ server <- function(input, output, session) {
   
   # Resistance profile table
   observe({
-    req(DB$meta_gs, Screening$selected_isolate, DB$database, DB$scheme)
+    req(DB$meta_gs, Screening$selected_isolate, DB$database, DB$scheme, DB$data)
     
     if(length(Screening$selected_isolate) > 0 & any(Screening$selected_isolate %in% DB$data$`Assembly ID`)) {
       iso_select <- Screening$selected_isolate
@@ -22766,9 +22745,9 @@ server <- function(input, output, session) {
 
   #Resistance profile selection table
   observe({
-    req(DB$meta)
+    req(DB$meta, DB$data)
     output$gs_isolate_table <- renderDataTable(
-      select(DB$meta_gs, -c(3, 4, 10, 11, 12)),
+      select(DB$meta_gs[which(DB$meta_gs$Screened == "Yes"), ], -c(3, 4, 10, 11, 12)),
       selection = "single",
       rownames= FALSE,
       options = list(pageLength = 10,
@@ -22792,7 +22771,7 @@ server <- function(input, output, session) {
   })
   
   observe({
-    req(input$screening_res_sel, DB$database, DB$scheme)
+    req(input$screening_res_sel, DB$database, DB$scheme, DB$data)
     if(!is.null(Screening$status_df) &
        !is.null(input$screening_res_sel) & 
        !is.null(Screening$status_df$status) & 
@@ -22836,6 +22815,7 @@ server <- function(input, output, session) {
   
   # Availablity feedback
   output$gene_screening_info <- renderUI({
+    req(DB$data)
     if(gsub(" ", "_", DB$scheme) %in% amrfinder_species) {
       p(
         HTML(
@@ -22860,6 +22840,7 @@ server <- function(input, output, session) {
   })
   
   output$gene_resistance_info <- renderUI({
+    req(DB$data)
     if(gsub(" ", "_", DB$scheme) %in% amrfinder_species) {
       p(
         HTML(
@@ -22885,7 +22866,8 @@ server <- function(input, output, session) {
   
   # Screening Interface
   
-  output$screening_interface <- renderUI(
+  output$screening_interface <- renderUI({
+    req(DB$data)
     if(gsub(" ", "_", DB$scheme) %in% amrfinder_species) {
       column(
         width = 12,
@@ -22918,12 +22900,18 @@ server <- function(input, output, session) {
                       as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
                     } else {
                       DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+                    },
+                    `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
+                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
+                    } else {
+                      DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
                     }
                   ),
                   choicesOpt = list(
                     disabled = c(
                       rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
-                      rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]))
+                      rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
+                      rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
                     )
                   ),
                   options = list(
@@ -22979,14 +22967,15 @@ server <- function(input, output, session) {
         )
       )
     }
-  )
+  })
   
   ### Screening Events ----
   
   observe({
-    req(input$gs_view)
+    req(DB$data, input$gs_view)
     if(input$gs_view == "Table") {
-      Screening$selected_isolate <- DB$meta_gs$`Assembly ID`[input$gs_isolate_table_rows_selected]
+      meta_gs <- DB$meta_gs[which(DB$meta_gs$Screened == "Yes"), ]
+      Screening$selected_isolate <- meta_gs$`Assembly ID`[input$gs_isolate_table_rows_selected]
     } else if(input$gs_view == "Picker") {
       Screening$selected_isolate <- input$gs_profile_select
     }
@@ -23056,6 +23045,13 @@ server <- function(input, output, session) {
     log_print("Cancelled gene screening")
     removeModal()
     
+    show_toast(
+      title = "Gene Screening Terminated",
+      type = "warning",
+      position = "bottom-end",
+      timer = 6000
+    )
+    
     # terminate screening
     system(paste("kill $(pgrep -f 'execute/screening.sh')"), wait = FALSE)
     system(paste("killall -TERM tblastn"), wait = FALSE)
@@ -23082,9 +23078,10 @@ server <- function(input, output, session) {
   
   # Get selected assembly
   observe({
+    req(DB$data, Screening$status)
     if (length(input$screening_select) < 1) {
       output$genome_path_gs <- renderUI(HTML(
-        paste("<span style='color: white; font-style:italic'>", length(input$screening_select), " Isolate(s) queried for screening")
+        paste("<span style='color: white; font-style:italic'>", length(input$screening_select), " isolate(s) queried for screening")
       ))
       
       output$screening_start <- NULL
@@ -23184,7 +23181,7 @@ server <- function(input, output, session) {
           )
         )
       })
-    }
+    } else {NULL}
   })
   
   #### Running Screening ----
@@ -23220,6 +23217,11 @@ server <- function(input, output, session) {
           as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
         } else {
           DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+        },
+        `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
+          as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
+        } else {
+          DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
         }
       )
       Screening$picker_selected <- input$screening_select
@@ -23257,10 +23259,8 @@ server <- function(input, output, session) {
     }
   })
   
-  ### Screening Feedback ----
-  
   observe({
-    req(Screening$status, input$screening_res_sel, Screening$status_df)
+    req(DB$data, Screening$status, input$screening_res_sel, Screening$status_df)
     if(!is.null(Screening$status_df) &
        !is.null(Screening$status_df$status) & 
        !is.null(Screening$status_df$isolate) &
@@ -23294,7 +23294,7 @@ server <- function(input, output, session) {
   })
   
   observe({
-    req(Screening$status, input$screening_res_sel)
+    req(DB$data, Screening$status, input$screening_res_sel)
     if(!is.null(Screening$status_df) &
        !is.null(Screening$status_df$status) & 
        !is.null(Screening$status_df$isolate) &
@@ -23317,6 +23317,7 @@ server <- function(input, output, session) {
   })
   
   observe({
+    req(DB$data)
     if(!is.null(Screening$status)) {
       if(Screening$status != "idle") {
         
@@ -23374,7 +23375,7 @@ server <- function(input, output, session) {
         Screening$choices <- Screening$status_df$isolate[which(Screening$status_df$status == "success" |
                                                                  Screening$status_df$status == "fail")]
         
-        if(sum("unfinished" != Screening$status_df$status) == 1) {
+        if(sum(Screening$status_df$status != "unfinished") == 1) {
           Screening$first_result <- TRUE
         }
         
@@ -23388,7 +23389,11 @@ server <- function(input, output, session) {
           saveRDS(Database, file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
 
           DB$data$Screened[which(DB$data["Assembly ID"] == tail(Screening$choices, 1))] <- "Yes"
-
+          
+          DB$meta_gs <- select(DB$data, c(1, 3:13))
+          DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
+          DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
+          
           show_toast(
             title = paste("Successful screening of", tail(Screening$choices, 1)),
             type = "success",
@@ -23415,15 +23420,24 @@ server <- function(input, output, session) {
         }
         
         if(sum("unfinished" != Screening$status_df$status) == length(Screening$status_df$status)) {
+          if(sum(Screening$status_df$status != "unfinished") == 1) {
+            Screening$first_result <- TRUE
+          }
           Screening$status <- "finished"
         }
       } else {
         if(sum("unfinished" != Screening$status_df$status) == length(Screening$status_df$status)) {
+          if(sum(Screening$status_df$status != "unfinished") == 1) {
+            Screening$first_result <- TRUE
+          }
           Screening$status <- "finished"
         }
       }
       
       if(sum("unfinished" != Screening$status_df$status) == length(Screening$status_df$status)) {
+        if(sum(Screening$status_df$status != "unfinished") == 1) {
+          Screening$first_result <- TRUE
+        }
         Screening$status <- "finished"
       }
     }
@@ -24194,7 +24208,7 @@ server <- function(input, output, session) {
         position = "bottom-end",
         timer = 6000
       )
-    }  else if (ass_id == "") {
+    } else if (ass_id == "") {
     show_toast(
       title = "Empty Assembly ID",
       type = "error",
@@ -24214,6 +24228,13 @@ server <- function(input, output, session) {
         type = "error",
         position = "bottom-end",
         timer = 3000
+      )
+    } else if(Screening$status == "started") {
+      show_toast(
+        title = "Pending Single Typing",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000
       )
     } else {
       
@@ -25000,6 +25021,13 @@ server <- function(input, output, session) {
     } else if (isFALSE(Typing$reload)) {
       show_toast(
         title = "Reload Database first",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000
+      )
+    } else if(Screening$status == "started") {
+      show_toast(
+        title = "Pending Single Typing",
         type = "warning",
         position = "bottom-end",
         timer = 6000
