@@ -52,7 +52,7 @@ options(ignore.negative.edge=TRUE)
 
 ui <- dashboardPage(
   
-  title = "PhyloTrace 1.4.1",
+  title = "PhyloTrace 1.5.0",
   
   # Title
   dashboardHeader(
@@ -113,6 +113,10 @@ ui <- dashboardPage(
       conditionalPanel(
         "input.tabs==='visualization'",
         uiOutput("visualization_sidebar")
+      ),
+      conditionalPanel(
+        "input.tabs==='gs_profile'",
+        uiOutput("screening_sidebar")
       )
     )
   ),
@@ -5344,32 +5348,10 @@ ui <- dashboardPage(
         br(),
         hr(),
         br(), br(),
+        uiOutput("gs_table_selection"),
         fluidRow(
           column(1),
-          column(
-            width = 10,
-            div(class = "loci_table",
-                dataTableOutput("gs_isolate_table"))
-          )
-        ),
-        hr(),
-        fluidRow(
-          column(1),
-          column(
-            width = 10,
-            div(class = "loci_table",
-                DT::dataTableOutput("gs_profile_table")),
-            br(),
-            HTML(
-              paste0("<span style='color: white; font-size: 12px'>", 
-                     '<strong>RSL</strong> = <em>Reference Sequence Length</em>&nbsp&nbsp|&nbsp&nbsp',
-                     '<strong>%CRS</strong> = <em>% Coverage of Reference Sequence</em>&nbsp&nbsp|&nbsp&nbsp',
-                     '<strong>%IRS</strong> = <em>% Identity to Reference Sequence</em>&nbsp&nbsp|&nbsp&nbsp',
-                     '<strong>ACS</strong> = <em>Accession of Closest Sequence</em>&nbsp&nbsp|&nbsp&nbsp',
-                     '<strong>NCS</strong> = <em>Name of Closest Sequence</em>')
-              
-            )
-          )
+          uiOutput("gs_profile_display")
         )
       )
     ) # End tabItems
@@ -5382,7 +5364,7 @@ ui <- dashboardPage(
 
 server <- function(input, output, session) {
   
-  phylotraceVersion <- paste("1.4.1")
+  phylotraceVersion <- paste("1.5.0")
   
   #TODO Enable this, or leave disabled
   # Kill server on session end
@@ -9929,9 +9911,6 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
-    
-    pick_stat <<- Screening$picker_status
-    ttest <<- input$screening_select
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -22535,35 +22514,227 @@ server <- function(input, output, session) {
   
   ### Render UI Elements ----
   
+  # Rendering results table
+  output$gs_results_table <- renderUI({
+    if(!is.null(Screening$selected_isolate)) {
+      if(length(Screening$selected_isolate) > 0) {
+        fluidRow(
+          div(class = "loci_table",
+              DT::dataTableOutput("gs_profile_table")),
+          br(),
+          HTML(
+            paste0("<span style='color: white; font-size: 12px'>", 
+                   '<strong>RSL</strong> = <em>Reference Sequence Length</em>&nbsp&nbsp|&nbsp&nbsp',
+                   '<strong>%CRS</strong> = <em>% Coverage of Reference Sequence</em>&nbsp&nbsp|&nbsp&nbsp',
+                   '<strong>%IRS</strong> = <em>% Identity to Reference Sequence</em>&nbsp&nbsp|&nbsp&nbsp',
+                   '<strong>ACS</strong> = <em>Accession of Closest Sequence</em>&nbsp&nbsp|&nbsp&nbsp',
+                   '<strong>NCS</strong> = <em>Name of Closest Sequence</em>')
+            
+          )
+        )
+      } else {
+        fluidRow(
+          br(), br(),
+          p(
+            HTML(
+              paste0("<span style='color: white; position: relative; top: 30px; left: 300px; font-size: 12px; font-style: italic'>", 
+                     'Select entry from the table to display resistance profile')
+              
+            )
+          )
+        )
+      }
+    } else {
+      fluidRow(
+        br(), br(),
+        p(
+          HTML(
+            paste0("<span style='color: white; position: relative; top: 30px; left: 300px; font-size: 12px; font-style: italic'>", 
+                   'Select entry from the table to display resistance profile')
+            
+          )
+        )
+      )
+    }
+  })
+  
+  # Gene screening download button
+  output$gs_download <- renderUI({
+    if(!is.null(Screening$selected_isolate)) {
+      if(length(Screening$selected_isolate) > 0) {
+        fluidRow(
+          downloadBttn(
+            "download_resistance_profile",
+            style = "simple",
+            label = "Profile Table",
+            size = "sm",
+            icon = icon("download"),
+            color = "primary"
+          ),
+          bsTooltip("download_resistance_profile_bttn", 
+                    HTML(paste0("Save resistance profile table for</br>",
+                                Screening$selected_isolate)), 
+                    placement = "bottom", trigger = "hover")
+        )
+      } else {NULL}
+    } else {NULL}
+  })
+  
+  # Conditionally render table selectiom interface
+  output$gs_table_selection <- renderUI({
+    req(input$gs_view)
+    if(input$gs_view == "Table") {
+      fluidRow(
+        column(1),
+        column(
+          width = 10,
+          div(class = "loci_table",
+              dataTableOutput("gs_isolate_table"))
+        )
+      )
+    } else {NULL}
+  })
+  
+  # Resistance profile table output display
+  output$gs_profile_display <- renderUI({
+    if(!is.null(DB$meta_gs) & !is.null(input$gs_view)) {
+      if(input$gs_view == "Table") {
+        column(
+          width = 10,
+          hr(), 
+          fluidRow(
+            column(
+              width = 4,
+              p(
+                HTML(
+                  paste0("<span style='color: white; font-size: 18px'>", 
+                         "Gene Screening Results</br>",
+                         "<span style='color: white; font-size: 12px; font-style:italic'>", 
+                         "Comprising genes for resistance, virulence, stress, etc.")
+                )
+              )
+            ),
+            column(
+              width = 4,
+              uiOutput("gs_download")
+            )
+          ),
+          br(),
+          uiOutput("gs_results_table")
+        )
+      } else {
+        column(
+          width = 10,
+          fluidRow(
+            column(
+              width = 4,
+              p(
+                HTML(
+                  paste0("<span style='color: white; font-size: 18px'>", 
+                         "Gene Screening Results</br>",
+                         "<span style='color: white; font-size: 12px; font-style:italic'>", 
+                         "Comprising genes for resistance, virulence, stress, etc.")
+                )
+              )
+            ),
+            column(
+              width = 4,
+              div(
+                class = "gs-picker",
+                pickerInput(
+                  "gs_profile_select",
+                  "",
+                  choices = list(
+                    Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
+                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
+                    } else {
+                      DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+                    },
+                    Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
+                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
+                    } else {
+                      DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
+                    }
+                  ),
+                  choicesOpt = list(
+                    disabled = c(
+                      rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
+                      rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]))
+                    )
+                  ),
+                  options = list(
+                    `live-search` = TRUE,
+                    size = 10,
+                    style = "background-color: white; border-radius: 5px;"
+                  )
+                )
+              )
+            ),
+            column(
+              width = 3,
+              uiOutput("gs_download")
+            )
+          ),
+          br(),
+          uiOutput("gs_results_table")
+        )
+      }
+    } else {NULL}
+  })
+  
+  # Screening sidebar
+  output$screening_sidebar <- renderUI({
+    if(!is.null(DB$meta_gs)) {
+      column(
+        width = 12,
+        align = "center",
+        br(), br(),
+        p(
+          HTML(
+            paste(
+              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Toggle View')
+            )
+          )
+        ),
+        radioGroupButtons(
+          inputId = "gs_view",
+          choices = c("Picker", "Table"),
+          selected = "Picker",
+          checkIcon = list(
+            yes = icon("square-check"),
+            no = icon("square")
+          )
+        ),
+        br()
+      )
+    } else {NULL}
+  })
+  
   # Resistance profile table
   observe({
-    req(DB$meta_gs, input$gs_isolate_table_rows_selected, DB$database, DB$scheme)
+    req(DB$meta_gs, Screening$selected_isolate, DB$database, DB$scheme)
     
-    if(DB$meta_gs$Screened[input$gs_isolate_table_rows_selected] == "Yes") {
-      iso_select <- DB$meta_gs$`Assembly ID`[input$gs_isolate_table_rows_selected]
+    if(length(Screening$selected_isolate) > 0 & any(Screening$selected_isolate %in% DB$data$`Assembly ID`)) {
+      iso_select <- Screening$selected_isolate
       iso_path <- file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates", 
                             iso_select, "resProfile.tsv")
+      
       res_profile <- read.delim(iso_path)
-      # 
-      # colnames(res_profile) <- c(
-      #   "Protein Identifier",	"Contig ID", "Start", "Stop", "Strand", "Gene Symbol", 
-      #   "Sequence Name", "Scope", "Element Type",  "Element Subtype", "Class", 
-      #   "Subclass", "Method", "Target Length", "RSL",	"%CRS", "%IRS", "Alignment Length", 
-      #   "ACS", "NCS", "HMM ID", "HMM Description")
+      
       colnames(res_profile) <- c(
         "Protein Identifier",	"Contig ID", "Start", "Stop", "Strand", "Gene Symbol", 
         "Sequence Name", "Scope", "Element Type",  "Element Subtype", "Class", 
         "Subclass", "Method", "Target Length", "RSL",	"%CRS", "%IRS", 
         "Alignment Length", "ACS", "Name of Closest Sequence", "HMM ID", "HMM Description")
       
-      res_profile <- res_profile %>%
+      Screening$res_profile <- res_profile %>%
         relocate(c("Gene Symbol", "Sequence Name", "Element Subtype", "Class", 
                    "Subclass", "Scope", "Contig ID", "Target Length", "Alignment Length",
                    "Start", "Stop", "Strand"))
       
       # Generate gene profile table
       output$gs_profile_table <- DT::renderDataTable(
-        res_profile,
+        Screening$res_profile,
         selection = "single",
         rownames= FALSE,
         options = list(pageLength = 10, scrollX = TRUE,
@@ -22597,7 +22768,7 @@ server <- function(input, output, session) {
   observe({
     req(DB$meta)
     output$gs_isolate_table <- renderDataTable(
-      select(DB$meta_gs, -c(2, 4, 10, 11, 12)),
+      select(DB$meta_gs, -c(3, 4, 10, 11, 12)),
       selection = "single",
       rownames= FALSE,
       options = list(pageLength = 10,
@@ -22796,18 +22967,6 @@ server <- function(input, output, session) {
             uiOutput("screening_result_sel")
           ),
           column(1)
-          # column(
-          #   width = 3,
-          #   align = "left",
-          #   box(
-          #     solidHeader = TRUE,
-          #     status = "primary",
-          #     width = "90%",
-          #     HTML(paste("<span style='color: white; font-size: 17px'>", 
-          #                "AMRFinder Database Status")),
-          #     
-          #   )
-          # )
         ),
         fluidRow(
           column(1),
@@ -22823,6 +22982,32 @@ server <- function(input, output, session) {
   )
   
   ### Screening Events ----
+  
+  observe({
+    req(input$gs_view)
+    if(input$gs_view == "Table") {
+      Screening$selected_isolate <- DB$meta_gs$`Assembly ID`[input$gs_isolate_table_rows_selected]
+    } else if(input$gs_view == "Picker") {
+      Screening$selected_isolate <- input$gs_profile_select
+    }
+  })
+  
+  output$download_resistance_profile <- downloadHandler(
+    filename = function() {
+      log_print(paste0("Save resistance profile table ", Screening$selected_isolate, "_Profile.csv"))
+      
+      paste0(format(Sys.Date()), "_", Screening$selected_isolate, "_Profile.csv")
+    },
+    content = function(file) {
+      write.table(
+        Screening$res_profile,
+        file, 
+        sep = ";",
+        row.names = FALSE, 
+        quote = FALSE
+      ) 
+    }
+  )
   
   # Reset screening 
   observeEvent(input$screening_reset_bttn, {
@@ -23037,9 +23222,7 @@ server <- function(input, output, session) {
           DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
         }
       )
-      pick_choices <<- Screening$picker_choices
       Screening$picker_selected <- input$screening_select
-      okayy <<- Screening$picker_selected
       Screening$picker_status <- FALSE
       
       show_toast(

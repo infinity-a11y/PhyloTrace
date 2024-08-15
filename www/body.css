@@ -3019,6 +3019,20 @@ button#download_report_bttn {
 
 /* Gene Screening */
 
+.gs-picker {
+  margin-top: -13px;
+}
+
+button#download_resistance_profile_bttn {
+    background: #282F38;
+    color: #ffffff;
+    border: 1px solid white;
+    transition: border-color 0.3s ease;
+    opacity: 1;
+    font-size: 15px;
+    margin-top: 10px;
+}
+
 .dataTables_wrapper.no-footer .dataTables_scrollBody {
   border-bottom: none;
 }
