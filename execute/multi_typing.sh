@@ -11,6 +11,7 @@ scheme=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[,'scheme'])")
 genome_folder=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[,'genome_folder'])")
 genome_names=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[,'genome_names'])")
 alleles=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[,'alleles'])")
+rename_file=$(Rscript -e "cat(stringr::str_split_1(readRDS('multi_typing_df.rds')[, 'filenames'], ' '))")
 
 # Remove the existing multi directory
 if [ -d "$base_path/execute/blat_multi" ]; then
@@ -38,15 +39,25 @@ fi
 mkdir $selected_genomes
 
 file_names=($genome_names)
+new_names=($rename_file)
 
+index=0
 # Loop through the list of file names and copy them to the new folder
 for file in "${file_names[@]}"; do
-    if [ -f "$genome_folder/$file" ]; then
-        cp "$genome_folder/$file" "$selected_genomes/"
-        echo "$(date +"%Y-%m-%d %H:%M:%S") - Initiated $file" >> "$log_file"
+
+    # Replace tilde with space in the filename #TODO
+    new_file=$(echo "$file" | sed 's/~/ /g')
+    
+    if [ -f "$genome_folder/$new_file" ]; then
+        cp "$genome_folder/$new_file" "$selected_genomes/"
+        
+        mv "$selected_genomes/$new_file" "$selected_genomes/${new_names[$index]}.fasta"
+        
+        echo "$(date +"%Y-%m-%d %H:%M:%S") - Initiated $new_file" >> "$log_file"
     else
-        echo "$(date +"%Y-%m-%d %H:%M:%S") - $file not found in $genome_folder" >> "$log_file"
+        echo "$(date +"%Y-%m-%d %H:%M:%S") - $new_file not found in $genome_folder" >> "$log_file"
     fi
+    index=$((index + 1))
 done
 
 #INDEXING GENOME AS DATABASE
@@ -56,10 +67,13 @@ blat_database="$base_path/execute/blat_multi/$scheme"
 genome_filename_noext=""
 
 #Indexing Loop
-for genome in "$selected_genomes"/*; do
-    
-    # Check read names of assembly file
-    Rscript "$base_path/execute/check_duplicate_multi.R" "$base_path"
+for genome in "$selected_genomes"/*; do   
+
+    # Check fasta and formatting
+    if ! Rscript "$base_path/execute/check_duplicate_multi.R" "$base_path"; then
+        echo "$(date +"%Y-%m-%d %H:%M:%S") - FASTA check failed. Typing of $(basename "$genome") aborted." >> "$log_file"
+        continue
+    fi
     
     if [ -f "$genome" ]; then
     genome_filename=$(basename "$genome")
@@ -71,9 +85,18 @@ for genome in "$selected_genomes"/*; do
     result_folder="$results/$genome_filename_noext"
     
     # Run parallelized BLAT
-    find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name "*.fna" \) | parallel pblat $genome {} "$result_folder/{/.}.psl"  > /dev/null 2>&1
+    if ! find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name "*.fna" \) | parallel pblat "$genome" {} "$result_folder/{/.}.psl" > /dev/null 2>&1; then
+        echo "$(date +"%Y-%m-%d %H:%M:%S") - Allele calling failed. Typing of $genome_filename aborted." >> "$log_file"
+        continue
+    fi
     
     echo "$(date +"%Y-%m-%d %H:%M:%S") - Attaching $genome_filename" >> "$log_file"
-    Rscript "$base_path/execute/multi_eval.R" "$genome_filename"
+    
+    # Check fasta and formatting
+    if ! Rscript "$base_path/execute/multi_eval.R" "$genome_filename"; then
+        echo "$(date +"%Y-%m-%d %H:%M:%S") - Results evaluation failed. Typing of $genome_filename aborted." >> "$log_file"
+        continue
+    fi
 done
+
 echo "$(date +"%Y-%m-%d %H:%M:%S") - Multi Typing finalized." >> "$log_file"

@@ -2,9 +2,14 @@ library(logr)
 
 meta_info <- readRDS("meta_info.rds")
 db_path <- readRDS("multi_typing_df.rds")[, "db_path"]
-assembly_folder <- dir(paste0(getwd(), "/selected_genomes"), full.names = TRUE)
+save_assembly <- readRDS("multi_typing_df.rds")[, "save"]
+assembly_folder <- paste0(paste0(getwd(), "/selected_genomes/"), 
+                          paste0(stringr::str_split_1(readRDS("multi_typing_df.rds")[, "filenames"], " "), 
+                                 ".fasta"))
 assembly <- assembly_folder[which(commandArgs(trailingOnly = TRUE)[1] == basename(assembly_folder))]
-results_folder <- dir(paste0(meta_info$db_directory, "/execute/blat_multi/results"), full.names = TRUE)
+filename <- stringr::str_split_1(readRDS("multi_typing_df.rds")[, "filenames"], " ")[which(commandArgs(trailingOnly = TRUE)[1] == basename(assembly_folder))]
+results_folder <- paste0(paste0(meta_info$db_directory, "/execute/blat_multi/results/"),
+                         stringr::str_split_1(readRDS("multi_typing_df.rds")[, "filenames"], " "))
 
 source("variant_validation.R")
 
@@ -155,9 +160,6 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   
   saveRDS(event_list, "execute/event_list.rds")
   
-  # Find Alleles folder in directory
-  allele_folder <- list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)), full.names = TRUE)[grep("_alleles", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing))))]
-  
   # Create Results Data Frame 
   if(!any(grepl("Typing", list.files(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing)))))) {
     
@@ -167,7 +169,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       data.frame(matrix(
         NA,
         nrow = 0,
-        ncol = 12 + length(psl_files)
+        ncol = 13 + length(psl_files)
       ))
     
     metadata <-
@@ -183,7 +185,8 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         meta_info$append_city,
         as.character(meta_info$append_analysisdate),
         length(allele_vector) - sum(sapply(allele_vector, is.na)),
-        sum(sapply(allele_vector, is.na))
+        sum(sapply(allele_vector, is.na)),
+        "No"
       )
     
     new_row <- c(metadata, allele_vector)
@@ -205,16 +208,17 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
           "City",
           "Typing Date",
           "Successes",
-          "Errors"
+          "Errors",
+          "Screened"
         ),
         gsub(".fasta", "", basename(list.files(allele_folder)))
       )
     
     Database[["Typing"]] <- Typing
     
-    df2 <- dplyr::mutate_all(dplyr::select(Database$Typing, 13:(12+length(list.files(allele_folder)))), function(x) as.character(x))
+    df2 <- dplyr::mutate_all(dplyr::select(Database$Typing, 14:(13+length(list.files(allele_folder)))), function(x) as.character(x))
     
-    df1 <- dplyr::select(Database$Typing, 1:12)
+    df1 <- dplyr::select(Database$Typing, 1:13)
     df1 <- dplyr::mutate(df1, Include = as.logical(Include))
     
     Typing <- cbind(df1, df2)
@@ -238,12 +242,13 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         meta_info$append_city,
         as.character(meta_info$append_analysisdate),
         length(allele_vector) - sum(sapply(allele_vector, is.na)),
-        sum(sapply(allele_vector, is.na))
+        sum(sapply(allele_vector, is.na)),
+        "No"
       )
     
-    if ((ncol(Database$Typing)-12) != length(allele_vector)) {
+    if ((ncol(Database$Typing)-13) != length(allele_vector)) {
       
-      cust_var <- dplyr::select(Database$Typing, 13:(ncol(Database$Typing) - length(allele_vector)))
+      cust_var <- dplyr::select(Database$Typing, 14:(ncol(Database$Typing) - length(allele_vector)))
       cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
       
       class_df <- data.frame()
@@ -262,7 +267,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
     
     merged <- cbind(metadata, df_profile)
     
-    if ((ncol(Database$Typing)-12) != length(allele_vector)) {
+    if ((ncol(Database$Typing)-13) != length(allele_vector)) {
       names_vec <- character(0)
       # Add new columns to df1
       for (i in 1:nrow(cust_var)) {
@@ -283,7 +288,8 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
             "City",
             "Typing Date",
             "Successes",
-            "Errors"
+            "Errors",
+            "Screened"
           ),
           names_vec,
           gsub(".fasta", "", basename(list.files(allele_folder)))
@@ -303,7 +309,8 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
             "City",
             "Typing Date",
             "Successes",
-            "Errors"
+            "Errors",
+            "Screened"
           ),
           gsub(".fasta", "", basename(list.files(allele_folder)))
         )
@@ -318,12 +325,65 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   # Save new Entry in Typing Database
   saveRDS(Database, paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Typing.rds"))
   
+  isolate_dir <- file.path(db_path, gsub(" ", "_", meta_info$cgmlst_typing), "Isolates")
+  
+  # Save assembly file if TRUE
+  if(save_assembly) {
+    if(dir.exists(isolate_dir)) {
+      
+      # Create folder for new isolate
+      dir.create(file.path(isolate_dir, filename))
+      
+      # Copy assembly file in isolate directory
+      file.copy(file.path(getwd(), "execute/selected_genomes", paste0(filename, ".fasta")), 
+                file.path(isolate_dir, filename))
+      
+      setwd(file.path(isolate_dir, filename))
+      
+      zip(zipfile = paste0(filename, ".zip"),
+          files = paste0(filename, ".fasta"),
+          zip = "zip") 
+      
+      file.remove(paste0(filename, ".fasta"))
+      
+      log_print(paste0("Saved assembly of ", basename(assembly)))
+      
+    } else {
+      
+      log_print("No isolate folder present yet. Isolate directory created.")
+      
+      # Create isolate filder for species
+      dir.create(isolate_dir)
+      
+      # Create folder for new isolate
+      dir.create(file.path(isolate_dir, filename))
+      
+      # Copy assembly file in isolate directory
+      file.copy(paste0(getwd(), "/execute/selected_genomes/", filename, ".fasta") , 
+                file.path(isolate_dir, filename))
+      
+      setwd(file.path(isolate_dir, filename))
+      
+      zip(zipfile = paste0(filename, ".zip"),
+          files = paste0(filename, ".fasta"),
+          zip = "zip") 
+      
+      file.remove(paste0(filename, ".fasta"))
+      
+      log_print(paste0("Saved assembly of ", basename(assembly)))
+    }
+  }
+  
+  setwd(meta_info$db_directory)
+  
   # Logging successes
   log.message(log_file = paste0(getwd(), "/logs/script_log.txt"), 
               message = paste0("Successful typing of ", sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
   log_print(paste0("Successful typing of ", sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
   
 } else {
+  
+  setwd(meta_info$db_directory)
   
   # Logging failures
   log.message(log_file = paste0(getwd(), "/logs/script_log.txt"), 

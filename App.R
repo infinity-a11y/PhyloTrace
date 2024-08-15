@@ -44,222 +44,7 @@ library(treeio)
 library(ggtree)
 library(ggtreeExtra)
 
-schemes <- c("Acinetobacter_baumanii", "Bacillus_anthracis", "Bordetella_pertussis", 
-             "Brucella_melitensis", "Brucella_spp", "Burkholderia_mallei_FLI", 
-             "Burkholderia_mallei_RKI", "Burkholderia_pseudomallei", "Campylobacter_jejuni_coli", 
-             "Clostridioides_difficile", "Clostridium_perfringens", "Corynebacterium_diphtheriae",
-             "Cronobacter_sakazakii_malonaticus", "Enterococcus_faecalis", "Enterococcus_faecium", 
-             "Escherichia_coli", "Francisella_tularensis", "Klebsiella_oxytoca_sensu_lato", "Klebsiella_pneumoniae_sensu_lato", 
-             "Legionella_pneumophila", "Listeria_monocytogenes", "Mycobacterium_tuberculosis_complex", 
-             "Mycobacteroides_abscessus", "Mycoplasma_gallisepticum", "Paenibacillus_larvae",
-             "Pseudomonas_aeruginosa", "Salmonella_enterica", "Serratia_marcescens", 
-             "Staphylococcus_aureus", "Staphylococcus_capitis", "Streptococcus_pyogenes"
-)
-
-country_names <- c(
-  "Afghanistan",
-  "Albania",
-  "Algeria",
-  "Andorra",
-  "Angola",
-  "Antigua and Barbuda",
-  "Argentina",
-  "Armenia",
-  "Australia",
-  "Austria",
-  "Azerbaijan",
-  "Bahamas",
-  "Bahrain",
-  "Bangladesh",
-  "Barbados",
-  "Belarus",
-  "Belgium",
-  "Belize",
-  "Benin",
-  "Bhutan",
-  "Bolivia",
-  "Bosnia and Herzegovina",
-  "Botswana",
-  "Brazil",
-  "Brunei",
-  "Bulgaria",
-  "Burkina Faso",
-  "Burundi",
-  "Côte d'Ivoire",
-  "Cabo Verde",
-  "Cambodia",
-  "Cameroon",
-  "Canada",
-  "Central African Republic",
-  "Chad",
-  "Chile",
-  "China",
-  "Colombia",
-  "Comoros",
-  "Congo (Congo-Brazzaville)",
-  "Costa Rica",
-  "Croatia",
-  "Cuba",
-  "Cyprus",
-  "Czechia (Czech Republic)",
-  "Democratic Republic of the Congo",
-  "Denmark",
-  "Djibouti",
-  "Dominica",
-  "Dominican Republic",
-  "Ecuador",
-  "Egypt",
-  "El Salvador",
-  "Equatorial Guinea",
-  "Eritrea",
-  "Estonia",
-  'Eswatini (fmr. "Swaziland")',
-  "Ethiopia",
-  "Fiji",
-  "Finland",
-  "France",
-  "Gabon",
-  "Gambia",
-  "Georgia",
-  "Germany",
-  "Ghana",
-  "Greece",
-  "Grenada",
-  "Guatemala",
-  "Guinea",
-  "Guinea-Bissau",
-  "Guyana",
-  "Haiti",
-  "Holy See",
-  "Honduras",
-  "Hungary",
-  "Iceland",
-  "India",
-  "Indonesia",
-  "Iran",
-  "Iraq",
-  "Ireland",
-  "Israel",
-  "Italy",
-  "Jamaica",
-  "Japan",
-  "Jordan",
-  "Kazakhstan",
-  "Kenya",
-  "Kiribati",
-  "Kuwait",
-  "Kyrgyzstan",
-  "Laos",
-  "Latvia",
-  "Lebanon",
-  "Lesotho",
-  "Liberia",
-  "Libya",
-  "Liechtenstein",
-  "Lithuania",
-  "Luxembourg",
-  "Madagascar",
-  "Malawi",
-  "Malaysia",
-  "Maldives",
-  "Mali",
-  "Malta",
-  "Marshall Islands",
-  "Mauritania",
-  "Mauritius",
-  "Mexico",
-  "Micronesia",
-  "Moldova",
-  "Monaco",
-  "Mongolia",
-  "Montenegro",
-  "Morocco",
-  "Mozambique",
-  "Myanmar (formerly Burma)",
-  "Namibia",
-  "Nauru",
-  "Nepal",
-  "Netherlands",
-  "New Zealand",
-  "Nicaragua",
-  "Niger",
-  "Nigeria",
-  "North Korea",
-  "North Macedonia (formerly Macedonia)",
-  "Norway",
-  "Oman",
-  "Pakistan",
-  "Palau",
-  "Palestine State",
-  "Panama",
-  "Papua New Guinea",
-  "Paraguay",
-  "Peru",
-  "Philippines",
-  "Poland",
-  "Portugal",
-  "Qatar",
-  "Romania",
-  "Russia",
-  "Rwanda",
-  "Saint Kitts and Nevis",
-  "Saint Lucia",
-  "Saint Vincent and the Grenadines",
-  "Samoa",
-  "San Marino",
-  "Sao Tome and Principe",
-  "Saudi Arabia",
-  "Senegal",
-  "Serbia",
-  "Seychelles",
-  "Sierra Leone",
-  "Singapore",
-  "Slovakia",
-  "Slovenia",
-  "Solomon Islands",
-  "Somalia",
-  "South Africa",
-  "South Korea",
-  "South Sudan",
-  "Spain",
-  "Sri Lanka",
-  "Sudan",
-  "Suriname",
-  "Sweden",
-  "Switzerland",
-  "Syria",
-  "Tajikistan",
-  "Tanzania",
-  "Thailand",
-  "Timor-Leste",
-  "Togo",
-  "Tonga",
-  "Trinidad and Tobago",
-  "Tunisia",
-  "Turkey",
-  "Turkmenistan",
-  "Tuvalu",
-  "Uganda",
-  "Ukraine",
-  "United Arab Emirates",
-  "United Kingdom",
-  "United States of America",
-  "Uruguay",
-  "Uzbekistan",
-  "Vanuatu",
-  "Venezuela",
-  "Vietnam",
-  "Yemen",
-  "Zambia",
-  "Zimbabwe"
-)
-
-sel_countries <-
-  c("Austria",
-    "Germany",
-    "Switzerland",
-    "United Kingdom",
-    "United States of America")
+source(paste0(getwd(), "/www/resources.R"))
 
 options(ignore.negative.edge=TRUE)
 
@@ -267,7 +52,7 @@ options(ignore.negative.edge=TRUE)
 
 ui <- dashboardPage(
   
-  title = "PhyloTrace 1.4.1",
+  title = "PhyloTrace 1.5.0",
   
   # Title
   dashboardHeader(
@@ -328,6 +113,10 @@ ui <- dashboardPage(
       conditionalPanel(
         "input.tabs==='visualization'",
         uiOutput("visualization_sidebar")
+      ),
+      conditionalPanel(
+        "input.tabs==='gs_profile'",
+        uiOutput("screening_sidebar")
       )
     )
   ),
@@ -767,11 +556,13 @@ ui <- dashboardPage(
       
       tabItem(
         tabName = "typing",
-        fluidRow(column(
-          width = 3,
-          align = "center",
-          h2(p("Generate Allelic Profile"), style = "color:white")
-        )),
+        fluidRow(
+          column(
+            width = 3,
+            align = "center",
+            h2(p("Generate Allelic Profile"), style = "color:white")
+          )
+        ),
         hr(),
         uiOutput("typing_no_db"),
         conditionalPanel(
@@ -781,7 +572,7 @@ ui <- dashboardPage(
             uiOutput("single_typing_progress"),
             column(1),
             uiOutput("metadata_single_box"),
-            column(width = 1),
+            column(1),
             uiOutput("start_typing_ui")
           )
         ),
@@ -798,7 +589,7 @@ ui <- dashboardPage(
           fluidRow(
             column(
               width = 6,
-              uiOutput("test_yes_pending")
+              uiOutput("pending_typing")
             ),
             column(
               width = 6,
@@ -5478,6 +5269,9 @@ ui <- dashboardPage(
           br(), br(), br(), br(), br(), br()
         )
       ),
+      
+      ## Tab Utilities -------------------------------------------------------
+      
       tabItem(
         tabName = "utilities",
         fluidRow(
@@ -5512,6 +5306,56 @@ ui <- dashboardPage(
           #   style = "border-color: white; margin: 10px; min-width: 200px; text-align: left"
           # )
         )
+      ),
+      
+      
+      ## Tab Screening -------------------------------------------------------
+      
+      tabItem(
+        tabName = "gs_screening",
+        fluidRow(
+          column(
+            width = 3,
+            align = "center",
+            h2(p("Screening"), style = "color:white; margin-bottom: -20px;")
+          ),
+          column(
+            width = 7,
+            align = "left",
+            uiOutput("gene_screening_info")
+          )
+        ),
+        br(),
+        hr(),
+        fluidRow(
+          uiOutput("screening_interface")
+        )
+      ),
+      
+      ## Tab Resistance Profile -------------------------------------------------------
+      
+      tabItem(
+        tabName = "gs_profile",
+        fluidRow(
+          column(
+            width = 3,
+            align = "center",
+            h2(p("Browse Entries"), style = "color:white; margin-bottom: -20px")
+          ),
+          column(
+            width = 7,
+            align = "left",
+            uiOutput("gene_resistance_info")
+          )
+        ),
+        br(),
+        hr(),
+        br(), br(),
+        uiOutput("gs_table_selection"),
+        fluidRow(
+          column(1),
+          uiOutput("gs_profile_display")
+        )
       )
     ) # End tabItems
   ) # End dashboardPage
@@ -5523,13 +5367,13 @@ ui <- dashboardPage(
 
 server <- function(input, output, session) {
   
-  phylotraceVersion <- paste("1.4.1")
+  phylotraceVersion <- paste("1.5.0")
   
-  # TODO Enable this, or leave disabled
-  # # Kill server on session end
-  # session$onSessionEnded( function() {
-  #   stopApp()
-  # })
+  #TODO Enable this, or leave disabled
+  # Kill server on session end
+  session$onSessionEnded( function() {
+    stopApp()
+  })
   
   # Disable various user inputs (visualization control)
   shinyjs::disable('mst_edge_label') 
@@ -5684,7 +5528,7 @@ server <- function(input, output, session) {
   get.entry.table.meta <- reactive({
     if(!is.null(hot_to_r(input$db_entries))){
       table <- hot_to_r(input$db_entries)
-      select(table, 1:(12 + nrow(DB$cust_var)))
+      select(select(table, -13), 1:(12 + nrow(DB$cust_var)))
     }
   })
   
@@ -5835,19 +5679,60 @@ server <- function(input, output, session) {
     groups
   }
   
+  # Check gene screening status
+  check_status <- function(isolate) {
+    iso_name <- gsub(".zip", "", basename(isolate))
+    if(file.exists(file.path(DB$database, gsub(" ", "_", DB$scheme),
+                             "Isolates", iso_name, "status.txt"))) {
+      if(str_detect(readLines(file.path(DB$database, gsub(" ", "_", DB$scheme),
+                                        "Isolates", iso_name, "status.txt"))[1], 
+                    "successfully")) {
+        return("success")
+      } else {
+        return("fail")
+      }
+    } else {return("unfinished")}
+  }
+  
+  # Reset gene screening status
+  remove.screening.status <- function(isolate) {
+    if(file.exists(file.path(DB$database, 
+                             gsub(" ", "_", DB$scheme),
+                             "Isolates",
+                             isolate,
+                             "status.txt"))) {
+      file.remove(
+        file.path(DB$database, 
+                  gsub(" ", "_", DB$scheme),
+                  "Isolates",
+                  isolate,
+                  "status.txt")
+      )
+    }
+  }
+  
+  # Function to check for duplicate isolate IDs for multi typing start
+  dupl_mult_id <- reactive({
+    req(Typing$multi_sel_table)
+    if(!is.null(DB$data)) {
+      selection <- Typing$multi_sel_table[which(unlist(Typing$multi_sel_table$Files) %in% unlist(DB$data["Assembly ID"])),]
+      selection$Files
+    } else {""}
+  })
+  
   # Function to check single typing log file
   check_new_entry <- reactive({
     
     invalidateLater(5000, session)
     
     if(!is.null(DB$database)) {
-      if(file_exists(paste0(
-        DB$database, "/",
+      if(file_exists(file.path(
+        DB$database,
         gsub(" ", "_", DB$scheme),
-        "/Typing.rds"
+        "Typing.rds"
       ))) {
         
-        Database <- readRDS(paste0(DB$database, "/", gsub(" ", "_", DB$scheme),"/Typing.rds"))
+        Database <- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme),"Typing.rds"))
         
         if(is.null(DB$data)) {
           if(nrow(Database[["Typing"]]) >= 1) {
@@ -5923,6 +5808,15 @@ server <- function(input, output, session) {
   
   log_print("Session started")
   
+  # Clear screening file
+  if(file.exists(paste0(getwd(), "/execute/screening/output_file.tsv"))) {
+    file.remove(paste0(getwd(), "/execute/screening/output_file.tsv"))
+  }
+  
+  if(file.exists(paste0(getwd(), "/execute/screening/error.txt"))) {
+    file.remove(paste0(getwd(), "/execute/screening/error.txt"))
+  }
+  
   # Declare reactive variables
   Startup <- reactiveValues(sidebar = TRUE, 
                             header = TRUE) # reactive variables related to startup process
@@ -5940,6 +5834,9 @@ server <- function(input, output, session) {
                            progress_format_end = 0,
                            result_list = NULL,
                            status = "") # reactive variables related to typing process
+  
+  Screening <- reactiveValues(status = "idle",
+                              picker_status = TRUE) # reactive variables related to gene screening
   
   Vis <- reactiveValues(cluster = NULL, 
                         metadata = list(),
@@ -6115,7 +6012,8 @@ server <- function(input, output, session) {
           br(),
           actionButton(
             "load",
-            "Create"
+            "Create",
+            class = "load-start"
           )
         )
       } else if(length(DB$available) > 0 & !(DB$select_new)) {
@@ -6143,7 +6041,8 @@ server <- function(input, output, session) {
             br(),
             actionButton(
               "load",
-              "Load"
+              "Load",
+              class = "load-start"
             )
           )
         } else {
@@ -6161,7 +6060,8 @@ server <- function(input, output, session) {
             br(), br(),
             actionButton(
               "load",
-              "Load"
+              "Load",
+              class = "load-start"
             )
           )
         }
@@ -6192,7 +6092,8 @@ server <- function(input, output, session) {
             br(),
             actionButton(
               "load",
-              "Load"
+              "Load",
+              class = "load-start"
             )
           )
         } else {
@@ -6210,7 +6111,8 @@ server <- function(input, output, session) {
             br(), br(),
             actionButton(
               "load",
-              "Load"
+              "Load",
+              class = "load-start"
             )
           )
         }
@@ -6228,7 +6130,8 @@ server <- function(input, output, session) {
           br(),
           actionButton(
             "load",
-            "Load"
+            "Load",
+            class = "load-start"
           )
         )
       }
@@ -6250,7 +6153,12 @@ server <- function(input, output, session) {
     
     log_print("Input load")
     
+    # set typing start control variable
+    Typing$reload <- TRUE
+    
+    # reset typing status on start(
     if(Typing$status == "Finalized") {Typing$status <- "Inactive"}
+    if(!is.null(Typing$single_path)) {Typing$single_path <- data.frame()}
     
     #### Render status bar ----
     observe({
@@ -6363,6 +6271,30 @@ server <- function(input, output, session) {
               )
             )
           )
+        } else if(Screening$status == "started") {
+          output$statustext <- renderUI(
+            fluidRow(
+              tags$li(
+                class = "dropdown", 
+                tags$span(HTML(
+                  paste('<i class="fa-solid fa-circle-dot" style="color:orange !important;"></i>', 
+                        "Status:&nbsp;&nbsp;&nbsp;<i> running gene screening</i>")), 
+                  style = "color:white;")
+              )
+            )
+          )
+        } else if(Screening$status == "finished") {
+          output$statustext <- renderUI(
+            fluidRow(
+              tags$li(
+                class = "dropdown", 
+                tags$span(HTML(
+                  paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
+                        "Status:&nbsp;&nbsp;&nbsp;<i> gene screening finalized</i>")), 
+                  style = "color:white;")
+              )
+            )
+          )
         } else {
           output$statustext <- renderUI(
             fluidRow(
@@ -6394,8 +6326,6 @@ server <- function(input, output, session) {
       output$typing_formatting <- NULL
       
       Typing$single_path <- data.frame()
-      
-      Typing$multi_path <- data.frame()
       
       # reset results file 
       if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
@@ -6433,7 +6363,6 @@ server <- function(input, output, session) {
         show_toast(
           title = "Directory already contains a database",
           type = "error",
-          width = "500px",
           position = "bottom-end",
           timer = 6000
         )
@@ -6446,6 +6375,8 @@ server <- function(input, output, session) {
         DB$check_new_entries <- TRUE
         
         DB$data <- NULL
+        
+        DB$meta_gs <- NULL
         
         DB$meta <- NULL
         
@@ -6523,18 +6454,32 @@ server <- function(input, output, session) {
             menuItem(
               text = "Manage Schemes",
               tabName = "init",
-              icon = icon("plus"),
+              icon = icon("layer-group"),
               selected = TRUE
             ),
             menuItem(
               text = "Allelic Typing",
               tabName = "typing",
-              icon = icon("dna")
+              icon = icon("gears")
+            ),
+            menuItem(
+              text = "Resistance Profile",
+              tabName = "gene_screening",
+              icon = icon("dna"),
+              startExpanded = TRUE,
+              menuSubItem(
+                text = "Browse Entries",
+                tabName = "gs_profile"
+              ),
+              menuSubItem(
+                text = "Screening",
+                tabName = "gs_screening"
+              )
             ),
             menuItem(
               text = "Visualization",
               tabName = "visualization",
-              icon = icon("chart-line")
+              icon = icon("circle-nodes")
             ),
             menuItem(
               text = "Utilities",
@@ -6563,6 +6508,14 @@ server <- function(input, output, session) {
         output$download_scheme_info <- NULL
         output$download_loci <- NULL
         output$entry_table_controls <- NULL
+        output$multi_stop <- NULL
+        output$metadata_multi_box <- NULL
+        output$start_multi_typing_ui <- NULL
+        output$pending_typing <- NULL
+        output$multi_typing_results <- NULL
+        output$single_typing_progress <- NULL
+        output$metadata_single_box <- NULL
+        output$start_typing_ui <- NULL
       }
     } else {
       log_print(paste0("Loading existing ", input$scheme_db, " database from ", DB$database))
@@ -6576,17 +6529,12 @@ server <- function(input, output, session) {
         saveRDS(DB$database, paste0(getwd(), "/execute/last_db.rds"))
         
         DB$check_new_entries <- TRUE
-        
         DB$data <- NULL
-        
+        DB$meta_gs <- NULL
         DB$meta <- NULL
-        
         DB$meta_true <- NULL
-        
         DB$allelic_profile <- NULL
-        
         DB$allelic_profile_true <- NULL
-        
         DB$scheme <- input$scheme_db
         
         # null Distance matrix, entry table and plots
@@ -6595,6 +6543,16 @@ server <- function(input, output, session) {
         output$tree_mst <- NULL
         output$tree_nj <- NULL
         output$tree_upgma <- NULL
+        
+        # null typing initiation UI
+        output$multi_stop <- NULL
+        output$metadata_multi_box <- NULL
+        output$start_multi_typing_ui <- NULL
+        output$pending_typing <- NULL
+        output$multi_typing_results <- NULL
+        output$single_typing_progress <- NULL
+        output$metadata_single_box <- NULL
+        output$start_typing_ui <- NULL
         
         # null report values
         Report$report_list_mst <- list()
@@ -6674,18 +6632,32 @@ server <- function(input, output, session) {
                 menuItem(
                   text = "Manage Schemes",
                   tabName = "init",
-                  icon = icon("plus"),
+                  icon = icon("layer-group"),
                   selected = TRUE
                 ),
                 menuItem(
                   text = "Allelic Typing",
                   tabName = "typing",
-                  icon = icon("dna")
+                  icon = icon("gears")
+                ),
+                menuItem(
+                  text = "Resistance Profile",
+                  tabName = "gene_screening",
+                  icon = icon("dna"),
+                  startExpanded = TRUE,
+                  menuSubItem(
+                    text = "Browse Entries",
+                    tabName = "gs_profile"
+                  ),
+                  menuSubItem(
+                    text = "Screening",
+                    tabName = "gs_screening"
+                  )
                 ),
                 menuItem(
                   text = "Visualization",
                   tabName = "visualization",
-                  icon = icon("chart-line")
+                  icon = icon("circle-nodes")
                 ),
                 menuItem(
                   text = "Utilities",
@@ -6750,18 +6722,32 @@ server <- function(input, output, session) {
                 menuItem(
                   text = "Manage Schemes",
                   tabName = "init",
-                  icon = icon("plus"),
+                  icon = icon("layer-group"),
                   selected = TRUE
                 ),
                 menuItem(
                   text = "Allelic Typing",
                   tabName = "typing",
-                  icon = icon("dna")
+                  icon = icon("gears")
+                ),
+                menuItem(
+                  text = "Resistance Profile",
+                  tabName = "gene_screening",
+                  icon = icon("dna"),
+                  startExpanded = TRUE,
+                  menuSubItem(
+                    text = "Browse Entries",
+                    tabName = "gs_profile"
+                  ),
+                  menuSubItem(
+                    text = "Screening",
+                    tabName = "gs_screening"
+                  )
                 ),
                 menuItem(
                   text = "Visualization",
                   tabName = "visualization",
-                  icon = icon("chart-line")
+                  icon = icon("circle-nodes")
                 ),
                 menuItem(
                   text = "Utilities",
@@ -6828,18 +6814,32 @@ server <- function(input, output, session) {
                 menuItem(
                   text = "Manage Schemes",
                   tabName = "init",
-                  icon = icon("plus"),
+                  icon = icon("layer-group"),
                   selected = TRUE
                 ),
                 menuItem(
                   text = "Allelic Typing",
                   tabName = "typing",
-                  icon = icon("dna")
+                  icon = icon("gears")
+                ),
+                menuItem(
+                  text = "Resistance Profile",
+                  tabName = "gene_screening",
+                  icon = icon("dna"),
+                  startExpanded = TRUE,
+                  menuSubItem(
+                    text = "Browse Entries",
+                    tabName = "gs_profile"
+                  ),
+                  menuSubItem(
+                    text = "Screening",
+                    tabName = "gs_screening"
+                  )
                 ),
                 menuItem(
                   text = "Visualization",
                   tabName = "visualization",
-                  icon = icon("chart-line")
+                  icon = icon("circle-nodes")
                 ),
                 menuItem(
                   text = "Utilities",
@@ -6935,18 +6935,32 @@ server <- function(input, output, session) {
                   menuItem(
                     text = "Manage Schemes",
                     tabName = "init",
-                    icon = icon("plus"),
+                    icon = icon("layer-group"),
                     selected = TRUE
                   ),
                   menuItem(
                     text = "Allelic Typing",
                     tabName = "typing",
-                    icon = icon("dna")
+                    icon = icon("gears")
+                  ),
+                  menuItem(
+                    text = "Resistance Profile",
+                    tabName = "gene_screening",
+                    icon = icon("dna"),
+                    startExpanded = TRUE,
+                    menuSubItem(
+                      text = "Browse Entries",
+                      tabName = "gs_profile"
+                    ),
+                    menuSubItem(
+                      text = "Screening",
+                      tabName = "gs_screening"
+                    )
                   ),
                   menuItem(
                     text = "Visualization",
                     tabName = "visualization",
-                    icon = icon("chart-line")
+                    icon = icon("circle-nodes")
                   ),
                   menuItem(
                     text = "Utilities",
@@ -6974,8 +6988,8 @@ server <- function(input, output, session) {
                 DB$data <- Database[["Typing"]]
                 
                 if(!is.null(DB$data)){
-                  if ((ncol(DB$data)-12) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
-                    cust_var <- select(DB$data, 13:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
+                  if ((ncol(DB$data)-13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
+                    cust_var <- select(DB$data, 14:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
                     DB$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
                   } else {
                     DB$cust_var <- data.frame()
@@ -6984,11 +6998,13 @@ server <- function(input, output, session) {
                 
                 DB$change <- FALSE
                 
-                DB$meta <- select(DB$data, 1:(12 + nrow(DB$cust_var)))
+                DB$meta_gs <- select(DB$data, c(1, 3:13))
+                
+                DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
                 
                 DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
                 
-                DB$allelic_profile <- select(DB$data, -(1:(12 + nrow(DB$cust_var))))
+                DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
                 
                 DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
                 
@@ -7023,8 +7039,6 @@ server <- function(input, output, session) {
                 
                 Typing$single_path <- data.frame()
                 
-                Typing$multi_path <- data.frame()
-                
                 # Null multi typing feedback variable
                 Typing$reset <- TRUE
                 
@@ -7041,34 +7055,88 @@ server <- function(input, output, session) {
                 
                 output$initiate_typing_ui <- renderUI({
                   column(
-                    width = 3,
+                    width = 4,
                     align = "center",
                     br(),
                     br(),
-                    h3(p("Initiate Typing"), style = "color:white"),
+                    h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
                     br(),
                     br(),
                     p(
                       HTML(
                         paste(
-                          tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File')
+                          tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly File')
                         )
                       )
                     ),
-                    shinyFilesButton(
-                      "genome_file",
-                      "Browse",
-                      icon = icon("folder-open"),
-                      title = "Please select the genome in .fasta/.fna/.fa format:",
-                      multiple = FALSE,
-                      buttonType = "default",
-                      class = NULL,
-                      filetypes = c('fasta', 'fna', 'fa'),
-                      root = path_home()
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 11,
+                        align = "center",
+                        shinyFilesButton(
+                          "genome_file",
+                          "Browse" ,
+                          icon = icon("file"),
+                          title = "Select the assembly in .fasta/.fna/.fa format:",
+                          multiple = FALSE,
+                          buttonType = "default",
+                          class = NULL,
+                          root = path_home()
+                        ),
+                        br(),
+                        br(),
+                        uiOutput("genome_path"),
+                        br()
+                      )
+                    )
+                  )
+                })
+                
+                output$initiate_multi_typing_ui <- renderUI({
+                  column(
+                    width = 4,
+                    align = "center",
+                    br(),
+                    br(),
+                    h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
+                    br(), br(),
+                    p(
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly Folder')
+                        )
+                      )
                     ),
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 11,
+                        align = "center",
+                        shinyDirButton(
+                          "genome_file_multi",
+                          "Browse",
+                          icon = icon("folder-open"),
+                          title = "Select the folder containing the genome assemblies (FASTA)",
+                          buttonType = "default",
+                          root = path_home()
+                        ),
+                        br(),
+                        br(),
+                        uiOutput("multi_select_info"),
+                        br()
+                      )
+                    ),
+                    uiOutput("multi_select_tab_ctrls"),
                     br(),
-                    br(),
-                    uiOutput("genome_path")
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 11,
+                        align = "left",
+                        rHandsontableOutput("multi_select_table")
+                      )
+                    )
                   )
                 })
                 
@@ -7105,17 +7173,31 @@ server <- function(input, output, session) {
                       menuItem(
                         text = "Manage Schemes",
                         tabName = "init",
-                        icon = icon("plus")
+                        icon = icon("layer-group")
                       ),
                       menuItem(
                         text = "Allelic Typing",
                         tabName = "typing",
-                        icon = icon("dna")
+                        icon = icon("gears")
+                      ),
+                      menuItem(
+                        text = "Resistance Profile",
+                        tabName = "gene_screening",
+                        icon = icon("dna"),
+                        startExpanded = TRUE,
+                        menuSubItem(
+                          text = "Browse Entries",
+                          tabName = "gs_profile"
+                        ),
+                        menuSubItem(
+                          text = "Screening",
+                          tabName = "gs_screening"
+                        )
                       ),
                       menuItem(
                         text = "Visualization",
                         tabName = "visualization",
-                        icon = icon("chart-line")
+                        icon = icon("circle-nodes")
                       ),
                       menuItem(
                         text = "Utilities",
@@ -7158,17 +7240,31 @@ server <- function(input, output, session) {
                       menuItem(
                         text = "Manage Schemes",
                         tabName = "init",
-                        icon = icon("plus")
+                        icon = icon("layer-group")
                       ),
                       menuItem(
                         text = "Allelic Typing",
                         tabName = "typing",
-                        icon = icon("dna")
+                        icon = icon("gears")
+                      ),
+                      menuItem(
+                        text = "Resistance Profile",
+                        tabName = "gene_screening",
+                        icon = icon("dna"),
+                        startExpanded = TRUE,
+                        menuSubItem(
+                          text = "Browse Entries",
+                          tabName = "gs_profile"
+                        ),
+                        menuSubItem(
+                          text = "Screening",
+                          tabName = "gs_screening"
+                        )
                       ),
                       menuItem(
                         text = "Visualization",
                         tabName = "visualization",
-                        icon = icon("chart-line")
+                        icon = icon("circle-nodes")
                       ),
                       menuItem(
                         text = "Utilities",
@@ -7751,7 +7847,7 @@ server <- function(input, output, session) {
                         if(!is.null(DB$data) & !is.null(DB$cust_var)) {
                           output$db_entries <- renderRHandsontable({
                             rhandsontable(
-                              select(DB$data, 1:(12 + nrow(DB$cust_var))),
+                              select(DB$data, 1:(13 + nrow(DB$cust_var))),
                               error_highlight = err_thresh() - 1,                              
                               rowHeaders = NULL,
                               contextMenu = FALSE,
@@ -7761,7 +7857,8 @@ server <- function(input, output, session) {
                               hot_col(1, 
                                       valign = "htMiddle",
                                       halign = "htCenter") %>%
-                              hot_col(c(1, 5, 10, 11, 12),
+                              hot_col(3, readOnly = TRUE) %>%
+                              hot_col(c(1, 5, 10, 11, 12, 13),
                                       readOnly = TRUE) %>%
                               hot_col(3:(12 + nrow(DB$cust_var)), 
                                       valign = "htMiddle",
@@ -7846,7 +7943,7 @@ server <- function(input, output, session) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
                             output$db_entries <- renderRHandsontable({
                               rhandsontable(
-                                select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
+                                select(DB$data, 1:(13 + nrow(DB$cust_var)), input$compare_select),
                                 col_highlight = diff_allele() - 1,
                                 dup_names_high = duplicated_names() - 1,
                                 dup_ids_high = duplicated_ids() - 1,
@@ -7874,7 +7971,8 @@ server <- function(input, output, session) {
                                 hot_col(1, 
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
-                                hot_col(c(1, 5, 10, 11, 12),
+                                hot_col(3, readOnly = TRUE) %>%
+                                hot_col(c(1, 5, 10, 11, 12, 13),
                                         readOnly = TRUE) %>%
                                 hot_col(3, validator = "
                                   function(value, callback) {
@@ -8016,7 +8114,7 @@ server <- function(input, output, session) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var)) {
                             output$db_entries <- renderRHandsontable({
                               rhandsontable(
-                                select(DB$data, 1:(12 + nrow(DB$cust_var))),
+                                select(DB$data, 1:(13 + nrow(DB$cust_var))),
                                 rowHeaders = NULL,
                                 row_highlight = true_rows() - 1,
                                 dup_names_high = duplicated_names()- 1,
@@ -8030,7 +8128,8 @@ server <- function(input, output, session) {
                                 hot_col(1, 
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
-                                hot_col(c(1, 5, 10, 11, 12),
+                                hot_col(3, readOnly = TRUE) %>%
+                                hot_col(c(1, 5, 10, 11, 12, 13),
                                         readOnly = TRUE) %>%
                                 hot_col(3:(12 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
@@ -8155,7 +8254,7 @@ server <- function(input, output, session) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height) & !is.null(input$compare_select)) {
                             output$db_entries <- renderRHandsontable({
                               rhandsontable(
-                                select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
+                                select(DB$data, 1:(13 + nrow(DB$cust_var)), input$compare_select),
                                 col_highlight = diff_allele() - 1,
                                 rowHeaders = NULL,
                                 height = table_height(),
@@ -8184,6 +8283,7 @@ server <- function(input, output, session) {
                                 hot_col(3:(12 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
                                         halign = "htLeft") %>%
+                                hot_col(3, readOnly = TRUE) %>%
                                 hot_col(3, validator = "
                                   function(value, callback) {
                                     try {
@@ -8218,7 +8318,7 @@ server <- function(input, output, session) {
                                     }
                                   }
                                 ") %>%
-                                hot_col(c(1, 5, 10, 11, 12),
+                                hot_col(c(1, 5, 10, 11, 12, 13),
                                         readOnly = TRUE) %>%
                                 hot_col(8, type = "dropdown", source = country_names) %>%
                                 hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
@@ -8320,7 +8420,7 @@ server <- function(input, output, session) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height)) {
                             output$db_entries <- renderRHandsontable({
                               rhandsontable(
-                                select(DB$data, 1:(12 + nrow(DB$cust_var))),
+                                select(DB$data, 1:(13 + nrow(DB$cust_var))),
                                 rowHeaders = NULL,
                                 height = table_height(),
                                 dup_names_high = duplicated_names() - 1,
@@ -8335,7 +8435,8 @@ server <- function(input, output, session) {
                                 hot_col(1, 
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
-                                hot_col(c(1, 5, 10, 11, 12),
+                                hot_col(3, readOnly = TRUE) %>%
+                                hot_col(c(1, 5, 10, 11, 12, 13),
                                         readOnly = TRUE) %>%
                                 hot_col(3, validator = "
                                   function(value, callback) {
@@ -8459,6 +8560,7 @@ server <- function(input, output, session) {
                     # Dynamic save button when rhandsontable changes or new entries
                     output$edit_entry_table <- renderUI({
                       if(check_new_entry() & DB$check_new_entries) {
+                        Typing$reload <- FALSE
                         fluidRow(
                           column(
                             width = 8,
@@ -8496,7 +8598,7 @@ server <- function(input, output, session) {
                             HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:20px; color:white; margin-top: 10px"></i>'))
                           )
                         )
-                      } else if((DB$change == TRUE) | !identical(get.entry.table.meta(), DB$meta)) {
+                      } else if((DB$change == TRUE) | !identical(get.entry.table.meta(), select(DB$meta, -13))) {
                         if(!is.null(input$db_entries)) {
                           fluidRow(
                             column(
@@ -8555,7 +8657,7 @@ server <- function(input, output, session) {
                           align = "center",
                           actionButton(
                             "sel_all_entries",
-                            "Select all",
+                            "Select All",
                             icon = icon("check")
                           )
                         ),
@@ -8564,7 +8666,7 @@ server <- function(input, output, session) {
                           align = "left",
                           actionButton(
                             "desel_all_entries",
-                            "Deselect all",
+                            "Deselect All",
                             icon = icon("xmark")
                           )
                         )
@@ -9090,6 +9192,8 @@ server <- function(input, output, session) {
                 
                 DB$meta <- NULL
                 
+                DB$meta_gs <- NULL
+                
                 DB$meta_true <- NULL
                 
                 DB$allelic_profile <- NULL
@@ -9125,17 +9229,31 @@ server <- function(input, output, session) {
                     menuItem(
                       text = "Manage Schemes",
                       tabName = "init",
-                      icon = icon("plus")
+                      icon = icon("layer-group")
                     ),
                     menuItem(
                       text = "Allelic Typing",
                       tabName = "typing",
-                      icon = icon("dna")
+                      icon = icon("gears")
+                    ),
+                    menuItem(
+                      text = "Resistance Profile",
+                      tabName = "gene_screening",
+                      icon = icon("dna"),
+                      startExpanded = TRUE,
+                      menuSubItem(
+                        text = "Browse Entries",
+                        tabName = "gs_profile"
+                      ),
+                      menuSubItem(
+                        text = "Screening",
+                        tabName = "gs_screening"
+                      )
                     ),
                     menuItem(
                       text = "Visualization",
                       tabName = "visualization",
-                      icon = icon("chart-line")
+                      icon = icon("circle-nodes")
                     ),
                     menuItem(
                       text = "Utilities",
@@ -9277,7 +9395,141 @@ server <- function(input, output, session) {
                 output$missing_values <- NULL
                 output$delete_box <- NULL
                 output$entry_table_controls <- NULL
+                output$multi_stop <- NULL
+                output$metadata_multi_box <- NULL
+                output$start_multi_typing_ui <- NULL
+                output$pending_typing <- NULL
+                output$multi_typing_results <- NULL
+                output$single_typing_progress <- NULL
+                output$metadata_single_box <- NULL
+                output$start_typing_ui <- NULL
                 
+                output$initiate_typing_ui <- renderUI({
+                  column(
+                    width = 4,
+                    align = "center",
+                    br(),
+                    br(),
+                    h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
+                    br(),
+                    br(),
+                    p(
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly File')
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 11,
+                        align = "center",
+                        shinyFilesButton(
+                          "genome_file",
+                          "Browse" ,
+                          icon = icon("file"),
+                          title = "Select the assembly in .fasta/.fna/.fa format:",
+                          multiple = FALSE,
+                          buttonType = "default",
+                          class = NULL,
+                          root = path_home()
+                        ),
+                        br(),
+                        br(),
+                        uiOutput("genome_path"),
+                        br()
+                      )
+                    )
+                  )
+                })
+                
+                output$initiate_typing_ui <- renderUI({
+                  column(
+                    width = 4,
+                    align = "center",
+                    br(),
+                    br(),
+                    h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
+                    br(),
+                    br(),
+                    p(
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly File')
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 11,
+                        align = "center",
+                        shinyFilesButton(
+                          "genome_file",
+                          "Browse" ,
+                          icon = icon("file"),
+                          title = "Select the assembly in .fasta/.fna/.fa format:",
+                          multiple = FALSE,
+                          buttonType = "default",
+                          class = NULL,
+                          root = path_home()
+                        ),
+                        br(),
+                        br(),
+                        uiOutput("genome_path"),
+                        br()
+                      )
+                    )
+                  )
+                })
+                
+                output$initiate_multi_typing_ui <- renderUI({
+                  column(
+                    width = 4,
+                    align = "center",
+                    br(),
+                    br(),
+                    h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
+                    br(), br(),
+                    p(
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly Folder')
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 11,
+                        align = "center",
+                        shinyDirButton(
+                          "genome_file_multi",
+                          "Browse",
+                          icon = icon("folder-open"),
+                          title = "Select the folder containing the genome assemblies (FASTA)",
+                          buttonType = "default",
+                          root = path_home()
+                        ),
+                        br(),
+                        br(),
+                        uiOutput("multi_select_info"),
+                        br()
+                      )
+                    ),
+                    uiOutput("multi_select_tab_ctrls"),
+                    br(),
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 11,
+                        align = "left",
+                        rHandsontableOutput("multi_select_table")
+                      )
+                    )
+                  )
+                })
               }
             }
           }
@@ -9289,7 +9541,6 @@ server <- function(input, output, session) {
           title = "Invalid scheme folder",
           type = "warning",
           position = "bottom-end",
-          width = "500px",
           timer = 4000
         )
       }
@@ -9469,17 +9720,31 @@ server <- function(input, output, session) {
               menuItem(
                 text = "Manage Schemes",
                 tabName = "init",
-                icon = icon("plus")
+                icon = icon("layer-group")
               ),
               menuItem(
                 text = "Allelic Typing",
                 tabName = "typing",
-                icon = icon("dna")
+                icon = icon("gears")
+              ),
+              menuItem(
+                text = "Resistance Profile",
+                tabName = "gene_screening",
+                icon = icon("dna"),
+                startExpanded = TRUE,
+                menuSubItem(
+                  text = "Browse Entries",
+                  tabName = "gs_profile"
+                ),
+                menuSubItem(
+                  text = "Screening",
+                  tabName = "gs_screening"
+                )
               ),
               menuItem(
                 text = "Visualization",
                 tabName = "visualization",
-                icon = icon("chart-line")
+                icon = icon("circle-nodes")
               ),
               menuItem(
                 text = "Utilities",
@@ -9518,17 +9783,31 @@ server <- function(input, output, session) {
             menuItem(
               text = "Manage Schemes",
               tabName = "init",
-              icon = icon("plus")
+              icon = icon("layer-group")
             ),
             menuItem(
               text = "Allelic Typing",
               tabName = "typing",
-              icon = icon("dna")
+              icon = icon("gears")
+            ),
+            menuItem(
+              text = "Resistance Profile",
+              tabName = "gene_screening",
+              icon = icon("dna"),
+              startExpanded = TRUE,
+              menuSubItem(
+                text = "Browse Entries",
+                tabName = "gs_profile"
+              ),
+              menuSubItem(
+                text = "Screening",
+                tabName = "gs_screening"
+              )
             ),
             menuItem(
               text = "Visualization",
               tabName = "visualization",
-              icon = icon("chart-line")
+              icon = icon("circle-nodes")
             ),
             menuItem(
               text = "Utilities",
@@ -9649,8 +9928,7 @@ server <- function(input, output, session) {
         title = "Invalid date",
         type = "warning",
         position = "bottom-end",
-        timer = 6000,
-        width = "300px"
+        timer = 6000
       )
       DB$inhibit_change <- TRUE
     } else if (isTRUE(input$empty_name)) {
@@ -9658,8 +9936,7 @@ server <- function(input, output, session) {
         title = "Empty name",
         type = "warning",
         position = "bottom-end",
-        timer = 6000,
-        width = "300px"
+        timer = 6000
       )
       DB$inhibit_change <- TRUE
     } else if (isTRUE(input$empty_id)) {
@@ -9667,8 +9944,7 @@ server <- function(input, output, session) {
         title = "Empty ID",
         type = "warning",
         position = "bottom-end",
-        timer = 6000,
-        width = "300px"
+        timer = 6000
       )
       DB$inhibit_change <- TRUE
     } else {
@@ -9678,7 +9954,6 @@ server <- function(input, output, session) {
   
   # Change scheme
   observeEvent(input$reload_db, {
-    
     log_print("Input reload_db")
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
@@ -9686,16 +9961,14 @@ server <- function(input, output, session) {
         title = "Pending Multi Typing",
         type = "warning",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
       )
     } else if(readLines(paste0(getwd(), "/logs/progress.txt"))[1] != "0") {
       show_toast(
         title = "Pending Single Typing",
         type = "warning",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
       )
     } else {
       showModal(
@@ -9748,8 +10021,8 @@ server <- function(input, output, session) {
     
     DB$data <- Data[["Typing"]]
     
-    if ((ncol(DB$data)-12) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
-      cust_var <- select(DB$data, 13:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
+    if ((ncol(DB$data)-13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
+      cust_var <- select(DB$data, 14:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
       DB$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
     } else {
       DB$cust_var <- data.frame()
@@ -9761,11 +10034,13 @@ server <- function(input, output, session) {
     
     DB$no_na_switch <- TRUE
     
-    DB$meta <- select(DB$data, 1:(12 + nrow(DB$cust_var)))
+    DB$meta_gs <- select(DB$data, c(1, 3:13))
+    
+    DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
     
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
     
-    DB$allelic_profile <- select(DB$data, -(1:(12 + nrow(DB$cust_var))))
+    DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
     
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
     
@@ -9777,7 +10052,7 @@ server <- function(input, output, session) {
           if(!is.null(DB$data) & !is.null(DB$cust_var)) {
             output$db_entries <- renderRHandsontable({
               rhandsontable(
-                select(DB$data, 1:(12 + nrow(DB$cust_var))),
+                select(DB$data, 1:(13 + nrow(DB$cust_var))),
                 error_highlight = err_thresh() - 1,                              
                 rowHeaders = NULL,
                 contextMenu = FALSE,
@@ -9787,7 +10062,8 @@ server <- function(input, output, session) {
                 hot_col(1, 
                         valign = "htMiddle",
                         halign = "htCenter") %>%
-                hot_col(c(1, 5, 10, 11, 12),
+                hot_col(3, readOnly = TRUE) %>%
+                hot_col(c(1, 5, 10, 11, 12, 13),
                         readOnly = TRUE) %>%
                 hot_col(3:(12 + nrow(DB$cust_var)), 
                         valign = "htMiddle",
@@ -9872,7 +10148,7 @@ server <- function(input, output, session) {
             if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
               output$db_entries <- renderRHandsontable({
                 rhandsontable(
-                  select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
+                  select(DB$data, 1:(13 + nrow(DB$cust_var)), input$compare_select),
                   col_highlight = diff_allele() - 1,
                   dup_names_high = duplicated_names() - 1,
                   dup_ids_high = duplicated_ids() - 1,
@@ -9899,7 +10175,8 @@ server <- function(input, output, session) {
                   hot_col(1, 
                           valign = "htMiddle",
                           halign = "htCenter") %>%
-                  hot_col(c(1, 5, 10, 11, 12),
+                  hot_col(3, readOnly = TRUE) %>%
+                  hot_col(c(1, 5, 10, 11, 12, 13),
                           readOnly = TRUE) %>%
                   hot_col(3:(12 + nrow(DB$cust_var)), 
                           valign = "htMiddle",
@@ -10041,7 +10318,7 @@ server <- function(input, output, session) {
             if(!is.null(DB$data) & !is.null(DB$cust_var)) {
               output$db_entries <- renderRHandsontable({
                 rhandsontable(
-                  select(DB$data, 1:(12 + nrow(DB$cust_var))),
+                  select(DB$data, 1:(13 + nrow(DB$cust_var))),
                   rowHeaders = NULL,
                   row_highlight = true_rows() - 1,
                   dup_names_high = duplicated_names()- 1,
@@ -10055,7 +10332,8 @@ server <- function(input, output, session) {
                   hot_col(1, 
                           valign = "htMiddle",
                           halign = "htCenter") %>%
-                  hot_col(c(1, 5, 10, 11, 12),
+                  hot_col(3, readOnly = TRUE) %>%
+                  hot_col(c(1, 5, 10, 11, 12, 13),
                           readOnly = TRUE) %>%
                   hot_col(3:(12 + nrow(DB$cust_var)), 
                           valign = "htMiddle",
@@ -10180,7 +10458,7 @@ server <- function(input, output, session) {
             if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height) & !is.null(input$compare_select)) {
               output$db_entries <- renderRHandsontable({
                 rhandsontable(
-                  select(DB$data, 1:(12 + nrow(DB$cust_var)), input$compare_select),
+                  select(DB$data, 1:(13 + nrow(DB$cust_var)), input$compare_select),
                   col_highlight = diff_allele() - 1,
                   rowHeaders = NULL,
                   height = table_height(),
@@ -10209,6 +10487,7 @@ server <- function(input, output, session) {
                   hot_col(3:(12 + nrow(DB$cust_var)), 
                           valign = "htMiddle",
                           halign = "htLeft") %>%
+                  hot_col(3, readOnly = TRUE) %>%
                   hot_col(3, validator = "
                                   function(value, callback) {
                                     try {
@@ -10243,7 +10522,7 @@ server <- function(input, output, session) {
                                     }
                                   }
                                 ") %>%
-                  hot_col(c(1, 5, 10, 11, 12),
+                  hot_col(c(1, 5, 10, 11, 12, 13),
                           readOnly = TRUE) %>%
                   hot_col(8, type = "dropdown", source = country_names) %>%
                   hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
@@ -10345,7 +10624,7 @@ server <- function(input, output, session) {
             if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height)) {
               output$db_entries <- renderRHandsontable({
                 rhandsontable(
-                  select(DB$data, 1:(12 + nrow(DB$cust_var))),
+                  select(DB$data, 1:(13 + nrow(DB$cust_var))),
                   rowHeaders = NULL,
                   height = table_height(),
                   dup_names_high = duplicated_names() - 1,
@@ -10360,8 +10639,9 @@ server <- function(input, output, session) {
                   hot_col(1, 
                           valign = "htMiddle",
                           halign = "htCenter") %>%
-                  hot_col(c(1, 5, 10, 11, 12),
+                  hot_col(c(1, 5, 10, 11, 12, 13),
                           readOnly = TRUE) %>%
+                  hot_col(3, readOnly = TRUE) %>%
                   hot_col(3, validator = "
                                   function(value, callback) {
                                     try {
@@ -10485,8 +10765,8 @@ server <- function(input, output, session) {
   
   observe({
     if(!is.null(DB$data)){
-      if ((ncol(DB$data)-12) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
-        cust_var <- select(DB$data, 13:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
+      if ((ncol(DB$data)-13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
+        cust_var <- select(DB$data, 14:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
         DB$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
         
       } else {
@@ -10506,7 +10786,6 @@ server <- function(input, output, session) {
         title = "Max. 10 characters",
         type = "warning",
         position = "bottom-end",
-        width = "500px",
         timer = 6000
       )
     } else {
@@ -10516,7 +10795,6 @@ server <- function(input, output, session) {
           title = "Min. 1 character",
           type = "error",
           position = "bottom-end",
-          width = "500px",
           timer = 6000
         )
       } else {
@@ -10526,7 +10804,6 @@ server <- function(input, output, session) {
             title = "Variable name already existing",
             type = "warning",
             position = "bottom-end",
-            width = "500px",
             timer = 6000
           )
         } else {
@@ -10553,32 +10830,30 @@ server <- function(input, output, session) {
   observeEvent(input$conf_new_var, {
     log_print("Input conf_new_var")
     
+    # User feedback variables
     removeModal()
-    
     DB$count <- DB$count + 1
-    
     DB$change <- TRUE
     
+    # Format variable name
     name <- trimws(input$new_var_name)
     
     if(input$new_var_type == "Categorical (character)") {
       DB$data <- DB$data %>%
-        mutate("{name}" := character(nrow(DB$data)), .after = 12)
+        mutate("{name}" := character(nrow(DB$data)), .after = 13)
       
       DB$cust_var <- rbind(DB$cust_var, data.frame(Variable = name, Type = "categ"))
     } else {
       DB$data <- DB$data %>%
-        mutate("{name}" := numeric(nrow(DB$data)), .after = 12)
+        mutate("{name}" := numeric(nrow(DB$data)), .after = 13)
       
       DB$cust_var <- rbind(DB$cust_var, data.frame(Variable = name, Type = "cont"))
     }
     
-    DB$meta <- select(DB$data, 1:(12 + nrow(DB$cust_var)))
-    
+    DB$meta_gs <- select(DB$data, c(1, 3:13))
+    DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
-    
-    DB$allelic_profile <- select(DB$data, -(1:(12 + nrow(DB$cust_var))))
-    
+    DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
     
     log_print(paste0("New custom variable added: ", input$new_var_name))
@@ -10587,7 +10862,6 @@ server <- function(input, output, session) {
       title = paste0("Variable ", trimws(input$new_var_name), " added"),
       type = "success",
       position = "bottom-end",
-      width = "500px",
       timer = 6000
     )
     
@@ -10602,7 +10876,6 @@ server <- function(input, output, session) {
         title = "No custom variables",
         type = "error",
         position = "bottom-end",
-        width = "500px",
         timer = 6000
       )
     } else {
@@ -10640,20 +10913,24 @@ server <- function(input, output, session) {
       title = paste0("Variable ", input$del_which_var, " removed"),
       type = "warning",
       position = "bottom-end",
-      width = "500px",
       timer = 6000
     )
     
     log_print(paste0("Variable ", input$del_which_var, " removed"))
     
     DB$cust_var <- DB$cust_var[-which(DB$cust_var$Variable == input$del_which_var),]
+    
     DB$data <- select(DB$data, -(input$del_which_var))
-    DB$meta <- select(DB$data, 1:(12 + nrow(DB$cust_var)))
+    
+    DB$meta_gs <- select(DB$data, c(1, 3:13))
+    
+    DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
+    
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
     
-    DB$allelic_profile <- select(DB$data, -(1:(12 + nrow(DB$cust_var))))
-    DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
+    DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
     
+    DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
   })
   
   # Select all button
@@ -10762,8 +11039,7 @@ server <- function(input, output, session) {
         title = "Invalid rows entered. Saving not possible.",
         type = "error",
         position = "bottom-end",
-        timer = 6000,
-        width = "600px"
+        timer = 6000
       )
     } else {
       if(!isTRUE(DB$inhibit_change)) {
@@ -10799,8 +11075,7 @@ server <- function(input, output, session) {
           title = "Invalid values entered. Saving not possible.",
           type = "error",
           position = "bottom-end",
-          timer = 6000,
-          width = "600px"
+          timer = 6000
         )
       }
     }
@@ -10814,37 +11089,41 @@ server <- function(input, output, session) {
   observeEvent(input$conf_db_save, {
     log_print("Input conf_db_save")
     
-    Data <- readRDS(paste0(
-      DB$database, "/",
-      gsub(" ", "_", DB$scheme),
-      "/Typing.rds"
-    ))
+    # Remove isolate assembly file if present
+    if(!is.null(DB$remove_iso)) {
+      if(length(DB$remove_iso) > 0) {
+        lapply(DB$remove_iso, unlink, recursive = TRUE, force = FALSE, expand = TRUE)
+      }
+    }
+    DB$remove_iso <- NULL
     
-    if ((ncol(Data[["Typing"]])-12) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
-      cust_vars_pre <- select(Data[["Typing"]], 13:(ncol(Data[["Typing"]]) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
+    Data <- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme),"Typing.rds"))
+    
+    if ((ncol(Data[["Typing"]]) - 13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
+      cust_vars_pre <- select(Data[["Typing"]], 
+                              14:(ncol(Data[["Typing"]]) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
       cust_vars_pre <- names(cust_vars_pre)
     } else {
       cust_vars_pre <- character()
     }
     
-    Data[["Typing"]] <- select(Data[["Typing"]], -(1:(12 + length(cust_vars_pre))))
+    Data[["Typing"]] <- select(Data[["Typing"]], -(1:(13 + length(cust_vars_pre))))
     
     meta_hot <- hot_to_r(input$db_entries)
     
-    if(length(DB$deleted_entries > 0)){
+    if(length(DB$deleted_entries > 0)) {
       
       meta_hot <- mutate(meta_hot, Index = as.character(1:nrow(DB$data)))
       
-      Data[["Typing"]] <- mutate(Data[["Typing"]][-as.numeric(DB$deleted_entries),], meta_hot, .before = 1)
+      Data[["Typing"]] <- mutate(Data[["Typing"]][-as.numeric(DB$deleted_entries),  ], 
+                                 meta_hot, .before = 1)
       rownames(Data[["Typing"]]) <- Data[["Typing"]]$Index
     } else {
       Data[["Typing"]] <- mutate(Data[["Typing"]], meta_hot, .before = 1)
-      
     }
     
     # Ensure correct logical data type
     Data[["Typing"]][["Include"]] <- as.logical(Data[["Typing"]][["Include"]])
-    
     saveRDS(Data, paste0(
       DB$database, "/",
       gsub(" ", "_", DB$scheme),
@@ -10861,9 +11140,11 @@ server <- function(input, output, session) {
     
     DB$data <- Database[["Typing"]]
     
+    dataa <- DB$data
+    
     if(!is.null(DB$data)){
-      if ((ncol(DB$data)-12) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
-        cust_var <- select(DB$data, 13:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
+      if ((ncol(DB$data)-13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
+        cust_var <- select(DB$data, 14:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
         DB$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
       } else {
         DB$cust_var <- data.frame()
@@ -10876,11 +11157,13 @@ server <- function(input, output, session) {
     
     DB$no_na_switch <- TRUE
     
-    DB$meta <- select(DB$data, 1:(12 + nrow(DB$cust_var)))
+    DB$meta_gs <- select(DB$data, c(1, 3:13))
+    
+    DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
     
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
     
-    DB$allelic_profile <- select(DB$data, -(1:(12 + nrow(DB$cust_var))))
+    DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
     
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
     
@@ -10892,8 +11175,7 @@ server <- function(input, output, session) {
       title = "Database successfully saved",
       type = "success",
       position = "bottom-end",
-      timer = 4000,
-      width = "500px"
+      timer = 4000
     )
   })
   
@@ -10906,8 +11188,7 @@ server <- function(input, output, session) {
         title = "No entry selected",
         type = "warning",
         position = "bottom-end",
-        timer = 4000,
-        width = "500px"
+        timer = 4000
       )
     } else if((readLines(paste0(getwd(), "/logs/progress.txt"))[1] != "0") |
               (tail(readLogFile(), 1) != "0")) {
@@ -10917,14 +11198,13 @@ server <- function(input, output, session) {
         title = "Pending Typing",
         type = "warning",
         position = "bottom-end",
-        timer = 4000,
-        width = "500px"
+        timer = 4000
       )
     } else {
       if( (length(input$select_delete) - nrow(DB$data) ) == 0) {
         showModal(
           modalDialog(
-            paste0("Deleting will lead to removal of all entries from local ", DB$scheme, " database. The data can not be recovered afterwards. Continue?"),
+            paste0("Deleting will lead to removal of all entries and assemblies from local ", DB$scheme, " database. The data can not be recovered afterwards. Continue?"),
             easyClose = TRUE,
             title = "Deleting Entries",
             footer = tagList(
@@ -10937,7 +11217,7 @@ server <- function(input, output, session) {
         showModal(
           modalDialog(
             paste0(
-              "Confirmation will lead to irreversible removal of selected entries. Continue?"
+              "Confirmation will lead to irreversible removal of selected entries and the respectively saved assembly. Continue?"
             ),
             title = "Deleting Entries",
             fade = TRUE,
@@ -10959,7 +11239,8 @@ server <- function(input, output, session) {
     log_print("Input conf_delete_all")
     
     # remove file with typing data
-    file.remove(paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/Typing.rds"))
+    file.remove(file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
+    unlink(file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates"), recursive = TRUE, force = FALSE, expand =TRUE)
     
     showModal(
       modalDialog(
@@ -10987,40 +11268,42 @@ server <- function(input, output, session) {
     
     log_print("Input conf_delete")
     
+    # Get isolates selected for deletion
     DB$deleted_entries <- append(DB$deleted_entries, DB$data$Index[as.numeric(input$select_delete)])
     
+    # Set reactive status variables
     DB$no_na_switch <- TRUE
-    
     DB$change <- TRUE
-    
     DB$check_new_entries <- FALSE
     
+    # Set isolate directory deletion variables
+    isopath <- dir_ls(file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates"))
+    DB$remove_iso <- isopath[which(basename(isopath) == DB$data$`Assembly ID`[as.numeric(input$select_delete)])]
+    
+    # Reload updated database reactive variables
     DB$data <- DB$data[!(DB$data$Index %in% as.numeric(input$select_delete)),]
-    
-    DB$meta <- select(DB$data, 1:(12 + nrow(DB$cust_var)))
-    
+    DB$meta_gs <- select(DB$data, c(1, 3:13))
+    DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
-    
-    DB$allelic_profile <- select(DB$data, -(1:(12 + nrow(DB$cust_var))))
-    
+    DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
     
+    # User feedback
     removeModal()
+    
     if(length(input$select_delete) > 1) {
       show_toast(
         title = "Entries deleted",
         type = "success",
         position = "bottom-end",
-        timer = 4000,
-        width = "500px"
+        timer = 4000
       )
     } else {
       show_toast(
         title = "Entry deleted",
         type = "success",
         position = "bottom-end",
-        timer = 4000,
-        width = "500px"
+        timer = 4000
       )
     }
   })
@@ -11143,7 +11426,6 @@ server <- function(input, output, session) {
   output$sequence_selector <- renderUI({
     if(!is.null(input$db_loci_rows_selected)) {
       
-      
       req(input$db_loci_rows_selected, DB$database, DB$scheme)
       
       DB$loci <- list.files(
@@ -11233,8 +11515,7 @@ server <- function(input, output, session) {
       title = "Copied sequence",
       type = "success",
       position = "bottom-end",
-      timer = 3000,
-      width = "400px"
+      timer = 3000
     )
   })
   
@@ -11466,8 +11747,7 @@ server <- function(input, output, session) {
       title = "Download started",
       type = "success",
       position = "bottom-end",
-      timer = 5000,
-      width = "400px"
+      timer = 5000
     )
     
     if(length(DB$available) == 0) {
@@ -11637,8 +11917,7 @@ server <- function(input, output, session) {
       title = "Download successful",
       type = "success",
       position = "bottom-end",
-      timer = 5000,
-      width = "400px"
+      timer = 5000
     )
     
     log_print("Download successful")
@@ -11670,7 +11949,7 @@ server <- function(input, output, session) {
       html_table(header = FALSE) %>%
       as.data.frame(stringsAsFactors = FALSE)
     
-    last_scheme_change <- strptime(scheme_overview$X2[scheme_overview$X1 == "Last Change"], 
+    last_scheme_change <- strptime(scheme_overview$X2[scheme_overview$X1 == "Last Change"],
                                    format = "%B %d, %Y, %H:%M %p")
     names(scheme_overview) <- NULL
     
@@ -11848,8 +12127,7 @@ server <- function(input, output, session) {
           title = "Label already exists",
           type = "error",
           position = "bottom-end",
-          timer = 6000,
-          width = "500px"
+          timer = 6000
         )
       }
     } else {
@@ -11857,8 +12135,7 @@ server <- function(input, output, session) {
         title = "Min. 1 character",
         type = "error",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
       )
     }
   })
@@ -11876,8 +12153,7 @@ server <- function(input, output, session) {
           title = "Label already exists",
           type = "error",
           position = "bottom-end",
-          timer = 6000,
-          width = "500px"
+          timer = 6000
         )
       }
     } else {
@@ -11885,8 +12161,7 @@ server <- function(input, output, session) {
         title = "Min. 1 character",
         type = "error",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
       )
     }
   })
@@ -17659,11 +17934,11 @@ server <- function(input, output, session) {
   
   mst_tree <- reactive({
     log_print("Generating visNetwork")
-    data <- toVisNetworkData(Vis$ggraph_1)
-    data$nodes <- mutate(data$nodes, 
-                         label = label_mst(),
-                         value = mst_node_scaling(),
-                         opacity = node_opacity())
+    Typing$data <- toVisNetworkData(Vis$ggraph_1)
+    Typing$data$nodes <- mutate(Typing$data$nodes, 
+                                label = label_mst(),
+                                value = mst_node_scaling(),
+                                opacity = node_opacity())
     
     ctxRendererJS <- htmlwidgets::JS("({ctx, id, x, y, state: { selected, hover }, style, font, label, metadata}) => {
                             var pieData = JSON.parse(metadata);
@@ -17746,10 +18021,10 @@ server <- function(input, output, session) {
         group[i] <- unique(Vis$meta_mst[[input$mst_col_var]])[i]
       }
       
-      data$nodes <- cbind(data$nodes, data.frame(metadata = character(nrow(data$nodes))))
+      Typing$data$nodes <- cbind(Typing$data$nodes, data.frame(metadata = character(nrow(Typing$data$nodes))))
       
-      if(length(which(data$nodes$group == "")) != 0) {
-        data$nodes$group[which(data$nodes$group == "")] <- data$nodes$group[1]
+      if(length(which(Typing$data$nodes$group == "")) != 0) {
+        Typing$data$nodes$group[which(Typing$data$nodes$group == "")] <- Typing$data$nodes$group[1]
       }
       
       if(is.null(input$mst_col_scale)) {
@@ -17763,9 +18038,9 @@ server <- function(input, output, session) {
                                       color = viridis(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
       }
       
-      for(i in 1:nrow(data$nodes)) {
+      for(i in 1:nrow(Typing$data$nodes)) {
         
-        iso_subset <- strsplit(data$nodes$label[i], split = "\n")[[1]]
+        iso_subset <- strsplit(Typing$data$nodes$label[i], split = "\n")[[1]]
         variable <- Vis$meta_mst[[input$mst_col_var]]
         values <- variable[which(Vis$meta_mst$`Assembly Name` %in% iso_subset)]
         
@@ -17781,58 +18056,59 @@ server <- function(input, output, session) {
           }
         }
         
-        data$nodes$metadata[i] <- paste0('[', pie_vec, ']')
+        Typing$data$nodes$metadata[i] <- paste0('[', pie_vec, ']')
       }
     }
     
-    data$edges <- mutate(data$edges,
-                         length = if(input$mst_scale_edges == FALSE) {
-                           input$mst_edge_length
-                         } else {
-                           data$edges$weight * input$mst_edge_length_scale
-                         },
-                         label = as.character(data$edges$weight),
-                         opacity = mst_edge_opacity())
+    Typing$data$edges <- mutate(Typing$data$edges,
+                                length = if(input$mst_scale_edges == FALSE) {
+                                  input$mst_edge_length
+                                } else {
+                                  Typing$data$edges$weight * input$mst_edge_length_scale
+                                },
+                                label = as.character(Typing$data$edges$weight),
+                                opacity = input$mst_edge_opacity)
     
     if (input$mst_show_clusters) {
-      data$nodes$group <- compute_clusters(data$nodes, data$edges, input$mst_cluster_threshold)
+      Typing$data$nodes$group <- compute_clusters(Typing$data$nodes, Typing$data$edges, input$mst_cluster_threshold)
     }
     
-    updateSliderInput(session, "mst_cluster_threshold", max = max(data$edges$weight))
+    updateSliderInput(session, "mst_cluster_threshold", max = max(Typing$data$edges$weight))
     
-    visNetwork_graph <- visNetwork(data$nodes, data$edges,
+    visNetwork_graph <- visNetwork(Typing$data$nodes, Typing$data$edges,
                                    main = mst_title(),
                                    background = mst_background_color(),
                                    submain = mst_subtitle()) %>%
-                          visNodes(size = mst_node_size(),
-                                   shape = input$mst_node_shape,
-                                   shadow = input$mst_shadow,
-                                   color = mst_color_node(),
-                                   ctxRenderer = ctxRendererJS,
-                                   scaling = list(min = mst_node_size_min(),
-                                                  max = mst_node_size_max()),
-                                   font = list(color = node_font_color(),
-                                               size = input$node_label_fontsize)) %>%
-                          visEdges(color = mst_color_edge(),
-                                   font = list(color = mst_edge_font_color(),
-                                               size = mst_edge_font_size(),
-                                               strokeWidth = 4)) %>%
-                          visOptions(collapse = TRUE) %>%
-                          visInteraction(hover = TRUE) %>%
-                          visLayout(randomSeed = 1) %>%
-                          visLegend(useGroups = FALSE,
-                                    zoom = FALSE,
-                                    position = input$mst_legend_ori,
-                                    ncol = legend_col(),
-                                    addNodes = mst_legend())
-
+      visNodes(size = mst_node_size(),
+               shape = input$mst_node_shape,
+               shadow = input$mst_shadow,
+               color = mst_color_node(),
+               ctxRenderer = ctxRendererJS,
+               scaling = list(min = mst_node_size_min(),
+                              max = mst_node_size_max()),
+               font = list(color = node_font_color(),
+                           size = input$node_label_fontsize)) %>%
+      visEdges(color = mst_color_edge(),
+               font = list(color = mst_edge_font_color(),
+                           size = mst_edge_font_size(),
+                           strokeWidth = 4)) %>%
+      visOptions(collapse = TRUE) %>%
+      visInteraction(hover = TRUE) %>%
+      visLayout(randomSeed = 1) %>%
+      visLegend(useGroups = FALSE,
+                zoom = TRUE,
+                width = legend_width(),
+                position = input$mst_legend_ori,
+                ncol = legend_col(),
+                addNodes = mst_legend())
+    
     if (input$mst_show_clusters) {
       if (input$mst_cluster_col_scale == "Viridis") {
         color_palette <- viridis(length(unique(data$nodes$group)))
       } else {
         color_palette <- rainbow(length(unique(data$nodes$group)))
       }
-
+      
       for (i in 1:length(unique(data$nodes$group))) {
         visNetwork_graph <- visNetwork_graph %>% 
           visGroups(groupname = unique(data$nodes$group)[i], color = color_palette[i])
@@ -17866,6 +18142,11 @@ server <- function(input, output, session) {
              size = input$mst_symbol_size,
              font.size = input$mst_font_size)
     }
+  })
+  
+  # Set MST legend width
+  legend_width <- reactive({
+    0.2
   })
   
   # Set MST node shape
@@ -17978,11 +18259,6 @@ server <- function(input, output, session) {
     } else{
       input$mst_background_color
     }
-  })
-  
-  # Edge Opacity
-  mst_edge_opacity <- reactive({
-    input$mst_edge_opacity
   })
   
   # Edge font color
@@ -21283,8 +21559,7 @@ server <- function(input, output, session) {
         title = "Missing data",
         type = "error",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
       )
     } else if(nrow(DB$allelic_profile_true) < 3) {
       log_print("Min. of 3 entries required for visualization")
@@ -21293,8 +21568,7 @@ server <- function(input, output, session) {
         title = "Min. of 3 entries required for visualization",
         type = "error",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
       )
     } else {
       
@@ -21361,7 +21635,6 @@ server <- function(input, output, session) {
               title = "Conflicting Custom Variable Names",
               type = "warning",
               position = "bottom-end",
-              width = "500px",
               timer = 6000
             )
           } else {
@@ -21517,7 +21790,6 @@ server <- function(input, output, session) {
               title = "Conflicting Custom Variable Names",
               type = "warning",
               position = "bottom-end",
-              width = "500px",
               timer = 6000
             )
           } else {
@@ -21678,7 +21950,6 @@ server <- function(input, output, session) {
               title = "Computation might take a while",
               type = "warning",
               position = "bottom-end",
-              width = "500px",
               timer = 10000
             )
           }
@@ -22113,7 +22384,6 @@ server <- function(input, output, session) {
         title = "No tree created",
         type = "error",
         position = "bottom-end",
-        width = "500px",
         timer = 6000
       )
     }
@@ -22331,6 +22601,929 @@ server <- function(input, output, session) {
     }
   )
   
+  
+  # _______________________ ####
+  
+  ## Gene Screening  ----
+  
+  ### Render UI Elements ----
+  
+  # Rendering results table
+  output$gs_results_table <- renderUI({
+    if(!is.null(Screening$selected_isolate)) {
+      if(length(Screening$selected_isolate) > 0) {
+        fluidRow(
+          div(class = "loci_table",
+              DT::dataTableOutput("gs_profile_table")),
+          br(),
+          HTML(
+            paste0("<span style='color: white; font-size: 12px'>", 
+                   '<strong>RSL</strong> = <em>Reference Sequence Length</em>&nbsp&nbsp|&nbsp&nbsp',
+                   '<strong>%CRS</strong> = <em>% Coverage of Reference Sequence</em>&nbsp&nbsp|&nbsp&nbsp',
+                   '<strong>%IRS</strong> = <em>% Identity to Reference Sequence</em>&nbsp&nbsp|&nbsp&nbsp',
+                   '<strong>ACS</strong> = <em>Accession of Closest Sequence</em>&nbsp&nbsp|&nbsp&nbsp',
+                   '<strong>NCS</strong> = <em>Name of Closest Sequence</em>')
+            
+          )
+        )
+      } else {
+        fluidRow(
+          br(), br(),
+          p(
+            HTML(
+              paste0("<span style='color: white; position: relative; top: 30px; left: 300px; font-size: 12px; font-style: italic'>", 
+                     'Select entry from the table to display resistance profile')
+              
+            )
+          )
+        )
+      }
+    } else {
+      fluidRow(
+        br(), br(),
+        p(
+          HTML(
+            paste0("<span style='color: white; position: relative; top: 30px; left: 300px; font-size: 12px; font-style: italic'>", 
+                   'Select entry from the table to display resistance profile')
+            
+          )
+        )
+      )
+    }
+  })
+  
+  # Gene screening download button
+  output$gs_download <- renderUI({
+    if(!is.null(Screening$selected_isolate)) {
+      if(length(Screening$selected_isolate) > 0) {
+        fluidRow(
+          downloadBttn(
+            "download_resistance_profile",
+            style = "simple",
+            label = "Profile Table",
+            size = "sm",
+            icon = icon("download"),
+            color = "primary"
+          ),
+          bsTooltip("download_resistance_profile_bttn", 
+                    HTML(paste0("Save resistance profile table for</br>",
+                                Screening$selected_isolate)), 
+                    placement = "bottom", trigger = "hover")
+        )
+      } else {NULL}
+    } else {NULL}
+  })
+  
+  # Conditionally render table selectiom interface
+  output$gs_table_selection <- renderUI({
+    req(input$gs_view)
+    if(input$gs_view == "Table") {
+      fluidRow(
+        column(1),
+        column(
+          width = 10,
+          div(class = "loci_table",
+              dataTableOutput("gs_isolate_table"))
+        )
+      )
+    } else {NULL}
+  })
+  
+  # Resistance profile table output display
+  output$gs_profile_display <- renderUI({
+    if(!is.null(DB$meta_gs) & !is.null(input$gs_view)) {
+      if(input$gs_view == "Table") {
+        column(
+          width = 10,
+          hr(), 
+          fluidRow(
+            column(
+              width = 4,
+              p(
+                HTML(
+                  paste0("<span style='color: white; font-size: 18px'>", 
+                         "Gene Screening Results</br>",
+                         "<span style='color: white; font-size: 12px; font-style:italic'>", 
+                         "Comprising genes for resistance, virulence, stress, etc.")
+                )
+              )
+            ),
+            column(
+              width = 4,
+              uiOutput("gs_download")
+            )
+          ),
+          br(),
+          uiOutput("gs_results_table")
+        )
+      } else {
+        column(
+          width = 10,
+          fluidRow(
+            column(
+              width = 4,
+              p(
+                HTML(
+                  paste0("<span style='color: white; font-size: 18px'>", 
+                         "Gene Screening Results</br>",
+                         "<span style='color: white; font-size: 12px; font-style:italic'>", 
+                         "Comprising genes for resistance, virulence, stress, etc.")
+                )
+              )
+            ),
+            column(
+              width = 4,
+              div(
+                class = "gs-picker",
+                pickerInput(
+                  "gs_profile_select",
+                  "",
+                  choices = list(
+                    Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
+                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
+                    } else {
+                      DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+                    },
+                    Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
+                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
+                    } else {
+                      DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
+                    }
+                  ),
+                  choicesOpt = list(
+                    disabled = c(
+                      rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
+                      rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]))
+                    )
+                  ),
+                  options = list(
+                    `live-search` = TRUE,
+                    size = 10,
+                    style = "background-color: white; border-radius: 5px;"
+                  )
+                )
+              )
+            ),
+            column(
+              width = 3,
+              uiOutput("gs_download")
+            )
+          ),
+          br(),
+          uiOutput("gs_results_table")
+        )
+      }
+    } else {NULL}
+  })
+  
+  # Screening sidebar
+  output$screening_sidebar <- renderUI({
+    if(!is.null(DB$meta_gs)) {
+      column(
+        width = 12,
+        align = "center",
+        br(), br(),
+        p(
+          HTML(
+            paste(
+              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Toggle View')
+            )
+          )
+        ),
+        radioGroupButtons(
+          inputId = "gs_view",
+          choices = c("Picker", "Table"),
+          selected = "Picker",
+          checkIcon = list(
+            yes = icon("square-check"),
+            no = icon("square")
+          )
+        ),
+        br()
+      )
+    } else {NULL}
+  })
+  
+  # Resistance profile table
+  observe({
+    req(DB$meta_gs, Screening$selected_isolate, DB$database, DB$scheme)
+    
+    if(length(Screening$selected_isolate) > 0 & any(Screening$selected_isolate %in% DB$data$`Assembly ID`)) {
+      iso_select <- Screening$selected_isolate
+      iso_path <- file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates", 
+                            iso_select, "resProfile.tsv")
+      
+      res_profile <- read.delim(iso_path)
+      
+      colnames(res_profile) <- c(
+        "Protein Identifier",	"Contig ID", "Start", "Stop", "Strand", "Gene Symbol", 
+        "Sequence Name", "Scope", "Element Type",  "Element Subtype", "Class", 
+        "Subclass", "Method", "Target Length", "RSL",	"%CRS", "%IRS", 
+        "Alignment Length", "ACS", "Name of Closest Sequence", "HMM ID", "HMM Description")
+      
+      Screening$res_profile <- res_profile %>%
+        relocate(c("Gene Symbol", "Sequence Name", "Element Subtype", "Class", 
+                   "Subclass", "Scope", "Contig ID", "Target Length", "Alignment Length",
+                   "Start", "Stop", "Strand"))
+      
+      # Generate gene profile table
+      output$gs_profile_table <- DT::renderDataTable(
+        Screening$res_profile,
+        selection = "single",
+        rownames= FALSE,
+        options = list(pageLength = 10, scrollX = TRUE,
+                       autoWidth = TRUE,
+                       columnDefs = list(list(width = '400px', targets = c("Sequence Name",
+                                                                           "Name of Closest Sequence"))),
+                       columnDefs = list(list(width = 'auto', targets = "_all")),
+                       columnDefs = list(list(searchable = TRUE,
+                                              targets = "_all")),
+                       initComplete = DT::JS(
+                         "function(settings, json) {",
+                         "$('th:first-child').css({'border-top-left-radius': '5px'});",
+                         "$('th:last-child').css({'border-top-right-radius': '5px'});",
+                         # "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                         # "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                         "}"
+                       ),
+                       drawCallback = DT::JS(
+                         "function(settings) {",
+                         # "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                         # "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                         "}"
+                       ))
+      )
+    } else {
+      output$gs_profile_table <- NULL
+    }
+  })
+
+  #Resistance profile selection table
+  observe({
+    req(DB$meta)
+    output$gs_isolate_table <- renderDataTable(
+      select(DB$meta_gs, -c(3, 4, 10, 11, 12)),
+      selection = "single",
+      rownames= FALSE,
+      options = list(pageLength = 10,
+                     columnDefs = list(list(searchable = TRUE,
+                                            targets = "_all")),
+                     initComplete = DT::JS(
+                       "function(settings, json) {",
+                       "$('th:first-child').css({'border-top-left-radius': '5px'});",
+                       "$('th:last-child').css({'border-top-right-radius': '5px'});",
+                       "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                       "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                       "}"
+                     ),
+                     drawCallback = DT::JS(
+                       "function(settings) {",
+                       "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                       "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                       "}"
+                     ))
+    )
+  })
+  
+  observe({
+    req(input$screening_res_sel, DB$database, DB$scheme)
+    if(!is.null(Screening$status_df) &
+       !is.null(input$screening_res_sel) & 
+       !is.null(Screening$status_df$status) & 
+       !is.null(Screening$status_df$isolate)) {
+      if(length(input$screening_res_sel) > 0) {
+        if(any(Screening$status_df$isolate == input$screening_res_sel)) {
+          if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "success") {
+            results <- read.delim(file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates", 
+                                            input$screening_res_sel, "resProfile.tsv"))
+            
+            output$screening_table <- renderDataTable(
+              select(results, c(6, 7, 8, 9, 11)),
+              selection = "single",
+              options = list(pageLength = 10,
+                             columnDefs = list(list(searchable = TRUE,
+                                                    targets = "_all")),
+                             initComplete = DT::JS(
+                               "function(settings, json) {",
+                               "$('th:first-child').css({'border-top-left-radius': '5px'});",
+                               "$('th:last-child').css({'border-top-right-radius': '5px'});",
+                               "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                               "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                               "}"
+                             ),
+                             drawCallback = DT::JS(
+                               "function(settings) {",
+                               "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                               "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                               "}"
+                             )))
+          } else {output$screening_table <- NULL}
+        }
+      } else {
+        output$screening_table <- NULL
+      }
+    } else {
+      output$screening_table <- NULL
+    }
+      
+  })
+  
+  # Availablity feedback
+  output$gene_screening_info <- renderUI({
+    if(gsub(" ", "_", DB$scheme) %in% amrfinder_species) {
+      p(
+        HTML(
+          paste(
+            '<i class="fa-solid fa-check" style="font-size:20px;color:#90EE90; position:relative; top:27px;margin-right: 10px;"></i>',
+            tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
+                      paste(DB$scheme, "available for gene screening with NCBI/AMRFinder."))
+          )
+        )
+      )
+    } else {
+      p(
+        HTML(
+          paste(
+            '<i class="fa-solid fa-xmark" style="font-size:20px;color:#ff0000;position:relative; top:27px;margin-right: 10px;"></i>',
+            tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
+                      paste(DB$scheme, " not available for gene screening with NCBI/AMRFinder."))
+          )
+        )
+      )
+    }
+  })
+  
+  output$gene_resistance_info <- renderUI({
+    if(gsub(" ", "_", DB$scheme) %in% amrfinder_species) {
+      p(
+        HTML(
+          paste(
+            '<i class="fa-solid fa-check" style="font-size:20px;color:#90EE90; position:relative; top:27px;margin-right: 10px;"></i>',
+            tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
+                      paste(DB$scheme, "available for gene screening with NCBI/AMRFinder."))
+          )
+        )
+      )
+    } else {
+      p(
+        HTML(
+          paste(
+            '<i class="fa-solid fa-xmark" style="font-size:20px;color:#ff0000;position:relative; top:27px;margin-right: 10px;"></i>',
+            tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
+                      paste(DB$scheme, " not available for gene screening with NCBI/AMRFinder."))
+          )
+        )
+      )
+    }
+  })
+  
+  # Screening Interface
+  
+  output$screening_interface <- renderUI(
+    if(gsub(" ", "_", DB$scheme) %in% amrfinder_species) {
+      column(
+        width = 12,
+        fluidRow(
+          column(1),
+          column(
+            width = 3,
+            align = "center",
+            br(), br(),
+            p(
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Isolates for Screening')
+                )
+              )
+            ),
+            if(Screening$picker_status) {
+              div(
+                class = "screening_div",
+                pickerInput(
+                  "screening_select",
+                  "",
+                  choices = list(
+                    Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
+                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
+                    } else {
+                      DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
+                    },
+                    Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
+                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
+                    } else {
+                      DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+                    }
+                  ),
+                  choicesOpt = list(
+                    disabled = c(
+                      rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
+                      rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]))
+                    )
+                  ),
+                  options = list(
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE,
+                    size = 10,
+                    style = "background-color: white; border-radius: 5px;"
+                  ),
+                  multiple = TRUE
+                )
+              )
+            } else {
+              div(
+                class = "screening_div",
+                pickerInput(
+                  "screening_select",
+                  "",
+                  choices = Screening$picker_choices,
+                  selected = Screening$picker_selected,
+                  options = list(
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE,
+                    size = 10,
+                    style = "background-color: white; border-radius: 5px;"
+                  ),
+                  multiple = TRUE
+                ) 
+              )
+            },
+            br(), br(),
+            uiOutput("genome_path_gs")
+          ),
+          column(
+            width = 3,
+            uiOutput("screening_start")
+          ),
+          column(
+            width = 3,
+            align = "center",
+            br(), br(),
+            uiOutput("screening_result_sel")
+          ),
+          column(1)
+        ),
+        fluidRow(
+          column(1),
+          column(
+            width = 10,
+            br(), br(), 
+            uiOutput("screening_result"),
+            br(), br(), br(), br()
+          )
+        )
+      )
+    }
+  )
+  
+  ### Screening Events ----
+  
+  observe({
+    req(input$gs_view)
+    if(input$gs_view == "Table") {
+      Screening$selected_isolate <- DB$meta_gs$`Assembly ID`[input$gs_isolate_table_rows_selected]
+    } else if(input$gs_view == "Picker") {
+      Screening$selected_isolate <- input$gs_profile_select
+    }
+  })
+  
+  output$download_resistance_profile <- downloadHandler(
+    filename = function() {
+      log_print(paste0("Save resistance profile table ", Screening$selected_isolate, "_Profile.csv"))
+      
+      paste0(format(Sys.Date()), "_", Screening$selected_isolate, "_Profile.csv")
+    },
+    content = function(file) {
+      write.table(
+        Screening$res_profile,
+        file, 
+        sep = ";",
+        row.names = FALSE, 
+        quote = FALSE
+      ) 
+    }
+  )
+  
+  # Reset screening 
+  observeEvent(input$screening_reset_bttn, {
+    log_print("Reset gene screening")
+    
+    # reset status file
+    sapply(Screening$status_df$isolate, remove.screening.status)
+    
+    # set feedback variables
+    Screening$status <- "idle"
+    Screening$status_df <- NULL
+    Screening$choices <- NULL
+    Screening$picker_status <- TRUE
+    
+    # change reactive UI
+    output$screening_table <- NULL
+    output$screening_result <- NULL
+    output$screening_fail <- NULL
+    
+    updatePickerInput(session, "screening_select", selected = character(0))
+    
+    # disable isolate picker
+    shinyjs::runjs("$('#screening_select').prop('disabled', false);")
+    shinyjs::runjs("$('#screening_select').selectpicker('refresh');")
+  })
+  
+  # Cancel screening
+  observeEvent(input$screening_cancel, {
+    showModal(
+      modalDialog(
+        paste0(
+          "Gene screening is still pending. Stopping this process will cancel the screening."
+        ),
+        title = "Reset Multi Typing",
+        fade = TRUE,
+        easyClose = TRUE,
+        footer = tagList(
+          modalButton("Cancel"),
+          actionButton("conf_screening_cancel", "Stop", class = "btn btn-danger")
+        )
+      )
+    )
+  })
+  
+  observeEvent(input$conf_screening_cancel, {
+    log_print("Cancelled gene screening")
+    removeModal()
+    
+    # terminate screening
+    system(paste("kill $(pgrep -f 'execute/screening.sh')"), wait = FALSE)
+    system(paste("killall -TERM tblastn"), wait = FALSE)
+    
+    # reset status file
+    sapply(Screening$status_df$isolate, remove.screening.status)
+    
+    # set feedback variables
+    Screening$status <- "idle"
+    Screening$status_df <- NULL
+    Screening$choices <- NULL
+    Screening$picker_status <- TRUE
+    
+    # change reactive UI
+    output$screening_table <- NULL
+    output$screening_result <- NULL
+    
+    updatePickerInput(session, "screening_select", selected = character(0))
+    
+    # disable isolate picker
+    shinyjs::runjs("$('#screening_select').prop('disabled', false);")
+    shinyjs::runjs("$('#screening_select').selectpicker('refresh');")
+  })
+  
+  # Get selected assembly
+  observe({
+    if (length(input$screening_select) < 1) {
+      output$genome_path_gs <- renderUI(HTML(
+        paste("<span style='color: white; font-style:italic'>", length(input$screening_select), " Isolate(s) queried for screening")
+      ))
+      
+      output$screening_start <- NULL
+      
+    } else if (length(input$screening_select) > 0) {
+      
+      output$screening_start <- renderUI({
+        
+        fluidRow(
+          column(
+            width = 12,
+            br(), br(), 
+            if(length(input$screening_select) < 1) {
+              column(
+                width = 12,
+                align = "center",
+                p(
+                  HTML(paste(
+                    '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
+                    paste("<span style='color: white; font-style:italic'>", 
+                          "&nbsp Select Isolate(s) for Screening")))
+                )
+              )
+            } else if(Screening$status == "finished") {
+              column(
+                width = 12,
+                align = "center",
+                p(
+                  HTML(paste(
+                    '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:white"></i>',
+                    paste("<span style='color: white; font-style:italic'>", 
+                          "&nbsp Reset to Perform Screening Again")))
+                ),
+                actionButton(
+                  "screening_reset_bttn",
+                  "Reset",
+                  icon = icon("arrows-rotate")
+                ),
+                if(!is.null(Screening$status_df)) {
+                  p(
+                    HTML(paste("<span style='color: white; font-style:italic; position: relative; top:41px'>", 
+                               sum(Screening$status_df$status != "unfinished"), "/",
+                               nrow(Screening$status_df), " Isolate(s) screened"))
+                  )
+                }
+              )
+            } else if(Screening$status == "idle") {
+              column(
+                width = 12,
+                align = "center",
+                p(
+                  HTML(paste(
+                    '<i class="fa-solid fa-circle-check" style="font-size:15px;color:lightgreen"></i>',
+                    paste("<span style='color: white;'>",
+                          "&nbsp Screening Ready")))
+                ),
+                actionButton(
+                  inputId = "screening_start_button",
+                  label = "Start",
+                  icon = icon("circle-play")
+                )
+              )
+            } else if(Screening$status == "started") {
+              column(
+                width = 12,
+                align = "center",
+                p(
+                  HTML(paste(
+                    '<i class="fa-solid fa-clock" style="font-size:15px;color:white"></i>',
+                    paste("<span style='color: white;'>",
+                          "&nbsp Running Screening ...")))
+                ),
+                fluidRow(
+                  column(3),
+                  column(
+                    width = 3,
+                    actionButton(
+                      inputId = "screening_cancel",
+                      label = "Terminate",
+                      icon = icon("ban")
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:22px;color:white;margin-top:27px;position:relative;left:20px"></i>'))
+                  )
+                ),
+                if(!is.null(Screening$status_df)) {
+                  p(
+                    HTML(paste("<span style='color: white; font-style:italic; position: relative; top:41px'>", 
+                               sum(Screening$status_df$status != "unfinished"), "/",
+                               nrow(Screening$status_df), " isolate(s) screened"))
+                  )
+                }
+              )
+            }
+          )
+        )
+      })
+    }
+  })
+  
+  #### Running Screening ----
+  
+  observeEvent(input$screening_start_button, {
+    
+    if(tail(readLogFile(), 1) != "0") {
+      show_toast(
+        title = "Pending Multi Typing",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000
+      )
+    } else if(readLines(paste0(getwd(), "/logs/progress.txt"))[1] != "0") {
+      show_toast(
+        title = "Pending Single Typing",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000
+      )
+    } else {
+      
+      log_print("Started gene screening")
+      
+      Screening$status <- "started"
+      Screening$picker_choices <- list(
+        Unscreened = if (sum(DB$data$Screened == "No") == 1) {
+          as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
+        } else {
+          DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
+        },
+        Screened =  if (sum(DB$data$Screened == "Yes") == 1) {
+          as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
+        } else {
+          DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+        }
+      )
+      Screening$picker_selected <- input$screening_select
+      Screening$picker_status <- FALSE
+      
+      show_toast(
+        title = "Gene screening started",
+        type = "success",
+        position = "bottom-end",
+        timer = 6000
+      )
+      
+      Screening$meta_df <- data.frame(wd = getwd(),
+                                 selected = paste(
+                                   file.path(DB$database, gsub(" ", "_", DB$scheme),
+                                             "Isolates", input$screening_select,
+                                             paste0(input$screening_select, ".zip")), 
+                                   collapse = " "),
+                                 species = gsub(" ", "_", DB$scheme))
+      
+      Screening$status_df <- data.frame(isolate = basename(gsub(".zip", "", str_split_1(Screening$meta_df$selected, " "))), 
+                                        status = "unfinished")
+      
+       # Reset screening status
+      sapply(Screening$status_df$isolate, remove.screening.status)
+      
+      saveRDS(Screening$meta_df, paste0(getwd(), "/execute/screening_meta.rds"))
+      
+      # Disable pickerInput
+      shinyjs::delay(200, shinyjs::runjs("$('#screening_select').prop('disabled', true);"))
+      shinyjs::delay(200, shinyjs::runjs("$('#screening_select').selectpicker('refresh');"))
+    
+      # System execution screening.sh
+      system(paste("bash", paste0(getwd(), "/execute/screening.sh")), wait = FALSE)
+    }
+  })
+  
+  ### Screening Feedback ----
+  
+  observe({
+    req(Screening$status, input$screening_res_sel, Screening$status_df)
+    if(!is.null(Screening$status_df) &
+       !is.null(Screening$status_df$status) & 
+       !is.null(Screening$status_df$isolate) &
+       !is.null(input$screening_res_sel)) {
+      if(Screening$status != "idle" & length(input$screening_res_sel) > 0) {
+        if(any(Screening$status_df$isolate == input$screening_res_sel)) {
+          if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "success") {
+            output$screening_result <- renderUI(
+              column(
+                width = 12,
+                hr(), br(),
+                dataTableOutput("screening_table") 
+              )
+            )
+          } else {
+            output$screening_result <- renderUI(
+              column(
+                width = 12,
+                hr(), br(),
+                verbatimTextOutput("screening_fail")
+              )
+            )
+          }
+        }
+      } else {
+        output$screening_result <- NULL
+      }
+    } else {
+      output$screening_result <- NULL
+    }
+  })
+  
+  observe({
+    req(Screening$status, input$screening_res_sel)
+    if(!is.null(Screening$status_df) &
+       !is.null(Screening$status_df$status) & 
+       !is.null(Screening$status_df$isolate) &
+       !is.null(input$screening_res_sel)) {
+      if(Screening$status != "idle" & length(input$screening_res_sel) > 0) {
+        if(any(Screening$status_df$isolate == input$screening_res_sel)) {
+          if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "fail") {
+            output$screening_fail <- renderPrint({
+              cat(paste(readLines(file.path(DB$database, gsub(" ", "_", DB$scheme),
+                                            "Isolates", input$screening_res_sel, "status.txt")),"\n"))
+            })
+          }
+        }
+      } else {
+        output$screening_fail <- NULL
+      }
+    } else {
+      output$screening_fail <- NULL
+    }
+  })
+  
+  observe({
+    if(!is.null(Screening$status)) {
+      if(Screening$status != "idle") {
+        
+        # start status screening for user feedback
+        check_screening()
+        
+        if(isTRUE(Screening$first_result)) {
+          output$screening_result_sel <- renderUI(
+            column(
+              width = 12,
+              align = "center",
+              selectInput(
+                "screening_res_sel",
+                label = h5("Select Result", style = "color:white; margin-bottom: 28px; margin-top: -10px;"),
+                choices = ""
+              ),
+              if(!is.null(Screening$status_df)) {
+                p(HTML(paste("<span style='color: white; font-style:italic; position: relative; top:41px'>", 
+                             if(sum(Screening$status_df$status == "success") == 1) {
+                               "1 success &nbsp / &nbsp"
+                             } else {
+                               paste0(sum(Screening$status_df$status == "success"), " successes &nbsp / &nbsp")
+                             },
+                             if(sum(Screening$status_df$status == "fail") == 1) {
+                               "1 failure"
+                             } else {
+                               paste0(sum(Screening$status_df$status == "fail"), " failures")
+                             })))
+              }
+            )
+          )
+          
+          Screening$first_result <- FALSE
+        }
+      } else if(Screening$status == "idle") {
+        output$screening_result_sel <- NULL
+      }
+    }
+  }) 
+    
+  check_screening <- reactive({
+    invalidateLater(2000, session)
+    
+    req(Screening$status_df)
+    
+    if(Screening$status == "started") {
+      
+      Screening$status_df$status <- sapply(Screening$status_df$isolate, check_status)
+      
+      if(any("unfinished" != Screening$status_df$status) &
+         !identical(Screening$choices, Screening$status_df$isolate[which(Screening$status_df$status != "unfinished")])) {
+        
+        status_df <- Screening$status_df[which(Screening$status_df$status != "unfinished"),]
+        
+        Screening$choices <- Screening$status_df$isolate[which(Screening$status_df$status == "success" |
+                                                                 Screening$status_df$status == "fail")]
+        
+        if(sum("unfinished" != Screening$status_df$status) == 1) {
+          Screening$first_result <- TRUE
+        }
+        
+        if(tail(status_df$status, 1) == "success") {
+          
+          # Changing "Screened" metadata variable in database
+          Database <- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
+          
+          Database[["Typing"]]$Screened[which(Database[["Typing"]]["Assembly ID"] == tail(Screening$choices, 1))] <- "Yes"
+
+          saveRDS(Database, file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
+
+          DB$data$Screened[which(DB$data["Assembly ID"] == tail(Screening$choices, 1))] <- "Yes"
+
+          show_toast(
+            title = paste("Successful screening of", tail(Screening$choices, 1)),
+            type = "success",
+            position = "bottom-end",
+            timer = 6000)
+          
+          updateSelectInput(session = session,
+                            inputId = "screening_res_sel",
+                            choices = Screening$choices,
+                            selected = tail(Screening$choices, 1))
+          
+        } else if(tail(status_df$status, 1) == "fail") {
+          
+          show_toast(
+            title = paste("Failed screening of", tail(status_df$isolate, 1)),
+            type = "error",
+            position = "bottom-end",
+            timer = 6000)
+          
+          updateSelectInput(session = session,
+                            inputId = "screening_res_sel",
+                            choices = Screening$choices,
+                            selected = tail(Screening$choices, 1))
+        }
+        
+        if(sum("unfinished" != Screening$status_df$status) == length(Screening$status_df$status)) {
+          Screening$status <- "finished"
+        }
+      } else {
+        if(sum("unfinished" != Screening$status_df$status) == length(Screening$status_df$status)) {
+          Screening$status <- "finished"
+        }
+      }
+      
+      if(sum("unfinished" != Screening$status_df$status) == length(Screening$status_df$status)) {
+        Screening$status <- "finished"
+      }
+    }
+  }) 
+  
+  
   # _______________________ ####
   
   ## Typing  ----
@@ -22404,6 +23597,42 @@ server <- function(input, output, session) {
   
   #### Render UI Elements ----
   
+  # Render single typing naming issues
+  output$single_select_issues <- renderUI({
+    req(input$assembly_id)
+    
+    if(nchar(trimws(input$assembly_id)) < 1) {
+      ass_id <- as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name)))
+    } else {
+      ass_id <- trimws(input$assembly_id)
+    }
+    
+    if(ass_id %in% unlist(DB$data["Assembly ID"])) {
+      HTML(paste(
+        '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
+        paste("<span style='color: white; font-style:italic'>", 
+              "&nbsp Assembly ID already present in database.")))
+    } else if (ass_id == "") {
+      HTML(paste(
+        '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
+        paste("<span style='color: white; font-style:italic'>", 
+              "&nbsp Empty Assembly ID.")))
+    } else if (grepl("[()/\\:*?\"<>|]", ass_id)) {
+      HTML(paste(
+        '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
+        paste("<span style='color: white; font-style:italic'>", 
+              "&nbsp Invalid Assembly ID. Avoid special characters.")))
+    } else if(grepl(" ", ass_id)) {
+      HTML(paste(
+        '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
+        paste("<span style='color: white; font-style:italic'>", 
+              "&nbsp Invalid Assembly ID. Avoid empty spaces.")))
+    } else {HTML(paste(
+      '<i class="fa-solid fa-circle-check" style="font-size:15px;color:lightgreen"></i>',
+      paste("<span style='color: white; font-style:italic'>",
+            "&nbsp Assembly ID compatible with local database.")))}
+  })
+  
   # Render Typing Results if finished
   observe({
     if(Typing$progress_format_end == 999999) {
@@ -22411,6 +23640,7 @@ server <- function(input, output, session) {
         if(str_detect(tail(readLines(paste0(getwd(),"/logs/single_typing_log.txt")), 1), "Successful")) {
           output$typing_result_table <- renderRHandsontable({
             Typing$typing_result_table <- readRDS(paste0(getwd(), "/execute/event_df.rds"))
+            Typing$typing_result_table <- mutate_all(Typing$typing_result_table, as.character)
             if(nrow(Typing$typing_result_table) > 0) {
               if(nrow(Typing$typing_result_table) > 15) {
                 rhandsontable(Typing$typing_result_table, rowHeaders = NULL, 
@@ -22507,33 +23737,41 @@ server <- function(input, output, session) {
   # Render Initiate Typing UI
   output$initiate_typing_ui <- renderUI({
     column(
-      width = 3,
+      width = 4,
       align = "center",
       br(),
       br(),
-      h3(p("Initiate Typing"), style = "color:white"),
+      h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
       br(),
       br(),
       p(
         HTML(
           paste(
-            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File (FASTA)')
+            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly File (FASTA)')
           )
         )
       ),
-      shinyFilesButton(
-        "genome_file",
-        "Browse" ,
-        icon = icon("file"),
-        title = "Select the assembly in .fasta/.fna/.fa format:",
-        multiple = FALSE,
-        buttonType = "default",
-        class = NULL,
-        root = path_home()
-      ),
-      br(),
-      br(),
-      uiOutput("genome_path")
+      fluidRow(
+        column(1),
+        column(
+          width = 11,
+          align = "center",
+          shinyFilesButton(
+            "genome_file",
+            "Browse" ,
+            icon = icon("file"),
+            title = "Select the assembly in .fasta/.fna/.fa format:",
+            multiple = FALSE,
+            buttonType = "default",
+            class = NULL,
+            root = path_home()
+          ),
+          br(),
+          br(),
+          uiOutput("genome_path"),
+          br()
+        )
+      )
     )
   })
   
@@ -22542,7 +23780,7 @@ server <- function(input, output, session) {
   observe({
     if (nrow(Typing$single_path) < 1) {
       output$genome_path <- renderUI(HTML(
-        paste("<span style='color: white;'>", "No file selected.")
+        paste("<span style='color: white; margin-left:-30px'>", "No file selected.")
       ))
       
       # dont show subsequent metadata declaration and typing start UI
@@ -22559,7 +23797,7 @@ server <- function(input, output, session) {
         output$genome_path <- renderUI({
           HTML(
             paste(
-              "<span style='color: white; font-weight: bolder'>",
+              "<span style='color: white; margin-left:-30px; font-weight: bolder'>",
               as.character(Typing$single_path$name)
             )
           )
@@ -22569,162 +23807,169 @@ server <- function(input, output, session) {
         output$metadata_single_box <- renderUI({
           
           # Render placeholder 
-          updateTextInput(session, "assembly_id", placeholder = as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name))))
-          updateTextInput(session, "assembly_name", placeholder = as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name))))
+          updateTextInput(session, "assembly_id", value = as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name))))
+          updateTextInput(session, "assembly_name", value = as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name))))
           
           column(
             width = 3,
             align = "center",
-            br(),
-            br(),
-            h3(p("Declare Metadata"), style = "color:white"),
-            br(),
-            br(),
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = "90%",
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Assembly ID", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table",
-                    textInput("assembly_id",
-                              value = "",
-                              label = "",
-                              width = "80%")
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Assembly Name", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table",
-                    textInput("assembly_name",
-                              label = "",
-                              width = "80%")
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Isolation Date", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table",
-                    dateInput("append_isodate",
-                              label = "",
-                              width = "80%",
-                              max = Sys.Date())
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Host", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table",
-                    textInput("append_host",
-                              label = "",
-                              width = "80%")
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Country", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table_country",
-                    pickerInput(
-                      "append_country",
-                      label = "",
-                      choices = list("Common" = sel_countries,
-                                     "All Countries" = country_names),
-                      options = list(
-                        `live-search` = TRUE,
-                        `actions-box` = TRUE,
-                        size = 10,
-                        style = "background-color: white; border-radius: 5px;"
-                      ),
-                      width = "90%"
-                    )
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("City", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table",
-                    textInput(
-                      "append_city",
-                      label = "",
-                      width = "80%"
-                    )
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Typing Date", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  h5(paste0(" ", Sys.Date()), style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 12,
-                  align = "center",
-                  br(), br(),
-                  actionButton(
-                    inputId = "conf_meta_single",
-                    label = "Confirm"
+            br(), br(),
+            h3(p("Declare Metadata"), style = "color:white; margin-left:-40px"),
+            br(), br(),
+            div(
+              class = "multi_meta_box",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "90%",
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Assembly ID", style = "color:white; margin-top: 30px; margin-left: 15px")
                   ),
-                  br()
-                )
-              ),
-              br()
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table",
+                      textInput("assembly_id",
+                                value = "",
+                                label = "",
+                                width = "80%")
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 12,
+                    uiOutput("single_select_issues")
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Assembly Name", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table",
+                      textInput("assembly_name",
+                                label = "",
+                                width = "80%")
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Isolation Date", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table",
+                      dateInput("append_isodate",
+                                label = "",
+                                width = "80%",
+                                max = Sys.Date())
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Host", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table",
+                      textInput("append_host",
+                                label = "",
+                                width = "80%")
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Country", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table_country",
+                      pickerInput(
+                        "append_country",
+                        label = "",
+                        choices = list("Common" = sel_countries,
+                                       "All Countries" = country_names),
+                        options = list(
+                          `live-search` = TRUE,
+                          `actions-box` = TRUE,
+                          size = 10,
+                          style = "background-color: white; border-radius: 5px;"
+                        ),
+                        width = "90%"
+                      )
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("City", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table",
+                      textInput(
+                        "append_city",
+                        label = "",
+                        width = "80%"
+                      )
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Typing Date", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    h5(paste0(" ", Sys.Date()), style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 12,
+                    align = "center",
+                    br(), br(),
+                    actionButton(
+                      inputId = "conf_meta_single",
+                      label = "Confirm"
+                    ),
+                    br()
+                  )
+                ),
+                br()
+              )
             )
           )
         })
@@ -22733,17 +23978,13 @@ server <- function(input, output, session) {
           title = "Wrong file type (only fasta/fna/fa)",
           type = "error",
           position = "bottom-end",
-          width = "500px",
           timer = 6000
         )
-        
       }
     }
   })
   
   # Get genome datapath
-  
-  volumes = getVolumes()
   
   observe({
     # Get selected Genome in Single Mode
@@ -22764,14 +24005,18 @@ server <- function(input, output, session) {
     log_print("Input typing_start")
     
     if(tail(readLogFile(), 1) != "0") {
-      log_print("Pending multi typing")
-      
       show_toast(
         title = "Pending Multi Typing",
         type = "warning",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
+      )
+    } else if (Screening$status == "started") {
+      show_toast(
+        title = "Pending Gene Screening",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000
       )
     } else {
       
@@ -22818,8 +24063,7 @@ server <- function(input, output, session) {
           title = "Typing Initiated",
           type = "success",
           position = "bottom-end",
-          timer = 6000,
-          width = "400px"
+          timer = 6000
         )
         
         log_print("Initiated single typing")
@@ -22829,6 +24073,7 @@ server <- function(input, output, session) {
         single_typing_df <- data.frame(
           db_path = DB$database,
           wd = getwd(),
+          save = input$save_assembly_st,
           scheme = paste0(gsub(" ", "_", DB$scheme)),
           genome = Typing$single_path$datapath,
           alleles = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", search_string)
@@ -23038,7 +24283,6 @@ server <- function(input, output, session) {
   #### Declare Metadata  ----
   
   observeEvent(input$conf_meta_single, {
-    log_print("Single typing metadata confirmed")
     
     if(nchar(trimws(input$assembly_id)) < 1) {
       ass_id <- as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name)))
@@ -23052,57 +24296,112 @@ server <- function(input, output, session) {
       ass_name <- trimws(input$assembly_name)
     }
     
-    meta_info <- data.frame(assembly_id = ass_id,
-                            assembly_name = ass_name,
-                            cgmlst_typing = DB$scheme,
-                            append_isodate = input$append_isodate,
-                            append_host = trimws(input$append_host),
-                            append_country = trimws(input$append_country),
-                            append_city = trimws(input$append_city),
-                            append_analysisdate = Sys.Date(),
-                            db_directory = getwd()) 
-    
-    saveRDS(meta_info, paste0(
-      getwd(),
-      "/execute/meta_info_single.rds"
-    ))
-    
-    show_toast(
-      title = "Metadata declared",
-      type = "success",
-      position = "bottom-end",
-      timer = 3000,
-      width = "500px"
-    )
-    
-    # Render Start Typing UI
-    
-    output$start_typing_ui <- renderUI({
-      column(
-        width = 3,
-        align = "center",
-        br(),
-        br(),
-        h3(p("Start Typing"), style = "color:white"),
-        br(),
-        br(),
-        HTML(
-          paste(
-            "<span style='color: white;'>",
-            "Typing by <strong>",
-            DB$scheme,
-            "</strong> scheme."
-          )
-        ),
-        br(), br(),
-        actionButton(
-          inputId = "typing_start",
-          label = "Start",
-          icon = icon("circle-play")
-        )
+    if(ass_id %in% unlist(DB$data["Assembly ID"])) {
+      show_toast(
+        title = "Assembly ID already present",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000
       )
-    })
-    
+    } else if (isFALSE(Typing$reload)) {
+      show_toast(
+        title = "Reload Database first",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000
+      )
+    }  else if (ass_id == "") {
+    show_toast(
+      title = "Empty Assembly ID",
+      type = "error",
+      position = "bottom-end",
+      timer = 3000
+      )
+    } else if (grepl("[()/\\:*?\"<>|]", ass_id)) {
+      show_toast(
+        title = "Invalid Assembly ID. No special characters allowed: ()/\\:*?\"<>|",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000
+      )
+    } else if(grepl(" ", ass_id)) {
+      show_toast(
+        title = "Empty spaces in Assembly ID not allowed",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000
+      )
+    } else {
+      
+      log_print("Single typing metadata confirmed")
+      
+      meta_info <- data.frame(assembly_id = ass_id,
+                              assembly_name = ass_name,
+                              cgmlst_typing = DB$scheme,
+                              append_isodate = input$append_isodate,
+                              append_host = trimws(input$append_host),
+                              append_country = trimws(input$append_country),
+                              append_city = trimws(input$append_city),
+                              append_analysisdate = Sys.Date(),
+                              db_directory = getwd()) 
+      
+      saveRDS(meta_info, paste0(
+        getwd(),
+        "/execute/meta_info_single.rds"
+      ))
+      
+      show_toast(
+        title = "Metadata declared",
+        type = "success",
+        position = "bottom-end",
+        timer = 3000
+      )
+      
+      # Render Start Typing UI
+      output$start_typing_ui <- renderUI({
+        div(
+          class = "multi_start_col",
+          column(
+            width = 3,
+            align = "center",
+            br(),
+            br(),
+            h3(p("Start Typing"), style = "color:white"),
+            br(),
+            br(),
+            HTML(
+              paste(
+                "<span style='color: white;'>",
+                "Typing by <strong>",
+                DB$scheme,
+                "</strong> scheme."
+              )
+            ),
+            br(), br(), br(), br(),
+            div(
+              class = "save-assembly",
+              materialSwitch(
+                "save_assembly_st",
+                h5(p("Save Assemblies in Local Database"), style = "color:white; padding-left: 0px; position: relative; top: -3px; right: -20px;"),
+                value = TRUE,
+                right = TRUE)
+            ),
+            HTML(
+              paste(
+                "<span style='color: orange;'>",
+                "Isolates with unsaved assembly files can NOT be applied to screening for resistance genes."
+              )
+            ),
+            br(), br(), br(), br(),
+            actionButton(
+              inputId = "typing_start",
+              label = "Start",
+              icon = icon("circle-play")
+            )
+          )
+        )
+      })
+    }
   })
   
   ####  Events Single Typing ----
@@ -23139,33 +24438,41 @@ server <- function(input, output, session) {
     
     output$initiate_typing_ui <- renderUI({
       column(
-        width = 3,
+        width = 4,
         align = "center",
         br(),
         br(),
-        h3(p("Initiate Typing"), style = "color:white"),
+        h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
         br(),
         br(),
         p(
           HTML(
             paste(
-              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly File (FASTA)')
+              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly File (FASTA)')
             )
           )
         ),
-        shinyFilesButton(
-          "genome_file",
-          "Browse",
-          icon = icon("folder-open"),
-          title = "Please select the genome in .fasta/.fna/.fa format:",
-          multiple = FALSE,
-          buttonType = "default",
-          class = NULL,
-          root = path_home()
-        ),
-        br(),
-        br(),
-        uiOutput("genome_path")
+        fluidRow(
+          column(1),
+          column(
+            width = 11,
+            align = "center",
+            shinyFilesButton(
+              "genome_file",
+              "Browse" ,
+              icon = icon("file"),
+              title = "Select the assembly in .fasta/.fna/.fa format:",
+              multiple = FALSE,
+              buttonType = "default",
+              class = NULL,
+              root = path_home()
+            ),
+            br(),
+            br(),
+            uiOutput("genome_path"),
+            br()
+          )
+        )
       )
     })
   })
@@ -23181,8 +24488,7 @@ server <- function(input, output, session) {
           title = "Single Typing finalized",
           type = "success",
           position = "bottom-end",
-          timer = 8000,
-          width = "500px"
+          timer = 8000
         )
         Typing$single_end <- TRUE
       }
@@ -23194,63 +24500,134 @@ server <- function(input, output, session) {
   #### Render Multi Typing UI Elements ----
   output$initiate_multi_typing_ui <- renderUI({
     column(
-      width = 3,
+      width = 4,
       align = "center",
       br(),
       br(),
-      h3(p("Initiate Typing"), style = "color:white"),
-      br(),
-      br(),
+      h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
+      br(), br(),
       p(
         HTML(
           paste(
-            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly Folder')
+            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly Folder')
           )
         )
       ),
-      column(
-        width = 12,
-        align = "center",
-        shinyDirButton(
-          "genome_file_multi",
-          "Browse",
-          icon = icon("folder-open"),
-          title = "Select the folder containing the genome assemblies (FASTA)",
-          buttonType = "default",
-          root = path_home()
-        ),
-        br(),
-        br(),
-        uiOutput("multi_select_info"),
-        br()
+      fluidRow(
+        column(1),
+        column(
+          width = 11,
+          align = "center",
+          shinyDirButton(
+            "genome_file_multi",
+            "Browse",
+            icon = icon("folder-open"),
+            title = "Select the folder containing the genome assemblies (FASTA)",
+            buttonType = "default",
+            root = path_home()
+          ),
+          br(),
+          br(),
+          uiOutput("multi_select_info"),
+          br()
+        )
       ),
-      column(
-        width = 12,
-        align = "left",
-        rHandsontableOutput("multi_select_table")
+      uiOutput("multi_select_tab_ctrls"),
+      br(),
+      fluidRow(
+        column(1),
+        column(
+          width = 11,
+          align = "left",
+          rHandsontableOutput("multi_select_table")
+        )
       )
     )
   })
   
   # Render selection info
   output$multi_select_info <- renderUI({
+    
     if(!is.null(Typing$multi_path)) {
       if(length(Typing$multi_path) < 1) {
-        HTML(paste("<span style='color: white;'>", 
+        HTML(paste("<span style='color: white; margin-left:-30px'>", 
                    "No files selected."))
       } else {
-        if(!is.null(Typing$multi_sel_table)) {
-          if(sum(Typing$multi_sel_table$Include == TRUE) < 1) {
-            HTML(paste("<span style='color: white;'>", 
-                       "No files selected."))
-          } else {
-            req(Typing$genome_selected)
-            HTML(paste("<span style='color: white;'>", 
-                       sum(Typing$genome_selected$Include == TRUE),
-                       " files selected."))
-          }
-        }
+        HTML(paste("<span style='color: white; margin-left:-30px'>",
+                   sum(hot_to_r(input$multi_select_table)$Include == TRUE),
+                   " files selected."))
       }
+    }
+  })
+  
+  # Render multi selection table issues
+  output$multi_select_issues <- renderUI({
+    req(Typing$multi_sel_table, input$multi_select_table)
+    if(any(hot_to_r(input$multi_select_table)$Files %in% dupl_mult_id()) & 
+       any(duplicated(hot_to_r(input$multi_select_table)$Files))){
+      HTML(
+        paste(
+          paste("<span style='color: orange;'>",
+                "Some name(s) are already present in local database.<br/>"),
+          paste("<span style='color: #ff7334;'>",
+                "Duplicated name(s). <br/>")
+        )
+      )
+    } else if (any(hot_to_r(input$multi_select_table)$Files %in% dupl_mult_id()) & 
+               !any(duplicated(hot_to_r(input$multi_select_table)$Files))) {
+      HTML(
+        paste("<span style='color: #e0b300;'>",
+              "Some name(s) are already present in local database.<br/>")
+      )
+    } else if (!any(hot_to_r(input$multi_select_table)$Files %in% dupl_mult_id()) & 
+               any(duplicated(hot_to_r(input$multi_select_table)$Files))) {
+      HTML(
+        paste("<span style='color: #ff7334;'>",
+              "Duplicated name(s). <br/>")
+      )
+    }
+  })
+  
+  output$multi_select_issue_info <- renderUI({
+    req(Typing$multi_sel_table, input$multi_select_table)
+    
+    multi_select_table <- hot_to_r(input$multi_select_table)
+    
+    if(any(multi_select_table$Files[which(multi_select_table$Include == TRUE)] %in% dupl_mult_id()) | 
+       any(duplicated(multi_select_table$Files[which(multi_select_table$Include == TRUE)])) |
+       any(grepl(" ", multi_select_table$Files[which(multi_select_table$Include == TRUE)]))) {
+      
+      if(any(grepl(" ", multi_select_table$Files[which(multi_select_table$Include == TRUE)])))  {
+        
+        if(any(multi_select_table$Files[which(multi_select_table$Include == TRUE)] %in% dupl_mult_id()) | 
+           any(duplicated(multi_select_table$Files[which(multi_select_table$Include == TRUE)]))) {
+          HTML(paste(
+            paste(
+              '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
+              paste("<span style='color: white; font-style:italic'>",
+                  "&nbspRename highlighted isolates or deselect them.</br>")),
+            paste(
+              '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
+              paste("<span style='color: white; font-style:italic'>",
+                  "&nbspFilename(s) contain(s) empty spaces."))
+          ))
+        } else {
+          HTML(paste(
+            '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
+            paste("<span style='color: white; font-style:italic'>",
+                     "&nbspFilename(s) contain(s) empty spaces.")))
+        }
+      } else {
+        HTML(paste(
+          '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
+          paste("<span style='color: white; font-style:italic'>", 
+                   "&nbspRename highlighted isolates or deselect them.")))
+      }
+    } else {
+      HTML(paste(
+        '<i class="fa-solid fa-circle-check" style="font-size:15px;color:lightgreen"></i>',
+        paste("<span style='color: white; font-style:italic'>",
+              "&nbspFiles ready for allelic typing.")))
     }
   })
   
@@ -23259,7 +24636,36 @@ server <- function(input, output, session) {
     if(!is.null(Typing$multi_sel_table)) {
       if (nrow(Typing$multi_sel_table) > 0) {
         
-        Typing$genome_selected <- hot_to_r(input$multi_select_table)
+        output$multi_select_tab_ctrls <- renderUI(
+          fluidRow(
+            column(1),
+            column(
+              width = 2,
+              align = "left",
+              actionButton(
+                "sel_all_mt",
+                "All",
+                icon = icon("check")
+              )
+            ),
+            column(
+              width = 2,
+              align = "left",
+              actionButton(
+                "desel_all_mt",
+                "None",
+                icon = icon("xmark")
+              )
+            ),
+            column(2),
+            column(
+              width = 5,
+              align = "right",
+              br(),
+              uiOutput("multi_select_issues")
+            )
+          )
+        )
         
         output$metadata_multi_box <- renderUI({
           column(
@@ -23267,140 +24673,143 @@ server <- function(input, output, session) {
             align = "center",
             br(),
             br(),
-            h3(p("Declare Metadata"), style = "color:white"),
+            h3(p("Declare Metadata"), style = "color:white;margin-left:-40px"),
             br(), br(),
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = "90%",
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Assembly ID", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Assembly Name", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Isolation Date", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table",
-                    dateInput("append_isodate_multi",
-                              label = "",
-                              width = "80%",
-                              max = Sys.Date())
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Host", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table",
-                    textInput("append_host_multi",
-                              label = "",
-                              width = "80%")
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Country", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table_country",
-                    pickerInput(
-                      "append_country_multi",
-                      label = "",
-                      choices = list("Common" = sel_countries,
-                                     "All Countries" = country_names),
-                      options = list(
-                        `live-search` = TRUE,
-                        `actions-box` = TRUE,
-                        size = 10,
-                        style = "background-color: white; border-radius: 5px;"
-                      ),
-                      width = "90%"
-                    )
-                  )  
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("City", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  div(
-                    class = "append_table",
-                    textInput("append_city_multi",
-                              label = "",
-                              width = "80%")
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 5,
-                  align = "left",
-                  h5("Typing Date", style = "color:white; margin-top: 30px; margin-left: 15px")
-                ),
-                column(
-                  width = 7,
-                  align = "left",
-                  h5(paste0(" ", Sys.Date()), style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 12,
-                  align = "center",
-                  br(), br(),
-                  actionButton(
-                    inputId = "conf_meta_multi",
-                    label = "Confirm"
+            div(
+              class = "multi_meta_box",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "90%",
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Assembly ID", style = "color:white; margin-top: 30px; margin-left: 15px")
                   ),
-                  br()
+                  column(
+                    width = 7,
+                    align = "left",
+                    h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Assembly Name", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    h5("Assembly filename", style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Isolation Date", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table",
+                      dateInput("append_isodate_multi",
+                                label = "",
+                                width = "80%",
+                                max = Sys.Date())
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Host", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table",
+                      textInput("append_host_multi",
+                                label = "",
+                                width = "80%")
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Country", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table_country",
+                      pickerInput(
+                        "append_country_multi",
+                        label = "",
+                        choices = list("Common" = sel_countries,
+                                       "All Countries" = country_names),
+                        options = list(
+                          `live-search` = TRUE,
+                          `actions-box` = TRUE,
+                          size = 10,
+                          style = "background-color: white; border-radius: 5px;"
+                        ),
+                        width = "90%"
+                      )
+                    )  
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("City", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    div(
+                      class = "append_table",
+                      textInput("append_city_multi",
+                                label = "",
+                                width = "80%")
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    align = "left",
+                    h5("Typing Date", style = "color:white; margin-top: 30px; margin-left: 15px")
+                  ),
+                  column(
+                    width = 7,
+                    align = "left",
+                    h5(paste0(" ", Sys.Date()), style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 12,
+                    align = "center",
+                    br(), br(),
+                    actionButton(
+                      inputId = "conf_meta_multi",
+                      label = "Confirm"
+                    ),
+                    br(), br(),
+                    uiOutput("multi_select_issue_info")
+                  )
                 )
-              ),
-              br()
+              )    
             )
           )
         }) 
@@ -23422,95 +24831,371 @@ server <- function(input, output, session) {
     
     Typing$multi_path <- parseDirPath(roots = c(Home = path_home(), Root = "/"), input$genome_file_multi)
     
-    multi_sel_table <- data.frame(Include = rep(TRUE, length(list.files(as.character(Typing$multi_path)))),
-                                  Files = list.files(as.character(Typing$multi_path)))
+    files_selected <- list.files(as.character(Typing$multi_path))
+    Typing$files_filtered <- files_selected[which(!endsWith(files_selected, ".gz") &
+                                                    grepl("\\.fasta|\\.fna|\\.fa", files_selected))]
     
-    Typing$multi_sel_table <- multi_sel_table[which(grepl("\\.fasta|\\.fna|\\.fa", multi_sel_table$Files)),]
+    Typing$multi_sel_table <- data.frame(
+      Include = rep(TRUE, length(Typing$files_filtered)),
+      Files = gsub(".fasta|.fna|.fa|.fasta.gz|.fna.gz|.fa.gz", "", 
+                   Typing$files_filtered),
+      Type = sub(".*(\\.fasta|\\.fasta\\.gz|\\.fna|\\.fna\\.gz|\\.fa|\\.fa\\.gz)$",
+                 "\\1", Typing$files_filtered, perl = F))
     
-    if (between(nrow(Typing$multi_sel_table), 1, 15)) {
+    if(nrow(Typing$multi_sel_table) > 0) {
+      output$multi_select_tab_ctrls <- renderUI(
+        fluidRow(
+          column(1),
+          column(
+            width = 2,
+            align = "left",
+            actionButton(
+              "sel_all_mt",
+              "All",
+              icon = icon("check")
+            )
+          ),
+          column(
+            width = 2,
+            align = "left",
+            actionButton(
+              "desel_all_mt",
+              "None",
+              icon = icon("xmark")
+            )
+          ),
+          column(2),
+          column(
+            width = 5,
+            align = "right",
+            br(),
+            uiOutput("multi_select_issues")
+          )
+        )
+      )
+    } else {
+      output$multi_select_tab_ctrls <- NULL
+    }
+    
+    if(between(nrow(Typing$multi_sel_table), 1, 15)) {
       output$multi_select_table <- renderRHandsontable({
-        rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
-                      stretchH = "all", contextMenu = FALSE) %>%
-          hot_cols(columnSorting = TRUE) %>%
+        rht <- rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
+                             stretchH = "all", contextMenu = FALSE
+        ) %>%
+          hot_cols(columnSorting = FALSE) %>%
           hot_rows(rowHeights = 25) %>%
-          hot_col(2,
-                  readOnly = TRUE,
+          hot_col(2, readOnly = FALSE,
                   valign = "htBottom") %>%
+          hot_col(3, readOnly = TRUE) %>%
           hot_col(1,
                   halign = "htCenter",
                   valign = "htTop", 
                   colWidths = 60)
+        
+        htmlwidgets::onRender(rht, sprintf(
+          "function(el, x) {
+        var hot = this.hot;
+        
+        var columnData = hot.getDataAtCol(1); // Change column index if needed
+        var duplicates = {};
+          
+        var highlightInvalidAndDuplicates = function(invalidValues) {
+          
+          var columnData = hot.getDataAtCol(1); // Change column index if needed
+          var duplicates = {};
+
+          // Find all duplicate values
+          for (var i = 0; i < columnData.length; i++) {
+            var value = columnData[i];
+            if (value !== null && value !== undefined) {
+              if (duplicates[value]) {
+                duplicates[value].push(i);
+              } else {
+                duplicates[value] = [i];
+              }
+            }
+          }
+
+          // Reset all cell backgrounds in the column
+          for (var i = 0; i < columnData.length; i++) {
+            var cell = hot.getCell(i, 1); // Change column index if needed
+            if (cell) {
+              cell.style.background = 'white';
+            }
+          }
+
+          // Highlight duplicates and invalid values
+          for (var i = 0; i < columnData.length; i++) {
+            var cell = hot.getCell(i, 1); // Change column index if needed
+            var value = columnData[i];
+            if (cell) {
+              if (invalidValues.includes(value)) {
+                cell.style.background = 'rgb(224, 179, 0)'; // Highlight color for invalid values
+              } else if (duplicates[value] && duplicates[value].length > 1) {
+                cell.style.background = '#FF7334'; // Highlight color for duplicates
+              }
+            }
+          }
+        };
+
+        var changefn = function(changes, source) {
+          if (source === 'edit' || source === 'undo' || source === 'autofill' || source === 'paste') {
+            highlightInvalidAndDuplicates(%s);
+          }
+        };
+
+        hot.addHook('afterChange', changefn);
+        hot.addHook('afterLoadData', function() {
+          highlightInvalidAndDuplicates(%s);
+        });
+        hot.addHook('afterRender', function() {
+          highlightInvalidAndDuplicates(%s);
+        });
+
+        highlightInvalidAndDuplicates(%s); // Initial highlight on load
+        
+        Shiny.addCustomMessageHandler('setColumnValue', function(message) {
+          var colData = hot.getDataAtCol(0);
+          for (var i = 0; i < colData.length; i++) {
+            hot.setDataAtCell(i, 0, message.value);
+          }
+          hot.render(); // Re-render the table
+        });
+      }", 
+          jsonlite::toJSON(dupl_mult_id()), 
+          jsonlite::toJSON(dupl_mult_id()), 
+          jsonlite::toJSON(dupl_mult_id()), 
+          jsonlite::toJSON(dupl_mult_id())))
       })
+      
     } else if(nrow(Typing$multi_sel_table) > 15) {
       output$multi_select_table <- renderRHandsontable({
-        rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
-                      stretchH = "all", height = 500,
-                      contextMenu = FALSE) %>%
-          hot_cols(columnSorting = TRUE) %>%
+        rht <- rhandsontable(Typing$multi_sel_table, rowHeaders = NULL, 
+                             stretchH = "all", height = 500,
+                             contextMenu = FALSE
+        ) %>%
+          hot_cols(columnSorting = FALSE) %>%
           hot_rows(rowHeights = 25) %>%
           hot_col(2,
-                  readOnly = TRUE,
+                  readOnly = FALSE,
                   valign = "htBottom") %>%
+          hot_col(3, readOnly = TRUE) %>%
           hot_col(1,
                   halign = "htCenter",
                   valign = "htTop", 
                   colWidths = 60)
+        
+        htmlwidgets::onRender(rht, sprintf(
+          "function(el, x) {
+        var hot = this.hot;
+        
+        var columnData = hot.getDataAtCol(1); // Change column index if needed
+        var duplicates = {};
+          
+        var highlightInvalidAndDuplicates = function(invalidValues) {
+          
+          var columnData = hot.getDataAtCol(1); // Change column index if needed
+          var duplicates = {};
+
+          // Find all duplicate values
+          for (var i = 0; i < columnData.length; i++) {
+            var value = columnData[i];
+            if (value !== null && value !== undefined) {
+              if (duplicates[value]) {
+                duplicates[value].push(i);
+              } else {
+                duplicates[value] = [i];
+              }
+            }
+          }
+
+          // Reset all cell backgrounds in the column
+          for (var i = 0; i < columnData.length; i++) {
+            var cell = hot.getCell(i, 1); // Change column index if needed
+            if (cell) {
+              cell.style.background = 'white';
+            }
+          }
+
+          // Highlight duplicates and invalid values
+          for (var i = 0; i < columnData.length; i++) {
+            var cell = hot.getCell(i, 1); // Change column index if needed
+            var value = columnData[i];
+            if (cell) {
+              if (invalidValues.includes(value)) {
+                cell.style.background = 'rgb(224, 179, 0)'; // Highlight color for invalid values
+              } else if (duplicates[value] && duplicates[value].length > 1) {
+                cell.style.background = '#FF7334'; // Highlight color for duplicates
+              }
+            }
+          }
+        };
+
+        var changefn = function(changes, source) {
+          if (source === 'edit' || source === 'undo' || source === 'autofill' || source === 'paste') {
+            highlightInvalidAndDuplicates(%s);
+          }
+        };
+
+        hot.addHook('afterChange', changefn);
+        hot.addHook('afterLoadData', function() {
+          highlightInvalidAndDuplicates(%s);
+        });
+        hot.addHook('afterRender', function() {
+          highlightInvalidAndDuplicates(%s);
+        });
+
+        highlightInvalidAndDuplicates(%s); // Initial highlight on load
+        
+        Shiny.addCustomMessageHandler('setColumnValue', function(message) {
+          var colData = hot.getDataAtCol(0);
+          for (var i = 0; i < colData.length; i++) {
+            hot.setDataAtCell(i, 0, message.value);
+          }
+          hot.render(); // Re-render the table
+        });
+      }", 
+          jsonlite::toJSON(dupl_mult_id()), 
+          jsonlite::toJSON(dupl_mult_id()), 
+          jsonlite::toJSON(dupl_mult_id()), 
+          jsonlite::toJSON(dupl_mult_id())))
+        
       })
+      
     } else {
       output$multi_select_table <- NULL
-    }
+    } 
   })
   
   observeEvent(input$conf_meta_multi, {
-    log_print("Multi typing metadata confirmed")
     
-    meta_info <- data.frame(cgmlst_typing = DB$scheme,
-                            append_isodate = trimws(input$append_isodate_multi),
-                            append_host = trimws(input$append_host_multi),
-                            append_country = trimws(input$append_country_multi),
-                            append_city = trimws(input$append_city_multi),
-                            append_analysisdate = Sys.Date(),
-                            db_directory = getwd())
+    multi_select_table <- hot_to_r(input$multi_select_table)[hot_to_r(input$multi_select_table)$Include == TRUE,]
     
-    saveRDS(meta_info, paste0(getwd(), "/execute/meta_info.rds"))
-    
-    show_toast(
-      title = "Metadata declared",
-      type = "success",
-      position = "bottom-end",
-      timer = 3000,
-      width = "500px"
-    )
-    
-    output$start_multi_typing_ui <- renderUI({
-      column(
-        width = 3,
-        align = "center",
-        br(),
-        br(),
-        h3(p("Start Typing"), style = "color:white"),
-        br(),
-        br(),
-        HTML(
-          paste(
-            "<span style='color: white;'>",
-            "Typing by <strong>",
-            DB$scheme,
-            "</strong> scheme."
-          )
-        ),
-        br(), br(),
-        actionButton(
-          "start_typ_multi",
-          "Start",
-          icon = icon("circle-play")
-        )
+    if(any(unlist(gsub(".fasta|.fna|.fa|.fasta.gz|.fna.gz|.fa.gz", "", multi_select_table$Files)) %in% unlist(DB$data["Assembly ID"]))) {
+      show_toast(
+        title = "Assembly ID(s) already present",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000
       )
-    })
-    
+    } else if (any(duplicated(multi_select_table$Files))) {
+      show_toast(
+        title = "Duplicated filename(s)",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000
+      )
+    } else if (any(multi_select_table$Files == "")) {
+      show_toast(
+        title = "Empty filename(s)",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000
+      )
+    } else if (any(grepl("[()/\\:*?\"<>|]", multi_select_table$Files))) {
+      show_toast(
+        title = "Invalid filename(s). No special characters allowed: ()/\\:*?\"<>|",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000
+      )
+    } else if (!any(multi_select_table$Include == TRUE)) {
+      show_toast(
+        title = "No files selected",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000
+      )
+    } else if(any(grepl(" ", multi_select_table$Files[which(multi_select_table$Include == TRUE)]))) {
+      show_toast(
+        title = "Empty spaces in filename(s) not allowed",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000
+      )
+    } else if (isFALSE(Typing$reload)) {
+      show_toast(
+        title = "Reload Database first",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000
+      )
+    } else {
+      
+      log_print("Multi typing metadata confirmed")
+      
+      meta_info <- data.frame(cgmlst_typing = DB$scheme,
+                              append_isodate = trimws(input$append_isodate_multi),
+                              append_host = trimws(input$append_host_multi),
+                              append_country = trimws(input$append_country_multi),
+                              append_city = trimws(input$append_city_multi),
+                              append_analysisdate = Sys.Date(),
+                              db_directory = getwd())
+      
+      saveRDS(meta_info, paste0(getwd(), "/execute/meta_info.rds"))
+      
+      show_toast(
+        title = "Metadata declared",
+        type = "success",
+        position = "bottom-end",
+        timer = 3000
+      )
+      
+      output$start_multi_typing_ui <- renderUI({
+        div(
+          class = "multi_start_col",
+          column(
+            width = 3,
+            align = "center",
+            br(),
+            br(),
+            h3(p("Start Typing"), style = "color:white"),
+            br(),
+            br(),
+            HTML(
+              paste(
+                "<span style='color: white;'>",
+                "Typing by <strong>",
+                DB$scheme,
+                "</strong> scheme."
+              )
+            ),
+            br(), br(), br(), br(),
+            div(
+              class = "save-assembly",
+              materialSwitch(
+                "save_assembly_mt",
+                h5(p("Save Assemblies in Local Database"), style = "color:white; padding-left: 0px; position: relative; top: -3px; right: -20px;"),
+                value = TRUE,
+                right = TRUE)
+            ),
+            HTML(
+              paste(
+                "<span style='color: orange;font-style:italic'>",
+                "Isolates with unsaved assembly files can NOT be applied to screening for resistance genes."
+              )
+            ),
+            br(), br(), br(), br(),
+            actionButton(
+              "start_typ_multi",
+              "Start",
+              icon = icon("circle-play")
+            )
+          )
+        )
+      })
+    }
   })
   
   #### Events Multi Typing ----
+  
+  observeEvent(input$sel_all_mt, {
+    session$sendCustomMessage(type = "setColumnValue", message = list(value = TRUE))
+  })
+  
+  observeEvent(input$desel_all_mt, {
+    session$sendCustomMessage(type = "setColumnValue", message = list(value = FALSE))
+  })
   
   # Print Log
   output$print_log <- downloadHandler(
@@ -23555,51 +25240,55 @@ server <- function(input, output, session) {
       # Reset User Feedback variable
       Typing$pending_format <- 0
       Typing$multi_started <- FALSE
-      Typing$multi_path <- data.frame()
       
       output$initiate_multi_typing_ui <- renderUI({
         column(
-          width = 3,
+          width = 4,
           align = "center",
           br(),
           br(),
-          h3(p("Initiate Typing"), style = "color:white"),
-          br(),
-          br(),
+          h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
+          br(), br(),
           p(
             HTML(
               paste(
-                tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly Folder')
+                tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly Folder')
               )
             )
           ),
-          column(
-            width = 12,
-            align = "center",
-            shinyDirButton(
-              "genome_file_multi",
-              "Browse",
-              icon = icon("folder-open"),
-              title = "Select the folder containing the genome assemblies (FASTA)",
-              buttonType = "default",
-              root = path_home()
-            ),
-            br(),
-            br(),
-            uiOutput("multi_select_info"),
-            br()
+          fluidRow(
+            column(1),
+            column(
+              width = 11,
+              align = "center",
+              shinyDirButton(
+                "genome_file_multi",
+                "Browse",
+                icon = icon("folder-open"),
+                title = "Select the folder containing the genome assemblies (FASTA)",
+                buttonType = "default",
+                root = path_home()
+              ),
+              br(),
+              br(),
+              uiOutput("multi_select_info"),
+              br()
+            )
           ),
-          column(
-            width = 12,
-            align = "left",
-            rHandsontableOutput("multi_select_table")
+          uiOutput("multi_select_tab_ctrls"),
+          br(),
+          fluidRow(
+            column(1),
+            column(
+              width = 11,
+              align = "left",
+              rHandsontableOutput("multi_select_table")
+            )
           )
         )
       })
       
-      Typing$multi_sel_table <- data.frame()
-      
-      output$test_yes_pending <- NULL
+      output$pending_typing <- NULL
       output$multi_typing_results <- NULL
     }
   })
@@ -23618,8 +25307,7 @@ server <- function(input, output, session) {
       title = "Execution cancelled",
       type = "warning",
       position = "bottom-end",
-      timer = 6000,
-      width = "500px"
+      timer = 6000
     )
     
     # Kill multi typing and reset logfile  
@@ -23632,7 +25320,7 @@ server <- function(input, output, session) {
     
     # Reset User Feedback variable
     Typing$pending_format <- 0
-    output$test_yes_pending <- NULL
+    output$pending_typing <- NULL
     output$multi_typing_results <- NULL
     Typing$failures <- 0
     Typing$successes <- 0
@@ -23640,40 +25328,47 @@ server <- function(input, output, session) {
     
     output$initiate_multi_typing_ui <- renderUI({
       column(
-        width = 3,
+        width = 4,
         align = "center",
         br(),
         br(),
-        h3(p("Initiate Typing"), style = "color:white"),
-        br(),
-        br(),
+        h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
+        br(), br(),
         p(
           HTML(
             paste(
-              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Assembly Folder')
+              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly Folder')
             )
           )
         ),
-        column(
-          width = 12,
-          align = "center",
-          shinyDirButton(
-            "genome_file_multi",
-            "Browse",
-            icon = icon("folder-open"),
-            title = "Please select the folder containing the genome assemblies (FASTA)",
-            buttonType = "default",
-            root = path_home()
-          ),
-          br(),
-          br(),
-          uiOutput("multi_select_info"),
-          br()
+        fluidRow(
+          column(1),
+          column(
+            width = 11,
+            align = "center",
+            shinyDirButton(
+              "genome_file_multi",
+              "Browse",
+              icon = icon("folder-open"),
+              title = "Select the folder containing the genome assemblies (FASTA)",
+              buttonType = "default",
+              root = path_home()
+            ),
+            br(),
+            br(),
+            uiOutput("multi_select_info"),
+            br()
+          )
         ),
-        column(
-          width = 12,
-          align = "left",
-          rHandsontableOutput("multi_select_table")
+        uiOutput("multi_select_tab_ctrls"),
+        br(),
+        fluidRow(
+          column(1),
+          column(
+            width = 11,
+            align = "left",
+            rHandsontableOutput("multi_select_table")
+          )
         )
       )
     })
@@ -23684,74 +25379,71 @@ server <- function(input, output, session) {
     log_print("Initiate multi typing")
     
     if(readLines(paste0(getwd(), "/logs/progress.txt"))[1] != "0") {
-      log_print("Pending Single Typing")
       show_toast(
         title = "Pending Single Typing",
         type = "warning",
         position = "bottom-end",
-        timer = 6000,
-        width = "500px"
+        timer = 6000
+      )
+    } else if (Screening$status == "started") {
+      show_toast(
+        title = "Pending Gene Screening",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000
       )
     } else {
-      if (any(!grepl("\\.fasta|\\.fna|\\.fa", str_sub(Typing$genome_selected$Files[which(Typing$genome_selected$Include == TRUE)], start = -6)))) {
-        
-        log_print("Wrong file type (include only fasta/fna/fa)")
-        
-        show_toast(
-          title = "Wrong file type (include only fasta/fna/fa)",
-          type = "error",
-          position = "bottom-end",
-          timer = 6000,
-          width = "500px"
-        )
-      } else {
-        
-        removeModal()
-        
-        show_toast(
-          title = "Multi Typing started",
-          type = "success",
-          position = "bottom-end",
-          timer = 10000,
-          width = "500px"
-        )
-        
-        # Remove Allelic Typing Controls
-        output$initiate_multi_typing_ui <- NULL
-        output$metadata_multi_box <- NULL
-        output$start_multi_typing_ui <- NULL
-        
-        # Activate entry detection
-        DB$check_new_entries <- TRUE
-        
-        # Initiate Feedback variables
-        Typing$multi_started <- TRUE
-        Typing$pending <- TRUE
-        Typing$failures <- 0
-        Typing$successes <- 0
-        
-        # Start Multi Typing Script
-        multi_typing_df <- data.frame(
-          db_path = DB$database,
-          wd = getwd(),
-          scheme = paste0(gsub(" ", "_", DB$scheme)),
-          genome_folder = as.character(parseDirPath(roots = c(Home = path_home(), Root = "/"), input$genome_file_multi)),
-          genome_names = paste(Typing$genome_selected$Files[which(Typing$genome_selected$Include == TRUE)], collapse= " "),
-          alleles = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")
-        )
-        
-        saveRDS(multi_typing_df, "execute/multi_typing_df.rds")
-        
-        # Reset selected
-        Typing$genome_selected <- NULL
-        
-        # Execute multi blat script  
-        system(paste("bash", paste0(getwd(), "/execute/multi_typing.sh")), 
-               wait = FALSE)
-        
-      }
+      removeModal()
+      
+      show_toast(
+        title = "Multi Typing started",
+        type = "success",
+        position = "bottom-end",
+        timer = 10000
+      )
+      
+      Typing$new_table <- NULL
+      
+      # Remove Allelic Typing Controls
+      output$initiate_multi_typing_ui <- NULL
+      output$metadata_multi_box <- NULL
+      output$start_multi_typing_ui <- NULL
+      
+      # Activate entry detection
+      DB$check_new_entries <- TRUE
+      
+      # Initiate Feedback variables
+      Typing$multi_started <- TRUE
+      Typing$pending <- TRUE
+      Typing$failures <- 0
+      Typing$successes <- 0
+      
+      # get selected file table
+      multi_select_table <- hot_to_r(input$multi_select_table)
+      
+      filenames <- paste(multi_select_table$Files[which(multi_select_table$Include == TRUE)], collapse = " ")
+      
+      files <- Typing$multi_sel_table$Files[which(multi_select_table$Include == TRUE)]
+      type <- Typing$multi_sel_table$Type[which(multi_select_table$Include == TRUE)]
+      genome_names <- paste(paste0(gsub(" ", "~", files), type), collapse = " ")
+      
+      # Start Multi Typing Script
+      multi_typing_df <- data.frame(
+        db_path = DB$database,
+        wd = getwd(),
+        save = input$save_assembly_mt,
+        scheme = paste0(gsub(" ", "_", DB$scheme)),
+        genome_folder = as.character(parseDirPath(roots = c(Home = path_home(), Root = "/"), input$genome_file_multi)),
+        filenames = paste0(filenames, collapse= " "),
+        genome_names = genome_names,
+        alleles = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")
+      )
+      
+      saveRDS(multi_typing_df, "execute/multi_typing_df.rds")
+      
+      # Execute multi blat script  
+      system(paste("bash", paste0(getwd(), "/execute/multi_typing.sh")), wait = FALSE)
     }
-    
   })
   
   
@@ -23789,16 +25481,14 @@ server <- function(input, output, session) {
       show_toast(
         title = paste0("Successful", sub(".*Successful", "", tail(log, 1))),
         type = "success",
-        width = "500px",
         position = "bottom-end",
         timer = 8000
       )
     } else if(str_detect(tail(log, 1), "failed")) {
       Typing$status <- "Failed"
       show_toast(
-        title = paste0("Failed typing of ", sub(".*failed for ", "", tail(log, 1))),
+        title = sub(".* - ", "", tail(log, 1)),
         type = "error",
-        width = "500px",
         position = "bottom-end",
         timer = 8000
       )
@@ -23812,20 +25502,19 @@ server <- function(input, output, session) {
           show_toast(
             title = paste0("Successful", sub(".*Successful", "", tail(log, 2)[1])),
             type = "success",
-            width = "500px",
             position = "bottom-end",
             timer = 8000
           )
           
           Typing$last_success <- tail(log, 2)[1]
         }
-      } else if(any(str_detect(tail(log, 2), "failed for"))) {
+      } else if(any(str_detect(tail(log, 2), "failed"))) {
         
         if(!identical(Typing$last_failure, tail(log, 2)[1])) {
+          
           show_toast(
-            title = paste0("Failed typing of ", sub(".*failed for ", "", tail(log, 2)[1])),
+            title = sub(".* - ", "", tail(log, 2)[1]),
             type = "error",
-            width = "500px",
             position = "bottom-end",
             timer = 8000
           )
@@ -23841,7 +25530,6 @@ server <- function(input, output, session) {
         show_toast(
           title = "Typing finalized",
           type = "success",
-          width = "500px",
           position = "bottom-end",
           timer = 8000
         )
@@ -23998,14 +25686,14 @@ server <- function(input, output, session) {
       
       output$initiate_multi_typing_ui <- NULL
       
-      output$test_yes_pending <- renderUI({
+      output$pending_typing <- renderUI({
         fluidRow(
           fluidRow(
             br(), br(),
             column(width = 2),
             column(
               width = 4,
-              h3(p("Pending Multi Typing ..."), style = "color:white"),
+              h3(p("Pending Typing ..."), style = "color:white"),
               br(), br(),
               fluidRow(
                 column(
@@ -24042,7 +25730,7 @@ server <- function(input, output, session) {
       
       output$initiate_multi_typing_ui <- NULL
       
-      output$test_yes_pending <- renderUI({
+      output$pending_typing <- renderUI({
         
         fluidRow(
           fluidRow(
@@ -24090,7 +25778,7 @@ server <- function(input, output, session) {
         )
       })
     } else if (!grepl("Start Multi Typing", head(readLogFile(), n = 1))){
-      output$test_yes_pending <- NULL
+      output$pending_typing <- NULL
       Typing$multi_result_status <- "idle"
     }
   })
@@ -24131,8 +25819,6 @@ server <- function(input, output, session) {
       )
     )
   })
-  
-  
   
 } # end server
 

@@ -7,6 +7,7 @@ dependencies:
   - r-base=4.3.2
   - r-remotes=2.5.0
   - kma=1.4.14
+  - ncbi-amrfinderplus=3.12.8
   - parallel=20240522
   - pblat=2.5.1
   - r-bh=1.81.0-1
