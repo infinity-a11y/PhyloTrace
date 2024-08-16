@@ -87,13 +87,20 @@ div#bs-select-9::-webkit-scrollbar-track,
 div#bs-select-10::-webkit-scrollbar-track,
 div#bs-select-11::-webkit-scrollbar-track,
 div#bs-select-12::-webkit-scrollbar-track,
+div#bs-select-13::-webkit-scrollbar-track,
+div#bs-select-14::-webkit-scrollbar-track,
+div#bs-select-15::-webkit-scrollbar-track,
+div#bs-select-16::-webkit-scrollbar-track,
 div#bs-select-17::-webkit-scrollbar-track,
+div#bs-select-18::-webkit-scrollbar-track,
+div#bs-select-19::-webkit-scrollbar-track,
 #logText::-webkit-scrollbar-track, 
 #logTextFull::-webkit-scrollbar-track,
 #screening_fail::-webkit-scrollbar-track,
 .selectize-dropdown-content::-webkit-scrollbar-track,
 #mst_comm_general_select::-webkit-scrollbar-track,
-.sF-dirInfo>div::-webkit-scrollbar-track{
+.sF-dirInfo>div::-webkit-scrollbar-track,
+[id^="bs-select-"]::-webkit-scrollbar-thumb{
   background: #F0F0F0;
 }
   
@@ -121,7 +128,13 @@ div#bs-select-9::-webkit-scrollbar-thumb,
 div#bs-select-10::-webkit-scrollbar-thumb,
 div#bs-select-11::-webkit-scrollbar-thumb,
 div#bs-select-12::-webkit-scrollbar-thumb,
+div#bs-select-13::-webkit-scrollbar-thumb,
+div#bs-select-14::-webkit-scrollbar-thumb,
+div#bs-select-15::-webkit-scrollbar-thumb,
+div#bs-select-16::-webkit-scrollbar-thumb,
 div#bs-select-17::-webkit-scrollbar-thumb,
+div#bs-select-18::-webkit-scrollbar-thumb,
+div#bs-select-19::-webkit-scrollbar-thumb,
 #logText::-webkit-scrollbar-thumb, 
 #logTextFull::-webkit-scrollbar-thumb,
 #screening_fail::-webkit-scrollbar-thumb,
@@ -133,7 +146,8 @@ div#bs-select-17::-webkit-scrollbar-thumb,
 #DataTables_Table_8::-webkit-scrollbar-thumb,
 .dataTables_scrollBody::-webkit-scrollbar-thumb,
 #gs_profile_table::-webkit-scrollbar-thumb,
-div#gs_profile_table::-webkit-scrollbar-thumb {
+div#gs_profile_table::-webkit-scrollbar-thumb,
+[id^="bs-select-"]::-webkit-scrollbar-thumb {
   background: #bcbcbc;
   border: 2px solid #F0F0F0;
   min-width: 100px;
