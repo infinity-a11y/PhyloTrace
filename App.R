@@ -5836,7 +5836,8 @@ server <- function(input, output, session) {
                            status = "") # reactive variables related to typing process
   
   Screening <- reactiveValues(status = "idle",
-                              picker_status = TRUE) # reactive variables related to gene screening
+                              picker_status = TRUE,
+                              first_result = NULL) # reactive variables related to gene screening
   
   Vis <- reactiveValues(cluster = NULL, 
                         metadata = list(),
@@ -6160,6 +6161,7 @@ server <- function(input, output, session) {
     Screening$choices <- NULL
     Screening$picker_status <- TRUE
     Screening$status <- "idle"
+    Screening$first_result <- NULL
     if(!is.null(input$screening_select)) {
       if(!is.null(DB$data)) {
         updatePickerInput(session, "screening_select", selected = character(0))
@@ -23104,6 +23106,7 @@ server <- function(input, output, session) {
     Screening$status_df <- NULL
     Screening$choices <- NULL
     Screening$picker_status <- TRUE
+    Screening$first_result <- NULL
     
     # change reactive UI
     output$screening_table <- NULL
@@ -23158,6 +23161,7 @@ server <- function(input, output, session) {
     Screening$status_df <- NULL
     Screening$choices <- NULL
     Screening$picker_status <- TRUE
+    Screening$first_result <- NULL
     
     # change reactive UI
     output$screening_table <- NULL
@@ -23453,7 +23457,7 @@ server <- function(input, output, session) {
   }) 
     
   check_screening <- reactive({
-    invalidateLater(2000, session)
+    invalidateLater(500, session)
     
     req(Screening$status_df)
     
@@ -23469,8 +23473,10 @@ server <- function(input, output, session) {
         Screening$choices <- Screening$status_df$isolate[which(Screening$status_df$status == "success" |
                                                                  Screening$status_df$status == "fail")]
         
-        if(sum(Screening$status_df$status != "unfinished") == 1) {
-          Screening$first_result <- TRUE
+        if(sum(Screening$status_df$status != "unfinished") > 0) {
+          if(is.null(Screening$first_result)) {
+            Screening$first_result <- TRUE
+          }
         }
         
         if(tail(status_df$status, 1) == "success") {
@@ -23514,24 +23520,15 @@ server <- function(input, output, session) {
         }
         
         if(sum("unfinished" != Screening$status_df$status) == length(Screening$status_df$status)) {
-          if(sum(Screening$status_df$status != "unfinished") == 1) {
-            Screening$first_result <- TRUE
-          }
           Screening$status <- "finished"
         }
       } else {
         if(sum("unfinished" != Screening$status_df$status) == length(Screening$status_df$status)) {
-          if(sum(Screening$status_df$status != "unfinished") == 1) {
-            Screening$first_result <- TRUE
-          }
           Screening$status <- "finished"
         }
       }
       
       if(sum("unfinished" != Screening$status_df$status) == length(Screening$status_df$status)) {
-        if(sum(Screening$status_df$status != "unfinished") == 1) {
-          Screening$first_result <- TRUE
-        }
         Screening$status <- "finished"
       }
     }
