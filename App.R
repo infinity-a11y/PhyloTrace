@@ -529,7 +529,8 @@ ui <- dashboardPage(
             ),
             shinyjs::hidden(
               div(id = "loading",
-                  HTML('<i class="fa fa-spinner fa-spin fa-fw fa-2x" style="color:white"></i>')))
+                  HTML('<i class="fa fa-spinner fa-spin fa-fw fa-2x" style="color:white"></i>'))
+            )
           )
         ),
         fluidRow(
@@ -5288,11 +5289,17 @@ ui <- dashboardPage(
           align = "left",
           shinyDirButton(
             "hash_dir",
-            "Hash folder with loci",
-            title = "Locate the folder with loci",
+            "Choose folder with .fasta files",
+            title = "Locate folder with loci",
             buttonType = "default",
             style = "border-color: white; margin: 10px; min-width: 200px; text-align: center"
           ),
+          actionButton("hash_start", "Start Hashing", icon = icon("circle-play")),
+          shinyjs::hidden(
+            div(id = "hash_loading",
+                HTML('<i class="fa fa-spinner fa-spin fa-fw fa-2x" style="color:white"></i>'))
+          )
+        )
           # br(),
           # actionButton(
           #   "backup_database",
@@ -5305,7 +5312,6 @@ ui <- dashboardPage(
           #   "Restore backup",
           #   style = "border-color: white; margin: 10px; min-width: 200px; text-align: left"
           # )
-        )
       ),
       
       
@@ -25818,33 +25824,37 @@ server <- function(input, output, session) {
                    defaultRoot = "Home",
                    session = session,
                    filetypes = c('', 'fasta', 'fna', 'fa'))
-    
+  })
+  
+  observeEvent(input$hash_start, {
     dir_path <- parseDirPath(roots = c(Home = path_home(), Root = "/"), input$hash_dir)
-    req(dir_path)
-    log_print("Hashing directory using utilities")
-    output$statustext <- renderUI(
-      fluidRow(
-        tags$li(
-          class = "dropdown", 
-          tags$span(HTML(
-            paste('<i class="fa-solid fa-circle-dot" style="color:orange !important;"></i>', 
-                  "Status:&nbsp;&nbsp;&nbsp; <i>hashing directory</i>")),
-            style = "color:white;")
-        )
+    if (!is_empty(list.files(dir_path)) && all(endsWith(list.files(dir_path), ".fasta"))) {
+      log_print("Hashing directory using utilities")
+      shinyjs::hide("hash_start")
+      shinyjs::show("hash_loading")
+      show_toast(
+        title = "Hashing started!",
+        type = "success",
+        position = "bottom-end",
+        timer = 6000
       )
-    )
-    hash_database(dir_path)
-    output$statustext <- renderUI(
-      fluidRow(
-        tags$li(
-          class = "dropdown", 
-          tags$span(HTML(
-            paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
-                  "Status:&nbsp;&nbsp;&nbsp; <i>ready</i>")),
-            style = "color:white;")
-        )
+      hash_database(dir_path)
+      shinyjs::hide("hash_loading")
+      shinyjs::show("hash_start")
+      show_toast(
+        title = "Hashing completed!",
+        type = "success",
+        position = "bottom-end",
+        timer = 6000
       )
-    )
+    } else {
+      show_toast(
+        title = "Incorrect folder selected!",
+        type = "error",
+        position = "bottom-end",
+        timer = 6000
+      )
+    }
   })
   
 } # end server
