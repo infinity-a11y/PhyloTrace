@@ -1,27 +1,23 @@
 <img src="www/PhyloTrace_bw.png#gh-light-mode-only" width="90%"/>
-<img src="www/PhyloTrace.png#gh-dark-mode-only" width="90%"/> <br> PhyloTrace is a platform for
-bacterial pathogen monitoring by core-genome multilocus sequence typing (cgMLST) using
-state-of-the-art technologies. It utilizes the ability to combine genomic information with
-epidemiological variables that could reveal otherwise hidden patterns. Complex analyses and
-calculations are packaged in an appealing and easy-to-use graphical user interface that provides an
-integrated toolset for analyzing bacterial isolates, visualizing relationships, managing a local
-database, and exporting results in a publication-ready format. <br><br>
+<img src="www/PhyloTrace.png#gh-dark-mode-only" width="90%"/> <br> 
+PhyloTrace is a platform for bacterial pathogen monitoring on a genomic level. Its components evolve around core-genome multilocus sequence typing (cgMLST) and Antimicrobial Resistance Screening. Complex analyses and computation are wrapped into an appealing and easy-to-handle graphical user interface. Users build a local database comprising analyzed isolates, manageable directly with the application. The visualization of isolate relationship and genetic profile is highly interactive aiding to reveal patterns explaining outbreak dynamics and events by connecting genomic information with epidemiologic variables. PhyloTrace achieves universal compatability by assigning unique hashes based on sequence and allele information. This implementation enables efficient comparison and sharing of inter-lab results.
+<br><br>
 
 **Features**
 
--   Interactive cgMLST analysis also for large datasets comprising multiple genome assemblies
--   Managing a custom local database
--   Connecting informative meta data and custom variables
--   Visualizing the relationship between bacterial isolates with networks and phylogenetic trees
--   Download and report functionalities
+-   Interactive cgMLST analysis also for large datasets comprising numerous whole-genome assemblies
+-   Screening for species-specific genes involved in antibiotics resistance, virulence, stress and more 
+-   Managing an individual and portable local database to continously monitor bacterial populations
+-   Producing publication-ready plots with minimum-spanning tree network graphs and phylogenetic trees (Neighbour-Joining & UPGMA) 
+-   Extensive export and report functionalities
 -   *and more*
 
 We want to make cgMLST analysis and genomic pathogen monitoring accessible to a broad spectrum of
 individuals and organizations. Therefore our goal is to build an interface with convenient user
 experience and easy handling that doesn't require you to be a bioinformatician. The app is in active
-development. To get a stable version download the newest release. This tool can be used for research
-and academic purposes. Note that PhyloTrace is not validated for a clinical use yet, but we are
-working on achieving that.
+development. To get a stable version download the newest release. 
+
+*_PhyloTrace is supposed to be used for research and academic purposes only._*
 
 [www.PhyloTrace.com](https://www.phylotrace.com) \|
 [info\@phylotrace.com](mailto:info@phylotrace.com?subject=%5BGitHub%5D%20Source%20Han%20Sans)
