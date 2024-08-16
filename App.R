@@ -7947,9 +7947,10 @@ server <- function(input, output, session) {
                                 highlightRow = TRUE,
                                 contextMenu = FALSE
                               )  %>%
-                                hot_col((13 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var)) + length(input$compare_select)), 
+                                hot_col((13 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)), 
                                         valign = "htMiddle",
                                         halign = "htCenter",
+                                        readOnly = TRUE,
                                         renderer = htmlwidgets::JS(
                                           "function(instance, td, row, col, prop, value, cellProperties) {
                                             if (value.length > 8) {
@@ -8259,7 +8260,7 @@ server <- function(input, output, session) {
                                 highlightCol = TRUE, 
                                 highlightRow = TRUE
                               ) %>%
-                                hot_col((13 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var)) + length(input$compare_select)),
+                                hot_col((13 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)),
                                         readOnly = TRUE, 
                                         valign = "htMiddle",
                                         halign = "htCenter",
@@ -10146,9 +10147,10 @@ server <- function(input, output, session) {
                   highlightRow = TRUE,
                   contextMenu = FALSE
                 )  %>%
-                  hot_col((13 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var)) + length(input$compare_select)), 
+                  hot_col((13 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)), 
                           valign = "htMiddle",
                           halign = "htCenter",
+                          readOnly = TRUE,
                           renderer = htmlwidgets::JS(
                             "function(instance, td, row, col, prop, value, cellProperties) {
                                             if (value.length > 8) {
@@ -10457,7 +10459,7 @@ server <- function(input, output, session) {
                   highlightCol = TRUE, 
                   highlightRow = TRUE
                 ) %>%
-                  hot_col((13 + nrow(DB$cust_var)):((12 + nrow(DB$cust_var)) + length(input$compare_select)),
+                  hot_col((13 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)),
                           readOnly = TRUE, 
                           valign = "htMiddle",
                           halign = "htCenter",
