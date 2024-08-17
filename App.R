@@ -17927,9 +17927,8 @@ server <- function(input, output, session) {
   #### MST ----
   
   mst_tree <- reactive({
-    log_print("Generating visNetwork")
-    Typing$data <- toVisNetworkData(Vis$ggraph_1)
-    Typing$data$nodes <- mutate(Typing$data$nodes, 
+    data <- toVisNetworkData(Vis$ggraph_1)
+    data$nodes <- mutate(data$nodes, 
                                 label = label_mst(),
                                 value = mst_node_scaling(),
                                 opacity = node_opacity())
@@ -18005,7 +18004,7 @@ server <- function(input, output, session) {
                             };
                         }")
     
-    Typing$var_cols <- NULL
+    Vis$var_cols <- NULL
     
     # Generate pie charts as nodes
     if(input$mst_color_var == TRUE & (!is.null(input$mst_col_var))) {
@@ -18015,33 +18014,33 @@ server <- function(input, output, session) {
         group[i] <- unique(Vis$meta_mst[[input$mst_col_var]])[i]
       }
       
-      Typing$data$nodes <- cbind(Typing$data$nodes, data.frame(metadata = character(nrow(Typing$data$nodes))))
+      data$nodes <- cbind(data$nodes, data.frame(metadata = character(nrow(data$nodes))))
       
-      if(length(which(Typing$data$nodes$group == "")) != 0) {
-        Typing$data$nodes$group[which(Typing$data$nodes$group == "")] <- Typing$data$nodes$group[1]
+      if(length(which(data$nodes$group == "")) != 0) {
+        data$nodes$group[which(data$nodes$group == "")] <- data$nodes$group[1]
       }
       
       if(is.null(input$mst_col_scale)) {
-        Typing$var_cols <- data.frame(value = unique(Vis$meta_mst[[input$mst_col_var]]),
+        Vis$var_cols <- data.frame(value = unique(Vis$meta_mst[[input$mst_col_var]]),
                                       color = viridis(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
       } else if (input$mst_col_scale == "Rainbow") {
-        Typing$var_cols <- data.frame(value = unique(Vis$meta_mst[[input$mst_col_var]]),
+        Vis$var_cols <- data.frame(value = unique(Vis$meta_mst[[input$mst_col_var]]),
                                       color = rainbow(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
       } else if (input$mst_col_scale == "Viridis") {
-        Typing$var_cols <- data.frame(value = unique(Vis$meta_mst[[input$mst_col_var]]),
+        Vis$var_cols <- data.frame(value = unique(Vis$meta_mst[[input$mst_col_var]]),
                                       color = viridis(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
       }
       
-      for(i in 1:nrow(Typing$data$nodes)) {
+      for(i in 1:nrow(data$nodes)) {
         
-        iso_subset <- strsplit(Typing$data$nodes$label[i], split = "\n")[[1]]
+        iso_subset <- strsplit(data$nodes$label[i], split = "\n")[[1]]
         variable <- Vis$meta_mst[[input$mst_col_var]]
         values <- variable[which(Vis$meta_mst$`Assembly Name` %in% iso_subset)]
         
         for(j in 1:length(unique(values))) {
           
           share <- sum(unique(values)[j] == values) / length(values) * 100
-          color <- Typing$var_cols$color[Typing$var_cols$value == unique(values)[j]]
+          color <- Vis$var_cols$color[Vis$var_cols$value == unique(values)[j]]
           
           if(j == 1) {
             pie_vec <- paste0('{"value":', share,',"color":"', color,'"}')
@@ -18050,26 +18049,26 @@ server <- function(input, output, session) {
           }
         }
         
-        Typing$data$nodes$metadata[i] <- paste0('[', pie_vec, ']')
+        data$nodes$metadata[i] <- paste0('[', pie_vec, ']')
       }
     }
     
-    Typing$data$edges <- mutate(Typing$data$edges,
+    data$edges <- mutate(data$edges,
                                 length = if(input$mst_scale_edges == FALSE) {
                                   input$mst_edge_length
                                 } else {
-                                  Typing$data$edges$weight * input$mst_edge_length_scale
+                                  data$edges$weight * input$mst_edge_length_scale
                                 },
-                                label = as.character(Typing$data$edges$weight),
+                                label = as.character(data$edges$weight),
                                 opacity = input$mst_edge_opacity)
     
     if (input$mst_show_clusters) {
-      Typing$data$nodes$group <- compute_clusters(Typing$data$nodes, Typing$data$edges, input$mst_cluster_threshold)
+      data$nodes$group <- compute_clusters(data$nodes, data$edges, input$mst_cluster_threshold)
     }
     
-    updateSliderInput(session, "mst_cluster_threshold", max = max(Typing$data$edges$weight))
+    updateSliderInput(session, "mst_cluster_threshold", max = max(data$edges$weight))
     
-    visNetwork_graph <- visNetwork(Typing$data$nodes, Typing$data$edges,
+    visNetwork_graph <- visNetwork(data$nodes, data$edges,
                                    main = mst_title(),
                                    background = mst_background_color(),
                                    submain = mst_subtitle()) %>%
@@ -18108,16 +18107,15 @@ server <- function(input, output, session) {
           visGroups(groupname = unique(data$nodes$group)[i], color = color_palette[i])
       }
     }
-    log_print("Plotting MST graph")
     visNetwork_graph
   })
   
   # MST legend
   legend_col <- reactive({
-    if(!is.null(Typing$var_cols)) {
-      if(nrow(Typing$var_cols) > 10) {
+    if(!is.null(Vis$var_cols)) {
+      if(nrow(Vis$var_cols) > 10) {
         3
-      } else if(nrow(Typing$var_cols) > 5) {
+      } else if(nrow(Vis$var_cols) > 5) {
         2
       } else {
         1
@@ -18126,10 +18124,10 @@ server <- function(input, output, session) {
   })
   
   mst_legend <- reactive({
-    if(is.null(Typing$var_cols)) {
+    if(is.null(Vis$var_cols)) {
       NULL
     } else {
-      legend <- Typing$var_cols
+      legend <- Vis$var_cols
       names(legend)[1] <- "label"
       mutate(legend, shape = "dot",
              font.color = input$mst_legend_color,
@@ -18391,7 +18389,7 @@ server <- function(input, output, session) {
                                           hjust = input$nj_h,
                                           vjust = input$nj_v)  
       
-      Typing$nj_true <- TRUE
+      Vis$nj_true <- TRUE
       
       # Correct background color if zoomed out
       cowplot::ggdraw(Vis$nj_plot) + 
@@ -21763,7 +21761,7 @@ server <- function(input, output, session) {
               nj_tree()
             })
             
-            Typing$nj_true <- TRUE
+            Vis$nj_true <- TRUE
           }
         } else if (input$tree_algo == "UPGMA") {
           
@@ -21918,7 +21916,7 @@ server <- function(input, output, session) {
               upgma_tree()
             })
             
-            Typing$upgma_true <- TRUE
+            Vis$upgma_true <- TRUE
           }
         } else {
           
@@ -21961,7 +21959,7 @@ server <- function(input, output, session) {
             mst_tree()
           })
           
-          Typing$mst_true <- TRUE
+          Vis$mst_true <- TRUE
         }
       }
     }
@@ -21988,9 +21986,9 @@ server <- function(input, output, session) {
   
   observeEvent(input$create_rep, {
     
-    if((input$tree_algo == "Minimum-Spanning" & isTRUE(Typing$mst_true)) |
-       (input$tree_algo == "UPGMA" & isTRUE(Typing$upgma_true)) |
-       (input$tree_algo == "Neighbour-Joining" & isTRUE(Typing$nj_true))) {
+    if((input$tree_algo == "Minimum-Spanning" & isTRUE(Vis$mst_true)) |
+       (input$tree_algo == "UPGMA" & isTRUE(Vis$upgma_true)) |
+       (input$tree_algo == "Neighbour-Joining" & isTRUE(Vis$nj_true))) {
       # Get currently selected missing value handling option
       if(input$na_handling == "ignore_na") {
         na_handling <- "Ignore missing values for pairwise comparison"
