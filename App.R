@@ -5556,17 +5556,30 @@ server <- function(input, output, session) {
     return(varying_columns)
   }
   
-  # Functions to compute Hamming distance between two vectors
-  hamming_distance <- function(x, y) {
+  # Functions to compute hamming distances dependent on missing value handling
+  hamming.dist <- function(x, y) {
     sum(x != y)
   }
   
-  hamming_distance_ignore <- function(x, y) {
+  hamming.distIgnore <- function(x, y) {
     sum( (x != y) & !is.na(x) & !is.na(y) )
   }
   
-  hamming_distance_category <- function(x, y) {
-    sum( ( (x != y) | (is.na(x) & !is.na(y)) | (!is.na(x) & is.na(y)) ) & !(is.na(x) & is.na(y))  )
+  hamming.distCategory <- function(x, y) {
+    sum((x != y | xor(is.na(x), is.na(y))) & !(is.na(x) & is.na(y)))
+  }
+  
+  compute.distMatrix <- function(profile, hamming.method) {
+    mat <- as.matrix(profile)
+    n <- nrow(mat)
+    dist_mat <- matrix(0, n, n)
+    for (i in 1:(n-1)) {
+      for (j in (i+1):n) {
+        dist_mat[i, j] <- hamming.method(x = mat[i, ], y = mat[j, ])
+        dist_mat[j, i] <- dist_mat[i, j]
+      }
+    }
+    return(dist_mat)
   }
   
   # Function to determine entry table height
@@ -11291,7 +11304,6 @@ server <- function(input, output, session) {
   ### Distance Matrix ---- 
   
   hamming_df <- reactive({
-    # Create a custom proxy object for Hamming distance
     if(input$distmatrix_true == TRUE) {
       if(anyNA(DB$allelic_profile)) {
         if(input$na_handling == "omit") {
@@ -11299,54 +11311,57 @@ server <- function(input, output, session) {
           
           allelic_profile_noNA_true <- allelic_profile_noNA[which(DB$data$Include == TRUE),]
           
-          DB$hamming_proxy <- proxy::dist(allelic_profile_noNA_true, method = hamming_distance)
+          hamming_mat <- compute.distMatrix(allelic_profile_noNA_true, hamming.dist)
           
         } else if(input$na_handling == "ignore_na"){
-          DB$hamming_proxy <- proxy::dist(DB$allelic_profile_true, method = hamming_distance_ignore)
+          hamming_mat <- compute.distMatrix(DB$allelic_profile_true, hamming.distIgnore)
           
         } else {
-          DB$hamming_proxy <- proxy::dist(DB$allelic_profile_true, method = hamming_distance_category)
+          hamming_mat <- compute.distMatrix(DB$allelic_profile_true, hamming.distCategory)
           
         } 
       } else {
-        DB$hamming_proxy <- proxy::dist(DB$allelic_profile_true, method = hamming_distance)
+        hamming_mat <- compute.distMatrix(DB$allelic_profile_true, hamming.dist)
       }
     } else {
       if(anyNA(DB$allelic_profile)) {
         if(input$na_handling == "omit") {
           allelic_profile_noNA <- DB$allelic_profile[, colSums(is.na(DB$allelic_profile)) == 0]
-          DB$hamming_proxy <- proxy::dist(allelic_profile_noNA, method = hamming_distance)
+          hamming_mat <- compute.distMatrix(allelic_profile_noNA, hamming.dist)
         } else if(input$na_handling == "ignore_na"){
-          DB$hamming_proxy <- proxy::dist(DB$allelic_profile, method = hamming_distance_ignore)
+          hamming_mat <- compute.distMatrix(DB$allelic_profile, hamming.distIgnore)
         } else {
-          DB$hamming_proxy <- proxy::dist(DB$allelic_profile, method = hamming_distance_category)
+          hamming_mat <- compute.distMatrix(DB$allelic_profile, hamming.distCategory)
         }  
       } else {
-        DB$hamming_proxy <- proxy::dist(DB$allelic_profile, method = hamming_distance)
+        hamming_mat <- compute.distMatrix(DB$allelic_profile, hamming.dist)
       }
     }
     
-    hamming_matrix <- as.matrix(DB$hamming_proxy)
-    
-    DB$matrix_min <- min(hamming_matrix, na.rm = TRUE)
-    DB$matrix_max <- max(hamming_matrix, na.rm = TRUE)
+    # Extreme values for distance matrix heatmap display
+    DB$matrix_min <- min(hamming_mat, na.rm = TRUE)
+    DB$matrix_max <- max(hamming_mat, na.rm = TRUE)
     
     if(input$distmatrix_triangle == FALSE) {
-      hamming_matrix[upper.tri(hamming_matrix, diag = !input$distmatrix_diag)] <- NA
+      hamming_mat[upper.tri(hamming_mat, diag = !input$distmatrix_diag)] <- NA
     } 
     
-    # Rownames change
-    rownames(hamming_matrix) <- select(DB$data, 1:(12 + nrow(DB$cust_var)))[rownames(select(DB$data, 1:(12 + nrow(DB$cust_var)))) %in% rownames(hamming_matrix), 
-                                                                            input$distmatrix_label]
-    colnames(hamming_matrix) <- rownames(hamming_matrix)
+    # Row- and colnames change
+    if(input$distmatrix_true == TRUE) {
+      rownames(hamming_mat) <- unlist(DB$data[input$distmatrix_label][which(DB$data$Include == TRUE),])
+    } else {
+      rownames(hamming_mat) <- unlist(DB$data[input$distmatrix_label])
+    }
+    colnames(hamming_mat) <- rownames(hamming_mat)
     
-    mode(hamming_matrix) <- "integer"
+    mode(hamming_mat) <- "integer"
     
-    DB$ham_matrix <- hamming_matrix %>%
+    DB$ham_matrix <- hamming_mat %>%
       as.data.frame() %>%
-      mutate(Index = colnames(hamming_matrix)) %>%
+      mutate(Index = colnames(hamming_mat)) %>%
       relocate(Index)
     DB$distancematrix_nrow <- nrow(DB$ham_matrix)
+    
     DB$ham_matrix
   })
   
@@ -21195,16 +21210,16 @@ server <- function(input, output, session) {
         
         allelic_profile_noNA_true <- allelic_profile_noNA[which(DB$data$Include == TRUE),]
         
-        proxy::dist(allelic_profile_noNA_true, method = hamming_distance)
+        compute.distMatrix(allelic_profile_noNA_true, hamming.dist)
         
       } else if(input$na_handling == "ignore_na"){
-        proxy::dist(DB$allelic_profile_true, method = hamming_distance_ignore)
+        compute.distMatrix(DB$allelic_profile_true, hamming.distIgnore)
         
       } else {
-        proxy::dist(DB$allelic_profile_true, method = hamming_distance_category)
+        compute.distMatrix(DB$allelic_profile_true, hamming.distCategory)
       } 
       
-    } else {proxy::dist(DB$allelic_profile_true, method = hamming_distance)}
+    } else {compute.distMatrix(DB$allelic_profile_true, hamming.dist)}
   })
   
   hamming_mst <- reactive({
@@ -21214,15 +21229,15 @@ server <- function(input, output, session) {
         
         allelic_profile_noNA_true <- allelic_profile_noNA[which(DB$data$Include == TRUE),]
         
-        dist <- proxy::dist(allelic_profile_noNA_true, method = hamming_distance)
+        dist <- compute.distMatrix(allelic_profile_noNA_true, hamming.dist)
         
       } else if (input$na_handling == "ignore_na") {
-        dist <- proxy::dist(DB$allelic_profile_true, method = hamming_distance_ignore)
+        dist <- compute.distMatrix(DB$allelic_profile_true, hamming.distIgnore)
       } else {
-        dist <- proxy::dist(DB$allelic_profile_true, method = hamming_distance_category)
+        dist <- compute.distMatrix(DB$allelic_profile_true, hamming.distCategory)
       }
     } else {
-      dist <- proxy::dist(DB$allelic_profile_true, method = hamming_distance)
+      dist <- compute.distMatrix(DB$allelic_profile_true, hamming.dist)
     }
     
     # Find indices of pairs with a distance of 0
@@ -21507,13 +21522,13 @@ server <- function(input, output, session) {
       if(anyNA(DB$allelic_profile)){
         if(input$na_handling == "omit") {
           allelic_profile_clean_noNA_names <- allelic_profile_clean[, colSums(is.na(allelic_profile_clean)) == 0]
-          proxy::dist(allelic_profile_clean_noNA_names, method = hamming_distance)
+          compute.distMatrix(allelic_profile_clean_noNA_names, hamming.dist)
         } else if (input$na_handling == "ignore_na") {
-          proxy::dist(allelic_profile_clean, method = hamming_distance_ignore)
+          compute.distMatrix(allelic_profile_clean, hamming.distIgnore)
         } else {
-          proxy::dist(allelic_profile_clean, method = hamming_distance_category)
+          compute.distMatrix(allelic_profile_clean, hamming.distCategory)
         }
-      } else {proxy::dist(allelic_profile_clean, method = hamming_distance)}
+      } else {compute.distMatrix(allelic_profile_clean, hamming.dist)}
       
       
     } else {
