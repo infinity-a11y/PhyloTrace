@@ -6430,7 +6430,9 @@ server <- function(input, output, session) {
         DB$meta_true <- NULL
         DB$allelic_profile <- NULL
         DB$allelic_profile_true <- NULL
-        DB$scheme <- input$scheme_db
+        if(!DB$select_new) {
+          DB$scheme <- input$scheme_db
+        }
         
         # null Distance matrix, entry table and plots
         output$db_distancematrix <- NULL 
@@ -6580,7 +6582,9 @@ server <- function(input, output, session) {
         DB$meta_true <- NULL
         DB$allelic_profile <- NULL
         DB$allelic_profile_true <- NULL
-        DB$scheme <- input$scheme_db
+        if(!DB$select_new) {
+          DB$scheme <- input$scheme_db
+        }
         
         # null Distance matrix, entry table and plots
         output$db_distancematrix <- NULL 
@@ -9316,77 +9320,26 @@ server <- function(input, output, session) {
                         )
                       )
                     } else {
-                      #if(is.null(Typing$entry_added)) {
-                        output$db_no_entries <- renderUI(
-                          column(
-                            width = 12,
-                            fluidRow(
-                              column(1),
-                              column(
-                                width = 11,
-                                align = "left",
-                                HTML(
-                                  paste(
-                                    "<span style='color: white;'>",
-                                    "No Entries for this scheme available.\n",
-                                    "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
-                                    sep = '<br/>'
-                                  )
+                      output$db_no_entries <- renderUI(
+                        column(
+                          width = 12,
+                          fluidRow(
+                            column(1),
+                            column(
+                              width = 11,
+                              align = "left",
+                              HTML(
+                                paste(
+                                  "<span style='color: white;'>",
+                                  "No Entries for this scheme available.\n",
+                                  "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
+                                  sep = '<br/>'
                                 )
                               )
                             )
                           )
                         )
-                      #} 
-                      # else {
-                      #   if(Typing$entry_added == 999999) {
-                      #     output$db_no_entries <- renderUI(
-                      #       column(
-                      #         width = 12,
-                      #         fluidRow(
-                      #           column(1),
-                      #           column(
-                      #             width = 3,
-                      #             align = "left",
-                      #             HTML(
-                      #               paste(
-                      #                 tags$span(style='color: white; font-size: 15px; position: absolute; bottom: -30px; right: -5px', 'New entries - reload database')
-                      #               )
-                      #             )
-                      #           ),
-                      #           column(
-                      #             width = 4,
-                      #             actionButton(
-                      #               "load",
-                      #               "",
-                      #               icon = icon("rotate"),
-                      #               class = "pulsating-button"
-                      #             )
-                      #           )
-                      #         )
-                      #       )
-                      #     )
-                      #   } else {
-                      #     output$db_no_entries <- renderUI(
-                      #       column(
-                      #         width = 12,
-                      #         fluidRow(
-                      #           column(1),
-                      #           column(
-                      #             width = 11,
-                      #             align = "left",
-                      #             HTML(paste(
-                      #               "<span style='color: white;'>",
-                      #               "No Entries for this scheme available.",
-                      #               "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
-                      #               sep = '<br/>'
-                      #             ))
-                      #           )
-                      #         )
-                      #       )
-                      #     )
-                      #   }
-                      # }
+                      )
                     }
                   }
                 })
