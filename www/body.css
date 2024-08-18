@@ -945,8 +945,23 @@ border-color: white;
 
 /* Visualization MST */
   
-  #mst_title_color {
+#mst_title_color {
   margin-bottom: 21px;
+}
+
+#mst_cluster_reset i.fas.fa-rotate {
+position: relative; 
+left: -6px;
+top: -3px;
+}
+
+button#mst_cluster_reset.btn.btn-default.action-button.shiny-bound-input {
+height: 27px; 
+width: 27px; 
+position: relative; 
+left: -5px;
+top: -3px;
+border: 1px solid white;
 }
 
 .mat-switch-mst-mult {
@@ -965,18 +980,27 @@ border-color: white;
 }
 
 #maindivtree_mst, #graphtree_mst {
-border-radius: 10px;
+  border-radius: 10px;
+}
+
+.mst-cluster-switch {
+  margin-top: 6px;
+  margin-left: 20px;
+}
+
+#mst_cluster_threshold {
+  margin-top: -7px;
 }
 
 button#create_tree {
-position: relative;
-overflow: hidden;
-box-shadow: 0px 0px 20px 10px rgba(255, 255, 255, 0.23);
-transition: box-shadow 0.3s ease;
-left: -15px;
-border: none;
-height: 45px;
-z-index: 0;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0px 0px 20px 10px rgba(255, 255, 255, 0.23);
+  transition: box-shadow 0.3s ease;
+  left: -15px;
+  border: none;
+  height: 45px;
+  z-index: 0;
 }
 
 button#create_tree:hover {
@@ -986,8 +1010,8 @@ box-shadow: 0px 0px 20px 15px rgba(40, 47, 56, 1);
 }
 
 #button-wrapper {
-position: relative;
-display: inline-block;
+  position: relative;
+  display: inline-block;
 }
 
 .icon {
@@ -1002,17 +1026,17 @@ display: inline-block;
 }
 
 #button-wrapper:hover .icon {
-transform: scale(1.2);
-width: 43px;
-height: auto;
-top: -2px;
-left: -7px;
+  transform: scale(1.2);
+  width: 43px;
+  height: auto;
+  top: -2px;
+  left: -7px;
 }
 
 #mst_ratio {
-position: absolute; 
-right: 36px; 
-top: 23px;
+  position: absolute; 
+  right: 36px; 
+  top: 23px;
 }
 
 button#mst_general_menu {
@@ -1052,33 +1076,41 @@ background: #20E6E5;
 }
 
 button#mst_title_menu {
-height: 34px; 
-margin-top: 20px; 
-border-radius: 5px
+  height: 34px; 
+  margin-top: 20px; 
+  border-radius: 5px
 }
 
 button#mst_edgelabel_menu {
-height: 34px; 
-background: #20E6E5; 
+  height: 34px; 
+  background: #20E6E5; 
   color: #000000; 
   margin-top: 37px; 
-border-radius: 5px
+  border-radius: 5px
+}
+
+button#mst_cluster_col_menu {
+  height: 34px;
+  background: #20E6E5;
+  color: #000000;
+  border-radius: 5px;
+  margin-left: -32px;
 }
 
 button#mst_edgecolor_menu {
-height: 34px; 
-background: #20E6E5; 
+  height: 34px; 
+  background: #20E6E5; 
   color: #000000; 
   margin-top: 20px; 
-border-radius: 5px
+  border-radius: 5px
 }
 
 button#mst_subtitle_menu {
-height: 34px; 
-background: #20E6E5; 
+  height: 34px; 
+  background: #20E6E5; 
   color: #000000; 
   margin-top: 20px; 
-border-radius: 5px
+  border-radius: 5px
 }
 
 button#mst_legend_menu {

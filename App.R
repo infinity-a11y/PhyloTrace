@@ -991,7 +991,7 @@ ui <- dashboardPage(
                             column(
                               width = 2,
                               bslib::tooltip(
-                                bsicons::bs_icon("info-circle", title = "Only categorical variables can \nbe mapped to the node color.", color = "white", 
+                                bsicons::bs_icon("info-circle", title = "Only categorical variables can \nbe mapped to the node color", color = "white", 
                                                  height = "12px", width = "12px", position = "relative", top = "27px", right = "56px"),
                                 "Text shown in the tooltip.",
                                 show = FALSE,
@@ -1377,20 +1377,35 @@ ui <- dashboardPage(
                     width = 6,
                     fluidRow(
                       column(
-                        width = 12,
+                        width = 6,
                         align = "left",
-                        h4(p("Clustering"), style = "color:white; text-align: left;")
+                        h4(p("Clustering"), style = "color:white; text-align: left; position: relative; right: -15px")
+                      ),
+                      column(
+                        width = 2,
+                        bslib::tooltip(
+                          bsicons::bs_icon("info-circle", 
+                                           title = "Cluster threshold according to species-specific\nComplex Type Distance (cgMLST.org)", 
+                                           color = "white", height = "14px", width = "14px", 
+                                           position = "relative", top = "9px", right = "28px"),
+                          "Text shown in the tooltip.",
+                          show = FALSE,
+                          id = "mst_cluster_info"
+                        )
                       )
                     ),
                     br(),
                     fluidRow(
                       column(
                         width = 9,
-                        materialSwitch(
-                          "mst_show_clusters",
-                          h5(p("Show Clusters"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                          value = FALSE,
-                          right = TRUE
+                        div(
+                          class = "mst-cluster-switch",
+                          materialSwitch(
+                            "mst_show_clusters",
+                            h5(p("Show"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                            value = FALSE,
+                            right = TRUE
+                          )
                         )
                       ),
                       column(
@@ -1422,20 +1437,24 @@ ui <- dashboardPage(
                         width = 4,
                         HTML(
                           paste(
-                            tags$span(style='color: white; text-align: left; font-size: 14px; margin: 10px', 'Threshold')
+                            tags$span(style='color: white; text-align: left; font-size: 14px; margin-left: 15px', 'Threshold')
                           )
                         )
                       ),
                       column(
-                        width = 8,
-                        sliderInput(
-                          inputId = "mst_cluster_threshold",
-                          label = NULL,
-                          min = 0,
-                          max = 20,
-                          value = 4,
-                          ticks = FALSE
-                        )
+                        width = 4,
+                        uiOutput("mst_cluster")
+                      ),
+                      column(
+                        width = 4,
+                        actionButton(
+                          "mst_cluster_reset",
+                          label = "",
+                          icon = icon("rotate")
+                        ),
+                        bsTooltip("mst_cluster_reset", 
+                                  HTML("Reset to default Complex Type Distance"), 
+                                  placement = "top", trigger = "hover")
                       )
                     )
                   ),
@@ -12098,13 +12117,6 @@ server <- function(input, output, session) {
     }
   })
   
-  observe({
-    req(DB$schemeinfo)
-    updateSliderInput(session, "mst_cluster_threshold",
-                      max = as.numeric(DB$schemeinfo[[7,2]]) * 2,
-                      value = as.numeric(DB$schemeinfo[[7,2]]))
-  })
-  
   # Custom Labels
   
   # Add custom label
@@ -17803,8 +17815,19 @@ server <- function(input, output, session) {
   
   #### MST controls ----
   
-  # Mst color mapping
+  # Clustering UI
+  output$mst_cluster <- renderUI({
+    req(DB$schemeinfo)
+    numericInput(
+      inputId = "mst_cluster_threshold",
+      label = NULL,
+      value = as.numeric(DB$schemeinfo[7, 2]),
+      min = 1,
+      max = 99
+    )
+  })
   
+  # MST color mapping
   output$mst_color_mapping <- renderUI({
     if(input$mst_color_var == FALSE) {
       fluidRow(
@@ -18065,8 +18088,6 @@ server <- function(input, output, session) {
     if (input$mst_show_clusters) {
       data$nodes$group <- compute_clusters(data$nodes, data$edges, input$mst_cluster_threshold)
     }
-    
-    updateSliderInput(session, "mst_cluster_threshold", max = max(data$edges$weight))
     
     visNetwork_graph <- visNetwork(data$nodes, data$edges,
                                    main = mst_title(),
@@ -21087,6 +21108,12 @@ server <- function(input, output, session) {
   )
   
   ### Reactive Events ----
+  
+  # MST cluster reset button
+  observeEvent(input$mst_cluster_reset, {
+    if(!is.null(DB$schemeinfo))
+    updateNumericInput(session, "mst_cluster_threshold", value = as.numeric(DB$schemeinfo[7, 2]))
+  })
   
   # Shut off "Align Labels" control for UPGMA trees
   shinyjs::disable('upgma_align')
