@@ -5764,11 +5764,7 @@ server <- function(input, output, session) {
     invalidateLater(5000, session)
     
     if(!is.null(DB$database)) {
-      if(file_exists(file.path(
-        DB$database,
-        gsub(" ", "_", DB$scheme),
-        "Typing.rds"
-      ))) {
+      if(file_exists(file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))) {
         
         Database <- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme),"Typing.rds"))
         
@@ -9320,7 +9316,7 @@ server <- function(input, output, session) {
                         )
                       )
                     } else {
-                      if(is.null(Typing$entry_added)) {
+                      #if(is.null(Typing$entry_added)) {
                         output$db_no_entries <- renderUI(
                           column(
                             width = 12,
@@ -9341,55 +9337,56 @@ server <- function(input, output, session) {
                             )
                           )
                         )
-                      } else {
-                        if(Typing$entry_added == 999999) {
-                          output$db_no_entries <- renderUI(
-                            column(
-                              width = 12,
-                              fluidRow(
-                                column(1),
-                                column(
-                                  width = 3,
-                                  align = "left",
-                                  HTML(
-                                    paste(
-                                      tags$span(style='color: white; font-size: 15px; position: absolute; bottom: -30px; right: -5px', 'New entries - reload database')
-                                    )
-                                  )
-                                ),
-                                column(
-                                  width = 4,
-                                  actionButton(
-                                    "load",
-                                    "",
-                                    icon = icon("rotate"),
-                                    class = "pulsating-button"
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        } else {
-                          output$db_no_entries <- renderUI(
-                            column(
-                              width = 12,
-                              fluidRow(
-                                column(1),
-                                column(
-                                  width = 11,
-                                  align = "left",
-                                  HTML(paste(
-                                    "<span style='color: white;'>",
-                                    "No Entries for this scheme available.",
-                                    "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
-                                    sep = '<br/>'
-                                  ))
-                                )
-                              )
-                            )
-                          )
-                        }
-                      }
+                      #} 
+                      # else {
+                      #   if(Typing$entry_added == 999999) {
+                      #     output$db_no_entries <- renderUI(
+                      #       column(
+                      #         width = 12,
+                      #         fluidRow(
+                      #           column(1),
+                      #           column(
+                      #             width = 3,
+                      #             align = "left",
+                      #             HTML(
+                      #               paste(
+                      #                 tags$span(style='color: white; font-size: 15px; position: absolute; bottom: -30px; right: -5px', 'New entries - reload database')
+                      #               )
+                      #             )
+                      #           ),
+                      #           column(
+                      #             width = 4,
+                      #             actionButton(
+                      #               "load",
+                      #               "",
+                      #               icon = icon("rotate"),
+                      #               class = "pulsating-button"
+                      #             )
+                      #           )
+                      #         )
+                      #       )
+                      #     )
+                      #   } else {
+                      #     output$db_no_entries <- renderUI(
+                      #       column(
+                      #         width = 12,
+                      #         fluidRow(
+                      #           column(1),
+                      #           column(
+                      #             width = 11,
+                      #             align = "left",
+                      #             HTML(paste(
+                      #               "<span style='color: white;'>",
+                      #               "No Entries for this scheme available.",
+                      #               "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
+                      #               sep = '<br/>'
+                      #             ))
+                      #           )
+                      #         )
+                      #       )
+                      #     )
+                      #   }
+                      # }
                     }
                   }
                 })

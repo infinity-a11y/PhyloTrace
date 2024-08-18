@@ -1,9 +1,7 @@
 # Resources
 
-#TODO remove B pertussis from list
 amrfinder_species <- c(
   "Acinetobacter_baumannii", "Burkholderia_cepacia", "Burkholderia_mallei_FLI", 
-  "Bordetella_pertussis",
   "Burkholderia_mallei_RKI", "Burkholderia_pseudomallei", "Campylobacter_jejuni_coli",
   "Citrobacter_freundii", "Clostridioides_difficile", "Corynebacterium_diphtheriae", 
   "Enterobacter_asburiae", "Enterobacter_cloacae", "Enterococcus_faecalis", 

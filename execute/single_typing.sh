@@ -45,6 +45,7 @@ genome="$base_path/execute/blat_single/$genome_name"
 mv "$genome" "$base_path/execute/blat_single/$rename_file.fasta"
 
 # Run parallelized BLAT
+#TODO remove X
 find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name "*.fna" \) | parallel pblat "$base_path/execute/blat_single/$rename_file.fasta" {} "$results/{/.}.psl" > /dev/null 2>&1
 
 # Start appending results
