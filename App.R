@@ -5749,6 +5749,13 @@ server <- function(input, output, session) {
     }
   }
   
+  # Truncate hashes
+  truncHash <- function(hash) {
+    if(!is.na(hash)) {
+      paste0(str_sub(hash, 1, 4), "...", str_sub(hash, nchar(hash) - 3, nchar(hash))) 
+    } else {NA}
+  }
+  
   # Function to check for duplicate isolate IDs for multi typing start
   dupl_mult_id <- reactive({
     req(Typing$multi_sel_table)
@@ -5916,14 +5923,14 @@ server <- function(input, output, session) {
           DB$available <- gsub("_", " ", basename(dir_ls(DB$database))) # List of local schemes available
         }
         
-      } else if (DB$select_new == TRUE) {
-        DB$database <- file.path(DB$new_database, "Database")
+      } else if (DB$select_new ==  TRUE) {
+        DB$database <- paste0(DB$new_database, "/Database")
         
       }
     } else {
-      if(!is.null(DB$last_db) & file.exists(file.path(getwd(), "execute/last_db.rds"))) {
+      if(!is.null(DB$last_db) & file.exists(paste0(getwd(), "/execute/last_db.rds"))) {
         
-        DB$database <- readRDS(file.path(getwd(), "execute/last_db.rds")) 
+        DB$database <- readRDS(paste0(getwd(), "/execute/last_db.rds"))
         
         if(dir_exists(DB$database)) {
           DB$exist <- (length(dir_ls(DB$database)) == 0)  # Logical any local database present
@@ -6407,7 +6414,7 @@ server <- function(input, output, session) {
     
     # Load app elements based on database availability and missing value presence
     if(!is.null(DB$select_new)) {
-      if(DB$select_new & (file.path(DB$new_database, "Database") %in% dir_ls(DB$new_database))) {
+      if(DB$select_new & (paste0(DB$new_database, "/Database") %in% dir_ls(DB$new_database))) {
         
         log_print("Directory already contains a database")
         
@@ -6429,6 +6436,7 @@ server <- function(input, output, session) {
         DB$meta <- NULL
         DB$meta_true <- NULL
         DB$allelic_profile <- NULL
+        DB$allelic_profile_trunc <- NULL
         DB$allelic_profile_true <- NULL
         
         # null Distance matrix, entry table and plots
@@ -6578,6 +6586,7 @@ server <- function(input, output, session) {
         DB$meta <- NULL
         DB$meta_true <- NULL
         DB$allelic_profile <- NULL
+        DB$allelic_profile_trunc <- NULL
         DB$allelic_profile_true <- NULL
         DB$scheme <- input$scheme_db
         
@@ -7042,6 +7051,7 @@ server <- function(input, output, session) {
                 DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
                 DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
                 DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
+                DB$allelic_profile_trunc <- as.data.frame(lapply(DB$allelic_profile, function(x) sapply(x, truncHash)))
                 DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
                 
                 # Null pipe 
@@ -7968,8 +7978,13 @@ server <- function(input, output, session) {
                         if (length(input$compare_select) > 0) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
                             output$db_entries <- renderRHandsontable({
+                              
+                              entry_data <- DB$data %>%
+                                select(1:(13 + nrow(DB$cust_var))) %>%
+                                add_column(select(DB$allelic_profile_trunc, input$compare_select))
+                              
                               rhandsontable(
-                                select(DB$data, 1:(13 + nrow(DB$cust_var)), input$compare_select),
+                                entry_data,
                                 col_highlight = diff_allele() - 1,
                                 dup_names_high = duplicated_names() - 1,
                                 dup_ids_high = duplicated_ids() - 1,
@@ -7983,18 +7998,7 @@ server <- function(input, output, session) {
                                 hot_col((13 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)), 
                                         valign = "htMiddle",
                                         halign = "htCenter",
-                                        readOnly = TRUE,
-                                        renderer = htmlwidgets::JS(
-                                          "function(instance, td, row, col, prop, value, cellProperties) {
-                                            if (value.length > 8) {
-                                              value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
-                                            }
-                                            td.innerHTML = value;
-                                            td.style.textAlign = 'center';
-                                            return td;
-                                           }"
-                                          )
-                                        ) %>%
+                                        readOnly = TRUE) %>%
                                 hot_col(1, 
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
@@ -8280,8 +8284,13 @@ server <- function(input, output, session) {
                         if (length(input$compare_select) > 0) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height) & !is.null(input$compare_select)) {
                             output$db_entries <- renderRHandsontable({
+                              
+                              entry_data <- DB$data %>%
+                                select(1:(13 + nrow(DB$cust_var))) %>%
+                                add_column(select(DB$allelic_profile_trunc, input$compare_select))
+                              
                               rhandsontable(
-                                select(DB$data, 1:(13 + nrow(DB$cust_var)), input$compare_select),
+                                entry_data,
                                 col_highlight = diff_allele() - 1,
                                 rowHeaders = NULL,
                                 height = table_height(),
@@ -8296,17 +8305,7 @@ server <- function(input, output, session) {
                                 hot_col((13 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)),
                                         readOnly = TRUE, 
                                         valign = "htMiddle",
-                                        halign = "htCenter",
-                                        renderer = htmlwidgets::JS(
-                                          "function(instance, td, row, col, prop, value, cellProperties) {
-                                            if (value.length > 8) {
-                                              value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
-                                            }
-                                            td.innerHTML = value;
-                                            td.style.textAlign = 'center';
-                                            return td;
-                                           }")
-                                        ) %>%
+                                        halign = "htCenter") %>%
                                 hot_col(3:(12 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
                                         halign = "htLeft") %>%
@@ -8626,6 +8625,7 @@ server <- function(input, output, session) {
                           )
                         )
                       } else if((DB$change == TRUE) | !identical(get.entry.table.meta(), select(DB$meta, -13))) {
+                        
                         if(!is.null(input$db_entries)) {
                           fluidRow(
                             column(
@@ -9220,6 +9220,7 @@ server <- function(input, output, session) {
                 DB$meta_gs <- NULL
                 DB$meta_true <- NULL
                 DB$allelic_profile <- NULL
+                DB$allelic_profile_trunc <- NULL
                 DB$allelic_profile_true <- NULL
                 
                 # Render menu without missing values tab
@@ -10014,6 +10015,7 @@ server <- function(input, output, session) {
     DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
     DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
+    DB$allelic_profile_trunc <- as.data.frame(lapply(DB$allelic_profile, function(x) sapply(x, truncHash)))
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
     DB$deleted_entries <- character(0)
     
@@ -10118,8 +10120,13 @@ server <- function(input, output, session) {
           if (length(input$compare_select) > 0) {
             if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
               output$db_entries <- renderRHandsontable({
+                
+                entry_data <- DB$data %>%
+                  select(1:(13 + nrow(DB$cust_var))) %>%
+                  add_column(select(DB$allelic_profile_trunc, input$compare_select))
+                
                 rhandsontable(
-                  select(DB$data, 1:(13 + nrow(DB$cust_var)), input$compare_select),
+                  entry_data,
                   col_highlight = diff_allele() - 1,
                   dup_names_high = duplicated_names() - 1,
                   dup_ids_high = duplicated_ids() - 1,
@@ -10133,17 +10140,7 @@ server <- function(input, output, session) {
                   hot_col((13 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)), 
                           valign = "htMiddle",
                           halign = "htCenter",
-                          readOnly = TRUE,
-                          renderer = htmlwidgets::JS(
-                            "function(instance, td, row, col, prop, value, cellProperties) {
-                                            if (value.length > 8) {
-                                              value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
-                                            }
-                                            td.innerHTML = value;
-                                            td.style.textAlign = 'center';
-                                            return td;
-                                           }")
-                          ) %>%
+                          readOnly = TRUE) %>%
                   hot_col(1, 
                           valign = "htMiddle",
                           halign = "htCenter") %>%
@@ -10429,8 +10426,13 @@ server <- function(input, output, session) {
           if (length(input$compare_select) > 0) {
             if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height) & !is.null(input$compare_select)) {
               output$db_entries <- renderRHandsontable({
+                
+                entry_data <- DB$data %>%
+                  select(1:(13 + nrow(DB$cust_var))) %>%
+                  add_column(select(DB$allelic_profile_trunc, input$compare_select))
+                
                 rhandsontable(
-                  select(DB$data, 1:(13 + nrow(DB$cust_var)), input$compare_select),
+                  entry_data,
                   col_highlight = diff_allele() - 1,
                   rowHeaders = NULL,
                   height = table_height(),
@@ -10445,17 +10447,7 @@ server <- function(input, output, session) {
                   hot_col((13 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)),
                           readOnly = TRUE, 
                           valign = "htMiddle",
-                          halign = "htCenter",
-                          renderer = htmlwidgets::JS(
-                            "function(instance, td, row, col, prop, value, cellProperties) {
-                                            if (value.length > 8) {
-                                              value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
-                                            }
-                                            td.innerHTML = value;
-                                            td.style.textAlign = 'center';
-                                            return td;
-                                           }")
-                          ) %>%
+                          halign = "htCenter") %>%
                   hot_col(3:(12 + nrow(DB$cust_var)), 
                           valign = "htMiddle",
                           halign = "htLeft") %>%
@@ -10896,6 +10888,7 @@ server <- function(input, output, session) {
     DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
     DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
+    DB$allelic_profile_trunc <- as.data.frame(lapply(DB$allelic_profile, function(x) sapply(x, truncHash)))
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
   })
   
@@ -11122,6 +11115,7 @@ server <- function(input, output, session) {
     DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
     DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
+    DB$allelic_profile_trunc <- as.data.frame(lapply(DB$allelic_profile, function(x) sapply(x, truncHash)))
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
     DB$deleted_entries <- character(0)
     
@@ -11242,6 +11236,7 @@ server <- function(input, output, session) {
     DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
     DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
+    DB$allelic_profile_trunc <- as.data.frame(lapply(DB$allelic_profile, function(x) sapply(x, truncHash)))
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
     
     # User feedback
