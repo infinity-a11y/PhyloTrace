@@ -34,9 +34,16 @@ body > div.swal2-container.swal2-bottom-end.swal2-backdrop-show {
   background-color: #282F38 !important;
 }
 
-.handsontable .wtBorder .area .corner {
+.handsontable .wtBorder.area.corner {
   background-color: #20e6e5 !important;
 }
+
+/*.handsontable td.area:before,
+.handsontable .htBottom.fill.area.highlight
+.handsontable .wtBorder.area,
+.handsontable .wtBorder.corner {
+  background: #20e6e5 !important;
+}*/
 
 .tooltip-inner {
   white-space: normal;

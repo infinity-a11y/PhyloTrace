@@ -5563,13 +5563,13 @@ server <- function(input, output, session) {
     varying_columns <- c()
     
     for (col in 1:ncol(dataframe)) {
-      if(class(dataframe[, col]) == "integer") {
+      #if(class(dataframe[, col]) == "integer") {
         unique_values <- unique(dataframe[, col])
         
         if (length(unique_values) > 1) {
           varying_columns <- c(varying_columns, col)
         }
-      }
+      #}
     }
     
     return(varying_columns)
@@ -5794,7 +5794,7 @@ server <- function(input, output, session) {
   
   diff_allele <- reactive({
     if (!is.null(DB$data) & !is.null(input$compare_select) & !is.null(DB$cust_var)) {
-      var_alleles(select(DB$data, input$compare_select)) + (12 + nrow(DB$cust_var))
+      var_alleles(select(DB$data, input$compare_select)) + (13 + nrow(DB$cust_var))
     }
   })
   
@@ -7896,7 +7896,7 @@ server <- function(input, output, session) {
                               hot_col(3, readOnly = TRUE) %>%
                               hot_col(c(1, 5, 10, 11, 12, 13),
                                       readOnly = TRUE) %>%
-                              hot_col(3:(12 + nrow(DB$cust_var)), 
+                              hot_col(3:(13 + nrow(DB$cust_var)), 
                                       valign = "htMiddle",
                                       halign = "htLeft") %>%
                               hot_col(3, validator = "
@@ -7995,7 +7995,7 @@ server <- function(input, output, session) {
                                 highlightRow = TRUE,
                                 contextMenu = FALSE
                               )  %>%
-                                hot_col((13 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)), 
+                                hot_col((14 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)), 
                                         valign = "htMiddle",
                                         halign = "htCenter",
                                         readOnly = TRUE) %>%
@@ -8039,7 +8039,7 @@ server <- function(input, output, session) {
                                     }
                                   }
                                 ") %>%
-                                hot_col(3:(12 + nrow(DB$cust_var)), 
+                                hot_col(3:(13 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
                                         halign = "htLeft") %>%
                                 hot_col(8, type = "dropdown", source = country_names) %>%
@@ -8162,7 +8162,7 @@ server <- function(input, output, session) {
                                 hot_col(3, readOnly = TRUE) %>%
                                 hot_col(c(1, 5, 10, 11, 12, 13),
                                         readOnly = TRUE) %>%
-                                hot_col(3:(12 + nrow(DB$cust_var)), 
+                                hot_col(3:(13 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
                                         halign = "htLeft") %>%
                                 hot_col(3, validator = "
@@ -8302,11 +8302,11 @@ server <- function(input, output, session) {
                                 highlightCol = TRUE, 
                                 highlightRow = TRUE
                               ) %>%
-                                hot_col((13 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)),
+                                hot_col((14 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)),
                                         readOnly = TRUE, 
                                         valign = "htMiddle",
                                         halign = "htCenter") %>%
-                                hot_col(3:(12 + nrow(DB$cust_var)), 
+                                hot_col(3:(13 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
                                         halign = "htLeft") %>%
                                 hot_col(3, readOnly = TRUE) %>%
@@ -8522,7 +8522,7 @@ server <- function(input, output, session) {
                                     Shiny.setInputValue('invalid_date', true);
                                   }
                                 }") %>%
-                                hot_col(3:(12 + nrow(DB$cust_var)), 
+                                hot_col(3:(13 + nrow(DB$cust_var)), 
                                         valign = "htMiddle",
                                         halign = "htLeft") %>%
                                 hot_rows(fixedRowsTop = 0) %>%
@@ -9929,6 +9929,11 @@ server <- function(input, output, session) {
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
     
+    dataa <<- DB$data
+    comp_sel <<- input$compare_select
+    cust_var <<- DB$cust_var
+    all_prof <<- DB$allelic_profile
+    
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -10038,7 +10043,7 @@ server <- function(input, output, session) {
                 hot_col(3, readOnly = TRUE) %>%
                 hot_col(c(1, 5, 10, 11, 12, 13),
                         readOnly = TRUE) %>%
-                hot_col(3:(12 + nrow(DB$cust_var)), 
+                hot_col(3:(13 + nrow(DB$cust_var)), 
                         valign = "htMiddle",
                         halign = "htLeft") %>%
                 hot_col(3, validator = "
@@ -10137,7 +10142,7 @@ server <- function(input, output, session) {
                   highlightRow = TRUE,
                   contextMenu = FALSE
                 )  %>%
-                  hot_col((13 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)), 
+                  hot_col((14 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)), 
                           valign = "htMiddle",
                           halign = "htCenter",
                           readOnly = TRUE) %>%
@@ -10147,7 +10152,7 @@ server <- function(input, output, session) {
                   hot_col(3, readOnly = TRUE) %>%
                   hot_col(c(1, 5, 10, 11, 12, 13),
                           readOnly = TRUE) %>%
-                  hot_col(3:(12 + nrow(DB$cust_var)), 
+                  hot_col(3:(13 + nrow(DB$cust_var)), 
                           valign = "htMiddle",
                           halign = "htLeft") %>%
                   hot_col(3, validator = "
@@ -10304,7 +10309,7 @@ server <- function(input, output, session) {
                   hot_col(3, readOnly = TRUE) %>%
                   hot_col(c(1, 5, 10, 11, 12, 13),
                           readOnly = TRUE) %>%
-                  hot_col(3:(12 + nrow(DB$cust_var)), 
+                  hot_col(3:(13 + nrow(DB$cust_var)), 
                           valign = "htMiddle",
                           halign = "htLeft") %>%
                   hot_col(3, validator = "
@@ -10444,11 +10449,11 @@ server <- function(input, output, session) {
                   highlightCol = TRUE, 
                   highlightRow = TRUE
                 ) %>%
-                  hot_col((13 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)),
+                  hot_col((14 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)),
                           readOnly = TRUE, 
                           valign = "htMiddle",
                           halign = "htCenter") %>%
-                  hot_col(3:(12 + nrow(DB$cust_var)), 
+                  hot_col(3:(13 + nrow(DB$cust_var)), 
                           valign = "htMiddle",
                           halign = "htLeft") %>%
                   hot_col(3, readOnly = TRUE) %>%
@@ -10664,7 +10669,7 @@ server <- function(input, output, session) {
                                     Shiny.setInputValue('invalid_date', true);
                                   }
                                 }") %>%
-                  hot_col(3:(12 + nrow(DB$cust_var)), 
+                  hot_col(3:(13 + nrow(DB$cust_var)), 
                           valign = "htMiddle",
                           halign = "htLeft") %>%
                   hot_rows(fixedRowsTop = 0) %>%
@@ -10983,7 +10988,7 @@ server <- function(input, output, session) {
       }
       
       if (input$download_table_loci == FALSE) {
-        download_matrix <- select(download_matrix, 1:(12 + nrow(DB$cust_var)))
+        download_matrix <- select(download_matrix, 1:(13 + nrow(DB$cust_var)))
       } 
       
       write.csv(download_matrix, file, row.names=FALSE, quote=FALSE) 
@@ -11083,19 +11088,10 @@ server <- function(input, output, session) {
     
     # Ensure correct logical data type
     Data[["Typing"]][["Include"]] <- as.logical(Data[["Typing"]][["Include"]])
-    saveRDS(Data, paste0(
-      DB$database, "/",
-      gsub(" ", "_", DB$scheme),
-      "/Typing.rds"
-    ))
+    saveRDS(Data, file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
     
     # Load database from files  
-    Database <-
-      readRDS(paste0(
-        DB$database, "/",
-        gsub(" ", "_", DB$scheme),
-        "/Typing.rds"
-      ))
+    Database <- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
     
     DB$data <- Database[["Typing"]]
     
