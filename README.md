@@ -1,6 +1,6 @@
 <img src="www/PhyloTrace_bw.png#gh-light-mode-only" width="90%"/>
 <img src="www/PhyloTrace.png#gh-dark-mode-only" width="90%"/> <br> 
-PhyloTrace is a platform for bacterial pathogen monitoring on a genomic level. Its components evolve around Core-Genome Multilocus Sequence Typing (cgMLST) and Antimicrobial Resistance Screening. Complex analyses and computation are wrapped into an appealing and easy-to-handle graphical user interface. Users build a local database comprising analyzed isolates, manageable directly with the application. The visualization of isolate relationship and genetic profile is highly interactive aiding to reveal patterns explaining outbreak dynamics and events by connecting genomic information with epidemiologic variables. PhyloTrace achieves universal compatability by assigning unique 256-bit hashes based on sequence and allele information. The ability to easily share analysis results enables efficient inter-lab comparison and collaboration.
+PhyloTrace is a platform for bacterial pathogen monitoring on a genomic level. Its components evolve around Core-Genome Multilocus Sequence Typing (cgMLST) and Antimicrobial Resistance Screening. Complex analyses and computation are wrapped into an appealing and easy-to-handle graphical user interface. Users build a local database comprising analyzed isolates, manageable directly with the application. The visualization of isolate relationship and genetic profile is highly interactive aiding to reveal patterns explaining outbreak dynamics and events by connecting genomic information with epidemiologic variables. PhyloTrace achieves universal compatibility by assigning unique 256-bit hashes based on sequence and allele information. The ability to easily share analysis results enables efficient inter-lab comparison and collaboration.
 <br><br>
 
 **Features**
@@ -382,8 +382,8 @@ In addition to the points listed on the roadmap, we constantly improve existing 
 ✅ ***"Hello World!"*** - Version 1.0.0\
 ✅ Sophisticated MST Graphs (e.g. Pie Charts as Nodes)\
 ✅ Compatibility with Microsoft Windows\
-🔲 Hash-based Decentralized cgMLST\
-🔲 MST Graph Clustering\
+✅ Hash-based Decentralized cgMLST\
+✅ MST Graph Clustering\
 🔲 Support for additional cgMLST scheme databases (e.g. pubMLST, EnteroBase, Institut Pasteur)\
 🔲 Implementation of a NGS Assembly Pipeline\
 🔲 Backwards Compatibility with MLST (ST calling)\
