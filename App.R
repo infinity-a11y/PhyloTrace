@@ -5563,13 +5563,11 @@ server <- function(input, output, session) {
     varying_columns <- c()
     
     for (col in 1:ncol(dataframe)) {
-      #if(class(dataframe[, col]) == "integer") {
-        unique_values <- unique(dataframe[, col])
-        
-        if (length(unique_values) > 1) {
-          varying_columns <- c(varying_columns, col)
-        }
-      #}
+      unique_values <- unique(dataframe[, col])
+      
+      if (length(unique_values) > 1) {
+        varying_columns <- c(varying_columns, col)
+      }
     }
     
     return(varying_columns)
@@ -9928,11 +9926,6 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
-    
-    dataa <<- DB$data
-    comp_sel <<- input$compare_select
-    cust_var <<- DB$cust_var
-    all_prof <<- DB$allelic_profile
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
