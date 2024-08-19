@@ -5916,14 +5916,14 @@ server <- function(input, output, session) {
           DB$available <- gsub("_", " ", basename(dir_ls(DB$database))) # List of local schemes available
         }
         
-      } else if (DB$select_new ==  TRUE) {
-        DB$database <- paste0(DB$new_database, "/Database")
+      } else if (DB$select_new == TRUE) {
+        DB$database <- file.path(DB$new_database, "Database")
         
       }
     } else {
-      if(!is.null(DB$last_db) & file.exists(paste0(getwd(), "/execute/last_db.rds"))) {
+      if(!is.null(DB$last_db) & file.exists(file.path(getwd(), "execute/last_db.rds"))) {
         
-        DB$database <- readRDS(paste0(getwd(), "/execute/last_db.rds")) 
+        DB$database <- readRDS(file.path(getwd(), "execute/last_db.rds")) 
         
         if(dir_exists(DB$database)) {
           DB$exist <- (length(dir_ls(DB$database)) == 0)  # Logical any local database present
@@ -6407,7 +6407,7 @@ server <- function(input, output, session) {
     
     # Load app elements based on database availability and missing value presence
     if(!is.null(DB$select_new)) {
-      if(DB$select_new & (paste0(DB$new_database, "/Database") %in% dir_ls(DB$new_database))) {
+      if(DB$select_new & (file.path(DB$new_database, "Database") %in% dir_ls(DB$new_database))) {
         
         log_print("Directory already contains a database")
         
@@ -6430,9 +6430,6 @@ server <- function(input, output, session) {
         DB$meta_true <- NULL
         DB$allelic_profile <- NULL
         DB$allelic_profile_true <- NULL
-        if(!DB$select_new) {
-          DB$scheme <- input$scheme_db
-        }
         
         # null Distance matrix, entry table and plots
         output$db_distancematrix <- NULL 
@@ -6466,7 +6463,7 @@ server <- function(input, output, session) {
         DB$load_selected <- FALSE
         
         # Declare database path
-        DB$database <- paste0(DB$new_database, "/Database")
+        DB$database <- file.path(DB$new_database, "Database")
         
         # Set database availability screening variables to present database
         DB$block_db <- TRUE
@@ -6582,9 +6579,7 @@ server <- function(input, output, session) {
         DB$meta_true <- NULL
         DB$allelic_profile <- NULL
         DB$allelic_profile_true <- NULL
-        if(!DB$select_new) {
-          DB$scheme <- input$scheme_db
-        }
+        DB$scheme <- input$scheme_db
         
         # null Distance matrix, entry table and plots
         output$db_distancematrix <- NULL 
