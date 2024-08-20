@@ -11184,11 +11184,11 @@ server <- function(input, output, session) {
       paste0(Sys.Date(), "_", gsub(" ", "_", DB$scheme), "_Entries.csv")
     },
     content = function(file) {
-      download_matrix <<- hot_to_r(input$db_entries)
+      download_matrix <- hot_to_r(input$db_entries)
       
-      if(input$download_table_hashes == TRUE) {
-        included_loci <<- colnames(select(download_matrix, -(1:(13 + nrow(DB$cust_var)))))
-        full_hashes <<- DB$allelic_profile[included_loci]
+      if(input$download_table_hashes == FALSE) {
+        included_loci <- colnames(select(download_matrix, -(1:(13 + nrow(DB$cust_var)))))
+        full_hashes <- DB$allelic_profile[included_loci]
         download_matrix[included_loci] <- full_hashes
       }
       
