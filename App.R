@@ -1443,12 +1443,12 @@ ui <- dashboardPage(
                               conditionalPanel(
                                 "input.mst_cluster_type=='Skeleton'",
                                 sliderInput(
-                                  "mst_cluster width",
+                                  "mst_cluster_width",
                                   label = h5("Skeleton Width", style = "color:white; margin-bottom: 0px;"),
-                                  value = 5,
+                                  value = 24,
                                   step = 1,
                                   min = 1,
-                                  max = 10,
+                                  max = 50,
                                   ticks = FALSE,
                                   width = "150px"
                                 )
@@ -18081,8 +18081,10 @@ server <- function(input, output, session) {
     if (input$mst_show_clusters) {
       if (input$mst_cluster_col_scale == "Viridis") {
         color_palette <- viridis(length(unique(data$nodes$group)))
+        color_edges <- viridis(length(unique(clusters$edges)))
       } else {
         color_palette <- rainbow(length(unique(data$nodes$group)))
+        color_edges <- rainbow(length(unique(clusters$edges)))
       }
       
       if (input$mst_cluster_type == "Area") {
@@ -18092,18 +18094,16 @@ server <- function(input, output, session) {
         }
       } else {
         thin_edges <- data$edges
-        thin_edges$width <- 1
+        thin_edges$width <- 2
         thin_edges$color <- "black"
         
         thick_edges <- data$edges
-        thick_edges$width <- 24
-        
+        thick_edges$width <- input$mst_cluster_width
         thick_edges$color <- rep("rgba(0, 0, 0, 0)", length(data$edges$from))
-        color_palette <- rainbow(length(unique(clusters$edges)))
+        
         for (i in 1:length(unique(clusters$edges))) {
-          print(clusters$edges)
           if (unique(clusters$edges)[i] != "0") {
-            edge_color <- paste(col2rgb(color_palette[i]), collapse=", ")
+            edge_color <- paste(col2rgb(color_edges[i]), collapse=", ")
             thick_edges$color[clusters$edges == unique(clusters$edges)[i]] <- paste0("rgba(", edge_color, ", 0.5)")
           }
         }
