@@ -23139,8 +23139,10 @@ server <- function(input, output, session) {
         HTML(
           paste(
             '<i class="fa-solid fa-check" style="font-size:20px;color:#90EE90; position:relative; top:27px;margin-right: 10px;"></i>',
-            tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
-                      paste(DB$scheme, "available for gene screening with NCBI/AMRFinder."))
+            '<span style="color: white; font-size: 15px; position:relative; top:25px;">',
+            DB$scheme, 'available for gene screening with ',
+            '<a href="https://www.ncbi.nlm.nih.gov/pathogens/antimicrobial-resistance/AMRFinder/" target="_blank" style="color:#008edb; text-decoration:none;">NCBI/AMRFinder</a>.',
+            '</span>'
           )
         )
       )
@@ -23148,9 +23150,11 @@ server <- function(input, output, session) {
       p(
         HTML(
           paste(
-            '<i class="fa-solid fa-xmark" style="font-size:20px;color:#ff0000;position:relative; top:27px;margin-right: 10px;"></i>',
-            tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
-                      paste(DB$scheme, " not available for gene screening with NCBI/AMRFinder."))
+            '<i class="fa-solid fa-xmark" style="font-size:20px;color:#ff0000; position:relative; top:27px;margin-right: 10px;"></i>',
+            '<span style="color: white; font-size: 15px; position:relative; top:25px;">',
+            DB$scheme, 'not available for gene screening with ',
+            '<a href="https://www.ncbi.nlm.nih.gov/pathogens/antimicrobial-resistance/AMRFinder/" target="_blank" style="color:#008edb; text-decoration:none;">NCBI/AMRFinder</a>.',
+            '</span>'
           )
         )
       )
@@ -23163,8 +23167,10 @@ server <- function(input, output, session) {
         HTML(
           paste(
             '<i class="fa-solid fa-check" style="font-size:20px;color:#90EE90; position:relative; top:27px;margin-right: 10px;"></i>',
-            tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
-                      paste(DB$scheme, "available for gene screening with NCBI/AMRFinder."))
+            '<span style="color: white; font-size: 15px; position:relative; top:25px;">',
+            DB$scheme, 'available for gene screening with ',
+            '<a href="https://www.ncbi.nlm.nih.gov/pathogens/antimicrobial-resistance/AMRFinder/" target="_blank" style="color:#008edb; text-decoration:none;">NCBI/AMRFinder</a>.',
+            '</span>'
           )
         )
       )
@@ -23172,9 +23178,11 @@ server <- function(input, output, session) {
       p(
         HTML(
           paste(
-            '<i class="fa-solid fa-xmark" style="font-size:20px;color:#ff0000;position:relative; top:27px;margin-right: 10px;"></i>',
-            tags$span(style="color: white; font-size: 15px; position:relative; top:25px", 
-                      paste(DB$scheme, " not available for gene screening with NCBI/AMRFinder."))
+            '<i class="fa-solid fa-xmark" style="font-size:20px;color:#ff0000; position:relative; top:27px;margin-right: 10px;"></i>',
+            '<span style="color: white; font-size: 15px; position:relative; top:25px;">',
+            DB$scheme, 'not available for gene screening with ',
+            '<a href="https://www.ncbi.nlm.nih.gov/pathogens/antimicrobial-resistance/AMRFinder/" target="_blank" style="color:#008edb; text-decoration:none;">NCBI/AMRFinder</a>.',
+            '</span>'
           )
         )
       )
