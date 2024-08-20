@@ -38,12 +38,11 @@ body > div.swal2-container.swal2-bottom-end.swal2-backdrop-show {
   background-color: #20e6e5 !important;
 }
 
-/*.handsontable td.area:before,
-.handsontable .htBottom.fill.area.highlight
-.handsontable .wtBorder.area,
-.handsontable .wtBorder.corner {
-  background: #20e6e5 !important;
-}*/
+.danger-button .btn-default:hover {
+  background-color: #ff5964 !important;
+  border-color: #ff5964 !important;
+  color: white !important;
+}
 
 .tooltip-inner {
   white-space: normal;
@@ -66,10 +65,6 @@ body > div.swal2-container.swal2-bottom-end.swal2-backdrop-show {
   color: #ffffff;
   background-color: #282F38;  
   border-color: white;  
-}
-
-#conf_delete .btn-default:hover {
-  background-color: #FF5964 !important;
 }
 
 .datepicker table tr td.active:active, .datepicker table tr td.active.active, .datepicker table tr td.active.highlighted:active, .datepicker table tr td.active.highlighted.active {

@@ -283,6 +283,7 @@ ui <- dashboardPage(
           column(
             width = 8,
             uiOutput("db_entries_table"),
+            br(),
             fluidRow(
               column(
                 width = 3,
@@ -1511,7 +1512,7 @@ ui <- dashboardPage(
                           selectInput(
                             "mst_cluster_col_scale",
                             label = h5("Color Scale", style = "color:white; margin-bottom: 0px;"),
-                            choices = c("Viridis", "Rainbow"),
+                            choices = c("Rainbow", "Viridis"),
                             width = "150px"
                           )
                         )
@@ -11189,12 +11190,25 @@ server <- function(input, output, session) {
       if( (length(input$select_delete) - nrow(DB$data) ) == 0) {
         showModal(
           modalDialog(
-            paste0("Deleting will lead to removal of all entries and assemblies from local ", DB$scheme, " database. The data can not be recovered afterwards. Continue?"),
+            HTML(paste0("Deleting will lead to removal of <strong>ALL entries</strong> and assemblies from local ", DB$scheme, " database. The data can not be recovered afterwards. Continue?")),
             easyClose = TRUE,
             title = "Deleting Entries",
             footer = tagList(
-              modalButton("Cancel"),
-              actionButton("conf_delete_all", "Delete", class = "btn btn-danger")
+              fluidRow(
+                column(6),
+                column(
+                  width = 4,
+                  modalButton("Cancel"),
+                ),
+                column(
+                  width = 2,
+                  div(
+                    class = "danger-button",
+                    actionButton("conf_delete_all", "Delete")
+                  )
+                )
+              )
+             
             )
           )
         )
@@ -11208,11 +11222,23 @@ server <- function(input, output, session) {
             fade = TRUE,
             easyClose = TRUE,
             footer = tagList(
-              modalButton("Cancel"),
-              actionButton(
-                "conf_delete", 
-                "Delete", 
-                class = "btn btn-danger")
+              fluidRow(
+                column(6),
+                column(
+                  width = 4,
+                  modalButton("Cancel")
+                ),
+                column(
+                  width = 2,
+                  div(
+                    class = "danger-button",
+                    actionButton(
+                      "conf_delete", 
+                      "Delete"
+                    )
+                  )
+                )
+              )
             )
           )
         )
