@@ -284,92 +284,6 @@ ui <- dashboardPage(
             width = 8,
             uiOutput("db_entries_table"),
             br(),
-            fluidRow(
-              column(
-                width = 3,
-                fluidRow(
-                  column(
-                    width = 3,
-                    div(
-                      class = "rectangle-blue" 
-                    )
-                  ),
-                  column(
-                    width = 7,
-                    p(
-                      HTML(
-                        paste(
-                          tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px", " = included for analyses")
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 3,
-                fluidRow(
-                  column(
-                    width = 3,
-                    div(
-                      class = "rectangle-orange" 
-                    )
-                  ),
-                  column(
-                    width = 7,
-                    p(
-                      HTML(
-                        paste(
-                          tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -45px", " =  duplicated assembly name")
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 3,
-                fluidRow(
-                  column(
-                    width = 3,
-                    div(
-                      class = "rectangle-red" 
-                    )
-                  ),
-                  column(
-                    width = 7,
-                    p(
-                      HTML(
-                        paste(
-                          tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -75px", " =  ≥ 5% of loci missing")
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 3,
-                fluidRow(
-                  column(
-                    width = 3,
-                    div(
-                      class = "rectangle-green" 
-                    )
-                  ),
-                  column(
-                    width = 9,
-                    p(
-                      HTML(
-                        paste(
-                          tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -105px", " =  locus contains multiple variants")
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            )
           ),
           column(
             width = 3,
@@ -551,51 +465,7 @@ ui <- dashboardPage(
             br(),
             br(),
             br(),
-            pickerInput(
-              inputId = "select_cgmlst",
-              label = NULL,
-              choices = list(
-                "Acinetobacter baumanii",
-                "Bacillus anthracis",
-                "Bordetella pertussis",
-                "Brucella melitensis",
-                "Brucella spp.",
-                "Burkholderia mallei (FLI)",
-                "Burkholderia mallei (RKI)",
-                "Burkholderia pseudomallei",
-                "Campylobacter jejuni/coli",
-                "Clostridioides difficile",
-                "Clostridium perfringens",
-                "Corynebacterium diphtheriae",
-                "Cronobacter sakazakii/malonaticus",
-                "Enterococcus faecalis",
-                "Enterococcus faecium",
-                "Escherichia coli",
-                "Francisella tularensis",
-                "Klebsiella oxytoca sensu lato",
-                "Klebsiella pneumoniae sensu lato",
-                "Legionella pneumophila",
-                "Listeria monocytogenes",
-                "Mycobacterium tuberculosis complex",
-                "Mycobacteroides abscessus",
-                "Mycoplasma gallisepticum",
-                "Paenibacillus larvae",
-                "Pseudomonas aeruginosa",
-                "Salmonella enterica",
-                "Serratia marcescens",
-                "Staphylococcus aureus",
-                "Staphylococcus capitis",
-                "Streptococcus pyogenes"
-              ),
-              width = "300px",
-              options = list(
-                `live-search` = TRUE,
-                `actions-box` = TRUE,
-                size = 10,
-                style = "background-color: white; border-radius: 5px;"
-              ),
-              multiple = FALSE
-            )
+            uiOutput("scheme_selector")
           ),
           column(
             width = 2,
@@ -615,8 +485,28 @@ ui <- dashboardPage(
               icon = icon("download")
             ),
             shinyjs::hidden(
-              div(id = "loading",
-                  HTML('<i class="fa fa-spinner fa-spin fa-fw fa-2x" style="color:white"></i>'))
+              div(
+                id = "downloading",
+                HTML(
+                  paste0(
+                    "<span style='color: white; font-size: 15px; position: relative;top: -3px;'>", 
+                    "Downloading scheme",
+                    '<i class="fa fa-spinner fa-spin fa-fw fa-2x" style="color:white; margin-left: 15px; position: relative; top: 6px;"></i>'
+                  )
+                )
+              )
+            ),
+            shinyjs::hidden(
+              div(
+                id = "hashing",
+                HTML(
+                  paste0(
+                    "<span style='color: white; font-size: 15px; position: relative;top: -3px;'>", 
+                    "Hashing scheme",
+                    '<i class="fa fa-spinner fa-spin fa-fw fa-2x" style="color:white; margin-left: 15px; position: relative; top: 6px;"></i>'
+                  )
+                )
+              )
             )
           )
         ),
@@ -5951,15 +5841,15 @@ server <- function(input, output, session) {
                        block_db = FALSE, 
                        load_selected = TRUE,
                        no_na_switch = FALSE,
-                       first_look = FALSE) # reactive variables related to local database
+                       first_look = FALSE,
+                       status = "") # reactive variables related to local database
   
   Typing <- reactiveValues(table = data.frame(), 
                            single_path = data.frame(),
                            progress = 0, 
                            progress_format_start = 0, 
                            progress_format_end = 0,
-                           result_list = NULL,
-                           status = "") # reactive variables related to typing process
+                           result_list = NULL) # reactive variables related to typing process
   
   Screening <- reactiveValues(status = "idle",
                               picker_status = TRUE,
@@ -7948,12 +7838,190 @@ server <- function(input, output, session) {
                 output$db_entries_table <- renderUI({
                   if(!is.null(DB$data)) {
                     if(between(nrow(DB$data), 1, 30)) {
-                      rHandsontableOutput("db_entries")
+                      fluidRow(
+                        column(
+                          width = 12,
+                          rHandsontableOutput("db_entries")
+                        ),
+                        column(
+                          width = 3,
+                          fluidRow(
+                            column(
+                              width = 3,
+                              div(
+                                class = "rectangle-blue" 
+                              )
+                            ),
+                            column(
+                              width = 7,
+                              p(
+                                HTML(
+                                  paste(
+                                    tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px", " = included for analyses")
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 3,
+                          fluidRow(
+                            column(
+                              width = 3,
+                              div(
+                                class = "rectangle-orange" 
+                              )
+                            ),
+                            column(
+                              width = 7,
+                              p(
+                                HTML(
+                                  paste(
+                                    tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -45px", " =  duplicated assembly name")
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 3,
+                          fluidRow(
+                            column(
+                              width = 3,
+                              div(
+                                class = "rectangle-red" 
+                              )
+                            ),
+                            column(
+                              width = 7,
+                              p(
+                                HTML(
+                                  paste(
+                                    tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -75px", " =  ≥ 5% of loci missing")
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 3,
+                          fluidRow(
+                            column(
+                              width = 3,
+                              div(
+                                class = "rectangle-green" 
+                              )
+                            ),
+                            column(
+                              width = 9,
+                              p(
+                                HTML(
+                                  paste(
+                                    tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -105px", " =  locus contains multiple variants")
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        )
+                      )
                     } else {
-                      addSpinner(
-                        rHandsontableOutput("db_entries"),
-                        spin = "dots",
-                        color = "#ffffff"
+                      fluidRow(
+                        column(
+                          width = 12,
+                          addSpinner(
+                            rHandsontableOutput("db_entries"),
+                            spin = "dots",
+                            color = "#ffffff"
+                          )
+                        ),
+                        column(
+                          width = 3,
+                          fluidRow(
+                            column(
+                              width = 3,
+                              div(
+                                class = "rectangle-blue" 
+                              )
+                            ),
+                            column(
+                              width = 7,
+                              p(
+                                HTML(
+                                  paste(
+                                    tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px", " = included for analyses")
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 3,
+                          fluidRow(
+                            column(
+                              width = 3,
+                              div(
+                                class = "rectangle-orange" 
+                              )
+                            ),
+                            column(
+                              width = 7,
+                              p(
+                                HTML(
+                                  paste(
+                                    tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -45px", " =  duplicated assembly name")
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 3,
+                          fluidRow(
+                            column(
+                              width = 3,
+                              div(
+                                class = "rectangle-red" 
+                              )
+                            ),
+                            column(
+                              width = 7,
+                              p(
+                                HTML(
+                                  paste(
+                                    tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -75px", " =  ≥ 5% of loci missing")
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 3,
+                          fluidRow(
+                            column(
+                              width = 3,
+                              div(
+                                class = "rectangle-green" 
+                              )
+                            ),
+                            column(
+                              width = 9,
+                              p(
+                                HTML(
+                                  paste(
+                                    tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -105px", " =  locus contains multiple variants")
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        )
                       )
                     }
                   }
@@ -9564,6 +9632,106 @@ server <- function(input, output, session) {
   ## Database ----
   
   ### Conditional UI Elements rendering ----
+  
+  # Scheme selector UI 
+  output$scheme_selector <- renderUI(
+    if(!is.null(DB$scheme)) {
+      pickerInput(
+        inputId = "select_cgmlst",
+        label = NULL,
+        choices = list(
+          "Acinetobacter baumanii",
+          "Bacillus anthracis",
+          "Bordetella pertussis",
+          "Brucella melitensis",
+          "Brucella spp.",
+          "Burkholderia mallei (FLI)",
+          "Burkholderia mallei (RKI)",
+          "Burkholderia pseudomallei",
+          "Campylobacter jejuni/coli",
+          "Clostridioides difficile",
+          "Clostridium perfringens",
+          "Corynebacterium diphtheriae",
+          "Cronobacter sakazakii/malonaticus",
+          "Enterococcus faecalis",
+          "Enterococcus faecium",
+          "Escherichia coli",
+          "Francisella tularensis",
+          "Klebsiella oxytoca sensu lato",
+          "Klebsiella pneumoniae sensu lato",
+          "Legionella pneumophila",
+          "Listeria monocytogenes",
+          "Mycobacterium tuberculosis complex",
+          "Mycobacteroides abscessus",
+          "Mycoplasma gallisepticum",
+          "Paenibacillus larvae",
+          "Pseudomonas aeruginosa",
+          "Salmonella enterica",
+          "Serratia marcescens",
+          "Staphylococcus aureus",
+          "Staphylococcus capitis",
+          "Streptococcus pyogenes"
+        ),
+        width = "300px",
+        selected = DB$scheme,
+        options = list(
+          `live-search` = TRUE,
+          `actions-box` = TRUE,
+          size = 10,
+          style = "background-color: white; border-radius: 5px;"
+        ),
+        multiple = FALSE
+      )
+    } else {
+      pickerInput(
+        inputId = "select_cgmlst",
+        label = NULL,
+        choices = list(
+          "Acinetobacter baumanii",
+          "Bacillus anthracis",
+          "Bordetella pertussis",
+          "Brucella melitensis",
+          "Brucella spp.",
+          "Burkholderia mallei (FLI)",
+          "Burkholderia mallei (RKI)",
+          "Burkholderia pseudomallei",
+          "Campylobacter jejuni/coli",
+          "Clostridioides difficile",
+          "Clostridium perfringens",
+          "Corynebacterium diphtheriae",
+          "Cronobacter sakazakii/malonaticus",
+          "Enterococcus faecalis",
+          "Enterococcus faecium",
+          "Escherichia coli",
+          "Francisella tularensis",
+          "Klebsiella oxytoca sensu lato",
+          "Klebsiella pneumoniae sensu lato",
+          "Legionella pneumophila",
+          "Listeria monocytogenes",
+          "Mycobacterium tuberculosis complex",
+          "Mycobacteroides abscessus",
+          "Mycoplasma gallisepticum",
+          "Paenibacillus larvae",
+          "Pseudomonas aeruginosa",
+          "Salmonella enterica",
+          "Serratia marcescens",
+          "Staphylococcus aureus",
+          "Staphylococcus capitis",
+          "Streptococcus pyogenes"
+        ),
+        width = "300px",
+        selected = NULL,
+        options = list(
+          `live-search` = TRUE,
+          `actions-box` = TRUE,
+          size = 10,
+          style = "background-color: white; border-radius: 5px;"
+        ),
+        multiple = FALSE
+      )
+    }
+  
+  )
   
   # Contro custom variables table
   output$cust_var_select <- renderUI({
@@ -11550,6 +11718,7 @@ server <- function(input, output, session) {
   ## Download cgMLST ----
   
   observe({
+    req(input$select_cgmlst)
     if (input$select_cgmlst == "Acinetobacter baumanii") {
       species <- "Abaumannii1907"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
@@ -11743,22 +11912,10 @@ server <- function(input, output, session) {
     log_print(paste0("Started download of scheme for ", Scheme$folder_name))
     
     shinyjs::hide("download_cgMLST")
-    shinyjs::show("loading")
-    
-    output$statustext <- renderUI(
-      fluidRow(
-        tags$li(
-          class = "dropdown", 
-          tags$span(HTML(
-            paste('<i class="fa-solid fa-circle-dot" style="color:orange !important;"></i>', 
-                  "Status:&nbsp;&nbsp;&nbsp; <i>Downloading scheme...</i>")),
-            style = "color:white;")
-        )
-      )
-    )
+    shinyjs::show("downloading")
     
     show_toast(
-      title = "Download started",
+      title = paste("Downloading", input$select_cgmlst,  "scheme"),
       type = "success",
       position = "bottom-end",
       timer = 5000
@@ -11802,6 +11959,16 @@ server <- function(input, output, session) {
     )
     
     log_print("Hashing downloaded database")
+    shinyjs::show("hashing")
+    shinyjs::hide("downloading")
+    
+    show_toast(
+      title = paste("Hashing of", input$select_cgmlst,  "started"),
+      type = "success",
+      position = "bottom-end",
+      timer = 5000
+    )
+    
     # Hash temporary folder
     hash_database(file.path(DB$database, 
                             Scheme$folder_name, 
@@ -11913,7 +12080,7 @@ server <- function(input, output, session) {
     DB$exist <- length(dir_ls(DB$database)) == 0
     
     shinyjs::show("download_cgMLST")
-    shinyjs::hide("loading")
+    shinyjs::hide("hashing")
     
     output$statustext <- renderUI(
       fluidRow(
@@ -11957,6 +12124,7 @@ server <- function(input, output, session) {
   
   # Download Target Info (CSV Table)
   observe({
+    req(input$select_cgmlst)
     input$download_cgMLST
     
     scheme_overview <- read_html(Scheme$link_scheme) %>%
