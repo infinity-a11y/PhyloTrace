@@ -7843,6 +7843,7 @@ server <- function(input, output, session) {
                           width = 12,
                           rHandsontableOutput("db_entries")
                         ),
+                        br(),
                         column(
                           width = 3,
                           fluidRow(
@@ -7938,6 +7939,7 @@ server <- function(input, output, session) {
                             color = "#ffffff"
                           )
                         ),
+                        br(),
                         column(
                           width = 3,
                           fluidRow(
@@ -22866,110 +22868,114 @@ server <- function(input, output, session) {
   
   # Conditionally render table selectiom interface
   output$gs_table_selection <- renderUI({
-    req(DB$data, input$gs_view)
-    if(input$gs_view == "Table") {
-      fluidRow(
-        column(1),
-        column(
-          width = 10,
-          div(class = "loci_table",
-              dataTableOutput("gs_isolate_table"))
+    if(gsub(" ", "_", DB$scheme) %in% amrfinder_species) {
+      req(DB$data, input$gs_view)
+      if(input$gs_view == "Table") {
+        fluidRow(
+          column(1),
+          column(
+            width = 10,
+            div(class = "loci_table",
+                dataTableOutput("gs_isolate_table"))
+          )
         )
-      )
+      } else {NULL}
     } else {NULL}
   })
   
   # Resistance profile table output display
   output$gs_profile_display <- renderUI({
     req(DB$data)
-    if(!is.null(DB$meta_gs) & !is.null(input$gs_view)) {
-      if(input$gs_view == "Table") {
-        column(
-          width = 10,
-          hr(), 
-          fluidRow(
-            column(
-              width = 4,
-              p(
-                HTML(
-                  paste0("<span style='color: white; font-size: 18px'>", 
-                         "Gene Screening Results</br>",
-                         "<span style='color: white; font-size: 12px; font-style:italic'>", 
-                         "Comprising genes for resistance, virulence, stress, etc.")
-                )
-              )
-            ),
-            column(
-              width = 4,
-              uiOutput("gs_download")
-            )
-          ),
-          br(),
-          uiOutput("gs_results_table")
-        )
-      } else {
-        column(
-          width = 10,
-          fluidRow(
-            column(
-              width = 4,
-              p(
-                HTML(
-                  paste0("<span style='color: white; font-size: 18px'>", 
-                         "Gene Screening Results</br>",
-                         "<span style='color: white; font-size: 12px; font-style:italic'>", 
-                         "Comprising genes for resistance, virulence, stress, etc.")
-                )
-              )
-            ),
-            column(
-              width = 4,
-              div(
-                class = "gs-picker",
-                pickerInput(
-                  "gs_profile_select",
-                  "",
-                  choices = list(
-                    Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
-                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
-                    } else {
-                      DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
-                    },
-                    Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
-                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
-                    } else {
-                      DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
-                    },
-                    `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
-                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
-                    } else {
-                      DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
-                    }
-                  ),
-                  choicesOpt = list(
-                    disabled = c(
-                      rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
-                      rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
-                      rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
-                    )
-                  ),
-                  options = list(
-                    `live-search` = TRUE,
-                    size = 10,
-                    style = "background-color: white; border-radius: 5px;"
+    if(gsub(" ", "_", DB$scheme) %in% amrfinder_species) {
+      if(!is.null(DB$meta_gs) & !is.null(input$gs_view)) {
+        if(input$gs_view == "Table") {
+          column(
+            width = 10,
+            hr(), 
+            fluidRow(
+              column(
+                width = 4,
+                p(
+                  HTML(
+                    paste0("<span style='color: white; font-size: 18px'>", 
+                           "Gene Screening Results</br>",
+                           "<span style='color: white; font-size: 12px; font-style:italic'>", 
+                           "Comprising genes for resistance, virulence, stress, etc.")
                   )
                 )
+              ),
+              column(
+                width = 4,
+                uiOutput("gs_download")
               )
             ),
-            column(
-              width = 3,
-              uiOutput("gs_download")
-            )
-          ),
-          br(),
-          uiOutput("gs_results_table")
-        )
-      }
+            br(),
+            uiOutput("gs_results_table")
+          )
+        } else {
+          column(
+            width = 10,
+            fluidRow(
+              column(
+                width = 4,
+                p(
+                  HTML(
+                    paste0("<span style='color: white; font-size: 18px'>", 
+                           "Gene Screening Results</br>",
+                           "<span style='color: white; font-size: 12px; font-style:italic'>", 
+                           "Comprising genes for resistance, virulence, stress, etc.")
+                  )
+                )
+              ),
+              column(
+                width = 4,
+                div(
+                  class = "gs-picker",
+                  pickerInput(
+                    "gs_profile_select",
+                    "",
+                    choices = list(
+                      Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
+                        as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
+                      } else {
+                        DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+                      },
+                      Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
+                        as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
+                      } else {
+                        DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
+                      },
+                      `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
+                        as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
+                      } else {
+                        DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
+                      }
+                    ),
+                    choicesOpt = list(
+                      disabled = c(
+                        rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
+                        rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
+                        rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
+                      )
+                    ),
+                    options = list(
+                      `live-search` = TRUE,
+                      size = 10,
+                      style = "background-color: white; border-radius: 5px;"
+                    )
+                  )
+                )
+              ),
+              column(
+                width = 3,
+                uiOutput("gs_download")
+              )
+            ),
+            br(),
+            uiOutput("gs_results_table")
+          )
+        }
+      } else {NULL}
     } else {NULL}
   })
   
@@ -23128,7 +23134,6 @@ server <- function(input, output, session) {
   
   # Availablity feedback
   output$gene_screening_info <- renderUI({
-    req(DB$data)
     if(gsub(" ", "_", DB$scheme) %in% amrfinder_species) {
       p(
         HTML(
@@ -23153,7 +23158,6 @@ server <- function(input, output, session) {
   })
   
   output$gene_resistance_info <- renderUI({
-    req(DB$data)
     if(gsub(" ", "_", DB$scheme) %in% amrfinder_species) {
       p(
         HTML(
