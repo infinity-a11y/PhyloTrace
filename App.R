@@ -5267,50 +5267,6 @@ ui <- dashboardPage(
         )
       ),
       
-      ## Tab Utilities -------------------------------------------------------
-      
-      tabItem(
-        tabName = "utilities",
-        fluidRow(
-          column(
-            width = 3,
-            align = "center",
-            h2(p("Utilities"), style = "color:white")
-          )
-        ),
-        br(),
-        hr(),
-        column(
-          width = 5,
-          align = "left",
-          shinyDirButton(
-            "hash_dir",
-            "Choose folder with .fasta files",
-            title = "Locate folder with loci",
-            buttonType = "default",
-            style = "border-color: white; margin: 10px; min-width: 200px; text-align: center"
-          ),
-          actionButton("hash_start", "Start Hashing", icon = icon("circle-play")),
-          shinyjs::hidden(
-            div(id = "hash_loading",
-                HTML('<i class="fa fa-spinner fa-spin fa-fw fa-2x" style="color:white"></i>'))
-          )
-        )
-          # br(),
-          # actionButton(
-          #   "backup_database",
-          #   "Create backup",
-          #   style = "border-color: white; margin: 10px; min-width: 200px; text-align: left"
-          # ),
-          # br(),
-          # actionButton(
-          #   "import_db_backup",
-          #   "Restore backup",
-          #   style = "border-color: white; margin: 10px; min-width: 200px; text-align: left"
-          # )
-      ),
-      
-      
       ## Tab Screening -------------------------------------------------------
       
       tabItem(
@@ -26036,48 +25992,6 @@ server <- function(input, output, session) {
       Typing$multi_result_status <- "idle"
     }
   })
-  
-  observe({
-    # Get selected Genome in Multi Mode
-    shinyDirChoose(input,
-                   "hash_dir",
-                   roots = c(Home = path_home(), Root = "/"),
-                   defaultRoot = "Home",
-                   session = session,
-                   filetypes = c('', 'fasta', 'fna', 'fa'))
-  })
-  
-  observeEvent(input$hash_start, {
-    dir_path <- parseDirPath(roots = c(Home = path_home(), Root = "/"), input$hash_dir)
-    if (!is_empty(list.files(dir_path)) && all(endsWith(list.files(dir_path), ".fasta"))) {
-      log_print("Hashing directory using utilities")
-      shinyjs::hide("hash_start")
-      shinyjs::show("hash_loading")
-      show_toast(
-        title = "Hashing started!",
-        type = "success",
-        position = "bottom-end",
-        timer = 6000
-      )
-      hash_database(dir_path)
-      shinyjs::hide("hash_loading")
-      shinyjs::show("hash_start")
-      show_toast(
-        title = "Hashing completed!",
-        type = "success",
-        position = "bottom-end",
-        timer = 6000
-      )
-    } else {
-      show_toast(
-        title = "Incorrect folder selected!",
-        type = "error",
-        position = "bottom-end",
-        timer = 6000
-      )
-    }
-  })
-  
 } # end server
 
 # _______________________ ####
