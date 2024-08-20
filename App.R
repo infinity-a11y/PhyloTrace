@@ -1427,6 +1427,12 @@ ui <- dashboardPage(
                             label = h5("Color Scale", style = "color:white; margin-bottom: 0px;"),
                             choices = c("Viridis", "Rainbow"),
                             width = "150px"
+                          ),
+                          selectInput(
+                            "mst_cluster_type",
+                            label = h5("Cluster Type", style = "color:white; margin-bottom: 0px;"),
+                            choices = c("Type 1", "Type 2"),
+                            width = "150px"
                           )
                         )
                       )
@@ -5687,6 +5693,7 @@ server <- function(input, output, session) {
   # Compute clusters to use in visNetwork
   compute_clusters <- function(nodes, edges, threshold) {
     groups <- rep(0, length(nodes$id))
+    edges_groups <- rep(0, length(edges$from))
     
     edges_table <- data.frame(
       from = edges$from,
@@ -5706,13 +5713,15 @@ server <- function(input, output, session) {
         if (nrow(sub_tb) == 0 | length(unique(c(sub_tb$from, sub_tb$to))) == length(cluster)) {
           count <- count + 1
           groups[nodes$id %in% cluster] <- paste("Group", count)
+          edges_groups[edges$from %in% cluster & edges$to %in% cluster] <- paste("Group", count)
           break
         } else {
           cluster <- unique(c(sub_tb$from, sub_tb$to))
         }
       }
     }
-    groups
+    list(groups = groups,
+         edges = edges_groups)
   }
   
   # Check gene screening status
@@ -18015,7 +18024,10 @@ server <- function(input, output, session) {
                                 opacity = input$mst_edge_opacity)
     
     if (input$mst_show_clusters) {
-      data$nodes$group <- compute_clusters(data$nodes, data$edges, input$mst_cluster_threshold)
+      clusters <- compute_clusters(data$nodes, data$edges, input$mst_cluster_threshold)
+      if (input$mst_cluster_type == "Type 1") {
+        data$nodes$group <- clusters$group
+      }
     }
     
     visNetwork_graph <- visNetwork(data$nodes, data$edges,
@@ -18052,9 +18064,58 @@ server <- function(input, output, session) {
         color_palette <- rainbow(length(unique(data$nodes$group)))
       }
       
-      for (i in 1:length(unique(data$nodes$group))) {
-        visNetwork_graph <- visNetwork_graph %>% 
-          visGroups(groupname = unique(data$nodes$group)[i], color = color_palette[i])
+      if (input$mst_cluster_type == "Type 1") {
+        for (i in 1:length(unique(data$nodes$group))) {
+          visNetwork_graph <- visNetwork_graph %>% 
+            visGroups(groupname = unique(data$nodes$group)[i], color = color_palette[i])
+        }
+      } else {
+        thin_edges <- data$edges
+        thin_edges$width <- 1
+        thin_edges$color <- "black"
+        
+        thick_edges <- data$edges
+        thick_edges$width <- 24
+        
+        thick_edges$color <- rep("rgba(0, 0, 0, 0)", length(data$edges$from))
+        color_palette <- rainbow(length(unique(clusters$edges)))
+        for (i in 1:length(unique(clusters$edges))) {
+          print(clusters$edges)
+          if (unique(clusters$edges)[i] != "0") {
+            edge_color <- paste(col2rgb(color_palette[i]), collapse=", ")
+            thick_edges$color[clusters$edges == unique(clusters$edges)[i]] <- paste0("rgba(", edge_color, ", 0.5)")
+          }
+        }
+        merged_edges <- rbind(thick_edges, thin_edges)
+        data$edges <- merged_edges
+        visNetwork_graph <- visNetwork(data$nodes, data$edges,
+                                       main = mst_title(),
+                                       background = mst_background_color(),
+                                       submain = mst_subtitle()) %>%
+          visNodes(size = mst_node_size(),
+                   shape = input$mst_node_shape,
+                   shadow = input$mst_shadow,
+                   color = mst_color_node(),
+                   ctxRenderer = ctxRendererJS,
+                   scaling = list(min = mst_node_size_min(),
+                                  max = mst_node_size_max()),
+                   font = list(color = node_font_color(),
+                               size = input$node_label_fontsize)) %>%
+          visEdges(color = mst_color_edge(),
+                   font = list(color = mst_edge_font_color(),
+                               size = mst_edge_font_size(),
+                               strokeWidth = 4),
+                   smooth = FALSE,
+                   physics = FALSE) %>%
+          visOptions(collapse = TRUE) %>%
+          visInteraction(hover = TRUE) %>%
+          visLayout(randomSeed = 1) %>%
+          visLegend(useGroups = FALSE,
+                    zoom = TRUE,
+                    width = legend_width(),
+                    position = input$mst_legend_ori,
+                    ncol = legend_col(),
+                    addNodes = mst_legend())
       }
     }
     visNetwork_graph
