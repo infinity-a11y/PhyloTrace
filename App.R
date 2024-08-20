@@ -1422,17 +1422,38 @@ ui <- dashboardPage(
                           placement = "top-start",
                           theme = "translucent",
                           width = 5,
-                          selectInput(
-                            "mst_cluster_col_scale",
-                            label = h5("Color Scale", style = "color:white; margin-bottom: 0px;"),
-                            choices = c("Viridis", "Rainbow"),
-                            width = "150px"
-                          ),
-                          selectInput(
-                            "mst_cluster_type",
-                            label = h5("Cluster Type", style = "color:white; margin-bottom: 0px;"),
-                            choices = c("Type 1", "Type 2"),
-                            width = "150px"
+                          fluidRow(
+                            column(
+                              width = 12,
+                              align = "center",
+                              selectInput(
+                                "mst_cluster_col_scale",
+                                label = h5("Color Scale", style = "color:white; margin-bottom: 0px;"),
+                                choices = c("Viridis", "Rainbow"),
+                                width = "150px"
+                              ),
+                              br(),
+                              selectInput(
+                                "mst_cluster_type",
+                                label = h5("Cluster Type", style = "color:white; margin-bottom: 0px;"),
+                                choices = c("Area", "Skeleton"),
+                                width = "150px"
+                              ),
+                              br(),
+                              conditionalPanel(
+                                "input.mst_cluster_type=='Skeleton'",
+                                sliderInput(
+                                  "mst_cluster width",
+                                  label = h5("Skeleton Width", style = "color:white; margin-bottom: 0px;"),
+                                  value = 5,
+                                  step = 1,
+                                  min = 1,
+                                  max = 10,
+                                  ticks = FALSE,
+                                  width = "150px"
+                                )
+                              )
+                            )
                           )
                         )
                       )
@@ -18025,7 +18046,7 @@ server <- function(input, output, session) {
     
     if (input$mst_show_clusters) {
       clusters <- compute_clusters(data$nodes, data$edges, input$mst_cluster_threshold)
-      if (input$mst_cluster_type == "Type 1") {
+      if (input$mst_cluster_type == "Area") {
         data$nodes$group <- clusters$group
       }
     }
@@ -18064,7 +18085,7 @@ server <- function(input, output, session) {
         color_palette <- rainbow(length(unique(data$nodes$group)))
       }
       
-      if (input$mst_cluster_type == "Type 1") {
+      if (input$mst_cluster_type == "Area") {
         for (i in 1:length(unique(data$nodes$group))) {
           visNetwork_graph <- visNetwork_graph %>% 
             visGroups(groupname = unique(data$nodes$group)[i], color = color_palette[i])
