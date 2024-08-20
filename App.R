@@ -282,7 +282,93 @@ ui <- dashboardPage(
           column(1),
           column(
             width = 8,
-            uiOutput("db_entries_table")
+            uiOutput("db_entries_table"),
+            fluidRow(
+              column(
+                width = 3,
+                fluidRow(
+                  column(
+                    width = 3,
+                    div(
+                      class = "rectangle-blue" 
+                    )
+                  ),
+                  column(
+                    width = 7,
+                    p(
+                      HTML(
+                        paste(
+                          tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px", " = included for analyses")
+                        )
+                      )
+                    )
+                  )
+                )
+              ),
+              column(
+                width = 3,
+                fluidRow(
+                  column(
+                    width = 3,
+                    div(
+                      class = "rectangle-orange" 
+                    )
+                  ),
+                  column(
+                    width = 7,
+                    p(
+                      HTML(
+                        paste(
+                          tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -45px", " =  duplicated assembly name")
+                        )
+                      )
+                    )
+                  )
+                )
+              ),
+              column(
+                width = 3,
+                fluidRow(
+                  column(
+                    width = 3,
+                    div(
+                      class = "rectangle-red" 
+                    )
+                  ),
+                  column(
+                    width = 7,
+                    p(
+                      HTML(
+                        paste(
+                          tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -75px", " =  ≥ 5% of loci missing")
+                        )
+                      )
+                    )
+                  )
+                )
+              ),
+              column(
+                width = 3,
+                fluidRow(
+                  column(
+                    width = 3,
+                    div(
+                      class = "rectangle-green" 
+                    )
+                  ),
+                  column(
+                    width = 9,
+                    p(
+                      HTML(
+                        paste(
+                          tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -105px", " =  locus contains multiple variants")
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
           ),
           column(
             width = 3,
@@ -8930,9 +9016,8 @@ server <- function(input, output, session) {
                         ),
                         hr(),
                         fluidRow(
-                          column(2),
                           column(
-                            width = 10,
+                            width = 8,
                             align = "left",
                             br(),
                             div(
@@ -8953,12 +9038,19 @@ server <- function(input, output, session) {
                                 right = TRUE
                               )
                             ),
+                            div(
+                              class = "mat-switch-db",
+                              materialSwitch(
+                                "download_table_hashes",
+                                h5(p("Truncate Hashes"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                value = FALSE,
+                                right = TRUE
+                              )
+                            ),
                             br(),
-                          )
-                        ),
-                        fluidRow(
+                          ),
                           column(
-                            width = 12,
+                            width = 4,
                             align = "center",
                             downloadBttn(
                               "download_entry_table",
@@ -8969,59 +9061,6 @@ server <- function(input, output, session) {
                               color = "primary"
                             )
                           )
-                        ),
-                        br()
-                      )
-                    ),
-                    column(
-                      width = 12,
-                      fluidRow(
-                        column(
-                          width = 2,
-                          div(
-                            class = "rectangle-blue" 
-                          ),
-                          div(
-                            class = "rectangle-orange" 
-                          ),
-                          div(
-                            class = "rectangle-red" 
-                          ),
-                          div(
-                            class = "rectangle-green" 
-                          )
-                        ),
-                        column(
-                          width = 10,
-                          align = "left",
-                          p(
-                            HTML(
-                              paste(
-                                tags$span(style="color: white; font-size: 15px; margin-left: 25px; position: relative; bottom: -12px", " = included for analyses")
-                              )
-                            )
-                          ),
-                          p(
-                            HTML(
-                              paste(
-                                tags$span(style="color: white; font-size: 15px; margin-left: 25px; position: relative; bottom: -13px", " =  duplicated name/ID")
-                              )
-                            )
-                          ),
-                          p(
-                            HTML(
-                              paste(
-                                tags$span(style="color: white; font-size: 15px; margin-left: 25px; position: relative; bottom: -14px", " =  ≥ 5% of loci missing")
-                              )
-                            )
-                          ),
-                          p(
-                            HTML(
-                              paste(
-                                tags$span(style="color: white; font-size: 15px; margin-left: 25px; position: relative; bottom: -15px", " =  locus contains multiple variants")
-                              )
-                            )
-                          ),
                         )
                       )
                     )
@@ -10974,7 +11013,13 @@ server <- function(input, output, session) {
       paste0(Sys.Date(), "_", gsub(" ", "_", DB$scheme), "_Entries.csv")
     },
     content = function(file) {
-      download_matrix <- hot_to_r(input$db_entries)
+      download_matrix <<- hot_to_r(input$db_entries)
+      
+      if(input$download_table_hashes == TRUE) {
+        included_loci <<- colnames(select(download_matrix, -(1:(13 + nrow(DB$cust_var)))))
+        full_hashes <<- DB$allelic_profile[included_loci]
+        download_matrix[included_loci] <- full_hashes
+      }
       
       if (input$download_table_include == TRUE) {
         download_matrix <- download_matrix[which(download_matrix$Include == TRUE),]
@@ -11066,7 +11111,8 @@ server <- function(input, output, session) {
     
     Data[["Typing"]] <- select(Data[["Typing"]], -(1:(13 + length(cust_vars_pre))))
     
-    meta_hot <- hot_to_r(input$db_entries)
+    meta_hot <- hot_to_r(input$db_entries) %>%
+      select(1:(13 + nrow(DB$cust_var))) 
     
     if(length(DB$deleted_entries > 0)) {
       

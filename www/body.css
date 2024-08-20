@@ -776,7 +776,7 @@ button#download_distmatrix_bttn {
   border: 1px solid white;
   position: absolute;
   top: -50px;
-  transition: border-color 0.3s ease; /* Smooth transition for border color */
+  transition: border-color 0.3s ease; 
 }
 
 button#download_entry_table_bttn {
@@ -785,6 +785,13 @@ button#download_entry_table_bttn {
   color: #ffffff;
   border: 1px solid white;
   transition: border-color 0.3s ease; 
+  margin-top: 55px;
+}
+
+#download_entry_table_bttn .fas .fa-download,
+#download_entry_table_bttn > i {
+  position: relative;
+  top: 1px;
 }
 
 button#download_schemeinfo_bttn {
@@ -857,7 +864,7 @@ button#edit_button.btn.btn-default.action-button.shiny-bound-input {
 }
 
 #multi_typing_results .mult_res_sel .selectize-input.items.full.has-options.has-items {
-  width: auto;
+  width: -webkit-fill-available;
 }
 
 body > div.htDatepickerHolder > div > div > table > tbody > tr > td.is-today.is-selected > button{
