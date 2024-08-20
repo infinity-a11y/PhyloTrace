@@ -6462,11 +6462,6 @@ server <- function(input, output, session) {
               text = "Visualization",
               tabName = "visualization",
               icon = icon("circle-nodes")
-            ),
-            menuItem(
-              text = "Utilities",
-              tabName = "utilities",
-              icon = icon("screwdriver-wrench")
             )
           )
         )
@@ -6642,11 +6637,6 @@ server <- function(input, output, session) {
                   text = "Visualization",
                   tabName = "visualization",
                   icon = icon("circle-nodes")
-                ),
-                menuItem(
-                  text = "Utilities",
-                  tabName = "utilities",
-                  icon = icon("screwdriver-wrench")
                 )
               )
             )
@@ -6732,11 +6722,6 @@ server <- function(input, output, session) {
                   text = "Visualization",
                   tabName = "visualization",
                   icon = icon("circle-nodes")
-                ),
-                menuItem(
-                  text = "Utilities",
-                  tabName = "utilities",
-                  icon = icon("screwdriver-wrench")
                 )
               )
             )
@@ -6824,11 +6809,6 @@ server <- function(input, output, session) {
                   text = "Visualization",
                   tabName = "visualization",
                   icon = icon("circle-nodes")
-                ),
-                menuItem(
-                  text = "Utilities",
-                  tabName = "utilities",
-                  icon = icon("screwdriver-wrench")
                 )
               )
             )
@@ -6945,11 +6925,6 @@ server <- function(input, output, session) {
                     text = "Visualization",
                     tabName = "visualization",
                     icon = icon("circle-nodes")
-                  ),
-                  menuItem(
-                    text = "Utilities",
-                    tabName = "utilities",
-                    icon = icon("screwdriver-wrench")
                   )
                 )
               )
@@ -7165,11 +7140,6 @@ server <- function(input, output, session) {
                         text = "Visualization",
                         tabName = "visualization",
                         icon = icon("circle-nodes")
-                      ),
-                      menuItem(
-                        text = "Utilities",
-                        tabName = "utilities",
-                        icon = icon("screwdriver-wrench")
                       )
                     )
                   )
@@ -7232,11 +7202,6 @@ server <- function(input, output, session) {
                         text = "Visualization",
                         tabName = "visualization",
                         icon = icon("circle-nodes")
-                      ),
-                      menuItem(
-                        text = "Utilities",
-                        tabName = "utilities",
-                        icon = icon("screwdriver-wrench")
                       )
                     )
                   )
@@ -9341,11 +9306,6 @@ server <- function(input, output, session) {
                       text = "Visualization",
                       tabName = "visualization",
                       icon = icon("circle-nodes")
-                    ),
-                    menuItem(
-                      text = "Utilities",
-                      tabName = "utilities",
-                      icon = icon("screwdriver-wrench")
                     )
                   )
                 )
@@ -9882,11 +9842,6 @@ server <- function(input, output, session) {
                 text = "Visualization",
                 tabName = "visualization",
                 icon = icon("circle-nodes")
-              ),
-              menuItem(
-                text = "Utilities",
-                tabName = "utilities",
-                icon = icon("screwdriver-wrench")
               )
             )
           )
@@ -9945,11 +9900,6 @@ server <- function(input, output, session) {
               text = "Visualization",
               tabName = "visualization",
               icon = icon("circle-nodes")
-            ),
-            menuItem(
-              text = "Utilities",
-              tabName = "utilities",
-              icon = icon("screwdriver-wrench")
             )
           )
         )
