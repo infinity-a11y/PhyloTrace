@@ -18237,8 +18237,13 @@ server <- function(input, output, session) {
       
       if (input$mst_cluster_type == "Area") {
         for (i in 1:length(unique(data$nodes$group))) {
-          visNetwork_graph <- visNetwork_graph %>% 
-            visGroups(groupname = unique(data$nodes$group)[i], color = color_palette[i])
+          if (sum(data$nodes$group == unique(data$nodes$group)[i]) > 1) { # Color only cluster with 2 or more nodes
+            visNetwork_graph <- visNetwork_graph %>% 
+              visGroups(groupname = unique(data$nodes$group)[i], color = color_palette[i])
+          } else {
+            visNetwork_graph <- visNetwork_graph %>% 
+              visGroups(groupname = unique(data$nodes$group)[i], color = mst_color_node())
+          }
         }
       } else {
         thin_edges <- data$edges
