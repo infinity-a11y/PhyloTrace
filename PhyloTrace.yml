@@ -7,6 +7,7 @@ dependencies:
   - r-base=4.3.2
   - r-remotes=2.5.0
   - kma=1.4.14
+  - ncbi-amrfinderplus=3.12.8
   - parallel=20240522
   - pblat=2.5.1
   - r-bh=1.81.0-1
@@ -92,7 +93,7 @@ dependencies:
   - r-jquerylib=0.1.4
   - r-jsonlite=1.8.8
   - r-kableExtra=1.3.4
-  - r-knitr=1.47
+  - r-knitr=1.48
   - r-labeling=0.4.3
   - r-later=1.3.1
   - r-lattice=0.22_5
@@ -159,7 +160,7 @@ dependencies:
   - r-tidytree=0.4.5
   - r-tidyverse=2.0.0
   - r-timechange=0.2.0
-  - r-tinytex=0.51
+  - r-tinytex=0.52
   - r-tzdb=0.4.0
   - r-utf8=1.2.3
   - r-uuid=1.1_1
@@ -169,9 +170,9 @@ dependencies:
   - r-vroom=1.6.4
   - r-webshot=0.5.5
   - r-withr=2.5.1
-  - r-xfun=0.45
+  - r-xfun=0.46
   - r-xml2=1.3.5
   - r-xtable=1.8_4
-  - r-yaml=2.3.8
+  - r-yaml=2.3.10
   - r-yulab.utils=0.1.0
   - r-zoo=1.8_12

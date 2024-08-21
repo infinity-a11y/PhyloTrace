@@ -15,6 +15,23 @@ function getCurrentDate() {
   return year + '-' + month + '-' + day; // Formats the date as "YYYY-MM-DD"
 };
 
+function checkAndExecute() {
+  if(document.querySelector("#loaded_scheme > div > li > span") !== null) {
+    // Select the span element
+    let spanElement = document.querySelector("#loaded_scheme > div > li > span");
+              
+    // Get the bounding rectangle of the span element
+    let rect = spanElement.getBoundingClientRect();
+    
+    // Extract the width
+    let width = rect.width;
+    
+    Shiny.setInputValue("scheme_position", width);            
+  }
+}
+setInterval(checkAndExecute, 1000);
+checkAndExecute();
+
 // Get time
 function updateTime() {
   var options = {
