@@ -1430,7 +1430,7 @@ ui <- dashboardPage(
                                   width = "150px"
                                 )
                               )
-                            )f
+                            )
                           )
                         )
                       )
