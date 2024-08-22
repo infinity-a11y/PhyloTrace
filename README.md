@@ -27,13 +27,12 @@ development. To get a stable version download the newest release.
 <sup><sup> Developed in collaboration with Hochschule Furtwangen University (HFU) and Medical
 University of Graz (MUG). Featured on ShinyConf 2024 and R/Medicine 2024. </sup> </sup>
 
-[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.10996423-00e896?labelColor=gray&color=2500ba&logoColor=black)](https://doi.org/10.5281/zenodo.10996423)
-[![License: GPL
-v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-![Project Status: Active – The project has reached a stable, usable state and is being actively
-developed.](https://www.repostatus.org/badges/latest/active.svg)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.10996423-00e896?labelColor=gray&color=609ea5&logoColor=black)](https://doi.org/10.5281/zenodo.10996423)
+[![License: GPLv3](https://img.shields.io/badge/License-GPLv3-659DA3.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Version](https://img.shields.io/badge/Version-1.5.0-659DA3)](https://github.com/infinity-a11y/PhyloTrace/releases/tag/v1.5.0)
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
-![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white)  
+![Windows](https://img.shields.io/badge/Windows-339033?style=flat&logo=windows&logoColor=white)  
+
 
 
 ----------------------------------------------------------------------------------------------------
