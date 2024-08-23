@@ -7,11 +7,8 @@ unset R_HOME
 
 # Set base path
 base_path=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'wd'])")
-path_assembly=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'assembly_path'])")
-assembly=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'assembly'])")
+selected=$(Rscript -e "cat(stringr::str_split_1(readRDS('screening_meta.rds')[,'selected'], ' '))")
 species=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'species'])")
-
-error_file="screening/error.txt"
 
 if [ "$species" = "Escherichia_coli" ]; then
   species="Escherichia"
@@ -42,22 +39,32 @@ if [ -d "$base_path/execute/screening" ]; then
     rm -r "$base_path/execute/screening"
 fi
 
-mkdir "$base_path/execute/screening"
+isolates=($selected)
 
-amrfinder -n "$path_assembly" --plus --organism $species -o "screening/output_file.tsv" > amrfinder_stdout.txt 2> amrfinder_stderr.txt
-status=$?
+# Loop through the list of file names and copy them to the new folder
+for file in "${isolates[@]}"; do
 
-# Check if status variable is set and is an integer
-if [ -z "$status" ]; then
-  echo "AMRFinder execution did not set an exit status." > "$base_path/execute/$error_file"
-  exit 1
-fi
+    # Get the directory and base name of the zip file
+    zip_dir=$(dirname "$file")
+    zip_base=$(basename "$file" .zip)
+    
+    unzip -o "$file" -d "$zip_dir"
+    
+    amrfinder -n "$zip_dir/$zip_base.fasta" --plus --organism $species -o "$zip_dir/resProfile.tsv" > amrfinder_stdout.txt 2> amrfinder_stderr.txt
+    status=$?
+    
+    # Check exit status 
+    if [ "$status" -ne 0 ]; then
+      echo "AMRFinder failed with status $status" > "$zip_dir/status.txt"
+      echo "Error details:" >> "$zip_dir/status.txt"
+      cat amrfinder_stderr.txt >> "$zip_dir/status.txt"
+    else
+        # Write success message if AMRFinder executed successfully
+        echo "AMRFinder executed successfully for $zip_base" > "$zip_dir/status.txt"
+    fi
+    
+    # Clear unzipped assembly
+    rm -rf "$zip_dir/$zip_base.fasta"
+done
 
-if [ "$status" -ne 0 ]; then
-  echo "AMRFinder failed with status $status" > "$base_path/execute/$error_file"
-  echo "Error details:" >> "$base_path/execute/$error_file"
-  cat amrfinder_stderr.txt >> "$base_path/execute/$error_file"
-  exit $status
-fi
-
-echo "AMRFinder completed successfully"
+echo "AMRFinder finalized"

@@ -124,7 +124,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
           
         } else if(variant_valid != FALSE) {
           
-          hashed_variant <- openssl::sha256(variant_valid)
+          hashed_variant <- as.character(openssl::sha256(variant_valid))
           
           # Append new variant number to allele fasta file
           cat(paste0("\n>", hashed_variant), file = locus_file, append = TRUE)
@@ -133,7 +133,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
           cat(paste0("\n", variant_valid, "\n"), file = locus_file, append = TRUE)
           
           # Entry in results data frame
-          event_list[[basename(assembly)]] <- rbind(event_list[[basename(assembly)]], data.frame(Locus = allele_index, Event = "New Variant", Value = as.character(hashed_variant)))
+          event_list[[basename(assembly)]] <- rbind(event_list[[basename(assembly)]], data.frame(Locus = allele_index, Event = "New Variant", Value = hashed_variant))
           
           allele_vector[[i]] <- hashed_variant
           
@@ -168,6 +168,8 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         ncol = 13 + length(psl_files)
       ))
     
+    if(!save_assembly) {screen <- "NA"} else {screen <- "No"}
+    
     metadata <- c(1,
                   TRUE,
                   meta_table$Files,
@@ -180,7 +182,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
                   format(Sys.Date()),
                   length(allele_vector) - sum(sapply(allele_vector, is.na)),
                   sum(sapply(allele_vector, is.na)),
-                  "No")
+                  screen)
     
     new_row <- c(metadata, allele_vector)
     
@@ -221,6 +223,8 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
     
     Database <- readRDS(file.path(meta_info$db_path, meta_info$scheme, "Typing.rds"))
     
+    if(!save_assembly) {screen <- "NA"} else {screen <- "No"}
+    
     metadata <- data.frame(nrow(Database[["Typing"]]) + 1,
                            TRUE,
                            meta_table$Files,
@@ -233,7 +237,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
                            format(Sys.Date()),
                            length(allele_vector) - sum(sapply(allele_vector, is.na)),
                            sum(sapply(allele_vector, is.na)),
-                           "No")
+                           screen)
     
     if ((ncol(Database$Typing) - 13) != length(allele_vector)) {
       

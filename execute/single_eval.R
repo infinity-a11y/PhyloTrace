@@ -114,7 +114,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
           
         } else if(variant_valid != FALSE) {
           
-          hashed_variant <- openssl::sha256(variant_valid)
+          hashed_variant <- as.character(openssl::sha256(variant_valid))
           
           # Append new variant number to allele fasta file
           cat(paste0("\n>", hashed_variant), file = locus_file, append = TRUE)
@@ -152,6 +152,8 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
     
     Typing <- data.frame(matrix(NA, nrow = 0, ncol = 13 + length(psl_files)))
     
+    if(!save_assembly) {screen <- "NA"} else {screen <- "No"}
+    
     metadata <- c(
       1,
       TRUE,
@@ -165,7 +167,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       as.character(meta_info$append_analysisdate),
       length(allele_vector) - sum(sapply(allele_vector, is.na)),
       sum(sapply(allele_vector, is.na)),
-      "No"
+      screen
     )
     
     new_row <- c(metadata, allele_vector)
@@ -207,6 +209,8 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
     
     Database <- readRDS(paste0(db_path, "/", gsub(" ", "_", meta_info$cgmlst_typing), "/Typing.rds"))
     
+    if(!save_assembly) {screen <- "NA"} else {screen <- "No"}
+    
     metadata <-
       data.frame(
         nrow(Database[["Typing"]]) + 1,
@@ -221,7 +225,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         as.character(meta_info$append_analysisdate),
         length(allele_vector) - sum(sapply(allele_vector, is.na)),
         sum(sapply(allele_vector, is.na)),
-        "No"
+        screen
       )
     
     if ((ncol(Database$Typing)-13) != length(allele_vector)) {

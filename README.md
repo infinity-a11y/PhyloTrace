@@ -1,27 +1,23 @@
 <img src="www/PhyloTrace_bw.png#gh-light-mode-only" width="90%"/>
-<img src="www/PhyloTrace.png#gh-dark-mode-only" width="90%"/> <br> PhyloTrace is a platform for
-bacterial pathogen monitoring by core-genome multilocus sequence typing (cgMLST) using
-state-of-the-art technologies. It utilizes the ability to combine genomic information with
-epidemiological variables that could reveal otherwise hidden patterns. Complex analyses and
-calculations are packaged in an appealing and easy-to-use graphical user interface that provides an
-integrated toolset for analyzing bacterial isolates, visualizing relationships, managing a local
-database, and exporting results in a publication-ready format. <br><br>
+<img src="www/PhyloTrace.png#gh-dark-mode-only" width="90%"/> <br> 
+PhyloTrace is a platform for bacterial pathogen monitoring on a genomic level. Its components evolve around Core-Genome Multilocus Sequence Typing (cgMLST) and Antimicrobial Resistance Screening. Complex analyses and computation are wrapped into an appealing and easy-to-handle graphical user interface. Users build a local database comprising analyzed isolates, manageable directly with the application. The visualization of isolate relationship and genetic profile is highly interactive aiding to reveal patterns explaining outbreak dynamics and events by connecting genomic information with epidemiologic variables. PhyloTrace achieves universal compatibility by assigning unique 256-bit hashes based on sequence and allele information. The ability to easily share analysis results enables efficient inter-lab comparison and collaboration.
+<br><br>
 
 **Features**
 
--   Interactive cgMLST analysis also for large datasets comprising multiple genome assemblies
--   Managing a custom local database
--   Connecting informative meta data and custom variables
--   Visualizing the relationship between bacterial isolates with networks and phylogenetic trees
--   Download and report functionalities
+-   Interactive cgMLST analysis also for large datasets comprising numerous whole-genome assemblies
+-   Screening for species-specific genes involved in antibiotics resistance, virulence, stress and more 
+-   Managing an individual and portable local database to continously monitor bacterial populations
+-   Producing publication-ready plots with minimum-spanning tree network graphs and phylogenetic trees (Neighbour-Joining & UPGMA) 
+-   Extensive export and report functionalities
 -   *and more*
 
 We want to make cgMLST analysis and genomic pathogen monitoring accessible to a broad spectrum of
 individuals and organizations. Therefore our goal is to build an interface with convenient user
 experience and easy handling that doesn't require you to be a bioinformatician. The app is in active
-development. To get a stable version download the newest release. This tool can be used for research
-and academic purposes. Note that PhyloTrace is not validated for a clinical use yet, but we are
-working on achieving that.
+development. To get a stable version download the newest release. 
+
+*_PhyloTrace is supposed to be used for research and academic purposes only._*
 
 [www.PhyloTrace.com](https://www.phylotrace.com) \|
 [info\@phylotrace.com](mailto:info@phylotrace.com?subject=%5BGitHub%5D%20Source%20Han%20Sans)
@@ -31,13 +27,12 @@ working on achieving that.
 <sup><sup> Developed in collaboration with Hochschule Furtwangen University (HFU) and Medical
 University of Graz (MUG). Featured on ShinyConf 2024 and R/Medicine 2024. </sup> </sup>
 
-[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.10996423-00e896?labelColor=gray&color=2500ba&logoColor=black)](https://doi.org/10.5281/zenodo.10996423)
-[![License: GPL
-v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-![Project Status: Active – The project has reached a stable, usable state and is being actively
-developed.](https://www.repostatus.org/badges/latest/active.svg)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.10996423-00e896?labelColor=gray&color=609ea5&logoColor=black)](https://doi.org/10.5281/zenodo.10996423)
+[![License: GPLv3](https://img.shields.io/badge/License-GPLv3-659DA3.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Version](https://img.shields.io/badge/Version-1.5.0-659DA3)](https://github.com/infinity-a11y/PhyloTrace/releases/tag/v1.5.0)
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
-![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white)  
+![Windows](https://img.shields.io/badge/Windows-339033?style=flat&logo=windows&logoColor=white)  
+
 
 
 ----------------------------------------------------------------------------------------------------
@@ -244,7 +239,7 @@ cd path/to/phylotrace
 git clone https://github.com/infinity-a11y/PhyloTrace.git
 ```
 
-Alternatively download PhyloTrace manually from [Version 1.4.1](https://github.com/infinity-a11y/PhyloTrace/archive/refs/tags/v1.4.1.zip) and extract/unzip it to a location on your system.
+Alternatively download PhyloTrace manually from [Version 1.5.0](https://github.com/infinity-a11y/PhyloTrace/archive/refs/tags/v1.5.0.zip) and extract/unzip it to a location on your system.
 
 
 ### 2.2 Install Miniconda
@@ -386,8 +381,8 @@ In addition to the points listed on the roadmap, we constantly improve existing 
 ✅ ***"Hello World!"*** - Version 1.0.0\
 ✅ Sophisticated MST Graphs (e.g. Pie Charts as Nodes)\
 ✅ Compatibility with Microsoft Windows\
-🔲 Hash-based Decentralized cgMLST\
-🔲 MST Graph Clustering\
+✅ Hash-based Decentralized cgMLST\
+✅ MST Graph Clustering\
 🔲 Support for additional cgMLST scheme databases (e.g. pubMLST, EnteroBase, Institut Pasteur)\
 🔲 Implementation of a NGS Assembly Pipeline\
 🔲 Backwards Compatibility with MLST (ST calling)\
