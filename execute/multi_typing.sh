@@ -6,12 +6,12 @@ conda activate PhyloTrace
 unset R_HOME
 
 # Get variables
-base_path=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[,'wd'])")
-scheme=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[,'scheme'])")
-genome_folder=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[,'genome_folder'])")
-genome_names=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[,'genome_names'])")
-alleles=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[,'alleles'])")
-rename_file=$(Rscript -e "cat(stringr::str_split_1(readRDS('multi_typing_df.rds')[, 'filenames'], ' '))")
+base_path=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[['wd']])")
+scheme=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[['scheme']])")
+genome_folder=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[['genome_folder']])")
+genome_names=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[['genome_names']])")
+alleles=$(Rscript -e "cat(readRDS('multi_typing_df.rds')[['alleles']])")
+rename_file=$(Rscript -e "cat(stringr::str_split_1(readRDS('multi_typing_df.rds')[['filenames']], ' '))")
 
 # Remove the existing multi directory
 if [ -d "$base_path/execute/blat_multi" ]; then

@@ -16,6 +16,43 @@ input[type="checkbox"] {
   width: 15px;
 }
 
+.modal-content {
+  background-color: transparent;
+}
+
+.typing-modal .modal-header {
+  background-color: #282f38;
+  color: white;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border: 1px solid white;
+  border-bottom-color: transparent;
+}
+
+.modal-header {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.typing-modal .modal-title {
+  color: white;
+}
+
+.typing-modal .modal-body {
+  padding: 0px;
+}
+
+.typing-modal .modal-footer {
+  background-color: #282f38;
+  border-top-color: transparent;
+  border: 1px solid white;
+}
+
+.modal-footer {
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
 .swal2-container .swal2-bottom-end .swal2-backdrop-show,
 body > div.swal2-container.swal2-bottom-end.swal2-backdrop-show {
   width: auto;
@@ -826,6 +863,12 @@ button#edit_button.btn.btn-default.action-button.shiny-bound-input {
 
 /* Typing */
 
+#assembly_files, #assembly_folder {
+  width: 140px;
+  border: 1px solid white;
+  margin-left: 30px;
+}
+
 #single_select_issues {
   margin-top: 15px;
   margin-bottom: 10px;
@@ -835,10 +878,15 @@ button#edit_button.btn.btn-default.action-button.shiny-bound-input {
   margin-left: 10px;
 }
 
+#desel_all_mt {
+  margin-left: 15px;
+}
+
 #sel_all_mt,
 #desel_all_mt{
-  margin-top: 27px;
+  margin-top: 20px;
   margin-bottom: 25px;
+  border: 1px solid white;
 }
 
 #multi_select_issues {
@@ -949,7 +997,10 @@ div#progress_bar.progress-bar {
 }
 
 #conf_meta_single, #conf_meta_multi {
-border-color: white;
+  border-color: white;
+  height: 40px;
+  width: 200px;
+  font-size: large;
 }
 
 /* Visualization MST */
@@ -1337,6 +1388,26 @@ top: -10px;
   width: 40px;
   transition: all 0.3s ease-in-out;
   border: 1px solid transparent;
+}
+
+.save-assembly {
+  margin-left: 10px;
+}
+
+.typing-modal .modal-title {
+  color: white;
+  font-size: 25px;
+  text-align-last: center;
+}
+
+.typing-modal .modal-footer .btn+.btn {
+  margin-bottom: 0px;
+  margin-left: 20px;
+  margin-right: 10px;
+}
+
+#shiny-modal > div > div > div.modal-footer > button:nth-child(1) {
+  border-color: white;
 }
 
 .save-assembly .material-switch>label.switch:before {
