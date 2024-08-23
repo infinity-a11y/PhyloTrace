@@ -168,7 +168,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         ncol = 13 + length(psl_files)
       ))
     
-    if(!save_assembly) {screen <- "NA"} else {screen <- "No"}
+    if(!meta_info$save) {screen <- "NA"} else {screen <- "No"}
     
     metadata <- c(1,
                   TRUE,
@@ -223,7 +223,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
     
     Database <- readRDS(file.path(meta_info$db_path, meta_info$scheme, "Typing.rds"))
     
-    if(!save_assembly) {screen <- "NA"} else {screen <- "No"}
+    if(!meta_info$save) {screen <- "NA"} else {screen <- "No"}
     
     metadata <- data.frame(nrow(Database[["Typing"]]) + 1,
                            TRUE,

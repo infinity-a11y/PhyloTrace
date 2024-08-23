@@ -552,7 +552,7 @@ ui <- dashboardPage(
         fluidRow(
           column(
             width = 6,
-            uiOutput("test_yes_pending")
+            uiOutput("pending_typing")
           ),
           column(
             width = 6,
@@ -9968,6 +9968,8 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
+    aha <<- readLogFile()
+    test <<- !grepl("Multi Typing", tail(readLogFile(), n = 1)) & grepl("Start Multi Typing", head(readLogFile(), n = 1))
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
