@@ -5694,6 +5694,93 @@ server <- function(input, output, session) {
     }
   }
   
+  # update.progress <- reactive({
+  #   invalidateLater(1000, session)
+  #   
+  #   log <- readLines(file.path(getwd(), "logs/script_log.txt"))
+  #   
+  #   active <- grep("Processing", log)
+  #   
+  #   assembly <- gsub("\\.fasta|\\.fna|\\.fa", "", sub(".*Processing ", "", tail(log, 1)))
+  #   count <- length(list.files(file.path(getwd(), "execute/blat_multi/results", assembly)))
+  #        
+  #   floor(100 * count / DB$number_loci)
+  #   # if(!is.na(log[1])) {
+  #   #   
+  #   #   active <- grep("Processing", log)
+  #   #   
+  #   #   if(length(active) > 0) {
+  #   #     assembly <- gsub("\\.fasta|\\.fna|\\.fa", "", sub(".*Processing ", "", tail(log, 1)))
+  #   #     count <- length(list.files(file.path(getwd(), "execute/blat_multi/results", assembly)))
+  #   #     
+  #   #     progress <- floor(100 * count / DB$number_loci)
+  #   #     
+  #   #     if(!is.null(progress) & !is.na(progress)) {
+  #   #       if(length(progress) > 0) {
+  #   #         if( (Typing$progress != 100) & (progress != 0)) {
+  #   #           Typing$progress <- progress
+  #   #           if(Typing$progress == 0) {
+  #   #             100
+  #   #           }
+  #   #         } else {
+  #   #           Typing$progress
+  #   #         }
+  #   #         
+  #   #       } else {100}
+  #   #     } else {100}
+  #   #     
+  #   #   } else {
+  #   #     check1 <<- TRUE
+  #   #     ifelse(!is.na(Typing$progress), Typing$progress, 0)
+  #   #   }
+  #   # } else {100}
+  # })
+  
+  # Define reactive values to store the current assembly and last known progress
+  current_assembly <- reactiveVal(NULL)
+  last_progress <- reactiveVal(0)
+  
+  update.progress <- reactive({
+    invalidateLater(2000, session)
+    
+    log <- readLines(file.path(getwd(), "logs/script_log.txt"))
+    
+    active <- grep("Processing", log)
+    
+    if (length(active) > 0) {
+      # Extract the current assembly being processed
+      assembly <- gsub("\\.fasta|\\.fna|\\.fa", "", sub(".*Processing ", "", tail(log, 1)))
+      cat("Current Assembly:", assembly, "\n")
+      
+      # Only update the current assembly if it hasn't been set yet or if it's a new assembly
+      if (is.null(current_assembly()) || current_assembly() != assembly) {
+        current_assembly(assembly)
+        last_progress(0)  # Reset the progress when a new assembly starts
+      }
+      
+      # Calculate the current progress
+      count <- length(list.files(file.path(getwd(), "execute/blat_multi/results", assembly)))
+      progress <- floor(100 * count / DB$number_loci)
+      
+      # Ensure progress does not decrease unexpectedly
+      if (progress >= last_progress()) {
+        last_progress(progress)
+      } else {
+        progress <- last_progress()  # Keep the progress consistent
+      }
+      cat("Progress:", progress, "\n")
+      
+      # Return the current progress value
+      return(progress)
+    } else {
+      cat("ACHTUNG:", last_progress(), "\n")
+      # If no active processing is found, return the last known progress
+      return(last_progress())
+    }
+  })
+  
+  
+  
   # Truncate hashes
   truncHash <- function(hash) {
     if(!is.na(hash)) {
@@ -9968,8 +10055,7 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
-    aha <<- readLogFile()
-    test <<- !grepl("Multi Typing", tail(readLogFile(), n = 1)) & grepl("Start Multi Typing", head(readLogFile(), n = 1))
+    aha <<- update.progress()
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -24227,7 +24313,8 @@ server <- function(input, output, session) {
                       "progress_bar",
                       value = 0,
                       display_pct = TRUE,
-                      title = ""
+                      title = "",
+                      range_value = c(1,100)
                     )
                   )
                 ),
@@ -24610,6 +24697,23 @@ server <- function(input, output, session) {
   })
   
   ### Multi Typing ----
+  
+  # Render typing progress bar
+  observe({
+    if(!grepl("Multi Typing", tail(readLogFile(), n = 1)) & 
+       grepl("Start Multi Typing", head(readLogFile(), n = 1))) {
+      
+      soso <- update.progress()
+      
+      updateProgressBar(
+        session = session,
+        id = "progress_typing",
+        value = soso,
+        total = 100
+        #,title = paste0(as.character(Typing$progress), "/", length(Typing$scheme_loci_f), " loci screened")
+      )
+    }
+  })
   
   #### Render Multi Typing UI Elements ----
   output$initiate_multi_typing_ui <- initiate_multi_typing_ui
@@ -25680,6 +25784,18 @@ server <- function(input, output, session) {
             )
           ),
           br(), br(),
+          fluidRow(
+            column(width = 2),
+            column(
+              width = 6,
+              progressBar(
+                "progress_typing",
+                value = 0,
+                display_pct = TRUE,
+                title = ""
+              )
+            )
+          ),
           fluidRow(
             column(width = 2),
             column(
