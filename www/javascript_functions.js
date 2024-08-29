@@ -1,3 +1,32 @@
+// Functions to find the index of the selected cgMLST option
+function findSelectedIndex() {
+  // Ensure the element exists before proceeding
+  var options = $('#select_cgmlst option');
+  if (options.length === 0) return; // Exit if options are not found
+
+  var selectedIndex = -1;
+
+  // Iterate over the options to find which one is selected
+  options.each(function(index) {
+    if ($(this).prop('selected') === true) {
+      selectedIndex = index;  // Store the index of the selected option
+      return false;  // Exit the loop once the selected option is found
+    }
+  });
+
+  Shiny.setInputValue('selected_index_js', selectedIndex + 1);  // Adding 1 for 1-based index
+}
+
+// Attach the function to run whenever the selection changes
+$(document).on('change', '#select_cgmlst', findSelectedIndex);
+
+// Also run the function when the document is ready (in case there's an initial selection)
+$(document).ready(function() {
+  if ($('#select_cgmlst').length) {
+    findSelectedIndex(); // Run it once on load
+  }
+});
+
 // Copy sequence clipboard
 Shiny.addCustomMessageHandler('txt', function (txt) {
   navigator.clipboard.writeText(txt);
