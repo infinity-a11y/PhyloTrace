@@ -44,7 +44,8 @@ library(treeio)
 library(ggtree)
 library(ggtreeExtra)
 
-source(paste0(getwd(), "/www/resources.R"))
+source("resources.R")
+source("functions.R")
 
 options(ignore.negative.edge=TRUE)
 
@@ -52,7 +53,7 @@ options(ignore.negative.edge=TRUE)
 
 ui <- dashboardPage(
   
-  title = "PhyloTrace 1.5.0",
+  title = "PhyloTrace 1.6.0",
   
   # Title
   dashboardHeader(
@@ -514,7 +515,7 @@ ui <- dashboardPage(
           column(1),
           column(
             width = 6,
-            align = "center",
+            align = "left",
             br(),
             br(),
             br(),
@@ -5336,212 +5337,7 @@ ui <- dashboardPage(
 
 server <- function(input, output, session) {
   
-  phylotraceVersion <- paste("1.5.0")
-  
-  #TODO Enable this, or leave disabled
-  # Kill server on session end
-  session$onSessionEnded( function() {
-    stopApp()
-  })
-  
-  # Disable various user inputs (visualization control)
-  shinyjs::disable('mst_edge_label') 
-  
-  ## Functions ----
-  
-  # Function to read and format FASTA sequences
-  format_fasta <- function(filepath) {
-    fasta <- readLines(filepath)
-    formatted_fasta <- list()
-    current_sequence <- ""
-    
-    for (line in fasta) {
-      if (startsWith(line, ">")) {
-        if (current_sequence != "") {
-          formatted_fasta <- append(formatted_fasta, list(current_sequence))
-          current_sequence <- ""
-        }
-        formatted_fasta <- append(formatted_fasta, list(line))
-      } else {
-        current_sequence <- paste0(current_sequence, line)
-      }
-    }
-    if (current_sequence != "") {
-      formatted_fasta <- append(formatted_fasta, list(current_sequence))
-    }
-    
-    formatted_fasta
-  }
-  
-  # Function to color-code the bases in a sequence
-  color_sequence <- function(sequence) {
-    sequence <- gsub("A", "<span class='base-a'>A</span>", sequence)
-    sequence <- gsub("T", "<span class='base-t'>T</span>", sequence)
-    sequence <- gsub("G", "<span class='base-g'>G</span>", sequence)
-    sequence <- gsub("C", "<span class='base-c'>C</span>", sequence)
-    sequence
-  }
-  
-  # Function to log messages to logfile
-  log_message <- function(log_file, message, append = TRUE) {
-    cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "-", message, "\n", file = log_file, append = append)
-  }
-  
-  # Modified gheatmap function
-  gheatmap.mod <- function(p, data, offset=0, width=1, low="green", high="red", color="white",
-                           colnames=TRUE, colnames_position="bottom", colnames_angle=0, colnames_level=NULL,
-                           colnames_offset_x = 0, colnames_offset_y = 0, font.size=4, family="", hjust=0.5, legend_title = "value",
-                           colnames_color = "black") {
-    
-    colnames_position %<>% match.arg(c("bottom", "top"))
-    variable <- value <- lab <- y <- NULL
-    
-    ## if (is.null(width)) {
-    ##     width <- (p$data$x %>% range %>% diff)/30
-    ## }
-    
-    ## convert width to width of each cell
-    width <- width * (p$data$x %>% range(na.rm=TRUE) %>% diff) / ncol(data)
-    
-    isTip <- x <- y <- variable <- value <- from <- to <- NULL
-    
-    ## handle the display of heatmap on collapsed nodes
-    ## https://github.com/GuangchuangYu/ggtree/issues/242
-    ## extract data on leaves (& on collapsed internal nodes) 
-    ## (the latter is extracted only when the input data has data on collapsed
-    ## internal nodes)
-    df <- p$data
-    nodeCo <- intersect(df %>% filter(is.na(x)) %>% 
-                          select(.data$parent, .data$node) %>% unlist(), 
-                        df %>% filter(!is.na(x)) %>% 
-                          select(.data$parent, .data$node) %>% unlist())
-    labCo <- df %>% filter(.data$node %in% nodeCo) %>% 
-      select(.data$label) %>% unlist()
-    selCo <- intersect(labCo, rownames(data))
-    isSel <- df$label %in% selCo
-    
-    df <- df[df$isTip | isSel, ]
-    start <- max(df$x, na.rm=TRUE) + offset
-    
-    dd <- as.data.frame(data)
-    ## dd$lab <- rownames(dd)
-    i <- order(df$y)
-    
-    ## handle collapsed tree
-    ## https://github.com/GuangchuangYu/ggtree/issues/137
-    i <- i[!is.na(df$y[i])]
-    
-    lab <- df$label[i]
-    ## dd <- dd[lab, , drop=FALSE]
-    ## https://github.com/GuangchuangYu/ggtree/issues/182
-    dd <- dd[match(lab, rownames(dd)), , drop = FALSE]
-    
-    
-    dd$y <- sort(df$y)
-    dd$lab <- lab
-    ## dd <- melt(dd, id=c("lab", "y"))
-    dd <- gather(dd, variable, value, -c(lab, y))
-    
-    i <- which(dd$value == "")
-    if (length(i) > 0) {
-      dd$value[i] <- NA
-    }
-    if (is.null(colnames_level)) {
-      dd$variable <- factor(dd$variable, levels=colnames(data))
-    } else {
-      dd$variable <- factor(dd$variable, levels=colnames_level)
-    }
-    V2 <- start + as.numeric(dd$variable) * width
-    mapping <- data.frame(from=dd$variable, to=V2)
-    mapping <- unique(mapping)
-    
-    dd$x <- V2
-    dd$width <- width
-    dd[[".panel"]] <- factor("Tree")
-    if (is.null(color)) {
-      p2 <- p + geom_tile(data=dd, aes(x, y, fill=value), width=width, inherit.aes=FALSE)
-    } else {
-      p2 <- p + geom_tile(data=dd, aes(x, y, fill=value), width=width, color=color, inherit.aes=FALSE)
-    }
-    if (is(dd$value,"numeric")) {
-      p2 <- p2 + scale_fill_gradient(low=low, high=high, na.value=NA, name = legend_title) # "white")
-    } else {
-      p2 <- p2 + scale_fill_discrete(na.value=NA, name = legend_title) #"white")
-    }
-    
-    if (colnames) {
-      if (colnames_position == "bottom") {
-        y <- 0
-      } else {
-        y <- max(p$data$y) + 1
-      }
-      mapping$y <- y
-      mapping[[".panel"]] <- factor("Tree")
-      p2 <- p2 + geom_text(data=mapping, aes(x=to, y = y, label=from), color = colnames_color, size=font.size, family=family, inherit.aes = FALSE,
-                           angle=colnames_angle, nudge_x=colnames_offset_x, nudge_y = colnames_offset_y, hjust=hjust)
-    }
-    
-    p2 <- p2 + theme(legend.position="right")
-    ## p2 <- p2 + guides(fill = guide_legend(override.aes = list(colour = NULL)))
-    
-    if (!colnames) {
-      ## https://github.com/GuangchuangYu/ggtree/issues/204
-      p2 <- p2 + scale_y_continuous(expand = c(0,0))
-    }
-    
-    attr(p2, "mapping") <- mapping
-    return(p2)
-  }
-  
-  # Get rhandsontable
-  get.entry.table.meta <- reactive({
-    if(!is.null(hot_to_r(input$db_entries))){
-      table <- hot_to_r(input$db_entries)
-      select(select(table, -13), 1:(12 + nrow(DB$cust_var)))
-    }
-  })
-  
-  # Function to find columns with varying values
-  var_alleles <- function(dataframe) {
-    
-    varying_columns <- c()
-    
-    for (col in 1:ncol(dataframe)) {
-      unique_values <- unique(dataframe[, col])
-      
-      if (length(unique_values) > 1) {
-        varying_columns <- c(varying_columns, col)
-      }
-    }
-    
-    return(varying_columns)
-  }
-  
-  # Functions to compute hamming distances dependent on missing value handling
-  hamming.dist <- function(x, y) {
-    sum(x != y)
-  }
-  
-  hamming.distIgnore <- function(x, y) {
-    sum( (x != y) & !is.na(x) & !is.na(y) )
-  }
-  
-  hamming.distCategory <- function(x, y) {
-    sum((x != y | xor(is.na(x), is.na(y))) & !(is.na(x) & is.na(y)))
-  }
-  
-  compute.distMatrix <- function(profile, hamming.method) {
-    mat <- as.matrix(profile)
-    n <- nrow(mat)
-    dist_mat <- matrix(0, n, n)
-    for (i in 1:(n-1)) {
-      for (j in (i+1):n) {
-        dist_mat[i, j] <- hamming.method(x = mat[i, ], y = mat[j, ])
-        dist_mat[j, i] <- dist_mat[i, j]
-      }
-    }
-    return(dist_mat)
-  }
+  ## Reactives ----
   
   # Function to determine entry table height
   table_height <- reactive({
@@ -5563,143 +5359,6 @@ server <- function(input, output, session) {
       NULL
     } else {800}
   })
-  
-  #Function to check custom variable classes
-  column_classes <- function(df) {
-    sapply(df, function(x) {
-      if (class(x) == "numeric") {
-        return("cont")
-      } else if (class(x) == "character") {
-        return("categ")
-      } else {
-        return(class(x))
-      }
-    })
-  }
-  
-  # Function to hash database
-  hash_database <- function(folder) {
-    loci_files <- list.files(folder)
-    loci_names <- sapply(strsplit(loci_files, "[.]"), function(x) x[1])
-    loci_paths <- file.path(folder, loci_files)
-    
-    hashes <- sapply(loci_paths, hash_locus)
-    names(hashes) <- loci_names
-    hashes
-  }
-  
-  # Function to hash a locus
-  hash_locus <- function(locus_path) {
-    locus_file <- readLines(locus_path)
-    seq_list <- locus_file[seq(2, length(locus_file), 3)]
-    seq_hash <- sha256(seq_list)
-    seq_idx <- paste0(">", seq_hash)
-    
-    locus_file[seq(1, length(locus_file), 3)] <- seq_idx
-    writeLines(locus_file, locus_path)
-    
-    seq_hash
-  }
-  
-  # Get locus hashes
-  get_locus_hashes <- function(locus_path) {
-    locus_file <- readLines(locus_path)
-    hash_list <- locus_file[seq(1, length(locus_file), 3)]
-    hash_list <- sapply(strsplit(hash_list, "[>]"), function(x) x[2])
-  }
-  
-  extract_seq <- function(locus_path, hashes) {
-    locus_file <- readLines(locus_path)
-    hash_list <- sapply(strsplit(locus_file[seq(1, length(locus_file), 3)], "[>]"), function(x) x[2])
-    seq_list <- locus_file[seq(2, length(locus_file), 3)]
-    seq_idx <- hash_list %in% hashes
-    
-    list(
-      idx = hash_list[seq_idx],
-      seq = seq_list[seq_idx]
-    )
-  }
-  
-  add_new_sequences <- function(locus_path, sequences) {
-    locus_file <- file(locus_path, open = "a+")
-    for (i in seq_along(sequences$idx)) {
-      writeLines(c("", paste0(">", sequences$idx[i]), sequences$seq[i]), locus_file)
-    }
-    close(locus_file)
-  }
-  
-  # Compute clusters to use in visNetwork
-  compute_clusters <- function(nodes, edges, threshold) {
-    groups <- rep(0, length(nodes$id))
-    edges_groups <- rep(0, length(edges$from))
-    
-    edges_table <- data.frame(
-      from = edges$from,
-      to = edges$to,
-      weight = edges$weight
-    )
-    
-    count <- 0
-    while (any(groups == 0)) {
-      group_na <- groups == 0
-      labels <- nodes$id[group_na]
-      
-      cluster <- nodes$id[group_na][1] # Initialize with 1 label
-      while (!is_empty(labels)) {
-        sub_tb <- edges_table[(edges_table$from %in% cluster | edges_table$to %in% cluster) & edges_table$weight <= threshold,]
-        
-        if (nrow(sub_tb) == 0 | length(unique(c(sub_tb$from, sub_tb$to))) == length(cluster)) {
-          count <- count + 1
-          groups[nodes$id %in% cluster] <- paste("Group", count)
-          edges_groups[edges$from %in% cluster & edges$to %in% cluster] <- paste("Group", count)
-          break
-        } else {
-          cluster <- unique(c(sub_tb$from, sub_tb$to))
-        }
-      }
-    }
-    list(groups = groups,
-         edges = edges_groups)
-  }
-  
-  # Check gene screening status
-  check_status <- function(isolate) {
-    iso_name <- gsub(".zip", "", basename(isolate))
-    if(file.exists(file.path(DB$database, gsub(" ", "_", DB$scheme),
-                             "Isolates", iso_name, "status.txt"))) {
-      if(str_detect(readLines(file.path(DB$database, gsub(" ", "_", DB$scheme),
-                                        "Isolates", iso_name, "status.txt"))[1], 
-                    "successfully")) {
-        return("success")
-      } else {
-        return("fail")
-      }
-    } else {return("unfinished")}
-  }
-  
-  # Reset gene screening status
-  remove.screening.status <- function(isolate) {
-    if(file.exists(file.path(DB$database, 
-                             gsub(" ", "_", DB$scheme),
-                             "Isolates",
-                             isolate,
-                             "status.txt"))) {
-      file.remove(
-        file.path(DB$database, 
-                  gsub(" ", "_", DB$scheme),
-                  "Isolates",
-                  isolate,
-                  "status.txt")
-      )
-    }
-  }
-  
-  # Truncate hashes
-  truncHash <- function(hash) {
-    if(!is.na(hash)) {
-      paste0(str_sub(hash, 1, 4), "...", str_sub(hash, nchar(hash) - 3, nchar(hash))) 
-    } else {NA}
-  }
   
   # Function to check for duplicate isolate IDs for multi typing start
   dupl_mult_id <- reactive({
@@ -5772,6 +5431,17 @@ server <- function(input, output, session) {
       which(duplicated(DB$meta$`Assembly ID`) | duplicated(DB$meta$`Assembly ID`, fromLast = TRUE))
     }
   })
+  
+  phylotraceVersion <- paste("1.6.0")
+  
+  #TODO Enable this, or leave disabled
+  # Kill server on session end
+  session$onSessionEnded( function() {
+    stopApp()
+  })
+  
+  # Disable various user inputs (visualization control)
+  shinyjs::disable('mst_edge_label') 
   
   # _______________________ ####
   
@@ -6656,9 +6326,9 @@ server <- function(input, output, session) {
                 )
               )
             )
-          } else if (!any(grepl("scheme_info.html", dir_ls(paste0(
-            DB$database, "/", 
-            gsub(" ", "_", DB$scheme)))))) {
+          } else if (
+            (!any(grepl("scheme_info.html", dir_ls(paste0(DB$database, "/", gsub(" ", "_", DB$scheme)))))) &
+            (!any(grepl("scheme_info.rds", dir_ls(paste0(DB$database, "/", gsub(" ", "_", DB$scheme))))))) {
             
             output$download_scheme_info <- NULL
             
@@ -6830,37 +6500,45 @@ server <- function(input, output, session) {
             )
             
           } else {
-            # Produce Scheme Info Table
-            schemeinfo <-
-              read_html(paste0(
-                DB$database, "/",
-                gsub(" ", "_", DB$scheme),
-                "/scheme_info.html"
-              )) %>%
-              html_table(header = FALSE) %>%
-              as.data.frame(stringsAsFactors = FALSE)
-            names(schemeinfo) <- NULL
-            DB$schemeinfo <- schemeinfo
-            number_loci <- as.vector(DB$schemeinfo[6, 2])
-            DB$number_loci <- as.numeric(gsub(",", "", number_loci))
             
-            # Produce Loci Info table
-            DB$loci_info <- read.csv(
-              file.path(DB$database, gsub(" ", "_", DB$scheme), "targets.csv"),
-              header = TRUE,
-              sep = "\t",
-              row.names = NULL,
-              colClasses = c(
-                "NULL",
-                "character",
-                "character",
-                "integer",
-                "integer",
-                "character",
-                "integer",
-                "NULL"
-              )
-            )
+            # Produce Scheme Info Table
+            if(file.exists(file.path(DB$database, 
+                                     gsub(" ", "_", DB$scheme),
+                                     "scheme_info.html"))) {
+              
+              schemeinfo <- read_html(file.path(DB$database, 
+                                                gsub(" ", "_", DB$scheme), 
+                                                "scheme_info.html")) %>%
+                html_table(header = FALSE) %>%
+                as.data.frame(stringsAsFactors = FALSE)
+              
+              names(schemeinfo) <- NULL
+              DB$schemeinfo <- schemeinfo
+              
+              # Get locus count
+              number_loci <- as.vector(DB$schemeinfo[6, 2])
+              DB$number_loci <- as.numeric(gsub(",", "", number_loci))
+              
+              # Get cluster threshold
+              #DB$cluster_thresh
+              
+            } else if (file.exists(file.path(DB$database, 
+                                             gsub(" ", "_", DB$scheme),
+                                             "scheme_info.rds"))) {
+              # schemeinfo <- read_html(file.path(DB$database, 
+              #                                gsub(" ", "_", DB$scheme), 
+              #                                "scheme_info.rds")) %>%
+              #   html_table(header = FALSE) %>%
+              #   as.data.frame(stringsAsFactors = FALSE)
+              # 
+              # names(schemeinfo) <- NULL
+              # DB$schemeinfo <- schemeinfo
+              # number_loci <- as.vector(DB$schemeinfo[6, 2])
+              # DB$number_loci <- as.numeric(gsub(",", "", number_loci))
+              # 
+              # # Produce Loci Info table
+              # DB$loci_info <- NA
+            }
             
             # Check if number of loci/fastq-files of alleles is coherent with number of targets in scheme
             if(DB$number_loci > length(dir_ls(paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")))) {
@@ -6960,8 +6638,8 @@ server <- function(input, output, session) {
                 DB$data <- Database[["Typing"]]
                 
                 if(!is.null(DB$data)){
-                  if ((ncol(DB$data)-13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
-                    cust_var <- select(DB$data, 14:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
+                  if ((ncol(DB$data)-13) != DB$number_loci) {
+                    cust_var <- select(DB$data, 14:(ncol(DB$data) - DB$number_loci))
                     DB$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
                   } else {
                     DB$cust_var <- data.frame()
@@ -9985,8 +9663,8 @@ server <- function(input, output, session) {
     
     DB$data <- Data[["Typing"]]
     
-    if ((ncol(DB$data)-13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
-      cust_var <- select(DB$data, 14:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
+    if ((ncol(DB$data)-13) != DB$number_loci) {
+      cust_var <- select(DB$data, 14:(ncol(DB$data) - DB$number_loci))
       DB$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
     } else {
       DB$cust_var <- data.frame()
@@ -10713,8 +10391,8 @@ server <- function(input, output, session) {
   
   observe({
     if(!is.null(DB$data)){
-      if ((ncol(DB$data)-13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
-        cust_var <- select(DB$data, 14:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
+      if ((ncol(DB$data)-13) != DB$number_loci) {
+        cust_var <- select(DB$data, 14:(ncol(DB$data) - DB$number_loci))
         DB$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
         
       } else {
@@ -10921,14 +10599,24 @@ server <- function(input, output, session) {
       paste0(gsub(" ", "_", DB$scheme), "_scheme.csv")
     },
     content = function(file) {
-      pub_index <- which(DB$schemeinfo[,1] == "Publications")
-      write.table(
-        DB$schemeinfo[1:(pub_index-1),],
-        file, 
-        sep = ";",
-        row.names = FALSE, 
-        quote = FALSE
-      ) 
+      if(any(DB$schemeinfo[,1] == "Publications")) {
+        pub_index <- which(DB$schemeinfo[,1] == "Publications")
+        write.table(
+          DB$schemeinfo[1:(pub_index-1),],
+          file, 
+          sep = ";",
+          row.names = FALSE, 
+          quote = FALSE
+        )
+      } else {
+        write.table(
+          DB$schemeinfo,
+          file, 
+          sep = ";",
+          row.names = FALSE, 
+          quote = FALSE
+        )
+      }
     }
   )
   
@@ -11048,9 +10736,9 @@ server <- function(input, output, session) {
     
     Data <- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme),"Typing.rds"))
     
-    if ((ncol(Data[["Typing"]]) - 13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
+    if ((ncol(Data[["Typing"]]) - 13) != DB$number_loci) {
       cust_vars_pre <- select(Data[["Typing"]], 
-                              14:(ncol(Data[["Typing"]]) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
+                              14:(ncol(Data[["Typing"]]) - DB$number_loci))
       cust_vars_pre <- names(cust_vars_pre)
     } else {
       cust_vars_pre <- character()
@@ -11082,8 +10770,8 @@ server <- function(input, output, session) {
     DB$data <- Database[["Typing"]]
     
     if(!is.null(DB$data)){
-      if ((ncol(DB$data)-13) != as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))) {
-        cust_var <- select(DB$data, 14:(ncol(DB$data) - as.numeric(gsub(",", "", as.vector(DB$schemeinfo[6, 2])))))
+      if ((ncol(DB$data)-13) != DB$number_loci) {
+        cust_var <- select(DB$data, 14:(ncol(DB$data) - DB$number_loci))
         DB$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
       } else {
         DB$cust_var <- data.frame()
@@ -11497,19 +11185,21 @@ server <- function(input, output, session) {
   
   observe({
     if(!is.null(input$selected_index_js)) {
-      selected <- input$selected_index_js
+      Scheme$selected <- input$selected_index_js
     } else {
-      selected <- 2
+      Scheme$selected <- 1
     }
     
-    # if(schemes$database[selected] == "pubMLST") {
-    #   Scheme$link_scheme <- schemes$url[selected]
-    # } else 
-    if (schemes$database[selected] == "cgMLST.org") {
-      Scheme$link_scheme <- paste0(schemes$url[selected], "/")
-      Scheme$link_cgmlst <- paste0(schemes$url[selected], "/alleles/")
-      Scheme$link_targets <- paste0(schemes$url[selected], "/locus/?content-type=csv")
-      Scheme$folder_name <- schemes$species[selected]
+    if(schemes$database[Scheme$selected] == "pubMLST") {
+      Scheme$link_scheme <- schemes$url[Scheme$selected]
+      Scheme$link_cgmlst <- schemes$url[Scheme$selected]
+      Scheme$link_targets <- NA
+      Scheme$folder_name <- schemes$species[Scheme$selected]
+    } else if (schemes$database[Scheme$selected] == "cgMLST.org") {
+      Scheme$link_scheme <- paste0(schemes$url[Scheme$selected], "/")
+      Scheme$link_cgmlst <- paste0(schemes$url[Scheme$selected], "/alleles/")
+      Scheme$link_targets <- paste0(schemes$url[Scheme$selected], "/locus/?content-type=csv")
+      Scheme$folder_name <- schemes$species[Scheme$selected]
     }
   })
   
@@ -11547,184 +11237,193 @@ server <- function(input, output, session) {
     options(timeout = 600)
     
     tryCatch({
-      download.file(Scheme$link_cgmlst, 
-                    file.path(DB$database, ".downloaded_schemes", paste0(Scheme$folder_name, ".zip")))
-      "Download successful!"
+      if(schemes$database[Scheme$selected] == "pubMLST") {
+        download.alleles(url_link = schemes$url[Scheme$selected],
+                         database = DB$database,
+                         folder_name = Scheme$folder_name)
+        "Download successful!"
+      } else if (schemes$database[Scheme$selected] == "cgMLST.org") {
+        download.file(Scheme$link_cgmlst, 
+                      file.path(DB$database, ".downloaded_schemes", paste0(Scheme$folder_name, ".zip")))
+        "Download successful!"
+      }
     }, error = function(e) {
       paste("Error: ", e$message)
     })
     
-    # Unzip the scheme in temporary folder
-    unzip(
-      zipfile = file.path(DB$database, ".downloaded_schemes", paste0(Scheme$folder_name, ".zip")),
-      exdir = file.path(DB$database, 
-                        Scheme$folder_name, 
-                        paste0(Scheme$folder_name, ".tmp")
-      )
-    )
-    
-    log_print("Hashing downloaded database")
-    shinyjs::show("hashing")
-    shinyjs::hide("downloading")
-    
-    show_toast(
-      title = paste("Hashing of", input$select_cgmlst,  "started"),
-      type = "success",
-      position = "bottom-end",
-      timer = 5000
-    )
-    
-    # Hash temporary folder
-    hash_database(file.path(DB$database, 
-                            Scheme$folder_name, 
-                            paste0(Scheme$folder_name, ".tmp")))
-    
-    # Get list from local database
-    local_db_filelist <- list.files(file.path(DB$database, 
-                                              Scheme$folder_name, 
-                                              paste0(Scheme$folder_name, "_alleles")))
-    if (!is_empty(local_db_filelist)) {
-      # Get list from temporary database
-      tmp_db_filelist <- list.files(file.path(DB$database,
-                                              Scheme$folder_name,
-                                              paste0(Scheme$folder_name, ".tmp")))
-      
-      # Find the difference (extra files in local database)
-      local_db_extra <- setdiff(local_db_filelist, tmp_db_filelist)
-      
-      # Copy extra files to temporary folder
-      file.copy(file.path(DB$database,
+      # Unzip the scheme in temporary folder
+      unzip(
+        zipfile = file.path(DB$database, ".downloaded_schemes", paste0(Scheme$folder_name, ".zip")),
+        exdir = file.path(DB$database, 
                           Scheme$folder_name, 
-                          paste0(Scheme$folder_name, "_alleles"), local_db_extra),
-                file.path(DB$database,
-                          Scheme$folder_name,
-                          paste0(Scheme$folder_name, ".tmp")))
+                          paste0(Scheme$folder_name, ".tmp")
+        )
+      )
       
-      # Check differences in file pairs
-      local_db_hashes <- tools::md5sum(file.path(DB$database,
-                                                 Scheme$folder_name,
-                                                 paste0(Scheme$folder_name, "_alleles"),
-                                                 local_db_filelist))
-      tmp_db_hashes <- tools::md5sum(file.path(DB$database,
-                                               Scheme$folder_name,
-                                               paste0(Scheme$folder_name, ".tmp"),
-                                               local_db_filelist))
+      log_print("Hashing downloaded database")
+      shinyjs::show("hashing")
+      shinyjs::hide("downloading")
       
-      diff_files <- local_db_hashes %in% tmp_db_hashes
-      diff_loci <- names(local_db_hashes)[diff_files == FALSE]
-      diff_loci <- sapply(strsplit(diff_loci, "/"), function(x) x[length(x)])
+      show_toast(
+        title = paste("Hashing of", input$select_cgmlst,  "started"),
+        type = "success",
+        position = "bottom-end",
+        timer = 5000
+      )
       
-      # Check locus hashes
-      for (locus in diff_loci) {
-        local_db_hashes <- get_locus_hashes(file.path(DB$database,
-                                                      Scheme$folder_name,
-                                                      paste0(Scheme$folder_name, "_alleles"),
-                                                      locus))
-        tmp_db_hashes <- get_locus_hashes(file.path(DB$database,
-                                                    Scheme$folder_name,
-                                                    paste0(Scheme$folder_name, ".tmp"),
-                                                    locus))
-        diff_hashes <- setdiff(local_db_hashes, tmp_db_hashes)
+      # Hash temporary folder
+      hash_database(file.path(DB$database, 
+                              Scheme$folder_name, 
+                              paste0(Scheme$folder_name, ".tmp")))
+      
+      # Get list from local database
+      local_db_filelist <- list.files(file.path(DB$database, 
+                                                Scheme$folder_name, 
+                                                paste0(Scheme$folder_name, "_alleles")))
+      if (!is_empty(local_db_filelist)) {
+        # Get list from temporary database
+        tmp_db_filelist <- list.files(file.path(DB$database,
+                                                Scheme$folder_name,
+                                                paste0(Scheme$folder_name, ".tmp")))
         
-        sequences <- extract_seq(file.path(DB$database,
-                                           Scheme$folder_name,
-                                           paste0(Scheme$folder_name, "_alleles"),
-                                           locus), diff_hashes)
-        if (!is_empty(sequences$idx) && !is_empty(sequences$seq) &&
-            length(sequences$idx) == length(sequences$seq)) {
-          add_new_sequences(file.path(DB$database,
-                                      Scheme$folder_name,
-                                      paste0(Scheme$folder_name, ".tmp"),
-                                      locus), sequences)
+        # Find the difference (extra files in local database)
+        local_db_extra <- setdiff(local_db_filelist, tmp_db_filelist)
+        
+        # Copy extra files to temporary folder
+        file.copy(file.path(DB$database,
+                            Scheme$folder_name, 
+                            paste0(Scheme$folder_name, "_alleles"), local_db_extra),
+                  file.path(DB$database,
+                            Scheme$folder_name,
+                            paste0(Scheme$folder_name, ".tmp")))
+        
+        # Check differences in file pairs
+        local_db_hashes <- tools::md5sum(file.path(DB$database,
+                                                   Scheme$folder_name,
+                                                   paste0(Scheme$folder_name, "_alleles"),
+                                                   local_db_filelist))
+        tmp_db_hashes <- tools::md5sum(file.path(DB$database,
+                                                 Scheme$folder_name,
+                                                 paste0(Scheme$folder_name, ".tmp"),
+                                                 local_db_filelist))
+        
+        diff_files <- local_db_hashes %in% tmp_db_hashes
+        diff_loci <- names(local_db_hashes)[diff_files == FALSE]
+        diff_loci <- sapply(strsplit(diff_loci, "/"), function(x) x[length(x)])
+        
+        # Check locus hashes
+        for (locus in diff_loci) {
+          local_db_hashes <- get_locus_hashes(file.path(DB$database,
+                                                        Scheme$folder_name,
+                                                        paste0(Scheme$folder_name, "_alleles"),
+                                                        locus))
+          tmp_db_hashes <- get_locus_hashes(file.path(DB$database,
+                                                      Scheme$folder_name,
+                                                      paste0(Scheme$folder_name, ".tmp"),
+                                                      locus))
+          diff_hashes <- setdiff(local_db_hashes, tmp_db_hashes)
+          
+          sequences <- extract_seq(file.path(DB$database,
+                                             Scheme$folder_name,
+                                             paste0(Scheme$folder_name, "_alleles"),
+                                             locus), diff_hashes)
+          if (!is_empty(sequences$idx) && !is_empty(sequences$seq) &&
+              length(sequences$idx) == length(sequences$seq)) {
+            add_new_sequences(file.path(DB$database,
+                                        Scheme$folder_name,
+                                        paste0(Scheme$folder_name, ".tmp"),
+                                        locus), sequences)
+          }
         }
       }
-    }
-    
-    unlink(file.path(DB$database, Scheme$folder_name, 
-                     paste0(Scheme$folder_name, "_alleles")), recursive = TRUE)
-    
-    file.rename(file.path(DB$database, Scheme$folder_name,
-                          paste0(Scheme$folder_name, ".tmp")),
-                file.path(DB$database, Scheme$folder_name,
-                          paste0(Scheme$folder_name, "_alleles")))
-    
-    # Download Scheme Info
-    download(
-      Scheme$link_scheme,
-      dest = file.path(DB$database, Scheme$folder_name, "scheme_info.html"),
-      mode = "wb"
-    )
-    
-    # Download Loci Info	
-    download(	
-      Scheme$link_targets,	
-      dest = file.path(DB$database, Scheme$folder_name, "targets.csv"),
-      mode = "wb"
-    )
-    
-    # Send downloaded scheme to database browser overview
-    DB$available <- gsub("_", " ", basename(dir_ls(DB$database)))
-    
-    Scheme$target_table <- read.csv(
-      file.path(DB$database, Scheme$folder_name, "targets.csv"),
-      header = TRUE,	
-      sep = "\t",	
-      row.names = NULL,	
-      colClasses = c(	
-        "NULL",	
-        "character",	
-        "character",	
-        "integer",	
-        "integer",	
-        "character",	
-        "integer",	
-        "NULL"	
-      )	
-    )
-    
-    DB$exist <- length(dir_ls(DB$database)) == 0
-    
-    shinyjs::show("download_cgMLST")
-    shinyjs::hide("hashing")
-    
-    output$statustext <- renderUI(
-      fluidRow(
-        tags$li(
-          class = "dropdown", 
-          tags$span(HTML(
-            paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
-                  "Status:&nbsp;&nbsp;&nbsp; <i>ready</i>")),
-            style = "color:white;")
+      
+      unlink(file.path(DB$database, Scheme$folder_name, 
+                       paste0(Scheme$folder_name, "_alleles")), recursive = TRUE)
+      
+      file.rename(file.path(DB$database, Scheme$folder_name,
+                            paste0(Scheme$folder_name, ".tmp")),
+                  file.path(DB$database, Scheme$folder_name,
+                            paste0(Scheme$folder_name, "_alleles")))
+      
+      # Download Scheme Info (pubMLST already downloaded)
+      if(schemes$database[Scheme$selected] == "cgMLST.org") {
+        tryCatch(
+          {
+            download(
+              Scheme$link_scheme,
+              dest = file.path(DB$database, Scheme$folder_name, "scheme_info.html"),
+              mode = "wb"
+            )
+            message("Scheme info downloaded")
+          },
+          error = function(e) {
+            stop("Failed to download scheme info: ", "\nError: ", e$message)
+          }
+        )
+      }
+      
+      # Download Loci Info (only schemes from cgMLST.org)
+      if(schemes$database[Scheme$selected] == "cgMLST.org") {
+        tryCatch(
+          {
+            download(	
+              Scheme$link_targets,	
+              dest = file.path(DB$database, Scheme$folder_name, "targets.csv"),
+              mode = "wb"
+            )
+            message("Loci info downloaded")
+          },
+          error = function(e) {
+            stop("Failed to download loci info: ", "\nError: ", e$message)
+          }
+        )
+      }
+      
+      DB$available <- gsub("_", " ", basename(dir_ls(DB$database)))
+      DB$exist <- length(dir_ls(DB$database)) == 0
+      
+      shinyjs::show("download_cgMLST")
+      shinyjs::hide("hashing")
+      
+      output$statustext <- renderUI(
+        fluidRow(
+          tags$li(
+            class = "dropdown", 
+            tags$span(HTML(
+              paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
+                    "Status:&nbsp;&nbsp;&nbsp; <i>ready</i>")),
+              style = "color:white;")
+          )
         )
       )
-    )
-    
-    show_toast(
-      title = "Download successful",
-      type = "success",
-      position = "bottom-end",
-      timer = 5000
-    )
-    
-    log_print("Download successful")
-    
-    showModal(
-      modalDialog(
-        selectInput(
-          "scheme_db",
-          label = "",
-          choices = if(!is.null(Typing$last_scheme)) {
-            Typing$last_scheme
-          } else {DB$available},
-          selected = if(!is.null(Typing$last_scheme)) {
-            Typing$last_scheme
-          } else {if(!is.null(DB$scheme)) {input$select_cgmlst} else {DB$available[1]}}),
-        title = "Select a local database to load.",
-        footer = tagList(
-          actionButton("load", "Load", class = "btn btn-default")
+      
+      show_toast(
+        title = "Download successful",
+        type = "success",
+        position = "bottom-end",
+        timer = 5000
+      )
+      
+      log_print("Download successful")
+      
+      showModal(
+        modalDialog(
+          selectInput(
+            "scheme_db",
+            label = "",
+            choices = if(!is.null(Typing$last_scheme)) {
+              Typing$last_scheme
+            } else {DB$available},
+            selected = if(!is.null(Typing$last_scheme)) {
+              Typing$last_scheme
+            } else {if(!is.null(DB$scheme)) {input$select_cgmlst} else {DB$available[1]}}),
+          title = "Select a local database to load.",
+          footer = tagList(
+            actionButton("load", "Load", class = "btn btn-default")
+          )
         )
       )
-    )
+    
   })
   
   #Download Target Info (CSV Table)
@@ -11732,20 +11431,75 @@ server <- function(input, output, session) {
     req(input$select_cgmlst)
     input$download_cgMLST
 
-    scheme_overview <- read_html(Scheme$link_scheme) %>%
-      html_table(header = FALSE) %>%
-      as.data.frame(stringsAsFactors = FALSE)
-
-    last_scheme_change <- strptime(scheme_overview$X2[scheme_overview$X1 == "Last Change"],
-                                   format = "%B %d, %Y, %H:%M %p")
-    names(scheme_overview) <- NULL
-
-    last_file_change <- format(
-      file.info(file.path(DB$database,
-                          ".downloaded_schemes",
-                          paste0(Scheme$folder_name, ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
-
-    output$cgmlst_scheme <- renderTable({scheme_overview})
+    if(schemes$database[Scheme$selected] == "cgMLST.org") {
+      
+      scheme_overview <- read_html(Scheme$link_scheme) %>%
+        html_table(header = FALSE) %>%
+        as.data.frame(stringsAsFactors = FALSE)
+      
+      names(scheme_overview) <- c("X1", "X2")
+      
+      scheme_overview <- add_row(scheme_overview,
+                                 data.frame(
+                                   X1 = c("URL", "Database"), 
+                                   X2 = c(
+                                     paste0('<a href="', 
+                                            schemes$url[Scheme$selected], 
+                                            '" target="_blank">', 
+                                            schemes$url[Scheme$selected], 
+                                            '</a>'),
+                                     "cgMLST.org Nomenclature Server (h25)")),
+                                 .after = 1)
+      
+      last_scheme_change <- strptime(scheme_overview$X2[scheme_overview$X1 == "Last Change"],
+                                     format = "%B %d, %Y, %H:%M %p")
+      names(scheme_overview) <- NULL
+      
+      last_file_change <- format(
+        file.info(file.path(DB$database, ".downloaded_schemes",
+                            paste0(Scheme$folder_name, ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
+      
+    } else if(schemes$database[Scheme$selected] == "pubMLST") {
+      
+      scheme_list <- get.schemeinfo(url_link = schemes$url[Scheme$selected])
+      
+      if(!is.null(scheme_list[["last_updated"]])) {
+        last_scheme_change <- scheme_list[["last_updated"]]
+        last_file_change <- format(
+          file.info(file.path(DB$database, ".downloaded_schemes",
+                              paste0(Scheme$folder_name, ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
+      } else {
+        last_scheme_change <- "Not Available"
+        last_file_change <- NULL
+      }
+      
+      if(!is.null(scheme_list[["description"]])) {
+        description <- scheme_list[["description"]]
+      } else {
+        description <- "Not Available"
+      }
+      
+      scheme_overview <- data.frame(x1 = c("Scheme", "Database", "URL", "Version", "Locus Count", "Last Change"),
+                                    x2 = c(gsub("_", " ", Scheme$folder_name),
+                                           "pubMLST",
+                                           paste0('<a href="', 
+                                                  paste0("https://www.pubmlst.org/bigsdb?db=",
+                                                         basename(dirname(dirname(schemes$url[Scheme$selected])))), 
+                                                  '" target="_blank">', 
+                                                  paste0("https://www.pubmlst.org/bigsdb?db=",
+                                                         basename(dirname(dirname(schemes$url[Scheme$selected])))), 
+                                                  '</a>'),
+                                           description,
+                                           scheme_list[["locus_count"]], 
+                                           last_scheme_change))
+      
+      names(scheme_overview) <- NULL
+    }
+    
+    output$cgmlst_scheme <- renderTable({
+      scheme_overview
+    }, sanitize.text.function = function(x) x) # This prevents sanitizing the HTML tags
+    
     output$scheme_update_info <- renderText({
       req(last_file_change)
       if (last_file_change < last_scheme_change) {
@@ -17595,7 +17349,7 @@ server <- function(input, output, session) {
     numericInput(
       inputId = "mst_cluster_threshold",
       label = NULL,
-      value = as.numeric(DB$schemeinfo[7, 2]),
+      value = DB$cluster_thresh,
       min = 1,
       max = 99
     )
@@ -20943,7 +20697,7 @@ server <- function(input, output, session) {
   # MST cluster reset button
   observeEvent(input$mst_cluster_reset, {
     if(!is.null(DB$schemeinfo))
-    updateNumericInput(session, "mst_cluster_threshold", value = as.numeric(DB$schemeinfo[7, 2]))
+    updateNumericInput(session, "mst_cluster_threshold", value = DB$cluster_thresh)
   })
   
   # Shut off "Align Labels" control for UPGMA trees
