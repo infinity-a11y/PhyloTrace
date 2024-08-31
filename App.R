@@ -345,6 +345,11 @@ ui <- dashboardPage(
             width = 3,
             align = "center",
             h2(p("Loci Info"), style = "color:white")
+          ),
+          column(
+            width = 7,
+            align = "left",
+            uiOutput("db_loci_no")
           )
         ),
         hr(), br(), br(), br(),
@@ -6252,7 +6257,7 @@ server <- function(input, output, session) {
             # Show message that loci files are missing
             showModal(
               modalDialog(
-                paste0("Whoops! No loci files are present in the local ", 
+                paste0("No loci files are present in the local ", 
                        DB$scheme, 
                        " folder. Download the scheme again (no influence on already typed assemblies)."),
                 title = "Local Database Error",
@@ -6337,94 +6342,7 @@ server <- function(input, output, session) {
             # Show message that scheme info is missing
             showModal(
               modalDialog(
-                paste0("Whoops! Scheme info of the local ", 
-                       DB$scheme, 
-                       " database is missing. Download the scheme again (no influence on already typed assemblies)."),
-                title = "Local Database Error",
-                fade = TRUE,
-                easyClose = TRUE,
-                footer = tagList(
-                  modalButton("Okay")
-                )
-              )
-            )
-            
-            # Render menu with Manage Schemes as start tab
-            output$menu <- renderMenu(
-              sidebarMenu(
-                menuItem(
-                  text = "Database Browser",
-                  tabName = "database",
-                  icon = icon("hard-drive"),
-                  startExpanded = TRUE,
-                  menuSubItem(
-                    text = "Browse Entries",
-                    tabName = "db_browse_entries"
-                  ),
-                  menuSubItem(
-                    text = "Scheme Info",
-                    tabName = "db_schemeinfo"
-                  ),
-                  menuSubItem(
-                    text = "Loci Info",
-                    tabName = "db_loci_info"
-                  ),
-                  menuSubItem(
-                    text = "Distance Matrix",
-                    tabName = "db_distmatrix"
-                  ),
-                  menuSubItem(
-                    text = "Missing Values",
-                    tabName = "db_missing_values",
-                    icon = icon("triangle-exclamation")
-                  )
-                ),
-                menuItem(
-                  text = "Manage Schemes",
-                  tabName = "init",
-                  icon = icon("layer-group"),
-                  selected = TRUE
-                ),
-                menuItem(
-                  text = "Allelic Typing",
-                  tabName = "typing",
-                  icon = icon("gears")
-                ),
-                menuItem(
-                  text = "Resistance Profile",
-                  tabName = "gene_screening",
-                  icon = icon("dna"),
-                  startExpanded = TRUE,
-                  menuSubItem(
-                    text = "Browse Entries",
-                    tabName = "gs_profile"
-                  ),
-                  menuSubItem(
-                    text = "Screening",
-                    tabName = "gs_screening"
-                  )
-                ),
-                menuItem(
-                  text = "Visualization",
-                  tabName = "visualization",
-                  icon = icon("circle-nodes")
-                )
-              )
-            )
-            
-          } else if (!any(grepl("targets.csv", dir_ls(paste0(
-            DB$database, "/", 
-            gsub(" ", "_", DB$scheme)))))) {
-            
-            # Dont render target download button
-            output$download_loci <- NULL
-            
-            log_print("Missing loci info (targets.csv)")
-            
-            # Show message that scheme info is missing
-            showModal(
-              modalDialog(
-                paste0("Whoops! Loci info of the local ", 
+                paste0("Scheme info of the local ", 
                        DB$scheme, 
                        " database is missing. Download the scheme again (no influence on already typed assemblies)."),
                 title = "Local Database Error",
@@ -6501,44 +6419,131 @@ server <- function(input, output, session) {
             
           } else {
             
+            # Produce Loci Info Table
+            if(file.exists(file.path(DB$database, 
+                                     gsub(" ", "_", DB$scheme), 
+                                     "targets.csv"))) {
+              DB$loci_info <- read.csv(
+                file.path(DB$database, gsub(" ", "_", DB$scheme), "targets.csv"),
+                header = TRUE,
+                sep = "\t",
+                row.names = NULL,
+                colClasses = c(
+                  "NULL",
+                  "character",
+                  "character",
+                  "integer",
+                  "integer",
+                  "character",
+                  "integer",
+                  "NULL"
+                )
+              ) 
+            } else {
+              DB$loci_info <- NULL
+            }
+            
             # Produce Scheme Info Table
             if(file.exists(file.path(DB$database, 
                                      gsub(" ", "_", DB$scheme),
-                                     "scheme_info.html"))) {
+                                     "scheme_info.rds"))) {
               
-              schemeinfo <- read_html(file.path(DB$database, 
+              DB$schemeinfo <- readRDS(file.path(DB$database, 
                                                 gsub(" ", "_", DB$scheme), 
-                                                "scheme_info.html")) %>%
-                html_table(header = FALSE) %>%
-                as.data.frame(stringsAsFactors = FALSE)
+                                                "scheme_info.rds"))
               
-              names(schemeinfo) <- NULL
-              DB$schemeinfo <- schemeinfo
+              # Get scheme database link
+              DB$scheme_db <- DB$schemeinfo[,2][DB$schemeinfo[,1] == "Database"]
               
+              # Get scheme database link
+              DB$scheme_link <- str_extract(DB$schemeinfo[,2][DB$schemeinfo[,1] == "URL"], 
+                                            '(?<=href=")[^"]+')
+
               # Get locus count
-              number_loci <- as.vector(DB$schemeinfo[6, 2])
-              DB$number_loci <- as.numeric(gsub(",", "", number_loci))
+              number_loci <- DB$schemeinfo[, 2][DB$schemeinfo[,1] == "Locus Count"]
+
+              if(DB$scheme_db == "cgMLST.org Nomenclature Server (h25)") {
+                # Locus count
+                DB$number_loci <- as.numeric(gsub(",", "", number_loci))
+
+                # Cluster threshold
+                DB$cluster_thresh <- DB$schemeinfo[,2][DB$schemeinfo[,1] == "Complex Type Distance"]
+
+              } else if(DB$scheme_db == "pubMLST") {
+                # Locus count
+                DB$number_loci <- as.numeric(number_loci)
+
+                # Cluster threshold
+                DB$cluster_thresh <- 10
+              }
+
+              ### Check if scheme update available
+              # Query remote scheme
+              if(DB$scheme_db == "cgMLST.org Nomenclature Server (h25)") {
+
+                db_spec <- schemes[schemes[,"database"] == "cgMLST.org",]
+                DB$url_link <- db_spec[, "url"][db_spec[, "species"] == gsub(" ", "_", DB$scheme)]
+
+                remote_scheme <- read_html(DB$url_link) %>%
+                  html_table(header = FALSE) %>%
+                  as.data.frame(stringsAsFactors = FALSE)
+
+                last_scheme_change <- strptime(remote_scheme[,2][remote_scheme[,1] == "Last Change"],
+                                               format = "%B %d, %Y, %H:%M %p")
+              } else if(DB$scheme_db == "pubMLST") {
+
+                db_spec <- schemes[schemes[,"database"] == "pubMLST",]
+                DB$url_link <- db_spec[, "url"][db_spec[, "species"] == gsub(" ", "_", DB$scheme)]
+
+                remote_scheme <- get.schemeinfo(url_link = DB$url_link)
+
+                last_scheme_change <- remote_scheme[["last_updated"]]
+              }
+
+              if(!is.null(last_scheme_change)) {
+                if(length(last_scheme_change) > 0) {
+                  last_file_change <- format(
+                    file.info(file.path(DB$database, ".downloaded_schemes",
+                                        paste0(gsub(" ", "_", DB$scheme), ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
+
+                  if(last_file_change < last_scheme_change) {
+                    showModal(
+                      modalDialog(
+                        paste0("The ", DB$scheme, " scheme was updated at ",
+                               last_scheme_change,
+                               " on the ",
+                               DB$schemeinfo[,2][DB$schemeinfo[,1] == "Database"],
+                               " database. To fetch the changes download the scheme."),
+                        title = "Scheme update available",
+                        fade = TRUE,
+                        easyClose = TRUE,
+                        footer = tagList(
+                          modalButton("Cancel"),
+                          actionButton("update_scheme", "Update Scheme", class = "btn btn-default")
+                        )
+                      )
+                    )
+                  }
+                }
+              }
+            } else {
+              log_print(paste0("Scheme info file missing in the local ", DB$scheme, " folder"))
               
-              # Get cluster threshold
-              #DB$cluster_thresh
-              
-            } else if (file.exists(file.path(DB$database, 
-                                             gsub(" ", "_", DB$scheme),
-                                             "scheme_info.rds"))) {
-              # schemeinfo <- read_html(file.path(DB$database, 
-              #                                gsub(" ", "_", DB$scheme), 
-              #                                "scheme_info.rds")) %>%
-              #   html_table(header = FALSE) %>%
-              #   as.data.frame(stringsAsFactors = FALSE)
-              # 
-              # names(schemeinfo) <- NULL
-              # DB$schemeinfo <- schemeinfo
-              # number_loci <- as.vector(DB$schemeinfo[6, 2])
-              # DB$number_loci <- as.numeric(gsub(",", "", number_loci))
-              # 
-              # # Produce Loci Info table
-              # DB$loci_info <- NA
-            }
+              # Show message that loci files are missing
+              showModal(
+                modalDialog(
+                  paste0("Scheme info file is missing in the local ", 
+                         DB$scheme, 
+                         " folder. Download the scheme again (no influence on already typed assemblies)."),
+                  title = "Local Database Error",
+                  fade = TRUE,
+                  easyClose = TRUE,
+                  footer = tagList(
+                    modalButton("Okay")
+                  )
+                )
+              )
+            } 
             
             # Check if number of loci/fastq-files of alleles is coherent with number of targets in scheme
             if(DB$number_loci > length(dir_ls(paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")))) {
@@ -6548,7 +6553,7 @@ server <- function(input, output, session) {
               # Show message that loci files are missing
               showModal(
                 modalDialog(
-                  paste0("Whoops! Some loci files are missing in the local ", 
+                  paste0("Some loci files are missing in the local ", 
                          DB$scheme, 
                          " folder. Download the scheme again (no influence on already typed assemblies)."),
                   title = "Local Database Error",
@@ -9167,7 +9172,7 @@ server <- function(input, output, session) {
                           schemes$database,
                           sep = ": ")),
         width = "300px",
-        selected = DB$scheme,
+        selected = gsub(" ", "_", DB$scheme),
         options = list(
           `live-search` = TRUE,
           `actions-box` = TRUE,
@@ -9489,7 +9494,7 @@ server <- function(input, output, session) {
         
         output$scheme_info <- renderTable({
           DB$schemeinfo
-        })
+        }, sanitize.text.function = function(x) x) 
         
         output$scheme_header <- renderUI(h3(p("cgMLST Scheme"), style = "color:white"))
         
@@ -9527,8 +9532,22 @@ server <- function(input, output, session) {
         )
         
         output$loci_header <- renderUI(h3(p("Loci"), style = "color:white"))
-        
+        output$db_loci_no <- NULL
       } else {
+        output$db_loci_no <- renderUI(
+          p(
+            HTML(
+              paste0(
+                '<i class="fa-solid fa-xmark" style="font-size:20px;color:#ff0000; position:relative; top:27px;margin-right: 10px;"></i>',
+                '<span style="color: white; font-size: 15px; position:relative; top:25px;">',
+                'Locus information not available for ',
+                DB$scheme, '. Check database online: ',
+                ' <a href="', DB$scheme_link , '" target="_blank" style="color:#008edb; text-decoration:none;">', DB$scheme_db , '</a>.',
+                '</span>'
+              )
+            )
+          )
+        )
         output$db_loci <- NULL
         output$loci_header <- NULL
       }
@@ -9590,6 +9609,9 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
+    
+    scheme_db <<- DB$scheme_db
+    scheme_link <<- DB$scheme_link
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -10958,6 +10980,8 @@ server <- function(input, output, session) {
   ### Distance Matrix ---- 
   
   hamming_df <- reactive({
+    req(DB$data, DB$allelic_profile)
+    
     if(input$distmatrix_true == TRUE) {
       if(anyNA(DB$allelic_profile)) {
         if(input$na_handling == "omit") {
@@ -11045,30 +11069,32 @@ server <- function(input, output, session) {
   })
   
   output$loci_sequences <- renderUI({
-    req(input$db_loci_rows_selected, DB$database, DB$scheme, input$seq_sel)
-    
-    DB$loci <- list.files(
-      path = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles"),
-      pattern = "\\.(fasta|fa|fna)$",
-      full.names = TRUE
-    )
-    
-    fasta <- format_fasta(DB$loci[input$db_loci_rows_selected])
-    
-    seq <- fasta[[which(fasta == paste0(">", gsub("Allele ", "", sub(" -.*", "", input$seq_sel)))) + 1]]
-    
-    DB$seq <- seq
-    
-    column(
-      width = 12,
-      HTML(
-        paste(
-          tags$span(style='color: white; font-size: 15px; position: relative; top: -15px; left: -50px', 
-                    sub(" -.*", "", input$seq_sel))
-        )
-      ),
-      tags$pre(HTML(color_sequence(seq)), class = "sequence")
-    )
+    if (!is.null(DB$loci_info)) {
+      req(input$db_loci_rows_selected, DB$database, DB$scheme, input$seq_sel)
+      
+      DB$loci <- list.files(
+        path = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles"),
+        pattern = "\\.(fasta|fa|fna)$",
+        full.names = TRUE
+      )
+      
+      fasta <- format_fasta(DB$loci[input$db_loci_rows_selected])
+      
+      seq <- fasta[[which(fasta == paste0(">", gsub("Allele ", "", sub(" -.*", "", input$seq_sel)))) + 1]]
+      
+      DB$seq <- seq
+      
+      column(
+        width = 12,
+        HTML(
+          paste(
+            tags$span(style='color: white; font-size: 15px; position: relative; top: -15px; left: -50px', 
+                      sub(" -.*", "", input$seq_sel))
+          )
+        ),
+        tags$pre(HTML(color_sequence(seq)), class = "sequence")
+      )
+    } else {NULL}
   })
   
   output$sequence_selector <- renderUI({
@@ -11187,7 +11213,11 @@ server <- function(input, output, session) {
     if(!is.null(input$selected_index_js)) {
       Scheme$selected <- input$selected_index_js
     } else {
-      Scheme$selected <- 1
+      if(!is.null(DB$scheme_db)) {
+        Scheme$selected <- which(schemes$url == DB$url_link)
+      } else {
+        Scheme$selected <- 1    
+      }
     }
     
     if(schemes$database[Scheme$selected] == "pubMLST") {
@@ -11349,11 +11379,28 @@ server <- function(input, output, session) {
       if(schemes$database[Scheme$selected] == "cgMLST.org") {
         tryCatch(
           {
-            download(
-              Scheme$link_scheme,
-              dest = file.path(DB$database, Scheme$folder_name, "scheme_info.html"),
-              mode = "wb"
-            )
+            scheme_overview <- read_html(Scheme$link_scheme) %>%
+              html_table(header = FALSE) %>%
+              as.data.frame(stringsAsFactors = FALSE)
+            
+            names(scheme_overview) <- c("X1", "X2")
+            
+            scheme_overview <- add_row(scheme_overview,
+                                       data.frame(
+                                         X1 = c("URL", "Database"), 
+                                         X2 = c(
+                                           paste0('<a href="', 
+                                                  schemes$url[Scheme$selected], 
+                                                  '" target="_blank">', 
+                                                  schemes$url[Scheme$selected], 
+                                                  '</a>'),
+                                           "cgMLST.org Nomenclature Server (h25)")),
+                                       .after = 1)
+            
+            names(scheme_overview) <- NULL
+            
+            saveRDS(scheme_overview, file.path(DB$database, Scheme$folder_name, "scheme_info.rds"))
+            
             message("Scheme info downloaded")
           },
           error = function(e) {
@@ -11416,8 +11463,8 @@ server <- function(input, output, session) {
             } else {DB$available},
             selected = if(!is.null(Typing$last_scheme)) {
               Typing$last_scheme
-            } else {if(!is.null(DB$scheme)) {input$select_cgmlst} else {DB$available[1]}}),
-          title = "Select a local database to load.",
+            } else {if(!is.null(DB$scheme)) {gsub("_", " ", input$select_cgmlst)} else {DB$available[1]}}),
+          title = "Select a local database to load",
           footer = tagList(
             actionButton("load", "Load", class = "btn btn-default")
           )
@@ -11430,7 +11477,7 @@ server <- function(input, output, session) {
   observe({
     req(input$select_cgmlst)
     input$download_cgMLST
-
+    
     if(schemes$database[Scheme$selected] == "cgMLST.org") {
       
       scheme_overview <- read_html(Scheme$link_scheme) %>%
@@ -11498,7 +11545,7 @@ server <- function(input, output, session) {
     
     output$cgmlst_scheme <- renderTable({
       scheme_overview
-    }, sanitize.text.function = function(x) x) # This prevents sanitizing the HTML tags
+    }, sanitize.text.function = function(x) x) 
     
     output$scheme_update_info <- renderText({
       req(last_file_change)
@@ -11508,6 +11555,13 @@ server <- function(input, output, session) {
         "(Scheme is up-to-date \u2705)"
       }
     })
+  })
+  
+  
+  # Switch to MAnage Schemes tab if user wants to update scheme
+  observeEvent(input$update_scheme, {
+    removeModal()
+    updateTabItems(session, "tabs", selected = "init")
   })
   
   # _______________________ ####
