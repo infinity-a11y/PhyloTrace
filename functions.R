@@ -371,6 +371,50 @@ safe.api.call <- function(endpoint) {
   return(parsed_content)
 }
 
+# Function to fetch species data from NCBI
+fetch.species.data <- function(species) {
+  
+  command <- paste0("datasets summary taxonomy taxon '", species, "'")
+  
+  tryCatch(
+    result <- system(command, intern = TRUE),
+    error = function(e) {
+      message("Error in NCBI Datasets call: ", e$message)
+      return(NULL)
+    }
+  )
+  
+  if (length(result) < 1) {
+    message(paste("Error: ", species, " not available on NCBI."))
+    return(NULL)
+  } else {
+    tryCatch(
+      content <- jsonlite::fromJSON(paste(result, collapse = "")),
+      error = function(e) {
+        message("Error in NCBI Datasets call: ", e$message)
+        return(NULL)
+      }
+    )
+    
+    if (!is.null(content$reports)) {
+      species_data <- content$reports$taxonomy
+      
+      message("Fetched taxonomy")
+      
+      return(list(
+        Name = species_data$current_scientific_name,
+        ID = species_data$tax_id,
+        Classification = species_data$classification,
+        Group = species_data$group_name,
+        Image = paste0("https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/", species_data$tax_id, "/image")
+      ))
+    } else {
+      message("Empty taxonomy data")
+      return(NULL)
+    }
+  }
+}
+
 # Function to retrieve cgmlst scheme information
 get.schemeinfo <- function(url_link) {
   endpoint <- paste0(url_link, "?return_all=1")
