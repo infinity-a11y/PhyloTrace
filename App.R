@@ -352,18 +352,6 @@ ui <- dashboardPage(
           column(
             width = 10,
             align = "center",
-            fluidRow(
-              column(
-                width = 6,
-                align = "right",
-                uiOutput("loci_header")
-              ),
-              column(
-                width = 2,
-                align = "left",
-                
-              )
-            ),
             br(),
             div(class = "loci_table",
                 dataTableOutput("db_loci"))
@@ -510,7 +498,7 @@ ui <- dashboardPage(
                 br(),
                 br(),
                 br(),
-                h5(textOutput("scheme_update_info"), style = "color: white")
+                uiOutput("scheme_update_info")
               )
             )
           )
@@ -6212,7 +6200,9 @@ server <- function(input, output, session) {
     
     if(DB$load_selected == TRUE) {
       
-      if(gsub(" ", "_", input$scheme_db) %in% schemes$species) { #Check if selected scheme valid
+      # TODO 
+      # temporary deactivation of schemes validation 
+      #if(input$scheme_db %in% schemes$species) { #Check if selected scheme valid
         
         # Save database path for next start
         saveRDS(DB$database, paste0(getwd(), "/execute/last_db.rds"))
@@ -9162,16 +9152,16 @@ server <- function(input, output, session) {
             }
           }
         }
-      } else {
-        
-        log_print("Invalid scheme folder")
-        show_toast(
-          title = "Invalid scheme folder",
-          type = "warning",
-          position = "bottom-end",
-          timer = 4000
-        )
-      }
+      # } else {
+      #   
+      #   log_print("Invalid scheme folder")
+      #   show_toast(
+      #     title = "Invalid scheme folder",
+      #     type = "warning",
+      #     position = "bottom-end",
+      #     timer = 4000
+      #   )
+      # }
     }
     
   })
@@ -9241,7 +9231,7 @@ server <- function(input, output, session) {
                       '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
                       species_data$ID,
                       '/" target="_blank" style="color:#008edb; text-decoration:none;">',
-                      gsub("_", " ", schemes$species[Scheme$selected]), 
+                      gsub("_", " ", schemes$species[schemes$species == input$select_cgmlst]), 
                       ' NCBI',
                       '</a>',
                       '</span>'
@@ -9841,7 +9831,6 @@ server <- function(input, output, session) {
                          ))
         )
         
-        output$loci_header <- renderUI(h3(p("Loci"), style = "color:white"))
         output$db_loci_no <- NULL
       } else {
         output$db_loci_no <- renderUI(
@@ -9859,7 +9848,6 @@ server <- function(input, output, session) {
           )
         )
         output$db_loci <- NULL
-        output$loci_header <- NULL
       }
     } 
   })
@@ -11389,21 +11377,24 @@ server <- function(input, output, session) {
       )
       
       fasta <- format_fasta(DB$loci[input$db_loci_rows_selected])
+      select <- which(fasta == paste0(">", gsub("Allele ", "", sub(" -.*", "", input$seq_sel)))) + 1
       
-      seq <- fasta[[which(fasta == paste0(">", gsub("Allele ", "", sub(" -.*", "", input$seq_sel)))) + 1]]
-      
-      DB$seq <- seq
-      
-      column(
-        width = 12,
-        HTML(
-          paste(
-            tags$span(style='color: white; font-size: 15px; position: relative; top: -15px; left: -50px', 
-                      sub(" -.*", "", input$seq_sel))
-          )
-        ),
-        tags$pre(HTML(color_sequence(seq)), class = "sequence")
-      )
+      if(length(select) > 0) {
+        seq <- fasta[[which(fasta == paste0(">", gsub("Allele ", "", sub(" -.*", "", input$seq_sel)))) + 1]]
+        
+        DB$seq <- seq
+        
+        column(
+          width = 12,
+          HTML(
+            paste(
+              tags$span(style='color: white; font-size: 15px; position: relative; top: -15px; left: -50px', 
+                        sub(" -.*", "", input$seq_sel))
+            )
+          ),
+          tags$pre(HTML(color_sequence(seq)), class = "sequence")
+        )
+      } else {NULL}
     } else {NULL}
   })
   
@@ -11522,26 +11513,17 @@ server <- function(input, output, session) {
   ### Manage Schemes UI Elements ----
   
   observe({
-    if(!is.null(input$selected_index_js)) {
-      Scheme$selected <- input$selected_index_js
-    } else {
-      if(!is.null(DB$scheme_db)) {
-        Scheme$selected <- which(schemes$url == DB$url_link)
-      } else {
-        Scheme$selected <- 1    
-      }
-    }
-    
-    if(schemes$database[Scheme$selected] == "pubMLST") {
-      Scheme$link_scheme <- schemes$url[Scheme$selected]
-      Scheme$link_cgmlst <- schemes$url[Scheme$selected]
+    req(input$select_cgmlst)
+    if(grepl("_PM", input$select_cgmlst)) {
+      Scheme$link_scheme <- schemes$url[schemes$species == input$select_cgmlst]
+      Scheme$link_cgmlst <- schemes$url[schemes$species == input$select_cgmlst]
       Scheme$link_targets <- NA
-      Scheme$folder_name <- schemes$species[Scheme$selected]
-    } else if (schemes$database[Scheme$selected] == "cgMLST.org") {
-      Scheme$link_scheme <- paste0(schemes$url[Scheme$selected], "/")
-      Scheme$link_cgmlst <- paste0(schemes$url[Scheme$selected], "/alleles/")
-      Scheme$link_targets <- paste0(schemes$url[Scheme$selected], "/locus/?content-type=csv")
-      Scheme$folder_name <- schemes$species[Scheme$selected]
+      Scheme$folder_name <- schemes$species[schemes$species == input$select_cgmlst]
+    } else if(grepl("_CM", input$select_cgmlst)) {
+      Scheme$link_scheme <- paste0(schemes$url[schemes$species == input$select_cgmlst], "/")
+      Scheme$link_cgmlst <- paste0(schemes$url[schemes$species == input$select_cgmlst], "/alleles/")
+      Scheme$link_targets <- paste0(schemes$url[schemes$species == input$select_cgmlst], "/locus/?content-type=csv")
+      Scheme$folder_name <- schemes$species[schemes$species == input$select_cgmlst]
     }
   })
   
@@ -11552,7 +11534,7 @@ server <- function(input, output, session) {
       title = paste("Download of", input$select_cgmlst,  "started"),
       type = "success",
       position = "bottom-start",
-      timer = 100000
+      timer = 5000
     )
     
     shinyjs::hide("download_cgMLST")
@@ -11590,13 +11572,13 @@ server <- function(input, output, session) {
     progress$set(message = "Download Scheme", value = 0)
     
     tryCatch({
-      if(schemes$database[Scheme$selected] == "pubMLST") {
-        download.alleles(url_link = schemes$url[Scheme$selected],
+      if(grepl("_PM", input$select_cgmlst)) {
+        download.alleles(url_link = schemes$url[schemes$species == input$select_cgmlst],
                          database = DB$database,
                          folder_name = Scheme$folder_name,
                          progress = progress)
         "Download successful!"
-      } else if (schemes$database[Scheme$selected] == "cgMLST.org") {
+      } else if(grepl("_CM", input$select_cgmlst)) {
         download.file(Scheme$link_cgmlst, 
                       file.path(DB$database, ".downloaded_schemes", paste0(Scheme$folder_name, ".zip")))
         "Download successful!"
@@ -11616,18 +11598,23 @@ server <- function(input, output, session) {
       
       # Download species info & image
       
-      selected_species <- gsub("_", " ", schemes$species[Scheme$selected])  
+      if(grepl("_CM", input$select_cgmlst)) {
+        selected_species <- gsub("_CM", "", schemes$species[schemes$species == input$select_cgmlst]) 
+      } else if(grepl("_PM", input$select_cgmlst)) {
+        selected_species <- gsub("_PM", "", schemes$species[schemes$species == input$select_cgmlst])
+      }
+      selected_species <- gsub("_", " ", selected_species)  
       species_data <- fetch.species.data(species = selected_species)
       if(!is.null(species_data)) {
         if(length(species_data) > 0) {
           saveRDS(species_data,
                   file.path(DB$database, 
-                            schemes$species[Scheme$selected], 
-                            paste0(schemes$species[Scheme$selected], ".rds")))
+                            schemes$species[schemes$species == input$select_cgmlst], 
+                            paste0(schemes$species[schemes$species == input$select_cgmlst], ".rds")))
           
           destination_file <- file.path(DB$database, 
-                                        schemes$species[Scheme$selected], 
-                                        paste0(schemes$species[Scheme$selected], ".jpg"))
+                                        schemes$species[schemes$species == input$select_cgmlst], 
+                                        paste0(schemes$species[schemes$species == input$select_cgmlst], ".jpg"))
           
           response <- httr::GET(species_data$Image)
           
@@ -11728,7 +11715,7 @@ server <- function(input, output, session) {
                             paste0(Scheme$folder_name, "_alleles")))
       
       # Download Scheme Info (pubMLST already downloaded)
-      if(schemes$database[Scheme$selected] == "cgMLST.org") {
+      if(grepl("_CM", input$select_cgmlst)) {
         tryCatch(
           {
             scheme_overview <- read_html(Scheme$link_scheme) %>%
@@ -11742,9 +11729,9 @@ server <- function(input, output, session) {
                                          X1 = c("URL", "Database"), 
                                          X2 = c(
                                            paste0('<a href="', 
-                                                  schemes$url[Scheme$selected], 
+                                                  schemes$url[schemes$species == input$select_cgmlst], 
                                                   '" target="_blank">', 
-                                                  schemes$url[Scheme$selected], 
+                                                  schemes$url[schemes$species == input$select_cgmlst], 
                                                   '</a>'),
                                            "cgMLST.org Nomenclature Server (h25)")),
                                        .after = 1)
@@ -11762,7 +11749,7 @@ server <- function(input, output, session) {
       }
       
       # Download Loci Info (only schemes from cgMLST.org)
-      if(schemes$database[Scheme$selected] == "cgMLST.org") {
+      if(grepl("_CM", input$select_cgmlst)) {
         tryCatch(
           {
             download(	
@@ -11833,7 +11820,7 @@ server <- function(input, output, session) {
     req(input$select_cgmlst)
     input$download_cgMLST
     
-    if(schemes$database[Scheme$selected] == "cgMLST.org") {
+    if(grepl("_CM", input$select_cgmlst)) {
       
       scheme_overview <- read_html(Scheme$link_scheme) %>%
         html_table(header = FALSE) %>%
@@ -11846,9 +11833,9 @@ server <- function(input, output, session) {
                                    X1 = c("URL", "Database"), 
                                    X2 = c(
                                      paste0('<a href="', 
-                                            schemes$url[Scheme$selected], 
+                                            schemes$url[schemes$species == input$select_cgmlst], 
                                             '" target="_blank">', 
-                                            schemes$url[Scheme$selected], 
+                                            schemes$url[schemes$species == input$select_cgmlst], 
                                             '</a>'),
                                      "cgMLST.org Nomenclature Server (h25)")),
                                  .after = 1)
@@ -11861,9 +11848,9 @@ server <- function(input, output, session) {
         file.info(file.path(DB$database, ".downloaded_schemes",
                             paste0(Scheme$folder_name, ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
       
-    } else if(schemes$database[Scheme$selected] == "pubMLST") {
+    } else if(grepl("_PM", input$select_cgmlst)) {
       
-      scheme_list <- get.schemeinfo(url_link = schemes$url[Scheme$selected])
+      scheme_list <- get.schemeinfo(url_link = schemes$url[schemes$species == input$select_cgmlst])
       
       if(!is.null(scheme_list[["last_updated"]])) {
         last_scheme_change <- scheme_list[["last_updated"]]
@@ -11886,10 +11873,10 @@ server <- function(input, output, session) {
                                            "pubMLST",
                                            paste0('<a href="', 
                                                   paste0("https://www.pubmlst.org/bigsdb?db=",
-                                                         basename(dirname(dirname(schemes$url[Scheme$selected])))), 
+                                                         basename(dirname(dirname(schemes$url[schemes$species == input$select_cgmlst])))), 
                                                   '" target="_blank">', 
                                                   paste0("https://www.pubmlst.org/bigsdb?db=",
-                                                         basename(dirname(dirname(schemes$url[Scheme$selected])))), 
+                                                         basename(dirname(dirname(schemes$url[schemes$species == input$select_cgmlst])))), 
                                                   '</a>'),
                                            description,
                                            scheme_list[["locus_count"]], 
@@ -11905,30 +11892,49 @@ server <- function(input, output, session) {
     width = "90%") 
     
     # Render scheme update availability info
-    output$scheme_update_info <- renderText({
+    output$scheme_update_info <- renderUI({
       req(last_file_change)
       if (last_file_change < last_scheme_change) {
-        "(Newer scheme available \u274c)"
+        HTML(
+          paste0(
+            '<i class="fa-solid fa-circle-exclamation" style="font-size:20px;color:orange; position:relative; top:7px;margin-right: 10px;"></i>',
+            '<span style="color: white; font-size: 15px; position:relative; top:5px;">',
+            "Newer scheme available",
+            '</span>'
+          )
+        )
       } else {
-        "(Scheme is up-to-date \u2705)"
+        HTML(
+          paste0(
+            '<i class="fa-solid fa-check" style="font-size:20px;color:lightgreen; position:relative; top:7px;margin-right: 10px;"></i>',
+            '<span style="color: white; font-size: 15px; position:relative; top:5px;">',
+            "Scheme is up-to-date",
+            '</span>'
+          )
+        )
       }
     })
     
     ### Render species info
-    selected_species <- gsub("_", " ", schemes$species[Scheme$selected])  
+    if(grepl("_CM", input$select_cgmlst)) {
+      selected_species <- gsub("_CM", "", schemes$species[schemes$species == input$select_cgmlst]) 
+    } else if(grepl("_PM", input$select_cgmlst)) {
+      selected_species <- gsub("_PM", "", schemes$species[schemes$species == input$select_cgmlst])
+    }
+    selected_species <- gsub("_", " ", selected_species)
     species_data <- fetch.species.data(species = selected_species)
     
     if(!is.null(species_data)) {
       # Download image
       destination_file <- file.path(DB$database, 
-                                    schemes$species[Scheme$selected], 
-                                    paste0(schemes$species[Scheme$selected], ".jpg"))
+                                    schemes$species[schemes$species == input$select_cgmlst], 
+                                    paste0(schemes$species[schemes$species == input$select_cgmlst], ".jpg"))
       if(!dir.exists(dirname(destination_file))) {
-        if(file.exists(file.path(tempdir(), paste0(schemes$species[Scheme$selected], ".jpg")))) {
-          destination_file <- file.path(tempdir(), paste0(schemes$species[Scheme$selected], ".jpg"))      
+        if(file.exists(file.path(tempdir(), paste0(schemes$species[schemes$species == input$select_cgmlst], ".jpg")))) {
+          destination_file <- file.path(tempdir(), paste0(schemes$species[schemes$species == input$select_cgmlst], ".jpg"))      
         } else {
           response <- httr::GET(species_data$Image)
-          destination_file <- file.path(tempdir(), paste0(schemes$species[Scheme$selected], ".jpg")) 
+          destination_file <- file.path(tempdir(), paste0(schemes$species[schemes$species == input$select_cgmlst], ".jpg")) 
           
           if (response$status_code == 200) {
             httr::GET(species_data$Image, httr::write_disk(destination_file))
@@ -11998,7 +12004,7 @@ server <- function(input, output, session) {
                       '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
                       species_data$ID,
                       '/" target="_blank" style="color:#008edb; text-decoration:none;">',
-                      gsub("_", " ", schemes$species[Scheme$selected]), 
+                      gsub("_", " ", schemes$species[schemes$species == input$select_cgmlst]), 
                       ' NCBI',
                       '</a>',
                       '</span>'
