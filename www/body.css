@@ -54,8 +54,20 @@ input[type="checkbox"] {
 }
 
 .swal2-container .swal2-bottom-end .swal2-backdrop-show,
-body > div.swal2-container.swal2-bottom-end.swal2-backdrop-show {
+body > div.swal2-container.swal2-bottom-end.swal2-backdrop-show,
+.swal2-container .swal2-bottom-end .swal2-backdrop-show,
+body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
   width: auto;
+}
+
+.swal2-popup.swal2-toast {
+  background-color: #282F38;
+  opacity: .85;
+  color: white;
+}
+
+.swal2-timer-progress-bar {
+  background-color: #F0F0F0; 
 }
 
 .sF-fileList>div.selected .sF-file-name div, .sF-dirList div.selected>.sF-file-name>div {
@@ -423,6 +435,22 @@ button#load.pulsating-button.btn.btn-default.action-button.shiny-bound-input {
 .species-image {
   margin-left: -100px;
 } 
+
+.shiny-notification {
+  position: relative;
+  background-color: #282F38;
+  color: white;
+  border: 1px solid #white;
+  border-radius: 5px;
+  opacity: .85;
+  padding: 10px 2rem 10px 10px;
+  margin: 5px;
+  width: 150%;
+}
+
+.shiny-notification-close {
+  color: white;
+}
   
 .loci_table .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_processing, .dataTables_wrapper .dataTables_paginate {
   color: #ffffff !important;
@@ -563,6 +591,12 @@ button#copy_seq {
   color: #ffffff;
   border: 1px solid white;
   transition: border-color 0.3s ease;
+}
+
+button#download_schemeinfo_bttn,
+button#download_loci_info {
+  margin-top: 4px,
+  margin-left: -100px;
 }
 
 button#get_locus_bttn {
@@ -839,12 +873,12 @@ button#download_entry_table_bttn {
 }
 
 button#download_schemeinfo_bttn {
+  margin-left: -90px;
   height: 28px;
   background: #282F38;
   color: #ffffff;
-  margin-top: 19px;
+  margin-top: 23px;
   border: 1px solid white;
-  margin-left: 10px;
   transition: border-color 0.3s ease; 
   }
 
@@ -852,9 +886,9 @@ button#download_loci_info_bttn {
   height: 28px;
   background: #282F38;
   color: #ffffff;
-  margin-top: 19px;
+  margin-top: 23px;
   border: 1px solid white;
-  margin-left: 10px;
+  margin-left: -90px;
   transition: border-color 0.3s ease;
 }
 

@@ -308,30 +308,23 @@ ui <- dashboardPage(
             width = 3,
             align = "center",
             h2(p("Scheme Info"), style = "color:white")
+          ),
+          column(
+            width = 2,
+            uiOutput("download_scheme_info")
           )
         ),
         hr(), br(), br(), br(),
         uiOutput("no_scheme_info"),
         fluidRow(
-          column(2),
+          column(1),
           column(
-            width = 7,
-            align = "center",
-            fluidRow(
-              column(
-                width = 7,
-                align = "right",
-                uiOutput("scheme_header")
-              ),
-              column(
-                width = 2,
-                align = "left",
-                uiOutput("download_scheme_info")
-              )
-            ),
-            br(),
-            br(),
-            uiOutput("scheme_info")
+            width = 5,
+            uiOutput("scheme_info")      
+          ),
+          column(
+            width = 5,
+            uiOutput("species_info_saved")
           )
         )
       ),
@@ -349,6 +342,7 @@ ui <- dashboardPage(
           column(
             width = 7,
             align = "left",
+            uiOutput("download_loci"),
             uiOutput("db_loci_no")
           )
         ),
@@ -367,7 +361,7 @@ ui <- dashboardPage(
               column(
                 width = 2,
                 align = "left",
-                uiOutput("download_loci")
+                
               )
             ),
             br(),
@@ -481,13 +475,6 @@ ui <- dashboardPage(
                 br(),
                 br(),
                 br(),
-                h5(textOutput("scheme_update_info"), style = "color: white")
-              ),
-              column(
-                width = 2,
-                br(),
-                br(),
-                br(),
                 actionButton(
                   "download_cgMLST",
                   label = "Download",
@@ -517,6 +504,13 @@ ui <- dashboardPage(
                     )
                   )
                 )
+              ),
+              column(
+                width = 2,
+                br(),
+                br(),
+                br(),
+                h5(textOutput("scheme_update_info"), style = "color: white")
               )
             )
           )
@@ -5362,6 +5356,14 @@ server <- function(input, output, session) {
   
   ## Reactives ----
   
+  # Get rhandsontable
+  get.entry.table.meta <- reactive({
+    if(!is.null(hot_to_r(input$db_entries))){
+      table <- hot_to_r(input$db_entries)
+      select(select(table, -13), 1:(12 + nrow(DB$cust_var)))
+    }
+  })
+  
   # Function to determine entry table height
   table_height <- reactive({
     if (input$table_height == TRUE) {
@@ -7285,18 +7287,20 @@ server <- function(input, output, session) {
                 
                 # Render scheme info download button
                 output$download_loci <- renderUI({
-                  column(
-                    12,
-                    downloadBttn(
-                      "download_loci_info",
-                      style = "simple",
-                      label = "",
-                      size = "sm",
-                      icon = icon("download"),
-                      color = "primary"
-                    ),
-                    bsTooltip("download_loci_info_bttn", HTML("Save loci information <br> (without sequence)"), placement = "top", trigger = "hover")
-                  )
+                  if (!is.null(DB$loci_info)) {
+                    column(
+                      12,
+                      downloadBttn(
+                        "download_loci_info",
+                        style = "simple",
+                        label = "",
+                        size = "sm",
+                        icon = icon("download"),
+                        color = "primary"
+                      ),
+                      bsTooltip("download_loci_info_bttn", HTML("Save loci information <br> (without sequence)"), placement = "top", trigger = "hover")
+                    )
+                  } else {NULL}
                 })
                 
                 # Render scheme info download button
@@ -9178,8 +9182,301 @@ server <- function(input, output, session) {
   
   ### Conditional UI Elements rendering ----
   
+  #### Scheme Info ----
+  
+  output$species_info_saved <- renderUI({
+    
+    scheme_path <- file.path(DB$database, 
+                             gsub(" ", "_", DB$scheme), 
+                             paste0(gsub(" ", "_", DB$scheme)))
+    
+    if(file.exists(paste0(scheme_path, ".rds"))) {
+      species_data <- readRDS(paste0(scheme_path, ".rds"))
+      
+      if(file.exists(paste0(scheme_path, ".jpg"))) {
+        output$species_img_saved <- renderImage({
+          list(src = paste0(scheme_path, ".jpg"),
+               height = 180)
+        }, deleteFile = FALSE)
+      } else {
+        output$species_img_saved <- NULL
+      }
+      
+      if(!is.null(species_data)) {
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          column(
+            width = 12,
+            fluidRow(
+              br(),
+              column(
+                width = 7,
+                p(
+                  HTML(
+                    paste0(
+                      '<i class="fa-solid fa-bacterium" style="font-size:20px;color:white; margin-right: 10px;"></i>',
+                      '<span style="color: white; font-size: 22px; ">',
+                      species_data$Name$name,
+                      '</span>'
+                    )
+                  )
+                ),
+                p(
+                  HTML(
+                    paste0(
+                      '<span style="color: white; font-size: 12px;">',
+                      species_data$Name$authority,
+                      '</span>'
+                    )
+                  )
+                ),
+                br(),
+                p(
+                  HTML(
+                    paste0(
+                      '<span style="color: white; font-size: 15px;">',
+                      'URL: ',
+                      '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                      species_data$ID,
+                      '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                      gsub("_", " ", schemes$species[Scheme$selected]), 
+                      ' NCBI',
+                      '</a>',
+                      '</span>'
+                    )
+                  )
+                ),
+                br(),
+                fluidRow(
+                  column(
+                    width = 12,
+                    p(
+                      HTML(
+                        paste0(
+                          '<span style="color: white; font-size: 20px;">',
+                          'Lineage', '</span>'
+                        )
+                      )
+                    ),
+                    if(!is.null(species_data$Classification$superkingdom)) {
+                      fluidRow(
+                        column(
+                          width = 6,
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 15px;">',
+                                '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                species_data$Classification$superkingdom$id,
+                                '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                species_data$Classification$superkingdom$name,
+                                '</a>',
+                                '</span>'
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 6,
+                          align = "left",
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 12px;">',
+                                'Superkingdom',
+                                '</span>'
+                              )
+                            )
+                          )
+                        )
+                      )
+                    },
+                    if(!is.null(species_data$Classification$phylum)) {
+                      fluidRow(
+                        column(
+                          width = 6,
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 15px;">',
+                                '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                species_data$Classification$phylum$id,
+                                '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                species_data$Classification$phylum$name,
+                                '</a>',
+                                '</span>'
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 6,
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 12px;">',
+                                'Phylum',
+                                '</span>'
+                              )
+                            )
+                          )
+                        )
+                      )
+                    },
+                    if(!is.null(species_data$Classification$class)) {
+                      fluidRow(
+                        column(
+                          width = 6,
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 15px;">',
+                                '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                species_data$Classification$class$id,
+                                '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                species_data$Classification$class$name,
+                                '</a>',
+                                '</span>'
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 6,
+                          align = "left",
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 12px;">',
+                                'Class',
+                                '</span>'
+                              )
+                            )
+                          )
+                        )
+                      )
+                    },
+                    if(!is.null(species_data$Classification$order)) {
+                      fluidRow(
+                        column(
+                          width = 6,
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 15px;">',
+                                '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                species_data$Classification$order$id,
+                                '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                species_data$Classification$order$name,
+                                '</a>',
+                                '</span>'
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 6,
+                          align = "left",
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 12px;">',
+                                'Order',
+                                '</span>'
+                              )
+                            )
+                          )
+                        )
+                      )
+                    },
+                    if(!is.null(species_data$Classification$family)) {
+                      fluidRow(
+                        column(
+                          width = 6,
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 15px;">',
+                                '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                species_data$Classification$family$id,
+                                '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                species_data$Classification$family$name,
+                                '</a>',
+                                '</span>'
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 6,
+                          align = "left",
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 12px;">',
+                                'Family',
+                                '</span>'
+                              )
+                            )
+                          )
+                        )
+                      )
+                    },
+                    if(!is.null(species_data$Classification$genus)) {
+                      fluidRow(
+                        column(
+                          width = 6,
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 15px;">',
+                                '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                species_data$Classification$genus$id,
+                                '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                species_data$Classification$genus$name,
+                                '</a>',
+                                '</span>'
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 6,
+                          align = "left",
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 12px;">',
+                                'Genus',
+                                '</span>'
+                              )
+                            )
+                          )
+                        )
+                      )
+                    }
+                  )
+                )
+              ),
+              column(
+                width = 5,
+                align = "right",
+                div( 
+                  class = "species-image",
+                  imageOutput("species_img_saved", width = "300px", height = "200px")
+                )
+              )
+            )
+          )
+        )
+      } else {NULL}
+    }
+  })
+  
   # Scheme selector UI 
-  output$scheme_selector <- renderUI(
+  output$scheme_selector <- renderUI({
     if(!is.null(DB$scheme)) {
       pickerInput(
         inputId = "select_cgmlst",
@@ -9219,8 +9516,7 @@ server <- function(input, output, session) {
         multiple = FALSE
       )
     }
-  
-  )
+  })
   
   # Contro custom variables table
   output$cust_var_select <- renderUI({
@@ -9514,13 +9810,9 @@ server <- function(input, output, session) {
           DB$schemeinfo
         }, sanitize.text.function = function(x) x) 
         
-        output$scheme_header <- renderUI(h3(p("cgMLST Scheme"), style = "color:white"))
-        
       } else {
         
         output$scheme_info <- NULL
-        output$scheme_header <- NULL
-        
       }
       
       if (!is.null(DB$loci_info)) {
@@ -11256,16 +11548,20 @@ server <- function(input, output, session) {
   observeEvent(input$download_cgMLST, {
     log_print(paste0("Started download of scheme for ", Scheme$folder_name))
     
+    show_toast(
+      title = paste("Download of", input$select_cgmlst,  "started"),
+      type = "success",
+      position = "bottom-start",
+      timer = 100000
+    )
+    
     shinyjs::hide("download_cgMLST")
     shinyjs::show("downloading")
     
-    show_toast(
-      title = paste("Downloading", input$select_cgmlst,  "scheme"),
-      type = "success",
-      position = "bottom-end",
-      timer = 5000
-    )
-    
+    # Disable pickerInput
+    shinyjs::runjs("$('#select_cgmlst').prop('disabled', true);")
+    shinyjs::runjs("$('#select_cgmlst').selectpicker('refresh');")
+  
     if(length(DB$available) == 0) {
       saveRDS(DB$new_database, paste0(getwd(), "/execute/new_db.rds"))
       dir.create(file.path(readRDS(paste0(getwd(), "/execute/new_db.rds")), "Database"), recursive = TRUE)
@@ -11283,14 +11579,22 @@ server <- function(input, output, session) {
       unlink(file.path(DB$database, Scheme$folder_name, paste0(Scheme$folder_name, ".tmp")), recursive = TRUE)
     }
     
-    # Download Loci Fasta Files
+    ### Download Loci Fasta Files
+    
     options(timeout = 600)
+    
+    # Create a Progress object
+    progress <- shiny::Progress$new()
+    on.exit(progress$close())
+    
+    progress$set(message = "Download Scheme", value = 0)
     
     tryCatch({
       if(schemes$database[Scheme$selected] == "pubMLST") {
         download.alleles(url_link = schemes$url[Scheme$selected],
                          database = DB$database,
-                         folder_name = Scheme$folder_name)
+                         folder_name = Scheme$folder_name,
+                         progress = progress)
         "Download successful!"
       } else if (schemes$database[Scheme$selected] == "cgMLST.org") {
         download.file(Scheme$link_cgmlst, 
@@ -11310,6 +11614,32 @@ server <- function(input, output, session) {
         )
       )
       
+      # Download species info & image
+      
+      selected_species <- gsub("_", " ", schemes$species[Scheme$selected])  
+      species_data <- fetch.species.data(species = selected_species)
+      if(!is.null(species_data)) {
+        if(length(species_data) > 0) {
+          saveRDS(species_data,
+                  file.path(DB$database, 
+                            schemes$species[Scheme$selected], 
+                            paste0(schemes$species[Scheme$selected], ".rds")))
+          
+          destination_file <- file.path(DB$database, 
+                                        schemes$species[Scheme$selected], 
+                                        paste0(schemes$species[Scheme$selected], ".jpg"))
+          
+          response <- httr::GET(species_data$Image)
+          
+          if (response$status_code == 200) {
+            httr::GET(species_data$Image, httr::write_disk(destination_file, overwrite = TRUE))
+            log_print("Image downloaded successfully!")
+          } else {
+            log_print("Failed to download image.")
+          }
+        } else {log_print("Failed to download species data from NCBI.")} 
+      } else {log_print("Failed to download species data from NCBI.")}
+      
       log_print("Hashing downloaded database")
       shinyjs::show("hashing")
       shinyjs::hide("downloading")
@@ -11317,19 +11647,21 @@ server <- function(input, output, session) {
       show_toast(
         title = paste("Hashing of", input$select_cgmlst,  "started"),
         type = "success",
-        position = "bottom-end",
+        position = "bottom-start",
         timer = 5000
       )
       
       # Hash temporary folder
       hash_database(file.path(DB$database, 
                               Scheme$folder_name, 
-                              paste0(Scheme$folder_name, ".tmp")))
+                              paste0(Scheme$folder_name, ".tmp")),
+                    progress = progress)
       
       # Get list from local database
       local_db_filelist <- list.files(file.path(DB$database, 
                                                 Scheme$folder_name, 
                                                 paste0(Scheme$folder_name, "_alleles")))
+      
       if (!is_empty(local_db_filelist)) {
         # Get list from temporary database
         tmp_db_filelist <- list.files(file.path(DB$database,
@@ -11490,7 +11822,10 @@ server <- function(input, output, session) {
           )
         )
       )
-    
+      
+    # Disable pickerInput
+    shinyjs::runjs("$('#select_cgmlst').prop('disabled', false);")
+    shinyjs::runjs("$('#select_cgmlst').selectpicker('refresh');")  
   })
   
   #Download Target Info (CSV Table)
@@ -23139,7 +23474,8 @@ server <- function(input, output, session) {
     log_print("Reset gene screening")
     
     # reset status file
-    sapply(Screening$status_df$isolate, remove.screening.status)
+    sapply(Screening$status_df$isolate, remove.screening.status, 
+           database = DB$database, scheme = DB$scheme)
     
     # set feedback variables
     Screening$status <- "idle"
@@ -23155,7 +23491,7 @@ server <- function(input, output, session) {
     
     updatePickerInput(session, "screening_select", selected = character(0))
     
-    # disable isolate picker
+    # enable isolate picker
     shinyjs::runjs("$('#screening_select').prop('disabled', false);")
     shinyjs::runjs("$('#screening_select').selectpicker('refresh');")
   })
@@ -23194,7 +23530,8 @@ server <- function(input, output, session) {
     system(paste("killall -TERM tblastn"), wait = FALSE)
     
     # reset status file
-    sapply(Screening$status_df$isolate, remove.screening.status)
+    sapply(Screening$status_df$isolate, remove.screening.status, 
+           database = DB$database, scheme = DB$scheme)
     
     # set feedback variables
     Screening$status <- "idle"
@@ -23373,18 +23710,19 @@ server <- function(input, output, session) {
       )
       
       Screening$meta_df <- data.frame(wd = getwd(),
-                                 selected = paste(
-                                   file.path(DB$database, gsub(" ", "_", DB$scheme),
-                                             "Isolates", input$screening_select,
-                                             paste0(input$screening_select, ".zip")), 
-                                   collapse = " "),
-                                 species = gsub(" ", "_", DB$scheme))
+                                      selected = paste(
+                                        file.path(DB$database, gsub(" ", "_", DB$scheme),
+                                                  "Isolates", input$screening_select,
+                                                  paste0(input$screening_select, ".zip")), 
+                                        collapse = " "),
+                                      species = gsub(" ", "_", DB$scheme))
       
       Screening$status_df <- data.frame(isolate = basename(gsub(".zip", "", str_split_1(Screening$meta_df$selected, " "))), 
                                         status = "unfinished")
       
-       # Reset screening status
-      sapply(Screening$status_df$isolate, remove.screening.status)
+      # Reset screening status
+      sapply(Screening$status_df$isolate, remove.screening.status, 
+             database = DB$database, scheme = DB$scheme)
       
       saveRDS(Screening$meta_df, paste0(getwd(), "/execute/screening_meta.rds"))
       
@@ -23503,7 +23841,8 @@ server <- function(input, output, session) {
     
     if(Screening$status == "started") {
       
-      Screening$status_df$status <- sapply(Screening$status_df$isolate, check_status)
+      Screening$status_df$status <- sapply(Screening$status_df$isolate, check_status, 
+                                           database = DB$database, scheme = DB$scheme)
       
       if(any("unfinished" != Screening$status_df$status) &
          !identical(Screening$choices, Screening$status_df$isolate[which(Screening$status_df$status != "unfinished")])) {

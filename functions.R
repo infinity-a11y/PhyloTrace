@@ -142,14 +142,6 @@ gheatmap.mod <- function(p, data, offset=0, width=1, low="green", high="red", co
   return(p2)
 }
 
-# Get rhandsontable
-get.entry.table.meta <- reactive({
-  if(!is.null(hot_to_r(input$db_entries))){
-    table <- hot_to_r(input$db_entries)
-    select(select(table, -13), 1:(12 + nrow(DB$cust_var)))
-  }
-})
-
 # Function to find columns with varying values
 var_alleles <- function(dataframe) {
   
@@ -206,18 +198,22 @@ column_classes <- function(df) {
 }
 
 # Function to hash database
-hash_database <- function(folder) {
+hash_database <- function(folder, progress) {
   loci_files <- list.files(folder)
   loci_names <- sapply(strsplit(loci_files, "[.]"), function(x) x[1])
   loci_paths <- file.path(folder, loci_files)
-  
-  hashes <- sapply(loci_paths, hash_locus)
+  count <- length(loci_files)
+  hashes <- sapply(loci_paths, hash_locus, progress = progress, count = count)
   names(hashes) <- loci_names
   hashes
 }
 
 # Function to hash a locus
-hash_locus <- function(locus_path) {
+hash_locus <- function(locus_path, progress, count) {
+  if(!is.null(progress) & !is.null(count)) {
+    progress$inc(1 / count * 2, 
+                 detail = paste("Hashed", basename(locus_path)))
+  }
   locus_file <- readLines(locus_path)
   seq_list <- locus_file[seq(2, length(locus_file), 3)]
   seq_hash <- sha256(seq_list)
@@ -248,7 +244,7 @@ extract_seq <- function(locus_path, hashes) {
   )
 }
 
-add_new_sequences <- function(locus_path, sequences) {
+add_new_sequences <- function(locus_path, sequences, progress) {
   locus_file <- file(locus_path, open = "a+")
   for (i in seq_along(sequences$idx)) {
     writeLines(c("", paste0(">", sequences$idx[i]), sequences$seq[i]), locus_file)
@@ -291,11 +287,11 @@ compute_clusters <- function(nodes, edges, threshold) {
 }
 
 # Check gene screening status
-check_status <- function(isolate) {
+check_status <- function(isolate, database, scheme) {
   iso_name <- gsub(".zip", "", basename(isolate))
-  if(file.exists(file.path(DB$database, gsub(" ", "_", DB$scheme),
+  if(file.exists(file.path(database, gsub(" ", "_", scheme),
                            "Isolates", iso_name, "status.txt"))) {
-    if(str_detect(readLines(file.path(DB$database, gsub(" ", "_", DB$scheme),
+    if(str_detect(readLines(file.path(database, gsub(" ", "_", scheme),
                                       "Isolates", iso_name, "status.txt"))[1], 
                   "successfully")) {
       return("success")
@@ -306,15 +302,15 @@ check_status <- function(isolate) {
 }
 
 # Reset gene screening status
-remove.screening.status <- function(isolate) {
-  if(file.exists(file.path(DB$database, 
-                           gsub(" ", "_", DB$scheme),
+remove.screening.status <- function(isolate, database, scheme) {
+  if(file.exists(file.path(database, 
+                           gsub(" ", "_", scheme),
                            "Isolates",
                            isolate,
                            "status.txt"))) {
     file.remove(
-      file.path(DB$database, 
-                gsub(" ", "_", DB$scheme),
+      file.path(database, 
+                gsub(" ", "_", scheme),
                 "Isolates",
                 isolate,
                 "status.txt")
@@ -429,7 +425,7 @@ get.schemeinfo <- function(url_link) {
 }
 
 # Function to download all alleles of each loci of selected scheme
-download.alleles <- function(url_link, database, folder_name) {
+download.alleles <- function(url_link, database, folder_name, progress) {
   
   # Make scheme directory
   directory <- file.path(database, folder_name)
@@ -533,6 +529,10 @@ download.alleles <- function(url_link, database, folder_name) {
     writeLines(formatted_content, con = output_file)
     
     downloaded_files[i] <- output_file
+    
+    # Increment the progress bar
+    progress$inc(1/ (2 * length(seq_along(scheme_info$loci))), 
+                 detail = paste("Saved", basename(locus_url)))
     
     message("Saved fasta file for locus: ", basename(locus_url))
   }
