@@ -210,10 +210,6 @@ hash_database <- function(folder, progress) {
 
 # Function to hash a locus
 hash_locus <- function(locus_path, progress, count) {
-  if(!is.null(progress) & !is.null(count)) {
-    progress$inc(1 / count * 2, 
-                 detail = paste("Hashed", basename(locus_path)))
-  }
   locus_file <- readLines(locus_path)
   seq_list <- locus_file[seq(2, length(locus_file), 3)]
   seq_hash <- sha256(seq_list)
@@ -221,6 +217,11 @@ hash_locus <- function(locus_path, progress, count) {
   
   locus_file[seq(1, length(locus_file), 3)] <- seq_idx
   writeLines(locus_file, locus_path)
+  if(!is.null(progress) & !is.null(count)) {
+    progress$inc(1 / (count * 2), 
+                 detail = paste("Hashed", basename(locus_path)),
+                 message = "Hashing alleles")
+  }
   
   seq_hash
 }
@@ -370,22 +371,95 @@ safe.api.call <- function(endpoint) {
 # Function to fetch species data from NCBI
 fetch.species.data <- function(species) {
   
-  command <- paste0("datasets summary taxonomy taxon '", species, "'")
+  if(species == "Borrelia spp") {
+    species <- "Borrelia"
+  } else if(species == "Brucella spp") {
+    species <- "Brucella"
+  } else if(species == "Burkholderia mallei FLI" | species == "Burkholderia mallei RKI") {
+    species <- "Burkholderia mallei"
+  } else if(species == "Campylobacter jejuni coli v1" | 
+            species == "Campylobacter jejuni coli v2" |
+            species == "Campylobacter jejuni coli") {
+    species <- c("Campylobacter jejuni", "Campylobacter coli")
+  } else if(species == "Cronobacter sakazakii malonaticus") {
+    species <- c("Cronobacter sakazakii", "Cronobacter malonaticus")
+  } else if(species == "Human-restricted Neisseria v1" | 
+            species == "Neisseria L3" |
+            species == "Neisseria L44") {
+    species <- "Neisseria"
+  } else if(species == "Neisseria gonorrhoeae v1" | 
+            species == "Neisseria gonorrhoeae v2") {
+    species <- "Neisseria gonorrhoeae"
+  } else if(species == "Neisseria meningitidis v1" | 
+            species == "Neisseria meningitidis v2" |
+            species == "Neisseria meningitidis v3") {
+    species <- "Neisseria meningitidis"
+  } else if(species == "Salmonella v1" | 
+             species == "Salmonella v2 enterobase") {
+    species <- "Salmonella"
+  } else if(species == "Klebsiella oxytoca sensu lato") {
+    species <- paste("Klebsiella", c("oxytoca", "grimontii", "michiganensis", "pasteurii"))
+  } else if(species == "Klebsiella pneumoniae sensu lato") {
+    species <- paste("Klebsiella", c("pneumoniae", "variicola", "quasipneumoniae"))
+  } else if(species == "Mycobacterium tuberculosis complex") {
+    species <- paste("Mycobacterium", c("tuberculosis", "tuberculosis variant bovis", "", "canetti"))
+  }  
   
-  tryCatch(
-    result <- system(command, intern = TRUE),
-    error = function(e) {
-      message("Error in NCBI Datasets call: ", e$message)
+  if(length(species > 1)) {
+    multiple <- list()
+    for(i in seq_along(species)) {
+      command <- paste0("datasets summary taxonomy taxon '", species[i], "'")
+      
+      tryCatch(
+        result <- system(command, intern = TRUE),
+        error = function(e) {
+          message("Error in NCBI Datasets call: ", e$message)
+          return(NULL)
+        }
+      )
+      
+      if (length(result) < 1) {
+        message(paste("Error: ", species, " not available on NCBI."))
+        return(NULL)
+      } else {
+        tryCatch(
+          content <- jsonlite::fromJSON(paste(result, collapse = "")),
+          error = function(e) {
+            message("Error in NCBI Datasets call: ", e$message)
+            return(NULL)
+          }
+        )
+        
+        if (!is.null(content$reports)) {
+          species_data <- content$reports$taxonomy
+          
+          message("Fetched taxonomy")
+          
+          multiple[[gsub(" ", "_", species[i])]] <- list(
+            Name = species_data$current_scientific_name,
+            ID = species_data$tax_id,
+            Classification = species_data$classification,
+            Group = species_data$group_name,
+            Image = paste0("https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/", species_data$tax_id, "/image")
+          )
+        } else {
+          message("Empty taxonomy data")
+          return(NULL)
+        }
+      }
+    }
+    
+    if (!is.null(multiple)) {
+      return(multiple)
+    } else {
+      message("Empty taxonomy data")
       return(NULL)
     }
-  )
-  
-  if (length(result) < 1) {
-    message(paste("Error: ", species, " not available on NCBI."))
-    return(NULL)
   } else {
+    command <- paste0("datasets summary taxonomy taxon '", species, "'")
+    
     tryCatch(
-      content <- jsonlite::fromJSON(paste(result, collapse = "")),
+      result <- system(command, intern = TRUE),
       error = function(e) {
         message("Error in NCBI Datasets call: ", e$message)
         return(NULL)
@@ -425,7 +499,7 @@ get.schemeinfo <- function(url_link) {
 }
 
 # Function to download all alleles of each loci of selected scheme
-download.alleles <- function(url_link, database, folder_name, progress) {
+download.alleles2.PM <- function(url_link, database, folder_name, progress) {
   
   # Make scheme directory
   directory <- file.path(database, folder_name)
@@ -491,7 +565,8 @@ download.alleles <- function(url_link, database, folder_name, progress) {
   # Make output folder
   output_folder <- file.path(database, ".downloaded_schemes", 
                              paste0(folder_name))
-  if (!dir.exists(output_folder)) {
+  
+  if(!dir.exists(output_folder)) {
     tryCatch(
       {
         dir.create(output_folder, recursive = TRUE)
@@ -534,6 +609,149 @@ download.alleles <- function(url_link, database, folder_name, progress) {
     progress$inc(1/ (2 * length(seq_along(scheme_info$loci))), 
                  detail = paste("Saved", basename(locus_url)))
     
+    logr::log_print("Saved fasta file for locus: ", basename(locus_url))
+  }
+  
+  # Zip folder
+  system(paste0("zip -r -j ", output_folder, ".zip ", output_folder, "/"))
+  unlink(output_folder, recursive = TRUE)
+  
+  # Final check to ensure all files are non-empty and expected count matches
+  empty_files <- downloaded_files[file.info(downloaded_files)$size == 0]
+  if (length(empty_files) > 0) {
+    stop("Some files are empty: ", paste(basename(empty_files), collapse = ", "))
+  }
+  
+  if (length(downloaded_files) != length(scheme_info$loci)) {
+    stop("Mismatch in the number of downloaded files. Expected: ", length(scheme_info$loci), 
+         " but got: ", length(downloaded_files))
+  }
+  
+  logr::log_print("All files downloaded successfully and are non-empty.")
+}
+
+# Function to download all alleles of each loci of selected scheme
+download.alleles.PM <- function(url_link, database, folder_name, progress) {
+  
+  # Make scheme directory
+  directory <- file.path(database, folder_name)
+  if (!dir.exists(directory)) {
+    tryCatch(
+      {
+        dir.create(directory, recursive = TRUE)
+        message("Directory created: ", directory)
+      },
+      error = function(e) {
+        stop("Failed to create directory: ", directory, "\nError: ", e$message)
+      }
+    )
+  }
+  
+  # retrieve and save scheme info
+  scheme_info <- get.schemeinfo(url_link)
+  if (is.null(scheme_info$loci) || length(scheme_info$loci) == 0) {
+    stop("No loci found in scheme_info.")
+  } else {
+    if(!is.null(scheme_info[["last_updated"]])) {
+      last_scheme_change <- scheme_info[["last_updated"]]
+      last_file_change <- format(
+        file.info(file.path(database, ".downloaded_schemes",
+                            paste0(folder_name, ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
+    } else {
+      last_scheme_change <- "Not Available"
+      last_file_change <- NULL
+    }
+    
+    if(!is.null(scheme_info[["description"]])) {
+      description <- scheme_info[["description"]]
+    } else {
+      description <- "Not Available"
+    }
+    
+    scheme_overview <- data.frame(x1 = c("Scheme", "Database", "URL", "Version", "Locus Count", "Last Change"),
+                                  x2 = c(gsub("_", " ", folder_name),
+                                         "pubMLST",
+                                         paste0('<a href="', 
+                                                paste0("https://www.pubmlst.org/bigsdb?db=",
+                                                       basename(dirname(dirname(url_link)))), 
+                                                '" target="_blank">', 
+                                                paste0("https://www.pubmlst.org/bigsdb?db=",
+                                                       basename(dirname(dirname(url_link)))), 
+                                                '</a>'),
+                                         description,
+                                         scheme_info[["locus_count"]], 
+                                         last_scheme_change))
+    
+    names(scheme_overview) <- NULL
+    
+    saveRDS(scheme_overview, file.path(directory, "scheme_info.rds"))  
+    
+    message("Scheme info downloaded")
+  }
+  
+  ### Download alleles 
+  
+  # Make output folder
+  output_folder <- file.path(database, ".downloaded_schemes", 
+                             paste0(folder_name))
+  
+  if(!dir.exists(output_folder)) {
+    tryCatch(
+      {
+        dir.create(output_folder, recursive = TRUE)
+        message("Directory created: ", output_folder)
+      },
+      error = function(e) {
+        stop("Failed to create directory: ", output_folder, "\nError: ", e$message)
+      }
+    )
+  } else {
+    unlink(output_folder, recursive = TRUE, force = TRUE)
+    tryCatch(
+      {
+        dir.create(output_folder, recursive = TRUE)
+        message("Directory created: ", output_folder)
+      },
+      error = function(e) {
+        stop("Failed to create directory: ", output_folder, "\nError: ", e$message)
+      }
+    )
+  }
+  
+  # Initialize vector to store the paths of downloaded files
+  downloaded_files <- vector("character", length(scheme_info$loci))
+  
+  for (i in seq_along(scheme_info$loci)) {
+    locus_url <- scheme_info$loci[i]
+    endpoint <- paste0(locus_url, "/alleles_fasta?return_all=1")
+    
+    response <- httr::GET(endpoint)
+    
+    if (httr::http_error(response)) {
+      stop("Failed to retrieve data for locus: ", basename(locus_url))
+    }
+    
+    content <- httr::content(response, as = "text", encoding = "UTF-8")
+    
+    if (is.null(content)) {
+      stop("Failed to parse content for locus: ", basename(locus_url))
+    }
+    
+    # Insert an empty line between sequences
+    formatted_content <- gsub("\n>", "\n\n>", content)
+    
+    # Write to file
+    output_file <- file.path(output_folder,
+                             paste0(basename(locus_url), ".fasta"))
+    
+    writeLines(formatted_content, con = output_file)
+    
+    downloaded_files[i] <- output_file
+    
+    # Increment the progress bar
+    progress$inc(1/ (2 * length(seq_along(scheme_info$loci))),
+                detail = paste("Saved", basename(locus_url)))
+
     message("Saved fasta file for locus: ", basename(locus_url))
   }
   
@@ -552,6 +770,136 @@ download.alleles <- function(url_link, database, folder_name, progress) {
          " but got: ", length(downloaded_files))
   }
   
-  message("All files downloaded successfully and are non-empty.")
+  logr::log_print("All files downloaded successfully and are non-empty.")
 }
 
+
+multi_download <- function(file_remote, 
+                           file_local,
+                           total_con = 1000L, 
+                           host_con  = 1000L,
+                           print = TRUE) {
+  
+  # check for duplication
+  dups <- duplicated(file_remote) | duplicated(file_local)
+  file_remote <- file_remote[!dups]
+  file_local <- file_local[!dups]
+  
+  # create pool
+  pool <- curl::new_pool(total_con = total_con,
+                         host_con = host_con)
+  
+  # function performed on successful request
+  save_download <- function(req) {
+    writeBin(req$content, file_local[file_remote == req$url])
+  }
+  
+  # setup async calls
+  invisible(
+    lapply(
+      file_remote, function(f) 
+        curl::curl_fetch_multi(f, done = save_download, pool = pool)
+    )
+  )
+  
+  # all created requests are performed here
+  out <- curl::multi_run(pool = pool)
+  
+  if (print) print(out)
+  
+}
+
+download.alleles.CM <- function(url_link, database, folder_name, progress) {
+  # Make scheme directory
+  directory <- file.path(database, folder_name)
+  if (!dir.exists(directory)) {
+    tryCatch(
+      {
+        dir.create(directory, recursive = TRUE)
+        message("Directory created: ", directory)
+      },
+      error = function(e) {
+        stop("Failed to create directory: ", directory, "\nError: ", e$message)
+      }
+    )
+  }
+  
+  # Make output folder
+  output_folder <- file.path(database, ".downloaded_schemes", 
+                             paste0(folder_name))
+  
+  if(!dir.exists(output_folder)) {
+    tryCatch(
+      {
+        dir.create(output_folder, recursive = TRUE)
+        message("Directory created: ", output_folder)
+      },
+      error = function(e) {
+        stop("Failed to create directory: ", output_folder, "\nError: ", e$message)
+      }
+    )
+  } else {
+    unlink(output_folder, recursive = TRUE, force = TRUE)
+    tryCatch(
+      {
+        dir.create(output_folder, recursive = TRUE)
+        message("Directory created: ", output_folder)
+      },
+      error = function(e) {
+        stop("Failed to create directory: ", output_folder, "\nError: ", e$message)
+      }
+    )
+  }
+  
+  loci_path <- file.path(database, folder_name, "targets.csv")
+  
+  tryCatch(
+    {
+      download.file(	
+        paste0(url_link, "/locus/?content-type=csv"),	
+        dest = loci_path,
+        mode = "wb"
+      )
+      message("Loci info downloaded")
+    },
+    error = function(e) {
+      stop("Failed to download loci info: ", "\nError: ", e$message)
+    }
+  )
+  
+  if(file.exists(loci_path)) {
+    loci <- data.table::fread(loci_path, select = 2, sep = "\t", header = FALSE)[[1]]
+    successes <- 0
+    count <- length(loci)
+    file_local <- file.path(output_folder, paste0(loci, ".fasta"))
+    file_remote <- paste0(url_link, "/locus/", loci ,".fasta/")
+    
+    while(successes < count) {
+      res <- multi_download(na.omit(file_remote[1:50]), na.omit(file_local[1:50]),
+                           total_con = 50L, host_con = 50L)
+      remain <- !file.exists(file_local)
+      file_local <- file_local[remain]
+      file_remote <- file_remote[remain]
+      successes <- successes + res$success
+      # Increment the progress bar
+      progress$inc(res$success / (2 * count))
+    }
+    
+    # Zip folder
+    system(paste0("zip -r -j ", output_folder, ".zip ", output_folder, "/"))
+    unlink(output_folder, recursive = TRUE)
+    
+    # Final check to ensure all files are non-empty and expected count matches
+    empty_files <- file_local[file.info(file_local)$size == 0]
+    if (length(empty_files) > 0) {
+      stop("Some files are empty: ", paste(basename(empty_files), collapse = ", "))
+    }
+    
+    if (length(empty_files) > 0) {
+      stop("Mismatch in the number of downloaded files. Expected: ", length(file_local), 
+           " but got: ", length(file_local) - length(empty_files))
+    }
+    
+    logr::log_print("All files downloaded successfully and are non-empty.")
+  }
+}

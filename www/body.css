@@ -70,6 +70,26 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
   background-color: #F0F0F0; 
 }
 
+.shiny-progress-notification .progress {
+  margin-bottom: 0px;
+  height: 15px;
+  margin-top: 10px;
+}
+
+.shiny-progress-notification .progress-text .progress-detail {
+    font-size: 80%;
+    margin-left: 15px;
+    position: relative;
+    top: 10px;
+}
+
+.shiny-progress-notification .progress-text .progress-message {
+  font-weight: 700;
+  font-size: 95%;
+  position: relative;
+  top: 10px;
+}
+
 .sF-fileList>div.selected .sF-file-name div, .sF-dirList div.selected>.sF-file-name>div {
   background: #20E6E5;
   color: black;
@@ -616,7 +636,7 @@ button#get_locus_bttn i.fas.fa-download {
 }
 
 #species_info {
-  margin-top: 61px;
+  margin-top: 41px;
 }
 
 /* Icons */

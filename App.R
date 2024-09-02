@@ -442,7 +442,24 @@ ui <- dashboardPage(
           column(
             width = 3,
             align = "center",
-            h2(p("Select cgMLST Scheme"), style = "color:white")
+            h2(p("Manage Schemes"), style = "color:white")
+          ),
+          column(
+            width = 7,
+            align = "left",
+            p(
+              HTML(
+                paste0(
+                  '<span style="color: white; font-size: 15px; position:relative; top:25px;">',
+                  'Browse remote cgMLST schemes available on ',
+                  ' <a href="', 'https://www.cgmlst.org/ncs/' , '" target="_blank" style="color:#008edb; text-decoration:none;"> cgMLST.org Nomenclature Server (h25) </a>',
+                  ' and ',
+                  ' <a href="', 'https://pubmlst.org/' , '" target="_blank" style="color:#008edb; text-decoration:none;"> pubMLST </a>',
+                  ' databases.',
+                  '</span>'
+                )
+              )
+            )
           )
         ),
         hr(),
@@ -451,6 +468,18 @@ ui <- dashboardPage(
             width = 12,
             fluidRow(
               column(1),
+              column(
+                width = 2,
+                p(
+                  HTML(
+                    paste0(
+                      '<span style="color: white; font-size: 15px; position:relative; top: 66px; left: 50px">', 
+                      '<i class="fas fa-layer-group" style="color:white; font-size: 15px"></i>',
+                      'Select Scheme'
+                    )
+                  )
+                )
+              ),
               column(
                 width = 3,
                 br(),
@@ -515,7 +544,6 @@ ui <- dashboardPage(
           column(
             width = 5,
             align = "left",
-            br(),
             addSpinner(
               tableOutput("cgmlst_scheme"),
               spin = "dots",
@@ -524,6 +552,7 @@ ui <- dashboardPage(
           ),
           column(
             width = 5,
+            uiOutput("species_info_select"),
             addSpinner(
               uiOutput("species_info"),
               spin = "dots",
@@ -5689,7 +5718,7 @@ server <- function(input, output, session) {
           )
         )
       } else if(length(DB$available) > 0 & !(DB$select_new)) {
-        if(any(!(gsub(" ", "_", DB$available) %in% schemes$species))) {
+        if(any(!(gsub(" ", "_", gsub(" (PM|CM)", "", DB$available)) %in% gsub("_(PM|CM)", "", schemes$species)))) {
           column(
             width = 12,
             p(
@@ -5740,7 +5769,7 @@ server <- function(input, output, session) {
       } 
     } else if((!is.null(DB$last_db)) & (!is.null(DB$available))) {
       if (DB$last_db == TRUE & (length(DB$available) > 0)) {
-        if(any(!(gsub(" ", "_", DB$available) %in% schemes$species))) {
+        if(any(!(gsub(" ", "_", gsub(" (PM|CM)", "", DB$available)) %in% gsub("_(PM|CM)", "", schemes$species)))) {
           column(
             width = 12,
             p(
@@ -6199,10 +6228,7 @@ server <- function(input, output, session) {
     }
     
     if(DB$load_selected == TRUE) {
-      
-      # TODO 
-      # temporary deactivation of schemes validation 
-      #if(input$scheme_db %in% schemes$species) { #Check if selected scheme valid
+      if(gsub(" ", "_", gsub(" (PM|CM)", "", input$scheme_db)) %in% gsub("_(PM|CM)", "", schemes$species)) { #Check if selected scheme valid
         
         # Save database path for next start
         saveRDS(DB$database, paste0(getwd(), "/execute/last_db.rds"))
@@ -6516,23 +6542,27 @@ server <- function(input, output, session) {
                     file.info(file.path(DB$database, ".downloaded_schemes",
                                         paste0(gsub(" ", "_", DB$scheme), ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
 
-                  if(last_file_change < last_scheme_change) {
-                    showModal(
-                      modalDialog(
-                        paste0("The ", DB$scheme, " scheme was updated at ",
-                               last_scheme_change,
-                               " on the ",
-                               DB$schemeinfo[,2][DB$schemeinfo[,1] == "Database"],
-                               " database. To fetch the changes download the scheme."),
-                        title = "Scheme update available",
-                        fade = TRUE,
-                        easyClose = TRUE,
-                        footer = tagList(
-                          modalButton("Cancel"),
-                          actionButton("update_scheme", "Update Scheme", class = "btn btn-default")
+                  if(!is.null(last_file_change)) {
+                    if(length(last_file_change) > 0) {
+                      if(last_file_change < last_scheme_change) {
+                        showModal(
+                          modalDialog(
+                            paste0("The ", DB$scheme, " scheme was updated at ",
+                                   last_scheme_change,
+                                   " on the ",
+                                   DB$schemeinfo[,2][DB$schemeinfo[,1] == "Database"],
+                                   " database. To fetch the changes download the scheme."),
+                            title = "Scheme update available",
+                            fade = TRUE,
+                            easyClose = TRUE,
+                            footer = tagList(
+                              modalButton("Cancel"),
+                              actionButton("update_scheme", "Update Scheme", class = "btn btn-default")
+                            )
+                          )
                         )
-                      )
-                    )
+                      }
+                    }
                   }
                 }
               }
@@ -9152,16 +9182,16 @@ server <- function(input, output, session) {
             }
           }
         }
-      # } else {
-      #   
-      #   log_print("Invalid scheme folder")
-      #   show_toast(
-      #     title = "Invalid scheme folder",
-      #     type = "warning",
-      #     position = "bottom-end",
-      #     timer = 4000
-      #   )
-      # }
+      } else {
+
+        log_print("Invalid scheme folder")
+        show_toast(
+          title = "Invalid scheme folder",
+          type = "warning",
+          position = "bottom-end",
+          timer = 4000
+        )
+      }
     }
     
   })
@@ -9184,11 +9214,15 @@ server <- function(input, output, session) {
       species_data <- readRDS(paste0(scheme_path, ".rds"))
       
       if(file.exists(paste0(scheme_path, ".jpg"))) {
+        output$species_no_img_saved <- NULL
         output$species_img_saved <- renderImage({
           list(src = paste0(scheme_path, ".jpg"),
                height = 180)
         }, deleteFile = FALSE)
       } else {
+        output$species_no_img_saved <- renderUI(
+          HTML('<i class="fa-solid fa-bacteria" style="font-size:150px;color:white;margin-right:25px;" ></i>')
+        )
         output$species_img_saved <- NULL
       }
       
@@ -9453,6 +9487,7 @@ server <- function(input, output, session) {
               column(
                 width = 5,
                 align = "right",
+                uiOutput("species_no_img_saved"),
                 div( 
                   class = "species-image",
                   imageOutput("species_img_saved", width = "300px", height = "200px")
@@ -9908,8 +9943,7 @@ server <- function(input, output, session) {
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
     
-    scheme_db <<- DB$scheme_db
-    scheme_link <<- DB$scheme_link
+    test <<- Scheme$species_data
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -11573,14 +11607,16 @@ server <- function(input, output, session) {
     
     tryCatch({
       if(grepl("_PM", input$select_cgmlst)) {
-        download.alleles(url_link = schemes$url[schemes$species == input$select_cgmlst],
-                         database = DB$database,
-                         folder_name = Scheme$folder_name,
-                         progress = progress)
+        download.alleles.PM(url_link = schemes$url[schemes$species == input$select_cgmlst],
+                            database = DB$database,
+                            folder_name = Scheme$folder_name,
+                            progress = progress)
         "Download successful!"
       } else if(grepl("_CM", input$select_cgmlst)) {
-        download.file(Scheme$link_cgmlst, 
-                      file.path(DB$database, ".downloaded_schemes", paste0(Scheme$folder_name, ".zip")))
+        download.alleles.CM(url_link = schemes$url[schemes$species == input$select_cgmlst],
+                            database = DB$database,
+                            folder_name = Scheme$folder_name,
+                            progress = progress)
         "Download successful!"
       }
     }, error = function(e) {
@@ -11597,32 +11633,41 @@ server <- function(input, output, session) {
       )
       
       # Download species info & image
-      
-      if(grepl("_CM", input$select_cgmlst)) {
-        selected_species <- gsub("_CM", "", schemes$species[schemes$species == input$select_cgmlst]) 
-      } else if(grepl("_PM", input$select_cgmlst)) {
-        selected_species <- gsub("_PM", "", schemes$species[schemes$species == input$select_cgmlst])
-      }
-      selected_species <- gsub("_", " ", selected_species)  
-      species_data <- fetch.species.data(species = selected_species)
-      if(!is.null(species_data)) {
-        if(length(species_data) > 0) {
-          saveRDS(species_data,
+      if(!is.null(Scheme$species_data)) {
+        if(length(Scheme$species_data) > 0) {
+          saveRDS(Scheme$species_data,
                   file.path(DB$database, 
                             schemes$species[schemes$species == input$select_cgmlst], 
                             paste0(schemes$species[schemes$species == input$select_cgmlst], ".rds")))
           
-          destination_file <- file.path(DB$database, 
-                                        schemes$species[schemes$species == input$select_cgmlst], 
-                                        paste0(schemes$species[schemes$species == input$select_cgmlst], ".jpg"))
-          
-          response <- httr::GET(species_data$Image)
-          
-          if (response$status_code == 200) {
-            httr::GET(species_data$Image, httr::write_disk(destination_file, overwrite = TRUE))
-            log_print("Image downloaded successfully!")
+          if(length(Scheme$species_data) > 1) {
+            for(i in seq_along(Scheme$species_data)) {
+              # Download image
+              destination_file <- file.path(DB$database, 
+                                            schemes$species[schemes$species == input$select_cgmlst], 
+                                            gsub(" ", "_", Scheme$species_data[[i]]$Name$name), ".jpg")
+              response <- httr::GET(species_data[[i]]$Image)
+              
+              if (response$status_code == 200) {
+                httr::GET(species_data[[i]]$Image, httr::write_disk(destination_file, overwrite = TRUE))
+                log_print("Image downloaded successfully!")
+              } else {
+                log_print("Failed to download image.")
+              }
+            }
           } else {
-            log_print("Failed to download image.")
+            destination_file <- file.path(DB$database, 
+                                          schemes$species[schemes$species == input$select_cgmlst], 
+                                          paste0(schemes$species[schemes$species == input$select_cgmlst], ".jpg"))
+            
+            response <- httr::GET(species_data$Image)
+            
+            if (response$status_code == 200) {
+              httr::GET(species_data$Image, httr::write_disk(destination_file, overwrite = TRUE))
+              log_print("Image downloaded successfully!")
+            } else {
+              log_print("Failed to download image.")
+            }
           }
         } else {log_print("Failed to download species data from NCBI.")} 
       } else {log_print("Failed to download species data from NCBI.")}
@@ -11730,7 +11775,7 @@ server <- function(input, output, session) {
                                          X2 = c(
                                            paste0('<a href="', 
                                                   schemes$url[schemes$species == input$select_cgmlst], 
-                                                  '" target="_blank">', 
+                                                  '/" target="_blank">', 
                                                   schemes$url[schemes$species == input$select_cgmlst], 
                                                   '</a>'),
                                            "cgMLST.org Nomenclature Server (h25)")),
@@ -11744,23 +11789,6 @@ server <- function(input, output, session) {
           },
           error = function(e) {
             stop("Failed to download scheme info: ", "\nError: ", e$message)
-          }
-        )
-      }
-      
-      # Download Loci Info (only schemes from cgMLST.org)
-      if(grepl("_CM", input$select_cgmlst)) {
-        tryCatch(
-          {
-            download(	
-              Scheme$link_targets,	
-              dest = file.path(DB$database, Scheme$folder_name, "targets.csv"),
-              mode = "wb"
-            )
-            message("Loci info downloaded")
-          },
-          error = function(e) {
-            stop("Failed to download loci info: ", "\nError: ", e$message)
           }
         )
       }
@@ -11783,13 +11811,6 @@ server <- function(input, output, session) {
         )
       )
       
-      show_toast(
-        title = "Download successful",
-        type = "success",
-        position = "bottom-end",
-        timer = 5000
-      )
-      
       log_print("Download successful")
       
       showModal(
@@ -11803,7 +11824,7 @@ server <- function(input, output, session) {
             selected = if(!is.null(Typing$last_scheme)) {
               Typing$last_scheme
             } else {if(!is.null(DB$scheme)) {gsub("_", " ", input$select_cgmlst)} else {DB$available[1]}}),
-          title = "Select a local database to load",
+          title = "Successful download. Load a local database.",
           footer = tagList(
             actionButton("load", "Load", class = "btn btn-default")
           )
@@ -11815,10 +11836,19 @@ server <- function(input, output, session) {
     shinyjs::runjs("$('#select_cgmlst').selectpicker('refresh');")  
   })
   
-  #Download Target Info (CSV Table)
+  
+  
+  # Download Target Info (CSV Table)
   observe({
     req(input$select_cgmlst)
     input$download_cgMLST
+    
+    if(dir.exists(file.path(DB$database, input$select_cgmlst))) {
+      updateActionButton(session, "download_cgMLST", label = "Fetch Update")
+    } else {
+      updateActionButton(session, "download_cgMLST", label = "Download")
+    }
+    
     
     if(grepl("_CM", input$select_cgmlst)) {
       
@@ -11834,7 +11864,7 @@ server <- function(input, output, session) {
                                    X2 = c(
                                      paste0('<a href="', 
                                             schemes$url[schemes$species == input$select_cgmlst], 
-                                            '" target="_blank">', 
+                                            '/" target="_blank">', 
                                             schemes$url[schemes$species == input$select_cgmlst], 
                                             '</a>'),
                                      "cgMLST.org Nomenclature Server (h25)")),
@@ -11893,7 +11923,7 @@ server <- function(input, output, session) {
     
     # Render scheme update availability info
     output$scheme_update_info <- renderUI({
-      req(last_file_change)
+      req(last_file_change, last_scheme_change)
       if (last_file_change < last_scheme_change) {
         HTML(
           paste0(
@@ -11922,318 +11952,680 @@ server <- function(input, output, session) {
       selected_species <- gsub("_PM", "", schemes$species[schemes$species == input$select_cgmlst])
     }
     selected_species <- gsub("_", " ", selected_species)
-    species_data <- fetch.species.data(species = selected_species)
+    Scheme$species_data <- fetch.species.data(species = selected_species)
     
-    if(!is.null(species_data)) {
-      # Download image
-      destination_file <- file.path(DB$database, 
-                                    schemes$species[schemes$species == input$select_cgmlst], 
-                                    paste0(schemes$species[schemes$species == input$select_cgmlst], ".jpg"))
-      if(!dir.exists(dirname(destination_file))) {
-        if(file.exists(file.path(tempdir(), paste0(schemes$species[schemes$species == input$select_cgmlst], ".jpg")))) {
-          destination_file <- file.path(tempdir(), paste0(schemes$species[schemes$species == input$select_cgmlst], ".jpg"))      
-        } else {
-          response <- httr::GET(species_data$Image)
-          destination_file <- file.path(tempdir(), paste0(schemes$species[schemes$species == input$select_cgmlst], ".jpg")) 
-          
-          if (response$status_code == 200) {
-            httr::GET(species_data$Image, httr::write_disk(destination_file))
-            print("Image downloaded successfully!")
-          } else {
-            print("Failed to download image.")
-          }
-        }
-      } else {
-        if(!file.exists(destination_file)) {
-          response <- httr::GET(species_data$Image)
-          
-          if (response$status_code == 200) {
-            httr::GET(species_data$Image, httr::write_disk(destination_file))
-            print("Image downloaded successfully!")
-          } else {
-            print("Failed to download image.")
-          }
-        }
-      }
+    if(!is.null(Scheme$species_data)) {
       
-      if(file.exists(destination_file)) {
-        output$species_img <- renderImage({
-          list(src = destination_file,
-               height = 180)
-        }, deleteFile = FALSE)
-      } else {
-        output$species_img <- NULL
+      if(length(Scheme$species_data) > 1 & length(Scheme$species_data) > 0) {
+        if(!is.null(input$selected_species)) {
+          # Download image
+          destination_file <- file.path(DB$database, 
+                                        schemes$species[schemes$species == input$select_cgmlst], 
+                                        paste0(input$selected_species, ".jpg"))
+          if(!dir.exists(dirname(destination_file))) {
+            if(file.exists(file.path(tempdir(), paste0(input$selected_species, ".jpg")))) {
+              destination_file <- file.path(tempdir(), paste0(input$selected_species, ".jpg"))      
+              output$species_no_img <- NULL
+              output$species_img <- renderImage({
+                list(src = destination_file,
+                     height = 180)
+              }, deleteFile = FALSE)
+            } else {
+              response <- httr::GET(Scheme$species_data[[input$selected_species]]$Image)
+              destination_file <- file.path(tempdir(), paste0(input$selected_species, ".jpg")) 
+              
+              if (response$status_code == 200) {
+                writeBin(httr::content(response, "raw"), destination_file)
+                
+                output$species_no_img <- NULL
+                output$species_img <- renderImage({
+                  list(src = destination_file,
+                       height = 180)
+                }, deleteFile = FALSE)
+                print("Image downloaded successfully!")
+              } else {
+                output$species_img <- NULL
+                output$species_no_img <- renderUI(
+                        HTML('<i class="fa-solid fa-bacteria" style="font-size:150px;color:white;margin-right:25px;" ></i>')
+                      )
+                print("Failed to download image.")
+              }
+            }
+          } else {
+            if(!file.exists(destination_file)) {
+              response <- httr::GET(Scheme$species_data[[input$selected_species]]$Image)
+              
+              if (response$status_code == 200) {
+                httr::GET(Scheme$species_data[[input$selected_species]]$Image, httr::write_disk(destination_file))
+                print("Image downloaded successfully!")
+                output$species_no_img <- NULL
+                output$species_img <- renderImage({
+                  list(src = destination_file,
+                       height = 180)
+                }, deleteFile = FALSE)
+              } else {
+                output$species_no_img <- renderUI(
+                  HTML('<i class="fa-solid fa-bacteria" style="font-size:150px;color:white;margin-right:25px;" ></i>')
+                )
+                output$species_img <- NULL
+                print("Failed to download image.")
+              }
+            } else {
+              output$species_no_img <- NULL
+              output$species_img <- renderImage({
+                list(src = destination_file,
+                     height = 180)
+              }, deleteFile = FALSE)
+            }
+          }
+        }
+      } else if(length(Scheme$species_data) > 0) {
+        test <<- Scheme$species_data
+        # Download image
+        destination_file <<- file.path(DB$database, 
+                                      schemes$species[schemes$species == input$select_cgmlst], 
+                                      paste0(schemes$species[schemes$species == input$select_cgmlst], ".jpg"))
+        if(!dir.exists(dirname(destination_file))) {
+          if(file.exists(file.path(tempdir(), paste0(schemes$species[schemes$species == input$select_cgmlst], ".jpg")))) {
+            destination_file <- file.path(tempdir(), paste0(schemes$species[schemes$species == input$select_cgmlst], ".jpg"))      
+            output$species_no_img <- NULL
+            output$species_img <- renderImage({
+              list(src = destination_file,
+                   height = 180)
+            }, deleteFile = FALSE)
+          } else {
+            response <- httr::GET(Scheme$species_data[[1]]$Image)
+            destination_file <- file.path(tempdir(), paste0(schemes$species[schemes$species == input$select_cgmlst], ".jpg")) 
+            
+            if (response$status_code == 200) {
+              httr::GET(Scheme$species_data[[1]]$Image, httr::write_disk(destination_file))
+              output$species_no_img <- NULL
+              output$species_img <- renderImage({
+                list(src = destination_file,
+                     height = 180)
+              }, deleteFile = FALSE)
+              print("Image downloaded successfully!")
+            } else {
+              output$species_img <- NULL
+              output$species_no_img <- renderUI(
+                HTML('<i class="fa-solid fa-bacteria" style="font-size:150px;color:white;margin-right:25px;" ></i>')
+              )
+              print("Failed to download image.")
+            }
+          }
+        } else {
+          if(!file.exists(destination_file)) {
+            response <- httr::GET(Scheme$species_data[[1]]$Image)
+            
+            if (response$status_code == 200) {
+              httr::GET(Scheme$species_data[[1]]$Image, httr::write_disk(destination_file))
+              print("Image downloaded successfully!")
+              output$species_no_img <- NULL
+              output$species_img <- renderImage({
+                list(src = destination_file,
+                     height = 180)
+              }, deleteFile = FALSE)
+            } else {
+              output$species_img <- NULL
+              output$species_no_img <- renderUI(
+                HTML('<i class="fa-solid fa-bacteria" style="font-size:150px;color:white;margin-right:25px;" ></i>')
+              )
+              print("Failed to download image.")
+            }
+          } else {
+            output$species_no_img <- NULL
+            output$species_img <- renderImage({
+              list(src = destination_file,
+                   height = 180)
+            }, deleteFile = FALSE)
+          }
+        }
       }
       
       output$species_info <- renderUI({
-        box(
-          solidHeader = TRUE,
-          status = "primary",
-          width = "100%",
-          column(
-            width = 12,
-            fluidRow(
-              br(),
+        if(length(Scheme$species_data) > 1) {
+          if(!is.null(input$selected_species)) {
+            box(
+              solidHeader = TRUE,
+              status = "primary",
+              width = "100%",
               column(
-                width = 7,
-                p(
-                  HTML(
-                    paste0(
-                      '<i class="fa-solid fa-bacterium" style="font-size:20px;color:white; margin-right: 10px;"></i>',
-                      '<span style="color: white; font-size: 22px; ">',
-                      species_data$Name$name,
-                      '</span>'
-                    )
-                  )
-                ),
-                p(
-                  HTML(
-                    paste0(
-                      '<span style="color: white; font-size: 12px;">',
-                      species_data$Name$authority,
-                      '</span>'
-                    )
-                  )
-                ),
-                br(),
-                p(
-                  HTML(
-                    paste0(
-                      '<span style="color: white; font-size: 15px;">',
-                      'URL: ',
-                      '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
-                      species_data$ID,
-                      '/" target="_blank" style="color:#008edb; text-decoration:none;">',
-                      gsub("_", " ", schemes$species[schemes$species == input$select_cgmlst]), 
-                      ' NCBI',
-                      '</a>',
-                      '</span>'
-                    )
-                  )
-                ),
-                br(),
+                width = 12,
                 fluidRow(
+                  br(),
                   column(
-                    width = 12,
+                    width = 7,
                     p(
                       HTML(
                         paste0(
-                          '<span style="color: white; font-size: 20px;">',
-                          'Lineage', '</span>'
+                          '<i class="fa-solid fa-bacterium" style="font-size:20px;color:white; margin-right: 10px;"></i>',
+                          '<span style="color: white; font-size: 22px; ">',
+                          Scheme$species_data[[input$selected_species]]$Name$name,
+                          '</span>'
                         )
                       )
                     ),
-                    if(!is.null(species_data$Classification$superkingdom)) {
-                      fluidRow(
-                        column(
-                          width = 6,
-                          p(
-                            HTML(
-                              paste0(
-                                '<span style="color: white; font-size: 15px;">',
-                                '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
-                                species_data$Classification$superkingdom$id,
-                                '/" target="_blank" style="color:#008edb; text-decoration:none;">',
-                                species_data$Classification$superkingdom$name,
-                                '</a>',
-                                '</span>'
-                              )
+                    p(
+                      HTML(
+                        paste0(
+                          '<span style="color: white; font-size: 12px;">',
+                          Scheme$species_data[[input$selected_species]]$Name$authority,
+                          '</span>'
+                        )
+                      )
+                    ),
+                    br(),
+                    p(
+                      HTML(
+                        paste0(
+                          '<span style="color: white; font-size: 15px;">',
+                          'URL: ',
+                          '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                          Scheme$species_data[[input$selected_species]]$ID,
+                          '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                          Scheme$species_data[[input$selected_species]]$Name$name, 
+                          ' NCBI',
+                          '</a>',
+                          '</span>'
+                        )
+                      )
+                    ),
+                    br(),
+                    fluidRow(
+                      column(
+                        width = 12,
+                        p(
+                          HTML(
+                            paste0(
+                              '<span style="color: white; font-size: 20px;">',
+                              'Lineage', '</span>'
                             )
                           )
                         ),
-                        column(
-                          width = 6,
-                          align = "left",
-                          p(
-                            HTML(
-                              paste0(
-                                '<span style="color: white; font-size: 12px;">',
-                                'Superkingdom',
-                                '</span>'
+                        if(!is.null(Scheme$species_data[[input$selected_species]]$Classification$superkingdom)) {
+                          fluidRow(
+                            column(
+                              width = 6,
+                              p(
+                                HTML(
+                                  paste0(
+                                    '<span style="color: white; font-size: 15px;">',
+                                    '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                    Scheme$species_data[[input$selected_species]]$Classification$superkingdom$id,
+                                    '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                    Scheme$species_data[[input$selected_species]]$Classification$superkingdom$name,
+                                    '</a>',
+                                    '</span>'
+                                  )
+                                )
+                              )
+                            ),
+                            column(
+                              width = 6,
+                              align = "left",
+                              p(
+                                HTML(
+                                  paste0(
+                                    '<span style="color: white; font-size: 12px;">',
+                                    'Superkingdom',
+                                    '</span>'
+                                  )
+                                )
                               )
                             )
                           )
-                        )
+                        },
+                        if(!is.null(Scheme$species_data[[input$selected_species]]$Classification$phylum)) {
+                          fluidRow(
+                            column(
+                              width = 6,
+                              p(
+                                HTML(
+                                  paste0(
+                                    '<span style="color: white; font-size: 15px;">',
+                                    '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                    Scheme$species_data[[input$selected_species]]$Classification$phylum$id,
+                                    '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                    Scheme$species_data[[input$selected_species]]$Classification$phylum$name,
+                                    '</a>',
+                                    '</span>'
+                                  )
+                                )
+                              )
+                            ),
+                            column(
+                              width = 6,
+                              p(
+                                HTML(
+                                  paste0(
+                                    '<span style="color: white; font-size: 12px;">',
+                                    'Phylum',
+                                    '</span>'
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        },
+                        if(!is.null(Scheme$species_data[[input$selected_species]]$Classification$class)) {
+                          fluidRow(
+                            column(
+                              width = 6,
+                              p(
+                                HTML(
+                                  paste0(
+                                    '<span style="color: white; font-size: 15px;">',
+                                    '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                    Scheme$species_data[[input$selected_species]]$Classification$class$id,
+                                    '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                    Scheme$species_data[[input$selected_species]]$Classification$class$name,
+                                    '</a>',
+                                    '</span>'
+                                  )
+                                )
+                              )
+                            ),
+                            column(
+                              width = 6,
+                              align = "left",
+                              p(
+                                HTML(
+                                  paste0(
+                                    '<span style="color: white; font-size: 12px;">',
+                                    'Class',
+                                    '</span>'
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        },
+                        if(!is.null(Scheme$species_data[[input$selected_species]]$Classification$order)) {
+                          fluidRow(
+                            column(
+                              width = 6,
+                              p(
+                                HTML(
+                                  paste0(
+                                    '<span style="color: white; font-size: 15px;">',
+                                    '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                    Scheme$species_data[[input$selected_species]]$Classification$order$id,
+                                    '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                    Scheme$species_data[[input$selected_species]]$Classification$order$name,
+                                    '</a>',
+                                    '</span>'
+                                  )
+                                )
+                              )
+                            ),
+                            column(
+                              width = 6,
+                              align = "left",
+                              p(
+                                HTML(
+                                  paste0(
+                                    '<span style="color: white; font-size: 12px;">',
+                                    'Order',
+                                    '</span>'
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        },
+                        if(!is.null(Scheme$species_data[[input$selected_species]]$Classification$family)) {
+                          fluidRow(
+                            column(
+                              width = 6,
+                              p(
+                                HTML(
+                                  paste0(
+                                    '<span style="color: white; font-size: 15px;">',
+                                    '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                    Scheme$species_data[[input$selected_species]]$Classification$family$id,
+                                    '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                    Scheme$species_data[[input$selected_species]]$Classification$family$name,
+                                    '</a>',
+                                    '</span>'
+                                  )
+                                )
+                              )
+                            ),
+                            column(
+                              width = 6,
+                              align = "left",
+                              p(
+                                HTML(
+                                  paste0(
+                                    '<span style="color: white; font-size: 12px;">',
+                                    'Family',
+                                    '</span>'
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        },
+                        if(!is.null(Scheme$species_data[[input$selected_species]]$Classification$genus)) {
+                          fluidRow(
+                            column(
+                              width = 6,
+                              p(
+                                HTML(
+                                  paste0(
+                                    '<span style="color: white; font-size: 15px;">',
+                                    '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                    Scheme$species_data[[input$selected_species]]$Classification$genus$id,
+                                    '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                    Scheme$species_data[[input$selected_species]]$Classification$genus$name,
+                                    '</a>',
+                                    '</span>'
+                                  )
+                                )
+                              )
+                            ),
+                            column(
+                              width = 6,
+                              align = "left",
+                              p(
+                                HTML(
+                                  paste0(
+                                    '<span style="color: white; font-size: 12px;">',
+                                    'Genus',
+                                    '</span>'
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        }
                       )
-                    },
-                    if(!is.null(species_data$Classification$phylum)) {
-                      fluidRow(
-                        column(
-                          width = 6,
-                          p(
-                            HTML(
-                              paste0(
-                                '<span style="color: white; font-size: 15px;">',
-                                '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
-                                species_data$Classification$phylum$id,
-                                '/" target="_blank" style="color:#008edb; text-decoration:none;">',
-                                species_data$Classification$phylum$name,
-                                '</a>',
-                                '</span>'
-                              )
-                            )
-                          )
-                        ),
-                        column(
-                          width = 6,
-                          p(
-                            HTML(
-                              paste0(
-                                '<span style="color: white; font-size: 12px;">',
-                                'Phylum',
-                                '</span>'
-                              )
-                            )
-                          )
-                        )
-                      )
-                    },
-                    if(!is.null(species_data$Classification$class)) {
-                      fluidRow(
-                        column(
-                          width = 6,
-                          p(
-                            HTML(
-                              paste0(
-                                '<span style="color: white; font-size: 15px;">',
-                                '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
-                                species_data$Classification$class$id,
-                                '/" target="_blank" style="color:#008edb; text-decoration:none;">',
-                                species_data$Classification$class$name,
-                                '</a>',
-                                '</span>'
-                              )
-                            )
-                          )
-                        ),
-                        column(
-                          width = 6,
-                          align = "left",
-                          p(
-                            HTML(
-                              paste0(
-                                '<span style="color: white; font-size: 12px;">',
-                                'Class',
-                                '</span>'
-                              )
-                            )
-                          )
-                        )
-                      )
-                    },
-                    if(!is.null(species_data$Classification$order)) {
-                      fluidRow(
-                        column(
-                          width = 6,
-                          p(
-                            HTML(
-                              paste0(
-                                '<span style="color: white; font-size: 15px;">',
-                                '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
-                                species_data$Classification$order$id,
-                                '/" target="_blank" style="color:#008edb; text-decoration:none;">',
-                                species_data$Classification$order$name,
-                                '</a>',
-                                '</span>'
-                              )
-                            )
-                          )
-                        ),
-                        column(
-                          width = 6,
-                          align = "left",
-                          p(
-                            HTML(
-                              paste0(
-                                '<span style="color: white; font-size: 12px;">',
-                                'Order',
-                                '</span>'
-                              )
-                            )
-                          )
-                        )
-                      )
-                    },
-                    if(!is.null(species_data$Classification$family)) {
-                      fluidRow(
-                        column(
-                          width = 6,
-                          p(
-                            HTML(
-                              paste0(
-                                '<span style="color: white; font-size: 15px;">',
-                                '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
-                                species_data$Classification$family$id,
-                                '/" target="_blank" style="color:#008edb; text-decoration:none;">',
-                                species_data$Classification$family$name,
-                                '</a>',
-                                '</span>'
-                              )
-                            )
-                          )
-                        ),
-                        column(
-                          width = 6,
-                          align = "left",
-                          p(
-                            HTML(
-                              paste0(
-                                '<span style="color: white; font-size: 12px;">',
-                                'Family',
-                                '</span>'
-                              )
-                            )
-                          )
-                        )
-                      )
-                    },
-                    if(!is.null(species_data$Classification$genus)) {
-                      fluidRow(
-                        column(
-                          width = 6,
-                          p(
-                            HTML(
-                              paste0(
-                                '<span style="color: white; font-size: 15px;">',
-                                '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
-                                species_data$Classification$genus$id,
-                                '/" target="_blank" style="color:#008edb; text-decoration:none;">',
-                                species_data$Classification$genus$name,
-                                '</a>',
-                                '</span>'
-                              )
-                            )
-                          )
-                        ),
-                        column(
-                          width = 6,
-                          align = "left",
-                          p(
-                            HTML(
-                              paste0(
-                                '<span style="color: white; font-size: 12px;">',
-                                'Genus',
-                                '</span>'
-                              )
-                            )
-                          )
-                        )
-                      )
-                    }
+                    )
+                  ),
+                  column(
+                    width = 5,
+                    align = "right",
+                    uiOutput("species_no_img"),
+                    div( 
+                      class = "species-image",
+                      imageOutput("species_img", width = "300px", height = "200px")
+                    )
                   )
                 )
-              ),
-              column(
-                width = 5,
-                align = "right",
-                div( 
-                  class = "species-image",
-                  imageOutput("species_img", width = "300px", height = "200px")
+              )
+            )
+          }
+        } else {
+          box(
+            solidHeader = TRUE,
+            status = "primary",
+            width = "100%",
+            column(
+              width = 12,
+              fluidRow(
+                br(),
+                column(
+                  width = 7,
+                  p(
+                    HTML(
+                      paste0(
+                        '<i class="fa-solid fa-bacterium" style="font-size:20px;color:white; margin-right: 10px;"></i>',
+                        '<span style="color: white; font-size: 22px; ">',
+                        Scheme$species_data[[1]]$Name$name,
+                        '</span>'
+                      )
+                    )
+                  ),
+                  p(
+                    HTML(
+                      paste0(
+                        '<span style="color: white; font-size: 12px;">',
+                        Scheme$species_data[[1]]$Name$authority,
+                        '</span>'
+                      )
+                    )
+                  ),
+                  br(),
+                  p(
+                    HTML(
+                      paste0(
+                        '<span style="color: white; font-size: 15px;">',
+                        'URL: ',
+                        '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                        Scheme$species_data[[1]]$ID,
+                        '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                        Scheme$species_data[[1]]$Name$name, 
+                        ' NCBI',
+                        '</a>',
+                        '</span>'
+                      )
+                    )
+                  ),
+                  br(),
+                  fluidRow(
+                    column(
+                      width = 12,
+                      p(
+                        HTML(
+                          paste0(
+                            '<span style="color: white; font-size: 20px;">',
+                            'Lineage', '</span>'
+                          )
+                        )
+                      ),
+                      if(!is.null(Scheme$species_data[[1]]$Classification$superkingdom)) {
+                        fluidRow(
+                          column(
+                            width = 6,
+                            p(
+                              HTML(
+                                paste0(
+                                  '<span style="color: white; font-size: 15px;">',
+                                  '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                  Scheme$species_data[[1]]$Classification$superkingdom$id,
+                                  '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                  Scheme$species_data[[1]]$Classification$superkingdom$name,
+                                  '</a>',
+                                  '</span>'
+                                )
+                              )
+                            )
+                          ),
+                          column(
+                            width = 6,
+                            align = "left",
+                            p(
+                              HTML(
+                                paste0(
+                                  '<span style="color: white; font-size: 12px;">',
+                                  'Superkingdom',
+                                  '</span>'
+                                )
+                              )
+                            )
+                          )
+                        )
+                      },
+                      if(!is.null(Scheme$species_data[[1]]$Classification$phylum)) {
+                        fluidRow(
+                          column(
+                            width = 6,
+                            p(
+                              HTML(
+                                paste0(
+                                  '<span style="color: white; font-size: 15px;">',
+                                  '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                  Scheme$species_data[[1]]$Classification$phylum$id,
+                                  '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                  Scheme$species_data[[1]]$Classification$phylum$name,
+                                  '</a>',
+                                  '</span>'
+                                )
+                              )
+                            )
+                          ),
+                          column(
+                            width = 6,
+                            p(
+                              HTML(
+                                paste0(
+                                  '<span style="color: white; font-size: 12px;">',
+                                  'Phylum',
+                                  '</span>'
+                                )
+                              )
+                            )
+                          )
+                        )
+                      },
+                      if(!is.null(Scheme$species_data[[1]]$Classification$class)) {
+                        fluidRow(
+                          column(
+                            width = 6,
+                            p(
+                              HTML(
+                                paste0(
+                                  '<span style="color: white; font-size: 15px;">',
+                                  '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                  Scheme$species_data[[1]]$Classification$class$id,
+                                  '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                  Scheme$species_data[[1]]$Classification$class$name,
+                                  '</a>',
+                                  '</span>'
+                                )
+                              )
+                            )
+                          ),
+                          column(
+                            width = 6,
+                            align = "left",
+                            p(
+                              HTML(
+                                paste0(
+                                  '<span style="color: white; font-size: 12px;">',
+                                  'Class',
+                                  '</span>'
+                                )
+                              )
+                            )
+                          )
+                        )
+                      },
+                      if(!is.null(Scheme$species_data[[1]]$Classification$order)) {
+                        fluidRow(
+                          column(
+                            width = 6,
+                            p(
+                              HTML(
+                                paste0(
+                                  '<span style="color: white; font-size: 15px;">',
+                                  '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                  Scheme$species_data[[1]]$Classification$order$id,
+                                  '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                  Scheme$species_data[[1]]$Classification$order$name,
+                                  '</a>',
+                                  '</span>'
+                                )
+                              )
+                            )
+                          ),
+                          column(
+                            width = 6,
+                            align = "left",
+                            p(
+                              HTML(
+                                paste0(
+                                  '<span style="color: white; font-size: 12px;">',
+                                  'Order',
+                                  '</span>'
+                                )
+                              )
+                            )
+                          )
+                        )
+                      },
+                      if(!is.null(Scheme$species_data[[1]]$Classification$family)) {
+                        fluidRow(
+                          column(
+                            width = 6,
+                            p(
+                              HTML(
+                                paste0(
+                                  '<span style="color: white; font-size: 15px;">',
+                                  '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                  Scheme$species_data[[1]]$Classification$family$id,
+                                  '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                  Scheme$species_data[[1]]$Classification$family$name,
+                                  '</a>',
+                                  '</span>'
+                                )
+                              )
+                            )
+                          ),
+                          column(
+                            width = 6,
+                            align = "left",
+                            p(
+                              HTML(
+                                paste0(
+                                  '<span style="color: white; font-size: 12px;">',
+                                  'Family',
+                                  '</span>'
+                                )
+                              )
+                            )
+                          )
+                        )
+                      },
+                      if(!is.null(Scheme$species_data[[1]]$Classification$genus)) {
+                        fluidRow(
+                          column(
+                            width = 6,
+                            p(
+                              HTML(
+                                paste0(
+                                  '<span style="color: white; font-size: 15px;">',
+                                  '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                  Scheme$species_data[[1]]$Classification$genus$id,
+                                  '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                  Scheme$species_data[[1]]$Classification$genus$name,
+                                  '</a>',
+                                  '</span>'
+                                )
+                              )
+                            )
+                          ),
+                          column(
+                            width = 6,
+                            align = "left",
+                            p(
+                              HTML(
+                                paste0(
+                                  '<span style="color: white; font-size: 12px;">',
+                                  'Genus',
+                                  '</span>'
+                                )
+                              )
+                            )
+                          )
+                        )
+                      }
+                    )
+                  )
+                ),
+                column(
+                  width = 5,
+                  align = "right",
+                  uiOutput("species_no_img"),
+                  div(
+                    class = "species-image",
+                    imageOutput("species_img", width = "300px", height = "200px")
+                  )
                 )
               )
             )
           )
-        )
+        }
       })
     } else {
       output$species_info <- NULL
@@ -12241,6 +12633,54 @@ server <- function(input, output, session) {
     }
   })
   
+  # Species info image output
+  # observe({
+  #   req(Scheme$species_data, input$selected_species)
+  #   if(length(Scheme$species_data) > 1) {
+  #     output$species_no_img <- NULL
+  #     output$species_img <- renderImage({
+  #       list(src = file.path(DB$database, 
+  #                            schemes$species[schemes$species == input$select_cgmlst], 
+  #                            paste0(gsub(" ", "_", 
+  #                                        Scheme$species_data[[gsub(" ", "_", 
+  #                                                                  input$selected_species)]]$Name$name), 
+  #                                   ".jpg")),
+  #            height = 180)
+  #     }, deleteFile = FALSE)
+  #   } else {
+  #     output$species_img <- renderImage({
+  #       list(src = destination_file,
+  #            height = 180)
+  #     }, deleteFile = FALSE)
+  #   } else {
+  #     output$species_no_img <- renderUI(
+  #       HTML('<i class="fa-solid fa-bacteria" style="font-size:150px;color:white;margin-right:25px;" ></i>')
+  #     )
+  #     output$species_img <- NULL
+  #   }
+  # })
+  
+  # Species info selector UI
+  observe({
+    if(!is.null(Scheme$species_data)) {
+      if(length(Scheme$species_data) > 1) {
+        choices <- gsub(" ", "_", unlist(lapply(Scheme$species_data, function(x) x$Name$name)))
+        names(choices) <- gsub("_", " ", unlist(lapply(Scheme$species_data, function(x) x$Name$name)))
+        choices <<- choices
+        output$species_info_select <- renderUI({
+          selectInput(
+            "selected_species",
+            "",
+            choices = choices
+          )
+        })
+      } else {
+        output$species_info_select <- NULL
+      }
+    } else {
+      output$species_info_select <- NULL
+    }
+  })
   
   # Switch to Manage Schemes tab if user wants to update scheme
   observeEvent(input$update_scheme, {
