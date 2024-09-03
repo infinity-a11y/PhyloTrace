@@ -211,19 +211,20 @@ hash_database <- function(folder, progress) {
 # Function to hash a locus
 hash_locus <- function(locus_path, progress, count) {
   locus_file <- readLines(locus_path)
-  seq_list <- locus_file[seq(2, length(locus_file), 3)]
-  seq_hash <- sha256(seq_list)
-  seq_idx <- paste0(">", seq_hash)
-  
-  locus_file[seq(1, length(locus_file), 3)] <- seq_idx
-  writeLines(locus_file, locus_path)
-  if(!is.null(progress) & !is.null(count)) {
-    progress$inc(1 / (count * 2), 
-                 detail = paste("Hashed", basename(locus_path)),
-                 message = "Hashing alleles")
+  if(length(locus_file) > 0) {
+    seq_list <- locus_file[seq(2, length(locus_file), 3)]
+    seq_hash <- sha256(seq_list)
+    seq_idx <- paste0(">", seq_hash)
+    
+    locus_file[seq(1, length(locus_file), 3)] <- seq_idx
+    writeLines(locus_file, locus_path)
+    if(!is.null(progress) & !is.null(count)) {
+      progress$inc(1 / (count * 2), 
+                   detail = paste("Hashed", basename(locus_path)),
+                   message = "Hashing alleles")
+    }
+    seq_hash
   }
-  
-  seq_hash
 }
 
 # Get locus hashes
@@ -368,47 +369,100 @@ safe.api.call <- function(endpoint) {
   return(parsed_content)
 }
 
-# Function to fetch species data from NCBI
-fetch.species.data <- function(species) {
-  
+parse.names <- function(species) {
   if(species == "Borrelia spp") {
-    species <- "Borrelia"
+    return("Borrelia")
   } else if(species == "Brucella spp") {
-    species <- "Brucella"
+    return("Brucella")
   } else if(species == "Burkholderia mallei FLI" | species == "Burkholderia mallei RKI") {
-    species <- "Burkholderia mallei"
+    return("Burkholderia mallei")
   } else if(species == "Campylobacter jejuni coli v1" | 
             species == "Campylobacter jejuni coli v2" |
             species == "Campylobacter jejuni coli") {
-    species <- c("Campylobacter jejuni", "Campylobacter coli")
+    return(c("Campylobacter jejuni", "Campylobacter coli"))
   } else if(species == "Cronobacter sakazakii malonaticus") {
-    species <- c("Cronobacter sakazakii", "Cronobacter malonaticus")
+    return(c("Cronobacter sakazakii", "Cronobacter malonaticus"))
+  } else if(species == "Escherichia spp") {
+    return("Escherichia")
   } else if(species == "Human-restricted Neisseria v1" | 
             species == "Neisseria L3" |
             species == "Neisseria L44") {
-    species <- "Neisseria"
+    return("Neisseria")
   } else if(species == "Neisseria gonorrhoeae v1" | 
             species == "Neisseria gonorrhoeae v2") {
-    species <- "Neisseria gonorrhoeae"
+    return("Neisseria gonorrhoeae")
   } else if(species == "Neisseria meningitidis v1" | 
             species == "Neisseria meningitidis v2" |
             species == "Neisseria meningitidis v3") {
-    species <- "Neisseria meningitidis"
+    return("Neisseria meningitidis")
   } else if(species == "Salmonella v1" | 
-             species == "Salmonella v2 enterobase") {
-    species <- "Salmonella"
+            species == "Salmonella v2 enterobase") {
+    return("Salmonella")
   } else if(species == "Klebsiella oxytoca sensu lato") {
-    species <- paste("Klebsiella", c("oxytoca", "grimontii", "michiganensis", "pasteurii"))
+    return(paste("Klebsiella", c("oxytoca", "grimontii", "michiganensis", "pasteurii")))
   } else if(species == "Klebsiella pneumoniae sensu lato") {
-    species <- paste("Klebsiella", c("pneumoniae", "variicola", "quasipneumoniae"))
+    return(paste("Klebsiella", c("pneumoniae", "variicola", "quasipneumoniae")))
   } else if(species == "Mycobacterium tuberculosis complex") {
-    species <- paste("Mycobacterium", c("tuberculosis", "tuberculosis variant bovis", "", "canetti"))
-  }  
+    return(paste("Mycobacterium", c("tuberculosis", "tuberculosis variant bovis", "canetti")))
+  } else if(species == "Serratia spp") {
+    return("Serratia")
+  } else if(species == "Leptospira spp") {
+    return("Leptospira")
+  } else if(species == "Mycobacteroides abscessus complex") {
+    return("Mycobacteroides abscessus")
+  } else {
+    return(species)
+  }
+}
+
+check.amrfinder.available <- function(selected_scheme, amrfinder_species) {
+  scheme_species <- gsub(" (CM|PM)", "", gsub("_", " ", selected_scheme))
   
-  if(length(species > 1)) {
+  parsed_species <- parse.names(scheme_species)
+  
+  if(length(parsed_species) == 1) {
+    
+    # exceptions
+    if(parsed_species == "Burkholderia mallei FLI" | 
+       parsed_species == "Burkholderia mallei RKI") {
+      parsed_species <- "Burkholderia mallei"
+    } else if(parsed_species == "Escherichia coli") {
+      parsed_species <- "Escherichia"
+    } else if(parsed_species == "Salmonella enterica") {
+      parsed_species <- "Salmonella"
+    }
+    
+    return(ifelse(any(parsed_species == gsub("_", " ", amrfinder_species)), parsed_species, FALSE))
+    
+  } else {
+    #exceptions
+    if(identical(parsed_species, 
+                 paste("Klebsiella", c("oxytoca", "grimontii", "michiganensis", "pasteurii")))) {
+      parsed_species <- "Klebsiella oxytoca"
+    } else if(identical(parsed_species, 
+                        paste("Klebsiella", c("pneumoniae", "variicola", "quasipneumoniae")))) {
+      parsed_species <- "Klebsiella pneumoniae"
+    } else if(identical(parsed_species, 
+                        paste("Klebsiella", c("pneumoniae", "variicola", "quasipneumoniae")))) {
+      parsed_species <- "Klebsiella pneumoniae"
+    } else if(identical(parsed_species,
+                        paste("Campylobacter", c("jejuni", "coli")))) {
+      parsed_species <- "Campylobacter"
+    }
+    
+    return(ifelse(any(parsed_species == gsub("_", " ", amrfinder_species)), parsed_species, FALSE))
+  }
+}
+
+# Function to fetch species data from NCBI
+fetch.species.data <- function(species) {
+  
+  parsed_species <- parse.names(species)
+  
+  # if(length(parsed_species) > 1) {
     multiple <- list()
-    for(i in seq_along(species)) {
-      command <- paste0("datasets summary taxonomy taxon '", species[i], "'")
+    for(i in seq_along(parsed_species)) {
+      command <- paste0("datasets summary taxonomy taxon '", parsed_species[i], "'")
       
       tryCatch(
         result <- system(command, intern = TRUE),
@@ -419,7 +473,7 @@ fetch.species.data <- function(species) {
       )
       
       if (length(result) < 1) {
-        message(paste("Error: ", species, " not available on NCBI."))
+        message(paste("Error: ", parsed_species, " not available on NCBI."))
         return(NULL)
       } else {
         tryCatch(
@@ -435,7 +489,7 @@ fetch.species.data <- function(species) {
           
           message("Fetched taxonomy")
           
-          multiple[[gsub(" ", "_", species[i])]] <- list(
+          multiple[[gsub(" ", "_", parsed_species[i])]] <- list(
             Name = species_data$current_scientific_name,
             ID = species_data$tax_id,
             Classification = species_data$classification,
@@ -455,34 +509,51 @@ fetch.species.data <- function(species) {
       message("Empty taxonomy data")
       return(NULL)
     }
-  } else {
-    command <- paste0("datasets summary taxonomy taxon '", species, "'")
-    
-    tryCatch(
-      result <- system(command, intern = TRUE),
-      error = function(e) {
-        message("Error in NCBI Datasets call: ", e$message)
-        return(NULL)
-      }
-    )
-    
-    if (!is.null(content$reports)) {
-      species_data <- content$reports$taxonomy
-      
-      message("Fetched taxonomy")
-      
-      return(list(
-        Name = species_data$current_scientific_name,
-        ID = species_data$tax_id,
-        Classification = species_data$classification,
-        Group = species_data$group_name,
-        Image = paste0("https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/", species_data$tax_id, "/image")
-      ))
-    } else {
-      message("Empty taxonomy data")
-      return(NULL)
-    }
-  }
+  # } else {
+  #   
+  #   # Serratia exception
+  #   if(parsed_species == "Serratia") parsed_species <- 613
+  #   
+  #   command <- paste0("datasets summary taxonomy taxon '", parsed_species, "'")
+  #   
+  #   tryCatch(
+  #     result <- system(command, intern = TRUE),
+  #     error = function(e) {
+  #       message("Error in NCBI Datasets call: ", e$message)
+  #       return(NULL)
+  #     }
+  #   )
+  #   
+  #   if (length(result) < 1) {
+  #     message(paste("Error: ", parsed_species, " not available on NCBI."))
+  #     return(NULL)
+  #   } else {
+  #     tryCatch(
+  #       content <- jsonlite::fromJSON(paste(result, collapse = "")),
+  #       error = function(e) {
+  #         message("Error in NCBI Datasets call: ", e$message)
+  #         return(NULL)
+  #       }
+  #     )
+  #     
+  #     if (!is.null(content$reports)) {
+  #       species_data <- content$reports$taxonomy
+  #       
+  #       message("Fetched taxonomy")
+  #       
+  #       return(list(
+  #         Name = species_data$current_scientific_name,
+  #         ID = species_data$tax_id,
+  #         Classification = species_data$classification,
+  #         Group = species_data$group_name,
+  #         Image = paste0("https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/", species_data$tax_id, "/image")
+  #       ))
+  #     } else {
+  #       message("Empty taxonomy data")
+  #       return(NULL)
+  #     }
+  #   }
+  # }
 }
 
 # Function to retrieve cgmlst scheme information
@@ -611,6 +682,8 @@ download.alleles2.PM <- function(url_link, database, folder_name, progress) {
     
     logr::log_print("Saved fasta file for locus: ", basename(locus_url))
   }
+  
+  progress$set(message = "Compressing files", value = 50)
   
   # Zip folder
   system(paste0("zip -r -j ", output_folder, ".zip ", output_folder, "/"))
@@ -884,6 +957,8 @@ download.alleles.CM <- function(url_link, database, folder_name, progress) {
       # Increment the progress bar
       progress$inc(res$success / (2 * count))
     }
+    
+    progress$set(message = "Compressing Files")
     
     # Zip folder
     system(paste0("zip -r -j ", output_folder, ".zip ", output_folder, "/"))

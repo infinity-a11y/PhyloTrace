@@ -10,30 +10,6 @@ base_path=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'wd'])")
 selected=$(Rscript -e "cat(stringr::str_split_1(readRDS('screening_meta.rds')[,'selected'], ' '))")
 species=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'species'])")
 
-if [ "$species" = "Escherichia_coli" ]; then
-  species="Escherichia"
-fi
-
-if [ "$species" = "Burkholderia_mallei_FLI" ] || [ "$species" = "Burkholderia_mallei_RKI" ]; then
-species="Burkholderia_mallei"
-fi
-
-if [ "$species" = "Klebsiella_oxytoca_sensu_lato" ]; then
-  species="Klebsiella_oxytoca"
-fi
-
-if [ "$species" = "Salmonella_enterica" ]; then
-  species="Salmonella"
-fi
-
-if [ "$species" = "Campylobacter_jejuni_coli" ]; then
-  species="Campylobacter"
-fi
-
-if [ "$species" = "Klebsiella_pneumoniae_sensu_lato" ]; then
-  species="Klebsiella_pneumoniae"
-fi
-
 # Remove the existing directory (if it exists)
 if [ -d "$base_path/execute/screening" ]; then
     rm -r "$base_path/execute/screening"

@@ -29,12 +29,24 @@ input[type="checkbox"] {
   border-bottom-color: transparent;
 }
 
+.start-modal .modal-header,
+.load-modal .modal-header{
+  background-color: #282f38;
+  color: white;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border: 1px solid white;
+  border-bottom-color: white;
+}
+
 .modal-header {
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
 }
 
-.typing-modal .modal-title {
+.typing-modal .modal-title,
+.start-modal .modal-title,
+.load-modal .modal-title {
   color: white;
 }
 
@@ -42,10 +54,27 @@ input[type="checkbox"] {
   padding: 0px;
 }
 
+.start-modal .modal-body,
+.load-modal .modal-body {
+  background-color: #282f38;
+  color: white;
+  border: 1px solid white;
+  border-top: none;
+  border-bottom: none;
+  padding-top: 40px;
+}
+
 .typing-modal .modal-footer {
   background-color: #282f38;
   border-top-color: transparent;
   border: 1px solid white;
+}
+
+.start-modal .modal-footer,
+.load-modal .modal-footer {
+  background-color: #282f38;
+  border: 1px solid white;
+  border-top: none;
 }
 
 .modal-footer {
@@ -404,6 +433,10 @@ button#load.pulsating-button.btn.btn-default.action-button.shiny-bound-input {
   width: 40px;
 }
 
+.start-modal #load {
+  border: 1px solid white;
+}
+
 .btn.btn-default.action-button.pulsating-button.shiny-bound-input {
   border-color: transparent;
 }
@@ -639,6 +672,11 @@ button#get_locus_bttn i.fas.fa-download {
   margin-top: 41px;
 }
 
+#species_info_select_saved {
+  margin-top: -20px;
+  margin-bottom: 20px;
+}
+
 /* Icons */
 
 .bootstrap-select.show-tick .dropdown-menu .selected span.check-mark {
@@ -743,6 +781,15 @@ i.far.fa-pen-to-square {
 
 #cgmlst_scheme {
   margin-top: 41px;
+  width: 100%;
+}
+
+#scheme_info {
+  width: 90%;
+}
+
+#species_info_select {
+  margin-top: 20px;
 }
 
 .dropdown-menu>.active>a, .dropdown-menu>.active>a:focus, .dropdown-menu>.active>a:hover {
@@ -1049,6 +1096,11 @@ span#progress_bar-title.progress-text {
   color: white; 
   font-size: 13px; 
   font-weight: normal;
+}
+
+div#progress_bar.progress-bar {
+  font-size:13px; 
+  line-height: 30px;
 }
 
 div#progress_bar.progress-bar {
