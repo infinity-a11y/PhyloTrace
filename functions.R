@@ -458,102 +458,60 @@ check.amrfinder.available <- function(selected_scheme, amrfinder_species) {
 fetch.species.data <- function(species) {
   
   parsed_species <- parse.names(species)
-  
-  # if(length(parsed_species) > 1) {
-    multiple <- list()
-    for(i in seq_along(parsed_species)) {
-      command <- paste0("datasets summary taxonomy taxon '", parsed_species[i], "'")
-      
+ 
+  multiple <- list()
+  for(i in seq_along(parsed_species)) {
+    
+    # Serratia exception
+    ifelse(parsed_species[i] == "Serratia",
+           command <- paste0("datasets summary taxonomy taxon '", 613, "'"),
+           command <- paste0("datasets summary taxonomy taxon '", parsed_species[i], "'"))
+    
+    tryCatch(
+      result <- system(command, intern = TRUE),
+      error = function(e) {
+        message("Error in NCBI Datasets call: ", e$message)
+        return(NULL)
+      }
+    )
+    
+    if (length(result) < 1) {
+      message(paste("Error: ", parsed_species, " not available on NCBI."))
+      return(NULL)
+    } else {
       tryCatch(
-        result <- system(command, intern = TRUE),
+        content <- jsonlite::fromJSON(paste(result, collapse = "")),
         error = function(e) {
           message("Error in NCBI Datasets call: ", e$message)
           return(NULL)
         }
       )
       
-      if (length(result) < 1) {
-        message(paste("Error: ", parsed_species, " not available on NCBI."))
-        return(NULL)
-      } else {
-        tryCatch(
-          content <- jsonlite::fromJSON(paste(result, collapse = "")),
-          error = function(e) {
-            message("Error in NCBI Datasets call: ", e$message)
-            return(NULL)
-          }
-        )
+      if (!is.null(content$reports)) {
+        species_data <- content$reports$taxonomy
         
-        if (!is.null(content$reports)) {
-          species_data <- content$reports$taxonomy
-          
-          message("Fetched taxonomy")
-          
-          multiple[[gsub(" ", "_", parsed_species[i])]] <- list(
-            Name = species_data$current_scientific_name,
-            ID = species_data$tax_id,
-            Classification = species_data$classification,
-            Group = species_data$group_name,
-            Image = paste0("https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/", species_data$tax_id, "/image")
-          )
-        } else {
-          message("Empty taxonomy data")
-          return(NULL)
-        }
+        message("Fetched taxonomy")
+        
+        multiple[[gsub(" ", "_", parsed_species[i])]] <- list(
+          Name = species_data$current_scientific_name,
+          ID = species_data$tax_id,
+          Classification = species_data$classification,
+          Group = species_data$group_name,
+          Image = paste0("https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/", species_data$tax_id, "/image")
+        )
+      } else {
+        message("Empty taxonomy data")
+        return(NULL)
       }
     }
-    
-    if (!is.null(multiple)) {
-      return(multiple)
-    } else {
-      message("Empty taxonomy data")
-      return(NULL)
-    }
-  # } else {
-  #   
-  #   # Serratia exception
-  #   if(parsed_species == "Serratia") parsed_species <- 613
-  #   
-  #   command <- paste0("datasets summary taxonomy taxon '", parsed_species, "'")
-  #   
-  #   tryCatch(
-  #     result <- system(command, intern = TRUE),
-  #     error = function(e) {
-  #       message("Error in NCBI Datasets call: ", e$message)
-  #       return(NULL)
-  #     }
-  #   )
-  #   
-  #   if (length(result) < 1) {
-  #     message(paste("Error: ", parsed_species, " not available on NCBI."))
-  #     return(NULL)
-  #   } else {
-  #     tryCatch(
-  #       content <- jsonlite::fromJSON(paste(result, collapse = "")),
-  #       error = function(e) {
-  #         message("Error in NCBI Datasets call: ", e$message)
-  #         return(NULL)
-  #       }
-  #     )
-  #     
-  #     if (!is.null(content$reports)) {
-  #       species_data <- content$reports$taxonomy
-  #       
-  #       message("Fetched taxonomy")
-  #       
-  #       return(list(
-  #         Name = species_data$current_scientific_name,
-  #         ID = species_data$tax_id,
-  #         Classification = species_data$classification,
-  #         Group = species_data$group_name,
-  #         Image = paste0("https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/", species_data$tax_id, "/image")
-  #       ))
-  #     } else {
-  #       message("Empty taxonomy data")
-  #       return(NULL)
-  #     }
-  #   }
-  # }
+  }
+  
+  if (!is.null(multiple)) {
+    return(multiple)
+  } else {
+    message("Empty taxonomy data")
+    return(NULL)
+  }
 }
 
 # Function to retrieve cgmlst scheme information

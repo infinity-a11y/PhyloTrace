@@ -880,6 +880,10 @@ button#download_cgMLST {
   border: 1px solid white;
 }
 
+#update_scheme {
+  border-color: white;
+}
+
 .btn-primary:hover {
   background-color: #20e6e5;
   border-color: #20e6e5;
