@@ -14718,12 +14718,43 @@ server <- function(input, output, session) {
   # Heatmap variable color scale
   output$nj_heatmap_scale <- renderUI({
     if(class(unlist(Vis$meta_nj[input$nj_heatmap_select])) == "numeric") {
-      shinyjs::disabled(
-        selectInput(
+      nj_heatmap_scale <- selectInput(
+        "nj_heatmap_scale",
+        "",
+        choices = list(
+          Continous = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo"
+          ),
+          Diverging = list(
+            "Spectral",
+            "RdYlGn",
+            "RdYlBu",
+            "RdGy",
+            "RdBu",
+            "PuOr",
+            "PRGn",
+            "PiYG",
+            "BrBG"
+          )
+        )
+      )
+      if(input$nj_heatmap_show) {
+        nj_heatmap_scale
+      } else {shinyjs::disabled(nj_heatmap_scale)}
+    } else {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_heatmap_select]))) > 7) {
+        nj_heatmap_scale <- selectInput(
           "nj_heatmap_scale",
           "",
           choices = list(
-            Continous = list(
+            Gradient = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -14732,94 +14763,97 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
             )
-          )
+          ),
+          selected = "turbo"
         )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_heatmap_select]))) > 7) {
-        shinyjs::disabled(
-          selectInput(
-            "nj_heatmap_scale",
-            "",
-            choices = list(
-              Gradient = list(
-                "Magma" = "magma",
-                "Inferno" = "inferno",
-                "Plasma" = "plasma",
-                "Viridis" = "viridis",
-                "Cividis" = "cividis",
-                "Rocket" = "rocket",
-                "Mako" = "mako",
-                "Turbo" = "turbo"
-              )
-            ),
-            selected = "turbo"
-          )
-        )
+        if(input$nj_heatmap_show) {
+          nj_heatmap_scale
+        } else {shinyjs::disabled(nj_heatmap_scale)}
       } else {
-        shinyjs::disabled(
-          selectInput(
-            "nj_heatmap_scale",
-            "",
-            choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
-              ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
+        nj_heatmap_scale <- selectInput(
+          "nj_heatmap_scale",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set1",
+              "Set2",
+              "Set3",
+              "Pastel1",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
             ),
-            selected = "Paired"
-          )
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
+          ),
+          selected = "Paired"
         )
+        if(input$nj_heatmap_show) {
+          nj_heatmap_scale
+        } else {shinyjs::disabled(nj_heatmap_scale)}
       }
     }
   })
   
   output$upgma_heatmap_scale <- renderUI({
     if(class(unlist(Vis$meta_upgma[input$upgma_heatmap_select])) == "numeric") {
-      shinyjs::disabled(
-        selectInput(
+      upgma_heatmap_scale <- selectInput(
+        "upgma_heatmap_scale",
+        "",
+        choices = list(
+          Continous = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo"
+          ),
+          Diverging = list(
+            "Spectral",
+            "RdYlGn",
+            "RdYlBu",
+            "RdGy",
+            "RdBu",
+            "PuOr",
+            "PRGn",
+            "PiYG",
+            "BrBG"
+          )
+        )
+      )
+      if(input$upgma_heatmap_show) {
+        upgma_heatmap_scale
+      } else {shinyjs::disabled(upgma_heatmap_scale)}
+    } else {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_heatmap_select]))) > 7) {
+        upgma_heatmap_scale <- selectInput(
           "upgma_heatmap_scale",
           "",
           choices = list(
-            Continous = list(
+            Gradient = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -14828,82 +14862,54 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
             )
-          )
+          ),
+          selected = "turbo"
         )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_upgma[input$upgma_heatmap_select]))) > 7) {
-        shinyjs::disabled(
-          selectInput(
-            "upgma_heatmap_scale",
-            "",
-            choices = list(
-              Gradient = list(
-                "Magma" = "magma",
-                "Inferno" = "inferno",
-                "Plasma" = "plasma",
-                "Viridis" = "viridis",
-                "Cividis" = "cividis",
-                "Rocket" = "rocket",
-                "Mako" = "mako",
-                "Turbo" = "turbo"
-              )
-            ),
-            selected = "turbo"
-          )
-        )
+        if(input$upgma_heatmap_show) {
+          upgma_heatmap_scale
+        } else {shinyjs::disabled(upgma_heatmap_scale)}
       } else {
-        shinyjs::disabled(
-          selectInput(
-            "upgma_heatmap_scale",
-            "",
-            choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
-              ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
+        upgma_heatmap_scale <- selectInput(
+          "upgma_heatmap_scale",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set1",
+              "Set2",
+              "Set3",
+              "Pastel1",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
             ),
-            selected = "Paired"
-          )
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
+          ),
+          selected = "Paired"
         )
+        if(input$upgma_heatmap_show) {
+          upgma_heatmap_scale
+        } else {shinyjs::disabled(upgma_heatmap_scale)}
       }
     }
   })
@@ -14911,12 +14917,43 @@ server <- function(input, output, session) {
   # Tiles variable color scale
   output$nj_tiles_scale_1 <- renderUI({
     if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
-      shinyjs::disabled(
-        selectInput(
+      nj_tiles_scale_1 <- selectInput(
+        "nj_tiles_scale_1",
+        "",
+        choices = list(
+          Continous = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo"
+          ),
+          Diverging = list(
+            "Spectral",
+            "RdYlGn",
+            "RdYlBu",
+            "RdGy",
+            "RdBu",
+            "PuOr",
+            "PRGn",
+            "PiYG",
+            "BrBG"
+          )
+        )
+      )
+      if(input$nj_tiles_show_1) {
+        nj_tiles_scale_1
+      } else {shinyjs::disabled(nj_tiles_scale_1)}
+    } else {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))) > 7) {
+        nj_tiles_scale_1 <- selectInput(
           "nj_tiles_scale_1",
           "",
           choices = list(
-            Continous = list(
+            Gradient = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -14925,94 +14962,97 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
             )
-          )
+          ),
+          selected = "turbo"
         )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))) > 7) {
-        shinyjs::disabled(
-          selectInput(
-            "nj_tiles_scale_1",
-            "",
-            choices = list(
-              Gradient = list(
-                "Magma" = "magma",
-                "Inferno" = "inferno",
-                "Plasma" = "plasma",
-                "Viridis" = "viridis",
-                "Cividis" = "cividis",
-                "Rocket" = "rocket",
-                "Mako" = "mako",
-                "Turbo" = "turbo"
-              )
-            ),
-            selected = "turbo"
-          )
-        )
+        if(input$nj_tiles_show_1) {
+          nj_tiles_scale_1
+        } else {shinyjs::disabled(nj_tiles_scale_1)}
       } else {
-        shinyjs::disabled(
-          selectInput(
-            "nj_tiles_scale_1",
-            "",
-            choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
-              ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
+        nj_tiles_scale_1 <- selectInput(
+          "nj_tiles_scale_1",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set1",
+              "Set2",
+              "Set3",
+              "Pastel1",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
             ),
-            selected = "Accent"
-          )
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
+          ),
+          selected = "Accent"
         )
+        if(input$nj_tiles_show_1) {
+          nj_tiles_scale_1
+        } else {shinyjs::disabled(nj_tiles_scale_1)}
       }
     }
   })
   
   output$upgma_tiles_scale_1 <- renderUI({
     if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable])) == "numeric") {
-      shinyjs::disabled(
-        selectInput(
+      upgma_tiles_scale_1 <- selectInput(
+        "upgma_tiles_scale_1",
+        "",
+        choices = list(
+          Continous = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo"
+          ),
+          Diverging = list(
+            "Spectral",
+            "RdYlGn",
+            "RdYlBu",
+            "RdGy",
+            "RdBu",
+            "PuOr",
+            "PRGn",
+            "PiYG",
+            "BrBG"
+          )
+        )
+      )
+      if(input$upgma_tiles_show_1) {
+        upgma_tiles_scale_1
+      } else {shinyjs::disabled(upgma_tiles_scale_1)}
+    } else {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))) > 7) {
+        upgma_tiles_scale_1 <- selectInput(
           "upgma_tiles_scale_1",
           "",
           choices = list(
-            Continous = list(
+            Gradient = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -15021,94 +15061,97 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
             )
-          )
+          ),
+          selected = "turbo"
         )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))) > 7) {
-        shinyjs::disabled(
-          selectInput(
-            "upgma_tiles_scale_1",
-            "",
-            choices = list(
-              Gradient = list(
-                "Magma" = "magma",
-                "Inferno" = "inferno",
-                "Plasma" = "plasma",
-                "Viridis" = "viridis",
-                "Cividis" = "cividis",
-                "Rocket" = "rocket",
-                "Mako" = "mako",
-                "Turbo" = "turbo"
-              )
-            ),
-            selected = "turbo"
-          )
-        )
+        if(input$upgma_tiles_show_1) {
+          upgma_tiles_scale_1
+        } else {shinyjs::disabled(upgma_tiles_scale_1)}
       } else {
-        shinyjs::disabled(
-          selectInput(
-            "upgma_tiles_scale_1",
-            "",
-            choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
-              ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
+        upgma_tiles_scale_1 <- selectInput(
+          "upgma_tiles_scale_1",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set1",
+              "Set2",
+              "Set3",
+              "Pastel1",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
             ),
-            selected = "Accent"
-          )
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
+          ),
+          selected = "Accent"
         )
+        if(input$upgma_tiles_show_1) {
+          upgma_tiles_scale_1
+        } else {shinyjs::disabled(upgma_tiles_scale_1)}
       }
     }
   })
   
   output$nj_tiles_scale_2 <- renderUI({
-    if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_2])) == "numeric") {
-      shinyjs::disabled(
-        selectInput(
+    if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
+      nj_tiles_scale_2 <- selectInput(
+        "nj_tiles_scale_2",
+        "",
+        choices = list(
+          Continous = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo"
+          ),
+          Diverging = list(
+            "Spectral",
+            "RdYlGn",
+            "RdYlBu",
+            "RdGy",
+            "RdBu",
+            "PuOr",
+            "PRGn",
+            "PiYG",
+            "BrBG"
+          )
+        )
+      )
+      if(input$nj_tiles_show_2) {
+        nj_tiles_scale_2
+      } else {shinyjs::disabled(nj_tiles_scale_2)}
+    } else {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))) > 7) {
+        nj_tiles_scale_2 <- selectInput(
           "nj_tiles_scale_2",
           "",
           choices = list(
-            Continous = list(
+            Gradient = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -15117,94 +15160,97 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
             )
-          )
+          ),
+          selected = "turbo"
         )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))) > 7) {
-        shinyjs::disabled(
-          selectInput(
-            "nj_tiles_scale_2",
-            "",
-            choices = list(
-              Gradient = list(
-                "Magma" = "magma",
-                "Inferno" = "inferno",
-                "Plasma" = "plasma",
-                "Viridis" = "viridis",
-                "Cividis" = "cividis",
-                "Rocket" = "rocket",
-                "Mako" = "mako",
-                "Turbo" = "turbo"
-              )
-            ),
-            selected = "turbo"
-          )
-        )
+        if(input$nj_tiles_show_2) {
+          nj_tiles_scale_2
+        } else {shinyjs::disabled(nj_tiles_scale_2)}
       } else {
-        shinyjs::disabled(
-          selectInput(
-            "nj_tiles_scale_2",
-            "",
-            choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
-              ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
+        nj_tiles_scale_2 <- selectInput(
+          "nj_tiles_scale_2",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set2",
+              "Set2",
+              "Set3",
+              "Pastel2",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
             ),
-            selected = "Accent"
-          )
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
+          ),
+          selected = "Accent"
         )
+        if(input$nj_tiles_show_2) {
+          nj_tiles_scale_2
+        } else {shinyjs::disabled(nj_tiles_scale_2)}
       }
     }
   })
   
   output$upgma_tiles_scale_2 <- renderUI({
-    if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2])) == "numeric") {
-      shinyjs::disabled(
-        selectInput(
+    if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable])) == "numeric") {
+      upgma_tiles_scale_2 <- selectInput(
+        "upgma_tiles_scale_2",
+        "",
+        choices = list(
+          Continous = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo"
+          ),
+          Diverging = list(
+            "Spectral",
+            "RdYlGn",
+            "RdYlBu",
+            "RdGy",
+            "RdBu",
+            "PuOr",
+            "PRGn",
+            "PiYG",
+            "BrBG"
+          )
+        )
+      )
+      if(input$upgma_tiles_show_2) {
+        upgma_tiles_scale_2
+      } else {shinyjs::disabled(upgma_tiles_scale_2)}
+    } else {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))) > 7) {
+        upgma_tiles_scale_2 <- selectInput(
           "upgma_tiles_scale_2",
           "",
           choices = list(
-            Continous = list(
+            Gradient = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -15213,94 +15259,97 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
             )
-          )
+          ),
+          selected = "turbo"
         )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2]))) > 7) {
-        shinyjs::disabled(
-          selectInput(
-            "upgma_tiles_scale_2",
-            "",
-            choices = list(
-              Gradient = list(
-                "Magma" = "magma",
-                "Inferno" = "inferno",
-                "Plasma" = "plasma",
-                "Viridis" = "viridis",
-                "Cividis" = "cividis",
-                "Rocket" = "rocket",
-                "Mako" = "mako",
-                "Turbo" = "turbo"
-              )
-            ),
-            selected = "turbo"
-          )
-        )
+        if(input$upgma_tiles_show_2) {
+          upgma_tiles_scale_2
+        } else {shinyjs::disabled(upgma_tiles_scale_2)}
       } else {
-        shinyjs::disabled(
-          selectInput(
-            "upgma_tiles_scale_2",
-            "",
-            choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
-              ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
+        upgma_tiles_scale_2 <- selectInput(
+          "upgma_tiles_scale_2",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set2",
+              "Set2",
+              "Set3",
+              "Pastel2",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
             ),
-            selected = "Accent"
-          )
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
+          ),
+          selected = "Accent"
         )
+        if(input$upgma_tiles_show_2) {
+          upgma_tiles_scale_2
+        } else {shinyjs::disabled(upgma_tiles_scale_2)}
       }
     }
   })
   
   output$nj_tiles_scale_3 <- renderUI({
-    if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_3])) == "numeric") {
-      shinyjs::disabled(
-        selectInput(
+    if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
+      nj_tiles_scale_3 <- selectInput(
+        "nj_tiles_scale_3",
+        "",
+        choices = list(
+          Continous = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo"
+          ),
+          Diverging = list(
+            "Spectral",
+            "RdYlGn",
+            "RdYlBu",
+            "RdGy",
+            "RdBu",
+            "PuOr",
+            "PRGn",
+            "PiYG",
+            "BrBG"
+          )
+        )
+      )
+      if(input$nj_tiles_show_3) {
+        nj_tiles_scale_3
+      } else {shinyjs::disabled(nj_tiles_scale_3)}
+    } else {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))) > 7) {
+        nj_tiles_scale_3 <- selectInput(
           "nj_tiles_scale_3",
           "",
           choices = list(
-            Continous = list(
+            Gradient = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -15309,94 +15358,97 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
             )
-          )
+          ),
+          selected = "turbo"
         )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))) > 7) {
-        shinyjs::disabled(
-          selectInput(
-            "nj_tiles_scale_3",
-            "",
-            choices = list(
-              Gradient = list(
-                "Magma" = "magma",
-                "Inferno" = "inferno",
-                "Plasma" = "plasma",
-                "Viridis" = "viridis",
-                "Cividis" = "cividis",
-                "Rocket" = "rocket",
-                "Mako" = "mako",
-                "Turbo" = "turbo"
-              )
-            ),
-            selected = "turbo"
-          )
-        )
+        if(input$nj_tiles_show_3) {
+          nj_tiles_scale_3
+        } else {shinyjs::disabled(nj_tiles_scale_3)}
       } else {
-        shinyjs::disabled(
-          selectInput(
-            "nj_tiles_scale_3",
-            "",
-            choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
-              ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
+        nj_tiles_scale_3 <- selectInput(
+          "nj_tiles_scale_3",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set3",
+              "Set2",
+              "Set3",
+              "Pastel3",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
             ),
-            selected = "Accent"
-          )
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
+          ),
+          selected = "Accent"
         )
+        if(input$nj_tiles_show_3) {
+          nj_tiles_scale_3
+        } else {shinyjs::disabled(nj_tiles_scale_3)}
       }
     }
   })
   
   output$upgma_tiles_scale_3 <- renderUI({
-    if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3])) == "numeric") {
-      shinyjs::disabled(
-        selectInput(
+    if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable])) == "numeric") {
+      upgma_tiles_scale_3 <- selectInput(
+        "upgma_tiles_scale_3",
+        "",
+        choices = list(
+          Continous = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo"
+          ),
+          Diverging = list(
+            "Spectral",
+            "RdYlGn",
+            "RdYlBu",
+            "RdGy",
+            "RdBu",
+            "PuOr",
+            "PRGn",
+            "PiYG",
+            "BrBG"
+          )
+        )
+      )
+      if(input$upgma_tiles_show_3) {
+        upgma_tiles_scale_3
+      } else {shinyjs::disabled(upgma_tiles_scale_3)}
+    } else {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))) > 7) {
+        upgma_tiles_scale_3 <- selectInput(
           "upgma_tiles_scale_3",
           "",
           choices = list(
-            Continous = list(
+            Gradient = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -15405,120 +15457,93 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
             )
-          )
+          ),
+          selected = "turbo"
         )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3]))) > 7) {
-        shinyjs::disabled(
-          selectInput(
-            "upgma_tiles_scale_3",
-            "",
-            choices = list(
-              Gradient = list(
-                "Magma" = "magma",
-                "Inferno" = "inferno",
-                "Plasma" = "plasma",
-                "Viridis" = "viridis",
-                "Cividis" = "cividis",
-                "Rocket" = "rocket",
-                "Mako" = "mako",
-                "Turbo" = "turbo"
-              )
-            ),
-            selected = "turbo"
-          )
-        )
+        if(input$upgma_tiles_show_3) {
+          upgma_tiles_scale_3
+        } else {shinyjs::disabled(upgma_tiles_scale_3)}
       } else {
-        shinyjs::disabled(
-          selectInput(
-            "upgma_tiles_scale_3",
-            "",
-            choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
-              ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
+        upgma_tiles_scale_3 <- selectInput(
+          "upgma_tiles_scale_3",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set3",
+              "Set2",
+              "Set3",
+              "Pastel3",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
             ),
-            selected = "Accent"
-          )
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
+          ),
+          selected = "Accent"
         )
+        if(input$upgma_tiles_show_3) {
+          upgma_tiles_scale_3
+        } else {shinyjs::disabled(upgma_tiles_scale_3)}
       }
     }
   })
   
   output$nj_tiles_scale_4 <- renderUI({
-    if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_4])) == "numeric") {
-      shinyjs::disabled(
-        selectInput(
-          "nj_tiles_scale_4",
-          "",
-          choices = list(
-            Continous = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
-            )
+    if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
+      nj_tiles_scale_4 <- selectInput(
+        "nj_tiles_scale_4",
+        "",
+        choices = list(
+          Continous = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo"
+          ),
+          Diverging = list(
+            "Spectral",
+            "RdYlGn",
+            "RdYlBu",
+            "RdGy",
+            "RdBu",
+            "PuOr",
+            "PRGn",
+            "PiYG",
+            "BrBG"
           )
         )
       )
+      if(input$nj_tiles_show_4) {
+        nj_tiles_scale_4
+      } else {shinyjs::disabled(nj_tiles_scale_4)}
     } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_4]))) > 7) {
-        shinyjs::disabled(selectInput(
+      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))) > 7) {
+        nj_tiles_scale_4 <- selectInput(
           "nj_tiles_scale_4",
           "",
           choices = list(
@@ -15534,59 +15559,94 @@ server <- function(input, output, session) {
             )
           ),
           selected = "turbo"
-        ))
-      } else {
-        shinyjs::disabled(
-          selectInput(
-            "nj_tiles_scale_4",
-            "",
-            choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
-              ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
-            ),
-            selected = "Accent"
-          )
         )
+        if(input$nj_tiles_show_4) {
+          nj_tiles_scale_4
+        } else {shinyjs::disabled(nj_tiles_scale_4)}
+      } else {
+        nj_tiles_scale_4 <- selectInput(
+          "nj_tiles_scale_4",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set4",
+              "Set2",
+              "Set3",
+              "Pastel4",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
+            ),
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
+          ),
+          selected = "Accent"
+        )
+        if(input$nj_tiles_show_4) {
+          nj_tiles_scale_4
+        } else {shinyjs::disabled(nj_tiles_scale_4)}
       }
     }
   })
   
   output$upgma_tiles_scale_4 <- renderUI({
-    if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_4])) == "numeric") {
-      shinyjs::disabled(
-        selectInput(
+    if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable])) == "numeric") {
+      upgma_tiles_scale_4 <- selectInput(
+        "upgma_tiles_scale_4",
+        "",
+        choices = list(
+          Continous = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo"
+          ),
+          Diverging = list(
+            "Spectral",
+            "RdYlGn",
+            "RdYlBu",
+            "RdGy",
+            "RdBu",
+            "PuOr",
+            "PRGn",
+            "PiYG",
+            "BrBG"
+          )
+        )
+      )
+      if(input$upgma_tiles_show_4) {
+        upgma_tiles_scale_4
+      } else {shinyjs::disabled(upgma_tiles_scale_4)}
+    } else {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))) > 7) {
+        upgma_tiles_scale_4 <- selectInput(
           "upgma_tiles_scale_4",
           "",
           choices = list(
-            Continous = list(
+            Gradient = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -15595,94 +15655,97 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
             )
-          )
+          ),
+          selected = "turbo"
         )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_4]))) > 7) {
-        shinyjs::disabled(
-          selectInput(
-            "upgma_tiles_scale_4",
-            "",
-            choices = list(
-              Gradient = list(
-                "Magma" = "magma",
-                "Inferno" = "inferno",
-                "Plasma" = "plasma",
-                "Viridis" = "viridis",
-                "Cividis" = "cividis",
-                "Rocket" = "rocket",
-                "Mako" = "mako",
-                "Turbo" = "turbo"
-              )
-            ),
-            selected = "turbo"
-          )
-        )
+        if(input$upgma_tiles_show_4) {
+          upgma_tiles_scale_4
+        } else {shinyjs::disabled(upgma_tiles_scale_4)}
       } else {
-        shinyjs::disabled(
-          selectInput(
-            "upgma_tiles_scale_4",
-            "",
-            choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
-              ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
+        upgma_tiles_scale_4 <- selectInput(
+          "upgma_tiles_scale_4",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set4",
+              "Set2",
+              "Set3",
+              "Pastel4",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
             ),
-            selected = "Accent"
-          )
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
+          ),
+          selected = "Accent"
         )
+        if(input$upgma_tiles_show_4) {
+          upgma_tiles_scale_4
+        } else {shinyjs::disabled(upgma_tiles_scale_4)}
       }
     }
   })
   
   output$nj_tiles_scale_5 <- renderUI({
-    if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_5])) == "numeric") {
-      shinyjs::disabled(
-        selectInput(
+    if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
+      nj_tiles_scale_5 <- selectInput(
+        "nj_tiles_scale_5",
+        "",
+        choices = list(
+          Continous = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo"
+          ),
+          Diverging = list(
+            "Spectral",
+            "RdYlGn",
+            "RdYlBu",
+            "RdGy",
+            "RdBu",
+            "PuOr",
+            "PRGn",
+            "PiYG",
+            "BrBG"
+          )
+        )
+      )
+      if(input$nj_tiles_show_5) {
+        nj_tiles_scale_5
+      } else {shinyjs::disabled(nj_tiles_scale_5)}
+    } else {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))) > 7) {
+        nj_tiles_scale_5 <- selectInput(
           "nj_tiles_scale_5",
           "",
           choices = list(
-            Continous = list(
+            Gradient = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -15691,94 +15754,97 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
             )
-          )
+          ),
+          selected = "turbo"
         )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))) > 7) {
-        shinyjs::disabled(
-          selectInput(
-            "nj_tiles_scale_5",
-            "",
-            choices = list(
-              Gradient = list(
-                "Magma" = "magma",
-                "Inferno" = "inferno",
-                "Plasma" = "plasma",
-                "Viridis" = "viridis",
-                "Cividis" = "cividis",
-                "Rocket" = "rocket",
-                "Mako" = "mako",
-                "Turbo" = "turbo"
-              )
-            ),
-            selected = "turbo"
-          )
-        )
+        if(input$nj_tiles_show_5) {
+          nj_tiles_scale_5
+        } else {shinyjs::disabled(nj_tiles_scale_5)}
       } else {
-        shinyjs::disabled(
-          selectInput(
-            "nj_tiles_scale_5",
-            "",
-            choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
-              ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
+        nj_tiles_scale_5 <- selectInput(
+          "nj_tiles_scale_5",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set5",
+              "Set2",
+              "Set3",
+              "Pastel5",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
             ),
-            selected = "Accent"
-          )
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
+          ),
+          selected = "Accent"
         )
+        if(input$nj_tiles_show_5) {
+          nj_tiles_scale_5
+        } else {shinyjs::disabled(nj_tiles_scale_5)}
       }
     }
   })
   
   output$upgma_tiles_scale_5 <- renderUI({
-    if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5])) == "numeric") {
-      shinyjs::disabled(
-        selectInput(
+    if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable])) == "numeric") {
+      upgma_tiles_scale_5 <- selectInput(
+        "upgma_tiles_scale_5",
+        "",
+        choices = list(
+          Continous = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo"
+          ),
+          Diverging = list(
+            "Spectral",
+            "RdYlGn",
+            "RdYlBu",
+            "RdGy",
+            "RdBu",
+            "PuOr",
+            "PRGn",
+            "PiYG",
+            "BrBG"
+          )
+        )
+      )
+      if(input$upgma_tiles_show_5) {
+        upgma_tiles_scale_5
+      } else {shinyjs::disabled(upgma_tiles_scale_5)}
+    } else {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))) > 7) {
+        upgma_tiles_scale_5 <- selectInput(
           "upgma_tiles_scale_5",
           "",
           choices = list(
-            Continous = list(
+            Gradient = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -15787,82 +15853,54 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
             )
-          )
+          ),
+          selected = "turbo"
         )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5]))) > 7) {
-        shinyjs::disabled(
-          selectInput(
-            "upgma_tiles_scale_5",
-            "",
-            choices = list(
-              Gradient = list(
-                "Magma" = "magma",
-                "Inferno" = "inferno",
-                "Plasma" = "plasma",
-                "Viridis" = "viridis",
-                "Cividis" = "cividis",
-                "Rocket" = "rocket",
-                "Mako" = "mako",
-                "Turbo" = "turbo"
-              )
-            ),
-            selected = "turbo"
-          )
-        )
+        if(input$upgma_tiles_show_5) {
+          upgma_tiles_scale_5
+        } else {shinyjs::disabled(upgma_tiles_scale_5)}
       } else {
-        shinyjs::disabled(
-          selectInput(
-            "upgma_tiles_scale_5",
-            "",
-            choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
-              ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
+        upgma_tiles_scale_5 <- selectInput(
+          "upgma_tiles_scale_5",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set5",
+              "Set2",
+              "Set3",
+              "Pastel5",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
             ),
-            selected = "Accent"
-          )
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
+            )
+          ),
+          selected = "Accent"
         )
+        if(input$upgma_tiles_show_5) {
+          upgma_tiles_scale_5
+        } else {shinyjs::disabled(upgma_tiles_scale_5)}
       }
     }
   })
@@ -15870,13 +15908,45 @@ server <- function(input, output, session) {
   # Tip Labels Variable Color Scale
   output$nj_tiplab_scale <- renderUI({
     if(class(unlist(Vis$meta_nj[input$nj_color_mapping])) == "numeric") {
-      shinyjs::disabled(
-        selectInput(
+      nj_tiplab_scale <- selectInput(
+        "nj_tiplab_scale",
+        "",
+        selectize = FALSE,
+        choices = list(
+          Continous = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo"
+          ),
+          Diverging = list(
+            "Spectral",
+            "RdYlGn",
+            "RdYlBu",
+            "RdGy",
+            "RdBu",
+            "PuOr",
+            "PRGn",
+            "PiYG",
+            "BrBG"
+          )
+        )
+      )
+      if(input$nj_mapping_show) {
+        nj_tiplab_scale
+      } else {shinyjs::disabled(nj_tiplab_scale)}
+    } else {
+      if(length(unique(unlist(Vis$meta_nj[input$nj_color_mapping]))) > 7) {
+        nj_tiplab_scale <- selectInput(
           "nj_tiplab_scale",
           "",
           selectize = FALSE,
           choices = list(
-            Continous = list(
+            Gradient = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -15885,94 +15955,98 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
             )
-          )
+          ),
+          selected = "turbo"
         )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_color_mapping]))) > 7) {
-        shinyjs::disabled(
-          selectInput(
-            "nj_tiplab_scale",
-            "",
-            selectize = FALSE,
-            choices = list(
-              Gradient = list(
-                "Magma" = "magma",
-                "Inferno" = "inferno",
-                "Plasma" = "plasma",
-                "Viridis" = "viridis",
-                "Cividis" = "cividis",
-                "Rocket" = "rocket",
-                "Mako" = "mako",
-                "Turbo" = "turbo"
-              )
-            ),
-            selected = "turbo"
-          )
-        )
+        if(input$nj_mapping_show) {
+          nj_tiplab_scale
+        } else {shinyjs::disabled(nj_tiplab_scale)}
       } else {
-        shinyjs::disabled(
-          selectInput(
-            "nj_tiplab_scale",
-            "",
-            choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
-              ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
+        nj_tiplab_scale <- selectInput(
+          "nj_tiplab_scale",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set1",
+              "Set2",
+              "Set3",
+              "Pastel1",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
+            ),
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
             )
           )
         )
+        if(input$nj_mapping_show) {
+          nj_tiplab_scale
+        } else {shinyjs::disabled(nj_tiplab_scale)}
       }
     }
   })
   
   output$upgma_tiplab_scale <- renderUI({
     if(class(unlist(Vis$meta_upgma[input$upgma_color_mapping])) == "numeric") {
-      shinyjs::disabled(
-        selectInput(
+      upgma_tiplab_scale <- selectInput(
+        "upgma_tiplab_scale",
+        "",
+        selectize = FALSE,
+        choices = list(
+          Continous = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo"
+          ),
+          Diverging = list(
+            "Spectral",
+            "RdYlGn",
+            "RdYlBu",
+            "RdGy",
+            "RdBu",
+            "PuOr",
+            "PRGn",
+            "PiYG",
+            "BrBG"
+          )
+        )
+      )
+      if(input$upgma_mapping_show) {
+        upgma_tiplab_scale
+      } else {shinyjs::disabled(upgma_tiplab_scale)}
+    } else {
+      if(length(unique(unlist(Vis$meta_upgma[input$upgma_color_mapping]))) > 7) {
+        upgma_tiplab_scale <- selectInput(
           "upgma_tiplab_scale",
           "",
+          selectize = FALSE,
           choices = list(
-            Continous = list(
+            Gradient = list(
               "Magma" = "magma",
               "Inferno" = "inferno",
               "Plasma" = "plasma",
@@ -15981,81 +16055,53 @@ server <- function(input, output, session) {
               "Rocket" = "rocket",
               "Mako" = "mako",
               "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
             )
-          )
+          ),
+          selected = "turbo"
         )
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_upgma[input$upgma_color_mapping]))) > 7) {
-        shinyjs::disabled(
-          selectInput(
-            "upgma_tiplab_scale",
-            "",
-            choices = list(
-              Gradient = list(
-                "Magma" = "magma",
-                "Inferno" = "inferno",
-                "Plasma" = "plasma",
-                "Viridis" = "viridis",
-                "Cividis" = "cividis",
-                "Rocket" = "rocket",
-                "Mako" = "mako",
-                "Turbo" = "turbo"
-              )
-            ),
-            selected = "turbo"
-          )
-        )
+        if(input$upgma_mapping_show) {
+          upgma_tiplab_scale
+        } else {shinyjs::disabled(upgma_tiplab_scale)}
       } else {
-        shinyjs::disabled(
-          selectInput(
-            "upgma_tiplab_scale",
-            "",
-            choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
-              ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
+        upgma_tiplab_scale <- selectInput(
+          "upgma_tiplab_scale",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set1",
+              "Set2",
+              "Set3",
+              "Pastel1",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
+            ),
+            Sequential = list(
+              "YlOrRd",
+              "YlOrBr",
+              "YlGnBu",
+              "YlGn",
+              "Reds",
+              "RdPu",
+              "Purples",
+              "PuRd",
+              "PuBuGn",
+              "PuBu",
+              "OrRd",
+              "Oranges",
+              "Greys",
+              "Greens",
+              "GnBu",
+              "BuPu",
+              "BuGn",
+              "Blues"
             )
           )
         )
+        if(input$upgma_mapping_show) {
+          upgma_tiplab_scale
+        } else {shinyjs::disabled(upgma_tiplab_scale)}
       }
     }
   })
@@ -16064,12 +16110,43 @@ server <- function(input, output, session) {
   output$nj_tippoint_scale <- renderUI({
     if(!is.null(Vis$meta_nj)) {
       if(class(unlist(Vis$meta_nj[input$nj_tipcolor_mapping])) == "numeric") {
-        shinyjs::disabled(
-          selectInput(
+        nj_tippoint_scale <- selectInput(
+          "nj_tippoint_scale",
+          "",
+          choices = list(
+            Continous = list(
+              "Magma" = "magma",
+              "Inferno" = "inferno",
+              "Plasma" = "plasma",
+              "Viridis" = "viridis",
+              "Cividis" = "cividis",
+              "Rocket" = "rocket",
+              "Mako" = "mako",
+              "Turbo" = "turbo"
+            ),
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
+            )
+          )
+        )
+        if(input$nj_tipcolor_mapping_show) {
+          nj_tippoint_scale
+        } else {shinyjs::disabled(nj_tippoint_scale)}
+      } else {
+        if(length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))) > 7) {
+          nj_tippoint_scale <- selectInput(
             "nj_tippoint_scale",
             "",
             choices = list(
-              Continous = list(
+              Gradient = list(
                 "Magma" = "magma",
                 "Inferno" = "inferno",
                 "Plasma" = "plasma",
@@ -16078,136 +16155,141 @@ server <- function(input, output, session) {
                 "Rocket" = "rocket",
                 "Mako" = "mako",
                 "Turbo" = "turbo"
-              ),
-              Diverging = list(
-                "Spectral",
-                "RdYlGn",
-                "RdYlBu",
-                "RdGy",
-                "RdBu",
-                "PuOr",
-                "PRGn",
-                "PiYG",
-                "BrBG"
               )
-            )
+            ),
+            selected = "turbo"
           )
-        )
-      } else {
-        if(length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))) > 7) {
-          shinyjs::disabled(
-            selectInput(
-              "nj_tippoint_scale",
-              "",
-              choices = list(
-                Gradient = list(
-                  "Magma" = "magma",
-                  "Inferno" = "inferno",
-                  "Plasma" = "plasma",
-                  "Viridis" = "viridis",
-                  "Cividis" = "cividis",
-                  "Rocket" = "rocket",
-                  "Mako" = "mako",
-                  "Turbo" = "turbo"
-                )
-              ),
-              selected = "turbo"
-            )
-          )
+          if(input$nj_tipcolor_mapping_show) {
+            nj_tippoint_scale
+          } else {shinyjs::disabled(nj_tippoint_scale)}
         } else {
-          shinyjs::disabled(
-            selectInput(
-              "nj_tippoint_scale",
-              "",
-              choices = list(
-                Qualitative = list(
-                  "Set1",
-                  "Set2",
-                  "Set3",
-                  "Pastel1",
-                  "Pastel2",
-                  "Paired",
-                  "Dark2",
-                  "Accent"
-                ),
-                Sequential = list(
-                  "YlOrRd",
-                  "YlOrBr",
-                  "YlGnBu",
-                  "YlGn",
-                  "Reds",
-                  "RdPu",
-                  "Purples",
-                  "PuRd",
-                  "PuBuGn",
-                  "PuBu",
-                  "OrRd",
-                  "Oranges",
-                  "Greys",
-                  "Greens",
-                  "GnBu",
-                  "BuPu",
-                  "BuGn",
-                  "Blues"
-                )
+          nj_tippoint_scale <- selectInput(
+            "nj_tippoint_scale",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
               ),
-              selected = "Set2"
-            )
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
+            ),
+            selected = "Set2"
           )
+          if(input$nj_tipcolor_mapping_show) {
+            nj_tippoint_scale
+          } else {shinyjs::disabled(nj_tippoint_scale)}
         }
       }
     } else {
-      shinyjs::disabled(
-        selectInput(
-          "nj_tippoint_scale",
-          "",
-          choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
+      nj_tippoint_scale <- selectInput(
+        "nj_tippoint_scale",
+        "",
+        choices = list(
+          Qualitative = list(
+            "Set1",
+            "Set2",
+            "Set3",
+            "Pastel1",
+            "Pastel2",
+            "Paired",
+            "Dark2",
+            "Accent"
           ),
-          selected = "Set2"
-        )
+          Sequential = list(
+            "YlOrRd",
+            "YlOrBr",
+            "YlGnBu",
+            "YlGn",
+            "Reds",
+            "RdPu",
+            "Purples",
+            "PuRd",
+            "PuBuGn",
+            "PuBu",
+            "OrRd",
+            "Oranges",
+            "Greys",
+            "Greens",
+            "GnBu",
+            "BuPu",
+            "BuGn",
+            "Blues"
+          )
+        ),
+        selected = "Set2"
       )
+        
+      if(input$nj_tipcolor_mapping_show) {
+        nj_tippoint_scale
+      } else {shinyjs::disabled(nj_tippoint_scale)}
     }
   })
   
   output$upgma_tippoint_scale <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
       if(class(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping])) == "numeric") {
-        shinyjs::disabled(
-          selectInput(
+        upgma_tippoint_scale <- selectInput(
+          "upgma_tippoint_scale",
+          "",
+          choices = list(
+            Continous = list(
+              "Magma" = "magma",
+              "Inferno" = "inferno",
+              "Plasma" = "plasma",
+              "Viridis" = "viridis",
+              "Cividis" = "cividis",
+              "Rocket" = "rocket",
+              "Mako" = "mako",
+              "Turbo" = "turbo"
+            ),
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
+            )
+          )
+        )
+        if(input$upgma_tipcolor_mapping_show) {
+          upgma_tippoint_scale
+        } else {shinyjs::disabled(upgma_tippoint_scale)}
+      } else {
+        if(length(unique(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping]))) > 7) {
+          upgma_tippoint_scale <- selectInput(
             "upgma_tippoint_scale",
             "",
             choices = list(
-              Continous = list(
+              Gradient = list(
                 "Magma" = "magma",
                 "Inferno" = "inferno",
                 "Plasma" = "plasma",
@@ -16216,125 +16298,98 @@ server <- function(input, output, session) {
                 "Rocket" = "rocket",
                 "Mako" = "mako",
                 "Turbo" = "turbo"
-              ),
-              Diverging = list(
-                "Spectral",
-                "RdYlGn",
-                "RdYlBu",
-                "RdGy",
-                "RdBu",
-                "PuOr",
-                "PRGn",
-                "PiYG",
-                "BrBG"
               )
             ),
-            selected = c("Viridis" = "viridis")
+            selected = "turbo"
           )
-        )
-      } else {
-        if(length(unique(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping]))) > 7) {
-          shinyjs::disabled(
-            selectInput(
-              "upgma_tippoint_scale",
-              "",
-              choices = list(
-                Gradient = list(
-                  "Magma" = "magma",
-                  "Inferno" = "inferno",
-                  "Plasma" = "plasma",
-                  "Viridis" = "viridis",
-                  "Cividis" = "cividis",
-                  "Rocket" = "rocket",
-                  "Mako" = "mako",
-                  "Turbo" = "turbo"
-                )
-              ),
-              selected = "turbo"
-            )
-          )
+          if(input$upgma_tipcolor_mapping_show) {
+            upgma_tippoint_scale
+          } else {shinyjs::disabled(upgma_tippoint_scale)}
         } else {
-          shinyjs::disabled(
-            selectInput(
-              "upgma_tippoint_scale",
-              "",
-              choices = list(
-                Qualitative = list(
-                  "Set1",
-                  "Set2",
-                  "Set3",
-                  "Pastel1",
-                  "Pastel2",
-                  "Paired",
-                  "Dark2",
-                  "Accent"
-                ),
-                Sequential = list(
-                  "YlOrRd",
-                  "YlOrBr",
-                  "YlGnBu",
-                  "YlGn",
-                  "Reds",
-                  "RdPu",
-                  "Purples",
-                  "PuRd",
-                  "PuBuGn",
-                  "PuBu",
-                  "OrRd",
-                  "Oranges",
-                  "Greys",
-                  "Greens",
-                  "GnBu",
-                  "BuPu",
-                  "BuGn",
-                  "Blues"
-                )
+          upgma_tippoint_scale <- selectInput(
+            "upgma_tippoint_scale",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
               ),
-              selected = "Set2"
-            )
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
+            ),
+            selected = "Set2"
           )
+          if(input$upgma_tipcolor_mapping_show) {
+            upgma_tippoint_scale
+          } else {shinyjs::disabled(upgma_tippoint_scale)}
         }
       }
     } else {
-      shinyjs::disabled(
-        selectInput(
-          "upgma_tippoint_scale",
-          "",
-          choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
+      upgma_tippoint_scale <- selectInput(
+        "upgma_tippoint_scale",
+        "",
+        choices = list(
+          Qualitative = list(
+            "Set1",
+            "Set2",
+            "Set3",
+            "Pastel1",
+            "Pastel2",
+            "Paired",
+            "Dark2",
+            "Accent"
           ),
-          selected = "Set2"
-        )
+          Sequential = list(
+            "YlOrRd",
+            "YlOrBr",
+            "YlGnBu",
+            "YlGn",
+            "Reds",
+            "RdPu",
+            "Purples",
+            "PuRd",
+            "PuBuGn",
+            "PuBu",
+            "OrRd",
+            "Oranges",
+            "Greys",
+            "Greens",
+            "GnBu",
+            "BuPu",
+            "BuGn",
+            "Blues"
+          )
+        ),
+        selected = "Set2"
       )
+      
+      if(input$upgma_tipcolor_mapping_show) {
+        upgma_tippoint_scale
+      } else {shinyjs::disabled(upgma_tippoint_scale)}
     }
   })
   
@@ -16872,47 +16927,50 @@ server <- function(input, output, session) {
       # Add Diverging list
       choices$Categorical <- as.list(setNames(non_numeric_column_names, non_numeric_column_names))
       
+      nj_heatmap_select <- pickerInput(
+        inputId = "nj_heatmap_select",
+        label = "",
+        width = "100%",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {choices},
+        options = list(
+          `dropdown-align-center` = TRUE,
+          size = 10,
+          style = "background-color: white; border-radius: 5px;"
+        ),
+        multiple = TRUE
+      )
+      
       div(
         class = "heatmap-picker",
-        shinyjs::disabled(
-          pickerInput(
-            inputId = "nj_heatmap_select",
-            label = "",
-            width = "100%",
-            choices = if(ncol(Vis$meta_nj) == 11) {
-              c(
-                `Isolation Date` = "Isolation Date",
-                Host = "Host",
-                Country = "Country",
-                City = "City"
-              )
-            } else {choices},
-            options = list(
-              `dropdown-align-center` = TRUE,
-              size = 10,
-              style = "background-color: white; border-radius: 5px;"
-            ),
-            multiple = TRUE
-          )
-        )
+        if(input$nj_heatmap_show) {
+          nj_heatmap_select
+        } else {shinyjs::disabled(nj_heatmap_select)}
       )
     } else {
+      nj_heatmap_select <- pickerInput(
+        inputId = "nj_heatmap_select",
+        label = "",
+        width = "100%",
+        choices = c(
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        ),
+        multiple = TRUE
+      )
       div(
         class = "heatmap-picker",
-        shinyjs::disabled(
-          pickerInput(
-            inputId = "nj_heatmap_select",
-            label = "",
-            width = "100%",
-            choices = c(
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            ),
-            multiple = TRUE
-          )
-        )
+        if(input$nj_heatmap_show) {
+          nj_heatmap_select
+        } else {shinyjs::disabled(nj_heatmap_select)}
       )
     }
   })
@@ -16939,47 +16997,52 @@ server <- function(input, output, session) {
       # Add Diverging list
       choices$Categorical <- as.list(setNames(non_numeric_column_names, non_numeric_column_names))
       
-      div(
-        class = "heatmap-picker",
-        shinyjs::disabled(
-          pickerInput(
-            inputId = "upgma_heatmap_select",
-            label = "",
-            width = "100%",
-            choices = if(ncol(Vis$meta_upgma) == 11) {
-              c(
-                `Isolation Date` = "Isolation Date",
-                Host = "Host",
-                Country = "Country",
-                City = "City"
-              )
-            } else {choices},
-            options = list(
-              `dropdown-align-center` = TRUE,
-              size = 10,
-              style = "background-color: white; border-radius: 5px;"
-            ),
-            multiple = TRUE
+      upgma_heatmap_select <- pickerInput(
+        inputId = "upgma_heatmap_select",
+        label = "",
+        width = "100%",
+        choices = if(ncol(Vis$meta_upgma) == 11) {
+          c(
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
           )
-        )
+        } else {choices},
+        options = list(
+          `dropdown-align-center` = TRUE,
+          size = 10,
+          style = "background-color: white; border-radius: 5px;"
+        ),
+        multiple = TRUE
       )
-    } else {
+      
       div(
         class = "heatmap-picker",
-        shinyjs::disabled(
-          pickerInput(
-            inputId = "upgma_heatmap_select",
-            label = "",
-            width = "100%",
-            choices = c(
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            ),
-            multiple = TRUE
-          )
-        )
+        if(input$upgma_heatmap_show) {
+          upgma_heatmap_select
+        } else {shinyjs::disabled(upgma_heatmap_select)}
+      )
+               
+    } else {
+      upgma_heatmap_select <- pickerInput(
+        inputId = "upgma_heatmap_select",
+        label = "",
+        width = "100%",
+        choices = c(
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        ),
+        multiple = TRUE
+      )
+      
+      div(
+        class = "heatmap-picker",
+        if(input$upgma_heatmap_show) {
+          upgma_heatmap_select
+        } else {shinyjs::disabled(upgma_heatmap_select)}
       )
     }
   })
@@ -17041,266 +17104,284 @@ server <- function(input, output, session) {
   # Geom Fruit select Variable
   output$nj_fruit_variable <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      shinyjs::disabled(
-        selectInput(
-          "nj_fruit_variable",
-          "",
-          choices = if(ncol(Vis$meta_nj) == 11) {
-            c(
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            )
-          } else {
-            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                   names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
-          },
-          selected = c(`Isolation Date` = "Isolation Date"),
-          width = "100%"
-        )
-      )
-    } else {
-      shinyjs::disabled(
-        selectInput(
-          "nj_fruit_variable",
-          "",
-          choices = c(
+      nj_fruit_variable <- selectInput(
+        "nj_fruit_variable",
+        "",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+        },
+        selected = c(`Isolation Date` = "Isolation Date"),
+        width = "100%"
+      )
+      
+      if(input$nj_tiles_show_1) {
+        nj_fruit_variable
+      } else {shinyjs::disabled(nj_fruit_variable)}
+    } else {
+      nj_fruit_variable <- selectInput(
+        "nj_fruit_variable",
+        "",
+        choices = c(
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
         )
       )
+      
+      if(input$nj_tiles_show_1) {
+        nj_fruit_variable
+      } else {shinyjs::disabled(nj_fruit_variable)}
     }
   })
   
   output$nj_fruit_variable2 <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      shinyjs::disabled(
-        selectInput(
-          "nj_fruit_variable_2",
-          "",
-          choices = if(ncol(Vis$meta_nj) == 11) {
-            c(
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            )
-          } else {
-            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                   names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
-          },
-          selected = c(`Isolation Date` = "Isolation Date"),
-          width = "100%"
-        )
-      )
-    } else {
-      shinyjs::disabled(
-        selectInput(
-          "nj_fruit_variable_2",
-          "",
-          choices = c(
+      nj_fruit_variable_2 <- selectInput(
+        "nj_fruit_variable_2",
+        "",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+        },
+        selected = c(`Isolation Date` = "Isolation Date"),
+        width = "100%"
+      )
+      if(input$nj_tiles_show_2) {
+        nj_fruit_variable_2
+      } else {shinyjs::disabled(nj_fruit_variable_2)}
+    } else {
+      nj_fruit_variable_2 <- selectInput(
+        "nj_fruit_variable_2",
+        "",
+        choices = c(
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
         )
       )
+      if(input$nj_tiles_show_2) {
+        nj_fruit_variable_2
+      } else {shinyjs::disabled(nj_fruit_variable_2)}
     }
   })
   
   output$nj_fruit_variable3 <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      shinyjs::disabled(
-        selectInput(
-          "nj_fruit_variable_3",
-          "",
-          choices = if(ncol(Vis$meta_nj) == 11) {
-            c(
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            )
-          } else {
-            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                   names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
-          },
-          selected = c(`Isolation Date` = "Isolation Date"),
-          width = "100%"
-        )
-      )
-    } else {
-      shinyjs::disabled(
-        selectInput(
-          "nj_fruit_variable_3",
-          "",
-          choices = c(
+      nj_fruit_variable_3 <- selectInput(
+        "nj_fruit_variable_3",
+        "",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+        },
+        selected = c(`Isolation Date` = "Isolation Date"),
+        width = "100%"
+      )
+      if(input$nj_tiles_show_3) {
+        nj_fruit_variable_3
+      } else {shinyjs::disabled(nj_fruit_variable_3)}
+    } else {
+      nj_fruit_variable_3 <- selectInput(
+        "nj_fruit_variable_3",
+        "",
+        choices = c(
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
         )
       )
+      if(input$nj_tiles_show_3) {
+        nj_fruit_variable_3
+      } else {shinyjs::disabled(nj_fruit_variable_3)}
     }
   })
   
   output$nj_fruit_variable4 <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      shinyjs::disabled(
-        selectInput(
-          "nj_fruit_variable_4",
-          "",
-          choices = if(ncol(Vis$meta_nj) == 11) {
-            c(
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            )
-          } else {
-            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                   names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
-          },
-          selected = c(`Isolation Date` = "Isolation Date"),
-          width = "100%"
-        )
-      )
-    } else {
-      shinyjs::disabled(
-        selectInput(
-          "nj_fruit_variable_4",
-          "",
-          choices = c(
+      nj_fruit_variable_4 <- selectInput(
+        "nj_fruit_variable_4",
+        "",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+        },
+        selected = c(`Isolation Date` = "Isolation Date"),
+        width = "100%"
+      )
+      if(input$nj_tiles_show_4) {
+        nj_fruit_variable_4
+      } else {shinyjs::disabled(nj_fruit_variable_4)}
+    } else {
+      nj_fruit_variable_4 <- selectInput(
+        "nj_fruit_variable_4",
+        "",
+        choices = c(
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
         )
       )
+      if(input$nj_tiles_show_4) {
+        nj_fruit_variable_4
+      } else {shinyjs::disabled(nj_fruit_variable_4)}
     }
   })
   
   output$nj_fruit_variable5 <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      shinyjs::disabled(
-        selectInput(
-          "nj_fruit_variable_5",
-          "",
-          choices = if(ncol(Vis$meta_nj) == 11) {
-            c(
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            )
-          } else {
-            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                   names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
-          },
-          selected = c(`Isolation Date` = "Isolation Date"),
-          width = "100%"
-        )
-      )
-    } else {
-      shinyjs::disabled(
-        selectInput(
-          "nj_fruit_variable_5",
-          "",
-          choices = c(
+      nj_fruit_variable_5 <- selectInput(
+        "nj_fruit_variable_5",
+        "",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+        },
+        selected = c(`Isolation Date` = "Isolation Date"),
+        width = "100%"
+      )
+      if(input$nj_tiles_show_5) {
+        nj_fruit_variable_5
+      } else {shinyjs::disabled(nj_fruit_variable_5)}
+    } else {
+      nj_fruit_variable_5 <- selectInput(
+        "nj_fruit_variable_5",
+        "",
+        choices = c(
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
         )
       )
+      if(input$nj_tiles_show_5) {
+        nj_fruit_variable_5
+      } else {shinyjs::disabled(nj_fruit_variable_5)}
     }
   })
   
   output$upgma_fruit_variable <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
-      shinyjs::disabled(
-        selectInput(
-          "upgma_fruit_variable",
-          "",
-          choices = if(ncol(Vis$meta_upgma) == 11) {
-            c(
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            )
-          } else {
-            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                   names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
-          },
-          selected = c(`Isolation Date` = "Isolation Date"),
-          width = "100%"
-        )
-      )
-    } else {
-      shinyjs::disabled(
-        selectInput(
-          "upgma_fruit_variable",
-          "",
-          choices = c(
+      upgma_fruit_variable <- selectInput(
+        "upgma_fruit_variable",
+        "",
+        choices = if(ncol(Vis$meta_upgma) == 11) {
+          c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+        },
+        selected = c(`Isolation Date` = "Isolation Date"),
+        width = "100%"
+      )
+      
+      if(input$upgma_tiles_show_1) {
+        upgma_fruit_variable
+      } else {shinyjs::disabled(upgma_fruit_variable)}
+    } else {
+      upgma_fruit_variable <- selectInput(
+        "upgma_fruit_variable",
+        "",
+        choices = c(
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
         )
       )
+      
+      if(input$upgma_tiles_show_1) {
+        upgma_fruit_variable
+      } else {shinyjs::disabled(upgma_fruit_variable)}
     }
   })
   
   output$upgma_fruit_variable2 <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
-      shinyjs::disabled(
-        selectInput(
-          "upgma_fruit_variable_2",
-          "",
-          choices = if(ncol(Vis$meta_upgma) == 11) {
-            c(
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            )
-          } else {
-            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                   names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
-          },
-          selected = c(`Isolation Date` = "Isolation Date"),
-          width = "100%"
-        )
-      )
-    } else {
-      shinyjs::disabled(
-        selectInput(
-          "upgma_fruit_variable_2",
-          "",
-          choices = c(
+      upgma_fruit_variable_2 <- selectInput(
+        "upgma_fruit_variable_2",
+        "",
+        choices = if(ncol(Vis$meta_upgma) == 11) {
+          c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+        },
+        selected = c(`Isolation Date` = "Isolation Date"),
+        width = "100%"
+      )
+      if(input$upgma_tiles_show_2) {
+        upgma_fruit_variable_2
+      } else {shinyjs::disabled(upgma_fruit_variable_2)}
+    } else {
+      upgma_fruit_variable_2 <- selectInput(
+        "upgma_fruit_variable_2",
+        "",
+        choices = c(
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
         )
       )
+      if(input$upgma_tiles_show_2) {
+        upgma_fruit_variable_2
+      } else {shinyjs::disabled(upgma_fruit_variable_2)}
     }
   })
   
   output$upgma_fruit_variable3 <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
-      shinyjs::disabled(selectInput(
+      upgma_fruit_variable_3 <- selectInput(
         "upgma_fruit_variable_3",
         "",
         choices = if(ncol(Vis$meta_upgma) == 11) {
@@ -17316,94 +17397,102 @@ server <- function(input, output, session) {
         },
         selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
-      ))
+      )
+      if(input$upgma_tiles_show_3) {
+        upgma_fruit_variable_3
+      } else {shinyjs::disabled(upgma_fruit_variable_3)}
     } else {
-      shinyjs::disabled(
-        selectInput(
-          "upgma_fruit_variable_3",
-          "",
-          choices = c(
-            `Isolation Date` = "Isolation Date",
-            Host = "Host",
-            Country = "Country",
-            City = "City"
-          )
+      upgma_fruit_variable_3 <- selectInput(
+        "upgma_fruit_variable_3",
+        "",
+        choices = c(
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
         )
       )
+      if(input$upgma_tiles_show_3) {
+        upgma_fruit_variable_3
+      } else {shinyjs::disabled(upgma_fruit_variable_3)}
     }
   })
   
   output$upgma_fruit_variable4 <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
-      shinyjs::disabled(
-        selectInput(
-          "upgma_fruit_variable_4",
-          "",
-          choices = if(ncol(Vis$meta_upgma) == 11) {
-            c(
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            )
-          } else {
-            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                   names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
-          },
-          selected = c(`Isolation Date` = "Isolation Date"),
-          width = "100%"
-        )
-      )
-    } else {
-      shinyjs::disabled(
-        selectInput(
-          "upgma_fruit_variable_4",
-          "",
-          choices = c(
+      upgma_fruit_variable_4 <- selectInput(
+        "upgma_fruit_variable_4",
+        "",
+        choices = if(ncol(Vis$meta_upgma) == 11) {
+          c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+        },
+        selected = c(`Isolation Date` = "Isolation Date"),
+        width = "100%"
+      )
+      if(input$upgma_tiles_show_4) {
+        upgma_fruit_variable_4
+      } else {shinyjs::disabled(upgma_fruit_variable_4)}
+    } else {
+      upgma_fruit_variable_4 <- selectInput(
+        "upgma_fruit_variable_4",
+        "",
+        choices = c(
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
         )
       )
+      if(input$upgma_tiles_show_4) {
+        upgma_fruit_variable_4
+      } else {shinyjs::disabled(upgma_fruit_variable_4)}
     }
   })
   
   output$upgma_fruit_variable5 <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
-      shinyjs::disabled(
-        selectInput(
-          "upgma_fruit_variable_5",
-          "",
-          choices = if(ncol(Vis$meta_upgma) == 11) {
-            c(
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            )
-          } else {
-            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                   names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
-          },
-          selected = c(`Isolation Date` = "Isolation Date"),
-          width = "100%"
-        )
-      )
-    } else {
-      shinyjs::disabled(
-        selectInput(
-          "upgma_fruit_variable_5",
-          "",
-          choices = c(
+      upgma_fruit_variable_5 <- selectInput(
+        "upgma_fruit_variable_5",
+        "",
+        choices = if(ncol(Vis$meta_upgma) == 11) {
+          c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
           )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+        },
+        selected = c(`Isolation Date` = "Isolation Date"),
+        width = "100%"
+      )
+      if(input$upgma_tiles_show_5) {
+        upgma_fruit_variable_5
+      } else {shinyjs::disabled(upgma_fruit_variable_5)}
+    } else {
+      upgma_fruit_variable_5 <- selectInput(
+        "upgma_fruit_variable_5",
+        "",
+        choices = c(
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
         )
       )
+      if(input$upgma_tiles_show_5) {
+        upgma_fruit_variable_5
+      } else {shinyjs::disabled(upgma_fruit_variable_5)}
     }
   })
   
@@ -17970,160 +18059,168 @@ server <- function(input, output, session) {
   # Tip color mapping 
   output$nj_tipcolor_mapping <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      shinyjs::disabled(
-        selectInput(
-          "nj_tipcolor_mapping",
-          "",
-          choices = if(ncol(Vis$meta_nj) == 11) {
-            c(
-              `Assembly Name` = "Assembly Name",
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            )
-          } else {
-            append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                   names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
-          },
-          selected = c(City = "City"),
-          width = "100%"
-        )
-      )
-    } else {
-      shinyjs::disabled(
-        selectInput(
-          "nj_tipcolor_mapping",
-          "",
-          choices = c(
+      nj_tipcolor_mapping <- selectInput(
+        "nj_tipcolor_mapping",
+        "",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
             `Assembly Name` = "Assembly Name",
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
-          ),
-          selected = c(City = "City")
-        )
+          )
+        } else {
+          append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+        },
+        selected = c(City = "City"),
+        width = "100%"
       )
+      if(input$nj_tipcolor_mapping_show) {
+        nj_tipcolor_mapping
+      } else {shinyjs::disabled(nj_tipcolor_mapping)}
+    } else {
+      nj_tipcolor_mapping <- selectInput(
+        "nj_tipcolor_mapping",
+        "",
+        choices = c(
+          `Assembly Name` = "Assembly Name",
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        ),
+        selected = c(City = "City")
+      )
+      if(input$nj_tipcolor_mapping_show) {
+        nj_tipcolor_mapping
+      } else {shinyjs::disabled(nj_tipcolor_mapping)}
     }
   })
   
   output$upgma_tipcolor_mapping <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
-      shinyjs::disabled(
-        selectInput(
-          "upgma_tipcolor_mapping",
-          "",
-          choices = if(ncol(Vis$meta_upgma) == 11) {
-            c(
-              `Assembly Name` = "Assembly Name",
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            )
-          } else {
-            append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                   names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
-          },
-          selected = c(City = "City"),
-          width = "100%"
-        )
-      )
-    } else {
-      shinyjs::disabled(
-        selectInput(
-          "upgma_tipcolor_mapping",
-          "",
-          choices = c(
+      upgma_tipcolor_mapping <- selectInput(
+        "upgma_tipcolor_mapping",
+        "",
+        choices = if(ncol(Vis$meta_upgma) == 11) {
+          c(
             `Assembly Name` = "Assembly Name",
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
-          ),
-          selected = c(City = "City")
-        )
+          )
+        } else {
+          append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+        },
+        selected = c(City = "City"),
+        width = "100%"
       )
+      if(input$upgma_tipcolor_mapping_show) {
+        upgma_tipcolor_mapping
+      } else {shinyjs::disabled(upgma_tipcolor_mapping)}
+    } else {
+      upgma_tipcolor_mapping <- selectInput(
+        "upgma_tipcolor_mapping",
+        "",
+        choices = c(
+          `Assembly Name` = "Assembly Name",
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        ),
+        selected = c(City = "City")
+      )
+      if(input$upgma_tipcolor_mapping_show) {
+        upgma_tipcolor_mapping
+      } else {shinyjs::disabled(upgma_tipcolor_mapping)}
     }
   })
   
   # Tip shape Mapping 
   output$nj_tipshape_mapping <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      shinyjs::disabled(
-        selectInput(
-          "nj_tipshape_mapping",
-          "",
-          choices = if(ncol(Vis$meta_nj) == 11) {
-            c(
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            )
-          } else {
-            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                   names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
-          },
-          selected = c("Host" = "Host"),
-          width = "100%"
-        )
-      )
-    } else {
-      shinyjs::disabled(
-        selectInput(
-          "nj_tipshape_mapping",
-          "",
-          choices = c(
+      nj_tipshape_mapping <- selectInput(
+        "nj_tipshape_mapping",
+        "",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
-          ),
-          selected = c("Host" = "Host"),
-          width = "100%"
-        )
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+        },
+        selected = c("Host" = "Host"),
+        width = "100%"
       )
+      if(input$nj_tipshape_mapping_show) {
+        nj_tipshape_mapping
+      } else {shinyjs::disabled(nj_tipshape_mapping)}
+    } else {
+      nj_tipshape_mapping <- selectInput(
+        "nj_tipshape_mapping",
+        "",
+        choices = c(
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        ),
+        selected = c("Host" = "Host"),
+        width = "100%"
+      )
+      if(input$nj_tipshape_mapping_show) {
+        nj_tipshape_mapping
+      } else {shinyjs::disabled(nj_tipshape_mapping)}
     }
   })
   
   output$upgma_tipshape_mapping <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
-      shinyjs::disabled(
-        selectInput(
-          "upgma_tipshape_mapping",
-          "",
-          choices = if(ncol(Vis$meta_upgma) == 11) {
-            c(
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            )
-          } else {
-            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                   names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
-          },
-          selected = c("Host" = "Host"),
-          width = "100%"
-        )
-      )
-    } else {
-      shinyjs::disabled(
-        selectInput(
-          "upgma_tipshape_mapping",
-          "",
-          choices = c(
+      upgma_tipshape_mapping <- selectInput(
+        "upgma_tipshape_mapping",
+        "",
+        choices = if(ncol(Vis$meta_upgma) == 11) {
+          c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
-          ),
-          selected = c("Host" = "Host"),
-          width = "100%"
-        )
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+        },
+        selected = c("Host" = "Host"),
+        width = "100%"
       )
+      if(input$upgma_tipshape_mapping_show) {
+        upgma_tipshape_mapping
+      } else {shinyjs::disabled(upgma_tipshape_mapping)}
+    } else {
+      upgma_tipshape_mapping <- selectInput(
+        "upgma_tipshape_mapping",
+        "",
+        choices = c(
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        ),
+        selected = c("Host" = "Host"),
+        width = "100%"
+      )
+      if(input$upgma_tipshape_mapping_show) {
+        upgma_tipshape_mapping
+      } else {shinyjs::disabled(upgma_tipshape_mapping)}
     }
   })
   
@@ -18201,79 +18298,83 @@ server <- function(input, output, session) {
   # Color mapping 
   output$nj_color_mapping <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      shinyjs::disabled(
-        selectInput(
-          "nj_color_mapping",
-          "",
-          choices = if(ncol(Vis$meta_nj) == 11) {
-            c(
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            )
-          } else {
-            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                   names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
-          },
-          selected = c(Country = "Country"),
-          width = "100%"
-        )
-      )
-    } else {
-      shinyjs::disabled(
-        selectInput(
-          "nj_color_mapping",
-          "",
-          choices = c(
+      nj_color_mapping <- selectInput(
+        "nj_color_mapping",
+        "",
+        choices = if(ncol(Vis$meta_nj) == 11) {
+          c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
-          ),
-          selected = c(Country = "Country"),
-          width = "100%"
-        )
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+        },
+        selected = c(Country = "Country"),
+        width = "100%"
       )
+      if(input$nj_mapping_show) {
+        nj_color_mapping
+      } else {shinyjs::disabled(nj_color_mapping)}
+    } else {
+      nj_color_mapping <- selectInput(
+        "nj_color_mapping",
+        "",
+        choices = c(
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        ),
+        selected = c(Country = "Country"),
+        width = "100%"
+      )
+      if(input$nj_mapping_show) {
+        nj_color_mapping
+      } else {shinyjs::disabled(nj_color_mapping)}
     }
   })
   
   output$upgma_color_mapping <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
-      shinyjs::disabled(
-        selectInput(
-          "upgma_color_mapping",
-          "",
-          choices = if(ncol(Vis$meta_upgma) == 11) {
-            c(
-              `Isolation Date` = "Isolation Date",
-              Host = "Host",
-              Country = "Country",
-              City = "City"
-            )
-          } else {
-            append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                   names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
-          },
-          selected = c(Country = "Country"),
-          width = "100%"
-        )
-      )
-    } else {
-      shinyjs::disabled(
-        selectInput(
-          "upgma_color_mapping",
-          "",
-          choices = c(
+      upgma_color_mapping <- selectInput(
+        "upgma_color_mapping",
+        "",
+        choices = if(ncol(Vis$meta_upgma) == 11) {
+          c(
             `Isolation Date` = "Isolation Date",
             Host = "Host",
             Country = "Country",
             City = "City"
-          ),
-          selected = c(Country = "Country"),
-          width = "100%"
-        )
+          )
+        } else {
+          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
+                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+        },
+        selected = c(Country = "Country"),
+        width = "100%"
       )
+      if(input$upgma_mapping_show) {
+        upgma_color_mapping
+      } else {shinyjs::disabled(upgma_color_mapping)}
+    } else {
+      upgma_color_mapping <- selectInput(
+        "upgma_color_mapping",
+        "",
+        choices = c(
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        ),
+        selected = c(Country = "Country"),
+        width = "100%"
+      )
+      if(input$upgma_mapping_show) {
+        upgma_color_mapping
+      } else {shinyjs::disabled(upgma_color_mapping)}
     }
   })
   
@@ -19078,20 +19179,22 @@ server <- function(input, output, session) {
   
   # Heatmap scale
   nj_heatmap_scale <- reactive({
-    if(!is.null(input$nj_heatmap_scale) & !is.null(input$nj_heatmap_div_mid)) {
+    if(!is.null(input$nj_heatmap_scale)) {
       if(input$nj_heatmap_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-        if(input$nj_heatmap_div_mid == "Zero") {
-          midpoint <- 0
-        } else if(input$nj_heatmap_div_mid == "Mean") {
-          midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_heatmap_select]), na.rm = TRUE)
-        } else {
-          midpoint <- median(as.matrix(Vis$meta_nj[input$nj_heatmap_select]), na.rm = TRUE)
+        if(!is.null(input$nj_heatmap_div_mid)) {
+          if(input$nj_heatmap_div_mid == "Zero") {
+            midpoint <- 0
+          } else if(input$nj_heatmap_div_mid == "Mean") {
+            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_heatmap_select]), na.rm = TRUE)
+          } else {
+            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_heatmap_select]), na.rm = TRUE)
+          }
+          scale_fill_gradient2(low = brewer.pal(3, input$nj_heatmap_scale)[1],
+                               mid = brewer.pal(3, input$nj_heatmap_scale)[2],
+                               high = brewer.pal(3, input$nj_heatmap_scale)[3],
+                               midpoint = midpoint,
+                               name = input$nj_heatmap_title)
         }
-        scale_fill_gradient2(low = brewer.pal(3, input$nj_heatmap_scale)[1],
-                             mid = brewer.pal(3, input$nj_heatmap_scale)[2],
-                             high = brewer.pal(3, input$nj_heatmap_scale)[3],
-                             midpoint = midpoint,
-                             name = input$nj_heatmap_title)
       } else {
         if(input$nj_heatmap_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
           if(class(unlist(Vis$meta_nj[input$nj_heatmap_select])) == "numeric") {
@@ -19157,19 +19260,21 @@ server <- function(input, output, session) {
   
   # Tippoint Scale
   nj_tippoint_scale <- reactive({
-    if(!is.null(input$nj_tippoint_scale) & !is.null(input$nj_tipcolor_mapping_div_mid)) {
+    if(!is.null(input$nj_tippoint_scale)) {
       if(input$nj_tippoint_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-        if(input$nj_tipcolor_mapping_div_mid == "Zero") {
-          midpoint <- 0
-        } else if(input$nj_tipcolor_mapping_div_mid == "Mean") {
-          midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_tipcolor_mapping]), na.rm = TRUE)
-        } else {
-          midpoint <- median(as.matrix(Vis$meta_nj[input$nj_tipcolor_mapping]), na.rm = TRUE)
+        if(!is.null(input$nj_tipcolor_mapping_div_mid)) {
+          if(input$nj_tipcolor_mapping_div_mid == "Zero") {
+            midpoint <- 0
+          } else if(input$nj_tipcolor_mapping_div_mid == "Mean") {
+            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_tipcolor_mapping]), na.rm = TRUE)
+          } else {
+            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_tipcolor_mapping]), na.rm = TRUE)
+          }
+          scale_color_gradient2(low = brewer.pal(3, input$nj_tippoint_scale)[1],
+                                mid = brewer.pal(3, input$nj_tippoint_scale)[2],
+                                high = brewer.pal(3, input$nj_tippoint_scale)[3],
+                                midpoint = midpoint)
         }
-        scale_color_gradient2(low = brewer.pal(3, input$nj_tippoint_scale)[1],
-                              mid = brewer.pal(3, input$nj_tippoint_scale)[2],
-                              high = brewer.pal(3, input$nj_tippoint_scale)[3],
-                              midpoint = midpoint)
       } else {
         if(input$nj_tippoint_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
           if(class(unlist(Vis$meta_nj[input$nj_tipcolor_mapping])) == "numeric") {
@@ -19218,19 +19323,21 @@ server <- function(input, output, session) {
   
   # Tiplab Scale
   nj_tiplab_scale <- reactive({
-    if(!is.null(input$nj_tiplab_scale) & !is.null(input$nj_color_mapping_div_mid)) {
+    if(!is.null(input$nj_tiplab_scale)) {
       if(input$nj_tiplab_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-        if(input$nj_color_mapping_div_mid == "Zero") {
-          midpoint <- 0
-        } else if(input$nj_color_mapping_div_mid == "Mean") {
-          midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_color_mapping]), na.rm = TRUE)
-        } else {
-          midpoint <- median(as.matrix(Vis$meta_nj[input$nj_color_mapping]), na.rm = TRUE)
+        if(!is.null(input$nj_color_mapping_div_mid)) {
+          if(input$nj_color_mapping_div_mid == "Zero") {
+            midpoint <- 0
+          } else if(input$nj_color_mapping_div_mid == "Mean") {
+            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_color_mapping]), na.rm = TRUE)
+          } else {
+            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_color_mapping]), na.rm = TRUE)
+          }
+          scale_color_gradient2(low = brewer.pal(3, input$nj_tiplab_scale)[1],
+                                mid = brewer.pal(3, input$nj_tiplab_scale)[2],
+                                high = brewer.pal(3, input$nj_tiplab_scale)[3],
+                                midpoint = midpoint) 
         }
-        scale_color_gradient2(low = brewer.pal(3, input$nj_tiplab_scale)[1],
-                              mid = brewer.pal(3, input$nj_tiplab_scale)[2],
-                              high = brewer.pal(3, input$nj_tiplab_scale)[3],
-                              midpoint = midpoint)
       } else {
         if(input$nj_tiplab_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
           if(class(unlist(Vis$meta_nj[input$nj_color_mapping])) == "numeric") {
@@ -19321,21 +19428,22 @@ server <- function(input, output, session) {
   nj_gradient <- reactive({
     if(!is.null(input$nj_tiles_show_1) & 
        !is.null(input$nj_fruit_variable) & 
-       !is.null(input$nj_tiles_scale_1) & 
-       !is.null(input$nj_tiles_mapping_div_mid_1)) {
+       !is.null(input$nj_tiles_scale_1)) {
       if(input$nj_tiles_show_1 == TRUE) {
         if(input$nj_tiles_scale_1 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-          if(input$nj_tiles_mapping_div_mid_1 == "Zero") {
-            midpoint <- 0
-          } else if(input$nj_tiles_mapping_div_mid_1 == "Mean") {
-            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable]), na.rm = TRUE)
-          } else {
-            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable]), na.rm = TRUE)
+          if(!is.null(input$nj_tiles_mapping_div_mid_1)) {
+            if(input$nj_tiles_mapping_div_mid_1 == "Zero") {
+              midpoint <- 0
+            } else if(input$nj_tiles_mapping_div_mid_1 == "Mean") {
+              midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable]), na.rm = TRUE)
+            } else {
+              midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable]), na.rm = TRUE)
+            }
+            scale_fill_gradient2(low = brewer.pal(3, input$nj_tiles_scale_1)[1],
+                                 mid = brewer.pal(3, input$nj_tiles_scale_1)[2],
+                                 high = brewer.pal(3, input$nj_tiles_scale_1)[3],
+                                 midpoint = midpoint)
           }
-          scale_fill_gradient2(low = brewer.pal(3, input$nj_tiles_scale_1)[1],
-                               mid = brewer.pal(3, input$nj_tiles_scale_1)[2],
-                               high = brewer.pal(3, input$nj_tiles_scale_1)[3],
-                               midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_1 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
             if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
@@ -19386,21 +19494,22 @@ server <- function(input, output, session) {
   nj_gradient2 <- reactive({
     if(!is.null(input$nj_tiles_show_2) & 
        !is.null(input$nj_fruit_variable_2) & 
-       !is.null(input$nj_tiles_scale_2) & 
-       !is.null(input$nj_tiles_mapping_div_mid_2)) {
+       !is.null(input$nj_tiles_scale_2)) {
       if(input$nj_tiles_show_2 == TRUE) {
         if(input$nj_tiles_scale_2 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-          if(input$nj_tiles_mapping_div_mid_2 == "Zero") {
-            midpoint <- 0
-          } else if(input$nj_tiles_mapping_div_mid_2 == "Mean") {
-            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_2]), na.rm = TRUE)
-          } else {
-            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_2]), na.rm = TRUE)
+          if(!is.null(input$nj_tiles_mapping_div_mid_2)) {
+            if(input$nj_tiles_mapping_div_mid_2 == "Zero") {
+              midpoint <- 0
+            } else if(input$nj_tiles_mapping_div_mid_2 == "Mean") {
+              midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_2]), na.rm = TRUE)
+            } else {
+              midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_2]), na.rm = TRUE)
+            }
+            scale_fill_gradient2(low = brewer.pal(3, input$nj_tiles_scale_2)[1],
+                                 mid = brewer.pal(3, input$nj_tiles_scale_2)[2],
+                                 high = brewer.pal(3, input$nj_tiles_scale_2)[3],
+                                 midpoint = midpoint)
           }
-          scale_fill_gradient2(low = brewer.pal(3, input$nj_tiles_scale_2)[1],
-                               mid = brewer.pal(3, input$nj_tiles_scale_2)[2],
-                               high = brewer.pal(3, input$nj_tiles_scale_2)[3],
-                               midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_2 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
             if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_2])) == "numeric") {
@@ -19451,21 +19560,22 @@ server <- function(input, output, session) {
   nj_gradient3 <- reactive({
     if(!is.null(input$nj_tiles_show_3) & 
        !is.null(input$nj_fruit_variable_3) & 
-       !is.null(input$nj_tiles_scale_3 & 
-                !is.null(input$nj_tiles_mapping_div_mid_3))) {
+       !is.null(input$nj_tiles_scale_3)) {
       if(input$nj_tiles_show_3 == TRUE) {
         if(input$nj_tiles_scale_3 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-          if(input$nj_tiles_mapping_div_mid_3 == "Zero") {
-            midpoint <- 0
-          } else if(input$nj_tiles_mapping_div_mid_3 == "Mean") {
-            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_3]), na.rm = TRUE)
-          } else {
-            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_3]), na.rm = TRUE)
+          if(!is.null(input$nj_tiles_mapping_div_mid_3)) {
+            if(input$nj_tiles_mapping_div_mid_3 == "Zero") {
+              midpoint <- 0
+            } else if(input$nj_tiles_mapping_div_mid_3 == "Mean") {
+              midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_3]), na.rm = TRUE)
+            } else {
+              midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_3]), na.rm = TRUE)
+            }
+            scale_fill_gradient3(low = brewer.pal(3, input$nj_tiles_scale_3)[1],
+                                 mid = brewer.pal(3, input$nj_tiles_scale_3)[2],
+                                 high = brewer.pal(3, input$nj_tiles_scale_3)[3],
+                                 midpoint = midpoint)
           }
-          scale_fill_gradient3(low = brewer.pal(3, input$nj_tiles_scale_3)[1],
-                               mid = brewer.pal(3, input$nj_tiles_scale_3)[2],
-                               high = brewer.pal(3, input$nj_tiles_scale_3)[3],
-                               midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_3 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
             if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_3])) == "numeric") {
@@ -19516,21 +19626,22 @@ server <- function(input, output, session) {
   nj_gradient4 <- reactive({
     if(!is.null(input$nj_tiles_show_4) & 
        !is.null(input$nj_fruit_variable_4) & 
-       !is.null(input$nj_tiles_scale_4) & 
-       !is.null(input$nj_tiles_mapping_div_mid_4)) {
+       !is.null(input$nj_tiles_scale_4)) {
       if(input$nj_tiles_show_4 == TRUE) {
         if(input$nj_tiles_scale_4 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-          if(input$nj_tiles_mapping_div_mid_4 == "Zero") {
-            midpoint <- 0
-          } else if(input$nj_tiles_mapping_div_mid_4 == "Mean") {
-            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_4]), na.rm = TRUE)
-          } else {
-            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_4]), na.rm = TRUE)
+          if(!is.null(input$nj_tiles_mapping_div_mid_4)) {
+            if(input$nj_tiles_mapping_div_mid_4 == "Zero") {
+              midpoint <- 0
+            } else if(input$nj_tiles_mapping_div_mid_4 == "Mean") {
+              midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_4]), na.rm = TRUE)
+            } else {
+              midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_4]), na.rm = TRUE)
+            }
+            scale_fill_gradient4(low = brewer.pal(3, input$nj_tiles_scale_4)[1],
+                                 mid = brewer.pal(3, input$nj_tiles_scale_4)[2],
+                                 high = brewer.pal(3, input$nj_tiles_scale_4)[3],
+                                 midpoint = midpoint)
           }
-          scale_fill_gradient4(low = brewer.pal(3, input$nj_tiles_scale_4)[1],
-                               mid = brewer.pal(3, input$nj_tiles_scale_4)[2],
-                               high = brewer.pal(3, input$nj_tiles_scale_4)[3],
-                               midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_4 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
             if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
@@ -19581,21 +19692,22 @@ server <- function(input, output, session) {
   nj_gradient5 <- reactive({
     if(!is.null(input$nj_tiles_show_5) & 
        !is.null(input$nj_fruit_variable_5) & 
-       !is.null(input$nj_tiles_scale_5) & 
-       !is.null(input$nj_tiles_mapping_div_mid_5)) {
+       !is.null(input$nj_tiles_scale_5)) {
       if(input$nj_tiles_show_5 == TRUE) {
         if(input$nj_tiles_scale_5 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-          if(input$nj_tiles_mapping_div_mid_5 == "Zero") {
-            midpoint <- 0
-          } else if(input$nj_tiles_mapping_div_mid_5 == "Mean") {
-            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_5]), na.rm = TRUE)
-          } else {
-            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_5]), na.rm = TRUE)
+          if(!is.null(input$nj_tiles_mapping_div_mid_5)) {
+            if(input$nj_tiles_mapping_div_mid_5 == "Zero") {
+              midpoint <- 0
+            } else if(input$nj_tiles_mapping_div_mid_5 == "Mean") {
+              midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_5]), na.rm = TRUE)
+            } else {
+              midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_5]), na.rm = TRUE)
+            }
+            scale_fill_gradient5(low = brewer.pal(3, input$nj_tiles_scale_5)[1],
+                                 mid = brewer.pal(3, input$nj_tiles_scale_5)[2],
+                                 high = brewer.pal(3, input$nj_tiles_scale_5)[3],
+                                 midpoint = midpoint)
           }
-          scale_fill_gradient5(low = brewer.pal(3, input$nj_tiles_scale_5)[1],
-                               mid = brewer.pal(3, input$nj_tiles_scale_5)[2],
-                               high = brewer.pal(3, input$nj_tiles_scale_5)[3],
-                               midpoint = midpoint)
         } else {
           if(input$nj_tiles_scale_5 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
             if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_5])) == "numeric") {
@@ -20084,7 +20196,7 @@ server <- function(input, output, session) {
     }
   })
   
-  # NJ circular or not
+  # NJ circularity
   nj_tiplab <- reactive({
     if(input$nj_tiplab_show == TRUE) {
       if(input$nj_layout == "circular") {
@@ -20449,20 +20561,22 @@ server <- function(input, output, session) {
   
   # Heatmap scale
   upgma_heatmap_scale <- reactive({
-    if(!is.null(input$upgma_heatmap_scale) & !is.null(input$upgma_heatmap_div_mid)) {
+    if(!is.null(input$upgma_heatmap_scale)) {
       if(input$upgma_heatmap_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-        if(input$upgma_heatmap_div_mid == "Zero") {
-          midpoint <- 0
-        } else if(input$upgma_heatmap_div_mid == "Mean") {
-          midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_heatmap_select]), na.rm = TRUE)
-        } else {
-          midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_heatmap_select]), na.rm = TRUE)
+        if(!is.null(input$upgma_heatmap_div_mid)) {
+          if(input$upgma_heatmap_div_mid == "Zero") {
+            midpoint <- 0
+          } else if(input$upgma_heatmap_div_mid == "Mean") {
+            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_heatmap_select]), na.rm = TRUE)
+          } else {
+            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_heatmap_select]), na.rm = TRUE)
+          }
+          scale_fill_gradient2(low = brewer.pal(3, input$upgma_heatmap_scale)[1],
+                               mid = brewer.pal(3, input$upgma_heatmap_scale)[2],
+                               high = brewer.pal(3, input$upgma_heatmap_scale)[3],
+                               midpoint = midpoint,
+                               name = input$upgma_heatmap_title)
         }
-        scale_fill_gradient2(low = brewer.pal(3, input$upgma_heatmap_scale)[1],
-                             mid = brewer.pal(3, input$upgma_heatmap_scale)[2],
-                             high = brewer.pal(3, input$upgma_heatmap_scale)[3],
-                             midpoint = midpoint,
-                             name = input$upgma_heatmap_title)
       } else {
         if(input$upgma_heatmap_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
           if(class(unlist(Vis$meta_upgma[input$upgma_heatmap_select])) == "numeric") {
@@ -20528,19 +20642,21 @@ server <- function(input, output, session) {
   
   # Tippoint Scale
   upgma_tippoint_scale <- reactive({
-    if(!is.null(input$upgma_tippoint_scale) & !is.null(input$upgma_tipcolor_mapping_div_mid)) {
+    if(!is.null(input$upgma_tippoint_scale)) {
       if(input$upgma_tippoint_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-        if(input$upgma_tipcolor_mapping_div_mid == "Zero") {
-          midpoint <- 0
-        } else if(input$upgma_tipcolor_mapping_div_mid == "Mean") {
-          midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_tipcolor_mapping]), na.rm = TRUE)
-        } else {
-          midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_tipcolor_mapping]), na.rm = TRUE)
+        if(!is.null(input$upgma_tipcolor_mapping_div_mid)) {
+          if(input$upgma_tipcolor_mapping_div_mid == "Zero") {
+            midpoint <- 0
+          } else if(input$upgma_tipcolor_mapping_div_mid == "Mean") {
+            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_tipcolor_mapping]), na.rm = TRUE)
+          } else {
+            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_tipcolor_mapping]), na.rm = TRUE)
+          }
+          scale_color_gradient2(low = brewer.pal(3, input$upgma_tippoint_scale)[1],
+                                mid = brewer.pal(3, input$upgma_tippoint_scale)[2],
+                                high = brewer.pal(3, input$upgma_tippoint_scale)[3],
+                                midpoint = midpoint) 
         }
-        scale_color_gradient2(low = brewer.pal(3, input$upgma_tippoint_scale)[1],
-                              mid = brewer.pal(3, input$upgma_tippoint_scale)[2],
-                              high = brewer.pal(3, input$upgma_tippoint_scale)[3],
-                              midpoint = midpoint)
       } else {
         if(input$upgma_tippoint_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
           if(class(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping])) == "numeric") {
@@ -20589,19 +20705,21 @@ server <- function(input, output, session) {
   
   # Tiplab Scale
   upgma_tiplab_scale <- reactive({
-    if(!is.null(input$upgma_tiplab_scale) & !is.null(input$upgma_color_mapping_div_mid)) {
+    if(!is.null(input$upgma_tiplab_scale)) {
       if(input$upgma_tiplab_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-        if(input$upgma_color_mapping_div_mid == "Zero") {
-          midpoint <- 0
-        } else if(input$upgma_color_mapping_div_mid == "Mean") {
-          midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_color_mapping]), na.rm = TRUE)
-        } else {
-          midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_color_mapping]), na.rm = TRUE)
+        if(!is.null(input$upgma_color_mapping_div_mid)) {
+          if(input$upgma_color_mapping_div_mid == "Zero") {
+            midpoint <- 0
+          } else if(input$upgma_color_mapping_div_mid == "Mean") {
+            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_color_mapping]), na.rm = TRUE)
+          } else {
+            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_color_mapping]), na.rm = TRUE)
+          }
+          scale_color_gradient2(low = brewer.pal(3, input$upgma_tiplab_scale)[1],
+                                mid = brewer.pal(3, input$upgma_tiplab_scale)[2],
+                                high = brewer.pal(3, input$upgma_tiplab_scale)[3],
+                                midpoint = midpoint)
         }
-        scale_color_gradient2(low = brewer.pal(3, input$upgma_tiplab_scale)[1],
-                              mid = brewer.pal(3, input$upgma_tiplab_scale)[2],
-                              high = brewer.pal(3, input$upgma_tiplab_scale)[3],
-                              midpoint = midpoint)
       } else {
         if(input$upgma_tiplab_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
           if(class(unlist(Vis$meta_upgma[input$upgma_color_mapping])) == "numeric") {
@@ -20691,21 +20809,22 @@ server <- function(input, output, session) {
   upgma_gradient <- reactive({
     if(!is.null(input$upgma_tiles_show_1) & 
        !is.null(input$upgma_fruit_variable) & 
-       !is.null(input$upgma_tiles_scale_1) &
-       !is.null(input$upgma_tiles_mapping_div_mid_1)) {
+       !is.null(input$upgma_tiles_scale_1)) {
       if(input$upgma_tiles_show_1 == TRUE) {
         if(input$upgma_tiles_scale_1 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-          if(input$upgma_tiles_mapping_div_mid_1 == "Zero") {
-            midpoint <- 0
-          } else if(input$upgma_tiles_mapping_div_mid_1 == "Mean") {
-            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable]), na.rm = TRUE)
-          } else {
-            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable]), na.rm = TRUE)
-          }
-          scale_fill_gradient2(low = brewer.pal(3, input$upgma_tiles_scale_1)[1],
-                               mid = brewer.pal(3, input$upgma_tiles_scale_1)[2],
-                               high = brewer.pal(3, input$upgma_tiles_scale_1)[3],
-                               midpoint = midpoint)
+          if(!is.null(input$upgma_tiles_mapping_div_mid_1)) {
+            if(input$upgma_tiles_mapping_div_mid_1 == "Zero") {
+              midpoint <- 0
+            } else if(input$upgma_tiles_mapping_div_mid_1 == "Mean") {
+              midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable]), na.rm = TRUE)
+            } else {
+              midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable]), na.rm = TRUE)
+            }
+            scale_fill_gradient2(low = brewer.pal(3, input$upgma_tiles_scale_1)[1],
+                                 mid = brewer.pal(3, input$upgma_tiles_scale_1)[2],
+                                 high = brewer.pal(3, input$upgma_tiles_scale_1)[3],
+                                 midpoint = midpoint)
+          }  
         } else {
           if(input$upgma_tiles_scale_1 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
             if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable])) == "numeric") {
@@ -20756,21 +20875,22 @@ server <- function(input, output, session) {
   upgma_gradient2 <- reactive({
     if(!is.null(input$upgma_tiles_show_2) & 
        !is.null(input$upgma_fruit_variable_2) & 
-       !is.null(input$upgma_tiles_scale_2) &
-       !is.null(input$upgma_tiles_mapping_div_mid_2)) {
+       !is.null(input$upgma_tiles_scale_2)) {
       if(input$upgma_tiles_show_2 == TRUE) {
         if(input$upgma_tiles_scale_2 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-          if(input$upgma_tiles_mapping_div_mid_2 == "Zero") {
-            midpoint <- 0
-          } else if(input$upgma_tiles_mapping_div_mid_2 == "Mean") {
-            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_2]), na.rm = TRUE)
-          } else {
-            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_2]), na.rm = TRUE)
+          if(!is.null(input$upgma_tiles_mapping_div_mid_2)) {
+            if(input$upgma_tiles_mapping_div_mid_2 == "Zero") {
+              midpoint <- 0
+            } else if(input$upgma_tiles_mapping_div_mid_2 == "Mean") {
+              midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_2]), na.rm = TRUE)
+            } else {
+              midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_2]), na.rm = TRUE)
+            }
+            scale_fill_gradient2(low = brewer.pal(3, input$upgma_tiles_scale_2)[1],
+                                 mid = brewer.pal(3, input$upgma_tiles_scale_2)[2],
+                                 high = brewer.pal(3, input$upgma_tiles_scale_2)[3],
+                                 midpoint = midpoint)
           }
-          scale_fill_gradient2(low = brewer.pal(3, input$upgma_tiles_scale_2)[1],
-                               mid = brewer.pal(3, input$upgma_tiles_scale_2)[2],
-                               high = brewer.pal(3, input$upgma_tiles_scale_2)[3],
-                               midpoint = midpoint)
         } else {
           if(input$upgma_tiles_scale_2 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
             if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2])) == "numeric") {
@@ -20821,21 +20941,22 @@ server <- function(input, output, session) {
   upgma_gradient3 <- reactive({
     if(!is.null(input$upgma_tiles_show_3) & 
        !is.null(input$upgma_fruit_variable_3) & 
-       !is.null(input$upgma_tiles_scale_3) &
-       !is.null(input$upgma_tiles_mapping_div_mid_3)) {
+       !is.null(input$upgma_tiles_scale_3)) {
       if(input$upgma_tiles_show_3 == TRUE) {
         if(input$upgma_tiles_scale_3 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-          if(input$upgma_tiles_mapping_div_mid_3 == "Zero") {
-            midpoint <- 0
-          } else if(input$upgma_tiles_mapping_div_mid_3 == "Mean") {
-            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_3]), na.rm = TRUE)
-          } else {
-            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_3]), na.rm = TRUE)
+          if(!is.null(input$upgma_tiles_mapping_div_mid_3)) {
+            if(input$upgma_tiles_mapping_div_mid_3 == "Zero") {
+              midpoint <- 0
+            } else if(input$upgma_tiles_mapping_div_mid_3 == "Mean") {
+              midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_3]), na.rm = TRUE)
+            } else {
+              midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_3]), na.rm = TRUE)
+            }
+            scale_fill_gradient3(low = brewer.pal(3, input$upgma_tiles_scale_3)[1],
+                                 mid = brewer.pal(3, input$upgma_tiles_scale_3)[2],
+                                 high = brewer.pal(3, input$upgma_tiles_scale_3)[3],
+                                 midpoint = midpoint)
           }
-          scale_fill_gradient3(low = brewer.pal(3, input$upgma_tiles_scale_3)[1],
-                               mid = brewer.pal(3, input$upgma_tiles_scale_3)[2],
-                               high = brewer.pal(3, input$upgma_tiles_scale_3)[3],
-                               midpoint = midpoint)
         } else {
           if(input$upgma_tiles_scale_3 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
             if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3])) == "numeric") {
@@ -20886,21 +21007,22 @@ server <- function(input, output, session) {
   upgma_gradient4 <- reactive({
     if(!is.null(input$upgma_tiles_show_4) & 
        !is.null(input$upgma_fruit_variable_4) & 
-       !is.null(input$upgma_tiles_scale_4) &
-       !is.null(input$upgma_tiles_mapping_div_mid_4)) {
+       !is.null(input$upgma_tiles_scale_4)) {
       if(input$upgma_tiles_show_4 == TRUE) {
         if(input$upgma_tiles_scale_4 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-          if(input$upgma_tiles_mapping_div_mid_4 == "Zero") {
+          if(!is.null(input$upgma_tiles_mapping_div_mid_4)) {
+            if(input$upgma_tiles_mapping_div_mid_4 == "Zero") {
             midpoint <- 0
-          } else if(input$upgma_tiles_mapping_div_mid_4 == "Mean") {
-            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_4]), na.rm = TRUE)
-          } else {
-            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_4]), na.rm = TRUE)
+            } else if(input$upgma_tiles_mapping_div_mid_4 == "Mean") {
+              midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_4]), na.rm = TRUE)
+            } else {
+              midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_4]), na.rm = TRUE)
+            }
+            scale_fill_gradient4(low = brewer.pal(3, input$upgma_tiles_scale_4)[1],
+                                 mid = brewer.pal(3, input$upgma_tiles_scale_4)[2],
+                                 high = brewer.pal(3, input$upgma_tiles_scale_4)[3],
+                                 midpoint = midpoint)
           }
-          scale_fill_gradient4(low = brewer.pal(3, input$upgma_tiles_scale_4)[1],
-                               mid = brewer.pal(3, input$upgma_tiles_scale_4)[2],
-                               high = brewer.pal(3, input$upgma_tiles_scale_4)[3],
-                               midpoint = midpoint)
         } else {
           if(input$upgma_tiles_scale_4 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
             if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable])) == "numeric") {
@@ -20951,21 +21073,22 @@ server <- function(input, output, session) {
   upgma_gradient5 <- reactive({
     if(!is.null(input$upgma_tiles_show_5) & 
        !is.null(input$upgma_fruit_variable_5) & 
-       !is.null(input$upgma_tiles_scale_5) &
-       !is.null(input$upgma_tiles_mapping_div_mid_5)) {
+       !is.null(input$upgma_tiles_scale_5)) {
       if(input$upgma_tiles_show_5 == TRUE) {
         if(input$upgma_tiles_scale_5 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-          if(input$upgma_tiles_mapping_div_mid_5 == "Zero") {
-            midpoint <- 0
-          } else if(input$upgma_tiles_mapping_div_mid_5 == "Mean") {
-            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_5]), na.rm = TRUE)
-          } else {
-            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_5]), na.rm = TRUE)
+          if(!is.null(input$upgma_tiles_mapping_div_mid_5)) {
+            if(input$upgma_tiles_mapping_div_mid_5 == "Zero") {
+              midpoint <- 0
+            } else if(input$upgma_tiles_mapping_div_mid_5 == "Mean") {
+              midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_5]), na.rm = TRUE)
+            } else {
+              midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_5]), na.rm = TRUE)
+            }
+            scale_fill_gradient5(low = brewer.pal(3, input$upgma_tiles_scale_5)[1],
+                                 mid = brewer.pal(3, input$upgma_tiles_scale_5)[2],
+                                 high = brewer.pal(3, input$upgma_tiles_scale_5)[3],
+                                 midpoint = midpoint)
           }
-          scale_fill_gradient5(low = brewer.pal(3, input$upgma_tiles_scale_5)[1],
-                               mid = brewer.pal(3, input$upgma_tiles_scale_5)[2],
-                               high = brewer.pal(3, input$upgma_tiles_scale_5)[3],
-                               midpoint = midpoint)
         } else {
           if(input$upgma_tiles_scale_5 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
             if(class(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5])) == "numeric") {
@@ -23458,46 +23581,48 @@ server <- function(input, output, session) {
       iso_path <- file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates", 
                             iso_select, "resProfile.tsv")
       
-      res_profile <- read.delim(iso_path)
-      
-      colnames(res_profile) <- c(
-        "Protein Identifier",	"Contig ID", "Start", "Stop", "Strand", "Gene Symbol", 
-        "Sequence Name", "Scope", "Element Type",  "Element Subtype", "Class", 
-        "Subclass", "Method", "Target Length", "RSL",	"%CRS", "%IRS", 
-        "Alignment Length", "ACS", "Name of Closest Sequence", "HMM ID", "HMM Description")
-      
-      Screening$res_profile <- res_profile %>%
-        relocate(c("Gene Symbol", "Sequence Name", "Element Subtype", "Class", 
-                   "Subclass", "Scope", "Contig ID", "Target Length", "Alignment Length",
-                   "Start", "Stop", "Strand"))
-      
-      # Generate gene profile table
-      output$gs_profile_table <- DT::renderDataTable(
-        Screening$res_profile,
-        selection = "single",
-        rownames= FALSE,
-        options = list(pageLength = 10, scrollX = TRUE,
-                       autoWidth = TRUE,
-                       columnDefs = list(list(width = '400px', targets = c("Sequence Name",
-                                                                           "Name of Closest Sequence"))),
-                       columnDefs = list(list(width = 'auto', targets = "_all")),
-                       columnDefs = list(list(searchable = TRUE,
-                                              targets = "_all")),
-                       initComplete = DT::JS(
-                         "function(settings, json) {",
-                         "$('th:first-child').css({'border-top-left-radius': '5px'});",
-                         "$('th:last-child').css({'border-top-right-radius': '5px'});",
-                         # "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
-                         # "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
-                         "}"
-                       ),
-                       drawCallback = DT::JS(
-                         "function(settings) {",
-                         # "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
-                         # "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
-                         "}"
-                       ))
-      )
+      if(file.exists(iso_path)) {
+        res_profile <- read.delim(iso_path)
+        
+        colnames(res_profile) <- c(
+          "Protein Identifier",	"Contig ID", "Start", "Stop", "Strand", "Gene Symbol", 
+          "Sequence Name", "Scope", "Element Type",  "Element Subtype", "Class", 
+          "Subclass", "Method", "Target Length", "RSL",	"%CRS", "%IRS", 
+          "Alignment Length", "ACS", "Name of Closest Sequence", "HMM ID", "HMM Description")
+        
+        Screening$res_profile <- res_profile %>%
+          relocate(c("Gene Symbol", "Sequence Name", "Element Subtype", "Class", 
+                     "Subclass", "Scope", "Contig ID", "Target Length", "Alignment Length",
+                     "Start", "Stop", "Strand"))
+        
+        # Generate gene profile table
+        output$gs_profile_table <- DT::renderDataTable(
+          Screening$res_profile,
+          selection = "single",
+          rownames= FALSE,
+          options = list(pageLength = 10, scrollX = TRUE,
+                         autoWidth = TRUE,
+                         columnDefs = list(list(width = '400px', targets = c("Sequence Name",
+                                                                             "Name of Closest Sequence"))),
+                         columnDefs = list(list(width = 'auto', targets = "_all")),
+                         columnDefs = list(list(searchable = TRUE,
+                                                targets = "_all")),
+                         initComplete = DT::JS(
+                           "function(settings, json) {",
+                           "$('th:first-child').css({'border-top-left-radius': '5px'});",
+                           "$('th:last-child').css({'border-top-right-radius': '5px'});",
+                           # "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                           # "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                           "}"
+                         ),
+                         drawCallback = DT::JS(
+                           "function(settings) {",
+                           # "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                           # "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                           "}"
+                         ))
+        )
+      } 
     } else {
       output$gs_profile_table <- NULL
     }
@@ -24021,9 +24146,9 @@ server <- function(input, output, session) {
                                                   "Isolates", input$screening_select,
                                                   paste0(input$screening_select, ".zip")), 
                                         collapse = " "),
-                                      species = check.amrfinder.available(
+                                      species = gsub(" ", "_", check.amrfinder.available(
                                         selected_scheme = DB$scheme,
-                                        amrfinder_species = amrfinder_species))
+                                        amrfinder_species = amrfinder_species)))
       
       Screening$status_df <- data.frame(isolate = basename(gsub(".zip", "", str_split_1(Screening$meta_df$selected, " "))), 
                                         status = "unfinished")
