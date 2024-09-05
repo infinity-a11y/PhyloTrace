@@ -17116,7 +17116,7 @@ server <- function(input, output, session) {
           )
         } else {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
         },
         selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
@@ -17157,7 +17157,7 @@ server <- function(input, output, session) {
           )
         } else {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
         },
         selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
@@ -17196,7 +17196,7 @@ server <- function(input, output, session) {
           )
         } else {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
         },
         selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
@@ -17235,7 +17235,7 @@ server <- function(input, output, session) {
           )
         } else {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
         },
         selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
@@ -17274,7 +17274,7 @@ server <- function(input, output, session) {
           )
         } else {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
         },
         selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
@@ -17313,7 +17313,7 @@ server <- function(input, output, session) {
           )
         } else {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+                 names(Vis$meta_upgma)[14:ncol(Vis$meta_upgma)])
         },
         selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
@@ -17354,7 +17354,7 @@ server <- function(input, output, session) {
           )
         } else {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+                 names(Vis$meta_upgma)[14:ncol(Vis$meta_upgma)])
         },
         selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
@@ -17393,7 +17393,7 @@ server <- function(input, output, session) {
           )
         } else {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+                 names(Vis$meta_upgma)[14:ncol(Vis$meta_upgma)])
         },
         selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
@@ -17432,7 +17432,7 @@ server <- function(input, output, session) {
           )
         } else {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+                 names(Vis$meta_upgma)[14:ncol(Vis$meta_upgma)])
         },
         selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
@@ -17471,7 +17471,7 @@ server <- function(input, output, session) {
           )
         } else {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+                 names(Vis$meta_upgma)[14:ncol(Vis$meta_upgma)])
         },
         selected = c(`Isolation Date` = "Isolation Date"),
         width = "100%"
@@ -18072,7 +18072,7 @@ server <- function(input, output, session) {
           )
         } else {
           append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
         },
         selected = c(City = "City"),
         width = "100%"
@@ -18114,7 +18114,7 @@ server <- function(input, output, session) {
           )
         } else {
           append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+                 names(Vis$meta_upgma)[14:ncol(Vis$meta_upgma)])
         },
         selected = c(City = "City"),
         width = "100%"
@@ -18156,7 +18156,7 @@ server <- function(input, output, session) {
           )
         } else {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
         },
         selected = c("Host" = "Host"),
         width = "100%"
@@ -18197,7 +18197,7 @@ server <- function(input, output, session) {
           )
         } else {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+                 names(Vis$meta_upgma)[14:ncol(Vis$meta_upgma)])
         },
         selected = c("Host" = "Host"),
         width = "100%"
@@ -18239,7 +18239,7 @@ server <- function(input, output, session) {
           )
         } else {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
         },
         selected = c("Host" = "Host"),
         width = "100%"
@@ -18274,7 +18274,7 @@ server <- function(input, output, session) {
           )
         } else {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+                 names(Vis$meta_upgma)[14:ncol(Vis$meta_upgma)])
         },
         selected = c("Host" = "Host"),
         width = "100%"
@@ -18310,7 +18310,7 @@ server <- function(input, output, session) {
           )
         } else {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
         },
         selected = c(Country = "Country"),
         width = "100%"
@@ -18351,7 +18351,7 @@ server <- function(input, output, session) {
           )
         } else {
           append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+                 names(Vis$meta_upgma)[14:ncol(Vis$meta_upgma)])
         },
         selected = c(Country = "Country"),
         width = "100%"
@@ -18397,7 +18397,7 @@ server <- function(input, output, session) {
         } else {
           append(c(Index = "Index", `Assembly ID` = "Assembly ID", `Assembly Name` = "Assembly Name",
                    `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[13:ncol(Vis$meta_nj)])
+                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
         },
         selected = c(`Assembly Name` = "Assembly Name"),
         width = "100%"
@@ -18439,7 +18439,7 @@ server <- function(input, output, session) {
         } else {
           append(c(Index = "Index", `Assembly ID` = "Assembly ID", `Assembly Name` = "Assembly Name",
                    `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_upgma)[13:ncol(Vis$meta_upgma)])
+                 names(Vis$meta_upgma)[14:ncol(Vis$meta_upgma)])
         },
         selected = c(`Assembly Name` = "Assembly Name"),
         width = "100%"
