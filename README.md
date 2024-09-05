@@ -316,9 +316,9 @@ conda remove -n PhyloTrace --all -y
 ### 2.6 Troubleshooting
 
 There are multiple possible sources for issues with the installation. Common mistakes during the
-installation are: - Change `path/to/phylotrace` in the command chunks with the actual path of the
-repository containing all PhyloTrace files - Before installation make sure the whole repository is
-unzipped to a writable location in your system
+installation are: 
+- Change `path/to/phylotrace` in the command chunks with the actual path of the repository containing all PhyloTrace files
+- Before installation make sure the whole repository is unzipped to a writable location in your system
 
 If the installation issues persist feel free to contact us via
 [info\@phylotrace.com](mailto:info@phylotrace.com?subject=%5BGitHub%5D%20Source%20Han%20Sans) or
@@ -379,12 +379,12 @@ PhyloTrace is under active development with new functions, enhancements and inno
 In addition to the points listed on the roadmap, we constantly improve existing features.
 
 ✅ ***"Hello World!"*** - Version 1.0.0\
-✅ Sophisticated MST Graphs (e.g. Pie Charts as Nodes)\
+✅ Advanced MST Network Graphs (Clustering, Variable Mapping, etc.)\
 ✅ Compatibility with Microsoft Windows\
 ✅ Hash-based Decentralized cgMLST\
-✅ MST Graph Clustering\
-🔲 Support for additional cgMLST scheme databases (e.g. pubMLST, EnteroBase, Institut Pasteur)\
+✅ Implemented Antimicrobial Resistance Screening\
+🔲 Support for additional typing scheme databases\
 🔲 Implementation of a NGS Assembly Pipeline\
 🔲 Backwards Compatibility with MLST (ST calling)\
 🔲 Implementation of wgMLST\
-🔲 Implementation of a Gene Enrichment Analysis\
+🔲 Implementation of a Gene Enrichment Analysis
