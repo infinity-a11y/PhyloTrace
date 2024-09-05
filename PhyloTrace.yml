@@ -7,7 +7,7 @@ dependencies:
   - r-base=4.3.2
   - r-remotes=2.5.0
   - kma=1.4.14
-  - ncbi-amrfinderplus=3.12.8
+  - abritamr=1.0.19
   - parallel=20240522
   - ncbi-datasets-cli=16.27.1
   - pblat=2.5.1

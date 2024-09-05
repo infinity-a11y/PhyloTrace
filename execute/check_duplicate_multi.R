@@ -67,11 +67,6 @@ base_path <- args[1]
 # Get selected assembly file names
 assemblies <- list.files(paste0(getwd(), "/selected_genomes"), full.names = T)
 
-# Function to log messages 
-log.message <- function(log_file, message) {
-  cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "-", message, "\n", file = log_file, append = TRUE)
-}
-
 logfile <- file.path(paste0(base_path, "/logs/check_duplicate_multi.log"))
 
 log <- log_open(logfile, logdir = FALSE)

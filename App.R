@@ -3380,7 +3380,10 @@ ui <- dashboardPage(
                       column(
                         width = 3,
                         align = "center",
-                        uiOutput("nj_heatmap_sel")
+                        actionButton(
+                          "nj_heatmap_button",
+                          "Select"
+                        )
                       ),
                       column(
                         width = 3,
@@ -12579,6 +12582,35 @@ server <- function(input, output, session) {
   
   #### NJ and UPGMA controls ----
   
+  observeEvent(input$nj_heatmap_button, {
+    showModal(
+      div(
+        class = "start-modal",
+        modalDialog(
+          fluidRow(
+            column(
+              width = 4,
+              radioGroupButtons(
+                inputId = "nj_heatmap_map",
+                label = "",
+                choices = c("Variables",
+                            "AMR Profile"),
+                justified = TRUE
+              )
+            ),
+          ),
+          br(),
+          uiOutput("nj_heatmap_sel"),
+          title = "Heatmap Settings",
+          footer = tagList(
+            modalButton("Cancel"),
+            actionButton("nj_heatmap_confirm", "Apply", class = "btn btn-default")
+          )
+        )
+      )
+    )
+  })
+  
   # Control enable/disable of variable mapping inputs
   observe({
     shinyjs::toggleState(id = "nj_color_mapping", condition = isTRUE(input$nj_mapping_show))
@@ -14806,7 +14838,7 @@ server <- function(input, output, session) {
               "Blues"
             )
           ),
-          selected = "Paired"
+          selected = "Dark2"
         )
         if(input$nj_heatmap_show) {
           nj_heatmap_scale
@@ -16906,52 +16938,78 @@ server <- function(input, output, session) {
   ### Heatmap 
   # Heatmap picker
   output$nj_heatmap_sel <- renderUI({
+    req(input$nj_heatmap_map)
     if(!is.null(Vis$meta_nj)) {
       meta <- select(Vis$meta_nj, -c(taxa, Index, `Assembly ID`, `Assembly Name`,
                                      Scheme, `Typing Date`, Successes, Errors))
       
-      # Identify numeric columns
-      numeric_columns <- sapply(meta, is.numeric)
-      
-      numeric_column_names <- names(meta[numeric_columns])
-      
-      non_numeric_column_names <- names(meta)[!numeric_columns]
-      
-      choices <- list()
-      
-      # Add Continuous list only if there are numeric columns
-      if (length(numeric_column_names) > 0) {
-        choices$Continuous <- as.list(setNames(numeric_column_names, numeric_column_names))
+      if(input$nj_heatmap_map == "Variables") {
+        meta <- select(meta, -colnames(Vis$amr_nj))
+        # Identify numeric columns
+        numeric_columns <- sapply(meta, is.numeric)
+        
+        numeric_column_names <- names(meta[numeric_columns])
+        
+        non_numeric_column_names <- names(meta)[!numeric_columns]
+        
+        non_numeric_column_names <- non_numeric_column_names[!numeric_columns]
+        
+        choices <- list()
+        
+        # Add Continuous list only if there are numeric columns
+        if (length(numeric_column_names) > 0) {
+          choices$Continuous <- as.list(setNames(numeric_column_names, numeric_column_names))
+        }
+        
+        # Add Diverging list
+        choices$Categorical <- as.list(setNames(non_numeric_column_names, non_numeric_column_names))
+        
+      } else if(input$nj_heatmap_map == "AMR Profile") {
+        
+        if(isFALSE(any(Vis$meta_nj$Screened != "Yes"))) {
+          choices <- colnames(Vis$amr_nj)
+        } else {
+          nj_heatmap_select <- HTML(p(paste0("TESDTDHJTDHTJKD")))
+        }
       }
       
-      # Add Diverging list
-      choices$Categorical <- as.list(setNames(non_numeric_column_names, non_numeric_column_names))
+      if(input$nj_heatmap_map == "AMR Profile" & 
+         isTRUE(any(Vis$meta_nj$Screened != "Yes"))) {
+        
+        nj_heatmap_select <- HTML(p(paste0("TESDTDHJTDHTJKD")))
+      } else {
+        nj_heatmap_select <- pickerInput(
+          inputId = "nj_heatmap_select",
+          label = "",
+          width = "100%",
+          choices = if(ncol(Vis$meta_nj) == 11) {
+            c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {choices},
+          options = list(
+            `live-search` = TRUE,
+            `actions-box` = TRUE,
+            size = 10,
+            style = "background-color: white; border-radius: 5px;"
+          ),
+          multiple = TRUE
+        )
+      }
       
-      nj_heatmap_select <- pickerInput(
-        inputId = "nj_heatmap_select",
-        label = "",
-        width = "100%",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
-            `Isolation Date` = "Isolation Date",
-            Host = "Host",
-            Country = "Country",
-            City = "City"
-          )
-        } else {choices},
-        options = list(
-          `dropdown-align-center` = TRUE,
-          size = 10,
-          style = "background-color: white; border-radius: 5px;"
-        ),
-        multiple = TRUE
-      )
-      
-      div(
-        class = "heatmap-picker",
-        if(input$nj_heatmap_show) {
-          nj_heatmap_select
-        } else {shinyjs::disabled(nj_heatmap_select)}
+      fluidRow(
+        column(
+          width = 6,
+          div(
+            class = "heatmap-picker",
+            if(input$nj_heatmap_show) {
+              nj_heatmap_select
+            } else {shinyjs::disabled(nj_heatmap_select)}
+          )      
+        )
       )
     } else {
       nj_heatmap_select <- pickerInput(
@@ -16964,21 +17022,42 @@ server <- function(input, output, session) {
           Country = "Country",
           City = "City"
         ),
+        options = list(
+          `live-search` = TRUE,
+          `actions-box` = TRUE,
+          size = 10,
+          style = "background-color: white; border-radius: 5px;"
+        ),
         multiple = TRUE
       )
-      div(
-        class = "heatmap-picker",
-        if(input$nj_heatmap_show) {
-          nj_heatmap_select
-        } else {shinyjs::disabled(nj_heatmap_select)}
+      fluidRow(
+        column(
+          width = 6,
+          div(
+            class = "heatmap-picker",
+            if(input$nj_heatmap_show) {
+              nj_heatmap_select
+            } else {shinyjs::disabled(nj_heatmap_select)}
+          )
+        )
       )
     }
   })
   
   output$upgma_heatmap_sel <- renderUI({
     if(!is.null(Vis$meta_upgma)) {
-      meta <- select(Vis$meta_upgma, -c(taxa, Index, `Assembly ID`, `Assembly Name`,
+      
+      amr_profile <- readRDS("/home/marian/Documents/Database/Klebsiella_pneumoniae_sensu_lato_CM/AMR_Profile.rds")
+      
+      meta <- select(Vis$meta_upgma, -c(taxa, Index, `Assembly Name`,
                                         Scheme, `Typing Date`, Successes, Errors))
+      
+      if(isFALSE(any(meta$Screened != "Yes"))) {
+        
+        amr_profile_fil <- amr_profile[rownames(amr_profile) %in% meta$`Assembly ID`, ]
+        
+        add_column(meta, amr_profile_fil)
+      }
       
       # Identify numeric columns
       numeric_columns <- sapply(meta, is.numeric)
@@ -18999,7 +19078,7 @@ server <- function(input, output, session) {
   #### NJ ----
   
   nj_tree <- reactive({
-    
+    Vis$nj$tip.label <- Vis$meta_nj$Index
     # Convert negative edges 
     Vis$nj[["edge.length"]] <- abs(Vis$nj[["edge.length"]])
     
@@ -20387,6 +20466,8 @@ server <- function(input, output, session) {
   #### UPGMA ----
   
   upgma_tree <- reactive({
+    Vis$upgma$tip.label <- Vis$meta_upgma$Index
+    
     if(input$upgma_nodelabel_show == TRUE) {
       ggtree(Vis$upgma, alpha = 0.2, layout = layout_upgma()) + 
         geom_nodelab(aes(label = node), color = "#29303A", size = upgma_tiplab_size() + 1, hjust = 0.7) +
@@ -21957,7 +22038,8 @@ server <- function(input, output, session) {
   
   #### Generate Plot ----
   
-  hamming_nj <- reactive({
+  # Get distances
+  hamming_dist <- reactive({
     if(anyNA(DB$allelic_profile)) {
       if(input$na_handling == "omit") {
         allelic_profile_noNA <- DB$allelic_profile[, colSums(is.na(DB$allelic_profile)) == 0]
@@ -22376,9 +22458,17 @@ server <- function(input, output, session) {
             )
           })
           
-          Vis$meta_nj <- select(DB$meta_true, -2)
+          meta_nj <- select(DB$meta_true, -2)
           
-          if(length(unique(gsub(" ", "_", colnames(Vis$meta_nj)))) < length(gsub(" ", "_", colnames(Vis$meta_nj)))) {
+          amr_profile <- readRDS("/home/marian/Documents/Database/Klebsiella_pneumoniae_sensu_lato_CM/AMR_Profile.rds")
+          
+          if(isFALSE(any(meta_nj$Screened != "Yes"))) {
+            
+            Vis$amr_nj <- amr_profile[rownames(amr_profile) %in% meta_nj$`Assembly ID`, ]
+            meta_nj <- add_column(meta_nj, Vis$amr_nj)
+          } 
+          
+          if(length(unique(gsub(" ", "_", colnames(meta_nj)))) < length(gsub(" ", "_", colnames(meta_nj)))) {
             show_toast(
               title = "Conflicting Custom Variable Names",
               type = "warning",
@@ -22388,10 +22478,10 @@ server <- function(input, output, session) {
           } else {
             
             # Create phylogenetic tree data
-            Vis$nj <- ape::nj(hamming_nj())
+            Vis$nj <- ape::nj(hamming_dist())
             
             # Create phylogenetic tree meta data
-            Vis$meta_nj <- mutate(Vis$meta_nj, taxa = Index) %>%
+            Vis$meta_nj <- mutate(meta_nj, taxa = Index) %>%
               relocate(taxa)
             
             # Get number of included entries calculate start values for tree 
@@ -22531,9 +22621,16 @@ server <- function(input, output, session) {
             )
           })
           
-          Vis$meta_upgma <- select(DB$meta_true, -2)
+          meta_upgma <- select(DB$meta_true, -2)
           
-          if(length(unique(gsub(" ", "_", colnames(Vis$meta_upgma)))) < length(gsub(" ", "_", colnames(Vis$meta_upgma)))) {
+          if(isFALSE(any(meta_upgma$Screened != "Yes"))) {
+            
+            amr_profile_fil <- amr_profile[rownames(amr_profile) %in% meta_upgma$`Assembly ID`, ]
+            
+            meta_upgma <- add_column(meta_upgma, amr_profile_fil)
+          } 
+          
+          if(length(unique(gsub(" ", "_", colnames(meta_upgma)))) < length(gsub(" ", "_", colnames(meta_upgma)))) {
             show_toast(
               title = "Conflicting Custom Variable Names",
               type = "warning",
@@ -22541,9 +22638,8 @@ server <- function(input, output, session) {
               timer = 6000
             )
           } else {
-            
             # Create phylogenetic tree data
-            Vis$upgma <- phangorn::upgma(hamming_nj())
+            Vis$upgma <- phangorn::upgma(hamming_dist())
             
             # Create phylogenetic tree meta data
             Vis$meta_upgma <- mutate(Vis$meta_upgma, taxa = Index) %>%
@@ -23360,7 +23456,7 @@ server <- function(input, output, session) {
   output$gs_results_table <- renderUI({
     req(DB$data)
     if(!is.null(Screening$selected_isolate)) {
-      if(length(Screening$selected_isolate) > 0) {
+      if(length(Screening$selected_isolate) > 0 & any(Screening$selected_isolate %in% DB$data$`Assembly ID`)) {
         fluidRow(
           div(class = "loci_table",
               DT::dataTableOutput("gs_profile_table")),
@@ -23579,7 +23675,7 @@ server <- function(input, output, session) {
     if(length(Screening$selected_isolate) > 0 & any(Screening$selected_isolate %in% DB$data$`Assembly ID`)) {
       iso_select <- Screening$selected_isolate
       iso_path <- file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates", 
-                            iso_select, "resProfile.tsv")
+                            iso_select, "amrfinder.out")
       
       if(file.exists(iso_path)) {
         res_profile <- read.delim(iso_path)
@@ -23665,7 +23761,7 @@ server <- function(input, output, session) {
         if(any(Screening$status_df$isolate == input$screening_res_sel)) {
           if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "success") {
             results <- read.delim(file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates", 
-                                            input$screening_res_sel, "resProfile.tsv"))
+                                            input$screening_res_sel, "amrfinder.out"))
             
             output$screening_table <- renderDataTable(
               select(results, c(6, 7, 8, 9, 11)),

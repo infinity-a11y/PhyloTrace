@@ -422,7 +422,7 @@ check.amrfinder.available <- function(selected_scheme, amrfinder_species) {
   
   if(length(parsed_species) == 1) {
     
-    # exceptions
+    # Exceptions
     if(parsed_species == "Burkholderia mallei FLI" | 
        parsed_species == "Burkholderia mallei RKI") {
       parsed_species <- "Burkholderia mallei"
@@ -435,7 +435,7 @@ check.amrfinder.available <- function(selected_scheme, amrfinder_species) {
     return(ifelse(any(parsed_species == gsub("_", " ", amrfinder_species)), parsed_species, FALSE))
     
   } else {
-    #exceptions
+    # Exceptions
     if(identical(parsed_species, 
                  paste("Klebsiella", c("oxytoca", "grimontii", "michiganensis", "pasteurii")))) {
       parsed_species <- "Klebsiella oxytoca"

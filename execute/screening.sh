@@ -5,6 +5,11 @@ source ~/miniconda3/etc/profile.d/conda.sh
 conda activate PhyloTrace
 unset R_HOME
 
+# Check if abritamr binary exists in the expected path
+if [[ -f ~/.conda/envs/PhyloTrace/bin/abritamr ]]; then
+    export PATH=$PATH:~/.conda/envs/PhyloTrace/bin
+fi
+
 # Set base path
 base_path=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'wd'])")
 selected=$(Rscript -e "cat(stringr::str_split_1(readRDS('screening_meta.rds')[,'selected'], ' '))")
@@ -28,7 +33,7 @@ for file in "${isolates[@]}"; do
     
     unzip -o "$file" -d "$zip_dir"
     
-    amrfinder -n "$zip_dir/$zip_base.fasta" --plus --organism $species -o "$zip_dir/resProfile.tsv" > amrfinder_stdout.txt 2> amrfinder_stderr.txt
+    abritamr run --contigs "$zip_dir/$zip_base.fasta" --species $species --prefix "$zip_dir" > amrfinder_stdout.txt 2> amrfinder_stderr.txt
     status=$?
     
     # Check exit status 
@@ -45,6 +50,6 @@ for file in "${isolates[@]}"; do
     rm -rf "$zip_dir/$zip_base.fasta"
 done
 
-Rscript make_amr_profile.R $database $scheme
+Rscript make_amr_profile.R "$database" "$scheme"
 
 echo "AMRFinder finalized"
