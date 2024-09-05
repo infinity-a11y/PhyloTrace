@@ -24148,7 +24148,9 @@ server <- function(input, output, session) {
                                         collapse = " "),
                                       species = gsub(" ", "_", check.amrfinder.available(
                                         selected_scheme = DB$scheme,
-                                        amrfinder_species = amrfinder_species)))
+                                        amrfinder_species = amrfinder_species)),
+                                      database = DB$database,
+                                      scheme = DB$scheme)
       
       Screening$status_df <- data.frame(isolate = basename(gsub(".zip", "", str_split_1(Screening$meta_df$selected, " "))), 
                                         status = "unfinished")

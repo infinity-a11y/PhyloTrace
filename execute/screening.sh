@@ -9,6 +9,8 @@ unset R_HOME
 base_path=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'wd'])")
 selected=$(Rscript -e "cat(stringr::str_split_1(readRDS('screening_meta.rds')[,'selected'], ' '))")
 species=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'species'])")
+database=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'database'])")
+scheme=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'scheme'])")
 
 # Remove the existing directory (if it exists)
 if [ -d "$base_path/execute/screening" ]; then
@@ -42,5 +44,7 @@ for file in "${isolates[@]}"; do
     # Clear unzipped assembly
     rm -rf "$zip_dir/$zip_base.fasta"
 done
+
+Rscript make_amr_profile.R $database $scheme
 
 echo "AMRFinder finalized"
