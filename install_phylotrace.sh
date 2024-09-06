@@ -36,9 +36,6 @@ else
 fi
 EOF
 
-# Download AMRFinder Database
-amrfinder -u
-
 # Install visNetwork modification
 Rscript -e "remotes::install_github('fpaskali/visNetwork', force = TRUE)"
 

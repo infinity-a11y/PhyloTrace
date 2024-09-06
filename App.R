@@ -5873,6 +5873,16 @@ server <- function(input, output, session) {
       }
     }
     
+    # Reset reactive visualization variables
+    # Vis$mst_true <- NULL
+    # Vis$nj_true <- NULL
+    # Vis$upgma_true <- NULL
+    lapply(names(Vis), function(x) Vis[[x]] <- NULL)
+    # Empty tree plot fields
+    output$nj_field <- empty_plot_field
+    output$mst_field <- empty_plot_field
+    output$upgma_field <- empty_plot_field
+    
     log_print("Input load")
     
     # set typing start control variable
@@ -6546,7 +6556,9 @@ server <- function(input, output, session) {
                               easyClose = TRUE,
                               footer = tagList(
                                 modalButton("Cancel"),
-                                actionButton("update_scheme", "Update Scheme", class = "btn btn-default")
+                                actionButton("update_scheme", "Update Scheme", 
+                                             icon = icon("layer-group"),
+                                             class = "btn btn-default")
                               )
                             )
                           )
@@ -10022,6 +10034,8 @@ server <- function(input, output, session) {
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
     
+    test <<- Vis$meta_nj
+    
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -11271,8 +11285,11 @@ server <- function(input, output, session) {
                 column(
                   width = 2,
                   div(
-                    class = "danger-button",
-                    actionButton("conf_delete_all", "Delete")
+                    class = "modal-buttons",
+                    div(
+                      class = "danger-button",
+                      actionButton("conf_delete_all", "Delete")
+                    )
                   )
                 )
               )
@@ -12555,35 +12572,6 @@ server <- function(input, output, session) {
          height = 180)
   }, deleteFile = FALSE)
   
-  # Render tree plot fields
-  
-  output$nj_field <- renderUI(
-    fluidRow(
-      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-      br(), br(), br(), br(), br(), br(), br(), br(), br(), br()
-    )
-  )
-  
-  output$mst_field <- renderUI(
-    fluidRow(
-      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-      br(), br(), br(), br(), br(), br(), br(), br(), br(), br()
-    )
-  )
-  
-  output$upgma_field <- renderUI(
-    fluidRow(
-      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-      br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-      br(), br(), br(), br(), br(), br(), br(), br(), br(), br()
-    )
-  )
-  
   ### Render Visualization Controls ----
   
   #### NJ and UPGMA controls ----
@@ -12593,9 +12581,64 @@ server <- function(input, output, session) {
       div(
         class = "start-modal",
         modalDialog(
+          conditionalPanel(
+            "input.nj_heatmap_map==='Variables'",
+            p(
+              HTML(
+                paste0(
+                  '<span style="color: white; font-size: 14px; position: relative; top: 5px; margin-left: 10px;">',
+                  'Mapping <b>metadata</b> and custom variables.',
+                  '</span>'
+                )
+              )
+            )
+          ),
+          conditionalPanel(
+            "input.nj_heatmap_map==='AMR Profile'",
+            p(
+              HTML(
+                paste0(
+                  '<span style="color: white; font-size: 14px; position: relative; top: 5px; margin-left: 10px;">',
+                  'Mapping <b>resistance, virulence and other genes </b> resulting from AMR Screening.',
+                  '</span>'
+                )
+              )
+            )
+          ),
+          br(),
           fluidRow(
+            uiOutput("nj_heatmap_sel"),
             column(
-              width = 4,
+              width = 6,
+              conditionalPanel(
+                "input.nj_heatmap_map==='AMR Profile'",
+                div(
+                  class = "switch-heatmap_cluster",
+                  materialSwitch(
+                    "nj_heatmap_cluster",
+                    h5(p("Cluster Genes"), 
+                       style = "color:white; padding-left: 0px; position: relative; top: -3px; right: -20px;"),
+                    value = TRUE,
+                    right = TRUE)
+                )
+              )
+            )
+          ),
+          title = fluidRow(
+            column(
+              width = 5,
+              p(
+                HTML(
+                  paste0(
+                    '<span style="color: white; font-size: 20px; position: relative; top: 5px; margin-left: 10px;">',
+                    'Heatmap Settings',
+                    '</span>'
+                  )
+                )
+              )
+            ),
+            column(
+              width = 5,
               radioGroupButtons(
                 inputId = "nj_heatmap_map",
                 label = "",
@@ -12603,14 +12646,92 @@ server <- function(input, output, session) {
                             "AMR Profile"),
                 justified = TRUE
               )
-            ),
+            )
           ),
-          br(),
-          uiOutput("nj_heatmap_sel"),
-          title = "Heatmap Settings",
           footer = tagList(
             modalButton("Cancel"),
             actionButton("nj_heatmap_confirm", "Apply", class = "btn btn-default")
+          )
+        )
+      )
+    )
+  })
+  
+  observeEvent(input$upgma_heatmap_button, {
+    showModal(
+      div(
+        class = "start-modal",
+        modalDialog(
+          conditionalPanel(
+            "input.upgma_heatmap_map==='Variables'",
+            p(
+              HTML(
+                paste0(
+                  '<span style="color: white; font-size: 14px; position: relative; top: 5px; margin-left: 10px;">',
+                  'Mapping <b>metadata</b> and custom variables.',
+                  '</span>'
+                )
+              )
+            )
+          ),
+          conditionalPanel(
+            "input.upgma_heatmap_map==='AMR Profile'",
+            p(
+              HTML(
+                paste0(
+                  '<span style="color: white; font-size: 14px; position: relative; top: 5px; margin-left: 10px;">',
+                  'Mapping <b>resistance, virulence and other genes </b> resulting from AMR Screening.',
+                  '</span>'
+                )
+              )
+            )
+          ),
+          br(),
+          fluidRow(
+            uiOutput("upgma_heatmap_sel"),
+            column(
+              width = 6,
+              conditionalPanel(
+                "input.upgma_heatmap_map==='AMR Profile'",
+                div(
+                  class = "switch-heatmap_cluster",
+                  materialSwitch(
+                    "upgma_heatmap_cluster",
+                    h5(p("Cluster Genes"), 
+                       style = "color:white; padding-left: 0px; position: relative; top: -3px; right: -20px;"),
+                    value = TRUE,
+                    right = TRUE)
+                )
+              )
+            )
+          ),
+          title = fluidRow(
+            column(
+              width = 5,
+              p(
+                HTML(
+                  paste0(
+                    '<span style="color: white; font-size: 20px; position: relative; top: 5px; margin-left: 10px;">',
+                    'Heatmap Settings',
+                    '</span>'
+                  )
+                )
+              )
+            ),
+            column(
+              width = 5,
+              radioGroupButtons(
+                inputId = "upgma_heatmap_map",
+                label = "",
+                choices = c("Variables",
+                            "AMR Profile"),
+                justified = TRUE
+              )
+            )
+          ),
+          footer = tagList(
+            modalButton("Cancel"),
+            actionButton("upgma_heatmap_confirm", "Apply", class = "btn btn-default")
           )
         )
       )
@@ -12657,6 +12778,10 @@ server <- function(input, output, session) {
     shinyjs::toggleState(id = "nj_heatmap_scale", condition = isTRUE(input$nj_heatmap_show))
     shinyjs::toggleState(id = "upgma_heatmap_sel", condition = isTRUE(input$upgma_heatmap_show))
     shinyjs::toggleState(id = "upgma_heatmap_scale", condition = isTRUE(input$upgma_heatmap_show))
+    shinyjs::toggleState(id = "nj_heatmap_button", condition = isTRUE(input$nj_heatmap_show))
+    shinyjs::toggleState(id = "upgma_heatmap_button", condition = isTRUE(input$upgma_heatmap_show))
+    shinyjs::toggleState(id = "nj_heatmap_button", condition = isTRUE(Vis$nj_true))
+    shinyjs::toggleState(id = "upgma_heatmap_button", condition = isTRUE(Vis$upgma_true))
   })
   
   # Size scaling NJ
@@ -16951,29 +17076,25 @@ server <- function(input, output, session) {
       
       if(input$nj_heatmap_map == "Variables") {
         meta <- select(meta, -colnames(Vis$amr_nj))
+        
         # Identify numeric columns
         numeric_columns <- sapply(meta, is.numeric)
-        
         numeric_column_names <- names(meta[numeric_columns])
-        
         non_numeric_column_names <- names(meta)[!numeric_columns]
-        
         non_numeric_column_names <- non_numeric_column_names[!numeric_columns]
         
         choices <- list()
-        
         # Add Continuous list only if there are numeric columns
         if (length(numeric_column_names) > 0) {
           choices$Continuous <- as.list(setNames(numeric_column_names, numeric_column_names))
         }
         
         # Add Diverging list
-        choices$Categorical <- as.list(setNames(non_numeric_column_names, non_numeric_column_names))
+        choices$Categorical <- setNames(non_numeric_column_names, non_numeric_column_names)
         
       } else if(input$nj_heatmap_map == "AMR Profile") {
-        
         if(isFALSE(any(Vis$meta_nj$Screened != "Yes"))) {
-          choices <- colnames(Vis$amr_nj)
+          choices <- as.list(colnames(Vis$amr_nj))
         } else {
           nj_heatmap_select <- HTML(p(paste0("TESDTDHJTDHTJKD")))
         }
@@ -17006,16 +17127,14 @@ server <- function(input, output, session) {
         )
       }
       
-      fluidRow(
-        column(
-          width = 6,
-          div(
-            class = "heatmap-picker",
-            if(input$nj_heatmap_show) {
-              nj_heatmap_select
-            } else {shinyjs::disabled(nj_heatmap_select)}
-          )      
-        )
+      column(
+        width = 6,
+        div(
+          class = "heatmap-picker",
+          if(input$nj_heatmap_show) {
+            nj_heatmap_select
+          } else {shinyjs::disabled(nj_heatmap_select)}
+        )      
       )
     } else {
       nj_heatmap_select <- pickerInput(
@@ -17036,15 +17155,13 @@ server <- function(input, output, session) {
         ),
         multiple = TRUE
       )
-      fluidRow(
-        column(
-          width = 6,
-          div(
-            class = "heatmap-picker",
-            if(input$nj_heatmap_show) {
-              nj_heatmap_select
-            } else {shinyjs::disabled(nj_heatmap_select)}
-          )
+      column(
+        width = 6,
+        div(
+          class = "heatmap-picker",
+          if(input$nj_heatmap_show) {
+            nj_heatmap_select
+          } else {shinyjs::disabled(nj_heatmap_select)}
         )
       )
     }
@@ -19181,20 +19298,23 @@ server <- function(input, output, session) {
       }
       
       # Add heatmap
-      if(input$nj_heatmap_show == TRUE & length(input$nj_heatmap_select) > 0) {
-        if (!(any(sapply(Vis$meta_nj[input$nj_heatmap_select], is.numeric)) & 
-              any(!sapply(Vis$meta_nj[input$nj_heatmap_select], is.numeric)))) {
-          tree <- gheatmap.mod(tree, 
-                               data = select(Vis$meta_nj, input$nj_heatmap_select),
-                               offset = nj_heatmap_offset(),
-                               width = nj_heatmap_width(),
-                               legend_title = input$nj_heatmap_title,
-                               colnames_angle = -nj_colnames_angle(),
-                               colnames_offset_y = nj_colnames_y(),
-                               colnames_color = input$nj_color) +
-            nj_heatmap_scale()
-        }
-      } 
+      if(!is.null(Vis$nj_heatmap_select)) {
+        if(input$nj_heatmap_show == TRUE & length(Vis$nj_heatmap_select) > 0) {
+          if (!(any(sapply(Vis$meta_nj[Vis$nj_heatmap_select], is.numeric)) & 
+                any(!sapply(Vis$meta_nj[Vis$nj_heatmap_select], is.numeric)))) {
+            tree <- gheatmap.mod(
+              tree, 
+              data = select(Vis$meta_nj, Vis$nj_heatmap_select),
+              offset = nj_heatmap_offset(),
+              width = nj_heatmap_width(),
+              legend_title = input$nj_heatmap_title,
+              colnames_angle = -nj_colnames_angle(),
+              colnames_offset_y = nj_colnames_y(),
+              colnames_color = input$nj_color) + 
+              nj_heatmap_scale()
+          }
+        } 
+      }
       
       # Sizing control
       Vis$nj_plot <- ggplotify::as.ggplot(tree, 
@@ -19215,7 +19335,7 @@ server <- function(input, output, session) {
     if(!is.null(input$nj_heatmap_width)) {
       input$nj_heatmap_width
     } else {
-      length_input <- length(input$nj_heatmap_select)
+      length_input <- length(Vis$nj_heatmap_select)
       if((!(input$nj_layout == "circular")) & (!(input$nj_layout == "inward"))) {
         if(length_input < 3) {
           0.1
@@ -19270,9 +19390,9 @@ server <- function(input, output, session) {
           if(input$nj_heatmap_div_mid == "Zero") {
             midpoint <- 0
           } else if(input$nj_heatmap_div_mid == "Mean") {
-            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_heatmap_select]), na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_nj[Vis$nj_heatmap_select]), na.rm = TRUE)
           } else {
-            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_heatmap_select]), na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_nj[Vis$nj_heatmap_select]), na.rm = TRUE)
           }
           scale_fill_gradient2(low = brewer.pal(3, input$nj_heatmap_scale)[1],
                                mid = brewer.pal(3, input$nj_heatmap_scale)[2],
@@ -19282,7 +19402,7 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$nj_heatmap_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-          if(class(unlist(Vis$meta_nj[input$nj_heatmap_select])) == "numeric") {
+          if(class(unlist(Vis$meta_nj[Vis$nj_heatmap_select])) == "numeric") {
             if(input$nj_heatmap_scale == "magma") {
               scale_fill_viridis(option = "A",
                                  name = input$nj_heatmap_title)
@@ -20567,20 +20687,23 @@ server <- function(input, output, session) {
       }
       
       # Add heatmap
-      if(input$upgma_heatmap_show == TRUE & length(input$upgma_heatmap_select) > 0) {
-        if (!(any(sapply(Vis$meta_upgma[input$upgma_heatmap_select], is.numeric)) & 
-              any(!sapply(Vis$meta_upgma[input$upgma_heatmap_select], is.numeric)))) {
-          tree <- gheatmap.mod(tree, 
-                               data = select(Vis$meta_upgma, input$upgma_heatmap_select),
-                               offset = upgma_heatmap_offset(),
-                               width = upgma_heatmap_width(),
-                               legend_title = input$upgma_heatmap_title,
-                               colnames_angle = -upgma_colnames_angle(),
-                               colnames_offset_y = upgma_colnames_y(),
-                               colnames_color = input$upgma_color) +
-            upgma_heatmap_scale()
-        }
-      } 
+      if(!is.null(Vis$upgma_heatmap_select)) {
+        if(input$upgma_heatmap_show == TRUE & length(Vis$upgma_heatmap_select) > 0) {
+          if (!(any(sapply(Vis$meta_upgma[Vis$upgma_heatmap_select], is.numeric)) & 
+                any(!sapply(Vis$meta_upgma[Vis$upgma_heatmap_select], is.numeric)))) {
+            tree <- gheatmap.mod(
+              tree, 
+              data = select(Vis$meta_upgma, Vis$upgma_heatmap_select),
+              offset = upgma_heatmap_offset(),
+              width = upgma_heatmap_width(),
+              legend_title = input$upgma_heatmap_title,
+              colnames_angle = -upgma_colnames_angle(),
+              colnames_offset_y = upgma_colnames_y(),
+              colnames_color = input$upgma_color) + 
+              upgma_heatmap_scale()
+          }
+        } 
+      }
       
       # Sizing control
       Vis$upgma_plot <- ggplotify::as.ggplot(tree, 
@@ -20599,7 +20722,7 @@ server <- function(input, output, session) {
     if(!is.null(input$upgma_heatmap_width)) {
       input$upgma_heatmap_width
     } else {
-      length_input <- length(input$upgma_heatmap_select)
+      length_input <- length(Vis$upgma_heatmap_select)
       if((!(input$upgma_layout == "circular")) & (!(input$upgma_layout == "inward"))) {
         if(length_input < 3) {
           0.1
@@ -20654,9 +20777,9 @@ server <- function(input, output, session) {
           if(input$upgma_heatmap_div_mid == "Zero") {
             midpoint <- 0
           } else if(input$upgma_heatmap_div_mid == "Mean") {
-            midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_heatmap_select]), na.rm = TRUE)
+            midpoint <- mean(as.matrix(Vis$meta_upgma[Vis$upgma_heatmap_select]), na.rm = TRUE)
           } else {
-            midpoint <- median(as.matrix(Vis$meta_upgma[input$upgma_heatmap_select]), na.rm = TRUE)
+            midpoint <- median(as.matrix(Vis$meta_upgma[Vis$upgma_heatmap_select]), na.rm = TRUE)
           }
           scale_fill_gradient2(low = brewer.pal(3, input$upgma_heatmap_scale)[1],
                                mid = brewer.pal(3, input$upgma_heatmap_scale)[2],
@@ -20666,7 +20789,7 @@ server <- function(input, output, session) {
         }
       } else {
         if(input$upgma_heatmap_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-          if(class(unlist(Vis$meta_upgma[input$upgma_heatmap_select])) == "numeric") {
+          if(class(unlist(Vis$meta_upgma[Vis$upgma_heatmap_select])) == "numeric") {
             if(input$upgma_heatmap_scale == "magma") {
               scale_fill_viridis(option = "A",
                                  name = input$upgma_heatmap_title)
@@ -21925,6 +22048,52 @@ server <- function(input, output, session) {
   
   ### Reactive Events ----
   
+  observeEvent(input$nj_heatmap_confirm, {
+    removeModal()
+    if(input$nj_heatmap_map == "Variables") {
+      Vis$nj_heatmap_select <- input$nj_heatmap_select
+    } else if(input$nj_heatmap_map == "AMR Profile") {
+      if(input$nj_heatmap_cluster) {
+        
+        df_numeric <- as.data.frame(lapply(Vis$amr_nj[,input$nj_heatmap_select], as.numeric))
+        
+        # Compute distance matrix using Jaccard distance 
+        dist_matrix <- dist(t(df_numeric), method = "binary")
+        
+        # Hierarchical clustering
+        hc <- hclust(dist_matrix)
+        
+        # Reorder columns based on clustering
+        Vis$nj_heatmap_select <- input$nj_heatmap_select[hc$order]
+      } else {
+        Vis$nj_heatmap_select <- input$nj_heatmap_select
+      }
+    }
+  })
+  
+  observeEvent(input$upgma_heatmap_confirm, {
+    removeModal()
+    if(input$upgma_heatmap_map == "Variables") {
+      Vis$upgma_heatmap_select <- input$upgma_heatmap_select
+    } else if(input$upgma_heatmap_map == "AMR Profile") {
+      if(input$upgma_heatmap_cluster) {
+        
+        df_numeric <- as.data.frame(lapply(Vis$amr_upgma[,input$upgma_heatmap_select], as.numeric))
+        
+        # Compute distance matrix using Jaccard distance 
+        dist_matrix <- dist(t(df_numeric), method = "binary")
+        
+        # Hierarchical clustering
+        hc <- hclust(dist_matrix)
+        
+        # Reorder columns based on clustering
+        Vis$upgma_heatmap_select <- input$upgma_heatmap_select[hc$order]
+      } else {
+        Vis$upgma_heatmap_select <- input$upgma_heatmap_select
+      }
+    }
+  })
+  
   # MST cluster reset button
   observeEvent(input$mst_cluster_reset, {
     if(!is.null(DB$schemeinfo))
@@ -22485,7 +22654,7 @@ server <- function(input, output, session) {
             
             # Create phylogenetic tree data
             Vis$nj <- ape::nj(hamming_dist())
-            
+            test1 <<- meta_nj
             # Create phylogenetic tree meta data
             Vis$meta_nj <- mutate(meta_nj, taxa = Index) %>%
               relocate(taxa)

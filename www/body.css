@@ -20,6 +20,22 @@ input[type="checkbox"] {
   background-color: transparent;
 }
 
+#nj_heatmap_confirm,
+#change_entries,
+#conf_screening_cancel,
+#start_typ_multi,
+#conf_multi_kill,
+#update_scheme,
+#load,
+#conf_new_var,
+#conf_var_del,
+#conf_db_save,
+#conf_delete,
+#shiny-modal > div > div > div.modal-footer > button:nth-child(1) {
+  min-width: 100px;
+  border-color: white;
+}
+
 .typing-modal .modal-header {
   background-color: #282f38;
   color: white;
@@ -166,10 +182,8 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
   border-color: #20E6E5;  
 }
 
-div#bs-select-2,
-#bs-select-2 
-#bs-select-2 .inner open{
-  max-height: 160px;
+.heatmap-picker.inner.open{
+  max-height: 130px;
 }
 
 .btn-primary.focus, .btn-primary:active:focus {
@@ -1422,11 +1436,16 @@ top: -10px;
 
 /* Visualization NJ & UPGMA */
   
-  /* Classes*/
+/* Classes*/
+
+.switch-heatmap_cluster {
+  margin-left: 50px;
+  margin-top: 15px;
+}
   
-  .label_sel {
-    margin-bottom: -16px;
-  }
+.label_sel {
+  margin-bottom: -16px;
+}
 
 .slider {
   margin-bottom: -6px;
@@ -1646,9 +1665,8 @@ top: -10px;
 
 .heatmap-picker {
   margin-top: -10px; 
-  margin-left: 2px;
+  margin-left: 10px;
   margin-right: 30px;
-  margin-bottom: 150px;;
 }
 
 .heatmap-picker .btn-default {
@@ -1670,6 +1688,10 @@ top: -10px;
 
 .ratio-sel div.selectize-input.items.full.has-options.has-items::after {
   right: 5px !important;
+}
+
+#nj_heatmap_map {
+  margin-top: -25px;
 }
 
 #nj_heatmap_map > div {
@@ -1750,6 +1772,14 @@ margin-top: 20px !important;
 #nj_field img,
 #upgma_field img{
 border-radius: 10px;
+}
+
+#nj_heatmap_button {
+    border-color: white;
+    margin-top: 11px;
+    height: 32px;
+    width: 170px;
+    margin-right: 29px;
 }
 
 button#save_plot_jpeg {
@@ -3261,6 +3291,7 @@ background: linear-gradient(to right, #F7FCFD 0%, #F7FCFD 11.1111%, #E0ECF4 11.1
 button#download_report_bttn {
   font-size: 14px;
   height: 36px;
+  min-width: 100px;
   background: #282F38;
   color: #ffffff;
   border: 1px solid white;

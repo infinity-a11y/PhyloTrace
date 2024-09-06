@@ -1,5 +1,14 @@
 # UI Modules
 
+empty_plot_field <- renderUI(
+  fluidRow(
+    br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+    br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+    br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+    br(), br(), br(), br(), br(), br(), br(), br(), br(), br()
+  )
+)
+
 initiate_multi_typing_ui <- renderUI({
   column(
     width = 12,
