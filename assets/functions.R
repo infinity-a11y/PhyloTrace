@@ -1,3 +1,5 @@
+# Functions
+
 # Function to read and format FASTA sequences
 format_fasta <- function(filepath) {
   fasta <- readLines(filepath)
@@ -257,7 +259,7 @@ add_new_sequences <- function(locus_path, sequences, progress) {
 # Compute clusters to use in visNetwork
 compute_clusters <- function(nodes, edges, threshold) {
   groups <- rep(0, length(nodes$id))
-  edges_groups <- rep(0, length(edges$from))
+  edge_group <- rep(0, length(edges$from))
   
   edges_table <- data.frame(
     from = edges$from,
@@ -277,7 +279,7 @@ compute_clusters <- function(nodes, edges, threshold) {
       if (nrow(sub_tb) == 0 | length(unique(c(sub_tb$from, sub_tb$to))) == length(cluster)) {
         count <- count + 1
         groups[nodes$id %in% cluster] <- paste("Group", count)
-        edges_groups[edges$from %in% cluster & edges$to %in% cluster] <- paste("Group", count)
+        edge_group[edges$from %in% cluster & edges$to %in% cluster] <- paste("Group", count)
         break
       } else {
         cluster <- unique(c(sub_tb$from, sub_tb$to))
@@ -285,7 +287,7 @@ compute_clusters <- function(nodes, edges, threshold) {
     }
   }
   list(groups = groups,
-       edges = edges_groups)
+       edge_group = edge_group)
 }
 
 # Check gene screening status

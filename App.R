@@ -44,8 +44,9 @@ library(treeio)
 library(ggtree)
 library(ggtreeExtra)
 
-source("resources.R")
-source("functions.R")
+source("./assets/constants.R")
+source("./assets/functions.R")
+source("./assets/ui_modules.R")
 
 options(ignore.negative.edge=TRUE)
 
@@ -9568,10 +9569,15 @@ server <- function(input, output, session) {
   # Scheme selector UI 
   output$scheme_selector <- renderUI({
     if(!is.null(DB$scheme)) {
+      scheme_names <- schemes$species
+      names(scheme_names) <- ifelse(scheme_names %in% gsub(" ", "_", DB$available),
+                                    paste(scheme_names, "\U1F5BF"),
+                                    scheme_names)
+      
       pickerInput(
         inputId = "select_cgmlst",
         label = NULL,
-        choices = schemes$species,
+        choices = scheme_names,
         choicesOpt = list(
           subtext = paste("Database", 
                           schemes$database,
@@ -9590,7 +9596,7 @@ server <- function(input, output, session) {
       pickerInput(
         inputId = "select_cgmlst",
         label = NULL,
-        choices = schemes$species,
+        choices = scheme_names,
         choicesOpt = list(
           subtext = paste("Database", 
                           schemes$database,
@@ -18851,10 +18857,10 @@ server <- function(input, output, session) {
     if (input$mst_show_clusters) {
       if (input$mst_cluster_col_scale == "Viridis") {
         color_palette <- viridis(length(unique(data$nodes$group)))
-        color_edges <- viridis(length(unique(clusters$edges)))
+        color_edges <- viridis(length(unique(clusters$edge_group)))
       } else {
         color_palette <- rainbow(length(unique(data$nodes$group)))
-        color_edges <- rainbow(length(unique(clusters$edges)))
+        color_edges <- rainbow(length(unique(clusters$edge_group)))
       }
       
       if (input$mst_cluster_type == "Area") {
@@ -18876,10 +18882,10 @@ server <- function(input, output, session) {
         thick_edges$width <- input$mst_cluster_width
         thick_edges$color <- rep("rgba(0, 0, 0, 0)", length(data$edges$from))
         
-        for (i in 1:length(unique(clusters$edges))) {
-          if (unique(clusters$edges)[i] != "0") {
+        for (i in 1:length(unique(clusters$edge_group))) {
+          if (unique(clusters$edge_group)[i] != "0") {
             edge_color <- paste(col2rgb(color_edges[i]), collapse=", ")
-            thick_edges$color[clusters$edges == unique(clusters$edges)[i]] <- paste0("rgba(", edge_color, ", 0.5)")
+            thick_edges$color[clusters$edge_group == unique(clusters$edge_group)[i]] <- paste0("rgba(", edge_color, ", 0.5)")
           }
         }
         merged_edges <- rbind(thick_edges, thin_edges)
