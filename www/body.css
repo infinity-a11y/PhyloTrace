@@ -1766,20 +1766,22 @@ font-size: larger;
 }
 
 #nj_layout_ctrl, #upgma_layout_ctrl {
-margin-top: 20px !important;
+  margin-top: 20px !important;
 }
 
 #nj_field img,
-#upgma_field img{
-border-radius: 10px;
+#upgma_field img,
+#gs_field img,
+#gs_plot img{
+  border-radius: 10px;
 }
 
 #nj_heatmap_button {
-    border-color: white;
-    margin-top: 11px;
-    height: 32px;
-    width: 170px;
-    margin-right: 29px;
+  border-color: white;
+  margin-top: 11px;
+  height: 32px;
+  width: 170px;
+  margin-right: 29px;
 }
 
 button#save_plot_jpeg {

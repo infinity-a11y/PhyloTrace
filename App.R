@@ -119,6 +119,10 @@ ui <- dashboardPage(
       conditionalPanel(
         "input.tabs==='gs_profile'",
         uiOutput("screening_sidebar")
+      ),
+      conditionalPanel(
+        "input.tabs==='gs_visualization'",
+        uiOutput("gs_visualization_sidebar")
       )
     )
   ),
@@ -5365,6 +5369,131 @@ ui <- dashboardPage(
           column(1),
           uiOutput("gs_profile_display")
         )
+      ),
+      
+      ## Tab GS Visualization -------------------------------------------------------
+      
+      tabItem(
+        tabName = "gs_visualization",
+        fluidRow(
+          column(
+            width = 3,
+            align = "center",
+            h2(p("AMR Profile Visualization"), style = "color:white; margin-bottom: -20px;")
+          ),
+          column(
+            width = 7,
+            align = "left",
+            uiOutput("gene_screening_info")
+          )
+        ),
+        br(),
+        hr(),
+        fluidRow(
+          column(1),
+          column(
+            width = 10,
+            align = "center",
+            br(),
+            br(),
+            br(),
+            addSpinner(
+              plotOutput("gs_plot"),
+              spin = "dots",
+              color = "#ffffff"
+            )
+          )
+        ),
+        br(), br(),
+        fluidRow(
+          column(
+            width = 4,
+            box(
+              solidHeader = TRUE,
+              status = "primary",
+              width = "100%",
+              height = "500px",
+              h3(p("Layout"), style = "color:white; position:relative; right:-15px"),
+              hr(),
+              fluidRow(
+                column(
+                  width = 6,
+                  colorPickr(
+                    inputId = "gsplot_color_dendro",
+                    selected = "#000000",
+                    label = "",
+                    update = "changestop",
+                    interaction = list(clear = FALSE,
+                                       save = FALSE),
+                    position = "right-start",
+                    width = "100%"
+                  ),
+                  colorPickr(
+                    inputId = "gsplot_color_text",
+                    selected = "#000000",
+                    label = "",
+                    update = "changestop",
+                    interaction = list(clear = FALSE,
+                                       save = FALSE),
+                    position = "right-start",
+                    width = "100%"
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 6,
+                  colorPickr(
+                    inputId = "gsplot_color_palette1",
+                    selected = "#E5C494",
+                    label = "",
+                    update = "changestop",
+                    interaction = list(clear = FALSE,
+                                       save = FALSE),
+                    position = "right-start",
+                    width = "100%"
+                  ),
+                  colorPickr(
+                    inputId = "gsplot_color_palette2",
+                    selected = "#66C2A5",
+                    label = "",
+                    update = "changestop",
+                    interaction = list(clear = FALSE,
+                                       save = FALSE),
+                    position = "right-start",
+                    width = "100%"
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 6,
+                  numericInput(
+                   "treeheight",
+                   "Dendrogram Size",
+                   value = 50,
+                   max = 150,
+                   min = 10
+                  ),
+                  numericInput(
+                    "fontsize_row",
+                    "Row Label Size",
+                    value = 10,
+                    max = 24,
+                    min = 8
+                  ),
+                  numericInput(
+                    "fontsize_col",
+                    "Column Label Size",
+                    value = 10,
+                    max = 24,
+                    min = 8
+                  )
+                )
+              )
+            )
+          )
+        )
       )
     ) # End tabItems
   ) # End dashboardPage
@@ -6349,6 +6478,10 @@ server <- function(input, output, session) {
                   menuSubItem(
                     text = "Screening",
                     tabName = "gs_screening"
+                  ),
+                  menuSubItem(
+                    text = "Visualization",
+                    tabName = "gs_visualization"
                   )
                 ),
                 menuItem(
@@ -6438,6 +6571,10 @@ server <- function(input, output, session) {
                   menuSubItem(
                     text = "Screening",
                     tabName = "gs_screening"
+                  ),
+                  menuSubItem(
+                    text = "Visualization",
+                    tabName = "gs_visualization"
                   )
                 ),
                 menuItem(
@@ -6664,6 +6801,10 @@ server <- function(input, output, session) {
                     menuSubItem(
                       text = "Screening",
                       tabName = "gs_screening"
+                    ),
+                    menuSubItem(
+                      text = "Visualization",
+                      tabName = "gs_visualization"
                     )
                   ),
                   menuItem(
@@ -6834,6 +6975,10 @@ server <- function(input, output, session) {
                         menuSubItem(
                           text = "Screening",
                           tabName = "gs_screening"
+                        ),
+                        menuSubItem(
+                          text = "Visualization",
+                          tabName = "gs_visualization"
                         )
                       ),
                       menuItem(
@@ -6896,6 +7041,10 @@ server <- function(input, output, session) {
                         menuSubItem(
                           text = "Screening",
                           tabName = "gs_screening"
+                        ),
+                        menuSubItem(
+                          text = "Visualization",
+                          tabName = "gs_visualization"
                         )
                       ),
                       menuItem(
@@ -9002,6 +9151,10 @@ server <- function(input, output, session) {
                       menuSubItem(
                         text = "Screening",
                         tabName = "gs_screening"
+                      ),
+                      menuSubItem(
+                        text = "Visualization",
+                        tabName = "gs_visualization"
                       )
                     ),
                     menuItem(
@@ -9811,6 +9964,10 @@ server <- function(input, output, session) {
                 menuSubItem(
                   text = "Screening",
                   tabName = "gs_screening"
+                ),
+                menuSubItem(
+                  text = "Visualization",
+                  tabName = "gs_visualization"
                 )
               ),
               menuItem(
@@ -9869,6 +10026,10 @@ server <- function(input, output, session) {
               menuSubItem(
                 text = "Screening",
                 tabName = "gs_screening"
+              ),
+              menuSubItem(
+                text = "Visualization",
+                tabName = "gs_visualization"
               )
             ),
             menuItem(
@@ -10033,8 +10194,6 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
-    
-    test <<- Vis$meta_nj
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -11285,11 +11444,8 @@ server <- function(input, output, session) {
                 column(
                   width = 2,
                   div(
-                    class = "modal-buttons",
-                    div(
-                      class = "danger-button",
-                      actionButton("conf_delete_all", "Delete")
-                    )
+                    class = "danger-button",
+                    actionButton("conf_delete_all", "Delete")
                   )
                 )
               )
@@ -22635,13 +22791,20 @@ server <- function(input, output, session) {
           
           meta_nj <- select(DB$meta_true, -2)
           
-          amr_profile <- readRDS("/home/marian/Documents/Database/Klebsiella_pneumoniae_sensu_lato_CM/AMR_Profile.rds")
-          
-          if(isFALSE(any(meta_nj$Screened != "Yes"))) {
+          if(file.exists(file.path(DB$database, 
+                                   gsub(" ", "_", DB$scheme),
+                                   "AMR_Profile.rds"))) {
             
-            Vis$amr_nj <- amr_profile[rownames(amr_profile) %in% meta_nj$`Assembly ID`, ]
-            meta_nj <- add_column(meta_nj, Vis$amr_nj)
-          } 
+            amr_profile <- readRDS(file.path(DB$database, 
+                                             gsub(" ", "_", DB$scheme),
+                                             "AMR_Profile.rds"))
+            
+            if(isFALSE(any(meta_nj$Screened != "Yes"))) {
+              
+              Vis$amr_nj <- amr_profile[rownames(amr_profile) %in% meta_nj$`Assembly ID`, ]
+              meta_nj <- add_column(meta_nj, Vis$amr_nj)
+            } 
+          }
           
           if(length(unique(gsub(" ", "_", colnames(meta_nj)))) < length(gsub(" ", "_", colnames(meta_nj)))) {
             show_toast(
@@ -22798,12 +22961,20 @@ server <- function(input, output, session) {
           
           meta_upgma <- select(DB$meta_true, -2)
           
-          if(isFALSE(any(meta_upgma$Screened != "Yes"))) {
+          if(file.exists(file.path(DB$database, 
+                                   gsub(" ", "_", DB$scheme),
+                                   "AMR_Profile.rds"))) {
             
-            amr_profile_fil <- amr_profile[rownames(amr_profile) %in% meta_upgma$`Assembly ID`, ]
+            amr_profile <- readRDS(file.path(DB$database, 
+                                             gsub(" ", "_", DB$scheme),
+                                             "AMR_Profile.rds"))
             
-            meta_upgma <- add_column(meta_upgma, amr_profile_fil)
-          } 
+            if(isFALSE(any(meta_upgma$Screened != "Yes"))) {
+              
+              Vis$amr_upgma <- amr_profile[rownames(amr_profile) %in% meta_upgma$`Assembly ID`, ]
+              meta_upgma <- add_column(meta_upgma, Vis$amr_upgma)
+            } 
+          }
           
           if(length(unique(gsub(" ", "_", colnames(meta_upgma)))) < length(gsub(" ", "_", colnames(meta_upgma)))) {
             show_toast(
@@ -22817,7 +22988,7 @@ server <- function(input, output, session) {
             Vis$upgma <- phangorn::upgma(hamming_dist())
             
             # Create phylogenetic tree meta data
-            Vis$meta_upgma <- mutate(Vis$meta_upgma, taxa = Index) %>%
+            Vis$meta_upgma <- mutate(meta_upgma, taxa = Index) %>%
               relocate(taxa)
             
             # Get number of included entries calculate start values for tree 
@@ -23843,6 +24014,21 @@ server <- function(input, output, session) {
     } else {NULL}
   })
   
+  # Screening sidebar
+  output$gs_visualization_sidebar <- renderUI({
+    req(DB$data)
+    column(
+      width = 12,
+      align = "center",
+      br(), br(),
+      actionButton(
+        "make_gs_vis",
+        "Make Heatmap"
+      ),
+      br()
+    )
+  })
+  
   # Resistance profile table
   observe({
     req(DB$meta_gs, Screening$selected_isolate, DB$database, DB$scheme, DB$data)
@@ -24618,6 +24804,63 @@ server <- function(input, output, session) {
       }
     }
   }) 
+  
+  ### AMR Visualization ----
+  observeEvent(input$make_gs_vis, {
+    req(DB$database, DB$scheme)
+    
+    profile_path <- file.path(DB$database, gsub(" ", "_", DB$scheme), "AMR_Profile.rds")
+    
+    if(file.exists(profile_path)) {
+      
+      amr_profile <- readRDS(profile_path)
+      
+      amr_profile_numeric <- as.data.frame(lapply(amr_profile, as.numeric))
+      rownames(amr_profile_numeric) <- rownames(amr_profile)
+      
+      # # Compute distance matrix using Jaccard distance 
+      # dist_matrix <- dist(t(amr_profile_numeric), method = "binary")
+      # 
+      # # Hierarchical clustering
+      # hc <- hclust(dist_matrix)
+      heatmap <- pheatmap(
+        amr_profile_numeric,
+        legend = TRUE,
+        cluster_rows = TRUE,
+        cluster_cols = TRUE, 
+        show_rownames = TRUE, 
+        fontsize_row = input$fontsize_row, 
+        fontsize_col = input$fontsize_col, 
+        treeheight_row = input$treeheight,   
+        treeheight_col = input$treeheight,
+        color = c(input$gsplot_color_palette1, input$gsplot_color_palette2)
+      )
+      
+      heatmap$gtable$grobs[[4]]$gp=gpar(col=input$gsplot_color_text) # assuming that the xlabels are in the third grob
+      heatmap$gtable$grobs[[5]]$gp=gpar(col=input$gsplot_color_text) # assuming that the ylabels are in the fourth grob
+      heatmap$gtable$grobs[[1]]$gp=gpar(col=input$gsplot_color_dendro, lwd=2) # change the color of the dendrogram and set the linewidth to 2
+      heatmap$gtable$grobs[[2]]$gp=gpar(col=input$gsplot_color_dendro, lwd=2)
+      #my_gtable$grobs[[5]]$gp=gpar(col="#ffffff", fontsize="20", just="center") # legend
+      
+      # Render plot
+      output$gs_plot <- renderPlot({
+        heatmap 
+      }, bg="transparent")
+    } else {
+      
+      output$gs_plot <- NULL
+      
+      show_toast(
+        title = "No AMR profile available",
+        type = "error",
+        position = "bottom-end",
+        timer = 6000
+      )
+    }
+    
+    
+  })
+  
   
   
   # _______________________ ####
