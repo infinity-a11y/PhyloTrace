@@ -5,12 +5,14 @@
 library(shiny)
 library(R.utils)
 library(igraph)
+library(ComplexHeatmap)
 library(shinyWidgets)
 library(shinydashboard)
 library(dashboardthemes)
 library(ggplot2)
 library(ggnewscale)
 library(ggplotify) 
+library(grid)
 library(ape)
 library(tidyverse)
 library(rlang)
@@ -30,6 +32,7 @@ library(rhandsontable)
 library(visNetwork)
 library(proxy)
 library(phangorn)
+library(pheatmap)
 library(cowplot)
 library(viridis)
 library(RColorBrewer)
@@ -48,7 +51,9 @@ source("./assets/constants.R")
 source("./assets/functions.R")
 source("./assets/ui_modules.R")
 
-options(ignore.negative.edge=TRUE)
+options(ignore.negative.edge = TRUE)
+options(shiny.error = browser)
+
 
 # User Interface ----
 
@@ -5406,8 +5411,65 @@ ui <- dashboardPage(
         ),
         br(), br(),
         fluidRow(
+          column(1),
           column(
-            width = 4,
+            width = 5,
+            box(
+              solidHeader = TRUE,
+              status = "primary",
+              width = "100%",
+              height = "500px",
+              h3(p("Data Mapping"), style = "color:white; position:relative; right:-15px"),
+              hr(),
+              fluidRow(
+                column(
+                  width = 6,
+                  uiOutput("gs_plot_sel_isolate"),
+                  uiOutput("gs_plot_sel_gene")
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 6,
+                  #uiOutput("gs_plot_sel_var")
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 6,
+                  div(
+                    class = "mat-switch-db-tab",
+                    materialSwitch(
+                      "gsplot_show_classes",
+                      h5(p("Show AB Class"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                      value = FALSE,
+                      right = TRUE
+                    )
+                  ),
+                  div(
+                    class = "mat-switch-db-tab",
+                    materialSwitch(
+                      "gsplot_cluster_cols",
+                      h5(p("Cluster Columns"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                      value = TRUE,
+                      right = TRUE
+                    )
+                  ),
+                  div(
+                    class = "mat-switch-db-tab",
+                    materialSwitch(
+                      "gsplot_cluster_rows",
+                      h5(p("Cluster Rows"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                      value = TRUE,
+                      right = TRUE
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          column(
+            width = 5,
             box(
               solidHeader = TRUE,
               status = "primary",
@@ -5419,7 +5481,7 @@ ui <- dashboardPage(
                 column(
                   width = 6,
                   colorPickr(
-                    inputId = "gsplot_color_dendro",
+                    inputId = "gsplot_color_text",
                     selected = "#000000",
                     label = "",
                     update = "changestop",
@@ -5429,7 +5491,7 @@ ui <- dashboardPage(
                     width = "100%"
                   ),
                   colorPickr(
-                    inputId = "gsplot_color_text",
+                    inputId = "gsplot_color_dend",
                     selected = "#000000",
                     label = "",
                     update = "changestop",
@@ -5469,25 +5531,45 @@ ui <- dashboardPage(
                 column(
                   width = 6,
                   numericInput(
-                   "treeheight",
-                   "Dendrogram Size",
-                   value = 50,
-                   max = 150,
-                   min = 10
+                    "gsplot_treeheight_col",
+                    "Col Dendrogram Size",
+                    value = 2,
+                    max = 10,
+                    min = 1
                   ),
                   numericInput(
-                    "fontsize_row",
+                    "gsplot_treeheight_row",
+                    "Row Dendrogram Size",
+                    value = 2,
+                    max = 10,
+                    min = 1
+                  ),
+                  numericInput(
+                    "gsplot_fontsize_row",
                     "Row Label Size",
                     value = 10,
                     max = 24,
                     min = 8
                   ),
                   numericInput(
-                    "fontsize_col",
+                    "gsplot_fontsize_col",
                     "Column Label Size",
                     value = 10,
                     max = 24,
                     min = 8
+                  ),
+                  numericInput(
+                    "gsplot_legend_labelsize",
+                    "Column Label Size",
+                    value = 10,
+                    max = 24,
+                    min = 8
+                  ),
+                  selectInput(
+                    "gsplot_legend_position",
+                    "Legend Position",
+                    choices = c("Bottom" = "bottom", "Top" = "top",
+                                "Left" = "left", "Right" = "right")
                   )
                 )
               )
@@ -6358,6 +6440,12 @@ server <- function(input, output, session) {
         DB$allelic_profile_trunc <- NULL
         DB$allelic_profile_true <- NULL
         DB$scheme <- input$scheme_db
+        
+        # Load AMR profile
+        profile_path <- file.path(DB$database, gsub(" ", "_", DB$scheme), "AMR_Profile.rds")
+        if(file.exists(profile_path)) {
+          Screening$amr_profile <- readRDS(profile_path)
+        }
         
         # null Distance matrix, entry table and plots
         output$db_distancematrix <- NULL 
@@ -23798,6 +23886,67 @@ server <- function(input, output, session) {
   
   ### Render UI Elements ----
   
+  # Render isolate picker
+  output$gs_plot_sel_isolate <- renderUI({
+    req(DB$data)
+    pickerInput(
+      "gs_plot_selected_isolate",
+      label = "",
+      choices = list(
+        Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
+          as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
+        } else {
+          DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+        },
+        Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
+          as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
+        } else {
+          DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
+        },
+        `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
+          as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
+        } else {
+          DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
+        }
+      ),
+      choicesOpt = list(
+        disabled = c(
+          rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
+          rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
+          rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
+        )
+      ),
+      selected = DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")],
+      options = list(
+        `live-search` = TRUE,
+        `actions-box` = TRUE,
+        size = 10,
+        style = "background-color: white; border-radius: 5px;"
+      ),
+      multiple = TRUE,
+      width = "100%"
+    )
+  })
+  
+  # Render gene picker 
+  output$gs_plot_sel_gene <- renderUI({
+    req(DB$data, Screening$amr_profile)
+    pickerInput(
+      "gs_plot_selected_gene",
+      label = "",
+      choices = colnames(Screening$amr_profile),
+      options = list(
+        `live-search` = TRUE,
+        `actions-box` = TRUE,
+        size = 10,
+        style = "background-color: white; border-radius: 5px;"
+      ),
+      selected = colnames(Screening$amr_profile),
+      multiple = TRUE,
+      width = "100%"
+    )
+  })
+  
   # Rendering results table
   output$gs_results_table <- renderUI({
     req(DB$data)
@@ -24806,62 +24955,82 @@ server <- function(input, output, session) {
   }) 
   
   ### AMR Visualization ----
-  observeEvent(input$make_gs_vis, {
-    req(DB$database, DB$scheme)
+  
+  observe({
+    req(DB$data, Screening$amr_profile,
+        DB$database, DB$scheme, input$gs_plot_selected_isolate,
+        input$gs_plot_selected_gene, input$gsplot_cluster_rows,
+        input$gsplot_cluster_cols, input$gsplot_fontsize_col,
+        input$gsplot_fontsize_row, input$gsplot_treeheight_col,
+        input$gsplot_treeheight_row, input$gsplot_legend_labelsize, 
+        input$gsplot_color_palette1, input$gsplot_color_palette2, 
+        input$gsplot_color_text)
     
-    profile_path <- file.path(DB$database, gsub(" ", "_", DB$scheme), "AMR_Profile.rds")
+    amr_profile_numeric <- as.data.frame(lapply(Screening$amr_profile, as.numeric))
+    rownames(amr_profile_numeric) <- rownames(Screening$amr_profile)
+    colnames(amr_profile_numeric) <- colnames(Screening$amr_profile)
     
-    if(file.exists(profile_path)) {
-      
-      amr_profile <- readRDS(profile_path)
-      
-      amr_profile_numeric <- as.data.frame(lapply(amr_profile, as.numeric))
-      rownames(amr_profile_numeric) <- rownames(amr_profile)
-      
-      # # Compute distance matrix using Jaccard distance 
-      # dist_matrix <- dist(t(amr_profile_numeric), method = "binary")
-      # 
-      # # Hierarchical clustering
-      # hc <- hclust(dist_matrix)
-      heatmap <- pheatmap(
-        amr_profile_numeric,
-        legend = TRUE,
-        cluster_rows = TRUE,
-        cluster_cols = TRUE, 
-        show_rownames = TRUE, 
-        fontsize_row = input$fontsize_row, 
-        fontsize_col = input$fontsize_col, 
-        treeheight_row = input$treeheight,   
-        treeheight_col = input$treeheight,
-        color = c(input$gsplot_color_palette1, input$gsplot_color_palette2)
-      )
-      
-      heatmap$gtable$grobs[[4]]$gp=gpar(col=input$gsplot_color_text) # assuming that the xlabels are in the third grob
-      heatmap$gtable$grobs[[5]]$gp=gpar(col=input$gsplot_color_text) # assuming that the ylabels are in the fourth grob
-      heatmap$gtable$grobs[[1]]$gp=gpar(col=input$gsplot_color_dendro, lwd=2) # change the color of the dendrogram and set the linewidth to 2
-      heatmap$gtable$grobs[[2]]$gp=gpar(col=input$gsplot_color_dendro, lwd=2)
-      #my_gtable$grobs[[5]]$gp=gpar(col="#ffffff", fontsize="20", just="center") # legend
-      
-      # Render plot
-      output$gs_plot <- renderPlot({
-        heatmap 
-      }, bg="transparent")
+    if(length(input$gs_plot_selected_isolate) > 2) {
+      amr_profile_numeric <- amr_profile_numeric[rownames(amr_profile_numeric) %in% input$gs_plot_selected_isolate, ]
     } else {
-      
-      output$gs_plot <- NULL
-      
       show_toast(
-        title = "No AMR profile available",
+        title = "Select minimum 3 isolates",
         type = "error",
         position = "bottom-end",
         timer = 6000
       )
     }
     
+    if(length(input$gs_plot_selected_gene) > 2) {
+      amr_profile_numeric <- amr_profile_numeric[,input$gs_plot_selected_gene]
+    } else {
+      show_toast(
+        title = "Select minimum 3 genes",
+        type = "error",
+        position = "bottom-end",
+        timer = 6000
+      )
+    }
     
+    amr_profile_matrix <- as.matrix(amr_profile_numeric)
+    
+    ht_opt$HEATMAP_LEGEND_PADDING = unit(15, "mm")
+    
+    output$gs_plot <- renderPlot({
+      ComplexHeatmap::draw(ComplexHeatmap::Heatmap(
+        amr_profile_matrix,
+        col = c(input$gsplot_color_palette1, input$gsplot_color_palette2),
+        rect_gp = gpar(col = "white", lwd = 2),
+        column_title = "Genes", 
+        row_title = "Isolates",
+        row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
+                            col = input$gsplot_color_text),
+        column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
+                               col = input$gsplot_color_text),
+        cluster_rows = input$gsplot_cluster_rows,
+        #cluster_cols = input$gsplot_cluster_cols,
+        column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
+        row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
+        row_dend_gp = gpar(col = input$gsplot_color_dend),    
+        column_dend_gp = gpar(col = input$gsplot_color_dend), 
+        heatmap_legend_param = list(
+          title = "Gene Presence",  
+          legend_direction = if(input$gsplot_legend_position == "bottom" |
+                                input$gsplot_legend_position == "top") {
+            "vertical"
+          } else {"horizontal"}, 
+          legend_margin = unit(c(5, 5, 5, 5), "cm"),
+          title_gp = gpar(fontsize = input$gsplot_legend_labelsize + 2), 
+          labels_gp = gpar(fontsize = input$gsplot_legend_labelsize),  
+          grid_height = unit(input$gsplot_legend_labelsize * 0.8, "mm"),
+          grid_width = unit(input$gsplot_legend_labelsize * 0.8, "mm"),
+          at = c(1, 0),
+          labels = c("TRUE", "FALSE")
+        )
+      ),
+      heatmap_legend_side = input$gsplot_legend_position)
+    })
   })
-  
-  
   
   # _______________________ ####
   

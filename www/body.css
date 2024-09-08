@@ -20,6 +20,11 @@ input[type="checkbox"] {
   background-color: transparent;
 }
 
+.pcr-app .pickr-color .visible,
+body > div.pcr-app.pickr-color.visible {
+  border-radius: 5px;
+}
+
 #nj_heatmap_confirm,
 #change_entries,
 #conf_screening_cancel,
