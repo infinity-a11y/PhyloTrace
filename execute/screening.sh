@@ -50,6 +50,6 @@ for file in "${isolates[@]}"; do
     rm -rf "$zip_dir/$zip_base.fasta"
 done
 
-Rscript make_amr_profile.R "$database" "$scheme"
+Rscript make_amr_profile.R "$database" "$scheme" "$base_path"
 
 echo "AMRFinder finalized"

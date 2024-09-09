@@ -938,3 +938,235 @@ download.alleles.CM <- function(url_link, database, folder_name, progress) {
     logr::log_print("All files downloaded successfully and are non-empty.")
   }
 }
+
+# Function to check and remove duplicate segments
+process_string <- function(input_string) {
+  
+  # Split the string by comma
+  segments <- strsplit(input_string, ",")[[1]]
+  
+  # Ensure that there are two parts to compare
+  if (length(segments) == 2) {
+    
+    # Remove asterisks from both segments
+    clean_segment_1 <- gsub("\\*", "", segments[1])
+    clean_segment_2 <- gsub("\\*", "", segments[2])
+    
+    # Check if the cleaned segments are identical
+    if (clean_segment_1 == clean_segment_2) {
+      
+      # If they are identical, return the cleaned version without asterisk
+      return(clean_segment_1)
+    } else {
+      
+      # If they are not identical, return the original string
+      return(input_string)
+    }
+  } else {
+    
+    # If there's no comma or improper format, return the original string
+    return(input_string)
+  }
+}
+
+summarize.AMR <- function(database, scheme) {
+  isolates_path <- file.path(database, gsub(" ", "_", scheme), "Isolates")
+  isolates_full <- list.files(isolates_path, full.names = TRUE)
+  available <- sapply(isolates_full, function(isolate) file.exists(file.path(isolate, "amrfinder.out")))
+  isolates <- basename(isolates_full[available])
+  
+  loci <- character()
+  amr_profile <- list()
+  amr_matches <- data.frame()
+  virulence_matches <- data.frame()
+  
+  amr_df <- list()
+  vir_df <- list()
+  
+  for(i in seq_along(isolates)) {
+    
+    amr_profile_path <- file.path(isolates_path, isolates[i])
+    
+    # amrfinder results
+    if(file.exists(file.path(amr_profile_path, "amrfinder.out"))) {
+      amr_results <- read.delim(file.path(amr_profile_path, "amrfinder.out"), stringsAsFactors = FALSE)
+      gene_symbols <- unique(amr_results$Gene.symbol)  
+      amr_profile[[i]] <- gene_symbols  
+      loci <- union(loci, gene_symbols) 
+    }
+    
+    # classification antibiotics drug 
+    if(file.exists(file.path(amr_profile_path, "summary_matches.txt"))) {
+      summary_matches <- read.delim(file.path(amr_profile_path, "summary_matches.txt"), 
+                                    stringsAsFactors = FALSE) %>%
+        select(-1)
+      
+      # Process each column
+      for (col in colnames(summary_matches)) {
+        if (nrow(summary_matches) > 0) {
+          # Ensure the column exists in previous data frames
+          if (length(amr_df) > 0 && col %in% colnames(amr_df[[1]])) {
+            
+            # Extract previous data frame
+            prev_df <- amr_df[[length(amr_df)]]
+            
+            if (col %in% colnames(prev_df)) {  
+              # Combine the current and previous columns for the specific column
+              combined_col <- unique(c(stringr::str_split(prev_df[[col]], ",")[[1]], 
+                                       stringr::str_split(summary_matches[[col]], ",")[[1]]))
+              
+              # Update the column in the previous data frame with the combined values
+              prev_df[[col]] <- paste(combined_col, collapse = ",")
+            }
+            
+            # Update the last data frame in the list
+            amr_df[[length(amr_df)]] <- prev_df
+            
+          } else {
+            # If the column is new, add it to the previous data frame if it exists
+            if (length(amr_df) > 0) {
+              amr_df[[length(amr_df)]][[col]] <- summary_matches[[col]]
+            } else {
+              # If there are no previous data frames, initialize the first one
+              amr_df[[1]] <- summary_matches
+            }
+          }
+        }
+      }
+      
+      # Add the current data frame to the list
+      amr_df[[length(amr_df) + 1]] <- summary_matches
+    }
+    
+    # classification virulence 
+    if(file.exists(file.path(amr_profile_path, "summary_virulence.txt"))) {
+      summary_virulence <- read.delim(file.path(amr_profile_path, "summary_virulence.txt"), 
+                                      stringsAsFactors = FALSE) %>%
+        select(-1)
+      
+      # Process each column
+      for (col in colnames(summary_virulence)) {
+        if (nrow(summary_virulence) > 0) {
+          # Ensure the column exists in previous data frames
+          if (length(vir_df) > 0 && col %in% colnames(vir_df[[1]])) {
+            
+            # Extract previous data frame
+            prev_df <- vir_df[[length(vir_df)]]
+            
+            if (col %in% colnames(prev_df)) {
+              
+              # Combine the current and previous columns for the specific column
+              combined_col <- unique(c(stringr::str_split(prev_df[[col]], ",")[[1]], 
+                                       stringr::str_split(summary_virulence[[col]], ",")[[1]]))
+              
+              # Update the column in the previous data frame with the combined values
+              prev_df[[col]] <- paste(combined_col, collapse = ",")
+            }
+            
+            # Update the last data frame in the list
+            vir_df[[length(vir_df)]] <- prev_df
+            
+          } else {
+            # If the column is new, add it to the previous data frame if it exists
+            if (length(vir_df) > 0) {
+              vir_df[[length(vir_df)]][[col]] <- summary_virulence[[col]]
+            } else {
+              # If there are no previous data frames, initialize the first one
+              vir_df[[1]] <- summary_virulence
+            }
+          }
+        }
+      }
+      
+      # Add the current data frame to the list
+      vir_df[[length(vir_df) + 1]] <- summary_virulence
+    }
+  }
+  
+  # collate amr data frames
+  final_df_amr <- dplyr::bind_rows(amr_df, .id = "source")
+  
+  amr_class_conc <- final_df_amr %>%
+    summarise(across(everything(), ~ {
+      unique_values <- unique(unlist(stringr::str_split(na.omit(.), ",")))
+      paste(unique_values, collapse = ",")
+    })) %>%
+    select(-1)
+  
+  amr_class_long <- amr_class_conc %>%
+    tidyr::pivot_longer(cols = everything(), 
+                 names_to = "Variable", 
+                 values_to = "Observation")
+  
+  amr_class_pre <- amr_class_long %>%
+    tidyr::separate_rows(Observation, sep = ",")
+  
+  amr_class <- as.data.frame(lapply(amr_class_pre, function(column) {
+    sapply(column, process_string)  
+  }))
+  
+  # collate virulence data frames
+  final_df_vir <- dplyr::bind_rows(vir_df, .id = "source")
+  
+  vir_class_conc <- final_df_vir %>%
+    summarise(across(everything(), ~ {
+      unique_values <- unique(unlist(stringr::str_split(na.omit(.), ",")))
+      paste(unique_values, collapse = ",")
+    })) %>%
+    select(-1)
+  
+  vir_class_long <- vir_class_conc %>%
+    tidyr::pivot_longer(cols = everything(), 
+                 names_to = "Variable", 
+                 values_to = "Observation")
+  
+  vir_class <- vir_class_long %>%
+    tidyr::separate_rows(Observation, sep = ",")
+  
+  amr_class <- as.data.frame(lapply(amr_class_pre, function(column) {
+    sapply(column, process_string)}))
+    
+  # collate results
+  df <- matrix(FALSE, nrow = length(isolates), ncol = length(loci))
+  colnames(df) <- loci
+  rownames(df) <- isolates
+  
+  for(i in seq_along(amr_profile)) {
+    df[i, loci %in% amr_profile[[i]]] <- TRUE
+  }
+  
+  return(list(results = as.data.frame(df),
+              AMR_classification = amr_class,
+              virulence_classification = vir_class))
+}
+
+# function to categorize genes by classes
+categorize.gs <- function(names, df) {
+  
+  value_amr <- df$amr[which(names == rownames(test))]
+  value_vir <- df$vir[which(names == rownames(test))]
+  
+  if (!is.na(value_amr) && value_amr != "") {
+    return("AMR")
+  } else if (!is.na(value_vir) && value_vir != "") {
+    return("Vir")
+  } else {
+    return("None")
+  }
+}
+
+# Create a function to get color and symbol based on the category
+get_annotation_params <- function(category_index, num_categories, color_palette) {
+  # Define color palettes and symbols
+  symbol_set <- c(16, 17, 18, 19, 20, 21, 22, 23, 24, 25)  # First set of symbols
+  
+  # Determine the set based on the category index
+  set_index <- (category_index - 1) %/% 10 + 1
+  
+  # Calculate the index within the set
+  symbol_index <- (category_index - 1) %% 10 + 1
+  color_index <- (category_index - 1) %% length(color_palette) + 1
+  
+  # Return the symbol and color
+  list(symbol = symbol_set[symbol_index], color = color_palette[color_index])
+}

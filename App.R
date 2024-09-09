@@ -5403,7 +5403,7 @@ ui <- dashboardPage(
             br(),
             br(),
             addSpinner(
-              plotOutput("gs_plot"),
+              plotOutput("gs_plot", height = "700px"),
               spin = "dots",
               color = "#ffffff"
             )
@@ -5569,7 +5569,8 @@ ui <- dashboardPage(
                     "gsplot_legend_position",
                     "Legend Position",
                     choices = c("Bottom" = "bottom", "Top" = "top",
-                                "Left" = "left", "Right" = "right")
+                                "Left" = "left", "Right" = "right"),
+                    selected = "right"
                   )
                 )
               )
@@ -6444,7 +6445,10 @@ server <- function(input, output, session) {
         # Load AMR profile
         profile_path <- file.path(DB$database, gsub(" ", "_", DB$scheme), "AMR_Profile.rds")
         if(file.exists(profile_path)) {
-          Screening$amr_profile <- readRDS(profile_path)
+          amr_profile <- readRDS(profile_path)
+          Screening$amr_results <- amr_profile$results
+          Screening$amr_class <- amr_profile$AMR_classification
+          Screening$vir_class <- amr_profile$virulence_classification
         }
         
         # null Distance matrix, entry table and plots
@@ -17412,64 +17416,73 @@ server <- function(input, output, session) {
   })
   
   output$upgma_heatmap_sel <- renderUI({
+    req(input$upgma_heatmap_map)
     if(!is.null(Vis$meta_upgma)) {
+      meta <- select(Vis$meta_upgma, -c(taxa, Index, `Assembly ID`, `Assembly Name`,
+                                     Scheme, `Typing Date`, Successes, Errors))
       
-      amr_profile <- readRDS("/home/marian/Documents/Database/Klebsiella_pneumoniae_sensu_lato_CM/AMR_Profile.rds")
-      
-      meta <- select(Vis$meta_upgma, -c(taxa, Index, `Assembly Name`,
-                                        Scheme, `Typing Date`, Successes, Errors))
-      
-      if(isFALSE(any(meta$Screened != "Yes"))) {
+      if(input$upgma_heatmap_map == "Variables") {
+        meta <- select(meta, -colnames(Vis$amr_upgma))
         
-        amr_profile_fil <- amr_profile[rownames(amr_profile) %in% meta$`Assembly ID`, ]
+        # Identify numeric columns
+        numeric_columns <- sapply(meta, is.numeric)
+        numeric_column_names <- names(meta[numeric_columns])
+        non_numeric_column_names <- names(meta)[!numeric_columns]
+        non_numeric_column_names <- non_numeric_column_names[!numeric_columns]
         
-        add_column(meta, amr_profile_fil)
+        choices <- list()
+        # Add Continuous list only if there are numeric columns
+        if (length(numeric_column_names) > 0) {
+          choices$Continuous <- as.list(setNames(numeric_column_names, numeric_column_names))
+        }
+        
+        # Add Diverging list
+        choices$Categorical <- setNames(non_numeric_column_names, non_numeric_column_names)
+        
+      } else if(input$upgma_heatmap_map == "AMR Profile") {
+        if(isFALSE(any(Vis$meta_upgma$Screened != "Yes"))) {
+          choices <- as.list(colnames(Vis$amr_upgma))
+        } else {
+          upgma_heatmap_select <- HTML(p(paste0("TESDTDHJTDHTJKD")))
+        }
       }
       
-      # Identify numeric columns
-      numeric_columns <- sapply(meta, is.numeric)
-      
-      numeric_column_names <- names(meta[numeric_columns])
-      
-      non_numeric_column_names <- names(meta)[!numeric_columns]
-      
-      choices <- list()
-      
-      # Add Continuous list only if there are numeric columns
-      if (length(numeric_column_names) > 0) {
-        choices$Continuous <- as.list(setNames(numeric_column_names, numeric_column_names))
+      if(input$upgma_heatmap_map == "AMR Profile" & 
+         isTRUE(any(Vis$meta_upgma$Screened != "Yes"))) {
+        
+        upgma_heatmap_select <- HTML(p(paste0("TESDTDHJTDHTJKD")))
+      } else {
+        upgma_heatmap_select <- pickerInput(
+          inputId = "upgma_heatmap_select",
+          label = "",
+          width = "100%",
+          choices = if(ncol(Vis$meta_upgma) == 11) {
+            c(
+              `Isolation Date` = "Isolation Date",
+              Host = "Host",
+              Country = "Country",
+              City = "City"
+            )
+          } else {choices},
+          options = list(
+            `live-search` = TRUE,
+            `actions-box` = TRUE,
+            size = 10,
+            style = "background-color: white; border-radius: 5px;"
+          ),
+          multiple = TRUE
+        )
       }
       
-      # Add Diverging list
-      choices$Categorical <- as.list(setNames(non_numeric_column_names, non_numeric_column_names))
-      
-      upgma_heatmap_select <- pickerInput(
-        inputId = "upgma_heatmap_select",
-        label = "",
-        width = "100%",
-        choices = if(ncol(Vis$meta_upgma) == 11) {
-          c(
-            `Isolation Date` = "Isolation Date",
-            Host = "Host",
-            Country = "Country",
-            City = "City"
-          )
-        } else {choices},
-        options = list(
-          `dropdown-align-center` = TRUE,
-          size = 10,
-          style = "background-color: white; border-radius: 5px;"
-        ),
-        multiple = TRUE
+      column(
+        width = 6,
+        div(
+          class = "heatmap-picker",
+          if(input$upgma_heatmap_show) {
+            upgma_heatmap_select
+          } else {shinyjs::disabled(upgma_heatmap_select)}
+        )      
       )
-      
-      div(
-        class = "heatmap-picker",
-        if(input$upgma_heatmap_show) {
-          upgma_heatmap_select
-        } else {shinyjs::disabled(upgma_heatmap_select)}
-      )
-               
     } else {
       upgma_heatmap_select <- pickerInput(
         inputId = "upgma_heatmap_select",
@@ -17481,14 +17494,22 @@ server <- function(input, output, session) {
           Country = "Country",
           City = "City"
         ),
+        options = list(
+          `live-search` = TRUE,
+          `actions-box` = TRUE,
+          size = 10,
+          style = "background-color: white; border-radius: 5px;"
+        ),
         multiple = TRUE
       )
-      
-      div(
-        class = "heatmap-picker",
-        if(input$upgma_heatmap_show) {
-          upgma_heatmap_select
-        } else {shinyjs::disabled(upgma_heatmap_select)}
+      column(
+        width = 6,
+        div(
+          class = "heatmap-picker",
+          if(input$upgma_heatmap_show) {
+            upgma_heatmap_select
+          } else {shinyjs::disabled(upgma_heatmap_select)}
+        )
       )
     }
   })
@@ -22905,7 +22926,7 @@ server <- function(input, output, session) {
             
             # Create phylogenetic tree data
             Vis$nj <- ape::nj(hamming_dist())
-            test1 <<- meta_nj
+            
             # Create phylogenetic tree meta data
             Vis$meta_nj <- mutate(meta_nj, taxa = Index) %>%
               relocate(taxa)
@@ -23930,18 +23951,18 @@ server <- function(input, output, session) {
   
   # Render gene picker 
   output$gs_plot_sel_gene <- renderUI({
-    req(DB$data, Screening$amr_profile)
+    req(DB$data, Screening$amr_results)
     pickerInput(
       "gs_plot_selected_gene",
       label = "",
-      choices = colnames(Screening$amr_profile),
+      choices = colnames(Screening$amr_results),
       options = list(
         `live-search` = TRUE,
         `actions-box` = TRUE,
         size = 10,
         style = "background-color: white; border-radius: 5px;"
       ),
-      selected = colnames(Screening$amr_profile),
+      selected = colnames(Screening$amr_results),
       multiple = TRUE,
       width = "100%"
     )
@@ -24166,16 +24187,6 @@ server <- function(input, output, session) {
   # Screening sidebar
   output$gs_visualization_sidebar <- renderUI({
     req(DB$data)
-    column(
-      width = 12,
-      align = "center",
-      br(), br(),
-      actionButton(
-        "make_gs_vis",
-        "Make Heatmap"
-      ),
-      br()
-    )
   })
   
   # Resistance profile table
@@ -24957,7 +24968,7 @@ server <- function(input, output, session) {
   ### AMR Visualization ----
   
   observe({
-    req(DB$data, Screening$amr_profile,
+    req(DB$data, Screening$amr_results,
         DB$database, DB$scheme, input$gs_plot_selected_isolate,
         input$gs_plot_selected_gene, input$gsplot_cluster_rows,
         input$gsplot_cluster_cols, input$gsplot_fontsize_col,
@@ -24966,9 +24977,9 @@ server <- function(input, output, session) {
         input$gsplot_color_palette1, input$gsplot_color_palette2, 
         input$gsplot_color_text)
     
-    amr_profile_numeric <- as.data.frame(lapply(Screening$amr_profile, as.numeric))
-    rownames(amr_profile_numeric) <- rownames(Screening$amr_profile)
-    colnames(amr_profile_numeric) <- colnames(Screening$amr_profile)
+    amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, as.numeric))
+    rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
+    colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
     
     if(length(input$gs_plot_selected_isolate) > 2) {
       amr_profile_numeric <- amr_profile_numeric[rownames(amr_profile_numeric) %in% input$gs_plot_selected_isolate, ]
@@ -24992,43 +25003,196 @@ server <- function(input, output, session) {
       )
     }
     
-    amr_profile_matrix <- as.matrix(amr_profile_numeric)
+    heatmap_matrix <- as.matrix(amr_profile_numeric)
     
+    # get heatmap meta
+    if(!is.null(Screening$amr_class)) {
+      if(nrow(Screening$amr_class) > 0) {
+        no_amr <- FALSE
+        amr_class_filtered <- Screening$amr_class[!duplicated(gsub("\\*", "", Screening$amr_class$Observation)),]
+        
+        amr_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", amr_class_filtered$Observation)
+        
+        amr_class_present <- colnames(heatmap_matrix)[amr_unison]
+        amr_no_class <- colnames(heatmap_matrix)[!amr_unison]
+        
+        amr_meta <- data.frame(
+          gene = c(amr_class_present, amr_no_class),
+          amr = c(amr_class_filtered$Variable[gsub("\\*", "", amr_class_filtered$Observation) %in% amr_class_present], 
+                  rep(NA, length(amr_no_class)))
+        ) %>%
+          arrange(gene) %>%
+          tibble::column_to_rownames(var = "gene")
+      } else {no_amr <- TRUE}
+    } else {no_amr <- TRUE}
+    
+    if(!is.null(Screening$vir_class)) {
+      if(nrow(Screening$vir_class) > 0) {
+        no_vir <- FALSE
+        vir_class_filtered <- Screening$vir_class[!duplicated(gsub("\\*", "", Screening$vir_class$Observation)),]
+        
+        vir_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", vir_class_filtered$Observation)
+        
+        vir_class_present <- colnames(heatmap_matrix)[vir_unison]
+        vir_no_class <- colnames(heatmap_matrix)[!vir_unison]
+        
+        vir_meta <- data.frame(
+          gene = c(vir_class_present, vir_no_class),
+          class = c(vir_class_filtered$Variable[gsub("\\*", "", vir_class_filtered$Observation) %in% vir_class_present], 
+                    rep(NA, length(vir_no_class)))
+        ) %>%
+          arrange(gene) %>%
+          tibble::column_to_rownames(var = "gene")
+      } else {no_vir <- TRUE}
+    } else {no_vir <- TRUE}
+    
+    if(!no_amr & no_vir) {
+      hm_meta <- amr_meta
+    } else if (no_amr & !no_vir) {
+      hm_meta <- vir_meta
+    } else if (no_amr & no_vir) {
+      hm_meta <- NULL
+    } else {
+      hm_meta <- add_column(amr_meta, vir = vir_meta$class)
+    }
+    
+    # styling parameters
     ht_opt$HEATMAP_LEGEND_PADDING = unit(15, "mm")
     
+    legend_gp <- gpar(fill = c(input$gsplot_color_palette1, input$gsplot_color_palette2))
+    labels_gp <- gpar(fontsize = input$gsplot_legend_labelsize)
+    title_gp <- gpar(fontsize = input$gsplot_legend_labelsize + 2)
+    grid_height <- unit(input$gsplot_legend_labelsize * 0.8, "mm")
+    grid_width <- unit(input$gsplot_legend_labelsize * 0.8, "mm")
+    
+    # heatmap annotations
+    amr_colors <- rainbow(length(unique(na.omit(hm_meta$amr))))
+    names(amr_colors) <- unique(sort(na.omit(hm_meta$amr)))
+    
+    amr_annotation <- HeatmapAnnotation(
+      AMR = na.omit(hm_meta$amr),
+      show_legend = TRUE,
+      col = list(AMR = amr_colors),  
+      show_annotation_name = FALSE,
+      annotation_legend_param = list(
+        title = "AMR",
+        labels_gp = labels_gp,
+        title_gp = title_gp,
+        grid_height = grid_height,
+        grid_width = grid_width,
+        legend_gp = gpar(fill = amr_colors) 
+      )
+    )
+    
+    vir_colors <- viridis(length(unique(na.omit(hm_meta$vir))))
+    names(vir_colors) <- unique(sort(na.omit(hm_meta$vir)))
+    
+    vir_annotation <- HeatmapAnnotation(
+      Vir = na.omit(hm_meta$vir),
+      show_legend = TRUE,
+      col = list(Vir = vir_colors),  
+      show_annotation_name = FALSE,
+      annotation_legend_param = list(
+        title = "Vir",
+        legend_gp = legend_gp,
+        labels_gp = labels_gp,
+        title_gp = title_gp,
+        grid_height = grid_height,
+        grid_width = grid_width,
+        legend_gp = gpar(fill = vir_colors) 
+      )
+    )
+    
+    # AMR heatmap
+    amr_genes <- rownames(hm_meta)[!is.na(hm_meta$amr)]
+    amr_profile_matrix <- heatmap_matrix[,colnames(heatmap_matrix) %in% amr_genes]
+    amr_heatmap <- ComplexHeatmap::Heatmap(
+      amr_profile_matrix,
+      col = c(input$gsplot_color_palette1, input$gsplot_color_palette2),
+      rect_gp = gpar(col = "white", lwd = 2),
+      column_title = "AMR",
+      row_title = "Isolates",
+      row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
+                          col = input$gsplot_color_text),
+      column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
+                             col = input$gsplot_color_text),
+      cluster_rows = input$gsplot_cluster_rows,
+      column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
+      row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
+      row_dend_gp = gpar(col = input$gsplot_color_dend),    
+      column_dend_gp = gpar(col = input$gsplot_color_dend), 
+      top_annotation = amr_annotation,
+      show_heatmap_legend = FALSE
+    )
+    
+    # Vir heatmap
+    vir_genes <- rownames(hm_meta)[!is.na(hm_meta$vir)]
+    vir_profile_matrix <- heatmap_matrix[,colnames(heatmap_matrix) %in% vir_genes]
+    vir_heatmap <- ComplexHeatmap::Heatmap(
+      vir_profile_matrix,
+      col = c(input$gsplot_color_palette1, input$gsplot_color_palette2),
+      rect_gp = gpar(col = "white", lwd = 2),
+      column_title = "Virulence",
+      row_title = "Isolates",
+      row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
+                          col = input$gsplot_color_text),
+      column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
+                             col = input$gsplot_color_text),
+      cluster_rows = input$gsplot_cluster_rows,
+      column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
+      row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
+      row_dend_gp = gpar(col = input$gsplot_color_dend),    
+      column_dend_gp = gpar(col = input$gsplot_color_dend), 
+      top_annotation = vir_annotation,
+      show_heatmap_legend = FALSE
+    )
+    
+    # None heatmap
+    unclass_genes <- rownames(hm_meta)[is.na(hm_meta$vir) & is.na(hm_meta$amr)]
+    noclass_profile_matrix <- heatmap_matrix[,colnames(heatmap_matrix) %in% unclass_genes]
+    noclass_heatmap <- ComplexHeatmap::Heatmap(
+      noclass_profile_matrix,
+      col = c(input$gsplot_color_palette1, input$gsplot_color_palette2),
+      rect_gp = gpar(col = "white", lwd = 2),
+      column_title = "No Class",
+      row_title = "Isolates",
+      row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
+                          col = input$gsplot_color_text),
+      column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
+                             col = input$gsplot_color_text),
+      cluster_rows = input$gsplot_cluster_rows,
+      column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
+      row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
+      row_dend_gp = gpar(col = input$gsplot_color_dend),    
+      column_dend_gp = gpar(col = input$gsplot_color_dend),
+      show_heatmap_legend = FALSE
+    )
+    
+    # custom legend
+    custom_legend <- packLegend(
+      Legend(
+        labels = c("Present", "Absent"),
+        title = "Gene Presence",
+        legend_gp = gpar(fill = c(input$gsplot_color_palette1, input$gsplot_color_palette2)),
+        labels_gp = gpar(fontsize = input$gsplot_legend_labelsize + 1),
+        title_gp = gpar(fontsize = input$gsplot_legend_labelsize + 3,
+                        fontface = "bold"),
+        grid_height = unit((input$gsplot_legend_labelsize + 1) * 0.8, "mm"),
+        grid_width = unit((input$gsplot_legend_labelsize + 1) * 0.8, "mm"),
+        at = c(1, 0)
+      )
+    )
+    
+    # summarize heatmaps
+    heatmaps <- amr_heatmap + vir_heatmap + noclass_heatmap
+    
+    # make plot
     output$gs_plot <- renderPlot({
-      ComplexHeatmap::draw(ComplexHeatmap::Heatmap(
-        amr_profile_matrix,
-        col = c(input$gsplot_color_palette1, input$gsplot_color_palette2),
-        rect_gp = gpar(col = "white", lwd = 2),
-        column_title = "Genes", 
-        row_title = "Isolates",
-        row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
-                            col = input$gsplot_color_text),
-        column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
-                               col = input$gsplot_color_text),
-        cluster_rows = input$gsplot_cluster_rows,
-        #cluster_cols = input$gsplot_cluster_cols,
-        column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
-        row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
-        row_dend_gp = gpar(col = input$gsplot_color_dend),    
-        column_dend_gp = gpar(col = input$gsplot_color_dend), 
-        heatmap_legend_param = list(
-          title = "Gene Presence",  
-          legend_direction = if(input$gsplot_legend_position == "bottom" |
-                                input$gsplot_legend_position == "top") {
-            "vertical"
-          } else {"horizontal"}, 
-          legend_margin = unit(c(5, 5, 5, 5), "cm"),
-          title_gp = gpar(fontsize = input$gsplot_legend_labelsize + 2), 
-          labels_gp = gpar(fontsize = input$gsplot_legend_labelsize),  
-          grid_height = unit(input$gsplot_legend_labelsize * 0.8, "mm"),
-          grid_width = unit(input$gsplot_legend_labelsize * 0.8, "mm"),
-          at = c(1, 0),
-          labels = c("TRUE", "FALSE")
-        )
-      ),
-      heatmap_legend_side = input$gsplot_legend_position)
+      ComplexHeatmap::draw(
+        heatmaps,
+        heatmap_legend_side = input$gsplot_legend_position,
+        annotation_legend_list = custom_legend  # Add custom legend
+      )
     })
   })
   
