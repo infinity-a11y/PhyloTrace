@@ -103,6 +103,101 @@ body > div.pcr-app.pickr-color.visible {
   border-bottom-right-radius: 10px;
 }
 
+.sF-modal .modal-content {
+  overflow: auto;
+  min-width: 276px;
+  max-height: calc(100vh - 45px);
+  background: #282f38;
+  color: white;
+  border: solid 1px;
+  border-radius: 5px;
+}
+
+.sF-title .modal-title,
+#assembly_files-modal > div > div > div.modal-header > h4,
+.sF-title {
+  color: white;
+}
+
+.modal-header,
+.modal-footer,
+.modal-body {
+  background-color: #282f38;
+}
+
+#assembly_files-modal > div > div > div.modal-body > div.sF-navigation.btn-toolbar > div.btn-group.btn-group-sm.sF-navigate,
+.btn-group .btn-group-sm .sF-navigate,
+.btn-toolbar .btn-group,
+.btn-group .btn-group-sm .sF-navigate .btn-toolbar .btn-group {
+  margin-bottom: 5px;
+  margin-right: 5px;
+  border: 1px solid white;
+  border-radius: 4px;
+}
+
+.skin-blue .input-group-btn > .btn {
+  background: #282f38;
+  color: white !important;
+  border-radius: 5px;
+  border-color: rgb(255 255 255);
+}
+
+.input-group-btn:not(:first-child):not(:last-child),
+.sF-textChoice .btn-group .input-group-btn .btn-group-sm {
+  border: none;
+}
+
+#assembly_files-modal > div > div > div.modal-body > div.sF-navigation.btn-toolbar > div.sF-sort.dropdown.btn-group.btn-group-sm.open > ul > li.sortAttr.selected > a {
+  background-color: white;
+}
+
+#assembly_files-modal > div > div > div.modal-body > div.sF-fileWindow > div > div.sF-file-header, .sF-file-header, .sF-fileList.sF-detail .sF-file-header, .sF-file-header .sF-fileList.sF-detail .sF-file-header,
+#assembly_files-modal > div > div > div.modal-body > div.sF-fileWindow > div > div.sF-file-header {
+  display: none;
+}
+
+.close {
+  float: right;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1;
+  color: white !important;
+  text-shadow: 0 1px 0 #fff;
+  filter: alpha(opacity=20);
+  opacity: 1;
+}
+
+#assembly_files-modal > div > div > div.modal-body > div.sF-fileWindow > div > div.sF-file-header,
+.sF-file-header,
+.sF-fileList.sF-detail .sF-file-header,
+.sF-file-header .sF-fileList.sF-detail .sF-file-header {
+  display: none;
+  background: #F0F0F0;
+  color: black;
+}
+
+.sF-breadcrumps .form-control .input-sm .form-control:hover,
+.sF-breadcrumps .form-control .input-sm .form-control:focus,
+.form-control .sF-breadcrumps .form-control .input-sm:focus,
+.form-control .sF-breadcrumps .form-control .input-sm:hover {
+  background-color: #20e6e5;
+  color: black;
+}
+
+#assembly_files-modal > div > div,
+.modal-content,
+.sF-modal .modal-content,
+.modal-content .sF-modal .modal-content {
+  background-color: #282f38d6 !important;
+}
+
+#sF-cancelButton,
+#sF-selectButton,
+.modal-footer .btn+.btn{
+  border: 1px solid white !important;
+}
+
+
 .swal2-container .swal2-bottom-end .swal2-backdrop-show,
 body > div.swal2-container.swal2-bottom-end.swal2-backdrop-show,
 .swal2-container .swal2-bottom-end .swal2-backdrop-show,
@@ -114,6 +209,7 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
   background-color: #282F38;
   opacity: .85;
   color: white;
+  border: 1px solid white;
 }
 
 .swal2-timer-progress-bar {
@@ -237,7 +333,7 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
 }
 
 .open > .dropdown-menu {
-  border-color: black;
+  border-color: white;
 }
 
 .shiny-input-container input[type="text"] {
@@ -3309,6 +3405,13 @@ button#download_report_bttn {
 }
 
 /* Gene Screening */
+
+#gs_plot_sel_amr,
+#gs_plot_sel_vir,
+#gs_plot_sel_noclass {
+  margin-top: -10px;
+  margin-bottom: 5px;
+}
 
 .gs-picker {
   margin-top: -13px;

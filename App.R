@@ -73,8 +73,8 @@ ui <- dashboardPage(
       )
     ),
     uiOutput("loaded_scheme"),
-    uiOutput("databasetext"),
     uiOutput("statustext"),
+    uiOutput("databasetext"),
     tags$li(class = "dropdown", 
             tags$span(id = "currentTime", style = "color:white; font-weight:bold;")),
     disable = FALSE
@@ -124,10 +124,6 @@ ui <- dashboardPage(
       conditionalPanel(
         "input.tabs==='gs_profile'",
         uiOutput("screening_sidebar")
-      ),
-      conditionalPanel(
-        "input.tabs==='gs_visualization'",
-        uiOutput("gs_visualization_sidebar")
       )
     )
   ),
@@ -5423,9 +5419,59 @@ ui <- dashboardPage(
               hr(),
               fluidRow(
                 column(
+                  width = 3,
+                  align = "right",
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 15px; position: relative; top: 27px;', 
+                                'Select Isolates')
+                    )
+                  )
+                ),
+                column(
                   width = 6,
-                  uiOutput("gs_plot_sel_isolate"),
-                  uiOutput("gs_plot_sel_gene")
+                  uiOutput("gs_plot_sel_isolate")
+                ),
+                column(
+                  width = 3,
+                  align = "left",
+                  uiOutput("gs_plot_sel_isolate_info")
+                )
+              ),
+              br(), br(),
+              fluidRow(
+                column(
+                  width = 4,
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 14px; position: relative; left: 10px', 
+                                'AMR Genes')
+                    )
+                  ),
+                  uiOutput("gs_plot_sel_amr"),
+                  uiOutput("gs_plot_sel_amr_info")
+                ),
+                column(
+                  width = 4,
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 14px; position: relative; left: 10px', 
+                                'Virulence Genes')
+                    )
+                  ),
+                  uiOutput("gs_plot_sel_vir"),
+                  uiOutput("gs_plot_sel_vir_info")
+                ),
+                column(
+                  width = 4,
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;', 
+                                'Unclassifiable Genes')
+                    )
+                  ),
+                  uiOutput("gs_plot_sel_noclass"),
+                  uiOutput("gs_plot_sel_noclass_info")
                 )
               ),
               fluidRow(
@@ -10286,6 +10332,9 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
+    
+    amr_results <<- Screening$amr_results
+    amr_class <<- Screening$amr_class
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -23910,6 +23959,7 @@ server <- function(input, output, session) {
   # Render isolate picker
   output$gs_plot_sel_isolate <- renderUI({
     req(DB$data)
+    
     pickerInput(
       "gs_plot_selected_isolate",
       label = "",
@@ -23949,24 +23999,245 @@ server <- function(input, output, session) {
     )
   })
   
-  # Render gene picker 
-  output$gs_plot_sel_gene <- renderUI({
-    req(DB$data, Screening$amr_results)
-    pickerInput(
-      "gs_plot_selected_gene",
-      label = "",
-      choices = colnames(Screening$amr_results),
-      options = list(
-        `live-search` = TRUE,
-        `actions-box` = TRUE,
-        size = 10,
-        style = "background-color: white; border-radius: 5px;"
-      ),
-      selected = colnames(Screening$amr_results),
-      multiple = TRUE,
-      width = "100%"
-    )
+  # Render isolate picker info text
+  output$gs_plot_sel_isolate_info <- renderUI({
+    req(DB$data)
+    
+    if(is.null(input$gs_plot_selected_isolate)) {
+      tagList(
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 20px', 
+                  "0 isolates(s) selected"),
+        tags$br(),
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 13px', 
+                  "Select min. 3 isolates")
+      )
+    } else if(length(input$gs_plot_selected_isolate) < 3) {
+      tagList(
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 20px', 
+                  paste(
+                    length(input$gs_plot_selected_isolate),
+                    'isolate(s) selected'
+                  )),
+        tags$br(),
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 13px', 
+                  "Select min. 3 isolates")
+      )
+    } else {
+      HTML(
+        paste(
+          tags$span(style='color: white; font-size: 12px; fon-style: italic; position: relative; top: 27px;', 
+                    paste(
+                      length(input$gs_plot_selected_isolate),
+                      'isolate(s) selected'
+                    ))
+        )
+      )
+    }
   })
+  
+  # Render gene picker info texts
+  output$gs_plot_sel_amr_info <- renderUI({
+    req(DB$data)
+    if(is.null(input$gs_plot_selected_amr)) {
+      tagList(
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+                  "0 gene(s) selected"),
+        tags$br(),
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+                  "Select min. 3 genes")
+      )
+    } else if(length(input$gs_plot_selected_amr) < 3) {
+      tagList(
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px;',
+                  paste(length(input$gs_plot_selected_amr),
+                        "gene(s) selected")), 
+        tags$br(),
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+                  "Select min. 3 genes")
+      )
+    } else {
+      HTML(
+        paste(
+          tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+                    paste(length(input$gs_plot_selected_amr),
+                          "gene(s) selected"))
+        )
+      )
+    }
+  })
+  
+  output$gs_plot_sel_vir_info <- renderUI({
+    req(DB$data)
+    if(is.null(input$gs_plot_selected_vir)) {
+      tagList(
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+                  "0 gene(s) selected"),
+        tags$br(),
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+                  "Select min. 3 genes")
+      )
+    } else if(length(input$gs_plot_selected_vir) < 3) {
+      tagList(
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px;',
+                  paste(length(input$gs_plot_selected_vir),
+                        "gene(s) selected")), 
+        tags$br(),
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+                  "Select min. 3 genes")
+      )
+    } else {
+      HTML(
+        paste(
+          tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+                    paste(length(input$gs_plot_selected_vir),
+                          "gene(s) selected"))
+        )
+      )
+    }
+  })
+  
+  output$gs_plot_sel_noclass_info <- renderUI({
+    req(DB$data)
+    if(is.null(input$gs_plot_selected_noclass)) {
+      tagList(
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+                  "0 gene(s) selected"),
+        tags$br(),
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+                  "Select min. 3 genes")
+      )
+    } else if(length(input$gs_plot_selected_noclass) < 3) {
+      tagList(
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px;',
+                  paste(length(input$gs_plot_selected_noclass),
+                        "gene(s) selected")), 
+        tags$br(),
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+                  "Select min. 3 genes")
+      )
+    } else {
+      HTML(
+        paste(
+          tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+                    paste(length(input$gs_plot_selected_noclass),
+                          "gene(s) selected"))
+        )
+      )
+    }
+  })
+  
+  # Render gene picker 
+  observe({
+    req(DB$data, Screening$amr_results, Screening$amr_class)
+    
+    amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, as.numeric))
+    rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
+    colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
+
+    heatmap_matrix <- as.matrix(amr_profile_numeric)
+    
+    # Render amr gene picker
+    if(!is.null(Screening$amr_class)) {
+      if(nrow(Screening$amr_class) > 0) {
+        amr_class_filtered <- Screening$amr_class[!duplicated(gsub("\\*", "", Screening$amr_class$Observation)),]
+        
+        amr_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", amr_class_filtered$Observation)
+        
+        amr_class_present <- colnames(heatmap_matrix)[amr_unison]
+        amr_no_class <- colnames(heatmap_matrix)[!amr_unison]
+        
+        amr_meta <<- data.frame(
+          gene = c(amr_class_present, amr_no_class),
+          amr = c(amr_class_filtered$Variable[gsub("\\*", "", amr_class_filtered$Observation) %in% amr_class_present],
+                  rep(NA, length(amr_no_class)))
+        ) %>%
+          arrange(gene) %>%
+          tibble::column_to_rownames(var = "gene")
+        
+        choices_amr <- rownames(amr_meta)[which(!is.na(amr_meta$amr))]
+      } else {choices_amr <- character(0)}
+    } else {choices_amr <- character(0)}
+    
+    output$gs_plot_sel_amr <- renderUI({
+      pickerInput(
+        "gs_plot_selected_amr",
+        label = "",
+        choices = choices_amr,
+        options = list(
+          `live-search` = TRUE,
+          `actions-box` = TRUE,
+          size = 10,
+          style = "background-color: white; border-radius: 5px;"
+        ),
+        selected = choices_amr,
+        multiple = TRUE,
+        width = "100%"
+      )
+    })
+    
+    # Render virulence gene picker
+    if(!is.null(Screening$vir_class)) {
+      if(nrow(Screening$vir_class) > 0) {
+        vir_class_filtered <- Screening$vir_class[!duplicated(gsub("\\*", "", Screening$vir_class$Observation)),]
+        
+        vir_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", vir_class_filtered$Observation)
+        
+        vir_class_present <- colnames(heatmap_matrix)[vir_unison]
+        vir_no_class <- colnames(heatmap_matrix)[!vir_unison]
+        
+        vir_meta <- data.frame(
+          gene = c(vir_class_present, vir_no_class),
+          class = c(vir_class_filtered$Variable[gsub("\\*", "", vir_class_filtered$Observation) %in% vir_class_present],
+                    rep(NA, length(vir_no_class)))
+        ) %>%
+          arrange(gene) %>%
+          tibble::column_to_rownames(var = "gene")
+        
+        choices_vir <- rownames(vir_meta)[which(!is.na(vir_meta$class))]
+      } else {choices_vir <- character(0)}
+    } else {choices_vir <- character(0)}
+    
+    output$gs_plot_sel_vir <- renderUI({
+      pickerInput(
+        "gs_plot_selected_vir",
+        label = "",
+        choices = choices_vir,
+        options = list(
+          `live-search` = TRUE,
+          `actions-box` = TRUE,
+          size = 10,
+          style = "background-color: white; border-radius: 5px;"
+        ),
+        selected = choices_vir,
+        multiple = TRUE,
+        width = "100%"
+      )
+    })
+    
+    # Render unclassifiable genes picker
+    if(all(!is.na(vir_meta$class) & !is.na(amr_meta$amr))) {
+      choices_noclass <- character(0)
+    } else {
+      choices_noclass <- rownames(amr_meta)[which(is.na(vir_meta$class) & is.na(amr_meta$amr))]  
+    }
+    
+    output$gs_plot_sel_noclass <- renderUI({
+      pickerInput(
+        "gs_plot_selected_noclass",
+        label = "",
+        choices = choices_noclass,
+        options = list(
+          `live-search` = TRUE,
+          `actions-box` = TRUE,
+          size = 10,
+          style = "background-color: white; border-radius: 5px;"
+        ),
+        selected = choices_noclass,
+        multiple = TRUE,
+        width = "100%"
+      )
+    })
+})
   
   # Rendering results table
   output$gs_results_table <- renderUI({
@@ -24184,10 +24455,6 @@ server <- function(input, output, session) {
     } else {NULL}
   })
   
-  # Screening sidebar
-  output$gs_visualization_sidebar <- renderUI({
-    req(DB$data)
-  })
   
   # Resistance profile table
   observe({
@@ -24211,7 +24478,7 @@ server <- function(input, output, session) {
           relocate(c("Gene Symbol", "Sequence Name", "Element Subtype", "Class", 
                      "Subclass", "Scope", "Contig ID", "Target Length", "Alignment Length",
                      "Start", "Stop", "Strand"))
-        
+         
         # Generate gene profile table
         output$gs_profile_table <- DT::renderDataTable(
           Screening$res_profile,
@@ -24969,52 +25236,42 @@ server <- function(input, output, session) {
   
   observe({
     req(DB$data, Screening$amr_results,
-        DB$database, DB$scheme, input$gs_plot_selected_isolate,
-        input$gs_plot_selected_gene, input$gsplot_cluster_rows,
+        DB$database, DB$scheme, 
+        input$gsplot_cluster_rows, input$gsplot_color_text,
         input$gsplot_cluster_cols, input$gsplot_fontsize_col,
         input$gsplot_fontsize_row, input$gsplot_treeheight_col,
         input$gsplot_treeheight_row, input$gsplot_legend_labelsize, 
-        input$gsplot_color_palette1, input$gsplot_color_palette2, 
-        input$gsplot_color_text)
+        input$gsplot_color_palette1, input$gsplot_color_palette2,
+        input$gs_plot_selected_amr, input$gs_plot_selected_vir,
+        input$gs_plot_selected_noclass)
     
     amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, as.numeric))
     rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
     colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
     
-    if(length(input$gs_plot_selected_isolate) > 2) {
-      amr_profile_numeric <- amr_profile_numeric[rownames(amr_profile_numeric) %in% input$gs_plot_selected_isolate, ]
-    } else {
-      show_toast(
-        title = "Select minimum 3 isolates",
-        type = "error",
-        position = "bottom-end",
-        timer = 6000
-      )
-    }
+    amr_profile_numeric_all <<- amr_profile_numeric[rownames(amr_profile_numeric) %in% input$gs_plot_selected_isolate, ]
     
-    if(length(input$gs_plot_selected_gene) > 2) {
-      amr_profile_numeric <- amr_profile_numeric[,input$gs_plot_selected_gene]
-    } else {
-      show_toast(
-        title = "Select minimum 3 genes",
-        type = "error",
-        position = "bottom-end",
-        timer = 6000
-      )
-    }
+    amr_profile_numeric <<- amr_profile_numeric_all[,c(input$gs_plot_selected_amr, input$gs_plot_selected_vir, input$gs_plot_selected_noclass)]
     
-    heatmap_matrix <- as.matrix(amr_profile_numeric)
+    heatmap_matrix <<- as.matrix(amr_profile_numeric)
     
     # get heatmap meta
     if(!is.null(Screening$amr_class)) {
       if(nrow(Screening$amr_class) > 0) {
         no_amr <- FALSE
-        amr_class_filtered <- Screening$amr_class[!duplicated(gsub("\\*", "", Screening$amr_class$Observation)),]
+        Screening_amr_class <<- Screening$amr_class
+        amr_class_filtered <<- Screening$amr_class[!duplicated(gsub("\\*", "", Screening$amr_class$Observation)),]
         
-        amr_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", amr_class_filtered$Observation)
+        amr_unison <<- colnames(heatmap_matrix) %in% gsub("\\*", "", amr_class_filtered$Observation)
         
-        amr_class_present <- colnames(heatmap_matrix)[amr_unison]
-        amr_no_class <- colnames(heatmap_matrix)[!amr_unison]
+        amr_class_present <<- colnames(heatmap_matrix)[amr_unison]
+        amr_no_class <<- colnames(heatmap_matrix)[!amr_unison]
+        
+        testamr_meta <<- data.frame(
+          gene = c(amr_class_present, amr_no_class),
+          amr = c(amr_class_filtered$Variable[gsub("\\*", "", amr_class_filtered$Observation) %in% amr_class_present], 
+                  rep(NA, length(amr_no_class)))
+        )
         
         amr_meta <- data.frame(
           gene = c(amr_class_present, amr_no_class),
@@ -25066,107 +25323,135 @@ server <- function(input, output, session) {
     grid_width <- unit(input$gsplot_legend_labelsize * 0.8, "mm")
     
     # heatmap annotations
-    amr_colors <- rainbow(length(unique(na.omit(hm_meta$amr))))
-    names(amr_colors) <- unique(sort(na.omit(hm_meta$amr)))
-    
-    amr_annotation <- HeatmapAnnotation(
-      AMR = na.omit(hm_meta$amr),
-      show_legend = TRUE,
-      col = list(AMR = amr_colors),  
-      show_annotation_name = FALSE,
-      annotation_legend_param = list(
-        title = "AMR",
-        labels_gp = labels_gp,
-        title_gp = title_gp,
-        grid_height = grid_height,
-        grid_width = grid_width,
-        legend_gp = gpar(fill = amr_colors) 
+    if(all(is.na(hm_meta$amr)) | length(input$gs_plot_selected_amr) < 3) {
+      amr_annotation <- NULL
+      amr_heatmap <- NULL
+    } else {
+      amr_colors <- rainbow(length(unique(na.omit(hm_meta$amr))))
+      names(amr_colors) <- unique(sort(na.omit(hm_meta$amr)))
+      
+      amr_annotation <- HeatmapAnnotation(
+        AMR = na.omit(hm_meta$amr),
+        show_legend = TRUE,
+        col = list(AMR = amr_colors),  
+        show_annotation_name = FALSE,
+        annotation_legend_param = list(
+          title = "AMR",
+          labels_gp = labels_gp,
+          title_gp = title_gp,
+          grid_height = grid_height,
+          grid_width = grid_width,
+          legend_gp = gpar(fill = amr_colors) 
+        )
       )
-    )
-    
-    vir_colors <- viridis(length(unique(na.omit(hm_meta$vir))))
-    names(vir_colors) <- unique(sort(na.omit(hm_meta$vir)))
-    
-    vir_annotation <- HeatmapAnnotation(
-      Vir = na.omit(hm_meta$vir),
-      show_legend = TRUE,
-      col = list(Vir = vir_colors),  
-      show_annotation_name = FALSE,
-      annotation_legend_param = list(
-        title = "Vir",
-        legend_gp = legend_gp,
-        labels_gp = labels_gp,
-        title_gp = title_gp,
-        grid_height = grid_height,
-        grid_width = grid_width,
-        legend_gp = gpar(fill = vir_colors) 
+      
+      # AMR heatmap
+      amr_genes <- rownames(hm_meta)[!is.na(hm_meta$amr)]
+      amr_profile_matrix <- heatmap_matrix[,colnames(heatmap_matrix) %in% amr_genes]
+      
+      if(length(unique(amr_profile_matrix)) == 1) {
+        amr_cols <- input$gsplot_color_palette1
+      } else {
+        amr_cols <- c(input$gsplot_color_palette1, input$gsplot_color_palette2)
+      }
+      
+      amr_heatmap <- ComplexHeatmap::Heatmap(
+        amr_profile_matrix,
+        col = amr_cols,
+        rect_gp = gpar(col = "white", lwd = 2),
+        column_title = "AMR",
+        row_title = "Isolates",
+        row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
+                            col = input$gsplot_color_text),
+        column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
+                               col = input$gsplot_color_text),
+        #cluster_rows = input$gsplot_cluster_rows,
+        column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
+        row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
+        row_dend_gp = gpar(col = input$gsplot_color_dend),    
+        column_dend_gp = gpar(col = input$gsplot_color_dend), 
+        top_annotation = amr_annotation,
+        show_heatmap_legend = FALSE
       )
-    )
+    }
     
-    # AMR heatmap
-    amr_genes <- rownames(hm_meta)[!is.na(hm_meta$amr)]
-    amr_profile_matrix <- heatmap_matrix[,colnames(heatmap_matrix) %in% amr_genes]
-    amr_heatmap <- ComplexHeatmap::Heatmap(
-      amr_profile_matrix,
-      col = c(input$gsplot_color_palette1, input$gsplot_color_palette2),
-      rect_gp = gpar(col = "white", lwd = 2),
-      column_title = "AMR",
-      row_title = "Isolates",
-      row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
-                          col = input$gsplot_color_text),
-      column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
-                             col = input$gsplot_color_text),
-      cluster_rows = input$gsplot_cluster_rows,
-      column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
-      row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
-      row_dend_gp = gpar(col = input$gsplot_color_dend),    
-      column_dend_gp = gpar(col = input$gsplot_color_dend), 
-      top_annotation = amr_annotation,
-      show_heatmap_legend = FALSE
-    )
+    if(all(is.na(hm_meta$vir)) | length(input$gs_plot_selected_vir) < 3) {
+      vir_annotation <- NULL
+      vir_heatmap <- NULL
+    } else {
+      vir_colors <- viridis(length(unique(na.omit(hm_meta$vir))))
+      names(vir_colors) <- unique(sort(na.omit(hm_meta$vir)))
+      
+      vir_annotation <- HeatmapAnnotation(
+        Vir = na.omit(hm_meta$vir),
+        show_legend = TRUE,
+        col = list(Vir = vir_colors),  
+        show_annotation_name = FALSE,
+        annotation_legend_param = list(
+          title = "Vir",
+          legend_gp = legend_gp,
+          labels_gp = labels_gp,
+          title_gp = title_gp,
+          grid_height = grid_height,
+          grid_width = grid_width,
+          legend_gp = gpar(fill = vir_colors) 
+        )
+      )
+      
+      # Vir heatmap
+      vir_genes <- rownames(hm_meta)[!is.na(hm_meta$vir)]
+      vir_profile_matrix <- heatmap_matrix[,colnames(heatmap_matrix) %in% vir_genes]
+      
+      if(length(unique(vir_profile_matrix)) == 1) {
+        vir_cols <- input$gsplot_color_palette1
+      } else {
+        vir_cols <- c(input$gsplot_color_palette1, input$gsplot_color_palette2)
+      }
+      
+      vir_heatmap <- ComplexHeatmap::Heatmap(
+        vir_profile_matrix,
+        col = vir_cols,
+        rect_gp = gpar(col = "white", lwd = 2),
+        column_title = "Virulence",
+        row_title = "Isolates",
+        row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
+                            col = input$gsplot_color_text),
+        column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
+                               col = input$gsplot_color_text),
+        cluster_rows = input$gsplot_cluster_rows,
+        column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
+        row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
+        row_dend_gp = gpar(col = input$gsplot_color_dend),    
+        column_dend_gp = gpar(col = input$gsplot_color_dend), 
+        top_annotation = vir_annotation,
+        show_heatmap_legend = FALSE
+      )
+    }
     
-    # Vir heatmap
-    vir_genes <- rownames(hm_meta)[!is.na(hm_meta$vir)]
-    vir_profile_matrix <- heatmap_matrix[,colnames(heatmap_matrix) %in% vir_genes]
-    vir_heatmap <- ComplexHeatmap::Heatmap(
-      vir_profile_matrix,
-      col = c(input$gsplot_color_palette1, input$gsplot_color_palette2),
-      rect_gp = gpar(col = "white", lwd = 2),
-      column_title = "Virulence",
-      row_title = "Isolates",
-      row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
-                          col = input$gsplot_color_text),
-      column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
-                             col = input$gsplot_color_text),
-      cluster_rows = input$gsplot_cluster_rows,
-      column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
-      row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
-      row_dend_gp = gpar(col = input$gsplot_color_dend),    
-      column_dend_gp = gpar(col = input$gsplot_color_dend), 
-      top_annotation = vir_annotation,
-      show_heatmap_legend = FALSE
-    )
-    
-    # None heatmap
-    unclass_genes <- rownames(hm_meta)[is.na(hm_meta$vir) & is.na(hm_meta$amr)]
-    noclass_profile_matrix <- heatmap_matrix[,colnames(heatmap_matrix) %in% unclass_genes]
-    noclass_heatmap <- ComplexHeatmap::Heatmap(
-      noclass_profile_matrix,
-      col = c(input$gsplot_color_palette1, input$gsplot_color_palette2),
-      rect_gp = gpar(col = "white", lwd = 2),
-      column_title = "No Class",
-      row_title = "Isolates",
-      row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
-                          col = input$gsplot_color_text),
-      column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
-                             col = input$gsplot_color_text),
-      cluster_rows = input$gsplot_cluster_rows,
-      column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
-      row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
-      row_dend_gp = gpar(col = input$gsplot_color_dend),    
-      column_dend_gp = gpar(col = input$gsplot_color_dend),
-      show_heatmap_legend = FALSE
-    )
+    if(any(is.na(hm_meta$vir) & is.na(hm_meta$amr))) {
+      # None heatmap
+      unclass_genes <- rownames(hm_meta)[is.na(hm_meta$vir) & is.na(hm_meta$amr)]
+      noclass_profile_matrix <- heatmap_matrix[,colnames(heatmap_matrix) %in% unclass_genes]
+      noclass_heatmap <- ComplexHeatmap::Heatmap(
+        noclass_profile_matrix,
+        col = c(input$gsplot_color_palette1, input$gsplot_color_palette2),
+        rect_gp = gpar(col = "white", lwd = 2),
+        column_title = "No Class",
+        row_title = "Isolates",
+        row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
+                            col = input$gsplot_color_text),
+        column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
+                               col = input$gsplot_color_text),
+        cluster_rows = input$gsplot_cluster_rows,
+        column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
+        row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
+        row_dend_gp = gpar(col = input$gsplot_color_dend),    
+        column_dend_gp = gpar(col = input$gsplot_color_dend),
+        show_heatmap_legend = FALSE
+      )
+    } else {
+      noclass_heatmap <- NULL
+    }
     
     # custom legend
     custom_legend <- packLegend(
