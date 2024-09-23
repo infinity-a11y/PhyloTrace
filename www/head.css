@@ -134,7 +134,7 @@ div#bs-select-16::-webkit-scrollbar-track,
 div#bs-select-17::-webkit-scrollbar-track,
 div#bs-select-18::-webkit-scrollbar-track,
 div#bs-select-19::-webkit-scrollbar-track {
-  background: #white;
+  background: white;
 }
 
 #DataTables_Table_8_wrapper > div.dataTables_scroll > div.dataTables_scrollBody::-webkit-scrollbar-track,

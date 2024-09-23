@@ -5391,236 +5391,655 @@ ui <- dashboardPage(
         br(),
         hr(),
         fluidRow(
-          column(1),
           column(
-            width = 10,
-            align = "center",
-            br(),
-            br(),
-            br(),
-            addSpinner(
-              plotOutput("gs_plot", height = "700px"),
-              spin = "dots",
-              color = "#ffffff"
-            )
-          )
-        ),
-        br(), br(),
-        fluidRow(
-          column(1),
-          column(
-            width = 5,
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = "100%",
-              height = "500px",
-              h3(p("Data Mapping"), style = "color:white; position:relative; right:-15px"),
-              hr(),
-              fluidRow(
-                column(
-                  width = 3,
-                  align = "right",
-                  HTML(
-                    paste(
-                      tags$span(style='color: white; font-size: 15px; position: relative; top: 27px;', 
-                                'Select Isolates')
+            width = 2,
+            align = "left",
+            br(), br(), 
+            fluidRow(
+              column(
+                width = 6,
+                align = "right",
+                dropMenu(
+                  div(
+                    id = "gs-control",
+                    actionBttn(
+                      "gs_color_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("palette")
+                    )
+                  ),
+                  placement = "right-start",
+                  theme = "translucent",
+                  options = list(flip = FALSE),
+                  fluidRow(
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;', 
+                                      'Text')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 8,
+                        align = "center",
+                        colorPickr(
+                          inputId = "gsplot_color_text",
+                          selected = "#000000",
+                          label = "",
+                          update = "changestop",
+                          interaction = list(clear = FALSE,
+                                             save = FALSE),
+                          position = "right-start",
+                          width = "120px"
+                        )
+                      )
+                    ),
+                    br(),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;', 
+                                      'Dendrogram')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 8,
+                        align = "center",
+                        colorPickr(
+                          inputId = "gsplot_color_dend",
+                          selected = "#000000",
+                          label = "",
+                          update = "changestop",
+                          interaction = list(clear = FALSE,
+                                             save = FALSE),
+                          position = "right-start",
+                          width = "120px"
+                        )
+                      )
+                    ),
+                    br(),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;', 
+                                      'Present')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 8,
+                        align = "center",
+                        colorPickr(
+                          inputId = "gsplot_color_palette1",
+                          selected = "#66C2A5",
+                          label = "",
+                          update = "changestop",
+                          interaction = list(clear = FALSE,
+                                             save = FALSE),
+                          position = "right-start",
+                          width = "120px"
+                        )
+                      )
+                    ),
+                    br(),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;', 
+                                      'Absent')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 8,
+                        align = "center",
+                        colorPickr(
+                          inputId = "gsplot_color_palette2",
+                          selected = "#E5C494",
+                          label = "",
+                          update = "changestop",
+                          interaction = list(clear = FALSE,
+                                             save = FALSE),
+                          position = "right-start",
+                          width = "120px"
+                        )
+                      )
                     )
                   )
-                ),
-                column(
-                  width = 6,
-                  uiOutput("gs_plot_sel_isolate")
-                ),
-                column(
-                  width = 3,
-                  align = "left",
-                  uiOutput("gs_plot_sel_isolate_info")
                 )
               ),
-              br(), br(),
-              fluidRow(
-                column(
-                  width = 4,
-                  HTML(
-                    paste(
-                      tags$span(style='color: white; font-size: 14px; position: relative; left: 10px', 
-                                'AMR Genes')
+              column(
+                width = 6,
+                align = "center",
+                dropMenu(
+                  div(
+                    id = "gs-variable-menu",
+                    actionBttn(
+                      "gs_variable_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("map-pin")
                     )
                   ),
-                  uiOutput("gs_plot_sel_amr"),
-                  uiOutput("gs_plot_sel_amr_info")
-                ),
-                column(
-                  width = 4,
-                  HTML(
-                    paste(
-                      tags$span(style='color: white; font-size: 14px; position: relative; left: 10px', 
-                                'Virulence Genes')
-                    )
+                  placement = "right-start",
+                  theme = "translucent",
+                  options = list(flip = FALSE),
+                  fluidRow(
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 16px; position: relative;',
+                                      'Isolate Variables')
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        uiOutput("gs_var_mapping_ui"),
+                        br(),
+                        uiOutput("gs_mapping_scale_ui")
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 16px; position: relative;',
+                                      'Gene Variables')
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        selectInput(
+                          "gs_gene_variables",
+                          "",
+                          choices = c("Classification", "None"),
+                          width = "75%"
+                        ),
+                        br(),
+                        uiOutput("gs_gene_class_scale_ui")
+                      )
+                    ),
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 6,
+                align = "right",
+                br(),
+                dropMenu(
+                  div(
+                    id = "gs-size-menu",
+                    actionBttn(
+                      "gs_size_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("up-right-and-down-left-from-center")
+                    ),
                   ),
-                  uiOutput("gs_plot_sel_vir"),
-                  uiOutput("gs_plot_sel_vir_info")
-                ),
-                column(
-                  width = 4,
-                  HTML(
-                    paste(
-                      tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;', 
-                                'Unclassifiable Genes')
+                  placement = "right-start",
+                  theme = "translucent",
+                  options = list(flip = FALSE),
+                  fluidRow(
+                    fluidRow(
+                      column(
+                        width = 5,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                                      'Font Column')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 7,
+                        div(
+                          class = "gs-slider",
+                          sliderInput(
+                            "gsplot_fontsize_col",
+                            "",
+                            value = 9,
+                            max = 24,
+                            min = 6,
+                            ticks = FALSE
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 5,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                                      'Font Row')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 7,
+                        div(
+                          class = "gs-slider",
+                          sliderInput(
+                            "gsplot_fontsize_row",
+                            "",
+                            value = 10,
+                            max = 24,
+                            min = 6,
+                            ticks = FALSE
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 5,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                                      'Dendro Cols')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 7,
+                        div(
+                          class = "gs-slider",
+                          sliderInput(
+                            "gsplot_treeheight_col",
+                            "",
+                            value = 2,
+                            max = 10,
+                            min = 1,
+                            ticks = FALSE
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 5,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                                      'Dendro Rows')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 7,
+                        div(
+                          class = "gs-slider",
+                          sliderInput(
+                            "gsplot_treeheight_row",
+                            "",
+                            value = 2,
+                            max = 10,
+                            min = 1,
+                            ticks = FALSE
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 5,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                                      'Legend')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 7,
+                        div(
+                          class = "gs-slider",
+                          sliderInput(
+                            "gsplot_legend_labelsize",
+                            "",
+                            value = 9,
+                            max = 14,
+                            min = 6,
+                            ticks = FALSE
+                          )
+                        )
+                      )
                     )
-                  ),
-                  uiOutput("gs_plot_sel_noclass"),
-                  uiOutput("gs_plot_sel_noclass_info")
+                  )
                 )
               ),
-              fluidRow(
-                column(
-                  width = 6,
-                  #uiOutput("gs_plot_sel_var")
+              column(
+                width = 6,
+                align = "center",
+                br(),
+                dropMenu(
+                  div(
+                    id = "gs-download-menu",
+                    actionBttn(
+                      "gs_download_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("download")
+                    )
+                  ),
+                  placement = "right-start",
+                  theme = "translucent",
+                  options = list(flip = FALSE),
+                  fluidRow(
+                    column(
+                      width = 5,
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                                    'Save As')
+                        )
+                      )
+                    ),
+                    column(
+                      width = 7,
+                      div(
+                        class = "filetype-gs",
+                        selectInput(
+                          inputId = "filetype_gs",
+                          label = "",
+                          choices = c("png", "jpeg", "bmp", "svg")
+                        )
+                      )
+                    )
+                  ),
+                  br(), 
+                  downloadBttn(
+                    "gs_download_plot",
+                    style = "simple",
+                    label = "",
+                    size = "sm",
+                    icon =  icon("download"),
+                    color = "primary"
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 6,
+                align = "right",
+                br(),
+                dropMenu(
+                  div(
+                    id = "gs-dim-menu",
+                    actionBttn(
+                      "gs_dim_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("expand")
+                    )
+                  ),
+                  placement = "right-start",
+                  theme = "translucent",
+                  options = list(flip = FALSE),
+                  fluidRow(
+                    fluidRow(
+                      column(
+                        width = 5,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                                      'Ratio')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 7,
+                        align = "center",
+                        div(
+                          class = "gs-ratio",
+                          selectInput(
+                            "gs_ratio",
+                            "",
+                            choices = c("16:10" = (16/10), "16:9" = (16/9), "4:3" = (4/3)),
+                            selected = c("16:9" = (16/9))
+                          )
+                        )
+                      )
+                    ),
+                    br(),
+                    fluidRow(
+                      column(
+                        width = 5,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                                      'Scale')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 7,
+                        align = "center",
+                        div(
+                          class = "gs-slider",
+                          sliderInput(
+                            "gs_scale",
+                            "",
+                            min = 500,
+                            max = 1200,
+                            value = 700,
+                            step = 5,
+                            width = "95%",
+                            ticks = FALSE
+                          )
+                        )
+                      )
+                    )
+                  )
                 )
               ),
-              fluidRow(
-                column(
-                  width = 6,
+              column(
+                width = 6,
+                align = "center",
+                br(),
+                dropMenu(
                   div(
-                    class = "mat-switch-db-tab",
-                    materialSwitch(
-                      "gsplot_show_classes",
-                      h5(p("Show AB Class"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                      value = FALSE,
-                      right = TRUE
+                    id = "gs-misc-menu",
+                    actionBttn(
+                      "gs_misc_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("ellipsis")
                     )
                   ),
-                  div(
-                    class = "mat-switch-db-tab",
-                    materialSwitch(
-                      "gsplot_cluster_cols",
-                      h5(p("Cluster Columns"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                      value = TRUE,
-                      right = TRUE
-                    )
-                  ),
-                  div(
-                    class = "mat-switch-db-tab",
-                    materialSwitch(
-                      "gsplot_cluster_rows",
-                      h5(p("Cluster Rows"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                      value = TRUE,
-                      right = TRUE
+                  placement = "right-start",
+                  theme = "translucent",
+                  options = list(flip = FALSE),
+                  fluidRow(
+                    fluidRow(
+                      column(
+                        width = 5,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                                      'Cluster Cols')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 7,
+                        align = "center",
+                        div(
+                          class = "mat-switch-db-tab",
+                          materialSwitch(
+                            "gs_cluster_col",
+                            "",
+                            value = FALSE,
+                            right = TRUE
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 5,
+                        align = "left",
+                        br(),
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                                      'Cluster Rows')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 7,
+                        align = "center",
+                        br(),
+                        div(
+                          class = "mat-switch-db-tab",
+                          materialSwitch(
+                            "gs_cluster_row",
+                            "",
+                            value = FALSE,
+                            right = TRUE
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 5,
+                        align = "left",
+                        br(),
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                                      'Flip Coords')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 7,
+                        align = "center",
+                        br(),
+                        div(
+                          class = "mat-switch-db-tab",
+                          materialSwitch(
+                            "gs_flip_coords",
+                            "",
+                            value = FALSE,
+                            right = TRUE
+                          )
+                        )
+                      )
                     )
                   )
                 )
               )
+            ),
+            column(
+              width = 12,
+              br(), br(), br(),
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 16px; position: relative; left: 10px; top: 10px;', 
+                            'Isolates')
+                )
+              ),
+              uiOutput("gs_plot_sel_isolate"),
+              uiOutput("gs_plot_sel_isolate_info")
+            ),
+            column(
+              width = 12,
+              br(),
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 16px; position: relative; left: 10px', 
+                            'AMR Genes')
+                )
+              ),
+              uiOutput("gs_plot_sel_amr"),
+              uiOutput("gs_plot_sel_amr_info")
+            ),
+            column(
+              width = 12,
+              br(),
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 16px; position: relative; left: 10px', 
+                            'Virulence Genes')
+                )
+              ),
+              uiOutput("gs_plot_sel_vir"),
+              uiOutput("gs_plot_sel_vir_info")
+            ),
+            column(
+              width = 12,
+              br(),
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 16px; position: relative; left: 10px;', 
+                            'Unclassifiable Genes')
+                )
+              ),
+              uiOutput("gs_plot_sel_noclass"),
+              uiOutput("gs_plot_sel_noclass_info"),
+              br()
             )
           ),
           column(
-            width = 5,
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = "100%",
-              height = "500px",
-              h3(p("Layout"), style = "color:white; position:relative; right:-15px"),
-              hr(),
-              fluidRow(
-                column(
-                  width = 6,
-                  colorPickr(
-                    inputId = "gsplot_color_text",
-                    selected = "#000000",
-                    label = "",
-                    update = "changestop",
-                    interaction = list(clear = FALSE,
-                                       save = FALSE),
-                    position = "right-start",
-                    width = "100%"
-                  ),
-                  colorPickr(
-                    inputId = "gsplot_color_dend",
-                    selected = "#000000",
-                    label = "",
-                    update = "changestop",
-                    interaction = list(clear = FALSE,
-                                       save = FALSE),
-                    position = "right-start",
-                    width = "100%"
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 6,
-                  colorPickr(
-                    inputId = "gsplot_color_palette1",
-                    selected = "#E5C494",
-                    label = "",
-                    update = "changestop",
-                    interaction = list(clear = FALSE,
-                                       save = FALSE),
-                    position = "right-start",
-                    width = "100%"
-                  ),
-                  colorPickr(
-                    inputId = "gsplot_color_palette2",
-                    selected = "#66C2A5",
-                    label = "",
-                    update = "changestop",
-                    interaction = list(clear = FALSE,
-                                       save = FALSE),
-                    position = "right-start",
-                    width = "100%"
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 6,
-                  numericInput(
-                    "gsplot_treeheight_col",
-                    "Col Dendrogram Size",
-                    value = 2,
-                    max = 10,
-                    min = 1
-                  ),
-                  numericInput(
-                    "gsplot_treeheight_row",
-                    "Row Dendrogram Size",
-                    value = 2,
-                    max = 10,
-                    min = 1
-                  ),
-                  numericInput(
-                    "gsplot_fontsize_row",
-                    "Row Label Size",
-                    value = 10,
-                    max = 24,
-                    min = 8
-                  ),
-                  numericInput(
-                    "gsplot_fontsize_col",
-                    "Column Label Size",
-                    value = 10,
-                    max = 24,
-                    min = 8
-                  ),
-                  numericInput(
-                    "gsplot_legend_labelsize",
-                    "Column Label Size",
-                    value = 10,
-                    max = 24,
-                    min = 8
-                  ),
-                  selectInput(
-                    "gsplot_legend_position",
-                    "Legend Position",
-                    choices = c("Bottom" = "bottom", "Top" = "top",
-                                "Left" = "left", "Right" = "right"),
-                    selected = "right"
-                  )
-                )
-              )
-            )
+            width = 10,
+            align = "left",
+            br(),
+            br(),
+            uiOutput("gs_field")
           )
         )
       )
@@ -5816,6 +6235,32 @@ server <- function(input, output, session) {
   Report <- reactiveValues() # reactive variables related to report functions
   
   Scheme <- reactiveValues() # reactive variables related to scheme  functions
+  
+  # Tooltips
+  addTooltip(session, id = 'gs_color_menu', title = "Colors",
+             placement = "top", trigger = "hover", 
+             options = list(delay = list(show = 400, hide = 300)))
+  
+  addTooltip(session, id = 'gs_size_menu', title = "Sizing",
+             placement = "top", trigger = "hover", 
+             options = list(delay = list(show = 400, hide = 300)))
+  
+  addTooltip(session, id = 'gs_dim_menu', title = "Dimensions",
+             placement = "top", trigger = "hover", 
+             options = list(delay = list(show = 400, hide = 300)))
+  
+  addTooltip(session, id = 'gs_variable_menu', title = "Variable Mapping",
+             placement = "top", trigger = "hover", 
+             options = list(delay = list(show = 400, hide = 300)))
+  
+  addTooltip(session, id = 'gs-download-menu', title = "Save Plot",
+             placement = "top", trigger = "hover", 
+             options = list(delay = list(show = 400, hide = 300)))
+  
+  addTooltip(session, id = 'gs-misc-menu', title = "Other Settings",
+             placement = "top", trigger = "hover", 
+             options = list(delay = list(show = 400, hide = 300)))
+  
   
   # Load last used database if possible
   if(paste0(getwd(), "/execute/last_db.rds") %in% dir_ls(paste0(getwd(), "/execute"))) {
@@ -6546,15 +6991,18 @@ server <- function(input, output, session) {
             
             # Show message that loci files are missing
             showModal(
-              modalDialog(
-                paste0("No loci files are present in the local ", 
-                       DB$scheme, 
-                       " folder. Download the scheme again (no influence on already typed assemblies)."),
-                title = "Local Database Error",
-                fade = TRUE,
-                easyClose = TRUE,
-                footer = tagList(
-                  modalButton("Okay")
+              div(
+                class = "start-modal",
+                modalDialog(
+                  paste0("No loci files are present in the local ", 
+                         DB$scheme, 
+                         " folder. Download the scheme again (no influence on already typed assemblies)."),
+                  title = "Local Database Error",
+                  fade = TRUE,
+                  easyClose = TRUE,
+                  footer = tagList(
+                    modalButton("Okay")
+                  )
                 )
               )
             )
@@ -6639,15 +7087,18 @@ server <- function(input, output, session) {
             
             # Show message that scheme info is missing
             showModal(
-              modalDialog(
-                paste0("Scheme info of the local ", 
-                       DB$scheme, 
-                       " database is missing. Download the scheme again (no influence on already typed assemblies)."),
-                title = "Local Database Error",
-                fade = TRUE,
-                easyClose = TRUE,
-                footer = tagList(
-                  modalButton("Okay")
+              div(
+                class = "start-modal",
+                modalDialog(
+                  paste0("Scheme info of the local ", 
+                         DB$scheme, 
+                         " database is missing. Download the scheme again (no influence on already typed assemblies)."),
+                  title = "Local Database Error",
+                  fade = TRUE,
+                  easyClose = TRUE,
+                  footer = tagList(
+                    modalButton("Okay")
+                  )
                 )
               )
             )
@@ -6848,15 +7299,18 @@ server <- function(input, output, session) {
               
               # Show message that loci files are missing
               showModal(
-                modalDialog(
-                  paste0("Scheme info file is missing in the local ", 
-                         DB$scheme, 
-                         " folder. Download the scheme again (no influence on already typed assemblies)."),
-                  title = "Local Database Error",
-                  fade = TRUE,
-                  easyClose = TRUE,
-                  footer = tagList(
-                    modalButton("Okay")
+                div(
+                  class = "start-modal",
+                  modalDialog(
+                    paste0("Scheme info file is missing in the local ", 
+                           DB$scheme, 
+                           " folder. Download the scheme again (no influence on already typed assemblies)."),
+                    title = "Local Database Error",
+                    fade = TRUE,
+                    easyClose = TRUE,
+                    footer = tagList(
+                      modalButton("Okay")
+                    )
                   )
                 )
               )
@@ -6869,15 +7323,18 @@ server <- function(input, output, session) {
               
               # Show message that loci files are missing
               showModal(
-                modalDialog(
-                  paste0("Some loci files are missing in the local ", 
-                         DB$scheme, 
-                         " folder. Download the scheme again (no influence on already typed assemblies)."),
-                  title = "Local Database Error",
-                  fade = TRUE,
-                  easyClose = TRUE,
-                  footer = tagList(
-                    modalButton("Okay")
+                div(
+                  class = "start-modal",
+                  modalDialog(
+                    paste0("Some loci files are missing in the local ", 
+                           DB$scheme, 
+                           " folder. Download the scheme again (no influence on already typed assemblies)."),
+                    title = "Local Database Error",
+                    fade = TRUE,
+                    easyClose = TRUE,
+                    footer = tagList(
+                      modalButton("Okay")
+                    )
                   )
                 )
               )
@@ -7753,7 +8210,7 @@ server <- function(input, output, session) {
                           width = 12,
                           rHandsontableOutput("db_entries")
                         ),
-                        br(),
+                        br(), br(),
                         column(
                           width = 3,
                           fluidRow(
@@ -10333,9 +10790,6 @@ server <- function(input, output, session) {
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
     
-    amr_results <<- Screening$amr_results
-    amr_class <<- Screening$amr_class
-    
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -11182,17 +11636,20 @@ server <- function(input, output, session) {
           )
         } else {
           showModal(
-            modalDialog(
-              selectInput(
-                "new_var_type",
-                label = "",
-                choices = c("Categorical (character)",
-                            "Continous (numeric)")),
-              title = paste0("Select Data Type"),
-              easyClose = TRUE,
-              footer = tagList(
-                modalButton("Cancel"),
-                actionButton("conf_new_var", "Confirm", class = "btn btn-default")
+            div(
+              class = "start-modal",
+              modalDialog(
+                selectInput(
+                  "new_var_type",
+                  label = "",
+                  choices = c("Categorical (character)",
+                              "Continous (numeric)")),
+                title = "Select Data Type",
+                easyClose = TRUE,
+                footer = tagList(
+                  modalButton("Cancel"),
+                  actionButton("conf_new_var", "Confirm", class = "btn btn-default")
+                )
               )
             )
           )
@@ -11254,18 +11711,21 @@ server <- function(input, output, session) {
       )
     } else {
       showModal(
-        modalDialog(
-          paste0(
-            "Confirmation will lead to irreversible deletion of the custom ",
-            input$del_which_var,
-            " variable. Continue?"
-          ),
-          title = "Delete custom variables",
-          fade = TRUE,
-          easyClose = TRUE,
-          footer = tagList(
-            modalButton("Cancel"),
-            actionButton("conf_var_del", "Delete", class = "btn btn-danger")
+        div(
+          class = "start-modal",
+          modalDialog(
+            paste0(
+              "Confirmation will lead to irreversible deletion of the custom ",
+              input$del_which_var,
+              " variable. Continue?"
+            ),
+            title = "Delete custom variables",
+            fade = TRUE,
+            easyClose = TRUE,
+            footer = tagList(
+              modalButton("Cancel"),
+              actionButton("conf_var_del", "Delete", class = "btn btn-danger")
+            )
           )
         )
       )
@@ -11431,26 +11891,29 @@ server <- function(input, output, session) {
         log_print("Input edit_button")
         
         showModal(
-          modalDialog(
-            if(length(DB$deleted_entries > 0)) {
-              paste0(
-                "Overwriting previous metadata of local ",
-                DB$scheme,
-                " database. Deleted entries will be irreversibly removed. Continue?"
+          div(
+            class = "start-modal",
+            modalDialog(
+              if(length(DB$deleted_entries > 0)) {
+                paste0(
+                  "Overwriting previous metadata of local ",
+                  DB$scheme,
+                  " database. Deleted entries will be irreversibly removed. Continue?"
+                )
+              } else {
+                paste0(
+                  "Overwriting previous metadata of local ",
+                  DB$scheme,
+                  " database. Continue?"
+                )
+              },
+              title = "Save Database",
+              fade = TRUE,
+              easyClose = TRUE,
+              footer = tagList(
+                modalButton("Cancel"),
+                actionButton("conf_db_save", "Save", class = "btn btn-default")
               )
-            } else {
-              paste0(
-                "Overwriting previous metadata of local ",
-                DB$scheme,
-                " database. Continue?"
-              )
-            },
-            title = "Save Database",
-            fade = TRUE,
-            easyClose = TRUE,
-            footer = tagList(
-              modalButton("Cancel"),
-              actionButton("conf_db_save", "Save", class = "btn btn-default")
             )
           )
         )
@@ -11571,52 +12034,58 @@ server <- function(input, output, session) {
     } else {
       if( (length(input$select_delete) - nrow(DB$data) ) == 0) {
         showModal(
-          modalDialog(
-            HTML(paste0("Deleting will lead to removal of <strong>ALL entries</strong> and assemblies from local ", DB$scheme, " database. The data can not be recovered afterwards. Continue?")),
-            easyClose = TRUE,
-            title = "Deleting Entries",
-            footer = tagList(
-              fluidRow(
-                column(6),
-                column(
-                  width = 4,
-                  modalButton("Cancel"),
-                ),
-                column(
-                  width = 2,
-                  div(
-                    class = "danger-button",
-                    actionButton("conf_delete_all", "Delete")
+          div(
+            class = "start-modal",
+            modalDialog(
+              HTML(paste0("Deleting will lead to removal of <strong>ALL entries</strong> and assemblies from local ", DB$scheme, " database. The data can not be recovered afterwards. Continue?")),
+              easyClose = TRUE,
+              title = "Deleting Entries",
+              footer = tagList(
+                fluidRow(
+                  column(6),
+                  column(
+                    width = 4,
+                    modalButton("Cancel"),
+                  ),
+                  column(
+                    width = 2,
+                    div(
+                      class = "danger-button",
+                      actionButton("conf_delete_all", "Delete")
+                    )
                   )
                 )
               )
-             
             )
           )
         )
       } else {
         showModal(
-          modalDialog(
-            paste0(
-              "Confirmation will lead to irreversible removal of selected entries and the respectively saved assembly. Continue?"
-            ),
-            title = "Deleting Entries",
-            fade = TRUE,
-            easyClose = TRUE,
-            footer = tagList(
-              fluidRow(
-                column(6),
-                column(
-                  width = 4,
-                  modalButton("Cancel")
-                ),
-                column(
-                  width = 2,
-                  div(
-                    class = "danger-button",
-                    actionButton(
-                      "conf_delete", 
-                      "Delete"
+          div(
+            class = "start-modal",
+            modalDialog(
+              paste0(
+                "Confirmation will lead to irreversible removal of selected entries and the respectively saved assembly. Continue?"
+              ),
+              title = "Deleting Entries",
+              fade = TRUE,
+              easyClose = TRUE,
+              footer = tagList(
+                fluidRow(
+                  column(6),
+                  column(
+                    width = 3,
+                    align = "right",
+                    modalButton("Cancel")
+                  ),
+                  column(
+                    width = 2,
+                    div(
+                      class = "danger-button",
+                      actionButton(
+                        "conf_delete", 
+                        "Delete"
+                      )
                     )
                   )
                 )
@@ -11636,23 +12105,25 @@ server <- function(input, output, session) {
     unlink(file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates"), recursive = TRUE, force = FALSE, expand =TRUE)
     
     showModal(
-      modalDialog(
-        selectInput(
-          "scheme_db",
-          label = "",
-          choices = if(!is.null(Typing$last_scheme)) {
-            Typing$last_scheme
-          } else {DB$available},
-          selected = if(!is.null(Typing$last_scheme)) {
-            Typing$last_scheme
-          } else {if(!is.null(DB$scheme)) {DB$scheme} else {DB$available[1]}}),
-        title = "All entries have been removed. Select a local database to load.",
-        footer = tagList(
-          actionButton("load", "Load", class = "btn btn-default")
+      div(
+        class = "start-modal",
+        modalDialog(
+          selectInput(
+            "scheme_db",
+            label = "",
+            choices = if(!is.null(Typing$last_scheme)) {
+              Typing$last_scheme
+            } else {DB$available},
+            selected = if(!is.null(Typing$last_scheme)) {
+              Typing$last_scheme
+            } else {if(!is.null(DB$scheme)) {DB$scheme} else {DB$available[1]}}),
+          title = "All entries have been removed. Select a local database to load.",
+          footer = tagList(
+            actionButton("load", "Load", class = "btn btn-default")
+          )
         )
       )
     )
-    
   })
   
   DB$deleted_entries <- character(0)
@@ -12946,8 +13417,18 @@ server <- function(input, output, session) {
             )
           ),
           footer = tagList(
-            modalButton("Cancel"),
-            actionButton("nj_heatmap_confirm", "Apply", class = "btn btn-default")
+            fluidRow(
+              column(6),
+              column(
+                width = 3,
+                align = "right",
+                modalButton("Cancel")
+              ),
+              column(
+                width = 2,
+                actionButton("nj_heatmap_confirm", "Apply", class = "btn btn-default")
+              )
+            )
           )
         )
       )
@@ -13027,8 +13508,18 @@ server <- function(input, output, session) {
             )
           ),
           footer = tagList(
-            modalButton("Cancel"),
-            actionButton("upgma_heatmap_confirm", "Apply", class = "btn btn-default")
+            fluidRow(
+              column(6),
+              column(
+                width = 3,
+                align = "right",
+                modalButton("Cancel")
+              ),
+              column(
+                width = 2,
+                actionButton("upgma_heatmap_confirm", "Apply", class = "btn btn-default")
+              )
+            )
           )
         )
       )
@@ -22898,36 +23389,49 @@ server <- function(input, output, session) {
         dup_id <- which(duplicated(DB$meta_true$`Assembly ID`))
         
         showModal(
-          modalDialog(
-            if((length(dup_name) + length(dup_id)) == 1) {
-              if(length(dup_name) == 1) {
-                HTML(paste0("Entry #", dup_name,
-                            " contains a duplicated assembly name:", "<br><br>",
-                            DB$meta_true$`Assembly Name`[dup_name]))
+          div(
+            class = "start-modal",
+            modalDialog(
+              if((length(dup_name) + length(dup_id)) == 1) {
+                if(length(dup_name) == 1) {
+                  HTML(paste0("Entry #", dup_name,
+                              " contains a duplicated assembly name:", "<br><br>",
+                              DB$meta_true$`Assembly Name`[dup_name]))
+                } else {
+                  HTML(paste0("Entry #", dup_id,
+                              " contains a duplicated assembly ID:", "<br><br>",
+                              DB$meta_true$`Assembly ID`[dup_id]))
+                }
               } else {
-                HTML(paste0("Entry #", dup_id,
-                            " contains a duplicated assembly ID:", "<br><br>",
-                            DB$meta_true$`Assembly ID`[dup_id]))
-              }
-            } else {
-              if(length(dup_name) == 0) {
-                HTML(c("Entries contain duplicated IDs <br><br>",
-                       paste0(unique(DB$meta_true$`Assembly ID`[dup_id]), "<br>")))
-              } else if(length(dup_id) == 0) {
-                HTML(c("Entries contain duplicated names<br><br>",
-                       paste0(unique(DB$meta_true$`Assembly Name`[dup_name]), "<br>")))
-              } else {
-                HTML(c("Entries contain duplicated names and IDs <br><br>",
-                       paste0("Name: ", unique(DB$meta_true$`Assembly Name`[dup_name]), "<br>"),
-                       paste0("ID: ", unique(DB$meta_true$`Assembly ID`[dup_id]), "<br>")))
-              }
-            },
-            title = "Duplicate entries",
-            fade = TRUE,
-            easyClose = TRUE,
-            footer = tagList(
-              modalButton("Cancel"),
-              actionButton("change_entries", "Go to Entry Table", class = "btn btn-default")
+                if(length(dup_name) == 0) {
+                  HTML(c("Entries contain duplicated IDs <br><br>",
+                         paste0(unique(DB$meta_true$`Assembly ID`[dup_id]), "<br>")))
+                } else if(length(dup_id) == 0) {
+                  HTML(c("Entries contain duplicated names<br><br>",
+                         paste0(unique(DB$meta_true$`Assembly Name`[dup_name]), "<br>")))
+                } else {
+                  HTML(c("Entries contain duplicated names and IDs <br><br>",
+                         paste0("Name: ", unique(DB$meta_true$`Assembly Name`[dup_name]), "<br>"),
+                         paste0("ID: ", unique(DB$meta_true$`Assembly ID`[dup_id]), "<br>")))
+                }
+              },
+              title = "Duplicate entries",
+              fade = TRUE,
+              easyClose = TRUE,
+              footer = tagList(
+                fluidRow(
+                  column(6),
+                  column(
+                    width = 3,
+                    align = "right",
+                    modalButton("Cancel")
+                  ),
+                  column(
+                    width = 2,
+                    actionButton("change_entries", "Go to Entry Table", class = "btn btn-default")
+                  )
+                )
+              )
             )
           )
         )
@@ -22977,7 +23481,7 @@ server <- function(input, output, session) {
             Vis$nj <- ape::nj(hamming_dist())
             
             # Create phylogenetic tree meta data
-            Vis$meta_nj <- mutate(meta_nj, taxa = Index) %>%
+            Vis$meta_nj <<- mutate(meta_nj, taxa = Index) %>%
               relocate(taxa)
             
             # Get number of included entries calculate start values for tree 
@@ -23419,310 +23923,323 @@ server <- function(input, output, session) {
       }
       
       showModal(
-        modalDialog(
-          fluidRow(
-            column(
-              width = 12,
-              fluidRow(
-                column(
-                  width = 4,
-                  align = "left",
-                  HTML(
-                    paste(
-                      tags$span(style='color:black; font-size: 15px; font-weight: 900', 'General')
-                    )
-                  )
-                ),
-                column(
-                  width = 3,
-                  align = "left",
-                  checkboxInput(
-                    "rep_general",
-                    label = "",
-                    value = TRUE
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 12,
-                  align = "left",
-                  fluidRow(
-                    column(
-                      width = 3,
-                      checkboxInput(
-                        "rep_date_general", 
-                        label = h5("Date", style = "color:black;"),
-                        value = TRUE
-                      )
-                    ),
-                    column(
-                      width = 7,
-                      dateInput(
-                        "mst_date_general_select",
-                        "",
-                        max = Sys.Date()
+        div(
+          class = "start-modal",
+          modalDialog(
+            fluidRow(
+              column(
+                width = 12,
+                fluidRow(
+                  column(
+                    width = 4,
+                    align = "left",
+                    HTML(
+                      paste(
+                        tags$span(style='color:black; font-size: 15px; font-weight: 900', 'General')
                       )
                     )
                   ),
-                  fluidRow(
-                    column(
-                      width = 3,
-                      checkboxInput(
-                        "rep_operator_general", 
-                        label = h5("Operator", style = "color:black;"),
-                        value = TRUE
+                  column(
+                    width = 3,
+                    align = "left",
+                    checkboxInput(
+                      "rep_general",
+                      label = "",
+                      value = TRUE
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 12,
+                    align = "left",
+                    fluidRow(
+                      column(
+                        width = 3,
+                        checkboxInput(
+                          "rep_date_general", 
+                          label = h5("Date", style = "color:black;"),
+                          value = TRUE
+                        )
+                      ),
+                      column(
+                        width = 7,
+                        dateInput(
+                          "mst_date_general_select",
+                          "",
+                          max = Sys.Date()
+                        )
                       )
                     ),
-                    column(
-                      width = 8,
-                      textInput(
-                        "mst_operator_general_select",
-                        ""
-                      ) 
+                    fluidRow(
+                      column(
+                        width = 3,
+                        checkboxInput(
+                          "rep_operator_general", 
+                          label = h5("Operator", style = "color:black;"),
+                          value = TRUE
+                        )
+                      ),
+                      column(
+                        width = 8,
+                        textInput(
+                          "mst_operator_general_select",
+                          ""
+                        ) 
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 3,
+                        checkboxInput(
+                          "rep_institute_general", 
+                          label = h5("Institute", style = "color:black;"),
+                          value = TRUE
+                        )
+                      ),
+                      column(
+                        width = 8,
+                        textInput(
+                          "mst_institute_general_select",
+                          ""
+                        ) 
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 3,
+                        checkboxInput(
+                          "rep_comm_general", 
+                          label = h5("Comment", style = "color:black;")
+                        )
+                      ),
+                      column(
+                        width = 8,
+                        textAreaInput(
+                          inputId = "mst_comm_general_select",
+                          label = "",
+                          width = "100%",
+                          height = "60px",
+                          cols = NULL,
+                          rows = NULL,
+                          placeholder = NULL,
+                          resize = "vertical"
+                        ) 
+                      )
+                    )
+                  )
+                ),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 4,
+                    align = "left",
+                    HTML(
+                      paste(
+                        tags$span(style='color: black; font-size: 15px; font-weight: 900', 'Isolate Table')
+                      )
                     )
                   ),
-                  fluidRow(
-                    column(
-                      width = 3,
-                      checkboxInput(
-                        "rep_institute_general", 
-                        label = h5("Institute", style = "color:black;"),
-                        value = TRUE
-                      )
-                    ),
-                    column(
-                      width = 8,
-                      textInput(
-                        "mst_institute_general_select",
-                        ""
-                      ) 
+                  column(
+                    width = 3,
+                    align = "left",
+                    checkboxInput(
+                      "rep_entrytable",
+                      label = "",
+                      value = TRUE
                     )
                   ),
-                  fluidRow(
-                    column(
-                      width = 3,
-                      checkboxInput(
-                        "rep_comm_general", 
-                        label = h5("Comment", style = "color:black;")
+                  column(
+                    width = 4,
+                    align = "left",
+                    HTML(
+                      paste(
+                        tags$span(style='color: black; font-size: 15px; font-weight: 900', 'Include Plot')
+                      )
+                    )
+                  ),
+                  column(
+                    width = 1,
+                    align = "left",
+                    checkboxInput(
+                      "rep_plot_report",
+                      label = "",
+                      value = TRUE
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 6,
+                    align = "left",
+                    div(
+                      class = "rep_tab_sel",
+                      pickerInput("select_rep_tab",
+                                  label = "",
+                                  choices = names(DB$meta)[-2],
+                                  selected = c("Assembly Name", "Scheme", "Isolation Date",
+                                               "Host", "Country", "City", extra_var),
+                                  options = list(
+                                    size = 10,
+                                    `actions-box` = TRUE,
+                                    style = "background-color: white; border-radius: 5px;"
+                                  ),
+                                  multiple = TRUE)
+                    )
+                  )
+                ),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 4,
+                    align = "left",
+                    HTML(
+                      paste(
+                        tags$span(style='color: black; font-size: 15px; font-weight: 900', 'Analysis Parameter')
+                      )
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    align = "left",
+                    checkboxInput(
+                      "rep_analysis",
+                      label = "",
+                      value = TRUE
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 6,
+                    align = "left",
+                    fluidRow(
+                      column(
+                        width = 4,
+                        checkboxInput(
+                          "rep_cgmlst_analysis",
+                          label = h5("Scheme", style = "color:black;"),
+                          value = TRUE
+                        )
+                      ),
+                      column(
+                        width = 8,
+                        align = "right",
+                        HTML(
+                          paste(
+                            tags$span(style='color: black; position: relative; top: 17px; font-style: italic', DB$scheme)
+                          )
+                        )
                       )
                     ),
-                    column(
-                      width = 8,
-                      textAreaInput(
-                        inputId = "mst_comm_general_select",
-                        label = "",
-                        width = "100%",
-                        height = "60px",
-                        cols = NULL,
-                        rows = NULL,
-                        placeholder = NULL,
-                        resize = "vertical"
-                      ) 
-                    )
-                  )
-                )
-              ),
-              hr(),
-              fluidRow(
-                column(
-                  width = 4,
-                  align = "left",
-                  HTML(
-                    paste(
-                      tags$span(style='color: black; font-size: 15px; font-weight: 900', 'Isolate Table')
-                    )
-                  )
-                ),
-                column(
-                  width = 3,
-                  align = "left",
-                  checkboxInput(
-                    "rep_entrytable",
-                    label = "",
-                    value = TRUE
-                  )
-                ),
-                column(
-                  width = 4,
-                  align = "left",
-                  HTML(
-                    paste(
-                      tags$span(style='color: black; font-size: 15px; font-weight: 900', 'Include Plot')
-                    )
-                  )
-                ),
-                column(
-                  width = 1,
-                  align = "left",
-                  checkboxInput(
-                    "rep_plot_report",
-                    label = "",
-                    value = TRUE
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 6,
-                  align = "left",
-                  div(
-                    class = "rep_tab_sel",
-                    pickerInput("select_rep_tab",
-                                label = "",
-                                choices = names(DB$meta)[-2],
-                                selected = c("Assembly Name", "Scheme", "Isolation Date",
-                                             "Host", "Country", "City", extra_var),
-                                options = list(
-                                  size = 10,
-                                  `actions-box` = TRUE,
-                                  style = "background-color: white; border-radius: 5px;"
-                                ),
-                                multiple = TRUE)
-                  )
-                )
-              ),
-              hr(),
-              fluidRow(
-                column(
-                  width = 4,
-                  align = "left",
-                  HTML(
-                    paste(
-                      tags$span(style='color: black; font-size: 15px; font-weight: 900', 'Analysis Parameter')
-                    )
-                  )
-                ),
-                column(
-                  width = 3,
-                  align = "left",
-                  checkboxInput(
-                    "rep_analysis",
-                    label = "",
-                    value = TRUE
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 6,
-                  align = "left",
-                  fluidRow(
-                    column(
-                      width = 4,
-                      checkboxInput(
-                        "rep_cgmlst_analysis",
-                        label = h5("Scheme", style = "color:black;"),
-                        value = TRUE
-                      )
-                    ),
-                    column(
-                      width = 8,
-                      align = "right",
-                      HTML(
-                        paste(
-                          tags$span(style='color: black; position: relative; top: 17px; font-style: italic', DB$scheme)
+                    fluidRow(
+                      column(
+                        width = 4,
+                        checkboxInput(
+                          "rep_tree_analysis",
+                          label = h5("Tree", style = "color:black;"),
+                          value = TRUE
+                        )
+                      ),
+                      column(
+                        width = 8,
+                        align = "right",
+                        HTML(
+                          paste(
+                            tags$span(style='color: black; position: relative; top: 17px; font-style: italic', input$tree_algo)
+                          )
                         )
                       )
                     )
                   ),
-                  fluidRow(
-                    column(
-                      width = 4,
-                      checkboxInput(
-                        "rep_tree_analysis",
-                        label = h5("Tree", style = "color:black;"),
-                        value = TRUE
+                  column(
+                    width = 6,
+                    align = "left",
+                    fluidRow(
+                      column(2),
+                      column(
+                        width = 4,
+                        checkboxInput(
+                          "rep_distance",
+                          label = h5("Distance", style = "color:black;"),
+                          value = TRUE
+                        )
+                      ),
+                      column(
+                        width = 5,
+                        align = "right",
+                        HTML(
+                          paste(
+                            tags$span(style='color: black; position: relative; top: 17px; font-style: italic', 'Hamming')
+                          )
+                        )
                       )
                     ),
-                    column(
-                      width = 8,
-                      align = "right",
-                      HTML(
-                        paste(
-                          tags$span(style='color: black; position: relative; top: 17px; font-style: italic', input$tree_algo)
+                    fluidRow(
+                      column(2),
+                      column(
+                        width = 4,
+                        checkboxInput(
+                          "rep_version",
+                          label = h5("Version", style = "color:black;"),
+                          value = TRUE
+                        )
+                      ),
+                      column(
+                        width = 5,
+                        align = "right",
+                        HTML(
+                          paste(
+                            tags$span(style='color:black; position: relative; top: 17px; font-style: italic', phylotraceVersion)
+                          )
                         )
                       )
                     )
                   )
                 ),
-                column(
-                  width = 6,
-                  align = "left",
-                  fluidRow(
-                    column(2),
-                    column(
-                      width = 4,
-                      checkboxInput(
-                        "rep_distance",
-                        label = h5("Distance", style = "color:black;"),
-                        value = TRUE
-                      )
-                    ),
-                    column(
-                      width = 5,
-                      align = "right",
-                      HTML(
-                        paste(
-                          tags$span(style='color: black; position: relative; top: 17px; font-style: italic', 'Hamming')
-                        )
-                      )
+                fluidRow(
+                  column(
+                    width = 3,
+                    align = "left",
+                    checkboxInput(
+                      "rep_missval",
+                      label = h5("NA handling", style = "color:black;"),
+                      value = TRUE
                     )
                   ),
-                  fluidRow(
-                    column(2),
-                    column(
-                      width = 4,
-                      checkboxInput(
-                        "rep_version",
-                        label = h5("Version", style = "color:black;"),
-                        value = TRUE
+                  column(
+                    width = 7,
+                    align = "right",
+                    HTML(
+                      paste(
+                        tags$span(style='color: black; position: relative; top: 17px; font-style: italic; right: 35px;', na_handling)
                       )
-                    ),
-                    column(
-                      width = 5,
-                      align = "right",
-                      HTML(
-                        paste(
-                          tags$span(style='color:black; position: relative; top: 17px; font-style: italic', phylotraceVersion)
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 3,
-                  align = "left",
-                  checkboxInput(
-                    "rep_missval",
-                    label = h5("NA handling", style = "color:black;"),
-                    value = TRUE
-                  )
-                ),
-                column(
-                  width = 7,
-                  align = "right",
-                  HTML(
-                    paste(
-                      tags$span(style='color: black; position: relative; top: 17px; font-style: italic; right: 35px;', na_handling)
                     )
                   )
                 )
               )
-            )
-          ),
-          title = "cgMLST Report Generation",
-          easyClose = TRUE,
-          footer = tagList(
-            modalButton("Cancel"),
-            downloadBttn(
-              "download_report",
-              style = "simple",
-              label = "Save",
-              size = "sm",
-              icon = icon("download")
+            ),
+            title = "cgMLST Report Generation",
+            easyClose = TRUE,
+            footer = tagList(
+              fluidRow(
+                column(6),
+                column(
+                  width = 3,
+                  align = "right",
+                  modalButton("Cancel")
+                ),
+                column(
+                  width = 2,
+                  downloadBttn(
+                    "download_report",
+                    style = "simple",
+                    label = "Save",
+                    size = "sm",
+                    icon = icon("download")
+                  )
+                )
+              )
             )
           )
         )
@@ -23954,7 +24471,277 @@ server <- function(input, output, session) {
   
   ## Gene Screening  ----
   
+  ### Reactive Events ----
+  
+  # download gs plot
+  output$gs_download_plot <- downloadHandler(
+    filename = function() {
+      fname <- paste0("GS_heatmap_", Sys.Date(), ".", input$filetype_gs)
+      log_print(paste0("Save GS heatmap"))
+      fname
+    },
+    content = function(file) {
+      if (input$filetype_gs == "png") {
+        png(file, width = (as.numeric(input$gs_scale) * as.numeric(input$gs_ratio)), height = as.numeric(input$gs_scale))
+        print(gs_plot())
+        dev.off()
+      } else if (input$filetype_gs == "jpeg") {
+        jpeg(file, width = (as.numeric(input$gs_scale) * as.numeric(input$gs_ratio)), height = as.numeric(input$gs_scale), quality = 100)
+        print(gs_plot())
+        dev.off()
+      } else if (input$filetype_gs == "svg") {
+        plot <- print(gs_plot())
+        # ggsave(file=file, plot=plot, 
+        #        limitsize = FALSE,
+        #        device = svg(width = (as.numeric(input$gs_scale) * as.numeric(input$gs_ratio))/96,
+        #                                           height = as.numeric(input$gs_scale)/96))
+        
+        svg(file, 
+            width = (as.numeric(input$gs_scale) * as.numeric(input$gs_ratio)) / 92,
+            height = as.numeric(input$gs_scale) / 92)
+        print(gs_plot())
+        dev.off()
+      } else if (input$filetype_gs == "bmp") {
+        bmp(file, width = (as.numeric(input$gs_scale) * as.numeric(input$gs_ratio)), height = as.numeric(input$gs_scale))
+        print(gs_plot())
+        dev.off()
+      }
+    }
+  )
+  
+  # adapt gs plot scaling ratio
+  observe({
+    req(input$gs_ratio)
+    if(input$gs_ratio == "1.6") {
+      updateSliderInput(session, "gs_scale",
+                        step = 5, value = 700, min = 500, max = 1200)
+    } else if(input$gs_ratio == "1.77777777777778") {
+      updateSliderInput(session, "gs_scale",
+                        step = 9, value = 702, min = 504, max = 1197)
+    } else if(input$gs_ratio == "1.33333333333333"){
+      updateSliderInput(session, "gs_scale",
+                        step = 3, value = 699, min = 501, max = 1200)
+    }
+  })
+  
   ### Render UI Elements ----
+  
+  # gs classification scale 
+  
+  output$gs_gene_class_scale_ui <- renderUI({
+    req(input$gs_gene_variables)
+    
+    gs_gene_class_scale <- selectInput(
+      "gs_gene_class_scale",
+      "",
+      choices = list(
+        Gradient = list(
+          "Magma" = "magma",
+          "Inferno" = "inferno",
+          "Plasma" = "plasma",
+          "Viridis" = "viridis",
+          "Cividis" = "cividis",
+          "Rocket" = "rocket",
+          "Mako" = "mako",
+          "Turbo" = "turbo"
+        )
+      ),
+      selected = "turbo",
+      width = "75%"
+    )
+    if(input$gs_gene_variables != "None") {
+      div(
+        class = "gs-gene-class-scale",
+        gs_gene_class_scale
+      )
+    } else {
+      shinyjs::disabled(
+        div(
+          class = "gs-gene-class-scale",
+          gs_gene_class_scale
+        )
+      )
+    }
+  })
+  
+  # gs variable mapping scale 
+  output$gs_mapping_scale_ui <- renderUI({
+    req(input$gs_var_mapping)
+    
+    if(input$gs_var_mapping != "None") {
+      if(class(unlist(DB$meta[,input$gs_var_mapping])) == "numeric") {
+        gs_mapping_scale <- selectInput(
+          "gs_mapping_scale",
+          "",
+          choices = list(
+            Continous = list(
+              "Magma" = "magma",
+              "Inferno" = "inferno",
+              "Plasma" = "plasma",
+              "Viridis" = "viridis",
+              "Cividis" = "cividis",
+              "Rocket" = "rocket",
+              "Mako" = "mako",
+              "Turbo" = "turbo"
+            ),
+            Diverging = list(
+              "Spectral",
+              "RdYlGn",
+              "RdYlBu",
+              "RdGy",
+              "RdBu",
+              "PuOr",
+              "PRGn",
+              "PiYG",
+              "BrBG"
+            ),
+            width = "75%"
+          )
+        )
+      } else {
+        if(length(unique(unlist(DB$meta[input$gs_var_mapping]))) > 7) {
+          gs_mapping_scale <- selectInput(
+            "gs_mapping_scale",
+            "",
+            choices = list(
+              Gradient = list(
+                "Magma" = "magma",
+                "Inferno" = "inferno",
+                "Plasma" = "plasma",
+                "Viridis" = "viridis",
+                "Cividis" = "cividis",
+                "Rocket" = "rocket",
+                "Mako" = "mako",
+                "Turbo" = "turbo"
+              )
+            ),
+            selected = "turbo",
+            width = "75%"
+          )
+        } else {
+          gs_mapping_scale <- selectInput(
+            "gs_mapping_scale",
+            "",
+            choices = list(
+              Qualitative = list(
+                "Set1",
+                "Set2",
+                "Set3",
+                "Pastel1",
+                "Pastel2",
+                "Paired",
+                "Dark2",
+                "Accent"
+              ),
+              Sequential = list(
+                "YlOrRd",
+                "YlOrBr",
+                "YlGnBu",
+                "YlGn",
+                "Reds",
+                "RdPu",
+                "Purples",
+                "PuRd",
+                "PuBuGn",
+                "PuBu",
+                "OrRd",
+                "Oranges",
+                "Greys",
+                "Greens",
+                "GnBu",
+                "BuPu",
+                "BuGn",
+                "Blues"
+              )
+            ),
+            width = "75%"
+          )
+        }
+      }
+      
+      div(
+        class = "gs-mapping-scale",
+        gs_mapping_scale
+      )
+    } else {
+      gs_mapping_scale <- selectInput(
+        "gs_mapping_scale",
+        "",
+        choices = list(
+          Qualitative = list(
+            "Set1",
+            "Set2",
+            "Set3",
+            "Pastel1",
+            "Pastel2",
+            "Paired",
+            "Dark2",
+            "Accent"
+          ),
+          Sequential = list(
+            "YlOrRd",
+            "YlOrBr",
+            "YlGnBu",
+            "YlGn",
+            "Reds",
+            "RdPu",
+            "Purples",
+            "PuRd",
+            "PuBuGn",
+            "PuBu",
+            "OrRd",
+            "Oranges",
+            "Greys",
+            "Greens",
+            "GnBu",
+            "BuPu",
+            "BuGn",
+            "Blues"
+          )
+        ),
+        width = "75%"
+      )
+      
+      shinyjs::disabled(
+        div(
+          class = "gs-mapping-scale",
+          gs_mapping_scale
+        )
+      )
+    }
+  })
+  
+  # variable mapping
+  output$gs_var_mapping_ui <- renderUI({
+    req(DB$meta)
+    selectInput(
+      "gs_var_mapping",
+      "",
+      choices = if(ncol(DB$meta) == 13) {
+        c(
+          None = "None",
+          `Isolation Date` = "Isolation Date",
+          Host = "Host",
+          Country = "Country",
+          City = "City"
+        )
+      } else {
+        append(c(None = "None", `Isolation Date` = "Isolation Date", Host = "Host", 
+                 Country = "Country", City = "City"),
+               colnames(DB$meta)[14:ncol(DB$meta)])
+      },
+      width = "75%",
+      selected = NULL
+    )
+  })
+  
+  output$gs_field <- renderUI({
+    addSpinner(
+      plotOutput("gs_plot", width = paste0(as.character(as.numeric(input$gs_scale) * as.numeric(input$gs_ratio)), "px"), height = paste0(as.character(input$gs_scale), "px")),
+      spin = "dots",
+      color = "#ffffff"
+    )
+  })
   
   # Render isolate picker
   output$gs_plot_sel_isolate <- renderUI({
@@ -24005,27 +24792,27 @@ server <- function(input, output, session) {
     
     if(is.null(input$gs_plot_selected_isolate)) {
       tagList(
-        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 20px', 
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 5px;', 
                   "0 isolates(s) selected"),
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 13px', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 5px;', 
                   "Select min. 3 isolates")
       )
     } else if(length(input$gs_plot_selected_isolate) < 3) {
       tagList(
-        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 20px', 
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 5px;', 
                   paste(
                     length(input$gs_plot_selected_isolate),
                     'isolate(s) selected'
                   )),
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 13px', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 5px;', 
                   "Select min. 3 isolates")
       )
     } else {
       HTML(
         paste(
-          tags$span(style='color: white; font-size: 12px; fon-style: italic; position: relative; top: 27px;', 
+          tags$span(style='color: white; font-size: 12px; font-style: italic; position: relative; left: 5px; top: 5px;', 
                     paste(
                       length(input$gs_plot_selected_isolate),
                       'isolate(s) selected'
@@ -24040,10 +24827,10 @@ server <- function(input, output, session) {
     req(DB$data)
     if(is.null(input$gs_plot_selected_amr)) {
       tagList(
-        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 5px;', 
                   "0 gene(s) selected"),
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 5px;', 
                   "Select min. 3 genes")
       )
     } else if(length(input$gs_plot_selected_amr) < 3) {
@@ -24146,7 +24933,7 @@ server <- function(input, output, session) {
         amr_class_present <- colnames(heatmap_matrix)[amr_unison]
         amr_no_class <- colnames(heatmap_matrix)[!amr_unison]
         
-        amr_meta <<- data.frame(
+        amr_meta <- data.frame(
           gene = c(amr_class_present, amr_no_class),
           amr = c(amr_class_filtered$Variable[gsub("\\*", "", amr_class_filtered$Observation) %in% amr_class_present],
                   rep(NA, length(amr_no_class)))
@@ -24814,16 +25601,19 @@ server <- function(input, output, session) {
   # Cancel screening
   observeEvent(input$screening_cancel, {
     showModal(
-      modalDialog(
-        paste0(
-          "Gene screening is still pending. Stopping this process will cancel the screening."
-        ),
-        title = "Reset Multi Typing",
-        fade = TRUE,
-        easyClose = TRUE,
-        footer = tagList(
-          modalButton("Cancel"),
-          actionButton("conf_screening_cancel", "Stop", class = "btn btn-danger")
+      div(
+        class = "start-modal",
+        modalDialog(
+          paste0(
+            "Gene screening is still pending. Stopping this process will cancel the screening."
+          ),
+          title = "Reset Multi Typing",
+          fade = TRUE,
+          easyClose = TRUE,
+          footer = tagList(
+            modalButton("Cancel"),
+            actionButton("conf_screening_cancel", "Stop", class = "btn btn-danger")
+          )
         )
       )
     )
@@ -25234,84 +26024,68 @@ server <- function(input, output, session) {
   
   ### AMR Visualization ----
   
-  observe({
+  gs_plot <- reactive({
     req(DB$data, Screening$amr_results,
         DB$database, DB$scheme, 
-        input$gsplot_cluster_rows, input$gsplot_color_text,
-        input$gsplot_cluster_cols, input$gsplot_fontsize_col,
+        input$gsplot_color_text, input$gsplot_fontsize_col,
         input$gsplot_fontsize_row, input$gsplot_treeheight_col,
         input$gsplot_treeheight_row, input$gsplot_legend_labelsize, 
-        input$gsplot_color_palette1, input$gsplot_color_palette2,
-        input$gs_plot_selected_amr, input$gs_plot_selected_vir,
-        input$gs_plot_selected_noclass)
+        input$gsplot_color_palette1, input$gsplot_color_palette2)
     
     amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, as.numeric))
     rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
     colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
     
-    amr_profile_numeric_all <<- amr_profile_numeric[rownames(amr_profile_numeric) %in% input$gs_plot_selected_isolate, ]
+    amr_profile_numeric_all <- amr_profile_numeric[rownames(amr_profile_numeric) %in% input$gs_plot_selected_isolate, ]
+    amr_profile_numeric <- amr_profile_numeric_all[,c(input$gs_plot_selected_amr, input$gs_plot_selected_vir, input$gs_plot_selected_noclass)]
+    heatmap_mat <- as.matrix(amr_profile_numeric)
+    heatmap_mat1 <<- heatmap_mat
+    ### get heatmap meta
+    # amr meta
+    amr_meta <- NULL
+    amr_class_filtered <- Screening$amr_class[!duplicated(gsub("\\*", "", Screening$amr_class$Observation)),]
     
-    amr_profile_numeric <<- amr_profile_numeric_all[,c(input$gs_plot_selected_amr, input$gs_plot_selected_vir, input$gs_plot_selected_noclass)]
+    amr_unison <- colnames(heatmap_mat) %in% gsub("\\*", "", amr_class_filtered$Observation)
     
-    heatmap_matrix <<- as.matrix(amr_profile_numeric)
+    amr_class_present <- colnames(heatmap_mat)[amr_unison]
+    amr_no_class <- colnames(heatmap_mat)[!amr_unison]
     
-    # get heatmap meta
-    if(!is.null(Screening$amr_class)) {
-      if(nrow(Screening$amr_class) > 0) {
-        no_amr <- FALSE
-        Screening_amr_class <<- Screening$amr_class
-        amr_class_filtered <<- Screening$amr_class[!duplicated(gsub("\\*", "", Screening$amr_class$Observation)),]
-        
-        amr_unison <<- colnames(heatmap_matrix) %in% gsub("\\*", "", amr_class_filtered$Observation)
-        
-        amr_class_present <<- colnames(heatmap_matrix)[amr_unison]
-        amr_no_class <<- colnames(heatmap_matrix)[!amr_unison]
-        
-        testamr_meta <<- data.frame(
-          gene = c(amr_class_present, amr_no_class),
-          amr = c(amr_class_filtered$Variable[gsub("\\*", "", amr_class_filtered$Observation) %in% amr_class_present], 
-                  rep(NA, length(amr_no_class)))
-        )
-        
-        amr_meta <- data.frame(
-          gene = c(amr_class_present, amr_no_class),
-          amr = c(amr_class_filtered$Variable[gsub("\\*", "", amr_class_filtered$Observation) %in% amr_class_present], 
-                  rep(NA, length(amr_no_class)))
-        ) %>%
-          arrange(gene) %>%
-          tibble::column_to_rownames(var = "gene")
-      } else {no_amr <- TRUE}
-    } else {no_amr <- TRUE}
+    amr_meta <- data.frame(
+      gene = c(amr_class_present, amr_no_class),
+      amr = c(amr_class_filtered$Variable[gsub("\\*", "", amr_class_filtered$Observation) %in% amr_class_present], 
+              rep(NA, length(amr_no_class)))
+    )
     
-    if(!is.null(Screening$vir_class)) {
-      if(nrow(Screening$vir_class) > 0) {
-        no_vir <- FALSE
-        vir_class_filtered <- Screening$vir_class[!duplicated(gsub("\\*", "", Screening$vir_class$Observation)),]
-        
-        vir_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", vir_class_filtered$Observation)
-        
-        vir_class_present <- colnames(heatmap_matrix)[vir_unison]
-        vir_no_class <- colnames(heatmap_matrix)[!vir_unison]
-        
-        vir_meta <- data.frame(
-          gene = c(vir_class_present, vir_no_class),
-          class = c(vir_class_filtered$Variable[gsub("\\*", "", vir_class_filtered$Observation) %in% vir_class_present], 
-                    rep(NA, length(vir_no_class)))
-        ) %>%
-          arrange(gene) %>%
-          tibble::column_to_rownames(var = "gene")
-      } else {no_vir <- TRUE}
-    } else {no_vir <- TRUE}
-    
-    if(!no_amr & no_vir) {
-      hm_meta <- amr_meta
-    } else if (no_amr & !no_vir) {
-      hm_meta <- vir_meta
-    } else if (no_amr & no_vir) {
-      hm_meta <- NULL
-    } else {
-      hm_meta <- add_column(amr_meta, vir = vir_meta$class)
+    if(nrow(amr_meta) != 0) {
+      amr_meta <- amr_meta %>%
+        arrange(gene) %>%
+        tibble::column_to_rownames(var = "gene")
     }
+    
+    # vir meta
+    vir_meta <- NULL
+    vir_class_filtered <- Screening$vir_class[!duplicated(gsub("\\*", "", Screening$vir_class$Observation)),]
+    
+    vir_unison <- colnames(heatmap_mat) %in% gsub("\\*", "", vir_class_filtered$Observation)
+    
+    vir_class_present <- colnames(heatmap_mat)[vir_unison]
+    vir_no_class <- colnames(heatmap_mat)[!vir_unison]
+    
+    vir_meta <- data.frame(
+      gene = c(vir_class_present, vir_no_class),
+      class = c(vir_class_filtered$Variable[gsub("\\*", "", vir_class_filtered$Observation) %in% vir_class_present], 
+                rep(NA, length(vir_no_class)))
+    )
+    
+    if(nrow(vir_meta) != 0) {
+      vir_meta <- vir_meta %>%
+        arrange(gene) %>%
+        tibble::column_to_rownames(var = "gene")
+    }
+    
+    # unite meta
+    Screening$hm_meta <- add_column(amr_meta, vir = vir_meta$class)
+    hm_meta <- Screening$hm_meta
     
     # styling parameters
     ht_opt$HEATMAP_LEGEND_PADDING = unit(15, "mm")
@@ -25323,132 +26097,201 @@ server <- function(input, output, session) {
     grid_width <- unit(input$gsplot_legend_labelsize * 0.8, "mm")
     
     # heatmap annotations
-    if(all(is.na(hm_meta$amr)) | length(input$gs_plot_selected_amr) < 3) {
+    isolate_annotation <- NULL
+    if(!is.null(input$gs_var_mapping)) {
+      if(input$gs_var_mapping != "None") {
+        
+        isolate_meta <- metaa[which(metaa$`Assembly ID` %in% rownames(heatmap_mat1)),]
+        
+        rownames(isolate_meta) <- rownames(heatmap_mat1)
+        
+        sel_isolate_var <- na.omit(isolate_meta[[input$gs_var_mapping]])
+        
+        if(!is.null(input$gs_mapping_scale)) {
+          if(input$gs_mapping_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+            var_colors <- get(input$gs_mapping_scale)(length(unique(sel_isolate_var)))
+          } else {
+            var_colors <- brewer.pal(length(unique(sel_isolate_var)), input$gs_mapping_scale)
+          }
+          names(var_colors) <- unique(sort(sel_isolate_var))
+        }
+        
+        isolate_annotation <- HeatmapAnnotation(
+          Var = sel_isolate_var,
+          show_legend = TRUE,
+          col = list(Var = var_colors),  
+          show_annotation_name = FALSE,
+          which = "row",
+          annotation_legend_param = list(
+            title = input$gs_var_mapping,
+            labels_gp = labels_gp,
+            title_gp = title_gp,
+            grid_height = grid_height,
+            grid_width = grid_width,
+            legend_gp = gpar(fill = var_colors) 
+          )
+        )
+      }  
+    }
+    
+    amr_annotation <- NULL
+    amr_heatmap <- NULL
+    if(!is.null(input$gs_plot_selected_amr)) {
+      if(all(is.na(hm_meta$amr)) | length(input$gs_plot_selected_amr) < 3) {
+        amr_annotation <- NULL
+        amr_heatmap <- NULL
+      } else {
+        amr_colors <- rainbow(length(unique(na.omit(hm_meta$amr))))
+        names(amr_colors) <- unique(sort(na.omit(hm_meta$amr)))
+        
+        amr_annotation <- HeatmapAnnotation(
+          AMR = na.omit(hm_meta$amr),
+          show_legend = TRUE,
+          col = list(AMR = amr_colors),  
+          show_annotation_name = FALSE,
+          annotation_legend_param = list(
+            title = "AMR",
+            labels_gp = labels_gp,
+            title_gp = title_gp,
+            grid_height = grid_height,
+            grid_width = grid_width,
+            legend_gp = gpar(fill = amr_colors) 
+          )
+        )
+        
+        # AMR heatmap
+        amr_genes <- rownames(hm_meta)[!is.na(hm_meta$amr)]
+        amr_profile_matrix <- heatmap_mat[,colnames(heatmap_mat) %in% amr_genes]
+        
+        if(length(unique(amr_profile_matrix)) == 1) {
+          amr_cols <- input$gsplot_color_palette1
+        } else {
+          amr_cols <- c(input$gsplot_color_palette1, input$gsplot_color_palette2)
+        }
+        
+        amr_heatmap <- ComplexHeatmap::Heatmap(
+          amr_profile_matrix,
+          col = amr_cols,
+          rect_gp = gpar(col = "white", lwd = 2),
+          column_title = "AMR",
+          row_title = "Isolates",
+          row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
+                              col = input$gsplot_color_text),
+          column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
+                                 col = input$gsplot_color_text),
+          column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
+          row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
+          row_dend_gp = gpar(col = input$gsplot_color_dend),    
+          column_dend_gp = gpar(col = input$gsplot_color_dend), 
+          top_annotation = amr_annotation,
+          show_heatmap_legend = FALSE,
+          left_annotation = isolate_annotation
+        )
+      }
+    } else {
       amr_annotation <- NULL
       amr_heatmap <- NULL
-    } else {
-      amr_colors <- rainbow(length(unique(na.omit(hm_meta$amr))))
-      names(amr_colors) <- unique(sort(na.omit(hm_meta$amr)))
-      
-      amr_annotation <- HeatmapAnnotation(
-        AMR = na.omit(hm_meta$amr),
-        show_legend = TRUE,
-        col = list(AMR = amr_colors),  
-        show_annotation_name = FALSE,
-        annotation_legend_param = list(
-          title = "AMR",
-          labels_gp = labels_gp,
-          title_gp = title_gp,
-          grid_height = grid_height,
-          grid_width = grid_width,
-          legend_gp = gpar(fill = amr_colors) 
-        )
-      )
-      
-      # AMR heatmap
-      amr_genes <- rownames(hm_meta)[!is.na(hm_meta$amr)]
-      amr_profile_matrix <- heatmap_matrix[,colnames(heatmap_matrix) %in% amr_genes]
-      
-      if(length(unique(amr_profile_matrix)) == 1) {
-        amr_cols <- input$gsplot_color_palette1
-      } else {
-        amr_cols <- c(input$gsplot_color_palette1, input$gsplot_color_palette2)
-      }
-      
-      amr_heatmap <- ComplexHeatmap::Heatmap(
-        amr_profile_matrix,
-        col = amr_cols,
-        rect_gp = gpar(col = "white", lwd = 2),
-        column_title = "AMR",
-        row_title = "Isolates",
-        row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
-                            col = input$gsplot_color_text),
-        column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
-                               col = input$gsplot_color_text),
-        #cluster_rows = input$gsplot_cluster_rows,
-        column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
-        row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
-        row_dend_gp = gpar(col = input$gsplot_color_dend),    
-        column_dend_gp = gpar(col = input$gsplot_color_dend), 
-        top_annotation = amr_annotation,
-        show_heatmap_legend = FALSE
-      )
     }
     
-    if(all(is.na(hm_meta$vir)) | length(input$gs_plot_selected_vir) < 3) {
+    vir_annotation <- NULL
+    vir_heatmap <- NULL
+    if(!is.null(input$gs_plot_selected_vir)) {
+      if(all(is.na(hm_meta$vir)) | length(input$gs_plot_selected_vir) < 3) {
+        vir_annotation <- NULL
+        vir_heatmap <- NULL
+      } else {
+        vir_colors <- viridis(length(unique(na.omit(hm_meta$vir))))
+        names(vir_colors) <- unique(sort(na.omit(hm_meta$vir)))
+        
+        vir_annotation <- HeatmapAnnotation(
+          Vir = na.omit(hm_meta$vir),
+          show_legend = TRUE,
+          col = list(Vir = vir_colors),  
+          show_annotation_name = FALSE,
+          annotation_legend_param = list(
+            title = "Vir",
+            legend_gp = legend_gp,
+            labels_gp = labels_gp,
+            title_gp = title_gp,
+            grid_height = grid_height,
+            grid_width = grid_width,
+            legend_gp = gpar(fill = vir_colors) 
+          )
+        )
+        
+        # Vir heatmap
+        vir_genes <- rownames(hm_meta)[!is.na(hm_meta$vir)]
+        vir_profile_matrix <- heatmap_mat[,colnames(heatmap_mat) %in% vir_genes]
+        
+        if(length(unique(vir_profile_matrix)) == 1) {
+          vir_cols <- input$gsplot_color_palette1
+        } else {
+          vir_cols <- c(input$gsplot_color_palette1, input$gsplot_color_palette2)
+        }
+        
+        if(is.null(amr_annotation)) {
+          left_annotation <- isolate_annotation
+        }  else {
+          left_annotation <- NULL
+        }
+        
+        vir_heatmap <- ComplexHeatmap::Heatmap(
+          vir_profile_matrix,
+          col = vir_cols,
+          rect_gp = gpar(col = "white", lwd = 2),
+          column_title = "Virulence",
+          row_title = "Isolates",
+          row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
+                              col = input$gsplot_color_text),
+          column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
+                                 col = input$gsplot_color_text),
+          column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
+          row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
+          row_dend_gp = gpar(col = input$gsplot_color_dend),    
+          column_dend_gp = gpar(col = input$gsplot_color_dend), 
+          top_annotation = vir_annotation,
+          show_heatmap_legend = FALSE,
+          left_annotation = left_annotation
+        )
+      }
+    } else {
       vir_annotation <- NULL
       vir_heatmap <- NULL
-    } else {
-      vir_colors <- viridis(length(unique(na.omit(hm_meta$vir))))
-      names(vir_colors) <- unique(sort(na.omit(hm_meta$vir)))
-      
-      vir_annotation <- HeatmapAnnotation(
-        Vir = na.omit(hm_meta$vir),
-        show_legend = TRUE,
-        col = list(Vir = vir_colors),  
-        show_annotation_name = FALSE,
-        annotation_legend_param = list(
-          title = "Vir",
-          legend_gp = legend_gp,
-          labels_gp = labels_gp,
-          title_gp = title_gp,
-          grid_height = grid_height,
-          grid_width = grid_width,
-          legend_gp = gpar(fill = vir_colors) 
-        )
-      )
-      
-      # Vir heatmap
-      vir_genes <- rownames(hm_meta)[!is.na(hm_meta$vir)]
-      vir_profile_matrix <- heatmap_matrix[,colnames(heatmap_matrix) %in% vir_genes]
-      
-      if(length(unique(vir_profile_matrix)) == 1) {
-        vir_cols <- input$gsplot_color_palette1
-      } else {
-        vir_cols <- c(input$gsplot_color_palette1, input$gsplot_color_palette2)
-      }
-      
-      vir_heatmap <- ComplexHeatmap::Heatmap(
-        vir_profile_matrix,
-        col = vir_cols,
-        rect_gp = gpar(col = "white", lwd = 2),
-        column_title = "Virulence",
-        row_title = "Isolates",
-        row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
-                            col = input$gsplot_color_text),
-        column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
-                               col = input$gsplot_color_text),
-        cluster_rows = input$gsplot_cluster_rows,
-        column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
-        row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
-        row_dend_gp = gpar(col = input$gsplot_color_dend),    
-        column_dend_gp = gpar(col = input$gsplot_color_dend), 
-        top_annotation = vir_annotation,
-        show_heatmap_legend = FALSE
-      )
     }
     
-    if(any(is.na(hm_meta$vir) & is.na(hm_meta$amr))) {
-      # None heatmap
-      unclass_genes <- rownames(hm_meta)[is.na(hm_meta$vir) & is.na(hm_meta$amr)]
-      noclass_profile_matrix <- heatmap_matrix[,colnames(heatmap_matrix) %in% unclass_genes]
-      noclass_heatmap <- ComplexHeatmap::Heatmap(
-        noclass_profile_matrix,
-        col = c(input$gsplot_color_palette1, input$gsplot_color_palette2),
-        rect_gp = gpar(col = "white", lwd = 2),
-        column_title = "No Class",
-        row_title = "Isolates",
-        row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
-                            col = input$gsplot_color_text),
-        column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
-                               col = input$gsplot_color_text),
-        cluster_rows = input$gsplot_cluster_rows,
-        column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
-        row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
-        row_dend_gp = gpar(col = input$gsplot_color_dend),    
-        column_dend_gp = gpar(col = input$gsplot_color_dend),
-        show_heatmap_legend = FALSE
-      )
+    # None heatmap
+    noclass_heatmap <- NULL
+    if(!is.null(input$gs_plot_selected_noclass)) {
+      if(any(is.na(hm_meta$vir) & is.na(hm_meta$amr))) {
+        unclass_genes <- rownames(hm_meta)[is.na(hm_meta$vir) & is.na(hm_meta$amr)]
+        noclass_profile_matrix <- heatmap_mat[,colnames(heatmap_mat) %in% unclass_genes]
+        
+        if(is.null(amr_annotation) & is.null(vir_annotation)) {
+          left_annotation <- isolate_annotation
+        }  else {
+          left_annotation <- NULL
+        }
+        
+        noclass_heatmap <- ComplexHeatmap::Heatmap(
+          noclass_profile_matrix,
+          col = c(input$gsplot_color_palette1, input$gsplot_color_palette2),
+          rect_gp = gpar(col = "white", lwd = 2),
+          column_title = "No Class",
+          row_title = "Isolates",
+          row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
+                              col = input$gsplot_color_text),
+          column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
+                                 col = input$gsplot_color_text),
+          column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
+          row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
+          row_dend_gp = gpar(col = input$gsplot_color_dend),    
+          column_dend_gp = gpar(col = input$gsplot_color_dend),
+          show_heatmap_legend = FALSE,
+          left_annotation = left_annotation
+        )
+      } else {
+        noclass_heatmap <- NULL
+      }
     } else {
       noclass_heatmap <- NULL
     }
@@ -25468,17 +26311,34 @@ server <- function(input, output, session) {
       )
     )
     
-    # summarize heatmaps
-    heatmaps <- amr_heatmap + vir_heatmap + noclass_heatmap
+    amr_heatmap1 <<- amr_heatmap
+    vir_heatmap1 <<- vir_heatmap
+    noclass_heatmap1 <<- noclass_heatmap
+    vir_meta1 <<- vir_meta
+    amr_meta1 <<- amr_meta
     
-    # make plot
-    output$gs_plot <- renderPlot({
+    # summarize heatmaps
+    if(is.null(amr_heatmap) & is.null(vir_heatmap) & is.null(noclass_heatmap)) {
+      output$gs_plot <- NULL
+    } else {
+      
+      if(all(is.na(vir_meta)) & all(is.na(amr_meta))) {
+        heatmaps <- noclass_heatmap 
+      } else {
+        heatmaps <- amr_heatmap + vir_heatmap + noclass_heatmap 
+      }
+      
       ComplexHeatmap::draw(
         heatmaps,
         heatmap_legend_side = input$gsplot_legend_position,
         annotation_legend_list = custom_legend  # Add custom legend
       )
-    })
+    }
+  })
+  
+  # make plot
+  output$gs_plot <- renderPlot({
+    gs_plot()
   })
   
   # _______________________ ####
@@ -27089,16 +27949,19 @@ server <- function(input, output, session) {
   observeEvent(input$reset_multi, {
     if(!grepl("Multi Typing", tail(readLines(paste0(getwd(),"/logs/script_log.txt")), n = 1))) {
       showModal(
-        modalDialog(
-          paste0(
-            "A Multi Typing process is still pending. Stopping this process will cancel the processing."
-          ),
-          title = "Reset Multi Typing",
-          fade = TRUE,
-          easyClose = TRUE,
-          footer = tagList(
-            modalButton("Cancel"),
-            actionButton("conf_multi_kill", "Stop", class = "btn btn-danger")
+        div(
+          class = "start-modal",
+          modalDialog(
+            paste0(
+              "A Multi Typing process is still pending. Stopping this process will cancel the processing."
+            ),
+            title = "Reset Multi Typing",
+            fade = TRUE,
+            easyClose = TRUE,
+            footer = tagList(
+              modalButton("Cancel"),
+              actionButton("conf_multi_kill", "Stop", class = "btn btn-danger")
+            )
           )
         )
       )
