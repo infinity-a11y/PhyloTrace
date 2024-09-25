@@ -1665,6 +1665,7 @@ top: -10px;
   width: 40px;
   transition: all 0.3s ease-in-out;
   border: 1px solid transparent;
+  left: 0px;
 }
 
 .save-assembly {
@@ -1715,7 +1716,8 @@ top: -10px;
   position: absolute;
   width: 40px;
   transition: all 0.3s ease-in-out;
-  border: 1px solid #20e6e559;
+  border: 1px solid #20e6e559
+  left: 0px;
 }
 
 .save-assembly .material-switch>input[type=checkbox]:checked+label.switch:before {
@@ -3241,7 +3243,7 @@ margin-left: -5px
 #gs_amrclass_scale_ui .option[data-value="turbo"],
 #gs_virclass_scale_ui .option[data-value="turbo"]  {
   background: linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF, #3AA2FCFF, #23C3E4FF, #18DEC1FF, #2CF09EFF, #5BFB72FF, #8EFF49FF, #B5F836FF, #D6E635FF, #EFCD3AFF, #FCB036FF, #FD8A26FF, #F36215FF, #E14209FF, #C82803FF, #A51301FF, #7A0403FF);
-  color: white;
+  color: black;
 }
 
 #nj_tiplab_scale .option[data-value="Spectral"], 
@@ -3562,6 +3564,25 @@ button#download_report_bttn {
 
 /* Gene Screening */
 
+#gs_plot_sel_isolate {
+  margin-bottom: 5px;
+  left: 20px;
+}
+
+.gs-cluster-sel {
+  margin-top: -28px;
+  margin-bottom: 5px;
+}
+
+.mat-switch-gs-settings {
+  margin-top: 9px;
+  margin-bottom: 5px;
+}
+
+#gs_mapping_scale_ui {
+  margin-bottom: -15px;
+}
+
 button#gs_download_plot_bttn {
   font-size: 14px; 
   height: 34px; 
@@ -3572,23 +3593,12 @@ button#gs_download_plot_bttn {
   border: 1px solid white;
 }
 
-#gs_color_menu_dropmenu .fas .fa-palette, #gs_color_menu > i {
-  font-size: 25px;
-  background: linear-gradient(45deg, red, orange, yellow, green, #cc00ff, purple);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  position: relative;
-  left: 2px;
-  top: 0px;
-  transition: transform 0.3s ease;
-}
-
 #gs_size_menu > i,
 #gs_dim_menu > i,
 #gs_variable_menu > i,
 #gs_download_menu > i,
-#gs_misc_menu > i {
+#gs_misc_menu > i,
+#gs_color_menu > i {
   font-size: 25px;
   background: white;
   -webkit-background-clip: text;
@@ -3598,6 +3608,12 @@ button#gs_download_plot_bttn {
   left: 2px;
   top: 0px;
   transition: transform 0.3s ease;
+}
+
+#gs_download_plot_bttn > i {
+  position: relative;
+  top: 1px;
+  font-size: 17px;
 }
 
 .tippy-tooltip.translucent-theme {
@@ -3659,7 +3675,9 @@ button#gs_download_plot_bttn {
 #gsplot_color_text,
 #gsplot_color_dend,
 #gsplot_color_palette1,
-#gsplot_color_palette2 {
+#gsplot_color_palette2,
+#gsplot_grid_color,
+#gsplot_background {
   margin-top: -27px;
 }
 
@@ -3684,6 +3702,7 @@ button#gs_download_plot_bttn {
 #gs_plot_sel_noclass {
   margin-top: -10px;
   margin-bottom: 5px;
+  left: 20px;
 }
 
 .gs-picker {

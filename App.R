@@ -5521,6 +5521,60 @@ ui <- dashboardPage(
                           width = "120px"
                         )
                       )
+                    ),
+                    br(),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;', 
+                                      'Grid Color')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 8,
+                        align = "center",
+                        colorPickr(
+                          inputId = "gsplot_grid_color",
+                          selected = "#FFFFFF",
+                          label = "",
+                          update = "changestop",
+                          interaction = list(clear = FALSE,
+                                             save = FALSE),
+                          position = "right-start",
+                          width = "120px"
+                        )
+                      )
+                    ),
+                    br(),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;', 
+                                      'Background')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 8,
+                        align = "center",
+                        colorPickr(
+                          inputId = "gsplot_background",
+                          selected = "#FFFFFF",
+                          label = "",
+                          update = "changestop",
+                          interaction = list(clear = FALSE,
+                                             save = FALSE),
+                          position = "right-start",
+                          width = "120px"
+                        )
+                      )
                     )
                   )
                 )
@@ -5754,32 +5808,6 @@ ui <- dashboardPage(
                         HTML(
                           paste(
                             tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
-                                      'Font Row')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 7,
-                        div(
-                          class = "gs-slider",
-                          sliderInput(
-                            "gsplot_fontsize_row",
-                            "",
-                            value = 10,
-                            max = 24,
-                            min = 6,
-                            ticks = FALSE
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
                                       'Dendro Cols')
                           )
                         )
@@ -5850,6 +5878,58 @@ ui <- dashboardPage(
                           )
                         )
                       )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 5,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                                      'Grid Width')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 7,
+                        div(
+                          class = "gs-slider",
+                          sliderInput(
+                            "gsplot_grid_width",
+                            "",
+                            value = 1,
+                            max = 3,
+                            min = 0,
+                            ticks = FALSE
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 5,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                                      'Row/Col Titles')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 7,
+                        div(
+                          class = "gs-slider",
+                          sliderInput(
+                            "gsplot_fontsize_title",
+                            "",
+                            value = 12,
+                            max = 24,
+                            min = 8,
+                            ticks = FALSE
+                          )
+                        )
+                      )
                     )
                   )
                 )
@@ -5894,7 +5974,8 @@ ui <- dashboardPage(
                           label = "",
                           choices = c("png", "jpeg", "bmp", "svg")
                         )
-                      )
+                      ),
+                      br()
                     )
                   ),
                   br(), 
@@ -6010,20 +6091,20 @@ ui <- dashboardPage(
                   fluidRow(
                     fluidRow(
                       column(
-                        width = 5,
+                        width = 8,
                         align = "left",
                         HTML(
                           paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
-                                      'Cluster Cols')
+                            tags$span(style='color: white; font-size: 20px; position: relative; left: 10px;',
+                                      'Cluster Columns')
                           )
                         )
                       ),
                       column(
-                        width = 7,
-                        align = "center",
+                        width = 4,
+                        align = "left",
                         div(
-                          class = "mat-switch-db-tab",
+                          class = "mat-switch-gs-settings",
                           materialSwitch(
                             "gs_cluster_col",
                             "",
@@ -6035,22 +6116,80 @@ ui <- dashboardPage(
                     ),
                     fluidRow(
                       column(
-                        width = 5,
+                        width = 6,
                         align = "left",
                         br(),
                         HTML(
                           paste(
                             tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                                      'Distance Algorithm')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 6,
+                        align = "center",
+                        br(),
+                        div(
+                          class = "gs-cluster-sel",
+                          selectInput(
+                            "gs_cluster_distance_col",
+                            "",
+                            choices = c("Euclidean" = "euclidean", "Maximum" = "maximum", 
+                                        "Manhattan" = "manhattan", "Canberra" = "canberra", 
+                                        "Binary" = "binary", "Minkowski" = "minkowski"),
+                            selected = "binary"
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 6,
+                        align = "left",
+                        br(),
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                                      'Clustering Method')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 6,
+                        align = "center",
+                        br(),
+                        div(
+                          class = "gs-cluster-sel",
+                          selectInput(
+                            "gs_cluster_method_col",
+                            "",
+                            choices = c("ward.D" = "ward.D", "ward.D2"= "ward.D2", 
+                                        "Single" = "single", "Complete" = "complete", 
+                                        "UPGMA" = "average", "WPGMA"  = "mcquitty", 
+                                        "WPGMC" = "median", "UPGMC" = "centroid"),
+                            selected = "average"
+                          )
+                        )
+                      )
+                    ),
+                    hr(),
+                    fluidRow(
+                      column(
+                        width = 8,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 20px; position: relative; left: 10px;',
                                       'Cluster Rows')
                           )
                         )
                       ),
                       column(
-                        width = 7,
-                        align = "center",
-                        br(),
+                        width = 4,
+                        align = "left",
                         div(
-                          class = "mat-switch-db-tab",
+                          class = "mat-switch-gs-settings",
                           materialSwitch(
                             "gs_cluster_row",
                             "",
@@ -6062,27 +6201,59 @@ ui <- dashboardPage(
                     ),
                     fluidRow(
                       column(
-                        width = 5,
+                        width = 6,
                         align = "left",
                         br(),
                         HTML(
                           paste(
                             tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
-                                      'Flip Coords')
+                                      'Distance Algorithm')
                           )
                         )
                       ),
                       column(
-                        width = 7,
+                        width = 6,
                         align = "center",
                         br(),
                         div(
-                          class = "mat-switch-db-tab",
-                          materialSwitch(
-                            "gs_flip_coords",
+                          class = "gs-cluster-sel",
+                          selectInput(
+                            "gs_cluster_distance_row",
                             "",
-                            value = FALSE,
-                            right = TRUE
+                            choices = c("Euclidean" = "euclidean", "Maximum" = "maximum", 
+                                        "Manhattan" = "manhattan", "Canberra" = "canberra", 
+                                        "Binary" = "binary", "Minkowski" = "minkowski"),
+                            selected = "binary"
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 6,
+                        align = "left",
+                        br(),
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                                      'Clustering Method')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 6,
+                        align = "center",
+                        br(),
+                        div(
+                          class = "gs-cluster-sel",
+                          selectInput(
+                            "gs_cluster_method_row",
+                            "",
+                            choices = c("ward.D" = "ward.D", "ward.D2"= "ward.D2", 
+                                        "Single" = "single", "Complete" = "complete", 
+                                        "UPGMA" = "average", "WPGMA"  = "mcquitty", 
+                                        "WPGMC" = "median", "UPGMC" = "centroid"),
+                            selected = "average"
                           )
                         )
                       )
@@ -6093,10 +6264,10 @@ ui <- dashboardPage(
             ),
             column(
               width = 12,
-              br(), br(), br(),
+              br(), br(), 
               HTML(
                 paste(
-                  tags$span(style='color: white; font-size: 16px; position: relative; left: 10px; top: 10px;', 
+                  tags$span(style='color: white; font-size: 16px; position: relative; left: 30px; top: 10px;', 
                             'Isolates')
                 )
               ),
@@ -6108,7 +6279,7 @@ ui <- dashboardPage(
               br(),
               HTML(
                 paste(
-                  tags$span(style='color: white; font-size: 16px; position: relative; left: 10px', 
+                  tags$span(style='color: white; font-size: 16px; position: relative; left: 30px', 
                             'AMR Genes')
                 )
               ),
@@ -6120,7 +6291,7 @@ ui <- dashboardPage(
               br(),
               HTML(
                 paste(
-                  tags$span(style='color: white; font-size: 16px; position: relative; left: 10px', 
+                  tags$span(style='color: white; font-size: 16px; position: relative; left: 30px', 
                             'Virulence Genes')
                 )
               ),
@@ -6132,7 +6303,7 @@ ui <- dashboardPage(
               br(),
               HTML(
                 paste(
-                  tags$span(style='color: white; font-size: 16px; position: relative; left: 10px;', 
+                  tags$span(style='color: white; font-size: 16px; position: relative; left: 30px;', 
                             'Unclassifiable Genes')
                 )
               ),
@@ -24662,7 +24833,7 @@ server <- function(input, output, session) {
         
         shinyjs::delay(50, shinyjs::runjs("$('#gs_virclass_scale_ui .selectize-input').css({
         'background': 'linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF, #3AA2FCFF, #23C3E4FF, #18DEC1FF, #2CF09EFF, #5BFB72FF, #8EFF49FF, #B5F836FF, #D6E635FF, #EFCD3AFF, #FCB036FF, #FD8A26FF, #F36215FF, #E14209FF, #C82803FF, #A51301FF, #7A0403FF)',
-'color': 'white'
+'color': 'black'
       })"))
         
       } else {
@@ -24722,7 +24893,7 @@ server <- function(input, output, session) {
       
       shinyjs::delay(50, shinyjs::runjs("$('#gs_virclass_scale_ui .selectize-input').css({
         'background': 'linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF, #3AA2FCFF, #23C3E4FF, #18DEC1FF, #2CF09EFF, #5BFB72FF, #8EFF49FF, #B5F836FF, #D6E635FF, #EFCD3AFF, #FCB036FF, #FD8A26FF, #F36215FF, #E14209FF, #C82803FF, #A51301FF, #7A0403FF)',
-'color': 'white'
+'color': 'black'
       })"))
     }
     
@@ -24758,7 +24929,7 @@ server <- function(input, output, session) {
         
         shinyjs::delay(50, shinyjs::runjs("$('#gs_amrclass_scale_ui .selectize-input').css({
         'background': 'linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF, #3AA2FCFF, #23C3E4FF, #18DEC1FF, #2CF09EFF, #5BFB72FF, #8EFF49FF, #B5F836FF, #D6E635FF, #EFCD3AFF, #FCB036FF, #FD8A26FF, #F36215FF, #E14209FF, #C82803FF, #A51301FF, #7A0403FF)',
-'color': 'white'
+'color': 'black'
       })"))
         
       } else {
@@ -24818,7 +24989,7 @@ server <- function(input, output, session) {
       
       shinyjs::delay(50, shinyjs::runjs("$('#gs_amrclass_scale_ui .selectize-input').css({
         'background': 'linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF, #3AA2FCFF, #23C3E4FF, #18DEC1FF, #2CF09EFF, #5BFB72FF, #8EFF49FF, #B5F836FF, #D6E635FF, #EFCD3AFF, #FCB036FF, #FD8A26FF, #F36215FF, #E14209FF, #C82803FF, #A51301FF, #7A0403FF)',
-'color': 'white'
+'color': 'black'
       })"))
     }
     
@@ -25075,7 +25246,7 @@ server <- function(input, output, session) {
         style = "background-color: white; border-radius: 5px;"
       ),
       multiple = TRUE,
-      width = "100%"
+      width = "99%"
     )
   })
   
@@ -25085,27 +25256,27 @@ server <- function(input, output, session) {
     
     if(is.null(input$gs_plot_selected_isolate)) {
       tagList(
-        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 5px;', 
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 25px; ', 
                   "0 isolates(s) selected"),
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 5px;', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px; ', 
                   "Select min. 3 isolates")
       )
     } else if(length(input$gs_plot_selected_isolate) < 3) {
       tagList(
-        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 5px;', 
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 25px; ', 
                   paste(
                     length(input$gs_plot_selected_isolate),
                     'isolate(s) selected'
                   )),
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 5px;', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px; ', 
                   "Select min. 3 isolates")
       )
     } else {
       HTML(
         paste(
-          tags$span(style='color: white; font-size: 12px; font-style: italic; position: relative; left: 5px; top: 5px;', 
+          tags$span(style='color: white; font-size: 12px; font-style: italic; position: relative; left: 25px; ', 
                     paste(
                       length(input$gs_plot_selected_isolate),
                       'isolate(s) selected'
@@ -25120,25 +25291,25 @@ server <- function(input, output, session) {
     req(DB$data)
     if(is.null(input$gs_plot_selected_amr)) {
       tagList(
-        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 5px;', 
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 25px; top: 5px;', 
                   "0 gene(s) selected"),
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px; top: 5px;', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px; top: 5px;', 
                   "Select min. 3 genes")
       )
     } else if(length(input$gs_plot_selected_amr) < 3) {
       tagList(
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px;',
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px;',
                   paste(length(input$gs_plot_selected_amr),
                         "gene(s) selected")), 
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
                   "Select min. 3 genes")
       )
     } else {
       HTML(
         paste(
-          tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+          tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
                     paste(length(input$gs_plot_selected_amr),
                           "gene(s) selected"))
         )
@@ -25150,25 +25321,25 @@ server <- function(input, output, session) {
     req(DB$data)
     if(is.null(input$gs_plot_selected_vir)) {
       tagList(
-        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
                   "0 gene(s) selected"),
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
                   "Select min. 3 genes")
       )
     } else if(length(input$gs_plot_selected_vir) < 3) {
       tagList(
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px;',
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px;',
                   paste(length(input$gs_plot_selected_vir),
                         "gene(s) selected")), 
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
                   "Select min. 3 genes")
       )
     } else {
       HTML(
         paste(
-          tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+          tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
                     paste(length(input$gs_plot_selected_vir),
                           "gene(s) selected"))
         )
@@ -25180,25 +25351,25 @@ server <- function(input, output, session) {
     req(DB$data)
     if(is.null(input$gs_plot_selected_noclass)) {
       tagList(
-        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
                   "0 gene(s) selected"),
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
                   "Select min. 3 genes")
       )
     } else if(length(input$gs_plot_selected_noclass) < 3) {
       tagList(
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px;',
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px;',
                   paste(length(input$gs_plot_selected_noclass),
                         "gene(s) selected")), 
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
                   "Select min. 3 genes")
       )
     } else {
       HTML(
         paste(
-          tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 5px;', 
+          tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
                     paste(length(input$gs_plot_selected_noclass),
                           "gene(s) selected"))
         )
@@ -25251,7 +25422,7 @@ server <- function(input, output, session) {
         ),
         selected = choices_amr,
         multiple = TRUE,
-        width = "100%"
+        width = "99%"
       )
     })
     
@@ -25290,7 +25461,7 @@ server <- function(input, output, session) {
         ),
         selected = choices_vir,
         multiple = TRUE,
-        width = "100%"
+        width = "99%"
       )
     })
     
@@ -25314,7 +25485,7 @@ server <- function(input, output, session) {
         ),
         selected = choices_noclass,
         multiple = TRUE,
-        width = "100%"
+        width = "99%"
       )
     })
 })
@@ -26320,10 +26491,10 @@ server <- function(input, output, session) {
   gs_plot <- reactive({
     req(DB$data, Screening$amr_results,
         DB$database, DB$scheme, 
-        input$gsplot_color_text, input$gsplot_fontsize_col,
-        input$gsplot_fontsize_row, input$gsplot_treeheight_col,
+        input$gsplot_color_text, input$gsplot_treeheight_col,
         input$gsplot_treeheight_row, input$gsplot_legend_labelsize, 
-        input$gsplot_color_palette1, input$gsplot_color_palette2)
+        input$gsplot_color_palette1, input$gsplot_color_palette2,
+        input$gs_plot_selected_isolate)
     
     amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, as.numeric))
     rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
@@ -26383,11 +26554,57 @@ server <- function(input, output, session) {
     # styling parameters
     ht_opt$HEATMAP_LEGEND_PADDING = unit(15, "mm")
     
-    legend_gp <- gpar(fill = c(input$gsplot_color_palette1, input$gsplot_color_palette2))
-    labels_gp <- gpar(fontsize = input$gsplot_legend_labelsize)
-    title_gp <- gpar(fontsize = input$gsplot_legend_labelsize + 2)
+    legend_gp <- gpar(col = input$gsplot_color_text,
+                      fill = c(input$gsplot_color_palette1, input$gsplot_color_palette2))
+    labels_gp <- gpar(col = input$gsplot_color_text,
+                      fontsize = input$gsplot_legend_labelsize)
+    title_gp <- gpar(col = input$gsplot_color_text,
+                     fontsize = input$gsplot_legend_labelsize + 2)
     grid_height <- unit(input$gsplot_legend_labelsize * 0.8, "mm")
     grid_width <- unit(input$gsplot_legend_labelsize * 0.8, "mm")
+    
+    if(length(input$gs_plot_selected_isolate) < 10){
+      fontsize_row <- 14
+    } else if(length(input$gs_plot_selected_isolate) < 20){
+      fontsize_row <- 12
+    } else if(length(input$gs_plot_selected_isolate) < 30){
+      fontsize_row <- 11
+    } else if(length(input$gs_plot_selected_isolate) < 50){
+      fontsize_row <- 10
+    } else if(length(input$gs_plot_selected_isolate) < 80){
+      fontsize_row <- 9
+    } else if(length(input$gs_plot_selected_isolate) < 120){
+      fontsize_row <- 8
+    } else if(length(input$gs_plot_selected_isolate) < 160){
+      fontsize_row <- 7
+    } else if(length(input$gs_plot_selected_isolate) < 200){
+      fontsize_row <- 6
+    } else {
+      fontsize_row <- 5
+    } 
+    
+    col_count <- length(c(input$gs_plot_selected_amr, 
+                          input$gs_plot_selected_vir, 
+                          input$gs_plot_selected_noclass))
+    if(col_count < 10){
+      fontsize_col <- 15
+    } else if(col_count < 20){
+      fontsize_col <- 13
+    } else if(col_count < 30){
+      fontsize_col <- 12
+    } else if(col_count < 50){
+      fontsize_col <- 10
+    } else if(col_count < 80){
+      fontsize_col <- 9
+    } else if(col_count < 120){
+      fontsize_col <- 8
+    } else if(col_count < 160){
+      fontsize_col <- 7
+    } else if(col_count < 200){
+      fontsize_col <- 6
+    } else {
+      fontsize_col <- 5
+    } 
     
     # heatmap annotations
     isolate_annotation <- NULL
@@ -26435,6 +26652,7 @@ server <- function(input, output, session) {
     
     amr_annotation <- NULL
     amr_heatmap <- NULL
+    sel_amr <- NULL
     if(!is.null(input$gs_plot_selected_amr)) {
       if(all(is.na(hm_meta$amr)) | length(input$gs_plot_selected_amr) < 3) {
         amr_annotation <- NULL
@@ -26442,13 +26660,12 @@ server <- function(input, output, session) {
       } else {
         if(input$gs_amr_variables != "None") {
           sel_amr <- na.omit(hm_meta$amr)
+          dist_col <- length(unique(sel_amr))
           if(!is.null(input$gs_amrclass_scale)) {
             
             if(input$gs_amrclass_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
               amr_colors <- get(input$gs_amrclass_scale)(length(unique(sel_amr)))
             } else {
-              
-              dist_col <- length(unique(sel_amr))
               if(dist_col < 3) {
                 amr_colors <- brewer.pal(3, input$gs_amrclass_scale)[1:dist_col]
               } else {
@@ -26456,7 +26673,15 @@ server <- function(input, output, session) {
               }
             }
           } else {
-            amr_colors <- get("turbo")(length(unique(sel_amr)))
+            if(length(unique(Screening$hm_meta$amr)) > 7) {
+              amr_colors <- get("turbo")(length(unique(sel_amr)))
+            } else {
+              if(dist_col < 3) {
+                amr_colors <- brewer.pal(3, "Set1")[1:dist_col]
+              } else {
+                amr_colors <- brewer.pal(dist_col, "Set1")    
+              }
+            }
           }
           names(amr_colors) <- unique(sort(sel_amr))
           
@@ -26477,6 +26702,7 @@ server <- function(input, output, session) {
         }
         
         # AMR heatmap
+        amr_profile_matrix <- NULL
         amr_genes <- rownames(hm_meta)[!is.na(hm_meta$amr)]
         amr_profile_matrix <- heatmap_mat[,colnames(heatmap_mat) %in% amr_genes]
         
@@ -26489,13 +26715,23 @@ server <- function(input, output, session) {
         amr_heatmap <- ComplexHeatmap::Heatmap(
           amr_profile_matrix,
           col = amr_cols,
-          rect_gp = gpar(col = "white", lwd = 2),
+          rect_gp = gpar(col = input$gsplot_grid_color, lwd = input$gsplot_grid_width),
           column_title = "AMR",
+          column_title_gp = gpar(col = input$gsplot_color_text,
+                                 fontsize = input$gsplot_fontsize_title),
           row_title = "Isolates",
-          row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
+          row_title_gp = gpar(col = input$gsplot_color_text,
+                              fontsize = input$gsplot_fontsize_title),
+          row_names_gp = gpar(fontsize = fontsize_row, 
                               col = input$gsplot_color_text),
-          column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
+          column_names_gp = gpar(fontsize = fontsize_col, 
                                  col = input$gsplot_color_text),
+          cluster_columns = input$gs_cluster_col,
+          clustering_distance_columns = input$gs_cluster_distance_col,
+          clustering_method_columns = input$gs_cluster_method_col,
+          cluster_rows = input$gs_cluster_row,
+          clustering_distance_rows = input$gs_cluster_distance_row,
+          clustering_method_rows = input$gs_cluster_method_row,
           column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
           row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
           row_dend_gp = gpar(col = input$gsplot_color_dend),    
@@ -26517,16 +26753,30 @@ server <- function(input, output, session) {
         vir_annotation <- NULL
         vir_heatmap <- NULL
       } else {
-        if(input$gs_vir_variables != "None"){
+        if(input$gs_vir_variables != "None") {
           sel_vir <- na.omit(hm_meta$vir)
+          dist_col <- length(unique(sel_vir))
           if(!is.null(input$gs_virclass_scale)) {
+            
             if(input$gs_virclass_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
               vir_colors <- get(input$gs_virclass_scale)(length(unique(sel_vir)))
             } else {
-              vir_colors <- brewer.pal(length(unique(sel_vir)), input$gs_virclass_scale)
+              if(dist_col < 3) {
+                vir_colors <- brewer.pal(3, input$gs_virclass_scale)[1:dist_col]
+              } else {
+                vir_colors <- brewer.pal(dist_col, input$gs_virclass_scale)    
+              }
             }
           } else {
-            vir_colors <- get("turbo")(length(unique(sel_vir)))
+            if(length(unique(Screening$hm_meta$vir)) > 7) {
+              vir_colors <- get("turbo")(length(unique(sel_vir)))
+            } else {
+              if(dist_col < 3) {
+                vir_colors <- brewer.pal(3, "Set1")[1:dist_col]
+              } else {
+                vir_colors <- brewer.pal(dist_col, "Set1")    
+              }
+            }
           }
           names(vir_colors) <- unique(sort(sel_vir))
           
@@ -26548,6 +26798,7 @@ server <- function(input, output, session) {
         }
         
         # Vir heatmap
+        vir_profile_matrix <- NULL
         vir_genes <- rownames(hm_meta)[!is.na(hm_meta$vir)]
         vir_profile_matrix <- heatmap_mat[,colnames(heatmap_mat) %in% vir_genes]
         
@@ -26566,14 +26817,24 @@ server <- function(input, output, session) {
         vir_heatmap <- ComplexHeatmap::Heatmap(
           vir_profile_matrix,
           col = vir_cols,
-          rect_gp = gpar(col = "white", lwd = 2),
+          rect_gp = gpar(col = input$gsplot_grid_color, lwd = input$gsplot_grid_width),
           column_title = "Virulence",
+          column_title_gp = gpar(col = input$gsplot_color_text,
+                                 fontsize = input$gsplot_fontsize_title),
           row_title = "Isolates",
-          row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
+          row_title_gp = gpar(col = input$gsplot_color_text,
+                              fontsize = input$gsplot_fontsize_title),
+          row_names_gp = gpar(fontsize = fontsize_row, 
                               col = input$gsplot_color_text),
-          column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
+          column_names_gp = gpar(fontsize = fontsize_col, 
                                  col = input$gsplot_color_text),
           column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
+          cluster_columns = input$gs_cluster_col,
+          clustering_distance_columns = input$gs_cluster_distance_col,
+          clustering_method_columns = input$gs_cluster_method_col,
+          cluster_rows = input$gs_cluster_row,
+          clustering_distance_rows = input$gs_cluster_distance_row,
+          clustering_method_rows = input$gs_cluster_method_row,
           row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
           row_dend_gp = gpar(col = input$gsplot_color_dend),    
           column_dend_gp = gpar(col = input$gsplot_color_dend), 
@@ -26589,6 +26850,7 @@ server <- function(input, output, session) {
           
     # None heatmap
     noclass_heatmap <- NULL
+    noclass_profile_matrix <- NULL
     if(!is.null(input$gs_plot_selected_noclass)) {
       if(any(is.na(hm_meta$vir) & is.na(hm_meta$amr))) {
         unclass_genes <- rownames(hm_meta)[is.na(hm_meta$vir) & is.na(hm_meta$amr)]
@@ -26603,14 +26865,24 @@ server <- function(input, output, session) {
         noclass_heatmap <- ComplexHeatmap::Heatmap(
           noclass_profile_matrix,
           col = c(input$gsplot_color_palette1, input$gsplot_color_palette2),
-          rect_gp = gpar(col = "white", lwd = 2),
+          rect_gp = gpar(col = input$gsplot_grid_color, lwd = input$gsplot_grid_width),
           column_title = "No Class",
+          column_title_gp = gpar(col = input$gsplot_color_text,
+                                 fontsize = input$gsplot_fontsize_title),
           row_title = "Isolates",
-          row_names_gp = gpar(fontsize = input$gsplot_fontsize_row, 
+          row_title_gp = gpar(col = input$gsplot_color_text,
+                              fontsize = input$gsplot_fontsize_title),
+          row_names_gp = gpar(fontsize = fontsize_row, 
                               col = input$gsplot_color_text),
-          column_names_gp = gpar(fontsize = input$gsplot_fontsize_col, 
+          column_names_gp = gpar(fontsize = fontsize_col, 
                                  col = input$gsplot_color_text),
           column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
+          cluster_columns = input$gs_cluster_col,
+          clustering_distance_columns = input$gs_cluster_distance_col,
+          clustering_method_columns = input$gs_cluster_method_col,
+          cluster_rows = input$gs_cluster_row,
+          clustering_distance_rows = input$gs_cluster_distance_row,
+          clustering_method_rows = input$gs_cluster_method_row,
           row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
           row_dend_gp = gpar(col = input$gsplot_color_dend),    
           column_dend_gp = gpar(col = input$gsplot_color_dend),
@@ -26629,15 +26901,22 @@ server <- function(input, output, session) {
       Legend(
         labels = c("Present", "Absent"),
         title = "Gene Presence",
-        legend_gp = gpar(fill = c(input$gsplot_color_palette1, input$gsplot_color_palette2)),
-        labels_gp = gpar(fontsize = input$gsplot_legend_labelsize + 1),
-        title_gp = gpar(fontsize = input$gsplot_legend_labelsize + 3,
+        legend_gp = gpar(col = input$gsplot_color_text,
+                         fill = c(input$gsplot_color_palette1, input$gsplot_color_palette2)),
+        labels_gp = gpar(col = input$gsplot_color_text,
+                         fontsize = input$gsplot_legend_labelsize + 1),
+        title_gp = gpar(col = input$gsplot_color_text,
+                        fontsize = input$gsplot_legend_labelsize + 3,
                         fontface = "bold"),
         grid_height = unit((input$gsplot_legend_labelsize + 1) * 0.8, "mm"),
         grid_width = unit((input$gsplot_legend_labelsize + 1) * 0.8, "mm"),
         at = c(1, 0)
       )
     )
+    
+    amr_heatmap1 <<- amr_heatmap
+    vir_heatmap1 <<- vir_heatmap 
+    noclass_heatmap1 <<- noclass_heatmap
     
     # summarize heatmaps
     if(is.null(amr_heatmap) & is.null(vir_heatmap) & is.null(noclass_heatmap)) {
@@ -26653,7 +26932,8 @@ server <- function(input, output, session) {
       ComplexHeatmap::draw(
         heatmaps,
         heatmap_legend_side = input$gsplot_legend_position,
-        annotation_legend_list = custom_legend  # Add custom legend
+        annotation_legend_list = custom_legend,
+        background = input$gsplot_background
       )
     }
   })
