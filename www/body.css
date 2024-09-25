@@ -2397,7 +2397,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="Set1"],
 #upgma_heatmap_scale .option[data-value="Set1"],
 #upgma_clade_scale .option[data-value="Set1"],
-#gs_mapping_scale_ui .option[data-value="Set1"] {
+#gs_mapping_scale_ui .option[data-value="Set1"],
+#gs_amrclass_scale_ui .option[data-value="Set1"],
+#gs_virclass_scale_ui .option[data-value="Set1"] {
   background: linear-gradient(to right, #E41A1C 0%, #E41A1C 11%, #377EB8 11%, #377EB8 22%, #4DAF4A 22%, #4DAF4A 33%, #984EA3 33%, #984EA3 44%, #FF7F00 44%, #FF7F00 55%, #FFFF33 55%, #FFFF33 66%, #A65628 66%, #A65628 77%, #F781BF 77%, #F781BF 88%, #999999 88%, #999999 100%);
   color: black;
   margin-bottom: 2px;
@@ -2421,7 +2423,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="Set2"], 
 #upgma_heatmap_scale .option[data-value="Set2"],
 #upgma_clade_scale .option[data-value="Set2"],
-#gs_mapping_scale_ui .option[data-value="Set2"] {
+#gs_mapping_scale_ui .option[data-value="Set2"],
+#gs_amrclass_scale_ui .option[data-value="Set2"],
+#gs_virclass_scale_ui .option[data-value="Set2"] {
   background: linear-gradient(to right, #66C2A5 0%, #66C2A5 12.5%, #FC8D62 12.5%, #FC8D62 25%, #8DA0CB 25%, #8DA0CB 37.5%, #E78AC3 37.5%, #E78AC3 50%, #A6D854 50%, #A6D854 62.5%, #FFD92F 62.5%, #FFD92F 75%, #E5C494 75%, #E5C494 87.5%, #B3B3B3 87.5%, #B3B3B3 100%);
   color: black;
   margin-bottom: 2px;
@@ -2445,7 +2449,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="Set3"], 
 #upgma_heatmap_scale .option[data-value="Set3"],
 #upgma_clade_scale .option[data-value="Set3"],
-#gs_mapping_scale_ui .option[data-value="Set3"] {
+#gs_mapping_scale_ui .option[data-value="Set3"],
+#gs_amrclass_scale_ui .option[data-value="Set3"],
+#gs_virclass_scale_ui .option[data-value="Set3"] {
   background: linear-gradient(to right, #8DD3C7 0%, #8DD3C7 8.33333%, #FFFFB3 8.33333%, #FFFFB3 16.6667%, #BEBADA 16.6667%, #BEBADA 25%, #FB8072 25%, #FB8072 33.3333%, #80B1D3 33.3333%, #80B1D3 41.6667%, #FDB462 41.6667%, #FDB462 50%, #B3DE69 50%, #B3DE69 58.3333%, #FCCDE5 58.3333%, #FCCDE5 66.6667%, #D9D9D9 66.6667%, #D9D9D9 75%, #BC80BD 75%, #BC80BD 83.3333%, #CCEBC5 83.3333%, #CCEBC5 91.6667%, #FFED6F 91.6667%, #FFED6F 100%);
   color: black;
   margin-bottom: 2px;
@@ -2469,7 +2475,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="Pastel1"], 
 #upgma_heatmap_scale .option[data-value="Pastel1"],
 #upgma_clade_scale .option[data-value="Pastel1"],
-#gs_mapping_scale_ui .option[data-value="Pastel1"] {
+#gs_mapping_scale_ui .option[data-value="Pastel1"],
+#gs_amrclass_scale_ui .option[data-value="Pastel1"],
+#gs_virclass_scale_ui .option[data-value="Pastel1"] {
   background: linear-gradient(to right, #FBB4AE 0%, #FBB4AE 11.1111%, #B3CDE3 11.1111%, #B3CDE3 22.2222%, #CCEBC5 22.2222%, #CCEBC5 33.3333%, #DECBE4 33.3333%, #DECBE4 44.4444%, #FED9A6 44.4444%, #FED9A6 55.5556%, #FFFFCC 55.5556%, #FFFFCC 66.6667%, #E5D8BD 66.6667%, #E5D8BD 77.7778%, #FDDAEC 77.7778%, #FDDAEC 88.8889%, #F2F2F2 88.8889%, #F2F2F2 100%);
   color: black;
   margin-bottom: 2px;
@@ -2493,7 +2501,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="Pastel2"], 
 #upgma_heatmap_scale .option[data-value="Pastel2"],
 #upgma_clade_scale .option[data-value="Pastel2"],
-#gs_mapping_scale_ui .option[data-value="Pastel2"] {
+#gs_mapping_scale_ui .option[data-value="Pastel2"],
+#gs_amrclass_scale_ui .option[data-value="Pastel2"],
+#gs_virclass_scale_ui .option[data-value="Pastel2"] {
   background: linear-gradient(to right, #B3E2CD 0%, #B3E2CD 12.5%, #FDCDAC 12.5%, #FDCDAC 25%, #CBD5E8 25%, #CBD5E8 37.5%, #F4CAE4 37.5%, #F4CAE4 50%, #E6F5C9 50%, #E6F5C9 62.5%, #FFF2AE 62.5%, #FFF2AE 75%, #F1E2CC 75%, #F1E2CC 87.5%, #CCCCCC 87.5%, #CCCCCC 100%);
   color: black;
   margin-bottom: 2px;
@@ -2517,7 +2527,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="Paired"], 
 #upgma_heatmap_scale .option[data-value="Paired"],
 #upgma_clade_scale .option[data-value="Paired"],
-#gs_mapping_scale_ui .option[data-value="Paired"] {
+#gs_mapping_scale_ui .option[data-value="Paired"],
+#gs_amrclass_scale_ui .option[data-value="Paired"],
+#gs_virclass_scale_ui .option[data-value="Paired"] {
   background: linear-gradient(to right, #A6CEE3 0%, #A6CEE3 8.33333%, #1F78B4 8.33333%, #1F78B4 16.6667%, #B2DF8A 16.6667%, #B2DF8A 25%, #33A02C 25%, #33A02C 33.3333%, #FB9A99 33.3333%, #FB9A99 41.6667%, #E31A1C 41.6667%, #E31A1C 50%, #FDBF6F 50%, #FDBF6F 58.3333%, #FF7F00 58.3333%, #FF7F00 66.6667%, #CAB2D6 66.6667%, #CAB2D6 75%, #6A3D9A 75%, #6A3D9A 83.3333%, #FFFF99 83.3333%, #FFFF99 91.6667%, #B15928 91.6667%, #B15928 100%);
   color: black;
   margin-bottom: 2px;
@@ -2541,7 +2553,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="Dark2"], 
 #upgma_heatmap_scale .option[data-value="Dark2"],
 #upgma_clade_scale .option[data-value="Dark2"],
-#gs_mapping_scale_ui .option[data-value="Dark2"] {
+#gs_mapping_scale_ui .option[data-value="Dark2"],
+#gs_amrclass_scale_ui .option[data-value="Dark2"],
+#gs_virclass_scale_ui .option[data-value="Dark2"] {
   background: linear-gradient(to right, #1B9E77 0%, #1B9E77 12.5%, #D95F02 12.5%, #D95F02 25%, #7570B3 25%, #7570B3 37.5%, #E7298A 37.5%, #E7298A 50%, #66A61E 50%, #66A61E 62.5%, #E6AB02 62.5%, #E6AB02 75%, #A6761D 75%, #A6761D 87.5%, #666666 87.5%, #666666 100%);
   color: black;
   margin-bottom: 2px;
@@ -2565,7 +2579,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="Accent"], 
 #upgma_heatmap_scale .option[data-value="Accent"],
 #upgma_clade_scale .option[data-value="Accent"],
-#gs_mapping_scale_ui .option[data-value="Accent"] {
+#gs_mapping_scale_ui .option[data-value="Accent"],
+#gs_amrclass_scale_ui .option[data-value="Accent"],
+#gs_virclass_scale_ui .option[data-value="Accent"] {
   background: linear-gradient(to right, #7FC97F 0%, #7FC97F 12.5%, #BEAED4 12.5%, #BEAED4 25%, #FDC086 25%, #FDC086 37.5%, #FFFF99 37.5%, #FFFF99 50%, #386CB0 50%, #386CB0 62.5%, #F0027F 62.5%, #F0027F 75%, #BF5B17 75%, #BF5B17 87.5%, #666666 87.5%, #666666 100%);
   color: black;
 }
@@ -2588,7 +2604,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="YlOrRd"], 
 #upgma_heatmap_scale .option[data-value="YlOrRd"],
 #upgma_clade_scale .option[data-value="YlOrRd"],
-#gs_mapping_scale_ui .option[data-value="YlOrRd"] {
+#gs_mapping_scale_ui .option[data-value="YlOrRd"],
+#gs_amrclass_scale_ui .option[data-value="YlOrRd"],
+#gs_virclass_scale_ui .option[data-value="YlOrRd"] {
   background: linear-gradient(to right, #FFFFCC 0%, #FFFFCC 11.1111%, #FFEDA0 11.1111%, #FFEDA0 22.2222%, #FED976 22.2222%, #FED976 33.3333%, #FEB24C 33.3333%, #FEB24C 44.4444%, #FD8D3C 44.4444%, #FD8D3C 55.5556%, #FC4E2A 55.5556%, #FC4E2A 66.6667%, #E31A1C 66.6667%, #E31A1C 77.7778%, #BD0026 77.7778%, #BD0026 88.8889%, #800026 88.8889%, #800026 100%);
   color: white;
   margin-bottom: 2px;
@@ -2612,7 +2630,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="YlOrBr"], 
 #upgma_heatmap_scale .option[data-value="YlOrBr"],
 #upgma_clade_scale .option[data-value="YlOrBr"],
-#gs_mapping_scale_ui .option[data-value="YlOrBr"] {
+#gs_mapping_scale_ui .option[data-value="YlOrBr"],
+#gs_amrclass_scale_ui .option[data-value="YlOrBr"],
+#gs_virclass_scale_ui .option[data-value="YlOrBr"] {
   background: linear-gradient(to right, #FFFFE5 0%, #FFFFE5 11.1111%, #FFF7BC 11.1111%, #FFF7BC 22.2222%, #FEE391 22.2222%, #FEE391 33.3333%, #FEC44F 33.3333%, #FEC44F 44.4444%, #FE9929 44.4444%, #FE9929 55.5556%, #EC7014 55.5556%, #EC7014 66.6667%, #CC4C02 66.6667%, #CC4C02 77.7778%, #993404 77.7778%, #993404 88.8889%, #662506 88.8889%, #662506 100%);
   color: white;
   margin-bottom: 2px;
@@ -2636,7 +2656,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="YlGnBu"], 
 #upgma_heatmap_scale .option[data-value="YlGnBu"],
 #upgma_clade_scale .option[data-value="YlGnBu"],
-#gs_mapping_scale_ui .option[data-value="YlGnBu"] {
+#gs_mapping_scale_ui .option[data-value="YlGnBu"],
+#gs_amrclass_scale_ui .option[data-value="YlGnBu"],
+#gs_virclass_scale_ui .option[data-value="YlGnBu"] {
   background: linear-gradient(to right, #FFFFD9 0%, #FFFFD9 11.1111%, #EDF8B1 11.1111%, #EDF8B1 22.2222%, #C7E9B4 22.2222%, #C7E9B4 33.3333%, #7FCDBB 33.3333%, #7FCDBB 44.4444%, #41B6C4 44.4444%, #41B6C4 55.5556%, #1D91C0 55.5556%, #1D91C0 66.6667%, #225EA8 66.6667%, #225EA8 77.7778%, #253494 77.7778%, #253494 88.8889%, #081D58 88.8889%, #081D58 100%);
   color: white;
   margin-bottom: 2px;
@@ -2660,7 +2682,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="YlGn"], 
 #upgma_heatmap_scale .option[data-value="YlGn"],
 #upgma_clade_scale .option[data-value="YlGn"],
-#gs_mapping_scale_ui .option[data-value="YlGn"] {
+#gs_mapping_scale_ui .option[data-value="YlGn"],
+#gs_amrclass_scale_ui .option[data-value="YlGn"],
+#gs_virclass_scale_ui .option[data-value="YlGn"] {
   background: linear-gradient(to right, #FFFFE5 0%, #FFFFE5 11.1111%, #F7FCB9 11.1111%, #F7FCB9 22.2222%, #D9F0A3 22.2222%, #D9F0A3 33.3333%, #ADDD8E 33.3333%, #ADDD8E 44.4444%, #78C679 44.4444%, #78C679 55.5556%, #41AB5D 55.5556%, #41AB5D 66.6667%, #238443 66.6667%, #238443 77.7778%, #006837 77.7778%, #006837 88.8889%, #004529 88.8889%, #004529 100%);
   color: white;
   margin-bottom: 2px;
@@ -2684,7 +2708,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="Reds"], 
 #upgma_heatmap_scale .option[data-value="Reds"],
 #upgma_clade_scale .option[data-value="Reds"],
-#gs_mapping_scale_ui .option[data-value="Reds"] {
+#gs_mapping_scale_ui .option[data-value="Reds"],
+#gs_amrclass_scale_ui .option[data-value="Reds"],
+#gs_virclass_scale_ui .option[data-value="Reds"] {
   background: linear-gradient(to right, #FFF5F0 0%, #FFF5F0 11.1111%, #FEE0D2 11.1111%, #FEE0D2 22.2222%, #FCBBA1 22.2222%, #FCBBA1 33.3333%, #FC9272 33.3333%, #FC9272 44.4444%, #FB6A4A 44.4444%, #FB6A4A 55.5556%, #EF3B2C 55.5556%, #EF3B2C 66.6667%, #CB181D 66.6667%, #CB181D 77.7778%, #A50F15 77.7778%, #A50F15 88.8889%, #67000D 88.8889%, #67000D 100%);
   color: white;
   margin-bottom: 2px;
@@ -2708,7 +2734,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="RdPu"], 
 #upgma_heatmap_scale .option[data-value="RdPu"],
 #upgma_clade_scale .option[data-value="RdPu"],
-#gs_mapping_scale_ui .option[data-value="RdPu"] {
+#gs_mapping_scale_ui .option[data-value="RdPu"],
+#gs_amrclass_scale_ui .option[data-value="RdPu"],
+#gs_virclass_scale_ui .option[data-value="RdPu"] {
   background: linear-gradient(to right, #FFF7F3 0%, #FFF7F3 11.1111%, #FDE0DD 11.1111%, #FDE0DD 22.2222%, #FCC5C0 22.2222%, #FCC5C0 33.3333%, #FA9FB5 33.3333%, #FA9FB5 44.4444%, #F768A1 44.4444%, #F768A1 55.5556%, #DD3497 55.5556%, #DD3497 66.6667%, #AE017E 66.6667%, #AE017E 77.7778%, #7A0177 77.7778%, #7A0177 88.8889%, #49006A 88.8889%, #49006A 100%);
   color: white;
   margin-bottom: 2px;
@@ -2732,7 +2760,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="Purples"], 
 #upgma_heatmap_scale .option[data-value="Purples"],
 #upgma_clade_scale .option[data-value="Purples"],
-#gs_mapping_scale_ui .option[data-value="Purples"] {
+#gs_mapping_scale_ui .option[data-value="Purples"],
+#gs_amrclass_scale_ui .option[data-value="Purples"],
+#gs_virclass_scale_ui .option[data-value="Purples"] {
   background: linear-gradient(to right, #FCFBFD 0%, #FCFBFD 11.1111%, #EFEDF5 11.1111%, #EFEDF5 22.2222%, #DADAEB 22.2222%, #DADAEB 33.3333%, #BCBDDC 33.3333%, #BCBDDC 44.4444%, #9E9AC8 44.4444%, #9E9AC8 55.5556%, #807DBA 55.5556%, #807DBA 66.6667%, #6A51A3 66.6667%, #6A51A3 77.7778%, #54278F 77.7778%, #54278F 88.8889%, #3F007D 88.8889%, #3F007D 100%);
   color: white;
   margin-bottom: 2px;
@@ -2756,7 +2786,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="PuRd"], 
 #upgma_heatmap_scale .option[data-value="PuRd"],
 #upgma_clade_scale .option[data-value="PuRd"],
-#gs_mapping_scale_ui .option[data-value="PuRd"] {
+#gs_mapping_scale_ui .option[data-value="PuRd"],
+#gs_amrclass_scale_ui .option[data-value="PuRd"],
+#gs_virclass_scale_ui .option[data-value="PuRd"] {
   background: linear-gradient(to right, #F7F4F9 0%, #F7F4F9 11.1111%, #E7E1EF 11.1111%, #E7E1EF 22.2222%, #D4B9DA 22.2222%, #D4B9DA 33.3333%, #C994C7 33.3333%, #C994C7 44.4444%, #DF65B0 44.4444%, #DF65B0 55.5556%, #E7298A 55.5556%, #E7298A 66.6667%, #CE1256 66.6667%, #CE1256 77.7778%, #980043 77.7778%, #980043 88.8889%, #67001F 88.8889%, #67001F 100%);
   color: white;
   margin-bottom: 2px;
@@ -2780,7 +2812,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="PuBuGn"], 
 #upgma_heatmap_scale .option[data-value="PuBuGn"],
 #upgma_clade_scale .option[data-value="PuBuGn"],
-#gs_mapping_scale_ui .option[data-value="PuBuGn"] {
+#gs_mapping_scale_ui .option[data-value="PuBuGn"],
+#gs_amrclass_scale_ui .option[data-value="PuBuGn"],
+#gs_virclass_scale_ui .option[data-value="PuBuGn"] {
   background: linear-gradient(to right, #FFF7FB 0%, #FFF7FB 11.1111%, #ECE2F0 11.1111%, #ECE2F0 22.2222%, #D0D1E6 22.2222%, #D0D1E6 33.3333%, #A6BDDB 33.3333%, #A6BDDB 44.4444%, #67A9CF 44.4444%, #67A9CF 55.5556%, #3690C0 55.5556%, #3690C0 66.6667%, #02818A 66.6667%, #02818A 77.7778%, #016C59 77.7778%, #016C59 88.8889%, #014636 88.8889%, #014636 100%);
   color: white;
   margin-bottom: 2px;
@@ -2804,7 +2838,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="PuBu"], 
 #upgma_heatmap_scale .option[data-value="PuBu"],
 #upgma_clade_scale .option[data-value="PuBu"],
-#gs_mapping_scale_ui .option[data-value="PuBu"] {
+#gs_mapping_scale_ui .option[data-value="PuBu"],
+#gs_amrclass_scale_ui .option[data-value="PuBu"],
+#gs_virclass_scale_ui .option[data-value="PuBu"] {
   background: linear-gradient(to right, #FFF7FB 0%, #FFF7FB 11.1111%, #ECE7F2 11.1111%, #ECE7F2 22.2222%, #D0D1E6 22.2222%, #D0D1E6 33.3333%, #A6BDDB 33.3333%, #A6BDDB 44.4444%, #74A9CF 44.4444%, #74A9CF 55.5556%, #3690C0 55.5556%, #3690C0 66.6667%, #0570B0 66.6667%, #0570B0 77.7778%, #045A8D 77.7778%, #045A8D 88.8889%, #023858 88.8889%, #023858 100%);
   color: white;
   margin-bottom: 2px;
@@ -2828,7 +2864,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="OrRd"], 
 #upgma_heatmap_scale .option[data-value="OrRd"],
 #upgma_clade_scale .option[data-value="OrRd"],
-#gs_mapping_scale_ui .option[data-value="OrRd"] {
+#gs_mapping_scale_ui .option[data-value="OrRd"],
+#gs_amrclass_scale_ui .option[data-value="OrRd"],
+#gs_virclass_scale_ui .option[data-value="OrRd"] {
   background: linear-gradient(to right, #FFF7EC 0%, #FFF7EC 11.1111%, #FEE8C8 11.1111%, #FEE8C8 22.2222%, #FDD49E 22.2222%, #FDD49E 33.3333%, #FDBB84 33.3333%, #FDBB84 44.4444%, #FC8D59 44.4444%, #FC8D59 55.5556%, #EF6548 55.5556%, #EF6548 66.6667%, #D7301F 66.6667%, #D7301F 77.7778%, #B30000 77.7778%, #B30000 88.8889%, #7F0000 88.8889%, #7F0000 100%);
   color: white;
   margin-bottom: 2px;
@@ -2852,7 +2890,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="Oranges"], 
 #upgma_heatmap_scale .option[data-value="Oranges"],
 #upgma_clade_scale .option[data-value="Oranges"],
-#gs_mapping_scale_ui .option[data-value="Oranges"] {
+#gs_mapping_scale_ui .option[data-value="Oranges"],
+#gs_amrclass_scale_ui .option[data-value="Oranges"],
+#gs_virclass_scale_ui .option[data-value="Oranges"] {
   background: linear-gradient(to right, #FFF5EB 0%, #FFF5EB 11.1111%, #FEE6CE 11.1111%, #FEE6CE 22.2222%, #FDD0A2 22.2222%, #FDD0A2 33.3333%, #FDAE6B 33.3333%, #FDAE6B 44.4444%, #FD8D3C 44.4444%, #FD8D3C 55.5556%, #F16913 55.5556%, #F16913 66.6667%, #D94801 66.6667%, #D94801 77.7778%, #A63603 77.7778%, #A63603 88.8889%, #7F2704 88.8889%, #7F2704 100%);
   color: white;
   margin-bottom: 2px;
@@ -2876,7 +2916,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="Greys"], 
 #upgma_heatmap_scale .option[data-value="Greys"],
 #upgma_clade_scale .option[data-value="Greys"],
-#gs_mapping_scale_ui .option[data-value="Greys"] {
+#gs_mapping_scale_ui .option[data-value="Greys"],
+#gs_amrclass_scale_ui .option[data-value="Greys"],
+#gs_virclass_scale_ui .option[data-value="Greys"] {
   background: linear-gradient(to right, #FFFFFF 0%, #FFFFFF 11.1111%, #F0F0F0 11.1111%, #F0F0F0 22.2222%, #D9D9D9 22.2222%, #D9D9D9 33.3333%, #BDBDBD 33.3333%, #BDBDBD 44.4444%, #969696 44.4444%, #969696 55.5556%, #737373 55.5556%, #737373 66.6667%, #525252 66.6667%, #525252 77.7778%, #252525 77.7778%, #252525 88.8889%, #000000 88.8889%, #000000 100%);
   color: white;
 }
@@ -2899,7 +2941,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="Greens"], 
 #upgma_heatmap_scale .option[data-value="Greens"],
 #upgma_clade_scale .option[data-value="Greens"],
-#gs_mapping_scale_ui .option[data-value="Greens"] {
+#gs_mapping_scale_ui .option[data-value="Greens"],
+#gs_amrclass_scale_ui .option[data-value="Greens"],
+#gs_virclass_scale_ui .option[data-value="Greens"] {
   background: linear-gradient(to right, #F7FCF5 0%, #F7FCF5 11.1111%, #E5F5E0 11.1111%, #E5F5E0 22.2222%, #C7E9C0 22.2222%, #C7E9C0 33.3333%, #A1D99B 33.3333%, #A1D99B 44.4444%, #74C476 44.4444%, #74C476 55.5556%, #41AB5D 55.5556%, #41AB5D 66.6667%, #238B45 66.6667%, #238B45 77.7778%, #006D2C 77.7778%, #006D2C 88.8889%, #00441B 88.8889%, #00441B 100%);
   color: white;
   margin-bottom: 2px;
@@ -2923,7 +2967,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="GnBu"], 
 #upgma_heatmap_scale .option[data-value="GnBu"],
 #upgma_clade_scale .option[data-value="GnBu"],
-#gs_mapping_scale_ui .option[data-value="GnBu"] {
+#gs_mapping_scale_ui .option[data-value="GnBu"],
+#gs_amrclass_scale_ui .option[data-value="GnBu"],
+#gs_virclass_scale_ui .option[data-value="GnBu"] {
   background: linear-gradient(to right, #F7FCF0 0%, #F7FCF0 11.1111%, #E0F3DB 11.1111%, #E0F3DB 22.2222%, #CCEBC5 22.2222%, #CCEBC5 33.3333%, #A8DDB5 33.3333%, #A8DDB5 44.4444%, #7BCCC4 44.4444%, #7BCCC4 55.5556%, #4EB3D3 55.5556%, #4EB3D3 66.6667%, #2B8CBE 66.6667%, #2B8CBE 77.7778%, #0868AC 77.7778%, #0868AC 88.8889%, #084081 88.8889%, #084081 100%);
   color: white;
   margin-bottom: 2px;
@@ -2947,7 +2993,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="BuPu"], 
 #upgma_heatmap_scale .option[data-value="BuPu"],
 #upgma_clade_scale .option[data-value="BuPu"],
-#gs_mapping_scale_ui .option[data-value="BuPu"] {
+#gs_mapping_scale_ui .option[data-value="BuPu"],
+#gs_amrclass_scale_ui .option[data-value="BuPu"],
+#gs_virclass_scale_ui .option[data-value="BuPu"] {
   background: linear-gradient(to right, #F7FCFD 0%, #F7FCFD 11.1111%, #E0ECF4 11.1111%, #E0ECF4 22.2222%, #BFD3E6 22.2222%, #BFD3E6 33.3333%, #9EBCDA 33.3333%, #9EBCDA 44.4444%, #8C96C6 44.4444%, #8C96C6 55.5556%, #8C6BB1 55.5556%, #8C6BB1 66.6667%, #88419D 66.6667%, #88419D 77.7778%, #810F7C 77.7778%, #810F7C 88.8889%, #4D004B 88.8889%, #4D004B 100%);
   color: white;
   margin-bottom: 2px;
@@ -2971,7 +3019,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="BuGn"], 
 #upgma_heatmap_scale .option[data-value="BuGn"],
 #upgma_clade_scale .option[data-value="BuGn"],
-#gs_mapping_scale_ui .option[data-value="BuGn"] {
+#gs_mapping_scale_ui .option[data-value="BuGn"],
+#gs_amrclass_scale_ui .option[data-value="BuGn"],
+#gs_virclass_scale_ui .option[data-value="BuGn"] {
   background: linear-gradient(to right, #F7FCFD 0%, #F7FCFD 11.1111%, #E5F5F9 11.1111%, #E5F5F9 22.2222%, #CCECE6 22.2222%, #CCECE6 33.3333%,   #99D8C9 33.3333%, #99D8C9 44.4444%, #66C2A4 44.4444%, #66C2A4 55.5556%, #41AE76 55.5556%, #41AE76 66.6667%, #238B45 66.6667%, #238B45 77.7778%, #006D2C 77.7778%, #006D2C 88.8889%, #00441B 88.8889%, #00441B 100%);
   color: white;
   margin-bottom: 2px;
@@ -2995,7 +3045,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="Blues"], 
 #upgma_heatmap_scale .option[data-value="Blues"],
 #upgma_clade_scale .option[data-value="Blues"],
-#gs_mapping_scale_ui .option[data-value="Blues"] {
+#gs_mapping_scale_ui .option[data-value="Blues"],
+#gs_amrclass_scale_ui .option[data-value="Blues"],
+#gs_virclass_scale_ui .option[data-value="Blues"] {
   background: linear-gradient(to right, #F7FBFF 0%, #F7FBFF 11.1111%, #DEEBF7 11.1111%, #DEEBF7 22.2222%, #C6DBEF 22.2222%, #C6DBEF 33.3333%,   #9ECAE1 33.3333%, #9ECAE1 44.4444%, #6BAED6 44.4444%, #6BAED6 55.5556%, #4292C6 55.5556%, #4292C6 66.6667%, #2171B5 66.6667%, #2171B5 77.7778%, #08519C 77.7778%, #08519C 88.8889%, #08306B 88.8889%, #08306B 100%);
   color: white;
   margin-bottom: 2px;
@@ -3018,8 +3070,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="magma"], 
 #upgma_heatmap_scale .option[data-value="magma"],
 #gs_mapping_scale_ui .option[data-value="magma"],
-#gs_gene_class_scale_ui .option[data-value="magma"] {
-  background: linear-gradient(to right, #000004FF, #07071DFF, #160F3BFF, #29115AFF, #400F73FF, #56147DFF, #6B1D81FF, #802582FF, #952C80FF,     #AB337CFF, #C03A76FF, #D6456CFF, #E85362FF, #F4685CFF, #FA815FFF, #FD9A6AFF, #FEB37BFF, #FECC8FFF, #FDE4A6FF, #FCFDBFFF);
+#gs_amrclass_scale_ui .option[data-value="magma"],
+#gs_virclass_scale_ui .option[data-value="magma"] {
+  background: linear-gradient(to right, #000004FF, #07071DFF, #160F3BFF, #29115AFF, #400F73FF, #56147DFF, #6B1D81FF, #802582FF, #952C80FF, #AB337CFF, #C03A76FF, #D6456CFF, #E85362FF, #F4685CFF, #FA815FFF, #FD9A6AFF, #FEB37BFF, #FECC8FFF, #FDE4A6FF, #FCFDBFFF);
   color: white;
   margin-bottom: 2px;
 }
@@ -3041,8 +3094,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="inferno"], 
 #upgma_heatmap_scale .option[data-value="inferno"],
 #gs_mapping_scale_ui .option[data-value="inferno"],
-#gs_gene_class_scale_ui .option[data-value="inferno"]  {
-  background: linear-gradient(to right, #000004FF, #08051EFF, #190C3EFF, #300A5BFF, #460B6AFF, #5C126EFF, #711A6EFF, #87216BFF, #9C2964FF,     #B1325AFF, #C43C4EFF, #D64B40FF, #E55C30FF, #F17020FF, #F8870EFF, #FCA007FF, #FBB91FFF, #F7D340FF, #F1ED6FFF, #FCFFA4FF);
+#gs_amrclass_scale_ui .option[data-value="inferno"],
+#gs_virclass_scale_ui .option[data-value="inferno"]  {
+  background: linear-gradient(to right, #000004FF, #08051EFF, #190C3EFF, #300A5BFF, #460B6AFF, #5C126EFF, #711A6EFF, #87216BFF, #9C2964FF, #B1325AFF, #C43C4EFF, #D64B40FF, #E55C30FF, #F17020FF, #F8870EFF, #FCA007FF, #FBB91FFF, #F7D340FF, #F1ED6FFF, #FCFFA4FF);
   color: white;
   margin-bottom: 2px;
 }
@@ -3064,8 +3118,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="plasma"], 
 #upgma_heatmap_scale .option[data-value="plasma"],
 #gs_mapping_scale_ui .option[data-value="plasma"],
-#gs_gene_class_scale_ui .option[data-value="plasma"]  {
-  background: linear-gradient(to right, #0D0887FF, #2D0594FF, #44039EFF, #5901A5FF, #6F00A8FF, #8305A7FF, #9512A1FF, #A72197FF, #B6308BFF,     #C5407EFF, #D14E72FF, #DD5E66FF, #E76E5BFF, #EF7F4FFF, #F79044FF, #FBA238FF, #FEB72DFF, #FDCB26FF, #F7E225FF, #F0F921FF);
+#gs_amrclass_scale_ui .option[data-value="plasma"],
+#gs_virclass_scale_ui .option[data-value="plasma"]  {
+  background: linear-gradient(to right, #0D0887FF, #2D0594FF, #44039EFF, #5901A5FF, #6F00A8FF, #8305A7FF, #9512A1FF, #A72197FF, #B6308BFF, #C5407EFF, #D14E72FF, #DD5E66FF, #E76E5BFF, #EF7F4FFF, #F79044FF, #FBA238FF, #FEB72DFF, #FDCB26FF, #F7E225FF, #F0F921FF);
   color: white;
   margin-bottom: 2px;
 }
@@ -3087,8 +3142,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="viridis"], 
 #upgma_heatmap_scale .option[data-value="viridis"],
 #gs_mapping_scale_ui .option[data-value="viridis"],
-#gs_gene_class_scale_ui .option[data-value="viridis"]  {
-  background: linear-gradient(to right, #440154FF, #481568FF, #482677FF, #453781FF, #3F4788FF, #39558CFF, #32648EFF, #2D718EFF, #287D8EFF,     #238A8DFF, #1F968BFF, #20A386FF, #29AF7FFF, #3CBC75FF, #56C667FF, #74D055FF, #94D840FF, #B8DE29FF, #DCE318FF, #FDE725FF);
+#gs_amrclass_scale_ui .option[data-value="viridis"],
+#gs_virclass_scale_ui .option[data-value="viridis"] {
+  background: linear-gradient(to right, #440154FF, #481568FF, #482677FF, #453781FF, #3F4788FF, #39558CFF, #32648EFF, #2D718EFF, #287D8EFF, #238A8DFF, #1F968BFF, #20A386FF, #29AF7FFF, #3CBC75FF, #56C667FF, #74D055FF, #94D840FF, #B8DE29FF, #DCE318FF, #FDE725FF);
   color: white;
   margin-bottom: 2px;
 }
@@ -3110,8 +3166,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="cividis"], 
 #upgma_heatmap_scale .option[data-value="cividis"],
 #gs_mapping_scale_ui .option[data-value="cividis"],
-#gs_gene_class_scale_ui .option[data-value="cividis"]  {
-  background: linear-gradient(to right, #00204DFF, #002A64FF, #00336FFF, #1F3C6DFF, #35466BFF, #444F6BFF, #53596CFF, #5F636EFF, #6B6C71FF,     #777776FF, #838079FF, #908B79FF, #9D9677FF, #ABA074FF, #B9AC70FF, #C7B76BFF, #D7C463FF, #E5D05AFF, #F5DD4DFF, #FFEA46FF);
+#gs_amrclass_scale_ui .option[data-value="cividis"],
+#gs_virclass_scale_ui .option[data-value="cividis"]  {
+  background: linear-gradient(to right, #00204DFF, #002A64FF, #00336FFF, #1F3C6DFF, #35466BFF, #444F6BFF, #53596CFF, #5F636EFF, #6B6C71FF, #777776FF, #838079FF, #908B79FF, #9D9677FF, #ABA074FF, #B9AC70FF, #C7B76BFF, #D7C463FF, #E5D05AFF, #F5DD4DFF, #FFEA46FF);
   color: white;
   margin-bottom: 2px;
 }
@@ -3133,8 +3190,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="rocket"], 
 #upgma_heatmap_scale .option[data-value="rocket"],
 #gs_mapping_scale_ui .option[data-value="rocket"],
-#gs_gene_class_scale_ui .option[data-value="rocket"]  {
-  background: linear-gradient(to right, #03051AFF, #150E26FF, #281535FF, #3C1A42FF, #511E4DFF, #661F54FF, #7C1F5AFF, #931C5BFF, #AA185AFF,     #C11754FF, #D3214BFF, #E33541FF, #ED4E3EFF, #F26847FF, #F4815AFF, #F5986FFF, #F6AE86FF, #F7C2A2FF, #F8D7BFFF, #FAEBDDFF);
+#gs_amrclass_scale_ui .option[data-value="rocket"],
+#gs_virclass_scale_ui .option[data-value="rocket"]  {
+  background: linear-gradient(to right, #03051AFF, #150E26FF, #281535FF, #3C1A42FF, #511E4DFF, #661F54FF, #7C1F5AFF, #931C5BFF, #AA185AFF, #C11754FF, #D3214BFF, #E33541FF, #ED4E3EFF, #F26847FF, #F4815AFF, #F5986FFF, #F6AE86FF, #F7C2A2FF, #F8D7BFFF, #FAEBDDFF);
   color: white;
   margin-bottom: 2px;
 }
@@ -3156,8 +3214,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="mako"], 
 #upgma_heatmap_scale .option[data-value="mako"],
 #gs_mapping_scale_ui .option[data-value="mako"],
-#gs_gene_class_scale_ui .option[data-value="mako"]  {
-  background: linear-gradient(to right, #0B0405FF, #190E19FF, #27182DFF, #312142FF, #3A2C59FF, #3F3770FF, #414388FF, #3C5397FF, #38639DFF,     #3573A1FF, #3482A4FF, #3491A8FF, #35A0ABFF, #3AAEADFF, #46BEADFF, #5ACCADFF, #7ED7AFFF, #A4E0BBFF, #C3E9CEFF, #DEF5E5FF);
+#gs_amrclass_scale_ui .option[data-value="mako"],
+#gs_virclass_scale_ui .option[data-value="mako"]  {
+  background: linear-gradient(to right, #0B0405FF, #190E19FF, #27182DFF, #312142FF, #3A2C59FF, #3F3770FF, #414388FF, #3C5397FF, #38639DFF, #3573A1FF, #3482A4FF, #3491A8FF, #35A0ABFF, #3AAEADFF, #46BEADFF, #5ACCADFF, #7ED7AFFF, #A4E0BBFF, #C3E9CEFF, #DEF5E5FF);
   color: white;
   margin-bottom: 2px;
 }
@@ -3179,8 +3238,9 @@ margin-left: -5px
 #upgma_tiles_scale_5 .option[data-value="turbo"], 
 #upgma_heatmap_scale .option[data-value="turbo"],
 #gs_mapping_scale_ui .option[data-value="turbo"],
-#gs_gene_class_scale_ui .option[data-value="turbo"]  {
-  background: linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF, #3AA2FCFF, #23C3E4FF, #18DEC1FF, #2CF09EFF, #5BFB72FF,     #8EFF49FF, #B5F836FF, #D6E635FF, #EFCD3AFF, #FCB036FF, #FD8A26FF, #F36215FF, #E14209FF, #C82803FF, #A51301FF, #7A0403FF);
+#gs_amrclass_scale_ui .option[data-value="turbo"],
+#gs_virclass_scale_ui .option[data-value="turbo"]  {
+  background: linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF, #3AA2FCFF, #23C3E4FF, #18DEC1FF, #2CF09EFF, #5BFB72FF, #8EFF49FF, #B5F836FF, #D6E635FF, #EFCD3AFF, #FCB036FF, #FD8A26FF, #F36215FF, #E14209FF, #C82803FF, #A51301FF, #7A0403FF);
   color: white;
 }
 
@@ -3200,7 +3260,9 @@ margin-left: -5px
 #upgma_tiles_scale_4 .option[data-value="Spectral"], 
 #upgma_tiles_scale_5 .option[data-value="Spectral"], 
 #upgma_heatmap_scale .option[data-value="Spectral"],
-#gs_mapping_scale_ui .option[data-value="Spectral"] {
+#gs_mapping_scale_ui .option[data-value="Spectral"],
+#gs_amrclass_scale_ui .option[data-value="Spectral"],
+#gs_virclass_scale_ui .option[data-value="SPectral"] {
   background: linear-gradient(to right, #9E0142, #D53E4F, #F46D43, #FDAE61, #FEE08B, #FFFFBF, #E6F598, #ABDDA4, #66C2A5, #3288BD, #5E4FA2);
   color: black;
   margin-bottom: 2px;
@@ -3222,7 +3284,9 @@ margin-left: -5px
 #upgma_tiles_scale_4 .option[data-value="RdYlGn"], 
 #upgma_tiles_scale_5 .option[data-value="RdYlGn"], 
 #upgma_heatmap_scale .option[data-value="RdYlGn"],
-#gs_mapping_scale_ui .option[data-value="RdYlGn"] {
+#gs_mapping_scale_ui .option[data-value="RdYlGn"],
+#gs_amrclass_scale_ui .option[data-value="RdYlGn"],
+#gs_virclass_scale_ui .option[data-value="RdYlGn"] {
   background: linear-gradient(to right, #A50026, #D73027, #F46D43, #FDAE61, #FEE08B, #FFFFBF, #D9EF8B, #A6D96A, #66BD63, #1A9850, #006837);
   color: black;
   margin-bottom: 2px;
@@ -3244,7 +3308,9 @@ margin-left: -5px
 #upgma_tiles_scale_4 .option[data-value="RdYlBu"], 
 #upgma_tiles_scale_5 .option[data-value="RdYlBu"], 
 #upgma_heatmap_scale .option[data-value="RdYlBu"],
-#gs_mapping_scale_ui .option[data-value="RdYlBu"] {
+#gs_mapping_scale_ui .option[data-value="RdYlBu"],
+#gs_amrclass_scale_ui .option[data-value="RdYlBu"],
+#gs_virclass_scale_ui .option[data-value="RdYlBu"] {
   background: linear-gradient(to right, #A50026, #D73027, #F46D43, #FDAE61, #FEE090, #FFFFBF, #E0F3F8, #ABD9E9, #74ADD1, #4575B4, #313695);
   color: black;
   margin-bottom: 2px;
@@ -3266,7 +3332,9 @@ margin-left: -5px
 #upgma_tiles_scale_4 .option[data-value="RdGy"], 
 #upgma_tiles_scale_5 .option[data-value="RdGy"], 
 #upgma_heatmap_scale .option[data-value="RdGy"],
-#gs_mapping_scale_ui .option[data-value="RdGy"] {
+#gs_mapping_scale_ui .option[data-value="RdGy"],
+#gs_amrclass_scale_ui .option[data-value="RdGy"],
+#gs_virclass_scale_ui .option[data-value="RdGy"] {
   background: linear-gradient(to right, #67001F, #B2182B, #D6604D, #F4A582, #FDDBC7, #FFFFFF, #E0E0E0, #BABABA, #878787, #4D4D4D, #1A1A1A);
   color: black;
   margin-bottom: 2px;
@@ -3288,7 +3356,9 @@ margin-left: -5px
 #upgma_tiles_scale_4 .option[data-value="RdBu"], 
 #upgma_tiles_scale_5 .option[data-value="RdBu"], 
 #upgma_heatmap_scale .option[data-value="RdBu"],
-#gs_mapping_scale_ui .option[data-value="RdBu"] {
+#gs_mapping_scale_ui .option[data-value="RdBu"],
+#gs_amrclass_scale_ui .option[data-value="RdBu"],
+#gs_virclass_scale_ui .option[data-value="RdBu"] {
   background: linear-gradient(to right, #67001F, #B2182B, #D6604D, #F4A582, #FDDBC7, #F7F7F7, #D1E5F0, #92C5DE, #4393C3, #2166AC, #053061);
   color: black;
   margin-bottom: 2px;
@@ -3310,7 +3380,9 @@ margin-left: -5px
 #upgma_tiles_scale_4 .option[data-value="PuOr"], 
 #upgma_tiles_scale_5 .option[data-value="PuOr"], 
 #upgma_heatmap_scale .option[data-value="PuOr"],
-#gs_mapping_scale_ui .option[data-value="PuOr"] {
+#gs_mapping_scale_ui .option[data-value="PuOr"],
+#gs_amrclass_scale_ui .option[data-value="PuOr"],
+#gs_virclass_scale_ui .option[data-value="PuOr"] {
   background: linear-gradient(to right, #7F3B08, #B35806, #E08214, #FDB863, #FEE0B6, #F7F7F7, #D8DAEB, #B2ABD2, #8073AC, #542788, #2D004B);
   color: black;
   margin-bottom: 2px;
@@ -3332,7 +3404,9 @@ margin-left: -5px
 #upgma_tiles_scale_4 .option[data-value="PRGn"], 
 #upgma_tiles_scale_5 .option[data-value="PRGn"], 
 #upgma_heatmap_scale .option[data-value="PRGn"],
-#gs_mapping_scale_ui .option[data-value="PRGn"] {
+#gs_mapping_scale_ui .option[data-value="PRGn"],
+#gs_amrclass_scale_ui .option[data-value="PRGn"],
+#gs_virclass_scale_ui .option[data-value="PRGn"] {
   background: linear-gradient(to right, #40004B, #762A83, #9970AB, #C2A5CF, #E7D4E8, #F7F7F7, #D9F0D3, #A6DBA0, #5AAE61, #1B7837, #00441B);
   color: black;
   margin-bottom: 2px;
@@ -3354,7 +3428,9 @@ margin-left: -5px
 #upgma_tiles_scale_4 .option[data-value="PiYG"], 
 #upgma_tiles_scale_5 .option[data-value="PiYG"], 
 #upgma_heatmap_scale .option[data-value="PiYG"],
-#gs_mapping_scale_ui .option[data-value="PiYG"] {
+#gs_mapping_scale_ui .option[data-value="PiYG"],
+#gs_amrclass_scale_ui .option[data-value="PiYG"],
+#gs_virclass_scale_ui .option[data-value="PiYG"] {
   background: linear-gradient(to right, #8E0152, #C51B7D, #DE77AE, #F1B6DA, #FDE0EF, #F7F7F7, #E6F5D0, #B8E186, #7FBC41, #4D9221, #276419);
   color: black;
   margin-bottom: 2px;
@@ -3376,7 +3452,9 @@ margin-left: -5px
 #upgma_tiles_scale_4 .option[data-value="BrBG"], 
 #upgma_tiles_scale_5 .option[data-value="BrBG"], 
 #upgma_heatmap_scale .option[data-value="BrBG"],
-#gs_mapping_scale_ui .option[data-value="BrBG"] {
+#gs_mapping_scale_ui .option[data-value="BrBG"],
+#gs_amrclass_scale_ui .option[data-value="BrBG"],
+#gs_virclass_scale_ui .option[data-value="BrBG"] {
   background: linear-gradient(to right, #543005, #8C510A, #BF812D, #DFC27D, #F6E8C3, #F5F5F5, #C7EAE5, #80CDC1, #35978F, #01665E, #003C30);
   color: black;
   margin-bottom: 2px;
@@ -3528,6 +3606,8 @@ button#gs_download_plot_bttn {
   width: 300px;
   border-radius: 8px;
   border: 1px solid white;
+  box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.6);
+  top: -30px !important;
 }
 
 #gs-control,

@@ -5558,11 +5558,38 @@ ui <- dashboardPage(
                     ),
                     fluidRow(
                       column(
-                        width = 12,
+                        width = 4,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 27px;', 
+                                      'Variable')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 8,
                         align = "center",
                         uiOutput("gs_var_mapping_ui"),
-                        br(),
-                        uiOutput("gs_mapping_scale_ui")
+                        br()
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 9px;', 
+                                      'Scale')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 8,
+                        align = "center",
+                        uiOutput("gs_mapping_scale_ui"),
+                        br()
                       )
                     ),
                     fluidRow(
@@ -5572,25 +5599,103 @@ ui <- dashboardPage(
                         HTML(
                           paste(
                             tags$span(style='color: white; font-size: 16px; position: relative;',
-                                      'Gene Variables')
+                                      'AMR Genes')
                           )
                         )
                       )
                     ),
                     fluidRow(
                       column(
-                        width = 12,
+                        width = 4,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 27px;', 
+                                      'Variable')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 8,
                         align = "center",
                         selectInput(
-                          "gs_gene_variables",
+                          "gs_amr_variables",
                           "",
                           choices = c("Classification", "None"),
-                          width = "75%"
+                          width = "100%"
                         ),
-                        br(),
-                        uiOutput("gs_gene_class_scale_ui")
+                        br()
                       )
                     ),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 9px;', 
+                                      'Scale')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 8,
+                        align = "center",
+                        uiOutput("gs_amrclass_scale_ui")
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 16px; position: relative;',
+                                      'Virulence Genes')
+                          )
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 27px;', 
+                                      'Variable')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 8,
+                        align = "center",
+                        selectInput(
+                          "gs_vir_variables",
+                          "",
+                          choices = c("Classification", "None"),
+                          width = "100%"
+                        ),
+                        br()
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "left",
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 9px;', 
+                                      'Scale')
+                          )
+                        )
+                      ),
+                      column(
+                        width = 8,
+                        align = "center",
+                        uiOutput("gs_virclass_scale_ui")
+                      )
+                    )
                   )
                 )
               )
@@ -5771,6 +5876,7 @@ ui <- dashboardPage(
                   fluidRow(
                     column(
                       width = 5,
+                      align = "left",
                       HTML(
                         paste(
                           tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
@@ -5780,6 +5886,7 @@ ui <- dashboardPage(
                     ),
                     column(
                       width = 7,
+                      align = "center",
                       div(
                         class = "filetype-gs",
                         selectInput(
@@ -10789,6 +10896,8 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
+    
+    hm_meta1 <<- Screening$hm_meta
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -23481,7 +23590,7 @@ server <- function(input, output, session) {
             Vis$nj <- ape::nj(hamming_dist())
             
             # Create phylogenetic tree meta data
-            Vis$meta_nj <<- mutate(meta_nj, taxa = Index) %>%
+            Vis$meta_nj <- mutate(meta_nj, taxa = Index) %>%
               relocate(taxa)
             
             # Get number of included entries calculate start values for tree 
@@ -24527,40 +24636,208 @@ server <- function(input, output, session) {
   ### Render UI Elements ----
   
   # gs classification scale 
-  
-  output$gs_gene_class_scale_ui <- renderUI({
-    req(input$gs_gene_variables)
+  output$gs_virclass_scale_ui <- renderUI({
+    req(input$gs_vir_variables)
     
-    gs_gene_class_scale <- selectInput(
-      "gs_gene_class_scale",
-      "",
-      choices = list(
-        Gradient = list(
-          "Magma" = "magma",
-          "Inferno" = "inferno",
-          "Plasma" = "plasma",
-          "Viridis" = "viridis",
-          "Cividis" = "cividis",
-          "Rocket" = "rocket",
-          "Mako" = "mako",
-          "Turbo" = "turbo"
+    if(!is.null(Screening$hm_meta)) {
+      if(length(unique(Screening$hm_meta$vir)) > 7) {
+        gs_virclass_scale <- selectInput(
+          "gs_virclass_scale",
+          "",
+          choices = list(
+            Gradient = list(
+              "Magma" = "magma",
+              "Inferno" = "inferno",
+              "Plasma" = "plasma",
+              "Viridis" = "viridis",
+              "Cividis" = "cividis",
+              "Rocket" = "rocket",
+              "Mako" = "mako",
+              "Turbo" = "turbo"
+            )
+          ),
+          selected = "turbo",
+          width = "100%"
         )
-      ),
-      selected = "turbo",
-      width = "75%"
-    )
-    if(input$gs_gene_variables != "None") {
-      div(
-        class = "gs-gene-class-scale",
-        gs_gene_class_scale
-      )
+        
+        shinyjs::delay(50, shinyjs::runjs("$('#gs_virclass_scale_ui .selectize-input').css({
+        'background': 'linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF, #3AA2FCFF, #23C3E4FF, #18DEC1FF, #2CF09EFF, #5BFB72FF, #8EFF49FF, #B5F836FF, #D6E635FF, #EFCD3AFF, #FCB036FF, #FD8A26FF, #F36215FF, #E14209FF, #C82803FF, #A51301FF, #7A0403FF)',
+'color': 'white'
+      })"))
+        
+      } else {
+        gs_virclass_scale <- selectInput(
+          "gs_virclass_scale",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set1",
+              "Set2",
+              "Set3",
+              "Pastel1",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
+            ),
+            Gradient = list(
+              "Magma" = "magma",
+              "Inferno" = "inferno",
+              "Plasma" = "plasma",
+              "Viridis" = "viridis",
+              "Cividis" = "cividis",
+              "Rocket" = "rocket",
+              "Mako" = "mako",
+              "Turbo" = "turbo"
+            )
+          ),
+          width = "100%"
+        )
+      }
+      
+      shinyjs::delay(0, shinyjs::runjs("$('#gs_virclass_scale_ui .selectize-input').css({
+        'background': 'linear-gradient(to right, #E41A1C 0%, #E41A1C 11%, #377EB8 11%, #377EB8 22%, #4DAF4A 22%, #4DAF4A 33%, #984EA3 33%, #984EA3 44%, #FF7F00 44%, #FF7F00 55%, #FFFF33 55%, #FFFF33 66%, #A65628 66%, #A65628 77%, #F781BF 77%, #F781BF 88%, #999999 88%, #999999 100%)',
+      'color': 'black'
+      })"))
+      
     } else {
-      shinyjs::disabled(
-        div(
-          class = "gs-gene-class-scale",
-          gs_gene_class_scale
-        )
+      gs_virclass_scale <- selectInput(
+        "gs_virclass_scale",
+        "",
+        choices = list(
+          Gradient = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo"
+          ),
+        ),
+        selected = "turbo",
+        width = "100%"
       )
+      
+      shinyjs::delay(50, shinyjs::runjs("$('#gs_virclass_scale_ui .selectize-input').css({
+        'background': 'linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF, #3AA2FCFF, #23C3E4FF, #18DEC1FF, #2CF09EFF, #5BFB72FF, #8EFF49FF, #B5F836FF, #D6E635FF, #EFCD3AFF, #FCB036FF, #FD8A26FF, #F36215FF, #E14209FF, #C82803FF, #A51301FF, #7A0403FF)',
+'color': 'white'
+      })"))
+    }
+    
+    div(
+      class = "gs-gene-class-scale",
+      gs_virclass_scale
+    )
+  })
+  
+  output$gs_amrclass_scale_ui <- renderUI({
+    req(input$gs_amr_variables)
+    
+    if(!is.null(Screening$hm_meta)) {
+      if(length(unique(Screening$hm_meta$amr)) > 7) {
+        gs_amrclass_scale <- selectInput(
+          "gs_amrclass_scale",
+          "",
+          choices = list(
+            Gradient = list(
+              "Magma" = "magma",
+              "Inferno" = "inferno",
+              "Plasma" = "plasma",
+              "Viridis" = "viridis",
+              "Cividis" = "cividis",
+              "Rocket" = "rocket",
+              "Mako" = "mako",
+              "Turbo" = "turbo"
+            )
+          ),
+          selected = "turbo",
+          width = "100%"
+        )
+        
+        shinyjs::delay(50, shinyjs::runjs("$('#gs_amrclass_scale_ui .selectize-input').css({
+        'background': 'linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF, #3AA2FCFF, #23C3E4FF, #18DEC1FF, #2CF09EFF, #5BFB72FF, #8EFF49FF, #B5F836FF, #D6E635FF, #EFCD3AFF, #FCB036FF, #FD8A26FF, #F36215FF, #E14209FF, #C82803FF, #A51301FF, #7A0403FF)',
+'color': 'white'
+      })"))
+        
+      } else {
+        gs_amrclass_scale <- selectInput(
+          "gs_amrclass_scale",
+          "",
+          choices = list(
+            Qualitative = list(
+              "Set1",
+              "Set2",
+              "Set3",
+              "Pastel1",
+              "Pastel2",
+              "Paired",
+              "Dark2",
+              "Accent"
+            ),
+            Gradient = list(
+              "Magma" = "magma",
+              "Inferno" = "inferno",
+              "Plasma" = "plasma",
+              "Viridis" = "viridis",
+              "Cividis" = "cividis",
+              "Rocket" = "rocket",
+              "Mako" = "mako",
+              "Turbo" = "turbo"
+            )
+          ),
+          width = "100%"
+        )
+      }
+      
+      shinyjs::delay(0, shinyjs::runjs("$('#gs_amrclass_scale_ui .selectize-input').css({
+        'background': 'linear-gradient(to right, #E41A1C 0%, #E41A1C 11%, #377EB8 11%, #377EB8 22%, #4DAF4A 22%, #4DAF4A 33%, #984EA3 33%, #984EA3 44%, #FF7F00 44%, #FF7F00 55%, #FFFF33 55%, #FFFF33 66%, #A65628 66%, #A65628 77%, #F781BF 77%, #F781BF 88%, #999999 88%, #999999 100%)',
+      'color': 'black'
+      })"))
+      
+    } else {
+      gs_amrclass_scale <- selectInput(
+        "gs_amrclass_scale",
+        "",
+        choices = list(
+          Gradient = list(
+            "Magma" = "magma",
+            "Inferno" = "inferno",
+            "Plasma" = "plasma",
+            "Viridis" = "viridis",
+            "Cividis" = "cividis",
+            "Rocket" = "rocket",
+            "Mako" = "mako",
+            "Turbo" = "turbo"
+          ),
+        ),
+        selected = "turbo",
+        width = "100%"
+      )
+      
+      shinyjs::delay(50, shinyjs::runjs("$('#gs_amrclass_scale_ui .selectize-input').css({
+        'background': 'linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF, #3AA2FCFF, #23C3E4FF, #18DEC1FF, #2CF09EFF, #5BFB72FF, #8EFF49FF, #B5F836FF, #D6E635FF, #EFCD3AFF, #FCB036FF, #FD8A26FF, #F36215FF, #E14209FF, #C82803FF, #A51301FF, #7A0403FF)',
+'color': 'white'
+      })"))
+    }
+    
+    div(
+      class = "gs-gene-class-scale",
+      gs_amrclass_scale
+    )
+  })
+  
+  observe({
+    if(!is.null(input$gs_mapping_scale)) {
+      shinyjs::runjs(gsub("#selectorID",
+                          "#gs_mapping_scale",
+                          color_scale_bg_JS))
+    } 
+    if(!is.null(input$gs_amrclass_scale)) {
+      shinyjs::runjs(gsub("#selectorID",
+                          "#gs_amrclass_scale",
+                          color_scale_bg_JS))
     }
   })
   
@@ -24570,6 +24847,7 @@ server <- function(input, output, session) {
     
     if(input$gs_var_mapping != "None") {
       if(class(unlist(DB$meta[,input$gs_var_mapping])) == "numeric") {
+        
         gs_mapping_scale <- selectInput(
           "gs_mapping_scale",
           "",
@@ -24594,12 +24872,18 @@ server <- function(input, output, session) {
               "PRGn",
               "PiYG",
               "BrBG"
-            ),
-            width = "75%"
-          )
+            )
+          ),
+          width = "100%"
         )
+        
+        shinyjs::delay(0, shinyjs::runjs("$('#gs_mapping_scale_ui .selectize-input').css({
+        'background': 'linear-gradient(to right, #000004FF, #07071DFF, #160F3BFF, #29115AFF, #400F73FF, #56147DFF, #6B1D81FF, #802582FF, #952C80FF, #AB337CFF, #C03A76FF, #D6456CFF, #E85362FF, #F4685CFF, #FA815FFF, #FD9A6AFF, #FEB37BFF, #FECC8FFF, #FDE4A6FF, #FCFDBFFF)',
+      'color': 'white'
+      })"))
       } else {
         if(length(unique(unlist(DB$meta[input$gs_var_mapping]))) > 7) {
+          
           gs_mapping_scale <- selectInput(
             "gs_mapping_scale",
             "",
@@ -24615,10 +24899,15 @@ server <- function(input, output, session) {
                 "Turbo" = "turbo"
               )
             ),
-            selected = "turbo",
-            width = "75%"
+            width = "100%"
           )
+          
+          shinyjs::delay(0, shinyjs::runjs("$('#gs_mapping_scale_ui .selectize-input').css({
+        'background': 'linear-gradient(to right, #000004FF, #07071DFF, #160F3BFF, #29115AFF, #400F73FF, #56147DFF, #6B1D81FF, #802582FF, #952C80FF, #AB337CFF, #C03A76FF, #D6456CFF, #E85362FF, #F4685CFF, #FA815FFF, #FD9A6AFF, #FEB37BFF, #FECC8FFF, #FDE4A6FF, #FCFDBFFF)',
+      'color': 'white'
+      })"))
         } else {
+          
           gs_mapping_scale <- selectInput(
             "gs_mapping_scale",
             "",
@@ -24654,16 +24943,17 @@ server <- function(input, output, session) {
                 "Blues"
               )
             ),
-            width = "75%"
+            width = "100%"
           )
+          
+          shinyjs::delay(0, shinyjs::runjs("$('#gs_mapping_scale_ui .selectize-input').css({
+        'background': 'linear-gradient(to right, #E41A1C 0%, #E41A1C 11%, #377EB8 11%, #377EB8 22%, #4DAF4A 22%, #4DAF4A 33%, #984EA3 33%, #984EA3 44%, #FF7F00 44%, #FF7F00 55%, #FFFF33 55%, #FFFF33 66%, #A65628 66%, #A65628 77%, #F781BF 77%, #F781BF 88%, #999999 88%, #999999 100%)',
+      'color': 'black'
+      })"))
         }
       }
-      
-      div(
-        class = "gs-mapping-scale",
-        gs_mapping_scale
-      )
     } else {
+      
       gs_mapping_scale <- selectInput(
         "gs_mapping_scale",
         "",
@@ -24699,16 +24989,19 @@ server <- function(input, output, session) {
             "Blues"
           )
         ),
-        width = "75%"
+        width = "100%"
       )
       
-      shinyjs::disabled(
-        div(
-          class = "gs-mapping-scale",
-          gs_mapping_scale
-        )
-      )
+      shinyjs::delay(0, shinyjs::runjs("$('#gs_mapping_scale_ui .selectize-input').css({
+        'background': 'linear-gradient(to right, #E41A1C 0%, #E41A1C 11%, #377EB8 11%, #377EB8 22%, #4DAF4A 22%, #4DAF4A 33%, #984EA3 33%, #984EA3 44%, #FF7F00 44%, #FF7F00 55%, #FFFF33 55%, #FFFF33 66%, #A65628 66%, #A65628 77%, #F781BF 77%, #F781BF 88%, #999999 88%, #999999 100%)',
+      'color': 'black'
+      })"))
     }
+    
+    div(
+      class = "gs-mapping-scale",
+      gs_mapping_scale
+    )
   })
   
   # variable mapping
@@ -24730,7 +25023,7 @@ server <- function(input, output, session) {
                  Country = "Country", City = "City"),
                colnames(DB$meta)[14:ncol(DB$meta)])
       },
-      width = "75%",
+      width = "100%",
       selected = NULL
     )
   })
@@ -26039,7 +26332,7 @@ server <- function(input, output, session) {
     amr_profile_numeric_all <- amr_profile_numeric[rownames(amr_profile_numeric) %in% input$gs_plot_selected_isolate, ]
     amr_profile_numeric <- amr_profile_numeric_all[,c(input$gs_plot_selected_amr, input$gs_plot_selected_vir, input$gs_plot_selected_noclass)]
     heatmap_mat <- as.matrix(amr_profile_numeric)
-    heatmap_mat1 <<- heatmap_mat
+    
     ### get heatmap meta
     # amr meta
     amr_meta <- NULL
@@ -26101,17 +26394,23 @@ server <- function(input, output, session) {
     if(!is.null(input$gs_var_mapping)) {
       if(input$gs_var_mapping != "None") {
         
-        isolate_meta <- metaa[which(metaa$`Assembly ID` %in% rownames(heatmap_mat1)),]
+        isolate_meta <- DB$meta[which(DB$meta$`Assembly ID` %in% rownames(heatmap_mat)),]
         
-        rownames(isolate_meta) <- rownames(heatmap_mat1)
+        rownames(isolate_meta) <- rownames(heatmap_mat)
         
-        sel_isolate_var <- na.omit(isolate_meta[[input$gs_var_mapping]])
-        
-        if(!is.null(input$gs_mapping_scale)) {
-          if(input$gs_mapping_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            var_colors <- get(input$gs_mapping_scale)(length(unique(sel_isolate_var)))
+        sel_isolate_var <- isolate_meta[[input$gs_var_mapping]]
+        if(all(sel_isolate_var == "")) {
+          var_colors <- "grey"
+          names(var_colors) <- "NA"
+        } else {
+          if(!is.null(input$gs_mapping_scale)) {
+            if(input$gs_mapping_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+              var_colors <- get(input$gs_mapping_scale)(length(unique(sel_isolate_var)))
+            } else {
+              var_colors <- brewer.pal(length(unique(sel_isolate_var)), input$gs_mapping_scale)
+            }
           } else {
-            var_colors <- brewer.pal(length(unique(sel_isolate_var)), input$gs_mapping_scale)
+            var_colors <- get("viridis")(length(unique(sel_isolate_var)))
           }
           names(var_colors) <- unique(sort(sel_isolate_var))
         }
@@ -26141,23 +26440,41 @@ server <- function(input, output, session) {
         amr_annotation <- NULL
         amr_heatmap <- NULL
       } else {
-        amr_colors <- rainbow(length(unique(na.omit(hm_meta$amr))))
-        names(amr_colors) <- unique(sort(na.omit(hm_meta$amr)))
-        
-        amr_annotation <- HeatmapAnnotation(
-          AMR = na.omit(hm_meta$amr),
-          show_legend = TRUE,
-          col = list(AMR = amr_colors),  
-          show_annotation_name = FALSE,
-          annotation_legend_param = list(
-            title = "AMR",
-            labels_gp = labels_gp,
-            title_gp = title_gp,
-            grid_height = grid_height,
-            grid_width = grid_width,
-            legend_gp = gpar(fill = amr_colors) 
+        if(input$gs_amr_variables != "None") {
+          sel_amr <- na.omit(hm_meta$amr)
+          if(!is.null(input$gs_amrclass_scale)) {
+            
+            if(input$gs_amrclass_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+              amr_colors <- get(input$gs_amrclass_scale)(length(unique(sel_amr)))
+            } else {
+              
+              dist_col <- length(unique(sel_amr))
+              if(dist_col < 3) {
+                amr_colors <- brewer.pal(3, input$gs_amrclass_scale)[1:dist_col]
+              } else {
+                amr_colors <- brewer.pal(dist_col, input$gs_amrclass_scale)    
+              }
+            }
+          } else {
+            amr_colors <- get("turbo")(length(unique(sel_amr)))
+          }
+          names(amr_colors) <- unique(sort(sel_amr))
+          
+          amr_annotation <- HeatmapAnnotation(
+            AMR = sel_amr,
+            show_legend = TRUE,
+            col = list(AMR = amr_colors),  
+            show_annotation_name = FALSE,
+            annotation_legend_param = list(
+              title = "AMR",
+              labels_gp = labels_gp,
+              title_gp = title_gp,
+              grid_height = grid_height,
+              grid_width = grid_width,
+              legend_gp = gpar(fill = amr_colors) 
+            )
           )
-        )
+        }
         
         # AMR heatmap
         amr_genes <- rownames(hm_meta)[!is.na(hm_meta$amr)]
@@ -26200,24 +26517,35 @@ server <- function(input, output, session) {
         vir_annotation <- NULL
         vir_heatmap <- NULL
       } else {
-        vir_colors <- viridis(length(unique(na.omit(hm_meta$vir))))
-        names(vir_colors) <- unique(sort(na.omit(hm_meta$vir)))
-        
-        vir_annotation <- HeatmapAnnotation(
-          Vir = na.omit(hm_meta$vir),
-          show_legend = TRUE,
-          col = list(Vir = vir_colors),  
-          show_annotation_name = FALSE,
-          annotation_legend_param = list(
-            title = "Vir",
-            legend_gp = legend_gp,
-            labels_gp = labels_gp,
-            title_gp = title_gp,
-            grid_height = grid_height,
-            grid_width = grid_width,
-            legend_gp = gpar(fill = vir_colors) 
+        if(input$gs_vir_variables != "None"){
+          sel_vir <- na.omit(hm_meta$vir)
+          if(!is.null(input$gs_virclass_scale)) {
+            if(input$gs_virclass_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+              vir_colors <- get(input$gs_virclass_scale)(length(unique(sel_vir)))
+            } else {
+              vir_colors <- brewer.pal(length(unique(sel_vir)), input$gs_virclass_scale)
+            }
+          } else {
+            vir_colors <- get("turbo")(length(unique(sel_vir)))
+          }
+          names(vir_colors) <- unique(sort(sel_vir))
+          
+          vir_annotation <- HeatmapAnnotation(
+            Vir = sel_vir,
+            show_legend = TRUE,
+            col = list(Vir = vir_colors),  
+            show_annotation_name = FALSE,
+            annotation_legend_param = list(
+              title = "Vir",
+              legend_gp = legend_gp,
+              labels_gp = labels_gp,
+              title_gp = title_gp,
+              grid_height = grid_height,
+              grid_width = grid_width,
+              legend_gp = gpar(fill = vir_colors) 
+            )
           )
-        )
+        }
         
         # Vir heatmap
         vir_genes <- rownames(hm_meta)[!is.na(hm_meta$vir)]
@@ -26229,7 +26557,7 @@ server <- function(input, output, session) {
           vir_cols <- c(input$gsplot_color_palette1, input$gsplot_color_palette2)
         }
         
-        if(is.null(amr_annotation)) {
+        if(all(is.na(hm_meta$amr)) | length(input$gs_plot_selected_amr) < 3) {
           left_annotation <- isolate_annotation
         }  else {
           left_annotation <- NULL
@@ -26257,8 +26585,8 @@ server <- function(input, output, session) {
     } else {
       vir_annotation <- NULL
       vir_heatmap <- NULL
-    }
-    
+    } 
+          
     # None heatmap
     noclass_heatmap <- NULL
     if(!is.null(input$gs_plot_selected_noclass)) {
@@ -26266,7 +26594,7 @@ server <- function(input, output, session) {
         unclass_genes <- rownames(hm_meta)[is.na(hm_meta$vir) & is.na(hm_meta$amr)]
         noclass_profile_matrix <- heatmap_mat[,colnames(heatmap_mat) %in% unclass_genes]
         
-        if(is.null(amr_annotation) & is.null(vir_annotation)) {
+        if((all(is.na(hm_meta$amr)) | length(input$gs_plot_selected_amr) < 3) & (all(is.na(hm_meta$vir)) | length(input$gs_plot_selected_vir) < 3)) {
           left_annotation <- isolate_annotation
         }  else {
           left_annotation <- NULL
@@ -26310,12 +26638,6 @@ server <- function(input, output, session) {
         at = c(1, 0)
       )
     )
-    
-    amr_heatmap1 <<- amr_heatmap
-    vir_heatmap1 <<- vir_heatmap
-    noclass_heatmap1 <<- noclass_heatmap
-    vir_meta1 <<- vir_meta
-    amr_meta1 <<- amr_meta
     
     # summarize heatmaps
     if(is.null(amr_heatmap) & is.null(vir_heatmap) & is.null(noclass_heatmap)) {
