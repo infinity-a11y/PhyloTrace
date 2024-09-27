@@ -13,6 +13,7 @@ library(ggplot2)
 library(ggnewscale)
 library(ggplotify) 
 library(grid)
+library(gridExtra)
 library(ape)
 library(tidyverse)
 library(rlang)
@@ -5378,945 +5379,125 @@ ui <- dashboardPage(
         tabName = "gs_visualization",
         fluidRow(
           column(
-            width = 3,
-            align = "center",
-            h2(p("AMR Profile Visualization"), style = "color:white; margin-bottom: -20px;")
-          ),
-          column(
-            width = 7,
-            align = "left",
-            uiOutput("gene_screening_info")
-          )
-        ),
-        br(),
-        hr(),
-        fluidRow(
-          column(
             width = 2,
             align = "left",
             br(), br(), 
-            fluidRow(
-              column(
-                width = 6,
-                align = "right",
-                dropMenu(
-                  div(
-                    id = "gs-control",
-                    actionBttn(
-                      "gs_color_menu",
-                      label = "",
-                      color = "default",
-                      size = "sm",
-                      style = "material-flat",
-                      icon = icon("palette")
+            div(
+              class = "gs-plot-box",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                title = "Plot Controls",
+                fluidRow(
+                  column(
+                    width = 6,
+                    align = "right",
+                    div(
+                      id = "gs-control",
+                      actionBttn(
+                        "gs_data_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("table-cells")
+                      )
                     )
                   ),
-                  placement = "right-start",
-                  theme = "translucent",
-                  options = list(flip = FALSE),
-                  fluidRow(
-                    fluidRow(
-                      column(
-                        width = 4,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;', 
-                                      'Text')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 8,
-                        align = "center",
-                        colorPickr(
-                          inputId = "gsplot_color_text",
-                          selected = "#000000",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start",
-                          width = "120px"
-                        )
-                      )
-                    ),
-                    br(),
-                    fluidRow(
-                      column(
-                        width = 4,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;', 
-                                      'Dendrogram')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 8,
-                        align = "center",
-                        colorPickr(
-                          inputId = "gsplot_color_dend",
-                          selected = "#000000",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start",
-                          width = "120px"
-                        )
-                      )
-                    ),
-                    br(),
-                    fluidRow(
-                      column(
-                        width = 4,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;', 
-                                      'Present')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 8,
-                        align = "center",
-                        colorPickr(
-                          inputId = "gsplot_color_palette1",
-                          selected = "#66C2A5",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start",
-                          width = "120px"
-                        )
-                      )
-                    ),
-                    br(),
-                    fluidRow(
-                      column(
-                        width = 4,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;', 
-                                      'Absent')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 8,
-                        align = "center",
-                        colorPickr(
-                          inputId = "gsplot_color_palette2",
-                          selected = "#E5C494",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start",
-                          width = "120px"
-                        )
-                      )
-                    ),
-                    br(),
-                    fluidRow(
-                      column(
-                        width = 4,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;', 
-                                      'Grid Color')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 8,
-                        align = "center",
-                        colorPickr(
-                          inputId = "gsplot_grid_color",
-                          selected = "#FFFFFF",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start",
-                          width = "120px"
-                        )
-                      )
-                    ),
-                    br(),
-                    fluidRow(
-                      column(
-                        width = 4,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;', 
-                                      'Background')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 8,
-                        align = "center",
-                        colorPickr(
-                          inputId = "gsplot_background",
-                          selected = "#FFFFFF",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start",
-                          width = "120px"
-                        )
+                  column(
+                    width = 6,
+                    align = "left",
+                    div(
+                      id = "gs-variable-menu",
+                      actionBttn(
+                        "gs_variable_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("map-pin")
                       )
                     )
                   )
-                )
-              ),
-              column(
-                width = 6,
-                align = "center",
-                dropMenu(
-                  div(
-                    id = "gs-variable-menu",
-                    actionBttn(
-                      "gs_variable_menu",
-                      label = "",
-                      color = "default",
-                      size = "sm",
-                      style = "material-flat",
-                      icon = icon("map-pin")
+                ),
+                fluidRow(
+                  column(
+                    width = 6,
+                    align = "right",
+                    br(),
+                    div(
+                      id = "gs-control",
+                      actionBttn(
+                        "gs_color_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("palette")
+                      )
                     )
                   ),
-                  placement = "right-start",
-                  theme = "translucent",
-                  options = list(flip = FALSE),
-                  fluidRow(
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "center",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 16px; position: relative;',
-                                      'Isolate Variables')
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 4,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 27px;', 
-                                      'Variable')
-                          )
-                        )
+                  column(
+                    width = 6,
+                    align = "left",
+                    br(),
+                    div(
+                      id = "gs-size-menu",
+                      actionBttn(
+                        "gs_size_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("up-right-and-down-left-from-center")
                       ),
-                      column(
-                        width = 8,
-                        align = "center",
-                        uiOutput("gs_var_mapping_ui"),
-                        br()
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 6,
+                    align = "right",
+                    br(),
+                    div(
+                      id = "gs-misc-menu",
+                      actionBttn(
+                        "gs_misc_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("ellipsis")
                       )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 4,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 9px;', 
-                                      'Scale')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 8,
-                        align = "center",
-                        uiOutput("gs_mapping_scale_ui"),
-                        br()
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "center",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 16px; position: relative;',
-                                      'AMR Genes')
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 4,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 27px;', 
-                                      'Variable')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 8,
-                        align = "center",
-                        selectInput(
-                          "gs_amr_variables",
-                          "",
-                          choices = c("Classification", "None"),
-                          width = "100%"
-                        ),
-                        br()
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 4,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 9px;', 
-                                      'Scale')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 8,
-                        align = "center",
-                        uiOutput("gs_amrclass_scale_ui")
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "center",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 16px; position: relative;',
-                                      'Virulence Genes')
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 4,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 27px;', 
-                                      'Variable')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 8,
-                        align = "center",
-                        selectInput(
-                          "gs_vir_variables",
-                          "",
-                          choices = c("Classification", "None"),
-                          width = "100%"
-                        ),
-                        br()
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 4,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 9px;', 
-                                      'Scale')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 8,
-                        align = "center",
-                        uiOutput("gs_virclass_scale_ui")
+                    )
+                  ),
+                  column(
+                    width = 6,
+                    align = "left",
+                    br(),
+                    div(
+                      id = "gs-download-menu",
+                      actionBttn(
+                        "gs_download_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("download")
                       )
                     )
                   )
                 )
               )
             ),
-            fluidRow(
-              column(
-                width = 6,
-                align = "right",
-                br(),
-                dropMenu(
-                  div(
-                    id = "gs-size-menu",
-                    actionBttn(
-                      "gs_size_menu",
-                      label = "",
-                      color = "default",
-                      size = "sm",
-                      style = "material-flat",
-                      icon = icon("up-right-and-down-left-from-center")
-                    ),
-                  ),
-                  placement = "right-start",
-                  theme = "translucent",
-                  options = list(flip = FALSE),
-                  fluidRow(
-                    fluidRow(
-                      column(
-                        width = 5,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
-                                      'Font Column')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 7,
-                        div(
-                          class = "gs-slider",
-                          sliderInput(
-                            "gsplot_fontsize_col",
-                            "",
-                            value = 9,
-                            max = 24,
-                            min = 6,
-                            ticks = FALSE
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
-                                      'Dendro Cols')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 7,
-                        div(
-                          class = "gs-slider",
-                          sliderInput(
-                            "gsplot_treeheight_col",
-                            "",
-                            value = 2,
-                            max = 10,
-                            min = 1,
-                            ticks = FALSE
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
-                                      'Dendro Rows')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 7,
-                        div(
-                          class = "gs-slider",
-                          sliderInput(
-                            "gsplot_treeheight_row",
-                            "",
-                            value = 2,
-                            max = 10,
-                            min = 1,
-                            ticks = FALSE
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
-                                      'Legend')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 7,
-                        div(
-                          class = "gs-slider",
-                          sliderInput(
-                            "gsplot_legend_labelsize",
-                            "",
-                            value = 9,
-                            max = 14,
-                            min = 6,
-                            ticks = FALSE
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
-                                      'Grid Width')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 7,
-                        div(
-                          class = "gs-slider",
-                          sliderInput(
-                            "gsplot_grid_width",
-                            "",
-                            value = 1,
-                            max = 3,
-                            min = 0,
-                            ticks = FALSE
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
-                                      'Row/Col Titles')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 7,
-                        div(
-                          class = "gs-slider",
-                          sliderInput(
-                            "gsplot_fontsize_title",
-                            "",
-                            value = 12,
-                            max = 24,
-                            min = 8,
-                            ticks = FALSE
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 6,
-                align = "center",
-                br(),
-                dropMenu(
-                  div(
-                    id = "gs-download-menu",
-                    actionBttn(
-                      "gs_download_menu",
-                      label = "",
-                      color = "default",
-                      size = "sm",
-                      style = "material-flat",
-                      icon = icon("download")
-                    )
-                  ),
-                  placement = "right-start",
-                  theme = "translucent",
-                  options = list(flip = FALSE),
-                  fluidRow(
-                    column(
-                      width = 5,
-                      align = "left",
-                      HTML(
-                        paste(
-                          tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
-                                    'Save As')
-                        )
-                      )
-                    ),
-                    column(
-                      width = 7,
-                      align = "center",
-                      div(
-                        class = "filetype-gs",
-                        selectInput(
-                          inputId = "filetype_gs",
-                          label = "",
-                          choices = c("png", "jpeg", "bmp", "svg")
-                        )
-                      ),
-                      br()
-                    )
-                  ),
-                  br(), 
-                  downloadBttn(
-                    "gs_download_plot",
-                    style = "simple",
-                    label = "",
-                    size = "sm",
-                    icon =  icon("download"),
-                    color = "primary"
-                  )
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 6,
-                align = "right",
-                br(),
-                dropMenu(
-                  div(
-                    id = "gs-dim-menu",
-                    actionBttn(
-                      "gs_dim_menu",
-                      label = "",
-                      color = "default",
-                      size = "sm",
-                      style = "material-flat",
-                      icon = icon("expand")
-                    )
-                  ),
-                  placement = "right-start",
-                  theme = "translucent",
-                  options = list(flip = FALSE),
-                  fluidRow(
-                    fluidRow(
-                      column(
-                        width = 5,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
-                                      'Ratio')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 7,
-                        align = "center",
-                        div(
-                          class = "gs-ratio",
-                          selectInput(
-                            "gs_ratio",
-                            "",
-                            choices = c("16:10" = (16/10), "16:9" = (16/9), "4:3" = (4/3)),
-                            selected = c("16:9" = (16/9))
-                          )
-                        )
-                      )
-                    ),
-                    br(),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
-                                      'Scale')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 7,
-                        align = "center",
-                        div(
-                          class = "gs-slider",
-                          sliderInput(
-                            "gs_scale",
-                            "",
-                            min = 500,
-                            max = 1200,
-                            value = 700,
-                            step = 5,
-                            width = "95%",
-                            ticks = FALSE
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 6,
-                align = "center",
-                br(),
-                dropMenu(
-                  div(
-                    id = "gs-misc-menu",
-                    actionBttn(
-                      "gs_misc_menu",
-                      label = "",
-                      color = "default",
-                      size = "sm",
-                      style = "material-flat",
-                      icon = icon("ellipsis")
-                    )
-                  ),
-                  placement = "right-start",
-                  theme = "translucent",
-                  options = list(flip = FALSE),
-                  fluidRow(
-                    fluidRow(
-                      column(
-                        width = 8,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 20px; position: relative; left: 10px;',
-                                      'Cluster Columns')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        align = "left",
-                        div(
-                          class = "mat-switch-gs-settings",
-                          materialSwitch(
-                            "gs_cluster_col",
-                            "",
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 6,
-                        align = "left",
-                        br(),
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
-                                      'Distance Algorithm')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 6,
-                        align = "center",
-                        br(),
-                        div(
-                          class = "gs-cluster-sel",
-                          selectInput(
-                            "gs_cluster_distance_col",
-                            "",
-                            choices = c("Euclidean" = "euclidean", "Maximum" = "maximum", 
-                                        "Manhattan" = "manhattan", "Canberra" = "canberra", 
-                                        "Binary" = "binary", "Minkowski" = "minkowski"),
-                            selected = "binary"
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 6,
-                        align = "left",
-                        br(),
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
-                                      'Clustering Method')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 6,
-                        align = "center",
-                        br(),
-                        div(
-                          class = "gs-cluster-sel",
-                          selectInput(
-                            "gs_cluster_method_col",
-                            "",
-                            choices = c("ward.D" = "ward.D", "ward.D2"= "ward.D2", 
-                                        "Single" = "single", "Complete" = "complete", 
-                                        "UPGMA" = "average", "WPGMA"  = "mcquitty", 
-                                        "WPGMC" = "median", "UPGMC" = "centroid"),
-                            selected = "average"
-                          )
-                        )
-                      )
-                    ),
-                    hr(),
-                    fluidRow(
-                      column(
-                        width = 8,
-                        align = "left",
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 20px; position: relative; left: 10px;',
-                                      'Cluster Rows')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        align = "left",
-                        div(
-                          class = "mat-switch-gs-settings",
-                          materialSwitch(
-                            "gs_cluster_row",
-                            "",
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 6,
-                        align = "left",
-                        br(),
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
-                                      'Distance Algorithm')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 6,
-                        align = "center",
-                        br(),
-                        div(
-                          class = "gs-cluster-sel",
-                          selectInput(
-                            "gs_cluster_distance_row",
-                            "",
-                            choices = c("Euclidean" = "euclidean", "Maximum" = "maximum", 
-                                        "Manhattan" = "manhattan", "Canberra" = "canberra", 
-                                        "Binary" = "binary", "Minkowski" = "minkowski"),
-                            selected = "binary"
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 6,
-                        align = "left",
-                        br(),
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
-                                      'Clustering Method')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 6,
-                        align = "center",
-                        br(),
-                        div(
-                          class = "gs-cluster-sel",
-                          selectInput(
-                            "gs_cluster_method_row",
-                            "",
-                            choices = c("ward.D" = "ward.D", "ward.D2"= "ward.D2", 
-                                        "Single" = "single", "Complete" = "complete", 
-                                        "UPGMA" = "average", "WPGMA"  = "mcquitty", 
-                                        "WPGMC" = "median", "UPGMC" = "centroid"),
-                            selected = "average"
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            ),
-            column(
-              width = 12,
-              br(), br(), 
-              HTML(
-                paste(
-                  tags$span(style='color: white; font-size: 16px; position: relative; left: 30px; top: 10px;', 
-                            'Isolates')
-                )
-              ),
-              uiOutput("gs_plot_sel_isolate"),
-              uiOutput("gs_plot_sel_isolate_info")
-            ),
-            column(
-              width = 12,
-              br(),
-              HTML(
-                paste(
-                  tags$span(style='color: white; font-size: 16px; position: relative; left: 30px', 
-                            'AMR Genes')
-                )
-              ),
-              uiOutput("gs_plot_sel_amr"),
-              uiOutput("gs_plot_sel_amr_info")
-            ),
-            column(
-              width = 12,
-              br(),
-              HTML(
-                paste(
-                  tags$span(style='color: white; font-size: 16px; position: relative; left: 30px', 
-                            'Virulence Genes')
-                )
-              ),
-              uiOutput("gs_plot_sel_vir"),
-              uiOutput("gs_plot_sel_vir_info")
-            ),
-            column(
-              width = 12,
-              br(),
-              HTML(
-                paste(
-                  tags$span(style='color: white; font-size: 16px; position: relative; left: 30px;', 
-                            'Unclassifiable Genes')
-                )
-              ),
-              uiOutput("gs_plot_sel_noclass"),
-              uiOutput("gs_plot_sel_noclass_info"),
-              br()
-            )
+            br(),
+            uiOutput("gs_plot_control_ui")
           ),
           column(
             width = 10,
             align = "left",
-            br(),
-            br(),
+            br(), br(), br(), br(),
             uiOutput("gs_field")
           )
         )
@@ -6515,28 +5696,28 @@ server <- function(input, output, session) {
   Scheme <- reactiveValues() # reactive variables related to scheme  functions
   
   # Tooltips
+  addTooltip(session, id = 'gs_data_menu', title = "Data Mapping",
+             placement = "left", trigger = "hover", 
+             options = list(delay = list(show = 400, hide = 300)))
+  
   addTooltip(session, id = 'gs_color_menu', title = "Colors",
-             placement = "top", trigger = "hover", 
+             placement = "left", trigger = "hover", 
              options = list(delay = list(show = 400, hide = 300)))
   
   addTooltip(session, id = 'gs_size_menu', title = "Sizing",
-             placement = "top", trigger = "hover", 
-             options = list(delay = list(show = 400, hide = 300)))
-  
-  addTooltip(session, id = 'gs_dim_menu', title = "Dimensions",
-             placement = "top", trigger = "hover", 
+             placement = "right", trigger = "hover", 
              options = list(delay = list(show = 400, hide = 300)))
   
   addTooltip(session, id = 'gs_variable_menu', title = "Variable Mapping",
-             placement = "top", trigger = "hover", 
+             placement = "right", trigger = "hover", 
              options = list(delay = list(show = 400, hide = 300)))
   
   addTooltip(session, id = 'gs-download-menu', title = "Save Plot",
-             placement = "top", trigger = "hover", 
+             placement = "right", trigger = "hover", 
              options = list(delay = list(show = 400, hide = 300)))
   
   addTooltip(session, id = 'gs-misc-menu', title = "Other Settings",
-             placement = "top", trigger = "hover", 
+             placement = "left", trigger = "hover", 
              options = list(delay = list(show = 400, hide = 300)))
   
   
@@ -7484,8 +6665,8 @@ server <- function(input, output, session) {
                                      "scheme_info.rds"))) {
               
               DB$schemeinfo <- readRDS(file.path(DB$database, 
-                                                gsub(" ", "_", DB$scheme), 
-                                                "scheme_info.rds"))
+                                                 gsub(" ", "_", DB$scheme), 
+                                                 "scheme_info.rds"))
               
               # Get scheme database link
               DB$scheme_db <- DB$schemeinfo[,2][DB$schemeinfo[,1] == "Database"]
@@ -7493,54 +6674,54 @@ server <- function(input, output, session) {
               # Get scheme database link
               DB$scheme_link <- str_extract(DB$schemeinfo[,2][DB$schemeinfo[,1] == "URL"], 
                                             '(?<=href=")[^"]+')
-
+              
               # Get locus count
               number_loci <- DB$schemeinfo[, 2][DB$schemeinfo[,1] == "Locus Count"]
-
+              
               if(DB$scheme_db == "cgMLST.org Nomenclature Server (h25)") {
                 # Locus count
                 DB$number_loci <- as.numeric(gsub(",", "", number_loci))
-
+                
                 # Cluster threshold
                 DB$cluster_thresh <- DB$schemeinfo[,2][DB$schemeinfo[,1] == "Complex Type Distance"]
-
+                
               } else if(DB$scheme_db == "pubMLST") {
                 # Locus count
                 DB$number_loci <- as.numeric(number_loci)
-
+                
                 # Cluster threshold
                 DB$cluster_thresh <- 10
               }
-
+              
               ### Check if scheme update available
               # Query remote scheme
               if(DB$scheme_db == "cgMLST.org Nomenclature Server (h25)") {
-
+                
                 db_spec <- schemes[schemes[,"database"] == "cgMLST.org",]
                 DB$url_link <- db_spec[, "url"][db_spec[, "species"] == gsub(" ", "_", DB$scheme)]
-
+                
                 remote_scheme <- read_html(DB$url_link) %>%
                   html_table(header = FALSE) %>%
                   as.data.frame(stringsAsFactors = FALSE)
-
+                
                 last_scheme_change <- strptime(remote_scheme[,2][remote_scheme[,1] == "Last Change"],
                                                format = "%B %d, %Y, %H:%M %p")
               } else if(DB$scheme_db == "pubMLST") {
-
+                
                 db_spec <- schemes[schemes[,"database"] == "pubMLST",]
                 DB$url_link <- db_spec[, "url"][db_spec[, "species"] == gsub(" ", "_", DB$scheme)]
-
+                
                 remote_scheme <- get.schemeinfo(url_link = DB$url_link)
-
+                
                 last_scheme_change <- remote_scheme[["last_updated"]]
               }
-
+              
               if(!is.null(last_scheme_change)) {
                 if(length(last_scheme_change) > 0) {
                   last_file_change <- format(
                     file.info(file.path(DB$database, ".downloaded_schemes",
                                         paste0(gsub(" ", "_", DB$scheme), ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
-
+                  
                   if(!is.null(last_file_change)) {
                     if(length(last_file_change) > 0) {
                       if(last_file_change < last_scheme_change) {
@@ -10215,7 +9396,7 @@ server <- function(input, output, session) {
           }
         }
       } else {
-
+        
         log_print("Invalid scheme folder")
         show_toast(
           title = "Invalid scheme folder",
@@ -10286,11 +9467,11 @@ server <- function(input, output, session) {
   
   output$species_info_saved <- renderUI({
     req(DB$database, DB$scheme)
-
+    
     species_data_path <- file.path(DB$database,
                                    gsub(" ", "_", DB$scheme),
                                    paste0(gsub(" ", "_", DB$scheme), ".rds"))
-
+    
     if(file.exists(species_data_path)) {
       species_data <- readRDS(species_data_path)
       if(length(species_data) > 1) {
@@ -10334,14 +9515,14 @@ server <- function(input, output, session) {
           output$species_img_saved <- NULL
         }
       }
-
+      
       multiple <- length(species_data) > 1 & !is.null(input$selected_species_saved)
       if(multiple) {
         species_data <- species_data[[input$selected_species_saved]]
       } else {
         species_data <- species_data[[1]]
       }
-
+      
       if(!is.null(species_data)) {
         box(
           solidHeader = TRUE,
@@ -11960,7 +11141,7 @@ server <- function(input, output, session) {
       
       DB$cust_var <- rbind(DB$cust_var, data.frame(Variable = name, Type = "cont"))
     }
-
+    
     DB$meta_gs <- select(DB$data, c(1, 3:13))
     DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
@@ -12535,7 +11716,7 @@ server <- function(input, output, session) {
   
   ## Locus sequences ----
   
- observe({
+  observe({
     if(!is.null(DB$database) & !is.null(DB$scheme)) {
       DB$loci <- list.files(
         path = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles"),
@@ -12772,7 +11953,7 @@ server <- function(input, output, session) {
     # Disable pickerInput
     shinyjs::runjs("$('#select_cgmlst').prop('disabled', true);")
     shinyjs::runjs("$('#select_cgmlst').selectpicker('refresh');")
-  
+    
     if(length(DB$available) == 0) {
       saveRDS(DB$new_database, paste0(getwd(), "/execute/new_db.rds"))
       dir.create(file.path(readRDS(paste0(getwd(), "/execute/new_db.rds")), "Database"), recursive = TRUE)
@@ -12818,217 +11999,217 @@ server <- function(input, output, session) {
       paste("Error: ", e$message)
     })
     
-      # Unzip the scheme in temporary folder
-      unzip(
-        zipfile = file.path(DB$database, ".downloaded_schemes", paste0(Scheme$folder_name, ".zip")),
-        exdir = file.path(DB$database, 
-                          Scheme$folder_name, 
-                          paste0(Scheme$folder_name, ".tmp")
-        )
+    # Unzip the scheme in temporary folder
+    unzip(
+      zipfile = file.path(DB$database, ".downloaded_schemes", paste0(Scheme$folder_name, ".zip")),
+      exdir = file.path(DB$database, 
+                        Scheme$folder_name, 
+                        paste0(Scheme$folder_name, ".tmp")
       )
-      
-      # Download species info & image
-      if(!is.null(Scheme$species_data)) {
-        if(length(Scheme$species_data) > 0) {
-          saveRDS(Scheme$species_data,
-                  file.path(DB$database, 
-                            schemes$species[schemes$species == input$select_cgmlst], 
-                            paste0(schemes$species[schemes$species == input$select_cgmlst], ".rds")))
-          
-          if(length(Scheme$species_data) > 1) {
-            for(i in seq_along(Scheme$species_data)) {
-              # Download image
-              destination_file <- file.path(DB$database, 
-                                            input$select_cgmlst, 
-                                            paste0(gsub(" ", "_", Scheme$species_data[[i]]$Name$name), ".jpg"))
-              response_download <- httr::GET(Scheme$species_data[[i]]$Image)
-              
-              if (response_download$status_code == 200) {
-                writeBin(httr::content(response_download, "raw"), destination_file)
-                response_download <- NULL
-                log_print("Image downloaded successfully!")
-              } else {
-                log_print("Failed to download image.")
-              }
-            }
-          } else {
-            destination_file <- file.path(DB$database, input$select_cgmlst,
-                                          paste0(gsub(" ", "_", Scheme$species_data[[1]]$Name$name), ".jpg"))
-            
-            response_download <- httr::GET(Scheme$species_data[[1]]$Image)
+    )
+    
+    # Download species info & image
+    if(!is.null(Scheme$species_data)) {
+      if(length(Scheme$species_data) > 0) {
+        saveRDS(Scheme$species_data,
+                file.path(DB$database, 
+                          schemes$species[schemes$species == input$select_cgmlst], 
+                          paste0(schemes$species[schemes$species == input$select_cgmlst], ".rds")))
+        
+        if(length(Scheme$species_data) > 1) {
+          for(i in seq_along(Scheme$species_data)) {
+            # Download image
+            destination_file <- file.path(DB$database, 
+                                          input$select_cgmlst, 
+                                          paste0(gsub(" ", "_", Scheme$species_data[[i]]$Name$name), ".jpg"))
+            response_download <- httr::GET(Scheme$species_data[[i]]$Image)
             
             if (response_download$status_code == 200) {
               writeBin(httr::content(response_download, "raw"), destination_file)
+              response_download <- NULL
               log_print("Image downloaded successfully!")
             } else {
               log_print("Failed to download image.")
             }
           }
-        } else {log_print("Failed to download species data from NCBI.")} 
-      } else {log_print("Failed to download species data from NCBI.")}
-      
-      log_print("Hashing downloaded database")
-      shinyjs::show("hashing")
-      shinyjs::hide("downloading")
-      
-      show_toast(
-        title = paste("Hashing of", input$select_cgmlst,  "started"),
-        type = "success",
-        position = "bottom-start",
-        timer = 5000
-      )
-      
-      # Hash temporary folder
-      hash_database(file.path(DB$database, 
-                              Scheme$folder_name, 
-                              paste0(Scheme$folder_name, ".tmp")),
-                    progress = progress)
-      
-      # Get list from local database
-      local_db_filelist <- list.files(file.path(DB$database, 
-                                                Scheme$folder_name, 
-                                                paste0(Scheme$folder_name, "_alleles")))
-      
-      if (!is_empty(local_db_filelist)) {
-        # Get list from temporary database
-        tmp_db_filelist <- list.files(file.path(DB$database,
-                                                Scheme$folder_name,
-                                                paste0(Scheme$folder_name, ".tmp")))
-        
-        # Find the difference (extra files in local database)
-        local_db_extra <- setdiff(local_db_filelist, tmp_db_filelist)
-        
-        # Copy extra files to temporary folder
-        file.copy(file.path(DB$database,
-                            Scheme$folder_name, 
-                            paste0(Scheme$folder_name, "_alleles"), local_db_extra),
-                  file.path(DB$database,
-                            Scheme$folder_name,
-                            paste0(Scheme$folder_name, ".tmp")))
-        
-        # Check differences in file pairs
-        local_db_hashes <- tools::md5sum(file.path(DB$database,
-                                                   Scheme$folder_name,
-                                                   paste0(Scheme$folder_name, "_alleles"),
-                                                   local_db_filelist))
-        tmp_db_hashes <- tools::md5sum(file.path(DB$database,
-                                                 Scheme$folder_name,
-                                                 paste0(Scheme$folder_name, ".tmp"),
-                                                 local_db_filelist))
-        
-        diff_files <- local_db_hashes %in% tmp_db_hashes
-        diff_loci <- names(local_db_hashes)[diff_files == FALSE]
-        diff_loci <- sapply(strsplit(diff_loci, "/"), function(x) x[length(x)])
-        
-        # Check locus hashes
-        for (locus in diff_loci) {
-          local_db_hashes <- get_locus_hashes(file.path(DB$database,
-                                                        Scheme$folder_name,
-                                                        paste0(Scheme$folder_name, "_alleles"),
-                                                        locus))
-          tmp_db_hashes <- get_locus_hashes(file.path(DB$database,
-                                                      Scheme$folder_name,
-                                                      paste0(Scheme$folder_name, ".tmp"),
-                                                      locus))
-          diff_hashes <- setdiff(local_db_hashes, tmp_db_hashes)
+        } else {
+          destination_file <- file.path(DB$database, input$select_cgmlst,
+                                        paste0(gsub(" ", "_", Scheme$species_data[[1]]$Name$name), ".jpg"))
           
-          sequences <- extract_seq(file.path(DB$database,
-                                             Scheme$folder_name,
-                                             paste0(Scheme$folder_name, "_alleles"),
-                                             locus), diff_hashes)
-          if (!is_empty(sequences$idx) && !is_empty(sequences$seq) &&
-              length(sequences$idx) == length(sequences$seq)) {
-            add_new_sequences(file.path(DB$database,
-                                        Scheme$folder_name,
-                                        paste0(Scheme$folder_name, ".tmp"),
-                                        locus), sequences)
+          response_download <- httr::GET(Scheme$species_data[[1]]$Image)
+          
+          if (response_download$status_code == 200) {
+            writeBin(httr::content(response_download, "raw"), destination_file)
+            log_print("Image downloaded successfully!")
+          } else {
+            log_print("Failed to download image.")
           }
         }
-      }
-      
-      unlink(file.path(DB$database, Scheme$folder_name, 
-                       paste0(Scheme$folder_name, "_alleles")), recursive = TRUE)
-      
-      file.rename(file.path(DB$database, Scheme$folder_name,
+      } else {log_print("Failed to download species data from NCBI.")} 
+    } else {log_print("Failed to download species data from NCBI.")}
+    
+    log_print("Hashing downloaded database")
+    shinyjs::show("hashing")
+    shinyjs::hide("downloading")
+    
+    show_toast(
+      title = paste("Hashing of", input$select_cgmlst,  "started"),
+      type = "success",
+      position = "bottom-start",
+      timer = 5000
+    )
+    
+    # Hash temporary folder
+    hash_database(file.path(DB$database, 
+                            Scheme$folder_name, 
                             paste0(Scheme$folder_name, ".tmp")),
-                  file.path(DB$database, Scheme$folder_name,
-                            paste0(Scheme$folder_name, "_alleles")))
+                  progress = progress)
+    
+    # Get list from local database
+    local_db_filelist <- list.files(file.path(DB$database, 
+                                              Scheme$folder_name, 
+                                              paste0(Scheme$folder_name, "_alleles")))
+    
+    if (!is_empty(local_db_filelist)) {
+      # Get list from temporary database
+      tmp_db_filelist <- list.files(file.path(DB$database,
+                                              Scheme$folder_name,
+                                              paste0(Scheme$folder_name, ".tmp")))
       
-      # Download Scheme Info (pubMLST already downloaded)
-      if(grepl("_CM", input$select_cgmlst)) {
-        tryCatch(
-          {
-            scheme_overview <- read_html(Scheme$link_scheme) %>%
-              html_table(header = FALSE) %>%
-              as.data.frame(stringsAsFactors = FALSE)
-            
-            names(scheme_overview) <- c("X1", "X2")
-            
-            scheme_overview <- add_row(scheme_overview,
-                                       data.frame(
-                                         X1 = c("URL", "Database"), 
-                                         X2 = c(
-                                           paste0('<a href="', 
-                                                  schemes$url[schemes$species == input$select_cgmlst], 
-                                                  '/" target="_blank">', 
-                                                  schemes$url[schemes$species == input$select_cgmlst], 
-                                                  '</a>'),
-                                           "cgMLST.org Nomenclature Server (h25)")),
-                                       .after = 1)
-            
-            names(scheme_overview) <- NULL
-            
-            saveRDS(scheme_overview, file.path(DB$database, Scheme$folder_name, "scheme_info.rds"))
-            
-            message("Scheme info downloaded")
-          },
-          error = function(e) {
-            stop("Failed to download scheme info: ", "\nError: ", e$message)
-          }
-        )
+      # Find the difference (extra files in local database)
+      local_db_extra <- setdiff(local_db_filelist, tmp_db_filelist)
+      
+      # Copy extra files to temporary folder
+      file.copy(file.path(DB$database,
+                          Scheme$folder_name, 
+                          paste0(Scheme$folder_name, "_alleles"), local_db_extra),
+                file.path(DB$database,
+                          Scheme$folder_name,
+                          paste0(Scheme$folder_name, ".tmp")))
+      
+      # Check differences in file pairs
+      local_db_hashes <- tools::md5sum(file.path(DB$database,
+                                                 Scheme$folder_name,
+                                                 paste0(Scheme$folder_name, "_alleles"),
+                                                 local_db_filelist))
+      tmp_db_hashes <- tools::md5sum(file.path(DB$database,
+                                               Scheme$folder_name,
+                                               paste0(Scheme$folder_name, ".tmp"),
+                                               local_db_filelist))
+      
+      diff_files <- local_db_hashes %in% tmp_db_hashes
+      diff_loci <- names(local_db_hashes)[diff_files == FALSE]
+      diff_loci <- sapply(strsplit(diff_loci, "/"), function(x) x[length(x)])
+      
+      # Check locus hashes
+      for (locus in diff_loci) {
+        local_db_hashes <- get_locus_hashes(file.path(DB$database,
+                                                      Scheme$folder_name,
+                                                      paste0(Scheme$folder_name, "_alleles"),
+                                                      locus))
+        tmp_db_hashes <- get_locus_hashes(file.path(DB$database,
+                                                    Scheme$folder_name,
+                                                    paste0(Scheme$folder_name, ".tmp"),
+                                                    locus))
+        diff_hashes <- setdiff(local_db_hashes, tmp_db_hashes)
+        
+        sequences <- extract_seq(file.path(DB$database,
+                                           Scheme$folder_name,
+                                           paste0(Scheme$folder_name, "_alleles"),
+                                           locus), diff_hashes)
+        if (!is_empty(sequences$idx) && !is_empty(sequences$seq) &&
+            length(sequences$idx) == length(sequences$seq)) {
+          add_new_sequences(file.path(DB$database,
+                                      Scheme$folder_name,
+                                      paste0(Scheme$folder_name, ".tmp"),
+                                      locus), sequences)
+        }
       }
-      
-      DB$available <- gsub("_", " ", basename(dir_ls(DB$database)))
-      DB$exist <- length(dir_ls(DB$database)) == 0
-      
-      shinyjs::show("download_cgMLST")
-      shinyjs::hide("hashing")
-      
-      output$statustext <- renderUI(
-        fluidRow(
-          tags$li(
-            class = "dropdown", 
-            tags$span(HTML(
-              paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
-                    "Status:&nbsp;&nbsp;&nbsp; <i>ready</i>")),
-              style = "color:white;")
+    }
+    
+    unlink(file.path(DB$database, Scheme$folder_name, 
+                     paste0(Scheme$folder_name, "_alleles")), recursive = TRUE)
+    
+    file.rename(file.path(DB$database, Scheme$folder_name,
+                          paste0(Scheme$folder_name, ".tmp")),
+                file.path(DB$database, Scheme$folder_name,
+                          paste0(Scheme$folder_name, "_alleles")))
+    
+    # Download Scheme Info (pubMLST already downloaded)
+    if(grepl("_CM", input$select_cgmlst)) {
+      tryCatch(
+        {
+          scheme_overview <- read_html(Scheme$link_scheme) %>%
+            html_table(header = FALSE) %>%
+            as.data.frame(stringsAsFactors = FALSE)
+          
+          names(scheme_overview) <- c("X1", "X2")
+          
+          scheme_overview <- add_row(scheme_overview,
+                                     data.frame(
+                                       X1 = c("URL", "Database"), 
+                                       X2 = c(
+                                         paste0('<a href="', 
+                                                schemes$url[schemes$species == input$select_cgmlst], 
+                                                '/" target="_blank">', 
+                                                schemes$url[schemes$species == input$select_cgmlst], 
+                                                '</a>'),
+                                         "cgMLST.org Nomenclature Server (h25)")),
+                                     .after = 1)
+          
+          names(scheme_overview) <- NULL
+          
+          saveRDS(scheme_overview, file.path(DB$database, Scheme$folder_name, "scheme_info.rds"))
+          
+          message("Scheme info downloaded")
+        },
+        error = function(e) {
+          stop("Failed to download scheme info: ", "\nError: ", e$message)
+        }
+      )
+    }
+    
+    DB$available <- gsub("_", " ", basename(dir_ls(DB$database)))
+    DB$exist <- length(dir_ls(DB$database)) == 0
+    
+    shinyjs::show("download_cgMLST")
+    shinyjs::hide("hashing")
+    
+    output$statustext <- renderUI(
+      fluidRow(
+        tags$li(
+          class = "dropdown", 
+          tags$span(HTML(
+            paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
+                  "Status:&nbsp;&nbsp;&nbsp; <i>ready</i>")),
+            style = "color:white;")
+        )
+      )
+    )
+    
+    log_print("Download successful")
+    
+    showModal(
+      div(
+        class = "load-modal",
+        modalDialog(
+          selectInput(
+            "scheme_db",
+            label = "",
+            choices = if(!is.null(Typing$last_scheme)) {
+              Typing$last_scheme
+            } else {DB$available},
+            selected = if(!is.null(Typing$last_scheme)) {
+              Typing$last_scheme
+            } else {if(!is.null(DB$scheme)) {gsub("_", " ", input$select_cgmlst)} else {DB$available[1]}}),
+          title = "Successful download - load database.",
+          footer = tagList(
+            actionButton("load", "Load", class = "btn btn-default")
           )
         )
       )
-      
-      log_print("Download successful")
-      
-      showModal(
-        div(
-          class = "load-modal",
-          modalDialog(
-            selectInput(
-              "scheme_db",
-              label = "",
-              choices = if(!is.null(Typing$last_scheme)) {
-                Typing$last_scheme
-              } else {DB$available},
-              selected = if(!is.null(Typing$last_scheme)) {
-                Typing$last_scheme
-              } else {if(!is.null(DB$scheme)) {gsub("_", " ", input$select_cgmlst)} else {DB$available[1]}}),
-            title = "Successful download - load database.",
-            footer = tagList(
-              actionButton("load", "Load", class = "btn btn-default")
-            )
-          )
-        )
-      )
-      
+    )
+    
     # Disable pickerInput
     shinyjs::runjs("$('#select_cgmlst').prop('disabled', false);")
     shinyjs::runjs("$('#select_cgmlst').selectpicker('refresh');")  
@@ -17474,7 +16655,7 @@ server <- function(input, output, session) {
         ),
         selected = "Set2"
       )
-        
+      
       if(input$nj_tipcolor_mapping_show) {
         nj_tippoint_scale
       } else {shinyjs::disabled(nj_tippoint_scale)}
@@ -18239,7 +17420,7 @@ server <- function(input, output, session) {
     req(input$upgma_heatmap_map)
     if(!is.null(Vis$meta_upgma)) {
       meta <- select(Vis$meta_upgma, -c(taxa, Index, `Assembly ID`, `Assembly Name`,
-                                     Scheme, `Typing Date`, Successes, Errors))
+                                        Scheme, `Typing Date`, Successes, Errors))
       
       if(input$upgma_heatmap_map == "Variables") {
         meta <- select(meta, -colnames(Vis$amr_upgma))
@@ -19889,9 +19070,9 @@ server <- function(input, output, session) {
   mst_tree <- reactive({
     data <- toVisNetworkData(Vis$ggraph_1)
     data$nodes <- mutate(data$nodes, 
-                                label = label_mst(),
-                                value = mst_node_scaling(),
-                                opacity = node_opacity())
+                         label = label_mst(),
+                         value = mst_node_scaling(),
+                         opacity = node_opacity())
     
     ctxRendererJS <- htmlwidgets::JS("({ctx, id, x, y, state: { selected, hover }, style, font, label, metadata}) => {
                             var pieData = JSON.parse(metadata);
@@ -19982,13 +19163,13 @@ server <- function(input, output, session) {
       
       if(is.null(input$mst_col_scale)) {
         Vis$var_cols <- data.frame(value = unique(Vis$meta_mst[[input$mst_col_var]]),
-                                      color = viridis(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
+                                   color = viridis(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
       } else if (input$mst_col_scale == "Rainbow") {
         Vis$var_cols <- data.frame(value = unique(Vis$meta_mst[[input$mst_col_var]]),
-                                      color = rainbow(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
+                                   color = rainbow(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
       } else if (input$mst_col_scale == "Viridis") {
         Vis$var_cols <- data.frame(value = unique(Vis$meta_mst[[input$mst_col_var]]),
-                                      color = viridis(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
+                                   color = viridis(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
       }
       
       for(i in 1:nrow(data$nodes)) {
@@ -20014,13 +19195,13 @@ server <- function(input, output, session) {
     }
     
     data$edges <- mutate(data$edges,
-                                length = if(input$mst_scale_edges == FALSE) {
-                                  input$mst_edge_length
-                                } else {
-                                  data$edges$weight * input$mst_edge_length_scale
-                                },
-                                label = as.character(data$edges$weight),
-                                opacity = input$mst_edge_opacity)
+                         length = if(input$mst_scale_edges == FALSE) {
+                           input$mst_edge_length
+                         } else {
+                           data$edges$weight * input$mst_edge_length_scale
+                         },
+                         label = as.character(data$edges$weight),
+                         opacity = input$mst_edge_opacity)
     
     if (input$mst_show_clusters) {
       clusters <- compute_clusters(data$nodes, data$edges, input$mst_cluster_threshold)
@@ -22307,7 +21488,7 @@ server <- function(input, output, session) {
         if(input$upgma_tiles_scale_4 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(!is.null(input$upgma_tiles_mapping_div_mid_4)) {
             if(input$upgma_tiles_mapping_div_mid_4 == "Zero") {
-            midpoint <- 0
+              midpoint <- 0
             } else if(input$upgma_tiles_mapping_div_mid_4 == "Mean") {
               midpoint <- mean(as.matrix(Vis$meta_upgma[input$upgma_fruit_variable_4]), na.rm = TRUE)
             } else {
@@ -23182,7 +22363,7 @@ server <- function(input, output, session) {
   # MST cluster reset button
   observeEvent(input$mst_cluster_reset, {
     if(!is.null(DB$schemeinfo))
-    updateNumericInput(session, "mst_cluster_threshold", value = DB$cluster_thresh)
+      updateNumericInput(session, "mst_cluster_threshold", value = DB$cluster_thresh)
   })
   
   # Shut off "Align Labels" control for UPGMA trees
@@ -24794,7 +23975,7 @@ server <- function(input, output, session) {
     req(input$gs_ratio)
     if(input$gs_ratio == "1.6") {
       updateSliderInput(session, "gs_scale",
-                        step = 5, value = 700, min = 500, max = 1200)
+                        step = 5, value = 705, min = 500, max = 1200)
     } else if(input$gs_ratio == "1.77777777777778") {
       updateSliderInput(session, "gs_scale",
                         step = 9, value = 702, min = 504, max = 1197)
@@ -24806,12 +23987,1428 @@ server <- function(input, output, session) {
   
   ### Render UI Elements ----
   
+  # gs plot control panel
+  output$gs_plot_control_ui <- renderUI(
+    
+    if(!is.null(DB$data) & !is.null(Screening$amr_results) &
+       !is.null(Screening$vir_class) & !is.null(Screening$amr_class)) {
+      
+      amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, as.numeric))
+      rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
+      colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
+      heatmap_matrix <- as.matrix(amr_profile_numeric)
+      
+      if(!is.null(Screening$amr_class)) {
+        if(nrow(Screening$amr_class) > 0) {
+          amr_class_filtered <- Screening$amr_class[!duplicated(gsub("\\*", "", Screening$amr_class$Observation)),]
+          
+          amr_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", amr_class_filtered$Observation)
+          
+          amr_class_present <- colnames(heatmap_matrix)[amr_unison]
+          amr_no_class <- colnames(heatmap_matrix)[!amr_unison]
+          
+          amr_meta <- data.frame(
+            gene = c(amr_class_present, amr_no_class),
+            amr = c(amr_class_filtered$Variable[gsub("\\*", "", amr_class_filtered$Observation) %in% amr_class_present],
+                    rep(NA, length(amr_no_class)))
+          )
+          
+          if(nrow(amr_meta) != 0) {
+            amr_meta <- amr_meta %>%
+              arrange(gene) %>%
+              tibble::column_to_rownames(var = "gene")
+          }
+          
+          choices_amr <- rownames(amr_meta)[which(!is.na(amr_meta$amr))]
+        } else {choices_amr <- character(0)}
+      } else {choices_amr <- character(0)}
+      
+      if(!is.null(Screening$vir_class)) {
+        if(nrow(Screening$vir_class) > 0) {
+          vir_class_filtered <- Screening$vir_class[!duplicated(gsub("\\*", "", Screening$vir_class$Observation)),]
+          
+          vir_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", vir_class_filtered$Observation)
+          
+          vir_class_present <- colnames(heatmap_matrix)[vir_unison]
+          vir_no_class <- colnames(heatmap_matrix)[!vir_unison]
+          
+          vir_meta <- data.frame(
+            gene = c(vir_class_present, vir_no_class),
+            vir = c(vir_class_filtered$Variable[gsub("\\*", "", vir_class_filtered$Observation) %in% vir_class_present],
+                    rep(NA, length(vir_no_class)))
+          )
+          
+          if(nrow(vir_meta) != 0) {
+            vir_meta <- vir_meta %>%
+              arrange(gene) %>%
+              tibble::column_to_rownames(var = "gene")
+          }
+          
+          choices_vir <- rownames(vir_meta)[which(!is.na(vir_meta$vir))]
+        } else {choices_vir <- character(0)}
+      } else {choices_vir <- character(0)}
+      
+      if(all(!is.na(vir_meta$class) & !is.na(amr_meta$amr))) {
+        choices_noclass <- character(0)
+      } else {
+        choices_noclass <- rownames(amr_meta)[which(is.na(vir_meta$class) & is.na(amr_meta$amr))]  
+      }
+      
+      div(
+        class = "gs-plot-box",
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          title = "Heatmap Data",
+          column(
+            width = 12,
+            fluidRow(
+              column(
+                width = 12,
+                align = "center",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 16px; position: relative; top: 10px;', 
+                              'Isolates')
+                  )
+                ),
+                div(
+                  class = "gs-plot-selected-isolate",
+                  pickerInput(
+                    "gs_plot_selected_isolate",
+                    label = "",
+                    choices = list(
+                      Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
+                        as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
+                      } else {
+                        DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+                      },
+                      Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
+                        as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
+                      } else {
+                        DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
+                      },
+                      `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
+                        as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
+                      } else {
+                        DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
+                      }
+                    ),
+                    choicesOpt = list(
+                      disabled = c(
+                        rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
+                        rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
+                        rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
+                      )
+                    ),
+                    selected = DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")],
+                    options = list(
+                      `live-search` = TRUE,
+                      `actions-box` = TRUE,
+                      size = 10,
+                      style = "background-color: white; border-radius: 5px;"
+                    ),
+                    multiple = TRUE,
+                    width = "96%"
+                  )
+                ),
+                uiOutput("gs_plot_sel_isolate_info")
+              ),
+              column(
+                width = 12,
+                align = "center",
+                br(),
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 16px; position: relative;', 
+                              'AMR Genes')
+                  )
+                ),
+                div(
+                  class = "gs-plot-selected-isolate",
+                  pickerInput(
+                    "gs_plot_selected_amr",
+                    label = "",
+                    choices = choices_amr,
+                    options = list(
+                      `live-search` = TRUE,
+                      `actions-box` = TRUE,
+                      size = 10,
+                      style = "background-color: white; border-radius: 5px;"
+                    ),
+                    selected = choices_amr,
+                    multiple = TRUE,
+                    width = "96%"
+                  )
+                ),
+                uiOutput("gs_plot_sel_amr_info")
+              ),
+              column(
+                width = 12,
+                align = "center",
+                br(),
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 16px; position: relative;', 
+                              'Virulence Genes')
+                  )
+                ),
+                div(
+                  class = "gs-plot-selected-isolate",
+                  pickerInput(
+                    "gs_plot_selected_vir",
+                    label = "",
+                    choices = choices_vir,
+                    options = list(
+                      `live-search` = TRUE,
+                      `actions-box` = TRUE,
+                      size = 10,
+                      style = "background-color: white; border-radius: 5px;"
+                    ),
+                    selected = choices_vir,
+                    multiple = TRUE,
+                    width = "96%"
+                  )
+                ),
+                uiOutput("gs_plot_sel_vir_info")
+              ),
+              column(
+                width = 12,
+                align = "center",
+                br(),
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 15px; position: relative;', 
+                              'Unclassifiable Genes')
+                  )
+                ),
+                div(
+                  class = "gs-plot-selected-isolate",
+                  pickerInput(
+                    "gs_plot_selected_noclass",
+                    label = "",
+                    choices = choices_noclass,
+                    options = list(
+                      `live-search` = TRUE,
+                      `actions-box` = TRUE,
+                      size = 10,
+                      style = "background-color: white; border-radius: 5px;"
+                    ),
+                    selected = choices_noclass,
+                    multiple = TRUE,
+                    width = "96%"
+                  )
+                ),
+                uiOutput("gs_plot_sel_noclass_info"),
+                br()
+              )
+            )
+          )
+        )
+      )
+    }
+  )
+  
+  # gs heatmap data menu
+  observeEvent(input$gs_data_menu, {
+    
+    if(!is.null(gs_plot_selected_isolate())) {
+      gs_plot_selected_isolate_selected <- gs_plot_selected_isolate()
+    } else {
+      gs_plot_selected_isolate_selected <- DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+    }
+    
+    if(!is.null(gs_plot_selected_isolate())) {
+      gs_plot_selected_isolate_selected <- gs_plot_selected_isolate()
+    } else {
+      gs_plot_selected_isolate_selected <- DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+    }
+    
+    amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, as.numeric))
+    rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
+    colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
+    heatmap_matrix <- as.matrix(amr_profile_numeric)
+    
+    if(!is.null(Screening$amr_class)) {
+      if(nrow(Screening$amr_class) > 0) {
+        amr_class_filtered <- Screening$amr_class[!duplicated(gsub("\\*", "", Screening$amr_class$Observation)),]
+        
+        amr_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", amr_class_filtered$Observation)
+        
+        amr_class_present <- colnames(heatmap_matrix)[amr_unison]
+        amr_no_class <- colnames(heatmap_matrix)[!amr_unison]
+        
+        amr_meta <- data.frame(
+          gene = c(amr_class_present, amr_no_class),
+          amr = c(amr_class_filtered$Variable[gsub("\\*", "", amr_class_filtered$Observation) %in% amr_class_present],
+                  rep(NA, length(amr_no_class)))
+        )
+        
+        if(nrow(amr_meta) != 0) {
+          amr_meta <- amr_meta %>%
+            arrange(gene) %>%
+            tibble::column_to_rownames(var = "gene")
+        }
+        
+        choices_amr <- rownames(amr_meta)[which(!is.na(amr_meta$amr))]
+      } else {choices_amr <- character(0)}
+    } else {choices_amr <- character(0)}
+    
+    if(!is.null(gs_plot_selected_amr())) {
+      gs_plot_selected_amr_selected <- gs_plot_selected_amr()
+    } else {
+      gs_plot_selected_amr_selected <- choices_amr
+    }
+    
+    if(!is.null(Screening$vir_class)) {
+      if(nrow(Screening$vir_class) > 0) {
+        vir_class_filtered <- Screening$vir_class[!duplicated(gsub("\\*", "", Screening$vir_class$Observation)),]
+        
+        vir_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", vir_class_filtered$Observation)
+        
+        vir_class_present <- colnames(heatmap_matrix)[vir_unison]
+        vir_no_class <- colnames(heatmap_matrix)[!vir_unison]
+        
+        vir_meta <- data.frame(
+          gene = c(vir_class_present, vir_no_class),
+          vir = c(vir_class_filtered$Variable[gsub("\\*", "", vir_class_filtered$Observation) %in% vir_class_present],
+                  rep(NA, length(vir_no_class)))
+        )
+        
+        if(nrow(vir_meta) != 0) {
+          vir_meta <- vir_meta %>%
+            arrange(gene) %>%
+            tibble::column_to_rownames(var = "gene")
+        }
+        
+        choices_vir <- rownames(vir_meta)[which(!is.na(vir_meta$vir))]
+      } else {choices_vir <- character(0)}
+    } else {choices_vir <- character(0)}
+    
+    if(!is.null(gs_plot_selected_vir())) {
+      gs_plot_selected_vir_selected <- gs_plot_selected_vir()
+    } else {
+      gs_plot_selected_vir_selected <- choices_vir
+    }
+    
+    if(all(!is.na(vir_meta$class) & !is.na(amr_meta$amr))) {
+      choices_noclass <- character(0)
+    } else {
+      choices_noclass <- rownames(amr_meta)[which(is.na(vir_meta$class) & is.na(amr_meta$amr))]  
+    }
+    
+    if(!is.null(gs_plot_selected_noclass())) {
+      gs_plot_selected_noclass_selected <- gs_plot_selected_noclass()
+    } else {
+      gs_plot_selected_noclass_selected <- choices_noclass
+    }
+    
+    output$gs_plot_control_ui <- renderUI(
+      div(
+        class = "gs-plot-box",
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          title = "Heatmap Data",
+          column(
+            width = 12,
+            fluidRow(
+              column(
+                width = 12,
+                align = "center",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 16px; position: relative; top: 10px;', 
+                              'Isolates')
+                  )
+                ),
+                pickerInput(
+                  "gs_plot_selected_isolate",
+                  label = "",
+                  choices = list(
+                    Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
+                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
+                    } else {
+                      DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+                    },
+                    Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
+                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
+                    } else {
+                      DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
+                    },
+                    `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
+                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
+                    } else {
+                      DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
+                    }
+                  ),
+                  choicesOpt = list(
+                    disabled = c(
+                      rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
+                      rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
+                      rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
+                    )
+                  ),
+                  selected = gs_plot_selected_isolate_selected,
+                  options = list(
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE,
+                    size = 10,
+                    style = "background-color: white; border-radius: 5px;"
+                  ),
+                  multiple = TRUE,
+                  width = "96%"
+                ),
+                uiOutput("gs_plot_sel_isolate_info")
+              ),
+              column(
+                width = 12,
+                align = "center",
+                br(),
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 16px; position: relative;', 
+                              'AMR Genes')
+                  )
+                ),
+                div(
+                  class = "gs-plot-selected-isolate",
+                  pickerInput(
+                    "gs_plot_selected_amr",
+                    label = "",
+                    choices = choices_amr,
+                    options = list(
+                      `live-search` = TRUE,
+                      `actions-box` = TRUE,
+                      size = 10,
+                      style = "background-color: white; border-radius: 5px;"
+                    ),
+                    selected = gs_plot_selected_amr_selected,
+                    multiple = TRUE,
+                    width = "96%"
+                  )
+                ),
+                uiOutput("gs_plot_sel_amr_info")
+              ),
+              column(
+                width = 12,
+                align = "center",
+                br(),
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 16px; position: relative;', 
+                              'Virulence Genes')
+                  )
+                ),
+                div(
+                  class = "gs-plot-selected-isolate",
+                  pickerInput(
+                    "gs_plot_selected_vir",
+                    label = "",
+                    choices = choices_vir,
+                    options = list(
+                      `live-search` = TRUE,
+                      `actions-box` = TRUE,
+                      size = 10,
+                      style = "background-color: white; border-radius: 5px;"
+                    ),
+                    selected = gs_plot_selected_vir_selected,
+                    multiple = TRUE,
+                    width = "96%"
+                  )
+                ),
+                uiOutput("gs_plot_sel_vir_info")
+              ),
+              column(
+                width = 12,
+                align = "center",
+                br(),
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 15px; position: relative;', 
+                              'Unclassifiable Genes')
+                  )
+                ),
+                div(
+                  class = "gs-plot-selected-isolate",
+                  pickerInput(
+                    "gs_plot_selected_noclass",
+                    label = "",
+                    choices = choices_noclass,
+                    options = list(
+                      `live-search` = TRUE,
+                      `actions-box` = TRUE,
+                      size = 10,
+                      style = "background-color: white; border-radius: 5px;"
+                    ),
+                    selected = gs_plot_selected_noclass_selected,
+                    multiple = TRUE,
+                    width = "96%"
+                  )
+                ),
+                uiOutput("gs_plot_sel_noclass_info")
+              )
+            )
+          )
+        )
+      )
+    )
+  })
+  
+  # color menu
+  observeEvent(input$gs_color_menu, {
+    
+    if(!is.null(gsplot_color_text())) {
+      gsplot_color_text_selected <- gsplot_color_text()
+    } else {
+      gsplot_color_text_selected <- "#000000"
+    }
+    
+    if(!is.null(gsplot_color_dend())) {
+      gsplot_color_dend_selected <- gsplot_color_dend()
+    } else {
+      gsplot_color_dend_selected <- "#000000"
+    }
+    
+    if(!is.null(gsplot_color_palette1())) {
+      gsplot_color_palette1_selected <- gsplot_color_palette1()
+    } else {
+      gsplot_color_palette1_selected <- "#66C2A5"
+    }
+    
+    if(!is.null(gsplot_color_palette2())) {
+      gsplot_color_palette2_selected <- gsplot_color_palette2()
+    } else {
+      gsplot_color_palette2_selected <- "#E5C494"
+    }
+    
+    if(!is.null(gsplot_grid_color())) {
+      gsplot_grid_color_selected <- gsplot_grid_color()
+    } else {
+      gsplot_grid_color_selected <- "#ffffff"
+    }
+    
+    if(!is.null(gsplot_background())) {
+      gsplot_background_selected <- gsplot_background()
+    } else {
+      gsplot_background_selected <- "#ffffff"
+    }
+    
+    output$gs_plot_control_ui <- renderUI({
+      div(
+        class = "gs-plot-box",
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          title = "Color Menu",
+          column(
+            width = 12,
+            br(),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative; top: 10px;', 
+                              'Text')
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                align = "center",
+                colorPickr(
+                  inputId = "gsplot_color_text",
+                  selected = gsplot_color_text_selected,
+                  label = "",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start",
+                  width = "120px"
+                )
+              )
+            ),
+            br(),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative; top: 10px;', 
+                              'Dendrogram')
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                align = "center",
+                colorPickr(
+                  inputId = "gsplot_color_dend",
+                  selected = gsplot_color_dend_selected,
+                  label = "",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start",
+                  width = "120px"
+                )
+              )
+            ),
+            br(),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative; top: 10px;', 
+                              'Present')
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                align = "center",
+                colorPickr(
+                  inputId = "gsplot_color_palette1",
+                  selected = gsplot_color_palette1_selected,
+                  label = "",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start",
+                  width = "120px"
+                )
+              )
+            ),
+            br(),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative; top: 10px;', 
+                              'Absent')
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                align = "center",
+                colorPickr(
+                  inputId = "gsplot_color_palette2",
+                  selected = gsplot_color_palette2_selected,
+                  label = "",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start",
+                  width = "120px"
+                )
+              )
+            ),
+            br(),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative; top: 10px;', 
+                              'Grid Color')
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                align = "center",
+                colorPickr(
+                  inputId = "gsplot_grid_color",
+                  selected = gsplot_grid_color_selected,
+                  label = "",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start",
+                  width = "120px"
+                )
+              )
+            ),
+            br(),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative; top: 10px;', 
+                              'Background')
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                align = "center",
+                colorPickr(
+                  inputId = "gsplot_background",
+                  selected = gsplot_background_selected,
+                  label = "",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start",
+                  width = "120px"
+                ),
+                br()
+              )
+            )
+          )
+        )
+      )
+    })  
+  })
+  
+  
+  # variable mapping menu
+  observeEvent(input$gs_variable_menu, {
+    output$gs_plot_control_ui <- renderUI({
+      
+      if(!is.null(gs_amr_variables())) {
+        gs_amr_variables_selected <- gs_amr_variables()
+      } else {
+        gs_amr_variables_selected <- "Classification"
+      }
+      
+      if(!is.null(gs_vir_variables())) {
+        gs_vir_variables_selected <- gs_vir_variables()
+      } else {
+        gs_vir_variables_selected <- "Classification"
+      }
+      
+      shinyjs::delay(100, 
+                     shinyjs::runjs(gsub("#selectorID",
+                                         "#gs_mapping_scale",
+                                         color_scale_bg_JS)))
+      
+      div(
+        class = "gs-plot-box",
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          title = "Variable Mapping",
+          column(
+            width = 12,
+            fluidRow(
+              column(
+                width = 12,
+                align = "center",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 16px; position: relative; top: 10px',
+                              'Isolate Variables')
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 4,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 37px;', 
+                              'Variable')
+                  )
+                )
+              ),
+              column(
+                width = 8,
+                align = "center",
+                uiOutput("gs_var_mapping_ui"),
+                br()
+              )
+            ),
+            fluidRow(
+              column(
+                width = 4,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 9px;', 
+                              'Scale')
+                  )
+                )
+              ),
+              column(
+                width = 8,
+                align = "center",
+                uiOutput("gs_mapping_scale_ui"),
+                br()
+              )
+            ),
+            fluidRow(
+              column(
+                width = 12,
+                align = "center",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 16px; position: relative;',
+                              'AMR Genes')
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 4,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 27px;', 
+                              'Variable')
+                  )
+                )
+              ),
+              column(
+                width = 8,
+                align = "center",
+                selectInput(
+                  "gs_amr_variables",
+                  "",
+                  choices = c("Classification", "None"),
+                  selected = gs_amr_variables_selected,
+                  width = "100%"
+                ),
+                br()
+              )
+            ),
+            fluidRow(
+              column(
+                width = 4,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 9px;', 
+                              'Scale')
+                  )
+                )
+              ),
+              column(
+                width = 8,
+                align = "center",
+                uiOutput("gs_amrclass_scale_ui")
+              )
+            ),
+            fluidRow(
+              column(
+                width = 12,
+                align = "center",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 16px; position: relative;',
+                              'Virulence Genes')
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 4,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 27px;', 
+                              'Variable')
+                  )
+                )
+              ),
+              column(
+                width = 8,
+                align = "center",
+                selectInput(
+                  "gs_vir_variables",
+                  "",
+                  choices = c("Classification", "None"),
+                  selected = gs_vir_variables_selected,
+                  width = "100%"
+                ),
+                br()
+              )
+            ),
+            fluidRow(
+              column(
+                width = 4,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 9px;', 
+                              'Scale')
+                  )
+                )
+              ),
+              column(
+                width = 8,
+                align = "center",
+                uiOutput("gs_virclass_scale_ui")
+              )
+            )
+          )
+        )
+      )
+    })
+  })
+  
+  # sizing menu
+  observeEvent(input$gs_size_menu, {
+    output$gs_plot_control_ui <- renderUI({
+      
+      if(!is.null(gsplot_grid_width())) {
+        gsplot_grid_width_selected <- gsplot_grid_width()
+      } else {
+        gsplot_grid_width_selected <- 1
+      }
+      
+      if(!is.null(gsplot_legend_labelsize())) {
+        gsplot_legend_labelsize_selected <- gsplot_legend_labelsize()
+      } else {
+        gsplot_legend_labelsize_selected <- 9
+      }
+      
+      if(!is.null(gsplot_fontsize_title())) {
+        gsplot_fontsize_title_selected <- gsplot_fontsize_title()
+      } else {
+        gsplot_fontsize_title_selected <- 16
+      }
+      
+      if(!is.null(gsplot_treeheight_col())) {
+        gsplot_treeheight_col_selected <- gsplot_treeheight_col()
+      } else {
+        gsplot_treeheight_col_selected <- 2
+      }
+      
+      if(!is.null(gsplot_treeheight_row())) {
+        gsplot_treeheight_row_selected <- gsplot_treeheight_row()
+      } else {
+        gsplot_treeheight_row_selected <- 2
+      }
+      
+      div(
+        class = "gs-plot-box",
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          title = "Sizing Menu",
+          column(
+            width = 12,
+            br(),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative; top: 12px;',
+                              'Legend')
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                div(
+                  class = "gs-slider",
+                  sliderInput(
+                    "gsplot_legend_labelsize",
+                    "",
+                    value = gsplot_legend_labelsize_selected,
+                    max = 14,
+                    min = 6,
+                    ticks = FALSE
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative; top: 12px;',
+                              'Grid Width')
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                div(
+                  class = "gs-slider",
+                  sliderInput(
+                    "gsplot_grid_width",
+                    "",
+                    value = gsplot_grid_width_selected,
+                    max = 3,
+                    min = 0,
+                    ticks = FALSE
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 12px; position: relative; top: 12px;',
+                              'Row/Col Titles')
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                div(
+                  class = "gs-slider",
+                  sliderInput(
+                    "gsplot_fontsize_title",
+                    "",
+                    value = gsplot_fontsize_title_selected,
+                    max = 24,
+                    min = 8,
+                    ticks = FALSE
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative; top: 12px;',
+                              'Dendro Cols')
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                div(
+                  class = "gs-slider",
+                  sliderInput(
+                    "gsplot_treeheight_col",
+                    "",
+                    value = gsplot_treeheight_col_selected,
+                    max = 10,
+                    min = 1,
+                    ticks = FALSE
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 13px; position: relative; top: 12px;',
+                              'Dendro Rows')
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                div(
+                  class = "gs-slider",
+                  sliderInput(
+                    "gsplot_treeheight_row",
+                    "",
+                    value = gsplot_treeheight_row_selected,
+                    max = 10,
+                    min = 1,
+                    ticks = FALSE
+                  )
+                ),
+                br()
+              )
+            )
+          )
+        )
+      )
+    })
+  })
+  
+  # download menu
+  observeEvent(input$gs_download_menu, {
+    output$gs_plot_control_ui <- renderUI({
+      div(
+        class = "gs-plot-box",
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          title = "Save Heatmap",
+          column(
+            width = 12,
+            align = "center",
+            br(),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                              'Save As')
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                align = "center",
+                div(
+                  class = "filetype-gs",
+                  selectInput(
+                    inputId = "filetype_gs",
+                    label = "",
+                    choices = c("png", "jpeg", "bmp", "svg")
+                  )
+                ),
+                br(), br()
+              )
+            ),
+            downloadBttn(
+              "gs_download_plot",
+              style = "simple",
+              label = "",
+              size = "sm",
+              icon =  icon("download"),
+              color = "primary"
+            ),
+            br(), br()
+          )
+        )
+      )
+    })
+  })
+  
+  # miscellaneous menu
+  observeEvent(input$gs_misc_menu, {
+    output$gs_plot_control_ui <- renderUI({
+      
+      if(!is.null(gs_ratio())) {
+        gs_ratio_selected <- gs_ratio()
+      } else {
+        gs_ratio_selected <- c("16:9" = (16/9))
+      }
+      
+      if(!is.null(gs_scale())) {
+        gs_scale_selected <- gs_scale()
+      } else {
+        gs_scale_selected <- 705
+      }
+      
+      if(!is.null(gs_cluster_col())) {
+        gs_cluster_col_selected <- gs_cluster_col()
+      } else {
+        gs_cluster_col_selected <- FALSE
+      }
+      
+      if(!is.null(gs_cluster_row())) {
+        gs_cluster_row_selected <- gs_cluster_row()
+      } else {
+        gs_cluster_row_selected <- FALSE
+      }
+      
+      if(!is.null(gs_cluster_distance_col())) {
+        gs_cluster_distance_col_selected <- gs_cluster_distance_col()
+      } else {
+        gs_cluster_distance_col_selected <- "binary"
+      }
+      
+      if(!is.null(gs_cluster_distance_row())) {
+        gs_cluster_distance_row_selected <- gs_cluster_distance_row()
+      } else {
+        gs_cluster_distance_row_selected <- "binary"
+      }
+      
+      if(!is.null(gs_cluster_method_col())) {
+        gs_cluster_method_col_selected <- gs_cluster_method_col()
+      } else {
+        gs_cluster_method_col_selected <- "average"
+      }
+      
+      if(!is.null(gs_cluster_method_row())) {
+        gs_cluster_method_row_selected <- gs_cluster_method_row()
+      } else {
+        gs_cluster_method_row_selected <- "average"
+      }
+      
+      div(
+        class = "gs-plot-box",
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          title = "Miscellaneous",
+          column(
+            width = 12,
+            br(),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative;',
+                              'Ratio')
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                align = "center",
+                div(
+                  class = "gs-ratio",
+                  selectInput(
+                    "gs_ratio",
+                    "",
+                    choices = c("16:10" = (16/10), "16:9" = (16/9), "4:3" = (4/3)),
+                    selected = gs_ratio_selected
+                  )
+                )
+              )
+            ),
+            br(),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative; top: 7px;',
+                              'Scale')
+                  )
+                )
+              ),
+              div(
+                class = "gs-slider-col",
+                column(
+                  width = 6,
+                  align = "center",
+                  div(
+                    class = "gs-slider-scale",
+                    sliderInput(
+                      "gs_scale",
+                      "",
+                      min = 500,
+                      max = 1200,
+                      value = gs_scale_selected,
+                      step = 5,
+                      width = "95%",
+                      ticks = FALSE
+                    )
+                  )
+                )
+              )
+            ),
+            hr(),
+            fluidRow(
+              column(
+                width = 8,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 15px; position: relative; top: 5px;',
+                              'Cluster Columns')
+                  )
+                )
+              ),
+              column(
+                width = 4,
+                align = "left",
+                div(
+                  class = "mat-switch-gs-settings",
+                  materialSwitch(
+                    "gs_cluster_col",
+                    "",
+                    value = gs_cluster_col_selected,
+                    right = TRUE
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                br(),
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 14px; position: relative; top: -12px;',
+                              'Distance Algorithm')
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                align = "center",
+                br(),
+                div(
+                  class = "gs-cluster-sel",
+                  selectInput(
+                    "gs_cluster_distance_col",
+                    "",
+                    choices = c("Euclidean" = "euclidean", "Maximum" = "maximum", 
+                                "Manhattan" = "manhattan", "Canberra" = "canberra", 
+                                "Binary" = "binary", "Minkowski" = "minkowski"),
+                    selected = gs_cluster_distance_col_selected
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                br(),
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 12px; position: relative; top: -12px;',
+                              'Clustering Method')
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                align = "center",
+                br(),
+                div(
+                  class = "gs-cluster-sel",
+                  selectInput(
+                    "gs_cluster_method_col",
+                    "",
+                    choices = c("ward.D" = "ward.D", "ward.D2"= "ward.D2", 
+                                "Single" = "single", "Complete" = "complete", 
+                                "UPGMA" = "average", "WPGMA"  = "mcquitty", 
+                                "WPGMC" = "median", "UPGMC" = "centroid"),
+                    selected = gs_cluster_method_col_selected
+                  )
+                )
+              )
+            ),
+            hr(),
+            fluidRow(
+              column(
+                width = 8,
+                align = "left",
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 15px; position: relative; top: 4px;',
+                              'Cluster Rows')
+                  )
+                )
+              ),
+              column(
+                width = 4,
+                align = "left",
+                div(
+                  class = "mat-switch-gs-settings",
+                  materialSwitch(
+                    "gs_cluster_row",
+                    "",
+                    value = gs_cluster_row_selected,
+                    right = TRUE
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                br(),
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 12px; position: relative; top: -12px;',
+                              'Distance Algorithm')
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                align = "center",
+                br(),
+                div(
+                  class = "gs-cluster-sel",
+                  selectInput(
+                    "gs_cluster_distance_row",
+                    "",
+                    choices = c("Euclidean" = "euclidean", "Maximum" = "maximum", 
+                                "Manhattan" = "manhattan", "Canberra" = "canberra", 
+                                "Binary" = "binary", "Minkowski" = "minkowski"),
+                    selected = gs_cluster_distance_row_selected
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 6,
+                align = "left",
+                br(),
+                HTML(
+                  paste(
+                    tags$span(style='color: white; font-size: 12px; position: relative; top: -12px;',
+                              'Clustering Method')
+                  )
+                )
+              ),
+              column(
+                width = 6,
+                align = "center",
+                br(),
+                div(
+                  class = "gs-cluster-sel",
+                  selectInput(
+                    "gs_cluster_method_row",
+                    "",
+                    choices = c("ward.D" = "ward.D", "ward.D2"= "ward.D2", 
+                                "Single" = "single", "Complete" = "complete", 
+                                "UPGMA" = "average", "WPGMA"  = "mcquitty", 
+                                "WPGMC" = "median", "UPGMC" = "centroid"),
+                    selected = gs_cluster_method_row_selected
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    })
+  })
+  
   # gs classification scale 
   output$gs_virclass_scale_ui <- renderUI({
-    req(input$gs_vir_variables)
     
     if(!is.null(Screening$hm_meta)) {
       if(length(unique(Screening$hm_meta$vir)) > 7) {
+        
+        if(!is.null(gs_virclass_scale())) {
+          gs_virclass_scale_selected <- gs_virclass_scale()
+        } else {
+          gs_virclass_scale_selected <- "#turbo"
+        }
+        
         gs_virclass_scale <- selectInput(
           "gs_virclass_scale",
           "",
@@ -24827,7 +25424,7 @@ server <- function(input, output, session) {
               "Turbo" = "turbo"
             )
           ),
-          selected = "turbo",
+          selected = gs_virclass_scale_selected,
           width = "100%"
         )
         
@@ -24837,6 +25434,13 @@ server <- function(input, output, session) {
       })"))
         
       } else {
+        
+        if(!is.null(gs_virclass_scale())) {
+          gs_virclass_scale_selected <- gs_virclass_scale()
+        } else {
+          gs_virclass_scale_selected <- "Set1"
+        }
+        
         gs_virclass_scale <- selectInput(
           "gs_virclass_scale",
           "",
@@ -24862,6 +25466,7 @@ server <- function(input, output, session) {
               "Turbo" = "turbo"
             )
           ),
+          selected = gs_virclass_scale_selected,
           width = "100%"
         )
       }
@@ -24872,6 +25477,13 @@ server <- function(input, output, session) {
       })"))
       
     } else {
+      
+      if(!is.null(gs_virclass_scale())) {
+        gs_virclass_scale_selected <- gs_virclass_scale()
+      } else {
+        gs_virclass_scale_selected <- "turbo"
+      }
+        
       gs_virclass_scale <- selectInput(
         "gs_virclass_scale",
         "",
@@ -24885,9 +25497,9 @@ server <- function(input, output, session) {
             "Rocket" = "rocket",
             "Mako" = "mako",
             "Turbo" = "turbo"
-          ),
+          )
         ),
-        selected = "turbo",
+        selected = gs_virclass_scale_selected,
         width = "100%"
       )
       
@@ -24904,10 +25516,16 @@ server <- function(input, output, session) {
   })
   
   output$gs_amrclass_scale_ui <- renderUI({
-    req(input$gs_amr_variables)
     
     if(!is.null(Screening$hm_meta)) {
       if(length(unique(Screening$hm_meta$amr)) > 7) {
+        
+        if(!is.null(gs_amrclass_scale())) {
+          gs_amrclass_scale_selected <- gs_amrclass_scale()
+        } else {
+          gs_amrclass_scale_selected <- "turbo"
+        }
+        
         gs_amrclass_scale <- selectInput(
           "gs_amrclass_scale",
           "",
@@ -24923,7 +25541,7 @@ server <- function(input, output, session) {
               "Turbo" = "turbo"
             )
           ),
-          selected = "turbo",
+          selected = gs_amrclass_scale_selected,
           width = "100%"
         )
         
@@ -24933,6 +25551,13 @@ server <- function(input, output, session) {
       })"))
         
       } else {
+        
+        if(!is.null(gs_amrclass_scale())) {
+          gs_amrclass_scale_selected <- gs_amrclass_scale()
+        } else {
+          gs_amrclass_scale_selected <- "Set1"
+        }
+        
         gs_amrclass_scale <- selectInput(
           "gs_amrclass_scale",
           "",
@@ -24958,6 +25583,7 @@ server <- function(input, output, session) {
               "Turbo" = "turbo"
             )
           ),
+          selected = gs_amrclass_scale_selected,
           width = "100%"
         )
       }
@@ -24968,6 +25594,13 @@ server <- function(input, output, session) {
       })"))
       
     } else {
+      
+      if(!is.null(gs_amrclass_scale())) {
+        gs_amrclass_scale_selected <- gs_amrclass_scale()
+      } else {
+        gs_amrclass_scale_selected <- "turbo"
+      }
+      
       gs_amrclass_scale <- selectInput(
         "gs_amrclass_scale",
         "",
@@ -24983,7 +25616,7 @@ server <- function(input, output, session) {
             "Turbo" = "turbo"
           ),
         ),
-        selected = "turbo",
+        selected = gs_amrclass_scale_selected,
         width = "100%"
       )
       
@@ -25019,6 +25652,12 @@ server <- function(input, output, session) {
     if(input$gs_var_mapping != "None") {
       if(class(unlist(DB$meta[,input$gs_var_mapping])) == "numeric") {
         
+        if(!is.null(gs_mapping_scale())) {
+          gs_mapping_scale_selected <- gs_mapping_scale()
+        } else {
+          gs_mapping_scale_selected <- "magma"
+        }
+        
         gs_mapping_scale <- selectInput(
           "gs_mapping_scale",
           "",
@@ -25045,15 +25684,23 @@ server <- function(input, output, session) {
               "BrBG"
             )
           ),
-          width = "100%"
+          width = "100%",
+          selected = gs_mapping_scale_selected
         )
         
         shinyjs::delay(0, shinyjs::runjs("$('#gs_mapping_scale_ui .selectize-input').css({
         'background': 'linear-gradient(to right, #000004FF, #07071DFF, #160F3BFF, #29115AFF, #400F73FF, #56147DFF, #6B1D81FF, #802582FF, #952C80FF, #AB337CFF, #C03A76FF, #D6456CFF, #E85362FF, #F4685CFF, #FA815FFF, #FD9A6AFF, #FEB37BFF, #FECC8FFF, #FDE4A6FF, #FCFDBFFF)',
       'color': 'white'
       })"))
+        
       } else {
         if(length(unique(unlist(DB$meta[input$gs_var_mapping]))) > 7) {
+          
+          if(!is.null(gs_mapping_scale())) {
+            gs_mapping_scale_selected <- gs_mapping_scale()
+          } else {
+            gs_mapping_scale_selected <- "magma"
+          }
           
           gs_mapping_scale <- selectInput(
             "gs_mapping_scale",
@@ -25070,6 +25717,7 @@ server <- function(input, output, session) {
                 "Turbo" = "turbo"
               )
             ),
+            selected = gs_mapping_scale_selected,
             width = "100%"
           )
           
@@ -25078,6 +25726,12 @@ server <- function(input, output, session) {
       'color': 'white'
       })"))
         } else {
+          
+          if(!is.null(gs_mapping_scale())) {
+            gs_mapping_scale_selected <- gs_mapping_scale()
+          } else {
+            gs_mapping_scale_selected <- "Set1"
+          }
           
           gs_mapping_scale <- selectInput(
             "gs_mapping_scale",
@@ -25114,6 +25768,7 @@ server <- function(input, output, session) {
                 "Blues"
               )
             ),
+            selected = gs_mapping_scale_selected,
             width = "100%"
           )
           
@@ -25124,6 +25779,12 @@ server <- function(input, output, session) {
         }
       }
     } else {
+      
+      if(!is.null(gs_mapping_scale())) {
+        gs_mapping_scale_selected <- gs_mapping_scale()
+      } else {
+        gs_mapping_scale_selected <- "Set1"
+      }
       
       gs_mapping_scale <- selectInput(
         "gs_mapping_scale",
@@ -25160,6 +25821,7 @@ server <- function(input, output, session) {
             "Blues"
           )
         ),
+        selected = gs_mapping_scale_selected,
         width = "100%"
       )
       
@@ -25178,6 +25840,13 @@ server <- function(input, output, session) {
   # variable mapping
   output$gs_var_mapping_ui <- renderUI({
     req(DB$meta)
+    
+    if(!is.null(gs_var_mapping())) {
+      gs_var_mapping_selected <- gs_var_mapping()
+    } else {
+      gs_var_mapping_selected <- "None"
+    }
+    
     selectInput(
       "gs_var_mapping",
       "",
@@ -25195,58 +25864,26 @@ server <- function(input, output, session) {
                colnames(DB$meta)[14:ncol(DB$meta)])
       },
       width = "100%",
-      selected = NULL
+      selected = gs_var_mapping_selected
     )
   })
   
   output$gs_field <- renderUI({
+    if(!is.null(input$gs_scale)) {
+      gs_scale <- input$gs_scale
+    } else {
+      gs_scale <- 705
+    }
+    if(!is.null(input$gs_ratio)) {
+      gs_ratio <- input$gs_ratio
+    } else {
+      gs_ratio <- c("16:9" = (16/9))
+    }
+    
     addSpinner(
-      plotOutput("gs_plot", width = paste0(as.character(as.numeric(input$gs_scale) * as.numeric(input$gs_ratio)), "px"), height = paste0(as.character(input$gs_scale), "px")),
+      plotOutput("gs_plot", width = paste0(as.character(as.numeric(gs_scale) * as.numeric(gs_ratio)), "px"), height = paste0(as.character(gs_scale), "px")),
       spin = "dots",
       color = "#ffffff"
-    )
-  })
-  
-  # Render isolate picker
-  output$gs_plot_sel_isolate <- renderUI({
-    req(DB$data)
-    
-    pickerInput(
-      "gs_plot_selected_isolate",
-      label = "",
-      choices = list(
-        Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
-          as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
-        } else {
-          DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
-        },
-        Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
-          as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
-        } else {
-          DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
-        },
-        `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
-          as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
-        } else {
-          DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
-        }
-      ),
-      choicesOpt = list(
-        disabled = c(
-          rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
-          rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
-          rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
-        )
-      ),
-      selected = DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")],
-      options = list(
-        `live-search` = TRUE,
-        `actions-box` = TRUE,
-        size = 10,
-        style = "background-color: white; border-radius: 5px;"
-      ),
-      multiple = TRUE,
-      width = "99%"
     )
   })
   
@@ -25256,27 +25893,27 @@ server <- function(input, output, session) {
     
     if(is.null(input$gs_plot_selected_isolate)) {
       tagList(
-        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 25px; ', 
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative;  ', 
                   "0 isolates(s) selected"),
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px; ', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative;  ', 
                   "Select min. 3 isolates")
       )
     } else if(length(input$gs_plot_selected_isolate) < 3) {
       tagList(
-        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 25px; ', 
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative;  ', 
                   paste(
                     length(input$gs_plot_selected_isolate),
                     'isolate(s) selected'
                   )),
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px; ', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative;  ', 
                   "Select min. 3 isolates")
       )
     } else {
       HTML(
         paste(
-          tags$span(style='color: white; font-size: 12px; font-style: italic; position: relative; left: 25px; ', 
+          tags$span(style='color: white; font-size: 12px; font-style: italic; position: relative;  ', 
                     paste(
                       length(input$gs_plot_selected_isolate),
                       'isolate(s) selected'
@@ -25291,25 +25928,25 @@ server <- function(input, output, session) {
     req(DB$data)
     if(is.null(input$gs_plot_selected_amr)) {
       tagList(
-        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 25px; top: 5px;', 
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative;  top: 5px;', 
                   "0 gene(s) selected"),
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px; top: 5px;', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative;  top: 5px;', 
                   "Select min. 3 genes")
       )
     } else if(length(input$gs_plot_selected_amr) < 3) {
       tagList(
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px;',
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; ',
                   paste(length(input$gs_plot_selected_amr),
                         "gene(s) selected")), 
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; ', 
                   "Select min. 3 genes")
       )
     } else {
       HTML(
         paste(
-          tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
+          tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; ', 
                     paste(length(input$gs_plot_selected_amr),
                           "gene(s) selected"))
         )
@@ -25321,25 +25958,25 @@ server <- function(input, output, session) {
     req(DB$data)
     if(is.null(input$gs_plot_selected_vir)) {
       tagList(
-        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; ', 
                   "0 gene(s) selected"),
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; ', 
                   "Select min. 3 genes")
       )
     } else if(length(input$gs_plot_selected_vir) < 3) {
       tagList(
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px;',
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; ',
                   paste(length(input$gs_plot_selected_vir),
                         "gene(s) selected")), 
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; ', 
                   "Select min. 3 genes")
       )
     } else {
       HTML(
         paste(
-          tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
+          tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; ', 
                     paste(length(input$gs_plot_selected_vir),
                           "gene(s) selected"))
         )
@@ -25351,144 +25988,31 @@ server <- function(input, output, session) {
     req(DB$data)
     if(is.null(input$gs_plot_selected_noclass)) {
       tagList(
-        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; ', 
                   "0 gene(s) selected"),
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; ', 
                   "Select min. 3 genes")
       )
     } else if(length(input$gs_plot_selected_noclass) < 3) {
       tagList(
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px;',
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; ',
                   paste(length(input$gs_plot_selected_noclass),
                         "gene(s) selected")), 
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; ', 
                   "Select min. 3 genes")
       )
     } else {
       HTML(
         paste(
-          tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; left: 25px;', 
+          tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; ', 
                     paste(length(input$gs_plot_selected_noclass),
                           "gene(s) selected"))
         )
       )
     }
   })
-  
-  # Render gene picker 
-  observe({
-    req(DB$data, Screening$amr_results, Screening$amr_class)
-    
-    amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, as.numeric))
-    rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
-    colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
-
-    heatmap_matrix <- as.matrix(amr_profile_numeric)
-    
-    # Render amr gene picker
-    if(!is.null(Screening$amr_class)) {
-      if(nrow(Screening$amr_class) > 0) {
-        amr_class_filtered <- Screening$amr_class[!duplicated(gsub("\\*", "", Screening$amr_class$Observation)),]
-        
-        amr_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", amr_class_filtered$Observation)
-        
-        amr_class_present <- colnames(heatmap_matrix)[amr_unison]
-        amr_no_class <- colnames(heatmap_matrix)[!amr_unison]
-        
-        amr_meta <- data.frame(
-          gene = c(amr_class_present, amr_no_class),
-          amr = c(amr_class_filtered$Variable[gsub("\\*", "", amr_class_filtered$Observation) %in% amr_class_present],
-                  rep(NA, length(amr_no_class)))
-        ) %>%
-          arrange(gene) %>%
-          tibble::column_to_rownames(var = "gene")
-        
-        choices_amr <- rownames(amr_meta)[which(!is.na(amr_meta$amr))]
-      } else {choices_amr <- character(0)}
-    } else {choices_amr <- character(0)}
-    
-    output$gs_plot_sel_amr <- renderUI({
-      pickerInput(
-        "gs_plot_selected_amr",
-        label = "",
-        choices = choices_amr,
-        options = list(
-          `live-search` = TRUE,
-          `actions-box` = TRUE,
-          size = 10,
-          style = "background-color: white; border-radius: 5px;"
-        ),
-        selected = choices_amr,
-        multiple = TRUE,
-        width = "99%"
-      )
-    })
-    
-    # Render virulence gene picker
-    if(!is.null(Screening$vir_class)) {
-      if(nrow(Screening$vir_class) > 0) {
-        vir_class_filtered <- Screening$vir_class[!duplicated(gsub("\\*", "", Screening$vir_class$Observation)),]
-        
-        vir_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", vir_class_filtered$Observation)
-        
-        vir_class_present <- colnames(heatmap_matrix)[vir_unison]
-        vir_no_class <- colnames(heatmap_matrix)[!vir_unison]
-        
-        vir_meta <- data.frame(
-          gene = c(vir_class_present, vir_no_class),
-          class = c(vir_class_filtered$Variable[gsub("\\*", "", vir_class_filtered$Observation) %in% vir_class_present],
-                    rep(NA, length(vir_no_class)))
-        ) %>%
-          arrange(gene) %>%
-          tibble::column_to_rownames(var = "gene")
-        
-        choices_vir <- rownames(vir_meta)[which(!is.na(vir_meta$class))]
-      } else {choices_vir <- character(0)}
-    } else {choices_vir <- character(0)}
-    
-    output$gs_plot_sel_vir <- renderUI({
-      pickerInput(
-        "gs_plot_selected_vir",
-        label = "",
-        choices = choices_vir,
-        options = list(
-          `live-search` = TRUE,
-          `actions-box` = TRUE,
-          size = 10,
-          style = "background-color: white; border-radius: 5px;"
-        ),
-        selected = choices_vir,
-        multiple = TRUE,
-        width = "99%"
-      )
-    })
-    
-    # Render unclassifiable genes picker
-    if(all(!is.na(vir_meta$class) & !is.na(amr_meta$amr))) {
-      choices_noclass <- character(0)
-    } else {
-      choices_noclass <- rownames(amr_meta)[which(is.na(vir_meta$class) & is.na(amr_meta$amr))]  
-    }
-    
-    output$gs_plot_sel_noclass <- renderUI({
-      pickerInput(
-        "gs_plot_selected_noclass",
-        label = "",
-        choices = choices_noclass,
-        options = list(
-          `live-search` = TRUE,
-          `actions-box` = TRUE,
-          size = 10,
-          style = "background-color: white; border-radius: 5px;"
-        ),
-        selected = choices_noclass,
-        multiple = TRUE,
-        width = "99%"
-      )
-    })
-})
   
   # Rendering results table
   output$gs_results_table <- renderUI({
@@ -25563,7 +26087,7 @@ server <- function(input, output, session) {
     req(DB$scheme)
     amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
                                                      amrfinder_species = amrfinder_species)
-                                
+    
     if(!isFALSE(amrfinder_available)) {
       req(DB$data, input$gs_view)
       if(input$gs_view == "Table") {
@@ -25729,7 +26253,7 @@ server <- function(input, output, session) {
           relocate(c("Gene Symbol", "Sequence Name", "Element Subtype", "Class", 
                      "Subclass", "Scope", "Contig ID", "Target Length", "Alignment Length",
                      "Start", "Stop", "Strand"))
-         
+        
         # Generate gene profile table
         output$gs_profile_table <- DT::renderDataTable(
           Screening$res_profile,
@@ -25762,7 +26286,7 @@ server <- function(input, output, session) {
       output$gs_profile_table <- NULL
     }
   })
-
+  
   #Resistance profile selection table
   observe({
     req(DB$meta, DB$data)
@@ -25830,7 +26354,7 @@ server <- function(input, output, session) {
     } else {
       output$screening_table <- NULL
     }
-      
+    
   })
   
   # Availablity feedback
@@ -26302,7 +26826,7 @@ server <- function(input, output, session) {
       # Disable pickerInput
       shinyjs::delay(200, shinyjs::runjs("$('#screening_select').prop('disabled', true);"))
       shinyjs::delay(200, shinyjs::runjs("$('#screening_select').selectpicker('refresh');"))
-    
+      
       # System execution screening.sh
       system(paste("bash", paste0(getwd(), "/execute/screening.sh")), wait = FALSE)
     }
@@ -26406,7 +26930,7 @@ server <- function(input, output, session) {
       }
     }
   }) 
-    
+  
   check_screening <- reactive({
     invalidateLater(500, session)
     
@@ -26437,9 +26961,9 @@ server <- function(input, output, session) {
           Database <- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
           
           Database[["Typing"]]$Screened[which(Database[["Typing"]]["Assembly ID"] == tail(Screening$choices, 1))] <- "Yes"
-
+          
           saveRDS(Database, file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
-
+          
           DB$data$Screened[which(DB$data["Assembly ID"] == tail(Screening$choices, 1))] <- "Yes"
           
           DB$meta_gs <- select(DB$data, c(1, 3:13))
@@ -26488,453 +27012,836 @@ server <- function(input, output, session) {
   
   ### AMR Visualization ----
   
+  gs_plot_selected_isolate <- reactiveVal(NULL)
+  gs_plot_selected_amr <- reactiveVal(NULL)
+  gs_plot_selected_vir <- reactiveVal(NULL)
+  gs_plot_selected_noclass <- reactiveVal(NULL)
+  
+  observe({
+    if (!is.null(input$gs_plot_selected_isolate)) {
+      gs_plot_selected_isolate(input$gs_plot_selected_isolate)
+    }
+    if (!is.null(input$gs_plot_selected_amr)) {
+      gs_plot_selected_amr(input$gs_plot_selected_amr)
+    }
+    if (!is.null(input$gs_plot_selected_vir)) {
+      gs_plot_selected_vir(input$gs_plot_selected_vir)
+    }
+    if (!is.null(input$gs_plot_selected_noclass)) {
+      gs_plot_selected_noclass(input$gs_plot_selected_noclass)
+    }
+  })
+  
+  gs_virclass_scale <- reactiveVal(NULL)
+  gs_amrclass_scale <- reactiveVal(NULL)
+  gs_amr_variables <- reactiveVal(NULL)
+  gs_vir_variables <- reactiveVal(NULL)
+  gs_mapping_scale <- reactiveVal(NULL)
+  gs_var_mapping <- reactiveVal(NULL)
+  
+  observe({
+    if (!is.null(input$gs_virclass_scale)) {
+      gs_virclass_scale(input$gs_virclass_scale)
+    }
+    
+    if (!is.null(input$gs_amrclass_scale)) {
+      gs_amrclass_scale(input$gs_amrclass_scale)
+    }
+    
+    if (!is.null(input$gs_vir_variables)) {
+      gs_vir_variables(input$gs_vir_variables)
+    }
+    
+    if (!is.null(input$gs_amr_variables)) {
+      gs_amr_variables(input$gs_amr_variables)
+    }
+    
+    if (!is.null(input$gs_var_mapping)) {
+      gs_var_mapping(input$gs_var_mapping)
+    }
+    
+    if (!is.null(input$gs_mapping_scale)) {
+      gs_mapping_scale(input$gs_mapping_scale)
+    }
+  })
+  
+  gsplot_color_text <- reactiveVal(NULL)
+  gsplot_color_dend <- reactiveVal(NULL)
+  gsplot_color_palette1 <- reactiveVal(NULL)
+  gsplot_color_palette2 <- reactiveVal(NULL)
+  gsplot_grid_color <- reactiveVal(NULL)
+  gsplot_background <- reactiveVal(NULL)
+  
+  observe({
+    if (!is.null(input$gsplot_color_text)) {
+      gsplot_color_text(input$gsplot_color_text)
+    }
+    if (!is.null(input$gsplot_color_dend)) {
+      gsplot_color_dend(input$gsplot_color_dend)
+    }
+    if (!is.null(input$gsplot_color_palette1)) {
+      gsplot_color_palette1(input$gsplot_color_palette1)
+    }
+    if (!is.null(input$gsplot_color_palette2)) {
+      gsplot_color_palette2(input$gsplot_color_palette2)
+    }
+    if (!is.null(input$gsplot_grid_color)) {
+      gsplot_grid_color(input$gsplot_grid_color)
+    }
+    if (!is.null(input$gsplot_background)) {
+      gsplot_background(input$gsplot_background)
+    }
+  })
+  
+  gsplot_grid_width <- reactiveVal(NULL)
+  gsplot_legend_labelsize <- reactiveVal(NULL)
+  gsplot_fontsize_title <- reactiveVal(NULL)
+  gsplot_treeheight_col <- reactiveVal(NULL)
+  gsplot_treeheight_row <- reactiveVal(NULL)
+  
+  observe({
+    if (!is.null(input$gsplot_grid_width)) {
+      gsplot_grid_width(input$gsplot_grid_width)
+    }
+    if (!is.null(input$gsplot_legend_labelsize)) {
+      gsplot_legend_labelsize(input$gsplot_legend_labelsize)
+    }
+    if (!is.null(input$gsplot_fontsize_title)) {
+      gsplot_fontsize_title(input$gsplot_fontsize_title)
+    }
+    if (!is.null(input$gsplot_treeheight_col)) {
+      gsplot_treeheight_col(input$gsplot_treeheight_col)
+    }
+    if (!is.null(input$gsplot_treeheight_row)) {
+      gsplot_treeheight_row(input$gsplot_treeheight_row)
+    }
+    if (!is.null(input$gsplot_background)) {
+      gsplot_background(input$gsplot_background)
+    }
+  })
+  
+  gs_ratio <- reactiveVal(NULL)
+  gs_scale <- reactiveVal(NULL)
+  gs_cluster_col <- reactiveVal(NULL)
+  gs_cluster_row <- reactiveVal(NULL)
+  gs_cluster_distance_col <- reactiveVal(NULL)
+  gs_cluster_distance_row <- reactiveVal(NULL)
+  gs_cluster_method_col <- reactiveVal(NULL)
+  gs_cluster_method_row <- reactiveVal(NULL)
+  
+  observe({
+    if (!is.null(input$gs_ratio)) {
+      gs_ratio(input$gs_ratio)
+    }
+    if (!is.null(input$gs_scale)) {
+      gs_scale(input$gs_scale)
+    }
+    if (!is.null(input$gs_cluster_col)) {
+      gs_cluster_col(input$gs_cluster_col)
+    }
+    if (!is.null(input$gs_cluster_row)) {
+      gs_cluster_row(input$gs_cluster_row)
+    }
+    if (!is.null(input$gs_cluster_distance_col)) {
+      gs_cluster_distance_col(input$gs_cluster_distance_col)
+    }
+    if (!is.null(input$gs_cluster_distance_row)) {
+      gs_cluster_distance_row(input$gs_cluster_distance_row)
+    }
+    if (!is.null(input$gs_cluster_method_col)) {
+      gs_cluster_method_col(input$gs_cluster_method_col)
+    }
+    if (!is.null(input$gs_cluster_method_row)) {
+      gs_cluster_method_row(input$gs_cluster_method_row)
+    }
+  })
+  
   gs_plot <- reactive({
-    req(DB$data, Screening$amr_results,
-        DB$database, DB$scheme, 
-        input$gsplot_color_text, input$gsplot_treeheight_col,
-        input$gsplot_treeheight_row, input$gsplot_legend_labelsize, 
-        input$gsplot_color_palette1, input$gsplot_color_palette2,
-        input$gs_plot_selected_isolate)
+    req(DB$data, Screening$amr_results, DB$database, DB$scheme)
     
     amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, as.numeric))
     rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
     colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
+    heatmap_matrix <- as.matrix(amr_profile_numeric)
     
-    amr_profile_numeric_all <- amr_profile_numeric[rownames(amr_profile_numeric) %in% input$gs_plot_selected_isolate, ]
-    amr_profile_numeric <- amr_profile_numeric_all[,c(input$gs_plot_selected_amr, input$gs_plot_selected_vir, input$gs_plot_selected_noclass)]
-    heatmap_mat <- as.matrix(amr_profile_numeric)
-    
-    ### get heatmap meta
-    # amr meta
-    amr_meta <- NULL
-    amr_class_filtered <- Screening$amr_class[!duplicated(gsub("\\*", "", Screening$amr_class$Observation)),]
-    
-    amr_unison <- colnames(heatmap_mat) %in% gsub("\\*", "", amr_class_filtered$Observation)
-    
-    amr_class_present <- colnames(heatmap_mat)[amr_unison]
-    amr_no_class <- colnames(heatmap_mat)[!amr_unison]
-    
-    amr_meta <- data.frame(
-      gene = c(amr_class_present, amr_no_class),
-      amr = c(amr_class_filtered$Variable[gsub("\\*", "", amr_class_filtered$Observation) %in% amr_class_present], 
-              rep(NA, length(amr_no_class)))
-    )
-    
-    if(nrow(amr_meta) != 0) {
-      amr_meta <- amr_meta %>%
-        arrange(gene) %>%
-        tibble::column_to_rownames(var = "gene")
+     
+    if(!is.null(input$gs_plot_selected_isolate)) {
+      gs_plot_selected_isolate <- input$gs_plot_selected_isolate
+    } else {
+      gs_plot_selected_isolate <- DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
     }
     
-    # vir meta
-    vir_meta <- NULL
-    vir_class_filtered <- Screening$vir_class[!duplicated(gsub("\\*", "", Screening$vir_class$Observation)),]
-    
-    vir_unison <- colnames(heatmap_mat) %in% gsub("\\*", "", vir_class_filtered$Observation)
-    
-    vir_class_present <- colnames(heatmap_mat)[vir_unison]
-    vir_no_class <- colnames(heatmap_mat)[!vir_unison]
-    
-    vir_meta <- data.frame(
-      gene = c(vir_class_present, vir_no_class),
-      class = c(vir_class_filtered$Variable[gsub("\\*", "", vir_class_filtered$Observation) %in% vir_class_present], 
-                rep(NA, length(vir_no_class)))
-    )
-    
-    if(nrow(vir_meta) != 0) {
-      vir_meta <- vir_meta %>%
-        arrange(gene) %>%
-        tibble::column_to_rownames(var = "gene")
-    }
-    
-    # unite meta
-    Screening$hm_meta <- add_column(amr_meta, vir = vir_meta$class)
-    hm_meta <- Screening$hm_meta
-    
-    # styling parameters
-    ht_opt$HEATMAP_LEGEND_PADDING = unit(15, "mm")
-    
-    legend_gp <- gpar(col = input$gsplot_color_text,
-                      fill = c(input$gsplot_color_palette1, input$gsplot_color_palette2))
-    labels_gp <- gpar(col = input$gsplot_color_text,
-                      fontsize = input$gsplot_legend_labelsize)
-    title_gp <- gpar(col = input$gsplot_color_text,
-                     fontsize = input$gsplot_legend_labelsize + 2)
-    grid_height <- unit(input$gsplot_legend_labelsize * 0.8, "mm")
-    grid_width <- unit(input$gsplot_legend_labelsize * 0.8, "mm")
-    
-    if(length(input$gs_plot_selected_isolate) < 10){
-      fontsize_row <- 14
-    } else if(length(input$gs_plot_selected_isolate) < 20){
-      fontsize_row <- 12
-    } else if(length(input$gs_plot_selected_isolate) < 30){
-      fontsize_row <- 11
-    } else if(length(input$gs_plot_selected_isolate) < 50){
-      fontsize_row <- 10
-    } else if(length(input$gs_plot_selected_isolate) < 80){
-      fontsize_row <- 9
-    } else if(length(input$gs_plot_selected_isolate) < 120){
-      fontsize_row <- 8
-    } else if(length(input$gs_plot_selected_isolate) < 160){
-      fontsize_row <- 7
-    } else if(length(input$gs_plot_selected_isolate) < 200){
-      fontsize_row <- 6
-    } else {
-      fontsize_row <- 5
-    } 
-    
-    col_count <- length(c(input$gs_plot_selected_amr, 
-                          input$gs_plot_selected_vir, 
-                          input$gs_plot_selected_noclass))
-    if(col_count < 10){
-      fontsize_col <- 15
-    } else if(col_count < 20){
-      fontsize_col <- 13
-    } else if(col_count < 30){
-      fontsize_col <- 12
-    } else if(col_count < 50){
-      fontsize_col <- 10
-    } else if(col_count < 80){
-      fontsize_col <- 9
-    } else if(col_count < 120){
-      fontsize_col <- 8
-    } else if(col_count < 160){
-      fontsize_col <- 7
-    } else if(col_count < 200){
-      fontsize_col <- 6
-    } else {
-      fontsize_col <- 5
-    } 
-    
-    # heatmap annotations
-    isolate_annotation <- NULL
-    if(!is.null(input$gs_var_mapping)) {
-      if(input$gs_var_mapping != "None") {
+    # Vir metadata
+    if(!is.null(Screening$vir_class)) {
+      if(nrow(Screening$vir_class) > 0) {
+        vir_class_filtered <- Screening$vir_class[!duplicated(gsub("\\*", "", Screening$vir_class$Observation)),]
         
-        isolate_meta <- DB$meta[which(DB$meta$`Assembly ID` %in% rownames(heatmap_mat)),]
+        vir_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", vir_class_filtered$Observation)
         
-        rownames(isolate_meta) <- rownames(heatmap_mat)
+        vir_class_present <- colnames(heatmap_matrix)[vir_unison]
+        vir_no_class <- colnames(heatmap_matrix)[!vir_unison]
         
-        sel_isolate_var <- isolate_meta[[input$gs_var_mapping]]
-        if(all(sel_isolate_var == "")) {
-          var_colors <- "grey"
-          names(var_colors) <- "NA"
-        } else {
-          if(!is.null(input$gs_mapping_scale)) {
-            if(input$gs_mapping_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-              var_colors <- get(input$gs_mapping_scale)(length(unique(sel_isolate_var)))
-            } else {
-              var_colors <- brewer.pal(length(unique(sel_isolate_var)), input$gs_mapping_scale)
-            }
-          } else {
-            var_colors <- get("viridis")(length(unique(sel_isolate_var)))
-          }
-          names(var_colors) <- unique(sort(sel_isolate_var))
+        vir_meta <- data.frame(
+          gene = c(vir_class_present, vir_no_class),
+          vir = c(vir_class_filtered$Variable[gsub("\\*", "", vir_class_filtered$Observation) %in% vir_class_present],
+                  rep(NA, length(vir_no_class)))
+        )
+        
+        if(nrow(vir_meta) != 0) {
+          vir_meta <- vir_meta %>%
+            arrange(gene) %>%
+            tibble::column_to_rownames(var = "gene")
         }
         
-        isolate_annotation <- HeatmapAnnotation(
-          Var = sel_isolate_var,
-          show_legend = TRUE,
-          col = list(Var = var_colors),  
-          show_annotation_name = FALSE,
-          which = "row",
-          annotation_legend_param = list(
-            title = input$gs_var_mapping,
-            labels_gp = labels_gp,
-            title_gp = title_gp,
-            grid_height = grid_height,
-            grid_width = grid_width,
-            legend_gp = gpar(fill = var_colors) 
-          )
-        )
-      }  
+        choices_vir <- rownames(vir_meta)[which(!is.na(vir_meta$vir))]
+      } else {choices_vir <- character(0)}
+    } else {choices_vir <- character(0)}
+    
+    if(!is.null(input$gs_plot_selected_vir)) {
+      gs_plot_selected_vir <- input$gs_plot_selected_vir
+    } else {
+      gs_plot_selected_vir <- choices_vir
     }
     
-    amr_annotation <- NULL
-    amr_heatmap <- NULL
-    sel_amr <- NULL
+    # AMR metadata
+    if(!is.null(Screening$amr_class)) {
+      if(nrow(Screening$amr_class) > 0) {
+        amr_class_filtered <- Screening$amr_class[!duplicated(gsub("\\*", "", Screening$amr_class$Observation)),]
+        
+        amr_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", amr_class_filtered$Observation)
+        
+        amr_class_present <- colnames(heatmap_matrix)[amr_unison]
+        amr_no_class <- colnames(heatmap_matrix)[!amr_unison]
+        
+        amr_meta <- data.frame(
+          gene = c(amr_class_present, amr_no_class),
+          amr = c(amr_class_filtered$Variable[gsub("\\*", "", amr_class_filtered$Observation) %in% amr_class_present],
+                  rep(NA, length(amr_no_class)))
+        )
+        
+        if(nrow(amr_meta) != 0) {
+          amr_meta <- amr_meta %>%
+            arrange(gene) %>%
+            tibble::column_to_rownames(var = "gene")
+        }
+        
+        choices_amr <- rownames(amr_meta)[which(!is.na(amr_meta$amr))]
+      } else {choices_amr <- character(0)}
+    } else {choices_amr <- character(0)}
+    
     if(!is.null(input$gs_plot_selected_amr)) {
-      if(all(is.na(hm_meta$amr)) | length(input$gs_plot_selected_amr) < 3) {
-        amr_annotation <- NULL
-        amr_heatmap <- NULL
+      gs_plot_selected_amr <- input$gs_plot_selected_amr
+    } else {
+      gs_plot_selected_amr <- choices_amr
+    }
+    
+    if(all(!is.na(vir_meta$class) & !is.na(amr_meta$amr))) {
+      choices_noclass <- character(0)
+    } else {
+      choices_noclass <- rownames(amr_meta)[which(is.na(vir_meta$class) & is.na(amr_meta$amr))]  
+    }
+    
+    if(!is.null(input$gs_plot_selected_noclass)) {
+      gs_plot_selected_noclass <- input$gs_plot_selected_noclass
+    } else {
+      gs_plot_selected_noclass <- choices_noclass
+    }
+    
+    if((length(c(gs_plot_selected_amr, gs_plot_selected_vir, gs_plot_selected_noclass)) >= 3) & (length(gs_plot_selected_isolate) >= 3)) {
+      
+      ### get heatmap meta
+      
+      amr_profile_numeric_all <- amr_profile_numeric[rownames(amr_profile_numeric) %in% gs_plot_selected_isolate, ]
+      amr_profile_numeric <- amr_profile_numeric_all[,c(gs_plot_selected_amr, gs_plot_selected_vir, gs_plot_selected_noclass)]
+      heatmap_mat <- as.matrix(amr_profile_numeric)
+      
+      vir_meta1 <<- vir_meta
+      amr_meta1 <<- amr_meta
+      
+      # unite meta
+      Screening$hm_meta <- add_column(amr_meta, vir = vir_meta$vir)
+      hm_meta <- Screening$hm_meta
+      
+      hm_meta1 <<- hm_meta
+      heatmap_mat1 <<- heatmap_mat
+      
+      # styling parameters
+      ht_opt$HEATMAP_LEGEND_PADDING = unit(15, "mm")
+      
+      if(!is.null(input$gsplot_color_text)) {
+        gsplot_color_text <- input$gsplot_color_text
+      } else if(is.null(gsplot_color_text())){
+        gsplot_color_text <- "#000000"
       } else {
-        if(input$gs_amr_variables != "None") {
-          sel_amr <- na.omit(hm_meta$amr)
-          dist_col <- length(unique(sel_amr))
-          if(!is.null(input$gs_amrclass_scale)) {
-            
-            if(input$gs_amrclass_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-              amr_colors <- get(input$gs_amrclass_scale)(length(unique(sel_amr)))
-            } else {
-              if(dist_col < 3) {
-                amr_colors <- brewer.pal(3, input$gs_amrclass_scale)[1:dist_col]
-              } else {
-                amr_colors <- brewer.pal(dist_col, input$gs_amrclass_scale)    
-              }
-            }
-          } else {
-            if(length(unique(Screening$hm_meta$amr)) > 7) {
-              amr_colors <- get("turbo")(length(unique(sel_amr)))
-            } else {
-              if(dist_col < 3) {
-                amr_colors <- brewer.pal(3, "Set1")[1:dist_col]
-              } else {
-                amr_colors <- brewer.pal(dist_col, "Set1")    
-              }
-            }
-          }
-          names(amr_colors) <- unique(sort(sel_amr))
+        gsplot_color_text <- gsplot_color_text()
+      }
+      
+      if(!is.null(input$gsplot_treeheight_col)) {
+        gsplot_treeheight_col <- input$gsplot_treeheight_col
+      } else {
+        gsplot_treeheight_col <- 2
+      }
+      
+      if(!is.null(input$gsplot_treeheight_row)) {
+        gsplot_treeheight_row <- input$gsplot_treeheight_row
+      } else {
+        gsplot_treeheight_row <- 2
+      }
+      
+      if(!is.null(input$gsplot_legend_labelsize)) {
+        gsplot_legend_labelsize <- input$gsplot_legend_labelsize
+      } else {
+        gsplot_legend_labelsize <- 9
+      }
+      
+      if(!is.null(input$gsplot_color_palette1)) {
+        gsplot_color_palette1 <- input$gsplot_color_palette1
+      } else {
+        gsplot_color_palette1 <- "#66C2A5"
+      }
+      
+      if(!is.null(input$gsplot_color_palette2)) {
+        gsplot_color_palette2 <- input$gsplot_color_palette2
+      } else {
+        gsplot_color_palette2 <- "#E5C494"
+      }
+      
+      if(!is.null(input$gs_amr_variables)) {
+        gs_amr_variables <- input$gs_amr_variables
+      } else {
+        gs_amr_variables <- "Classification"
+      }
+      
+      if(!is.null(input$gs_vir_variables)) {
+        gs_vir_variables <- input$gs_vir_variables
+      } else {
+        gs_vir_variables <- "Classification"
+      }
+      
+      if(!is.null(input$gsplot_grid_color)) {
+        gsplot_grid_color <- input$gsplot_grid_color
+      } else {
+        gsplot_grid_color <- "#FFFFFF"
+      }
+      
+      if(!is.null(input$gsplot_grid_width)) {
+        gsplot_grid_width <- input$gsplot_grid_width
+      } else {
+        gsplot_grid_width <- 1
+      }
+      
+      if(!is.null(input$gsplot_fontsize_title)) {
+        gsplot_fontsize_title <- input$gsplot_fontsize_title
+      } else {
+        gsplot_fontsize_title <- 16
+      }
+      
+      if(!is.null(input$gs_cluster_col)) {
+        gs_cluster_col <- input$gs_cluster_col
+      } else {
+        gs_cluster_col <- FALSE
+      }
+      
+      if(!is.null(input$gs_cluster_distance_col)) {
+        gs_cluster_distance_col <- input$gs_cluster_distance_col
+      } else {
+        gs_cluster_distance_col <- "binary"
+      }
+      
+      if(!is.null(input$gs_cluster_method_col)) {
+        gs_cluster_method_col <- input$gs_cluster_method_col
+      } else {
+        gs_cluster_method_col <- "average"
+      }
+      
+      if(!is.null(input$gs_cluster_row)) {
+        gs_cluster_row <- input$gs_cluster_row
+      } else {
+        gs_cluster_row <- FALSE
+      }
+      
+      if(!is.null(input$gs_cluster_distance_row)) {
+        gs_cluster_distance_row <- input$gs_cluster_distance_row
+      } else {
+        gs_cluster_distance_row <- "binary"
+      }
+      
+      if(!is.null(input$gs_cluster_method_row)) {
+        gs_cluster_method_row <- input$gs_cluster_method_row
+      } else {
+        gs_cluster_method_row <- "average"
+      }
+      
+      if(!is.null(input$gsplot_color_dend)) {
+        gsplot_color_dend <- input$gsplot_color_dend
+      } else {
+        gsplot_color_dend <- "#000000"
+      }
+      
+      if(!is.null(input$gsplot_background)) {
+        gsplot_background <- input$gsplot_background
+      } else {
+        gsplot_background <- "#FFFFFF"
+      }
+      
+      legend_gp <- gpar(col = gsplot_color_text,
+                        fill = c(gsplot_color_palette1, gsplot_color_palette2))
+      labels_gp <- gpar(col = gsplot_color_text,
+                        fontsize = gsplot_legend_labelsize)
+      title_gp <- gpar(col = gsplot_color_text,
+                       fontsize = gsplot_legend_labelsize + 2)
+      grid_height <- unit(gsplot_legend_labelsize * 0.8, "mm")
+      grid_width <- unit(gsplot_legend_labelsize * 0.8, "mm")
+      
+      if(length(gs_plot_selected_isolate) < 10){
+        fontsize_row <- 14
+      } else if(length(gs_plot_selected_isolate) < 20){
+        fontsize_row <- 12
+      } else if(length(gs_plot_selected_isolate) < 30){
+        fontsize_row <- 11
+      } else if(length(gs_plot_selected_isolate) < 50){
+        fontsize_row <- 10
+      } else if(length(gs_plot_selected_isolate) < 80){
+        fontsize_row <- 9
+      } else if(length(gs_plot_selected_isolate) < 120){
+        fontsize_row <- 8
+      } else if(length(gs_plot_selected_isolate) < 160){
+        fontsize_row <- 7
+      } else if(length(gs_plot_selected_isolate) < 200){
+        fontsize_row <- 6
+      } else {
+        fontsize_row <- 5
+      } 
+      
+      col_count <- length(c(gs_plot_selected_amr, 
+                            gs_plot_selected_vir, 
+                            gs_plot_selected_noclass))
+      if(col_count < 10){
+        fontsize_col <- 15
+      } else if(col_count < 20){
+        fontsize_col <- 13
+      } else if(col_count < 30){
+        fontsize_col <- 12
+      } else if(col_count < 50){
+        fontsize_col <- 10
+      } else if(col_count < 80){
+        fontsize_col <- 9
+      } else if(col_count < 120){
+        fontsize_col <- 8
+      } else if(col_count < 160){
+        fontsize_col <- 7
+      } else if(col_count < 200){
+        fontsize_col <- 6
+      } else {
+        fontsize_col <- 5
+      } 
+      
+      fontsize_legend <- 2
+      
+      # heatmap annotations
+      if(!is.null(input$gs_var_mapping)) {
+        gs_var_mapping <- input$gs_var_mapping
+      } else {
+        gs_var_mapping <- "None"
+      }
+      
+      isolate_annotation <- NULL
+      isolate_annotation_legend <- NULL
+      if(!is.null(input$gs_var_mapping)) {
+        if(gs_var_mapping != "None") {
           
-          amr_annotation <- HeatmapAnnotation(
-            AMR = sel_amr,
-            show_legend = TRUE,
-            col = list(AMR = amr_colors),  
-            show_annotation_name = FALSE,
-            annotation_legend_param = list(
-              title = "AMR",
+          isolate_meta <- DB$meta[which(DB$meta$`Assembly ID` %in% rownames(heatmap_mat)),]
+          
+          rownames(isolate_meta) <- rownames(heatmap_mat)
+          
+          sel_isolate_var <- isolate_meta[[gs_var_mapping]]
+          if(all(sel_isolate_var == "")) {
+            var_colors <- "grey"
+            names(var_colors) <- "NA"
+          } else {
+            if(!is.null(input$gs_mapping_scale)) {
+              if(input$gs_mapping_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+                var_colors <- get(input$gs_mapping_scale)(length(unique(sel_isolate_var)))
+              } else {
+                var_colors <- brewer.pal(length(unique(sel_isolate_var)), input$gs_mapping_scale)
+              }
+            } else {
+              var_colors <- get("viridis")(length(unique(sel_isolate_var)))
+            }
+            names(var_colors) <- unique(sort(sel_isolate_var))
+          }
+          
+          isolate_annotation <- HeatmapAnnotation(
+            Var = sel_isolate_var,
+            show_legend = FALSE,
+            col = list(Var = var_colors),  
+            show_annotation_name = TRUE,
+            annotation_label = gs_var_mapping,
+            annotation_name_gp = gpar(col = gsplot_color_text),
+            which = "row"
+          )
+          
+          isolate_annotation_legend <- packLegend(
+            Legend(
+              at = names(var_colors),
+              labels = names(var_colors),
+              title = gs_var_mapping,
               labels_gp = labels_gp,
               title_gp = title_gp,
               grid_height = grid_height,
               grid_width = grid_width,
-              legend_gp = gpar(fill = amr_colors) 
+              legend_gp = gpar(fill = var_colors)
             )
           )
-        }
-        
-        # AMR heatmap
-        amr_profile_matrix <- NULL
-        amr_genes <- rownames(hm_meta)[!is.na(hm_meta$amr)]
-        amr_profile_matrix <- heatmap_mat[,colnames(heatmap_mat) %in% amr_genes]
-        
-        if(length(unique(amr_profile_matrix)) == 1) {
-          amr_cols <- input$gsplot_color_palette1
-        } else {
-          amr_cols <- c(input$gsplot_color_palette1, input$gsplot_color_palette2)
-        }
-        
-        amr_heatmap <- ComplexHeatmap::Heatmap(
-          amr_profile_matrix,
-          col = amr_cols,
-          rect_gp = gpar(col = input$gsplot_grid_color, lwd = input$gsplot_grid_width),
-          column_title = "AMR",
-          column_title_gp = gpar(col = input$gsplot_color_text,
-                                 fontsize = input$gsplot_fontsize_title),
-          row_title = "Isolates",
-          row_title_gp = gpar(col = input$gsplot_color_text,
-                              fontsize = input$gsplot_fontsize_title),
-          row_names_gp = gpar(fontsize = fontsize_row, 
-                              col = input$gsplot_color_text),
-          column_names_gp = gpar(fontsize = fontsize_col, 
-                                 col = input$gsplot_color_text),
-          cluster_columns = input$gs_cluster_col,
-          clustering_distance_columns = input$gs_cluster_distance_col,
-          clustering_method_columns = input$gs_cluster_method_col,
-          cluster_rows = input$gs_cluster_row,
-          clustering_distance_rows = input$gs_cluster_distance_row,
-          clustering_method_rows = input$gs_cluster_method_row,
-          column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
-          row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
-          row_dend_gp = gpar(col = input$gsplot_color_dend),    
-          column_dend_gp = gpar(col = input$gsplot_color_dend), 
-          top_annotation = amr_annotation,
-          show_heatmap_legend = FALSE,
-          left_annotation = isolate_annotation
-        )
+        }  
       }
-    } else {
+      
       amr_annotation <- NULL
       amr_heatmap <- NULL
-    }
-    
-    vir_annotation <- NULL
-    vir_heatmap <- NULL
-    if(!is.null(input$gs_plot_selected_vir)) {
-      if(all(is.na(hm_meta$vir)) | length(input$gs_plot_selected_vir) < 3) {
-        vir_annotation <- NULL
-        vir_heatmap <- NULL
-      } else {
-        if(input$gs_vir_variables != "None") {
-          sel_vir <- na.omit(hm_meta$vir)
-          dist_col <- length(unique(sel_vir))
-          if(!is.null(input$gs_virclass_scale)) {
+      sel_amr <- NULL
+      gs_plot_selected_amr1 <<- gs_plot_selected_amr
+      input_gs_amrclass_scale <<- input$gs_amrclass_scale
+      if(!is.null(gs_plot_selected_amr)) {
+        if(all(is.na(hm_meta$amr)) | length(gs_plot_selected_amr) < 3) {
+          amr_annotation <- NULL
+          amr_heatmap <- NULL
+        } else {
+          if(gs_amr_variables != "None") {
+            sel_amr <- na.omit(hm_meta$amr)
+            dist_col <- length(unique(sel_amr))
+            if(!is.null(input$gs_amrclass_scale)) {
+              
+              if(input$gs_amrclass_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+                amr_colors <- get(input$gs_amrclass_scale)(length(unique(sel_amr)))
+              } else {
+                if(dist_col < 3) {
+                  amr_colors <- brewer.pal(3, input$gs_amrclass_scale)[1:dist_col]
+                } else {
+                  amr_colors <- brewer.pal(dist_col, input$gs_amrclass_scale)    
+                }
+              }
+            } else {
+              if(length(unique(Screening$hm_meta$amr)) > 7) {
+                amr_colors <- get("turbo")(length(unique(sel_amr)))
+              } else {
+                if(dist_col < 3) {
+                  amr_colors <- brewer.pal(3, "Set1")[1:dist_col]
+                } else {
+                  amr_colors <- brewer.pal(dist_col, "Set1")    
+                }
+              }
+            }
+            names(amr_colors) <- unique(sort(sel_amr))
             
-            if(input$gs_virclass_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-              vir_colors <- get(input$gs_virclass_scale)(length(unique(sel_vir)))
-            } else {
-              if(dist_col < 3) {
-                vir_colors <- brewer.pal(3, input$gs_virclass_scale)[1:dist_col]
-              } else {
-                vir_colors <- brewer.pal(dist_col, input$gs_virclass_scale)    
-              }
-            }
-          } else {
-            if(length(unique(Screening$hm_meta$vir)) > 7) {
-              vir_colors <- get("turbo")(length(unique(sel_vir)))
-            } else {
-              if(dist_col < 3) {
-                vir_colors <- brewer.pal(3, "Set1")[1:dist_col]
-              } else {
-                vir_colors <- brewer.pal(dist_col, "Set1")    
-              }
-            }
-          }
-          names(vir_colors) <- unique(sort(sel_vir))
-          
-          vir_annotation <- HeatmapAnnotation(
-            Vir = sel_vir,
-            show_legend = TRUE,
-            col = list(Vir = vir_colors),  
-            show_annotation_name = FALSE,
-            annotation_legend_param = list(
-              title = "Vir",
-              legend_gp = legend_gp,
-              labels_gp = labels_gp,
-              title_gp = title_gp,
-              grid_height = grid_height,
-              grid_width = grid_width,
-              legend_gp = gpar(fill = vir_colors) 
+            amr_annotation <- HeatmapAnnotation(
+              AMR = sel_amr,
+              show_legend = TRUE,
+              col = list(AMR = amr_colors),  
+              show_annotation_name = FALSE,
+              annotation_legend_param = list(
+                title = "AMR",
+                labels_gp = labels_gp,
+                title_gp = title_gp,
+                grid_height = grid_height,
+                grid_width = grid_width,
+                legend_gp = gpar(fill = amr_colors) 
+              )
             )
+            
+            amr_annotation1 <<- amr_annotation
+          }
+          
+          # AMR heatmap
+          amr_profile_matrix <- NULL
+          amr_genes <- rownames(hm_meta)[!is.na(hm_meta$amr)]
+          amr_profile_matrix <- heatmap_mat[,colnames(heatmap_mat) %in% amr_genes]
+          
+          if((all(amr_profile_matrix == 0)) | all(amr_profile_matrix == 1)) {
+            amr_cols <- gsplot_color_palette1
+          } else {
+            amr_cols <- c(gsplot_color_palette1, gsplot_color_palette2)
+          }
+          
+          amr_heatmap <- ComplexHeatmap::Heatmap(
+            amr_profile_matrix,
+            col = amr_cols,
+            rect_gp = gpar(col = gsplot_grid_color, lwd = gsplot_grid_width),
+            column_title = "AMR",
+            column_title_gp = gpar(col = gsplot_color_text,
+                                   fontsize = gsplot_fontsize_title),
+            row_title = "Isolates",
+            row_title_gp = gpar(col = gsplot_color_text,
+                                fontsize = gsplot_fontsize_title),
+            row_names_gp = gpar(fontsize = fontsize_row, 
+                                col = gsplot_color_text),
+            column_names_gp = gpar(fontsize = fontsize_col, 
+                                   col = gsplot_color_text),
+            cluster_columns = gs_cluster_col,
+            clustering_distance_columns = gs_cluster_distance_col,
+            clustering_method_columns = gs_cluster_method_col,
+            cluster_rows = gs_cluster_row,
+            clustering_distance_rows = gs_cluster_method_row,
+            clustering_method_rows = gs_cluster_method_row,
+            column_dend_height = unit(gsplot_treeheight_col, "cm"), 
+            row_dend_width = unit(gsplot_treeheight_row, "cm"),
+            row_dend_gp = gpar(col = gsplot_color_dend),    
+            column_dend_gp = gpar(col = gsplot_color_dend), 
+            top_annotation = amr_annotation,
+            show_heatmap_legend = FALSE,
+            left_annotation = isolate_annotation
           )
         }
-        
-        # Vir heatmap
-        vir_profile_matrix <- NULL
-        vir_genes <- rownames(hm_meta)[!is.na(hm_meta$vir)]
-        vir_profile_matrix <- heatmap_mat[,colnames(heatmap_mat) %in% vir_genes]
-        
-        if(length(unique(vir_profile_matrix)) == 1) {
-          vir_cols <- input$gsplot_color_palette1
-        } else {
-          vir_cols <- c(input$gsplot_color_palette1, input$gsplot_color_palette2)
-        }
-        
-        if(all(is.na(hm_meta$amr)) | length(input$gs_plot_selected_amr) < 3) {
-          left_annotation <- isolate_annotation
-        }  else {
-          left_annotation <- NULL
-        }
-        
-        vir_heatmap <- ComplexHeatmap::Heatmap(
-          vir_profile_matrix,
-          col = vir_cols,
-          rect_gp = gpar(col = input$gsplot_grid_color, lwd = input$gsplot_grid_width),
-          column_title = "Virulence",
-          column_title_gp = gpar(col = input$gsplot_color_text,
-                                 fontsize = input$gsplot_fontsize_title),
-          row_title = "Isolates",
-          row_title_gp = gpar(col = input$gsplot_color_text,
-                              fontsize = input$gsplot_fontsize_title),
-          row_names_gp = gpar(fontsize = fontsize_row, 
-                              col = input$gsplot_color_text),
-          column_names_gp = gpar(fontsize = fontsize_col, 
-                                 col = input$gsplot_color_text),
-          column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
-          cluster_columns = input$gs_cluster_col,
-          clustering_distance_columns = input$gs_cluster_distance_col,
-          clustering_method_columns = input$gs_cluster_method_col,
-          cluster_rows = input$gs_cluster_row,
-          clustering_distance_rows = input$gs_cluster_distance_row,
-          clustering_method_rows = input$gs_cluster_method_row,
-          row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
-          row_dend_gp = gpar(col = input$gsplot_color_dend),    
-          column_dend_gp = gpar(col = input$gsplot_color_dend), 
-          top_annotation = vir_annotation,
-          show_heatmap_legend = FALSE,
-          left_annotation = left_annotation
-        )
+      } else {
+        amr_annotation <- NULL
+        amr_heatmap <- NULL
       }
-    } else {
+      
       vir_annotation <- NULL
       vir_heatmap <- NULL
-    } 
+      gs_plot_selected_vir1 <<- gs_plot_selected_vir
+      input_gs_virclass_scale <<- input$gs_virclass_scale
+      if(!is.null(gs_plot_selected_vir)) {
+        if(all(is.na(hm_meta$vir)) | length(gs_plot_selected_vir) < 3) {
+          vir_annotation <- NULL
+          vir_heatmap <- NULL
+        } else {
+          if(gs_vir_variables != "None") {
+            sel_vir <- na.omit(hm_meta$vir)
+            dist_col <- length(unique(sel_vir))
+            if(!is.null(input$gs_virclass_scale)) {
+              
+              if(input$gs_virclass_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+                vir_colors <- get(input$gs_virclass_scale)(length(unique(sel_vir)))
+              } else {
+                if(dist_col < 3) {
+                  vir_colors <- brewer.pal(3, input$gs_virclass_scale)[1:dist_col]
+                } else {
+                  vir_colors <- brewer.pal(dist_col, input$gs_virclass_scale)    
+                }
+              }
+            } else {
+              if(length(unique(Screening$hm_meta$vir)) > 7) {
+                vir_colors <- get("turbo")(length(unique(sel_vir)))
+              } else {
+                if(dist_col < 3) {
+                  vir_colors <- brewer.pal(3, "Set1")[1:dist_col]
+                } else {
+                  vir_colors <- brewer.pal(dist_col, "Set1")    
+                }
+              }
+            }
+            names(vir_colors) <- unique(sort(sel_vir))
+            
+            vir_annotation <- HeatmapAnnotation(
+              Vir = sel_vir,
+              show_legend = TRUE,
+              col = list(Vir = vir_colors),  
+              show_annotation_name = FALSE,
+              annotation_legend_param = list(
+                title = "Virulence",
+                legend_gp = legend_gp,
+                labels_gp = labels_gp,
+                title_gp = title_gp,
+                grid_height = grid_height,
+                grid_width = grid_width,
+                legend_gp = gpar(fill = vir_colors) 
+              )
+            )
+            
+            vir_annotation1 <<- vir_annotation 
+          }
           
-    # None heatmap
-    noclass_heatmap <- NULL
-    noclass_profile_matrix <- NULL
-    if(!is.null(input$gs_plot_selected_noclass)) {
-      if(any(is.na(hm_meta$vir) & is.na(hm_meta$amr))) {
-        unclass_genes <- rownames(hm_meta)[is.na(hm_meta$vir) & is.na(hm_meta$amr)]
-        noclass_profile_matrix <- heatmap_mat[,colnames(heatmap_mat) %in% unclass_genes]
-        
-        if((all(is.na(hm_meta$amr)) | length(input$gs_plot_selected_amr) < 3) & (all(is.na(hm_meta$vir)) | length(input$gs_plot_selected_vir) < 3)) {
-          left_annotation <- isolate_annotation
-        }  else {
-          left_annotation <- NULL
+          # Vir heatmap
+          vir_profile_matrix <- NULL
+          vir_genes <- rownames(hm_meta)[!is.na(hm_meta$vir)]
+          vir_profile_matrix <- heatmap_mat[,colnames(heatmap_mat) %in% vir_genes]
+          
+          if((all(vir_profile_matrix == 0)) | all(vir_profile_matrix == 1)) {
+            vir_cols <- gsplot_color_palette1
+          } else {
+            vir_cols <- c(gsplot_color_palette1, gsplot_color_palette2)
+          }
+          
+          if(all(is.na(hm_meta$amr)) | length(gs_plot_selected_amr) < 3) {
+            left_annotation <- isolate_annotation
+          }  else {
+            left_annotation <- NULL
+          }
+          
+          vir_heatmap <- ComplexHeatmap::Heatmap(
+            vir_profile_matrix,
+            col = vir_cols,
+            rect_gp = gpar(col = gsplot_grid_color, lwd = gsplot_grid_width),
+            column_title = "Virulence",
+            column_title_gp = gpar(col = gsplot_color_text,
+                                   fontsize = gsplot_fontsize_title),
+            row_title = "Isolates",
+            row_title_gp = gpar(col = gsplot_color_text,
+                                fontsize = gsplot_fontsize_title),
+            row_names_gp = gpar(fontsize = fontsize_row, 
+                                col = gsplot_color_text),
+            column_names_gp = gpar(fontsize = fontsize_col, 
+                                   col = gsplot_color_text),
+            column_dend_height = unit(gsplot_treeheight_col, "cm"), 
+            cluster_columns = gs_cluster_col,
+            clustering_distance_columns = gs_cluster_distance_col,
+            clustering_method_columns = gs_cluster_method_col,
+            cluster_rows = gs_cluster_row,
+            clustering_distance_rows = gs_cluster_method_row,
+            clustering_method_rows = gs_cluster_method_row,
+            row_dend_width = unit(gsplot_treeheight_row, "cm"),
+            row_dend_gp = gpar(col = gsplot_color_dend),    
+            column_dend_gp = gpar(col = gsplot_color_dend), 
+            top_annotation = vir_annotation,
+            show_heatmap_legend = FALSE,
+            left_annotation = left_annotation
+          )
         }
-        
-        noclass_heatmap <- ComplexHeatmap::Heatmap(
-          noclass_profile_matrix,
-          col = c(input$gsplot_color_palette1, input$gsplot_color_palette2),
-          rect_gp = gpar(col = input$gsplot_grid_color, lwd = input$gsplot_grid_width),
-          column_title = "No Class",
-          column_title_gp = gpar(col = input$gsplot_color_text,
-                                 fontsize = input$gsplot_fontsize_title),
-          row_title = "Isolates",
-          row_title_gp = gpar(col = input$gsplot_color_text,
-                              fontsize = input$gsplot_fontsize_title),
-          row_names_gp = gpar(fontsize = fontsize_row, 
-                              col = input$gsplot_color_text),
-          column_names_gp = gpar(fontsize = fontsize_col, 
-                                 col = input$gsplot_color_text),
-          column_dend_height = unit(input$gsplot_treeheight_col, "cm"), 
-          cluster_columns = input$gs_cluster_col,
-          clustering_distance_columns = input$gs_cluster_distance_col,
-          clustering_method_columns = input$gs_cluster_method_col,
-          cluster_rows = input$gs_cluster_row,
-          clustering_distance_rows = input$gs_cluster_distance_row,
-          clustering_method_rows = input$gs_cluster_method_row,
-          row_dend_width = unit(input$gsplot_treeheight_row, "cm"),
-          row_dend_gp = gpar(col = input$gsplot_color_dend),    
-          column_dend_gp = gpar(col = input$gsplot_color_dend),
-          show_heatmap_legend = FALSE,
-          left_annotation = left_annotation
-        )
+      } else {
+        vir_annotation <- NULL
+        vir_heatmap <- NULL
+      } 
+      
+      # None heatmap
+      noclass_heatmap <- NULL
+      noclass_profile_matrix <- NULL
+      if(!is.null(gs_plot_selected_noclass)) {
+        if(any(is.na(hm_meta$vir) & is.na(hm_meta$amr))) {
+          unclass_genes <- rownames(hm_meta)[is.na(hm_meta$vir) & is.na(hm_meta$amr)]
+          noclass_profile_matrix <- heatmap_mat[,colnames(heatmap_mat) %in% unclass_genes]
+          
+          if((all(is.na(hm_meta$amr)) | length(gs_plot_selected_amr) < 3) & (all(is.na(hm_meta$vir)) | length(gs_plot_selected_vir) < 3)) {
+            left_annotation <- isolate_annotation
+          } else {
+            left_annotation <- NULL
+          }
+          
+          if((all(noclass_profile_matrix == 0)) | all(noclass_profile_matrix == 1)) {
+            noclass_cols <- gsplot_color_palette1
+          } else {
+            noclass_cols <- c(gsplot_color_palette1, gsplot_color_palette2)
+          }
+          
+          noclass_heatmap <- ComplexHeatmap::Heatmap(
+            noclass_profile_matrix,
+            col = noclass_cols,
+            rect_gp = gpar(col = gsplot_grid_color, lwd = gsplot_grid_width),
+            row_title = "Isolates",
+            row_title_gp = gpar(col = gsplot_color_text,
+                                fontsize = gsplot_fontsize_title),
+            row_names_gp = gpar(fontsize = fontsize_row, 
+                                col = gsplot_color_text),
+            column_names_gp = gpar(fontsize = fontsize_col, 
+                                   col = gsplot_color_text),
+            column_dend_height = unit(gsplot_treeheight_col, "cm"), 
+            cluster_columns = gs_cluster_col,
+            clustering_distance_columns = gs_cluster_distance_col,
+            clustering_method_columns = gs_cluster_method_col,
+            cluster_rows = gs_cluster_row,
+            clustering_distance_rows = gs_cluster_method_row,
+            clustering_method_rows = gs_cluster_method_row,
+            row_dend_width = unit(gsplot_treeheight_row, "cm"),
+            row_dend_gp = gpar(col = gsplot_color_dend),    
+            column_dend_gp = gpar(col = gsplot_color_dend),
+            show_heatmap_legend = FALSE,
+            left_annotation = left_annotation
+          )
+        } else {
+          noclass_heatmap <- NULL
+        }
       } else {
         noclass_heatmap <- NULL
       }
-    } else {
-      noclass_heatmap <- NULL
-    }
-    
-    # custom legend
-    custom_legend <- packLegend(
-      Legend(
-        labels = c("Present", "Absent"),
-        title = "Gene Presence",
-        legend_gp = gpar(col = input$gsplot_color_text,
-                         fill = c(input$gsplot_color_palette1, input$gsplot_color_palette2)),
-        labels_gp = gpar(col = input$gsplot_color_text,
-                         fontsize = input$gsplot_legend_labelsize + 1),
-        title_gp = gpar(col = input$gsplot_color_text,
-                        fontsize = input$gsplot_legend_labelsize + 3,
-                        fontface = "bold"),
-        grid_height = unit((input$gsplot_legend_labelsize + 1) * 0.8, "mm"),
-        grid_width = unit((input$gsplot_legend_labelsize + 1) * 0.8, "mm"),
-        at = c(1, 0)
-      )
-    )
-    
-    amr_heatmap1 <<- amr_heatmap
-    vir_heatmap1 <<- vir_heatmap 
-    noclass_heatmap1 <<- noclass_heatmap
-    
-    # summarize heatmaps
-    if(is.null(amr_heatmap) & is.null(vir_heatmap) & is.null(noclass_heatmap)) {
-      output$gs_plot <- NULL
-    } else {
       
-      if(all(is.na(vir_meta)) & all(is.na(amr_meta))) {
-        heatmaps <- noclass_heatmap 
+      # custom legend
+      custom_legend <- packLegend(
+        Legend(
+          labels = c("Present", "Absent"),
+          title = "Gene Presence",
+          legend_gp = gpar(col = gsplot_color_text,
+                           fill = c(gsplot_color_palette1, gsplot_color_palette2)),
+          labels_gp = gpar(col = gsplot_color_text,
+                           fontsize = gsplot_legend_labelsize + 1),
+          title_gp = gpar(col = gsplot_color_text,
+                          fontsize = gsplot_legend_labelsize + 3,
+                          fontface = "bold"),
+          grid_height = unit((gsplot_legend_labelsize + 1) * 0.8, "mm"),
+          grid_width = unit((gsplot_legend_labelsize + 1) * 0.8, "mm"),
+          at = c(1, 0),
+          nrow = 1,
+          direction = "horizontal",
+          title_position = "lefttop"
+        )
+      )
+      
+      vir_heatmap1 <<- vir_heatmap
+      amr_heatmap1 <<- amr_heatmap
+      custom_legend1 <<- custom_legend
+      noclass_heatmap1 <<- noclass_heatmap
+      
+      # summarize heatmaps
+      if(is.null(amr_heatmap) & is.null(vir_heatmap) & is.null(noclass_heatmap)) {
+        output$gs_plot <- NULL
       } else {
-        heatmaps <- amr_heatmap + vir_heatmap + noclass_heatmap 
+        
+        if(!is.null(amr_heatmap) & !is.null(vir_heatmap) & !is.null(noclass_heatmap)) {
+          heatmaps <- amr_heatmap + vir_heatmap + noclass_heatmap
+        } else if(!is.null(amr_heatmap) & !is.null(vir_heatmap) & is.null(noclass_heatmap)) {
+          heatmaps <- amr_heatmap + vir_heatmap
+        } else if(!is.null(amr_heatmap) & is.null(vir_heatmap) & !is.null(noclass_heatmap)) {
+          heatmaps <- amr_heatmap + noclass_heatmap
+        } else if(is.null(amr_heatmap) & !is.null(vir_heatmap) & !is.null(noclass_heatmap)) {
+          heatmaps <- vir_heatmap + noclass_heatmap
+        } else if(is.null(amr_heatmap) & is.null(vir_heatmap) & !is.null(noclass_heatmap)) {
+          heatmaps <- noclass_heatmap
+        } else if(!is.null(amr_heatmap) & is.null(vir_heatmap) & is.null(noclass_heatmap)) {
+          heatmaps <- amr_heatmap
+        } else if(is.null(amr_heatmap) & !is.null(vir_heatmap) & is.null(noclass_heatmap)) {
+          heatmaps <- vir_heatmap
+        }
+        
+        isolate_annotation_legend1 <<- isolate_annotation_legend
+        heatmaps1 <<- heatmaps
+        gsplot_background1 <<- gsplot_background
+        custom_legend1 <<- custom_legend
+        if(is.null(isolate_annotation_legend)) {
+          
+          ComplexHeatmap::draw(
+            heatmaps,
+            background = gsplot_background,
+            heatmap_legend_list = custom_legend,
+            heatmap_legend_side = "bottom",
+            padding = unit(c(2, 2, 2, 2), "mm")
+          )
+          # 
+          # # Capture the heatmap as a grob
+          # ht_grob <- grid.grabExpr(ComplexHeatmap::draw(
+          #   heatmaps,
+          #   background = gsplot_background,
+          #   heatmap_legend_side = "bottom",
+          #   padding = unit(c(2, 2, 2, 2), "mm")
+          # ))
+          # 
+          # # Capture the packed legend as a grob
+          # lgd_grob <- grid.grabExpr(draw(custom_legend))
+          # 
+          # # Spacer grob to control distance between heatmap and legend
+          # spacer <- grid::rectGrob(width = unit(1, "npc"), height = unit(0, "mm"), gp = gpar(col = NA))
+          # 
+          # # Arrange the heatmap, spacer, and legend
+          # grid.arrange(ht_grob, spacer, lgd_grob, ncol = 1, heights = c(1, 0.01, 0.05))
+          # 
+        } else {
+          ComplexHeatmap::draw(
+            heatmaps,
+            background = gsplot_background,
+            heatmap_legend_list = custom_legend,
+            heatmap_legend_side = "bottom",
+            annotation_legend_list = isolate_annotation_legend,
+            annotation_legend_side = "right"
+          )
+        }
       }
-      
-      ComplexHeatmap::draw(
-        heatmaps,
-        heatmap_legend_side = input$gsplot_legend_position,
-        annotation_legend_list = custom_legend,
-        background = input$gsplot_background
-      )
     }
   })
   
@@ -27706,11 +28613,11 @@ server <- function(input, output, session) {
         timer = 6000
       )
     } else if (ass_id == "") {
-    show_toast(
-      title = "Empty Assembly ID",
-      type = "error",
-      position = "bottom-end",
-      timer = 3000
+      show_toast(
+        title = "Empty Assembly ID",
+        type = "error",
+        position = "bottom-end",
+        timer = 3000
       )
     } else if (grepl("[()/\\:*?\"<>|]", ass_id)) {
       show_toast(
@@ -27984,23 +28891,23 @@ server <- function(input, output, session) {
             paste(
               '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
               paste("<span style='color: white; font-style:italic'>",
-                  "&nbspRename highlighted isolates or deselect them.</br>")),
+                    "&nbspRename highlighted isolates or deselect them.</br>")),
             paste(
               '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
               paste("<span style='color: white; font-style:italic'>",
-                  "&nbspFilename(s) contain(s) empty spaces."))
+                    "&nbspFilename(s) contain(s) empty spaces."))
           ))
         } else {
           HTML(paste(
             '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
             paste("<span style='color: white; font-style:italic'>",
-                     "&nbspFilename(s) contain(s) empty spaces.")))
+                  "&nbspFilename(s) contain(s) empty spaces.")))
         }
       } else {
         HTML(paste(
           '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
           paste("<span style='color: white; font-style:italic'>", 
-                   "&nbspRename highlighted isolates or deselect them.")))
+                "&nbspRename highlighted isolates or deselect them.")))
       }
     } else {
       shinyjs::enable("conf_meta_multi")
@@ -28096,7 +29003,7 @@ server <- function(input, output, session) {
          !is.null(Typing$file_selection)) {
         if(Typing$file_selection == "files") {
           Typing$files_filtered <- Typing$assembly_files_path$name[which(!endsWith(Typing$assembly_files_path$name, ".gz") &
-                                                          grepl("\\.fasta|\\.fna|\\.fa", Typing$assembly_files_path$name))]
+                                                                           grepl("\\.fasta|\\.fna|\\.fa", Typing$assembly_files_path$name))]
         } else if(Typing$file_selection == "folder") {
           files_selected <- list.files(as.character(Typing$assembly_folder_path))
           Typing$files_filtered <- files_selected[which(!endsWith(files_selected, ".gz") &
@@ -28828,7 +29735,7 @@ server <- function(input, output, session) {
                   return td;
                  }"
               ))
-            })
+          })
           
         } else {
           if(Typing$multi_table_length > 15) {
@@ -28849,7 +29756,7 @@ server <- function(input, output, session) {
                   return td;
                  }"
                 ))
-              })
+            })
           } else {
             output$multi_typing_result_table <- renderRHandsontable({
               rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
@@ -28868,7 +29775,7 @@ server <- function(input, output, session) {
                   return td;
                  }"
                 ))
-              })
+            })
           }
         }
       } else {

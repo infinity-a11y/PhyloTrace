@@ -37,6 +37,47 @@ table {
   box-shadow: none;
 }
 
+.selectize-control.single .selectize-input:not(.no-arrow):after {
+  right: 5px;  
+}
+
+.box.box-solid.box-primary>.box-header {
+  background: #1f4e5d !important;
+  border-bottom: 1px solid white;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+  height: 30px;
+  padding-top: 5px;
+}
+
+.box-header .box-title {
+  font-size: 14px;
+  font-style: italic;
+  margin-top: 0px;
+}
+
+.gs-plot-control-box .box-body {
+  height: 500px;  
+  margin-left: 35px;
+  margin-right: -30px;
+}
+
+.pcr-app pickr-color visible,
+pcr-app .pickr-color .visible,
+body > div.pcr-app.pickr-color.visible {
+  background-color: #164054e3;
+  border: 1px solid white;
+}
+
+.pcr-app .pcr-interaction .pcr-type.active {
+  color: #000;
+  background: #20e6e5;
+}
+
+.pcr-app .pcr-interaction input:focus {
+  box-shadow: none;
+}
+
 #nj_heatmap_confirm,
 #change_entries,
 #conf_screening_cancel,
@@ -3564,19 +3605,34 @@ button#download_report_bttn {
 
 /* Gene Screening */
 
+.gs-plot-box .box.box-solid.box-primary{
+  max-height: 550px;
+}
+
+#gs_var_mapping_ui {
+  margin-top: 10px;
+}
+
 #gs_plot_sel_isolate {
   margin-bottom: 5px;
-  left: 20px;
+  margin-top: 15px;
 }
 
 .gs-cluster-sel {
   margin-top: -28px;
   margin-bottom: 5px;
+  width: 105px;
+  margin-left: -35px;
+}
+
+.gs-plot-selected-isolate {
+  margin-top: 15px;
+  margin-bottom: 5px;
 }
 
 .mat-switch-gs-settings {
   margin-top: 9px;
-  margin-bottom: 5px;
+  margin-bottom: -15px;
 }
 
 #gs_mapping_scale_ui {
@@ -3593,20 +3649,26 @@ button#gs_download_plot_bttn {
   border: 1px solid white;
 }
 
+.gs-plot-box {
+  margin-left: 35px;
+  margin-right: -30px;
+}
+
 #gs_size_menu > i,
 #gs_dim_menu > i,
 #gs_variable_menu > i,
 #gs_download_menu > i,
 #gs_misc_menu > i,
-#gs_color_menu > i {
-  font-size: 25px;
+#gs_color_menu > i,
+#gs_data_menu > i {
+  font-size: 22px;
   background: white;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   position: relative;
   left: 2px;
-  top: 0px;
+  top: 2px;
   transition: transform 0.3s ease;
 }
 
@@ -3656,11 +3718,13 @@ button#gs_download_plot_bttn {
   border-radius: 8px;
   width: 75px;
   height: 35px;
-  margin-left: 20px;
+  margin-left: 0px;
 }
 
 .filetype-gs {
   margin-top: -28px;
+  width: 100px;
+  margin-left: -20px;
 }
 
 #gs-control .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input:hover,
@@ -3678,7 +3742,10 @@ button#gs_download_plot_bttn {
 #gsplot_color_palette2,
 #gsplot_grid_color,
 #gsplot_background {
-  margin-top: -27px;
+  margin-top: -15px;
+  width: 105px;
+  position: relative;
+  left: -20px;
 }
 
 .gs-mapping-scale,
@@ -3689,20 +3756,34 @@ button#gs_download_plot_bttn {
 
 .gs-slider {
   position: relative;
+  top: -25px;
+  width: 100px;
+  left: -5px;
+}
+
+.gs-slider-scale {
+  position: relative;
   top: -30px;
+  width: 120px;
+  margin-left: -35px;
+}
+
+.gs-slider-col .col-sm-6{
+  height: 30px;
 }
 
 .gs-ratio {
-  margin-top: -25px;
-  margin-bottom: 15px;
+  margin-top: -28px;
+  margin-bottom: 10px;
+  width: 100px;
+  margin-left: -20px;
 }
 
 #gs_plot_sel_amr,
 #gs_plot_sel_vir,
 #gs_plot_sel_noclass {
-  margin-top: -10px;
+  margin-top: 5px;
   margin-bottom: 5px;
-  left: 20px;
 }
 
 .gs-picker {
