@@ -1393,3 +1393,27 @@ color_scale_bg_JS <- "$(document).ready(function() {
     }
   });
 })"
+
+# function to get gene screening classification meta
+get.gsMeta <- function(gene_class, hm_matrix) {
+  class_filtered <- gene_class[!duplicated(gsub("\\*", "", gene_class$Observation)),]
+  
+  unison <- colnames(hm_matrix) %in% gsub("\\*", "", class_filtered$Observation)
+  
+  class_present <- colnames(hm_matrix)[unison]
+  no_class <- colnames(hm_matrix)[!unison]
+  
+  meta <- data.frame(
+    gene = c(class_present, no_class),
+    class = c(class_filtered$Variable[gsub("\\*", "", class_filtered$Observation) %in% class_present],
+            rep(NA, length(no_class)))
+  )
+  
+  if(nrow(meta) != 0) {
+    meta <- meta %>%
+      arrange(gene) %>%
+      tibble::column_to_rownames(var = "gene")
+  }
+  
+  meta
+}

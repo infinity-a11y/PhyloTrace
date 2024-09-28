@@ -23952,11 +23952,6 @@ server <- function(input, output, session) {
         dev.off()
       } else if (input$filetype_gs == "svg") {
         plot <- print(gs_plot())
-        # ggsave(file=file, plot=plot, 
-        #        limitsize = FALSE,
-        #        device = svg(width = (as.numeric(input$gs_scale) * as.numeric(input$gs_ratio))/96,
-        #                                           height = as.numeric(input$gs_scale)/96))
-        
         svg(file, 
             width = (as.numeric(input$gs_scale) * as.numeric(input$gs_ratio)) / 92,
             height = as.numeric(input$gs_scale) / 92)
@@ -23970,21 +23965,6 @@ server <- function(input, output, session) {
     }
   )
   
-  # adapt gs plot scaling ratio
-  observe({
-    req(input$gs_ratio)
-    if(input$gs_ratio == "1.6") {
-      updateSliderInput(session, "gs_scale",
-                        step = 5, value = 705, min = 500, max = 1200)
-    } else if(input$gs_ratio == "1.77777777777778") {
-      updateSliderInput(session, "gs_scale",
-                        step = 9, value = 702, min = 504, max = 1197)
-    } else if(input$gs_ratio == "1.33333333333333"){
-      updateSliderInput(session, "gs_scale",
-                        step = 3, value = 699, min = 501, max = 1200)
-    }
-  })
-  
   ### Render UI Elements ----
   
   # gs plot control panel
@@ -23992,7 +23972,7 @@ server <- function(input, output, session) {
     
     if(!is.null(DB$data) & !is.null(Screening$amr_results) &
        !is.null(Screening$vir_class) & !is.null(Screening$amr_class)) {
-      
+      check1 <<- Screening$amr_class
       amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, as.numeric))
       rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
       colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
@@ -24000,58 +23980,48 @@ server <- function(input, output, session) {
       
       if(!is.null(Screening$amr_class)) {
         if(nrow(Screening$amr_class) > 0) {
-          amr_class_filtered <- Screening$amr_class[!duplicated(gsub("\\*", "", Screening$amr_class$Observation)),]
+          amr_meta <- get.gsMeta(gene_class = Screening$amr_class, hm_matrix = heatmap_matrix)
+          choices_amr <- rownames(amr_meta)[which(!is.na(amr_meta$class))]
+          amr_classes <- amr_meta$class
+          names(amr_classes) <- rownames(amr_meta)
+          amr_classes_filtered <- na.omit(amr_classes)
+          choices_amr <- list()
           
-          amr_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", amr_class_filtered$Observation)
-          
-          amr_class_present <- colnames(heatmap_matrix)[amr_unison]
-          amr_no_class <- colnames(heatmap_matrix)[!amr_unison]
-          
-          amr_meta <- data.frame(
-            gene = c(amr_class_present, amr_no_class),
-            amr = c(amr_class_filtered$Variable[gsub("\\*", "", amr_class_filtered$Observation) %in% amr_class_present],
-                    rep(NA, length(amr_no_class)))
-          )
-          
-          if(nrow(amr_meta) != 0) {
-            amr_meta <- amr_meta %>%
-              arrange(gene) %>%
-              tibble::column_to_rownames(var = "gene")
+          amr_meta2 <<- amr_meta
+          for(i in 1:length(unique(amr_classes_filtered))) {
+            group <- names(amr_classes_filtered)[which(amr_classes_filtered == unique(amr_classes_filtered)[i])]
+            if(length(group) == 1) {
+              choices_amr[[unique(amr_classes_filtered)[i]]] <- as.list(group)
+            } else {
+              choices_amr[[unique(amr_classes_filtered)[i]]] <- group
+            }
           }
-          
-          choices_amr <- rownames(amr_meta)[which(!is.na(amr_meta$amr))]
         } else {choices_amr <- character(0)}
       } else {choices_amr <- character(0)}
       
       if(!is.null(Screening$vir_class)) {
         if(nrow(Screening$vir_class) > 0) {
-          vir_class_filtered <- Screening$vir_class[!duplicated(gsub("\\*", "", Screening$vir_class$Observation)),]
-          
-          vir_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", vir_class_filtered$Observation)
-          
-          vir_class_present <- colnames(heatmap_matrix)[vir_unison]
-          vir_no_class <- colnames(heatmap_matrix)[!vir_unison]
-          
-          vir_meta <- data.frame(
-            gene = c(vir_class_present, vir_no_class),
-            vir = c(vir_class_filtered$Variable[gsub("\\*", "", vir_class_filtered$Observation) %in% vir_class_present],
-                    rep(NA, length(vir_no_class)))
-          )
-          
-          if(nrow(vir_meta) != 0) {
-            vir_meta <- vir_meta %>%
-              arrange(gene) %>%
-              tibble::column_to_rownames(var = "gene")
+          vir_meta <- get.gsMeta(gene_class = Screening$vir_class, hm_matrix = heatmap_matrix)
+          choices_vir <- rownames(vir_meta)[which(!is.na(vir_meta$class))]
+          vir_classes <- vir_meta$class
+          names(vir_classes) <- rownames(amr_meta)
+          vir_classes_filtered <- na.omit(vir_classes)
+          choices_vir <- list()
+          for(i in 1:length(unique(vir_classes_filtered))) {
+            group <- names(vir_classes_filtered)[which(vir_classes_filtered == unique(vir_classes_filtered)[i])]
+            if(length(group) == 1) {
+              choices_vir[[unique(vir_classes_filtered)[i]]] <- as.list(group)
+            } else {
+              choices_vir[[unique(vir_classes_filtered)[i]]] <- group
+            }
           }
-          
-          choices_vir <- rownames(vir_meta)[which(!is.na(vir_meta$vir))]
         } else {choices_vir <- character(0)}
       } else {choices_vir <- character(0)}
       
-      if(all(!is.na(vir_meta$class) & !is.na(amr_meta$amr))) {
+      if(all(!is.na(vir_meta$class) & !is.na(amr_meta$class))) {
         choices_noclass <- character(0)
       } else {
-        choices_noclass <- rownames(amr_meta)[which(is.na(vir_meta$class) & is.na(amr_meta$amr))]  
+        choices_noclass <- rownames(amr_meta)[which(is.na(vir_meta$class) & is.na(amr_meta$class))]  
       }
       
       div(
@@ -24119,10 +24089,13 @@ server <- function(input, output, session) {
                 width = 12,
                 align = "center",
                 br(),
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 16px; position: relative;', 
-                              'AMR Genes')
+                div(
+                  class = "gs-heatmap-text",
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 16px; position: relative;', 
+                                'AMR Genes')
+                    )
                   )
                 ),
                 div(
@@ -24148,10 +24121,13 @@ server <- function(input, output, session) {
                 width = 12,
                 align = "center",
                 br(),
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 16px; position: relative;', 
-                              'Virulence Genes')
+                div(
+                  class = "gs-heatmap-text",
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 16px; position: relative;', 
+                                'Virulence Genes')
+                    )
                   )
                 ),
                 div(
@@ -24177,10 +24153,13 @@ server <- function(input, output, session) {
                 width = 12,
                 align = "center",
                 br(),
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 15px; position: relative;', 
-                              'Unclassifiable Genes')
+                div(
+                  class = "gs-heatmap-text",
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 15px; position: relative;', 
+                                'Unclassifiable Genes')
+                    )
                   )
                 ),
                 div(
@@ -24219,12 +24198,6 @@ server <- function(input, output, session) {
       gs_plot_selected_isolate_selected <- DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
     }
     
-    if(!is.null(gs_plot_selected_isolate())) {
-      gs_plot_selected_isolate_selected <- gs_plot_selected_isolate()
-    } else {
-      gs_plot_selected_isolate_selected <- DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
-    }
-    
     amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, as.numeric))
     rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
     colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
@@ -24232,77 +24205,53 @@ server <- function(input, output, session) {
     
     if(!is.null(Screening$amr_class)) {
       if(nrow(Screening$amr_class) > 0) {
-        amr_class_filtered <- Screening$amr_class[!duplicated(gsub("\\*", "", Screening$amr_class$Observation)),]
-        
-        amr_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", amr_class_filtered$Observation)
-        
-        amr_class_present <- colnames(heatmap_matrix)[amr_unison]
-        amr_no_class <- colnames(heatmap_matrix)[!amr_unison]
-        
-        amr_meta <- data.frame(
-          gene = c(amr_class_present, amr_no_class),
-          amr = c(amr_class_filtered$Variable[gsub("\\*", "", amr_class_filtered$Observation) %in% amr_class_present],
-                  rep(NA, length(amr_no_class)))
-        )
-        
-        if(nrow(amr_meta) != 0) {
-          amr_meta <- amr_meta %>%
-            arrange(gene) %>%
-            tibble::column_to_rownames(var = "gene")
+        amr_meta <- get.gsMeta(gene_class = Screening$amr_class, hm_matrix = heatmap_matrix)
+        choices_amr <- rownames(amr_meta)[which(!is.na(amr_meta$class))]
+        amr_classes <- amr_meta$class
+        names(amr_classes) <- rownames(amr_meta)
+        amr_classes_filtered <- na.omit(amr_classes)
+        choices_amr <- list()
+        for(i in 1:length(unique(amr_classes_filtered))) {
+          group <- names(amr_classes_filtered)[which(amr_classes_filtered == unique(amr_classes_filtered)[i])]
+          if(length(group) == 1) {
+            choices_amr[[unique(amr_classes_filtered)[i]]] <- as.list(group)
+          } else {
+            choices_amr[[unique(amr_classes_filtered)[i]]] <- group
+          }
         }
-        
-        choices_amr <- rownames(amr_meta)[which(!is.na(amr_meta$amr))]
       } else {choices_amr <- character(0)}
     } else {choices_amr <- character(0)}
     
-    if(!is.null(gs_plot_selected_amr())) {
-      gs_plot_selected_amr_selected <- gs_plot_selected_amr()
-    } else {
-      gs_plot_selected_amr_selected <- choices_amr
-    }
+    gs_plot_selected_amr_selected <- gs_plot_selected_amr()
     
     if(!is.null(Screening$vir_class)) {
       if(nrow(Screening$vir_class) > 0) {
-        vir_class_filtered <- Screening$vir_class[!duplicated(gsub("\\*", "", Screening$vir_class$Observation)),]
-        
-        vir_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", vir_class_filtered$Observation)
-        
-        vir_class_present <- colnames(heatmap_matrix)[vir_unison]
-        vir_no_class <- colnames(heatmap_matrix)[!vir_unison]
-        
-        vir_meta <- data.frame(
-          gene = c(vir_class_present, vir_no_class),
-          vir = c(vir_class_filtered$Variable[gsub("\\*", "", vir_class_filtered$Observation) %in% vir_class_present],
-                  rep(NA, length(vir_no_class)))
-        )
-        
-        if(nrow(vir_meta) != 0) {
-          vir_meta <- vir_meta %>%
-            arrange(gene) %>%
-            tibble::column_to_rownames(var = "gene")
+        vir_meta <- get.gsMeta(gene_class = Screening$vir_class, hm_matrix = heatmap_matrix)
+        choices_vir <- rownames(vir_meta)[which(!is.na(vir_meta$class))]
+        vir_classes <- vir_meta$class
+        names(vir_classes) <- rownames(amr_meta)
+        vir_classes_filtered <- na.omit(vir_classes)
+        choices_vir <- list()
+        for(i in 1:length(unique(vir_classes_filtered))) {
+          group <- names(vir_classes_filtered)[which(vir_classes_filtered == unique(vir_classes_filtered)[i])]
+          if(length(group) == 1) {
+            choices_vir[[unique(vir_classes_filtered)[i]]] <- as.list(group)
+          } else {
+            choices_vir[[unique(vir_classes_filtered)[i]]] <- group
+          }
         }
-        
-        choices_vir <- rownames(vir_meta)[which(!is.na(vir_meta$vir))]
       } else {choices_vir <- character(0)}
     } else {choices_vir <- character(0)}
     
-    if(!is.null(gs_plot_selected_vir())) {
-      gs_plot_selected_vir_selected <- gs_plot_selected_vir()
-    } else {
-      gs_plot_selected_vir_selected <- choices_vir
-    }
+    gs_plot_selected_vir_selected <- gs_plot_selected_vir()
     
-    if(all(!is.na(vir_meta$class) & !is.na(amr_meta$amr))) {
+    if(all(!is.na(vir_meta$class) & !is.na(amr_meta$class))) {
       choices_noclass <- character(0)
     } else {
-      choices_noclass <- rownames(amr_meta)[which(is.na(vir_meta$class) & is.na(amr_meta$amr))]  
+      choices_noclass <- rownames(amr_meta)[which(is.na(vir_meta$class) & is.na(amr_meta$class))]  
     }
     
-    if(!is.null(gs_plot_selected_noclass())) {
-      gs_plot_selected_noclass_selected <- gs_plot_selected_noclass()
-    } else {
-      gs_plot_selected_noclass_selected <- choices_noclass
-    }
+    gs_plot_selected_noclass_selected <- gs_plot_selected_noclass()
     
     output$gs_plot_control_ui <- renderUI(
       div(
@@ -24324,42 +24273,45 @@ server <- function(input, output, session) {
                               'Isolates')
                   )
                 ),
-                pickerInput(
-                  "gs_plot_selected_isolate",
-                  label = "",
-                  choices = list(
-                    Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
-                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
-                    } else {
-                      DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
-                    },
-                    Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
-                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
-                    } else {
-                      DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
-                    },
-                    `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
-                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
-                    } else {
-                      DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
-                    }
-                  ),
-                  choicesOpt = list(
-                    disabled = c(
-                      rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
-                      rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
-                      rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
-                    )
-                  ),
-                  selected = gs_plot_selected_isolate_selected,
-                  options = list(
-                    `live-search` = TRUE,
-                    `actions-box` = TRUE,
-                    size = 10,
-                    style = "background-color: white; border-radius: 5px;"
-                  ),
-                  multiple = TRUE,
-                  width = "96%"
+                div(
+                  class = "gs-plot-selected-isolate",
+                  pickerInput(
+                    "gs_plot_selected_isolate",
+                    label = "",
+                    choices = list(
+                      Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
+                        as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
+                      } else {
+                        DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+                      },
+                      Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
+                        as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
+                      } else {
+                        DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
+                      },
+                      `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
+                        as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
+                      } else {
+                        DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
+                      }
+                    ),
+                    choicesOpt = list(
+                      disabled = c(
+                        rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
+                        rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
+                        rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
+                      )
+                    ),
+                    selected = gs_plot_selected_isolate_selected,
+                    options = list(
+                      `live-search` = TRUE,
+                      `actions-box` = TRUE,
+                      size = 10,
+                      style = "background-color: white; border-radius: 5px;"
+                    ),
+                    multiple = TRUE,
+                    width = "96%"
+                  )
                 ),
                 uiOutput("gs_plot_sel_isolate_info")
               ),
@@ -24367,10 +24319,14 @@ server <- function(input, output, session) {
                 width = 12,
                 align = "center",
                 br(),
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 16px; position: relative;', 
-                              'AMR Genes')
+                br(),
+                div(
+                  class = "gs-heatmap-text",
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 16px; position: relative;', 
+                                'AMR Genes')
+                    )
                   )
                 ),
                 div(
@@ -24396,10 +24352,13 @@ server <- function(input, output, session) {
                 width = 12,
                 align = "center",
                 br(),
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 16px; position: relative;', 
-                              'Virulence Genes')
+                div(
+                  class = "gs-heatmap-text",
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 16px; position: relative;', 
+                                'Virulence Genes')
+                    )
                   )
                 ),
                 div(
@@ -24425,10 +24384,13 @@ server <- function(input, output, session) {
                 width = 12,
                 align = "center",
                 br(),
-                HTML(
-                  paste(
-                    tags$span(style='color: white; font-size: 15px; position: relative;', 
-                              'Unclassifiable Genes')
+                div(
+                  class = "gs-heatmap-text",
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 15px; position: relative;', 
+                                'Unclassifiable Genes')
+                    )
                   )
                 ),
                 div(
@@ -25107,14 +25069,30 @@ server <- function(input, output, session) {
       
       if(!is.null(gs_ratio())) {
         gs_ratio_selected <- gs_ratio()
+        if(gs_ratio() == "1.6") {
+          min <- 500
+          max <- 1200
+          step <- 5
+        } else if(input$gs_ratio == "1.77777777777778") {
+          min <- 504
+          max <- 1197
+          step <- 9
+        } else if(input$gs_ratio == "1.33333333333333") {
+          min <- 501
+          max <- 1200
+          step <- 3
+        }
       } else {
         gs_ratio_selected <- c("16:9" = (16/9))
+        min <- 504
+        max <- 1197
+        step <- 9
       }
       
       if(!is.null(gs_scale())) {
         gs_scale_selected <- gs_scale()
       } else {
-        gs_scale_selected <- 705
+        gs_scale_selected <- 702
       }
       
       if(!is.null(gs_cluster_col())) {
@@ -25210,10 +25188,10 @@ server <- function(input, output, session) {
                     sliderInput(
                       "gs_scale",
                       "",
-                      min = 500,
-                      max = 1200,
+                      min = min,
+                      max = max,
                       value = gs_scale_selected,
-                      step = 5,
+                      step = step,
                       width = "95%",
                       ticks = FALSE
                     )
@@ -25872,7 +25850,7 @@ server <- function(input, output, session) {
     if(!is.null(input$gs_scale)) {
       gs_scale <- input$gs_scale
     } else {
-      gs_scale <- 705
+      gs_scale <- 702
     }
     if(!is.null(input$gs_ratio)) {
       gs_ratio <- input$gs_ratio
@@ -25911,14 +25889,15 @@ server <- function(input, output, session) {
                   "Select min. 3 isolates")
       )
     } else {
-      HTML(
-        paste(
-          tags$span(style='color: white; font-size: 12px; font-style: italic; position: relative;  ', 
-                    paste(
-                      length(input$gs_plot_selected_isolate),
-                      'isolate(s) selected'
-                    ))
-        )
+      tagList(
+        tags$span(style='color: white; font-size: 12px; font-style: italic; position: relative;  ', 
+                  paste(
+                    length(input$gs_plot_selected_isolate),
+                    'isolate(s) selected'
+                  )),
+        tags$br(),
+        tags$span(style='color: #282F38; font-style: italic; font-size: 12px; position: relative;  ', 
+                  "Select min. 3 isolates")
       )
     }
   })
@@ -25928,28 +25907,29 @@ server <- function(input, output, session) {
     req(DB$data)
     if(is.null(input$gs_plot_selected_amr)) {
       tagList(
-        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative;  top: 5px;', 
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative;', 
                   "0 gene(s) selected"),
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative;  top: 5px;', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative;', 
                   "Select min. 3 genes")
       )
     } else if(length(input$gs_plot_selected_amr) < 3) {
       tagList(
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; ',
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative;',
                   paste(length(input$gs_plot_selected_amr),
                         "gene(s) selected")), 
         tags$br(),
-        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; ', 
+        tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative;', 
                   "Select min. 3 genes")
       )
     } else {
-      HTML(
-        paste(
-          tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; ', 
-                    paste(length(input$gs_plot_selected_amr),
-                          "gene(s) selected"))
-        )
+      tagList(
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative;', 
+                  paste(length(input$gs_plot_selected_amr),
+                        "gene(s) selected")),
+        tags$br(),
+        tags$span(style='color: #282F38; font-style: italic; font-size: 12px; position: relative;', 
+                  "Select min. 3 genes")
       )
     }
   })
@@ -25971,15 +25951,16 @@ server <- function(input, output, session) {
                         "gene(s) selected")), 
         tags$br(),
         tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; ', 
-                  "Select min. 3 genes")
+                  "")
       )
     } else {
-      HTML(
-        paste(
-          tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; ', 
-                    paste(length(input$gs_plot_selected_vir),
-                          "gene(s) selected"))
-        )
+      tagList(
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; ', 
+                  paste(length(input$gs_plot_selected_vir),
+                        "gene(s) selected")),
+        tags$br(),
+        tags$span(style='color: #282F38; font-style: italic; font-size: 12px; position: relative; ', 
+                  "Select min. 3 genes")
       )
     }
   })
@@ -26004,12 +25985,13 @@ server <- function(input, output, session) {
                   "Select min. 3 genes")
       )
     } else {
-      HTML(
-        paste(
-          tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; ', 
-                    paste(length(input$gs_plot_selected_noclass),
-                          "gene(s) selected"))
-        )
+      tagList(
+        tags$span(style='color: white; font-style: italic; font-size: 12px; position: relative; ', 
+                  paste(length(input$gs_plot_selected_noclass),
+                        "gene(s) selected")),
+        tags$br(),
+        tags$span(style='color: #282F38; font-style: italic; font-size: 12px; position: relative; ', 
+                  "Select min. 3 genes")
       )
     }
   })
@@ -27018,17 +27000,23 @@ server <- function(input, output, session) {
   gs_plot_selected_noclass <- reactiveVal(NULL)
   
   observe({
-    if (!is.null(input$gs_plot_selected_isolate)) {
+    if(!is.null(input$gs_plot_selected_isolate)) {
       gs_plot_selected_isolate(input$gs_plot_selected_isolate)
     }
-    if (!is.null(input$gs_plot_selected_amr)) {
+    if(!is.null(input$gs_plot_selected_amr)) {
       gs_plot_selected_amr(input$gs_plot_selected_amr)
+    } else {
+      gs_plot_selected_amr(character(0))
     }
-    if (!is.null(input$gs_plot_selected_vir)) {
+    if(!is.null(input$gs_plot_selected_vir)) {
       gs_plot_selected_vir(input$gs_plot_selected_vir)
+    } else {
+      gs_plot_selected_vir(character(0))
     }
-    if (!is.null(input$gs_plot_selected_noclass)) {
+    if(!is.null(input$gs_plot_selected_noclass)) {
       gs_plot_selected_noclass(input$gs_plot_selected_noclass)
+    } else {
+      gs_plot_selected_noclass(character(0))
     }
   })
   
@@ -27159,111 +27147,36 @@ server <- function(input, output, session) {
   gs_plot <- reactive({
     req(DB$data, Screening$amr_results, DB$database, DB$scheme)
     
-    amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, as.numeric))
-    rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
-    colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
-    heatmap_matrix <- as.matrix(amr_profile_numeric)
-    
-     
+    # get inputs
     if(!is.null(input$gs_plot_selected_isolate)) {
       gs_plot_selected_isolate <- input$gs_plot_selected_isolate
     } else {
       gs_plot_selected_isolate <- DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
     }
+    gs_plot_selected_amr <- input$gs_plot_selected_amr
+    gs_plot_selected_vir <- input$gs_plot_selected_vir
+    gs_plot_selected_noclass <- input$gs_plot_selected_noclass
     
-    # Vir metadata
-    if(!is.null(Screening$vir_class)) {
-      if(nrow(Screening$vir_class) > 0) {
-        vir_class_filtered <- Screening$vir_class[!duplicated(gsub("\\*", "", Screening$vir_class$Observation)),]
-        
-        vir_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", vir_class_filtered$Observation)
-        
-        vir_class_present <- colnames(heatmap_matrix)[vir_unison]
-        vir_no_class <- colnames(heatmap_matrix)[!vir_unison]
-        
-        vir_meta <- data.frame(
-          gene = c(vir_class_present, vir_no_class),
-          vir = c(vir_class_filtered$Variable[gsub("\\*", "", vir_class_filtered$Observation) %in% vir_class_present],
-                  rep(NA, length(vir_no_class)))
-        )
-        
-        if(nrow(vir_meta) != 0) {
-          vir_meta <- vir_meta %>%
-            arrange(gene) %>%
-            tibble::column_to_rownames(var = "gene")
-        }
-        
-        choices_vir <- rownames(vir_meta)[which(!is.na(vir_meta$vir))]
-      } else {choices_vir <- character(0)}
-    } else {choices_vir <- character(0)}
-    
-    if(!is.null(input$gs_plot_selected_vir)) {
-      gs_plot_selected_vir <- input$gs_plot_selected_vir
-    } else {
-      gs_plot_selected_vir <- choices_vir
-    }
-    
-    # AMR metadata
-    if(!is.null(Screening$amr_class)) {
-      if(nrow(Screening$amr_class) > 0) {
-        amr_class_filtered <- Screening$amr_class[!duplicated(gsub("\\*", "", Screening$amr_class$Observation)),]
-        
-        amr_unison <- colnames(heatmap_matrix) %in% gsub("\\*", "", amr_class_filtered$Observation)
-        
-        amr_class_present <- colnames(heatmap_matrix)[amr_unison]
-        amr_no_class <- colnames(heatmap_matrix)[!amr_unison]
-        
-        amr_meta <- data.frame(
-          gene = c(amr_class_present, amr_no_class),
-          amr = c(amr_class_filtered$Variable[gsub("\\*", "", amr_class_filtered$Observation) %in% amr_class_present],
-                  rep(NA, length(amr_no_class)))
-        )
-        
-        if(nrow(amr_meta) != 0) {
-          amr_meta <- amr_meta %>%
-            arrange(gene) %>%
-            tibble::column_to_rownames(var = "gene")
-        }
-        
-        choices_amr <- rownames(amr_meta)[which(!is.na(amr_meta$amr))]
-      } else {choices_amr <- character(0)}
-    } else {choices_amr <- character(0)}
-    
-    if(!is.null(input$gs_plot_selected_amr)) {
-      gs_plot_selected_amr <- input$gs_plot_selected_amr
-    } else {
-      gs_plot_selected_amr <- choices_amr
-    }
-    
-    if(all(!is.na(vir_meta$class) & !is.na(amr_meta$amr))) {
-      choices_noclass <- character(0)
-    } else {
-      choices_noclass <- rownames(amr_meta)[which(is.na(vir_meta$class) & is.na(amr_meta$amr))]  
-    }
-    
-    if(!is.null(input$gs_plot_selected_noclass)) {
-      gs_plot_selected_noclass <- input$gs_plot_selected_noclass
-    } else {
-      gs_plot_selected_noclass <- choices_noclass
-    }
+    # get heatmap 
+    amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, as.numeric))
+    rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
+    colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
     
     if((length(c(gs_plot_selected_amr, gs_plot_selected_vir, gs_plot_selected_noclass)) >= 3) & (length(gs_plot_selected_isolate) >= 3)) {
       
       ### get heatmap meta
-      
       amr_profile_numeric_all <- amr_profile_numeric[rownames(amr_profile_numeric) %in% gs_plot_selected_isolate, ]
       amr_profile_numeric <- amr_profile_numeric_all[,c(gs_plot_selected_amr, gs_plot_selected_vir, gs_plot_selected_noclass)]
       heatmap_mat <- as.matrix(amr_profile_numeric)
       
-      vir_meta1 <<- vir_meta
-      amr_meta1 <<- amr_meta
+      # metadata
+      amr_meta <- get.gsMeta(gene_class = Screening$amr_class, hm_matrix = heatmap_mat)
+      colnames(amr_meta) <- "amr"
+      vir_meta <- get.gsMeta(gene_class = Screening$vir_class, hm_matrix = heatmap_mat)
       
       # unite meta
-      Screening$hm_meta <- add_column(amr_meta, vir = vir_meta$vir)
+      Screening$hm_meta <- add_column(amr_meta, vir = vir_meta$class)
       hm_meta <- Screening$hm_meta
-      
-      hm_meta1 <<- hm_meta
-      heatmap_mat1 <<- heatmap_mat
       
       # styling parameters
       ht_opt$HEATMAP_LEGEND_PADDING = unit(15, "mm")
@@ -27455,18 +27368,23 @@ server <- function(input, output, session) {
           rownames(isolate_meta) <- rownames(heatmap_mat)
           
           sel_isolate_var <- isolate_meta[[gs_var_mapping]]
+          dist_col <- length(unique(sel_isolate_var))
           if(all(sel_isolate_var == "")) {
             var_colors <- "grey"
             names(var_colors) <- "NA"
           } else {
             if(!is.null(input$gs_mapping_scale)) {
               if(input$gs_mapping_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-                var_colors <- get(input$gs_mapping_scale)(length(unique(sel_isolate_var)))
+                var_colors <- get(input$gs_mapping_scale)(dist_col)
               } else {
-                var_colors <- brewer.pal(length(unique(sel_isolate_var)), input$gs_mapping_scale)
+                if(dist_col < 3) {
+                  var_colors <- brewer.pal(3, input$gs_mapping_scale)[1:dist_col]
+                } else {
+                  var_colors <- brewer.pal(dist_col, input$gs_mapping_scale)    
+                }
               }
             } else {
-              var_colors <- get("viridis")(length(unique(sel_isolate_var)))
+              var_colors <- get("viridis")(dist_col)
             }
             names(var_colors) <- unique(sort(sel_isolate_var))
           }
@@ -27499,8 +27417,6 @@ server <- function(input, output, session) {
       amr_annotation <- NULL
       amr_heatmap <- NULL
       sel_amr <- NULL
-      gs_plot_selected_amr1 <<- gs_plot_selected_amr
-      input_gs_amrclass_scale <<- input$gs_amrclass_scale
       if(!is.null(gs_plot_selected_amr)) {
         if(all(is.na(hm_meta$amr)) | length(gs_plot_selected_amr) < 3) {
           amr_annotation <- NULL
@@ -27531,6 +27447,8 @@ server <- function(input, output, session) {
                 }
               }
             }
+            sel_amr1 <<- sel_amr
+            amr_colors1 <<- amr_colors
             names(amr_colors) <- unique(sort(sel_amr))
             
             amr_annotation <- HeatmapAnnotation(
@@ -27600,6 +27518,8 @@ server <- function(input, output, session) {
       vir_heatmap <- NULL
       gs_plot_selected_vir1 <<- gs_plot_selected_vir
       input_gs_virclass_scale <<- input$gs_virclass_scale
+      hm_meta1 <<- hm_meta
+      vir_meta1 <<- vir_meta
       if(!is.null(gs_plot_selected_vir)) {
         if(all(is.na(hm_meta$vir)) | length(gs_plot_selected_vir) < 3) {
           vir_annotation <- NULL

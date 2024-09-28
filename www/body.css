@@ -1943,6 +1943,14 @@ button#nj_del_label, button#upgma_del_label {
   box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.5);
 }
 
+.gs-plot-selected-isolate .dropdown-menu .open .open > .dropdown-menu,
+.gs-plot-selected-isolate .dropdown-menu .open > .dropdown-menu,
+dropdown-menu open,
+.dropdown-menu .open,
+dropdown-menu .open {
+  border-color: black;
+}
+
 #gs_plot img {
   margin-left: 70px;
 }
@@ -3604,6 +3612,11 @@ button#download_report_bttn {
 }
 
 /* Gene Screening */
+
+.gs-heatmap-text {
+  margin-top: -10px;
+  margin-bottom: -10px;
+}
 
 .gs-plot-box .box.box-solid.box-primary{
   max-height: 550px;
