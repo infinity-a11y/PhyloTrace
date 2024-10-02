@@ -1,5 +1,8 @@
 ######## PhyloTrace #########
 
+options(ignore.negative.edge = TRUE)
+options(shiny.error = browser)
+
 # _______________________ ####
 # CRAN Packages
 library(shiny)
@@ -51,10 +54,6 @@ library(ggtreeExtra)
 source("./assets/constants.R")
 source("./assets/functions.R")
 source("./assets/ui_modules.R")
-
-options(ignore.negative.edge = TRUE)
-options(shiny.error = browser)
-
 
 # User Interface ----
 
@@ -5696,6 +5695,10 @@ server <- function(input, output, session) {
   Scheme <- reactiveValues() # reactive variables related to scheme  functions
   
   # Tooltips
+  addTooltip(session, id = 'gsplot_isolate_label_menu', title = "Label",
+             placement = "right", trigger = "hover", 
+             options = list(delay = list(show = 400, hide = 300)))
+  
   addTooltip(session, id = 'gs_data_menu', title = "Data Mapping",
              placement = "left", trigger = "hover", 
              options = list(delay = list(show = 400, hide = 300)))
@@ -10248,8 +10251,6 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
-    
-    hm_meta1 <<- Screening$hm_meta
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
@@ -23972,7 +23973,6 @@ server <- function(input, output, session) {
     
     if(!is.null(DB$data) & !is.null(Screening$amr_results) &
        !is.null(Screening$vir_class) & !is.null(Screening$amr_class)) {
-      check1 <<- Screening$amr_class
       amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, as.numeric))
       rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
       colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
@@ -23986,8 +23986,6 @@ server <- function(input, output, session) {
           names(amr_classes) <- rownames(amr_meta)
           amr_classes_filtered <- na.omit(amr_classes)
           choices_amr <- list()
-          
-          amr_meta2 <<- amr_meta
           for(i in 1:length(unique(amr_classes_filtered))) {
             group <- names(amr_classes_filtered)[which(amr_classes_filtered == unique(amr_classes_filtered)[i])]
             if(length(group) == 1) {
@@ -23996,6 +23994,7 @@ server <- function(input, output, session) {
               choices_amr[[unique(amr_classes_filtered)[i]]] <- group
             }
           }
+          choices_amr <- choices_amr[order(names(choices_amr))]
         } else {choices_amr <- character(0)}
       } else {choices_amr <- character(0)}
       
@@ -24015,6 +24014,7 @@ server <- function(input, output, session) {
               choices_vir[[unique(vir_classes_filtered)[i]]] <- group
             }
           }
+          choices_vir <- choices_vir[order(names(choices_vir))]
         } else {choices_vir <- character(0)}
       } else {choices_vir <- character(0)}
       
@@ -24025,7 +24025,7 @@ server <- function(input, output, session) {
       }
       
       div(
-        class = "gs-plot-box",
+        class = "gs-plot-box2",
         box(
           solidHeader = TRUE,
           status = "primary",
@@ -24043,44 +24043,77 @@ server <- function(input, output, session) {
                               'Isolates')
                   )
                 ),
-                div(
-                  class = "gs-plot-selected-isolate",
-                  pickerInput(
-                    "gs_plot_selected_isolate",
-                    label = "",
-                    choices = list(
-                      Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
-                        as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
-                      } else {
-                        DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
-                      },
-                      Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
-                        as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
-                      } else {
-                        DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
-                      },
-                      `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
-                        as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
-                      } else {
-                        DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
-                      }
-                    ),
-                    choicesOpt = list(
-                      disabled = c(
-                        rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
-                        rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
-                        rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
+                fluidRow(
+                  column(
+                    width = 9,
+                    div(
+                      class = "gs-plot-selected-isolate",
+                      pickerInput(
+                        "gs_plot_selected_isolate",
+                        label = "",
+                        choices = list(
+                          Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
+                            as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
+                          } else {
+                            DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+                          },
+                          Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
+                            as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
+                          } else {
+                            DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
+                          },
+                          `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
+                            as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
+                          } else {
+                            DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
+                          }
+                        ),
+                        choicesOpt = list(
+                          disabled = c(
+                            rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
+                            rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
+                            rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
+                          )
+                        ),
+                        selected = DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")],
+                        options = list(
+                          `live-search` = TRUE,
+                          `actions-box` = TRUE,
+                          size = 10,
+                          style = "background-color: white; border-radius: 5px;"
+                        ),
+                        multiple = TRUE,
+                        width = "96%"
                       )
-                    ),
-                    selected = DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")],
-                    options = list(
-                      `live-search` = TRUE,
-                      `actions-box` = TRUE,
-                      size = 10,
-                      style = "background-color: white; border-radius: 5px;"
-                    ),
-                    multiple = TRUE,
-                    width = "96%"
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    align = "center",
+                    dropMenu(
+                      actionBttn(
+                        "gsplot_isolate_label_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("sliders")
+                      ),
+                      placement = "right-start",
+                      theme = "translucent",
+                      fluidRow(
+                        div(
+                          class = "gsplot-isolate-label",
+                          selectInput(
+                            "gsplot_isolate_label",
+                            label = h5("Isolate Label", style = "color:white;"),
+                            choices = c("Assembly ID", "Assembly Name"),
+                            selected = "Assembly Name",
+                            width = "70%"
+                          ) 
+                        )
+                      )
+                    )
                   )
                 ),
                 uiOutput("gs_plot_sel_isolate_info")
@@ -24090,7 +24123,7 @@ server <- function(input, output, session) {
                 align = "center",
                 br(),
                 div(
-                  class = "gs-heatmap-text",
+                  class = "gs-heatmap-text1",
                   HTML(
                     paste(
                       tags$span(style='color: white; font-size: 16px; position: relative;', 
@@ -24110,7 +24143,7 @@ server <- function(input, output, session) {
                       size = 10,
                       style = "background-color: white; border-radius: 5px;"
                     ),
-                    selected = choices_amr,
+                    selected = unlist(choices_amr),
                     multiple = TRUE,
                     width = "96%"
                   )
@@ -24142,7 +24175,7 @@ server <- function(input, output, session) {
                       size = 10,
                       style = "background-color: white; border-radius: 5px;"
                     ),
-                    selected = choices_vir,
+                    selected = unlist(choices_vir),
                     multiple = TRUE,
                     width = "96%"
                   )
@@ -24174,13 +24207,12 @@ server <- function(input, output, session) {
                       size = 10,
                       style = "background-color: white; border-radius: 5px;"
                     ),
-                    selected = choices_noclass,
+                    selected = unlist(choices_noclass),
                     multiple = TRUE,
                     width = "96%"
                   )
                 ),
-                uiOutput("gs_plot_sel_noclass_info"),
-                br()
+                uiOutput("gs_plot_sel_noclass_info")
               )
             )
           )
@@ -24190,7 +24222,15 @@ server <- function(input, output, session) {
   )
   
   # gs heatmap data menu
+  input_gsplot_isolate_label <- reactive({input$gsplot_isolate_label}) %>% debounce(1000)
+  
   observeEvent(input$gs_data_menu, {
+    
+    if(!is.null(input_gsplot_isolate_label())) {
+      gsplot_isolate_label_selected <- input_gsplot_isolate_label()
+    } else {
+      gsplot_isolate_label_selected <- "Assembly Name"
+    }
     
     if(!is.null(gs_plot_selected_isolate())) {
       gs_plot_selected_isolate_selected <- gs_plot_selected_isolate()
@@ -24255,7 +24295,7 @@ server <- function(input, output, session) {
     
     output$gs_plot_control_ui <- renderUI(
       div(
-        class = "gs-plot-box",
+        class = "gs-plot-box2",
         box(
           solidHeader = TRUE,
           status = "primary",
@@ -24273,44 +24313,77 @@ server <- function(input, output, session) {
                               'Isolates')
                   )
                 ),
-                div(
-                  class = "gs-plot-selected-isolate",
-                  pickerInput(
-                    "gs_plot_selected_isolate",
-                    label = "",
-                    choices = list(
-                      Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
-                        as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
-                      } else {
-                        DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
-                      },
-                      Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
-                        as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
-                      } else {
-                        DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
-                      },
-                      `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
-                        as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
-                      } else {
-                        DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
-                      }
-                    ),
-                    choicesOpt = list(
-                      disabled = c(
-                        rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
-                        rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
-                        rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
+                fluidRow(
+                  column(
+                    width = 9,
+                    div(
+                      class = "gs-plot-selected-isolate",
+                      pickerInput(
+                        "gs_plot_selected_isolate",
+                        label = "",
+                        choices = list(
+                          Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
+                            as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
+                          } else {
+                            DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+                          },
+                          Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
+                            as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
+                          } else {
+                            DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
+                          },
+                          `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
+                            as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
+                          } else {
+                            DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
+                          }
+                        ),
+                        choicesOpt = list(
+                          disabled = c(
+                            rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
+                            rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
+                            rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
+                          )
+                        ),
+                        selected = gs_plot_selected_isolate_selected,
+                        options = list(
+                          `live-search` = TRUE,
+                          `actions-box` = TRUE,
+                          size = 10,
+                          style = "background-color: white; border-radius: 5px;"
+                        ),
+                        multiple = TRUE,
+                        width = "96%"
                       )
-                    ),
-                    selected = gs_plot_selected_isolate_selected,
-                    options = list(
-                      `live-search` = TRUE,
-                      `actions-box` = TRUE,
-                      size = 10,
-                      style = "background-color: white; border-radius: 5px;"
-                    ),
-                    multiple = TRUE,
-                    width = "96%"
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    align = "center",
+                    dropMenu(
+                      actionBttn(
+                        "gsplot_isolate_label_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("sliders")
+                      ),
+                      placement = "right-start",
+                      theme = "translucent",
+                      fluidRow(
+                        div(
+                          class = "gsplot-isolate-label",
+                          selectInput(
+                            "gsplot_isolate_label",
+                            label = h5("Isolate Label", style = "color:white;"),
+                            choices = c("Assembly ID", "Assembly Name"),
+                            selected = gsplot_isolate_label_selected,
+                            width = "70%"
+                          ) 
+                        )
+                      )
+                    )
                   )
                 ),
                 uiOutput("gs_plot_sel_isolate_info")
@@ -24319,9 +24392,8 @@ server <- function(input, output, session) {
                 width = 12,
                 align = "center",
                 br(),
-                br(),
                 div(
-                  class = "gs-heatmap-text",
+                  class = "gs-heatmap-text1",
                   HTML(
                     paste(
                       tags$span(style='color: white; font-size: 16px; position: relative;', 
@@ -24460,7 +24532,7 @@ server <- function(input, output, session) {
     
     output$gs_plot_control_ui <- renderUI({
       div(
-        class = "gs-plot-box",
+        class = "gs-plot-box3",
         box(
           solidHeader = TRUE,
           status = "primary",
@@ -24637,30 +24709,39 @@ server <- function(input, output, session) {
     })  
   })
   
-  
   # variable mapping menu
+  input_gs_amr_variables <- reactive({input$gs_amr_variables}) %>% debounce(1000)
+  input_gs_vir_variables <- reactive({input$gs_vir_variables}) %>% debounce(1000)
+   
   observeEvent(input$gs_variable_menu, {
     output$gs_plot_control_ui <- renderUI({
       
-      if(!is.null(gs_amr_variables())) {
-        gs_amr_variables_selected <- gs_amr_variables()
+      if(!is.null(input_gs_amr_variables())) {
+        gs_amr_variables_selected <- input_gs_amr_variables()
       } else {
         gs_amr_variables_selected <- "Classification"
       }
       
-      if(!is.null(gs_vir_variables())) {
-        gs_vir_variables_selected <- gs_vir_variables()
+      if(!is.null(input_gs_vir_variables())) {
+        gs_vir_variables_selected <- input_gs_vir_variables()
       } else {
         gs_vir_variables_selected <- "Classification"
       }
       
-      shinyjs::delay(100, 
-                     shinyjs::runjs(gsub("#selectorID",
-                                         "#gs_mapping_scale",
-                                         color_scale_bg_JS)))
+      shinyjs::delay(0, shinyjs::runjs(gsub("#col_scale_id",
+                                            "#gs_virclass_scale",
+                                            color_scale_bg_JS)))
+      
+      shinyjs::delay(0, shinyjs::runjs(gsub("#col_scale_id",
+                                            "#gs_amrclass_scale",
+                                            color_scale_bg_JS)))
+      
+      shinyjs::delay(0, shinyjs::runjs(gsub("#col_scale_id",
+                                            "#gs_mapping_scale",
+                                            color_scale_bg_JS)))
       
       div(
-        class = "gs-plot-box",
+        class = "gs-plot-box2",
         box(
           solidHeader = TRUE,
           status = "primary",
@@ -24742,12 +24823,15 @@ server <- function(input, output, session) {
               column(
                 width = 8,
                 align = "center",
-                selectInput(
-                  "gs_amr_variables",
-                  "",
-                  choices = c("Classification", "None"),
-                  selected = gs_amr_variables_selected,
-                  width = "100%"
+                div(
+                  class = "gs-var-mapping-sel",
+                  selectInput(
+                    "gs_amr_variables",
+                    "",
+                    choices = c("Classification", "None"),
+                    selected = gs_amr_variables_selected,
+                    width = "100%"
+                  )
                 ),
                 br()
               )
@@ -24795,12 +24879,15 @@ server <- function(input, output, session) {
               column(
                 width = 8,
                 align = "center",
-                selectInput(
-                  "gs_vir_variables",
-                  "",
-                  choices = c("Classification", "None"),
-                  selected = gs_vir_variables_selected,
-                  width = "100%"
+                div(
+                  class = "gs-var-mapping-sel",
+                  selectInput(
+                    "gs_vir_variables",
+                    "",
+                    choices = c("Classification", "None"),
+                    selected = gs_vir_variables_selected,
+                    width = "100%"
+                  )
                 ),
                 br()
               )
@@ -24829,41 +24916,48 @@ server <- function(input, output, session) {
   })
   
   # sizing menu
+  
+  input_gsplot_grid_width <- reactive({input$gsplot_grid_width}) %>% debounce(1000)
+  input_gsplot_legend_labelsize <- reactive({input$gsplot_legend_labelsize}) %>% debounce(1000)
+  input_gsplot_fontsize_title <- reactive({input$gsplot_fontsize_title}) %>% debounce(1000)
+  input_gsplot_treeheight_col <- reactive({input$gsplot_treeheight_col}) %>% debounce(1000)
+  input_gsplot_treeheight_row <- reactive({input$gsplot_treeheight_row}) %>% debounce(1000)
+  
   observeEvent(input$gs_size_menu, {
     output$gs_plot_control_ui <- renderUI({
       
-      if(!is.null(gsplot_grid_width())) {
-        gsplot_grid_width_selected <- gsplot_grid_width()
+      if(!is.null(input_gsplot_grid_width())) {
+        gsplot_grid_width_selected <- input_gsplot_grid_width()
       } else {
         gsplot_grid_width_selected <- 1
       }
       
-      if(!is.null(gsplot_legend_labelsize())) {
-        gsplot_legend_labelsize_selected <- gsplot_legend_labelsize()
+      if(!is.null(input_gsplot_legend_labelsize())) {
+        gsplot_legend_labelsize_selected <- input_gsplot_legend_labelsize()
       } else {
         gsplot_legend_labelsize_selected <- 9
       }
       
-      if(!is.null(gsplot_fontsize_title())) {
-        gsplot_fontsize_title_selected <- gsplot_fontsize_title()
+      if(!is.null(input_gsplot_fontsize_title())) {
+        gsplot_fontsize_title_selected <- input_gsplot_fontsize_title()
       } else {
         gsplot_fontsize_title_selected <- 16
       }
       
-      if(!is.null(gsplot_treeheight_col())) {
-        gsplot_treeheight_col_selected <- gsplot_treeheight_col()
+      if(!is.null(input_gsplot_treeheight_col())) {
+        gsplot_treeheight_col_selected <- input_gsplot_treeheight_col()
       } else {
         gsplot_treeheight_col_selected <- 2
       }
       
-      if(!is.null(gsplot_treeheight_row())) {
-        gsplot_treeheight_row_selected <- gsplot_treeheight_row()
+      if(!is.null(input_gsplot_treeheight_row())) {
+        gsplot_treeheight_row_selected <- input_gsplot_treeheight_row()
       } else {
         gsplot_treeheight_row_selected <- 2
       }
       
       div(
-        class = "gs-plot-box",
+        class = "gs-plot-box3",
         box(
           solidHeader = TRUE,
           status = "primary",
@@ -25013,7 +25107,7 @@ server <- function(input, output, session) {
   observeEvent(input$gs_download_menu, {
     output$gs_plot_control_ui <- renderUI({
       div(
-        class = "gs-plot-box",
+        class = "gs-plot-box4",
         box(
           solidHeader = TRUE,
           status = "primary",
@@ -25062,22 +25156,31 @@ server <- function(input, output, session) {
       )
     })
   })
+ 
+  input_gs_ratio <- reactive({input$gs_ratio}) %>% debounce(1000)
+  input_gs_scale<- reactive({input$gs_scale}) %>% debounce(1000)
+  input_gs_cluster_row <- reactive({input$gs_cluster_row}) %>% debounce(1000)
+  input_gs_cluster_col<- reactive({input$gs_cluster_col}) %>% debounce(1000)
+  input_gs_cluster_distance_col <- reactive({input$gs_cluster_distance_col}) %>% debounce(1000)
+  input_gs_cluster_distance_row <- reactive({input$gs_cluster_distance_row}) %>% debounce(1000)
+  input_gs_cluster_method_col <- reactive({input$gs_cluster_method_col}) %>% debounce(1000)
+  input_gs_cluster_method_row <- reactive({input$gs_cluster_method_row}) %>% debounce(1000)
   
   # miscellaneous menu
   observeEvent(input$gs_misc_menu, {
     output$gs_plot_control_ui <- renderUI({
       
-      if(!is.null(gs_ratio())) {
-        gs_ratio_selected <- gs_ratio()
-        if(gs_ratio() == "1.6") {
+      if(!is.null(input_gs_ratio())) {
+        gs_ratio_selected <- input_gs_ratio()
+        if(input_gs_ratio() == "1.6") {
           min <- 500
           max <- 1200
           step <- 5
-        } else if(input$gs_ratio == "1.77777777777778") {
+        } else if(input_gs_ratio() == "1.77777777777778") {
           min <- 504
           max <- 1197
           step <- 9
-        } else if(input$gs_ratio == "1.33333333333333") {
+        } else if(input_gs_ratio() == "1.33333333333333") {
           min <- 501
           max <- 1200
           step <- 3
@@ -25089,50 +25192,50 @@ server <- function(input, output, session) {
         step <- 9
       }
       
-      if(!is.null(gs_scale())) {
-        gs_scale_selected <- gs_scale()
+      if(!is.null(input_gs_scale())) {
+        gs_scale_selected <- input_gs_scale()
       } else {
         gs_scale_selected <- 702
       }
       
-      if(!is.null(gs_cluster_col())) {
-        gs_cluster_col_selected <- gs_cluster_col()
+      if(!is.null(input_gs_cluster_col())) {
+        gs_cluster_col_selected <- input_gs_cluster_col()
       } else {
-        gs_cluster_col_selected <- FALSE
+        gs_cluster_col_selected <- TRUE
       }
       
-      if(!is.null(gs_cluster_row())) {
-        gs_cluster_row_selected <- gs_cluster_row()
+      if(!is.null(input_gs_cluster_row())) {
+        gs_cluster_row_selected <- input_gs_cluster_row()
       } else {
-        gs_cluster_row_selected <- FALSE
+        gs_cluster_row_selected <- TRUE
       }
       
-      if(!is.null(gs_cluster_distance_col())) {
-        gs_cluster_distance_col_selected <- gs_cluster_distance_col()
+      if(!is.null(input_gs_cluster_distance_col())) {
+        gs_cluster_distance_col_selected <- input_gs_cluster_distance_col()
       } else {
         gs_cluster_distance_col_selected <- "binary"
       }
       
-      if(!is.null(gs_cluster_distance_row())) {
-        gs_cluster_distance_row_selected <- gs_cluster_distance_row()
+      if(!is.null(input_gs_cluster_distance_row())) {
+        gs_cluster_distance_row_selected <- input_gs_cluster_distance_row()
       } else {
         gs_cluster_distance_row_selected <- "binary"
       }
       
-      if(!is.null(gs_cluster_method_col())) {
-        gs_cluster_method_col_selected <- gs_cluster_method_col()
+      if(!is.null(input_gs_cluster_method_col())) {
+        gs_cluster_method_col_selected <- input_gs_cluster_method_col()
       } else {
         gs_cluster_method_col_selected <- "average"
       }
       
-      if(!is.null(gs_cluster_method_row())) {
-        gs_cluster_method_row_selected <- gs_cluster_method_row()
+      if(!is.null(input_gs_cluster_method_row())) {
+        gs_cluster_method_row_selected <- input_gs_cluster_method_row()
       } else {
         gs_cluster_method_row_selected <- "average"
       }
       
       div(
-        class = "gs-plot-box",
+        class = "gs-plot-box2",
         box(
           solidHeader = TRUE,
           status = "primary",
@@ -25232,7 +25335,7 @@ server <- function(input, output, session) {
                 br(),
                 HTML(
                   paste(
-                    tags$span(style='color: white; font-size: 14px; position: relative; top: -12px;',
+                    tags$span(style='color: white; font-size: 12px; position: relative; top: -12px;',
                               'Distance Algorithm')
                   )
                 )
@@ -25246,9 +25349,7 @@ server <- function(input, output, session) {
                   selectInput(
                     "gs_cluster_distance_col",
                     "",
-                    choices = c("Euclidean" = "euclidean", "Maximum" = "maximum", 
-                                "Manhattan" = "manhattan", "Canberra" = "canberra", 
-                                "Binary" = "binary", "Minkowski" = "minkowski"),
+                    choices = c("Binary" = "binary", "Hamming" = "hamming", "MCC" = "mcc"),
                     selected = gs_cluster_distance_col_selected
                   )
                 )
@@ -25262,7 +25363,7 @@ server <- function(input, output, session) {
                 HTML(
                   paste(
                     tags$span(style='color: white; font-size: 12px; position: relative; top: -12px;',
-                              'Clustering Method')
+                              'Agglom. Method')
                   )
                 )
               ),
@@ -25331,9 +25432,7 @@ server <- function(input, output, session) {
                   selectInput(
                     "gs_cluster_distance_row",
                     "",
-                    choices = c("Euclidean" = "euclidean", "Maximum" = "maximum", 
-                                "Manhattan" = "manhattan", "Canberra" = "canberra", 
-                                "Binary" = "binary", "Minkowski" = "minkowski"),
+                    choices = c("Binary" = "binary", "Hamming" = "hamming", "MCC" = "mcc"),
                     selected = gs_cluster_distance_row_selected
                   )
                 )
@@ -25347,7 +25446,7 @@ server <- function(input, output, session) {
                 HTML(
                   paste(
                     tags$span(style='color: white; font-size: 12px; position: relative; top: -12px;',
-                              'Clustering Method')
+                              'Agglom. Method')
                   )
                 )
               ),
@@ -25360,6 +25459,7 @@ server <- function(input, output, session) {
                   selectInput(
                     "gs_cluster_method_row",
                     "",
+                    selectize = TRUE,
                     choices = c("ward.D" = "ward.D", "ward.D2"= "ward.D2", 
                                 "Single" = "single", "Complete" = "complete", 
                                 "UPGMA" = "average", "WPGMA"  = "mcquitty", 
@@ -25373,7 +25473,7 @@ server <- function(input, output, session) {
         )
       )
     })
-  })
+  }) 
   
   # gs classification scale 
   output$gs_virclass_scale_ui <- renderUI({
@@ -25405,11 +25505,6 @@ server <- function(input, output, session) {
           selected = gs_virclass_scale_selected,
           width = "100%"
         )
-        
-        shinyjs::delay(50, shinyjs::runjs("$('#gs_virclass_scale_ui .selectize-input').css({
-        'background': 'linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF, #3AA2FCFF, #23C3E4FF, #18DEC1FF, #2CF09EFF, #5BFB72FF, #8EFF49FF, #B5F836FF, #D6E635FF, #EFCD3AFF, #FCB036FF, #FD8A26FF, #F36215FF, #E14209FF, #C82803FF, #A51301FF, #7A0403FF)',
-'color': 'black'
-      })"))
         
       } else {
         
@@ -25449,11 +25544,6 @@ server <- function(input, output, session) {
         )
       }
       
-      shinyjs::delay(0, shinyjs::runjs("$('#gs_virclass_scale_ui .selectize-input').css({
-        'background': 'linear-gradient(to right, #E41A1C 0%, #E41A1C 11%, #377EB8 11%, #377EB8 22%, #4DAF4A 22%, #4DAF4A 33%, #984EA3 33%, #984EA3 44%, #FF7F00 44%, #FF7F00 55%, #FFFF33 55%, #FFFF33 66%, #A65628 66%, #A65628 77%, #F781BF 77%, #F781BF 88%, #999999 88%, #999999 100%)',
-      'color': 'black'
-      })"))
-      
     } else {
       
       if(!is.null(gs_virclass_scale())) {
@@ -25481,11 +25571,11 @@ server <- function(input, output, session) {
         width = "100%"
       )
       
-      shinyjs::delay(50, shinyjs::runjs("$('#gs_virclass_scale_ui .selectize-input').css({
-        'background': 'linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF, #3AA2FCFF, #23C3E4FF, #18DEC1FF, #2CF09EFF, #5BFB72FF, #8EFF49FF, #B5F836FF, #D6E635FF, #EFCD3AFF, #FCB036FF, #FD8A26FF, #F36215FF, #E14209FF, #C82803FF, #A51301FF, #7A0403FF)',
-'color': 'black'
-      })"))
     }
+    
+    shinyjs::delay(0, shinyjs::runjs(gsub("#col_scale_id",
+                                          "#gs_virclass_scale",
+                                          color_scale_bg_JS)))
     
     div(
       class = "gs-gene-class-scale",
@@ -25522,11 +25612,6 @@ server <- function(input, output, session) {
           selected = gs_amrclass_scale_selected,
           width = "100%"
         )
-        
-        shinyjs::delay(50, shinyjs::runjs("$('#gs_amrclass_scale_ui .selectize-input').css({
-        'background': 'linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF, #3AA2FCFF, #23C3E4FF, #18DEC1FF, #2CF09EFF, #5BFB72FF, #8EFF49FF, #B5F836FF, #D6E635FF, #EFCD3AFF, #FCB036FF, #FD8A26FF, #F36215FF, #E14209FF, #C82803FF, #A51301FF, #7A0403FF)',
-'color': 'black'
-      })"))
         
       } else {
         
@@ -25566,11 +25651,6 @@ server <- function(input, output, session) {
         )
       }
       
-      shinyjs::delay(0, shinyjs::runjs("$('#gs_amrclass_scale_ui .selectize-input').css({
-        'background': 'linear-gradient(to right, #E41A1C 0%, #E41A1C 11%, #377EB8 11%, #377EB8 22%, #4DAF4A 22%, #4DAF4A 33%, #984EA3 33%, #984EA3 44%, #FF7F00 44%, #FF7F00 55%, #FFFF33 55%, #FFFF33 66%, #A65628 66%, #A65628 77%, #F781BF 77%, #F781BF 88%, #999999 88%, #999999 100%)',
-      'color': 'black'
-      })"))
-      
     } else {
       
       if(!is.null(gs_amrclass_scale())) {
@@ -25597,30 +25677,16 @@ server <- function(input, output, session) {
         selected = gs_amrclass_scale_selected,
         width = "100%"
       )
-      
-      shinyjs::delay(50, shinyjs::runjs("$('#gs_amrclass_scale_ui .selectize-input').css({
-        'background': 'linear-gradient(to right, #30123BFF, #3F3994FF, #455ED2FF, #4681F7FF, #3AA2FCFF, #23C3E4FF, #18DEC1FF, #2CF09EFF, #5BFB72FF, #8EFF49FF, #B5F836FF, #D6E635FF, #EFCD3AFF, #FCB036FF, #FD8A26FF, #F36215FF, #E14209FF, #C82803FF, #A51301FF, #7A0403FF)',
-'color': 'black'
-      })"))
     }
+    
+    shinyjs::delay(0, shinyjs::runjs(gsub("#col_scale_id",
+                                          "#gs_amrclass_scale",
+                                          color_scale_bg_JS)))
     
     div(
       class = "gs-gene-class-scale",
       gs_amrclass_scale
     )
-  })
-  
-  observe({
-    if(!is.null(input$gs_mapping_scale)) {
-      shinyjs::runjs(gsub("#selectorID",
-                          "#gs_mapping_scale",
-                          color_scale_bg_JS))
-    } 
-    if(!is.null(input$gs_amrclass_scale)) {
-      shinyjs::runjs(gsub("#selectorID",
-                          "#gs_amrclass_scale",
-                          color_scale_bg_JS))
-    }
   })
   
   # gs variable mapping scale 
@@ -25666,11 +25732,6 @@ server <- function(input, output, session) {
           selected = gs_mapping_scale_selected
         )
         
-        shinyjs::delay(0, shinyjs::runjs("$('#gs_mapping_scale_ui .selectize-input').css({
-        'background': 'linear-gradient(to right, #000004FF, #07071DFF, #160F3BFF, #29115AFF, #400F73FF, #56147DFF, #6B1D81FF, #802582FF, #952C80FF, #AB337CFF, #C03A76FF, #D6456CFF, #E85362FF, #F4685CFF, #FA815FFF, #FD9A6AFF, #FEB37BFF, #FECC8FFF, #FDE4A6FF, #FCFDBFFF)',
-      'color': 'white'
-      })"))
-        
       } else {
         if(length(unique(unlist(DB$meta[input$gs_var_mapping]))) > 7) {
           
@@ -25699,10 +25760,6 @@ server <- function(input, output, session) {
             width = "100%"
           )
           
-          shinyjs::delay(0, shinyjs::runjs("$('#gs_mapping_scale_ui .selectize-input').css({
-        'background': 'linear-gradient(to right, #000004FF, #07071DFF, #160F3BFF, #29115AFF, #400F73FF, #56147DFF, #6B1D81FF, #802582FF, #952C80FF, #AB337CFF, #C03A76FF, #D6456CFF, #E85362FF, #F4685CFF, #FA815FFF, #FD9A6AFF, #FEB37BFF, #FECC8FFF, #FDE4A6FF, #FCFDBFFF)',
-      'color': 'white'
-      })"))
         } else {
           
           if(!is.null(gs_mapping_scale())) {
@@ -25750,10 +25807,6 @@ server <- function(input, output, session) {
             width = "100%"
           )
           
-          shinyjs::delay(0, shinyjs::runjs("$('#gs_mapping_scale_ui .selectize-input').css({
-        'background': 'linear-gradient(to right, #E41A1C 0%, #E41A1C 11%, #377EB8 11%, #377EB8 22%, #4DAF4A 22%, #4DAF4A 33%, #984EA3 33%, #984EA3 44%, #FF7F00 44%, #FF7F00 55%, #FFFF33 55%, #FFFF33 66%, #A65628 66%, #A65628 77%, #F781BF 77%, #F781BF 88%, #999999 88%, #999999 100%)',
-      'color': 'black'
-      })"))
         }
       }
     } else {
@@ -25803,12 +25856,12 @@ server <- function(input, output, session) {
         width = "100%"
       )
       
-      shinyjs::delay(0, shinyjs::runjs("$('#gs_mapping_scale_ui .selectize-input').css({
-        'background': 'linear-gradient(to right, #E41A1C 0%, #E41A1C 11%, #377EB8 11%, #377EB8 22%, #4DAF4A 22%, #4DAF4A 33%, #984EA3 33%, #984EA3 44%, #FF7F00 44%, #FF7F00 55%, #FFFF33 55%, #FFFF33 66%, #A65628 66%, #A65628 77%, #F781BF 77%, #F781BF 88%, #999999 88%, #999999 100%)',
-      'color': 'black'
-      })"))
     }
     
+    shinyjs::delay(0, shinyjs::runjs(gsub("#col_scale_id",
+                                          "#gs_mapping_scale",
+                                          color_scale_bg_JS)))
+      
     div(
       class = "gs-mapping-scale",
       gs_mapping_scale
@@ -25816,33 +25869,38 @@ server <- function(input, output, session) {
   })
   
   # variable mapping
+  input_gs_var_mapping <- reactive({input$gs_var_mapping}) %>% debounce(1000)
+  
   output$gs_var_mapping_ui <- renderUI({
     req(DB$meta)
     
-    if(!is.null(gs_var_mapping())) {
-      gs_var_mapping_selected <- gs_var_mapping()
+    if(!is.null(input_gs_var_mapping())) {
+      gs_var_mapping_selected <- input_gs_var_mapping()
     } else {
       gs_var_mapping_selected <- "None"
     }
     
-    selectInput(
-      "gs_var_mapping",
-      "",
-      choices = if(ncol(DB$meta) == 13) {
-        c(
-          None = "None",
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        )
-      } else {
-        append(c(None = "None", `Isolation Date` = "Isolation Date", Host = "Host", 
-                 Country = "Country", City = "City"),
-               colnames(DB$meta)[14:ncol(DB$meta)])
-      },
-      width = "100%",
-      selected = gs_var_mapping_selected
+    div(
+      class = "gs-var-mapping-sel",
+      selectInput(
+        "gs_var_mapping",
+        "",
+        choices = if(ncol(DB$meta) == 13) {
+          c(
+            None = "None",
+            `Isolation Date` = "Isolation Date",
+            Host = "Host",
+            Country = "Country",
+            City = "City"
+          )
+        } else {
+          append(c(None = "None", `Isolation Date` = "Isolation Date", Host = "Host", 
+                   Country = "Country", City = "City"),
+                 colnames(DB$meta)[14:ncol(DB$meta)])
+        },
+        width = "100%",
+        selected = gs_var_mapping_selected
+      )
     )
   })
   
@@ -25951,7 +26009,7 @@ server <- function(input, output, session) {
                         "gene(s) selected")), 
         tags$br(),
         tags$span(style='color: orange; font-style: italic; font-size: 12px; position: relative; ', 
-                  "")
+                  "Select min. 3 genes")
       )
     } else {
       tagList(
@@ -27081,69 +27139,6 @@ server <- function(input, output, session) {
     }
   })
   
-  gsplot_grid_width <- reactiveVal(NULL)
-  gsplot_legend_labelsize <- reactiveVal(NULL)
-  gsplot_fontsize_title <- reactiveVal(NULL)
-  gsplot_treeheight_col <- reactiveVal(NULL)
-  gsplot_treeheight_row <- reactiveVal(NULL)
-  
-  observe({
-    if (!is.null(input$gsplot_grid_width)) {
-      gsplot_grid_width(input$gsplot_grid_width)
-    }
-    if (!is.null(input$gsplot_legend_labelsize)) {
-      gsplot_legend_labelsize(input$gsplot_legend_labelsize)
-    }
-    if (!is.null(input$gsplot_fontsize_title)) {
-      gsplot_fontsize_title(input$gsplot_fontsize_title)
-    }
-    if (!is.null(input$gsplot_treeheight_col)) {
-      gsplot_treeheight_col(input$gsplot_treeheight_col)
-    }
-    if (!is.null(input$gsplot_treeheight_row)) {
-      gsplot_treeheight_row(input$gsplot_treeheight_row)
-    }
-    if (!is.null(input$gsplot_background)) {
-      gsplot_background(input$gsplot_background)
-    }
-  })
-  
-  gs_ratio <- reactiveVal(NULL)
-  gs_scale <- reactiveVal(NULL)
-  gs_cluster_col <- reactiveVal(NULL)
-  gs_cluster_row <- reactiveVal(NULL)
-  gs_cluster_distance_col <- reactiveVal(NULL)
-  gs_cluster_distance_row <- reactiveVal(NULL)
-  gs_cluster_method_col <- reactiveVal(NULL)
-  gs_cluster_method_row <- reactiveVal(NULL)
-  
-  observe({
-    if (!is.null(input$gs_ratio)) {
-      gs_ratio(input$gs_ratio)
-    }
-    if (!is.null(input$gs_scale)) {
-      gs_scale(input$gs_scale)
-    }
-    if (!is.null(input$gs_cluster_col)) {
-      gs_cluster_col(input$gs_cluster_col)
-    }
-    if (!is.null(input$gs_cluster_row)) {
-      gs_cluster_row(input$gs_cluster_row)
-    }
-    if (!is.null(input$gs_cluster_distance_col)) {
-      gs_cluster_distance_col(input$gs_cluster_distance_col)
-    }
-    if (!is.null(input$gs_cluster_distance_row)) {
-      gs_cluster_distance_row(input$gs_cluster_distance_row)
-    }
-    if (!is.null(input$gs_cluster_method_col)) {
-      gs_cluster_method_col(input$gs_cluster_method_col)
-    }
-    if (!is.null(input$gs_cluster_method_row)) {
-      gs_cluster_method_row(input$gs_cluster_method_row)
-    }
-  })
-  
   gs_plot <- reactive({
     req(DB$data, Screening$amr_results, DB$database, DB$scheme)
     
@@ -27153,615 +27148,640 @@ server <- function(input, output, session) {
     } else {
       gs_plot_selected_isolate <- DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
     }
-    gs_plot_selected_amr <- input$gs_plot_selected_amr
-    gs_plot_selected_vir <- input$gs_plot_selected_vir
-    gs_plot_selected_noclass <- input$gs_plot_selected_noclass
     
-    # get heatmap 
-    amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, as.numeric))
-    rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
-    colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
-    
-    if((length(c(gs_plot_selected_amr, gs_plot_selected_vir, gs_plot_selected_noclass)) >= 3) & (length(gs_plot_selected_isolate) >= 3)) {
+    if(length(gs_plot_selected_isolate) > 2) {
+      gs_plot_selected_amr <- input$gs_plot_selected_amr
+      gs_plot_selected_vir <- input$gs_plot_selected_vir
+      gs_plot_selected_noclass <- input$gs_plot_selected_noclass
       
-      ### get heatmap meta
-      amr_profile_numeric_all <- amr_profile_numeric[rownames(amr_profile_numeric) %in% gs_plot_selected_isolate, ]
-      amr_profile_numeric <- amr_profile_numeric_all[,c(gs_plot_selected_amr, gs_plot_selected_vir, gs_plot_selected_noclass)]
-      heatmap_mat <- as.matrix(amr_profile_numeric)
+      # get heatmap 
+      amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, as.numeric))
+      rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
+      colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
       
-      # metadata
-      amr_meta <- get.gsMeta(gene_class = Screening$amr_class, hm_matrix = heatmap_mat)
-      colnames(amr_meta) <- "amr"
-      vir_meta <- get.gsMeta(gene_class = Screening$vir_class, hm_matrix = heatmap_mat)
-      
-      # unite meta
-      Screening$hm_meta <- add_column(amr_meta, vir = vir_meta$class)
-      hm_meta <- Screening$hm_meta
-      
-      # styling parameters
-      ht_opt$HEATMAP_LEGEND_PADDING = unit(15, "mm")
-      
-      if(!is.null(input$gsplot_color_text)) {
-        gsplot_color_text <- input$gsplot_color_text
-      } else if(is.null(gsplot_color_text())){
-        gsplot_color_text <- "#000000"
-      } else {
-        gsplot_color_text <- gsplot_color_text()
-      }
-      
-      if(!is.null(input$gsplot_treeheight_col)) {
-        gsplot_treeheight_col <- input$gsplot_treeheight_col
-      } else {
-        gsplot_treeheight_col <- 2
-      }
-      
-      if(!is.null(input$gsplot_treeheight_row)) {
-        gsplot_treeheight_row <- input$gsplot_treeheight_row
-      } else {
-        gsplot_treeheight_row <- 2
-      }
-      
-      if(!is.null(input$gsplot_legend_labelsize)) {
-        gsplot_legend_labelsize <- input$gsplot_legend_labelsize
-      } else {
-        gsplot_legend_labelsize <- 9
-      }
-      
-      if(!is.null(input$gsplot_color_palette1)) {
-        gsplot_color_palette1 <- input$gsplot_color_palette1
-      } else {
-        gsplot_color_palette1 <- "#66C2A5"
-      }
-      
-      if(!is.null(input$gsplot_color_palette2)) {
-        gsplot_color_palette2 <- input$gsplot_color_palette2
-      } else {
-        gsplot_color_palette2 <- "#E5C494"
-      }
-      
-      if(!is.null(input$gs_amr_variables)) {
-        gs_amr_variables <- input$gs_amr_variables
-      } else {
-        gs_amr_variables <- "Classification"
-      }
-      
-      if(!is.null(input$gs_vir_variables)) {
-        gs_vir_variables <- input$gs_vir_variables
-      } else {
-        gs_vir_variables <- "Classification"
-      }
-      
-      if(!is.null(input$gsplot_grid_color)) {
-        gsplot_grid_color <- input$gsplot_grid_color
-      } else {
-        gsplot_grid_color <- "#FFFFFF"
-      }
-      
-      if(!is.null(input$gsplot_grid_width)) {
-        gsplot_grid_width <- input$gsplot_grid_width
-      } else {
-        gsplot_grid_width <- 1
-      }
-      
-      if(!is.null(input$gsplot_fontsize_title)) {
-        gsplot_fontsize_title <- input$gsplot_fontsize_title
-      } else {
-        gsplot_fontsize_title <- 16
-      }
-      
-      if(!is.null(input$gs_cluster_col)) {
-        gs_cluster_col <- input$gs_cluster_col
-      } else {
-        gs_cluster_col <- FALSE
-      }
-      
-      if(!is.null(input$gs_cluster_distance_col)) {
-        gs_cluster_distance_col <- input$gs_cluster_distance_col
-      } else {
-        gs_cluster_distance_col <- "binary"
-      }
-      
-      if(!is.null(input$gs_cluster_method_col)) {
-        gs_cluster_method_col <- input$gs_cluster_method_col
-      } else {
-        gs_cluster_method_col <- "average"
-      }
-      
-      if(!is.null(input$gs_cluster_row)) {
-        gs_cluster_row <- input$gs_cluster_row
-      } else {
-        gs_cluster_row <- FALSE
-      }
-      
-      if(!is.null(input$gs_cluster_distance_row)) {
-        gs_cluster_distance_row <- input$gs_cluster_distance_row
-      } else {
-        gs_cluster_distance_row <- "binary"
-      }
-      
-      if(!is.null(input$gs_cluster_method_row)) {
-        gs_cluster_method_row <- input$gs_cluster_method_row
-      } else {
-        gs_cluster_method_row <- "average"
-      }
-      
-      if(!is.null(input$gsplot_color_dend)) {
-        gsplot_color_dend <- input$gsplot_color_dend
-      } else {
-        gsplot_color_dend <- "#000000"
-      }
-      
-      if(!is.null(input$gsplot_background)) {
-        gsplot_background <- input$gsplot_background
-      } else {
-        gsplot_background <- "#FFFFFF"
-      }
-      
-      legend_gp <- gpar(col = gsplot_color_text,
-                        fill = c(gsplot_color_palette1, gsplot_color_palette2))
-      labels_gp <- gpar(col = gsplot_color_text,
-                        fontsize = gsplot_legend_labelsize)
-      title_gp <- gpar(col = gsplot_color_text,
-                       fontsize = gsplot_legend_labelsize + 2)
-      grid_height <- unit(gsplot_legend_labelsize * 0.8, "mm")
-      grid_width <- unit(gsplot_legend_labelsize * 0.8, "mm")
-      
-      if(length(gs_plot_selected_isolate) < 10){
-        fontsize_row <- 14
-      } else if(length(gs_plot_selected_isolate) < 20){
-        fontsize_row <- 12
-      } else if(length(gs_plot_selected_isolate) < 30){
-        fontsize_row <- 11
-      } else if(length(gs_plot_selected_isolate) < 50){
-        fontsize_row <- 10
-      } else if(length(gs_plot_selected_isolate) < 80){
-        fontsize_row <- 9
-      } else if(length(gs_plot_selected_isolate) < 120){
-        fontsize_row <- 8
-      } else if(length(gs_plot_selected_isolate) < 160){
-        fontsize_row <- 7
-      } else if(length(gs_plot_selected_isolate) < 200){
-        fontsize_row <- 6
-      } else {
-        fontsize_row <- 5
-      } 
-      
-      col_count <- length(c(gs_plot_selected_amr, 
-                            gs_plot_selected_vir, 
-                            gs_plot_selected_noclass))
-      if(col_count < 10){
-        fontsize_col <- 15
-      } else if(col_count < 20){
-        fontsize_col <- 13
-      } else if(col_count < 30){
-        fontsize_col <- 12
-      } else if(col_count < 50){
-        fontsize_col <- 10
-      } else if(col_count < 80){
-        fontsize_col <- 9
-      } else if(col_count < 120){
-        fontsize_col <- 8
-      } else if(col_count < 160){
-        fontsize_col <- 7
-      } else if(col_count < 200){
-        fontsize_col <- 6
-      } else {
-        fontsize_col <- 5
-      } 
-      
-      fontsize_legend <- 2
-      
-      # heatmap annotations
-      if(!is.null(input$gs_var_mapping)) {
-        gs_var_mapping <- input$gs_var_mapping
-      } else {
-        gs_var_mapping <- "None"
-      }
-      
-      isolate_annotation <- NULL
-      isolate_annotation_legend <- NULL
-      if(!is.null(input$gs_var_mapping)) {
-        if(gs_var_mapping != "None") {
-          
-          isolate_meta <- DB$meta[which(DB$meta$`Assembly ID` %in% rownames(heatmap_mat)),]
-          
-          rownames(isolate_meta) <- rownames(heatmap_mat)
-          
-          sel_isolate_var <- isolate_meta[[gs_var_mapping]]
-          dist_col <- length(unique(sel_isolate_var))
-          if(all(sel_isolate_var == "")) {
-            var_colors <- "grey"
-            names(var_colors) <- "NA"
-          } else {
-            if(!is.null(input$gs_mapping_scale)) {
-              if(input$gs_mapping_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-                var_colors <- get(input$gs_mapping_scale)(dist_col)
-              } else {
-                if(dist_col < 3) {
-                  var_colors <- brewer.pal(3, input$gs_mapping_scale)[1:dist_col]
-                } else {
-                  var_colors <- brewer.pal(dist_col, input$gs_mapping_scale)    
-                }
-              }
-            } else {
-              var_colors <- get("viridis")(dist_col)
-            }
-            names(var_colors) <- unique(sort(sel_isolate_var))
-          }
-          
-          isolate_annotation <- HeatmapAnnotation(
-            Var = sel_isolate_var,
-            show_legend = FALSE,
-            col = list(Var = var_colors),  
-            show_annotation_name = TRUE,
-            annotation_label = gs_var_mapping,
-            annotation_name_gp = gpar(col = gsplot_color_text),
-            which = "row"
-          )
-          
-          isolate_annotation_legend <- packLegend(
-            Legend(
-              at = names(var_colors),
-              labels = names(var_colors),
-              title = gs_var_mapping,
-              labels_gp = labels_gp,
-              title_gp = title_gp,
-              grid_height = grid_height,
-              grid_width = grid_width,
-              legend_gp = gpar(fill = var_colors)
-            )
-          )
-        }  
-      }
-      
-      amr_annotation <- NULL
-      amr_heatmap <- NULL
-      sel_amr <- NULL
-      if(!is.null(gs_plot_selected_amr)) {
-        if(all(is.na(hm_meta$amr)) | length(gs_plot_selected_amr) < 3) {
-          amr_annotation <- NULL
-          amr_heatmap <- NULL
+      if((length(c(gs_plot_selected_amr, gs_plot_selected_vir, gs_plot_selected_noclass)) >= 3) & (length(gs_plot_selected_isolate) >= 3)) {
+        
+        ### get heatmap meta
+        amr_profile_numeric_all <- amr_profile_numeric[rownames(amr_profile_numeric) %in% gs_plot_selected_isolate, ]
+        amr_profile_numeric <- amr_profile_numeric_all[,c(gs_plot_selected_amr, gs_plot_selected_vir, gs_plot_selected_noclass)]
+        heatmap_mat <- as.matrix(amr_profile_numeric)
+        
+        # metadata
+        amr_meta <- get.gsMeta(gene_class = Screening$amr_class, hm_matrix = heatmap_mat)
+        colnames(amr_meta) <- "amr"
+        vir_meta <- get.gsMeta(gene_class = Screening$vir_class, hm_matrix = heatmap_mat)
+        
+        # unite meta
+        Screening$hm_meta <- add_column(amr_meta, vir = vir_meta$class)
+        hm_meta <- Screening$hm_meta
+        
+        # styling parameters
+        ht_opt$ANNOTATION_LEGEND_PADDING = unit(10, "mm")
+        ht_opt$HEATMAP_LEGEND_PADDING = unit(5, "mm")
+        
+        if(!is.null(input$gsplot_isolate_label)) {
+          gsplot_isolate_label <- input$gsplot_isolate_label
         } else {
-          if(gs_amr_variables != "None") {
-            sel_amr <- na.omit(hm_meta$amr)
-            dist_col <- length(unique(sel_amr))
-            if(!is.null(input$gs_amrclass_scale)) {
-              
-              if(input$gs_amrclass_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-                amr_colors <- get(input$gs_amrclass_scale)(length(unique(sel_amr)))
-              } else {
-                if(dist_col < 3) {
-                  amr_colors <- brewer.pal(3, input$gs_amrclass_scale)[1:dist_col]
-                } else {
-                  amr_colors <- brewer.pal(dist_col, input$gs_amrclass_scale)    
-                }
-              }
-            } else {
-              if(length(unique(Screening$hm_meta$amr)) > 7) {
-                amr_colors <- get("turbo")(length(unique(sel_amr)))
-              } else {
-                if(dist_col < 3) {
-                  amr_colors <- brewer.pal(3, "Set1")[1:dist_col]
-                } else {
-                  amr_colors <- brewer.pal(dist_col, "Set1")    
-                }
-              }
-            }
-            sel_amr1 <<- sel_amr
-            amr_colors1 <<- amr_colors
-            names(amr_colors) <- unique(sort(sel_amr))
+          gsplot_isolate_label <- "Assembly Name"
+        }
+        
+        if(!is.null(input$gsplot_color_text)) {
+          gsplot_color_text <- input$gsplot_color_text
+        } else if(is.null(gsplot_color_text())){
+          gsplot_color_text <- "#000000"
+        } else {
+          gsplot_color_text <- gsplot_color_text()
+        }
+        
+        if(!is.null(input$gsplot_treeheight_col)) {
+          gsplot_treeheight_col <- input$gsplot_treeheight_col
+        } else {
+          gsplot_treeheight_col <- 2
+        }
+        
+        if(!is.null(input$gsplot_treeheight_row)) {
+          gsplot_treeheight_row <- input$gsplot_treeheight_row
+        } else {
+          gsplot_treeheight_row <- 2
+        }
+        
+        if(!is.null(input$gsplot_legend_labelsize)) {
+          gsplot_legend_labelsize <- input$gsplot_legend_labelsize
+        } else {
+          gsplot_legend_labelsize <- 9
+        }
+        
+        if(!is.null(input$gsplot_color_palette1)) {
+          gsplot_color_palette1 <- input$gsplot_color_palette1
+        } else {
+          gsplot_color_palette1 <- "#66C2A5"
+        }
+        
+        if(!is.null(input$gsplot_color_palette2)) {
+          gsplot_color_palette2 <- input$gsplot_color_palette2
+        } else {
+          gsplot_color_palette2 <- "#E5C494"
+        }
+        
+        if(!is.null(input$gs_amr_variables)) {
+          gs_amr_variables <- input$gs_amr_variables
+        } else {
+          gs_amr_variables <- "Classification"
+        }
+        
+        if(!is.null(input$gs_vir_variables)) {
+          gs_vir_variables <- input$gs_vir_variables
+        } else {
+          gs_vir_variables <- "Classification"
+        }
+        
+        if(!is.null(input$gsplot_grid_color)) {
+          gsplot_grid_color <- input$gsplot_grid_color
+        } else {
+          gsplot_grid_color <- "#FFFFFF"
+        }
+        
+        if(!is.null(input$gsplot_grid_width)) {
+          gsplot_grid_width <- input$gsplot_grid_width
+        } else {
+          gsplot_grid_width <- 1
+        }
+        
+        if(!is.null(input$gsplot_fontsize_title)) {
+          gsplot_fontsize_title <- input$gsplot_fontsize_title
+        } else {
+          gsplot_fontsize_title <- 16
+        }
+        
+        if(!is.null(input$gs_cluster_col)) {
+          gs_cluster_col <- input$gs_cluster_col
+        } else {
+          gs_cluster_col <- TRUE
+        }
+        
+        if(!is.null(input$gs_cluster_distance_col)) {
+          if(input$gs_cluster_distance_col == "binary") {
+            gs_cluster_distance_col <- "binary"
+          } else if(input$gs_cluster_distance_col == "mcc") {
+            gs_cluster_distance_col <- function(m) mcc_dist_matrix(m)
+          } else if(input$gs_cluster_distance_col == "hamming") {
+            gs_cluster_distance_col <- function(m) hamming_dist_matrix(m)
+          }
+        } else {
+          gs_cluster_distance_col <- "binary"
+        }
+        
+        if(!is.null(input$gs_cluster_method_col)) {
+          gs_cluster_method_col <- input$gs_cluster_method_col
+        } else {
+          gs_cluster_method_col <- "average"
+        }
+        
+        if(!is.null(input$gs_cluster_row)) {
+          gs_cluster_row <- input$gs_cluster_row
+        } else {
+          gs_cluster_row <- TRUE
+        }
+        
+        if(!is.null(input$gs_cluster_distance_row)) {
+          if(input$gs_cluster_distance_row == "binary") {
+            gs_cluster_distance_row <- "binary"
+          } else if(input$gs_cluster_distance_row == "mcc") {
+            gs_cluster_distance_row <- function(m) mcc_dist_matrix(m)
+          } else if(input$gs_cluster_distance_row == "hamming") {
+            gs_cluster_distance_row <- function(m) hamming_dist_matrix(m)
+          }
+        } else {
+          gs_cluster_distance_row <- "binary"
+        }
+        
+        if(!is.null(input$gs_cluster_method_row)) {
+          gs_cluster_method_row <- input$gs_cluster_method_row
+        } else {
+          gs_cluster_method_row <- "average"
+        }
+        
+        if(!is.null(input$gsplot_color_dend)) {
+          gsplot_color_dend <- input$gsplot_color_dend
+        } else {
+          gsplot_color_dend <- "#000000"
+        }
+        
+        if(!is.null(input$gsplot_background)) {
+          gsplot_background <- input$gsplot_background
+        } else {
+          gsplot_background <- "#FFFFFF"
+        }
+        
+        legend_gp <- gpar(col = gsplot_color_text,
+                          fill = c(gsplot_color_palette1, gsplot_color_palette2))
+        labels_gp <- gpar(col = gsplot_color_text,
+                          fontsize = gsplot_legend_labelsize)
+        title_gp <- gpar(col = gsplot_color_text,
+                         fontsize = gsplot_legend_labelsize + 2)
+        grid_height <- unit(gsplot_legend_labelsize * 0.8, "mm")
+        grid_width <- unit(gsplot_legend_labelsize * 0.8, "mm")
+        
+        if(length(gs_plot_selected_isolate) < 10){
+          fontsize_row <- 14
+        } else if(length(gs_plot_selected_isolate) < 20){
+          fontsize_row <- 12
+        } else if(length(gs_plot_selected_isolate) < 30){
+          fontsize_row <- 11
+        } else if(length(gs_plot_selected_isolate) < 50){
+          fontsize_row <- 10
+        } else if(length(gs_plot_selected_isolate) < 80){
+          fontsize_row <- 9
+        } else if(length(gs_plot_selected_isolate) < 120){
+          fontsize_row <- 8
+        } else if(length(gs_plot_selected_isolate) < 160){
+          fontsize_row <- 7
+        } else if(length(gs_plot_selected_isolate) < 200){
+          fontsize_row <- 6
+        } else {
+          fontsize_row <- 5
+        } 
+        
+        col_count <- length(c(gs_plot_selected_amr, 
+                              gs_plot_selected_vir, 
+                              gs_plot_selected_noclass))
+        if(col_count < 10){
+          fontsize_col <- 15
+        } else if(col_count < 20){
+          fontsize_col <- 13
+        } else if(col_count < 30){
+          fontsize_col <- 12
+        } else if(col_count < 50){
+          fontsize_col <- 10
+        } else if(col_count < 80){
+          fontsize_col <- 9
+        } else if(col_count < 120){
+          fontsize_col <- 8
+        } else if(col_count < 160){
+          fontsize_col <- 7
+        } else if(col_count < 200){
+          fontsize_col <- 6
+        } else {
+          fontsize_col <- 5
+        } 
+        
+        fontsize_legend <- 2
+        
+        if(isTRUE(gs_cluster_row)) {
+          row_order <- NULL
+        } else {
+          row_order <- rownames(heatmap_mat)
+        }
+        
+        amr_order <- sort(arrange(hm_meta, amr))
+        column_order_amr <- rownames(amr_order)[!is.na(amr_order$amr)]
+        vir_order <- sort(arrange(hm_meta, vir))
+        column_order_vir <- rownames(vir_order)[!is.na(vir_order$vir)]
+        
+        # heatmap annotations
+        if(!is.null(input$gs_var_mapping)) {
+          gs_var_mapping <- input$gs_var_mapping
+        } else {
+          gs_var_mapping <- "None"
+        }
+        
+        isolate_annotation <- NULL
+        isolate_annotation_legend <- NULL
+        if(!is.null(input$gs_var_mapping)) {
+          if(gs_var_mapping != "None") {
             
-            amr_annotation <- HeatmapAnnotation(
-              AMR = sel_amr,
-              show_legend = TRUE,
-              col = list(AMR = amr_colors),  
-              show_annotation_name = FALSE,
-              annotation_legend_param = list(
-                title = "AMR",
+            isolate_meta <- DB$meta[which(DB$meta$`Assembly ID` %in% rownames(heatmap_mat)),]
+            
+            rownames(isolate_meta) <- rownames(heatmap_mat)
+            
+            sel_isolate_var <- isolate_meta[[gs_var_mapping]]
+            dist_col <- length(unique(sel_isolate_var))
+            if(all(sel_isolate_var == "")) {
+              var_colors <- "grey"
+              names(var_colors) <- "NA"
+            } else {
+              if(!is.null(input$gs_mapping_scale)) {
+                if(input$gs_mapping_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+                  var_colors <- get(input$gs_mapping_scale)(dist_col)
+                } else {
+                  if(dist_col < 3) {
+                    var_colors <- brewer.pal(3, input$gs_mapping_scale)[1:dist_col]
+                  } else {
+                    var_colors <- brewer.pal(dist_col, input$gs_mapping_scale)    
+                  }
+                }
+              } else {
+                var_colors <- get("viridis")(dist_col)
+              }
+              names(var_colors) <- unique(sort(sel_isolate_var))
+            }
+            
+            isolate_annotation <- HeatmapAnnotation(
+              Var = sel_isolate_var,
+              show_legend = FALSE,
+              col = list(Var = var_colors),  
+              show_annotation_name = TRUE,
+              annotation_label = gs_var_mapping,
+              annotation_name_gp = gpar(col = gsplot_color_text),
+              which = "row"
+            )
+            
+            isolate_annotation_legend <- packLegend(
+              Legend(
+                at = names(var_colors),
+                labels = names(var_colors),
+                title = gs_var_mapping,
                 labels_gp = labels_gp,
                 title_gp = title_gp,
                 grid_height = grid_height,
                 grid_width = grid_width,
-                legend_gp = gpar(fill = amr_colors) 
+                legend_gp = gpar(fill = var_colors)
               )
             )
-            
-            amr_annotation1 <<- amr_annotation
-          }
-          
-          # AMR heatmap
-          amr_profile_matrix <- NULL
-          amr_genes <- rownames(hm_meta)[!is.na(hm_meta$amr)]
-          amr_profile_matrix <- heatmap_mat[,colnames(heatmap_mat) %in% amr_genes]
-          
-          if((all(amr_profile_matrix == 0)) | all(amr_profile_matrix == 1)) {
-            amr_cols <- gsplot_color_palette1
-          } else {
-            amr_cols <- c(gsplot_color_palette1, gsplot_color_palette2)
-          }
-          
-          amr_heatmap <- ComplexHeatmap::Heatmap(
-            amr_profile_matrix,
-            col = amr_cols,
-            rect_gp = gpar(col = gsplot_grid_color, lwd = gsplot_grid_width),
-            column_title = "AMR",
-            column_title_gp = gpar(col = gsplot_color_text,
-                                   fontsize = gsplot_fontsize_title),
-            row_title = "Isolates",
-            row_title_gp = gpar(col = gsplot_color_text,
-                                fontsize = gsplot_fontsize_title),
-            row_names_gp = gpar(fontsize = fontsize_row, 
-                                col = gsplot_color_text),
-            column_names_gp = gpar(fontsize = fontsize_col, 
-                                   col = gsplot_color_text),
-            cluster_columns = gs_cluster_col,
-            clustering_distance_columns = gs_cluster_distance_col,
-            clustering_method_columns = gs_cluster_method_col,
-            cluster_rows = gs_cluster_row,
-            clustering_distance_rows = gs_cluster_method_row,
-            clustering_method_rows = gs_cluster_method_row,
-            column_dend_height = unit(gsplot_treeheight_col, "cm"), 
-            row_dend_width = unit(gsplot_treeheight_row, "cm"),
-            row_dend_gp = gpar(col = gsplot_color_dend),    
-            column_dend_gp = gpar(col = gsplot_color_dend), 
-            top_annotation = amr_annotation,
-            show_heatmap_legend = FALSE,
-            left_annotation = isolate_annotation
-          )
+          }  
         }
-      } else {
+        
         amr_annotation <- NULL
         amr_heatmap <- NULL
-      }
-      
-      vir_annotation <- NULL
-      vir_heatmap <- NULL
-      gs_plot_selected_vir1 <<- gs_plot_selected_vir
-      input_gs_virclass_scale <<- input$gs_virclass_scale
-      hm_meta1 <<- hm_meta
-      vir_meta1 <<- vir_meta
-      if(!is.null(gs_plot_selected_vir)) {
-        if(all(is.na(hm_meta$vir)) | length(gs_plot_selected_vir) < 3) {
-          vir_annotation <- NULL
-          vir_heatmap <- NULL
-        } else {
-          if(gs_vir_variables != "None") {
-            sel_vir <- na.omit(hm_meta$vir)
-            dist_col <- length(unique(sel_vir))
-            if(!is.null(input$gs_virclass_scale)) {
-              
-              if(input$gs_virclass_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-                vir_colors <- get(input$gs_virclass_scale)(length(unique(sel_vir)))
-              } else {
-                if(dist_col < 3) {
-                  vir_colors <- brewer.pal(3, input$gs_virclass_scale)[1:dist_col]
-                } else {
-                  vir_colors <- brewer.pal(dist_col, input$gs_virclass_scale)    
-                }
-              }
-            } else {
-              if(length(unique(Screening$hm_meta$vir)) > 7) {
-                vir_colors <- get("turbo")(length(unique(sel_vir)))
-              } else {
-                if(dist_col < 3) {
-                  vir_colors <- brewer.pal(3, "Set1")[1:dist_col]
-                } else {
-                  vir_colors <- brewer.pal(dist_col, "Set1")    
-                }
-              }
-            }
-            names(vir_colors) <- unique(sort(sel_vir))
-            
-            vir_annotation <- HeatmapAnnotation(
-              Vir = sel_vir,
-              show_legend = TRUE,
-              col = list(Vir = vir_colors),  
-              show_annotation_name = FALSE,
-              annotation_legend_param = list(
-                title = "Virulence",
-                legend_gp = legend_gp,
-                labels_gp = labels_gp,
-                title_gp = title_gp,
-                grid_height = grid_height,
-                grid_width = grid_width,
-                legend_gp = gpar(fill = vir_colors) 
-              )
-            )
-            
-            vir_annotation1 <<- vir_annotation 
-          }
-          
-          # Vir heatmap
-          vir_profile_matrix <- NULL
-          vir_genes <- rownames(hm_meta)[!is.na(hm_meta$vir)]
-          vir_profile_matrix <- heatmap_mat[,colnames(heatmap_mat) %in% vir_genes]
-          
-          if((all(vir_profile_matrix == 0)) | all(vir_profile_matrix == 1)) {
-            vir_cols <- gsplot_color_palette1
-          } else {
-            vir_cols <- c(gsplot_color_palette1, gsplot_color_palette2)
-          }
-          
+        sel_amr <- NULL
+        if(!is.null(gs_plot_selected_amr)) {
           if(all(is.na(hm_meta$amr)) | length(gs_plot_selected_amr) < 3) {
-            left_annotation <- isolate_annotation
-          }  else {
-            left_annotation <- NULL
+            amr_annotation <- NULL
+            amr_heatmap <- NULL
+          } else {
+            if(gs_amr_variables != "None") {
+              sel_amr <- amr_order$amr[!is.na(amr_order$amr)]
+              dist_col <- length(unique(sel_amr))
+              
+              if(!is.null(input$gs_amrclass_scale)) {
+                if(input$gs_amrclass_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+                  amr_colors <- get(input$gs_amrclass_scale)(length(unique(sel_amr)))
+                } else {
+                  if(dist_col < 3) {
+                    amr_colors <- brewer.pal(3, input$gs_amrclass_scale)[1:dist_col]
+                  } else {
+                    amr_colors <- brewer.pal(dist_col, input$gs_amrclass_scale)    
+                  }
+                }
+              } else {
+                if(length(unique(Screening$hm_meta$amr)) > 7) {
+                  amr_colors <- get("turbo")(length(unique(sel_amr)))
+                } else {
+                  if(dist_col < 3) {
+                    amr_colors <- brewer.pal(3, "Set1")[1:dist_col]
+                  } else {
+                    amr_colors <- brewer.pal(dist_col, "Set1")    
+                  }
+                }
+              }
+              names(amr_colors) <- unique(sel_amr)
+              
+              amr_annotation <- HeatmapAnnotation(
+                AMR = sel_amr,
+                show_legend = TRUE,
+                col = list(AMR = amr_colors),  
+                show_annotation_name = FALSE,
+                annotation_legend_param = list(
+                  title = "AMR",
+                  labels_gp = labels_gp,
+                  title_gp = title_gp,
+                  grid_height = grid_height,
+                  grid_width = grid_width,
+                  legend_gp = gpar(fill = amr_colors) 
+                )
+              )
+            }
+            
+            # AMR heatmap
+            amr_profile_matrix <- NULL
+            amr_genes <- rownames(hm_meta)[!is.na(hm_meta$amr)]
+            amr_profile_matrix_unordered <- heatmap_mat[,colnames(heatmap_mat) %in% amr_genes]
+            amr_profile_matrix <- amr_profile_matrix_unordered[,c(column_order_amr)]
+            
+            if((all(amr_profile_matrix == 0)) | all(amr_profile_matrix == 1)) {
+              amr_cols <- gsplot_color_palette1
+            } else {
+              amr_cols <- c(gsplot_color_palette1, gsplot_color_palette2)
+            }
+            
+            amr_heatmap <- ComplexHeatmap::Heatmap(
+              amr_profile_matrix,
+              col = amr_cols,
+              rect_gp = gpar(col = gsplot_grid_color, lwd = gsplot_grid_width),
+              column_title = "AMR",
+              column_title_gp = gpar(col = gsplot_color_text,
+                                     fontsize = gsplot_fontsize_title),
+              row_title = "Isolates",
+              row_title_gp = gpar(col = gsplot_color_text,
+                                  fontsize = gsplot_fontsize_title),
+              row_names_gp = gpar(fontsize = fontsize_row, 
+                                  col = gsplot_color_text),
+              column_names_gp = gpar(fontsize = fontsize_col, 
+                                     col = gsplot_color_text),
+              cluster_columns = gs_cluster_col,
+              clustering_distance_columns = gs_cluster_distance_col,
+              clustering_method_columns = gs_cluster_method_col,
+              cluster_rows = gs_cluster_row,
+              clustering_distance_rows = gs_cluster_distance_row,
+              clustering_method_rows = gs_cluster_method_row,
+              column_dend_height = unit(gsplot_treeheight_col, "cm"), 
+              row_dend_width = unit(gsplot_treeheight_row, "cm"),
+              row_dend_gp = gpar(col = gsplot_color_dend),    
+              column_dend_gp = gpar(col = gsplot_color_dend), 
+              top_annotation = amr_annotation,
+              show_heatmap_legend = FALSE,
+              left_annotation = isolate_annotation,
+              row_order = row_order,
+              row_labels = DB$data[c(gsplot_isolate_label)][which(DB$data$`Assembly ID` %in% rownames(amr_profile_matrix)),]
+            )
           }
-          
-          vir_heatmap <- ComplexHeatmap::Heatmap(
-            vir_profile_matrix,
-            col = vir_cols,
-            rect_gp = gpar(col = gsplot_grid_color, lwd = gsplot_grid_width),
-            column_title = "Virulence",
-            column_title_gp = gpar(col = gsplot_color_text,
-                                   fontsize = gsplot_fontsize_title),
-            row_title = "Isolates",
-            row_title_gp = gpar(col = gsplot_color_text,
-                                fontsize = gsplot_fontsize_title),
-            row_names_gp = gpar(fontsize = fontsize_row, 
-                                col = gsplot_color_text),
-            column_names_gp = gpar(fontsize = fontsize_col, 
-                                   col = gsplot_color_text),
-            column_dend_height = unit(gsplot_treeheight_col, "cm"), 
-            cluster_columns = gs_cluster_col,
-            clustering_distance_columns = gs_cluster_distance_col,
-            clustering_method_columns = gs_cluster_method_col,
-            cluster_rows = gs_cluster_row,
-            clustering_distance_rows = gs_cluster_method_row,
-            clustering_method_rows = gs_cluster_method_row,
-            row_dend_width = unit(gsplot_treeheight_row, "cm"),
-            row_dend_gp = gpar(col = gsplot_color_dend),    
-            column_dend_gp = gpar(col = gsplot_color_dend), 
-            top_annotation = vir_annotation,
-            show_heatmap_legend = FALSE,
-            left_annotation = left_annotation
-          )
+        } else {
+          amr_annotation <- NULL
+          amr_heatmap <- NULL
         }
-      } else {
+        
         vir_annotation <- NULL
         vir_heatmap <- NULL
-      } 
-      
-      # None heatmap
-      noclass_heatmap <- NULL
-      noclass_profile_matrix <- NULL
-      if(!is.null(gs_plot_selected_noclass)) {
-        if(any(is.na(hm_meta$vir) & is.na(hm_meta$amr))) {
-          unclass_genes <- rownames(hm_meta)[is.na(hm_meta$vir) & is.na(hm_meta$amr)]
-          noclass_profile_matrix <- heatmap_mat[,colnames(heatmap_mat) %in% unclass_genes]
-          
-          if((all(is.na(hm_meta$amr)) | length(gs_plot_selected_amr) < 3) & (all(is.na(hm_meta$vir)) | length(gs_plot_selected_vir) < 3)) {
-            left_annotation <- isolate_annotation
+        if(!is.null(gs_plot_selected_vir)) {
+          if(all(is.na(hm_meta$vir)) | length(gs_plot_selected_vir) < 3) {
+            vir_annotation <- NULL
+            vir_heatmap <- NULL
           } else {
-            left_annotation <- NULL
+            if(gs_vir_variables != "None") {
+              
+              sel_vir <- vir_order$vir[!is.na(vir_order$vir)]
+              dist_col <- length(unique(sel_vir))
+              
+              if(!is.null(input$gs_virclass_scale)) {
+                
+                if(input$gs_virclass_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+                  vir_colors <- get(input$gs_virclass_scale)(length(unique(sel_vir)))
+                } else {
+                  if(dist_col < 3) {
+                    vir_colors <- brewer.pal(3, input$gs_virclass_scale)[1:dist_col]
+                  } else {
+                    vir_colors <- brewer.pal(dist_col, input$gs_virclass_scale)    
+                  }
+                }
+              } else {
+                if(length(unique(Screening$hm_meta$vir)) > 7) {
+                  vir_colors <- get("turbo")(length(unique(sel_vir)))
+                } else {
+                  if(dist_col < 3) {
+                    vir_colors <- brewer.pal(3, "Set1")[1:dist_col]
+                  } else {
+                    vir_colors <- brewer.pal(dist_col, "Set1")    
+                  }
+                }
+              }
+              names(vir_colors) <- unique(sel_vir)
+              
+              vir_annotation <- HeatmapAnnotation(
+                Vir = sel_vir,
+                show_legend = TRUE,
+                col = list(Vir = vir_colors),  
+                show_annotation_name = FALSE,
+                annotation_legend_param = list(
+                  title = "Virulence",
+                  legend_gp = legend_gp,
+                  labels_gp = labels_gp,
+                  title_gp = title_gp,
+                  grid_height = grid_height,
+                  grid_width = grid_width,
+                  legend_gp = gpar(fill = vir_colors) 
+                )
+              )
+            }
+            
+            # Vir heatmap
+            vir_profile_matrix <- NULL
+            vir_genes <- rownames(hm_meta)[!is.na(hm_meta$vir)]
+            vir_profile_matrix <- heatmap_mat[,colnames(heatmap_mat) %in% vir_genes]
+            vir_profile_matrix_unordered <- heatmap_mat[,colnames(heatmap_mat) %in% vir_genes]
+            vir_profile_matrix <- vir_profile_matrix_unordered[,c(column_order_vir)]
+            
+            if((all(vir_profile_matrix == 0)) | all(vir_profile_matrix == 1)) {
+              vir_cols <- gsplot_color_palette1
+            } else {
+              vir_cols <- c(gsplot_color_palette1, gsplot_color_palette2)
+            }
+            
+            if(all(is.na(hm_meta$amr)) | length(gs_plot_selected_amr) < 3) {
+              left_annotation <- isolate_annotation
+            }  else {
+              left_annotation <- NULL
+            }
+            
+            vir_heatmap <- ComplexHeatmap::Heatmap(
+              vir_profile_matrix,
+              col = vir_cols,
+              rect_gp = gpar(col = gsplot_grid_color, lwd = gsplot_grid_width),
+              column_title = "Virulence",
+              column_title_gp = gpar(col = gsplot_color_text,
+                                     fontsize = gsplot_fontsize_title),
+              row_title = "Isolates",
+              row_title_gp = gpar(col = gsplot_color_text,
+                                  fontsize = gsplot_fontsize_title),
+              row_names_gp = gpar(fontsize = fontsize_row, 
+                                  col = gsplot_color_text),
+              column_names_gp = gpar(fontsize = fontsize_col, 
+                                     col = gsplot_color_text),
+              column_dend_height = unit(gsplot_treeheight_col, "cm"), 
+              cluster_columns = gs_cluster_col,
+              clustering_distance_columns = gs_cluster_distance_col,
+              clustering_method_columns = gs_cluster_method_col,
+              row_order = row_order,
+              clustering_distance_rows = gs_cluster_distance_row,
+              clustering_method_rows = gs_cluster_method_row,
+              row_dend_width = unit(gsplot_treeheight_row, "cm"),
+              row_dend_gp = gpar(col = gsplot_color_dend),    
+              column_dend_gp = gpar(col = gsplot_color_dend), 
+              top_annotation = vir_annotation,
+              show_heatmap_legend = FALSE,
+              left_annotation = left_annotation,
+              row_labels = DB$data[c(gsplot_isolate_label)][which(DB$data$`Assembly ID` %in% rownames(vir_profile_matrix)),]
+            )
           }
-          
-          if((all(noclass_profile_matrix == 0)) | all(noclass_profile_matrix == 1)) {
-            noclass_cols <- gsplot_color_palette1
+        } else {
+          vir_annotation <- NULL
+          vir_heatmap <- NULL
+        } 
+        
+        # None heatmap
+        noclass_heatmap <- NULL
+        noclass_profile_matrix <- NULL
+        if(!is.null(gs_plot_selected_noclass)) {
+          if(any(is.na(hm_meta$vir) & is.na(hm_meta$amr))) {
+            unclass_genes <- rownames(hm_meta)[is.na(hm_meta$vir) & is.na(hm_meta$amr)]
+            noclass_profile_matrix <- heatmap_mat[,colnames(heatmap_mat) %in% unclass_genes]
+            
+            if((all(is.na(hm_meta$amr)) | length(gs_plot_selected_amr) < 3) & (all(is.na(hm_meta$vir)) | length(gs_plot_selected_vir) < 3)) {
+              left_annotation <- isolate_annotation
+            } else {
+              left_annotation <- NULL
+            }
+            
+            if((all(noclass_profile_matrix == 0)) | all(noclass_profile_matrix == 1)) {
+              noclass_cols <- gsplot_color_palette1
+            } else {
+              noclass_cols <- c(gsplot_color_palette1, gsplot_color_palette2)
+            }
+            
+            noclass_heatmap <- ComplexHeatmap::Heatmap(
+              noclass_profile_matrix,
+              col = noclass_cols,
+              rect_gp = gpar(col = gsplot_grid_color, lwd = gsplot_grid_width),
+              row_title = "Isolates",
+              row_title_gp = gpar(col = gsplot_color_text,
+                                  fontsize = gsplot_fontsize_title),
+              row_names_gp = gpar(fontsize = fontsize_row, 
+                                  col = gsplot_color_text),
+              column_names_gp = gpar(fontsize = fontsize_col, 
+                                     col = gsplot_color_text),
+              column_dend_height = unit(gsplot_treeheight_col, "cm"), 
+              cluster_columns = gs_cluster_col,
+              clustering_distance_columns = gs_cluster_distance_col,
+              clustering_method_columns = gs_cluster_method_col,
+              row_order = row_order,
+              clustering_distance_rows = gs_cluster_distance_row,
+              clustering_method_rows = gs_cluster_method_row,
+              row_dend_width = unit(gsplot_treeheight_row, "cm"),
+              row_dend_gp = gpar(col = gsplot_color_dend),    
+              column_dend_gp = gpar(col = gsplot_color_dend),
+              show_heatmap_legend = FALSE,
+              left_annotation = left_annotation,
+              row_labels = DB$data[c(gsplot_isolate_label)][which(DB$data$`Assembly ID` %in% rownames(noclass_profile_matrix)),]
+            )
           } else {
-            noclass_cols <- c(gsplot_color_palette1, gsplot_color_palette2)
+            noclass_heatmap <- NULL
           }
-          
-          noclass_heatmap <- ComplexHeatmap::Heatmap(
-            noclass_profile_matrix,
-            col = noclass_cols,
-            rect_gp = gpar(col = gsplot_grid_color, lwd = gsplot_grid_width),
-            row_title = "Isolates",
-            row_title_gp = gpar(col = gsplot_color_text,
-                                fontsize = gsplot_fontsize_title),
-            row_names_gp = gpar(fontsize = fontsize_row, 
-                                col = gsplot_color_text),
-            column_names_gp = gpar(fontsize = fontsize_col, 
-                                   col = gsplot_color_text),
-            column_dend_height = unit(gsplot_treeheight_col, "cm"), 
-            cluster_columns = gs_cluster_col,
-            clustering_distance_columns = gs_cluster_distance_col,
-            clustering_method_columns = gs_cluster_method_col,
-            cluster_rows = gs_cluster_row,
-            clustering_distance_rows = gs_cluster_method_row,
-            clustering_method_rows = gs_cluster_method_row,
-            row_dend_width = unit(gsplot_treeheight_row, "cm"),
-            row_dend_gp = gpar(col = gsplot_color_dend),    
-            column_dend_gp = gpar(col = gsplot_color_dend),
-            show_heatmap_legend = FALSE,
-            left_annotation = left_annotation
-          )
         } else {
           noclass_heatmap <- NULL
         }
-      } else {
-        noclass_heatmap <- NULL
-      }
-      
-      # custom legend
-      custom_legend <- packLegend(
-        Legend(
-          labels = c("Present", "Absent"),
-          title = "Gene Presence",
-          legend_gp = gpar(col = gsplot_color_text,
-                           fill = c(gsplot_color_palette1, gsplot_color_palette2)),
-          labels_gp = gpar(col = gsplot_color_text,
-                           fontsize = gsplot_legend_labelsize + 1),
-          title_gp = gpar(col = gsplot_color_text,
-                          fontsize = gsplot_legend_labelsize + 3,
-                          fontface = "bold"),
-          grid_height = unit((gsplot_legend_labelsize + 1) * 0.8, "mm"),
-          grid_width = unit((gsplot_legend_labelsize + 1) * 0.8, "mm"),
-          at = c(1, 0),
-          nrow = 1,
-          direction = "horizontal",
-          title_position = "lefttop"
+        
+        # custom legend
+        custom_legend <- packLegend(
+          Legend(
+            labels = c("Present", "Absent"),
+            title = "Gene Presence",
+            legend_gp = gpar(col = gsplot_color_text,
+                             fill = c(gsplot_color_palette1, gsplot_color_palette2)),
+            labels_gp = gpar(col = gsplot_color_text,
+                             fontsize = gsplot_legend_labelsize + 1),
+            title_gp = gpar(col = gsplot_color_text,
+                            fontsize = gsplot_legend_labelsize + 3,
+                            fontface = "bold"),
+            grid_height = unit((gsplot_legend_labelsize + 1) * 0.8, "mm"),
+            grid_width = unit((gsplot_legend_labelsize + 1) * 0.8, "mm"),
+            at = c(1, 0),
+            nrow = 1,
+            direction = "horizontal",
+            title_position = "lefttop"
+          )
         )
-      )
-      
-      vir_heatmap1 <<- vir_heatmap
-      amr_heatmap1 <<- amr_heatmap
-      custom_legend1 <<- custom_legend
-      noclass_heatmap1 <<- noclass_heatmap
-      
-      # summarize heatmaps
-      if(is.null(amr_heatmap) & is.null(vir_heatmap) & is.null(noclass_heatmap)) {
-        output$gs_plot <- NULL
-      } else {
         
-        if(!is.null(amr_heatmap) & !is.null(vir_heatmap) & !is.null(noclass_heatmap)) {
-          heatmaps <- amr_heatmap + vir_heatmap + noclass_heatmap
-        } else if(!is.null(amr_heatmap) & !is.null(vir_heatmap) & is.null(noclass_heatmap)) {
-          heatmaps <- amr_heatmap + vir_heatmap
-        } else if(!is.null(amr_heatmap) & is.null(vir_heatmap) & !is.null(noclass_heatmap)) {
-          heatmaps <- amr_heatmap + noclass_heatmap
-        } else if(is.null(amr_heatmap) & !is.null(vir_heatmap) & !is.null(noclass_heatmap)) {
-          heatmaps <- vir_heatmap + noclass_heatmap
-        } else if(is.null(amr_heatmap) & is.null(vir_heatmap) & !is.null(noclass_heatmap)) {
-          heatmaps <- noclass_heatmap
-        } else if(!is.null(amr_heatmap) & is.null(vir_heatmap) & is.null(noclass_heatmap)) {
-          heatmaps <- amr_heatmap
-        } else if(is.null(amr_heatmap) & !is.null(vir_heatmap) & is.null(noclass_heatmap)) {
-          heatmaps <- vir_heatmap
-        }
-        
-        isolate_annotation_legend1 <<- isolate_annotation_legend
-        heatmaps1 <<- heatmaps
-        gsplot_background1 <<- gsplot_background
-        custom_legend1 <<- custom_legend
-        if(is.null(isolate_annotation_legend)) {
-          
-          ComplexHeatmap::draw(
-            heatmaps,
-            background = gsplot_background,
-            heatmap_legend_list = custom_legend,
-            heatmap_legend_side = "bottom",
-            padding = unit(c(2, 2, 2, 2), "mm")
-          )
-          # 
-          # # Capture the heatmap as a grob
-          # ht_grob <- grid.grabExpr(ComplexHeatmap::draw(
-          #   heatmaps,
-          #   background = gsplot_background,
-          #   heatmap_legend_side = "bottom",
-          #   padding = unit(c(2, 2, 2, 2), "mm")
-          # ))
-          # 
-          # # Capture the packed legend as a grob
-          # lgd_grob <- grid.grabExpr(draw(custom_legend))
-          # 
-          # # Spacer grob to control distance between heatmap and legend
-          # spacer <- grid::rectGrob(width = unit(1, "npc"), height = unit(0, "mm"), gp = gpar(col = NA))
-          # 
-          # # Arrange the heatmap, spacer, and legend
-          # grid.arrange(ht_grob, spacer, lgd_grob, ncol = 1, heights = c(1, 0.01, 0.05))
-          # 
+        # summarize heatmaps
+        if(is.null(amr_heatmap) & is.null(vir_heatmap) & is.null(noclass_heatmap)) {
+          output$gs_plot <- NULL
         } else {
-          ComplexHeatmap::draw(
-            heatmaps,
-            background = gsplot_background,
-            heatmap_legend_list = custom_legend,
-            heatmap_legend_side = "bottom",
-            annotation_legend_list = isolate_annotation_legend,
-            annotation_legend_side = "right"
-          )
+          
+          if(!is.null(amr_heatmap) & !is.null(vir_heatmap) & !is.null(noclass_heatmap)) {
+            heatmaps <- amr_heatmap + vir_heatmap + noclass_heatmap
+          } else if(!is.null(amr_heatmap) & !is.null(vir_heatmap) & is.null(noclass_heatmap)) {
+            heatmaps <- amr_heatmap + vir_heatmap
+          } else if(!is.null(amr_heatmap) & is.null(vir_heatmap) & !is.null(noclass_heatmap)) {
+            heatmaps <- amr_heatmap + noclass_heatmap
+          } else if(is.null(amr_heatmap) & !is.null(vir_heatmap) & !is.null(noclass_heatmap)) {
+            heatmaps <- vir_heatmap + noclass_heatmap
+          } else if(is.null(amr_heatmap) & is.null(vir_heatmap) & !is.null(noclass_heatmap)) {
+            heatmaps <- noclass_heatmap
+          } else if(!is.null(amr_heatmap) & is.null(vir_heatmap) & is.null(noclass_heatmap)) {
+            heatmaps <- amr_heatmap
+          } else if(is.null(amr_heatmap) & !is.null(vir_heatmap) & is.null(noclass_heatmap)) {
+            heatmaps <- vir_heatmap
+          }
+          
+          if(is.null(isolate_annotation_legend)) {
+            
+            ComplexHeatmap::draw(
+              heatmaps,
+              background = gsplot_background,
+              heatmap_legend_list = custom_legend,
+              heatmap_legend_side = "bottom",
+              padding = unit(c(2, 2, 2, 2), "mm")
+            )
+            # 
+            # # Capture the heatmap as a grob
+            # ht_grob <- grid.grabExpr(ComplexHeatmap::draw(
+            #   heatmaps,
+            #   background = gsplot_background,
+            #   heatmap_legend_side = "bottom",
+            #   padding = unit(c(2, 2, 2, 2), "mm")
+            # ))
+            # 
+            # # Capture the packed legend as a grob
+            # lgd_grob <- grid.grabExpr(draw(custom_legend))
+            # 
+            # # Spacer grob to control distance between heatmap and legend
+            # spacer <- grid::rectGrob(width = unit(1, "npc"), height = unit(0, "mm"), gp = gpar(col = NA))
+            # 
+            # # Arrange the heatmap, spacer, and legend
+            # grid.arrange(ht_grob, spacer, lgd_grob, ncol = 1, heights = c(1, 0.01, 0.05))
+            # 
+          } else {
+            ComplexHeatmap::draw(
+              heatmaps,
+              background = gsplot_background,
+              heatmap_legend_list = custom_legend,
+              heatmap_legend_side = "bottom",
+              annotation_legend_list = isolate_annotation_legend,
+              annotation_legend_side = "right"
+            )
+          }
         }
-      }
+      } 
+    } else {
+      NULL
     }
   })
   

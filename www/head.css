@@ -113,6 +113,8 @@
 .sF-dirInfo>div::-webkit-scrollbar-track,
 .sF-fileWindow::-webkit-scrollbar-track {
   background: #F0F0F0;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
 }
 
 div#bs-select-1::-webkit-scrollbar-track,
@@ -140,6 +142,7 @@ div#bs-select-22::-webkit-scrollbar-track,
 div#bs-select-23::-webkit-scrollbar-track,
 div#bs-select-24::-webkit-scrollbar-track {
   background: white;
+  border-radius: 5px;
 }
 
 #DataTables_Table_8_wrapper > div.dataTables_scroll > div.dataTables_scrollBody::-webkit-scrollbar-track,

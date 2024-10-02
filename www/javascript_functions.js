@@ -856,8 +856,3 @@ function checkElement_new_var_name() {
     setTimeout(checkElement_new_var_name, 100); // Check again in 100 milliseconds
   }
 }
-
-// Initial check on document ready
-$(document).ready(function() {
-  checkElement_new_var_name();
-});

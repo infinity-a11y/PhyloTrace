@@ -29,6 +29,12 @@ body > div.pcr-app.pickr-color.visible {
   border-radius: 5px;
 }
 
+.pcr-app .pickr-color .visible,
+body > div.pcr-app.pickr-color.visible .pcr-app{
+  background-color: #164054e3;
+  border-radius: 5px
+}
+
 table {
   box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.5);
 }
@@ -1523,7 +1529,7 @@ margin-bottom: -1px;
 
 .mst_shape_sel div>.selectize-dropdown {
   bottom: 100% !important; 
-  top:auto!important;
+  top:auto !important;
 }
 
 .mst_col_sel {
@@ -1948,7 +1954,27 @@ button#nj_del_label, button#upgma_del_label {
 dropdown-menu open,
 .dropdown-menu .open,
 dropdown-menu .open {
-  border-color: black;
+  border: none;
+  background: white;
+  border-radius: 0px;
+}
+
+.gs-plot-selected-isolate .open > .dropdown-menu {
+  padding: 5px 0;
+  box-shadow: 0px 0px 7px 3px #0FF4DC;
+  background: white;
+  border-radius: 5px;
+  border: 1px solid #42536acc;
+}
+
+.gs-plot-selected-isolate .open > .dropdown-menu .inner,
+.gs-plot-selected-isolate .open > .dropdown-menu .dropdown-menu .inner,{
+  border: none;
+} 
+
+inner open,
+.inner .open {
+  border: none;
 }
 
 #gs_plot img {
@@ -2084,9 +2110,16 @@ margin-right: 30px;
 margin-top: -10px;
 } 
 
-.heatmap-scale div>.selectize-dropdown {
+.heatmap-scale div>.selectize-dropdown,
+.gs-gene-class-scale div>.selectize-dropdown,
+.gs-plot-selected-isolate div>.selectize-dropdown, 
+.gs-cluster-sel div>.selectize-dropdown {
   bottom: 100% !important; 
-  top:auto!important;
+  top: auto !important;
+}
+
+.gs-cluster-sel .selectize-dropdown {
+  top: -200px !important;
 }
 
 #nj_branch_label_color, #upgma_branch_label_color {
@@ -3613,13 +3646,37 @@ button#download_report_bttn {
 
 /* Gene Screening */
 
+button#gsplot_isolate_label_menu {
+  height: 35px; 
+  margin-top: 15px; 
+  border-radius: 5px;
+  margin-left: -24px;
+}
+
 .gs-heatmap-text {
-  margin-top: -10px;
+  margin-top: -5px;
+  margin-bottom: -10px;
+}
+
+.gs-heatmap-text1 {
+  margin-top: -5px;
   margin-bottom: -10px;
 }
 
 .gs-plot-box .box.box-solid.box-primary{
-  max-height: 550px;
+  max-height: 570px;
+}
+
+.gs-plot-box2 .box.box-solid.box-primary{
+  height: 550px;
+}
+
+.gs-plot-box3 .box.box-solid.box-primary{
+  height: 415px;
+}
+
+.gs-plot-box4 .box.box-solid.box-primary{
+  height: 200px;
 }
 
 #gs_var_mapping_ui {
@@ -3662,7 +3719,10 @@ button#gs_download_plot_bttn {
   border: 1px solid white;
 }
 
-.gs-plot-box {
+.gs-plot-box,
+.gs-plot-box2,
+.gs-plot-box3,
+.gs-plot-box4{
   margin-left: 35px;
   margin-right: -30px;
 }
@@ -3699,6 +3759,20 @@ button#gs_download_plot_bttn {
   border: 1px solid white;
   box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.6);
   top: -30px !important;
+}
+
+.gs-cluster-sel .selectize-dropdown-content,
+.gs-ratio .selectize-dropdown-content,
+.gs-var-mapping-sel .selectize-dropdown-content,
+.gs-mapping-scale .selectize-dropdown-content,
+.gs-gene-class-scale .selectize-dropdown-content,
+.gsplot-isolate-label .selectize-dropdown-content,
+.filetype-gs .selectize-dropdown-content {
+  padding: 5px 0;
+  box-shadow: 0px 0px 7px 3px #0FF4DC;
+  background: white;
+  border-radius: 5px;
+  border: 1px solid #42536acc;
 }
 
 #gs-control,
