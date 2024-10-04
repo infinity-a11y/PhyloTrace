@@ -38,6 +38,7 @@ library(DT)
 library(shinyBS)
 library(openssl)
 library(logr)
+library(waiter)
 # Bioconductor Packages
 library(treeio)
 library(ggtree)
@@ -53,12 +54,11 @@ options(ignore.negative.edge=TRUE)
 # User Interface ----
 
 ui <- dashboardPage(
-  
+
   title = "PhyloTrace 1.5.0",
   
   # Title
   dashboardHeader(
-    
     title = span(
       div(
         class = "img_logo",
@@ -5757,6 +5757,12 @@ server <- function(input, output, session) {
     venn_data
   }
   
+  # Waiting screen config
+  waiting_screen <- tagList(
+    spin_cube_grid(),
+    h4("Loading Database...", style = "color: white")
+  )
+  
   # Function to check for duplicate isolate IDs for multi typing start
   dupl_mult_id <- reactive({
     req(Typing$multi_sel_table)
@@ -6021,6 +6027,7 @@ server <- function(input, output, session) {
         column(
           width = 12,
           align = "center",
+          useWaiter(),
           uiOutput("load_db"),
           br(), br(), br(), br(), br(), br(), br()
         )
@@ -6195,9 +6202,8 @@ server <- function(input, output, session) {
   }, deleteFile = FALSE)
   
   ### Load app event ----
-  
   observeEvent(input$load, {
-    
+    waiter_show(html = waiting_screen, color = "#384555")
     # Reset reactive screening variables 
     output$screening_start <- NULL
     output$screening_result_sel <- NULL
@@ -9939,7 +9945,7 @@ server <- function(input, output, session) {
         )
       }
     }
-    
+   waiter_hide()
   })
   
   # _______________________ ####
