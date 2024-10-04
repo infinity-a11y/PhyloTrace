@@ -65,7 +65,8 @@ log.message <- function(log_file, message) {
   cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "-", message, "\n", file = log_file, append = TRUE)
 }
 
-logfile <- file.path(paste0(typing_meta$wd, "/logs/check_duplicate_single.log"))
+logdir <- file.path(fs::path_home(), ".local", "share", "phylotrace", "logs")
+logfile <- file.path(logdir, "check_duplicate_single.log")
 
 log <- log_open(logfile, logdir = FALSE)
 

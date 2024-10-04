@@ -9,7 +9,7 @@ unset R_HOME
 base_path=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'wd'])")
 
 # reset progress
-echo 0 > "$base_path/logs/progress.txt"
+echo 0 > "$HOME/.local/share/phylotrace/logs/progress.txt"
 
 # Get variables
 scheme=$(Rscript -e "cat(readRDS('single_typing_df.rds')[,'scheme'])")
@@ -49,9 +49,9 @@ mv "$genome" "$base_path/execute/blat_single/$rename_file.fasta"
 find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name "*.fna" \) | parallel pblat "$base_path/execute/blat_single/$rename_file.fasta" {} "$results/{/.}.psl" > /dev/null 2>&1
 
 # Start appending results
-echo 888888 >> "$base_path/logs/progress.txt"
+echo 888888 >> "$HOME/.local/share/phylotrace/logs/progress.txt"
 Rscript "$base_path/execute/single_eval.R"
 wait
 
 # Single typing finalized
-echo 999999 >> "$base_path/logs/progress.txt"
+echo 999999 >> "$HOME/.local/share/phylotrace/logs/progress.txt"

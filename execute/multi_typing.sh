@@ -27,7 +27,7 @@ fi
 mkdir "$results"
 
 selected_genomes="$base_path/execute/selected_genomes"
-log_file="$base_path/logs/script_log.txt"
+log_file="$HOME/.local/share/phylotrace/logs/script_log.txt"
 
 # Create a log file or truncate if it exists
 echo "Start Multi Typing with $scheme scheme." > "$log_file"
