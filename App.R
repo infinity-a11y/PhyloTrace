@@ -106,8 +106,7 @@ ui <- dashboardPage(
         uiOutput("entrytable_sidebar")
       ),
       conditionalPanel(
-        "input.tabs==='db_distmatrix'",
-        uiOutput("distmatrix_sidebar")
+        "input.tabs==='db_distmatrix'"
       ),
       conditionalPanel(
         "input.tabs==='db_missing_values'",
@@ -386,16 +385,15 @@ ui <- dashboardPage(
             width = 3,
             align = "center",
             h2(p("Distance Matrix"), style = "color:white")
-          )
+          ),
+          uiOutput("distance_matrix_info")
         ),
-        hr(), br(), br(), br(),
+        hr(),
+        br(),
         uiOutput("no_scheme_distancematrix"),
         uiOutput("distancematrix_no_entries"),
-        fluidRow(
-          column(1),
-          uiOutput("distmatrix_show")
-        ),
-        br(), br()
+        uiOutput("distmatrix_show"),
+        br()
       ),
       
       ### Tab Missing Values ----
@@ -630,7 +628,6 @@ ui <- dashboardPage(
           )
         ),
         br(),
-        hr(),
         
         ### Control panels MST ----
         conditionalPanel(
@@ -5376,130 +5373,7 @@ ui <- dashboardPage(
       
       tabItem(
         tabName = "gs_visualization",
-        fluidRow(
-          column(
-            width = 2,
-            align = "left",
-            br(), br(), 
-            div(
-              class = "gs-plot-box",
-              box(
-                solidHeader = TRUE,
-                status = "primary",
-                width = "100%",
-                title = "Plot Controls",
-                fluidRow(
-                  column(
-                    width = 6,
-                    align = "right",
-                    div(
-                      id = "gs-control",
-                      actionBttn(
-                        "gs_data_menu",
-                        label = "",
-                        color = "default",
-                        size = "sm",
-                        style = "material-flat",
-                        icon = icon("table-cells")
-                      )
-                    )
-                  ),
-                  column(
-                    width = 6,
-                    align = "left",
-                    div(
-                      id = "gs-variable-menu",
-                      actionBttn(
-                        "gs_variable_menu",
-                        label = "",
-                        color = "default",
-                        size = "sm",
-                        style = "material-flat",
-                        icon = icon("map-pin")
-                      )
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 6,
-                    align = "right",
-                    br(),
-                    div(
-                      id = "gs-control",
-                      actionBttn(
-                        "gs_color_menu",
-                        label = "",
-                        color = "default",
-                        size = "sm",
-                        style = "material-flat",
-                        icon = icon("palette")
-                      )
-                    )
-                  ),
-                  column(
-                    width = 6,
-                    align = "left",
-                    br(),
-                    div(
-                      id = "gs-size-menu",
-                      actionBttn(
-                        "gs_size_menu",
-                        label = "",
-                        color = "default",
-                        size = "sm",
-                        style = "material-flat",
-                        icon = icon("up-right-and-down-left-from-center")
-                      ),
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 6,
-                    align = "right",
-                    br(),
-                    div(
-                      id = "gs-misc-menu",
-                      actionBttn(
-                        "gs_misc_menu",
-                        label = "",
-                        color = "default",
-                        size = "sm",
-                        style = "material-flat",
-                        icon = icon("ellipsis")
-                      )
-                    )
-                  ),
-                  column(
-                    width = 6,
-                    align = "left",
-                    br(),
-                    div(
-                      id = "gs-download-menu",
-                      actionBttn(
-                        "gs_download_menu",
-                        label = "",
-                        color = "default",
-                        size = "sm",
-                        style = "material-flat",
-                        icon = icon("download")
-                      )
-                    )
-                  )
-                )
-              )
-            ),
-            br(),
-            uiOutput("gs_plot_control_ui")
-          ),
-          column(
-            width = 10,
-            align = "left",
-            br(), br(), br(), br(),
-            uiOutput("gs_field")
-          )
-        )
+        uiOutput("gs_visualization_ui")
       )
     ) # End tabItems
   ) # End dashboardPage
@@ -5555,8 +5429,6 @@ server <- function(input, output, session) {
   check_new_entry <- reactive({
     
     invalidateLater(5000, session)
-    
-    DB_scheme <<- DB$scheme
     
     if(!is.null(DB$data) & !is.null(DB$database) & !is.null(DB$scheme)) {
       if(file_exists(file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))) {
@@ -6364,7 +6236,6 @@ server <- function(input, output, session) {
         output$missing_values <- NULL
         output$delete_box <- NULL
         output$missing_values_sidebar <- NULL
-        output$distmatrix_sidebar <- NULL
         output$download_scheme_info <- NULL
         output$download_loci <- NULL
         output$entry_table_controls <- NULL
@@ -7559,76 +7430,6 @@ server <- function(input, output, session) {
                   )
                 })
                 
-                # Render distance matrix sidebar
-                output$distmatrix_sidebar <- renderUI({
-                  column(
-                    width = 12,
-                    align = "left",
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "center",
-                        selectInput(
-                          "distmatrix_label",
-                          label = "",
-                          choices = c("Index", "Assembly Name", "Assembly ID"),
-                          selected = c("Assembly Name"),
-                          width = "100%"
-                        ),
-                        br()
-                      )
-                    ),
-                    div(
-                      class = "mat-switch-dmatrix",
-                      materialSwitch(
-                        "distmatrix_true",
-                        h5(p("Only Included Entries"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                        value = FALSE,
-                        right = TRUE
-                      )
-                    ),
-                    div(
-                      class = "mat-switch-dmatrix",
-                      materialSwitch(
-                        "distmatrix_triangle",
-                        h5(p("Show Upper Triangle"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                        value = FALSE,
-                        right = TRUE
-                      )
-                    ),
-                    div(
-                      class = "mat-switch-dmatrix-last",
-                      materialSwitch(
-                        "distmatrix_diag",
-                        h5(p("Show Diagonal"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                        value = TRUE,
-                        right = TRUE
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 6,
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; bottom: 37px; right: -15px', 
-                                      'Download CSV')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        downloadBttn(
-                          "download_distmatrix",
-                          style = "simple",
-                          label = "",
-                          size = "sm",
-                          icon = icon("download")
-                        )
-                      )
-                    )
-                  )
-                })
-                
                 # Render select input to choose displayed loci
                 output$compare_select <- renderUI({
                   
@@ -8584,11 +8385,6 @@ server <- function(input, output, session) {
                       if(!is.null(check_new_entry()) & 
                          !is.null(DB$check_new_entries) & 
                          !is.null(DB$meta)) {
-                        
-                        check_new_entry <- check_new_entry()
-                        check_new_entry1 <<- check_new_entry
-                        DB_check_new_entries <<- DB$check_new_entries
-                        Typing_status <<- Typing$status
                         if(check_new_entry() & DB$check_new_entries) {
                           Typing$reload <- FALSE
                           fluidRow(
@@ -8819,17 +8615,113 @@ server <- function(input, output, session) {
                     output$distmatrix_show <- renderUI({
                       if(!is.null(DB$data)) {
                         if(nrow(DB$data) > 1) {
-                          column(
-                            width = 10,
-                            uiOutput("distancematrix_duplicated"),
-                            div(
-                              class = "distmatrix",
+                          fluidRow(
+                            column(
+                              width = 2,
+                              div(
+                                class = "gs-plot-box",
+                                box(
+                                  solidHeader = TRUE,
+                                  status = "primary",
+                                  width = "100%",
+                                  title = "Options",
+                                  column(
+                                    width = 12,
+                                    br(),
+                                    br(),
+                                    fluidRow(
+                                      column(
+                                        width = 3,
+                                        HTML(
+                                          paste(
+                                            tags$span(style='color: white; font-size: 14px;', 
+                                                      'Label')
+                                          )
+                                        )
+                                      ),
+                                      column(
+                                        width = 9,
+                                        div(
+                                          class = "distmatrix-label",
+                                          selectInput(
+                                            "distmatrix_label",
+                                            label = "",
+                                            choices = c("Index", "Assembly Name", "Assembly ID"),
+                                            selected = c("Assembly Name"),
+                                            width = "100%"
+                                          )
+                                        )
+                                      )
+                                    ),
+                                    br(),
+                                    br(),
+                                    div(
+                                      class = "mat-switch-dmatrix",
+                                      materialSwitch(
+                                        "distmatrix_true",
+                                        h5(p("Only Included Entries"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                        value = FALSE,
+                                        right = TRUE
+                                      )
+                                    ),
+                                    br(),
+                                    div(
+                                      class = "mat-switch-dmatrix",
+                                      materialSwitch(
+                                        "distmatrix_triangle",
+                                        h5(p("Show Upper Triangle"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                        value = FALSE,
+                                        right = TRUE
+                                      )
+                                    ),
+                                    br(),
+                                    div(
+                                      class = "mat-switch-dmatrix",
+                                      materialSwitch(
+                                        "distmatrix_diag",
+                                        h5(p("Show Diagonal"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                        value = TRUE,
+                                        right = TRUE
+                                      )
+                                    ),
+                                    br(),
+                                    br(),
+                                    br(),
+                                    br(),
+                                    fluidRow(
+                                      column(
+                                        width = 8,
+                                        HTML(
+                                          paste(
+                                            tags$span(style='color: white; font-size: 14px;', 
+                                                      'Download CSV')
+                                          )
+                                        )
+                                      ),
+                                      column(
+                                        width = 4,
+                                        downloadBttn(
+                                          "download_distmatrix",
+                                          style = "simple",
+                                          label = "",
+                                          size = "sm",
+                                          icon = icon("download")
+                                        )
+                                      )
+                                    )
+                                  )
+                                )
+                              )
+                            ),
+                            column(
+                              width = 9,
+                              uiOutput("distancematrix_duplicated"),
                               rHandsontableOutput("db_distancematrix")
                             )
                           )
                         } else {
                           column(
-                            width = 10,
+                            width = 9,
                             align = "left",
                             p(
                               HTML(
@@ -9440,6 +9332,65 @@ server <- function(input, output, session) {
   
   #### Scheme Info ----
   
+  output$distance_matrix_info <- renderUI({
+    req(DB$scheme)
+    
+    if(!is.null(DB$allelic_profile)) {
+      if(anyNA(DB$allelic_profile)) {
+        any_na <- TRUE
+      } else {any_na <- FALSE}
+    } else {any_na <- FALSE}
+    
+    if(!is.null(input$na_handling)) {
+      na_handling <- input$na_handling
+    } else {
+      na_handling <- "default"
+    }
+    column(
+      width = 7,
+      align = "left",
+      p(
+        HTML(
+          paste(
+            if(isTRUE(any_na)) {
+              '<span style="color: white; font-size: 13px; position:relative; top:15px;">'
+            } else {
+              '<span style="color: white; font-size: 14px; position:relative; top:27px;">' 
+            },
+            'Allelic distance according to',
+            '<span style="font-style: italic;">',
+            DB$scheme, 'scheme.',
+            '</span>',
+            '</span>'
+          )
+        )
+      ),
+      if(isTRUE(any_na)) {
+        p(
+          HTML(
+            paste(
+              '<i class="fa-solid fa-circle-exclamation" style="font-size:13px; color:white; position:relative; top:10px; margin-right: 10px;"></i>',
+              '<span style="color:white; font-size:13px; position:relative; top:10px;">',
+              'Missing value handling:',
+              '</span>',
+              '<span style="color:white; font-style:italic; font-size:13px; position:relative; top:10px;">',
+              if(na_handling == "ignore_na") {
+                "&nbsp;&nbsp;Ignore missing values for pairwise comparison" 
+              } else if(na_handling == "omit") {
+                "&nbsp;&nbsp;Omit loci with missing values for all assemblies"   
+              } else if(na_handling == "category") {
+                "&nbsp;&nbsp;Treat missing values as allele variant"
+              } else {
+                "&nbsp;&nbsp;Ignore missing values for pairwise comparison" 
+              },
+              '</span>'
+            )
+          )
+        )
+      }
+    ) 
+  })
+  
   # Species info selector UI
   observe({
     req(DB$database, DB$scheme, DB$database)
@@ -9799,7 +9750,8 @@ server <- function(input, output, session) {
                 div(
                   class = "species-image",
                   imageOutput("species_img_saved", width = "300px", height = "200px")
-                )
+                ),
+                
               )
             )
           )
@@ -10298,12 +10250,19 @@ server <- function(input, output, session) {
         div(
           class = "start-modal",
           modalDialog(
-            selectInput(
-              "scheme_db",
-              label = "",
-              choices = DB$available,
-              selected = DB$scheme),
-            title = "Select a local database to load.",
+            column(
+              width = 12,
+              HTML("Select available scheme"),
+              selectInput(
+                "scheme_db",
+                label = "",
+                choices = DB$available,
+                selected = DB$scheme
+              ),
+              br(),
+              br()
+            ),
+            title = "Load Database",
             easyClose = TRUE,
             footer = tagList(
               modalButton("Cancel"),
@@ -23923,6 +23882,137 @@ server <- function(input, output, session) {
   
   ### Render UI Elements ----
   
+  # conditional rendering of gs visualization ui
+  
+  output$gs_visualization_ui <- renderUI(
+    if(!is.null(DB$data)) {
+      fluidRow(
+        column(
+          width = 2,
+          align = "left",
+          br(), br(), 
+          div(
+            class = "gs-plot-box",
+            box(
+              solidHeader = TRUE,
+              status = "primary",
+              width = "100%",
+              title = "Plot Controls",
+              fluidRow(
+                column(
+                  width = 6,
+                  align = "right",
+                  div(
+                    id = "gs-control",
+                    actionBttn(
+                      "gs_data_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("table-cells")
+                    )
+                  )
+                ),
+                column(
+                  width = 6,
+                  align = "left",
+                  div(
+                    id = "gs-variable-menu",
+                    actionBttn(
+                      "gs_variable_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("map-pin")
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 6,
+                  align = "right",
+                  br(),
+                  div(
+                    id = "gs-control",
+                    actionBttn(
+                      "gs_color_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("palette")
+                    )
+                  )
+                ),
+                column(
+                  width = 6,
+                  align = "left",
+                  br(),
+                  div(
+                    id = "gs-size-menu",
+                    actionBttn(
+                      "gs_size_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("up-right-and-down-left-from-center")
+                    ),
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 6,
+                  align = "right",
+                  br(),
+                  div(
+                    id = "gs-misc-menu",
+                    actionBttn(
+                      "gs_misc_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("ellipsis")
+                    )
+                  )
+                ),
+                column(
+                  width = 6,
+                  align = "left",
+                  br(),
+                  div(
+                    id = "gs-download-menu",
+                    actionBttn(
+                      "gs_download_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("download")
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          br(),
+          uiOutput("gs_plot_control_ui")
+        ),
+        column(
+          width = 10,
+          align = "left",
+          br(), br(), br(), br(),
+          uiOutput("gs_field")
+        )
+      )
+    }
+  )
+  
   # gs plot control panel
   output$gs_plot_control_ui <- renderUI(
     
@@ -27376,8 +27466,6 @@ server <- function(input, output, session) {
         } else {
           row_order <- rownames(heatmap_mat)
         }
-        
-        row_order1 <<- row_order
         
         amr_order <- sort(arrange(hm_meta, amr))
         column_order_amr <- rownames(amr_order)[!is.na(amr_order$amr)]

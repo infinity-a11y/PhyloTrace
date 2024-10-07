@@ -1033,12 +1033,7 @@ i.far.fa-pen-to-square {
 }
 
 .mat-switch-dmatrix {
-  margin-left: -12px;
-}
-
-.mat-switch-dmatrix-last {
-  margin-left: -10px;
-  margin-bottom: 70px;
+  margin-left: 5px;
 }
 
 #db_entries, #db_distancematrix, #table_missing_values, 
@@ -1046,6 +1041,12 @@ i.far.fa-pen-to-square {
   border-radius: 8px;
   color: black;
   box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.5);
+}
+
+#db_distancematrix {
+  width: fit-content !important;
+  max-width: 1250px;
+  left: 65px;
 }
 
 #multi_typing_result_table {
@@ -1138,9 +1139,12 @@ button#download_distmatrix_bttn {
   background: #282F38;
   color: #ffffff;
   border: 1px solid white;
-  position: absolute;
-  top: -50px;
   transition: border-color 0.3s ease; 
+  top: -7px;
+}
+
+.distmatrix-label {
+  margin-top: -27px;
 }
 
 button#download_entry_table_bttn {
