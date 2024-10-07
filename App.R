@@ -5556,7 +5556,9 @@ server <- function(input, output, session) {
     
     invalidateLater(5000, session)
     
-    if(!is.null(DB$database)) {
+    DB_scheme <<- DB$scheme
+    
+    if(!is.null(DB$data) & !is.null(DB$database) & !is.null(DB$scheme)) {
       if(file_exists(file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))) {
         
         Database <- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme),"Typing.rds"))
@@ -5573,7 +5575,7 @@ server <- function(input, output, session) {
           }
         }
       } else {FALSE}
-    }
+    } else {FALSE}
   })
   
   # Render Entry Table Highlights 
@@ -6043,6 +6045,7 @@ server <- function(input, output, session) {
     # Vis$nj_true <- NULL
     # Vis$upgma_true <- NULL
     lapply(names(Vis), function(x) Vis[[x]] <- NULL)
+    
     # Empty tree plot fields
     output$nj_field <- empty_plot_field
     output$mst_field <- empty_plot_field
@@ -6053,7 +6056,7 @@ server <- function(input, output, session) {
     # set typing start control variable
     Typing$reload <- TRUE
     
-    # reset typing status on start(
+    # reset typing status on start
     if(Typing$status == "Finalized") {Typing$status <- "Inactive"}
     if(!is.null(Typing$single_path)) {Typing$single_path <- data.frame()}
     
@@ -6393,7 +6396,11 @@ server <- function(input, output, session) {
         DB$allelic_profile <- NULL
         DB$allelic_profile_trunc <- NULL
         DB$allelic_profile_true <- NULL
-        DB$scheme <- input$scheme_db
+        
+        if(!identical(DB$scheme, input$scheme_db)) {
+          DB$scheme <- input$scheme_db
+          DB$scheme_new <- TRUE
+        }
         
         # Load AMR profile
         profile_path <- file.path(DB$database, gsub(" ", "_", DB$scheme), "AMR_Profile.rds")
@@ -6697,65 +6704,70 @@ server <- function(input, output, session) {
               }
               
               ### Check if scheme update available
-              # Query remote scheme
-              if(DB$scheme_db == "cgMLST.org Nomenclature Server (h25)") {
-                
-                db_spec <- schemes[schemes[,"database"] == "cgMLST.org",]
-                DB$url_link <- db_spec[, "url"][db_spec[, "species"] == gsub(" ", "_", DB$scheme)]
-                
-                remote_scheme <- read_html(DB$url_link) %>%
-                  html_table(header = FALSE) %>%
-                  as.data.frame(stringsAsFactors = FALSE)
-                
-                last_scheme_change <- strptime(remote_scheme[,2][remote_scheme[,1] == "Last Change"],
-                                               format = "%B %d, %Y, %H:%M %p")
-              } else if(DB$scheme_db == "pubMLST") {
-                
-                db_spec <- schemes[schemes[,"database"] == "pubMLST",]
-                DB$url_link <- db_spec[, "url"][db_spec[, "species"] == gsub(" ", "_", DB$scheme)]
-                
-                remote_scheme <- get.schemeinfo(url_link = DB$url_link)
-                
-                last_scheme_change <- remote_scheme[["last_updated"]]
-              }
-              
-              if(!is.null(last_scheme_change)) {
-                if(length(last_scheme_change) > 0) {
-                  last_file_change <- format(
-                    file.info(file.path(DB$database, ".downloaded_schemes",
-                                        paste0(gsub(" ", "_", DB$scheme), ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
+              if(isTRUE(DB$scheme_new)) {
+                # Query remote scheme
+                if(DB$scheme_db == "cgMLST.org Nomenclature Server (h25)") {
                   
-                  if(!is.null(last_file_change)) {
-                    if(length(last_file_change) > 0) {
-                      if(last_file_change < last_scheme_change) {
-                        showModal(
-                          div(
-                            class = "start-modal",
-                            modalDialog(
-                              paste0("The ", DB$scheme, " scheme was updated at ",
-                                     last_scheme_change,
-                                     " on the ",
-                                     DB$schemeinfo[,2][DB$schemeinfo[,1] == "Database"],
-                                     " database. To fetch the changes download the scheme."),
-                              title = HTML(paste0(
-                                '<i class="fa-solid fa-circle-exclamation" style="font-size:17px;color:white"></i>',
-                                " &nbsp;&nbsp; Scheme update available")),
-                              fade = TRUE,
-                              easyClose = TRUE,
-                              footer = tagList(
-                                modalButton("Cancel"),
-                                actionButton("update_scheme", "Update Scheme", 
-                                             icon = icon("layer-group"),
-                                             class = "btn btn-default")
+                  db_spec <- schemes[schemes[,"database"] == "cgMLST.org",]
+                  DB$url_link <- db_spec[, "url"][db_spec[, "species"] == gsub(" ", "_", DB$scheme)]
+                  
+                  remote_scheme <- read_html(DB$url_link) %>%
+                    html_table(header = FALSE) %>%
+                    as.data.frame(stringsAsFactors = FALSE)
+                  
+                  last_scheme_change <- strptime(remote_scheme[,2][remote_scheme[,1] == "Last Change"],
+                                                 format = "%B %d, %Y, %H:%M %p")
+                } else if(DB$scheme_db == "pubMLST") {
+                  
+                  db_spec <- schemes[schemes[,"database"] == "pubMLST",]
+                  DB$url_link <- db_spec[, "url"][db_spec[, "species"] == gsub(" ", "_", DB$scheme)]
+                  
+                  remote_scheme <- get.schemeinfo(url_link = DB$url_link)
+                  
+                  last_scheme_change <- remote_scheme[["last_updated"]]
+                }
+                
+                if(!is.null(last_scheme_change)) {
+                  if(length(last_scheme_change) > 0) {
+                    last_file_change <- format(
+                      file.info(file.path(DB$database, ".downloaded_schemes",
+                                          paste0(gsub(" ", "_", DB$scheme), ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
+                    
+                    if(!is.null(last_file_change)) {
+                      if(length(last_file_change) > 0) {
+                        if(last_file_change < last_scheme_change) {
+                          showModal(
+                            div(
+                              class = "start-modal",
+                              modalDialog(
+                                paste0("The ", DB$scheme, " scheme was updated at ",
+                                       last_scheme_change,
+                                       " on the ",
+                                       DB$schemeinfo[,2][DB$schemeinfo[,1] == "Database"],
+                                       " database. To fetch the changes download the scheme."),
+                                title = HTML(paste0(
+                                  '<i class="fa-solid fa-circle-exclamation" style="font-size:17px;color:white"></i>',
+                                  " &nbsp;&nbsp; Scheme update available")),
+                                fade = TRUE,
+                                easyClose = TRUE,
+                                footer = tagList(
+                                  modalButton("Cancel"),
+                                  actionButton("update_scheme", "Update Scheme", 
+                                               icon = icon("layer-group"),
+                                               class = "btn btn-default")
+                                )
                               )
                             )
                           )
-                        )
+                        }
                       }
                     }
                   }
                 }
               }
+              
+              DB$scheme_new <- FALSE
+              
             } else {
               log_print(paste0("Scheme info file missing in the local ", DB$scheme, " folder"))
               
@@ -8569,79 +8581,87 @@ server <- function(input, output, session) {
                     
                     # Dynamic save button when rhandsontable changes or new entries
                     output$edit_entry_table <- renderUI({
-                      if(check_new_entry() & DB$check_new_entries) {
-                        Typing$reload <- FALSE
-                        fluidRow(
-                          column(
-                            width = 8,
-                            align = "left",
-                            HTML(
-                              paste(
-                                tags$span(style='color: white; font-size: 14px; position: absolute; bottom: -30px; right: -5px', 
-                                          'New entries - reload database')
-                              )
-                            )
-                          ),
-                          column(
-                            width = 4,
-                            actionButton(
-                              "load",
-                              "",
-                              icon = icon("rotate"),
-                              class = "pulsating-button"
-                            )
-                          )
-                        )
-                      } else if(Typing$status == "Attaching") {
-                        fluidRow(
-                          column(
-                            width = 11,
-                            align = "left",
-                            HTML(
-                              paste(
-                                tags$span(style='color: white; font-size: 14px; position: absolute; bottom: -30px; right: -5px', 'No database changes possible - pending entry addition')
-                              )
-                            )
-                          ),
-                          column(
-                            width = 1,
-                            HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:20px; color:white; margin-top: 10px"></i>'))
-                          )
-                        )
-                      } else if((DB$change == TRUE) | !identical(get.entry.table.meta(), select(DB$meta, -13))) {
+                      if(!is.null(check_new_entry()) & 
+                         !is.null(DB$check_new_entries) & 
+                         !is.null(DB$meta)) {
                         
-                        if(!is.null(input$db_entries)) {
+                        check_new_entry <- check_new_entry()
+                        check_new_entry1 <<- check_new_entry
+                        DB_check_new_entries <<- DB$check_new_entries
+                        Typing_status <<- Typing$status
+                        if(check_new_entry() & DB$check_new_entries) {
+                          Typing$reload <- FALSE
                           fluidRow(
                             column(
-                              width = 5,
+                              width = 8,
+                              align = "left",
                               HTML(
                                 paste(
-                                  tags$span(style='color: white; font-size: 16px; position: absolute; bottom: -30px; right: -5px', 'Confirm changes')
+                                  tags$span(style='color: white; font-size: 14px; position: absolute; bottom: -30px; right: -5px', 
+                                            'New entries - reload database')
                                 )
-                              )
-                            ),
-                            column(
-                              width = 3,
-                              actionButton(
-                                "edit_button",
-                                "",
-                                icon = icon("bookmark"),
-                                class = "pulsating-button"
                               )
                             ),
                             column(
                               width = 4,
                               actionButton(
-                                "undo_changes",
-                                "Undo",
-                                icon = icon("repeat")
+                                "load",
+                                "",
+                                icon = icon("rotate"),
+                                class = "pulsating-button"
                               )
                             )
                           )
-                        }
-                      } else {NULL}
+                        } else if(Typing$status == "Attaching") {
+                          fluidRow(
+                            column(
+                              width = 11,
+                              align = "left",
+                              HTML(
+                                paste(
+                                  tags$span(style='color: white; font-size: 14px; position: absolute; bottom: -30px; right: -5px', 'No database changes possible - pending entry addition')
+                                )
+                              )
+                            ),
+                            column(
+                              width = 1,
+                              HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:20px; color:white; margin-top: 10px"></i>'))
+                            )
+                          )
+                        } else if((DB$change == TRUE) | !identical(get.entry.table.meta(), select(DB$meta, -13))) {
+                          
+                          if(!is.null(input$db_entries)) {
+                            fluidRow(
+                              column(
+                                width = 5,
+                                HTML(
+                                  paste(
+                                    tags$span(style='color: white; font-size: 16px; position: absolute; bottom: -30px; right: -5px', 'Confirm changes')
+                                  )
+                                )
+                              ),
+                              column(
+                                width = 3,
+                                actionButton(
+                                  "edit_button",
+                                  "",
+                                  icon = icon("bookmark"),
+                                  class = "pulsating-button"
+                                )
+                              ),
+                              column(
+                                width = 4,
+                                actionButton(
+                                  "undo_changes",
+                                  "Undo",
+                                  icon = icon("repeat")
+                                )
+                              )
+                            )
+                          }
+                        } else {NULL}
+                      }
                     })
-                    
                   })
                   
                   # Hide no entry message
