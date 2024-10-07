@@ -11503,20 +11503,8 @@ server <- function(input, output, session) {
               easyClose = TRUE,
               title = "Deleting Entries",
               footer = tagList(
-                fluidRow(
-                  column(6),
-                  column(
-                    width = 4,
-                    modalButton("Cancel"),
-                  ),
-                  column(
-                    width = 2,
-                    div(
-                      class = "danger-button",
-                      actionButton("conf_delete_all", "Delete")
-                    )
-                  )
-                )
+                modalButton("Cancel"),
+                actionButton("conf_delete_all", "Delete")
               )
             )
           )
@@ -11533,23 +11521,10 @@ server <- function(input, output, session) {
               fade = TRUE,
               easyClose = TRUE,
               footer = tagList(
-                fluidRow(
-                  column(6),
-                  column(
-                    width = 3,
-                    align = "right",
-                    modalButton("Cancel")
-                  ),
-                  column(
-                    width = 2,
-                    div(
-                      class = "danger-button",
-                      actionButton(
-                        "conf_delete", 
-                        "Delete"
-                      )
-                    )
-                  )
+                modalButton("Cancel"),
+                actionButton(
+                  "conf_delete", 
+                  "Delete"
                 )
               )
             )
@@ -12879,18 +12854,8 @@ server <- function(input, output, session) {
             )
           ),
           footer = tagList(
-            fluidRow(
-              column(6),
-              column(
-                width = 3,
-                align = "right",
-                modalButton("Cancel")
-              ),
-              column(
-                width = 2,
-                actionButton("nj_heatmap_confirm", "Apply", class = "btn btn-default")
-              )
-            )
+            modalButton("Cancel"),
+            actionButton("nj_heatmap_confirm", "Apply", class = "btn btn-default")
           )
         )
       )
@@ -12970,18 +12935,8 @@ server <- function(input, output, session) {
             )
           ),
           footer = tagList(
-            fluidRow(
-              column(6),
-              column(
-                width = 3,
-                align = "right",
-                modalButton("Cancel")
-              ),
-              column(
-                width = 2,
-                actionButton("upgma_heatmap_confirm", "Apply", class = "btn btn-default")
-              )
-            )
+            modalButton("Cancel"),
+            actionButton("upgma_heatmap_confirm", "Apply", class = "btn btn-default")
           )
         )
       )
@@ -22881,18 +22836,8 @@ server <- function(input, output, session) {
               fade = TRUE,
               easyClose = TRUE,
               footer = tagList(
-                fluidRow(
-                  column(6),
-                  column(
-                    width = 3,
-                    align = "right",
-                    modalButton("Cancel")
-                  ),
-                  column(
-                    width = 2,
-                    actionButton("change_entries", "Go to Entry Table", class = "btn btn-default")
-                  )
-                )
+                modalButton("Cancel"),
+                actionButton("change_entries", "Go to Entry Table", class = "btn btn-default")
               )
             )
           )
@@ -23684,23 +23629,13 @@ server <- function(input, output, session) {
             title = "cgMLST Report Generation",
             easyClose = TRUE,
             footer = tagList(
-              fluidRow(
-                column(6),
-                column(
-                  width = 3,
-                  align = "right",
-                  modalButton("Cancel")
-                ),
-                column(
-                  width = 2,
-                  downloadBttn(
-                    "download_report",
-                    style = "simple",
-                    label = "Save",
-                    size = "sm",
-                    icon = icon("download")
-                  )
-                )
+              modalButton("Cancel"),
+              downloadBttn(
+                "download_report",
+                style = "simple",
+                label = "Save",
+                size = "sm",
+                icon = icon("download")
               )
             )
           )
@@ -24916,7 +24851,6 @@ server <- function(input, output, session) {
   })
   
   # sizing menu
-  
   input_gsplot_grid_width <- reactive({input$gsplot_grid_width}) %>% debounce(1000)
   input_gsplot_legend_labelsize <- reactive({input$gsplot_legend_labelsize}) %>% debounce(1000)
   input_gsplot_fontsize_title <- reactive({input$gsplot_fontsize_title}) %>% debounce(1000)
@@ -26475,95 +26409,107 @@ server <- function(input, output, session) {
         fluidRow(
           column(1),
           column(
-            width = 3,
-            align = "center",
-            br(), br(),
-            p(
-              HTML(
-                paste(
-                  tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Isolates for Screening')
-                )
-              )
-            ),
-            if(Screening$picker_status) {
-              div(
-                class = "screening_div",
-                pickerInput(
-                  "screening_select",
-                  "",
-                  choices = list(
-                    Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
-                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
+            width = 10,
+            fluidRow(
+              column(
+                width = 3,
+                align = "center",
+                box(
+                  solidHeader = TRUE,
+                  status = "primary",
+                  width = "100%",
+                  column(
+                    width = 12,
+                    p(
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; font-size: 16px; margin-bottom: 0px', 'Select Isolates for Screening')
+                        )
+                      )
+                    ),
+                    if(Screening$picker_status) {
+                      div(
+                        class = "screening_div",
+                        pickerInput(
+                          "screening_select",
+                          "",
+                          choices = list(
+                            Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
+                              as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
+                            } else {
+                              DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
+                            },
+                            Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
+                              as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
+                            } else {
+                              DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+                            },
+                            `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
+                              as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
+                            } else {
+                              DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
+                            }
+                          ),
+                          choicesOpt = list(
+                            disabled = c(
+                              rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
+                              rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
+                              rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
+                            )
+                          ),
+                          options = list(
+                            `live-search` = TRUE,
+                            `actions-box` = TRUE,
+                            size = 10,
+                            style = "background-color: white; border-radius: 5px;"
+                          ),
+                          multiple = TRUE
+                        )
+                      )
                     } else {
-                      DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
+                      div(
+                        class = "screening_div",
+                        pickerInput(
+                          "screening_select",
+                          "",
+                          choices = Screening$picker_choices,
+                          selected = Screening$picker_selected,
+                          options = list(
+                            `live-search` = TRUE,
+                            `actions-box` = TRUE,
+                            size = 10,
+                            style = "background-color: white; border-radius: 5px;"
+                          ),
+                          multiple = TRUE
+                        ) 
+                      )
                     },
-                    Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
-                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
-                    } else {
-                      DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
-                    },
-                    `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
-                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
-                    } else {
-                      DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
-                    }
-                  ),
-                  choicesOpt = list(
-                    disabled = c(
-                      rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
-                      rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
-                      rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
-                    )
-                  ),
-                  options = list(
-                    `live-search` = TRUE,
-                    `actions-box` = TRUE,
-                    size = 10,
-                    style = "background-color: white; border-radius: 5px;"
-                  ),
-                  multiple = TRUE
+                    br(), br(),
+                    uiOutput("genome_path_gs"),
+                    br()
+                  )
                 )
+              ),
+              column(
+                width = 3,
+                uiOutput("screening_start")
+              ),
+              column(3),
+              column(
+                width = 3,
+                align = "center",
+                uiOutput("screening_result_sel")
               )
-            } else {
-              div(
-                class = "screening_div",
-                pickerInput(
-                  "screening_select",
-                  "",
-                  choices = Screening$picker_choices,
-                  selected = Screening$picker_selected,
-                  options = list(
-                    `live-search` = TRUE,
-                    `actions-box` = TRUE,
-                    size = 10,
-                    style = "background-color: white; border-radius: 5px;"
-                  ),
-                  multiple = TRUE
-                ) 
-              )
-            },
-            br(), br(),
-            uiOutput("genome_path_gs")
-          ),
-          column(
-            width = 3,
-            uiOutput("screening_start")
-          ),
-          column(
-            width = 3,
-            align = "center",
-            br(), br(),
-            uiOutput("screening_result_sel")
-          ),
-          column(1)
+            )    
+          )
         ),
         fluidRow(
           column(1),
           column(
             width = 10,
-            br(), br(), 
+            br(),  
             uiOutput("screening_result"),
-            br(), br(), br(), br()
+            br(), br()
           )
         )
       )
@@ -26622,8 +26568,8 @@ server <- function(input, output, session) {
     updatePickerInput(session, "screening_select", selected = character(0))
     
     # enable isolate picker
-    shinyjs::runjs("$('#screening_select').prop('disabled', false);")
-    shinyjs::runjs("$('#screening_select').selectpicker('refresh');")
+    shinyjs::delay(200, shinyjs::runjs("$('#screening_select').prop('disabled', false);"))
+    shinyjs::delay(200, shinyjs::runjs("$('#screening_select').selectpicker('refresh');"))
   })
   
   # Cancel screening
@@ -26633,9 +26579,9 @@ server <- function(input, output, session) {
         class = "start-modal",
         modalDialog(
           paste0(
-            "Gene screening is still pending. Stopping this process will cancel the screening."
+            "Gene Screening still pending. Are you sure you want to stop the screening?"
           ),
-          title = "Reset Multi Typing",
+          title = "Cancel Gene Screening",
           fade = TRUE,
           easyClose = TRUE,
           footer = tagList(
@@ -26680,8 +26626,8 @@ server <- function(input, output, session) {
     updatePickerInput(session, "screening_select", selected = character(0))
     
     # disable isolate picker
-    shinyjs::runjs("$('#screening_select').prop('disabled', false);")
-    shinyjs::runjs("$('#screening_select').selectpicker('refresh');")
+    shinyjs::delay(200, shinyjs::runjs("$('#screening_select').prop('disabled', false);"))
+    shinyjs::delay(200, shinyjs::runjs("$('#screening_select').selectpicker('refresh');"))
   })
   
   # Get selected assembly
@@ -26697,96 +26643,100 @@ server <- function(input, output, session) {
     } else if (length(input$screening_select) > 0) {
       
       output$screening_start <- renderUI({
-        
-        fluidRow(
-          column(
-            width = 12,
-            br(), br(), 
-            if(length(input$screening_select) < 1) {
-              column(
-                width = 12,
-                align = "center",
-                p(
-                  HTML(paste(
-                    '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
-                    paste("<span style='color: white; font-style:italic'>", 
-                          "&nbsp Select Isolate(s) for Screening")))
-                )
-              )
-            } else if(Screening$status == "finished") {
-              column(
-                width = 12,
-                align = "center",
-                p(
-                  HTML(paste(
-                    '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:white"></i>',
-                    paste("<span style='color: white; font-style:italic'>", 
-                          "&nbsp Reset to Perform Screening Again")))
-                ),
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          if(length(input$screening_select) < 1) {
+            column(
+              width = 12,
+              align = "center",
+              p(
+                HTML(paste(
+                  '<i class="fa-solid fa-circle-exclamation" style="font-size:16px;color:orange"></i>',
+                  paste("<span style='color: white; font-style:italic'>", 
+                        "&nbsp Select Isolate(s) for Screening")))
+              ),
+              br(),
+              br()
+            )
+          } else if(Screening$status == "finished") {
+            column(
+              width = 12,
+              align = "center",
+              p(
+                HTML(paste(
+                  '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:white"></i>',
+                  paste("<span style='color: white; font-style:italic'>", 
+                        "&nbsp Reset to Perform Screening Again")))
+              ),
+              fluidRow(
                 actionButton(
                   "screening_reset_bttn",
                   "Reset",
                   icon = icon("arrows-rotate")
-                ),
-                if(!is.null(Screening$status_df)) {
-                  p(
-                    HTML(paste("<span style='color: white; font-style:italic; position: relative; top:41px'>", 
-                               sum(Screening$status_df$status != "unfinished"), "/",
-                               nrow(Screening$status_df), " Isolate(s) screened"))
-                  )
-                }
-              )
-            } else if(Screening$status == "idle") {
-              column(
-                width = 12,
-                align = "center",
-                p(
-                  HTML(paste(
-                    '<i class="fa-solid fa-circle-check" style="font-size:15px;color:lightgreen"></i>',
-                    paste("<span style='color: white;'>",
-                          "&nbsp Screening Ready")))
-                ),
-                actionButton(
-                  inputId = "screening_start_button",
-                  label = "Start",
-                  icon = icon("circle-play")
                 )
-              )
-            } else if(Screening$status == "started") {
-              column(
-                width = 12,
-                align = "center",
-                p(
-                  HTML(paste(
-                    '<i class="fa-solid fa-clock" style="font-size:15px;color:white"></i>',
-                    paste("<span style='color: white;'>",
-                          "&nbsp Running Screening ...")))
-                ),
-                fluidRow(
-                  column(3),
-                  column(
-                    width = 3,
-                    actionButton(
-                      inputId = "screening_cancel",
-                      label = "Terminate",
-                      icon = icon("ban")
-                    )
-                  ),
-                  column(
-                    width = 3,
-                    HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:22px;color:white;margin-top:27px;position:relative;left:20px"></i>'))
+              ),
+              if(!is.null(Screening$status_df)) {
+                HTML(paste("<span style='color: white; font-style:italic;'>", 
+                          sum(Screening$status_df$status != "unfinished"), "/",
+                          nrow(Screening$status_df), " isolate(s) screened"))
+              },
+              br(),
+              br()
+            )
+          } else if(Screening$status == "idle") {
+            column(
+              width = 12,
+              align = "center",
+              p(
+                HTML(paste(
+                  '<i class="fa-solid fa-circle-check" style="font-size:16px;color:lightgreen"></i>',
+                  paste("<span style='color: white;font-size:16px'>",
+                        "&nbsp Select Isolates for Screening")))
+              ),
+              actionButton(
+                inputId = "screening_start_button",
+                label = "Start",
+                icon = icon("circle-play")
+              ),
+              br(),
+              br()
+            )
+          } else if(Screening$status == "started") {
+            column(
+              width = 12,
+              align = "center",
+              p(
+                HTML(paste(
+                  '<i class="fa-solid fa-clock" style="font-size:16px;color:white"></i>',
+                  paste("<span style='color: white;font-size:16px'>",
+                        "&nbsp Running Screening ...")))
+              ),
+              fluidRow(
+                column(3),
+                column(
+                  width = 3,
+                  actionButton(
+                    inputId = "screening_cancel",
+                    label = "Terminate",
+                    icon = icon("ban")
                   )
                 ),
-                if(!is.null(Screening$status_df)) {
-                  p(
-                    HTML(paste("<span style='color: white; font-style:italic; position: relative; top:41px'>", 
-                               sum(Screening$status_df$status != "unfinished"), "/",
-                               nrow(Screening$status_df), " isolate(s) screened"))
-                  )
-                }
-              )
-            }
-          )
+                column(
+                  width = 3,
+                  HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:22px;color:white;margin-top:27px;position:relative;left:35px; top:-10px"></i>'))
+                )
+              ),
+              if(!is.null(Screening$status_df)) {
+                HTML(paste("<span style='color: white; font-style:italic;'>", 
+                           sum(Screening$status_df$status != "unfinished"), "/",
+                           nrow(Screening$status_df), " isolate(s) screened"))
+              },
+              br(),
+              br()
+            )
+          }
         )
       })
     } else {NULL}
@@ -26884,7 +26834,16 @@ server <- function(input, output, session) {
             output$screening_result <- renderUI(
               column(
                 width = 12,
-                hr(), br(),
+                p(
+                  HTML(
+                    paste(
+                      '<i class="fa-solid fa-circle-check" style="font-size:16px;color:lightgreen"></i>',
+                      paste("<span style='color: white; font-style:italic'>",
+                            "&nbsp Results of gene screening appended to local database.")
+                    )
+                  )
+                ),
+                br(),
                 dataTableOutput("screening_table") 
               )
             )
@@ -26892,7 +26851,7 @@ server <- function(input, output, session) {
             output$screening_result <- renderUI(
               column(
                 width = 12,
-                hr(), br(),
+                br(),
                 verbatimTextOutput("screening_fail")
               )
             )
@@ -26939,16 +26898,31 @@ server <- function(input, output, session) {
         
         if(isTRUE(Screening$first_result)) {
           output$screening_result_sel <- renderUI(
-            column(
-              width = 12,
-              align = "center",
-              selectInput(
-                "screening_res_sel",
-                label = h5("Select Result", style = "color:white; margin-bottom: 28px; margin-top: -10px;"),
-                choices = ""
-              ),
-              if(!is.null(Screening$status_df)) {
-                p(HTML(paste("<span style='color: white; font-style:italic; position: relative; top:41px'>", 
+            box(
+              solidHeader = TRUE,
+              status = "primary",
+              width = "100%",
+              column(
+                width = 12,
+                align = "center",
+                p(
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 16px; margin-bottom: 0px', 'Select Result')
+                    )
+                  )
+                ),
+                div(
+                  class = "screening-div",
+                  selectInput(
+                    "screening_res_sel",
+                    label = "",
+                    choices = ""
+                  )
+                ),
+                br(),
+                if(!is.null(Screening$status_df)) {
+                  HTML(paste("<span style='color: white; font-style:italic;'>", 
                              if(sum(Screening$status_df$status == "success") == 1) {
                                "1 success &nbsp / &nbsp"
                              } else {
@@ -26958,8 +26932,10 @@ server <- function(input, output, session) {
                                "1 failure"
                              } else {
                                paste0(sum(Screening$status_df$status == "fail"), " failures")
-                             })))
-              }
+                             }))
+                }, 
+                br(), br()
+              )
             )
           )
           
@@ -27021,6 +26997,10 @@ server <- function(input, output, session) {
                             choices = Screening$choices,
                             selected = tail(Screening$choices, 1))
           
+          # Disable pickerInput
+          shinyjs::delay(200, shinyjs::runjs("$('#screening_select').prop('disabled', true);"))
+          shinyjs::delay(200, shinyjs::runjs("$('#screening_select').selectpicker('refresh');"))
+          
         } else if(tail(status_df$status, 1) == "fail") {
           
           show_toast(
@@ -27033,6 +27013,10 @@ server <- function(input, output, session) {
                             inputId = "screening_res_sel",
                             choices = Screening$choices,
                             selected = tail(Screening$choices, 1))
+          
+          # Disable pickerInput
+          shinyjs::delay(200, shinyjs::runjs("$('#screening_select').prop('disabled', true);"))
+          shinyjs::delay(200, shinyjs::runjs("$('#screening_select').selectpicker('refresh');"))
         }
         
         if(sum("unfinished" != Screening$status_df$status) == length(Screening$status_df$status)) {
@@ -27373,6 +27357,8 @@ server <- function(input, output, session) {
           row_order <- rownames(heatmap_mat)
         }
         
+        row_order1 <<- row_order
+        
         amr_order <- sort(arrange(hm_meta, amr))
         column_order_amr <- rownames(amr_order)[!is.na(amr_order$amr)]
         vir_order <- sort(arrange(hm_meta, vir))
@@ -27630,6 +27616,7 @@ server <- function(input, output, session) {
               cluster_columns = gs_cluster_col,
               clustering_distance_columns = gs_cluster_distance_col,
               clustering_method_columns = gs_cluster_method_col,
+              cluster_rows = gs_cluster_row,
               row_order = row_order,
               clustering_distance_rows = gs_cluster_distance_row,
               clustering_method_rows = gs_cluster_method_row,
@@ -27682,6 +27669,7 @@ server <- function(input, output, session) {
               cluster_columns = gs_cluster_col,
               clustering_distance_columns = gs_cluster_distance_col,
               clustering_method_columns = gs_cluster_method_col,
+              cluster_rows = gs_cluster_row,
               row_order = row_order,
               clustering_distance_rows = gs_cluster_distance_row,
               clustering_method_rows = gs_cluster_method_row,
@@ -27750,24 +27738,6 @@ server <- function(input, output, session) {
               heatmap_legend_side = "bottom",
               padding = unit(c(2, 2, 2, 2), "mm")
             )
-            # 
-            # # Capture the heatmap as a grob
-            # ht_grob <- grid.grabExpr(ComplexHeatmap::draw(
-            #   heatmaps,
-            #   background = gsplot_background,
-            #   heatmap_legend_side = "bottom",
-            #   padding = unit(c(2, 2, 2, 2), "mm")
-            # ))
-            # 
-            # # Capture the packed legend as a grob
-            # lgd_grob <- grid.grabExpr(draw(custom_legend))
-            # 
-            # # Spacer grob to control distance between heatmap and legend
-            # spacer <- grid::rectGrob(width = unit(1, "npc"), height = unit(0, "mm"), gp = gpar(col = NA))
-            # 
-            # # Arrange the heatmap, spacer, and legend
-            # grid.arrange(ht_grob, spacer, lgd_grob, ncol = 1, heights = c(1, 0.01, 0.05))
-            # 
           } else {
             ComplexHeatmap::draw(
               heatmaps,

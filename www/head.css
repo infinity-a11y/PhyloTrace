@@ -140,7 +140,10 @@ div#bs-select-20::-webkit-scrollbar-track,
 div#bs-select-21::-webkit-scrollbar-track,
 div#bs-select-22::-webkit-scrollbar-track,
 div#bs-select-23::-webkit-scrollbar-track,
-div#bs-select-24::-webkit-scrollbar-track {
+div#bs-select-24::-webkit-scrollbar-track,
+div#bs-select-25::-webkit-scrollbar-track,
+div#bs-select-26::-webkit-scrollbar-track,
+div#bs-select-27::-webkit-scrollbar-track {
   background: white;
   border-radius: 5px;
 }
@@ -183,6 +186,9 @@ div#bs-select-21::-webkit-scrollbar-thumb,
 div#bs-select-22::-webkit-scrollbar-thumb,
 div#bs-select-23::-webkit-scrollbar-thumb,
 div#bs-select-24::-webkit-scrollbar-thumb,
+div#bs-select-25::-webkit-scrollbar-thumb,
+div#bs-select-26::-webkit-scrollbar-thumb,
+div#bs-select-27::-webkit-scrollbar-thumb,
 #logText::-webkit-scrollbar-thumb, 
 #logTextFull::-webkit-scrollbar-thumb,
 #screening_fail::-webkit-scrollbar-thumb,
