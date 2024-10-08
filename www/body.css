@@ -51,6 +51,17 @@ table {
   right: 5px;  
 }
 
+.menu-header {
+  background: #1F4E5D;
+  padding: 5px;
+  padding-left: 55px;
+  border: 1px solid white;
+  position: relative;
+  top: 11px;
+  border-left: none;
+  border-right: none;
+}
+
 .box.box-solid.box-primary>.box-header {
   background: #1f4e5d !important;
   border-bottom: 1px solid white;
@@ -327,13 +338,15 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
 #conf_screening_cancel:hover,
 #conf_delete:hover,
 #conf_multi_kill:hover,
-#conf_delete_all:hover{
+#conf_delete_all:hover,
+#conf_var_del:hover {
   background-color: #ff5964 !important;
   border-color: #ff5964 !important;
   color: white !important;
 }
 
-#start_typ_multi:hover {
+#start_typ_multi:hover,
+#conf_new_var:hover {
   background-color: #008000 !important;
   border-color: #008000 !important;
   color: white !important;
@@ -722,6 +735,11 @@ button#load.pulsating-button.btn.btn-default.action-button.shiny-bound-input {
   color: #ffffff !important;
 }
 
+.dataTables_scrollHead,
+.dataTables_scrollBody {
+  box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.5);
+}
+
 thead {
   background: white;
 }
@@ -960,6 +978,14 @@ i.far.fa-pen-to-square {
 
 /* Database */
 
+.db-controls-column .col-sm-3 {
+  margin-left: 20px;
+}
+
+.db-table-column .col-sm-8{
+  margin-left: -70px;
+}
+
 #db_entries > div > div > div > div > table > tbody > tr > td,
 #db_distancematrix > div > div > div > div > table > tbody > tr > td,
 #table_missing_values > div > div > div > div > table > tbody > tr > td,
@@ -1053,26 +1079,28 @@ i.far.fa-pen-to-square {
 }
 
 #add_new_variable {
-  background: green; 
-  height: 35px; 
+  background: green;
+  height: 35px;
   width: 38px;
-  margin-left: -5px;
-  margin-top: 19px;
+  margin-top: 5px;
+  margin-left: -10px;
 }
 
 #delete_new_variable {
-  background: #FF5964; 
-  height: 35px; 
+  background: #FF5964;
+  height: 33px;
   width: 38px;
-  margin-left: -5px;
-  margin-top: 20px;
+  margin-top: 21px;
+  margin-left: -10px;
+}
+
+#custom_var_table {
+  border: 1px solid white;
+  margin-top: 33px;
 }
 
 #new_var_name {
-  height: 33px;
-  margin-left: -6px;
-  width: 123px;
-  margin-top: -12px;
+  margin-top: -15px;
 }
 
 #cust_var_select {
@@ -1129,7 +1157,6 @@ button#download_cgMLST i.fas.fa-download {
 #show_cust_var {
   color:black; 
   font-size: 14px;
-  margin-left: 15px;
 }
 
 button#download_distmatrix_bttn {

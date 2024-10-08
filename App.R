@@ -97,11 +97,15 @@ ui <- dashboardPage(
         .pulsating-button:hover {
           animation: none;
         }")),
-    br(), br(),
+    br(),
     sidebarMenu(
       id = "tabs",
-      sidebarMenuOutput("menu"),
-      uiOutput("menu_sep2"),
+      uiOutput("menu_header_typing"),
+      br(),
+      sidebarMenuOutput("menu_typing"),
+      uiOutput("menu_header_screening"),
+      br(),
+      sidebarMenuOutput("menu_screening"),
       conditionalPanel(
         "input.tabs==='db_browse_entries'",
         uiOutput("entrytable_sidebar")
@@ -275,34 +279,88 @@ ui <- dashboardPage(
           column(
             width = 3,
             align = "center",
-            h2(p("Browse Local Database"), style = "color:white")
-          )
-        ),
-        hr(), br(),
-        br(),
-        br(),
-        uiOutput("no_scheme_entries"),
-        uiOutput("db_no_entries"),
-        uiOutput("entry_table_controls"),
-        br(), br(),
-        fluidRow(
-          column(1),
-          column(
-            width = 8,
-            uiOutput("db_entries_table"),
-            br(),
+            h2(p("Browse Entries"), style = "color:white")
           ),
           column(
-            width = 3,
+            width = 7,
             align = "left",
-            uiOutput("delete_box"),
-            uiOutput("compare_allele_box"),
-            uiOutput("download_entries"),
-            br(), br(), br(), br(), br(), br(), br(), br(),
-            br(), br(), br(), br(), br(), br(), br()
+            p(
+              HTML(
+                paste0(
+                  '<span style="color: white; font-size: 15px; position:relative; top:25px;">',
+                  'Browse the local database for entries comprising isolates with their metadata, variables and results from cgMLST Typing. ',
+                  '</span>'
+                )
+              )
+            )
           )
         ),
-        br()
+        hr(), br(), 
+        fluidRow(
+          column(1),
+          div(
+            class = "db-table-column",
+            column(
+              width = 8,
+              fluidRow(
+                column(
+                  width = 12,
+                  uiOutput("no_scheme_entries"),
+                  uiOutput("db_no_entries"),
+                  uiOutput("entry_table_controls")
+                )
+              ),
+              fluidRow(
+                div(
+                  class = "db-table-column",
+                  column(
+                    width = 12,
+                    br(),
+                    uiOutput("db_entries_table")
+                  )  
+                )
+              )
+            )
+          ),
+          div(
+            class = "db-controls-column",
+            column(
+              width = 3,
+              align = "left",
+              uiOutput("custom_var_box"),
+              uiOutput("delete_box"),
+              uiOutput("compare_allele_box"),
+              uiOutput("download_entries")
+            )
+          )
+        )
+        # fluidRow(
+        #   uiOutput("no_scheme_entries"),
+        #   uiOutput("db_no_entries"),
+        #   uiOutput("entry_table_controls"),
+        #   div(
+        #     class = "db-controls-column",
+        #     column(
+        #       width = 3,
+        #       align = "left",
+        #       uiOutput("custom_var_box"),
+        #       uiOutput("delete_box"),
+        #       uiOutput("compare_allele_box"),
+        #       uiOutput("download_entries")
+        #     )
+        #   )
+        # ),
+        # br(), br(),
+        # fluidRow(
+        #   column(1),
+        #   div(
+        #     class = "db-table-column",
+        #     column(
+        #       width = 8,
+        #       uiOutput("db_entries_table")
+        #     )  
+        #   )
+        # )
       ),
       
       ### Tab Scheme Info  ----  
@@ -6178,7 +6236,8 @@ server <- function(input, output, session) {
         Startup$sidebar <- FALSE
         Startup$header <- FALSE
         
-        output$menu_sep2 <- NULL
+        output$menu_header_typing <- NULL
+        output$menu_header_screening <- NULL
         
         # Hide start message
         output$start_message <- NULL
@@ -6193,7 +6252,7 @@ server <- function(input, output, session) {
         DB$select_new <- FALSE
         
         # Render menu with Manage Schemes as start tab and no Missing values tab
-        output$menu <- renderMenu(
+        output$menu_typing <- renderMenu(
           sidebarMenu(
             menuItem(
               text = "Manage Schemes",
@@ -6235,6 +6294,7 @@ server <- function(input, output, session) {
         output$compare_allele_box <- NULL
         output$download_entries <- NULL
         output$missing_values <- NULL
+        output$custom_var_box <- NULL
         output$delete_box <- NULL
         output$missing_values_sidebar <- NULL
         output$download_scheme_info <- NULL
@@ -6317,7 +6377,26 @@ server <- function(input, output, session) {
         Startup$sidebar <- FALSE
         Startup$header <- FALSE
         
-        output$menu_sep2 <- renderUI(hr())
+        output$menu_header_typing <- renderUI(
+          div(
+            class = "menu-header",
+            HTML(
+              paste(
+                tags$span(style="color: white; font-size: 15px;", "cgMLST Typing")
+              )
+            )
+          )
+        )
+        output$menu_header_screening <- renderUI(
+          div(
+            class = "menu-header",
+            HTML(
+              paste(
+                tags$span(style="color: white; font-size: 15px;", "Locus Screening")
+              )
+            )
+          )
+        )
         
         # Hide start message
         output$start_message <- NULL
@@ -6349,7 +6428,7 @@ server <- function(input, output, session) {
             )
             
             # Render menu with Manage Schemes as start tab
-            output$menu <- renderMenu(
+            output$menu_typing <- renderMenu(
               sidebarMenu(
                 menuItem(
                   text = "Database Browser",
@@ -6394,12 +6473,22 @@ server <- function(input, output, session) {
                   icon = icon("gears")
                 ),
                 menuItem(
-                  text = "Resistance Profile",
+                  text = "Visualization",
+                  tabName = "visualization",
+                  icon = icon("circle-nodes")
+                )
+              )
+            )
+            
+            output$menu_screening <- renderMenu(
+              sidebarMenu(
+                menuItem(
+                  text = "AMR Profile",
                   tabName = "gene_screening",
                   icon = icon("dna"),
                   startExpanded = TRUE,
                   menuSubItem(
-                    text = "Browse Entries",
+                    text = "Browse Results",
                     tabName = "gs_profile"
                   ),
                   menuSubItem(
@@ -6410,11 +6499,6 @@ server <- function(input, output, session) {
                     text = "Visualization",
                     tabName = "gs_visualization"
                   )
-                ),
-                menuItem(
-                  text = "Visualization",
-                  tabName = "visualization",
-                  icon = icon("circle-nodes")
                 )
               )
             )
@@ -6445,7 +6529,7 @@ server <- function(input, output, session) {
             )
             
             # Render menu with Manage Schemes as start tab
-            output$menu <- renderMenu(
+            output$menu_typing <- renderMenu(
               sidebarMenu(
                 menuItem(
                   text = "Database Browser",
@@ -6490,12 +6574,22 @@ server <- function(input, output, session) {
                   icon = icon("gears")
                 ),
                 menuItem(
-                  text = "Resistance Profile",
+                  text = "Visualization",
+                  tabName = "visualization",
+                  icon = icon("circle-nodes")
+                )
+              )
+            )
+            
+            output$menu_screening <- renderMenu(
+              sidebarMenu(
+                menuItem(
+                  text = "AMR Profile",
                   tabName = "gene_screening",
                   icon = icon("dna"),
                   startExpanded = TRUE,
                   menuSubItem(
-                    text = "Browse Entries",
+                    text = "Browse Results",
                     tabName = "gs_profile"
                   ),
                   menuSubItem(
@@ -6506,11 +6600,6 @@ server <- function(input, output, session) {
                     text = "Visualization",
                     tabName = "gs_visualization"
                   )
-                ),
-                menuItem(
-                  text = "Visualization",
-                  tabName = "visualization",
-                  icon = icon("circle-nodes")
                 )
               )
             )
@@ -6686,7 +6775,7 @@ server <- function(input, output, session) {
               )
               
               # Render menu with Manage Schemes as start tab
-              output$menu <- renderMenu(
+              output$menu_typing <- renderMenu(
                 sidebarMenu(
                   menuItem(
                     text = "Database Browser",
@@ -6731,12 +6820,22 @@ server <- function(input, output, session) {
                     icon = icon("gears")
                   ),
                   menuItem(
-                    text = "Resistance Profile",
+                    text = "Visualization",
+                    tabName = "visualization",
+                    icon = icon("circle-nodes")
+                  )
+                )
+              )
+              
+              output$menu_screening <- renderMenu(
+                sidebarMenu(
+                  menuItem(
+                    text = "AMR Profile",
                     tabName = "gene_screening",
                     icon = icon("dna"),
                     startExpanded = TRUE,
                     menuSubItem(
-                      text = "Browse Entries",
+                      text = "Browse Results",
                       tabName = "gs_profile"
                     ),
                     menuSubItem(
@@ -6747,11 +6846,6 @@ server <- function(input, output, session) {
                       text = "Visualization",
                       tabName = "gs_visualization"
                     )
-                  ),
-                  menuItem(
-                    text = "Visualization",
-                    tabName = "visualization",
-                    icon = icon("circle-nodes")
                   )
                 )
               )
@@ -6870,7 +6964,7 @@ server <- function(input, output, session) {
                   output$missing_values_sidebar <- NULL
                   
                   # Render menu if no NA's present
-                  output$menu <- renderMenu(
+                  output$menu_typing <- renderMenu(
                     sidebarMenu(
                       menuItem(
                         text = "Database Browser",
@@ -6905,12 +6999,22 @@ server <- function(input, output, session) {
                         icon = icon("gears")
                       ),
                       menuItem(
-                        text = "Resistance Profile",
+                        text = "Visualization",
+                        tabName = "visualization",
+                        icon = icon("circle-nodes")
+                      )
+                    )
+                  )
+                  
+                  output$menu_screening <- renderMenu(
+                    sidebarMenu(
+                      menuItem(
+                        text = "AMR Profile",
                         tabName = "gene_screening",
                         icon = icon("dna"),
                         startExpanded = TRUE,
                         menuSubItem(
-                          text = "Browse Entries",
+                          text = "Browse Results",
                           tabName = "gs_profile"
                         ),
                         menuSubItem(
@@ -6921,16 +7025,11 @@ server <- function(input, output, session) {
                           text = "Visualization",
                           tabName = "gs_visualization"
                         )
-                      ),
-                      menuItem(
-                        text = "Visualization",
-                        tabName = "visualization",
-                        icon = icon("circle-nodes")
                       )
                     )
                   )
                 } else {
-                  output$menu <- renderMenu(
+                  output$menu_typing <- renderMenu(
                     sidebarMenu(
                       menuItem(
                         text = "Database Browser",
@@ -6971,12 +7070,22 @@ server <- function(input, output, session) {
                         icon = icon("gears")
                       ),
                       menuItem(
-                        text = "Resistance Profile",
+                        text = "Visualization",
+                        tabName = "visualization",
+                        icon = icon("circle-nodes")
+                      )
+                    )
+                  )
+                  
+                  output$menu_screening <- renderMenu(
+                    sidebarMenu(
+                      menuItem(
+                        text = "AMR Profile",
                         tabName = "gene_screening",
                         icon = icon("dna"),
                         startExpanded = TRUE,
                         menuSubItem(
-                          text = "Browse Entries",
+                          text = "Browse Results",
                           tabName = "gs_profile"
                         ),
                         menuSubItem(
@@ -6987,44 +7096,38 @@ server <- function(input, output, session) {
                           text = "Visualization",
                           tabName = "gs_visualization"
                         )
-                      ),
-                      menuItem(
-                        text = "Visualization",
-                        tabName = "visualization",
-                        icon = icon("circle-nodes")
                       )
                     )
                   )
                 }
                 
                 # Render custom variable display
-                output$show_cust_var <- renderTable(
-                  width = "100%", 
-                  {
-                    if((!is.null(DB$cust_var)) & (!is.null(input$cust_var_select))) {
-                      if(nrow(DB$cust_var) > 5) {
-                        low <- -4
-                        high <- 0
-                        for (i in 1:input$cust_var_select) {
-                          low <- low + 5
-                          if((nrow(DB$cust_var) %% 5) != 0) {
-                            if(i == ceiling(nrow(DB$cust_var) / 5 )) {
-                              high <- high + nrow(DB$cust_var) %% 5
-                            } else {
-                              high <- high + 5
-                            }
-                          } else {
-                            high <- high + 5
-                          }
-                        }
-                        DB$cust_var[low:high,]
-                      } else {
-                        DB$cust_var
-                      }
-                    } else if (!is.null(DB$cust_var)) {
-                      DB$cust_var
-                    }
-                  })
+                output$show_cust_var <- renderDataTable(
+                  DB$cust_var,
+                  selection = "single",
+                  rownames = FALSE, 
+                  options = list(
+                    pageLength = 10,
+                    lengthMenu = list(c(10), c('10')),  
+                    columnDefs = list(list(searchable = TRUE, targets = "_all")),
+                    initComplete = DT::JS(
+                      "function(settings, json) {",
+                      "$('th:first-child').css({'border-top-left-radius': '5px'});",
+                      "$('th:last-child').css({'border-top-right-radius': '5px'});",
+                      "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                      "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                      "}"
+                    ),
+                    drawCallback = DT::JS(
+                      "function(settings) {",
+                      "$('th:first-child').css({'border-top-left-radius': '5px'});",
+                      "$('th:last-child').css({'border-top-right-radius': '5px'});",
+                      "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                      "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                      "}"
+                    )
+                  )
+                )
                 
                 # render visualization sidebar elements
                 observe({
@@ -7278,82 +7381,6 @@ server <- function(input, output, session) {
                               )
                             )
                           }
-                        )
-                      ),
-                      br(), br(), 
-                      fluidRow(
-                        column(
-                          width = 12,
-                          HTML(
-                            paste(
-                              tags$span(style='color: white; font-size: 18px; margin-bottom: 0px', 'Custom Variables')
-                            )
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 8,
-                          textInput(
-                            "new_var_name",
-                            label = "",
-                            placeholder = "New Variable"
-                          )
-                        ),
-                        column(
-                          width = 2,
-                          actionButton(
-                            "add_new_variable",
-                            "",
-                            icon = icon("plus")
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 8,
-                          align = "left",
-                          div(
-                            class = "textinput_var",
-                            selectInput(
-                              "del_which_var",
-                              "",
-                              DB$cust_var$Variable
-                            )
-                          )
-                        ),
-                        column(
-                          width = 2,
-                          align = "left",
-                          actionButton(
-                            "delete_new_variable",
-                            "",
-                            icon = icon("minus")
-                          )
-                        )
-                      ),
-                      br(), 
-                      fluidRow(
-                        column(1),
-                        column(
-                          width = 4,
-                          uiOutput("cust_var_info")
-                        )
-                      ),
-                      fluidRow(
-                        column(1),
-                        column(
-                          width = 11,
-                          align = "center",
-                          tableOutput("show_cust_var")
-                        )
-                      ),
-                      fluidRow(
-                        column(4),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("cust_var_select")
                         )
                       )
                     )
@@ -8483,9 +8510,8 @@ server <- function(input, output, session) {
                 # Render Entry table controls
                 output$entry_table_controls <- renderUI({
                   fluidRow(
-                    column(1),
                     column(
-                      width = 3,
+                      width = 4,
                       align = "center",
                       fluidRow(
                         column(
@@ -8774,6 +8800,68 @@ server <- function(input, output, session) {
                   }
                 })
                 
+                # render custom variables box UI
+                output$custom_var_box <- renderUI(
+                  box(
+                    solidHeader = TRUE,
+                    status = "primary",
+                    width = "100%",
+                    title = "Custom Variables",
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 7,
+                        fluidRow(
+                          column(
+                            width = 9,
+                            align = "center",
+                            textInput(
+                              "new_var_name",
+                              label = "",
+                              placeholder = "New Variable"
+                            )
+                          ),
+                          column(
+                            width = 2,
+                            actionButton(
+                              "add_new_variable",
+                              "",
+                              icon = icon("plus")
+                            )
+                          )
+                        ),
+                        fluidRow(
+                          column(
+                            width = 9,
+                            align = "center",
+                            selectInput(
+                              "del_which_var",
+                              "",
+                              DB$cust_var$Variable
+                            )
+                          ),
+                          column(
+                            width = 2,
+                            align = "left",
+                            actionButton(
+                              "delete_new_variable",
+                              "",
+                              icon = icon("minus")
+                            )
+                          )
+                        )   
+                      ),
+                      column(
+                        width = 2,
+                        actionButton(
+                          "custom_var_table",
+                          "Browse ",
+                          icon = icon("table-list")
+                        )
+                      )
+                    )
+                  )
+                )
                 
                 # Render delete entry box UI
                 output$delete_box <- renderUI({
@@ -8781,14 +8869,7 @@ server <- function(input, output, session) {
                     solidHeader = TRUE,
                     status = "primary",
                     width = "100%",
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "center",
-                        h3(p("Delete Entries"), style = "color:white")
-                      )
-                    ),
-                    hr(),
+                    title = "Delete Entries",
                     fluidRow(
                       column(
                         width = 2,
@@ -8819,14 +8900,7 @@ server <- function(input, output, session) {
                     solidHeader = TRUE,
                     status = "primary",
                     width = "100%",
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "center",
-                        h3(p("Compare Loci"), style = "color:white")
-                      )
-                    ),
-                    hr(),
+                    title = "Compare Loci",
                     column(
                       width = 12,
                       align = "center",
@@ -8853,14 +8927,7 @@ server <- function(input, output, session) {
                         solidHeader = TRUE,
                         status = "primary",
                         width = "100%",
-                        fluidRow(
-                          column(
-                            width = 12,
-                            align = "center",
-                            h3(p("Download Table"), style = "color:white")
-                          )
-                        ),
-                        hr(),
+                        title = "Export Table",
                         fluidRow(
                           column(
                             width = 8,
@@ -8892,8 +8959,7 @@ server <- function(input, output, session) {
                                 value = FALSE,
                                 right = TRUE
                               )
-                            ),
-                            br(),
+                            )
                           ),
                           column(
                             width = 4,
@@ -9107,7 +9173,7 @@ server <- function(input, output, session) {
                 DB$allelic_profile_true <- NULL
                 
                 # Render menu without missing values tab
-                output$menu <- renderMenu(
+                output$menu_typing <- renderMenu(
                   sidebarMenu(
                     menuItem(
                       text = "Database Browser",
@@ -9143,12 +9209,22 @@ server <- function(input, output, session) {
                       icon = icon("gears")
                     ),
                     menuItem(
-                      text = "Resistance Profile",
+                      text = "Visualization",
+                      tabName = "visualization",
+                      icon = icon("circle-nodes")
+                    )
+                  )
+                )
+                
+                output$menu_screening <- renderMenu(
+                  sidebarMenu(
+                    menuItem(
+                      text = "AMR Profile",
                       tabName = "gene_screening",
                       icon = icon("dna"),
                       startExpanded = TRUE,
                       menuSubItem(
-                        text = "Browse Entries",
+                        text = "Browse Results",
                         tabName = "gs_profile"
                       ),
                       menuSubItem(
@@ -9159,11 +9235,6 @@ server <- function(input, output, session) {
                         text = "Visualization",
                         tabName = "gs_visualization"
                       )
-                    ),
-                    menuItem(
-                      text = "Visualization",
-                      tabName = "visualization",
-                      icon = icon("circle-nodes")
                     )
                   )
                 )
@@ -9249,6 +9320,7 @@ server <- function(input, output, session) {
                 output$compare_allele_box <- NULL
                 output$download_entries <- NULL
                 output$missing_values <- NULL
+                output$custom_var_box <- NULL
                 output$delete_box <- NULL
                 output$entry_table_controls <- NULL
                 output$multi_stop <- NULL
@@ -9975,7 +10047,7 @@ server <- function(input, output, session) {
     if(!is.null(DB$allelic_profile)) {
       if(anyNA(DB$allelic_profile)) {
         if(DB$no_na_switch == FALSE) {
-          output$menu <- renderMenu(
+          output$menu_typing <- renderMenu(
             sidebarMenu(
               menuItem(
                 text = "Database Browser",
@@ -10016,12 +10088,22 @@ server <- function(input, output, session) {
                 icon = icon("gears")
               ),
               menuItem(
-                text = "Resistance Profile",
+                text = "Visualization",
+                tabName = "visualization",
+                icon = icon("circle-nodes")
+              )
+            )
+          )
+          
+          output$menu_screening <- renderMenu(
+            sidebarMenu(
+              menuItem(
+                text = "AMR Profile",
                 tabName = "gene_screening",
                 icon = icon("dna"),
                 startExpanded = TRUE,
                 menuSubItem(
-                  text = "Browse Entries",
+                  text = "Browse Results",
                   tabName = "gs_profile"
                 ),
                 menuSubItem(
@@ -10032,18 +10114,13 @@ server <- function(input, output, session) {
                   text = "Visualization",
                   tabName = "gs_visualization"
                 )
-              ),
-              menuItem(
-                text = "Visualization",
-                tabName = "visualization",
-                icon = icon("circle-nodes")
               )
             )
           )
         }
         
       } else {
-        output$menu <- renderMenu(
+        output$menu_typing <- renderMenu(
           sidebarMenu(
             menuItem(
               text = "Database Browser",
@@ -10078,12 +10155,22 @@ server <- function(input, output, session) {
               icon = icon("gears")
             ),
             menuItem(
-              text = "Resistance Profile",
+              text = "Visualization",
+              tabName = "visualization",
+              icon = icon("circle-nodes")
+            )
+          )
+        )
+        
+        output$menu_screening <- renderMenu(
+          sidebarMenu(
+            menuItem(
+              text = "AMR Profile",
               tabName = "gene_screening",
               icon = icon("dna"),
               startExpanded = TRUE,
               menuSubItem(
-                text = "Browse Entries",
+                text = "Browse Results",
                 tabName = "gs_profile"
               ),
               menuSubItem(
@@ -10094,11 +10181,6 @@ server <- function(input, output, session) {
                 text = "Visualization",
                 tabName = "gs_visualization"
               )
-            ),
-            menuItem(
-              text = "Visualization",
-              tabName = "visualization",
-              icon = icon("circle-nodes")
             )
           )
         )
@@ -10221,6 +10303,32 @@ server <- function(input, output, session) {
   })
   
   ### Database Events ----
+  
+  # Show custom variable table on button input
+  observeEvent(input$custom_var_table, {
+    showModal(
+      div(
+        class = "start-modal",
+        modalDialog(
+          column(
+            width = 12,
+            dataTableOutput("show_cust_var"),
+            br(),
+            br()
+          ),
+          title = "Custom Variables Overview",
+          easyClose = TRUE,
+          footer = tagList(
+            actionButton("dismiss_cust_var_table", "Dismiss", class = "load-db", width = "100px")
+          )
+        )
+      )
+    )
+  })
+  
+  observeEvent(input$dismiss_cust_var_table, {
+    removeModal()
+  })
   
   # Invalid entries table input
   observe({
@@ -26388,14 +26496,14 @@ server <- function(input, output, session) {
                            "function(settings, json) {",
                            "$('th:first-child').css({'border-top-left-radius': '5px'});",
                            "$('th:last-child').css({'border-top-right-radius': '5px'});",
-                           # "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
-                           # "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                           "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '0px'});",
+                           "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '0px'});",
                            "}"
                          ),
                          drawCallback = DT::JS(
                            "function(settings) {",
-                           # "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
-                           # "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                           "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '0px'});",
+                           "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '0px'});",
                            "}"
                          ))
         )
