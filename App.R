@@ -92,6 +92,7 @@ ui <- dashboardPage(
         }
         .pulsating-button {
           animation: pulsate 1s ease infinite;
+          width: 40px !important;
         }
         .pulsating-button:hover {
           animation: none;
@@ -5430,7 +5431,7 @@ server <- function(input, output, session) {
     
     invalidateLater(5000, session)
     
-    if(!is.null(DB$data) & !is.null(DB$database) & !is.null(DB$scheme)) {
+    if(!is.null(DB$database) & !is.null(DB$scheme)) {
       if(file_exists(file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))) {
         
         Database <- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme),"Typing.rds"))
@@ -8385,6 +8386,13 @@ server <- function(input, output, session) {
                       if(!is.null(check_new_entry()) & 
                          !is.null(DB$check_new_entries) & 
                          !is.null(DB$meta)) {
+                        
+                        if(!is.null(DB$meta)) {
+                          new_meta <- !identical(get.entry.table.meta(), select(DB$meta, -13))
+                        } else {
+                          new_meta <- FALSE
+                        }
+                        
                         if(check_new_entry() & DB$check_new_entries) {
                           Typing$reload <- FALSE
                           fluidRow(
@@ -8404,7 +8412,8 @@ server <- function(input, output, session) {
                                 "load",
                                 "",
                                 icon = icon("rotate"),
-                                class = "pulsating-button"
+                                class = "pulsating-button",
+                                width = "40px"
                               )
                             )
                           )
@@ -8424,7 +8433,7 @@ server <- function(input, output, session) {
                               HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:20px; color:white; margin-top: 10px"></i>'))
                             )
                           )
-                        } else if((DB$change == TRUE) | !identical(get.entry.table.meta(), select(DB$meta, -13))) {
+                        } else if((DB$change == TRUE) | new_meta) {
                           
                           if(!is.null(input$db_entries)) {
                             fluidRow(
@@ -8615,6 +8624,31 @@ server <- function(input, output, session) {
                     output$distmatrix_show <- renderUI({
                       if(!is.null(DB$data)) {
                         if(nrow(DB$data) > 1) {
+                          
+                          if(!is.null(input$distmatrix_label)) {
+                            distmatrix_label_selected <- input$distmatrix_label
+                          } else {
+                            distmatrix_label_selected <- c("Assembly Name")
+                          }
+                          
+                          if(!is.null(input$distmatrix_true)) {
+                            distmatrix_true_selected <- input$distmatrix_true
+                          } else {
+                            distmatrix_true_selected <- FALSE
+                          }
+                          
+                          if(!is.null(input$distmatrix_triangle)) {
+                            distmatrix_triangle_selected <- input$distmatrix_triangle
+                          } else {
+                            distmatrix_triangle_selected <- FALSE
+                          }
+                          
+                          if(!is.null(input$distmatrix_diag)) {
+                            distmatrix_diag_selected <- input$distmatrix_diag
+                          } else {
+                            distmatrix_diag_selected <- TRUE
+                          }
+                          
                           fluidRow(
                             column(
                               width = 2,
@@ -8647,7 +8681,7 @@ server <- function(input, output, session) {
                                             "distmatrix_label",
                                             label = "",
                                             choices = c("Index", "Assembly Name", "Assembly ID"),
-                                            selected = c("Assembly Name"),
+                                            selected = distmatrix_label_selected,
                                             width = "100%"
                                           )
                                         )
@@ -8660,7 +8694,7 @@ server <- function(input, output, session) {
                                       materialSwitch(
                                         "distmatrix_true",
                                         h5(p("Only Included Entries"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                        value = FALSE,
+                                        value = distmatrix_true_selected,
                                         right = TRUE
                                       )
                                     ),
@@ -8670,7 +8704,7 @@ server <- function(input, output, session) {
                                       materialSwitch(
                                         "distmatrix_triangle",
                                         h5(p("Show Upper Triangle"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                        value = FALSE,
+                                        value = distmatrix_triangle_selected,
                                         right = TRUE
                                       )
                                     ),
@@ -8680,7 +8714,7 @@ server <- function(input, output, session) {
                                       materialSwitch(
                                         "distmatrix_diag",
                                         h5(p("Show Diagonal"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                        value = TRUE,
+                                        value = distmatrix_diag_selected,
                                         right = TRUE
                                       )
                                     ),
@@ -9157,7 +9191,8 @@ server <- function(input, output, session) {
                                 "load",
                                 "",
                                 icon = icon("rotate"),
-                                class = "pulsating-button"
+                                class = "pulsating-button",
+                                width = "40px"
                               )
                             )
                           )
@@ -9359,8 +9394,7 @@ server <- function(input, output, session) {
             },
             'Allelic distance according to',
             '<span style="font-style: italic;">',
-            DB$scheme, 'scheme.',
-            '</span>',
+            DB$scheme, '</span>', 'scheme.',
             '</span>'
           )
         )
@@ -10266,7 +10300,7 @@ server <- function(input, output, session) {
             easyClose = TRUE,
             footer = tagList(
               modalButton("Cancel"),
-              actionButton("load", "Load", class = "btn btn-default")
+              actionButton("load", "Load", class = "load-db", width = "100px")
             )
           )
         )
@@ -11535,7 +11569,7 @@ server <- function(input, output, session) {
             } else {if(!is.null(DB$scheme)) {DB$scheme} else {DB$available[1]}}),
           title = "All entries have been removed. Select a local database to load.",
           footer = tagList(
-            actionButton("load", "Load", class = "btn btn-default")
+            actionButton("load", "Load", class = "load-db", width = "100px")
           )
         )
       )
@@ -12159,7 +12193,7 @@ server <- function(input, output, session) {
             } else {if(!is.null(DB$scheme)) {gsub("_", " ", input$select_cgmlst)} else {DB$available[1]}}),
           title = "Successful download - load database.",
           footer = tagList(
-            actionButton("load", "Load", class = "btn btn-default")
+            actionButton("load", "Load", class = "load-db", width = "100px")
           )
         )
       )
@@ -29736,64 +29770,90 @@ server <- function(input, output, session) {
     if(!is.null(Typing$result_list)) {
       if(length(Typing$result_list) > 0) {
         if(is.null(Typing$multi_table_length)) {
-          output$multi_typing_result_table <- renderRHandsontable({
-            rhandsontable(Typing$result_list[[input$multi_results_picker]], 
-                          rowHeaders = NULL, stretchH = "all",
-                          readOnly = TRUE, contextMenu = FALSE) %>%
-              hot_rows(rowHeights = 25) %>%
-              hot_col(1:3, valign = "htMiddle", halign = "htCenter",
-                      cellWidths = list(100, 160, NULL)) %>%
-              hot_col("Value", renderer=htmlwidgets::JS(
-                "function(instance, td, row, col, prop, value, cellProperties) {
-                  if (value.length > 8) {
-                    value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
-                  }
-                  td.innerHTML = value;
-                  td.style.textAlign = 'center';
-                  return td;
-                 }"
-              ))
-          })
+          output$multi_typing_result_table <- renderDataTable(
+              Typing$result_list[[input$multi_results_picker]],
+              selection = "single",
+              options = list(pageLength = 10,
+                             columnDefs = list(list(searchable = TRUE,
+                                                    targets = "_all")),
+                             initComplete = DT::JS(
+                               "function(settings, json) {",
+                               "$('th:first-child').css({'border-top-left-radius': '5px'});",
+                               "$('th:last-child').css({'border-top-right-radius': '5px'});",
+                               "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                               "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                               "}"
+                             ),
+                             drawCallback = DT::JS(
+                               "function(settings) {",
+                               "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                               "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                               "}"
+                             ))
+            
+            
+            # Typing$result_list[[input$multi_results_picker]]
+            # rhandsontable(Typing$result_list[[input$multi_results_picker]], 
+            #               rowHeaders = NULL, stretchH = "all",
+            #               readOnly = TRUE, contextMenu = FALSE) %>%
+            #   hot_rows(rowHeights = 25) %>%
+            #   hot_col(1:3, valign = "htMiddle", halign = "htCenter",
+            #           cellWidths = list(100, 160, NULL)) %>%
+            #   hot_col("Value", renderer=htmlwidgets::JS(
+            #     "function(instance, td, row, col, prop, value, cellProperties) {
+            #       if (value.length > 8) {
+            #         value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
+            #       }
+            #       td.innerHTML = value;
+            #       td.style.textAlign = 'center';
+            #       return td;
+            #      }"
+            #   ))
+          )
           
         } else {
           if(Typing$multi_table_length > 15) {
-            output$multi_typing_result_table <- renderRHandsontable({
-              rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
-                            stretchH = "all", height = 500,
-                            readOnly = TRUE, contextMenu = FALSE) %>%
-                hot_rows(rowHeights = 25) %>%
-                hot_col(1:3, valign = "htMiddle", halign = "htCenter",
-                        cellWidths = list(100, 160, NULL)) %>%
-                hot_col("Value", renderer=htmlwidgets::JS(
-                  "function(instance, td, row, col, prop, value, cellProperties) {
-                  if (value.length > 8) {
-                    value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
-                  }
-                  td.innerHTML = value;
-                  td.style.textAlign = 'center';
-                  return td;
-                 }"
-                ))
-            })
+            output$multi_typing_result_table <- renderDataTable(
+              Typing$result_list[[input$multi_results_picker]],
+              selection = "single",
+              options = list(pageLength = 10,
+                             columnDefs = list(list(searchable = TRUE,
+                                                    targets = "_all")),
+                             initComplete = DT::JS(
+                               "function(settings, json) {",
+                               "$('th:first-child').css({'border-top-left-radius': '5px'});",
+                               "$('th:last-child').css({'border-top-right-radius': '5px'});",
+                               "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                               "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                               "}"
+                             ),
+                             drawCallback = DT::JS(
+                               "function(settings) {",
+                               "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                               "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                               "}"
+                             )))
           } else {
-            output$multi_typing_result_table <- renderRHandsontable({
-              rhandsontable(Typing$result_list[[input$multi_results_picker]], rowHeaders = NULL, 
-                            stretchH = "all", readOnly = TRUE,
-                            contextMenu = FALSE) %>%
-                hot_rows(rowHeights = 25) %>%
-                hot_col(1:3, valign = "htMiddle", halign = "htCenter",
-                        cellWidths = list(100, 160, NULL)) %>%
-                hot_col("Value", renderer=htmlwidgets::JS(
-                  "function(instance, td, row, col, prop, value, cellProperties) {
-                  if (value.length > 8) {
-                    value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
-                  }
-                  td.innerHTML = value;
-                  td.style.textAlign = 'center';
-                  return td;
-                 }"
-                ))
-            })
+            output$multi_typing_result_table <- renderDataTable(
+              Typing$result_list[[input$multi_results_picker]],
+              selection = "single",
+              options = list(pageLength = 10,
+                             columnDefs = list(list(searchable = TRUE,
+                                                    targets = "_all")),
+                             initComplete = DT::JS(
+                               "function(settings, json) {",
+                               "$('th:first-child').css({'border-top-left-radius': '5px'});",
+                               "$('th:last-child').css({'border-top-right-radius': '5px'});",
+                               "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                               "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                               "}"
+                             ),
+                             drawCallback = DT::JS(
+                               "function(settings) {",
+                               "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                               "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                               "}"
+                             )))
           }
         }
       } else {
@@ -29844,7 +29904,7 @@ server <- function(input, output, session) {
                 br(), br()
               )
             ),
-            rHandsontableOutput("multi_typing_result_table")
+            dataTableOutput("multi_typing_result_table")
           )
         })
       }

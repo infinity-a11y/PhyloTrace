@@ -94,14 +94,13 @@ body > div.pcr-app.pickr-color.visible {
 #start_typ_multi,
 #conf_multi_kill,
 #update_scheme,
-#load,
 #conf_new_var,
 #conf_var_del,
 #conf_db_save,
 #conf_delete,
 #conf_delete_all,
 #shiny-modal > div > div > div.modal-footer > button:nth-child(1) {
-  min-width: 100px;
+  min-width: 100px !important;
   border-color: white;
 }
 
@@ -643,7 +642,7 @@ margin-top: -15px;
 button#load.pulsating-button.btn.btn-default.action-button.shiny-bound-input {
   background: #20E6E5; 
   color: #000000; 
-  width: 40px;
+  width: 40px !important;
 }
 
 .start-modal #load {
@@ -960,7 +959,7 @@ i.far.fa-pen-to-square {
 }
 
 /* Database */
-  
+
 #db_entries > div > div > div > div > table > tbody > tr > td,
 #db_distancematrix > div > div > div > div > table > tbody > tr > td,
 #table_missing_values > div > div > div > div > table > tbody > tr > td,
@@ -1037,7 +1036,7 @@ i.far.fa-pen-to-square {
 }
 
 #db_entries, #db_distancematrix, #table_missing_values, 
-#multi_select_table, #typing_result_table, #multi_typing_result_table {
+#multi_select_table, #typing_result_table {
   border-radius: 8px;
   color: black;
   box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.5);
