@@ -878,11 +878,17 @@ input.form-control.pickr-color {
   animation: none;
 }
 
-button#copy_seq {
+button#copy_seq,
+button#copy_hash {
   background: #282F38;
   color: #ffffff;
   border: 1px solid white;
   transition: border-color 0.3s ease;
+  width: 115px;
+}
+
+button#copy_hash {
+  margin-left: 10px;
 }
 
 button#download_schemeinfo_bttn,
@@ -898,7 +904,9 @@ button#get_locus_bttn {
   transition: border-color 0.3s ease;
   opacity: 1;
   font-size: 15px;
-  width: 147px;
+  width: 115px;
+  height: 34px;
+  margin-left: 25px;
 }
 
 button#get_locus_bttn i.fas.fa-download {
@@ -1049,6 +1057,18 @@ i.far.fa-pen-to-square {
 
 #species_info_select {
   margin-top: 20px;
+}
+
+.loci-info-column .col-sm-7{
+  margin-left: -70px;
+}
+
+.loci-controls-column .col-sm-4 {
+  margin-left: 20px;
+}
+
+.loci-sequence-column .col-sm-12 {
+  padding: 0px;
 }
 
 .dropdown-menu>.active>a, .dropdown-menu>.active>a:focus, .dropdown-menu>.active>a:hover {

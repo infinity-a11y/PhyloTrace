@@ -392,32 +392,37 @@ ui <- dashboardPage(
             h2(p("Loci Info"), style = "color:white")
           ),
           column(
+            width = 1,
+            uiOutput("download_loci")
+          ),
+          column(
             width = 7,
             align = "left",
-            uiOutput("download_loci"),
+            uiOutput("loci_info_text"),
             uiOutput("db_loci_no")
           )
         ),
-        hr(), br(), br(), br(),
+        hr(), 
         fluidRow(
           column(1),
-          column(
-            width = 10,
-            align = "center",
-            br(),
-            div(class = "loci_table",
-                dataTableOutput("db_loci"))
-          )
-        ),
-        br(), br(),
-        fluidRow(
-          column(1),
-          uiOutput("sequence_selector"), 
-          column(1),
-          column(
-            width = 7,
-            br(),
-            uiOutput("loci_sequences")
+          div(
+            class = "loci-info-column",
+            column(
+              width = 7,
+              align = "center",
+              br(),
+              div(class = "loci_table",
+                  dataTableOutput("db_loci"))
+            )
+          ),
+          div(
+            class = "loci-controls-column",
+            column(
+              width = 4,
+              br(),
+              uiOutput("sequence_selector"),
+              uiOutput("loci_sequences")
+            )
           )
         )
       ),
@@ -10274,7 +10279,8 @@ server <- function(input, output, session) {
         output$db_loci <- renderDataTable(
           loci_info,
           selection = "single",
-          options = list(pageLength = 10,
+          options = list(pageLength = 15,  
+                         lengthMenu = list(c(15), c('15')), 
                          columnDefs = list(list(searchable = TRUE,
                                                 targets = "_all")),
                          initComplete = DT::JS(
@@ -10294,6 +10300,18 @@ server <- function(input, output, session) {
         )
         
         output$db_loci_no <- NULL
+        output$loci_info_text <- renderUI(
+          p(
+            HTML(
+              paste0(
+                '<span style="color: white; font-size: 15px; position:relative; top:25px;">',
+                'Information about loci included in the scheme and their respective alleles.',
+                '</span>'
+              )
+            )
+          )
+        )
+        
       } else {
         if(!is.null(DB$scheme_db) & !is.null(DB$scheme) & !is.null(DB$scheme_link)) {
           if(!is.null(DB$scheme_db) & !is.null(DB$scheme) & !is.null(DB$scheme_link)) {
@@ -10314,6 +10332,7 @@ server <- function(input, output, session) {
                 )
               )
             )
+            output$loci_info_text <- NULL
           }
         }
         output$db_loci <- NULL
@@ -11889,6 +11908,17 @@ server <- function(input, output, session) {
       )
       
       output$db_loci_no <- NULL
+      output$loci_info_text <- renderUI(
+        p(
+          HTML(
+            paste0(
+              '<span style="color: white; font-size: 15px; position:relative; top:25px;">',
+              'Information about loci included in the scheme and their respective alleles.',
+              '</span>'
+            )
+          )
+        )
+      )
     } else {
       if(!is.null(DB$scheme_db) & !is.null(DB$scheme) & !is.null(DB$scheme_link)) {
         output$db_loci_no <- renderUI(
@@ -11905,6 +11935,8 @@ server <- function(input, output, session) {
             )
           )
         )
+        
+        output$loci_info_text <- NULL
       }
       output$db_loci <- NULL
     }
@@ -11928,15 +11960,19 @@ server <- function(input, output, session) {
         
         DB$seq <- seq
         
-        column(
-          width = 12,
-          HTML(
-            paste(
-              tags$span(style='color: white; font-size: 15px; position: relative; top: -15px; left: -50px', 
-                        sub(" -.*", "", input$seq_sel))
-            )
-          ),
-          tags$pre(HTML(color_sequence(seq)), class = "sequence")
+        div(
+          class = "loci-sequence-column",
+          column(
+            width = 12,
+            br(), br(),
+            HTML(
+              paste(
+                tags$span(style='color: white; font-size: 13px; position:relative; left: 3px', 
+                          sub(" -.*", "", input$seq_sel))
+              )
+            ),
+            tags$pre(HTML(color_sequence(seq)), class = "sequence")
+          )
         )
       } else {NULL}
     } else {NULL}
@@ -11988,40 +12024,59 @@ server <- function(input, output, session) {
         paste(x, collapse = " ")
       })
       
-      column(
-        width = 3,
-        selectInput(
-          "seq_sel",
-          h5("Select Variant", style = "color:white;"),
-          choices = choices,
-          width = "80%"
-        ),
-        br(),
-        fluidRow(
-          column(
-            width = 8,
-            align = "left",
-            actionButton("copy_seq", "Copy Sequence",
-                         icon = icon("copy")),
-            bsTooltip("copy_seq", "Copy the variant sequence <br> to clipboard", placement = "top", trigger = "hover")
-          )
-        ),
-        br(),
-        fluidRow(
-          column(
-            width = 8,
-            align = "left",
-            downloadBttn(
-              "get_locus",
-              style = "simple",
-              label = "Save .fasta",
-              size = "sm",
-              icon = icon("download")
+      box(
+        solidHeader = TRUE,
+        status = "primary",
+        width = "100%",
+        title = "Select Allele",
+        column(
+          width = 12,
+          br(),
+          fluidRow(
+            column(1),
+            column(
+              width = 10,
+              align = "left",
+              selectInput(
+                "seq_sel",
+                "",
+                choices = choices,
+                width = "85%"
+              )
+            )
+          ),
+          br(), br(),
+          fluidRow(
+            column(1),
+            column(
+              width = 3,
+              align = "left",
+              actionButton("copy_seq", "Sequence",
+                           icon = icon("copy")),
+              bsTooltip("copy_seq", "Copy the allele sequence <br> to clipboard", placement = "bottom", trigger = "hover")
             ),
-            bsTooltip("get_locus_bttn", "Save locus file with all variants", placement = "top", trigger = "hover")
-          )
-        ),
-        br(), br(), br(), br(), br(), br(), br()
+            column(
+              width = 3,
+              align = "left",
+              actionButton("copy_hash", "Hash",
+                           icon = icon("copy")),
+              bsTooltip("copy_hash", "Copy the allele<br>hash to clipboard", placement = "bottom", trigger = "hover")
+            ),
+            column(
+              width = 3,
+              align = "left",
+              downloadBttn(
+                "get_locus",
+                style = "simple",
+                label = "Locus",
+                size = "sm",
+                icon = icon("download")
+              ),
+              bsTooltip("get_locus_bttn", "Save locus file as FASTA", placement = "bottom", trigger = "hover")
+            )
+          ),
+          br()
+        )
       )
     }
   })
@@ -26534,8 +26589,10 @@ server <- function(input, output, session) {
           Screening$res_profile,
           selection = "single",
           rownames= FALSE,
-          options = list(pageLength = 10, scrollX = TRUE,
+          options = list(scrollX = TRUE,
                          autoWidth = TRUE,
+                         pageLength = 10,  
+                         columnDefs = list(list(searchable = TRUE, targets = "_all")),
                          columnDefs = list(list(width = '400px', targets = c("Sequence Name",
                                                                              "Name of Closest Sequence"))),
                          columnDefs = list(list(width = 'auto', targets = "_all")),
