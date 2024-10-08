@@ -104,7 +104,7 @@ ui <- dashboardPage(
       br(),
       sidebarMenuOutput("menu_typing"),
       uiOutput("menu_header_screening"),
-      br(),
+      br(), br(),
       sidebarMenuOutput("menu_screening"),
       conditionalPanel(
         "input.tabs==='db_browse_entries'",
@@ -288,7 +288,7 @@ ui <- dashboardPage(
               HTML(
                 paste0(
                   '<span style="color: white; font-size: 15px; position:relative; top:25px;">',
-                  'Browse the local database for entries comprising isolates with their metadata, variables and results from cgMLST Typing. ',
+                  'Browse and manage the local database with entries comprising isolates with their metadata, variables and results of cgMLST Typing.',
                   '</span>'
                 )
               )
@@ -334,33 +334,6 @@ ui <- dashboardPage(
             )
           )
         )
-        # fluidRow(
-        #   uiOutput("no_scheme_entries"),
-        #   uiOutput("db_no_entries"),
-        #   uiOutput("entry_table_controls"),
-        #   div(
-        #     class = "db-controls-column",
-        #     column(
-        #       width = 3,
-        #       align = "left",
-        #       uiOutput("custom_var_box"),
-        #       uiOutput("delete_box"),
-        #       uiOutput("compare_allele_box"),
-        #       uiOutput("download_entries")
-        #     )
-        #   )
-        # ),
-        # br(), br(),
-        # fluidRow(
-        #   column(1),
-        #   div(
-        #     class = "db-table-column",
-        #     column(
-        #       width = 8,
-        #       uiOutput("db_entries_table")
-        #     )  
-        #   )
-        # )
       ),
       
       ### Tab Scheme Info  ----  
@@ -374,17 +347,31 @@ ui <- dashboardPage(
             h2(p("Scheme Info"), style = "color:white")
           ),
           column(
-            width = 2,
+            width = 1,
+            align = "left",
             uiOutput("download_scheme_info")
+          ),
+          column(
+            width = 7,
+            align = "left",
+            p(
+              HTML(
+                paste0(
+                  '<span style="color: white; font-size: 15px; position:relative; top:25px;">',
+                  'Information about the currently selected scheme and the respective species.',
+                  '</span>'
+                )
+              )
+            )
           )
         ),
-        hr(), br(), br(), br(),
+        hr(), br(), 
         uiOutput("no_scheme_info"),
         fluidRow(
           column(1),
           column(
             width = 5,
-            uiOutput("scheme_info")      
+            tableOutput("scheme_info")
           ),
           column(
             width = 5,
@@ -7441,20 +7428,24 @@ server <- function(input, output, session) {
                         icon = icon("download"),
                         color = "primary"
                       ),
-                      bsTooltip("download_loci_info_bttn", HTML("Save loci information <br> (without sequence)"), placement = "top", trigger = "hover")
+                      bsTooltip("download_loci_info_bttn", HTML("Save loci information <br> (without sequence)"), placement = "bottom", trigger = "hover")
                     )
                   } else {NULL}
                 })
                 
                 # Render scheme info download button
                 output$download_scheme_info <- renderUI({
-                  downloadBttn(
-                    "download_schemeinfo",
-                    style = "simple",
-                    label = "",
-                    size = "sm",
-                    icon = icon("download"),
-                    color = "primary"
+                  column(
+                    12,
+                    downloadBttn(
+                      "download_schemeinfo",
+                      style = "simple",
+                      label = "",
+                      size = "sm",
+                      icon = icon("download"),
+                      color = "primary"
+                    ),
+                    bsTooltip("download_schemeinfo_bttn", HTML("Save scheme information"), placement = "bottom", trigger = "hover")
                   )
                 })
                 
@@ -9294,6 +9285,40 @@ server <- function(input, output, session) {
                   }
                 })
                 
+                # Render scheme info download button
+                output$download_scheme_info <- renderUI({
+                  column(
+                    12,
+                    downloadBttn(
+                      "download_schemeinfo",
+                      style = "simple",
+                      label = "",
+                      size = "sm",
+                      icon = icon("download"),
+                      color = "primary"
+                    ),
+                    bsTooltip("download_schemeinfo_bttn", HTML("Save scheme information"), placement = "bottom", trigger = "hover")
+                  )
+                })
+                
+                # Render scheme info download button
+                output$download_loci <- renderUI({
+                  if (!is.null(DB$loci_info)) {
+                    column(
+                      12,
+                      downloadBttn(
+                        "download_loci_info",
+                        style = "simple",
+                        label = "",
+                        size = "sm",
+                        icon = icon("download"),
+                        color = "primary"
+                      ),
+                      bsTooltip("download_loci_info_bttn", HTML("Save loci information <br> (without sequence)"), placement = "bottom", trigger = "hover")
+                    )
+                  } else {NULL}
+                })
+                
                 output$distancematrix_no_entries <- renderUI(
                   fluidRow(
                     column(1),
@@ -9524,6 +9549,18 @@ server <- function(input, output, session) {
                       '</span>'
                     )
                   )
+                )
+              ),
+              column(
+                width = 1,
+                bslib::tooltip(
+                  bsicons::bs_icon("question-circle", 
+                                   title = "Scheme comprises multiple species.", 
+                                   color = "white", height = "14px", width = "14px", 
+                                   position = "relative", top = "9px", right = "28px"),
+                  "Text shown in the tooltip.",
+                  show = FALSE,
+                  id = "schemeinfo_tooltip"
                 )
               ),
               column(
@@ -12857,6 +12894,18 @@ server <- function(input, output, session) {
                     '</span>'
                   )
                 )
+              )
+            ),
+            column(
+              width = 1,
+              bslib::tooltip(
+                bsicons::bs_icon("question-circle", 
+                                 title = "Scheme comprises multiple species.", 
+                                 color = "white", height = "14px", width = "14px", 
+                                 position = "relative", top = "9px", right = "28px"),
+                "Text shown in the tooltip.",
+                show = FALSE,
+                id = "schemeinfo_tooltip"
               )
             ),
             column(

@@ -335,6 +335,14 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
   background-color: #20e6e5 !important;
 }
 
+#scheme_info {
+  max-height: 700px;  
+  overflow-y: auto; 
+  overflow-x: auto; 
+  box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.5);
+  border-radius: 5px;
+}
+
 #conf_screening_cancel:hover,
 #conf_delete:hover,
 #conf_multi_kill:hover,
@@ -1023,8 +1031,20 @@ i.far.fa-pen-to-square {
   width: 100%;
 }
 
-#scheme_info {
-  width: 90%;
+#scheme_info > table {
+  background: rgb(255,255,255);
+  border-radius: 5px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  margin-bottom: 0px;
+  width: 100% !important;
+}
+
+#schemeinfo_tooltip > svg {
+  top: 27px !important;
+  right: 45px !important;
 }
 
 #species_info_select {
