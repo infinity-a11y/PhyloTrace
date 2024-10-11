@@ -103,19 +103,24 @@ ui <- dashboardPage(
       uiOutput("menu_header_typing"),
       br(),
       sidebarMenuOutput("menu_typing"),
+      div(
+        class = "menu-footer-typing"
+      ),
+      br(),
       uiOutput("menu_header_screening"),
-      br(), br(),
+      br(), 
       sidebarMenuOutput("menu_screening"),
+      div(
+        class = "menu-footer-screening"
+      ),
       conditionalPanel(
-        "input.tabs==='db_browse_entries'",
-        uiOutput("entrytable_sidebar")
+        "input.tabs==='db_browse_entries'"
       ),
       conditionalPanel(
         "input.tabs==='db_distmatrix'"
       ),
       conditionalPanel(
-        "input.tabs==='db_missing_values'",
-        uiOutput("missing_values_sidebar")
+        "input.tabs==='db_missing_values'"
       ),
       conditionalPanel(
         "input.tabs==='typing'",
@@ -456,36 +461,68 @@ ui <- dashboardPage(
             width = 3,
             align = "center",
             h2(p("Missing Values"), style = "color:white")
+          ),
+          column(
+            width = 1,
+            align = "left",
+            downloadBttn(
+              "download_na_matrix",
+              style = "simple",
+              label = "",
+              size = "sm",
+              icon = icon("download")
+            )
+          ),
+          column(
+            width = 7,
+            align = "left",
+            p(
+              HTML(
+                paste0(
+                  '<span style="color: white; font-size: 15px; position:relative; top:25px;">',
+                  "Overview of isolates whose allelic profile contains missing values (NA). This occurs if no allele could be assigned for a locus.",
+                  '</span>'
+                )
+              )
+            )
           )
         ),
-        hr(), br(), br(), br(),
+        hr(), br(), 
         fluidRow(
-          column(
-            width = 3,
-            uiOutput("missing_values"),
-            fluidRow(
-              column(
-                width = 2,
-                div(
-                  class = "rectangle-red-space" 
-                )
-              ),
-              column(
-                width = 10,
-                align = "left",
-                p(
-                  HTML(
-                    paste(
-                      tags$span(style="color: white; font-size: 15px; margin-left: 75px; position: relative; bottom: -12px", " =  ≥ 5% of loci missing")
+          column(1),
+          div(
+            class = "miss-val-column",
+            column(
+              width = 3,
+              uiOutput("missing_values")
+            )
+          ),
+          div(
+            class = "miss-val-table-col",
+            column(
+              width = 7,
+              rHandsontableOutput("table_missing_values"),
+              br(),
+              fluidRow(
+                column(
+                  width = 2,
+                  div(
+                    class = "rectangle-red-space" 
+                  )
+                ),
+                column(
+                  width = 10,
+                  align = "left",
+                  p(
+                    HTML(
+                      paste(
+                        tags$span(style="color: white; font-size: 15px; position: relative; bottom: -12px", "≥ 5% of loci missing")
+                      )
                     )
                   )
                 )
               )
             )
-          ),
-          column(
-            width = 8,
-            rHandsontableOutput("table_missing_values")
           )
         )
       ),
@@ -518,83 +555,94 @@ ui <- dashboardPage(
             )
           )
         ),
-        hr(),
+        hr(), br(),
         fluidRow(
+          column(1),
           column(
-            width = 12,
-            fluidRow(
-              column(1),
-              column(
-                width = 2,
-                p(
-                  HTML(
-                    paste0(
-                      '<span style="color: white; font-size: 15px; position:relative; top: 66px; left: 50px">', 
-                      '<i class="fas fa-layer-group" style="color:white; font-size: 15px"></i>',
-                      'Select Scheme'
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 3,
-                br(),
-                br(),
-                br(),
-                uiOutput("scheme_selector")
-              ),
-              column(
-                width = 2,
-                br(),
-                br(),
-                br(),
-                actionButton(
-                  "download_cgMLST",
-                  label = "Download",
-                  icon = icon("download")
-                ),
-                shinyjs::hidden(
-                  div(
-                    id = "downloading",
-                    HTML(
-                      paste0(
-                        "<span style='color: white; font-size: 15px; position: relative;top: -3px;'>", 
-                        "Downloading scheme",
-                        '<i class="fa fa-spinner fa-spin fa-fw fa-2x" style="color:white; margin-left: 15px; position: relative; top: 6px;"></i>'
+            width = 5,
+            div(
+              class = "scheme-sel-box",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                title = "Scheme Selection",
+                fluidRow(
+                  column(
+                    width = 4,
+                    p(
+                      HTML(
+                        paste0(
+                          '<span style="color: white; font-size: 15px; position:relative; top: 15px; left: 30px;">', 
+                          '<i class="fas fa-layer-group" style="color:white; font-size: 15px"></i>',
+                          'Select Scheme'
+                        )
                       )
                     )
-                  )
-                ),
-                shinyjs::hidden(
-                  div(
-                    id = "hashing",
-                    HTML(
-                      paste0(
-                        "<span style='color: white; font-size: 15px; position: relative;top: -3px;'>", 
-                        "Hashing scheme",
-                        '<i class="fa fa-spinner fa-spin fa-fw fa-2x" style="color:white; margin-left: 15px; position: relative; top: 6px;"></i>'
-                      )
-                    )
+                  ),
+                  column(
+                    width = 8,
+                    align = "left",
+                    uiOutput("scheme_selector")
                   )
                 )
-              ),
-              column(
-                width = 2,
-                br(),
-                br(),
-                br(),
-                uiOutput("scheme_update_info")
+              )
+            )
+          ),
+          column(1),
+          column(
+            width = 4,
+            div(
+              class = "manage-schemes-actions-box",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                title = "Actions",
+                fluidRow(
+                  column(1),
+                  column(
+                    width = 5,
+                    actionButton(
+                      "download_cgMLST",
+                      label = "Download",
+                      icon = icon("download")
+                    ),
+                    shinyjs::hidden(
+                      div(
+                        id = "downloading",
+                        HTML(
+                          paste0(
+                            "<span style='color: white; font-size: 15px; position: relative;top: -3px;'>", 
+                            "Downloading scheme",
+                            '<i class="fa fa-spinner fa-spin fa-fw fa-2x" style="color:white; margin-left: 15px; position: relative; top: 6px;"></i>'
+                          )
+                        )
+                      )
+                    ),
+                    shinyjs::hidden(
+                      div(
+                        id = "hashing",
+                        HTML(
+                          paste0(
+                            "<span style='color: white; font-size: 15px; position: relative;top: -3px;'>", 
+                            "Hashing scheme",
+                            '<i class="fa fa-spinner fa-spin fa-fw fa-2x" style="color:white; margin-left: 15px; position: relative; top: 6px;"></i>'
+                          )
+                        )
+                      )
+                    )
+                  ),
+                  column(
+                    width = 6,
+                    uiOutput("scheme_update_info")
+                  )
+                )
               )
             )
           )
         ),
-        fluidRow(
-          column(1),
-          column(
-            width = 11,
-            br(), hr()
-          )
-        ),
+        br(),
         fluidRow(
           column(1),
           column(
@@ -5209,13 +5257,6 @@ server <- function(input, output, session) {
     } else {NULL}
   })
   
-  # Function to missing value table height
-  miss.val.height <- reactive({
-    if(input$miss_val_height == TRUE) {
-      NULL
-    } else {800}
-  })
-  
   # Function to check for duplicate isolate IDs for multi typing start
   dupl_mult_id <- reactive({
     req(Typing$multi_sel_table)
@@ -6123,7 +6164,7 @@ server <- function(input, output, session) {
             class = "menu-header",
             HTML(
               paste(
-                tags$span(style="color: white; font-size: 15px;", "cgMLST Typing")
+                tags$span(style="color: white; font-size: 16px; position:relative; top:2px", "cgMLST Typing")
               )
             )
           )
@@ -6133,7 +6174,7 @@ server <- function(input, output, session) {
             class = "menu-header",
             HTML(
               paste(
-                tags$span(style="color: white; font-size: 15px;", "Locus Screening")
+                tags$span(style="color: white; font-size: 16px; position:relative; top:2px", "Locus Screening")
               )
             )
           )
@@ -7099,35 +7140,6 @@ server <- function(input, output, session) {
                   }
                 })
                 
-                # Render entry table sidebar elements
-                output$entrytable_sidebar <- renderUI({
-                  if(!is.null(DB$data)) {
-                    column(
-                      width = 12,
-                      align = "center",
-                      br(), 
-                      fluidRow(
-                        column(1),
-                        column(
-                          width = 10,
-                          align = "left",
-                          if(nrow(DB$data) > 40) {
-                            div(
-                              class = "mat-switch-db-tab",
-                              materialSwitch(
-                                "table_height",
-                                h5(p("Show Full Table"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                value = FALSE,
-                                right = TRUE
-                              )
-                            )
-                          }
-                        )
-                      )
-                    )
-                  } 
-                })
-                
                 # Render missing values sidebar elements
                 output$missing_values_sidebar <- renderUI({
                   column(
@@ -7144,27 +7156,6 @@ server <- function(input, output, session) {
                         )
                       ),
                       br()
-                    ),
-                    fluidRow(
-                      column(
-                        width = 6,
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; position: relative; bottom: -23px; right: -15px', 
-                                      'Download CSV')
-                          )
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        downloadBttn(
-                          "download_na_matrix",
-                          style = "simple",
-                          label = "",
-                          size = "sm",
-                          icon = icon("download")
-                        )
-                      )
                     )
                   )
                 })
@@ -7215,34 +7206,40 @@ server <- function(input, output, session) {
                   } else {
                     if(!is.null(input$compare_difference)) {
                       if (input$compare_difference == FALSE) {
-                        pickerInput(
-                          inputId = "compare_select",
-                          label = "",
-                          width = "85%",
-                          choices = names(DB$allelic_profile),
-                          selected = names(DB$allelic_profile)[1:20],
-                          options = list(
-                            `live-search` = TRUE,
-                            `actions-box` = TRUE,
-                            size = 10,
-                            style = "background-color: white; border-radius: 5px;"
-                          ),
-                          multiple = TRUE
+                        div(
+                          class = "compare-select",
+                          pickerInput(
+                            inputId = "compare_select",
+                            label = "",
+                            width = "85%",
+                            choices = names(DB$allelic_profile),
+                            selected = names(DB$allelic_profile)[1:20],
+                            options = list(
+                              `live-search` = TRUE,
+                              `actions-box` = TRUE,
+                              size = 10,
+                              style = "background-color: white; border-radius: 5px;"
+                            ),
+                            multiple = TRUE
+                          )
                         )
                       } else {
-                        pickerInput(
-                          inputId = "compare_select",
-                          label = "",
-                          width = "85%",
-                          choices = names(DB$allelic_profile),
-                          selected = names(DB$allelic_profile)[var_alleles(DB$allelic_profile)],
-                          options = list(
-                            `live-search` = TRUE,
-                            `actions-box` = TRUE,
-                            size = 10,
-                            style = "background-color: white; border-radius: 5px;"
-                          ),
-                          multiple = TRUE
+                        div(
+                          class = "compare-select",
+                          pickerInput(
+                            inputId = "compare_select",
+                            label = "",
+                            width = "85%",
+                            choices = names(DB$allelic_profile),
+                            selected = names(DB$allelic_profile)[var_alleles(DB$allelic_profile)],
+                            options = list(
+                              `live-search` = TRUE,
+                              `actions-box` = TRUE,
+                              size = 10,
+                              style = "background-color: white; border-radius: 5px;"
+                            ),
+                            multiple = TRUE
+                          )
                         )
                       }
                     }
@@ -7261,6 +7258,7 @@ server <- function(input, output, session) {
                         br(), br(),
                         column(
                           width = 3,
+                          br(),
                           fluidRow(
                             column(
                               width = 3,
@@ -7282,6 +7280,7 @@ server <- function(input, output, session) {
                         ),
                         column(
                           width = 3,
+                          br(),
                           fluidRow(
                             column(
                               width = 3,
@@ -7303,6 +7302,7 @@ server <- function(input, output, session) {
                         ),
                         column(
                           width = 3,
+                          br(),
                           fluidRow(
                             column(
                               width = 3,
@@ -7324,6 +7324,7 @@ server <- function(input, output, session) {
                         ),
                         column(
                           width = 3,
+                          br(),
                           fluidRow(
                             column(
                               width = 3,
@@ -7357,6 +7358,7 @@ server <- function(input, output, session) {
                         br(),
                         column(
                           width = 3,
+                          br(),
                           fluidRow(
                             column(
                               width = 3,
@@ -7378,6 +7380,7 @@ server <- function(input, output, session) {
                         ),
                         column(
                           width = 3,
+                          br(),
                           fluidRow(
                             column(
                               width = 3,
@@ -7399,6 +7402,7 @@ server <- function(input, output, session) {
                         ),
                         column(
                           width = 3,
+                          br(),
                           fluidRow(
                             column(
                               width = 3,
@@ -7420,6 +7424,7 @@ server <- function(input, output, session) {
                         ),
                         column(
                           width = 3,
+                          br(),
                           fluidRow(
                             column(
                               width = 3,
@@ -8421,10 +8426,11 @@ server <- function(input, output, session) {
                           }
                           
                           fluidRow(
-                            column(
-                              width = 2,
-                              div(
-                                class = "gs-plot-box",
+                            column(1),
+                            div(
+                              class = "distancematrix-options",
+                              column(
+                                width = 2,
                                 box(
                                   solidHeader = TRUE,
                                   status = "primary",
@@ -8616,16 +8622,10 @@ server <- function(input, output, session) {
                     width = "100%",
                     title = "Delete Entries",
                     fluidRow(
+                      column(1),
                       column(
-                        width = 2,
-                        offset = 1,
-                        align = "right",
-                        br(),
-                        h5("Index", style = "color:white; margin-bottom: 0px;")
-                      ),
-                      column(
-                        width = 6,
-                        align = "center",
+                        width = 5,
+                        align = "left",
                         uiOutput("delete_select")
                       ),
                       column(
@@ -8648,15 +8648,23 @@ server <- function(input, output, session) {
                     title = "Compare Loci",
                     column(
                       width = 12,
-                      align = "center",
                       br(),
-                      uiOutput("compare_select"),
+                      fluidRow(
+                        column(1),
+                        column(
+                          width = 10,
+                          align = "left",
+                          uiOutput("compare_select")   
+                        )
+                      ),
                       br(),
-                      column(2),
-                      column(
-                        width = 10,
-                        align = "left",
-                        uiOutput("compare_difference_box")
+                      fluidRow(
+                        column(1),
+                        column(
+                          width = 10,
+                          align = "left",
+                          uiOutput("compare_difference_box")
+                        )
                       )
                     ),
                     br()
@@ -8674,6 +8682,7 @@ server <- function(input, output, session) {
                         width = "100%",
                         title = "Export Table",
                         fluidRow(
+                          column(1),
                           column(
                             width = 8,
                             align = "left",
@@ -8707,7 +8716,7 @@ server <- function(input, output, session) {
                             )
                           ),
                           column(
-                            width = 4,
+                            width = 2,
                             align = "center",
                             downloadBttn(
                               "download_entry_table",
@@ -8727,7 +8736,7 @@ server <- function(input, output, session) {
                 # Render entry deletion select input
                 output$delete_select <- renderUI({
                   pickerInput("select_delete",
-                              label = "",
+                              label = h5("Index", style = "color:white; margin-bottom: 0px;"),
                               choices = DB$data[, "Index"],
                               options = list(
                                 `live-search` = TRUE,
@@ -8754,8 +8763,7 @@ server <- function(input, output, session) {
                 
                 # Missing values calculations and table 
                 observe({
-                  
-                  if (!is.null(DB$allelic_profile)) {
+                  if(!is.null(DB$allelic_profile)) {
                     NA_table <- DB$allelic_profile[, colSums(is.na(DB$allelic_profile)) != 0]
                     
                     NA_table <- NA_table[rowSums(is.na(NA_table)) != 0,]
@@ -8768,23 +8776,21 @@ server <- function(input, output, session) {
                       relocate("Assembly Name", "Errors")
                     
                     DB$na_table <- NA_table
-                    
-                    if(!is.null(input$miss_val_height)) {
-                      if(nrow(DB$na_table) < 31) {
-                        output$table_missing_values <- renderRHandsontable({
-                          rhandsontable(
-                            DB$na_table,
-                            readOnly = TRUE,
-                            rowHeaders = NULL,
-                            contextMenu = FALSE,
-                            highlightCol = TRUE, 
-                            highlightRow = TRUE,
-                            error_highlight = err_thresh_na() - 1
-                          ) %>%
-                            hot_cols(fixedColumnsLeft = 1) %>%
-                            hot_rows(fixedRowsTop = 0) %>%
-                            hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htLeft") %>%
-                            hot_col(2, renderer = "
+                    if(nrow(DB$na_table) < 31) {
+                      output$table_missing_values <- renderRHandsontable({
+                        rhandsontable(
+                          DB$na_table,
+                          readOnly = TRUE,
+                          rowHeaders = NULL,
+                          contextMenu = FALSE,
+                          highlightCol = TRUE, 
+                          highlightRow = TRUE,
+                          error_highlight = err_thresh_na() - 1
+                        ) %>%
+                          hot_cols(fixedColumnsLeft = 1) %>%
+                          hot_rows(fixedRowsTop = 0) %>%
+                          hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htLeft") %>%
+                          hot_col(2, renderer = "
                             function (instance, td, row, col, prop, value, cellProperties) {
                               Handsontable.renderers.TextRenderer.apply(this, arguments);
                               if (instance.params) {
@@ -8795,8 +8801,8 @@ server <- function(input, output, session) {
                                 }
                               }
                             }") %>%
-                            hot_col(3:ncol(DB$na_table), renderer = htmlwidgets::JS(
-                              "function(instance, td, row, col, prop, value, cellProperties) {
+                          hot_col(3:ncol(DB$na_table), renderer = htmlwidgets::JS(
+                            "function(instance, td, row, col, prop, value, cellProperties) {
                                 if (value.length > 8) {
                                   value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
                                 }
@@ -8804,24 +8810,24 @@ server <- function(input, output, session) {
                                 td.style.textAlign = 'center';
                                 return td;
                                }"
-                            ))
-                        })
-                      } else {
-                        output$table_missing_values <- renderRHandsontable({
-                          rhandsontable(
-                            DB$na_table,
-                            readOnly = TRUE,
-                            rowHeaders = NULL,
-                            height = miss.val.height(),
-                            contextMenu = FALSE,
-                            highlightCol = TRUE, 
-                            highlightRow = TRUE,
-                            error_highlight = err_thresh() - 1
-                          ) %>%
-                            hot_cols(fixedColumnsLeft = 1) %>%
-                            hot_rows(fixedRowsTop = 0) %>%
-                            hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htLeft") %>%
-                            hot_col(2, renderer = "
+                          ))
+                      })
+                    } else {
+                      output$table_missing_values <- renderRHandsontable({
+                        rhandsontable(
+                          DB$na_table,
+                          readOnly = TRUE,
+                          rowHeaders = NULL,
+                          height = 800,
+                          contextMenu = FALSE,
+                          highlightCol = TRUE, 
+                          highlightRow = TRUE,
+                          error_highlight = err_thresh() - 1
+                        ) %>%
+                          hot_cols(fixedColumnsLeft = 1) %>%
+                          hot_rows(fixedRowsTop = 0) %>%
+                          hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htLeft") %>%
+                          hot_col(2, renderer = "
                             function (instance, td, row, col, prop, value, cellProperties) {
                               Handsontable.renderers.TextRenderer.apply(this, arguments);
                               if (instance.params) {
@@ -8832,8 +8838,8 @@ server <- function(input, output, session) {
                                 }
                               }
                             }") %>%
-                            hot_col(3:ncol(DB$na_table), renderer = htmlwidgets::JS(
-                              "function(instance, td, row, col, prop, value, cellProperties) {
+                          hot_col(3:ncol(DB$na_table), renderer = htmlwidgets::JS(
+                            "function(instance, td, row, col, prop, value, cellProperties) {
                                 if (value.length > 8) {
                                   value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
                                 }
@@ -8841,64 +8847,59 @@ server <- function(input, output, session) {
                                 td.style.textAlign = 'center';
                                 return td;
                                }"
-                            ))
-                        })
-                      }
+                          ))
+                      })
                     }
                   }
-                  
                 })
                 
                 # Render missing value informatiojn box UI
                 output$missing_values <- renderUI({
-                  div(
-                    class = "miss_val_box",
-                    box(
-                      solidHeader = TRUE,
-                      status = "primary",
-                      width = "100%",
-                      fluidRow(
-                        div(
-                          class = "white",
-                          column(
-                            width = 12,
-                            align = "left",
-                            br(), 
-                            HTML(
-                              paste0("There are ", 
-                                     strong(as.character(sum(is.na(DB$data)))), 
-                                     " unsuccessful allele allocations (NA). ",
-                                     strong(sum(sapply(DB$allelic_profile, anyNA))),
-                                     " out of ",
-                                     strong(ncol(DB$allelic_profile)),
-                                     " total loci in this scheme contain NA's (",
-                                     strong(round((sum(sapply(DB$allelic_profile, anyNA)) / ncol(DB$allelic_profile) * 100), 1)),
-                                     " %). ",
-                                     "Decide how these missing values should be treated:")
-                              
-                            ),
-                            br()
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(1),
+                  box(
+                    solidHeader = TRUE,
+                    status = "primary",
+                    width = "100%",
+                    title = "Missing Value Handling",
+                    fluidRow(
+                      div(
+                        class = "white",
                         column(
-                          width = 11,
+                          width = 12,
                           align = "left",
-                          br(),
-                          prettyRadioButtons(
-                            "na_handling",
-                            "",
-                            choiceNames = c("Ignore missing values for pairwise comparison",
-                                            "Omit loci with missing values for all assemblies",
-                                            "Treat missing values as allele variant"),
-                            choiceValues = c("ignore_na", "omit", "category"),
-                            shape = "curve",
-                            selected = c("ignore_na")
+                          br(), 
+                          HTML(
+                            paste0("There are ", 
+                                   strong(as.character(sum(is.na(DB$data)))), 
+                                   " unsuccessful allele allocations (NA). ",
+                                   strong(sum(sapply(DB$allelic_profile, anyNA))),
+                                   " out of ",
+                                   strong(ncol(DB$allelic_profile)),
+                                   " total loci in this scheme contain NA's (",
+                                   strong(round((sum(sapply(DB$allelic_profile, anyNA)) / ncol(DB$allelic_profile) * 100), 1)),
+                                   " %). ",
+                                   "<br><br><br>Decide how these missing values should be treated:")
+                            
                           ),
                           br()
                         )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "left",
+                        br(),
+                        prettyRadioButtons(
+                          "na_handling",
+                          "",
+                          choiceNames = c("Ignore missing values for pairwise comparison",
+                                          "Omit loci with missing values for all assemblies",
+                                          "Treat missing values as allele variant"),
+                          choiceValues = c("ignore_na", "omit", "category"),
+                          shape = "curve",
+                          selected = c("ignore_na")
+                        ),
+                        br()
                       )
                     )
                   )
@@ -9314,11 +9315,11 @@ server <- function(input, output, session) {
                                    position = "relative", top = "9px", right = "28px"),
                   "Text shown in the tooltip.",
                   show = FALSE,
-                  id = "schemeinfo_tooltip"
+                  id = "schemeinfo_tooltip_saved"
                 )
               ),
               column(
-                width = 5,
+                width = 6,
                 selectInput(
                   "selected_species_saved",
                   "",
@@ -9399,6 +9400,14 @@ server <- function(input, output, session) {
           solidHeader = TRUE,
           status = "primary",
           width = "100%",
+          title = HTML(
+            paste0(
+              '<span style="color: white; font-size: 15px;">',
+              'Species Information - data fetched from NCBI&nbsp&nbsp&nbsp ',
+              ' <a href="', 'https://www.ncbi.nlm.nih.gov/' , '" target="_blank" style="color:#008edb; font-style:normal; text-decoration:none;"> https://www.ncbi.nlm.nih.gov/ </a>',
+              '</span>'
+            )
+          ),
           column(
             width = 12,
             fluidRow(
@@ -9665,23 +9674,26 @@ server <- function(input, output, session) {
                                     paste(scheme_names, "\U1F5BF"),
                                     scheme_names)
       
-      pickerInput(
-        inputId = "select_cgmlst",
-        label = NULL,
-        choices = scheme_names,
-        choicesOpt = list(
-          subtext = paste("Database", 
-                          schemes$database,
-                          sep = ": ")),
-        width = "300px",
-        selected = gsub(" ", "_", DB$scheme),
-        options = list(
-          `live-search` = TRUE,
-          `actions-box` = TRUE,
-          size = 10,
-          style = "background-color: white; border-radius: 5px;"
-        ),
-        multiple = FALSE
+      div(
+        class = "select-cgmlst",
+        pickerInput(
+          inputId = "select_cgmlst",
+          label = NULL,
+          choices = scheme_names,
+          choicesOpt = list(
+            subtext = paste("Database", 
+                            schemes$database,
+                            sep = ": ")),
+          width = "auto",
+          selected = gsub(" ", "_", DB$scheme),
+          options = list(
+            `live-search` = TRUE,
+            `actions-box` = TRUE,
+            size = 10,
+            style = "background-color: white; border-radius: 5px;"
+          ),
+          multiple = FALSE
+        )
       )
     } else {
       pickerInput(
@@ -10095,7 +10107,7 @@ server <- function(input, output, session) {
     if(!is.null(DB$data)) {
       if(nrow(DB$data) > 1) {
         div(
-          class = "mat-switch-db",
+          class = "mat-switch-loci",
           materialSwitch(
             "compare_difference",
             h5(p("Only Varying Loci"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
@@ -11637,7 +11649,8 @@ server <- function(input, output, session) {
       output$db_loci <- renderDataTable(
         loci_info,
         selection = "single",
-        options = list(pageLength = 10,
+        options = list(pageLength = 15,  
+                       lengthMenu = list(c(15), c('15')), 
                        columnDefs = list(list(searchable = TRUE,
                                               targets = "_all")),
                        initComplete = DT::JS(
@@ -12244,8 +12257,8 @@ server <- function(input, output, session) {
       if(last_file_change < last_scheme_change) {
         HTML(
           paste0(
-            '<i class="fa-solid fa-circle-exclamation" style="font-size:20px;color:orange; position:relative; top:7px;margin-right: 10px;"></i>',
-            '<span style="color: white; font-size: 15px; position:relative; top:5px;">',
+            '<i class="fa-solid fa-circle-exclamation" style="font-size:20px;color:orange; position:relative; top: 17px; left: -10px;"></i>',
+            '<span style="color: white; font-size: 15px; position:relative; top: 15px;">',
             "Newer scheme available",
             '</span>'
           )
@@ -12253,8 +12266,8 @@ server <- function(input, output, session) {
       } else {
         HTML(
           paste0(
-            '<i class="fa-solid fa-check" style="font-size:20px;color:lightgreen; position:relative; top:7px;margin-right: 10px;"></i>',
-            '<span style="color: white; font-size: 15px; position:relative; top:5px;">',
+            '<i class="fa-solid fa-check" style="font-size:20px;color:lightgreen; position:relative; top: 17px; left: -10px;"></i>',
+            '<span style="color: white; font-size: 15px; position:relative; top: 15px;">',
             "Scheme is up-to-date",
             '</span>'
           )
@@ -12418,6 +12431,14 @@ server <- function(input, output, session) {
           solidHeader = TRUE,
           status = "primary",
           width = "100%",
+          title = HTML(
+            paste0(
+              '<span style="color: white; font-size: 15px;">',
+              'Species Information - data fetched from NCBI&nbsp&nbsp&nbsp ',
+              ' <a href="', 'https://www.ncbi.nlm.nih.gov/' , '" target="_blank" style="color:#008edb; font-style:normal; text-decoration:none;"> https://www.ncbi.nlm.nih.gov/ </a>',
+              '</span>'
+            )
+          ),
           column(
             width = 12,
             fluidRow(
@@ -12693,7 +12714,7 @@ server <- function(input, output, session) {
               p(
                 HTML(
                   paste0(
-                    '<span style="color: white; font-size: 15px; position: relative; top: 26px;">',
+                    '<span style="color: white; font-size: 15px; position: relative; top: 5px;">',
                     'Species Complex',
                     '</span>'
                   )
@@ -12713,11 +12734,14 @@ server <- function(input, output, session) {
               )
             ),
             column(
-              width = 5,
-              selectInput(
-                "selected_species",
-                "",
-                choices = choices
+              width = 6,
+              div(
+                class = "selected-species",
+                selectInput(
+                  "selected_species",
+                  "",
+                  choices = choices
+                )
               )
             )
           )
@@ -24563,7 +24587,7 @@ server <- function(input, output, session) {
           uiOutput("gs_plot_control_ui")
         ),
         column(
-          width = 10,
+          width = 9,
           align = "left",
           br(), br(), br(), br(),
           uiOutput("gs_field")
