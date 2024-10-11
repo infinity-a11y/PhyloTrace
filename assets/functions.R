@@ -477,7 +477,8 @@ fetch.species.data <- function(species) {
       }
     )
     
-    if (length(result) < 1) {
+    #if (length(result) < 1) {
+    if(is.null(result)) {  
       message(paste("Error: ", parsed_species, " not available on NCBI."))
       return(NULL)
     } else {
