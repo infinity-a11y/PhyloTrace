@@ -1536,6 +1536,16 @@ div#progress_bar.progress-bar {
 }
 
 /* Visualization MST */
+
+.mst-subtitle-color-col {
+  margin-bottom: -25px;
+}
+
+#Id069 {
+  width: 100%;
+  margin-top: -10px;
+  margin-bottom: 11px;
+}
   
 #mst_title_color {
   margin-bottom: 21px;
@@ -1667,12 +1677,6 @@ button#mst_edge_menu {
   border-radius: 5px;
 }
 
-button#mst_title_menu {
-  height: 34px; 
-  margin-top: 20px; 
-  border-radius: 5px
-}
-
 button#mst_edgelabel_menu {
   height: 34px; 
   background: #20E6E5; 
@@ -1697,6 +1701,7 @@ button#mst_edgecolor_menu {
   border-radius: 5px
 }
 
+button#mst_title_menu,
 button#mst_subtitle_menu {
   height: 34px; 
   background: #20E6E5; 
@@ -1706,38 +1711,38 @@ button#mst_subtitle_menu {
 }
 
 button#mst_legend_menu {
-height: 34px; 
-background: #20E6E5; 
+  height: 34px; 
+  background: #20E6E5; 
   color: #000000; 
   margin-top: 20px; 
-border-radius: 5px
+  border-radius: 5px
 }
 
-button#mst_label_menu {
-height: 34px; 
-background: #20E6E5; 
+button#mst_isolate_label_menu {
+  height: 34px; 
+  background: #20E6E5; 
   color: #000000; 
   margin-top: 37px; 
-border-radius: 5px
+  border-radius: 5px
 }
 
 button#mst_col_menu {
-height: 34px;
-background: #20E6E5;
+  height: 34px;
+  background: #20E6E5;
   color: #000000;
   margin-top: 11px;
-margin-bottom: -2px;
-border-radius: 5px;
+  margin-bottom: -2px;
+  border-radius: 5px;
 }
 
 button#mst_col_map_menu {
-height: 34px;
-background: #20E6E5;
+  height: 34px;
+  background: #20E6E5;
   color: #000000;
   margin-top: 10px;
-margin-left: -10px;
-border-radius: 5px;
-margin-bottom: -1px;
+  margin-left: -10px;
+  border-radius: 5px;
+  margin-bottom: -1px;
 }
 
 .mst_shape_sel div>.selectize-dropdown {
@@ -1760,23 +1765,19 @@ margin-bottom: -1px;
   margin-top: -10px;
 }
 
-#mst_color_node {
-margin-top: -10px;
-margin-bottom: -1px;
-}
-
-#mst_background_color {
-margin-top: -10px;
-}
 
 #mst_shadow {
 position: relative; 
 bottom: -1px;
 }
 
-#mst_edge_font_color {
-margin-top: 17px;
-margin-bottom: 17px;
+#mst_edge_font_color,
+#mst_background_color,
+#mst_color_edge,
+#mst_color_node,
+#mst_legend_color {
+margin-top: -17px;
+margin-left: -10px;
 }
 
 #node_font_color {
@@ -3945,18 +3946,48 @@ button#gs_download_plot_bttn {
 .gs-plot-box,
 .gs-plot-box2,
 .gs-plot-box3,
-.gs-plot-box4{
+.gs-plot-box4,
+.vis-control-box,
+.mst_control_box,
+.nj_control_box,
+.upgma_control_box {
   margin-left: 35px;
   margin-right: -30px;
 }
 
+.vis-control-box-2 {
+  margin-left: 42px;
+}
+
+.vis-control-box-3 {
+  margin-left: 35px;
+  margin-right: -30px;
+  margin-top: 20px;
+}
+
 #gs_size_menu > i,
-#gs_dim_menu > i,
 #gs_variable_menu > i,
 #gs_download_menu > i,
 #gs_misc_menu > i,
 #gs_color_menu > i,
-#gs_data_menu > i {
+#mst_data_menu > i,
+#mst_size_menu > i,
+#mst_variable_menu > i,
+#mst_download_menu > i,
+#mst_misc_menu > i,
+#mst_color_menu > i,
+#nj_data_menu > i,
+#nj_size_menu > i,
+#nj_variable_menu > i,
+#nj_download_menu > i,
+#nj_misc_menu > i,
+#nj_color_menu > i,
+#upgma_data_menu > i,
+#upgma_size_menu > i,
+#upgma_variable_menu > i,
+#upgma_download_menu > i,
+#upgma_misc_menu > i,
+#upgma_color_menu > i {
   font-size: 22px;
   background: white;
   -webkit-background-clip: text;
@@ -4002,7 +4033,8 @@ button#gs_download_plot_bttn {
 #gs-dim-menu,
 #gs-variable-menu
 #gs-download-menu,
-#gs-misc-menu,{
+#gs-misc-menu,
+#plot-control{
   width: 110px;  
 }
 
@@ -4030,6 +4062,23 @@ button#gs_download_plot_bttn {
   margin-left: 0px;
 }
 
+#plot-control .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input {
+  background: #164054 !important;
+  border: 1px solid transparent;
+  border-color: transparent !important;
+  display: inline-block;
+  border-width: 1px !important;
+  color: white !important;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
+  transition: box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  border-radius: 8px;
+  width: 75px;
+  height: 35px;
+  margin-left: 0px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
 .filetype-gs {
   margin-top: -28px;
   width: 100px;
@@ -4037,6 +4086,7 @@ button#gs_download_plot_bttn {
 }
 
 #gs-control .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input:hover,
+#plot-control .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input:hover,
 #gs-size-menu .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input:hover,
 #gs-dim-menu .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input:hover,
 #gs-variable-menu .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input:hover,

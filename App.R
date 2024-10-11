@@ -2,6 +2,7 @@
 
 options(ignore.negative.edge = TRUE)
 options(shiny.error = browser)
+Sys.setlocale("LC_TIME", "C")
 
 # _______________________ ####
 # CRAN Packages
@@ -36,7 +37,6 @@ library(rhandsontable)
 library(visNetwork)
 library(proxy)
 library(phangorn)
-library(pheatmap)
 library(cowplot)
 library(viridis)
 library(RColorBrewer)
@@ -707,9 +707,60 @@ ui <- dashboardPage(
       tabItem(
         tabName = "visualization",
         fluidRow(
+          column(
+            width = 2,
+            div(
+              class = "vis-control-box",
+              box(
+                solidHeader = TRUE,
+                status = "primary",
+                width = "100%",
+                title = "Plot Type",
+                radioGroupButtons(
+                  inputId = "Id069",
+                  label = "", 
+                  choices = c("MST", "NJ", "UPGMA"),
+                  justified = TRUE
+                )
+              )
+            )
+          ),
+          column(
+            width = 6,
+            conditionalPanel(
+              "input.Id069=='MST'",
+              div(
+                class = "vis-control-box-2",
+                mst_control_box
+              )
+            ),
+            conditionalPanel(
+              "input.Id069=='NJ'",
+              div(
+                class = "vis-control-box-2",
+                nj_control_box
+              )
+            ),
+            conditionalPanel(
+              "input.Id069=='UPGMA'",
+              div(
+                class = "vis-control-box-2",
+                upgma_control_box
+              )
+            )
+          )
+        ),
+        fluidRow(
           tags$script(src = "javascript_functions.js"),
           column(
-            width = 12,
+            width = 2,
+            div(
+              class = "vis-control-box-3",
+              uiOutput("mst_controls")
+            )
+          ),
+          column(
+            width = 10,
             align = "center",
             br(),
             conditionalPanel(
@@ -740,128 +791,6 @@ ui <- dashboardPage(
                 width = "100%",
                 height = "500px",
                 h3(p("Layout"), style = "color:white; position:relative; right:-15px"),
-                hr(),
-                fluidRow(
-                  column(
-                    width = 6,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Title"), style = "color:white; position: relative; right: -15px"),
-                        column(
-                          width = 12,
-                          align = "center",
-                          textInput(
-                            "mst_title",
-                            label = "",
-                            width = "100%",
-                            placeholder = "Plot Title"
-                          ),
-                          fluidRow(
-                            column(
-                              width = 7,
-                              colorPickr(
-                                inputId = "mst_title_color",
-                                selected = "#000000",
-                                label = "",
-                                update = "changestop",
-                                interaction = list(clear = FALSE,
-                                                   save = FALSE),
-                                position = "right-start",
-                                width = "100%"
-                              )
-                            ),
-                            column(
-                              width = 5,
-                              dropMenu(
-                                actionBttn(
-                                  "mst_title_menu",
-                                  label = "",
-                                  color = "default",
-                                  size = "sm",
-                                  style = "material-flat",
-                                  icon = icon("sliders")
-                                ),
-                                placement = "top-start",
-                                theme = "translucent",
-                                numericInput(
-                                  "mst_title_size",
-                                  label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                                  value = 40,
-                                  min = 15,
-                                  max = 40,
-                                  step = 1,
-                                  width = "80px"
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  ),
-                  column(
-                    width = 6,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Subtitle"), style = "color:white; position: relative; right: -15px"),
-                        column(
-                          width = 12,
-                          align = "center",
-                          textInput(
-                            "mst_subtitle",
-                            label = "",
-                            width = "100%",
-                            placeholder = "Plot Subtitle"
-                          ),
-                          fluidRow(
-                            column(
-                              width = 7,
-                              colorPickr(
-                                inputId = "mst_subtitle_color",
-                                selected = "#000000",
-                                label = "",
-                                update = "changestop",
-                                interaction = list(clear = FALSE,
-                                                   save = FALSE),
-                                position = "right-start",
-                                width = "100%"
-                              )
-                            ),
-                            column(
-                              width = 5,
-                              dropMenu(
-                                actionBttn(
-                                  "mst_subtitle_menu",
-                                  label = "",
-                                  color = "default",
-                                  size = "sm",
-                                  style = "material-flat",
-                                  icon = icon("sliders")
-                                ),
-                                placement = "top-start",
-                                theme = "translucent",
-                                numericInput(
-                                  "mst_subtitle_size",
-                                  label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                                  value = 20,
-                                  min = 15,
-                                  max = 40,
-                                  step = 1,
-                                  width = "80px"
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-                ),
-                hr(),
                 fluidRow(
                   column(
                     width = 6,
@@ -874,19 +803,6 @@ ui <- dashboardPage(
                           width = 12,
                           align = "center",
                           fluidRow(
-                            column(
-                              width = 7,
-                              colorPickr(
-                                inputId = "mst_legend_color",
-                                selected = "#000000",
-                                label = "",
-                                update = "changestop",
-                                interaction = list(clear = FALSE,
-                                                   save = FALSE),
-                                position = "right-start",
-                                width = "100%"
-                              )
-                            ),
                             column(
                               width = 5,
                               dropMenu(
@@ -950,50 +866,6 @@ ui <- dashboardPage(
                         )
                       )
                     )
-                  ),
-                  column(
-                    width = 6,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Background"), style = "color:white; position: relative; right: -15px"),
-                        column(
-                          width = 12,
-                          align = "center",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "left",
-                              div(
-                                class = "mat-switch-mst-nodes",
-                                materialSwitch(
-                                  "mst_background_transparent",
-                                  h5(p("Transparent"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                  value = FALSE,
-                                  right = TRUE
-                                )
-                              )
-                            )
-                          ),
-                          fluidRow(
-                            column(
-                              width = 7,
-                              colorPickr(
-                                inputId = "mst_background_color",
-                                width = "100%",
-                                selected = "#ffffff",
-                                label = "",
-                                update = "changestop",
-                                interaction = list(clear = FALSE,
-                                                   save = FALSE),
-                                position = "right-start"
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
                   )
                 )
               )
@@ -1006,104 +878,6 @@ ui <- dashboardPage(
                 width = "100%",
                 height = "500px",
                 h3(p("Nodes"), style = "color:white; position:relative; right:-15px"),
-                hr(),
-                fluidRow(
-                  column(
-                    width = 6,
-                    column(
-                      width = 12,
-                      align = "left",
-                      h4(p("Label"), style = "color:white;")
-                    ),
-                    column(
-                      width = 12,
-                      align = "center",
-                      div(
-                        class = "label_sel",
-                        uiOutput("mst_node_label")
-                      ),
-                      fluidRow(
-                        column(
-                          width = 7,
-                          colorPickr(
-                            inputId = "node_font_color",
-                            width = "100%",
-                            selected = "#000000",
-                            label = "",
-                            update = "changestop",
-                            interaction = list(clear = FALSE,
-                                               save = FALSE),
-                            position = "right-start"
-                          )
-                        ),
-                        column(
-                          width = 5,
-                          dropMenu(
-                            actionBttn(
-                              "mst_label_menu",
-                              label = "",
-                              color = "default",
-                              size = "sm",
-                              style = "material-flat",
-                              icon = icon("sliders")
-                            ),
-                            placement = "top-start",
-                            theme = "translucent",
-                            numericInput(
-                              "node_label_fontsize",
-                              label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                              value = 14,
-                              min = 8,
-                              max = 30,
-                              step = 1,
-                              width = "80px"
-                            )
-                          )
-                        )
-                      )
-                    )
-                  ),
-                  column(
-                    width = 6,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Color"), style = "color:white; position: relative; right: -15px"),
-                        column(
-                          width = 12,
-                          align = "center",
-                          fluidRow(
-                            column(
-                              width = 10,
-                              align = "left",
-                              div(
-                                class = "mat-switch-mst-nodes",
-                                materialSwitch(
-                                  "mst_color_var",
-                                  h5(p("Add Variable"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                  value = FALSE,
-                                  right = TRUE
-                                )
-                              )
-                            ),
-                            column(
-                              width = 2,
-                              bslib::tooltip(
-                                bsicons::bs_icon("info-circle", title = "Only categorical variables can \nbe mapped to the node color", color = "white", 
-                                                 height = "12px", width = "12px", position = "relative", top = "27px", right = "56px"),
-                                "Text shown in the tooltip.",
-                                show = FALSE,
-                                id = "mst_node_col_info"
-                              )
-                            )
-                          ),
-                          uiOutput("mst_color_mapping")
-                        )
-                      )
-                    ), br()
-                  )
-                ),
                 hr(),
                 fluidRow(
                   column(
@@ -1293,19 +1067,6 @@ ui <- dashboardPage(
                       ),
                       fluidRow(
                         column(
-                          width = 7,
-                          colorPickr(
-                            inputId = "mst_edge_font_color",
-                            width = "100%",
-                            selected = "#000000",
-                            label = "",
-                            update = "changestop",
-                            interaction = list(clear = FALSE,
-                                               save = FALSE),
-                            position = "right-start"
-                          )
-                        ),
-                        column(
                           width = 5,
                           dropMenu(
                             actionBttn(
@@ -1347,19 +1108,7 @@ ui <- dashboardPage(
                           fluidRow(
                             column(
                               width = 7,
-                              div(
-                                class = "node_color",
-                                colorPickr(
-                                  inputId = "mst_color_edge",
-                                  width = "100%",
-                                  selected = "#000000",
-                                  label = "",
-                                  update = "changestop",
-                                  interaction = list(clear = FALSE,
-                                                     save = FALSE),
-                                  position = "right-start"
-                                )
-                              )
+                              
                             ),
                             column(
                               width = 5,
@@ -6302,7 +6051,7 @@ server <- function(input, output, session) {
           div(
             class = "start-modal",
             modalDialog(
-              paste("Download a cgMLST scheme to set up a species for tracking in the new database.",
+              paste("Download a cgMLST scheme to add a new folder in the database directory.",
                     "Multiple schemes can be downloaded and included in one database."),
               title = paste("Set Up New Database"),
               fade = TRUE,
@@ -9947,26 +9696,23 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      div(
-        class = "select-cgmlst",
-        pickerInput(
-          inputId = "select_cgmlst",
-          label = NULL,
-          choices = scheme_names,
-          choicesOpt = list(
-            subtext = paste("Database", 
-                            schemes$database,
-                            sep = ": ")),
-          width = "auto",
-          selected = NULL,
-          options = list(
-            `live-search` = TRUE,
-            `actions-box` = TRUE,
-            size = 10,
-            style = "background-color: white; border-radius: 5px;"
-          ),
-          multiple = FALSE
-        )
+      pickerInput(
+        inputId = "select_cgmlst",
+        label = NULL,
+        choices = schemes$species,
+        choicesOpt = list(
+          subtext = paste("Database", 
+                          schemes$database,
+                          sep = ": ")),
+        width = "300px",
+        selected = NULL,
+        options = list(
+          `live-search` = TRUE,
+          `actions-box` = TRUE,
+          size = 10,
+          style = "background-color: white; border-radius: 5px;"
+        ),
+        multiple = FALSE
       )
     }
   })
@@ -12407,7 +12153,7 @@ server <- function(input, output, session) {
             selected = if(!is.null(Typing$last_scheme)) {
               Typing$last_scheme
             } else {if(!is.null(DB$scheme)) {gsub("_", " ", input$select_cgmlst)} else {DB$available[1]}}),
-          title = "Successful download - load database.",
+          title = "Success - Load Database",
           footer = tagList(
             actionButton("load", "Load", class = "load-db", width = "100px")
           )
@@ -12508,7 +12254,7 @@ server <- function(input, output, session) {
     # Render scheme update availability info
     output$scheme_update_info <- renderUI({
       req(last_file_change, last_scheme_change)
-      if (last_file_change < last_scheme_change) {
+      if(last_file_change < last_scheme_change) {
         HTML(
           paste0(
             '<i class="fa-solid fa-circle-exclamation" style="font-size:20px;color:orange; position:relative; top: 17px; left: -10px;"></i>',
@@ -19141,6 +18887,647 @@ server <- function(input, output, session) {
   
   #### MST controls ----
   
+  output$mst_controls <- renderUI(
+    box(
+      solidHeader = TRUE,
+      status = "primary",
+      width = "100%",
+      title = "Labels",
+      fluidRow(
+        column(
+          width = 12,
+          align = "left",
+          h4(p("Isolate Label"), style = "color:white; position: relative; right: -15px; top: 15px;"),
+          column(
+            width = 12,
+            align = "center",
+            div(
+              class = "label_sel",
+              uiOutput("mst_node_label")
+            ),
+            fluidRow(
+              column(
+                width = 7,
+                colorPickr(
+                  inputId = "node_font_color",
+                  width = "100%",
+                  selected = "#000000",
+                  label = "",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start"
+                )
+              ),
+              column(
+                width = 5,
+                dropMenu(
+                  actionBttn(
+                    "mst_isolate_label_menu",
+                    label = "",
+                    color = "default",
+                    size = "sm",
+                    style = "material-flat",
+                    icon = icon("sliders")
+                  ),
+                  placement = "top-start",
+                  theme = "translucent",
+                  numericInput(
+                    "node_label_fontsize",
+                    label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                    value = 14,
+                    min = 8,
+                    max = 30,
+                    step = 1,
+                    width = "80px"
+                  )
+                )
+              )
+            )
+          )
+        )
+      ),
+      br(),
+      fluidRow(
+        column(
+          width = 12,
+          align = "left",
+          h4(p("Title"), style = "color:white; position: relative; right: -15px; top: 15px;"),
+          column(
+            width = 12,
+            align = "center",
+            textInput(
+              "mst_title",
+              label = "",
+              width = "100%",
+              placeholder = "Plot Title"
+            ),
+            fluidRow(
+              column(
+                width = 7,
+                colorPickr(
+                  inputId = "mst_title_color",
+                  selected = "#000000",
+                  label = "",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start",
+                  width = "100%"
+                )
+              ),
+              column(
+                width = 5,
+                dropMenu(
+                  actionBttn(
+                    "mst_title_menu",
+                    label = "",
+                    color = "default",
+                    size = "sm",
+                    style = "material-flat",
+                    icon = icon("sliders")
+                  ),
+                  placement = "top-start",
+                  theme = "translucent",
+                  numericInput(
+                    "mst_title_size",
+                    label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                    value = 40,
+                    min = 15,
+                    max = 40,
+                    step = 1,
+                    width = "80px"
+                  )
+                )
+              )
+            )
+          )
+        )
+      ),
+      br(),
+      fluidRow(
+        column(
+          width = 12,
+          align = "left",
+          h4(p("Subtitle"), style = "color:white; position: relative; right: -15px; top: 15px;"),
+          column(
+            width = 12,
+            align = "center",
+            textInput(
+              "mst_subtitle",
+              label = "",
+              width = "100%",
+              placeholder = "Plot Subtitle"
+            ),
+            fluidRow(
+              column(
+                width = 7,
+                colorPickr(
+                  inputId = "mst_subtitle_color",
+                  selected = "#000000",
+                  label = "",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start",
+                  width = "100%"
+                )
+              ),
+              column(
+                width = 5,
+                dropMenu(
+                  actionBttn(
+                    "mst_subtitle_menu",
+                    label = "",
+                    color = "default",
+                    size = "sm",
+                    style = "material-flat",
+                    icon = icon("sliders")
+                  ),
+                  placement = "top-start",
+                  theme = "translucent",
+                  numericInput(
+                    "mst_subtitle_size",
+                    label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                    value = 20,
+                    min = 15,
+                    max = 40,
+                    step = 1,
+                    width = "80px"
+                  )
+                )
+              )
+            )
+          )
+        )
+      ),
+      br()
+    )
+  )
+  
+  # render mst label menu
+  observeEvent(input$mst_label_menu, {
+    output$mst_controls <- renderUI(
+      box(
+        solidHeader = TRUE,
+        status = "primary",
+        width = "100%",
+        title = "Labels",
+        fluidRow(
+          column(
+            width = 12,
+            align = "left",
+            h4(p("Isolate Label"), style = "color:white; position: relative; right: -15px; top: 15px;"),
+            column(
+              width = 12,
+              align = "center",
+              div(
+                class = "label_sel",
+                uiOutput("mst_node_label")
+              ),
+              fluidRow(
+                column(
+                  width = 7,
+                  colorPickr(
+                    inputId = "node_font_color",
+                    width = "100%",
+                    selected = "#000000",
+                    label = "",
+                    update = "changestop",
+                    interaction = list(clear = FALSE,
+                                       save = FALSE),
+                    position = "right-start"
+                  )
+                ),
+                column(
+                  width = 5,
+                  dropMenu(
+                    actionBttn(
+                      "mst_isolate_label_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-start",
+                    theme = "translucent",
+                    numericInput(
+                      "node_label_fontsize",
+                      label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                      value = 14,
+                      min = 8,
+                      max = 30,
+                      step = 1,
+                      width = "80px"
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ),
+        br(),
+        fluidRow(
+          column(
+            width = 12,
+            align = "left",
+            h4(p("Title"), style = "color:white; position: relative; right: -15px; top: 15px;"),
+            column(
+              width = 12,
+              align = "center",
+              textInput(
+                "mst_title",
+                label = "",
+                width = "100%",
+                placeholder = "Plot Title"
+              ),
+              fluidRow(
+                column(
+                  width = 7,
+                  colorPickr(
+                    inputId = "mst_title_color",
+                    selected = "#000000",
+                    label = "",
+                    update = "changestop",
+                    interaction = list(clear = FALSE,
+                                       save = FALSE),
+                    position = "right-start",
+                    width = "100%"
+                  )
+                ),
+                column(
+                  width = 5,
+                  dropMenu(
+                    actionBttn(
+                      "mst_title_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-start",
+                    theme = "translucent",
+                    numericInput(
+                      "mst_title_size",
+                      label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                      value = 40,
+                      min = 15,
+                      max = 40,
+                      step = 1,
+                      width = "80px"
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ),
+        br(),
+        fluidRow(
+          column(
+            width = 12,
+            align = "left",
+            h4(p("Subtitle"), style = "color:white; position: relative; right: -15px; top: 15px;"),
+            column(
+              width = 12,
+              align = "center",
+              textInput(
+                "mst_subtitle",
+                label = "",
+                width = "100%",
+                placeholder = "Plot Subtitle"
+              ),
+              fluidRow(
+                div(
+                  class = "mst-subtitle-color-col",
+                  column(
+                    width = 7,
+                    colorPickr(
+                      inputId = "mst_subtitle_color",
+                      selected = "#000000",
+                      label = "",
+                      update = "changestop",
+                      interaction = list(clear = FALSE,
+                                         save = FALSE),
+                      position = "right-start",
+                      width = "100%"
+                    )
+                  )
+                ),
+                column(
+                  width = 5,
+                  dropMenu(
+                    actionBttn(
+                      "mst_subtitle_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-start",
+                    theme = "translucent",
+                    numericInput(
+                      "mst_subtitle_size",
+                      label = h5("Size", style = "color:white; margin-bottom: 0px;"),
+                      value = 20,
+                      min = 15,
+                      max = 40,
+                      step = 1,
+                      width = "80px"
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ),
+        br()
+      )
+    ) 
+  })
+  
+  # render mst variable mapping menu
+  observeEvent(input$mst_variable_menu, {
+    output$mst_controls <- renderUI(
+      box(
+        solidHeader = TRUE,
+        status = "primary",
+        width = "100%",
+        title = "Variable Mapping",
+        fluidRow(
+          column(
+            width = 12,
+            align = "left",
+            column(
+              width = 12,
+              align = "center",
+              fluidRow(
+                column(
+                  width = 10,
+                  align = "left",
+                  div(
+                    class = "mat-switch-mst-nodes",
+                    materialSwitch(
+                      "mst_color_var",
+                      h5(p("Add Variable"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                      value = FALSE,
+                      right = TRUE
+                    )
+                  )
+                ),
+                column(
+                  width = 2,
+                  bslib::tooltip(
+                    bsicons::bs_icon("info-circle", title = "Only categorical variables can \nbe mapped to the node color", color = "white", 
+                                     height = "12px", width = "12px", position = "relative", top = "27px", right = "40px"),
+                    "Text shown in the tooltip.",
+                    show = FALSE,
+                    id = "mst_node_col_info"
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 12,
+                  align = "left",
+                  br(),
+                  div(
+                    class = "mst_col_sel",
+                    selectInput(
+                      "mst_col_var",
+                      label = h5("Variable", style = "color:white; margin-bottom: 0px;"),
+                      choices = if(any(DB$cust_var[DB$cust_var$Variable[which(DB$cust_var$Variable %in% c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)]))],]$Type != "categ")) {
+                        selection <- c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)])
+                        cust_vars <- DB$cust_var$Variable[which(DB$cust_var$Variable %in% selection)]
+                        selection[-which(selection == cust_vars[DB$cust_var[cust_vars,]$Type != "categ"])]
+                      } else {c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)])},
+                      width = "100%"
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 12,
+                  align = "left",
+                  br(),
+                  selectInput(
+                    "mst_col_scale",
+                    label = h5("Color Scale", style = "color:white; margin-bottom: 0px;"),
+                    choices = c("Viridis", "Rainbow"),
+                    width = "100%"
+                  ),
+                  br()
+                )
+              )
+            )
+          )
+        )
+      )
+    ) 
+  })
+  
+  observeEvent(input$mst_color_menu, {
+    output$mst_controls <- renderUI(
+      box(
+        solidHeader = TRUE,
+        status = "primary",
+        width = "100%",
+        title = "Color Menu",
+        column(
+          width = 12,
+          br(),
+          fluidRow(
+            column(
+              width = 6,
+              align = "left",
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 14px; position: relative; top: 10px;', 
+                            'Text')
+                )
+              )
+            ),
+            column(
+              width = 6,
+              align = "center",
+              colorPickr(
+                inputId = "mst_legend_color",
+                selected = "#000000",
+                label = "",
+                update = "changestop",
+                interaction = list(clear = FALSE,
+                                   save = FALSE),
+                position = "right-start",
+                width = "100%"
+              )
+            )
+          ),
+          br(),
+          fluidRow(
+            column(
+              width = 6,
+              align = "left",
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 14px; position: relative; top: 10px;', 
+                            'Nodes')
+                )
+              )
+            ),
+            column(
+              width = 6,
+              align = "center",
+              uiOutput("mst_color_mapping")
+            )
+          ),
+          br(),
+          fluidRow(
+            column(
+              width = 6,
+              align = "left",
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 14px; position: relative; top: 10px;', 
+                            'Edges')
+                )
+              )
+            ),
+            column(
+              width = 6,
+              align = "center",
+              colorPickr(
+                inputId = "mst_color_edge",
+                width = "100%",
+                selected = "#000000",
+                label = "",
+                update = "changestop",
+                interaction = list(clear = FALSE,
+                                   save = FALSE),
+                position = "right-start"
+              )
+            )
+          ),
+          br(),
+          fluidRow(
+            column(
+              width = 6,
+              align = "left",
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 14px; position: relative; top: 10px;', 
+                            'Edge Font')
+                )
+              )
+            ),
+            column(
+              width = 6,
+              align = "center",
+              colorPickr(
+                inputId = "mst_edge_font_color",
+                width = "100%",
+                selected = "#000000",
+                label = "",
+                update = "changestop",
+                interaction = list(clear = FALSE,
+                                   save = FALSE),
+                position = "right-start"
+              )
+            )
+          ),
+          br(),
+          fluidRow(
+            column(
+              width = 6,
+              align = "left",
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 14px; position: relative; top: 10px;', 
+                            'Background')
+                )
+              )
+            ),
+            column(
+              width = 6,
+              align = "center",
+              colorPickr(
+                inputId = "mst_background_color",
+                width = "100%",
+                selected = "#ffffff",
+                label = "",
+                update = "changestop",
+                interaction = list(clear = FALSE,
+                                   save = FALSE),
+                position = "right-start"
+              )
+            )
+          ), 
+          fluidRow(
+            column(1),
+            column(
+              width = 11,
+              div(
+                class = "mat-switch-mst-nodes",
+                materialSwitch(
+                  "mst_background_transparent",
+                  h5(p("Transparent"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                  value = FALSE,
+                  right = TRUE
+                )
+              )
+            )
+          ),
+          br()
+        )
+      )
+    ) 
+  })
+  
+  observeEvent(input$mst_size_menu, {
+    output$mst_controls <- renderUI(
+      box(
+        solidHeader = TRUE,
+        status = "primary",
+        width = "100%",
+        title = "Size Settings",
+        fluidRow(
+          HTML("Test")
+        )
+      )
+    ) 
+  })
+  
+  observeEvent(input$mst_download_menu, {
+    output$mst_controls <- renderUI(
+      box(
+        solidHeader = TRUE,
+        status = "primary",
+        width = "100%",
+        title = "Save Plot",
+        fluidRow(
+          HTML("Test")
+        )
+      )
+    ) 
+  })
+  
+  observeEvent(input$mst_misc_menu, {
+    output$mst_controls <- renderUI(
+      box(
+        solidHeader = TRUE,
+        status = "primary",
+        width = "100%",
+        title = "Miscellaneous",
+        fluidRow(
+          HTML("Test")
+        )
+      )
+    ) 
+  })
+  
   # Clustering UI
   output$mst_cluster <- renderUI({
     req(DB$schemeinfo)
@@ -19155,92 +19542,21 @@ server <- function(input, output, session) {
   
   # MST color mapping
   output$mst_color_mapping <- renderUI({
+    mst_color_node <- colorPickr(
+      inputId = "mst_color_node",
+      width = "100%",
+      selected = "#B2FACA",
+      label = "",
+      update = "changestop",
+      interaction = list(clear = FALSE,
+                         save = FALSE),
+      position = "right-start"
+    )
+    
     if(input$mst_color_var == FALSE) {
-      fluidRow(
-        column(
-          width = 7,
-          div(
-            class = "node_color",
-            colorPickr(
-              inputId = "mst_color_node",
-              width = "100%",
-              selected = "#B2FACA",
-              label = "",
-              update = "changestop",
-              interaction = list(clear = FALSE,
-                                 save = FALSE),
-              position = "right-start"
-            )
-          )
-        ),
-        column(
-          width = 5,
-          dropMenu(
-            actionBttn(
-              "mst_node_menu",
-              label = "",
-              color = "default",
-              size = "sm",
-              style = "material-flat",
-              icon = icon("sliders")
-            ),
-            placement = "top-start",
-            theme = "translucent",
-            width = 5,
-            numericInput(
-              "node_opacity",
-              label = h5("Opacity", style = "color:white; margin-bottom: 0px;"),
-              value = 1,
-              step = 0.1,
-              min = 0,
-              max = 1,
-              width = "80px"
-            )
-          )
-        )
-      ) 
+      mst_color_node
     } else {
-      fluidRow(
-        column(
-          width = 9,
-          div(
-            class = "mst_col_sel",
-            selectInput(
-              "mst_col_var",
-              label = "",
-              choices = if(any(DB$cust_var[DB$cust_var$Variable[which(DB$cust_var$Variable %in% c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)]))],]$Type != "categ")) {
-                selection <- c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)])
-                cust_vars <- DB$cust_var$Variable[which(DB$cust_var$Variable %in% selection)]
-                selection[-which(selection == cust_vars[DB$cust_var[cust_vars,]$Type != "categ"])]
-              } else {c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)])},
-              width = "100%"
-            )
-          )
-        ),
-        column(
-          width = 3,
-          dropMenu(
-            actionBttn(
-              "mst_col_menu",
-              label = "",
-              color = "default",
-              size = "sm",
-              style = "material-flat",
-              icon = icon("sliders")
-            ),
-            placement = "top-start",
-            theme = "translucent",
-            width = 5,
-            selectInput(
-              "mst_col_scale",
-              label = h5("Color Scale", style = "color:white; margin-bottom: 0px;"),
-              choices = c("Viridis", "Rainbow"),
-              width = "150px"
-            ),
-            br(), br(), br(), br()
-          )
-        )
-      ) 
+      shinyjs::disabled(mst_color_node)
     }
   })
   
@@ -19279,8 +19595,7 @@ server <- function(input, output, session) {
     data <- toVisNetworkData(Vis$ggraph_1)
     data$nodes <- mutate(data$nodes, 
                          label = label_mst(),
-                         value = mst_node_scaling(),
-                         opacity = node_opacity())
+                         value = mst_node_scaling())
     
     ctxRendererJS <- htmlwidgets::JS("({ctx, id, x, y, state: { selected, hover }, style, font, label, metadata}) => {
                             var pieData = JSON.parse(metadata);
@@ -19598,11 +19913,6 @@ server <- function(input, output, session) {
   # Node Size
   mst_node_size <- reactive({
     input$mst_node_size
-  })
-  
-  # Node Alpha/Opacity
-  node_opacity <- reactive({
-    input$node_opacity
   })
   
   # Set Title
