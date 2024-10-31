@@ -373,18 +373,4 @@ bash run_phylotrace.sh
 The **user manual** containing documentation is available at
 [www.phylotrace.com/user-manual](https://www.phylotrace.com/user-manual).
 
-## 4 Roadmap
 
-PhyloTrace is under active development with new functions, enhancements and innovations to follow.
-In addition to the points listed on the roadmap, we constantly improve existing features.
-
-✅ ***"Hello World!"*** - Version 1.0.0\
-✅ Advanced MST Network Graphs (Clustering, Variable Mapping, etc.)\
-✅ Compatibility with Microsoft Windows\
-✅ Hash-based Decentralized cgMLST\
-✅ Implemented Antimicrobial Resistance Screening\
-🔲 Support for additional typing scheme databases\
-🔲 Implementation of a NGS Assembly Pipeline\
-🔲 Backwards Compatibility with MLST (ST calling)\
-🔲 Implementation of wgMLST\
-🔲 Implementation of a Gene Enrichment Analysis
