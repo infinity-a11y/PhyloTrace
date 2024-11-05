@@ -1,3 +1,16 @@
+// Disable menu item collapse
+function noCollapse() {
+  $('#menu_typing > li.treeview > a').addClass('non-collapsible');
+  $('#menu_typing > li.treeview.active > a').on('click', function(e) {
+    e.stopPropagation(); 
+    });
+    
+  $('#menu_screening > li.treeview > a').addClass('non-collapsible');
+  $('#menu_screening > li.treeview.active > a').on('click', function(e) {
+    e.stopPropagation(); 
+    });
+}
+
 // Functions to find the index of the selected cgMLST option
 function findSelectedIndex() {
   // Ensure the element exists before proceeding

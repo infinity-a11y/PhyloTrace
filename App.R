@@ -103,16 +103,12 @@ ui <- dashboardPage(
       uiOutput("menu_header_typing"),
       br(),
       sidebarMenuOutput("menu_typing"),
-      div(
-        class = "menu-footer-typing"
-      ),
+      uiOutput("menu_footer_typing"),
       br(),
       uiOutput("menu_header_screening"),
       br(), 
       sidebarMenuOutput("menu_screening"),
-      div(
-        class = "menu-footer-screening"
-      ),
+      uiOutput("menu_footer_screening"),
       conditionalPanel(
         "input.tabs==='db_browse_entries'"
       ),
@@ -6020,6 +6016,8 @@ server <- function(input, output, session) {
         
         output$menu_header_typing <- NULL
         output$menu_header_screening <- NULL
+        output$menu_footer_typing <- NULL
+        output$menu_footer_screening <- NULL
         
         # Hide start message
         output$start_message <- NULL
@@ -6037,7 +6035,7 @@ server <- function(input, output, session) {
         output$menu_typing <- renderMenu(
           sidebarMenu(
             menuItem(
-              text = "Manage Schemes",
+              text = "Schemes",
               tabName = "init",
               icon = icon("layer-group"),
               selected = TRUE
@@ -6161,7 +6159,7 @@ server <- function(input, output, session) {
         
         output$menu_header_typing <- renderUI(
           div(
-            class = "menu-header",
+            class = "menu-header-typing",
             HTML(
               paste(
                 tags$span(style="color: white; font-size: 16px; position:relative; top:2px", "cgMLST Typing")
@@ -6171,12 +6169,36 @@ server <- function(input, output, session) {
         )
         output$menu_header_screening <- renderUI(
           div(
-            class = "menu-header",
+            class = "menu-header-screening",
             HTML(
               paste(
                 tags$span(style="color: white; font-size: 16px; position:relative; top:2px", "Locus Screening")
               )
             )
+          )
+        )
+        
+        output$menu_footer_typing <- renderUI({
+          if(!is.null(DB$allelic_profile)) {
+            if(anyNA(DB$allelic_profile)) {
+              div(
+                class = "menu-footer-typing2"
+              )
+            } else {
+              div(
+                class = "menu-footer-typing"
+              )
+            }
+          } else {
+            div(
+              class = "menu-footer-typing"
+            )
+          }
+        })
+        
+        output$menu_footer_screening <- renderUI(
+          div(
+            class = "menu-footer-screening"
           )
         )
         
@@ -6213,7 +6235,7 @@ server <- function(input, output, session) {
             output$menu_typing <- renderMenu(
               sidebarMenu(
                 menuItem(
-                  text = "Database Browser",
+                  text = "Database",
                   tabName = "database",
                   icon = icon("hard-drive"),
                   startExpanded = TRUE,
@@ -6244,7 +6266,7 @@ server <- function(input, output, session) {
                   }
                 ),
                 menuItem(
-                  text = "Manage Schemes",
+                  text = "Schemes",
                   tabName = "init",
                   icon = icon("layer-group"),
                   selected = TRUE
@@ -6314,7 +6336,7 @@ server <- function(input, output, session) {
             output$menu_typing <- renderMenu(
               sidebarMenu(
                 menuItem(
-                  text = "Database Browser",
+                  text = "Database",
                   tabName = "database",
                   icon = icon("hard-drive"),
                   startExpanded = TRUE,
@@ -6345,7 +6367,7 @@ server <- function(input, output, session) {
                   }
                 ),
                 menuItem(
-                  text = "Manage Schemes",
+                  text = "Schemes",
                   tabName = "init",
                   icon = icon("layer-group"),
                   selected = TRUE
@@ -6560,7 +6582,7 @@ server <- function(input, output, session) {
               output$menu_typing <- renderMenu(
                 sidebarMenu(
                   menuItem(
-                    text = "Database Browser",
+                    text = "Database",
                     tabName = "database",
                     icon = icon("hard-drive"),
                     startExpanded = TRUE,
@@ -6591,7 +6613,7 @@ server <- function(input, output, session) {
                     }
                   ),
                   menuItem(
-                    text = "Manage Schemes",
+                    text = "Schemes",
                     tabName = "init",
                     icon = icon("layer-group"),
                     selected = TRUE
@@ -6633,6 +6655,10 @@ server <- function(input, output, session) {
               )
               
             } else {
+              
+              shinyjs::delay(5000, shinyjs::runjs("noCollapse();"))
+              shinyjs::delay(5000, shinyjs::runjs("noCollapse()"))
+              
               ###### Alle checks bestanden -> Laden der DTB
               # If typed entries present
               if (any(grepl("Typing.rds", dir_ls(paste0(
@@ -6749,7 +6775,7 @@ server <- function(input, output, session) {
                   output$menu_typing <- renderMenu(
                     sidebarMenu(
                       menuItem(
-                        text = "Database Browser",
+                        text = "Database",
                         tabName = "database",
                         icon = icon("hard-drive"),
                         startExpanded = TRUE,
@@ -6771,7 +6797,7 @@ server <- function(input, output, session) {
                         )
                       ),
                       menuItem(
-                        text = "Manage Schemes",
+                        text = "Schemes",
                         tabName = "init",
                         icon = icon("layer-group")
                       ),
@@ -6814,7 +6840,7 @@ server <- function(input, output, session) {
                   output$menu_typing <- renderMenu(
                     sidebarMenu(
                       menuItem(
-                        text = "Database Browser",
+                        text = "Database",
                         tabName = "database",
                         icon = icon("hard-drive"),
                         startExpanded = TRUE,
@@ -6842,7 +6868,7 @@ server <- function(input, output, session) {
                         )
                       ),
                       menuItem(
-                        text = "Manage Schemes",
+                        text = "Schemes",
                         tabName = "init",
                         icon = icon("layer-group")
                       ),
@@ -8922,7 +8948,7 @@ server <- function(input, output, session) {
                 output$menu_typing <- renderMenu(
                   sidebarMenu(
                     menuItem(
-                      text = "Database Browser",
+                      text = "Database",
                       tabName = "database",
                       icon = icon("hard-drive"),
                       startExpanded = TRUE,
@@ -8945,7 +8971,7 @@ server <- function(input, output, session) {
                       )
                     ),
                     menuItem(
-                      text = "Manage Schemes",
+                      text = "Schemes",
                       tabName = "init",
                       icon = icon("layer-group")
                     ),
@@ -9717,7 +9743,7 @@ server <- function(input, output, session) {
     }
   })
   
-  # Contro custom variables table
+  # Control custom variables table
   output$cust_var_select <- renderUI({
     if(nrow(DB$cust_var) > 5) {
       selectInput(
@@ -9853,7 +9879,7 @@ server <- function(input, output, session) {
           output$menu_typing <- renderMenu(
             sidebarMenu(
               menuItem(
-                text = "Database Browser",
+                text = "Database",
                 tabName = "database",
                 icon = icon("hard-drive"),
                 startExpanded = TRUE,
@@ -9881,7 +9907,7 @@ server <- function(input, output, session) {
                 )
               ),
               menuItem(
-                text = "Manage Schemes",
+                text = "Schemes",
                 tabName = "init",
                 icon = icon("layer-group")
               ),
@@ -9926,7 +9952,7 @@ server <- function(input, output, session) {
         output$menu_typing <- renderMenu(
           sidebarMenu(
             menuItem(
-              text = "Database Browser",
+              text = "Database",
               tabName = "database",
               icon = icon("hard-drive"),
               startExpanded = TRUE,
@@ -9948,7 +9974,7 @@ server <- function(input, output, session) {
               )
             ),
             menuItem(
-              text = "Manage Schemes",
+              text = "Schemes",
               tabName = "init",
               icon = icon("layer-group")
             ),
@@ -10182,6 +10208,9 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
+    
+    shinyjs::delay(1000, shinyjs::runjs("noCollapse();"))
+    shinyjs::delay(1000, shinyjs::runjs("noCollapse()"))
     
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
