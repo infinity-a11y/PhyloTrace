@@ -24,6 +24,32 @@ input[type="checkbox"] {
   background-color: #2B333E;
 }
 
+.irs--shiny .irs-handle {
+  top: 20px;
+  width: 17px;
+  height: 17px;
+  border: 1px solid #ababab;
+  background-color: #dedede;
+  box-shadow: 1px 1px 3px rgba(255, 255, 255, 0.3);
+  border-radius: 22px;
+  z-index: 2;
+}
+
+#tree_algo > div > div >.btn {
+  border: 1px solid white;
+}
+
+#tree_algo > div > div:first-child:not(:last-child)>.btn:last-child {
+  border-right: none;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+#tree_algo > div > div:last-child:not(:first-child)>.btn:first-child {
+  border-left: none;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
 .pcr-app .pickr-color .visible,
 body > div.pcr-app.pickr-color.visible {
   border-radius: 5px;
@@ -470,7 +496,7 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
 
 .tooltip-inner {
   white-space: normal;
-  max-width: 800px; /* Adjust the width as needed */
+  max-width: 800px; 
 }
 
 .btn-default:active:hover.
@@ -1211,7 +1237,7 @@ i.far.fa-pen-to-square {
 
 #cgmlst_scheme {
   margin-top: 20px;
-  width: 100%;
+  max-width: 90%;
 }
 
 .selected-species {
@@ -1230,13 +1256,13 @@ i.far.fa-pen-to-square {
   width: 100% !important;
 }
 
-#schemeinfo_tooltip_saved > svg {
-  top: 27px !important;
+#schemeinfo_tooltip > svg {
+  top: 6px !important;
   right: 45px !important;
 }
 
 #schemeinfo_tooltip_saved > svg {
-  top: 7px !important;
+  top: 27px !important;
   right: 45px !important;
 }
 
@@ -1594,14 +1620,41 @@ div#progress_bar.progress-bar {
 
 /* Visualization MST */
 
+#mst_node_col_info > svg {
+  top: 17px !important;
+}
+
+#mst_isolate_label_menu_dropmenu > div,
+#mst_title_menu_dropmenu > div,
+#mst_subtitle_menu_dropmenu > div {
+  top: 25px !important;
+  left: 0px !important
+}
+
+#mst_legend_menu_dropmenu .tippy-popper,
+#mst_cluster_col_menu_dropmenu .tippy-popper {
+  top: 20px !important;
+  left: 0px !important
+}
+
+#mst_cluster_reset_div .tooltip {
+  width: 145px !important 
+} 
+
 .mst-subtitle-color-col {
   margin-bottom: -25px;
 }
 
-#Id069 {
-  width: 100%;
-  margin-top: -10px;
-  margin-bottom: 11px;
+.switch-mst-transparent {
+  margin-top: 25px;
+  margin-left: 3px;
+  margin-bottom: -10px;
+}
+
+.mst-edge-slider {
+  width: 85%;
+  margin-left: -20px;
+  margin-top: -20px;
 }
   
 #mst_title_color {
@@ -1610,7 +1663,7 @@ div#progress_bar.progress-bar {
 
 #mst_cluster_reset i.fas.fa-rotate {
   position: relative; 
-  left: -6px;
+  left: -7px;
   top: -3px;
 }
 
@@ -1618,7 +1671,7 @@ button#mst_cluster_reset.btn.btn-default.action-button.shiny-bound-input {
   height: 27px; 
   width: 27px; 
   position: relative; 
-  left: -5px;
+  left: -2px;
   top: -3px;
   border: 1px solid white;
 }
@@ -1628,14 +1681,27 @@ button#mst_cluster_reset.btn.btn-default.action-button.shiny-bound-input {
   margin-left: 2px;
 }
 
-.mat-switch-mst-nodes {
+.switch-mst-edges {
   margin-top: 25px;
   margin-left: 3px;
+  margin-bottom: -10px;
 }
 
-.switch-mst-edges {
-  margin-top: 10px;
+.mat-switch-mst-nodes {
+  margin-top: 15px;
   margin-left: 3px;
+  margin-bottom: -10px;
+}
+
+.mst-ratio,
+.mst-shape {
+  margin-bottom: 10px;
+  width: 120px;
+  margin-left: -20px;
+}
+
+.mst-shape {
+  margin-top: -5px;
 }
 
 #maindivtree_mst, #graphtree_mst {
@@ -1748,6 +1814,7 @@ button#mst_cluster_col_menu {
   color: #000000;
   border-radius: 5px;
   margin-left: -32px;
+  margin-top: 10px;
 }
 
 button#mst_edgecolor_menu {
@@ -1802,30 +1869,25 @@ button#mst_col_map_menu {
   margin-bottom: -1px;
 }
 
-.mst_shape_sel div>.selectize-dropdown {
-  bottom: 100% !important; 
-  top:auto !important;
-}
-
 .mst_col_sel {
   margin-top: -10px;
   margin-bottom: -1px;
 }
 
-.mst_shape_sel {
-  margin-top: -10px;
-  margin-bottom: 19px;
-}
-
 .mst_scale_slider {
   margin-bottom: -12px;
   margin-top: -10px;
+  width: 85%
 }
 
+.mst-threshold {
+  width: 95%;
+  margin-left: 10px;
+}
 
 #mst_shadow {
-position: relative; 
-bottom: -1px;
+  position: relative; 
+  bottom: -1px;
 }
 
 #mst_edge_font_color,
@@ -1876,6 +1938,11 @@ top: -10px;
 }
 
 /* Visualization NJ & UPGMA */
+
+#tree_algo {
+  margin-top: -9px;
+  margin-bottom: 10px;
+}
   
 /* Classes*/
 
@@ -1895,7 +1962,7 @@ top: -10px;
 .slider_edge {
   margin-top: 10px;
   margin-bottom: 13px;
-  width: 80%;
+  width: 85%;
   margin-left: -20px;
 }
 
@@ -2260,53 +2327,10 @@ inner open,
   margin-right: 29px;
 }
 
-button#save_plot_jpeg {
-  font-size: 14px; 
-  height: 34px; 
-  background: #282F38;
-  color: #ffffff;
-  border: 1px solid white;
-  position: relative; 
-  top: 10px; 
-  right: 20px
-}
-
-button#save_plot_png {
-  font-size: 14px; 
-  height: 34px; 
-  background: #282F38;
-  color: #ffffff;
-  border: 1px solid white;
-  position: relative; 
-  top: 10px; 
-  right: 20px
-}
-
-button#save_plot_bmp {
-  font-size: 14px; 
-  height: 34px; 
-  background: #282F38;
-  color: #ffffff;
-  border: 1px solid white;
-  position: relative; 
-  top: 10px; 
-  right: 20px;
-}
-
-button#save_plot_html_bttn {
-  font-size: 14px; 
-  height: 34px; 
-  position: relative; 
-  top: 10px; 
-  right: 20px;
-  background: #282F38;
-  color: #ffffff;
-  border: 1px solid white;
-}
-
 button#create_rep.btn.btn-default.action-button.shiny-bound-input {
   border: 1px solid white;
-  margin-left: 11px;
+  width: 80px;
+  margin-top: 10px;
 }
 
 button#download_nj_bttn, button#download_upgma_bttn {
@@ -3850,6 +3874,12 @@ margin-left: -5px
   width: 100px;
 }
 
+.filetype-mst { 
+  margin-top: -28px;
+  width: 82px;
+  margin-left: -1px;
+}
+
 .datepicker { 
   z-index: 99999 !important; 
 }
@@ -3990,7 +4020,10 @@ button#gsplot_isolate_label_menu {
   margin-bottom: -15px;
 }
 
-button#gs_download_plot_bttn {
+button#save_plot_html_bttn,
+button#save_plot_jpeg,
+button#save_plot_png,
+button#save_plot_bmp {
   font-size: 14px; 
   height: 34px; 
   width: 80px;
@@ -3998,6 +4031,30 @@ button#gs_download_plot_bttn {
   background: #282F38;
   color: #ffffff;
   border: 1px solid white;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+#save_plot_html_bttn > i {
+  font-size: 16px;
+  margin-left: 8px;
+  left: -3px;
+  top: 1px;
+}
+
+#create_rep > i {
+  font-size: 16px;
+  margin-left: 8px;
+}
+
+button#gs_download_plot_bttn {
+  font-size: 14px; 
+  height: 34px; 
+  width: 80px;
+  position: relative; 
+  background: #282F38;
+  color: #ffffff;
+  border: 1px solid white
 }
 
 .gs-plot-box,
@@ -4027,7 +4084,7 @@ button#gs_download_plot_bttn {
 #gs_download_menu > i,
 #gs_misc_menu > i,
 #gs_color_menu > i,
-#mst_data_menu > i,
+#mst_label_menu > i,
 #mst_size_menu > i,
 #mst_variable_menu > i,
 #mst_download_menu > i,
@@ -4071,6 +4128,10 @@ button#gs_download_plot_bttn {
   top: -30px !important;
 }
 
+.tippy-tooltip.translucent-theme[data-placement^=top]>.tippy-arrow {
+  display: none;
+}
+
 .gs-cluster-sel .selectize-dropdown-content,
 .gs-ratio .selectize-dropdown-content,
 .gs-var-mapping-sel .selectize-dropdown-content,
@@ -4085,14 +4146,17 @@ button#gs_download_plot_bttn {
   border: 1px solid #42536acc;
 }
 
+#plot-control{
+  width: 110px;  
+}
+
 #gs-control,
 #gs-size-menu,
 #gs-dim-menu,
 #gs-variable-menu
 #gs-download-menu,
-#gs-misc-menu,
-#plot-control{
-  width: 110px;  
+#gs-misc-menu {
+  width: 100px;
 }
 
 .tippy-tooltip[data-placement^=right]>.tippy-arrow {
@@ -4200,6 +4264,10 @@ button#gs_download_plot_bttn {
 #gs_plot_sel_noclass {
   margin-top: 5px;
   margin-bottom: 5px;
+}
+
+#gsplot_isolate_label_menu_dropmenu .tippy-popper {
+  width: 240px;
 }
 
 .gs-picker {

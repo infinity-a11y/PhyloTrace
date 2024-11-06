@@ -11,13 +11,17 @@ mst_control_box <- box(
       align = "center",
       div(
         id = "plot-control",
-        actionBttn(
-          "mst_label_menu",
-          label = "",
-          color = "default",
-          size = "sm",
-          style = "material-flat",
-          icon = icon("tags")
+        tipify(
+          actionBttn(
+            "mst_label_menu",
+            label = "",
+            color = "default",
+            size = "sm",
+            style = "material-flat",
+            icon = icon("tags")
+          ),
+          title = "Labeling",
+          options = list("delay': 400, 'foo" = "foo")
         )
       )
     ),
@@ -26,13 +30,17 @@ mst_control_box <- box(
       align = "center",
       div(
         id = "plot-control",
-        actionBttn(
-          "mst_variable_menu",
-          label = "",
-          color = "default",
-          size = "sm",
-          style = "material-flat",
-          icon = icon("map-pin")
+        tipify(
+          actionBttn(
+            "mst_variable_menu",
+            label = "",
+            color = "default",
+            size = "sm",
+            style = "material-flat",
+            icon = icon("map-pin")
+          ),
+          title = "Variable Mapping",
+          options = list("delay': 400, 'foo" = "foo")
         )
       )
     ),
@@ -41,13 +49,17 @@ mst_control_box <- box(
       align = "center",
       div(
         id = "plot-control",
-        actionBttn(
-          "mst_color_menu",
-          label = "",
-          color = "default",
-          size = "sm",
-          style = "material-flat",
-          icon = icon("palette")
+        tipify(
+          actionBttn(
+            "mst_color_menu",
+            label = "",
+            color = "default",
+            size = "sm",
+            style = "material-flat",
+            icon = icon("palette")
+          ),
+          title = "Colors",
+          options = list("delay': 400, 'foo" = "foo")
         )
       )
     ),
@@ -56,13 +68,17 @@ mst_control_box <- box(
       align = "center",
       div(
         id = "plot-control",
-        actionBttn(
-          "mst_size_menu",
-          label = "",
-          color = "default",
-          size = "sm",
-          style = "material-flat",
-          icon = icon("up-right-and-down-left-from-center")
+        tipify(
+          actionBttn(
+            "mst_size_menu",
+            label = "",
+            color = "default",
+            size = "sm",
+            style = "material-flat",
+            icon = icon("up-right-and-down-left-from-center")
+          ),
+          title = "Sizing",
+          options = list("delay': 400, 'foo" = "foo")
         )
       )
     ),
@@ -71,13 +87,17 @@ mst_control_box <- box(
       align = "center",
       div(
         id = "plot-control",
-        actionBttn(
-          "mst_misc_menu",
-          label = "",
-          color = "default",
-          size = "sm",
-          style = "material-flat",
-          icon = icon("ellipsis")
+        tipify(
+          actionBttn(
+            "mst_misc_menu",
+            label = "",
+            color = "default",
+            size = "sm",
+            style = "material-flat",
+            icon = icon("ellipsis")
+          ),
+          title = "Other Settings",
+          options = list("delay': 400, 'foo" = "foo")
         )
       )
     ),
@@ -86,13 +106,18 @@ mst_control_box <- box(
       align = "center",
       div(
         id = "plot-control",
-        actionBttn(
-          "mst_download_menu",
-          label = "",
-          color = "default",
-          size = "sm",
-          style = "material-flat",
-          icon = icon("download")
+        tipify(
+          
+            actionBttn(
+              "mst_download_menu",
+              label = "",
+              color = "default",
+              size = "sm",
+              style = "material-flat",
+              icon = icon("download")
+            ),
+          title = "Export",
+          options = list("delay': 400, 'foo" = "foo")
         )
       )
     )
@@ -285,14 +310,14 @@ upgma_control_box <- box(
   )
 )
 
-empty_plot_field <- renderUI(
-  fluidRow(
-    br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-    br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-    br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-    br(), br(), br(), br(), br(), br(), br(), br(), br(), br()
-  )
-)
+# empty_plot_field <- renderUI(
+#   fluidRow(
+#     br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+#     br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+#     br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
+#     br(), br(), br(), br(), br(), br(), br(), br(), br(), br()
+#   )
+# )
 
 initiate_multi_typing_ui <- renderUI({
   column(
