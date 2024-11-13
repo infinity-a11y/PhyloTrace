@@ -144,7 +144,12 @@ function mstReport() {
     var ctx = mergedCanvas.getContext('2d');
     
     // Draw title, subtitle, main plot, and footer onto the merged canvas
-    ctx.fillStyle = getBackgroundColor();
+    var bgColor = getBackgroundColor()
+    if(bgColor === 'rgba(0, 0, 0, 0)') {
+      ctx.fillStyle = 'rgb(255, 255, 255)'; 
+    } else {
+      ctx.fillStyle = bgColor; 
+    }
     ctx.fillRect(0, 0, canvas.width, mergedCanvas.height);
     if(!(titleCanvasID.innerText.length === 0)) {
       ctx.drawImage(titleCanvas, 0, 0);
@@ -198,7 +203,12 @@ function mstReport() {
     var ctx = mergedCanvas.getContext('2d');
     
     // Draw background
-    ctx.fillStyle = getBackgroundColorClear();
+    var bgColor = getBackgroundColor()
+    if(bgColor === 'rgba(0, 0, 0, 0)') {
+      ctx.fillStyle = 'rgb(255, 255, 255)'; 
+    } else {
+      ctx.fillStyle = bgColor; 
+    }
     ctx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height);
     
     // Draw title
@@ -284,7 +294,12 @@ $(document).on('click', '#save_plot_jpeg', function() {
     var ctx = mergedCanvas.getContext('2d');
     
     // Draw title, subtitle, main plot, and footer onto the merged canvas
-    ctx.fillStyle = getBackgroundColor();
+    var bgColor = getBackgroundColor()
+    if(bgColor === 'rgba(0, 0, 0, 0)') {
+      ctx.fillStyle = 'rgb(255, 255, 255)'; 
+    } else {
+      ctx.fillStyle = bgColor; 
+    }
     ctx.fillRect(0, 0, canvas.width, mergedCanvas.height);
     if(!(titleCanvasID.innerText.length === 0)) {
       ctx.drawImage(titleCanvas, 0, 0);
@@ -338,7 +353,12 @@ $(document).on('click', '#save_plot_jpeg', function() {
     var ctx = mergedCanvas.getContext('2d');
     
     // Draw background
-    ctx.fillStyle = getBackgroundColorClear();
+    var bgColor = getBackgroundColor()
+    if(bgColor === 'rgba(0, 0, 0, 0)') {
+      ctx.fillStyle = 'rgb(255, 255, 255)'; 
+    } else {
+      ctx.fillStyle = bgColor; 
+    }
     ctx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height);
     
     // Draw title
@@ -477,7 +497,7 @@ $(document).on('click', '#save_plot_png', function() {
     var ctx = mergedCanvas.getContext('2d');
     
     // Draw background
-    ctx.fillStyle = getBackgroundColorClear();
+    ctx.fillStyle = getBackgroundColor();
     ctx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height);
     
     // Draw title
@@ -562,7 +582,12 @@ $(document).on('click', '#save_plot_bmp', function() {
     var ctx = mergedCanvas.getContext('2d');
     
     // Draw title, subtitle, main plot, and footer onto the merged canvas
-    ctx.fillStyle = getBackgroundColor();
+    var bgColor = getBackgroundColor()
+    if(bgColor === 'rgba(0, 0, 0, 0)') {
+      ctx.fillStyle = 'rgb(255, 255, 255)'; 
+    } else {
+      ctx.fillStyle = bgColor; 
+    }
     ctx.fillRect(0, 0, canvas.width, mergedCanvas.height);
     if(!(titleCanvasID.innerText.length === 0)) {
       ctx.drawImage(titleCanvas, 0, 0);
@@ -616,7 +641,12 @@ $(document).on('click', '#save_plot_bmp', function() {
     var ctx = mergedCanvas.getContext('2d');
     
     // Draw background
-    ctx.fillStyle = getBackgroundColorClear();
+    var bgColor = getBackgroundColor()
+    if(bgColor === 'rgba(0, 0, 0, 0)') {
+      ctx.fillStyle = 'rgb(255, 255, 255)'; 
+    } else {
+      ctx.fillStyle = bgColor; 
+    }
     ctx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height);
     
     // Draw title
@@ -683,37 +713,27 @@ function getBackgroundColorClear() {
 
 // Function to get the RGB color from a specific sub-element with a specific ID and class
 function getBackgroundColor() {
-  // Check the state of the Shiny checkbox 
-  var checkboxStatus = $('#mst_background_transparent').prop('checked');
   
-  // If the checkbox is checked, return transparent RGB code
-  if (checkboxStatus) {
-    return 'rgb(255, 255, 255)';
+  // Select the target element by ID
+  var targetElement = document.getElementById("tree_mst");
+  
+  // Check if the element exists
+  if (targetElement) {
+    // Get the computed style of the element
+    var computedStyle = window.getComputedStyle(targetElement);
+    
+    // Retrieve the background color property from the computed style
+    var backgroundColor = computedStyle.backgroundColor;
+    
+    // Return the background color value
+    return backgroundColor;
   } else {
-    // Get the sub-element by ID and class
-    var targetElement = document.querySelector('#mst_background_color input.form-control.pickr-color');
-    // Check if the element is found
-    if (targetElement) {
-      // Get the computed style of the element
-      var computedStyle = window.getComputedStyle(targetElement);
-      // Get the background color property
-      var backgroundColor = computedStyle.backgroundColor;
-      // Parse the RGB values from the string
-      var rgbArray = backgroundColor.match(/\d+/g);
-      // Convert the RGB values to a formatted string
-      var rgbString = 'rgb(' + rgbArray.join(', ') + ')';
-      // Return the RGB string
-      return rgbString;
-    } else {
-      console.error('Element not found.');
-      return null; // or any default value you want to return
-    }
+    console.error('Element with ID "tree_mst" not found.');
+    return null; // Return null if the element does not exist
   }
 };
 
-// Restrict special characters using JA
 
-// Function to apply JavaScript code
 function applyJavaScript_assembly_id() {
   $("#assembly_id").on("input", function() {
     var value = $(this).val();
@@ -736,7 +756,7 @@ $(document).ready(function() {
   checkElement_assembly_id();
 });
 
-// Function to apply JavaScript code
+
 function applyJavaScript_assembly_name() {
   $("#assembly_name").on("input", function() {
     var value = $(this).val();
@@ -759,7 +779,7 @@ $(document).ready(function() {
   checkElement_assembly_name();
 });
 
-// Function to apply JavaScript code
+
 function applyJavaScript_append_host() {
   $("#append_host").on("input", function() {
     var value = $(this).val();
@@ -782,7 +802,7 @@ $(document).ready(function() {
   checkElement_append_host();
 });
 
-// Function to apply JavaScript code
+
 function applyJavaScript_append_city() {
   $("#append_city").on("input", function() {
     var value = $(this).val();
@@ -806,7 +826,7 @@ $(document).ready(function() {
 });
 
 
-// Function to apply JavaScript code
+
 function applyJavaScript_append_host_multi() {
   $("#append_host_multi").on("input", function() {
     var value = $(this).val();
@@ -829,7 +849,7 @@ $(document).ready(function() {
   checkElement_append_host_multi();
 });
 
-// Function to apply JavaScript code
+
 function applyJavaScript_append_city_multi() {
   $("#append_city_multi").on("input", function() {
     var value = $(this).val();
@@ -852,7 +872,7 @@ $(document).ready(function() {
   checkElement_append_city_multi();
 });
 
-// Function to apply JavaScript code
+
 function applyJavaScript_new_var_name() {
   $("#new_var_name").on("input", function() {
     var value = $(this).val();

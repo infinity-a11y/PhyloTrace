@@ -17,7 +17,7 @@ library(kableExtra)
 report_vars <- readRDS(paste0(getwd(), "/selected_elements.rds"))
 
 # Format scheme url link
-if(!is.null(selected_elements[["scheme"]][[2]][2])){
+if(!is.null(report_vars[["scheme"]][[2]][2])){
   report_vars[["scheme"]][[2]][2] <- sub('.*href="([^"]*)".*', '\\1',
                                                report_vars[["scheme"]][[2]][2])
 } 
@@ -51,7 +51,7 @@ knitr::include_graphics(paste0(getwd(),"/PhyloTrace_bw.png"))
 
 \
 
-```{r echo=FALSE, fig.align = "center", out.width='100%'}
+```{r echo=FALSE, fig.align = "center", out.width='960', out.height='650'}
 if(!report_vars[["plot"]] == "MST"){
   if(report_vars[["report_df.Include"]][13]) {
   knitr::include_graphics(paste0(report_vars[["plot"]], ".jpeg"))

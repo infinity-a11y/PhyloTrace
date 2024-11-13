@@ -70,7 +70,7 @@ ui <- dashboardPage(
           href = "https://www.liora-bioinformatics.com/phylotrace",  # Replace with your URL
           target = "_blank",                     # Opens link in a new tab
           img(
-            src = "brandmark-design.png", width = 190
+            src = "PhyloTrace_BW.png", width = 190
           )
         )
       )
@@ -702,40 +702,7 @@ ui <- dashboardPage(
             br(),
             div(
               class = "vis-control-box",
-              box(
-                solidHeader = TRUE,
-                status = "primary",
-                width = "100%",
-                title = "Generate Plot",
-                fluidRow(
-                  column(
-                    width = 6,
-                    radioGroupButtons(
-                      inputId = "tree_algo",
-                      label = "", 
-                      choices = c("MST" = "Minimum-Spanning", "NJ" = "Neighbour-Joining", "UPGMA" = "UPGMA"),
-                      justified = TRUE
-                    )
-                  ),
-                  column(1),
-                  column(
-                    width = 4,
-                    tags$div(
-                      id = "button-wrapper",
-                      actionButton(
-                        "create_tree",
-                        h5("Create Tree", style = "position: relative; left: 15px; color: white; font-size: 15px;"),
-                        width = "100%"
-                      ),
-                      tags$img(
-                        src = "phylo.png",
-                        alt = "icon",
-                        class = "icon"
-                      )
-                    )
-                  )
-                )
-              )
+              uiOutput("generate_plot_ui")
             )
           ),
           column(
@@ -5231,10 +5198,14 @@ server <- function(input, output, session) {
               div(
                 class = "reload-bttn",
                 style = paste0("margin-left:", 30 + input$scheme_position, "px; position: relative; top: -24px;"),
-                actionButton(
-                  "reload_db",
-                  label = "",
-                  icon = icon("rotate")
+                tipify(
+                  actionButton(
+                    "reload_db",
+                    label = "",
+                    icon = icon("rotate")
+                  ),
+                  title = "Change scheme",
+                  options = list("delay': 400, 'foo" = "foo")
                 )
               )
             )
@@ -12086,6 +12057,91 @@ server <- function(input, output, session) {
   
   ### Render Visualization Controls ----
   
+  observe({
+    if(!is.null(input$tree_algo)) {
+      if(input$tree_algo == "Minimum-Spanning") {
+        Vis$title <- "Generate Minimum-Spanning Tree"   
+      } else if(input$tree_algo == "Neighbour-Joining") {
+        Vis$title <- "Generate Neighbour-Joining Tree"   
+      } else {
+        Vis$title <- "Generate UPGMA (unweighted pair group method with arithmetic mean) Tree"   
+      }
+    } else {
+      Vis$title <- "Generate Minimum-Spanning Tree"
+    }
+  })
+  
+  tree_algo_reactive <- reactiveVal(NULL)
+  
+  observe({
+    if(!is.null(input$tree_algo)) {
+      tree_algo_reactive(input$tree_algo)
+    }
+  })
+  
+  output$generate_plot_ui <- renderUI({
+    
+    if(!is.null(tree_algo_reactive())) {
+      tree_algo_selected <- tree_algo_reactive()
+    } else {
+      tree_algo_selected <- "Minimum-Spanning"
+    }
+    
+    if(tree_algo_selected == "Minimum-Spanning") {
+      tree_algo_info <- "MST visualizations display the shortest connections between isolates, emphasizing direct genetic paths and clusters without assuming a specific evolutionary model."
+    } else if(tree_algo_selected == "Neighbour-Joining") {
+      tree_algo_info <- "NJ visualizations group isolates based on genetic distances, constructing a tree that highlights relationships without requiring a constant mutation rate."
+    } else {
+      tree_algo_info <- "UPGMA visualizations assume a constant mutation rate, producing a balanced, hierarchical tree that shows lineage splits among isolates."
+    }
+    
+    box(
+      solidHeader = TRUE,
+      status = "primary",
+      width = "100%",
+      title = Vis$title,
+      fluidRow(
+        column(
+          width = 6,
+          radioGroupButtons(
+            inputId = "tree_algo",
+            label = "", 
+            choices = c("MST" = "Minimum-Spanning", "NJ" = "Neighbour-Joining", "UPGMA" = "UPGMA"),
+            selected = tree_algo_selected,
+            justified = TRUE
+          )
+        ),
+        column(1),
+        column(
+          width = 4,
+          tags$div(
+            id = "button-wrapper",
+            actionButton(
+              "create_tree",
+              h5("Create Tree", style = "position: relative; left: 15px; color: white; font-size: 15px;"),
+              width = "100%"
+            ),
+            tags$img(
+              src = "phylo.png",
+              alt = "icon",
+              class = "icon"
+            )
+          )
+        ),
+        column(
+          width = 1,
+          align = "left",
+          bsicons::bs_icon("info-circle", 
+                           title = tree_algo_info, 
+                           size = "5em",
+                           color = "white", height = "17px", width = "17px", 
+                           position = "relative", top = "-34px", right = "3px",
+                           options = list(delay = list(show = 100, hide = 100)))
+        )
+      )
+    )
+  })
+  
   #### NJ and UPGMA controls ----
   
   observeEvent(input$nj_heatmap_button, {
@@ -12331,7 +12387,7 @@ server <- function(input, output, session) {
     req(input$mst_ratio)
     if(input$mst_ratio == "1.6") {
       updateSliderInput(session, "mst_scale",
-                        step = 5, value = 655, min = 450, max = 670)
+                        step = 5, value = 600, min = 450, max = 670)
     } else if(input$mst_ratio == "1.77777777777778") {
       updateSliderInput(session, "mst_scale",
                         step = 9, value = 657, min = 450, max = 666)
@@ -18213,45 +18269,6 @@ server <- function(input, output, session) {
             div(
               class = "label_sel",
               uiOutput("mst_node_label")
-            ),
-            fluidRow(
-              column(
-                width = 7,
-                colorPickr(
-                  inputId = "node_font_color",
-                  width = "100%",
-                  selected = "#000000",
-                  label = "",
-                  update = "changestop",
-                  interaction = list(clear = FALSE,
-                                     save = FALSE),
-                  position = "right-start"
-                )
-              ),
-              column(
-                width = 5,
-                dropMenu(
-                  actionBttn(
-                    "mst_isolate_label_menu",
-                    label = "",
-                    color = "default",
-                    size = "sm",
-                    style = "material-flat",
-                    icon = icon("sliders")
-                  ),
-                  placement = "top-start",
-                  theme = "translucent",
-                  numericInput(
-                    "node_label_fontsize",
-                    label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                    value = 14,
-                    min = 8,
-                    max = 30,
-                    step = 1,
-                    width = "80px"
-                  )
-                )
-              )
             )
           )
         )
@@ -18270,45 +18287,6 @@ server <- function(input, output, session) {
               label = "",
               width = "100%",
               placeholder = "Plot Title"
-            ),
-            fluidRow(
-              column(
-                width = 7,
-                colorPickr(
-                  inputId = "mst_title_color",
-                  selected = "#000000",
-                  label = "",
-                  update = "changestop",
-                  interaction = list(clear = FALSE,
-                                     save = FALSE),
-                  position = "right-start",
-                  width = "100%"
-                )
-              ),
-              column(
-                width = 5,
-                dropMenu(
-                  actionBttn(
-                    "mst_title_menu",
-                    label = "",
-                    color = "default",
-                    size = "sm",
-                    style = "material-flat",
-                    icon = icon("sliders")
-                  ),
-                  placement = "top-start",
-                  theme = "translucent",
-                  numericInput(
-                    "mst_title_size",
-                    label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                    value = 40,
-                    min = 15,
-                    max = 40,
-                    step = 1,
-                    width = "80px"
-                  )
-                )
-              )
             )
           )
         )
@@ -18327,45 +18305,6 @@ server <- function(input, output, session) {
               label = "",
               width = "100%",
               placeholder = "Plot Subtitle"
-            ),
-            fluidRow(
-              column(
-                width = 7,
-                colorPickr(
-                  inputId = "mst_subtitle_color",
-                  selected = "#000000",
-                  label = "",
-                  update = "changestop",
-                  interaction = list(clear = FALSE,
-                                     save = FALSE),
-                  position = "right-start",
-                  width = "100%"
-                )
-              ),
-              column(
-                width = 5,
-                dropMenu(
-                  actionBttn(
-                    "mst_subtitle_menu",
-                    label = "",
-                    color = "default",
-                    size = "sm",
-                    style = "material-flat",
-                    icon = icon("sliders")
-                  ),
-                  placement = "top-start",
-                  theme = "translucent",
-                  numericInput(
-                    "mst_subtitle_size",
-                    label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                    value = 20,
-                    min = 15,
-                    max = 40,
-                    step = 1,
-                    width = "80px"
-                  )
-                )
-              )
             )
           )
         )
@@ -18374,68 +18313,26 @@ server <- function(input, output, session) {
     )
   )
   
-  node_font_color_reactive <- reactiveVal(NULL)
   mst_node_label_reactive <- reactiveVal(NULL) 
-  node_label_fontsize_reactive <- reactiveVal(NULL) 
   mst_title_reactive <- reactiveVal(NULL) 
-  mst_title_color_reactive <- reactiveVal(NULL) 
-  mst_title_size_reactive <- reactiveVal(NULL) 
   mst_subtitle_reactive <- reactiveVal(NULL) 
-  mst_subtitle_color_reactive <- reactiveVal(NULL) 
-  mst_subtitle_size_reactive <- reactiveVal(NULL) 
   
   observe({
-    if (!is.null(input$node_font_color)) {
-      node_font_color_reactive(input$node_font_color)
-    }
-    
     if (!is.null(input$mst_node_label)) {
       mst_node_label_reactive(input$mst_node_label)
-    }
-    
-    if (!is.null(input$node_label_fontsize)) {
-      node_label_fontsize_reactive(input$node_label_fontsize)
     }
     
     if (!is.null(input$mst_title)) {
       mst_title_reactive(input$mst_title)
     }
     
-    if (!is.null(input$mst_title_color)) {
-      mst_title_color_reactive(input$mst_title_color)
-    }
-    
-    if (!is.null(input$mst_title_size)) {
-      mst_title_size_reactive(input$mst_title_size)
-    }
-    
     if (!is.null(input$mst_subtitle)) {
       mst_subtitle_reactive(input$mst_subtitle)
-    }
-    
-    if (!is.null(input$mst_subtitle_color)) {
-      mst_subtitle_color_reactive(input$mst_subtitle_color)
-    }
-    
-    if (!is.null(input$mst_subtitle_size)) {
-      mst_subtitle_size_reactive(input$mst_subtitle_size)
     }
   })
   
   # render mst label menu
   observeEvent(input$mst_label_menu, {
-    
-    if(!is.null(node_font_color_reactive())) {
-      node_font_color_selected <- node_font_color_reactive()
-    } else {
-      node_font_color_selected <- "#000000"
-    }
-    
-    if(!is.null(node_label_fontsize_reactive())) {
-      node_label_fontsize_selected <- node_label_fontsize_reactive()
-    } else {
-      node_label_fontsize_selected <- 14
-    }
     
     if(!is.null(mst_title_reactive())) {
       mst_title_selected <- mst_title_reactive()
@@ -18443,36 +18340,11 @@ server <- function(input, output, session) {
       mst_title_selected <- ""
     }
     
-    if(!is.null(mst_title_color_reactive())) {
-      mst_title_color_selected <- mst_title_color_reactive()
-    } else {
-      mst_title_color_selected <- "#000000"
-    }
-    
-    if(!is.null(mst_title_size_reactive())) {
-      mst_title_size_selected <- mst_title_size_reactive()
-    } else {
-      mst_title_size_selected <- 40
-    }
-    
     if(!is.null(mst_subtitle_reactive())) {
       mst_subtitle_selected <- mst_subtitle_reactive()
     } else {
       mst_subtitle_selected <- ""
     }
-    
-    if(!is.null(mst_subtitle_color_reactive())) {
-      mst_subtitle_color_selected <- mst_subtitle_color_reactive()
-    } else {
-      mst_subtitle_color_selected <- "#000000"
-    }
-    
-    if(!is.null( mst_subtitle_size_reactive())) {
-       mst_subtitle_size_selected <-  mst_subtitle_size_reactive()
-    } else {
-       mst_subtitle_size_selected <- 20
-    }
-    
     
     output$mst_controls <- renderUI(
       box(
@@ -18491,45 +18363,6 @@ server <- function(input, output, session) {
               div(
                 class = "label_sel",
                 uiOutput("mst_node_label")
-              ),
-              fluidRow(
-                column(
-                  width = 7,
-                  colorPickr(
-                    inputId = "node_font_color",
-                    width = "100%",
-                    selected = node_font_color_selected,
-                    label = "",
-                    update = "changestop",
-                    interaction = list(clear = FALSE,
-                                       save = FALSE),
-                    position = "right-start"
-                  )
-                ),
-                column(
-                  width = 5,
-                  dropMenu(
-                    actionBttn(
-                      "mst_isolate_label_menu",
-                      label = "",
-                      color = "default",
-                      size = "sm",
-                      style = "material-flat",
-                      icon = icon("sliders")
-                    ),
-                    placement = "top-start",
-                    theme = "translucent",
-                    numericInput(
-                      "node_label_fontsize",
-                      label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                      value = node_label_fontsize_selected,
-                      min = 8,
-                      max = 30,
-                      step = 1,
-                      width = "80px"
-                    )
-                  )
-                )
               )
             )
           )
@@ -18549,45 +18382,6 @@ server <- function(input, output, session) {
                 label = "",
                 width = "100%",
                 placeholder = "Plot Title"
-              ),
-              fluidRow(
-                column(
-                  width = 7,
-                  colorPickr(
-                    inputId = "mst_title_color",
-                    selected = mst_title_color_selected,
-                    label = "",
-                    update = "changestop",
-                    interaction = list(clear = FALSE,
-                                       save = FALSE),
-                    position = "right-start",
-                    width = "100%"
-                  )
-                ),
-                column(
-                  width = 5,
-                  dropMenu(
-                    actionBttn(
-                      "mst_title_menu",
-                      label = "",
-                      color = "default",
-                      size = "sm",
-                      style = "material-flat",
-                      icon = icon("sliders")
-                    ),
-                    placement = "top-start",
-                    theme = "translucent",
-                    numericInput(
-                      "mst_title_size",
-                      label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                      value = mst_title_size_selected,
-                      min = 15,
-                      max = 40,
-                      step = 1,
-                      width = "80px"
-                    )
-                  )
-                )
               )
             )
           )
@@ -18607,48 +18401,6 @@ server <- function(input, output, session) {
                 label = "",
                 width = "100%",
                 placeholder = "Plot Subtitle"
-              ),
-              fluidRow(
-                div(
-                  class = "mst-subtitle-color-col",
-                  column(
-                    width = 7,
-                    colorPickr(
-                      inputId = "mst_subtitle_color",
-                      selected = mst_subtitle_color_selected,
-                      label = "",
-                      update = "changestop",
-                      interaction = list(clear = FALSE,
-                                         save = FALSE),
-                      position = "right-start",
-                      width = "100%"
-                    )
-                  )
-                ),
-                column(
-                  width = 5,
-                  dropMenu(
-                    actionBttn(
-                      "mst_subtitle_menu",
-                      label = "",
-                      color = "default",
-                      size = "sm",
-                      style = "material-flat",
-                      icon = icon("sliders")
-                    ),
-                    placement = "top-start",
-                    theme = "translucent",
-                    numericInput(
-                      "mst_subtitle_size",
-                      label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                      value = mst_subtitle_size_selected,
-                      min = 15,
-                      max = 40,
-                      step = 1,
-                      width = "80px"
-                    )
-                  )
-                )
               )
             )
           )
@@ -18778,7 +18530,7 @@ server <- function(input, output, session) {
     ) 
   })
   
-  mst_legend_color_reactive <- reactiveVal(NULL)
+  mst_text_color_reactive <- reactiveVal(NULL)
   mst_color_node_reactive <- reactiveVal(NULL)
   mst_color_edge_reactive <- reactiveVal(NULL)
   mst_edge_font_color_reactive <- reactiveVal(NULL)
@@ -18786,8 +18538,8 @@ server <- function(input, output, session) {
   mst_background_transparent_reactive <- reactiveVal(NULL)
   
   observe({
-    if (!is.null(input$mst_legend_color)) {
-      mst_legend_color_reactive(input$mst_legend_color)
+    if (!is.null(input$mst_text_color)) {
+      mst_text_color_reactive(input$mst_text_color)
     }
     if (!is.null(input$mst_color_node)) {
       mst_color_node_reactive(input$mst_color_node)
@@ -18808,10 +18560,10 @@ server <- function(input, output, session) {
   
   observeEvent(input$mst_color_menu, {
     
-    if(!is.null(mst_legend_color_reactive())) {
-      mst_legend_color_selected <-  mst_legend_color_reactive()
+    if(!is.null(mst_text_color_reactive())) {
+      mst_text_color_selected <-  mst_text_color_reactive()
     } else {
-      mst_legend_color_selected <- "#000000"
+      mst_text_color_selected <- "#000000"
     }
     
     if(!is.null(mst_color_edge_reactive())) {
@@ -18862,8 +18614,8 @@ server <- function(input, output, session) {
               width = 6,
               align = "center",
               colorPickr(
-                inputId = "mst_legend_color",
-                selected = mst_legend_color_selected,
+                inputId = "mst_text_color",
+                selected = mst_text_color_selected,
                 label = "",
                 update = "changestop",
                 interaction = list(clear = FALSE,
@@ -19000,6 +18752,9 @@ server <- function(input, output, session) {
   mst_edge_length_scale_reactive <- reactiveVal(NULL)
   mst_edge_length_reactive <- reactiveVal(NULL)
   mst_edge_font_size_reactive <- reactiveVal(NULL)
+  mst_title_size_reactive <- reactiveVal(NULL) 
+  mst_subtitle_size_reactive <- reactiveVal(NULL) 
+  node_label_fontsize_reactive <- reactiveVal(NULL) 
   
   observe({
     if (!is.null(input$scale_nodes)) {
@@ -19029,9 +18784,39 @@ server <- function(input, output, session) {
     if (!is.null(input$mst_edge_font_size)) {
       mst_edge_font_size_reactive(input$mst_edge_font_size)
     }
+    
+    if (!is.null(input$node_label_fontsize)) {
+      node_label_fontsize_reactive(input$node_label_fontsize)
+    }
+    
+    if (!is.null(input$mst_title_size)) {
+      mst_title_size_reactive(input$mst_title_size)
+    }
+    
+    if (!is.null(input$mst_subtitle_size)) {
+      mst_subtitle_size_reactive(input$mst_subtitle_size)
+    }
   })
   
   observeEvent(input$mst_size_menu, {
+    
+    if(!is.null(node_label_fontsize_reactive())) {
+      node_label_fontsize_selected <- node_label_fontsize_reactive()
+    } else {
+      node_label_fontsize_selected <- 14
+    }
+    
+    if(!is.null(mst_title_size_reactive())) {
+      mst_title_size_selected <- mst_title_size_reactive()
+    } else {
+      mst_title_size_selected <- 35
+    }
+    
+    if(!is.null(mst_title_size_reactive())) {
+      mst_subtitle_size_selected <- mst_subtitle_size_reactive()
+    } else {
+      mst_subtitle_size_selected <- 20
+    }
     
     if(!is.null(scale_nodes_reactive())) {
       scale_nodes_selected <- scale_nodes_reactive()
@@ -19054,7 +18839,7 @@ server <- function(input, output, session) {
     if(!is.null(mst_scale_edges_reactive())) {
       mst_scale_edges_selected <- mst_scale_edges_reactive()
     } else {
-      mst_scale_edges_selected <- FALSE
+      mst_scale_edges_selected <- TRUE
     }
     
     if(!is.null(mst_edge_length_scale_reactive())) {
@@ -19257,6 +19042,91 @@ server <- function(input, output, session) {
                 )
               )
             )
+          ),
+          hr(),
+          fluidRow(
+            column(
+              width = 3,
+              align = "left",
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 14px; position: relative; top: 15px;',
+                            'Label') 
+                )
+              )
+            ),
+            column(
+              width = 9,
+              align = "right",
+              div(
+                class = "mst-size-slider",
+                sliderInput(
+                  "node_label_fontsize",
+                  "",
+                  value = node_label_fontsize_selected,
+                  min = 8,
+                  max = 30,
+                  step = 1,
+                  ticks = FALSE
+                )
+              )
+            )
+          ),
+          fluidRow(
+            column(
+              width = 3,
+              align = "left",
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 14px; position: relative; top: 15px;',
+                            'Title')
+                )
+              )
+            ),
+            column(
+              width = 9,
+              align = "right",
+              div(
+                class = "mst-size-slider",
+                sliderInput(
+                  "mst_title_size",
+                  "",
+                  value = mst_title_size_selected,
+                  min = 15,
+                  max = 50,
+                  step = 1,
+                  ticks = FALSE
+                )
+              )
+            )
+          ),
+          fluidRow(
+            column(
+              width = 3,
+              align = "left",
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 14px; position: relative; top: 15px;',
+                            'Subtitle')
+                )
+              )
+            ),
+            column(
+              width = 9,
+              align = "right",
+              div(
+                class = "mst-size-slider",
+                sliderInput(
+                  "mst_subtitle_size",
+                  "",
+                  value = mst_subtitle_size_selected,
+                  min = 15,
+                  max = 40,
+                  step = 1,
+                  ticks = FALSE
+                )
+              )
+            )
           )
         )
       )
@@ -19450,7 +19320,7 @@ server <- function(input, output, session) {
     if(!is.null(mst_scale_reactive())) {
       mst_scale_selected <- mst_scale_reactive()
     } else {
-      mst_scale_selected <- 655
+      mst_scale_selected <- 600
     }
     
     if(!is.null(mst_shadow_reactive())) {
@@ -19459,10 +19329,14 @@ server <- function(input, output, session) {
       mst_shadow_selected <- TRUE
     }
     
-    if(!is.null(mst_node_shape_reactive())) {
-      mst_node_shape_selected <- mst_node_shape_reactive()
+    if(isTRUE(mst_color_var_reactive())) {
+      mst_node_shape_selected <- "custom"
     } else {
-      mst_node_shape_selected <- "dot"
+      if(!is.null(mst_node_shape_reactive())) {
+        mst_node_shape_selected <- mst_node_shape()
+      } else {
+        mst_node_shape_selected <- "dot"
+      }
     }
     
     if(!is.null(mst_show_clusters_reactive())) {
@@ -19512,6 +19386,24 @@ server <- function(input, output, session) {
     } else {
       mst_symbol_size_selected <- 20
     }
+    
+    if(isTRUE(mst_color_var_reactive())) {
+      mst_node_shape <- selectInput(
+        "mst_node_shape",
+        "",
+        choices = c("Pie Nodes" = "custom"),
+        selected = "custom"
+      )
+    } else {
+      mst_node_shape <- selectInput(
+        "mst_node_shape",
+        "",
+        choices = list(`Label inside` = c("Circle" = "circle", "Box" = "box", "Text" = "text"),
+                       `Label outside` = c("Diamond" = "diamond", "Hexagon" = "hexagon", "Dot" = "dot", "Square" = "square")),
+        selected = mst_node_shape_selected
+      )
+    }
+    
     output$mst_controls <- renderUI(
       box(
         solidHeader = TRUE,
@@ -19619,13 +19511,7 @@ server <- function(input, output, session) {
                   align = "center",
                   div(
                     class = "mst-shape",
-                    selectInput(
-                      "mst_node_shape",
-                      "",
-                      choices = list(`Label inside` = c("Circle" = "circle", "Box" = "box", "Text" = "text"),
-                                     `Label outside` = c("Diamond" = "diamond", "Hexagon" = "hexagon","Dot" = "dot", "Square" = "square")),
-                      selected = mst_node_shape_selected
-                    )
+                    mst_node_shape
                   )
                 )
               )
@@ -19904,17 +19790,22 @@ server <- function(input, output, session) {
   # MST node labels 
   output$mst_node_label <- renderUI({
     
-    
-    if(!is.null(mst_node_label_reactive())) {
-      mst_node_label_selected <- mst_node_label_reactive()
-    } else {
+    if(isTRUE(mst_color_var_reactive())) {
       mst_node_label_selected <- "Assembly Name"
+      choices <- "Assembly Name"
+    } else {
+      choices <- names(DB$meta)[c(1, 3, 4, 6, 7, 8, 9)]
+      if(!is.null(mst_node_label_reactive())) {
+        mst_node_label_selected <- mst_node_label_reactive()
+      } else {
+        mst_node_label_selected <- "Assembly Name"
+      }
     }
     
     selectInput(
       "mst_node_label",
       label = "",
-      choices = names(DB$meta)[c(1, 3, 4, 6, 7, 8, 9)],
+      choices = choices,
       selected = mst_node_label_selected,
       width = "100%"
     )
@@ -20003,18 +19894,12 @@ server <- function(input, output, session) {
     
     Vis$var_cols <- NULL
     
-    if(!is.null(input$mst_color_var)) {
-      mst_color_var <- input$mst_color_var
-    } else {
-      mst_color_var <- FALSE
-    }
-    
     # Generate pie charts as nodes
-    if(mst_color_var == TRUE) {
+    if(isTRUE(mst_color_var_reactive())) {
       
       group <- character(nrow(data$nodes))
-      for (i in 1:length(unique(Vis$meta_mst[[input$mst_col_var]]))) {
-        group[i] <- unique(Vis$meta_mst[[input$mst_col_var]])[i]
+      for (i in 1:length(unique(Vis$meta_mst[[mst_col_var_reactive()]]))) {
+        group[i] <- unique(Vis$meta_mst[[mst_col_var_reactive()]])[i]
       }
       
       data$nodes <- cbind(data$nodes, data.frame(metadata = character(nrow(data$nodes))))
@@ -20023,15 +19908,15 @@ server <- function(input, output, session) {
         data$nodes$group[which(data$nodes$group == "")] <- data$nodes$group[1]
       }
       
-      if(is.null(input$mst_col_scale)) {
-        Vis$var_cols <- data.frame(value = unique(Vis$meta_mst[[input$mst_col_var]]),
-                                   color = viridis(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
-      } else if (input$mst_col_scale == "Rainbow") {
-        Vis$var_cols <- data.frame(value = unique(Vis$meta_mst[[input$mst_col_var]]),
-                                   color = rainbow(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
-      } else if (input$mst_col_scale == "Viridis") {
-        Vis$var_cols <- data.frame(value = unique(Vis$meta_mst[[input$mst_col_var]]),
-                                   color = viridis(length(unique(Vis$meta_mst[[input$mst_col_var]]))))
+      if(is.null(mst_col_scale_reactive())) {
+        Vis$var_cols <- data.frame(value = unique(Vis$meta_mst[[mst_col_var_reactive()]]),
+                                   color = viridis(length(unique(Vis$meta_mst[[mst_col_var_reactive()]]))))
+      } else if (mst_col_scale_reactive() == "Rainbow") {
+        Vis$var_cols <- data.frame(value = unique(Vis$meta_mst[[mst_col_var_reactive()]]),
+                                   color = rainbow(length(unique(Vis$meta_mst[[mst_col_var_reactive()]]))))
+      } else if (mst_col_scale_reactive() == "Viridis") {
+        Vis$var_cols <- data.frame(value = unique(Vis$meta_mst[[mst_col_var_reactive()]]),
+                                   color = viridis(length(unique(Vis$meta_mst[[mst_col_var_reactive()]]))))
       }
       
       for(i in 1:nrow(data$nodes)) {
@@ -20059,7 +19944,7 @@ server <- function(input, output, session) {
     if(!is.null(input$mst_scale_edges)) {
       mst_scale_edges <- input$mst_scale_edges
     } else {
-      mst_scale_edges <- FALSE
+      mst_scale_edges <- TRUE
     }
     
     if(!is.null(input$mst_edge_length)) {
@@ -20103,7 +19988,7 @@ server <- function(input, output, session) {
                          length = if(mst_scale_edges == FALSE) {
                            mst_edge_length
                          } else {
-                           data$edges$weight * mst_edge_length_scale
+                           log(data$edges$weight) * mst_edge_length_scale
                          },
                          label = as.character(data$edges$weight))
     
@@ -20112,12 +19997,6 @@ server <- function(input, output, session) {
       if (mst_cluster_type == "Area") {
         data$nodes$group <- clusters$group
       }
-    }
-    
-    if(!is.null(input$mst_node_shape)) {
-      mst_node_shape <- input$mst_node_shape
-    } else {
-      mst_node_shape <- "dot"
     }
     
     if(!is.null(input$mst_shadow)) {
@@ -20149,18 +20028,19 @@ server <- function(input, output, session) {
                                    background = mst_background_color(),
                                    submain = mst_subtitle()) %>%
       visNodes(size = mst_node_size(),
-               shape = mst_node_shape,
+               shape = mst_node_shape(),
                shadow = mst_shadow,
                color = mst_color_node(),
                ctxRenderer = ctxRendererJS,
                scaling = list(min = mst_node_size_min(),
                               max = mst_node_size_max()),
-               font = list(color = node_font_color(),
+               font = list(color = mst_text_color_reactive(),
                            size = node_label_fontsize)) %>%
       visEdges(color = mst_color_edge(),
                font = list(color = mst_edge_font_color(),
                            size = mst_edge_font_size(),
-                           strokeWidth = 4)) %>%
+                           strokeWidth = 4,
+                           strokeColor = mst_background_color())) %>%
       visOptions(collapse = TRUE) %>%
       visInteraction(hover = TRUE) %>%
       visLayout(randomSeed = 1) %>%
@@ -20171,21 +20051,26 @@ server <- function(input, output, session) {
                 ncol = legend_col(),
                 addNodes = mst_legend())
     
-    if (mst_show_clusters) {
-      if (mst_cluster_col_scale == "Viridis") {
-        color_palette <- viridis(length(unique(data$nodes$group)))
-        color_edges <- viridis(length(unique(clusters$edge_group)))
+    if(mst_show_clusters) {
+      no_color <- length(unique(data$nodes$group[duplicated(data$nodes$group)]))
+      no_color_edges <- length(unique(clusters$edge_group))
+      
+      if(mst_cluster_col_scale == "Viridis") {
+        color_palette <- viridis(no_color)
+        color_edges <- viridis(no_color_edges)
       } else {
-        color_palette <- rainbow(length(unique(data$nodes$group)))
-        color_edges <- rainbow(length(unique(clusters$edge_group)))
+        color_palette <- rainbow(no_color + 1)
+        color_edges <- rainbow(no_color_edges)
       }
       
-      if (mst_cluster_type == "Area") {
-        for (i in 1:length(unique(data$nodes$group))) {
+      j <- 1
+      if(mst_cluster_type == "Area") {
+        for(i in 1:length(unique(data$nodes$group))) {
           # Color only cluster with 2 or more nodes
-          if (sum(data$nodes$group == unique(data$nodes$group)[i]) > 1) { 
+          if(sum(data$nodes$group == unique(data$nodes$group)[i]) > 1) { 
             visNetwork_graph <- visNetwork_graph %>% 
-              visGroups(groupname = unique(data$nodes$group)[i], color = color_palette[i])
+              visGroups(groupname = unique(data$nodes$group)[i], color = color_palette[j])
+            j <- j + 1
           } else {
             visNetwork_graph <- visNetwork_graph %>% 
               visGroups(groupname = unique(data$nodes$group)[i], color = mst_color_node())
@@ -20200,8 +20085,8 @@ server <- function(input, output, session) {
         thick_edges$width <- mst_cluster_width
         thick_edges$color <- rep("rgba(0, 0, 0, 0)", length(data$edges$from))
         
-        for (i in 1:length(unique(clusters$edge_group))) {
-          if (unique(clusters$edge_group)[i] != "0") {
+        for(i in 1:length(unique(clusters$edge_group))) {
+          if(unique(clusters$edge_group)[i] != "0") {
             edge_color <- paste(col2rgb(color_edges[i]), collapse=", ")
             thick_edges$color[clusters$edge_group == unique(clusters$edge_group)[i]] <- paste0("rgba(", edge_color, ", 0.5)")
           }
@@ -20213,14 +20098,14 @@ server <- function(input, output, session) {
                                        background = mst_background_color(),
                                        submain = mst_subtitle()) %>%
           visNodes(size = mst_node_size(),
-                   shape = input$mst_node_shape,
-                   shadow = input$mst_shadow,
+                   shape = mst_node_shape(),
+                   shadow = mst_shadow,
                    color = mst_color_node(),
                    ctxRenderer = ctxRendererJS,
                    scaling = list(min = mst_node_size_min(),
                                   max = mst_node_size_max()),
-                   font = list(color = node_font_color(),
-                               size = input$node_label_fontsize)) %>%
+                   font = list(color = mst_text_color_reactive(),
+                               size = node_label_fontsize)) %>%
           visEdges(color = mst_color_edge(),
                    font = list(color = mst_edge_font_color(),
                                size = mst_edge_font_size(),
@@ -20233,7 +20118,7 @@ server <- function(input, output, session) {
           visLegend(useGroups = FALSE,
                     zoom = TRUE,
                     width = 0.2,
-                    position = input$mst_legend_ori,
+                    position = mst_legend_ori,
                     ncol = legend_col(),
                     addNodes = mst_legend())
       }
@@ -20261,7 +20146,7 @@ server <- function(input, output, session) {
       legend <- Vis$var_cols
       names(legend)[1] <- "label"
       mutate(legend, shape = "dot",
-             font.color = input$mst_legend_color,
+             font.color = input$mst_text_color,
              size = input$mst_symbol_size,
              font.size = input$mst_font_size)
     }
@@ -20269,25 +20154,52 @@ server <- function(input, output, session) {
   
   # Set MST node shape
   mst_node_shape <- reactive({
-    if(input$mst_node_shape == "Pie Nodes"){
-      "dot"
-    } else if(input$mst_node_shape %in% c("circle", "database", "box", "text")) {
+    
+    if(isTRUE(mst_color_var_reactive())) {
+      mst_node_shape <- "custom"
+    } else {
+      if(!is.null(mst_node_shape_reactive())) {
+        if(mst_node_shape_reactive() != "custom") {
+          mst_node_shape <- mst_node_shape_reactive()
+        } else {
+          
+          mst_node_shape <- "dot"
+        }
+      } else {
+        mst_node_shape <- "dot"
+      }
+    }
+    
+    if(mst_node_shape == "custom"){
+      mst_node_shape
+    } else if(mst_node_shape %in% c("circle", "database", "box", "text")) {
       shinyjs::disable('scale_nodes') 
       updateCheckboxInput(session, "scale_nodes", value = FALSE)
       shinyjs::disable('mst_node_size') 
       shinyjs::disable('mst_node_scale')
-      input$mst_node_shape
+      mst_node_shape
     } else {
       shinyjs::enable('scale_nodes') 
       shinyjs::enable('mst_node_size') 
       shinyjs::enable('mst_node_scale')
-      input$mst_node_shape
+      mst_node_shape
     }
   })
   
   # Set MST label
   label_mst <- reactive({
-    Vis$unique_meta[, colnames(Vis$unique_meta) %in% input$mst_node_label]
+    
+    if(isTRUE(mst_color_var_reactive())) {
+      mst_node_label <- "Assembly Name"
+    } else {
+      if(!is.null(mst_node_label_reactive())) {
+        mst_node_label <- mst_node_label_reactive()
+      } else {
+        mst_node_label <- "Assembly Name"
+      }
+    }
+    
+    Vis$unique_meta[, colnames(Vis$unique_meta) %in% mst_node_label]
   })
   
   # Set node color
@@ -20298,16 +20210,6 @@ server <- function(input, output, session) {
       "#B2FACA"
     }
   })
-  
-  # Node Label Color
-  node_font_color <- reactive({
-    if(!is.null(input$node_font_color)) {
-      input$node_font_color
-    } else {
-      "#000000"
-    }
-  })
-  
   
   # Node Size Scaling
   mst_node_scaling <- reactive({
@@ -20344,13 +20246,20 @@ server <- function(input, output, session) {
   
   # Set Title
   mst_title <- reactive({
+    
+    if(!is.null(mst_title_size_reactive())) {
+      mst_title_size <- mst_title_size_reactive()
+    } else {
+      mst_title_size <- 35
+    }
+    
     if(!is.null(input$mst_title)) {
       if(nchar(input$mst_title) < 1) {
         list(text = "title",
              style = paste0(
                "font-family:Georgia, Times New Roman, Times, serif;",
                "text-align:center;",
-               "font-size: ", as.character(input$mst_title_size), "px", 
+               "font-size: ", as.character(mst_title_size), "px", 
                "; color: ", as.character(mst_background_color()))
         )
       } else {
@@ -20358,17 +20267,11 @@ server <- function(input, output, session) {
              style = paste0(
                "font-family:Georgia, Times New Roman, Times, serif;",
                "text-align:center;",
-               "font-size: ", as.character(input$mst_title_size), "px", 
-               "; color: ", as.character(input$mst_title_color))
+               "font-size: ", as.character(mst_title_size), "px", 
+               "; color: ", as.character(mst_text_color_reactive()))
         )
       }
     } else {
-      
-      if(!is.null(input$mst_title_size)) {
-        mst_title_size <- input$mst_title_size
-      } else {
-        mst_title_size <- 40
-      }
       list(text = "title",
            style = paste0(
              "font-family:Georgia, Times New Roman, Times, serif;",
@@ -20387,16 +20290,10 @@ server <- function(input, output, session) {
       mst_subtitle <- "" 
     }
     
-    if(!is.null(input$mst_subtitle_size)) {
-      mst_subtitle_size <- input$mst_subtitle_size
+    if(!is.null(mst_subtitle_size_reactive())) {
+      mst_subtitle_size <- mst_subtitle_size_reactive()
     } else {
       mst_subtitle_size <- 20
-    }
-    
-    if(!is.null(input$mst_subtitle_color)) {
-      mst_subtitle_color <- input$mst_subtitle_color
-    } else {
-      mst_subtitle_color <- "#000000" 
     }
     
     list(text = mst_subtitle,
@@ -20404,7 +20301,7 @@ server <- function(input, output, session) {
            "font-family:Georgia, Times New Roman, Times, serif;",
            "text-align:center;",
            "font-size: ", as.character(mst_subtitle_size), "px", 
-           "; color: ", as.character(mst_subtitle_color))
+           "; color: ", as.character(mst_text_color_reactive()))
     )
   })
   
@@ -24224,7 +24121,7 @@ server <- function(input, output, session) {
             if(!is.null(input$mst_scale)) {
               scale <- input$mst_scale
             } else {
-              scale <- 655
+              scale <- 600
             }
             
             if(!is.null(input$mst_ratio)) {
@@ -24391,7 +24288,7 @@ server <- function(input, output, session) {
                     align = "left",
                     HTML(
                       paste(
-                        tags$span(style='color:black; font-size: 15px; font-weight: 900', 'General')
+                        tags$span(style='color:white; font-size: 15px; font-weight: 900', 'General')
                       )
                     )
                   ),
@@ -24414,7 +24311,7 @@ server <- function(input, output, session) {
                         width = 3,
                         checkboxInput(
                           "rep_date_general", 
-                          label = h5("Date", style = "color:black;"),
+                          label = h5("Date", style = "color:white;"),
                           value = TRUE
                         )
                       ),
@@ -24432,7 +24329,7 @@ server <- function(input, output, session) {
                         width = 3,
                         checkboxInput(
                           "rep_operator_general", 
-                          label = h5("Operator", style = "color:black;"),
+                          label = h5("Operator", style = "color:white;"),
                           value = TRUE
                         )
                       ),
@@ -24449,7 +24346,7 @@ server <- function(input, output, session) {
                         width = 3,
                         checkboxInput(
                           "rep_institute_general", 
-                          label = h5("Institute", style = "color:black;"),
+                          label = h5("Institute", style = "color:white;"),
                           value = TRUE
                         )
                       ),
@@ -24466,7 +24363,7 @@ server <- function(input, output, session) {
                         width = 3,
                         checkboxInput(
                           "rep_comm_general", 
-                          label = h5("Comment", style = "color:black;")
+                          label = h5("Comment", style = "color:white;")
                         )
                       ),
                       column(
@@ -24492,7 +24389,7 @@ server <- function(input, output, session) {
                     align = "left",
                     HTML(
                       paste(
-                        tags$span(style='color: black; font-size: 15px; font-weight: 900', 'Isolate Table')
+                        tags$span(style='color: white; font-size: 15px; font-weight: 900', 'Isolate Table')
                       )
                     )
                   ),
@@ -24510,7 +24407,7 @@ server <- function(input, output, session) {
                     align = "left",
                     HTML(
                       paste(
-                        tags$span(style='color: black; font-size: 15px; font-weight: 900', 'Include Plot')
+                        tags$span(style='color: white; font-size: 15px; font-weight: 900', 'Include Plot')
                       )
                     )
                   ),
@@ -24551,7 +24448,7 @@ server <- function(input, output, session) {
                     align = "left",
                     HTML(
                       paste(
-                        tags$span(style='color: black; font-size: 15px; font-weight: 900', 'Analysis Parameter')
+                        tags$span(style='color: white; font-size: 15px; font-weight: 900', 'Analysis Parameter')
                       )
                     )
                   ),
@@ -24574,7 +24471,7 @@ server <- function(input, output, session) {
                         width = 4,
                         checkboxInput(
                           "rep_cgmlst_analysis",
-                          label = h5("Scheme", style = "color:black;"),
+                          label = h5("Scheme", style = "color:white;"),
                           value = TRUE
                         )
                       ),
@@ -24583,7 +24480,7 @@ server <- function(input, output, session) {
                         align = "right",
                         HTML(
                           paste(
-                            tags$span(style='color: black; position: relative; top: 17px; font-style: italic', DB$scheme)
+                            tags$span(style='color:white; position: relative; top: 17px; font-style: italic', DB$scheme)
                           )
                         )
                       )
@@ -24593,7 +24490,7 @@ server <- function(input, output, session) {
                         width = 4,
                         checkboxInput(
                           "rep_tree_analysis",
-                          label = h5("Tree", style = "color:black;"),
+                          label = h5("Tree", style = "color:white;"),
                           value = TRUE
                         )
                       ),
@@ -24602,7 +24499,7 @@ server <- function(input, output, session) {
                         align = "right",
                         HTML(
                           paste(
-                            tags$span(style='color: black; position: relative; top: 17px; font-style: italic', input$tree_algo)
+                            tags$span(style='color:white; position: relative; top: 17px; font-style: italic', input$tree_algo)
                           )
                         )
                       )
@@ -24617,7 +24514,7 @@ server <- function(input, output, session) {
                         width = 4,
                         checkboxInput(
                           "rep_distance",
-                          label = h5("Distance", style = "color:black;"),
+                          label = h5("Distance", style = "color:white;"),
                           value = TRUE
                         )
                       ),
@@ -24626,7 +24523,7 @@ server <- function(input, output, session) {
                         align = "right",
                         HTML(
                           paste(
-                            tags$span(style='color: black; position: relative; top: 17px; font-style: italic', 'Hamming')
+                            tags$span(style='color:white; position: relative; top: 17px; font-style: italic', 'Hamming')
                           )
                         )
                       )
@@ -24637,7 +24534,7 @@ server <- function(input, output, session) {
                         width = 4,
                         checkboxInput(
                           "rep_version",
-                          label = h5("Version", style = "color:black;"),
+                          label = h5("Version", style = "color:white;"),
                           value = TRUE
                         )
                       ),
@@ -24646,7 +24543,7 @@ server <- function(input, output, session) {
                         align = "right",
                         HTML(
                           paste(
-                            tags$span(style='color:black; position: relative; top: 17px; font-style: italic', phylotraceVersion)
+                            tags$span(style='color:white; position: relative; top: 17px; font-style: italic', phylotraceVersion)
                           )
                         )
                       )
@@ -24659,7 +24556,7 @@ server <- function(input, output, session) {
                     align = "left",
                     checkboxInput(
                       "rep_missval",
-                      label = h5("NA handling", style = "color:black;"),
+                      label = h5("NA handling", style = "color:white;"),
                       value = TRUE
                     )
                   ),
@@ -24668,7 +24565,7 @@ server <- function(input, output, session) {
                     align = "right",
                     HTML(
                       paste(
-                        tags$span(style='color: black; position: relative; top: 17px; font-style: italic; right: 35px;', na_handling)
+                        tags$span(style='color:white; position: relative; top: 17px; font-style: italic; right: 35px;', na_handling)
                       )
                     )
                   )

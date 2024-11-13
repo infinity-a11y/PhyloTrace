@@ -237,7 +237,7 @@ body > div.pcr-app.pickr-color.visible {
 }
 
 .typing-modal .modal-header {
-  background-color: #394657a3;
+  background-color: #394657eb;
   color: white;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -247,7 +247,7 @@ body > div.pcr-app.pickr-color.visible {
 
 .start-modal .modal-header,
 .load-modal .modal-header{
-  background-color: #394657a3;
+  background-color: #394657eb;
   color: white;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -272,7 +272,7 @@ body > div.pcr-app.pickr-color.visible {
 
 .start-modal .modal-body,
 .load-modal .modal-body {
-  background-color: #394657a3;
+  background-color: #394657eb;
   color: white;
   border: 1px solid white;
   border-top: none;
@@ -281,14 +281,14 @@ body > div.pcr-app.pickr-color.visible {
 }
 
 .typing-modal .modal-footer {
-  background-color: #394657a3;
+  background-color: #394657eb;
   border-top-color: transparent;
   border: 1px solid white;
 }
 
 .start-modal .modal-footer,
 .load-modal .modal-footer {
-  background-color: #394657a3;
+  background-color: #394657eb;
   border: 1px solid white;
   border-top: none;
 }
@@ -302,10 +302,14 @@ body > div.pcr-app.pickr-color.visible {
   overflow: auto;
   min-width: 276px;
   max-height: calc(100vh - 45px);
-  background-color: #394657a3;
+  background-color: #394657eb;
   color: white;
   border: solid 1px;
   border-radius: 5px;
+}
+
+.reload-bttn > div {
+  width: 120px;
 }
 
 .sF-title .modal-title,
@@ -317,7 +321,7 @@ body > div.pcr-app.pickr-color.visible {
 .modal-header,
 .modal-footer,
 .modal-body {
-  background-color: #394657a3;
+  background-color: #394657eb;
 }
 
 #assembly_files-modal > div > div > div.modal-body > div.sF-navigation.btn-toolbar > div.btn-group.btn-group-sm.sF-navigate,
@@ -1624,13 +1628,6 @@ div#progress_bar.progress-bar {
   top: 17px !important;
 }
 
-#mst_isolate_label_menu_dropmenu > div,
-#mst_title_menu_dropmenu > div,
-#mst_subtitle_menu_dropmenu > div {
-  top: 25px !important;
-  left: 0px !important
-}
-
 #mst_legend_menu_dropmenu .tippy-popper,
 #mst_cluster_col_menu_dropmenu .tippy-popper {
   top: 20px !important;
@@ -1657,10 +1654,6 @@ div#progress_bar.progress-bar {
   margin-top: -20px;
 }
   
-#mst_title_color {
-  margin-bottom: 21px;
-}
-
 #mst_cluster_reset i.fas.fa-rotate {
   position: relative; 
   left: -7px;
@@ -1706,6 +1699,7 @@ button#mst_cluster_reset.btn.btn-default.action-button.shiny-bound-input {
 
 #maindivtree_mst, #graphtree_mst {
   border-radius: 10px;
+  height: 100% !important;
 }
 
 .mst-cluster-switch {
@@ -1831,15 +1825,6 @@ button#mst_edgecolor_menu {
   border-radius: 5px
 }
 
-button#mst_title_menu,
-button#mst_subtitle_menu {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-top: 20px; 
-  border-radius: 5px
-}
-
 button#mst_legend_menu {
   height: 34px; 
   background: #20E6E5; 
@@ -1848,12 +1833,15 @@ button#mst_legend_menu {
   border-radius: 5px
 }
 
-button#mst_isolate_label_menu {
-  height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
-  margin-top: 37px; 
-  border-radius: 5px
+#mst_node_label {
+  margin-bottom: 15px;
+}
+
+.mst-size-slider {
+  position: relative;
+	top: -10px;
+	width: 85%;
+	left: -5px;
 }
 
 button#mst_col_menu {
@@ -1900,7 +1888,7 @@ button#mst_col_map_menu {
 #mst_background_color,
 #mst_color_edge,
 #mst_color_node,
-#mst_legend_color {
+#mst_text_color {
 margin-top: -17px;
 margin-left: -10px;
 }
