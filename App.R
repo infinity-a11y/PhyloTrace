@@ -111,7 +111,6 @@ ui <- dashboardPage(
       uiOutput("menu_header_screening"),
       br(), 
       sidebarMenuOutput("menu_screening"),
-      uiOutput("menu_footer_screening"),
       conditionalPanel(
         "input.tabs==='typing'",
         uiOutput("typing_sidebar")
@@ -11131,7 +11130,19 @@ server <- function(input, output, session) {
       title = "Copied sequence",
       type = "success",
       position = "bottom-end",
-      timer = 3000
+      timer = 2000
+    )
+  })
+  
+  observeEvent(input$copy_hash, {
+    if(!is.null(input$seq_sel)) {
+      session$sendCustomMessage("txt", gsub("Allele ", "", sub(" -.*", "", input$seq_sel)))
+    }
+    show_toast(
+      title = "Copied hash",
+      type = "success",
+      position = "bottom-end",
+      timer = 2000
     )
   })
   
@@ -18309,7 +18320,7 @@ server <- function(input, output, session) {
           )
         )
       ),
-      br()
+      br(), br()
     )
   )
   
@@ -18405,7 +18416,7 @@ server <- function(input, output, session) {
             )
           )
         ),
-        br()
+        br(), br()
       )
     ) 
   })
@@ -18459,6 +18470,7 @@ server <- function(input, output, session) {
           column(
             width = 12,
             align = "left",
+            br(),
             column(
               width = 12,
               align = "center",
@@ -18491,12 +18503,12 @@ server <- function(input, output, session) {
                 column(
                   width = 12,
                   align = "left",
-                  br(),
+                  br(), br(),
                   div(
                     class = "mst_col_sel",
                     selectInput(
                       "mst_col_var",
-                      label = h5("Variable", style = "color:white; margin-bottom: 0px;"),
+                      label = h4("Variable", style = "color:white; margin-bottom: 10px;"),
                       choices = if(any(DB$cust_var[DB$cust_var$Variable[which(DB$cust_var$Variable %in% c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)]))],]$Type != "categ")) {
                         selection <- c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)])
                         cust_vars <- DB$cust_var$Variable[which(DB$cust_var$Variable %in% selection)]
@@ -18505,7 +18517,8 @@ server <- function(input, output, session) {
                       selected = mst_col_var_selected,
                       width = "100%"
                     )
-                  )
+                  ),
+                  br(), br(),
                 )
               ),
               fluidRow(
@@ -18513,14 +18526,17 @@ server <- function(input, output, session) {
                   width = 12,
                   align = "left",
                   br(),
-                  selectInput(
-                    "mst_col_scale",
-                    label = h5("Color Scale", style = "color:white; margin-bottom: 0px;"),
-                    choices = c("Viridis", "Rainbow"),
-                    selected = mst_col_scale_selected,
-                    width = "100%"
+                  div(
+                    class = "mst-col-scale",
+                    selectInput(
+                      "mst_col_scale",
+                      label = h4("Color Scale", style = "color:white; margin-bottom: 10px;"),
+                      choices = c("Viridis", "Rainbow"),
+                      selected = mst_col_scale_selected,
+                      width = "100%"
+                    )
                   ),
-                  br()
+                  br(), br()
                 )
               )
             )
@@ -19115,7 +19131,7 @@ server <- function(input, output, session) {
               width = 9,
               align = "right",
               div(
-                class = "mst-size-slider",
+                class = "mst-size-slider2",
                 sliderInput(
                   "mst_subtitle_size",
                   "",
@@ -19416,7 +19432,7 @@ server <- function(input, output, session) {
             column(
               width = 12,
               align = "left",
-              h4(p("Dimensions"), style = "color:white; position: relative; top: 10px;"),
+              h4(p("Dimensions"), style = "color:white; position: relative; top: 0px; margin-bottom: -10px;"),
               fluidRow(
                 column(
                   width = 5,
@@ -19704,8 +19720,7 @@ server <- function(input, output, session) {
                     )
                   )
                 )
-              ),
-              br()
+              )
             )
           )
         )

@@ -44,6 +44,11 @@ $(document).ready(function() {
 Shiny.addCustomMessageHandler('txt', function (txt) {
   navigator.clipboard.writeText(txt);
 });
+// Copy hash clipboard
+Shiny.addCustomMessageHandler('txt', function (txt) {
+  navigator.clipboard.writeText(txt);
+});
+
 
 // Get date format
 function getCurrentDate() {
@@ -802,7 +807,6 @@ $(document).ready(function() {
   checkElement_append_host();
 });
 
-
 function applyJavaScript_append_city() {
   $("#append_city").on("input", function() {
     var value = $(this).val();
@@ -824,7 +828,6 @@ function checkElement_append_city() {
 $(document).ready(function() {
   checkElement_append_city();
 });
-
 
 
 function applyJavaScript_append_host_multi() {
@@ -871,7 +874,6 @@ function checkElement_append_city_multi() {
 $(document).ready(function() {
   checkElement_append_city_multi();
 });
-
 
 function applyJavaScript_new_var_name() {
   $("#new_var_name").on("input", function() {
