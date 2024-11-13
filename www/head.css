@@ -246,15 +246,26 @@ div#gs_profile_table::-webkit-scrollbar-thumb,
   top: 15px;
   left: 150px;
   padding-right: 20px;
+  color: black;
 }
 
 .main-header {
-  position: relative;
-  max-height: 100px;
-  z-index: 1030;
-  box-shadow: 0px 4px 5px #080c12;
+	position: relative;
+	max-height: 100px;
+	z-index: 1030;
+	box-shadow: 0px 5px 15px #000;
 }
 
-.img_logo {
-  margin-top: -3px;
+.skin-blue .main-header .logo {
+	background: #d1d9df !important;
+}
+
+.skin-blue .main-header .navbar {
+	background: #d1d9df !important;
+	color: #000;
+}
+
+.skin-blue .main-header .navbar .sidebar-toggle {
+	background: #d1d9df !important;
+	color: #18ece1;
 }

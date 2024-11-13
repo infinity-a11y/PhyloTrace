@@ -63,12 +63,15 @@ ui <- dashboardPage(
   
   # Title
   dashboardHeader(
-    
     title = span(
       div(
         class = "img_logo",
-        img(
-          src = "PhyloTrace.jpg", width = 190
+        a(
+          href = "https://www.liora-bioinformatics.com/phylotrace",  # Replace with your URL
+          target = "_blank",                     # Opens link in a new tab
+          img(
+            src = "brandmark-design.png", width = 190
+          )
         )
       )
     ),
@@ -76,7 +79,7 @@ ui <- dashboardPage(
     uiOutput("statustext"),
     uiOutput("databasetext"),
     tags$li(class = "dropdown", 
-            tags$span(id = "currentTime", style = "color:white; font-weight:bold;")),
+            tags$span(id = "currentTime", style = "color:black; font-weight:bold;")),
     disable = FALSE
   ),
   
@@ -695,25 +698,49 @@ ui <- dashboardPage(
         tabName = "visualization",
         fluidRow(
           column(
-            width = 2,
+            width = 4,
+            br(),
             div(
               class = "vis-control-box",
               box(
                 solidHeader = TRUE,
                 status = "primary",
                 width = "100%",
-                title = "Plot Type",
-                radioGroupButtons(
-                  inputId = "tree_algo",
-                  label = "", 
-                  choices = c("MST" = "Minimum-Spanning", "NJ" = "Neighbour-Joining", "UPGMA" = "UPGMA"),
-                  justified = TRUE
+                title = "Generate Plot",
+                fluidRow(
+                  column(
+                    width = 6,
+                    radioGroupButtons(
+                      inputId = "tree_algo",
+                      label = "", 
+                      choices = c("MST" = "Minimum-Spanning", "NJ" = "Neighbour-Joining", "UPGMA" = "UPGMA"),
+                      justified = TRUE
+                    )
+                  ),
+                  column(1),
+                  column(
+                    width = 4,
+                    tags$div(
+                      id = "button-wrapper",
+                      actionButton(
+                        "create_tree",
+                        h5("Create Tree", style = "position: relative; left: 15px; color: white; font-size: 15px;"),
+                        width = "100%"
+                      ),
+                      tags$img(
+                        src = "phylo.png",
+                        alt = "icon",
+                        class = "icon"
+                      )
+                    )
+                  )
                 )
               )
             )
           ),
           column(
             width = 6,
+            br(),
             conditionalPanel(
               "input.tree_algo=='Minimum-Spanning'",
               div(
@@ -747,8 +774,8 @@ ui <- dashboardPage(
             )
           ),
           column(
-            width = 10,
-            align = "center",
+            width = 9,
+            align = "left",
             br(),
             conditionalPanel(
               "input.tree_algo=='Minimum-Spanning'",
@@ -5184,7 +5211,7 @@ server <- function(input, output, session) {
                       "Selected scheme:&nbsp;&nbsp;&nbsp;<i>",
                       DB$scheme,
                       "</i>")), 
-                style = "color:white;")
+                style = "color:black;")
             )
           )
         })
@@ -5200,7 +5227,7 @@ server <- function(input, output, session) {
                       "Selected scheme:&nbsp;&nbsp;&nbsp;<i>",
                       DB$scheme,
                       "</i>")), 
-                style = "color:white;"),
+                style = "color:black;"),
               div(
                 class = "reload-bttn",
                 style = paste0("margin-left:", 30 + input$scheme_position, "px; position: relative; top: -24px;"),
@@ -5232,7 +5259,7 @@ server <- function(input, output, session) {
                       "Database:&nbsp;&nbsp;&nbsp;<i>",
                       database,
                       "</i>")), 
-                style = "color:white;")
+                style = "color:black;")
             ),
             if(nchar(database) > 60) {bsTooltip("databasetext", 
                                                 HTML(DB$database), 
@@ -5253,7 +5280,7 @@ server <- function(input, output, session) {
                 tags$span(HTML(
                   paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
                         "Status:&nbsp;&nbsp;&nbsp; <i>typing finalized</i>")),
-                  style = "color:white;")
+                  style = "color:black;")
               )
             )
           )
@@ -5265,7 +5292,7 @@ server <- function(input, output, session) {
                 tags$span(HTML(
                   paste('<i class="fa-solid fa-circle-dot" style="color:orange !important;"></i>', 
                         "Status:&nbsp;&nbsp;&nbsp; <i>evaluating typing results</i>")),
-                  style = "color:white;")
+                  style = "color:black;")
               )
             )
           )
@@ -5277,7 +5304,7 @@ server <- function(input, output, session) {
                 tags$span(HTML(
                   paste('<i class="fa-solid fa-circle-dot" style="color:orange !important;"></i>', 
                         "Status:&nbsp;&nbsp;&nbsp;<i> pending typing</i>")), 
-                  style = "color:white;")
+                  style = "color:black;")
               )
             )
           )
@@ -5289,7 +5316,7 @@ server <- function(input, output, session) {
                 tags$span(HTML(
                   paste('<i class="fa-solid fa-circle-dot" style="color:orange !important;"></i>', 
                         "Status:&nbsp;&nbsp;&nbsp;<i> pending gene screening</i>")), 
-                  style = "color:white;")
+                  style = "color:black;")
               )
             )
           )
@@ -5301,7 +5328,7 @@ server <- function(input, output, session) {
                 tags$span(HTML(
                   paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
                         "Status:&nbsp;&nbsp;&nbsp;<i> gene screening finalized</i>")), 
-                  style = "color:white;")
+                  style = "color:black;")
               )
             )
           )
@@ -5313,7 +5340,7 @@ server <- function(input, output, session) {
                 tags$span(HTML(
                   paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
                         "Status:&nbsp;&nbsp;&nbsp; <i>ready</i>")),
-                  style = "color:white;")
+                  style = "color:black;")
               )
             )
           )
@@ -6348,35 +6375,10 @@ server <- function(input, output, session) {
                     column(
                       width = 12,
                       fluidRow(
-                        column(1),
-                        column(
-                          width = 11,
-                          align = "left",
-                          prettyRadioButtons(
-                            "tree_algo",
-                            choices = c("Minimum-Spanning", "Neighbour-Joining", "UPGMA"),
-                            label = "",
-                            selected = if(!is.null(Vis$tree_algo)){Vis$tree_algo} else {"Minimum-Spanning"}
-                          ),
-                        )
-                      ),
-                      fluidRow(
                         column(
                           width = 12,
                           align = "center",
-                          tags$div(
-                            id = "button-wrapper",
-                            actionButton(
-                              "create_tree",
-                              h5("Create Tree", style = "position: relative; left: 15px; color: white; font-size: 15px;"),
-                              width = "100%"
-                            ),
-                            tags$img(
-                              src = "phylo.png",
-                              alt = "icon",
-                              class = "icon"
-                            )
-                          )
+                          
                         )
                       ), 
                       conditionalPanel(
@@ -9490,9 +9492,6 @@ server <- function(input, output, session) {
   observeEvent(input$reload_db, {
     log_print("Input reload_db")
     
-    shinyjs::delay(1000, shinyjs::runjs("noCollapse();"))
-    shinyjs::delay(1000, shinyjs::runjs("noCollapse()"))
-    
     if(tail(readLines(paste0(getwd(), "/logs/script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -12332,13 +12331,13 @@ server <- function(input, output, session) {
     req(input$mst_ratio)
     if(input$mst_ratio == "1.6") {
       updateSliderInput(session, "mst_scale",
-                        step = 5, value = 800, min = 500, max = 1200)
+                        step = 5, value = 655, min = 450, max = 670)
     } else if(input$mst_ratio == "1.77777777777778") {
       updateSliderInput(session, "mst_scale",
-                        step = 9, value = 801, min = 504, max = 1197)
+                        step = 9, value = 657, min = 450, max = 666)
     } else if(input$mst_ratio == "1.33333333333333"){
       updateSliderInput(session, "mst_scale",
-                        step = 3, value = 801, min = 501, max = 1200)
+                        step = 3, value = 654, min = 450, max = 669)
     }
   })
   
@@ -18375,8 +18374,106 @@ server <- function(input, output, session) {
     )
   )
   
+  node_font_color_reactive <- reactiveVal(NULL)
+  mst_node_label_reactive <- reactiveVal(NULL) 
+  node_label_fontsize_reactive <- reactiveVal(NULL) 
+  mst_title_reactive <- reactiveVal(NULL) 
+  mst_title_color_reactive <- reactiveVal(NULL) 
+  mst_title_size_reactive <- reactiveVal(NULL) 
+  mst_subtitle_reactive <- reactiveVal(NULL) 
+  mst_subtitle_color_reactive <- reactiveVal(NULL) 
+  mst_subtitle_size_reactive <- reactiveVal(NULL) 
+  
+  observe({
+    if (!is.null(input$node_font_color)) {
+      node_font_color_reactive(input$node_font_color)
+    }
+    
+    if (!is.null(input$mst_node_label)) {
+      mst_node_label_reactive(input$mst_node_label)
+    }
+    
+    if (!is.null(input$node_label_fontsize)) {
+      node_label_fontsize_reactive(input$node_label_fontsize)
+    }
+    
+    if (!is.null(input$mst_title)) {
+      mst_title_reactive(input$mst_title)
+    }
+    
+    if (!is.null(input$mst_title_color)) {
+      mst_title_color_reactive(input$mst_title_color)
+    }
+    
+    if (!is.null(input$mst_title_size)) {
+      mst_title_size_reactive(input$mst_title_size)
+    }
+    
+    if (!is.null(input$mst_subtitle)) {
+      mst_subtitle_reactive(input$mst_subtitle)
+    }
+    
+    if (!is.null(input$mst_subtitle_color)) {
+      mst_subtitle_color_reactive(input$mst_subtitle_color)
+    }
+    
+    if (!is.null(input$mst_subtitle_size)) {
+      mst_subtitle_size_reactive(input$mst_subtitle_size)
+    }
+  })
+  
   # render mst label menu
   observeEvent(input$mst_label_menu, {
+    
+    if(!is.null(node_font_color_reactive())) {
+      node_font_color_selected <- node_font_color_reactive()
+    } else {
+      node_font_color_selected <- "#000000"
+    }
+    
+    if(!is.null(node_label_fontsize_reactive())) {
+      node_label_fontsize_selected <- node_label_fontsize_reactive()
+    } else {
+      node_label_fontsize_selected <- 14
+    }
+    
+    if(!is.null(mst_title_reactive())) {
+      mst_title_selected <- mst_title_reactive()
+    } else {
+      mst_title_selected <- ""
+    }
+    
+    if(!is.null(mst_title_color_reactive())) {
+      mst_title_color_selected <- mst_title_color_reactive()
+    } else {
+      mst_title_color_selected <- "#000000"
+    }
+    
+    if(!is.null(mst_title_size_reactive())) {
+      mst_title_size_selected <- mst_title_size_reactive()
+    } else {
+      mst_title_size_selected <- 40
+    }
+    
+    if(!is.null(mst_subtitle_reactive())) {
+      mst_subtitle_selected <- mst_subtitle_reactive()
+    } else {
+      mst_subtitle_selected <- ""
+    }
+    
+    if(!is.null(mst_subtitle_color_reactive())) {
+      mst_subtitle_color_selected <- mst_subtitle_color_reactive()
+    } else {
+      mst_subtitle_color_selected <- "#000000"
+    }
+    
+    if(!is.null( mst_subtitle_size_reactive())) {
+       mst_subtitle_size_selected <-  mst_subtitle_size_reactive()
+    } else {
+       mst_subtitle_size_selected <- 20
+    }
+    
+    
     output$mst_controls <- renderUI(
       box(
         solidHeader = TRUE,
@@ -18401,7 +18498,7 @@ server <- function(input, output, session) {
                   colorPickr(
                     inputId = "node_font_color",
                     width = "100%",
-                    selected = "#000000",
+                    selected = node_font_color_selected,
                     label = "",
                     update = "changestop",
                     interaction = list(clear = FALSE,
@@ -18425,7 +18522,7 @@ server <- function(input, output, session) {
                     numericInput(
                       "node_label_fontsize",
                       label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                      value = 14,
+                      value = node_label_fontsize_selected,
                       min = 8,
                       max = 30,
                       step = 1,
@@ -18448,6 +18545,7 @@ server <- function(input, output, session) {
               align = "center",
               textInput(
                 "mst_title",
+                value = mst_title_selected,
                 label = "",
                 width = "100%",
                 placeholder = "Plot Title"
@@ -18457,7 +18555,7 @@ server <- function(input, output, session) {
                   width = 7,
                   colorPickr(
                     inputId = "mst_title_color",
-                    selected = "#000000",
+                    selected = mst_title_color_selected,
                     label = "",
                     update = "changestop",
                     interaction = list(clear = FALSE,
@@ -18482,7 +18580,7 @@ server <- function(input, output, session) {
                     numericInput(
                       "mst_title_size",
                       label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                      value = 40,
+                      value = mst_title_size_selected,
                       min = 15,
                       max = 40,
                       step = 1,
@@ -18505,6 +18603,7 @@ server <- function(input, output, session) {
               align = "center",
               textInput(
                 "mst_subtitle",
+                value = mst_subtitle_selected,
                 label = "",
                 width = "100%",
                 placeholder = "Plot Subtitle"
@@ -18516,7 +18615,7 @@ server <- function(input, output, session) {
                     width = 7,
                     colorPickr(
                       inputId = "mst_subtitle_color",
-                      selected = "#000000",
+                      selected = mst_subtitle_color_selected,
                       label = "",
                       update = "changestop",
                       interaction = list(clear = FALSE,
@@ -18542,7 +18641,7 @@ server <- function(input, output, session) {
                     numericInput(
                       "mst_subtitle_size",
                       label = h5("Size", style = "color:white; margin-bottom: 0px;"),
-                      value = 20,
+                      value = mst_subtitle_size_selected,
                       min = 15,
                       max = 40,
                       step = 1,
@@ -18559,8 +18658,45 @@ server <- function(input, output, session) {
     ) 
   })
   
+  mst_color_var_reactive <- reactiveVal(NULL)
+  mst_col_var_reactive <- reactiveVal(NULL)
+  mst_col_scale_reactive <- reactiveVal(NULL)
+  
+  observe({
+    if (!is.null(input$mst_color_var)) {
+      mst_color_var_reactive(input$mst_color_var)
+    }
+    
+    if (!is.null(input$mst_col_var)) {
+      mst_col_var_reactive(input$mst_col_var)
+    }
+    
+    if (!is.null(input$mst_col_scale)) {
+      mst_col_scale_reactive(input$mst_col_scale)
+    }
+  })
+  
   # render mst variable mapping menu
   observeEvent(input$mst_variable_menu, {
+    
+    if(!is.null(mst_color_var_reactive())) {
+      mst_color_var_selected <- mst_color_var_reactive()
+    } else {
+      mst_color_var_selected <- FALSE
+    }
+    
+    if(!is.null(mst_col_var_reactive())) {
+      mst_col_var_selected <- mst_col_var_reactive()
+    } else {
+      mst_col_var_selected <- "Isolation Date"
+    }
+    
+    if(!is.null(mst_col_scale_reactive())) {
+      mst_col_scale_selected <- mst_col_scale_reactive()
+    } else {
+      mst_col_scale_selected <- "Viridis"
+    }
+    
     output$mst_controls <- renderUI(
       box(
         solidHeader = TRUE,
@@ -18583,7 +18719,7 @@ server <- function(input, output, session) {
                     materialSwitch(
                       "mst_color_var",
                       h5(p("Add Variable"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                      value = FALSE,
+                      value = mst_color_var_selected,
                       right = TRUE
                     )
                   )
@@ -18613,7 +18749,8 @@ server <- function(input, output, session) {
                         selection <- c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)])
                         cust_vars <- DB$cust_var$Variable[which(DB$cust_var$Variable %in% selection)]
                         selection[-which(selection == cust_vars[DB$cust_var[cust_vars,]$Type != "categ"])]
-                      } else {c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)])},
+                      } else {c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)])},,
+                      selected = mst_col_var_selected,
                       width = "100%"
                     )
                   )
@@ -18628,6 +18765,7 @@ server <- function(input, output, session) {
                     "mst_col_scale",
                     label = h5("Color Scale", style = "color:white; margin-bottom: 0px;"),
                     choices = c("Viridis", "Rainbow"),
+                    selected = mst_col_scale_selected,
                     width = "100%"
                   ),
                   br()
@@ -18640,7 +18778,66 @@ server <- function(input, output, session) {
     ) 
   })
   
+  mst_legend_color_reactive <- reactiveVal(NULL)
+  mst_color_node_reactive <- reactiveVal(NULL)
+  mst_color_edge_reactive <- reactiveVal(NULL)
+  mst_edge_font_color_reactive <- reactiveVal(NULL)
+  mst_background_color_reactive <- reactiveVal(NULL)
+  mst_background_transparent_reactive <- reactiveVal(NULL)
+  
+  observe({
+    if (!is.null(input$mst_legend_color)) {
+      mst_legend_color_reactive(input$mst_legend_color)
+    }
+    if (!is.null(input$mst_color_node)) {
+      mst_color_node_reactive(input$mst_color_node)
+    }
+    if (!is.null(input$mst_color_edge)) {
+      mst_color_edge_reactive(input$mst_color_edge)
+    }
+    if (!is.null(input$mst_edge_font_color)) {
+      mst_edge_font_color_reactive(input$mst_edge_font_color)
+    }
+    if (!is.null(input$mst_background_color)) {
+      mst_background_color_reactive(input$mst_background_color)
+    }
+    if (!is.null(input$mst_background_transparent)) {
+      mst_background_transparent_reactive(input$mst_background_transparent)
+    }
+  })
+  
   observeEvent(input$mst_color_menu, {
+    
+    if(!is.null(mst_legend_color_reactive())) {
+      mst_legend_color_selected <-  mst_legend_color_reactive()
+    } else {
+      mst_legend_color_selected <- "#000000"
+    }
+    
+    if(!is.null(mst_color_edge_reactive())) {
+      mst_color_edge_selected <-  mst_color_edge_reactive()
+    } else {
+      mst_color_edge_selected <- "#000000"
+    }
+    
+    if(!is.null(mst_edge_font_color_reactive())) {
+      mst_edge_font_color_selected <-  mst_edge_font_color_reactive()
+    } else {
+      mst_edge_font_color_selected <- "#000000"
+    }
+    
+    if(!is.null(mst_background_color_reactive())) {
+      mst_background_color_selected <-  mst_background_color_reactive()
+    } else {
+      mst_background_color_selected <- "#ffffff"
+    }
+    
+    if(!is.null(mst_background_transparent_reactive())) {
+      mst_background_transparent_selected <-  mst_background_transparent_reactive()
+    } else {
+      mst_background_transparent_selected <- FALSE
+    }
+    
     output$mst_controls <- renderUI(
       box(
         solidHeader = TRUE,
@@ -18666,7 +18863,7 @@ server <- function(input, output, session) {
               align = "center",
               colorPickr(
                 inputId = "mst_legend_color",
-                selected = "#000000",
+                selected = mst_legend_color_selected,
                 label = "",
                 update = "changestop",
                 interaction = list(clear = FALSE,
@@ -18712,7 +18909,7 @@ server <- function(input, output, session) {
               colorPickr(
                 inputId = "mst_color_edge",
                 width = "100%",
-                selected = "#000000",
+                selected = mst_color_edge_selected,
                 label = "",
                 update = "changestop",
                 interaction = list(clear = FALSE,
@@ -18739,7 +18936,7 @@ server <- function(input, output, session) {
               colorPickr(
                 inputId = "mst_edge_font_color",
                 width = "100%",
-                selected = "#000000",
+                selected = mst_edge_font_color_selected,
                 label = "",
                 update = "changestop",
                 interaction = list(clear = FALSE,
@@ -18766,7 +18963,7 @@ server <- function(input, output, session) {
               colorPickr(
                 inputId = "mst_background_color",
                 width = "100%",
-                selected = "#ffffff",
+                selected = mst_background_color_selected,
                 label = "",
                 update = "changestop",
                 interaction = list(clear = FALSE,
@@ -18784,7 +18981,7 @@ server <- function(input, output, session) {
                 materialSwitch(
                   "mst_background_transparent",
                   h5(p("Transparent"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                  value = FALSE,
+                  value = mst_background_transparent_selected,
                   right = TRUE
                 )
               )
@@ -18796,7 +18993,88 @@ server <- function(input, output, session) {
     ) 
   })
   
+  scale_nodes_reactive <- reactiveVal(NULL)
+  mst_node_scale_reactive <- reactiveVal(NULL)
+  mst_node_size_reactive <- reactiveVal(NULL)
+  mst_scale_edges_reactive <- reactiveVal(NULL)
+  mst_edge_length_scale_reactive <- reactiveVal(NULL)
+  mst_edge_length_reactive <- reactiveVal(NULL)
+  mst_edge_font_size_reactive <- reactiveVal(NULL)
+  
+  observe({
+    if (!is.null(input$scale_nodes)) {
+      scale_nodes_reactive(input$scale_nodes)
+    }
+    
+    if (!is.null(input$mst_node_scale)) {
+      mst_node_scale_reactive(input$mst_node_scale)
+    }
+    
+    if (!is.null(input$mst_node_size)) {
+      mst_node_size_reactive(input$mst_node_size)
+    }
+    
+    if (!is.null(input$mst_scale_edges)) {
+      mst_scale_edges_reactive(input$mst_scale_edges)
+    }
+    
+    if (!is.null(input$mst_edge_length_scale)) {
+      mst_edge_length_scale_reactive(input$mst_edge_length_scale)
+    }
+    
+    if (!is.null(input$mst_edge_length)) {
+      mst_edge_length_reactive(input$mst_edge_length)
+    }
+    
+    if (!is.null(input$mst_edge_font_size)) {
+      mst_edge_font_size_reactive(input$mst_edge_font_size)
+    }
+  })
+  
   observeEvent(input$mst_size_menu, {
+    
+    if(!is.null(scale_nodes_reactive())) {
+      scale_nodes_selected <- scale_nodes_reactive()
+    } else {
+      scale_nodes_selected <- TRUE
+    }
+    
+    if(!is.null(mst_node_scale_reactive())) {
+      mst_node_scale_selected <- mst_node_scale_reactive()
+    } else {
+      mst_node_scale_selected <- c(20, 40)
+    }
+    
+    if(!is.null(mst_node_size_reactive())) {
+      mst_node_size_selected <- mst_node_size_reactive()
+    } else {
+      mst_node_size_selected <- 30
+    }
+    
+    if(!is.null(mst_scale_edges_reactive())) {
+      mst_scale_edges_selected <- mst_scale_edges_reactive()
+    } else {
+      mst_scale_edges_selected <- FALSE
+    }
+    
+    if(!is.null(mst_edge_length_scale_reactive())) {
+      mst_edge_length_scale_selected <- mst_edge_length_scale_reactive()
+    } else {
+      mst_edge_length_scale_selected <- 15
+    }
+    
+    if(!is.null(mst_edge_length_reactive())) {
+      mst_edge_length_selected <- mst_edge_length_reactive()
+    } else {
+      mst_edge_length_selected <- 35
+    }
+    
+    if(!is.null(mst_edge_font_size_reactive())) {
+      mst_edge_font_size_selected <- mst_edge_font_size_reactive()
+    } else {
+      mst_edge_font_size_selected <- 18
+    }
+    
     output$mst_controls <- renderUI(
       box(
         solidHeader = TRUE,
@@ -18815,7 +19093,7 @@ server <- function(input, output, session) {
                 materialSwitch(
                   "scale_nodes",
                   h5(p("Scale by Duplicates"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                  value = TRUE,
+                  value = scale_nodes_selected,
                   right = TRUE
                 )
               )
@@ -18858,7 +19136,7 @@ server <- function(input, output, session) {
                         label = "",
                         min = 1,
                         max = 80,
-                        value = c(20, 40),
+                        value = mst_node_scale_selected,
                         ticks = FALSE
                       )
                     )
@@ -18872,7 +19150,7 @@ server <- function(input, output, session) {
                         label = "",
                         min = 1,
                         max = 100,
-                        value = 30,
+                        value = mst_node_size_selected,
                         ticks = FALSE
                       ) 
                     )
@@ -18893,7 +19171,7 @@ server <- function(input, output, session) {
                 materialSwitch(
                   "mst_scale_edges",
                   h5(p("Scale Allelic Distance"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                  value = FALSE,
+                  value = mst_scale_edges_selected,
                   right = TRUE
                 )
               ),
@@ -18930,7 +19208,7 @@ server <- function(input, output, session) {
                         label = NULL,
                         min = 1,
                         max = 40,
-                        value = 15,
+                        value = mst_edge_length_scale_selected,
                         ticks = FALSE
                       ) 
                     )
@@ -18943,7 +19221,7 @@ server <- function(input, output, session) {
                         inputId = "mst_edge_length",
                         label = NULL,
                         choices = append(seq(0.1, 1, 0.1), 2:100),
-                        selected = 35,
+                        selected = mst_edge_length_selected,
                         hide_min_max = FALSE
                       ) 
                     )
@@ -18969,7 +19247,7 @@ server <- function(input, output, session) {
                     sliderInput(
                       "mst_edge_font_size",
                       "",
-                      value = 18,
+                      value = mst_edge_font_size_selected,
                       step = 1,
                       min = 8,
                       max = 30,
@@ -19098,7 +19376,142 @@ server <- function(input, output, session) {
     ) 
   })
   
+  mst_ratio_reactive <- reactiveVal(NULL)
+  mst_scale_reactive <- reactiveVal(NULL)
+  mst_shadow_reactive <- reactiveVal(NULL)
+  mst_node_shape_reactive <- reactiveVal(NULL)
+  mst_show_clusters_reactive <- reactiveVal(NULL)
+  mst_cluster_col_scale_reactive <- reactiveVal(NULL)
+  mst_cluster_type_reactive <- reactiveVal(NULL)
+  mst_cluster_width_reactive <- reactiveVal(NULL)
+  mst_cluster_threshold_reactive <- reactiveVal(NULL)
+  mst_legend_ori_reactive <- reactiveVal(NULL)
+  mst_font_size_reactive <- reactiveVal(NULL)
+  mst_symbol_size_reactive <- reactiveVal(NULL)
+  
+  observe({
+    if (!is.null(input$mst_ratio)) {
+      mst_ratio_reactive(input$mst_ratio)
+    }
+    
+    if (!is.null(input$mst_scale)) {
+      mst_scale_reactive(input$mst_scale)
+    }
+    
+    if (!is.null(input$mst_shadow)) {
+      mst_shadow_reactive(input$mst_shadow)
+    }
+    
+    if (!is.null(input$mst_node_shape)) {
+      mst_node_shape_reactive(input$mst_node_shape)
+    }
+    
+    if (!is.null(input$mst_show_clusters)) {
+      mst_show_clusters_reactive(input$mst_show_clusters)
+    }
+    
+    if (!is.null(input$mst_cluster_col_scale)) {
+      mst_cluster_col_scale_reactive(input$mst_cluster_col_scale)
+    }
+    
+    if (!is.null(input$mst_cluster_type)) {
+      mst_cluster_type_reactive(input$mst_cluster_type)
+    }
+    
+    if (!is.null(input$mst_cluster_width)) {
+      mst_cluster_width_reactive(input$mst_cluster_width)
+    }
+    
+    if (!is.null(input$mst_cluster_threshold)) {
+      mst_cluster_threshold_reactive(input$mst_cluster_threshold)
+    }
+    
+    if (!is.null(input$mst_legend_ori)) {
+      mst_legend_ori_reactive(input$mst_legend_ori)
+    }
+    
+    if (!is.null(input$mst_font_size)) {
+      mst_font_size_reactive(input$mst_font_size)
+    }
+    
+    if (!is.null(input$mst_symbol_size)) {
+      mst_symbol_size_reactive(input$mst_symbol_size)
+    }
+  })
+  
   observeEvent(input$mst_misc_menu, {
+    
+    if(!is.null(mst_ratio_reactive())) {
+      mst_ratio_selected <- mst_ratio_reactive()
+    } else {
+      mst_ratio_selected <- 16/10
+    }
+    
+    if(!is.null(mst_scale_reactive())) {
+      mst_scale_selected <- mst_scale_reactive()
+    } else {
+      mst_scale_selected <- 655
+    }
+    
+    if(!is.null(mst_shadow_reactive())) {
+      mst_shadow_selected <- mst_shadow_reactive()
+    } else {
+      mst_shadow_selected <- TRUE
+    }
+    
+    if(!is.null(mst_node_shape_reactive())) {
+      mst_node_shape_selected <- mst_node_shape_reactive()
+    } else {
+      mst_node_shape_selected <- "dot"
+    }
+    
+    if(!is.null(mst_show_clusters_reactive())) {
+      mst_show_clusters_selected <- mst_show_clusters_reactive()
+    } else {
+      mst_show_clusters_selected <- FALSE
+    }
+    
+    if(!is.null(mst_cluster_col_scale_reactive())) {
+      mst_cluster_col_scale_selected <- mst_cluster_col_scale_reactive()
+    } else {
+      mst_cluster_col_scale_selected <- "Viridis"
+    }
+    
+    if(!is.null(mst_cluster_type_reactive())) {
+      mst_cluster_type_selected <- mst_cluster_type_reactive()
+    } else {
+      mst_cluster_type_selected <- "Area"
+    }
+    
+    if(!is.null(mst_cluster_width_reactive())) {
+      mst_cluster_width_selected <- mst_cluster_width_reactive()
+    } else {
+      mst_cluster_width_selected <- 24
+    }
+    
+    if(!is.null(mst_cluster_threshold_reactive())) {
+      mst_cluster_threshold_selected <- mst_cluster_threshold_reactive()
+    } else {
+      mst_cluster_threshold_selected <- 24
+    }
+    
+    if(!is.null(mst_legend_ori_reactive())) {
+      mst_legend_ori_selected <- mst_legend_ori_reactive()
+    } else {
+      mst_legend_ori_selected <- "left"
+    }
+    
+    if(!is.null(mst_font_size_reactive())) {
+      mst_font_size_selected <- mst_font_size_reactive()
+    } else {
+      mst_font_size_selected <- 18
+    }
+    
+    if(!is.null(mst_symbol_size_reactive())) {
+      mst_symbol_size_selected <- mst_symbol_size_reactive()
+    } else {
+      mst_symbol_size_selected <- 20
+    }
     output$mst_controls <- renderUI(
       box(
         solidHeader = TRUE,
@@ -19131,7 +19544,8 @@ server <- function(input, output, session) {
                     selectInput(
                       "mst_ratio",
                       "",
-                      choices = c("16:10" = (16/10), "16:9" = (16/9), "4:3" = (4/3))
+                      choices = c("16:10" = (16/10), "16:9" = (16/9), "4:3" = (4/3)),
+                      selected = mst_ratio_selected
                     )
                   )
                 )
@@ -19158,10 +19572,10 @@ server <- function(input, output, session) {
                       sliderInput(
                         "mst_scale",
                         "",
-                        min = 500,
-                        max = 1200,
+                        min = 450,
+                        max = 670,
                         step = 5,
-                        value = 800,
+                        value = mst_scale_selected,
                         width = "95%",
                         ticks = FALSE
                       )
@@ -19186,7 +19600,7 @@ server <- function(input, output, session) {
                 materialSwitch(
                   "mst_shadow",
                   h5(p("Show Shadow"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                  value = TRUE,
+                  value = mst_shadow_selected,
                   right = TRUE
                 )
               ),
@@ -19210,7 +19624,7 @@ server <- function(input, output, session) {
                       "",
                       choices = list(`Label inside` = c("Circle" = "circle", "Box" = "box", "Text" = "text"),
                                      `Label outside` = c("Diamond" = "diamond", "Hexagon" = "hexagon","Dot" = "dot", "Square" = "square")),
-                      selected = c("Dot" = "dot")
+                      selected = mst_node_shape_selected
                     )
                   )
                 )
@@ -19244,7 +19658,7 @@ server <- function(input, output, session) {
                     materialSwitch(
                       "mst_show_clusters",
                       h5(p("Show"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                      value = FALSE,
+                      value = mst_show_clusters_selected,
                       right = TRUE
                     )
                   )
@@ -19272,6 +19686,7 @@ server <- function(input, output, session) {
                           "mst_cluster_col_scale",
                           label = h5("Color Scale", style = "color:white; margin-bottom: 0px;"),
                           choices = c("Viridis", "Rainbow"),
+                          selected = mst_cluster_col_scale_selected,
                           width = "150px"
                         ),
                         br(),
@@ -19279,6 +19694,7 @@ server <- function(input, output, session) {
                           "mst_cluster_type",
                           label = h5("Cluster Type", style = "color:white; margin-bottom: 0px;"),
                           choices = c("Area", "Skeleton"),
+                          selected = mst_cluster_type_selected,
                           width = "150px"
                         ),
                         br(),
@@ -19287,7 +19703,7 @@ server <- function(input, output, session) {
                           sliderInput(
                             "mst_cluster_width",
                             label = h5("Skeleton Width", style = "color:white; margin-bottom: 0px;"),
-                            value = 24,
+                            value = mst_cluster_width_selected,
                             step = 1,
                             min = 1,
                             max = 50,
@@ -19350,7 +19766,8 @@ server <- function(input, output, session) {
                     "mst_legend_ori",
                     label = "",
                     width = "100%",
-                    choices = c("Left" = "left", "Right" = "right")
+                    choices = c("Left" = "left", "Right" = "right"),
+                    selected = mst_legend_ori_selected
                   )
                 ),
                 column(
@@ -19372,7 +19789,7 @@ server <- function(input, output, session) {
                         sliderInput(
                           "mst_font_size",
                           label = h5("Font Size", style = "color:white; margin-bottom: 0px;"),
-                          value = 18,
+                          value = mst_font_size_selected,
                           min = 15,
                           max = 30,
                           step = 1,
@@ -19389,7 +19806,7 @@ server <- function(input, output, session) {
                         sliderInput(
                           "mst_symbol_size",
                           label = h5("Key Size", style = "color:white; margin-bottom: 0px;"),
-                          value = 20,
+                          value = mst_symbol_size_selected,
                           min = 10,
                           max = 30,
                           step = 1,
@@ -19413,12 +19830,23 @@ server <- function(input, output, session) {
   # Clustering UI
   output$mst_cluster <- renderUI({
     req(DB$schemeinfo)
+    
+    if(!is.null(mst_cluster_threshold_reactive())) {
+      mst_cluster_threshold_selected <- mst_cluster_threshold_reactive()
+    } else {
+      if(!is.null(DB$cluster_thresh)) {
+        mst_cluster_threshold_selected <- DB$cluster_thresh 
+      } else {
+        mst_cluster_threshold_selected <- 10
+      }
+    }
+    
     div(
       class = "mst-threshold",
       numericInput(
         inputId = "mst_cluster_threshold",
         label = NULL,
-        value = DB$cluster_thresh,
+        value = mst_cluster_threshold_selected,
         min = 1,
         max = 99
       )
@@ -19427,10 +19855,16 @@ server <- function(input, output, session) {
   
   # MST color mapping
   output$mst_color_mapping <- renderUI({
+    
+    if(!is.null(mst_color_node_reactive())) {
+      mst_color_node_selected <- mst_color_node_reactive()
+    } else {
+      mst_color_node_selected <- "#B2FACA"
+    }
     mst_color_node <- colorPickr(
       inputId = "mst_color_node",
       width = "100%",
-      selected = "#B2FACA",
+      selected = mst_color_node_selected,
       label = "",
       update = "changestop",
       interaction = list(clear = FALSE,
@@ -19438,7 +19872,13 @@ server <- function(input, output, session) {
       position = "right-start"
     )
     
-    if(input$mst_color_var == FALSE) {
+    if(!is.null(mst_color_var_reactive())) {
+      mst_color_var_selected <- mst_color_var_reactive()
+    } else {
+      mst_color_var_selected <- FALSE
+    }
+    
+    if(mst_color_var_selected == FALSE) {
       mst_color_node
     } else {
       shinyjs::disabled(mst_color_node)
@@ -19463,11 +19903,19 @@ server <- function(input, output, session) {
   
   # MST node labels 
   output$mst_node_label <- renderUI({
+    
+    
+    if(!is.null(mst_node_label_reactive())) {
+      mst_node_label_selected <- mst_node_label_reactive()
+    } else {
+      mst_node_label_selected <- "Assembly Name"
+    }
+    
     selectInput(
       "mst_node_label",
       label = "",
       choices = names(DB$meta)[c(1, 3, 4, 6, 7, 8, 9)],
-      selected = "Assembly Name",
+      selected = mst_node_label_selected,
       width = "100%"
     )
   })
@@ -19555,8 +20003,14 @@ server <- function(input, output, session) {
     
     Vis$var_cols <- NULL
     
+    if(!is.null(input$mst_color_var)) {
+      mst_color_var <- input$mst_color_var
+    } else {
+      mst_color_var <- FALSE
+    }
+    
     # Generate pie charts as nodes
-    if(input$mst_color_var == TRUE & (!is.null(input$mst_col_var))) {
+    if(mst_color_var == TRUE) {
       
       group <- character(nrow(data$nodes))
       for (i in 1:length(unique(Vis$meta_mst[[input$mst_col_var]]))) {
@@ -19602,20 +20056,92 @@ server <- function(input, output, session) {
       }
     }
     
-    data$edges <- mutate(data$edges,
-                         length = if(input$mst_scale_edges == FALSE) {
-                           input$mst_edge_length
-                         } else {
-                           data$edges$weight * input$mst_edge_length_scale
-                         },
-                         label = as.character(data$edges$weight),
-                         opacity = input$mst_edge_opacity)
+    if(!is.null(input$mst_scale_edges)) {
+      mst_scale_edges <- input$mst_scale_edges
+    } else {
+      mst_scale_edges <- FALSE
+    }
     
-    if (input$mst_show_clusters) {
-      clusters <- compute_clusters(data$nodes, data$edges, input$mst_cluster_threshold)
-      if (input$mst_cluster_type == "Area") {
+    if(!is.null(input$mst_edge_length)) {
+      mst_edge_length <- input$mst_edge_length
+    } else {
+      mst_edge_length <- 35
+    }
+    
+    if(!is.null(input$mst_edge_length_scale)) {
+      mst_edge_length_scale <- input$mst_edge_length_scale
+    } else {
+      mst_edge_length_scale <- 15
+    }
+    
+    if(!is.null(input$mst_cluster_threshold)) {
+      mst_cluster_threshold <- input$mst_cluster_threshold
+    } else {
+      mst_cluster_threshold <- DB$cluster_thresh
+    }
+    
+    if(!is.null(input$mst_show_clusters)) {
+      mst_show_clusters <- input$mst_show_clusters
+    } else {
+      mst_show_clusters <- FALSE
+    }
+    
+    if(!is.null(input$mst_cluster_type)) {
+      mst_cluster_type <- input$mst_cluster_type
+    } else {
+      mst_cluster_type <- "Area"
+    }
+    
+    if(!is.null(input$mst_cluster_col_scale)) {
+      mst_cluster_col_scale <- input$mst_cluster_col_scale
+    } else {
+      mst_cluster_col_scale <- "Viridis"
+    }
+    
+    
+    data$edges <- mutate(data$edges,
+                         length = if(mst_scale_edges == FALSE) {
+                           mst_edge_length
+                         } else {
+                           data$edges$weight * mst_edge_length_scale
+                         },
+                         label = as.character(data$edges$weight))
+    
+    if (mst_show_clusters) {
+      clusters <- compute_clusters(data$nodes, data$edges, mst_cluster_threshold)
+      if (mst_cluster_type == "Area") {
         data$nodes$group <- clusters$group
       }
+    }
+    
+    if(!is.null(input$mst_node_shape)) {
+      mst_node_shape <- input$mst_node_shape
+    } else {
+      mst_node_shape <- "dot"
+    }
+    
+    if(!is.null(input$mst_shadow)) {
+      mst_shadow <- input$mst_shadow
+    } else {
+      mst_shadow <- TRUE
+    }
+    
+    if(!is.null(input$node_label_fontsize)) {
+      node_label_fontsize <- input$node_label_fontsize
+    } else {
+      node_label_fontsize <- 14
+    }
+    
+    if(!is.null(input$mst_legend_ori)) {
+      mst_legend_ori <- input$mst_legend_ori
+    } else {
+      mst_legend_ori <- "left"
+    }
+    
+    if(!is.null(input$mst_cluster_width)) {
+      mst_cluster_width <- input$mst_cluster_width
+    } else {
+      mst_cluster_width <- 24
     }
     
     visNetwork_graph <- visNetwork(data$nodes, data$edges,
@@ -19623,14 +20149,14 @@ server <- function(input, output, session) {
                                    background = mst_background_color(),
                                    submain = mst_subtitle()) %>%
       visNodes(size = mst_node_size(),
-               shape = input$mst_node_shape,
-               shadow = input$mst_shadow,
+               shape = mst_node_shape,
+               shadow = mst_shadow,
                color = mst_color_node(),
                ctxRenderer = ctxRendererJS,
                scaling = list(min = mst_node_size_min(),
                               max = mst_node_size_max()),
                font = list(color = node_font_color(),
-                           size = input$node_label_fontsize)) %>%
+                           size = node_label_fontsize)) %>%
       visEdges(color = mst_color_edge(),
                font = list(color = mst_edge_font_color(),
                            size = mst_edge_font_size(),
@@ -19640,13 +20166,13 @@ server <- function(input, output, session) {
       visLayout(randomSeed = 1) %>%
       visLegend(useGroups = FALSE,
                 zoom = TRUE,
-                width = legend_width(),
-                position = input$mst_legend_ori,
+                width = 0.2,
+                position = mst_legend_ori,
                 ncol = legend_col(),
                 addNodes = mst_legend())
     
-    if (input$mst_show_clusters) {
-      if (input$mst_cluster_col_scale == "Viridis") {
+    if (mst_show_clusters) {
+      if (mst_cluster_col_scale == "Viridis") {
         color_palette <- viridis(length(unique(data$nodes$group)))
         color_edges <- viridis(length(unique(clusters$edge_group)))
       } else {
@@ -19654,9 +20180,10 @@ server <- function(input, output, session) {
         color_edges <- rainbow(length(unique(clusters$edge_group)))
       }
       
-      if (input$mst_cluster_type == "Area") {
+      if (mst_cluster_type == "Area") {
         for (i in 1:length(unique(data$nodes$group))) {
-          if (sum(data$nodes$group == unique(data$nodes$group)[i]) > 1) { # Color only cluster with 2 or more nodes
+          # Color only cluster with 2 or more nodes
+          if (sum(data$nodes$group == unique(data$nodes$group)[i]) > 1) { 
             visNetwork_graph <- visNetwork_graph %>% 
               visGroups(groupname = unique(data$nodes$group)[i], color = color_palette[i])
           } else {
@@ -19670,7 +20197,7 @@ server <- function(input, output, session) {
         thin_edges$color <- "black"
         
         thick_edges <- data$edges
-        thick_edges$width <- input$mst_cluster_width
+        thick_edges$width <- mst_cluster_width
         thick_edges$color <- rep("rgba(0, 0, 0, 0)", length(data$edges$from))
         
         for (i in 1:length(unique(clusters$edge_group))) {
@@ -19705,7 +20232,7 @@ server <- function(input, output, session) {
           visLayout(randomSeed = 1) %>%
           visLegend(useGroups = FALSE,
                     zoom = TRUE,
-                    width = legend_width(),
+                    width = 0.2,
                     position = input$mst_legend_ori,
                     ncol = legend_col(),
                     addNodes = mst_legend())
@@ -19740,11 +20267,6 @@ server <- function(input, output, session) {
     }
   })
   
-  # Set MST legend width
-  legend_width <- reactive({
-    0.2
-  })
-  
   # Set MST node shape
   mst_node_shape <- reactive({
     if(input$mst_node_shape == "Pie Nodes"){
@@ -19770,34 +20292,54 @@ server <- function(input, output, session) {
   
   # Set node color
   mst_color_node <- reactive({
-    input$mst_color_node
+    if(!is.null(input$mst_color_node)) {
+      input$mst_color_node
+    } else {
+      "#B2FACA"
+    }
   })
   
   # Node Label Color
   node_font_color <- reactive({
-    input$node_font_color
+    if(!is.null(input$node_font_color)) {
+      input$node_font_color
+    } else {
+      "#000000"
+    }
   })
   
   
   # Node Size Scaling
   mst_node_scaling <- reactive({
-    if(input$scale_nodes == TRUE){
+    if(isTRUE(input$scale_nodes)){
       Vis$unique_meta$size
     } else {NULL}
   })
   
   # Node Size Min/May
   mst_node_size_min <- reactive({
-    input$mst_node_scale[1]
+    if(!is.null(input$mst_node_scale[1])) {
+      input$mst_node_scale[1]
+    } else {
+      20
+    }
   })
   
   mst_node_size_max <- reactive({
-    input$mst_node_scale[2]
+    if(!is.null(input$mst_node_scale[2])) {
+      input$mst_node_scale[2]
+    } else {
+      40
+    }
   })
   
   # Node Size
   mst_node_size <- reactive({
-    input$mst_node_size
+    if(!is.null(input$mst_node_size)) {
+      input$mst_node_size
+    } else {
+      30
+    }
   })
   
   # Set Title
@@ -19821,11 +20363,17 @@ server <- function(input, output, session) {
         )
       }
     } else {
+      
+      if(!is.null(input$mst_title_size)) {
+        mst_title_size <- input$mst_title_size
+      } else {
+        mst_title_size <- 40
+      }
       list(text = "title",
            style = paste0(
              "font-family:Georgia, Times New Roman, Times, serif;",
              "text-align:center;",
-             "font-size: ", as.character(input$mst_title_size), "px", 
+             "font-size: ", as.character(mst_title_size), "px", 
              "; color: ", as.character(mst_background_color()))
       )
     }
@@ -19833,38 +20381,73 @@ server <- function(input, output, session) {
   
   # Set Subtitle
   mst_subtitle <- reactive({
-    list(text = input$mst_subtitle,
+    if(!is.null(input$mst_subtitle)) {
+      mst_subtitle <- input$mst_subtitle
+    } else {
+      mst_subtitle <- "" 
+    }
+    
+    if(!is.null(input$mst_subtitle_size)) {
+      mst_subtitle_size <- input$mst_subtitle_size
+    } else {
+      mst_subtitle_size <- 20
+    }
+    
+    if(!is.null(input$mst_subtitle_color)) {
+      mst_subtitle_color <- input$mst_subtitle_color
+    } else {
+      mst_subtitle_color <- "#000000" 
+    }
+    
+    list(text = mst_subtitle,
          style = paste0(
            "font-family:Georgia, Times New Roman, Times, serif;",
            "text-align:center;",
-           "font-size: ", as.character(input$mst_subtitle_size), "px", 
-           "; color: ", as.character(input$mst_subtitle_color))
+           "font-size: ", as.character(mst_subtitle_size), "px", 
+           "; color: ", as.character(mst_subtitle_color))
     )
   })
   
   # Background color
   
   mst_background_color <- reactive({
-    if(input$mst_background_transparent == TRUE) {
+    if(isTRUE(input$mst_background_transparent)) {
       'rgba(0, 0, 0, 0)'
     } else{
-      input$mst_background_color
+      if(!is.null(input$mst_background_color)) {
+        mst_background_color <- input$mst_background_color
+      } else {
+        mst_background_color <- "#ffffff"
+      }
+      mst_background_color
     }
   })
   
   # Edge font color
   mst_edge_font_color <- reactive({
-    input$mst_edge_font_color
+    if(!is.null(input$mst_edge_font_color)) {
+      input$mst_edge_font_color
+    } else {
+      "#000000"
+    }
   })
   
   # Edge color
   mst_color_edge <- reactive({
-    input$mst_color_edge
+    if(!is.null(input$mst_color_edge)) {
+      input$mst_color_edge
+    } else {
+      "#000000"
+    }
   })
   
   # Edge font size
   mst_edge_font_size <- reactive({
-    input$mst_edge_font_size
+    if(!is.null(input$mst_edge_font_size)) {
+      input$mst_edge_font_size
+    } else {
+      18
+    }
   })
   
   #### NJ ----
@@ -23637,11 +24220,30 @@ server <- function(input, output, session) {
           log_print("Rendering MST graph")
           
           output$mst_field <- renderUI({
-            if(input$mst_background_transparent == TRUE) {
-              visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px"))
+            
+            if(!is.null(input$mst_scale)) {
+              scale <- input$mst_scale
+            } else {
+              scale <- 655
+            }
+            
+            if(!is.null(input$mst_ratio)) {
+              ratio <- as.numeric(input$mst_ratio)
+            } else {
+              ratio <- as.numeric("1.6")
+            }
+            
+            if(!is.null(input$mst_background_transparent)) {
+              background_transparent <- input$mst_background_transparent
+            } else {
+              background_transparent <- FALSE
+            }
+            
+            if(background_transparent == TRUE) {
+              visNetworkOutput("tree_mst", width = paste0(scale * ratio, "px"), height = paste0(scale, "px"))
             } else {
               addSpinner(
-                visNetworkOutput("tree_mst", width = paste0(as.character(as.numeric(input$mst_scale) * as.numeric(input$mst_ratio)), "px"), height = paste0(as.character(input$mst_scale), "px")),
+                visNetworkOutput("tree_mst", width = paste0(scale * ratio, "px"), height = paste0(scale, "px")),
                 spin = "dots",
                 color = "#ffffff"
               )
