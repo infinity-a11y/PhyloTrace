@@ -170,6 +170,7 @@ dependencies:
   - r-viridis=0.6.5
   - r-viridisLite=0.4.2
   - r-vroom=1.6.4
+  - r-waiter 0.2.5
   - r-webshot=0.5.5
   - r-withr=2.5.1
   - r-xfun=0.47

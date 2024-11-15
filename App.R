@@ -38,6 +38,7 @@ library(visNetwork)
 library(proxy)
 library(phangorn)
 library(cowplot)
+library(waiter)
 library(viridis)
 library(RColorBrewer)
 library(bslib)
@@ -4747,6 +4748,12 @@ server <- function(input, output, session) {
   
   phylotraceVersion <- paste("1.6.0")
   
+  # Waiting screen config
+  waiting_screen <- tagList(
+    spin_flower(),
+    h4("Loading Database", style = "color: white")
+  )
+  
   #TODO Enable this, or leave disabled
   # Kill server on session end
   session$onSessionEnded( function() {
@@ -4949,6 +4956,7 @@ server <- function(input, output, session) {
         column(
           width = 12,
           align = "center",
+          useWaiter(),
           uiOutput("load_db"),
           br(), br(), br(), br(), br(), br(), br()
         )
@@ -5122,6 +5130,8 @@ server <- function(input, output, session) {
   ### Load app event ----
   
   observeEvent(input$load, {
+    
+    waiter_show(html = waiting_screen, color = "#384555")
     
     # Reset reactive screening variables 
     output$screening_start <- NULL
@@ -8503,7 +8513,8 @@ server <- function(input, output, session) {
         )
       }
     }
-    
+  
+    waiter_hide()  
   })
   
   # _______________________ ####

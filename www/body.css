@@ -20,6 +20,11 @@ input[type="checkbox"] {
   background-color: transparent;
 }
 
+body > div.waiter-overlay.waiter-fullscreen,
+.waiter-overlay.waiter-fullscreen {
+  background: linear-gradient(135deg, rgb(40, 47, 56), rgb(56, 68, 84), rgb(73, 93, 120));
+}
+
 .irs--shiny .irs-min, .irs--shiny .irs-max {
   background-color: #2B333E;
 }
