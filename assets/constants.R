@@ -1,5 +1,60 @@
 # Constants
 
+sequential_scales <- list(
+  "YlOrRd",
+  "YlOrBr",
+  "YlGnBu",
+  "YlGn",
+  "Reds",
+  "RdPu",
+  "Purples",
+  "PuRd",
+  "PuBuGn",
+  "PuBu",
+  "OrRd",
+  "Oranges",
+  "Greys",
+  "Greens",
+  "GnBu",
+  "BuPu",
+  "BuGn",
+  "Blues"
+)
+
+qualitative_scales <- list(
+  "Set1",
+  "Set2",
+  "Set3",
+  "Pastel1",
+  "Pastel2",
+  "Paired",
+  "Dark2",
+  "Accent"
+)
+
+gradient_scales <- list(
+  "Magma" = "magma",
+  "Inferno" = "inferno",
+  "Plasma" = "plasma",
+  "Viridis" = "viridis",
+  "Cividis" = "cividis",
+  "Rocket" = "rocket",
+  "Mako" = "mako",
+  "Turbo" = "turbo"
+)
+
+diverging_scales <- list(
+  "Spectral",
+  "RdYlGn",
+  "RdYlBu",
+  "RdGy",
+  "RdBu",
+  "PuOr",
+  "PRGn",
+  "PiYG",
+  "BrBG"
+)
+
 pubmlst_schemes <- data.frame(
   species = paste0(c(
     "Acinetobacter_baumannii", "Bacillus_anthracis", "Bacillus_cereus", "Borrelia_spp",
@@ -104,19 +159,26 @@ cgmlstorg_schemes <- data.frame(
   database = "cgMLST.org"
 )
 
-schemes <-  dplyr::arrange(dplyr::add_row(pubmlst_schemes, cgmlstorg_schemes), species)
+schemes <-  dplyr::arrange(dplyr::add_row(pubmlst_schemes, 
+                                          cgmlstorg_schemes), 
+                           species)
   
 amrfinder_species <- c(
-  "Acinetobacter_baumannii", "Burkholderia_cepacia", "Burkholderia_mallei", 
-  "Burkholderia_pseudomallei", "Campylobacter",
-  "Citrobacter_freundii", "Clostridioides_difficile", "Corynebacterium_diphtheriae", 
-  "Enterobacter_asburiae", "Enterobacter_cloacae", "Enterococcus_faecalis", 
-  "Enterococcus_faecium", "Escherichia", "Klebsiella_oxytoca", 
-  "Klebsiella_pneumoniae", "Neisseria_gonorrhoeae", "Neisseria_meningitidis", 
-  "Pseudomonas_aeruginosa", "Salmonella", "Serratia_marcescens", 
-  "Staphylococcus_aureus", "Staphylococcus_pseudintermedius", "Streptococcus_agalactiae", 
-  "Streptococcus_pneumoniae", "Streptococcus_pyogenes", "Vibrio_cholerae", 
-  "Vibrio_parahaemolyticus", "Vibrio_vulnificus")
+  "Acinetobacter_baumannii", "Burkholderia_cepacia", 
+  "Burkholderia_mallei", "Burkholderia_pseudomallei", 
+  "Campylobacter", "Citrobacter_freundii", 
+  "Clostridioides_difficile", "Corynebacterium_diphtheriae", 
+  "Enterobacter_asburiae", "Enterobacter_cloacae", 
+  "Enterococcus_faecalis", "Enterococcus_faecium", 
+  "Escherichia", "Klebsiella_oxytoca", 
+  "Klebsiella_pneumoniae", "Neisseria_gonorrhoeae", 
+  "Neisseria_meningitidis", "Pseudomonas_aeruginosa", 
+  "Salmonella", "Serratia_marcescens", 
+  "Staphylococcus_aureus", "Staphylococcus_pseudintermedius", 
+  "Streptococcus_agalactiae", "Streptococcus_pneumoniae", 
+  "Streptococcus_pyogenes", "Vibrio_cholerae", 
+  "Vibrio_parahaemolyticus", "Vibrio_vulnificus"
+)
 
 country_names <- c(
   "Afghanistan",
@@ -316,5 +378,10 @@ country_names <- c(
   "Zimbabwe"
 )
 
-sel_countries <- c("Austria","Germany", "Switzerland", 
-                   "United Kingdom", "United States of America")
+sel_countries <- c(
+  "Austria",
+  "Germany", 
+  "Switzerland", 
+  "United Kingdom", 
+  "United States of America"
+)

@@ -15,7 +15,7 @@ library(shinydashboard)
 library(dashboardthemes)
 library(ggplot2)
 library(ggnewscale)
-library(ggplotify) 
+library(ggplotify)
 library(grid)
 library(gridExtra)
 library(ape)
@@ -58,7 +58,6 @@ source("./assets/ui_modules.R")
 # User Interface ----
 
 ui <- dashboardPage(
-  
   title = "PhyloTrace 1.6.0",
   
   # Title
@@ -67,8 +66,8 @@ ui <- dashboardPage(
       div(
         class = "img_logo",
         a(
-          href = "https://www.liora-bioinformatics.com/phylotrace",  # Replace with your URL
-          target = "_blank",                     # Opens link in a new tab
+          href = "https://www.liora-bioinformatics.com/phylotrace",  
+          target = "_blank",                     
           img(
             src = "PhyloTrace_BW.png", width = 190
           )
@@ -89,17 +88,18 @@ ui <- dashboardPage(
     tags$style(includeCSS("www/body.css")),
     tags$style(HTML(
       "@keyframes pulsate {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.1); }
-          100% { transform: scale(1); }
-        }
-        .pulsating-button {
-          animation: pulsate 1s ease infinite;
-          width: 40px !important;
-        }
-        .pulsating-button:hover {
-          animation: none;
-        }")),
+       0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+       }
+       .pulsating-button {
+        animation: pulsate 1s ease infinite;
+        width: 40px !important;
+       }
+       .pulsating-button:hover {
+        animation: none;
+       }
+      ")),
     br(),
     sidebarMenu(
       id = "tabs",
@@ -592,19 +592,21 @@ ui <- dashboardPage(
                   column(1),
                   column(
                     width = 5,
-                    actionButton(
-                      "download_cgMLST",
-                      label = "Download",
-                      icon = icon("download")
+                    shinyjs::disabled(
+                      actionButton(
+                        "download_cgMLST",
+                        label = "Download",
+                        icon = icon("download")
+                      )
                     ),
                     shinyjs::hidden(
                       div(
                         id = "downloading",
                         HTML(
                           paste0(
-                            "<span style='color: white; font-size: 15px; position: relative;top: -3px;'>", 
+                            "<span style='color: white; font-size: 15px; position: relative;top: 5px;'>", 
                             "Downloading scheme",
-                            '<i class="fa fa-spinner fa-spin fa-fw fa-2x" style="color:white; margin-left: 15px; position: relative; top: 6px;"></i>'
+                            '<i class="fa fa-spinner fa-spin fa-fw fa-2x" style="color:white; margin-left: 15px; position: relative; top: 6px; margin-bottom: 26px;"></i>'
                           )
                         )
                       )
@@ -614,9 +616,9 @@ ui <- dashboardPage(
                         id = "hashing",
                         HTML(
                           paste0(
-                            "<span style='color: white; font-size: 15px; position: relative;top: -3px;'>", 
+                            "<span style='color: white; font-size: 15px; position: relative;top: 5px;'>", 
                             "Hashing scheme",
-                            '<i class="fa fa-spinner fa-spin fa-fw fa-2x" style="color:white; margin-left: 15px; position: relative; top: 6px;"></i>'
+                            '<i class="fa fa-spinner fa-spin fa-fw fa-2x" style="color:white; margin-left: 15px; position: relative; top: 6px; margin-bottom: 26px;"></i>'
                           )
                         )
                       )
@@ -637,20 +639,12 @@ ui <- dashboardPage(
           column(
             width = 5,
             align = "left",
-            addSpinner(
-              tableOutput("cgmlst_scheme"),
-              spin = "dots",
-              color = "#ffffff"
-            )
+            uiOutput("test")
           ),
           column(
             width = 5,
             uiOutput("species_info_select"),
-            addSpinner(
-              uiOutput("species_info"),
-              spin = "dots",
-              color = "#ffffff"
-            )
+            uiOutput("species_info")
           )
         )
       ),
@@ -2980,7 +2974,9 @@ ui <- dashboardPage(
                             selectInput(
                               "upgma_ratio",
                               "",
-                              choices = c("16:10" = (16/10), "16:9" = (16/9), "4:3" = (4/3))
+                              choices = c("16:10" = (16 / 10), 
+                                          "16:9" = (16 / 9), 
+                                          "4:3" = (4 / 3))
                             )
                           )
                         ),
@@ -5115,10 +5111,7 @@ server <- function(input, output, session) {
   })
   
   output$imageOutput <- renderImage({
-    # Path to your PNG image with a transparent background
     image_path <- paste0(getwd(), "/www/PhyloTrace.png")
-    
-    # Use HTML to display the image with the <img> tag
     list(src = image_path,
          height = 180)
   }, deleteFile = FALSE)
@@ -5442,7 +5435,6 @@ server <- function(input, output, session) {
         )
         
         # Show message that loci files are missing
-        
         showModal(
           div(
             class = "start-modal",
@@ -5486,14 +5478,14 @@ server <- function(input, output, session) {
         output$single_typing_progress <- NULL
         output$metadata_single_box <- NULL
         output$start_typing_ui <- NULL
-        
       }
     } else {
       log_print(paste0("Loading existing ", input$scheme_db, " database from ", DB$database))
     }
     
     if(DB$load_selected == TRUE) {
-      if(gsub(" ", "_", gsub(" (PM|CM)", "", input$scheme_db)) %in% gsub("_(PM|CM)", "", schemes$species)) { #Check if selected scheme valid
+      #Check if selected scheme valid
+      if(gsub(" ", "_", gsub(" (PM|CM)", "", input$scheme_db)) %in% gsub("_(PM|CM)", "", schemes$species)) {
         
         # Save database path for next start
         saveRDS(DB$database, paste0(getwd(), "/execute/last_db.rds"))
@@ -5874,12 +5866,29 @@ server <- function(input, output, session) {
                   db_spec <- schemes[schemes[,"database"] == "cgMLST.org",]
                   DB$url_link <- db_spec[, "url"][db_spec[, "species"] == gsub(" ", "_", DB$scheme)]
                   
-                  remote_scheme <- read_html(DB$url_link) %>%
-                    html_table(header = FALSE) %>%
-                    as.data.frame(stringsAsFactors = FALSE)
+                  remote <- tryCatch({
+                    read_html(DB$url_link)
+                  }, error = function(e) {
+                    show_toast(
+                      title = "No internet connection",
+                      type = "error",
+                      position = "bottom-end",
+                      timer = 4000
+                    )
+                    warning("Could not retrieve data. Check internet connection.")
+                    return(NULL)
+                  })
                   
-                  last_scheme_change <- strptime(remote_scheme[,2][remote_scheme[,1] == "Last Change"],
-                                                 format = "%B %d, %Y, %H:%M %p")
+                  if(is.null(remote)) {
+                    last_scheme_change <- NULL
+                  } else {
+                    remote_scheme <- remote %>%
+                      html_table(header = FALSE) %>%
+                      as.data.frame(stringsAsFactors = FALSE)
+                    
+                    last_scheme_change <- strptime(remote_scheme[,2][remote_scheme[,1] == "Last Change"],
+                                                   format = "%B %d, %Y, %H:%M %p")
+                  }
                 } else if(DB$scheme_db == "pubMLST") {
                   
                   db_spec <- schemes[schemes[,"database"] == "pubMLST",]
@@ -5887,7 +5896,11 @@ server <- function(input, output, session) {
                   
                   remote_scheme <- get.schemeinfo(url_link = DB$url_link)
                   
-                  last_scheme_change <- remote_scheme[["last_updated"]]
+                  if(is.null(remote_scheme)) {
+                    last_scheme_change <- NULL
+                  } else {
+                    last_scheme_change <- remote_scheme[["last_updated"]]
+                  }
                 }
                 
                 if(!is.null(last_scheme_change)) {
@@ -11473,107 +11486,176 @@ server <- function(input, output, session) {
     
     if(grepl("_CM", input$select_cgmlst)) {
       
-      scheme_overview <- read_html(Scheme$link_scheme) %>%
-        html_table(header = FALSE) %>%
-        as.data.frame(stringsAsFactors = FALSE)
+      scheme_overview <- tryCatch({
+        read_html(Scheme$link_scheme)
+      }, error = function(e) {
+        show_toast(
+          title = "No internet connection",
+          type = "error",
+          position = "bottom-end",
+          timer = 4000
+        )
+        warning("Could not retrieve data. Check internet connection.")
+        return(NULL)
+      })
       
-      names(scheme_overview) <- c("X1", "X2")
-      
-      scheme_overview <- add_row(scheme_overview,
-                                 data.frame(
-                                   X1 = c("URL", "Database"), 
-                                   X2 = c(
-                                     paste0('<a href="', 
-                                            schemes$url[schemes$species == input$select_cgmlst], 
-                                            '/" target="_blank">', 
-                                            schemes$url[schemes$species == input$select_cgmlst], 
-                                            '</a>'),
-                                     "cgMLST.org Nomenclature Server (h25)")),
-                                 .after = 1)
-      
-      last_scheme_change <- strptime(scheme_overview$X2[scheme_overview$X1 == "Last Change"],
-                                     format = "%B %d, %Y, %H:%M %p")
-      names(scheme_overview) <- NULL
-      
-      last_file_change <- format(
-        file.info(file.path(DB$database, ".downloaded_schemes",
-                            paste0(Scheme$folder_name, ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
-      
-    } else if(grepl("_PM", input$select_cgmlst)) {
-      
-      scheme_list <- get.schemeinfo(url_link = schemes$url[schemes$species == input$select_cgmlst])
-      
-      if(!is.null(scheme_list[["last_updated"]])) {
-        last_scheme_change <- scheme_list[["last_updated"]]
+      if(!is.null(scheme_overview)) {
+        scheme_overview <- scheme_overview %>%
+          html_table(header = FALSE) %>%
+          as.data.frame(stringsAsFactors = FALSE)
+        
+        names(scheme_overview) <- c("X1", "X2")
+        
+        scheme_overview <- add_row(scheme_overview,
+                                   data.frame(
+                                     X1 = c("URL", "Database"), 
+                                     X2 = c(
+                                       paste0('<a href="', 
+                                              schemes$url[schemes$species == input$select_cgmlst], 
+                                              '/" target="_blank">', 
+                                              schemes$url[schemes$species == input$select_cgmlst], 
+                                              '</a>'),
+                                       "cgMLST.org Nomenclature Server (h25)")),
+                                   .after = 1)
+        
+        last_scheme_change <- strptime(scheme_overview$X2[scheme_overview$X1 == "Last Change"],
+                                       format = "%B %d, %Y, %H:%M %p")
+        names(scheme_overview) <- NULL
+        
         last_file_change <- format(
           file.info(file.path(DB$database, ".downloaded_schemes",
                               paste0(Scheme$folder_name, ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
-      } else {
-        last_scheme_change <- "Not Available"
-        last_file_change <- NULL
       }
+    } else if(grepl("_PM", input$select_cgmlst)) {
       
-      if(!is.null(scheme_list[["description"]])) {
-        description <- scheme_list[["description"]]
-      } else {
-        description <- "Not Available"
+      scheme_overview <- tryCatch({
+        get.schemeinfo(url_link = schemes$url[schemes$species == input$select_cgmlst])
+      }, error = function(e) {
+        show_toast(
+          title = "No internet connection",
+          type = "error",
+          position = "bottom-end",
+          timer = 4000
+        )
+        warning("Could not retrieve data. Check internet connection.")
+        return(NULL)
+      })
+      
+      if(!is.null(scheme_overview)) {
+        if(!is.null(scheme_overview[["last_updated"]])) {
+          last_scheme_change <- scheme_overview[["last_updated"]]
+          last_file_change <- format(
+            file.info(file.path(DB$database, ".downloaded_schemes",
+                                paste0(Scheme$folder_name, ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
+        } else {
+          last_scheme_change <- "Not Available"
+          last_file_change <- NULL
+        }
+        
+        if(!is.null(scheme_overview[["description"]])) {
+          description <- scheme_overview[["description"]]
+        } else {
+          description <- "Not Available"
+        }
+        
+        scheme_overview <- data.frame(x1 = c("Scheme", "Database", "URL", "Version", "Locus Count", "Last Change"),
+                                      x2 = c(gsub("_", " ", Scheme$folder_name),
+                                             "pubMLST",
+                                             paste0('<a href="', 
+                                                    paste0("https://www.pubmlst.org/bigsdb?db=",
+                                                           basename(dirname(dirname(schemes$url[schemes$species == input$select_cgmlst])))), 
+                                                    '" target="_blank">', 
+                                                    paste0("https://www.pubmlst.org/bigsdb?db=",
+                                                           basename(dirname(dirname(schemes$url[schemes$species == input$select_cgmlst])))), 
+                                                    '</a>'),
+                                             description,
+                                             scheme_overview[["locus_count"]], 
+                                             last_scheme_change))
+        
+        names(scheme_overview) <- NULL
       }
-      
-      scheme_overview <- data.frame(x1 = c("Scheme", "Database", "URL", "Version", "Locus Count", "Last Change"),
-                                    x2 = c(gsub("_", " ", Scheme$folder_name),
-                                           "pubMLST",
-                                           paste0('<a href="', 
-                                                  paste0("https://www.pubmlst.org/bigsdb?db=",
-                                                         basename(dirname(dirname(schemes$url[schemes$species == input$select_cgmlst])))), 
-                                                  '" target="_blank">', 
-                                                  paste0("https://www.pubmlst.org/bigsdb?db=",
-                                                         basename(dirname(dirname(schemes$url[schemes$species == input$select_cgmlst])))), 
-                                                  '</a>'),
-                                           description,
-                                           scheme_list[["locus_count"]], 
-                                           last_scheme_change))
-      
-      names(scheme_overview) <- NULL
     }
     
-    # Render scheme info table
-    output$cgmlst_scheme <- renderTable({
-      scheme_overview
-    }, sanitize.text.function = function(x) x,
-    width = "90%") 
-    
-    # Render scheme update availability info
-    output$scheme_update_info <- renderUI({
-      req(last_file_change, last_scheme_change)
-      if(last_file_change < last_scheme_change) {
-        HTML(
-          paste0(
-            '<i class="fa-solid fa-circle-exclamation" style="font-size:20px;color:orange; position:relative; top: 17px; left: -10px;"></i>',
-            '<span style="color: white; font-size: 15px; position:relative; top: 15px;">',
-            "Newer scheme available",
-            '</span>'
-          )
+    if(!is.null(scheme_overview)) {
+      
+      shinyjs::enable("download_cgMLST")
+      
+      output$test <- renderUI(
+        addSpinner(
+          tableOutput("cgmlst_scheme"),
+          spin = "dots",
+          color = "#ffffff"
         )
-      } else {
-        HTML(
-          paste0(
-            '<i class="fa-solid fa-check" style="font-size:20px;color:lightgreen; position:relative; top: 17px; left: -10px;"></i>',
-            '<span style="color: white; font-size: 15px; position:relative; top: 15px;">',
-            "Scheme is up-to-date",
-            '</span>'
+      )
+      
+      # Render scheme info table
+      output$cgmlst_scheme <- renderTable({
+        scheme_overview
+      }, sanitize.text.function = function(x) x,
+      width = "90%") 
+      
+      # Render scheme update availability info
+      output$scheme_update_info <- renderUI({
+        req(last_file_change, last_scheme_change)
+        if(last_file_change < last_scheme_change) {
+          HTML(
+            paste0(
+              '<i class="fa-solid fa-circle-exclamation" style="font-size:20px;color:orange; position:relative; top: 17px; left: -10px;"></i>',
+              '<span style="color: white; font-size: 15px; position:relative; top: 15px;">',
+              "Newer scheme available",
+              '</span>'
+            )
           )
+        } else {
+          HTML(
+            paste0(
+              '<i class="fa-solid fa-check" style="font-size:20px;color:lightgreen; position:relative; top: 17px; left: -10px;"></i>',
+              '<span style="color: white; font-size: 15px; position:relative; top: 15px;">',
+              "Scheme is up-to-date",
+              '</span>'
+            )
+          )
+        }
+      })
+      
+      #output$cgmlst_scheme_no_con <- NULL
+    } else {
+      
+      shinyjs::disable("download_cgMLST")
+      
+      output$cgmlst_scheme <- NULL
+      output$scheme_update_info <- NULL
+      output$test <- renderUI(
+        HTML(
+          paste(
+            '<i class="fa-solid fa-bacteria" style="font-size:15px; color: yellow;" ></i>',
+            '<span style="color: white; font-size: 15px;">',
+            "&nbsp&nbsp&nbsp Failed to fetch data. Check internet connection and try again.")
         )
-      }
-    })
+      )
+    }
     
     ### Render species info
     selected_species <- gsub("_", " ", gsub("_(PM|CM)", "", schemes$species[schemes$species == input$select_cgmlst]))
-    Scheme$species_data <- fetch.species.data(species = selected_species)
+    
+    tryCatch({
+      Scheme$species_data <- fetch.species.data(species = selected_species)
+    }, error = function(e) {
+      show_toast(
+        title = "No internet connection",
+        type = "error",
+        position = "bottom-end",
+        timer = 4000
+      )
+      warning("Could not retrieve data. Check internet connection.")
+      Scheme$species_data <- NULL
+    })
   })
   
   ### Render species info & image ----
   observe({
     req(Scheme$species_data)
+    
     multiple <- length(Scheme$species_data) > 1 & !is.null(input$selected_species)
     if(multiple) {
       species_data <- Scheme$species_data[[input$selected_species]]
@@ -11718,271 +11800,275 @@ server <- function(input, output, session) {
       
       # Render species info
       output$species_info <- renderUI({
-        box(
-          solidHeader = TRUE,
-          status = "primary",
-          width = "100%",
-          title = HTML(
-            paste0(
-              '<span style="color: white; font-size: 15px;">',
-              'Species Information - data fetched from NCBI&nbsp&nbsp&nbsp ',
-              ' <a href="', 'https://www.ncbi.nlm.nih.gov/' , '" target="_blank" style="color:#008edb; font-style:normal; text-decoration:none;"> https://www.ncbi.nlm.nih.gov/ </a>',
-              '</span>'
-            )
-          ),
-          column(
-            width = 12,
-            fluidRow(
-              br(),
-              column(
-                width = 7,
-                p(
-                  HTML(
-                    paste0(
-                      '<i class="fa-solid fa-bacterium" style="font-size:20px;color:white; margin-right: 10px;"></i>',
-                      '<span style="color: white; font-size: 22px; ">',
-                      species_data$Name$name,
-                      '</span>'
-                    )
-                  )
-                ),
-                p(
-                  HTML(
-                    paste0(
-                      '<span style="color: white; font-size: 12px;">',
-                      species_data$Name$authority,
-                      '</span>'
-                    )
-                  )
-                ),
+        addSpinner(
+          box(
+            solidHeader = TRUE,
+            status = "primary",
+            width = "100%",
+            title = HTML(
+              paste0(
+                '<span style="color: white; font-size: 15px;">',
+                'Species Information - data fetched from NCBI&nbsp&nbsp&nbsp ',
+                ' <a href="', 'https://www.ncbi.nlm.nih.gov/' , '" target="_blank" style="color:#008edb; font-style:normal; text-decoration:none;"> https://www.ncbi.nlm.nih.gov/ </a>',
+                '</span>'
+              )
+            ),
+            column(
+              width = 12,
+              fluidRow(
                 br(),
-                p(
-                  HTML(
-                    paste0(
-                      '<span style="color: white; font-size: 15px;">',
-                      'URL: ',
-                      '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
-                      species_data$ID,
-                      '/" target="_blank" style="color:#008edb; text-decoration:none;">',
-                      species_data$Name$name,
-                      ' NCBI',
-                      '</a>',
-                      '</span>'
+                column(
+                  width = 7,
+                  p(
+                    HTML(
+                      paste0(
+                        '<i class="fa-solid fa-bacterium" style="font-size:20px;color:white; margin-right: 10px;"></i>',
+                        '<span style="color: white; font-size: 22px; ">',
+                        species_data$Name$name,
+                        '</span>'
+                      )
+                    )
+                  ),
+                  p(
+                    HTML(
+                      paste0(
+                        '<span style="color: white; font-size: 12px;">',
+                        species_data$Name$authority,
+                        '</span>'
+                      )
+                    )
+                  ),
+                  br(),
+                  p(
+                    HTML(
+                      paste0(
+                        '<span style="color: white; font-size: 15px;">',
+                        'URL: ',
+                        '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                        species_data$ID,
+                        '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                        species_data$Name$name,
+                        ' NCBI',
+                        '</a>',
+                        '</span>'
+                      )
+                    )
+                  ),
+                  br(),
+                  fluidRow(
+                    column(
+                      width = 12,
+                      p(
+                        HTML(
+                          paste0(
+                            '<i class="fa-solid fa-sitemap" style="font-size:20px;color:white; margin-right: 10px;"></i>',
+                            '<span style="color: white; font-size: 20px;">',
+                            'Lineage', '</span>'
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 6,
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 15px;">',
+                                '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                species_data$Classification$superkingdom$id,
+                                '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                species_data$Classification$superkingdom$name,
+                                '</a>',
+                                '</span>'
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 6,
+                          align = "left",
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 12px;">',
+                                'Superkingdom',
+                                '</span>'
+                              )
+                            )
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 6,
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 15px;">',
+                                '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                species_data$Classification$phylum$id,
+                                '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                species_data$Classification$phylum$name,
+                                '</a>',
+                                '</span>'
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 6,
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 12px;">',
+                                'Phylum',
+                                '</span>'
+                              )
+                            )
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 6,
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 15px;">',
+                                '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                species_data$Classification$class$id,
+                                '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                species_data$Classification$class$name,
+                                '</a>',
+                                '</span>'
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 6,
+                          align = "left",
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 12px;">',
+                                'Class',
+                                '</span>'
+                              )
+                            )
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 6,
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 15px;">',
+                                '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                species_data$Classification$order$id,
+                                '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                species_data$Classification$order$name,
+                                '</a>',
+                                '</span>'
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 6,
+                          align = "left",
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 12px;">',
+                                'Order',
+                                '</span>'
+                              )
+                            )
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 6,
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 15px;">',
+                                '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                species_data$Classification$family$id,
+                                '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                species_data$Classification$family$name,
+                                '</a>',
+                                '</span>'
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 6,
+                          align = "left",
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 12px;">',
+                                'Family',
+                                '</span>'
+                              )
+                            )
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 6,
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 15px;">',
+                                '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
+                                species_data$Classification$genus$id,
+                                '/" target="_blank" style="color:#008edb; text-decoration:none;">',
+                                species_data$Classification$genus$name,
+                                '</a>',
+                                '</span>'
+                              )
+                            )
+                          )
+                        ),
+                        column(
+                          width = 6,
+                          align = "left",
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; font-size: 12px;">',
+                                'Genus',
+                                '</span>'
+                              )
+                            )
+                          )
+                        )
+                      )
                     )
                   )
                 ),
-                br(),
-                fluidRow(
-                  column(
-                    width = 12,
-                    p(
-                      HTML(
-                        paste0(
-                          '<i class="fa-solid fa-sitemap" style="font-size:20px;color:white; margin-right: 10px;"></i>',
-                          '<span style="color: white; font-size: 20px;">',
-                          'Lineage', '</span>'
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 6,
-                        p(
-                          HTML(
-                            paste0(
-                              '<span style="color: white; font-size: 15px;">',
-                              '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
-                              species_data$Classification$superkingdom$id,
-                              '/" target="_blank" style="color:#008edb; text-decoration:none;">',
-                              species_data$Classification$superkingdom$name,
-                              '</a>',
-                              '</span>'
-                            )
-                          )
-                        )
-                      ),
-                      column(
-                        width = 6,
-                        align = "left",
-                        p(
-                          HTML(
-                            paste0(
-                              '<span style="color: white; font-size: 12px;">',
-                              'Superkingdom',
-                              '</span>'
-                            )
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 6,
-                        p(
-                          HTML(
-                            paste0(
-                              '<span style="color: white; font-size: 15px;">',
-                              '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
-                              species_data$Classification$phylum$id,
-                              '/" target="_blank" style="color:#008edb; text-decoration:none;">',
-                              species_data$Classification$phylum$name,
-                              '</a>',
-                              '</span>'
-                            )
-                          )
-                        )
-                      ),
-                      column(
-                        width = 6,
-                        p(
-                          HTML(
-                            paste0(
-                              '<span style="color: white; font-size: 12px;">',
-                              'Phylum',
-                              '</span>'
-                            )
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 6,
-                        p(
-                          HTML(
-                            paste0(
-                              '<span style="color: white; font-size: 15px;">',
-                              '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
-                              species_data$Classification$class$id,
-                              '/" target="_blank" style="color:#008edb; text-decoration:none;">',
-                              species_data$Classification$class$name,
-                              '</a>',
-                              '</span>'
-                            )
-                          )
-                        )
-                      ),
-                      column(
-                        width = 6,
-                        align = "left",
-                        p(
-                          HTML(
-                            paste0(
-                              '<span style="color: white; font-size: 12px;">',
-                              'Class',
-                              '</span>'
-                            )
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 6,
-                        p(
-                          HTML(
-                            paste0(
-                              '<span style="color: white; font-size: 15px;">',
-                              '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
-                              species_data$Classification$order$id,
-                              '/" target="_blank" style="color:#008edb; text-decoration:none;">',
-                              species_data$Classification$order$name,
-                              '</a>',
-                              '</span>'
-                            )
-                          )
-                        )
-                      ),
-                      column(
-                        width = 6,
-                        align = "left",
-                        p(
-                          HTML(
-                            paste0(
-                              '<span style="color: white; font-size: 12px;">',
-                              'Order',
-                              '</span>'
-                            )
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 6,
-                        p(
-                          HTML(
-                            paste0(
-                              '<span style="color: white; font-size: 15px;">',
-                              '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
-                              species_data$Classification$family$id,
-                              '/" target="_blank" style="color:#008edb; text-decoration:none;">',
-                              species_data$Classification$family$name,
-                              '</a>',
-                              '</span>'
-                            )
-                          )
-                        )
-                      ),
-                      column(
-                        width = 6,
-                        align = "left",
-                        p(
-                          HTML(
-                            paste0(
-                              '<span style="color: white; font-size: 12px;">',
-                              'Family',
-                              '</span>'
-                            )
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 6,
-                        p(
-                          HTML(
-                            paste0(
-                              '<span style="color: white; font-size: 15px;">',
-                              '<a href="https://www.ncbi.nlm.nih.gov/datasets/taxonomy/',
-                              species_data$Classification$genus$id,
-                              '/" target="_blank" style="color:#008edb; text-decoration:none;">',
-                              species_data$Classification$genus$name,
-                              '</a>',
-                              '</span>'
-                            )
-                          )
-                        )
-                      ),
-                      column(
-                        width = 6,
-                        align = "left",
-                        p(
-                          HTML(
-                            paste0(
-                              '<span style="color: white; font-size: 12px;">',
-                              'Genus',
-                              '</span>'
-                            )
-                          )
-                        )
-                      )
-                    )
+                column(
+                  width = 5,
+                  align = "right",
+                  uiOutput("species_no_img"),
+                  div( 
+                    class = "species-image",
+                    imageOutput("species_img", width = "300px", height = "200px")
                   )
-                )
-              ),
-              column(
-                width = 5,
-                align = "right",
-                uiOutput("species_no_img"),
-                div( 
-                  class = "species-image",
-                  imageOutput("species_img", width = "300px", height = "200px")
                 )
               )
             )
-          )
+          ),
+          spin = "dots",
+          color = "#ffffff"
         )
       })
     } else {
@@ -14344,36 +14430,8 @@ server <- function(input, output, session) {
               "nj_clade_scale",
               "",
               choices = list(
-                Qualitative = list(
-                  "Set1",
-                  "Set2",
-                  "Set3",
-                  "Pastel1",
-                  "Pastel2",
-                  "Paired",
-                  "Dark2",
-                  "Accent"
-                ),
-                Sequential = list(
-                  "YlOrRd",
-                  "YlOrBr",
-                  "YlGnBu",
-                  "YlGn",
-                  "Reds",
-                  "RdPu",
-                  "Purples",
-                  "PuRd",
-                  "PuBuGn",
-                  "PuBu",
-                  "OrRd",
-                  "Oranges",
-                  "Greys",
-                  "Greens",
-                  "GnBu",
-                  "BuPu",
-                  "BuGn",
-                  "Blues"
-                )
+                Qualitative = qualitative_scales,
+                Sequential = sequential_scales
               )
             )
           )
@@ -14419,36 +14477,8 @@ server <- function(input, output, session) {
               "upgma_clade_scale",
               "",
               choices = list(
-                Qualitative = list(
-                  "Set1",
-                  "Set2",
-                  "Set3",
-                  "Pastel1",
-                  "Pastel2",
-                  "Paired",
-                  "Dark2",
-                  "Accent"
-                ),
-                Sequential = list(
-                  "YlOrRd",
-                  "YlOrBr",
-                  "YlGnBu",
-                  "YlGn",
-                  "Reds",
-                  "RdPu",
-                  "Purples",
-                  "PuRd",
-                  "PuBuGn",
-                  "PuBu",
-                  "OrRd",
-                  "Oranges",
-                  "Greys",
-                  "Greens",
-                  "GnBu",
-                  "BuPu",
-                  "BuGn",
-                  "Blues"
-                )
+                Qualitative = qualitative_scales,
+                Sequential = sequential_scales
               )
             )
           )
@@ -14464,27 +14494,8 @@ server <- function(input, output, session) {
         "nj_heatmap_scale",
         "",
         choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
+          Continous = gradient_scales,
+          Diverging = diverging_scales
         )
       )
       if(input$nj_heatmap_show) {
@@ -14496,16 +14507,7 @@ server <- function(input, output, session) {
           "nj_heatmap_scale",
           "",
           choices = list(
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
+            Gradient = gradient_scales
           ),
           selected = "turbo"
         )
@@ -14517,36 +14519,8 @@ server <- function(input, output, session) {
           "nj_heatmap_scale",
           "",
           choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
+            Qualitative = qualitative_scales,
+            Sequential = sequential_scales
           ),
           selected = "Dark2"
         )
@@ -14563,27 +14537,8 @@ server <- function(input, output, session) {
         "upgma_heatmap_scale",
         "",
         choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
+          Continous = gradient_scales,
+          Diverging = diverging_scales
         )
       )
       if(input$upgma_heatmap_show) {
@@ -14595,16 +14550,7 @@ server <- function(input, output, session) {
           "upgma_heatmap_scale",
           "",
           choices = list(
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
+            Gradient = gradient_scales
           ),
           selected = "turbo"
         )
@@ -14616,36 +14562,8 @@ server <- function(input, output, session) {
           "upgma_heatmap_scale",
           "",
           choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
+            Qualitative = qualitative_scales,
+            Sequential = sequential_scales
           ),
           selected = "Paired"
         )
@@ -14663,27 +14581,8 @@ server <- function(input, output, session) {
         "nj_tiles_scale_1",
         "",
         choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
+          Continous = gradient_scales,
+          Diverging = diverging_scales
         )
       )
       if(input$nj_tiles_show_1) {
@@ -14695,16 +14594,7 @@ server <- function(input, output, session) {
           "nj_tiles_scale_1",
           "",
           choices = list(
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
+            Gradient = gradient_scales
           ),
           selected = "turbo"
         )
@@ -14716,36 +14606,8 @@ server <- function(input, output, session) {
           "nj_tiles_scale_1",
           "",
           choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
+            Qualitative = qualitative_scales,
+            Sequential = sequential_scales
           ),
           selected = "Accent"
         )
@@ -14762,27 +14624,8 @@ server <- function(input, output, session) {
         "upgma_tiles_scale_1",
         "",
         choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
+          Continous = gradient_scales,
+          Diverging = diverging_scales
         )
       )
       if(input$upgma_tiles_show_1) {
@@ -14794,16 +14637,7 @@ server <- function(input, output, session) {
           "upgma_tiles_scale_1",
           "",
           choices = list(
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
+            Gradient = gradient_scales
           ),
           selected = "turbo"
         )
@@ -14815,36 +14649,8 @@ server <- function(input, output, session) {
           "upgma_tiles_scale_1",
           "",
           choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
+            Qualitative = qualitative_scales,
+            Sequential = sequential_scales
           ),
           selected = "Accent"
         )
@@ -14861,27 +14667,8 @@ server <- function(input, output, session) {
         "nj_tiles_scale_2",
         "",
         choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
+          Continous = gradient_scales,
+          Diverging = diverging_scales
         )
       )
       if(input$nj_tiles_show_2) {
@@ -14893,16 +14680,7 @@ server <- function(input, output, session) {
           "nj_tiles_scale_2",
           "",
           choices = list(
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
+            Gradient = gradient_scales
           ),
           selected = "turbo"
         )
@@ -14914,36 +14692,8 @@ server <- function(input, output, session) {
           "nj_tiles_scale_2",
           "",
           choices = list(
-            Qualitative = list(
-              "Set2",
-              "Set2",
-              "Set3",
-              "Pastel2",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
+            Qualitative = qualitative_scales,
+            Sequential = sequential_scales
           ),
           selected = "Accent"
         )
@@ -14960,27 +14710,8 @@ server <- function(input, output, session) {
         "upgma_tiles_scale_2",
         "",
         choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
+          Continous = gradient_scales,
+          Diverging = diverging_scales
         )
       )
       if(input$upgma_tiles_show_2) {
@@ -14992,16 +14723,7 @@ server <- function(input, output, session) {
           "upgma_tiles_scale_2",
           "",
           choices = list(
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
+            Gradient = gradient_scales
           ),
           selected = "turbo"
         )
@@ -15013,36 +14735,8 @@ server <- function(input, output, session) {
           "upgma_tiles_scale_2",
           "",
           choices = list(
-            Qualitative = list(
-              "Set2",
-              "Set2",
-              "Set3",
-              "Pastel2",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
+            Qualitative = qualitative_scales,
+            Sequential = sequential_scales
           ),
           selected = "Accent"
         )
@@ -15059,27 +14753,8 @@ server <- function(input, output, session) {
         "nj_tiles_scale_3",
         "",
         choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
+          Continous = gradient_scales,
+          Diverging = diverging_scales
         )
       )
       if(input$nj_tiles_show_3) {
@@ -15091,16 +14766,7 @@ server <- function(input, output, session) {
           "nj_tiles_scale_3",
           "",
           choices = list(
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
+            Gradient = gradient_scales
           ),
           selected = "turbo"
         )
@@ -15112,36 +14778,8 @@ server <- function(input, output, session) {
           "nj_tiles_scale_3",
           "",
           choices = list(
-            Qualitative = list(
-              "Set3",
-              "Set2",
-              "Set3",
-              "Pastel3",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
+            Qualitative = qualitative_scales,
+            Sequential = sequential_scales
           ),
           selected = "Accent"
         )
@@ -15158,27 +14796,8 @@ server <- function(input, output, session) {
         "upgma_tiles_scale_3",
         "",
         choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
+          Continous = gradient_scales,
+          Diverging = diverging_scales
         )
       )
       if(input$upgma_tiles_show_3) {
@@ -15190,16 +14809,7 @@ server <- function(input, output, session) {
           "upgma_tiles_scale_3",
           "",
           choices = list(
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
+            Gradient = gradient_scales
           ),
           selected = "turbo"
         )
@@ -15211,36 +14821,8 @@ server <- function(input, output, session) {
           "upgma_tiles_scale_3",
           "",
           choices = list(
-            Qualitative = list(
-              "Set3",
-              "Set2",
-              "Set3",
-              "Pastel3",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
+            Qualitative = qualitative_scales,
+            Sequential = sequential_scales
           ),
           selected = "Accent"
         )
@@ -15257,27 +14839,8 @@ server <- function(input, output, session) {
         "nj_tiles_scale_4",
         "",
         choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
+          Continous = gradient_scales,
+          Diverging = diverging_scales
         )
       )
       if(input$nj_tiles_show_4) {
@@ -15289,16 +14852,7 @@ server <- function(input, output, session) {
           "nj_tiles_scale_4",
           "",
           choices = list(
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
+            Gradient = gradient_scales
           ),
           selected = "turbo"
         )
@@ -15310,36 +14864,8 @@ server <- function(input, output, session) {
           "nj_tiles_scale_4",
           "",
           choices = list(
-            Qualitative = list(
-              "Set4",
-              "Set2",
-              "Set3",
-              "Pastel4",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
+            Qualitative = qualitative_scales,
+            Sequential = sequential_scales
           ),
           selected = "Accent"
         )
@@ -15356,27 +14882,8 @@ server <- function(input, output, session) {
         "upgma_tiles_scale_4",
         "",
         choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
+          Continous = gradient_scales,
+          Diverging = diverging_scales
         )
       )
       if(input$upgma_tiles_show_4) {
@@ -15388,16 +14895,7 @@ server <- function(input, output, session) {
           "upgma_tiles_scale_4",
           "",
           choices = list(
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
+            Gradient = gradient_scales
           ),
           selected = "turbo"
         )
@@ -15409,36 +14907,8 @@ server <- function(input, output, session) {
           "upgma_tiles_scale_4",
           "",
           choices = list(
-            Qualitative = list(
-              "Set4",
-              "Set2",
-              "Set3",
-              "Pastel4",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
+            Qualitative = qualitative_scales,
+            Sequential = sequential_scales
           ),
           selected = "Accent"
         )
@@ -15455,27 +14925,8 @@ server <- function(input, output, session) {
         "nj_tiles_scale_5",
         "",
         choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
+          Continous = gradient_scales,
+          Diverging = diverging_scales
         )
       )
       if(input$nj_tiles_show_5) {
@@ -15487,16 +14938,7 @@ server <- function(input, output, session) {
           "nj_tiles_scale_5",
           "",
           choices = list(
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
+            Gradient = gradient_scales
           ),
           selected = "turbo"
         )
@@ -15508,36 +14950,8 @@ server <- function(input, output, session) {
           "nj_tiles_scale_5",
           "",
           choices = list(
-            Qualitative = list(
-              "Set5",
-              "Set2",
-              "Set3",
-              "Pastel5",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
+            Qualitative = qualitative_scales,
+            Sequential = sequential_scales
           ),
           selected = "Accent"
         )
@@ -15554,27 +14968,8 @@ server <- function(input, output, session) {
         "upgma_tiles_scale_5",
         "",
         choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
+          Continous = gradient_scales,
+          Diverging = diverging_scales
         )
       )
       if(input$upgma_tiles_show_5) {
@@ -15586,16 +14981,7 @@ server <- function(input, output, session) {
           "upgma_tiles_scale_5",
           "",
           choices = list(
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
+            Gradient = gradient_scales
           ),
           selected = "turbo"
         )
@@ -15607,36 +14993,8 @@ server <- function(input, output, session) {
           "upgma_tiles_scale_5",
           "",
           choices = list(
-            Qualitative = list(
-              "Set5",
-              "Set2",
-              "Set3",
-              "Pastel5",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
+            Qualitative = qualitative_scales,
+            Sequential = sequential_scales
           ),
           selected = "Accent"
         )
@@ -15655,27 +15013,8 @@ server <- function(input, output, session) {
         "",
         selectize = FALSE,
         choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
+          Continous = gradient_scales,
+          Diverging = diverging_scales
         )
       )
       if(input$nj_mapping_show) {
@@ -15688,16 +15027,7 @@ server <- function(input, output, session) {
           "",
           selectize = FALSE,
           choices = list(
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
+            Gradient = gradient_scales
           ),
           selected = "turbo"
         )
@@ -15709,36 +15039,8 @@ server <- function(input, output, session) {
           "nj_tiplab_scale",
           "",
           choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
+            Qualitative = qualitative_scales,
+            Sequential = sequential_scales
           )
         )
         if(input$nj_mapping_show) {
@@ -15755,27 +15057,8 @@ server <- function(input, output, session) {
         "",
         selectize = FALSE,
         choices = list(
-          Continous = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
-          Diverging = list(
-            "Spectral",
-            "RdYlGn",
-            "RdYlBu",
-            "RdGy",
-            "RdBu",
-            "PuOr",
-            "PRGn",
-            "PiYG",
-            "BrBG"
-          )
+          Continous = gradient_scales,
+          Diverging = diverging_scales
         )
       )
       if(input$upgma_mapping_show) {
@@ -15788,16 +15071,7 @@ server <- function(input, output, session) {
           "",
           selectize = FALSE,
           choices = list(
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
+            Gradient = gradient_scales
           ),
           selected = "turbo"
         )
@@ -15809,36 +15083,8 @@ server <- function(input, output, session) {
           "upgma_tiplab_scale",
           "",
           choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Sequential = list(
-              "YlOrRd",
-              "YlOrBr",
-              "YlGnBu",
-              "YlGn",
-              "Reds",
-              "RdPu",
-              "Purples",
-              "PuRd",
-              "PuBuGn",
-              "PuBu",
-              "OrRd",
-              "Oranges",
-              "Greys",
-              "Greens",
-              "GnBu",
-              "BuPu",
-              "BuGn",
-              "Blues"
-            )
+            Qualitative = qualitative_scales,
+            Sequential = sequential_scales
           )
         )
         if(input$upgma_mapping_show) {
@@ -15856,27 +15102,8 @@ server <- function(input, output, session) {
           "nj_tippoint_scale",
           "",
           choices = list(
-            Continous = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
-            )
+            Continous = gradient_scales,
+            Diverging = diverging_scales
           )
         )
         if(input$nj_tipcolor_mapping_show) {
@@ -15888,16 +15115,7 @@ server <- function(input, output, session) {
             "nj_tippoint_scale",
             "",
             choices = list(
-              Gradient = list(
-                "Magma" = "magma",
-                "Inferno" = "inferno",
-                "Plasma" = "plasma",
-                "Viridis" = "viridis",
-                "Cividis" = "cividis",
-                "Rocket" = "rocket",
-                "Mako" = "mako",
-                "Turbo" = "turbo"
-              )
+              Gradient = gradient_scales
             ),
             selected = "turbo"
           )
@@ -15909,36 +15127,8 @@ server <- function(input, output, session) {
             "nj_tippoint_scale",
             "",
             choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
-              ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
+              Qualitative = qualitative_scales,
+              Sequential = sequential_scales
             ),
             selected = "Set2"
           )
@@ -15952,36 +15142,8 @@ server <- function(input, output, session) {
         "nj_tippoint_scale",
         "",
         choices = list(
-          Qualitative = list(
-            "Set1",
-            "Set2",
-            "Set3",
-            "Pastel1",
-            "Pastel2",
-            "Paired",
-            "Dark2",
-            "Accent"
-          ),
-          Sequential = list(
-            "YlOrRd",
-            "YlOrBr",
-            "YlGnBu",
-            "YlGn",
-            "Reds",
-            "RdPu",
-            "Purples",
-            "PuRd",
-            "PuBuGn",
-            "PuBu",
-            "OrRd",
-            "Oranges",
-            "Greys",
-            "Greens",
-            "GnBu",
-            "BuPu",
-            "BuGn",
-            "Blues"
-          )
+          Qualitative = qualitative_scales,
+          Sequential = sequential_scales
         ),
         selected = "Set2"
       )
@@ -15999,27 +15161,8 @@ server <- function(input, output, session) {
           "upgma_tippoint_scale",
           "",
           choices = list(
-            Continous = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
-            )
+            Continous = gradient_scales,
+            Diverging = diverging_scales
           )
         )
         if(input$upgma_tipcolor_mapping_show) {
@@ -16031,16 +15174,7 @@ server <- function(input, output, session) {
             "upgma_tippoint_scale",
             "",
             choices = list(
-              Gradient = list(
-                "Magma" = "magma",
-                "Inferno" = "inferno",
-                "Plasma" = "plasma",
-                "Viridis" = "viridis",
-                "Cividis" = "cividis",
-                "Rocket" = "rocket",
-                "Mako" = "mako",
-                "Turbo" = "turbo"
-              )
+              Gradient = gradient_scales
             ),
             selected = "turbo"
           )
@@ -16052,36 +15186,8 @@ server <- function(input, output, session) {
             "upgma_tippoint_scale",
             "",
             choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
-              ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
+              Qualitative = qualitative_scales,
+              Sequential = sequential_scales
             ),
             selected = "Set2"
           )
@@ -16095,36 +15201,8 @@ server <- function(input, output, session) {
         "upgma_tippoint_scale",
         "",
         choices = list(
-          Qualitative = list(
-            "Set1",
-            "Set2",
-            "Set3",
-            "Pastel1",
-            "Pastel2",
-            "Paired",
-            "Dark2",
-            "Accent"
-          ),
-          Sequential = list(
-            "YlOrRd",
-            "YlOrBr",
-            "YlGnBu",
-            "YlGn",
-            "Reds",
-            "RdPu",
-            "Purples",
-            "PuRd",
-            "PuBuGn",
-            "PuBu",
-            "OrRd",
-            "Oranges",
-            "Greys",
-            "Greens",
-            "GnBu",
-            "BuPu",
-            "BuGn",
-            "Blues"
-          )
+          Qualitative = qualitative_scales,
+          Sequential = sequential_scales
         ),
         selected = "Set2"
       )
@@ -19997,7 +19075,6 @@ server <- function(input, output, session) {
     } else {
       mst_cluster_col_scale <- "Viridis"
     }
-    
     
     data$edges <- mutate(data$edges,
                          length = if(mst_scale_edges == FALSE) {
@@ -26550,16 +25627,7 @@ server <- function(input, output, session) {
           "gs_virclass_scale",
           "",
           choices = list(
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
+            Gradient = gradient_scales
           ),
           selected = gs_virclass_scale_selected,
           width = "100%"
@@ -26577,26 +25645,8 @@ server <- function(input, output, session) {
           "gs_virclass_scale",
           "",
           choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
+            Qualitative = qualitative_scales,
+            Gradient = gradient_scales
           ),
           selected = gs_virclass_scale_selected,
           width = "100%"
@@ -26615,16 +25665,7 @@ server <- function(input, output, session) {
         "gs_virclass_scale",
         "",
         choices = list(
-          Gradient = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          )
+          Gradient = gradient_scales
         ),
         selected = gs_virclass_scale_selected,
         width = "100%"
@@ -26657,16 +25698,7 @@ server <- function(input, output, session) {
           "gs_amrclass_scale",
           "",
           choices = list(
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
+            Gradient = gradient_scales
           ),
           selected = gs_amrclass_scale_selected,
           width = "100%"
@@ -26684,26 +25716,8 @@ server <- function(input, output, session) {
           "gs_amrclass_scale",
           "",
           choices = list(
-            Qualitative = list(
-              "Set1",
-              "Set2",
-              "Set3",
-              "Pastel1",
-              "Pastel2",
-              "Paired",
-              "Dark2",
-              "Accent"
-            ),
-            Gradient = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            )
+            Qualitative = qualitative_scales,
+            Gradient = gradient_scales
           ),
           selected = gs_amrclass_scale_selected,
           width = "100%"
@@ -26722,16 +25736,7 @@ server <- function(input, output, session) {
         "gs_amrclass_scale",
         "",
         choices = list(
-          Gradient = list(
-            "Magma" = "magma",
-            "Inferno" = "inferno",
-            "Plasma" = "plasma",
-            "Viridis" = "viridis",
-            "Cividis" = "cividis",
-            "Rocket" = "rocket",
-            "Mako" = "mako",
-            "Turbo" = "turbo"
-          ),
+          Gradient = gradient_scales,
         ),
         selected = gs_amrclass_scale_selected,
         width = "100%"
@@ -26765,27 +25770,8 @@ server <- function(input, output, session) {
           "gs_mapping_scale",
           "",
           choices = list(
-            Continous = list(
-              "Magma" = "magma",
-              "Inferno" = "inferno",
-              "Plasma" = "plasma",
-              "Viridis" = "viridis",
-              "Cividis" = "cividis",
-              "Rocket" = "rocket",
-              "Mako" = "mako",
-              "Turbo" = "turbo"
-            ),
-            Diverging = list(
-              "Spectral",
-              "RdYlGn",
-              "RdYlBu",
-              "RdGy",
-              "RdBu",
-              "PuOr",
-              "PRGn",
-              "PiYG",
-              "BrBG"
-            )
+            Continous = gradient_scales,
+            Diverging = diverging_scales
           ),
           width = "100%",
           selected = gs_mapping_scale_selected
@@ -26804,16 +25790,7 @@ server <- function(input, output, session) {
             "gs_mapping_scale",
             "",
             choices = list(
-              Gradient = list(
-                "Magma" = "magma",
-                "Inferno" = "inferno",
-                "Plasma" = "plasma",
-                "Viridis" = "viridis",
-                "Cividis" = "cividis",
-                "Rocket" = "rocket",
-                "Mako" = "mako",
-                "Turbo" = "turbo"
-              )
+              Gradient = gradient_scales
             ),
             selected = gs_mapping_scale_selected,
             width = "100%"
@@ -26831,36 +25808,8 @@ server <- function(input, output, session) {
             "gs_mapping_scale",
             "",
             choices = list(
-              Qualitative = list(
-                "Set1",
-                "Set2",
-                "Set3",
-                "Pastel1",
-                "Pastel2",
-                "Paired",
-                "Dark2",
-                "Accent"
-              ),
-              Sequential = list(
-                "YlOrRd",
-                "YlOrBr",
-                "YlGnBu",
-                "YlGn",
-                "Reds",
-                "RdPu",
-                "Purples",
-                "PuRd",
-                "PuBuGn",
-                "PuBu",
-                "OrRd",
-                "Oranges",
-                "Greys",
-                "Greens",
-                "GnBu",
-                "BuPu",
-                "BuGn",
-                "Blues"
-              )
+              Qualitative = qualitative_scales,
+              Sequential = sequential_scales
             ),
             selected = gs_mapping_scale_selected,
             width = "100%"
@@ -26880,36 +25829,8 @@ server <- function(input, output, session) {
         "gs_mapping_scale",
         "",
         choices = list(
-          Qualitative = list(
-            "Set1",
-            "Set2",
-            "Set3",
-            "Pastel1",
-            "Pastel2",
-            "Paired",
-            "Dark2",
-            "Accent"
-          ),
-          Sequential = list(
-            "YlOrRd",
-            "YlOrBr",
-            "YlGnBu",
-            "YlGn",
-            "Reds",
-            "RdPu",
-            "Purples",
-            "PuRd",
-            "PuBuGn",
-            "PuBu",
-            "OrRd",
-            "Oranges",
-            "Greys",
-            "Greens",
-            "GnBu",
-            "BuPu",
-            "BuGn",
-            "Blues"
-          )
+          Qualitative = qualitative_scales,
+          Sequential = sequential_scales
         ),
         selected = gs_mapping_scale_selected,
         width = "100%"
