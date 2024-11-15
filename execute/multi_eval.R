@@ -32,7 +32,8 @@ log.message <- function(log_file, message) {
   cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "-", message, "\n", file = log_file, append = TRUE)
 }
 
-logfile <- file.path(paste0(getwd(), "/logs/multi_eval.log"))
+logdir <- file.path(fs::path_home(), ".local", "share", "phylotrace", "logs")
+logfile <- file.path(logdir, "multi_eval.log")
 
 log <- log_open(logfile, logdir = FALSE)
 
@@ -370,7 +371,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   setwd(meta_info$wd)
   
   # Logging successes
-  log.message(log_file = paste0(getwd(), "/logs/script_log.txt"), 
+  log.message(log_file = file.path(logdir, "script_log.txt"), 
               message = paste0("Successful typing of ", sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
   log_print(paste0("Successful typing of ", sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
   
@@ -379,7 +380,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
   setwd(meta_info$wd)
   
   # Logging failures
-  log.message(log_file = paste0(getwd(), "/logs/script_log.txt"), 
+  log.message(log_file = file.path(logdir, "script_log.txt"), 
               message = paste0("Assembly typing failed for ", 
                                sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
   log_print(paste0("Assembly typing failed for ", 

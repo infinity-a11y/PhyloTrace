@@ -67,7 +67,8 @@ base_path <- args[1]
 # Get selected assembly file names
 assemblies <- list.files(paste0(getwd(), "/selected_genomes"), full.names = T)
 
-logfile <- file.path(paste0(base_path, "/logs/check_duplicate_multi.log"))
+logdir <- file.path(fs::path_home(), ".local", "share", "phylotrace", "logs")
+logfile <- file.path(logdir, "check_duplicate_multi.log")
 
 log <- log_open(logfile, logdir = FALSE)
 
