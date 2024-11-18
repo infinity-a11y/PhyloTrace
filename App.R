@@ -168,7 +168,7 @@ ui <- dashboardPage(
   ),
   
   dashboardBody(
-    tags$head(tags$link(rel = "shortcut icon", href = "favicon.ico")),
+    tags$head(tags$link(rel = "shortcut icon", href = "pt_small_icon.png")),
     shinyjs::useShinyjs(),
     
     shinyDashboardThemeDIY(
