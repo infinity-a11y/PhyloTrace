@@ -78,6 +78,46 @@ ui <- dashboardPage(
     uiOutput("loaded_scheme"),
     uiOutput("statustext"),
     uiOutput("databasetext"),
+    dropdownMenuOutput("notificationMenu"),
+    tags$li(
+      class = "dropdown",
+      fluidRow(
+        actionBttn(
+          "support_menu",
+          label = "",
+          color = "default",
+          size = "sm",
+          style = "material-flat",
+          icon = icon("circle-question")
+        )
+      )
+    ),
+    tags$li(
+      class = "dropdown",
+      fluidRow(
+        actionBttn(
+          "settings_menu",
+          label = "",
+          color = "default",
+          size = "sm",
+          style = "material-flat",
+          icon = icon("gear")
+        )
+      )
+    ),
+    tags$li(
+      class = "dropdown",
+      fluidRow(
+        actionBttn(
+          "shutdown",
+          label = "",
+          color = "default",
+          size = "sm",
+          style = "material-flat",
+          icon = icon("xmark")
+        )
+      )
+    ),
     tags$li(class = "dropdown", 
             tags$span(id = "currentTime", style = "color:black; font-weight:bold;")),
     disable = FALSE
@@ -4766,6 +4806,12 @@ server <- function(input, output, session) {
   # _______________________ ####
   
   ## Startup ----
+  
+  addTooltip(session, id = 'settings_menu_dropmenu', 
+             title = "Labels",
+             placement = "bottom", trigger = "hover", 
+             options = list(delay = list(show = 400, hide = 300)))
+  
   shinyjs::addClass(selector = "body", class = "sidebar-collapse")
   shinyjs::removeClass(selector = "body", class = "sidebar-toggle")
   
@@ -5221,8 +5267,8 @@ server <- function(input, output, session) {
     
     observe({
       if(!is.null(DB$database)){
-        if(nchar(DB$database) > 60) {
-          database <- paste0(substring(DB$database, first = 1, last = 60), "...")
+        if(nchar(DB$database) > 35) {
+          database <- paste0(substring(DB$database, first = 1, last = 35), "...")
         } else {
           database <- DB$database
         }
@@ -5237,7 +5283,7 @@ server <- function(input, output, session) {
                       "</i>")), 
                 style = "color:black;")
             ),
-            if(nchar(database) > 60) {bsTooltip("databasetext", 
+            if(nchar(database) > 35) {bsTooltip("databasetext", 
                                                 HTML(DB$database), 
                                                 placement = "bottom", 
                                                 trigger = "hover")}
@@ -5882,11 +5928,12 @@ server <- function(input, output, session) {
                   remote <- tryCatch({
                     read_html(DB$url_link)
                   }, error = function(e) {
+                    DB$failCon <- TRUE
                     show_toast(
-                      title = "No internet connection",
+                      title = "Could not retrieve data. Check internet connection.",
                       type = "error",
                       position = "bottom-end",
-                      timer = 4000
+                      timer = 6000
                     )
                     warning("Could not retrieve data. Check internet connection.")
                     return(NULL)
@@ -5895,6 +5942,7 @@ server <- function(input, output, session) {
                   if(is.null(remote)) {
                     last_scheme_change <- NULL
                   } else {
+                    DB$failCon <- FALSE
                     remote_scheme <- remote %>%
                       html_table(header = FALSE) %>%
                       as.data.frame(stringsAsFactors = FALSE)
@@ -8523,6 +8571,22 @@ server <- function(input, output, session) {
   
   ### Conditional UI Elements rendering ----
   
+  # Render the notification dropdown menu
+  output$notificationMenu <- renderMenu({
+    if (isTRUE(DB$failCon)) {
+      dropdownMenu(
+        type = "notifications",
+        notificationItem(
+          text = "Network connectivity is unavailable.",
+          icon = icon("wifi"),
+          status = "danger"
+        )
+      )
+    } else {
+      dropdownMenu(type = "notifications") 
+    }
+  })
+  
   #### Scheme Info ----
   
   output$distance_matrix_info <- renderUI({
@@ -9426,6 +9490,111 @@ server <- function(input, output, session) {
   })
   
   ### Database Events ----
+  
+  # Shutdown
+  observeEvent(input$shutdown, {
+    showModal(
+      div(
+        class = "start-modal",
+        modalDialog(
+          fluidRow(
+            br(), 
+            column(1),
+            column(
+              width = 10,
+              p(
+                HTML(
+                  paste0(
+                    '<span style="color: white; font-size: 15px;">',
+                    'Are you sure you want to stop the application?',
+                    '</span>'
+                  )
+                )
+              )
+            ),
+            br()
+          ),
+          title = "Close PhyloTrace",
+          easyClose = TRUE,
+          footer = tagList(
+            modalButton("Dismiss"),
+            actionButton("conf_shutdown", "Close", class = "load-db", width = "100px")
+          )
+        )
+      )
+    )
+  })
+  
+  observeEvent(input$conf_shutdown, {
+    runjs("window.close();")
+    stopApp()
+  })
+  
+  # Support menu
+  observeEvent(input$support_menu, {
+    showModal(
+      div(
+        class = "start-modal",
+        modalDialog(
+          fluidRow(
+            br(), 
+            column(1),
+            column(
+              width = 10,
+              p(
+                HTML(
+                  paste0(
+                    '<span style="color: white; font-size: 15px;">',
+                    'Coming soon ... ',
+                    '</span>'
+                  )
+                )
+              )
+            ),
+            br()
+          ),
+          title = "Help",
+          easyClose = TRUE,
+          footer = tagList(
+            modalButton("Dismiss")
+          )
+        )
+      )
+    )
+  })
+  
+  # Settings menu
+  observeEvent(input$settings_menu, {
+    showModal(
+      div(
+        class = "start-modal",
+        modalDialog(
+          fluidRow(
+            br(), 
+            column(1),
+            column(
+              width = 10,
+              p(
+                HTML(
+                  paste0(
+                    '<span style="color: white; font-size: 15px;">',
+                    'Coming soon ... ',
+                    '</span>'
+                  )
+                )
+              )
+            ),
+            br()
+          ),
+          title = "Settings",
+          easyClose = TRUE,
+          footer = tagList(
+            modalButton("Dismiss")
+          )
+        )
+      )
+    )
+  })
   
   # Show custom variable table on button input
   observeEvent(input$custom_var_table, {
@@ -11503,17 +11672,19 @@ server <- function(input, output, session) {
       scheme_overview <- tryCatch({
         read_html(Scheme$link_scheme)
       }, error = function(e) {
+        DB$failCon <- TRUE
         show_toast(
-          title = "No internet connection",
+          title = "Could not retrieve data. Check internet connection.",
           type = "error",
           position = "bottom-end",
-          timer = 4000
+          timer = 6000
         )
         warning("Could not retrieve data. Check internet connection.")
         return(NULL)
       })
       
       if(!is.null(scheme_overview)) {
+        DB$failCon <- FALSE
         scheme_overview <- scheme_overview %>%
           html_table(header = FALSE) %>%
           as.data.frame(stringsAsFactors = FALSE)
@@ -11545,17 +11716,21 @@ server <- function(input, output, session) {
       scheme_overview <- tryCatch({
         get.schemeinfo(url_link = schemes$url[schemes$species == input$select_cgmlst])
       }, error = function(e) {
+        DB$failCon <- TRUE
+        
         show_toast(
-          title = "No internet connection",
+          title = "Could not retrieve data. Check internet connection.",
           type = "error",
           position = "bottom-end",
-          timer = 4000
+          timer = 6000
         )
         warning("Could not retrieve data. Check internet connection.")
         return(NULL)
       })
       
       if(!is.null(scheme_overview)) {
+        DB$failCon <- FALSE
+        
         if(!is.null(scheme_overview[["last_updated"]])) {
           last_scheme_change <- scheme_overview[["last_updated"]]
           last_file_change <- format(
@@ -11642,9 +11817,9 @@ server <- function(input, output, session) {
       output$test <- renderUI(
         HTML(
           paste(
-            '<i class="fa-solid fa-bacteria" style="font-size:15px; color: yellow;" ></i>',
+            '<i class="fas fa-triangle-exclamation" style="font-size:15px; color: yellow;" ></i>',
             '<span style="color: white; font-size: 15px;">',
-            "&nbsp&nbsp&nbsp Failed to fetch data. Check internet connection and try again.")
+            "&nbsp Failed to fetch data. Check internet connection and try again.")
         )
       )
     }
@@ -11655,11 +11830,12 @@ server <- function(input, output, session) {
     tryCatch({
       Scheme$species_data <- fetch.species.data(species = selected_species)
     }, error = function(e) {
+      DB$failCon <- TRUE
       show_toast(
-        title = "No internet connection",
+        title = "Could not retrieve data. Check internet connection.",
         type = "error",
         position = "bottom-end",
-        timer = 4000
+        timer = 6000
       )
       warning("Could not retrieve data. Check internet connection.")
       Scheme$species_data <- NULL
@@ -11669,6 +11845,8 @@ server <- function(input, output, session) {
   ### Render species info & image ----
   observe({
     req(Scheme$species_data)
+    
+    DB$failCon <- FALSE
     
     multiple <- length(Scheme$species_data) > 1 & !is.null(input$selected_species)
     if(multiple) {

@@ -25,6 +25,10 @@ body > div.waiter-overlay.waiter-fullscreen,
   background: linear-gradient(135deg, rgb(40, 47, 56), rgb(56, 68, 84), rgb(73, 93, 120));
 }
 
+body > div.wrapper > header > span > span > div > a > img {
+  margin-top: -5px;
+}
+
 .irs--shiny .irs-min, .irs--shiny .irs-max {
   background-color: #2B333E;
 }
@@ -225,6 +229,12 @@ body > div.pcr-app.pickr-color.visible {
   box-shadow: none;
 }
 
+#download_schemeinfo_bttn > i:nth-child(1) {
+  top: -2px;
+}
+
+
+
 #nj_heatmap_confirm,
 #change_entries,
 #conf_screening_cancel,
@@ -236,7 +246,8 @@ body > div.pcr-app.pickr-color.visible {
 #conf_db_save,
 #conf_delete,
 #conf_delete_all,
-#shiny-modal > div > div > div.modal-footer > button:nth-child(1) {
+#shiny-modal > div > div > div.modal-footer > button:nth-child(1),
+#conf_shutdown {
   min-width: 100px !important;
   border-color: white;
 }
@@ -252,12 +263,14 @@ body > div.pcr-app.pickr-color.visible {
 
 .start-modal .modal-header,
 .load-modal .modal-header{
-  background-color: #394657eb;
+  background-color: #1f4e5d; 
   color: white;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   border: 1px solid white;
   border-bottom-color: white;
+  padding: 10px;
+  padding-bottom: 5px;
 }
 
 .modal-header {
@@ -486,7 +499,8 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
 #conf_delete:hover,
 #conf_multi_kill:hover,
 #conf_delete_all:hover,
-#conf_var_del:hover {
+#conf_var_del:hover,
+#conf_shutdown:hover {
   background-color: #ff5964 !important;
   border-color: #ff5964 !important;
   color: white !important;
@@ -1625,6 +1639,124 @@ div#progress_bar.progress-bar {
   height: 40px;
   width: 200px;
   font-size: large;
+}
+
+#notificationMenu{
+  left: -80px;
+}
+
+button#settings_menu {
+  right: 5px;
+  padding: 9px;
+  width: 49px;
+  height: 50px;
+  border: none;
+  border-radius: 0px;
+  background: #282f386e !important;
+  display: inline-block;
+  transition: border-color 0.3s ease;
+  color: white !important;
+  transition: background 0.3s ease;
+  transition: color 0.3s ease;
+  z-index: 9999;
+}
+
+button#shutdown {
+  right: -40px;
+  padding: 9px;
+  width: 49px;
+  height: 50px;
+  border: none;
+  border-radius: 0px;
+  background: #282f386e !important;
+  display: inline-block;
+  transition: border-color 0.3s ease;
+  color: border-radius !important;
+  transition: background 0.3s ease;
+  transition: color 0.3s ease;
+  z-index: 9999;
+}
+
+button#support_menu {
+  right: 50px;
+  padding: 9px;
+  width: 49px;
+  height: 50px;
+  border: none;
+  border-radius: 0px;
+  background: #282f386e !important;
+  display: inline-block;
+  transition: border-color 0.3s ease;
+  color: white !important;
+  transition: background 0.3s ease;
+  transition: color 0.3s ease;
+}
+
+.label .label-primary {
+  background: #20e6e5 !important;
+  color: black !important;
+}
+
+body > div.wrapper > header > nav > div > ul > li.dropdown.notifications-menu {
+  background: #888F97 !important;
+}
+
+body > div.wrapper > header > nav > div > ul > li.dropdown.notifications-menu:hover {
+  background: #888F97 !important;
+  color: black !important;
+  box-shadow: 0 5px 11px 0 rgba(0,0,0,0.2);
+}
+
+.navbar-nav>.notifications-menu>.dropdown-menu>li .menu>li>a {
+  border-bottom: none;
+}
+
+.navbar-nav>.notifications-menu>.dropdown-menu>li .menu>li>a:hover {
+  border-radius: 5px;
+}
+.navbar-nav>.notifications-menu>.dropdown-menu>li.header {
+  display: none;
+}
+
+.navbar-nav>.notifications-menu>.dropdown-menu {
+  top: 115%;
+  border-radius: 5px !important;
+  width: fit-content;
+  background-color: #white;
+  border: none;
+}
+
+.navbar-nav>.notifications-menu>.dropdown-menu>li .menu>li>a:hover {
+  background-color: #394657eb;
+}
+
+.navbar-nav>.notifications-menu>.dropdown-menu>li .menu>li>a {
+  color: black;
+}
+
+.bttn-material-flat:focus, .bttn-material-flat:hover{
+  background: #888F97 !important;
+  color: black !important;
+  box-shadow: 0 5px 11px 0 rgba(0,0,0,0.3);  
+}
+
+#settings_menu > i,
+#support_menu > i {
+  top: 1px;
+  position: relative;
+  left: 2px;
+}
+
+#shutdown > i {
+  color: red !important;
+  top: 2px;
+  position: relative;
+  left: 0px;
+  font-size: 18px;
+}
+
+.text-danger {
+  color: black;
 }
 
 /* Visualization MST */

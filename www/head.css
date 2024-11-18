@@ -224,9 +224,10 @@ div#gs_profile_table::-webkit-scrollbar-thumb,
 /* Other */
 
 #currentTime {
-  padding: 50px;
   position: relative;
   top: 15px;
+  margin-left: 80px;
+  margin-right: 15px;
 }
 
 #statustext {
@@ -244,7 +245,7 @@ div#gs_profile_table::-webkit-scrollbar-thumb,
 #loaded_scheme {
   position: absolute;
   top: 15px;
-  left: 150px;
+  left: 100px;
   padding-right: 20px;
   color: black;
 }
