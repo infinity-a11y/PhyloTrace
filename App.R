@@ -152,6 +152,7 @@ ui <- dashboardPage(
       uiOutput("menu_header_screening"),
       br(), 
       sidebarMenuOutput("menu_screening"),
+      uiOutput("menu_footer_screening"),
       conditionalPanel(
         "input.tabs==='typing'",
         uiOutput("typing_sidebar")
@@ -769,9 +770,26 @@ ui <- dashboardPage(
           tags$script(src = "javascript_functions.js"),
           column(
             width = 2,
-            div(
-              class = "vis-control-box-3",
-              uiOutput("mst_controls")
+            conditionalPanel(
+              "input.tree_algo=='Minimum-Spanning'",
+              div(
+                class = "vis-control-box-3",
+                uiOutput("mst_controls")
+              )
+            ),
+            conditionalPanel(
+              "input.tree_algo=='Neighbour-Joining'",
+              div(
+                class = "vis-control-box-3",
+                uiOutput("nj_controls")
+              )
+            ),
+            conditionalPanel(
+              "input.tree_algo=='UPGMA'",
+              div(
+                class = "vis-control-box-3",
+                uiOutput("upgma_controls")
+              )
             )
           ),
           column(
@@ -791,3837 +809,6 @@ ui <- dashboardPage(
               uiOutput("upgma_field")
             )
           )
-        ),
-        br(),
-        
-        
-        ### Control Panels NJ ----
-        
-        conditionalPanel(
-          "input.tree_algo=='Neighbour-Joining'",
-          fluidRow(
-            column(
-              width = 1,
-              radioGroupButtons(
-                inputId = "nj_controls",
-                label = "",
-                choices = c("Layout", "Label", "Elements", "Variables"),
-                direction = "vertical"
-              )
-            ),
-            conditionalPanel(
-              "input.nj_controls=='Layout'",
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "250px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Theme"), style = "color:white; position: relative; right: -15px"),
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "center",
-                        selectInput(
-                          inputId = "nj_layout",
-                          label = "",
-                          choices = list(
-                            Linear = list(
-                              "Rectangular" = "rectangular",
-                              "Roundrect" = "roundrect",
-                              "Slanted" = "slanted",
-                              "Ellipse" = "ellipse"
-                            ),
-                            Circular = list("Circular" = "circular",
-                                            "Inward" = "inward")
-                          ),
-                          selected = "rectangular",
-                          width = "90%"
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 8,
-                        align = "left",
-                        div(
-                          class = "mat-switch-layout",
-                          materialSwitch(
-                            "nj_rootedge_show",
-                            h5(p("Rootedge"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        align = "right",
-                        dropMenu(
-                          actionBttn(
-                            "nj_rootedge_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-start",
-                          theme = "translucent",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "center",
-                              uiOutput("nj_rootedge_length"),
-                              br(),
-                              selectInput(
-                                "nj_rootedge_line",
-                                label = h5("Rootedge Line", style = "color:white"),
-                                choices = c(Solid = "solid", Dashed = "dashed", Dotted = "dotted"),
-                                selected = c(Dotted = "solid"),
-                                width = "100px"
-                              ),
-                              br(),
-                              conditionalPanel(
-                                "input.nj_layout=='circular'",
-                                sliderInput(
-                                  "nj_xlim",
-                                  label = h5("Adjust Circular", style = "color:white"),
-                                  min = -50,
-                                  max = 0,
-                                  value = -10,
-                                  width = "150px",
-                                  ticks = FALSE
-                                )
-                              ),
-                              conditionalPanel(
-                                "input.nj_layout=='inward'",
-                                sliderInput(
-                                  "nj_inward_xlim",
-                                  label = h5("Adjust Circular", style = "color:white"),
-                                  min = 30,
-                                  max = 120,
-                                  value = 50,
-                                  ticks = FALSE,
-                                  width = "150px",
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 8,
-                        align = "left",
-                        div(
-                          class = "mat-switch-re",
-                          materialSwitch(
-                            "nj_ladder",
-                            h5(p("Ladderize"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                            value = TRUE,
-                            right = TRUE
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "250px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Color"), style = "color:white; position: relative; right: -15px"),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        h5(p("Lines/Text"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
-                      ),
-                      column(
-                        width = 7,
-                        colorPickr(
-                          inputId = "nj_color",
-                          width = "90%",
-                          selected = "#000000",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        )
-                      )
-                    ),
-                    br(),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        h5(p("Background"), style = "color:white; position: relative; right: -15px; margin-top: 7px; margin-bottom: 38px")
-                      ),
-                      column(
-                        width = 7,
-                        colorPickr(
-                          inputId = "nj_bg",
-                          width = "90%",
-                          selected = "#ffffff",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        )
-                      )
-                    ), 
-                    br()
-                  )
-                )
-              ),
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "250px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Title"), style = "color:white; position: relative; right: -15px"),
-                    column(
-                      width = 12,
-                      align = "center",
-                      textInput(
-                        "nj_title",
-                        label = "",
-                        width = "100%",
-                        placeholder = "Plot Title"
-                      ),
-                      textInput(
-                        "nj_subtitle",
-                        label = "",
-                        width = "100%",
-                        placeholder = "Plot Subtitle"
-                      ),
-                      br(),
-                      fluidRow(
-                        column(
-                          width = 7,
-                          colorPickr(
-                            inputId = "nj_title_color",
-                            selected = "#000000",
-                            label = "",
-                            update = "changestop",
-                            interaction = list(clear = FALSE,
-                                               save = FALSE),
-                            position = "right-start",
-                            width = "100%"
-                          )
-                        ),
-                        column(
-                          width = 5,
-                          align = "right",
-                          dropMenu(
-                            actionBttn(
-                              "nj_title_menu",
-                              label = "",
-                              color = "default",
-                              size = "sm",
-                              style = "material-flat",
-                              icon = icon("sliders")
-                            ),
-                            placement = "top-start",
-                            theme = "translucent",
-                            fluidRow(
-                              column(
-                                width = 12,
-                                align = "center",
-                                numericInput(
-                                  "nj_title_size",
-                                  label = h5("Title Size", style = "color:white; margin-bottom: 0px"),
-                                  value = 30,
-                                  min = 15,
-                                  max = 40,
-                                  step = 1,
-                                  width = "80px"
-                                ),
-                                br(),
-                                numericInput(
-                                  "nj_subtitle_size",
-                                  label = h5("Subtitle Size", style = "color:white; margin-bottom: 0px"),
-                                  value = 20,
-                                  min = 15,
-                                  max = 40,
-                                  step = 1,
-                                  width = "80px"
-                                )
-                              )
-                            )
-                          )
-                        )
-                      ),
-                      br()
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "250px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Sizing"), style = "color:white; position: relative; right: -15px"),
-                    column(
-                      width = 12,
-                      align = "center",
-                      br(),
-                      fluidRow(
-                        column(
-                          width = 3,
-                          h5("Ratio", style = "color: white; font-size: 14px;")
-                        ),
-                        column(
-                          width = 6,
-                          align = "left",
-                          div(
-                            class = "ratio-sel",
-                            selectInput(
-                              "nj_ratio",
-                              "",
-                              choices = c("16:10" = (16/10), "16:9" = (16/9), "4:3" = (4/3))
-                            )
-                          )
-                        ),
-                        column(
-                          width = 3,
-                          dropMenu(
-                            actionBttn(
-                              "nj_size_menu",
-                              label = "",
-                              color = "default",
-                              size = "sm",
-                              style = "material-flat",
-                              icon = icon("sliders")
-                            ),
-                            placement = "top-start",
-                            theme = "translucent",
-                            fluidRow(
-                              column(
-                                width = 12,
-                                sliderInput(
-                                  "nj_v",
-                                  label = h5("Vertical Position", style = "color:white; margin-bottom: 0px"),
-                                  min = -0.5,
-                                  max = 0.5,
-                                  step = 0.01,
-                                  value = 0,
-                                  width = "150px",
-                                  ticks = FALSE
-                                ),
-                                br(),
-                                sliderInput(
-                                  "nj_h",
-                                  label = h5("Horizontal Position", style = "color:white; margin-bottom: 0px"),
-                                  min = -0.5,
-                                  max = 0.5,
-                                  step = 0.01,
-                                  value = 0,
-                                  width = "150px",
-                                  ticks = FALSE
-                                )
-                              )
-                            )
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 3,
-                          h5("Size", style = "color: white; font-size: 14px; margin-top: 30px")
-                        ),
-                        column(
-                          width = 9,
-                          sliderInput(
-                            "nj_scale",
-                            "",
-                            min = 500,
-                            max = 1200,
-                            value = 800,
-                            step = 5,
-                            width = "95%",
-                            ticks = FALSE
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 3,
-                          h5("Zoom", style = "color: white; font-size: 14px; margin-top: 30px")
-                        ),
-                        column(
-                          width = 9,
-                          div(
-                            class = "zoom-slider",
-                            sliderInput(
-                              "nj_zoom",
-                              label = NULL,
-                              min = 0.5,
-                              max = 1.5,
-                              step = 0.05,
-                              value = 0.95,
-                              ticks = FALSE
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "250px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Tree Scale"), style = "color:white; position: relative; right: -15px"),
-                    column(
-                      width = 12,
-                      fluidRow(
-                        column(
-                          width = 8,
-                          align = "left",
-                          div(
-                            class = "mat-switch-layout",
-                            materialSwitch(
-                              "nj_treescale_show",
-                              h5(p("Show"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                              value = TRUE,
-                              right = TRUE
-                            )
-                          ),
-                          br()
-                        ),
-                        column(
-                          width = 4,
-                          align = "right",
-                          dropMenu(
-                            actionBttn(
-                              "nj_treescale_menu",
-                              label = "",
-                              color = "default",
-                              size = "sm",
-                              style = "material-flat",
-                              icon = icon("sliders")
-                            ),
-                            placement = "top-start",
-                            theme = "translucent",
-                            fluidRow(
-                              column(
-                                width = 12,
-                                align = "center",
-                                uiOutput("nj_treescale_width"),
-                                br(),
-                                uiOutput("nj_treescale_x"),
-                                br(),
-                                uiOutput("nj_treescale_y")
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  ),
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Legend"), style = "color:white; position: relative; right: -15px; margin-top: 10px; margin-bottom: -2px"),
-                    column(
-                      width = 12,
-                      align = "center",
-                      fluidRow(
-                        column(
-                          width = 7,
-                          align = "left",
-                          prettyRadioButtons(
-                            "nj_legend_orientation",
-                            "",
-                            choices = c(Horizontal = "horizontal",
-                                        Vertical = "vertical"),
-                            selected = c(Vertical = "vertical"),
-                            inline = FALSE
-                          )
-                        ),
-                        column(
-                          width = 5,
-                          align = "right",
-                          dropMenu(
-                            actionBttn(
-                              "nj_legend_menu",
-                              label = "",
-                              color = "default",
-                              size = "sm",
-                              style = "material-flat",
-                              icon = icon("sliders")
-                            ),
-                            placement = "top-start",
-                            theme = "translucent",
-                            fluidRow(
-                              column(
-                                width = 12,
-                                align = "center",
-                                numericInput(
-                                  "nj_legend_size",
-                                  label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                                  value = 10,
-                                  min = 5,
-                                  max = 25,
-                                  step = 1,
-                                  width = "80px"
-                                ),
-                                br(),
-                                sliderInput(
-                                  "nj_legend_x",
-                                  label = h5("Horizontal Position", style = "color:white; margin-bottom: 0px"),
-                                  value = 0.9,
-                                  min = -0.9,
-                                  max = 1.9,
-                                  step = 0.2,
-                                  width = "150px",
-                                  ticks = FALSE
-                                ),
-                                br(),
-                                sliderInput(
-                                  "nj_legend_y",
-                                  label = h5("Vertical Position", style = "color:white; margin-bottom: 0px"),
-                                  value = 0.2,
-                                  min = -1.5,
-                                  max = 1.5,
-                                  step = 0.1,
-                                  width = "150px",
-                                  ticks = FALSE
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            ),
-            conditionalPanel(
-              "input.nj_controls=='Label'",
-              column(
-                width = 4,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "280px",
-                  column(
-                    width = 12,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Tips"), style = "color:white; position: relative; right: -15px"),
-                        fluidRow(
-                          column(
-                            width = 4,
-                            align = "left",
-                            div(
-                              class = "mat-switch-lab",
-                              materialSwitch(
-                                "nj_tiplab_show",
-                                h5(p("Show"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
-                                value = TRUE,
-                                right = TRUE
-                              )
-                            )
-                          ),
-                          column(
-                            width = 4,
-                            align = "center",
-                            uiOutput("nj_tiplab")
-                          ),
-                          column(
-                            width = 3,
-                            div(
-                              class = "mat-switch-align",
-                              materialSwitch(
-                                "nj_align",
-                                h5(p("Align"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                value = FALSE,
-                                right = TRUE
-                              )
-                            )
-                          ),
-                          column(
-                            width = 1,
-                            align = "right",
-                            dropMenu(
-                              actionBttn(
-                                "nj_labeltext_menu",
-                                label = "",
-                                color = "default",
-                                size = "sm",
-                                style = "material-flat",
-                                icon = icon("sliders")
-                              ),
-                              placement = "top-start",
-                              theme = "translucent",
-                              fluidRow(
-                                column(
-                                  width = 6,
-                                  align = "center",
-                                  sliderInput(
-                                    "nj_tiplab_alpha",
-                                    label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                    min = 0.1,
-                                    max = 1,
-                                    value = 1,
-                                    width = "150px",
-                                    ticks = FALSE
-                                  ),
-                                  br(),
-                                  conditionalPanel(
-                                    "!(input.nj_layout=='inward'|input.nj_layout=='circular')",
-                                    sliderInput(
-                                      inputId = "nj_tiplab_nudge_x",
-                                      label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                                      min = -3,
-                                      max = 3,
-                                      step = 0.05,
-                                      value = 0,
-                                      width = "150px",
-                                      ticks = FALSE
-                                    )
-                                  ),
-                                  conditionalPanel(
-                                    "input.nj_layout=='circular'",
-                                    sliderInput(
-                                      inputId = "nj_tiplab_position",
-                                      label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                                      min = -3,
-                                      max = 3,
-                                      step = 0.05,
-                                      value = -0.05,
-                                      width = "150px",
-                                      ticks = FALSE
-                                    )
-                                  ),
-                                  conditionalPanel(
-                                    "input.nj_layout=='inward'",
-                                    sliderInput(
-                                      inputId = "nj_tiplab_position_inw",
-                                      label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                                      min = -3,
-                                      max = 3,
-                                      step = 0.05,
-                                      value = 1.1,
-                                      width = "150px",
-                                      ticks = FALSE
-                                    )
-                                  ),
-                                  br(),
-                                  sliderInput(
-                                    inputId = "nj_tiplab_angle",
-                                    label = h5("Angle", style = "color:white; margin-bottom: 0px"),
-                                    min = -90,
-                                    max = 90,
-                                    value = 0,
-                                    ticks = FALSE,
-                                    width = "150px",
-                                  )      
-                                ),
-                                column(
-                                  width = 6,
-                                  align = "center",
-                                  uiOutput("nj_tiplab_size"),
-                                  br(),
-                                  selectInput(
-                                    "nj_tiplab_fontface",
-                                    label = h5("Fontface", style = "color:white; margin-bottom: 5px; margin-top: 16px"),
-                                    width = "250px",
-                                    choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 4,
-                        align = "left",
-                        h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 23px")
-                      ),
-                      column(
-                        width = 4,
-                        align = "center",
-                        colorPickr(
-                          inputId = "nj_tiplab_color",
-                          width = "100%",
-                          selected = "#000000",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 4,
-                        align = "left",
-                        br(),
-                        div(
-                          class = "mat-switch-geom",
-                          materialSwitch(
-                            "nj_geom",
-                            h5(p("Panels"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        colorPickr(
-                          inputId = "nj_tiplab_fill",
-                          width = "100%",
-                          selected = "#84D9A0",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        )
-                      ),
-                      column(
-                        width = 3,
-                        align = "left",
-                        dropMenu(
-                          actionBttn(
-                            "nj_labelformat_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-start",
-                          theme = "translucent",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "center",
-                              uiOutput("nj_tiplab_padding"),
-                              br(),
-                              sliderInput(
-                                inputId = "nj_tiplab_labelradius",
-                                label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
-                                min = 0,
-                                max = 0.5,
-                                value = 0.2,
-                                width = "150px",
-                                ticks = FALSE
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 3,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "280px",
-                  column(
-                    width = 12,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Branches"), style = "color:white; position: relative; right: -15px"),
-                        fluidRow(
-                          column(
-                            width = 5,
-                            align = "left",
-                            div(
-                              class = "mat-switch-lab",
-                              materialSwitch(
-                                "nj_show_branch_label",
-                                h5(p("Show"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
-                                value = FALSE,
-                                right = TRUE
-                              )
-                            )
-                          ),
-                          column(
-                            width = 5,
-                            align = "center",
-                            uiOutput("nj_branch_label")
-                          ),
-                          column(
-                            width = 2,
-                            align = "right",
-                            dropMenu(
-                              actionBttn(
-                                "nj_branch_label_menu",
-                                label = "",
-                                color = "default",
-                                size = "sm",
-                                style = "material-flat",
-                                icon = icon("sliders")
-                              ),
-                              placement = "top-start",
-                              theme = "translucent",
-                              fluidRow(
-                                column(
-                                  width = 6,
-                                  align = "center",
-                                  sliderInput(
-                                    "nj_branchlab_alpha",
-                                    label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                    min = 0.1,
-                                    max = 1,
-                                    value = 0.65,
-                                    width = "250px",
-                                    ticks = FALSE
-                                  ),
-                                  br(),
-                                  sliderInput(
-                                    inputId = "nj_branch_x",
-                                    label = h5("X Position", style = "color:white; margin-bottom: 0px"),
-                                    min = -3,
-                                    max = 3,
-                                    value = 0,
-                                    width = "250px",
-                                    ticks = FALSE
-                                  ),
-                                  br(),
-                                  sliderInput(
-                                    inputId = "nj_branch_y",
-                                    label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
-                                    min = -3,
-                                    max = 3,
-                                    value = 0,
-                                    width = "250px",
-                                    ticks = FALSE
-                                  )
-                                ),
-                                column(
-                                  width = 6,
-                                  align = "center",
-                                  uiOutput("nj_branch_size"),
-                                  selectInput(
-                                    "nj_branchlab_fontface",
-                                    label = h5("Fontface", style = "color:white; margin-bottom: 0px;"),
-                                    width = "250px",
-                                    choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
-                                  ),
-                                  br(),
-                                  sliderInput(
-                                    "nj_branch_labelradius",
-                                    label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
-                                    min = 0,
-                                    max = 0.5,
-                                    value = 0.5,
-                                    width = "250px",
-                                    ticks = FALSE
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        align = "left",
-                        h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 23px; margin-bottom: 109px")
-                      ),
-                      column(
-                        width = 5,
-                        colorPickr(
-                          inputId = "nj_branch_label_color",
-                          width = "100%",
-                          selected = "#FFB7B7",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 3,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "280px",
-                  column(
-                    width = 12,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Custom Labels"), style = "color:white; position: relative; right: -15px"),
-                        fluidRow(
-                          column(
-                            width = 6,
-                            textInput(
-                              "nj_new_label_name",
-                              "",
-                              placeholder = "New Label"
-                            )
-                          ),
-                          column(
-                            width = 3,
-                            actionButton(
-                              "nj_add_new_label",
-                              "",
-                              icon = icon("plus")
-                            )
-                          ),
-                          column(
-                            width = 2,
-                            align = "right",
-                            dropMenu(
-                              actionBttn(
-                                "nj_custom_label_menu",
-                                label = "",
-                                color = "default",
-                                size = "sm",
-                                style = "material-flat",
-                                icon = icon("sliders")
-                              ),
-                              placement = "top-end",
-                              theme = "translucent",
-                              fluidRow(
-                                column(
-                                  width = 12,
-                                  align = "center",
-                                  uiOutput("nj_custom_labelsize"),
-                                  br(),
-                                  uiOutput("nj_sliderInput_y"),
-                                  br(),
-                                  uiOutput("nj_sliderInput_x")
-                                )
-                              )
-                            )
-                          )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 6,
-                            uiOutput("nj_custom_label_select")
-                          ),
-                          column(
-                            width = 4,
-                            uiOutput("nj_del_label"),
-                          )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 12,
-                            align = "center",
-                            uiOutput("nj_cust_label_save")
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            ),
-            conditionalPanel(
-              "input.nj_controls=='Elements'",
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "295px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Tip Points"), style = "color:white; position: relative; right: -15px"),
-                    fluidRow(
-                      column(
-                        width = 8,
-                        align = "left",
-                        div(
-                          class = "mat-switch",
-                          materialSwitch(
-                            "nj_tippoint_show",
-                            h5(p("Show"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        align = "right",
-                        dropMenu(
-                          actionBttn(
-                            "nj_tippoint_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-end",
-                          theme = "translucent",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "center",
-                              sliderInput(
-                                "nj_tippoint_alpha",
-                                label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                value = 0.5,
-                                min = 0.1,
-                                max = 1,
-                                width = "150px",
-                                ticks = FALSE
-                              ), 
-                              br(),
-                              uiOutput("nj_tippoint_size")
-                            )
-                          )
-                        )  
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        align = "left",
-                        h5(p("Color"), style = "color:white; position: relative; right: -15px; margin-top: 36px")
-                      ),
-                      column(
-                        width = 7,
-                        align = "center",
-                        colorPickr(
-                          inputId = "nj_tippoint_color",
-                          width = "100%",
-                          selected = "#3A4657",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        align = "left",
-                        h5(p("Shape"), style = "color:white; position: relative; right: -15px; margin-top: 30px; margin-bottom: 48px")
-                      ),
-                      column(
-                        width = 7,
-                        align = "center",
-                        conditionalPanel(
-                          "input.nj_tipshape_mapping_show==false",
-                          selectInput(
-                            "nj_tippoint_shape",
-                            "",
-                            width = "100%",
-                            choices = c(
-                              Circle = "circle", 
-                              Square = "square", 
-                              Diamond = "diamond", 
-                              Triangle = "triangle",
-                              Cross = "cross", 
-                              Asterisk = "asterisk"
-                            )
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.nj_tipshape_mapping_show==true",
-                          h5(p("Variable assigned"), style = "color:white; position: relative; right: -15px; margin-top: 30px; font-style: italic")
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "295px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Node Points"), style = "color:white; position: relative; right: -15px"),
-                    fluidRow(
-                      column(
-                        width = 8,
-                        align = "left",
-                        div(
-                          class = "mat-switch",
-                          materialSwitch(
-                            "nj_nodepoint_show",
-                            h5(p("Show"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        align = "right",
-                        dropMenu(
-                          actionBttn(
-                            "nj_nodepoint_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-end",
-                          theme = "translucent",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "center",
-                              sliderInput(
-                                "nj_nodepoint_alpha",
-                                label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                value = 1,
-                                min = 0.1,
-                                max = 1,
-                                width = "150px",
-                                ticks = FALSE
-                              ), 
-                              br(),
-                              uiOutput("nj_nodepoint_size")
-                            )
-                          )
-                        )  
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        h5(p("Color"), style = "color:white; position: relative; right: -15px; margin-top: 36px")
-                      ),
-                      column(
-                        width = 7,
-                        align = "center",
-                        colorPickr(
-                          inputId = "nj_nodepoint_color",
-                          width = "100%",
-                          selected = "#3A4657",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        h5(p("Shape"), style = "color:white; position: relative; right: -15px; margin-top: 30px; margin-bottom: 48px")
-                      ),
-                      column(
-                        width = 7,
-                        align = "center",
-                        selectInput(
-                          "nj_nodepoint_shape",
-                          "",
-                          choices = c(
-                            Circle = "circle", 
-                            Square = "square", 
-                            Diamond = "diamond", 
-                            Triangle = "triangle",
-                            Cross = "cross", 
-                            Asterisk = "asterisk"
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "295px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    fluidRow(
-                      column(
-                        width = 6,
-                        h4(p("Tiles"), style = "color:white; position: relative; right: -15px")
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        div(
-                          class = "sel-tile-number",
-                          selectInput(
-                            "nj_tile_number",
-                            "",
-                            choices = 1:5,
-                            width = "70px"
-                          )
-                        )
-                      ),
-                      column(
-                        width = 7,
-                        align = "right",
-                        dropMenu(
-                          actionBttn(
-                            "nj_tile_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-start",
-                          theme = "translucent",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "center",
-                              conditionalPanel(
-                                "input.nj_tile_num == 1",
-                                sliderInput(
-                                  "nj_fruit_alpha",
-                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                  min = 0.1,
-                                  max = 1,
-                                  value = 1,
-                                  step = 0.05,
-                                  width = "150px",
-                                  ticks = FALSE
-                                )
-                              ),
-                              conditionalPanel(
-                                "input.nj_tile_num == 2",
-                                sliderInput(
-                                  "nj_fruit_alpha_2",
-                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                  min = 0.1,
-                                  max = 1,
-                                  value = 1,
-                                  step = 0.05,
-                                  width = "150px",
-                                  ticks = FALSE
-                                )
-                              ),
-                              conditionalPanel(
-                                "input.nj_tile_num == 3",
-                                sliderInput(
-                                  "nj_fruit_alpha_3",
-                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                  min = 0.1,
-                                  max = 1,
-                                  value = 1,
-                                  step = 0.05,
-                                  width = "150px",
-                                  ticks = FALSE
-                                )
-                              ),
-                              conditionalPanel(
-                                "input.nj_tile_num == 4",
-                                sliderInput(
-                                  "nj_fruit_alpha_4",
-                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                  min = 0.1,
-                                  max = 1,
-                                  value = 1,
-                                  step = 0.05,
-                                  width = "150px",
-                                  ticks = FALSE
-                                )
-                              ),
-                              conditionalPanel(
-                                "input.nj_tile_num == 5",
-                                sliderInput(
-                                  "nj_fruit_alpha_5",
-                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                  min = 0.1,
-                                  max = 1,
-                                  value = 1,
-                                  step = 0.05,
-                                  width = "150px",
-                                  ticks = FALSE
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    ),
-                    conditionalPanel(
-                      "input.nj_tile_num == 1",
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("nj_fruit_width"),
-                          br()
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 68px")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("nj_fruit_offset_circ"),
-                          br()
-                        )
-                      )
-                    ),
-                    conditionalPanel(
-                      "input.nj_tile_num == 2",
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("nj_fruit_width2"),
-                          br()
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 54px")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("nj_fruit_offset_circ_2"),
-                          br()
-                        )
-                      )
-                    ),
-                    conditionalPanel(
-                      "input.nj_tile_num == 3",
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("nj_fruit_width3"),
-                          br()
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 54px")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("nj_fruit_offset_circ_3"),
-                          br()
-                        )
-                      )
-                    ),
-                    conditionalPanel(
-                      "input.nj_tile_num == 4",
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("nj_fruit_width4"),
-                          br()
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 54px")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("nj_fruit_offset_circ_4"),
-                          br()
-                        )
-                      )
-                    ),
-                    conditionalPanel(
-                      "input.nj_tile_num == 5",
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("nj_fruit_width5"),
-                          br()
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 54px")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("nj_fruit_offset_circ_5"),
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "295px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    fluidRow(
-                      column(
-                        width = 6,
-                        h4(p("Heatmap"), style = "color:white; position: relative; right: -15px")
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 3,
-                        h5("Title", style = "color:white; margin-left: 15px; margin-top: 32px;")
-                      ),
-                      column(
-                        width = 6,
-                        align = "center",
-                        textInput(
-                          "nj_heatmap_title",
-                          label = "",
-                          value = "Heatmap",
-                          placeholder = "Heatmap" 
-                        )
-                      ),
-                      column(
-                        width = 3,
-                        align = "right",
-                        dropMenu(
-                          actionBttn(
-                            "nj_heatmap_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-end",
-                          theme = "translucent",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "center",
-                              uiOutput("nj_colnames_angle"),
-                              br(),
-                              uiOutput("nj_colnames_y")
-                            )
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        h5("Width", style = "color: white; margin-left: 15px; margin-top: 40px;")
-                      ),
-                      column(
-                        width = 7,
-                        uiOutput("nj_heatmap_width")
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        h5("Position", style = "color:white; margin-left: 15px; margin-top: 36px;")
-                      ),
-                      column(
-                        width = 7,
-                        uiOutput("nj_heatmap_offset")
-                      )
-                    ),
-                    br(), br()
-                  )
-                )
-              ),
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "295px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Clade Highlight"), style = "color:white; position: relative; right: -15px"),
-                    fluidRow(
-                      column(
-                        width = 12,
-                        div(
-                          class = "mat-switch",
-                          materialSwitch(
-                            "nj_nodelabel_show",
-                            h5(p("Toggle Node View"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 3,
-                        h5(p("Nodes"), style = "color:white; position: relative; right: -15px; margin-top: 20px")
-                      ),
-                      column(
-                        width = 9,
-                        uiOutput("nj_parentnode")
-                      )
-                    ),
-                    uiOutput("nj_clade_scale"),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        h5(p("Form"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
-                      ),
-                      column(
-                        width = 7,
-                        div(
-                          class = "sel-clade",
-                          selectInput(
-                            "nj_clade_type",
-                            "",
-                            choices = c("Rect" = "rect",
-                                        "Round" = "roundrect"),
-                            selected = c("Round" = "roundrect")
-                          ) 
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            ),
-            conditionalPanel(
-              "input.nj_controls=='Variables'",
-              column(
-                width = 7,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  column(
-                    width = 12,
-                    align = "left",
-                    fluidRow(
-                      column(
-                        width = 3,
-                        align = "center",
-                        h4(p("Element"), style = "color:white; margin-bottom: 20px")
-                      ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        h4(p("Variable"), style = "color:white; margin-bottom: 20px; margin-right: 30px;")
-                      ),
-                      column(
-                        width = 6,
-                        align = "center",
-                        h4(p("Color Scale"), style = "color:white; margin-bottom: 20px")
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 3,
-                        div(
-                          class = "mat-switch-v",
-                          materialSwitch(
-                            "nj_mapping_show",
-                            h5(p("Tip Label Color"), style = "color:white; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        uiOutput("nj_color_mapping")
-                      ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        uiOutput("nj_tiplab_scale")
-                      ),
-                      uiOutput("nj_tiplab_mapping_info"),
-                    ),
-                    fluidRow(
-                      column(
-                        width = 3,
-                        div(
-                          class = "mat-switch-v",
-                          materialSwitch(
-                            "nj_tipcolor_mapping_show",
-                            h5(p("Tip Point Color"), style = "color:white; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        uiOutput("nj_tipcolor_mapping")
-                      ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        uiOutput("nj_tippoint_scale")
-                      ),
-                      uiOutput("nj_tipcolor_mapping_info")
-                    ),
-                    fluidRow(
-                      column(
-                        width = 3,
-                        div(
-                          class = "mat-switch-v",
-                          materialSwitch(
-                            "nj_tipshape_mapping_show",
-                            h5(p("Tip Point Shape"), style = "color:white; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        uiOutput("nj_tipshape_mapping")
-                      ),
-                      column(
-                        width = 3,
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; font-style: italic; position: relative; bottom: -16px; right: -40px;', 'No scale for shapes')
-                          )
-                        )
-                      ),
-                      uiOutput("nj_tipshape_mapping_info")
-                    ),
-                    fluidRow(
-                      column(
-                        width = 3,
-                        fluidRow(
-                          column(
-                            width = 8,
-                            conditionalPanel(
-                              "input.nj_tile_num == 1",
-                              div(
-                                class = "mat-switch-v",
-                                materialSwitch(
-                                  "nj_tiles_show_1",
-                                  h5(p("Tile"), style = "color:white; position: relative; top: -4px; right: -5px; margin-right: 10px"),
-                                  value = FALSE,
-                                  right = TRUE
-                                )
-                              )
-                            ),
-                            conditionalPanel(
-                              "input.nj_tile_num == 2",
-                              div(
-                                class = "mat-switch-v",
-                                materialSwitch(
-                                  "nj_tiles_show_2",
-                                  h5(p("Tile"), style = "color:white; position: relative; top: -4px; right: -5px;"),
-                                  value = FALSE,
-                                  right = TRUE
-                                )
-                              )
-                            ),
-                            conditionalPanel(
-                              "input.nj_tile_num == 3",
-                              div(
-                                class = "mat-switch-v",
-                                materialSwitch(
-                                  "nj_tiles_show_3",
-                                  h5(p("Tile"), style = "color:white; position: relative; top: -4px; right: -5px;"),
-                                  value = FALSE,
-                                  right = TRUE
-                                )
-                              )
-                            ),
-                            conditionalPanel(
-                              "input.nj_tile_num == 4",
-                              div(
-                                class = "mat-switch-v",
-                                materialSwitch(
-                                  "nj_tiles_show_4",
-                                  h5(p("Tile"), style = "color:white; position: relative; top: -4px; right: -5px;"),
-                                  value = FALSE,
-                                  right = TRUE
-                                )
-                              )
-                            ),
-                            conditionalPanel(
-                              "input.nj_tile_num == 5",
-                              div(
-                                class = "mat-switch-v",
-                                materialSwitch(
-                                  "nj_tiles_show_5",
-                                  h5(p("Tile"), style = "color:white; position: relative; top: -4px; right: -5px;"),
-                                  value = FALSE,
-                                  right = TRUE
-                                )
-                              )
-                            )
-                          ), 
-                          column(
-                            width = 4,
-                            align = "left",
-                            div(
-                              class = "tile-sel",
-                              selectInput(
-                                "nj_tile_num",
-                                "",
-                                choices = 1:5,
-                                width = "50px"
-                              )
-                            )
-                          )
-                        )
-                      ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        conditionalPanel(
-                          "input.nj_tile_num == 1",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("nj_fruit_variable")
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.nj_tile_num == 2",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("nj_fruit_variable2")
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.nj_tile_num == 3",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("nj_fruit_variable3")
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.nj_tile_num == 4",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("nj_fruit_variable4")
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.nj_tile_num == 5",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("nj_fruit_variable5")
-                          )
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.nj_tile_num == 1",
-                        column(
-                          width = 3,
-                          align = "center",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("nj_tiles_scale_1")
-                          )
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.nj_tile_num == 2",
-                        column(
-                          width = 3,
-                          align = "center",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("nj_tiles_scale_2")
-                          )
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.nj_tile_num == 3",
-                        column(
-                          width = 3,
-                          align = "center",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("nj_tiles_scale_3")
-                          )
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.nj_tile_num == 4",
-                        column(
-                          width = 3,
-                          align = "center",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("nj_tiles_scale_4")
-                          )
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.nj_tile_num == 5",
-                        column(
-                          width = 3,
-                          align = "center",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("nj_tiles_scale_5")
-                          )
-                        )
-                      ),
-                      uiOutput("nj_fruit_mapping_info")
-                    ),
-                    fluidRow(
-                      column(
-                        width = 3,
-                        div(
-                          class = "mat-switch-v",
-                          materialSwitch(
-                            "nj_heatmap_show",
-                            h5(p("Heatmap"), style = "color:white; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        actionButton(
-                          "nj_heatmap_button",
-                          "Select"
-                        )
-                      ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        div(
-                          class = "heatmap-scale",
-                          uiOutput("nj_heatmap_scale")
-                        )
-                      ),
-                      uiOutput("nj_heatmap_mapping_info")
-                    )
-                  )
-                )
-              )
-            )
-          ),
-          br(), br(), br(), br(), br(), br()
-        ),
-        
-        ### Control Panels UPGMA ----
-        
-        conditionalPanel(
-          "input.tree_algo=='UPGMA'",
-          fluidRow(
-            column(
-              width = 1,
-              radioGroupButtons(
-                inputId = "upgma_controls",
-                label = "",
-                choices = c("Layout", "Label", "Elements", "Variables"),
-                direction = "vertical"
-              )
-            ),
-            conditionalPanel(
-              "input.upgma_controls=='Layout'",
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "250px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Theme"), style = "color:white; position: relative; right: -15px"),
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "center",
-                        selectInput(
-                          inputId = "upgma_layout",
-                          label = "",
-                          choices = list(
-                            Linear = list(
-                              "Rectangular" = "rectangular",
-                              "Roundrect" = "roundrect",
-                              "Slanted" = "slanted",
-                              "Ellipse" = "ellipse"
-                            ),
-                            Circular = list("Circular" = "circular",
-                                            "Inward" = "inward")
-                          ),
-                          selected = "rectangular",
-                          width = "90%"
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 8,
-                        align = "left",
-                        div(
-                          class = "mat-switch-layout",
-                          materialSwitch(
-                            "upgma_rootedge_show",
-                            h5(p("Rootedge"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        align = "right",
-                        dropMenu(
-                          actionBttn(
-                            "upgma_rootedge_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-start",
-                          theme = "translucent",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "center",
-                              uiOutput("upgma_rootedge_length"),
-                              br(),
-                              selectInput(
-                                "upgma_rootedge_line",
-                                label = h5("Rootedge Line", style = "color:white"),
-                                choices = c(Solid = "solid", Dashed = "dashed", Dotted = "dotted"),
-                                selected = c(Dotted = "solid"),
-                                width = "100px"
-                              ),
-                              br(),
-                              conditionalPanel(
-                                "input.upgma_layout=='circular'",
-                                sliderInput(
-                                  "upgma_xlim",
-                                  label = h5("Adjust Circular", style = "color:white"),
-                                  min = -50,
-                                  max = 0,
-                                  value = -10,
-                                  width = "150px",
-                                  ticks = FALSE
-                                )
-                              ),
-                              conditionalPanel(
-                                "input.upgma_layout=='inward'",
-                                sliderInput(
-                                  "upgma_inward_xlim",
-                                  label = h5("Adjust Circular", style = "color:white"),
-                                  min = 30,
-                                  max = 120,
-                                  value = 50,
-                                  ticks = FALSE,
-                                  width = "150px",
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 8,
-                        align = "left",
-                        div(
-                          class = "mat-switch-re",
-                          materialSwitch(
-                            "upgma_ladder",
-                            h5(p("Ladderize"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                            value = TRUE,
-                            right = TRUE
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "250px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Color"), style = "color:white; position: relative; right: -15px"),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        h5(p("Lines/Text"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
-                      ),
-                      column(
-                        width = 7,
-                        colorPickr(
-                          inputId = "upgma_color",
-                          width = "90%",
-                          selected = "#000000",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        )
-                      )
-                    ),
-                    br(),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        h5(p("Background"), style = "color:white; position: relative; right: -15px; margin-top: 7px; margin-bottom: 38px")
-                      ),
-                      column(
-                        width = 7,
-                        colorPickr(
-                          inputId = "upgma_bg",
-                          width = "90%",
-                          selected = "#ffffff",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "250px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Title"), style = "color:white; position: relative; right: -15px"),
-                    column(
-                      width = 12,
-                      align = "center",
-                      textInput(
-                        "upgma_title",
-                        label = "",
-                        width = "100%",
-                        placeholder = "Plot Title"
-                      ),
-                      textInput(
-                        "upgma_subtitle",
-                        label = "",
-                        width = "100%",
-                        placeholder = "Plot Subtitle"
-                      ),
-                      br(),
-                      fluidRow(
-                        column(
-                          width = 7,
-                          colorPickr(
-                            inputId = "upgma_title_color",
-                            selected = "#000000",
-                            label = "",
-                            update = "changestop",
-                            interaction = list(clear = FALSE,
-                                               save = FALSE),
-                            position = "right-start",
-                            width = "100%"
-                          )
-                        ),
-                        column(
-                          width = 5,
-                          align = "right",
-                          dropMenu(
-                            actionBttn(
-                              "upgma_title_menu",
-                              label = "",
-                              color = "default",
-                              size = "sm",
-                              style = "material-flat",
-                              icon = icon("sliders")
-                            ),
-                            placement = "top-start",
-                            theme = "translucent",
-                            fluidRow(
-                              column(
-                                width = 12,
-                                align = "center",
-                                numericInput(
-                                  "upgma_title_size",
-                                  label = h5("Title Size", style = "color:white; margin-bottom: 0px"),
-                                  value = 30,
-                                  min = 15,
-                                  max = 40,
-                                  step = 1,
-                                  width = "80px"
-                                ),
-                                br(),
-                                numericInput(
-                                  "upgma_subtitle_size",
-                                  label = h5("Subtitle Size", style = "color:white; margin-bottom: 0px"),
-                                  value = 20,
-                                  min = 15,
-                                  max = 40,
-                                  step = 1,
-                                  width = "80px"
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "250px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Sizing"), style = "color:white; position: relative; right: -15px"),
-                    column(
-                      width = 12,
-                      align = "center",
-                      br(),
-                      fluidRow(
-                        column(
-                          width = 3,
-                          h5("Ratio", style = "color: white; font-size: 14px;")
-                        ),
-                        column(
-                          width = 6,
-                          align = "left",
-                          div(
-                            class = "ratio-sel",
-                            selectInput(
-                              "upgma_ratio",
-                              "",
-                              choices = c("16:10" = (16 / 10), 
-                                          "16:9" = (16 / 9), 
-                                          "4:3" = (4 / 3))
-                            )
-                          )
-                        ),
-                        column(
-                          width = 3,
-                          dropMenu(
-                            actionBttn(
-                              "upgma_size_menu",
-                              label = "",
-                              color = "default",
-                              size = "sm",
-                              style = "material-flat",
-                              icon = icon("sliders")
-                            ),
-                            placement = "top-start",
-                            theme = "translucent",
-                            fluidRow(
-                              column(
-                                width = 12,
-                                sliderInput(
-                                  "upgma_v",
-                                  label = "Vertical Position",
-                                  min = -0.5,
-                                  max = 0.5,
-                                  step = 0.01,
-                                  value = 0,
-                                  width = "150px",
-                                  ticks = FALSE
-                                ),
-                                br(),
-                                sliderInput(
-                                  "upgma_h",
-                                  label = "Horizontal Position",
-                                  min = -0.5,
-                                  max = 0.5,
-                                  step = 0.01,
-                                  value = 0,
-                                  width = "150px",
-                                  ticks = FALSE
-                                )
-                              )
-                            )
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 3,
-                          h5("Size", style = "color: white; font-size: 14px; margin-top: 30px")
-                        ),
-                        column(
-                          width = 9,
-                          sliderInput(
-                            "upgma_scale",
-                            "",
-                            min = 500,
-                            max = 1200,
-                            value = 800,
-                            step = 5,
-                            width = "95%",
-                            ticks = FALSE
-                          )
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 3,
-                          h5("Zoom", style = "color: white; font-size: 14px; margin-top: 30px")
-                        ),
-                        column(
-                          width = 9,
-                          div(
-                            class = "zoom-slider",
-                            sliderInput(
-                              "upgma_zoom",
-                              label = NULL,
-                              min = 0.5,
-                              max = 1.5,
-                              step = 0.05,
-                              value = 0.95,
-                              ticks = FALSE
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "250px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Tree Scale"), style = "color:white; position: relative; right: -15px"),
-                    column(
-                      width = 12,
-                      fluidRow(
-                        column(
-                          width = 8,
-                          align = "left",
-                          div(
-                            class = "mat-switch-layout",
-                            materialSwitch(
-                              "upgma_treescale_show",
-                              h5(p("Show"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                              value = TRUE,
-                              right = TRUE
-                            )
-                          ),
-                          br()
-                        ),
-                        column(
-                          width = 4,
-                          align = "right",
-                          dropMenu(
-                            actionBttn(
-                              "upgma_treescale_menu",
-                              label = "",
-                              color = "default",
-                              size = "sm",
-                              style = "material-flat",
-                              icon = icon("sliders")
-                            ),
-                            placement = "top-start",
-                            theme = "translucent",
-                            fluidRow(
-                              column(
-                                width = 12,
-                                align = "center",
-                                uiOutput("upgma_treescale_width"),
-                                br(),
-                                uiOutput("upgma_treescale_x"),
-                                br(),
-                                uiOutput("upgma_treescale_y")
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  ),
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Legend"), style = "color:white; position: relative; right: -15px; margin-top: 10px; margin-bottom: -2px"),
-                    column(
-                      width = 12,
-                      align = "center",
-                      fluidRow(
-                        column(
-                          width = 7,
-                          align = "left",
-                          prettyRadioButtons(
-                            "upgma_legend_orientation",
-                            "",
-                            choices = c(Horizontal = "horizontal",
-                                        Vertical = "vertical"),
-                            selected = c(Vertical = "vertical"),
-                            inline = FALSE
-                          )
-                        ),
-                        column(
-                          width = 5,
-                          align = "right",
-                          dropMenu(
-                            actionBttn(
-                              "upgma_legend_menu",
-                              label = "",
-                              color = "default",
-                              size = "sm",
-                              style = "material-flat",
-                              icon = icon("sliders")
-                            ),
-                            placement = "top-start",
-                            theme = "translucent",
-                            fluidRow(
-                              column(
-                                width = 12,
-                                align = "center",
-                                numericInput(
-                                  "upgma_legend_size",
-                                  label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                                  value = 10,
-                                  min = 5,
-                                  max = 25,
-                                  step = 1,
-                                  width = "80px"
-                                ),
-                                br(),
-                                sliderInput(
-                                  "upgma_legend_x",
-                                  label = h5("X Position", style = "color:white; margin-bottom: 0px"),
-                                  value = 0.9,
-                                  min = -0.9,
-                                  max = 1.9,
-                                  step = 0.2,
-                                  width = "150px",
-                                  ticks = FALSE
-                                ),
-                                br(),
-                                sliderInput(
-                                  "upgma_legend_y",
-                                  label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
-                                  value = 0.2,
-                                  min = -1.5,
-                                  max = 1.5,
-                                  step = 0.1,
-                                  width = "150px",
-                                  ticks = FALSE
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            ),
-            conditionalPanel(
-              "input.upgma_controls=='Label'",
-              column(
-                width = 4,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "280px",
-                  column(
-                    width = 12,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Tips"), style = "color:white; position: relative; right: -15px"),
-                        fluidRow(
-                          column(
-                            width = 4,
-                            align = "left",
-                            div(
-                              class = "mat-switch-lab",
-                              materialSwitch(
-                                "upgma_tiplab_show",
-                                h5(p("Show"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
-                                value = TRUE,
-                                right = TRUE
-                              )
-                            )
-                          ),
-                          column(
-                            width = 4,
-                            align = "center",
-                            uiOutput("upgma_tiplab")
-                          ),
-                          column(
-                            width = 3,
-                            div(
-                              class = "mat-switch-align",
-                              materialSwitch(
-                                "upgma_align",
-                                h5(p("Align"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                value = FALSE,
-                                right = TRUE
-                              )
-                            )
-                          ),
-                          column(
-                            width = 1,
-                            align = "right",
-                            dropMenu(
-                              actionBttn(
-                                "upgma_labeltext_menu",
-                                label = "",
-                                color = "default",
-                                size = "sm",
-                                style = "material-flat",
-                                icon = icon("sliders")
-                              ),
-                              placement = "top-start",
-                              theme = "translucent",
-                              fluidRow(
-                                column(
-                                  width = 6,
-                                  align = "center",
-                                  sliderInput(
-                                    "upgma_tiplab_alpha",
-                                    label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                    min = 0.1,
-                                    max = 1,
-                                    value = 1,
-                                    width = "150px",
-                                    ticks = FALSE
-                                  ),
-                                  br(),
-                                  conditionalPanel(
-                                    "!(input.upgma_layout=='inward'|input.upgma_layout=='circular')",
-                                    sliderInput(
-                                      inputId = "upgma_tiplab_nudge_x",
-                                      label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                                      min = -3,
-                                      max = 3,
-                                      step = 0.05,
-                                      value = 0,
-                                      width = "150px",
-                                      ticks = FALSE
-                                    )
-                                  ),
-                                  conditionalPanel(
-                                    "input.upgma_layout=='circular'",
-                                    sliderInput(
-                                      inputId = "upgma_tiplab_position",
-                                      label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                                      min = -3,
-                                      max = 3,
-                                      step = 0.05,
-                                      value = -0.05,
-                                      width = "150px",
-                                      ticks = FALSE
-                                    )
-                                  ),
-                                  conditionalPanel(
-                                    "input.upgma_layout=='inward'",
-                                    sliderInput(
-                                      inputId = "upgma_tiplab_position_inw",
-                                      label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                                      min = -3,
-                                      max = 3,
-                                      step = 0.05,
-                                      value = 1.1,
-                                      width = "150px",
-                                      ticks = FALSE
-                                    )
-                                  ),
-                                  br(),
-                                  sliderInput(
-                                    inputId = "upgma_tiplab_angle",
-                                    label = h5("Angle", style = "color:white; margin-bottom: 0px"),
-                                    min = -90,
-                                    max = 90,
-                                    value = 0,
-                                    ticks = FALSE,
-                                    width = "150px",
-                                  )      
-                                ),
-                                column(
-                                  width = 6,
-                                  align = "center",
-                                  uiOutput("upgma_tiplab_size"),
-                                  br(),
-                                  selectInput(
-                                    "upgma_tiplab_fontface",
-                                    label = h5("Fontface", style = "color:white; margin-bottom: 5px; margin-top: 16px"),
-                                    width = "250px",
-                                    choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 4,
-                        align = "left",
-                        h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 23px")
-                      ),
-                      column(
-                        width = 4,
-                        align = "center",
-                        colorPickr(
-                          inputId = "upgma_tiplab_color",
-                          width = "100%",
-                          selected = "#000000",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 4,
-                        align = "left",
-                        br(),
-                        div(
-                          class = "mat-switch-geom",
-                          materialSwitch(
-                            "upgma_geom",
-                            h5(p("Panels"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        colorPickr(
-                          inputId = "upgma_tiplab_fill",
-                          width = "100%",
-                          selected = "#84D9A0",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        )
-                      ),
-                      column(
-                        width = 3,
-                        align = "left",
-                        dropMenu(
-                          actionBttn(
-                            "upgma_labelformat_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-start",
-                          theme = "translucent",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "center",
-                              uiOutput("upgma_tiplab_padding"),
-                              br(),
-                              sliderInput(
-                                inputId = "upgma_tiplab_labelradius",
-                                label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
-                                min = 0,
-                                max = 0.5,
-                                value = 0.2,
-                                width = "150px",
-                                ticks = FALSE
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 3,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "280px",
-                  column(
-                    width = 12,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Branches"), style = "color:white; position: relative; right: -15px"),
-                        fluidRow(
-                          column(
-                            width = 5,
-                            align = "left",
-                            div(
-                              class = "mat-switch-lab",
-                              materialSwitch(
-                                "upgma_show_branch_label",
-                                h5(p("Show"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
-                                value = FALSE,
-                                right = TRUE
-                              )
-                            )
-                          ),
-                          column(
-                            width = 5,
-                            align = "center",
-                            uiOutput("upgma_branch_label")
-                          ),
-                          column(
-                            width = 2,
-                            align = "right",
-                            dropMenu(
-                              actionBttn(
-                                "upgma_branch_label_menu",
-                                label = "",
-                                color = "default",
-                                size = "sm",
-                                style = "material-flat",
-                                icon = icon("sliders")
-                              ),
-                              placement = "top-start",
-                              theme = "translucent",
-                              fluidRow(
-                                column(
-                                  width = 6,
-                                  align = "center",
-                                  sliderInput(
-                                    "upgma_branchlab_alpha",
-                                    label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                    min = 0.1,
-                                    max = 1,
-                                    value = 0.65,
-                                    width = "250px",
-                                    ticks = FALSE
-                                  ),
-                                  br(),
-                                  sliderInput(
-                                    inputId = "upgma_branch_x",
-                                    label = h5("X Position", style = "color:white; margin-bottom: 0px"),
-                                    min = -3,
-                                    max = 3,
-                                    value = 0,
-                                    width = "250px",
-                                    ticks = FALSE
-                                  ),
-                                  br(),
-                                  sliderInput(
-                                    inputId = "upgma_branch_y",
-                                    label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
-                                    min = -3,
-                                    max = 3,
-                                    value = 0,
-                                    width = "250px",
-                                    ticks = FALSE
-                                  )
-                                ),
-                                column(
-                                  width = 6,
-                                  align = "center",
-                                  uiOutput("upgma_branch_size"),
-                                  selectInput(
-                                    "upgma_branchlab_fontface",
-                                    label = h5("Fontface", style = "color:white; margin-bottom: 0px;"),
-                                    width = "250px",
-                                    choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
-                                  ),
-                                  br(),
-                                  sliderInput(
-                                    "upgma_branch_labelradius",
-                                    label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
-                                    min = 0,
-                                    max = 0.5,
-                                    value = 0.5,
-                                    width = "250px",
-                                    ticks = FALSE
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        align = "left",
-                        h5(p("Color"), style = "color:white; position: relative; right: -14px; margin-top: 23px; margin-bottom: 109px")
-                      ),
-                      column(
-                        width = 5,
-                        colorPickr(
-                          inputId = "upgma_branch_label_color",
-                          width = "100%",
-                          selected = "#FFB7B7",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        ),
-                        br(), br()
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 3,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "280px",
-                  column(
-                    width = 12,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        h4(p("Custom Labels"), style = "color:white; position: relative; right: -15px"),
-                        fluidRow(
-                          column(
-                            width = 6,
-                            textInput(
-                              "upgma_new_label_name",
-                              "",
-                              placeholder = "New Label"
-                            )
-                          ),
-                          column(
-                            width = 3,
-                            actionButton(
-                              "upgma_add_new_label",
-                              "",
-                              icon = icon("plus")
-                            )
-                          ),
-                          column(
-                            width = 2,
-                            align = "right",
-                            dropMenu(
-                              actionBttn(
-                                "upgma_custom_label_menu",
-                                label = "",
-                                color = "default",
-                                size = "sm",
-                                style = "material-flat",
-                                icon = icon("sliders")
-                              ),
-                              placement = "top-end",
-                              theme = "translucent",
-                              fluidRow(
-                                column(
-                                  width = 12,
-                                  align = "center",
-                                  uiOutput("upgma_custom_labelsize"),
-                                  br(),
-                                  uiOutput("upgma_sliderInput_y"),
-                                  br(),
-                                  uiOutput("upgma_sliderInput_x")
-                                )
-                              )
-                            )
-                          )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 6,
-                            uiOutput("upgma_custom_label_select")
-                          ),
-                          column(
-                            width = 4,
-                            uiOutput("upgma_del_label"),
-                          )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 12,
-                            align = "center",
-                            uiOutput("upgma_cust_label_save")
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            ),
-            conditionalPanel(
-              "input.upgma_controls=='Elements'",
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "295px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Tip Points"), style = "color:white; position: relative; right: -15px"),
-                    fluidRow(
-                      column(
-                        width = 8,
-                        align = "left",
-                        div(
-                          class = "mat-switch",
-                          materialSwitch(
-                            "upgma_tippoint_show",
-                            h5(p("Show"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        align = "right",
-                        dropMenu(
-                          actionBttn(
-                            "upgma_tippoint_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-end",
-                          theme = "translucent",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "center",
-                              sliderInput(
-                                "upgma_tippoint_alpha",
-                                label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                value = 0.5,
-                                min = 0.1,
-                                max = 1,
-                                width = "150px",
-                                ticks = FALSE
-                              ), 
-                              br(),
-                              uiOutput("upgma_tippoint_size")
-                            )
-                          )
-                        )  
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        align = "left",
-                        h5(p("Color"), style = "color:white; position: relative; right: -15px; margin-top: 36px")
-                      ),
-                      column(
-                        width = 7,
-                        align = "center",
-                        colorPickr(
-                          inputId = "upgma_tippoint_color",
-                          width = "100%",
-                          selected = "#3A4657",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        align = "left",
-                        h5(p("Shape"), style = "color:white; position: relative; right: -15px; margin-top: 30px; margin-bottom: 48px")
-                      ),
-                      column(
-                        width = 7,
-                        align = "center",
-                        conditionalPanel(
-                          "input.upgma_tipshape_mapping_show==false",
-                          selectInput(
-                            "upgma_tippoint_shape",
-                            "",
-                            width = "100%",
-                            choices = c(
-                              Circle = "circle", 
-                              Square = "square", 
-                              Diamond = "diamond", 
-                              Triangle = "triangle",
-                              Cross = "cross", 
-                              Asterisk = "asterisk"
-                            )
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.upgma_tipshape_mapping_show==true",
-                          h5(p("Variable assigned"), style = "color:white; position: relative; right: -15px; margin-top: 30px; font-style: italic")
-                        ),
-                        br()
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "295px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Node Points"), style = "color:white; position: relative; right: -15px"),
-                    fluidRow(
-                      column(
-                        width = 8,
-                        align = "left",
-                        div(
-                          class = "mat-switch",
-                          materialSwitch(
-                            "upgma_nodepoint_show",
-                            h5(p("Show"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      ),
-                      column(
-                        width = 4,
-                        align = "right",
-                        dropMenu(
-                          actionBttn(
-                            "upgma_nodepoint_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-end",
-                          theme = "translucent",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "center",
-                              sliderInput(
-                                "upgma_nodepoint_alpha",
-                                label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                value = 1,
-                                min = 0.1,
-                                max = 1,
-                                width = "150px",
-                                ticks = FALSE
-                              ), 
-                              br(),
-                              uiOutput("upgma_nodepoint_size")
-                            )
-                          )
-                        )  
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        h5(p("Color"), style = "color:white; position: relative; right: -15px; margin-top: 36px")
-                      ),
-                      column(
-                        width = 7,
-                        align = "center",
-                        colorPickr(
-                          inputId = "upgma_nodepoint_color",
-                          width = "100%",
-                          selected = "#3A4657",
-                          label = "",
-                          update = "changestop",
-                          interaction = list(clear = FALSE,
-                                             save = FALSE),
-                          position = "right-start"
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        h5(p("Shape"), style = "color:white; position: relative; right: -15px; margin-top: 30px; margin-bottom: 48px")
-                      ),
-                      column(
-                        width = 7,
-                        align = "center",
-                        selectInput(
-                          "upgma_nodepoint_shape",
-                          "",
-                          choices = c(
-                            Circle = "circle", 
-                            Square = "square", 
-                            Diamond = "diamond", 
-                            Triangle = "triangle",
-                            Cross = "cross", 
-                            Asterisk = "asterisk"
-                          )
-                        ),
-                        br()
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "295px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    fluidRow(
-                      column(
-                        width = 6,
-                        h4(p("Tiles"), style = "color:white; position: relative; right: -15px")
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        div(
-                          class = "sel-tile-number",
-                          selectInput(
-                            "upgma_tile_number",
-                            "",
-                            choices = 1:5,
-                            width = "70px"
-                          )
-                        )
-                      ),
-                      column(
-                        width = 7,
-                        align = "right",
-                        dropMenu(
-                          actionBttn(
-                            "upgma_tile_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-start",
-                          theme = "translucent",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "center",
-                              conditionalPanel(
-                                "input.upgma_tile_num == 1",
-                                sliderInput(
-                                  "upgma_fruit_alpha",
-                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                  min = 0.1,
-                                  max = 1,
-                                  value = 1,
-                                  step = 0.05,
-                                  width = "150px",
-                                  ticks = FALSE
-                                )
-                              ),
-                              conditionalPanel(
-                                "input.upgma_tile_num == 2",
-                                sliderInput(
-                                  "upgma_fruit_alpha_2",
-                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                  min = 0.1,
-                                  max = 1,
-                                  value = 1,
-                                  step = 0.05,
-                                  width = "150px",
-                                  ticks = FALSE
-                                )
-                              ),
-                              conditionalPanel(
-                                "input.upgma_tile_num == 3",
-                                sliderInput(
-                                  "upgma_fruit_alpha_3",
-                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                  min = 0.1,
-                                  max = 1,
-                                  value = 1,
-                                  step = 0.05,
-                                  width = "150px",
-                                  ticks = FALSE
-                                )
-                              ),
-                              conditionalPanel(
-                                "input.upgma_tile_num == 4",
-                                sliderInput(
-                                  "upgma_fruit_alpha_4",
-                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                  min = 0.1,
-                                  max = 1,
-                                  value = 1,
-                                  step = 0.05,
-                                  width = "150px",
-                                  ticks = FALSE
-                                )
-                              ),
-                              conditionalPanel(
-                                "input.upgma_tile_num == 5",
-                                sliderInput(
-                                  "upgma_fruit_alpha_5",
-                                  label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                                  min = 0.1,
-                                  max = 1,
-                                  value = 1,
-                                  step = 0.05,
-                                  width = "150px",
-                                  ticks = FALSE
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    ),
-                    conditionalPanel(
-                      "input.upgma_tile_num == 1",
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("upgma_fruit_width"),
-                          br()
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 68px")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("upgma_fruit_offset_circ"),
-                          br()
-                        )
-                      )
-                    ),
-                    conditionalPanel(
-                      "input.upgma_tile_num == 2",
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("upgma_fruit_width2"),
-                          br()
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 54px")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("upgma_fruit_offset_circ_2"),
-                          br()
-                        )
-                      )
-                    ),
-                    conditionalPanel(
-                      "input.upgma_tile_num == 3",
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("upgma_fruit_width3"),
-                          br()
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 54px")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("upgma_fruit_offset_circ_3"),
-                          br()
-                        )
-                      )
-                    ),
-                    conditionalPanel(
-                      "input.upgma_tile_num == 4",
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("upgma_fruit_width4"),
-                          br()
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 54px")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("upgma_fruit_offset_circ_4"),
-                          br()
-                        )
-                      )
-                    ),
-                    conditionalPanel(
-                      "input.upgma_tile_num == 5",
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("upgma_fruit_width5"),
-                          br()
-                        )
-                      ),
-                      fluidRow(
-                        column(
-                          width = 5,
-                          h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; margin-bottom: 54px")
-                        ),
-                        column(
-                          width = 7,
-                          align = "center",
-                          uiOutput("upgma_fruit_offset_circ_5"),
-                          br()
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "295px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    fluidRow(
-                      column(
-                        width = 6,
-                        h4(p("Heatmap"), style = "color:white; position: relative; right: -15px")
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 3,
-                        h5("Title", style = "color:white; margin-left: 15px; margin-top: 32px;")
-                      ),
-                      column(
-                        width = 6,
-                        align = "center",
-                        textInput(
-                          "upgma_heatmap_title",
-                          label = "",
-                          value = "Heatmap",
-                          placeholder = "Heatmap" 
-                        )
-                      ),
-                      column(
-                        width = 3,
-                        align = "right",
-                        dropMenu(
-                          actionBttn(
-                            "upgma_heatmap_menu",
-                            label = "",
-                            color = "default",
-                            size = "sm",
-                            style = "material-flat",
-                            icon = icon("sliders")
-                          ),
-                          placement = "top-end",
-                          theme = "translucent",
-                          fluidRow(
-                            column(
-                              width = 12,
-                              align = "center",
-                              uiOutput("upgma_colnames_angle"),
-                              br(),
-                              uiOutput("upgma_colnames_y")
-                            )
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        h5("Width", style = "color: white; margin-left: 15px; margin-top: 40px;")
-                      ),
-                      column(
-                        width = 7,
-                        uiOutput("upgma_heatmap_width")
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        h5("Position", style = "color:white; margin-left: 15px; margin-top: 36px;")
-                      ),
-                      column(
-                        width = 7,
-                        uiOutput("upgma_heatmap_offset")
-                      )
-                    ),
-                    br(), br()
-                  )
-                )
-              ),
-              column(
-                width = 2,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  height = "295px",
-                  column(
-                    width = 12,
-                    align = "left",
-                    h4(p("Clade Highlight"), style = "color:white; position: relative; right: -15px"),
-                    fluidRow(
-                      column(
-                        width = 12,
-                        div(
-                          class = "mat-switch",
-                          materialSwitch(
-                            "upgma_nodelabel_show",
-                            h5(p("Toggle Node View"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 3,
-                        h5(p("Nodes"), style = "color:white; position: relative; right: -15px; margin-top: 20px")
-                      ),
-                      column(
-                        width = 9,
-                        uiOutput("upgma_parentnode")
-                      )
-                    ),
-                    uiOutput("upgma_clade_scale"),
-                    fluidRow(
-                      column(
-                        width = 5,
-                        h5(p("Form"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
-                      ),
-                      column(
-                        width = 7,
-                        div(
-                          class = "sel-clade",
-                          selectInput(
-                            "upgma_clade_type",
-                            "",
-                            choices = c("Rect" = "rect",
-                                        "Round" = "roundrect"),
-                            selected = c("Round" = "roundrect")
-                          ) 
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            ),
-            conditionalPanel(
-              "input.upgma_controls=='Variables'",
-              column(
-                width = 7,
-                box(
-                  solidHeader = TRUE,
-                  status = "info",
-                  width = "100%",
-                  column(
-                    width = 12,
-                    align = "left",
-                    fluidRow(
-                      column(
-                        width = 3,
-                        align = "center",
-                        h4(p("Element"), style = "color:white; margin-bottom: 20px")
-                      ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        h4(p("Variable"), style = "color:white; margin-bottom: 20px; margin-right: 30px;")
-                      ),
-                      column(
-                        width = 6,
-                        align = "center",
-                        h4(p("Color Scale"), style = "color:white; margin-bottom: 20px")
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 3,
-                        div(
-                          class = "mat-switch-v",
-                          materialSwitch(
-                            "upgma_mapping_show",
-                            h5(p("Tip Label Color"), style = "color:white; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        uiOutput("upgma_color_mapping")
-                      ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        uiOutput("upgma_tiplab_scale")
-                      ),
-                      uiOutput("upgma_tiplab_mapping_info"),
-                    ),
-                    fluidRow(
-                      column(
-                        width = 3,
-                        div(
-                          class = "mat-switch-v",
-                          materialSwitch(
-                            "upgma_tipcolor_mapping_show",
-                            h5(p("Tip Point Color"), style = "color:white; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        uiOutput("upgma_tipcolor_mapping")
-                      ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        uiOutput("upgma_tippoint_scale")
-                      ),
-                      uiOutput("upgma_tipcolor_mapping_info")
-                    ),
-                    fluidRow(
-                      column(
-                        width = 3,
-                        div(
-                          class = "mat-switch-v",
-                          materialSwitch(
-                            "upgma_tipshape_mapping_show",
-                            h5(p("Tip Point Shape"), style = "color:white; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        uiOutput("upgma_tipshape_mapping")
-                      ),
-                      column(
-                        width = 3,
-                        HTML(
-                          paste(
-                            tags$span(style='color: white; font-size: 14px; font-style: italic; position: relative; bottom: -16px; right: -40px;', 'No scale for shapes')
-                          )
-                        )
-                      ),
-                      uiOutput("upgma_tipshape_mapping_info")
-                    ),
-                    fluidRow(
-                      column(
-                        width = 3,
-                        fluidRow(
-                          column(
-                            width = 8,
-                            conditionalPanel(
-                              "input.upgma_tile_num == 1",
-                              div(
-                                class = "mat-switch-v",
-                                materialSwitch(
-                                  "upgma_tiles_show_1",
-                                  h5(p("Tile"), style = "color:white; position: relative; top: -4px; right: -5px; margin-right: 10px"),
-                                  value = FALSE,
-                                  right = TRUE
-                                )
-                              )
-                            ),
-                            conditionalPanel(
-                              "input.upgma_tile_num == 2",
-                              div(
-                                class = "mat-switch-v",
-                                materialSwitch(
-                                  "upgma_tiles_show_2",
-                                  h5(p("Tile"), style = "color:white; position: relative; top: -4px; right: -5px;"),
-                                  value = FALSE,
-                                  right = TRUE
-                                )
-                              )
-                            ),
-                            conditionalPanel(
-                              "input.upgma_tile_num == 3",
-                              div(
-                                class = "mat-switch-v",
-                                materialSwitch(
-                                  "upgma_tiles_show_3",
-                                  h5(p("Tile"), style = "color:white; position: relative; top: -4px; right: -5px;"),
-                                  value = FALSE,
-                                  right = TRUE
-                                )
-                              )
-                            ),
-                            conditionalPanel(
-                              "input.upgma_tile_num == 4",
-                              div(
-                                class = "mat-switch-v",
-                                materialSwitch(
-                                  "upgma_tiles_show_4",
-                                  h5(p("Tile"), style = "color:white; position: relative; top: -4px; right: -5px;"),
-                                  value = FALSE,
-                                  right = TRUE
-                                )
-                              )
-                            ),
-                            conditionalPanel(
-                              "input.upgma_tile_num == 5",
-                              div(
-                                class = "mat-switch-v",
-                                materialSwitch(
-                                  "upgma_tiles_show_5",
-                                  h5(p("Tile"), style = "color:white; position: relative; top: -4px; right: -5px;"),
-                                  value = FALSE,
-                                  right = TRUE
-                                )
-                              )
-                            )
-                          ), 
-                          column(
-                            width = 4,
-                            align = "left",
-                            div(
-                              class = "tile-sel",
-                              selectInput(
-                                "upgma_tile_num",
-                                "",
-                                choices = 1:5,
-                                width = "50px"
-                              )
-                            )
-                          )
-                        )
-                      ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        conditionalPanel(
-                          "input.upgma_tile_num == 1",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("upgma_fruit_variable")
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.upgma_tile_num == 2",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("upgma_fruit_variable2")
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.upgma_tile_num == 3",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("upgma_fruit_variable3")
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.upgma_tile_num == 4",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("upgma_fruit_variable4")
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.upgma_tile_num == 5",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("upgma_fruit_variable5")
-                          )
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.upgma_tile_num == 1",
-                        column(
-                          width = 3,
-                          align = "center",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("upgma_tiles_scale_1")
-                          )
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.upgma_tile_num == 2",
-                        column(
-                          width = 3,
-                          align = "center",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("upgma_tiles_scale_2")
-                          )
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.upgma_tile_num == 3",
-                        column(
-                          width = 3,
-                          align = "center",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("upgma_tiles_scale_3")
-                          )
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.upgma_tile_num == 4",
-                        column(
-                          width = 3,
-                          align = "center",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("upgma_tiles_scale_4")
-                          )
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.upgma_tile_num == 5",
-                        column(
-                          width = 3,
-                          align = "center",
-                          div(
-                            class = "heatmap-scale",
-                            uiOutput("upgma_tiles_scale_5")
-                          )
-                        )
-                      ),
-                      uiOutput("upgma_fruit_mapping_info")
-                    ),
-                    fluidRow(
-                      column(
-                        width = 3,
-                        div(
-                          class = "mat-switch-v",
-                          materialSwitch(
-                            "upgma_heatmap_show",
-                            h5(p("Heatmap"), style = "color:white; position: relative; top: -4px; right: -5px;"),
-                            value = FALSE,
-                            right = TRUE
-                          )
-                        )
-                      ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        uiOutput("upgma_heatmap_sel")
-                      ),
-                      column(
-                        width = 3,
-                        align = "center",
-                        div(
-                          class = "heatmap-scale",
-                          uiOutput("upgma_heatmap_scale")
-                        )
-                      ),
-                      uiOutput("upgma_heatmap_mapping_info")
-                    )
-                  )
-                )
-              )
-            )
-          ),
-          br(), br(), br(), br(), br(), br()
         )
       ),
       
@@ -4842,17 +1029,21 @@ server <- function(input, output, session) {
     file.remove(paste0(getwd(), "/execute/screening/error.txt"))
   }
   
-  # Declare reactive variables
-  Startup <- reactiveValues(sidebar = TRUE, 
-                            header = TRUE) # reactive variables related to startup process
+  ## Declare reactive variables
   
+  # reactive variables related to startup process
+  Startup <- reactiveValues(sidebar = TRUE, 
+                            header = TRUE) 
+  
+  # reactive variables related to local database
   DB <- reactiveValues(data = NULL, 
                        block_db = FALSE, 
                        load_selected = TRUE,
                        no_na_switch = FALSE,
                        first_look = FALSE,
-                       status = "") # reactive variables related to local database
+                       status = "") 
   
+  # reactive variables related to typing process
   Typing <- reactiveValues(table = data.frame(), 
                            single_path = data.frame(),
                            progress = 0, 
@@ -4860,12 +1051,14 @@ server <- function(input, output, session) {
                            progress_format_end = 0,
                            result_list = NULL,
                            status = "",
-                           file_selection = "") # reactive variables related to typing process
+                           file_selection = "") 
   
+  # reactive variables related to gene screening
   Screening <- reactiveValues(status = "idle",
                               picker_status = TRUE,
-                              first_result = NULL) # reactive variables related to gene screening
+                              first_result = NULL) 
   
+  # reactive variables related to visualization
   Vis <- reactiveValues(cluster = NULL, 
                         metadata = list(),
                         custom_label_nj = data.frame(),
@@ -4875,17 +1068,19 @@ server <- function(input, output, session) {
                         custom_label_upgma = data.frame(),
                         upgma_label_pos_y = list(),
                         upgma_label_pos_x = list(),
-                        upgma_label_size = list()) # reactive variables related to visualization
+                        upgma_label_size = list()) 
   
-  Report <- reactiveValues() # reactive variables related to report functions
+  # reactive variables related to report functions
+  Report <- reactiveValues() 
   
-  Scheme <- reactiveValues() # reactive variables related to scheme  functions
+  # reactive variables related to scheme  functions
+  Scheme <- reactiveValues() 
   
   # Load last used database if possible
   if(paste0(getwd(), "/execute/last_db.rds") %in% dir_ls(paste0(getwd(), "/execute"))) {
     DB$last_db <- TRUE
   }
-  
+
   # Locate local Database
   observe({
     shinyDirChoose(input,
@@ -5611,7 +1806,7 @@ server <- function(input, output, session) {
             class = "menu-header-typing",
             HTML(
               paste(
-                tags$span(style="color: white; font-size: 16px; position:relative; top:2px", "cgMLST Typing")
+                tags$span(style="color: white; font-size: 16px; position:relative; top:0px", "cgMLST Typing")
               )
             )
           )
@@ -5621,7 +1816,7 @@ server <- function(input, output, session) {
             class = "menu-header-screening",
             HTML(
               paste(
-                tags$span(style="color: white; font-size: 16px; position:relative; top:2px", "Locus Screening")
+                tags$span(style="color: white; font-size: 16px; position:relative; top:1px", "Locus Screening")
               )
             )
           )
@@ -5644,12 +1839,6 @@ server <- function(input, output, session) {
             )
           }
         })
-        
-        output$menu_footer_screening <- renderUI(
-          div(
-            class = "menu-footer-screening"
-          )
-        )
         
         # Hide start message
         output$start_message <- NULL
@@ -5988,7 +2177,7 @@ server <- function(input, output, session) {
                                 fade = TRUE,
                                 easyClose = TRUE,
                                 footer = tagList(
-                                  modalButton("Cancel"),
+                                  modalButton("Dismiss"),
                                   actionButton("update_scheme", "Update Scheme", 
                                                icon = icon("layer-group"),
                                                class = "btn btn-default")
@@ -8577,7 +4766,7 @@ server <- function(input, output, session) {
       dropdownMenu(
         type = "notifications",
         notificationItem(
-          text = "Network connectivity is unavailable.",
+          text = "Network connectivity unavailable",
           icon = icon("wifi"),
           status = "danger"
         )
@@ -9499,13 +5688,12 @@ server <- function(input, output, session) {
         modalDialog(
           fluidRow(
             br(), 
-            column(1),
             column(
-              width = 10,
+              width = 11,
               p(
                 HTML(
                   paste0(
-                    '<span style="color: white; font-size: 15px;">',
+                    '<span style="color: white; font-size: 15px; margin-left: 15px;">',
                     'Are you sure you want to stop the application?',
                     '</span>'
                   )
@@ -9526,7 +5714,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_shutdown, {
-    runjs("window.close();")
+    shinyjs::runjs("window.close();")
     stopApp()
   })
   
@@ -9538,14 +5726,24 @@ server <- function(input, output, session) {
         modalDialog(
           fluidRow(
             br(), 
-            column(1),
             column(
-              width = 10,
+              width = 11,
               p(
                 HTML(
                   paste0(
-                    '<span style="color: white; font-size: 15px;">',
-                    'Coming soon ... ',
+                    '<span style="color: white; font-size: 15px; margin-left: 15px;">',
+                    'For help refer to the ',
+                    '<a href="https://www.phylotrace.com/user-manual" target="_blank">User Manual</a>',
+                    '.',
+                    '</span>'
+                  )
+                )
+              ),
+              p(
+                HTML(
+                  paste0(
+                    '<span style="color: white; font-size: 15px; margin-left: 15px;">',
+                    'If issues persist or for any other inquiries contact us at <a href="mailto:info@phylotrace.com">info@phylotrace.com</a>.',
                     '</span>'
                   )
                 )
@@ -9571,13 +5769,12 @@ server <- function(input, output, session) {
         modalDialog(
           fluidRow(
             br(), 
-            column(1),
             column(
-              width = 10,
+              width = 11,
               p(
                 HTML(
                   paste0(
-                    '<span style="color: white; font-size: 15px;">',
+                    '<span style="color: white; font-size: 15px; margin-left: 15px;">',
                     'Coming soon ... ',
                     '</span>'
                   )
@@ -9699,7 +5896,7 @@ server <- function(input, output, session) {
             title = "Load Database",
             easyClose = TRUE,
             footer = tagList(
-              modalButton("Cancel"),
+              modalButton("Dismiss"),
               actionButton("load", "Load", class = "load-db", width = "100px")
             )
           )
@@ -12353,7 +8550,7 @@ server <- function(input, output, session) {
       } else if(input$tree_algo == "Neighbour-Joining") {
         Vis$title <- "Generate Neighbour-Joining Tree"   
       } else {
-        Vis$title <- "Generate UPGMA (unweighted pair group method with arithmetic mean) Tree"   
+        Vis$title <- "Generate UPGMA Tree"   
       }
     } else {
       Vis$title <- "Generate Minimum-Spanning Tree"
@@ -12377,18 +8574,27 @@ server <- function(input, output, session) {
     }
     
     if(tree_algo_selected == "Minimum-Spanning") {
-      tree_algo_info <- "MST visualizations display the shortest connections between isolates, emphasizing direct genetic paths and clusters without assuming a specific evolutionary model."
+      tree_algo_info <- "MST visualizations display the shortest  connections between isolates, emphasizing  direct genetic paths and clusters  without assuming a specific evolutionary model."
+      tree_algo_title <- "Minimum-Spanning Tree"
     } else if(tree_algo_selected == "Neighbour-Joining") {
-      tree_algo_info <- "NJ visualizations group isolates based on genetic distances, constructing a tree that highlights relationships without requiring a constant mutation rate."
+      tree_algo_info <- "Neighbour-Joining visualizations group isolates based  on genetic distances, constructing a  tree that highlights relationships without  requiring a constant mutation rate."
+      tree_algo_title <- "NJ Tree"
     } else {
-      tree_algo_info <- "UPGMA visualizations assume a constant mutation rate, producing a balanced, hierarchical tree that shows lineage splits among isolates."
+      tree_algo_info <- "UPGMA (unweighted pair group method with arithmetic mean) visualizations assume a constant  mutation rate, producing a balanced,  hierarchical tree that shows lineage splits  among isolates."
+      tree_algo_title <- "UPGMA Tree"
+    }
+    
+    if(!is.null(Vis$title)) {
+      title <- Vis$title
+    } else {
+      title <- "Generate Minimum-Spanning Tree"
     }
     
     box(
       solidHeader = TRUE,
       status = "primary",
       width = "100%",
-      title = Vis$title,
+      title = title,
       fluidRow(
         column(
           width = 6,
@@ -12420,18 +8626,3276 @@ server <- function(input, output, session) {
         column(
           width = 1,
           align = "left",
-          bsicons::bs_icon("info-circle", 
-                           title = tree_algo_info, 
-                           size = "5em",
-                           color = "white", height = "17px", width = "17px", 
-                           position = "relative", top = "-34px", right = "3px",
-                           options = list(delay = list(show = 100, hide = 100)))
+          div(
+            class = "test-test",
+            popify(div(id = "testtest", HTML('<i class="fa-regular fa-circle-question" style="color: white !important; top: -38px; position: absolute; font-size: 16px; padding: 5px; left: 9px"></i>')),
+                   tree_algo_title,
+                   tree_algo_info,
+                   options=list(container="body"))
+          )
         )
       )
     )
   })
   
   #### NJ and UPGMA controls ----
+  
+  output$nj_controls <- renderUI(
+    div(
+      class = "control-box",
+      box(
+        solidHeader = TRUE,
+        status = "primary",
+        width = "100%",
+        title = "Labels",
+        fluidRow(
+          column(
+            width = 12,
+            align = "left",
+            fluidRow(
+              column(
+                width = 8,
+                align = "left",
+                h4(p("Isolate Label"), style = "color:white; position: relative; right: -15px; "),   
+              ),
+              column(
+                width = 4,
+                align = "center",
+                div(
+                  class = "mat-switch-lab",
+                  materialSwitch(
+                    "nj_tiplab_show",
+                    "",
+                    value = TRUE
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 9,
+                align = "left",
+                div(
+                  class = "nj-label-sel",
+                  uiOutput("nj_tiplab")
+                )   
+              ),
+              column(
+                width = 3,
+                align = "center",
+                dropMenu(
+                  actionBttn(
+                    "nj_labeltext_menu",
+                    label = "",
+                    color = "default",
+                    size = "sm",
+                    style = "material-flat",
+                    icon = icon("sliders")
+                  ),
+                  placement = "top-start",
+                  theme = "translucent",
+                  fluidRow(
+                    column(
+                      width = 6,
+                      align = "center",
+                      div(
+                        class = "mat-switch-align",
+                        materialSwitch(
+                          "nj_align",
+                          h5(p("Align"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                          value = FALSE,
+                          right = TRUE
+                        )
+                      ),
+                      br(),
+                      selectInput(
+                        "nj_tiplab_fontface",
+                        label = h5("Fontface", style = "color:white; margin-bottom: 5px; margin-top: 16px"),
+                        width = "250px",
+                        choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
+                      )
+                    ),
+                    column(
+                      width = 6,
+                      align = "center",
+                      sliderInput(
+                        "nj_tiplab_alpha",
+                        label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                        min = 0.1,
+                        max = 1,
+                        value = 1,
+                        width = "150px",
+                        ticks = FALSE
+                      ),
+                      br(),
+                      conditionalPanel(
+                        "!(input.nj_layout=='inward'|input.nj_layout=='circular')",
+                        sliderInput(
+                          inputId = "nj_tiplab_nudge_x",
+                          label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                          min = -3,
+                          max = 3,
+                          step = 0.05,
+                          value = 0,
+                          width = "150px",
+                          ticks = FALSE
+                        )
+                      ),
+                      conditionalPanel(
+                        "input.nj_layout=='circular'",
+                        sliderInput(
+                          inputId = "nj_tiplab_position",
+                          label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                          min = -3,
+                          max = 3,
+                          step = 0.05,
+                          value = -0.05,
+                          width = "150px",
+                          ticks = FALSE
+                        )
+                      ),
+                      conditionalPanel(
+                        "input.nj_layout=='inward'",
+                        sliderInput(
+                          inputId = "nj_tiplab_position_inw",
+                          label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                          min = -3,
+                          max = 3,
+                          step = 0.05,
+                          value = 1.1,
+                          width = "150px",
+                          ticks = FALSE
+                        )
+                      ),
+                      br(),
+                      sliderInput(
+                        inputId = "nj_tiplab_angle",
+                        label = h5("Angle", style = "color:white; margin-bottom: 0px"),
+                        min = -90,
+                        max = 90,
+                        value = 0,
+                        ticks = FALSE,
+                        width = "150px",
+                      )      
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ),
+        fluidRow(
+          column(
+            width = 8,
+            div(
+              class = "mat-switch-geom",
+              materialSwitch(
+                "nj_geom",
+                h5(p("Panels"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: 5px;"),
+                value = FALSE,
+                right = FALSE
+              )
+            )
+          ),
+          column(
+            width = 4,
+            dropMenu(
+              actionBttn(
+                "nj_labelformat_menu",
+                label = "",
+                color = "default",
+                size = "sm",
+                style = "material-flat",
+                icon = icon("sliders")
+              ),
+              placement = "top-start",
+              theme = "translucent",
+              fluidRow(
+                column(
+                  width = 12,
+                  align = "center",
+                  uiOutput("nj_tiplab_padding"),
+                  br(),
+                  sliderInput(
+                    inputId = "nj_tiplab_labelradius",
+                    label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
+                    min = 0,
+                    max = 0.5,
+                    value = 0.2,
+                    width = "150px",
+                    ticks = FALSE
+                  )
+                )
+              )
+            )
+          )
+        ),
+        hr(),
+        fluidRow(
+          column(
+            width = 12,
+            align = "left",
+            fluidRow(
+              column(
+                width = 8,
+                align = "left",
+                h4(p("Branches"), style = "color:white; position: relative; right: -15px;"),
+              ),
+              column(
+                width = 4,
+                align = "center",
+                div(
+                  class = "mat-switch-lab",
+                  materialSwitch(
+                    "nj_show_branch_label",
+                    "",
+                    value = FALSE
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 9,
+                align = "left",
+                div(
+                  class = "nj-label-sel",
+                  uiOutput("nj_branch_label")
+                )   
+              ),
+              column(
+                width = 3,
+                align = "center",
+                dropMenu(
+                  actionBttn(
+                    "nj_branch_label_menu",
+                    label = "",
+                    color = "default",
+                    size = "sm",
+                    style = "material-flat",
+                    icon = icon("sliders")
+                  ),
+                  placement = "top-start",
+                  theme = "translucent",
+                  fluidRow(
+                    column(
+                      width = 6,
+                      align = "center",
+                      sliderInput(
+                        "nj_branchlab_alpha",
+                        label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                        min = 0.1,
+                        max = 1,
+                        value = 0.65,
+                        width = "250px",
+                        ticks = FALSE
+                      ),
+                      br(),
+                      sliderInput(
+                        inputId = "nj_branch_x",
+                        label = h5("X Position", style = "color:white; margin-bottom: 0px"),
+                        min = -3,
+                        max = 3,
+                        value = 0,
+                        width = "250px",
+                        ticks = FALSE
+                      ),
+                      br(),
+                      sliderInput(
+                        inputId = "nj_branch_y",
+                        label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+                        min = -3,
+                        max = 3,
+                        value = 0,
+                        width = "250px",
+                        ticks = FALSE
+                      )
+                    ),
+                    column(
+                      width = 6,
+                      align = "center",
+                      uiOutput("nj_branch_size"),
+                      selectInput(
+                        "nj_branchlab_fontface",
+                        label = h5("Fontface", style = "color:white; margin-bottom: 0px;"),
+                        width = "250px",
+                        choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
+                      ),
+                      br(),
+                      sliderInput(
+                        "nj_branch_labelradius",
+                        label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
+                        min = 0,
+                        max = 0.5,
+                        value = 0.5,
+                        width = "250px",
+                        ticks = FALSE
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ),
+        hr(),
+        fluidRow(
+          column(
+            width = 12,
+            align = "left",
+            fluidRow(
+              column(
+                width = 8,
+                textInput(
+                  "nj_title",
+                  label = "",
+                  width = "100%",
+                  placeholder = "Plot Title"
+                )
+              ),
+              column(
+                width = 4,
+                dropMenu(
+                  actionBttn(
+                    "nj_title_menu",
+                    label = "",
+                    color = "default",
+                    size = "sm",
+                    style = "material-flat",
+                    icon = icon("sliders")
+                  ),
+                  placement = "top-start",
+                  theme = "translucent",
+                  fluidRow(
+                    column(
+                      width = 12,
+                      align = "center",
+                      numericInput(
+                        "nj_title_size",
+                        label = h5("Title Size", style = "color:white; margin-bottom: 0px"),
+                        value = 30,
+                        min = 15,
+                        max = 40,
+                        step = 1,
+                        width = "80px"
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ),
+        br(),
+        fluidRow(
+          column(
+            width = 12,
+            align = "left",
+            fluidRow(
+              column(
+                width = 8,
+                textInput(
+                  "nj_subtitle",
+                  label = "",
+                  width = "100%",
+                  placeholder = "Plot Subtitle"
+                )
+              ),
+              column(
+                width = 4,
+                dropMenu(
+                  actionBttn(
+                    "nj_subtitle_menu",
+                    label = "",
+                    color = "default",
+                    size = "sm",
+                    style = "material-flat",
+                    icon = icon("sliders")
+                  ),
+                  placement = "top-start",
+                  theme = "translucent",
+                  fluidRow(
+                    column(
+                      width = 12,
+                      align = "center",
+                      numericInput(
+                        "nj_subtitle_size",
+                        label = h5("Subtitle Size", style = "color:white; margin-bottom: 0px"),
+                        value = 30,
+                        min = 15,
+                        max = 40,
+                        step = 1,
+                        width = "80px"
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ),
+        hr(),
+        fluidRow(
+          column(
+            width = 12,
+            align = "left",
+            h4(p("Custom"), style = "color:white; position: relative; right: -15px;"),
+            column(
+              width = 12,
+              align = "center",
+              fluidRow(
+                column(
+                  width = 7,
+                  textInput(
+                    "nj_new_label_name",
+                    "",
+                    placeholder = "New Label"
+                  )
+                ),
+                column(
+                  width = 3,
+                  actionButton(
+                    "nj_add_new_label",
+                    "",
+                    icon = icon("plus")
+                  )
+                ),
+                column(
+                  width = 2,
+                  align = "right",
+                  dropMenu(
+                    actionBttn(
+                      "nj_custom_label_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-end",
+                    theme = "translucent",
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        uiOutput("nj_custom_labelsize"),
+                        br(),
+                        uiOutput("nj_sliderInput_y"),
+                        br(),
+                        uiOutput("nj_sliderInput_x")
+                      )
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 7,
+                  uiOutput("nj_custom_label_select")
+                ),
+                column(
+                  width = 4,
+                  uiOutput("nj_del_label"),
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 12,
+                  align = "center",
+                  uiOutput("nj_cust_label_save")
+                )
+              )
+            )
+          )
+        )
+      ) 
+    )
+  )
+  
+  output$upgma_controls <- renderUI(
+    box(
+      solidHeader = TRUE,
+      status = "primary",
+      width = "100%",
+      title = "Labels",
+      fluidRow(
+        column(
+          width = 12,
+          align = "left",
+          fluidRow(
+            column(
+              width = 8,
+              align = "left",
+              h4(p("Isolate Label"), style = "color:white; position: relative; right: -15px; "),   
+            ),
+            column(
+              width = 4,
+              align = "center",
+              div(
+                class = "mat-switch-lab",
+                materialSwitch(
+                  "upgma_tiplab_show",
+                  "",
+                  value = TRUE
+                )
+              )
+            )
+          ),
+          fluidRow(
+            column(
+              width = 9,
+              align = "left",
+              div(
+                class = "upgma-label-sel",
+                uiOutput("upgma_tiplab")
+              )   
+            ),
+            column(
+              width = 3,
+              align = "center",
+              dropMenu(
+                actionBttn(
+                  "upgma_labeltext_menu",
+                  label = "",
+                  color = "default",
+                  size = "sm",
+                  style = "material-flat",
+                  icon = icon("sliders")
+                ),
+                placement = "top-start",
+                theme = "translucent",
+                fluidRow(
+                  column(
+                    width = 6,
+                    align = "center",
+                    div(
+                      class = "mat-switch-align",
+                      materialSwitch(
+                        "upgma_align",
+                        h5(p("Align"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                        value = FALSE,
+                        right = TRUE
+                      )
+                    ),
+                    br(),
+                    selectInput(
+                      "upgma_tiplab_fontface",
+                      label = h5("Fontface", style = "color:white; margin-bottom: 5px; margin-top: 16px"),
+                      width = "250px",
+                      choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
+                    )
+                  ),
+                  column(
+                    width = 6,
+                    align = "center",
+                    sliderInput(
+                      "upgma_tiplab_alpha",
+                      label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                      min = 0.1,
+                      max = 1,
+                      value = 1,
+                      width = "150px",
+                      ticks = FALSE
+                    ),
+                    br(),
+                    conditionalPanel(
+                      "!(input.upgma_layout=='inward'|input.upgma_layout=='circular')",
+                      sliderInput(
+                        inputId = "upgma_tiplab_nudge_x",
+                        label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                        min = -3,
+                        max = 3,
+                        step = 0.05,
+                        value = 0,
+                        width = "150px",
+                        ticks = FALSE
+                      )
+                    ),
+                    conditionalPanel(
+                      "input.upgma_layout=='circular'",
+                      sliderInput(
+                        inputId = "upgma_tiplab_position",
+                        label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                        min = -3,
+                        max = 3,
+                        step = 0.05,
+                        value = -0.05,
+                        width = "150px",
+                        ticks = FALSE
+                      )
+                    ),
+                    conditionalPanel(
+                      "input.upgma_layout=='inward'",
+                      sliderInput(
+                        inputId = "upgma_tiplab_position_inw",
+                        label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                        min = -3,
+                        max = 3,
+                        step = 0.05,
+                        value = 1.1,
+                        width = "150px",
+                        ticks = FALSE
+                      )
+                    ),
+                    br(),
+                    sliderInput(
+                      inputId = "upgma_tiplab_angle",
+                      label = h5("Angle", style = "color:white; margin-bottom: 0px"),
+                      min = -90,
+                      max = 90,
+                      value = 0,
+                      ticks = FALSE,
+                      width = "150px",
+                    )      
+                  )
+                )
+              )
+            )
+          )
+        )
+      ),
+      fluidRow(
+        column(
+          width = 8,
+          div(
+            class = "mat-switch-geom",
+            materialSwitch(
+              "upgma_geom",
+              h5(p("Panels"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: 5px;"),
+              value = FALSE,
+              right = FALSE
+            )
+          )
+        ),
+        column(
+          width = 4,
+          dropMenu(
+            actionBttn(
+              "upgma_labelformat_menu",
+              label = "",
+              color = "default",
+              size = "sm",
+              style = "material-flat",
+              icon = icon("sliders")
+            ),
+            placement = "top-start",
+            theme = "translucent",
+            fluidRow(
+              column(
+                width = 12,
+                align = "center",
+                uiOutput("upgma_tiplab_padding"),
+                br(),
+                sliderInput(
+                  inputId = "upgma_tiplab_labelradius",
+                  label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
+                  min = 0,
+                  max = 0.5,
+                  value = 0.2,
+                  width = "150px",
+                  ticks = FALSE
+                )
+              )
+            )
+          )
+        )
+      ),
+      hr(),
+      fluidRow(
+        column(
+          width = 12,
+          align = "left",
+          fluidRow(
+            column(
+              width = 8,
+              align = "left",
+              h4(p("Branches"), style = "color:white; position: relative; right: -15px;"),
+            ),
+            column(
+              width = 4,
+              align = "center",
+              div(
+                class = "mat-switch-lab",
+                materialSwitch(
+                  "upgma_show_branch_label",
+                  "",
+                  value = FALSE
+                )
+              )
+            )
+          ),
+          fluidRow(
+            column(
+              width = 9,
+              align = "left",
+              div(
+                class = "upgma-label-sel",
+                uiOutput("upgma_branch_label")
+              )   
+            ),
+            column(
+              width = 3,
+              align = "center",
+              dropMenu(
+                actionBttn(
+                  "upgma_branch_label_menu",
+                  label = "",
+                  color = "default",
+                  size = "sm",
+                  style = "material-flat",
+                  icon = icon("sliders")
+                ),
+                placement = "top-start",
+                theme = "translucent",
+                fluidRow(
+                  column(
+                    width = 6,
+                    align = "center",
+                    sliderInput(
+                      "upgma_branchlab_alpha",
+                      label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                      min = 0.1,
+                      max = 1,
+                      value = 0.65,
+                      width = "250px",
+                      ticks = FALSE
+                    ),
+                    br(),
+                    sliderInput(
+                      inputId = "upgma_branch_x",
+                      label = h5("X Position", style = "color:white; margin-bottom: 0px"),
+                      min = -3,
+                      max = 3,
+                      value = 0,
+                      width = "250px",
+                      ticks = FALSE
+                    ),
+                    br(),
+                    sliderInput(
+                      inputId = "upgma_branch_y",
+                      label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+                      min = -3,
+                      max = 3,
+                      value = 0,
+                      width = "250px",
+                      ticks = FALSE
+                    )
+                  ),
+                  column(
+                    width = 6,
+                    align = "center",
+                    uiOutput("upgma_branch_size"),
+                    selectInput(
+                      "upgma_branchlab_fontface",
+                      label = h5("Fontface", style = "color:white; margin-bottom: 0px;"),
+                      width = "250px",
+                      choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
+                    ),
+                    br(),
+                    sliderInput(
+                      "upgma_branch_labelradius",
+                      label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
+                      min = 0,
+                      max = 0.5,
+                      value = 0.5,
+                      width = "250px",
+                      ticks = FALSE
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      ),
+      hr(),
+      fluidRow(
+        column(
+          width = 12,
+          align = "left",
+          fluidRow(
+            column(
+              width = 3,
+              h5(p("Title"), style = "color:white; position: relative; right: -15px;")   
+            ),
+            column(
+              width = 8,
+              textInput(
+                "upgma_title",
+                label = "",
+                width = "100%",
+                placeholder = "Plot Title"
+              )
+            )
+          )
+        )
+      ),
+      br(),
+      fluidRow(
+        column(
+          width = 12,
+          align = "left",
+          fluidRow(
+            column(
+              width = 3,
+              h5(p("Subtitle"), style = "color:white; position: relative; right: -15px;")   
+            ),
+            column(
+              width = 8,
+              textInput(
+                "upgma_subtitle",
+                label = "",
+                width = "100%",
+                placeholder = "Plot Subtitle"
+              )
+            )
+          )
+        )
+      ),
+      hr(),
+      fluidRow(
+        column(
+          width = 12,
+          align = "left",
+          h4(p("Custom"), style = "color:white; position: relative; right: -15px;"),
+          column(
+            width = 12,
+            align = "center",
+            fluidRow(
+              column(
+                width = 7,
+                textInput(
+                  "upgma_new_label_name",
+                  "",
+                  placeholder = "New Label"
+                )
+              ),
+              column(
+                width = 3,
+                actionButton(
+                  "upgma_add_new_label",
+                  "",
+                  icon = icon("plus")
+                )
+              ),
+              column(
+                width = 2,
+                align = "right",
+                dropMenu(
+                  actionBttn(
+                    "upgma_custom_label_menu",
+                    label = "",
+                    color = "default",
+                    size = "sm",
+                    style = "material-flat",
+                    icon = icon("sliders")
+                  ),
+                  placement = "top-end",
+                  theme = "translucent",
+                  fluidRow(
+                    column(
+                      width = 12,
+                      align = "center",
+                      uiOutput("upgma_custom_labelsize"),
+                      br(),
+                      uiOutput("upgma_sliderInput_y"),
+                      br(),
+                      uiOutput("upgma_sliderInput_x")
+                    )
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 7,
+                uiOutput("upgma_custom_label_select")
+              ),
+              column(
+                width = 4,
+                uiOutput("upgma_del_label"),
+              )
+            ),
+            fluidRow(
+              column(
+                width = 12,
+                align = "center",
+                uiOutput("upgma_cust_label_save")
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+  
+  ##### Label Menu ----
+  
+  observeEvent(input$nj_label_menu, {
+    output$nj_controls <- renderUI(
+      div(
+        class = "control-box",
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          title = "Labels",
+          fluidRow(
+            column(
+              width = 12,
+              align = "left",
+              fluidRow(
+                column(
+                  width = 8,
+                  align = "left",
+                  h4(p("Isolate Label"), style = "color:white; position: relative; right: -15px; "),   
+                ),
+                column(
+                  width = 4,
+                  align = "center",
+                  div(
+                    class = "mat-switch-lab",
+                    materialSwitch(
+                      "nj_tiplab_show",
+                      "",
+                      value = TRUE
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 9,
+                  align = "left",
+                  div(
+                    class = "nj-label-sel",
+                    uiOutput("nj_tiplab")
+                  )   
+                ),
+                column(
+                  width = 3,
+                  align = "center",
+                  dropMenu(
+                    actionBttn(
+                      "nj_labeltext_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-start",
+                    theme = "translucent",
+                    fluidRow(
+                      column(
+                        width = 6,
+                        align = "center",
+                        div(
+                          class = "mat-switch-align",
+                          materialSwitch(
+                            "nj_align",
+                            h5(p("Align"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                            value = FALSE,
+                            right = TRUE
+                          )
+                        ),
+                        br(),
+                        selectInput(
+                          "nj_tiplab_fontface",
+                          label = h5("Fontface", style = "color:white; margin-bottom: 5px; margin-top: 16px"),
+                          width = "250px",
+                          choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
+                        )
+                      ),
+                      column(
+                        width = 6,
+                        align = "center",
+                        sliderInput(
+                          "nj_tiplab_alpha",
+                          label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                          min = 0.1,
+                          max = 1,
+                          value = 1,
+                          width = "150px",
+                          ticks = FALSE
+                        ),
+                        br(),
+                        conditionalPanel(
+                          "!(input.nj_layout=='inward'|input.nj_layout=='circular')",
+                          sliderInput(
+                            inputId = "nj_tiplab_nudge_x",
+                            label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                            min = -3,
+                            max = 3,
+                            step = 0.05,
+                            value = 0,
+                            width = "150px",
+                            ticks = FALSE
+                          )
+                        ),
+                        conditionalPanel(
+                          "input.nj_layout=='circular'",
+                          sliderInput(
+                            inputId = "nj_tiplab_position",
+                            label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                            min = -3,
+                            max = 3,
+                            step = 0.05,
+                            value = -0.05,
+                            width = "150px",
+                            ticks = FALSE
+                          )
+                        ),
+                        conditionalPanel(
+                          "input.nj_layout=='inward'",
+                          sliderInput(
+                            inputId = "nj_tiplab_position_inw",
+                            label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                            min = -3,
+                            max = 3,
+                            step = 0.05,
+                            value = 1.1,
+                            width = "150px",
+                            ticks = FALSE
+                          )
+                        ),
+                        br(),
+                        sliderInput(
+                          inputId = "nj_tiplab_angle",
+                          label = h5("Angle", style = "color:white; margin-bottom: 0px"),
+                          min = -90,
+                          max = 90,
+                          value = 0,
+                          ticks = FALSE,
+                          width = "150px",
+                        )      
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          fluidRow(
+            column(
+              width = 8,
+              div(
+                class = "mat-switch-geom",
+                materialSwitch(
+                  "nj_geom",
+                  h5(p("Panels"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: 5px;"),
+                  value = FALSE,
+                  right = FALSE
+                )
+              )
+            ),
+            column(
+              width = 4,
+              dropMenu(
+                actionBttn(
+                  "nj_labelformat_menu",
+                  label = "",
+                  color = "default",
+                  size = "sm",
+                  style = "material-flat",
+                  icon = icon("sliders")
+                ),
+                placement = "top-start",
+                theme = "translucent",
+                fluidRow(
+                  column(
+                    width = 12,
+                    align = "center",
+                    uiOutput("nj_tiplab_padding"),
+                    br(),
+                    sliderInput(
+                      inputId = "nj_tiplab_labelradius",
+                      label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
+                      min = 0,
+                      max = 0.5,
+                      value = 0.2,
+                      width = "150px",
+                      ticks = FALSE
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          hr(),
+          fluidRow(
+            column(
+              width = 12,
+              align = "left",
+              fluidRow(
+                column(
+                  width = 8,
+                  align = "left",
+                  h4(p("Branches"), style = "color:white; position: relative; right: -15px;"),
+                ),
+                column(
+                  width = 4,
+                  align = "center",
+                  div(
+                    class = "mat-switch-lab",
+                    materialSwitch(
+                      "nj_show_branch_label",
+                      "",
+                      value = FALSE
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 9,
+                  align = "left",
+                  div(
+                    class = "nj-label-sel",
+                    uiOutput("nj_branch_label")
+                  )   
+                ),
+                column(
+                  width = 3,
+                  align = "center",
+                  dropMenu(
+                    actionBttn(
+                      "nj_branch_label_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-start",
+                    theme = "translucent",
+                    fluidRow(
+                      column(
+                        width = 6,
+                        align = "center",
+                        sliderInput(
+                          "nj_branchlab_alpha",
+                          label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                          min = 0.1,
+                          max = 1,
+                          value = 0.65,
+                          width = "250px",
+                          ticks = FALSE
+                        ),
+                        br(),
+                        sliderInput(
+                          inputId = "nj_branch_x",
+                          label = h5("X Position", style = "color:white; margin-bottom: 0px"),
+                          min = -3,
+                          max = 3,
+                          value = 0,
+                          width = "250px",
+                          ticks = FALSE
+                        ),
+                        br(),
+                        sliderInput(
+                          inputId = "nj_branch_y",
+                          label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+                          min = -3,
+                          max = 3,
+                          value = 0,
+                          width = "250px",
+                          ticks = FALSE
+                        )
+                      ),
+                      column(
+                        width = 6,
+                        align = "center",
+                        uiOutput("nj_branch_size"),
+                        selectInput(
+                          "nj_branchlab_fontface",
+                          label = h5("Fontface", style = "color:white; margin-bottom: 0px;"),
+                          width = "250px",
+                          choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
+                        ),
+                        br(),
+                        sliderInput(
+                          "nj_branch_labelradius",
+                          label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
+                          min = 0,
+                          max = 0.5,
+                          value = 0.5,
+                          width = "250px",
+                          ticks = FALSE
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          hr(),
+          fluidRow(
+            column(
+              width = 12,
+              align = "left",
+              fluidRow(
+                column(
+                  width = 8,
+                  textInput(
+                    "nj_title",
+                    label = "",
+                    width = "100%",
+                    placeholder = "Plot Title"
+                  )
+                ),
+                column(
+                  width = 4,
+                  dropMenu(
+                    actionBttn(
+                      "nj_title_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-start",
+                    theme = "translucent",
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        numericInput(
+                          "nj_title_size",
+                          label = h5("Title Size", style = "color:white; margin-bottom: 0px"),
+                          value = 30,
+                          min = 15,
+                          max = 40,
+                          step = 1,
+                          width = "80px"
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          br(),
+          fluidRow(
+            column(
+              width = 12,
+              align = "left",
+              fluidRow(
+                column(
+                  width = 8,
+                  textInput(
+                    "nj_subtitle",
+                    label = "",
+                    width = "100%",
+                    placeholder = "Plot Subtitle"
+                  )
+                ),
+                column(
+                  width = 4,
+                  dropMenu(
+                    actionBttn(
+                      "nj_subtitle_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-start",
+                    theme = "translucent",
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        numericInput(
+                          "nj_subtitle_size",
+                          label = h5("Subtitle Size", style = "color:white; margin-bottom: 0px"),
+                          value = 30,
+                          min = 15,
+                          max = 40,
+                          step = 1,
+                          width = "80px"
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          hr(),
+          fluidRow(
+            column(
+              width = 12,
+              align = "left",
+              h4(p("Custom"), style = "color:white; position: relative; right: -15px;"),
+              column(
+                width = 12,
+                align = "center",
+                fluidRow(
+                  column(
+                    width = 7,
+                    textInput(
+                      "nj_new_label_name",
+                      "",
+                      placeholder = "New Label"
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    actionButton(
+                      "nj_add_new_label",
+                      "",
+                      icon = icon("plus")
+                    )
+                  ),
+                  column(
+                    width = 2,
+                    align = "right",
+                    dropMenu(
+                      actionBttn(
+                        "nj_custom_label_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("sliders")
+                      ),
+                      placement = "top-end",
+                      theme = "translucent",
+                      fluidRow(
+                        column(
+                          width = 12,
+                          align = "center",
+                          uiOutput("nj_custom_labelsize"),
+                          br(),
+                          uiOutput("nj_sliderInput_y"),
+                          br(),
+                          uiOutput("nj_sliderInput_x")
+                        )
+                      )
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 7,
+                    uiOutput("nj_custom_label_select")
+                  ),
+                  column(
+                    width = 4,
+                    uiOutput("nj_del_label"),
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 12,
+                    align = "center",
+                    uiOutput("nj_cust_label_save")
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  })
+  
+  observeEvent(input$upgma_label_menu, {
+    output$upgma_controls <- renderUI(
+      box(
+        solidHeader = TRUE,
+        status = "primary",
+        width = "100%",
+        title = "Labels",
+        fluidRow(
+          column(
+            width = 12,
+            align = "left",
+            fluidRow(
+              column(
+                width = 8,
+                align = "left",
+                h4(p("Isolate Label"), style = "color:white; position: relative; right: -15px; "),   
+              ),
+              column(
+                width = 4,
+                align = "center",
+                div(
+                  class = "mat-switch-lab",
+                  materialSwitch(
+                    "upgma_tiplab_show",
+                    "",
+                    value = TRUE
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 9,
+                align = "left",
+                div(
+                  class = "upgma-label-sel",
+                  uiOutput("upgma_tiplab")
+                )   
+              ),
+              column(
+                width = 3,
+                align = "center",
+                dropMenu(
+                  actionBttn(
+                    "upgma_labeltext_menu",
+                    label = "",
+                    color = "default",
+                    size = "sm",
+                    style = "material-flat",
+                    icon = icon("sliders")
+                  ),
+                  placement = "top-start",
+                  theme = "translucent",
+                  fluidRow(
+                    column(
+                      width = 6,
+                      align = "center",
+                      div(
+                        class = "mat-switch-align",
+                        materialSwitch(
+                          "upgma_align",
+                          h5(p("Align"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                          value = FALSE,
+                          right = TRUE
+                        )
+                      ),
+                      br(),
+                      selectInput(
+                        "upgma_tiplab_fontface",
+                        label = h5("Fontface", style = "color:white; margin-bottom: 5px; margin-top: 16px"),
+                        width = "250px",
+                        choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
+                      )
+                    ),
+                    column(
+                      width = 6,
+                      align = "center",
+                      sliderInput(
+                        "upgma_tiplab_alpha",
+                        label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                        min = 0.1,
+                        max = 1,
+                        value = 1,
+                        width = "150px",
+                        ticks = FALSE
+                      ),
+                      br(),
+                      conditionalPanel(
+                        "!(input.upgma_layout=='inward'|input.upgma_layout=='circular')",
+                        sliderInput(
+                          inputId = "upgma_tiplab_nudge_x",
+                          label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                          min = -3,
+                          max = 3,
+                          step = 0.05,
+                          value = 0,
+                          width = "150px",
+                          ticks = FALSE
+                        )
+                      ),
+                      conditionalPanel(
+                        "input.upgma_layout=='circular'",
+                        sliderInput(
+                          inputId = "upgma_tiplab_position",
+                          label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                          min = -3,
+                          max = 3,
+                          step = 0.05,
+                          value = -0.05,
+                          width = "150px",
+                          ticks = FALSE
+                        )
+                      ),
+                      conditionalPanel(
+                        "input.upgma_layout=='inward'",
+                        sliderInput(
+                          inputId = "upgma_tiplab_position_inw",
+                          label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                          min = -3,
+                          max = 3,
+                          step = 0.05,
+                          value = 1.1,
+                          width = "150px",
+                          ticks = FALSE
+                        )
+                      ),
+                      br(),
+                      sliderInput(
+                        inputId = "upgma_tiplab_angle",
+                        label = h5("Angle", style = "color:white; margin-bottom: 0px"),
+                        min = -90,
+                        max = 90,
+                        value = 0,
+                        ticks = FALSE,
+                        width = "150px",
+                      )      
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ),
+        fluidRow(
+          column(
+            width = 8,
+            div(
+              class = "mat-switch-geom",
+              materialSwitch(
+                "upgma_geom",
+                h5(p("Panels"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: 5px;"),
+                value = FALSE,
+                right = FALSE
+              )
+            )
+          ),
+          column(
+            width = 4,
+            dropMenu(
+              actionBttn(
+                "upgma_labelformat_menu",
+                label = "",
+                color = "default",
+                size = "sm",
+                style = "material-flat",
+                icon = icon("sliders")
+              ),
+              placement = "top-start",
+              theme = "translucent",
+              fluidRow(
+                column(
+                  width = 12,
+                  align = "center",
+                  uiOutput("upgma_tiplab_padding"),
+                  br(),
+                  sliderInput(
+                    inputId = "upgma_tiplab_labelradius",
+                    label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
+                    min = 0,
+                    max = 0.5,
+                    value = 0.2,
+                    width = "150px",
+                    ticks = FALSE
+                  )
+                )
+              )
+            )
+          )
+        ),
+        hr(),
+        fluidRow(
+          column(
+            width = 12,
+            align = "left",
+            fluidRow(
+              column(
+                width = 8,
+                align = "left",
+                h4(p("Branches"), style = "color:white; position: relative; right: -15px;"),
+              ),
+              column(
+                width = 4,
+                align = "center",
+                div(
+                  class = "mat-switch-lab",
+                  materialSwitch(
+                    "upgma_show_branch_label",
+                    "",
+                    value = FALSE
+                  )
+                )
+              )
+            ),
+            fluidRow(
+              column(
+                width = 9,
+                align = "left",
+                div(
+                  class = "upgma-label-sel",
+                  uiOutput("upgma_branch_label")
+                )   
+              ),
+              column(
+                width = 3,
+                align = "center",
+                dropMenu(
+                  actionBttn(
+                    "upgma_branch_label_menu",
+                    label = "",
+                    color = "default",
+                    size = "sm",
+                    style = "material-flat",
+                    icon = icon("sliders")
+                  ),
+                  placement = "top-start",
+                  theme = "translucent",
+                  fluidRow(
+                    column(
+                      width = 6,
+                      align = "center",
+                      sliderInput(
+                        "upgma_branchlab_alpha",
+                        label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                        min = 0.1,
+                        max = 1,
+                        value = 0.65,
+                        width = "250px",
+                        ticks = FALSE
+                      ),
+                      br(),
+                      sliderInput(
+                        inputId = "upgma_branch_x",
+                        label = h5("X Position", style = "color:white; margin-bottom: 0px"),
+                        min = -3,
+                        max = 3,
+                        value = 0,
+                        width = "250px",
+                        ticks = FALSE
+                      ),
+                      br(),
+                      sliderInput(
+                        inputId = "upgma_branch_y",
+                        label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+                        min = -3,
+                        max = 3,
+                        value = 0,
+                        width = "250px",
+                        ticks = FALSE
+                      )
+                    ),
+                    column(
+                      width = 6,
+                      align = "center",
+                      uiOutput("upgma_branch_size"),
+                      selectInput(
+                        "upgma_branchlab_fontface",
+                        label = h5("Fontface", style = "color:white; margin-bottom: 0px;"),
+                        width = "250px",
+                        choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
+                      ),
+                      br(),
+                      sliderInput(
+                        "upgma_branch_labelradius",
+                        label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
+                        min = 0,
+                        max = 0.5,
+                        value = 0.5,
+                        width = "250px",
+                        ticks = FALSE
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ),
+        hr(),
+        fluidRow(
+          column(
+            width = 12,
+            align = "left",
+            fluidRow(
+              column(
+                width = 3,
+                h5(p("Title"), style = "color:white; position: relative; right: -15px;")   
+              ),
+              column(
+                width = 8,
+                textInput(
+                  "upgma_title",
+                  label = "",
+                  width = "100%",
+                  placeholder = "Plot Title"
+                )
+              )
+            )
+          )
+        ),
+        br(),
+        fluidRow(
+          column(
+            width = 12,
+            align = "left",
+            fluidRow(
+              column(
+                width = 3,
+                h5(p("Subtitle"), style = "color:white; position: relative; right: -15px;")   
+              ),
+              column(
+                width = 8,
+                textInput(
+                  "upgma_subtitle",
+                  label = "",
+                  width = "100%",
+                  placeholder = "Plot Subtitle"
+                )
+              )
+            )
+          )
+        ),
+        hr(),
+        fluidRow(
+          column(
+            width = 12,
+            align = "left",
+            h4(p("Custom"), style = "color:white; position: relative; right: -15px;"),
+            column(
+              width = 12,
+              align = "center",
+              fluidRow(
+                column(
+                  width = 7,
+                  textInput(
+                    "upgma_new_label_name",
+                    "",
+                    placeholder = "New Label"
+                  )
+                ),
+                column(
+                  width = 3,
+                  actionButton(
+                    "upgma_add_new_label",
+                    "",
+                    icon = icon("plus")
+                  )
+                ),
+                column(
+                  width = 2,
+                  align = "right",
+                  dropMenu(
+                    actionBttn(
+                      "upgma_custom_label_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-end",
+                    theme = "translucent",
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        uiOutput("upgma_custom_labelsize"),
+                        br(),
+                        uiOutput("upgma_sliderInput_y"),
+                        br(),
+                        uiOutput("upgma_sliderInput_x")
+                      )
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 7,
+                  uiOutput("upgma_custom_label_select")
+                ),
+                column(
+                  width = 4,
+                  uiOutput("upgma_del_label"),
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 12,
+                  align = "center",
+                  uiOutput("upgma_cust_label_save")
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  })
+  
+  ##### Variable Menu ----
+  observeEvent(input$nj_variable_menu, {
+    output$nj_controls <- renderUI(
+      div(
+        class = "control-box",
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          title = "Variable Mapping",
+          fluidRow(
+            column(
+              width = 12,
+              align = "left",
+              br(),
+              fluidRow(
+                column(
+                  width = 8,
+                  align = "left",
+                  h4(p("Tip Label Color"), style = "color:white; position: relative; right: -15px; ")
+                ),
+                column(
+                  width = 4,
+                  align = "center",
+                  div(
+                    class = "mat-switch-v",
+                    materialSwitch(
+                      "nj_mapping_show",
+                      "",
+                      value = FALSE
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 6,
+                  uiOutput("nj_color_mapping")
+                ),
+                column(
+                  width = 6,
+                  uiOutput("nj_tiplab_scale")
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 12,
+                  uiOutput("nj_tiplab_mapping_info")
+                )
+              ),
+              hr(),
+              fluidRow(
+                column(
+                  width = 8,
+                  align = "left",
+                  h4(p("Tip Point Color"), style = "color:white; position: relative; right: -15px; ")
+                ),
+                column(
+                  width = 4,
+                  align = "center",
+                  div(
+                    class = "mat-switch-v",
+                    materialSwitch(
+                      "nj_tipcolor_mapping_show",
+                      "",
+                      value = FALSE
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 6,
+                  uiOutput("nj_tipcolor_mapping")
+                ),
+                column(
+                  width = 6,
+                  uiOutput("nj_tippoint_scale")
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 12,
+                  uiOutput("nj_tipcolor_mapping_info")
+                )
+              ),
+              hr(),
+              fluidRow(
+                column(
+                  width = 8,
+                  align = "left",
+                  h4(p("Tip Point Shape"), style = "color:white; position: relative; right: -15px; ")
+                ),
+                column(
+                  width = 4,
+                  align = "center",
+                  div(
+                    class = "mat-switch-v",
+                    materialSwitch(
+                      "nj_tipshape_mapping_show",
+                      "",
+                      value = FALSE
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 6,
+                  uiOutput("nj_tipshape_mapping")
+                ),
+              ),
+              fluidRow(
+                column(
+                  width = 12,
+                  uiOutput("nj_tipshape_mapping_info")
+                )
+              ),
+              hr(),
+              fluidRow(
+                column(
+                  width = 4,
+                  align = "left",
+                  h4(p("Tiles"), style = "color:white; position: relative; right: -15px; ")
+                ),
+                column(
+                  width = 4,
+                  div(
+                    class = "tile-sel",
+                    selectInput(
+                      "nj_tile_num",
+                      "",
+                      choices = 1:5,
+                      width = "50px"
+                    )
+                  )
+                ),
+                column(
+                  width = 4,
+                  align = "center",
+                  conditionalPanel(
+                    "input.nj_tile_num == 1",
+                    div(
+                      class = "mat-switch-v",
+                      materialSwitch(
+                        "nj_tiles_show_1",
+                        "",
+                        value = FALSE
+                      )
+                    )
+                  ),
+                  conditionalPanel(
+                    "input.nj_tile_num == 2",
+                    div(
+                      class = "mat-switch-v",
+                      materialSwitch(
+                        "nj_tiles_show_2",
+                        "",
+                        value = FALSE
+                      )
+                    )
+                  ),
+                  conditionalPanel(
+                    "input.nj_tile_num == 3",
+                    div(
+                      class = "mat-switch-v",
+                      materialSwitch(
+                        "nj_tiles_show_3",
+                        "",
+                        value = FALSE
+                      )
+                    )
+                  ),
+                  conditionalPanel(
+                    "input.nj_tile_num == 4",
+                    div(
+                      class = "mat-switch-v",
+                      materialSwitch(
+                        "nj_tiles_show_4",
+                        "",
+                        value = FALSE
+                      )
+                    )
+                  ),
+                  conditionalPanel(
+                    "input.nj_tile_num == 5",
+                    div(
+                      class = "mat-switch-v",
+                      materialSwitch(
+                        "nj_tiles_show_5",
+                        "",
+                        value = FALSE
+                      )
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 6,
+                  conditionalPanel(
+                    "input.nj_tile_num == 1",
+                    uiOutput("nj_fruit_variable")
+                  ),
+                  conditionalPanel(
+                    "input.nj_tile_num == 2",
+                    uiOutput("nj_fruit_variable2")
+                  ),
+                  conditionalPanel(
+                    "input.nj_tile_num == 3",
+                    uiOutput("nj_fruit_variable3")
+                  ),
+                  conditionalPanel(
+                    "input.nj_tile_num == 4",
+                    uiOutput("nj_fruit_variable4")
+                  ),
+                  conditionalPanel(
+                    "input.nj_tile_num == 5",
+                    uiOutput("nj_fruit_variable5")
+                  )
+                ),
+                column(
+                  width = 6,
+                  conditionalPanel(
+                    "input.nj_tile_num == 1",
+                    uiOutput("nj_tiles_scale_1")
+                  ),
+                  conditionalPanel(
+                    "input.nj_tile_num == 2",
+                    uiOutput("nj_tiles_scale_2")
+                  ),
+                  conditionalPanel(
+                    "input.nj_tile_num == 3",
+                    uiOutput("nj_tiles_scale_3")
+                  ),
+                  conditionalPanel(
+                    "input.nj_tile_num == 4",
+                    uiOutput("nj_tiles_scale_4")
+                  ),
+                  conditionalPanel(
+                    "input.nj_tile_num == 5",
+                    uiOutput("nj_tiles_scale_5")
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 12,
+                  uiOutput("nj_fruit_mapping_info")
+                )
+              ),
+              hr(),
+              fluidRow(
+                column(
+                  width = 8,
+                  align = "left",
+                  h4(p("Heatmap"), style = "color:white; position: relative; right: -15px; ")
+                ),
+                column(
+                  width = 4,
+                  align = "center",
+                  div(
+                    class = "mat-switch-v",
+                    materialSwitch(
+                      "nj_heatmap_show",
+                      "",
+                      value = FALSE
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 6,
+                  uiOutput("nj_heatmap_sel")
+                ),
+                column(
+                  width = 6,
+                  uiOutput("nj_heatmap_scale")
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 12,
+                  uiOutput("nj_heatmap_mapping_info")
+                )
+              ),
+              br()
+            )
+          )
+        )
+      )
+    )
+  })
+  
+  ##### Color Menu ----
+  
+  observeEvent(input$nj_color_menu, {
+    output$nj_controls <- renderUI(
+      box(
+        solidHeader = TRUE,
+        status = "primary",
+        width = "100%",
+        title = "Color Menu",
+        column(
+          width = 12,
+          br(),
+          fluidRow(
+            column(
+              width = 6,
+              align = "left",
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 14px; position: relative; top: 10px;', 
+                            'Lines/Text')
+                )
+              )
+            ),
+            column(
+              width = 6,
+              align = "center",
+              div(
+                class = "control-color",
+                colorPickr(
+                  inputId = "nj_color",
+                  selected = "#000000",
+                  label = "",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start",
+                  width = "100%"
+                )
+              )
+            )
+          ),
+          br(),
+          fluidRow(
+            column(
+              width = 6,
+              align = "left",
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 14px; position: relative; top: 10px;', 
+                            'Background')
+                )
+              )
+            ),
+            column(
+              width = 6,
+              align = "center",
+              div(
+                class = "control-color",
+                colorPickr(
+                  inputId = "nj_bg",
+                  selected = "#ffffff",
+                  label = "",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start",
+                  width = "100%"
+                )
+              )
+            )
+          ),
+          br(),
+          fluidRow(
+            column(
+              width = 6,
+              align = "left",
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 14px; position: relative; top: 10px;', 
+                            'Title')
+                )
+              )
+            ),
+            column(
+              width = 6,
+              align = "center",
+              div(
+                class = "control-color",
+                colorPickr(
+                  inputId = "nj_title_color",
+                  selected = "#000000",
+                  label = "",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start",
+                  width = "100%"
+                )
+              )
+            )
+          ),
+          br(),
+          fluidRow(
+            column(
+              width = 6,
+              align = "left",
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 14px; position: relative; top: 10px;', 
+                            'Tip Label')
+                )
+              )
+            ),
+            column(
+              width = 6,
+              align = "center",
+              div(
+                class = "control-color",
+                colorPickr(
+                  inputId = "nj_tiplab_color",
+                  selected = "#000000",
+                  label = "",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start",
+                  width = "100%"
+                )
+              )
+            )
+          ),
+          br(),
+          fluidRow(
+            column(
+              width = 6,
+              align = "left",
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 14px; position: relative; top: 10px;', 
+                            'Label Panel')
+                )
+              )
+            ),
+            column(
+              width = 6,
+              align = "center",
+              div(
+                class = "control-color",
+                colorPickr(
+                  inputId = "nj_tiplab_fill",
+                  selected = "#84D9A0",
+                  label = "",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start",
+                  width = "100%"
+                )
+              )  
+            )
+          ),
+          br(),
+          fluidRow(
+            column(
+              width = 6,
+              align = "left",
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 13px; position: relative; top: 10px;', 
+                            'Branch Label')
+                )
+              )
+            ),
+            column(
+              width = 6,
+              align = "center",
+              div(
+                class = "control-color",
+                colorPickr(
+                  inputId = "nj_branch_label_color",
+                  selected = "#FFB7B7",
+                  label = "",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start",
+                  width = "100%"
+                )
+              )
+            )
+          ),
+          br(),
+          fluidRow(
+            column(
+              width = 6,
+              align = "left",
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 14px; position: relative; top: 10px;', 
+                            'Tip Point')
+                )
+              )
+            ),
+            column(
+              width = 6,
+              align = "center",
+              div(
+                class = "control-color",
+                colorPickr(
+                  inputId = "nj_tippoint_color",
+                  selected = "#3A4657",
+                  label = "",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start",
+                  width = "100%"
+                )
+              )
+            )
+          ),
+          br(),
+          fluidRow(
+            column(
+              width = 6,
+              align = "left",
+              HTML(
+                paste(
+                  tags$span(style='color: white; font-size: 14px; position: relative; top: 10px;', 
+                            'Node Point')
+                )
+              )
+            ),
+            column(
+              width = 6,
+              align = "center",
+              div(
+                class = "control-color",
+                colorPickr(
+                  inputId = "nj_nodepoint_color",
+                  selected = "#3A4657",
+                  label = "",
+                  update = "changestop",
+                  interaction = list(clear = FALSE,
+                                     save = FALSE),
+                  position = "right-start",
+                  width = "100%"
+                )
+              )
+            )
+          ),
+          br()
+        )
+      )
+    )
+  })
+  
+  
+  ##### Other Menu ----
+  
+  observeEvent(input$nj_misc_menu, {
+    output$nj_controls <- renderUI(
+      div(
+        class = "control-box",
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          title = "Miscellaneous",
+          #column(
+          #  width = 12,
+            fluidRow(
+              column(
+                width = 12,
+                align = "left",
+                h4(p("Dimensions"), style = "color:white; position: relative; top: 0px; margin-bottom: -10px;"),
+                fluidRow(
+                  column(
+                    width = 4,
+                    align = "left",
+                    HTML(
+                      paste(
+                        tags$span(style='color: white; font-size: 14px; position: relative; top: 27px',
+                                  'Ratio')
+                      )
+                    )
+                  ),
+                  column(
+                    width = 4,
+                    align = "center",
+                    div(
+                      class = "control-ratio",
+                      selectInput(
+                        "nj_ratio",
+                        "",
+                        choices = c("16:10" = (16/10), "16:9" = (16/9), "4:3" = (4/3))
+                      )
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    dropMenu(
+                      actionBttn(
+                        "nj_dim_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("sliders")
+                      ),
+                      placement = "top-start",
+                      theme = "translucent",
+                      fluidRow(
+                        column(
+                          width = 12,
+                          sliderInput(
+                            "nj_v",
+                            label = h5("Vertical Position", style = "color:white; margin-bottom: 0px"),
+                            min = -0.5,
+                            max = 0.5,
+                            step = 0.01,
+                            value = 0,
+                            width = "150px",
+                            ticks = FALSE
+                          ),
+                          br(),
+                          sliderInput(
+                            "nj_h",
+                            label = h5("Horizontal Position", style = "color:white; margin-bottom: 0px"),
+                            min = -0.5,
+                            max = 0.5,
+                            step = 0.01,
+                            value = 0,
+                            width = "150px",
+                            ticks = FALSE
+                          )
+                        )
+                      )
+                    )
+                  )
+                ),
+                br(),
+                fluidRow(
+                  column(
+                    width = 6,
+                    align = "left",
+                    HTML(
+                      paste(
+                        tags$span(style='color: white; font-size: 14px; position: relative;',
+                                  'Scale')
+                      )
+                    )
+                  ),
+                  div(
+                    class = "gs-slider-col",
+                    column(
+                      width = 6,
+                      align = "center",
+                      div(
+                        class = "gs-slider-scale",
+                        sliderInput(
+                          "nj_scale",
+                          "",
+                          min = 450,
+                          max = 670,
+                          step = 5,
+                          value = 600,
+                          width = "95%",
+                          ticks = FALSE
+                        )
+                      )
+                    )
+                  )
+                ),
+                br(),
+                fluidRow(
+                  column(
+                    width = 6,
+                    align = "left",
+                    HTML(
+                      paste(
+                        tags$span(style='color: white; font-size: 14px; position: relative;',
+                                  'Zoom')
+                      )
+                    )
+                  ),
+                  div(
+                    class = "gs-slider-col",
+                    column(
+                      width = 6,
+                      align = "center",
+                      div(
+                        class = "gs-slider-scale",
+                        sliderInput(
+                          "nj_zoom",
+                          "",
+                          min = 0.5,
+                          max = 1.5,
+                          step = 0.05,
+                          value = 0.95,
+                          width = "95%",
+                          ticks = FALSE
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            ),
+            hr(),
+            fluidRow(
+              column(
+                width = 12,
+                h4(p("Layout"), style = "color:white; position: relative; top: 0px; margin-bottom: -10px;"),
+                fluidRow(
+                  column(
+                    width = 12,
+                    selectInput(
+                      inputId = "nj_layout",
+                      label = "",
+                      choices = list(
+                        Linear = list(
+                          "Rectangular" = "rectangular",
+                          "Roundrect" = "roundrect",
+                          "Slanted" = "slanted",
+                          "Ellipse" = "ellipse"
+                        ),
+                        Circular = list("Circular" = "circular",
+                                        "Inward" = "inward")
+                      ),
+                      selected = "rectangular",
+                      width = "90%"
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 8,
+                    div(
+                      class = "mat-switch-layout",
+                      materialSwitch(
+                        "nj_rootedge_show",
+                        h5(p("Rootedge"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                        value = FALSE,
+                        right = TRUE
+                      )
+                    )
+                  ),
+                  column(
+                    width = 4,
+                    align = "right",
+                    dropMenu(
+                      actionBttn(
+                        "nj_rootedge_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("sliders")
+                      ),
+                      placement = "top-start",
+                      theme = "translucent",
+                      fluidRow(
+                        column(
+                          width = 12,
+                          align = "center",
+                          uiOutput("nj_rootedge_length"),
+                          br(),
+                          selectInput(
+                            "nj_rootedge_line",
+                            label = h5("Rootedge Line", style = "color:white"),
+                            choices = c(Solid = "solid", Dashed = "dashed", Dotted = "dotted"),
+                            selected = c(Dotted = "solid"),
+                            width = "100px"
+                          ),
+                          br(),
+                          conditionalPanel(
+                            "input.nj_layout=='circular'",
+                            sliderInput(
+                              "nj_xlim",
+                              label = h5("Adjust Circular", style = "color:white"),
+                              min = -50,
+                              max = 0,
+                              value = -10,
+                              width = "150px",
+                              ticks = FALSE
+                            )
+                          ),
+                          conditionalPanel(
+                            "input.nj_layout=='inward'",
+                            sliderInput(
+                              "nj_inward_xlim",
+                              label = h5("Adjust Circular", style = "color:white"),
+                              min = 30,
+                              max = 120,
+                              value = 50,
+                              ticks = FALSE,
+                              width = "150px",
+                            )
+                          )
+                        )
+                      )
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 8,
+                    align = "left",
+                    div(
+                      class = "mat-switch-layout2",
+                      materialSwitch(
+                        "nj_treescale_show",
+                        h5(p("Tree Scale"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                        value = TRUE,
+                        right = TRUE
+                      )
+                    )
+                  ),
+                  column(
+                    width = 4,
+                    align = "right",
+                    dropMenu(
+                      actionBttn(
+                        "nj_treescale_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("sliders")
+                      ),
+                      placement = "top-start",
+                      theme = "translucent",
+                      fluidRow(
+                        column(
+                          width = 12,
+                          align = "center",
+                          uiOutput("nj_treescale_width"),
+                          br(),
+                          uiOutput("nj_treescale_x"),
+                          br(),
+                          uiOutput("nj_treescale_y")
+                        )
+                      )
+                    )
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 8,
+                    div(
+                      class = "mat-switch-layout3",
+                      materialSwitch(
+                        "nj_ladder",
+                        h5(p("Ladderize"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                        value = TRUE,
+                        right = TRUE
+                      )
+                    )
+                  )
+                ),
+                hr(),
+                fluidRow(
+                  column(
+                    width = 7,
+                    align = "left",
+                    prettyRadioButtons(
+                      "nj_legend_orientation",
+                      "",
+                      choices = c(Horizontal = "horizontal",
+                                  Vertical = "vertical"),
+                      selected = c(Vertical = "vertical"),
+                      inline = FALSE
+                    )
+                  ),
+                  column(
+                    width = 5,
+                    align = "right",
+                    dropMenu(
+                      actionBttn(
+                        "nj_legend_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("sliders")
+                      ),
+                      placement = "top-start",
+                      theme = "translucent",
+                      fluidRow(
+                        column(
+                          width = 12,
+                          align = "center",
+                          numericInput(
+                            "nj_legend_size",
+                            label = h5("Size", style = "color:white; margin-bottom: 0px"),
+                            value = 10,
+                            min = 5,
+                            max = 25,
+                            step = 1,
+                            width = "80px"
+                          ),
+                          br(),
+                          sliderInput(
+                            "nj_legend_x",
+                            label = h5("Horizontal Position", style = "color:white; margin-bottom: 0px"),
+                            value = 0.9,
+                            min = -0.9,
+                            max = 1.9,
+                            step = 0.2,
+                            width = "150px",
+                            ticks = FALSE
+                          ),
+                          br(),
+                          sliderInput(
+                            "nj_legend_y",
+                            label = h5("Vertical Position", style = "color:white; margin-bottom: 0px"),
+                            value = 0.2,
+                            min = -1.5,
+                            max = 1.5,
+                            step = 0.1,
+                            width = "150px",
+                            ticks = FALSE
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          #)
+        )
+      )
+    )
+  })
+  
+  ##### Elements Menu ----
+  
+  observeEvent(input$nj_elements_menu, {
+    output$nj_controls <- renderUI(
+      div(
+        class = "control-box",
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          title = "Elements Menu",
+          fluidRow(
+            column(
+              width = 12,
+              align = "left",
+              br(),
+              fluidRow(
+                column(
+                  width = 8,
+                  h4(p("Tip Points"), style = "color:white; position: relative; top: 0px; margin-bottom: -10px; right: -15px")
+                ),
+                column(
+                  width = 4,
+                  align = "center",
+                  div(
+                    class = "mat-switch-v",
+                    materialSwitch(
+                      "nj_tippoint_show",
+                      "",
+                      value = FALSE
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 3,
+                  h5(p("Shape"), style = "color:white; position: relative; top: 19px; margin-bottom: -10px; right: -15px")
+                ),
+                column(
+                  width = 6,
+                  conditionalPanel(
+                    "input.nj_tipshape_mapping_show==false",
+                    selectInput(
+                      "nj_tippoint_shape",
+                      "",
+                      width = "100%",
+                      choices = c(
+                        Circle = "circle", 
+                        Square = "square", 
+                        Diamond = "diamond", 
+                        Triangle = "triangle",
+                        Cross = "cross", 
+                        Asterisk = "asterisk"
+                      )
+                    )
+                  ),
+                  conditionalPanel(
+                    "input.nj_tipshape_mapping_show==true",
+                    h5(p("Variable assigned"), style = "color:white; position: relative; right: -15px; margin-top: 30px; font-style: italic")
+                  )
+                ),
+                column(
+                  width = 3,
+                  dropMenu(
+                    actionBttn(
+                      "nj_tippoint_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-end",
+                    theme = "translucent",
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        sliderInput(
+                          "nj_tippoint_alpha",
+                          label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                          value = 0.5,
+                          min = 0.1,
+                          max = 1,
+                          width = "150px",
+                          ticks = FALSE
+                        ), 
+                        br(),
+                        uiOutput("nj_tippoint_size")
+                      )
+                    )
+                  )
+                )
+              ),
+              hr(),
+              fluidRow(
+                column(
+                  width = 8,
+                  h4(p("Node Points"), style = "color:white; position: relative; top: 0px; margin-bottom: -10px; right: -15px")
+                ),
+                column(
+                  width = 4,
+                  align = "center",
+                  div(
+                    class = "mat-switch-v",
+                    materialSwitch(
+                      "nj_nodepoint_show",
+                      "",
+                      value = FALSE
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 3,
+                  h5(p("Shape"), style = "color:white; position: relative; top: 19px; margin-bottom: -10px; right: -15px")
+                ),
+                column(
+                  width = 6,
+                  selectInput(
+                    "nj_nodepoint_shape",
+                    "",
+                    choices = c(
+                      Circle = "circle", 
+                      Square = "square", 
+                      Diamond = "diamond", 
+                      Triangle = "triangle",
+                      Cross = "cross", 
+                      Asterisk = "asterisk"
+                    )
+                  )
+                ),
+                column(
+                  width = 3,
+                  dropMenu(
+                    actionBttn(
+                      "nj_nodepoint_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-end",
+                    theme = "translucent",
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        sliderInput(
+                          "nj_nodepoint_alpha",
+                          label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                          value = 1,
+                          min = 0.1,
+                          max = 1,
+                          width = "150px",
+                          ticks = FALSE
+                        ), 
+                        br(),
+                        uiOutput("nj_nodepoint_size")
+                      )
+                    )
+                  )
+                )
+              ),
+              hr(),
+              fluidRow(
+                column(
+                  width = 4,
+                  h4(p("Tiles"), style = "color:white; position: relative; top: 0px; margin-bottom: -10px; right: -15px")
+                ),
+                column(
+                  width = 5,
+                  align = "left",
+                  div(
+                    class = "sel-tile-number",
+                    selectInput(
+                      "nj_tile_number",
+                      "",
+                      choices = 1:5,
+                      width = "70px"
+                    )
+                  )
+                ),
+                column(
+                  width = 3,
+                  dropMenu(
+                    actionBttn(
+                      "nj_tile_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-start",
+                    theme = "translucent",
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        conditionalPanel(
+                          "input.nj_tile_num == 1",
+                          sliderInput(
+                            "nj_fruit_alpha",
+                            label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                            min = 0.1,
+                            max = 1,
+                            value = 1,
+                            step = 0.05,
+                            width = "150px",
+                            ticks = FALSE
+                          )
+                        ),
+                        conditionalPanel(
+                          "input.nj_tile_num == 2",
+                          sliderInput(
+                            "nj_fruit_alpha_2",
+                            label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                            min = 0.1,
+                            max = 1,
+                            value = 1,
+                            step = 0.05,
+                            width = "150px",
+                            ticks = FALSE
+                          )
+                        ),
+                        conditionalPanel(
+                          "input.nj_tile_num == 3",
+                          sliderInput(
+                            "nj_fruit_alpha_3",
+                            label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                            min = 0.1,
+                            max = 1,
+                            value = 1,
+                            step = 0.05,
+                            width = "150px",
+                            ticks = FALSE
+                          )
+                        ),
+                        conditionalPanel(
+                          "input.nj_tile_num == 4",
+                          sliderInput(
+                            "nj_fruit_alpha_4",
+                            label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                            min = 0.1,
+                            max = 1,
+                            value = 1,
+                            step = 0.05,
+                            width = "150px",
+                            ticks = FALSE
+                          )
+                        ),
+                        conditionalPanel(
+                          "input.nj_tile_num == 5",
+                          sliderInput(
+                            "nj_fruit_alpha_5",
+                            label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                            min = 0.1,
+                            max = 1,
+                            value = 1,
+                            step = 0.05,
+                            width = "150px",
+                            ticks = FALSE
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              ),
+              conditionalPanel(
+                "input.nj_tile_num == 1",
+                fluidRow(
+                  column(
+                    width = 5,
+                    h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
+                  ),
+                  column(
+                    width = 7,
+                    align = "center",
+                    uiOutput("nj_fruit_width")
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px;")
+                  ),
+                  column(
+                    width = 7,
+                    align = "center",
+                    uiOutput("nj_fruit_offset_circ")
+                  )
+                )
+              ),
+              conditionalPanel(
+                "input.nj_tile_num == 2",
+                fluidRow(
+                  column(
+                    width = 5,
+                    h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
+                  ),
+                  column(
+                    width = 7,
+                    align = "center",
+                    uiOutput("nj_fruit_width2")
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; ")
+                  ),
+                  column(
+                    width = 7,
+                    align = "center",
+                    uiOutput("nj_fruit_offset_circ_2")
+                  )
+                )
+              ),
+              conditionalPanel(
+                "input.nj_tile_num == 3",
+                fluidRow(
+                  column(
+                    width = 5,
+                    h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
+                  ),
+                  column(
+                    width = 7,
+                    align = "center",
+                    uiOutput("nj_fruit_width3")
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px; ")
+                  ),
+                  column(
+                    width = 7,
+                    align = "center",
+                    uiOutput("nj_fruit_offset_circ_3")
+                  )
+                )
+              ),
+              conditionalPanel(
+                "input.nj_tile_num == 4",
+                fluidRow(
+                  column(
+                    width = 5,
+                    h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
+                  ),
+                  column(
+                    width = 7,
+                    align = "center",
+                    uiOutput("nj_fruit_width4")
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px;")
+                  ),
+                  column(
+                    width = 7,
+                    align = "center",
+                    uiOutput("nj_fruit_offset_circ_4")
+                  )
+                )
+              ),
+              conditionalPanel(
+                "input.nj_tile_num == 5",
+                fluidRow(
+                  column(
+                    width = 5,
+                    h5("Width", style = "color:white; margin-left: 15px; margin-top: 27px;")
+                  ),
+                  column(
+                    width = 7,
+                    align = "center",
+                    uiOutput("nj_fruit_width5")
+                  )
+                ),
+                fluidRow(
+                  column(
+                    width = 5,
+                    h5("Position", style = "color:white; margin-left: 15px; margin-top: 32px;")
+                  ),
+                  column(
+                    width = 7,
+                    align = "center",
+                    uiOutput("nj_fruit_offset_circ_5"),
+                  )
+                )
+              ),
+              hr(),
+              fluidRow(
+                column(
+                  width = 12,
+                  h4(p("Heatmap"), style = "color:white; position: relative; right: -15px")
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 3,
+                  h5("Title", style = "color:white; margin-left: 15px; margin-top: 15px;")
+                ),
+                column(
+                  width = 6,
+                  align = "left",
+                  textInput(
+                    "nj_heatmap_title",
+                    label = "",
+                    value = "Heatmap",
+                    placeholder = "Heatmap" 
+                  )
+                ),
+                column(
+                  width = 3,
+                  dropMenu(
+                    actionBttn(
+                      "nj_heatmap_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-end",
+                    theme = "translucent",
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        uiOutput("nj_colnames_angle"),
+                        br(),
+                        uiOutput("nj_colnames_y"),
+                        fluidRow(
+                          column(
+                            width = 5,
+                            h5("Width", style = "color: white; margin-left: 15px; margin-top: 40px;")
+                          ),
+                          column(
+                            width = 7,
+                            uiOutput("nj_heatmap_width")
+                          )
+                        ),
+                        br(),
+                        fluidRow(
+                          column(
+                            width = 5,
+                            h5("Position", style = "color:white; margin-left: 15px;")
+                          ),
+                          column(
+                            width = 7,
+                            uiOutput("nj_heatmap_offset")
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              ),
+              hr(),
+              fluidRow(
+                column(
+                  width = 12,
+                  h4(p("Clade Highlight"), style = "color:white; position: relative; right: -15px")
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 12,
+                  div(
+                    class = "control-nodelabel-switch",
+                    materialSwitch(
+                      "nj_nodelabel_show",
+                      h5(p("Toggle Node View"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: -5px;"),
+                      value = FALSE,
+                      right = TRUE
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 3,
+                  h5(p("Nodes"), style = "color:white; position: relative; right: -15px; margin-top: 14px")
+                ),
+                column(
+                  width = 6,
+                  uiOutput("nj_parentnode")
+                ),
+                column(
+                  width = 3,
+                  dropMenu(
+                    actionBttn(
+                      "nj_clade_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-start",
+                    theme = "translucent",
+                    uiOutput("nj_clade_scale"),
+                    fluidRow(
+                      column(
+                        width = 5,
+                        h5(p("Form"), style = "color:white; position: relative; right: -15px; margin-top: 30px")
+                      ),
+                      column(
+                        width = 7,
+                        div(
+                          class = "sel-clade",
+                          selectInput(
+                            "nj_clade_type",
+                            "",
+                            choices = c("Rect" = "rect",
+                                        "Round" = "roundrect"),
+                            selected = c("Round" = "roundrect")
+                          ) 
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  })
+  
+  ##### Miscellaneous ----
   
   observeEvent(input$nj_heatmap_button, {
     showModal(
@@ -12646,13 +12110,13 @@ server <- function(input, output, session) {
     req(input$nj_ratio)
     if(input$nj_ratio == "1.6") {
       updateSliderInput(session, "nj_scale",
-                        step = 5, value = 800, min = 500, max = 1200)
+                        step = 5, value = 600, min = 450, max = 670)
     } else if(input$nj_ratio == "1.77777777777778") {
       updateSliderInput(session, "nj_scale",
-                        step = 9, value = 801, min = 504, max = 1197)
+                        step = 9, value = 657, min = 450, max = 666)
     } else if(input$nj_ratio == "1.33333333333333"){
       updateSliderInput(session, "nj_scale",
-                        step = 3, value = 801, min = 501, max = 1200)
+                        step = 3, value = 654, min = 450, max = 669)
     }
   })
   
@@ -12661,13 +12125,13 @@ server <- function(input, output, session) {
     req(input$upgma_ratio)
     if(input$upgma_ratio == "1.6") {
       updateSliderInput(session, "upgma_scale",
-                        step = 5, value = 800, min = 500, max = 1200)
+                        step = 5, value = 600, min = 450, max = 670)
     } else if(input$upgma_ratio == "1.77777777777778") {
       updateSliderInput(session, "upgma_scale",
-                        step = 9, value = 801, min = 504, max = 1197)
+                        step = 9, value = 657, min = 450, max = 666)
     } else if(input$upgma_ratio == "1.33333333333333"){
       updateSliderInput(session, "upgma_scale",
-                        step = 3, value = 801, min = 501, max = 1200)
+                        step = 3, value = 654, min = 450, max = 669)
     }
   })
   
@@ -12768,6 +12232,7 @@ server <- function(input, output, session) {
   
   # Select custom labels
   output$nj_custom_label_select <- renderUI({
+    req(Vis$custom_label_nj)
     if(nrow(Vis$custom_label_nj) > 0) {
       selectInput(
         "nj_custom_label_sel",
@@ -12789,6 +12254,7 @@ server <- function(input, output, session) {
   
   # Select custom labels
   output$nj_cust_label_save <- renderUI({
+    req(Vis$custom_label_nj)
     if(nrow(Vis$custom_label_nj) > 0) {
       actionButton(
         "nj_cust_label_save",
@@ -12953,6 +12419,7 @@ server <- function(input, output, session) {
   
   # Show delete custom label button if custam label added
   output$nj_del_label <- renderUI({
+    req(Vis$custom_label_nj)
     if(nrow(Vis$custom_label_nj) > 0) {
       actionButton(
         "nj_del_label",
@@ -12977,43 +12444,37 @@ server <- function(input, output, session) {
     if(!is.null(input$nj_color_mapping) & (!is.null(Vis$meta_nj))) {
       if(is.numeric(unlist(Vis$meta_nj[input$nj_color_mapping]))) {
         if(input$nj_tiplab_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-          column(
-            width = 3,
-            fluidRow(
-              column(
-                width = 4,
-                h5("Midpoint", style = "color: white; margin-top: 22px;")
-              ),
-              column(
-                width = 8,
-                div(
-                  class = "divmid-sel1",
-                  selectInput(
-                    "nj_color_mapping_div_mid",
-                    label = "",
-                    choices = c("Zero", "Mean", "Median"),
-                    selected = "Mean"
-                  )
+          fluidRow(
+            column(
+              width = 4,
+              h5("Midpoint", style = "color: white; margin-top: 22px;")
+            ),
+            column(
+              width = 8,
+              div(
+                class = "divmid-sel1",
+                selectInput(
+                  "nj_color_mapping_div_mid",
+                  label = "",
+                  choices = c("Zero", "Mean", "Median"),
+                  selected = "Mean"
                 )
               )
             )
           )
         } else {
-          column(
-            width = 3,
-            h5("Continous values", style = "color: white; font-size: 14px; margin-top: 23px; margin-left: 40px")
+          fluidRow(
+            h5("Continous values", style = "color: white; font-size: 14px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")
           ) 
         }
       } else {
         if(length(unique(unlist(Vis$meta_nj[input$nj_color_mapping]))) > 7) {
-          column(
-            width = 3,
-            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_color_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+          fluidRow(
+            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_color_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
           )
         } else {
-          column(
-            width = 3,
-            h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_color_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+          fluidRow(
+            h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_color_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
           )
         }
       }
@@ -13024,43 +12485,37 @@ server <- function(input, output, session) {
     if(!is.null(input$upgma_color_mapping) & (!is.null(Vis$meta_upgma))) {
       if(is.numeric(unlist(Vis$meta_upgma[input$upgma_color_mapping]))) {
         if(input$upgma_tiplab_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-          column(
-            width = 3,
-            fluidRow(
-              column(
-                width = 4,
-                h5("Midpoint", style = "color: white; margin-top: 22px;")
-              ),
-              column(
-                width = 8,
-                div(
-                  class = "divmid-sel1",
-                  selectInput(
-                    "upgma_color_mapping_div_mid",
-                    label = "",
-                    choices = c("Zero", "Mean", "Median"),
-                    selected = "Mean"
-                  )
+          fluidRow(
+            column(
+              width = 4,
+              h5("Midpoint", style = "color: white; margin-top: 22px;")
+            ),
+            column(
+              width = 8,
+              div(
+                class = "divmid-sel1",
+                selectInput(
+                  "upgma_color_mapping_div_mid",
+                  label = "",
+                  choices = c("Zero", "Mean", "Median"),
+                  selected = "Mean"
                 )
               )
             )
           )
         } else {
-          column(
-            width = 3,
-            h5("Continous values", style = "color: white; font-size: 14px; margin-top: 23px; margin-left: 40px")
+          fluidRow(
+            h5("Continous values", style = "color: white; font-size: 14px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")
           ) 
         }
       } else {
         if(length(unique(unlist(Vis$meta_upgma[input$upgma_color_mapping]))) > 7) {
-          column(
-            width = 3,
-            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_color_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+          fluidRow(
+            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_color_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
           )
         } else {
-          column(
-            width = 3,
-            h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_color_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+          fluidRow(
+            h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_color_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
           )
         }
       }
@@ -13071,43 +12526,37 @@ server <- function(input, output, session) {
     if(!is.null(input$nj_tipcolor_mapping) & (!is.null(Vis$meta_nj))) {
       if(is.numeric(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))) {
         if(input$nj_tippoint_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-          column(
-            width = 3,
-            fluidRow(
-              column(
-                width = 4,
-                h5("Midpoint", style = "color: white; margin-top: 22px;")
-              ),
-              column(
-                width = 8,
-                div(
-                  class = "divmid-sel1",
-                  selectInput(
-                    "nj_tipcolor_mapping_div_mid",
-                    label = "",
-                    choices = c("Zero", "Mean", "Median"),
-                    selected = "Mean"
-                  )
+          fluidRow(
+            column(
+              width = 4,
+              h5("Midpoint", style = "color: white; margin-top: 22px;")
+            ),
+            column(
+              width = 8,
+              div(
+                class = "divmid-sel1",
+                selectInput(
+                  "nj_tipcolor_mapping_div_mid",
+                  label = "",
+                  choices = c("Zero", "Mean", "Median"),
+                  selected = "Mean"
                 )
               )
             )
           )
         } else {
-          column(
-            width = 3,
+          fluidRow(
             h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
           ) 
         }
       } else {
         if(length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))) > 7) {
-          column(
-            width = 3,
-            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+          fluidRow(
+            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
           )
         } else {
-          column(
-            width = 3,
-            h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+          fluidRow(
+            h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
           )
         }
       }
@@ -13118,43 +12567,37 @@ server <- function(input, output, session) {
     if(!is.null(input$upgma_tipcolor_mapping) & (!is.null(Vis$meta_upgma))) {
       if(is.numeric(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping]))) {
         if(input$upgma_tippoint_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-          column(
-            width = 3,
-            fluidRow(
-              column(
-                width = 4,
-                h5("Midpoint", style = "color: white; margin-top: 22px;")
-              ),
-              column(
-                width = 8,
-                div(
-                  class = "divmid-sel1",
-                  selectInput(
-                    "upgma_tipcolor_mapping_div_mid",
-                    label = "",
-                    choices = c("Zero", "Mean", "Median"),
-                    selected = "Mean"
-                  )
+          fluidRow(
+            column(
+              width = 4,
+              h5("Midpoint", style = "color: white; margin-top: 22px;")
+            ),
+            column(
+              width = 8,
+              div(
+                class = "divmid-sel1",
+                selectInput(
+                  "upgma_tipcolor_mapping_div_mid",
+                  label = "",
+                  choices = c("Zero", "Mean", "Median"),
+                  selected = "Mean"
                 )
               )
             )
           )
         } else {
-          column(
-            width = 3,
+          fluidRow(
             h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
           ) 
         }
       } else {
         if(length(unique(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping]))) > 7) {
-          column(
-            width = 3,
-            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+          fluidRow(
+            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
           )
         } else {
-          column(
-            width = 3,
-            h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+          fluidRow(
+            h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_tipcolor_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
           )
         }
       }
@@ -13164,20 +12607,17 @@ server <- function(input, output, session) {
   output$nj_tipshape_mapping_info <- renderUI({
     if(!is.null(input$nj_tipshape_mapping) & (!is.null(Vis$meta_nj))) {
       if(is.numeric(unlist(Vis$meta_nj[input$nj_tipshape_mapping]))) {
-        column(
-          width = 3,
+        fluidRow(
           h5("Mapping continous variables to shape not possible", style = "color: #E18B00; font-style: italic; font-size: 12px; margin-top: 15px;  margin-left: 40px")        
         )
       } else {
         if(length(unique(unlist(Vis$meta_nj[input$nj_tipshape_mapping]))) > 6) {
-          column(
-            width = 3,
+          fluidRow(
             h5("Mapping > 6 variables to shape not possible", style = "color: #E18B00; font-style: italic; font-size: 12px; margin-top: 15px;  margin-left: 40px")        
           )
         } else {
-          column(
-            width = 3,
-            h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_tipshape_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+          fluidRow(
+            h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_tipshape_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
           )    
         }
       }
@@ -13187,20 +12627,17 @@ server <- function(input, output, session) {
   output$upgma_tipshape_mapping_info <- renderUI({
     if(!is.null(input$upgma_tipshape_mapping) & (!is.null(Vis$meta_upgma))) {
       if(is.numeric(unlist(Vis$meta_upgma[input$upgma_tipshape_mapping]))) {
-        column(
-          width = 3,
+        fluidRow(
           h5("Mapping continous variables to shape not possible", style = "color: #E18B00; font-style: italic; font-size: 12px; margin-top: 15px;  margin-left: 40px")        
         )
       } else {
         if(length(unique(unlist(Vis$meta_upgma[input$upgma_tipshape_mapping]))) > 6) {
-          column(
-            width = 3,
+          fluidRow(
             h5("Mapping > 6 variables to shape not possible", style = "color: #E18B00; font-style: italic; font-size: 12px; margin-top: 15px;  margin-left: 40px")        
           )
         } else {
-          column(
-            width = 3,
-            h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_tipshape_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+          fluidRow(
+            h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_tipshape_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
           )    
         }
       }
@@ -13212,43 +12649,37 @@ server <- function(input, output, session) {
       if(!is.null(input$nj_fruit_variable) & (!is.null(Vis$meta_nj))) {
         if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable]))) {
           if(input$nj_tiles_scale_1 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-            column(
-              width = 3,
-              fluidRow(
-                column(
-                  width = 4,
-                  h5("Midpoint", style = "color: white; margin-top: 22px;")
-                ),
-                column(
-                  width = 8,
-                  div(
-                    class = "divmid-sel1",
-                    selectInput(
-                      "nj_tiles_mapping_div_mid_1",
-                      label = "",
-                      choices = c("Zero", "Mean", "Median"),
-                      selected = "Mean"
-                    )
+            fluidRow(
+              column(
+                width = 4,
+                h5("Midpoint", style = "color: white; margin-top: 22px;")
+              ),
+              column(
+                width = 8,
+                div(
+                  class = "divmid-sel1",
+                  selectInput(
+                    "nj_tiles_mapping_div_mid_1",
+                    label = "",
+                    choices = c("Zero", "Mean", "Median"),
+                    selected = "Mean"
                   )
                 )
               )
             )
           } else {
-            column(
-              width = 3,
+            fluidRow(
               h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
             ) 
           }
         } else {
           if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))) > 7) {
-            column(
-              width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
             )
           } else {
-            column(
-              width = 3,
-              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
             )
           }
         }
@@ -13257,43 +12688,37 @@ server <- function(input, output, session) {
       if(!is.null(input$nj_fruit_variable_2) & (!is.null(Vis$meta_nj))) {
         if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))) {
           if(input$nj_tiles_scale_2 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-            column(
-              width = 3,
-              fluidRow(
-                column(
-                  width = 4,
-                  h5("Midpoint", style = "color: white; margin-top: 22px;")
-                ),
-                column(
-                  width = 8,
-                  div(
-                    class = "divmid-sel1",
-                    selectInput(
-                      "nj_tiles_mapping_div_mid_2",
-                      label = "",
-                      choices = c("Zero", "Mean", "Median"),
-                      selected = "Mean"
-                    )
+            fluidRow(
+              column(
+                width = 4,
+                h5("Midpoint", style = "color: white; margin-top: 22px;")
+              ),
+              column(
+                width = 8,
+                div(
+                  class = "divmid-sel1",
+                  selectInput(
+                    "nj_tiles_mapping_div_mid_2",
+                    label = "",
+                    choices = c("Zero", "Mean", "Median"),
+                    selected = "Mean"
                   )
                 )
               )
             )
           } else {
-            column(
-              width = 3,
+            fluidRow(
               h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
             ) 
           }
         } else {
           if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))) > 7) {
-            column(
-              width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
             )
           } else {
-            column(
-              width = 3,
-              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
             )
           }
         }
@@ -13302,43 +12727,37 @@ server <- function(input, output, session) {
       if(!is.null(input$nj_fruit_variable_3) & (!is.null(Vis$meta_nj))) {
         if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))) {
           if(input$nj_tiles_scale_3 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-            column(
-              width = 3,
-              fluidRow(
-                column(
-                  width = 4,
-                  h5("Midpoint", style = "color: white; margin-top: 22px;")
-                ),
-                column(
-                  width = 8,
-                  div(
-                    class = "divmid-sel1",
-                    selectInput(
-                      "nj_tiles_mapping_div_mid_3",
-                      label = "",
-                      choices = c("Zero", "Mean", "Median"),
-                      selected = "Mean"
-                    )
+            fluidRow(
+              column(
+                width = 4,
+                h5("Midpoint", style = "color: white; margin-top: 22px;")
+              ),
+              column(
+                width = 8,
+                div(
+                  class = "divmid-sel1",
+                  selectInput(
+                    "nj_tiles_mapping_div_mid_3",
+                    label = "",
+                    choices = c("Zero", "Mean", "Median"),
+                    selected = "Mean"
                   )
                 )
               )
             )
           } else {
-            column(
-              width = 3,
+            fluidRow(
               h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
             ) 
           }
         } else {
           if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))) > 7) {
-            column(
-              width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
             )
           } else {
-            column(
-              width = 3,
-              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
             )
           }
         }
@@ -13347,43 +12766,37 @@ server <- function(input, output, session) {
       if(!is.null(input$nj_fruit_variable_4) & (!is.null(Vis$meta_nj))) {
         if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable_4]))) {
           if(input$nj_tiles_scale_4 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-            column(
-              width = 3,
-              fluidRow(
-                column(
-                  width = 4,
-                  h5("Midpoint", style = "color: white; margin-top: 22px;")
-                ),
-                column(
-                  width = 8,
-                  div(
-                    class = "divmid-sel1",
-                    selectInput(
-                      "nj_tiles_mapping_div_mid_4",
-                      label = "",
-                      choices = c("Zero", "Mean", "Median"),
-                      selected = "Mean"
-                    )
+            fluidRow(
+              column(
+                width = 4,
+                h5("Midpoint", style = "color: white; margin-top: 22px;")
+              ),
+              column(
+                width = 8,
+                div(
+                  class = "divmid-sel1",
+                  selectInput(
+                    "nj_tiles_mapping_div_mid_4",
+                    label = "",
+                    choices = c("Zero", "Mean", "Median"),
+                    selected = "Mean"
                   )
                 )
               )
             )
           } else {
-            column(
-              width = 3,
+            fluidRow(
               h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
             ) 
           }
         } else {
           if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_4]))) > 7) {
-            column(
-              width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_4]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_4]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
             )
           } else {
-            column(
-              width = 3,
-              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_4]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_4]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
             )
           }
         }
@@ -13392,43 +12805,37 @@ server <- function(input, output, session) {
       if(!is.null(input$nj_fruit_variable_5) & (!is.null(Vis$meta_nj))) {
         if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))) {
           if(input$nj_tiles_scale_5 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-            column(
-              width = 3,
-              fluidRow(
-                column(
-                  width = 4,
-                  h5("Midpoint", style = "color: white; margin-top: 22px;")
-                ),
-                column(
-                  width = 8,
-                  div(
-                    class = "divmid-sel1",
-                    selectInput(
-                      "nj_tiles_mapping_div_mid_5",
-                      label = "",
-                      choices = c("Zero", "Mean", "Median"),
-                      selected = "Mean"
-                    )
+            fluidRow(
+              column(
+                width = 4,
+                h5("Midpoint", style = "color: white; margin-top: 22px;")
+              ),
+              column(
+                width = 8,
+                div(
+                  class = "divmid-sel1",
+                  selectInput(
+                    "nj_tiles_mapping_div_mid_5",
+                    label = "",
+                    choices = c("Zero", "Mean", "Median"),
+                    selected = "Mean"
                   )
                 )
               )
             )
           } else {
-            column(
-              width = 3,
+            fluidRow(
               h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
             ) 
           }
         } else {
           if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))) > 7) {
-            column(
-              width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
             )
           } else {
-            column(
-              width = 3,
-              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
             )
           }
         }
@@ -13441,23 +12848,20 @@ server <- function(input, output, session) {
       if(!is.null(input$upgma_fruit_variable) & (!is.null(Vis$meta_upgma))) {
         if(is.numeric(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))) {
           if(input$upgma_tiles_scale_1 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-            column(
-              width = 3,
-              fluidRow(
-                column(
-                  width = 4,
-                  h5("Midpoint", style = "color: white; margin-top: 22px;")
-                ),
-                column(
-                  width = 8,
-                  div(
-                    class = "divmid-sel1",
-                    selectInput(
-                      "upgma_tiles_mapping_div_mid_1",
-                      label = "",
-                      choices = c("Zero", "Mean", "Median"),
-                      selected = "Mean"
-                    )
+            fluidRow(
+              column(
+                width = 4,
+                h5("Midpoint", style = "color: white; margin-top: 22px;")
+              ),
+              column(
+                width = 8,
+                div(
+                  class = "divmid-sel1",
+                  selectInput(
+                    "upgma_tiles_mapping_div_mid_1",
+                    label = "",
+                    choices = c("Zero", "Mean", "Median"),
+                    selected = "Mean"
                   )
                 )
               )
@@ -13470,14 +12874,12 @@ server <- function(input, output, session) {
           }
         } else {
           if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))) > 7) {
-            column(
-              width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
             )
           } else {
-            column(
-              width = 3,
-              h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
             )
           }
         }
@@ -13486,43 +12888,37 @@ server <- function(input, output, session) {
       if(!is.null(input$upgma_fruit_variable_2) & (!is.null(Vis$meta_upgma))) {
         if(is.numeric(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2]))) {
           if(input$upgma_tiles_scale_2 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-            column(
-              width = 3,
-              fluidRow(
-                column(
-                  width = 4,
-                  h5("Midpoint", style = "color: white; margin-top: 22px;")
-                ),
-                column(
-                  width = 8,
-                  div(
-                    class = "divmid-sel1",
-                    selectInput(
-                      "upgma_tiles_mapping_div_mid_2",
-                      label = "",
-                      choices = c("Zero", "Mean", "Median"),
-                      selected = "Mean"
-                    )
+            fluidRow(
+              column(
+                width = 4,
+                h5("Midpoint", style = "color: white; margin-top: 22px;")
+              ),
+              column(
+                width = 8,
+                div(
+                  class = "divmid-sel1",
+                  selectInput(
+                    "upgma_tiles_mapping_div_mid_2",
+                    label = "",
+                    choices = c("Zero", "Mean", "Median"),
+                    selected = "Mean"
                   )
                 )
               )
             )
           } else {
-            column(
-              width = 3,
+            fluidRow(
               h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
             ) 
           }
         } else {
           if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2]))) > 7) {
-            column(
-              width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
             )
           } else {
-            column(
-              width = 3,
-              h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_2]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
             )
           }
         }
@@ -13531,43 +12927,37 @@ server <- function(input, output, session) {
       if(!is.null(input$upgma_fruit_variable_3) & (!is.null(Vis$meta_upgma))) {
         if(is.numeric(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3]))) {
           if(input$upgma_tiles_scale_3 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-            column(
-              width = 3,
-              fluidRow(
-                column(
-                  width = 4,
-                  h5("Midpoint", style = "color: white; margin-top: 22px;")
-                ),
-                column(
-                  width = 8,
-                  div(
-                    class = "divmid-sel1",
-                    selectInput(
-                      "upgma_tiles_mapping_div_mid_3",
-                      label = "",
-                      choices = c("Zero", "Mean", "Median"),
-                      selected = "Mean"
-                    )
+            fluidRow(
+              column(
+                width = 4,
+                h5("Midpoint", style = "color: white; margin-top: 22px;")
+              ),
+              column(
+                width = 8,
+                div(
+                  class = "divmid-sel1",
+                  selectInput(
+                    "upgma_tiles_mapping_div_mid_3",
+                    label = "",
+                    choices = c("Zero", "Mean", "Median"),
+                    selected = "Mean"
                   )
                 )
               )
             )
           } else {
-            column(
-              width = 3,
+            fluidRow(
               h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
             ) 
           }
         } else {
           if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3]))) > 7) {
-            column(
-              width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
             )
           } else {
-            column(
-              width = 3,
-              h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_3]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
             )
           }
         }
@@ -13576,43 +12966,37 @@ server <- function(input, output, session) {
       if(!is.null(input$upgma_fruit_variable_4) & (!is.null(Vis$meta_upgma))) {
         if(is.numeric(unlist(Vis$meta_upgma[input$upgma_fruit_variable_4]))) {
           if(input$upgma_tiles_scale_4 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-            column(
-              width = 3,
-              fluidRow(
-                column(
-                  width = 4,
-                  h5("Midpoint", style = "color: white; margin-top: 22px;")
-                ),
-                column(
-                  width = 8,
-                  div(
-                    class = "divmid-sel1",
-                    selectInput(
-                      "upgma_tiles_mapping_div_mid_4",
-                      label = "",
-                      choices = c("Zero", "Mean", "Median"),
-                      selected = "Mean"
-                    )
+            fluidRow(
+              column(
+                width = 4,
+                h5("Midpoint", style = "color: white; margin-top: 22px;")
+              ),
+              column(
+                width = 8,
+                div(
+                  class = "divmid-sel1",
+                  selectInput(
+                    "upgma_tiles_mapping_div_mid_4",
+                    label = "",
+                    choices = c("Zero", "Mean", "Median"),
+                    selected = "Mean"
                   )
                 )
               )
             )
           } else {
-            column(
-              width = 3,
+            fluidRow(
               h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
             ) 
           }
         } else {
           if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_4]))) > 7) {
-            column(
-              width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_4]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_4]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
             )
           } else {
-            column(
-              width = 3,
-              h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_4]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_4]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
             )
           }
         }
@@ -13621,43 +13005,37 @@ server <- function(input, output, session) {
       if(!is.null(input$upgma_fruit_variable_5) & (!is.null(Vis$meta_upgma))) {
         if(is.numeric(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5]))) {
           if(input$upgma_tiles_scale_5 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-            column(
-              width = 3,
-              fluidRow(
-                column(
-                  width = 4,
-                  h5("Midpoint", style = "color: white; margin-top: 22px;")
-                ),
-                column(
-                  width = 8,
-                  div(
-                    class = "divmid-sel1",
-                    selectInput(
-                      "upgma_tiles_mapping_div_mid_5",
-                      label = "",
-                      choices = c("Zero", "Mean", "Median"),
-                      selected = "Mean"
-                    )
+            fluidRow(
+              column(
+                width = 4,
+                h5("Midpoint", style = "color: white; margin-top: 22px;")
+              ),
+              column(
+                width = 8,
+                div(
+                  class = "divmid-sel1",
+                  selectInput(
+                    "upgma_tiles_mapping_div_mid_5",
+                    label = "",
+                    choices = c("Zero", "Mean", "Median"),
+                    selected = "Mean"
                   )
                 )
               )
             )
           } else {
-            column(
-              width = 3,
+            fluidRow(
               h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
             ) 
           }
         } else {
           if(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5]))) > 7) {
-            column(
-              width = 3,
-              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
             )
           } else {
-            column(
-              width = 3,
-              h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0(length(unique(unlist(Vis$meta_upgma[input$upgma_fruit_variable_5]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
             )
           }
         }
@@ -13669,51 +13047,44 @@ server <- function(input, output, session) {
     if(!is.null(input$nj_heatmap_select) & (!is.null(Vis$meta_nj))) {
       if (any(sapply(Vis$meta_nj[input$nj_heatmap_select], is.numeric)) & 
           any(!sapply(Vis$meta_nj[input$nj_heatmap_select], is.numeric))) {
-        column(
-          width = 3,
+        fluidRow(
           h5("Heatmap with categorical and continous values not possible", 
-             style = "color: #E18B00; font-size: 12px; font-style: italic; margin-top: 15px;  margin-left: 40px")
-        ) 
+             style = "color: #E18B00; font-size: 12px; font-style: italic; margin-top: 15px;  margin-left: 40px") 
+        )
       } else {
         if(any(sapply(Vis$meta_nj[input$nj_heatmap_select], is.numeric))) {
           if(input$nj_heatmap_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-            column(
-              width = 3,
-              fluidRow(
-                column(
-                  width = 4,
-                  h5("Midpoint", style = "color: white; margin-top: 22px;")
-                ),
-                column(
-                  width = 8,
-                  div(
-                    class = "divmid-sel1",
-                    selectInput(
-                      "nj_heatmap_div_mid",
-                      label = "",
-                      choices = c("Zero", "Mean", "Median"),
-                      selected = "Mean"
-                    )
+            fluidRow(
+              column(
+                width = 4,
+                h5("Midpoint", style = "color: white; margin-top: 22px;")
+              ),
+              column(
+                width = 8,
+                div(
+                  class = "divmid-sel1",
+                  selectInput(
+                    "nj_heatmap_div_mid",
+                    label = "",
+                    choices = c("Zero", "Mean", "Median"),
+                    selected = "Mean"
                   )
                 )
               )
             )
           } else {
-            column(
-              width = 3,
-              h5("Continous values", style = "color: white; font-size: 14px; margin-top: 23px; margin-left: 40px")
+            fluidRow(
+              h5("Continous values", style = "color: white; font-size: 14px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")
             ) 
           }
         } else {
           if(length(unique(unlist(Vis$meta_nj[input$nj_heatmap_select]))) > 7) {
-            column(
-              width = 3,
-              h5(paste0("> 7 categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0("> 7 categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
             )
           } else {
-            column(
-              width = 3,
-              h5("Categorical values", style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            fluidRow(
+              h5("Categorical values", style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
             )
           }
         }
@@ -13725,51 +13096,44 @@ server <- function(input, output, session) {
     if(!is.null(input$upgma_heatmap_select) & (!is.null(Vis$meta_upgma))) {
       if (any(sapply(Vis$meta_upgma[input$upgma_heatmap_select], is.numeric)) & 
           any(!sapply(Vis$meta_upgma[input$upgma_heatmap_select], is.numeric))) {
-        column(
-          width = 3,
+        fluidRow(
           h5("Heatmap with categorical and continous values not possible", 
              style = "color: #E18B00; font-size: 12px; font-style: italic; margin-top: 15px;  margin-left: 40px")
         ) 
       } else {
         if(any(sapply(Vis$meta_upgma[input$upgma_heatmap_select], is.numeric))) {
           if(input$upgma_heatmap_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-            column(
-              width = 3,
-              fluidRow(
-                column(
-                  width = 4,
-                  h5("Midpoint", style = "color: white; margin-top: 22px;")
-                ),
-                column(
-                  width = 8,
-                  div(
-                    class = "divmid-sel1",
-                    selectInput(
-                      "upgma_heatmap_div_mid",
-                      label = "",
-                      choices = c("Zero", "Mean", "Median"),
-                      selected = "Mean"
-                    )
+            fluidRow(
+              column(
+                width = 4,
+                h5("Midpoint", style = "color: white; margin-top: 22px;")
+              ),
+              column(
+                width = 8,
+                div(
+                  class = "divmid-sel1",
+                  selectInput(
+                    "upgma_heatmap_div_mid",
+                    label = "",
+                    choices = c("Zero", "Mean", "Median"),
+                    selected = "Mean"
                   )
                 )
               )
             )
           } else {
-            column(
-              width = 3,
-              h5("Continous values", style = "color: white; font-size: 14px; margin-top: 23px; margin-left: 40px")
+            fluidRow(
+              h5("Continous values", style = "color: white; font-size: 14px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")
             ) 
           }
         } else {
           if(length(unique(unlist(Vis$meta_upgma[input$upgma_heatmap_select]))) > 7) {
-            column(
-              width = 3,
-              h5(paste0("> 7 categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 23px;  margin-left: 40px")        
+            fluidRow(
+              h5(paste0("> 7 categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
             )
           } else {
-            column(
-              width = 3,
-              h5("Categorical values", style = "color: white; font-size: 14px; margin-top: 20px;  margin-left: 40px")        
+            fluidRow(
+              h5("Categorical values", style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
             )
           }
         }
@@ -14414,6 +13778,7 @@ server <- function(input, output, session) {
   })
   
   output$nj_colnames_y <- renderUI({
+    req(input$nj_layout)
     if(!is.null(sum(DB$data$Include))) {
       if(input$nj_layout == "inward" | input$nj_layout == "circular") {
         min <- 0
@@ -15918,7 +15283,7 @@ server <- function(input, output, session) {
   ### Heatmap 
   # Heatmap picker
   output$nj_heatmap_sel <- renderUI({
-    req(input$nj_heatmap_map)
+    #req(input$nj_heatmap_map)
     if(!is.null(Vis$meta_nj)) {
       meta <- select(Vis$meta_nj, -c(taxa, Index, `Assembly ID`, `Assembly Name`,
                                      Scheme, `Typing Date`, Successes, Errors))
@@ -15976,15 +15341,9 @@ server <- function(input, output, session) {
         )
       }
       
-      column(
-        width = 6,
-        div(
-          class = "heatmap-picker",
-          if(input$nj_heatmap_show) {
-            nj_heatmap_select
-          } else {shinyjs::disabled(nj_heatmap_select)}
-        )      
-      )
+      if(input$nj_heatmap_show) {
+        nj_heatmap_select
+      } else {shinyjs::disabled(nj_heatmap_select)}
     } else {
       nj_heatmap_select <- pickerInput(
         inputId = "nj_heatmap_select",
@@ -16004,15 +15363,10 @@ server <- function(input, output, session) {
         ),
         multiple = TRUE
       )
-      column(
-        width = 6,
-        div(
-          class = "heatmap-picker",
-          if(input$nj_heatmap_show) {
-            nj_heatmap_select
-          } else {shinyjs::disabled(nj_heatmap_select)}
-        )
-      )
+      
+      if(input$nj_heatmap_show) {
+        nj_heatmap_select
+      } else {shinyjs::disabled(nj_heatmap_select)}
     }
   })
   
@@ -16592,23 +15946,35 @@ server <- function(input, output, session) {
         ticks = FALSE
       )
     } else {
-      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-        sliderInput(
-          "nj_fruit_width_circ",
-          label = "",
-          min = 1,
-          max = 10,
-          value = 3,
-          width = "150px",
-          ticks = FALSE
-        )
+      if(!is.null(input$layout)) {
+        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+          sliderInput(
+            "nj_fruit_width_circ",
+            label = "",
+            min = 1,
+            max = 10,
+            value = 3,
+            width = "150px",
+            ticks = FALSE
+          )
+        } else {
+          sliderInput(
+            "nj_fruit_width_circ",
+            label = "",
+            min = 1,
+            max = 10,
+            value = 1,
+            width = "150px",
+            ticks = FALSE
+          )
+        } 
       } else {
         sliderInput(
           "nj_fruit_width_circ",
           label = "",
           min = 1,
           max = 10,
-          value = 1,
+          value = 3,
           width = "150px",
           ticks = FALSE
         )
@@ -17548,7 +16914,7 @@ server <- function(input, output, session) {
             width = 12,
             align = "center",
             div(
-              class = "label_sel",
+              class = "mst-label-sel",
               uiOutput("mst_node_label")
             )
           )
@@ -17594,6 +16960,8 @@ server <- function(input, output, session) {
     )
   )
   
+  ##### Label Menu ----
+  
   mst_node_label_reactive <- reactiveVal(NULL) 
   mst_title_reactive <- reactiveVal(NULL) 
   mst_subtitle_reactive <- reactiveVal(NULL) 
@@ -17612,7 +16980,6 @@ server <- function(input, output, session) {
     }
   })
   
-  # render mst label menu
   observeEvent(input$mst_label_menu, {
     
     if(!is.null(mst_title_reactive())) {
@@ -17691,6 +17058,9 @@ server <- function(input, output, session) {
     ) 
   })
   
+  
+  ##### Variable Mapping Menu ----
+  
   mst_color_var_reactive <- reactiveVal(NULL)
   mst_col_var_reactive <- reactiveVal(NULL)
   mst_col_scale_reactive <- reactiveVal(NULL)
@@ -17709,7 +17079,6 @@ server <- function(input, output, session) {
     }
   })
   
-  # render mst variable mapping menu
   observeEvent(input$mst_variable_menu, {
     
     if(!is.null(mst_color_var_reactive())) {
@@ -17815,6 +17184,8 @@ server <- function(input, output, session) {
       )
     ) 
   })
+  
+  ##### Color Menu ----
   
   mst_text_color_reactive <- reactiveVal(NULL)
   mst_color_node_reactive <- reactiveVal(NULL)
@@ -18532,6 +17903,9 @@ server <- function(input, output, session) {
     ) 
   })
   
+  
+  ##### Other Menu ----
+  
   mst_ratio_reactive <- reactiveVal(NULL)
   mst_scale_reactive <- reactiveVal(NULL)
   mst_shadow_reactive <- reactiveVal(NULL)
@@ -18718,7 +18092,7 @@ server <- function(input, output, session) {
                   width = 6,
                   align = "center",
                   div(
-                    class = "mst-ratio",
+                    class = "control-ratio",
                     selectInput(
                       "mst_ratio",
                       "",
@@ -22540,6 +21914,7 @@ server <- function(input, output, session) {
   
   # Conditional disabling of control elemenmts
   observe({
+    req(input$nj_layout, input$upgma_layout)
     
     # Tiles for inward layout
     if(input$nj_layout == "inward") {

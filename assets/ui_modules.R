@@ -131,11 +131,12 @@ nj_control_box <- box(
   title = "Controls",
   fluidRow(
     column(
-      width = 1,
+      width = 2,
+      align = "center",
       div(
         id = "plot-control",
         actionBttn(
-          "nj_data_menu",
+          "nj_label_menu",
           label = "",
           color = "default",
           size = "sm",
@@ -145,7 +146,8 @@ nj_control_box <- box(
       )
     ),
     column(
-      width = 1,
+      width = 2,
+      align = "center",
       div(
         id = "plot-control",
         actionBttn(
@@ -159,7 +161,8 @@ nj_control_box <- box(
       )
     ),
     column(
-      width = 1,
+      width = 2,
+      align = "center",
       div(
         id = "plot-control",
         actionBttn(
@@ -173,21 +176,23 @@ nj_control_box <- box(
       )
     ),
     column(
-      width = 1,
+      width = 2,
+      align = "center",
       div(
         id = "plot-control",
         actionBttn(
-          "nj_size_menu",
+          "nj_elements_menu",
           label = "",
           color = "default",
           size = "sm",
           style = "material-flat",
-          icon = icon("up-right-and-down-left-from-center")
+          icon = icon("diagram-project")
         )
       )
     ),
     column(
-      width = 1,
+      width = 2,
+      align = "center",
       div(
         id = "plot-control",
         actionBttn(
@@ -201,7 +206,8 @@ nj_control_box <- box(
       )
     ),
     column(
-      width = 1,
+      width = 2,
+      align = "center",
       div(
         id = "plot-control",
         actionBttn(
@@ -224,11 +230,12 @@ upgma_control_box <- box(
   title = "Controls",
   fluidRow(
     column(
-      width = 1,
+      width = 2,
+      align = "center",
       div(
         id = "plot-control",
         actionBttn(
-          "upgma_data_menu",
+          "upgma_label_menu",
           label = "",
           color = "default",
           size = "sm",
@@ -238,7 +245,8 @@ upgma_control_box <- box(
       )
     ),
     column(
-      width = 1,
+      width = 2,
+      align = "center",
       div(
         id = "plot-control",
         actionBttn(
@@ -252,7 +260,8 @@ upgma_control_box <- box(
       )
     ),
     column(
-      width = 1,
+      width = 2,
+      align = "center",
       div(
         id = "plot-control",
         actionBttn(
@@ -266,21 +275,23 @@ upgma_control_box <- box(
       )
     ),
     column(
-      width = 1,
+      width = 2,
+      align = "center",
       div(
         id = "plot-control",
         actionBttn(
-          "upgma_size_menu",
+          "upgma_elements_menu",
           label = "",
           color = "default",
           size = "sm",
           style = "material-flat",
-          icon = icon("up-right-and-down-left-from-center")
+          icon = icon("diagram-project")
         )
       )
     ),
     column(
-      width = 1,
+      width = 2,
+      align = "center",
       div(
         id = "plot-control",
         actionBttn(
@@ -294,7 +305,8 @@ upgma_control_box <- box(
       )
     ),
     column(
-      width = 1,
+      width = 2,
+      align = "center",
       div(
         id = "plot-control",
         actionBttn(
