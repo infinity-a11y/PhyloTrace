@@ -11658,187 +11658,187 @@ server <- function(input, output, session) {
   observe({
     req(input$select_cgmlst)
     if (input$select_cgmlst == "Acinetobacter baumanii") {
-      species <- "Abaumannii1907"
+      species <- "Abaumannii320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- Scheme$folder_name <- "Acinetobacter_baumanii"
     } else if (input$select_cgmlst == "Bacillus anthracis") {
-      species <- "Banthracis1917"
+      species <- "Banthracis320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Bacillus_anthracis"
     } else if (input$select_cgmlst == "Bordetella pertussis") {
-      species <- "Bpertussis1917"
+      species <- "Bpertussis320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Bordetella_pertussis"
     } else if (input$select_cgmlst == "Brucella melitensis") {
-      species <- "Bmelitensis1912"
+      species <- "Bmelitensis320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Brucella_melitensis"
     } else if (input$select_cgmlst == "Brucella spp.") {
-      species <- "Brucella1914"
+      species <- "Brucella320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Brucella_spp"
     } else if (input$select_cgmlst == "Burkholderia mallei (FLI)") {
-      species <- "Bmallei_fli1911"
+      species <- "Bmallei_fli320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Burkholderia_mallei_FLI"
     } else if (input$select_cgmlst == "Burkholderia mallei (RKI)") {
-      species <- "Bmallei_rki1909"
+      species <- "Bmallei_rki320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Burkholderia_mallei_RKI"
     } else if (input$select_cgmlst == "Burkholderia pseudomallei") {
-      species <- "Bpseudomallei1906"
+      species <- "Bpseudomallei320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Burkholderia_pseudomallei"
     } else if (input$select_cgmlst == "Campylobacter jejuni/coli") {
-      species <- "Cjejuni1911"
+      species <- "Cjejuni320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Campylobacter_jejuni_coli"
     } else if (input$select_cgmlst == "Clostridioides difficile") {
-      species <- "Cdifficile1905"
+      species <- "Cdifficile319"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Clostridioides_difficile"
     } else if (input$select_cgmlst == "Clostridium perfringens") {
-      species <- "Cperfringens1907"
+      species <- "Cperfringens320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Clostridium_perfringens"
     } else if (input$select_cgmlst == "Corynebacterium diphtheriae") {
-      species <- "Cdiphtheriae1907"
+      species <- "Cdiphtheriae319"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Corynebacterium_diphtheriae"
     } else if (input$select_cgmlst == "Cronobacter sakazakii/malonaticus") {
-      species <- "Csakazakii1910"
+      species <- "Csakazakii320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Cronobacter_sakazakii_malonaticus"
     } else if (input$select_cgmlst == "Enterococcus faecalis") {
-      species <- "Efaecalis1912"
+      species <- "Efaecalis320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Enterococcus_faecalis"
     } else if (input$select_cgmlst == "Enterococcus faecium") {
-      species <- "Efaecium1911"
+      species <- "Efaecium320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Enterococcus_faecium"
     } else if (input$select_cgmlst == "Escherichia coli") {
-      species <- "Ecoli1911"
+      species <- "Ecoli320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Escherichia_coli"
     } else if (input$select_cgmlst == "Francisella tularensis") {
-      species <- "Ftularensis1913"
+      species <- "Ftularensis320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Francisella_tularensis"
     } else if (input$select_cgmlst == "Klebsiella oxytoca sensu lato") {
-      species <- "Koxytoca717"
+      species <- "Koxytoca320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Klebsiella_oxytoca_sensu_lato"
     } else if (input$select_cgmlst == "Klebsiella pneumoniae sensu lato") {
-      species <- "Kpneumoniae1909"
+      species <- "Kpneumoniae320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Klebsiella_pneumoniae_sensu_lato"
     } else if (input$select_cgmlst == "Legionella pneumophila") {
-      species <- "Lpneumophila1911"
+      species <- "Lpneumophila320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Legionella_pneumophila"
     } else if (input$select_cgmlst == "Listeria monocytogenes") {
-      species <- "Lmonocytogenes1910"
+      species <- "Lmonocytogenes320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Listeria_monocytogenes"
     } else if (input$select_cgmlst == "Mycobacterium tuberculosis complex") {
-      species <- "Mtuberculosis1909"
+      species <- "Mtuberculosis320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Mycobacterium_tuberculosis_complex"
     } else if (input$select_cgmlst == "Mycobacteroides abscessus") {
-      species <- "Mabscessus1911"
+      species <- "Mabscessus320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Mycobacteroides_abscessus"
     } else if (input$select_cgmlst == "Mycoplasma gallisepticum") {
-      species <- "Mgallisepticum1911"
+      species <- "Mgallisepticum320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Mycoplasma_gallisepticum"
     } else if (input$select_cgmlst == "Paenibacillus larvae") {
-      species <- "Plarvae1902"
+      species <- "Plarvae319"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Paenibacillus_larvae"
     } else if (input$select_cgmlst == "Pseudomonas aeruginosa") {
-      species <- "Paeruginosa1911"
+      species <- "Paeruginosa320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Pseudomonas_aeruginosa"
     } else if (input$select_cgmlst == "Salmonella enterica") {
-      species <- "Senterica1913"
+      species <- "Senterica320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Salmonella_enterica"
     } else if (input$select_cgmlst == "Serratia marcescens") {
-      species <- "Smarcescens1912"
+      species <- "Smarcescens319"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Serratia_marcescens"
     } else if (input$select_cgmlst == "Staphylococcus aureus") {
-      species <- "Saureus1908"
+      species <- "Saureus320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Staphylococcus_aureus"
     } else if (input$select_cgmlst == "Staphylococcus capitis") {
-      species <- "Scapitis1905"
+      species <- "Scapitis320"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
       Scheme$folder_name <- "Staphylococcus_capitis"
     } else if (input$select_cgmlst == "Streptococcus pyogenes") {
-      species <- "Spyogenes1904"
+      species <- "Spyogenes319"
       Scheme$link_scheme <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/")
       Scheme$link_cgmlst <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/alleles/")
       Scheme$link_targets <- paste0("https://www.cgmlst.org/ncs/schema/", species, "/locus/?content-type=csv")
