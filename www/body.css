@@ -29,6 +29,16 @@ body > div.wrapper > header > span > span > div > a > img {
   margin-top: -1px;
 }
 
+.selectize-input .items .has-options .full .has-items,
+.selectize-input items full has-options has-items,
+div#selectize-input items full .has-options .has-items,
+div#selectize-input .items .has-options .full .has-items,
+.selectize-input, .selectize-control.single .selectize-input {
+  white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 .irs--shiny .irs-min, .irs--shiny .irs-max {
   background-color: #2B333E;
 }
@@ -1775,7 +1785,7 @@ body > div.wrapper > header > nav > div > ul > li.dropdown.notifications-menu:ho
 /* Visualization MST */
 
 #mst_node_col_info > svg {
-  top: 17px !important;
+  top: -30px !important;
 }
 
 #mst_legend_menu_dropmenu .tippy-popper,
@@ -2172,8 +2182,8 @@ top: -10px;
 }
 
 .mat-switch-lab {
-	margin-top: -6px;
-	margin-left: 2px;
+	margin-top: 13px;
+	margin-left: -15px;
 	margin-bottom: -7px;
 }
 
@@ -2378,6 +2388,8 @@ top: -10px;
 #nj_cust_label_save, #upgma_cust_label_save {
 	border-color: white;
 	width: 90%;
+	margin-top: 11px;
+	margin-bottom: 13px;
 }
 
 #nj_add_new_label, #upgma_add_new_label {
@@ -2397,7 +2409,7 @@ button#nj_del_label, button#upgma_del_label {
 	height: 35px;
 	width: 38px;
 	margin-top: 10px;
-	margin-left: -23px;
+	margin-left: -43px;
 }
 
 #nj_sliderInput_y, #nj_sliderInput_x,
@@ -2489,20 +2501,10 @@ inner open,
 }
 
 button#create_rep.btn.btn-default.action-button.shiny-bound-input {
-  border: 1px solid white;
-  width: 80px;
-  margin-top: 10px;
-}
-
-button#download_nj_bttn, button#download_upgma_bttn {
-font-size: 14px; 
-height: 34px; 
-position: relative; 
-top: 10px; 
-right: 20px;
-background: #282F38;
-  color: #ffffff;
-  border: 1px solid white;
+	border: 1px solid white;
+	width: 100%;
+	margin-top: 10px;
+	margin-left: -25px;
 }
 
 #nj_v, #nj_h, #upgma_h, #upgma_v {
@@ -2540,6 +2542,13 @@ margin-left: -10px;
 	margin-top: -10px;
 }
 
+.mst-color-mapping {
+	margin-left: 15px;
+	width: 100%;
+	margin-top: -30px;
+}
+
+
 .heatmap-scale div>.selectize-dropdown,
 .gs-gene-class-scale div>.selectize-dropdown,
 .gs-plot-selected-isolate div>.selectize-dropdown, 
@@ -2572,7 +2581,7 @@ button#nj_labelformat_menu, button#upgma_labelformat_menu {
 	height: 34px;
 	border-radius: 5px;
 	margin-top: 20px;
-	margin-left: 9px;
+	margin-left: 11px;
 }
 
 button#nj_footer_menu, button#upgma_footer_menu {
@@ -2581,12 +2590,13 @@ button#nj_footer_menu, button#upgma_footer_menu {
   border-radius: 5px
 }
 
-button#nj_title_menu, button#upgma_title_menu,
+button#nj_title_menu, button#upgma_title_menu, 
 button#nj_subtitle_menu, button#upgma_subtitle_menu {
-  height: 34px;
-  margin-top: 4px;
-  border-radius: 5px;
-  margin-bottom: -24px;
+	height: 34px;
+	margin-top: 1px;
+	border-radius: 5px;
+	margin-bottom: -24px;
+	margin-left: 11px;
 }
 
 button#nj_dim_menu, button#upgma_dim_menu {
@@ -2602,14 +2612,14 @@ button#nj_branch_label_menu, button#upgma_branch_label_menu {
 	height: 34px;
 	margin-top: 10px;
 	border-radius: 5px;
-	margin-left: -20px;
+	margin-left: -24px;
 }
 
 button#nj_custom_label_menu, button#upgma_custom_label_menu {
 	height: 34px;
 	margin-top: 10px;
 	border-radius: 5px;
-	margin-left: -23px;
+	margin-left: -25px;
 }
 
 button#nj_legend_menu, button#upgma_legend_menu {
@@ -2638,6 +2648,13 @@ button#upgma_tile_menu_5 {
 	margin-top: 21px;
 	border-radius: 5px;
 	margin-left: -15px;
+}
+
+button#nj_labeltext_menu, button#upgma_labeltext_menu {
+	height: 34px;
+	margin-top: 11px;
+	border-radius: 5px;
+	margin-left: -25px;
 }
 
 button#nj_heatmap_menu, button#upgma_heatmap_menu,
@@ -2716,11 +2733,18 @@ button#nj_nodepoint_menu, button#upgma_nodepoint_menu {
 #nj_tiles_scale_3, #upgma_tiles_scale_3,
 #nj_tiles_scale_4, #upgma_tiles_scale_4,
 #nj_tiles_scale_5, #upgma_tiles_scale_5,
-#nj_heatmap_scale, #upgma_heatmap_scale{
+#nj_heatmap_scale, #upgma_heatmap_scale {
 	margin-right: 10px;
 	width: 100%;
 	margin-left: -10px;
 	margin-top: -10px;
+}
+
+.mst-color-scale {
+	margin-right: 10px;
+	width: 100%;
+	margin-left: -10px;
+	margin-top: -30px;
 }
 
 #shiny-tab-visualization > div:nth-child(5) > div > div:nth-child(5) > div > div > div > div > div > div:nth-child(2) > div:nth-child(3) > div > div > div {
@@ -3978,10 +4002,10 @@ margin-left: -5px
   width: 100px;
 }
 
-.filetype-mst { 
-  margin-top: -28px;
-  width: 82px;
-  margin-left: -1px;
+.filetype-mst {
+	margin-top: -28px;
+	width: 100%;
+	margin-left: -26px;
 }
 
 .datepicker { 
@@ -4124,22 +4148,24 @@ button#gsplot_isolate_label_menu {
   margin-bottom: -15px;
 }
 
-button#save_plot_html_bttn,
-button#save_plot_jpeg,
-button#save_plot_png,
-button#save_plot_bmp {
-  font-size: 14px; 
-  height: 34px; 
-  width: 80px;
-  position: relative; 
-  background: #282F38;
-  color: #ffffff;
-  border: 1px solid white;
-  margin-top: 20px;
-  margin-bottom: 10px;
+button#save_plot_html_bttn, button#save_plot_jpeg, 
+button#save_plot_png, button#save_plot_bmp, 
+button#download_nj_bttn, button#download_upgma_bttn {
+	font-size: 14px;
+	height: 34px;
+	width: 100%;
+	position: relative;
+	background: #282F38;
+	color: #ffffff;
+	border: 1px solid white;
+	margin-top: 20px;
+	margin-bottom: 10px;
+	margin-left: -25px;
 }
 
-#save_plot_html_bttn > i {
+#save_plot_html_bttn > i,
+#download_nj_bttn > i,
+#download_upgma_bttn > i {
   font-size: 16px;
   margin-left: 8px;
   left: -3px;

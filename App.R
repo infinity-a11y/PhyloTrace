@@ -154,14 +154,6 @@ ui <- dashboardPage(
       sidebarMenuOutput("menu_screening"),
       uiOutput("menu_footer_screening"),
       conditionalPanel(
-        "input.tabs==='typing'",
-        uiOutput("typing_sidebar")
-      ),
-      conditionalPanel(
-        "input.tabs==='visualization'",
-        uiOutput("visualization_sidebar")
-      ),
-      conditionalPanel(
         "input.tabs==='gs_profile'",
         uiOutput("screening_sidebar")
       )
@@ -2601,85 +2593,6 @@ server <- function(input, output, session) {
                 # render visualization sidebar elements
                 observe({
                   Vis$tree_algo <- input$tree_algo
-                })
-                
-                output$visualization_sidebar <- renderUI({
-                  if(!is.null(DB$data)) {
-                    column(
-                      width = 12,
-                      fluidRow(
-                        column(
-                          width = 12,
-                          align = "center",
-                          
-                        )
-                      ), 
-                      conditionalPanel(
-                        "input.tree_algo=='Neighbour-Joining'",
-                        fluidRow(
-                          column(
-                            width = 12,
-                            column(
-                              width = 5,
-                              align = "left",
-                              downloadBttn(
-                                "download_nj",
-                                style = "simple",
-                                label = "Save Plot",
-                                size = "sm",
-                                icon = NULL,
-                                color = "primary"
-                              )
-                            ),
-                            column(
-                              width = 7,
-                              div(
-                                style = "max-width: 150px",
-                                class = "format",
-                                selectInput(
-                                  inputId = "filetype_nj",
-                                  label = "",
-                                  choices = c("png", "jpeg", "bmp", "svg")
-                                )
-                              )
-                            )
-                          )
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.tree_algo=='UPGMA'",
-                        fluidRow(
-                          column(
-                            width = 12,
-                            column(
-                              width = 5,
-                              align = "left",
-                              downloadBttn(
-                                "download_upgma",
-                                style = "simple",
-                                label = "Save Plot",
-                                size = "sm",
-                                icon = NULL,
-                                color = "primary"
-                              )
-                            ),
-                            column(
-                              width = 7,
-                              div(
-                                style = "max-width: 150px",
-                                class = "format",
-                                selectInput(
-                                  inputId = "filetype_upgma",
-                                  label = "",
-                                  choices = c("png", "jpeg", "bmp", "svg")
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  }
                 })
                 
                 # Render missing values sidebar elements
@@ -7863,7 +7776,6 @@ server <- function(input, output, session) {
       updateActionButton(session, "download_cgMLST", label = "Download")
     }
     
-    
     if(grepl("_CM", input$select_cgmlst)) {
       
       scheme_overview <- tryCatch({
@@ -7983,24 +7895,27 @@ server <- function(input, output, session) {
       # Render scheme update availability info
       output$scheme_update_info <- renderUI({
         req(last_file_change, last_scheme_change)
-        if(last_file_change < last_scheme_change) {
-          HTML(
-            paste0(
-              '<i class="fa-solid fa-circle-exclamation" style="font-size:20px;color:orange; position:relative; top: 17px; left: -10px;"></i>',
-              '<span style="color: white; font-size: 15px; position:relative; top: 15px;">',
-              "Newer scheme available",
-              '</span>'
+        new_scheme <- last_file_change < last_scheme_change
+        if(length(new_scheme) != 0) {
+          if(new_scheme) {
+            HTML(
+              paste0(
+                '<i class="fa-solid fa-circle-exclamation" style="font-size:20px;color:orange; position:relative; top: 17px; left: -10px;"></i>',
+                '<span style="color: white; font-size: 15px; position:relative; top: 15px;">',
+                "Newer scheme available",
+                '</span>'
+              )
             )
-          )
-        } else {
-          HTML(
-            paste0(
-              '<i class="fa-solid fa-check" style="font-size:20px;color:lightgreen; position:relative; top: 17px; left: -10px;"></i>',
-              '<span style="color: white; font-size: 15px; position:relative; top: 15px;">',
-              "Scheme is up-to-date",
-              '</span>'
+          } else {
+            HTML(
+              paste0(
+                '<i class="fa-solid fa-check" style="font-size:20px;color:lightgreen; position:relative; top: 17px; left: -10px;"></i>',
+                '<span style="color: white; font-size: 15px; position:relative; top: 15px;">',
+                "Scheme is up-to-date",
+                '</span>'
+              )
             )
-          )
+          }
         }
       })
       
@@ -8541,7 +8456,7 @@ server <- function(input, output, session) {
          height = 180)
   }, deleteFile = FALSE)
   
-  ### Render Visualization Controls ----
+  ### Plot Controls ----
   
   observe({
     if(!is.null(input$tree_algo)) {
@@ -8640,6 +8555,7 @@ server <- function(input, output, session) {
   
   #### NJ and UPGMA controls ----
   
+  # Inititally shown label menu
   output$nj_controls <- renderUI(
     div(
       class = "control-box",
@@ -8652,15 +8568,16 @@ server <- function(input, output, session) {
           column(
             width = 12,
             align = "left",
+            br(),
             fluidRow(
               column(
-                width = 8,
+                width = 6,
                 align = "left",
                 h4(p("Isolate Label"), style = "color:white; position: relative; right: -15px; "),   
               ),
               column(
-                width = 4,
-                align = "center",
+                width = 6,
+                align = "left",
                 div(
                   class = "mat-switch-lab",
                   materialSwitch(
@@ -8837,13 +8754,13 @@ server <- function(input, output, session) {
             align = "left",
             fluidRow(
               column(
-                width = 8,
+                width = 6,
                 align = "left",
                 h4(p("Branches"), style = "color:white; position: relative; right: -15px;"),
               ),
               column(
-                width = 4,
-                align = "center",
+                width = 6,
+                align = "left",
                 div(
                   class = "mat-switch-lab",
                   materialSwitch(
@@ -9095,14 +9012,21 @@ server <- function(input, output, session) {
                 ),
                 column(
                   width = 4,
-                  uiOutput("nj_del_label"),
+                  actionButton(
+                    "nj_del_label",
+                    "",
+                    icon = icon("minus")
+                  )
                 )
               ),
               fluidRow(
                 column(
                   width = 12,
                   align = "center",
-                  uiOutput("nj_cust_label_save")
+                  actionButton(
+                    "nj_cust_label_save",
+                    "Apply"
+                  )
                 )
               )
             )
@@ -9112,422 +9036,6 @@ server <- function(input, output, session) {
     )
   )
   
-  output$upgma_controls <- renderUI(
-    box(
-      solidHeader = TRUE,
-      status = "primary",
-      width = "100%",
-      title = "Labels",
-      fluidRow(
-        column(
-          width = 12,
-          align = "left",
-          fluidRow(
-            column(
-              width = 8,
-              align = "left",
-              h4(p("Isolate Label"), style = "color:white; position: relative; right: -15px; "),   
-            ),
-            column(
-              width = 4,
-              align = "center",
-              div(
-                class = "mat-switch-lab",
-                materialSwitch(
-                  "upgma_tiplab_show",
-                  "",
-                  value = TRUE
-                )
-              )
-            )
-          ),
-          fluidRow(
-            column(
-              width = 9,
-              align = "left",
-              div(
-                class = "upgma-label-sel",
-                uiOutput("upgma_tiplab")
-              )   
-            ),
-            column(
-              width = 3,
-              align = "center",
-              dropMenu(
-                actionBttn(
-                  "upgma_labeltext_menu",
-                  label = "",
-                  color = "default",
-                  size = "sm",
-                  style = "material-flat",
-                  icon = icon("sliders")
-                ),
-                placement = "top-start",
-                theme = "translucent",
-                fluidRow(
-                  column(
-                    width = 6,
-                    align = "center",
-                    div(
-                      class = "mat-switch-align",
-                      materialSwitch(
-                        "upgma_align",
-                        h5(p("Align"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                        value = FALSE,
-                        right = TRUE
-                      )
-                    ),
-                    br(),
-                    selectInput(
-                      "upgma_tiplab_fontface",
-                      label = h5("Fontface", style = "color:white; margin-bottom: 5px; margin-top: 16px"),
-                      width = "250px",
-                      choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
-                    )
-                  ),
-                  column(
-                    width = 6,
-                    align = "center",
-                    sliderInput(
-                      "upgma_tiplab_alpha",
-                      label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                      min = 0.1,
-                      max = 1,
-                      value = 1,
-                      width = "150px",
-                      ticks = FALSE
-                    ),
-                    br(),
-                    conditionalPanel(
-                      "!(input.upgma_layout=='inward'|input.upgma_layout=='circular')",
-                      sliderInput(
-                        inputId = "upgma_tiplab_nudge_x",
-                        label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                        min = -3,
-                        max = 3,
-                        step = 0.05,
-                        value = 0,
-                        width = "150px",
-                        ticks = FALSE
-                      )
-                    ),
-                    conditionalPanel(
-                      "input.upgma_layout=='circular'",
-                      sliderInput(
-                        inputId = "upgma_tiplab_position",
-                        label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                        min = -3,
-                        max = 3,
-                        step = 0.05,
-                        value = -0.05,
-                        width = "150px",
-                        ticks = FALSE
-                      )
-                    ),
-                    conditionalPanel(
-                      "input.upgma_layout=='inward'",
-                      sliderInput(
-                        inputId = "upgma_tiplab_position_inw",
-                        label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                        min = -3,
-                        max = 3,
-                        step = 0.05,
-                        value = 1.1,
-                        width = "150px",
-                        ticks = FALSE
-                      )
-                    ),
-                    br(),
-                    sliderInput(
-                      inputId = "upgma_tiplab_angle",
-                      label = h5("Angle", style = "color:white; margin-bottom: 0px"),
-                      min = -90,
-                      max = 90,
-                      value = 0,
-                      ticks = FALSE,
-                      width = "150px",
-                    )      
-                  )
-                )
-              )
-            )
-          )
-        )
-      ),
-      fluidRow(
-        column(
-          width = 8,
-          div(
-            class = "mat-switch-geom",
-            materialSwitch(
-              "upgma_geom",
-              h5(p("Panels"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: 5px;"),
-              value = FALSE,
-              right = FALSE
-            )
-          )
-        ),
-        column(
-          width = 4,
-          dropMenu(
-            actionBttn(
-              "upgma_labelformat_menu",
-              label = "",
-              color = "default",
-              size = "sm",
-              style = "material-flat",
-              icon = icon("sliders")
-            ),
-            placement = "top-start",
-            theme = "translucent",
-            fluidRow(
-              column(
-                width = 12,
-                align = "center",
-                uiOutput("upgma_tiplab_padding"),
-                br(),
-                sliderInput(
-                  inputId = "upgma_tiplab_labelradius",
-                  label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
-                  min = 0,
-                  max = 0.5,
-                  value = 0.2,
-                  width = "150px",
-                  ticks = FALSE
-                )
-              )
-            )
-          )
-        )
-      ),
-      hr(),
-      fluidRow(
-        column(
-          width = 12,
-          align = "left",
-          fluidRow(
-            column(
-              width = 8,
-              align = "left",
-              h4(p("Branches"), style = "color:white; position: relative; right: -15px;"),
-            ),
-            column(
-              width = 4,
-              align = "center",
-              div(
-                class = "mat-switch-lab",
-                materialSwitch(
-                  "upgma_show_branch_label",
-                  "",
-                  value = FALSE
-                )
-              )
-            )
-          ),
-          fluidRow(
-            column(
-              width = 9,
-              align = "left",
-              div(
-                class = "upgma-label-sel",
-                uiOutput("upgma_branch_label")
-              )   
-            ),
-            column(
-              width = 3,
-              align = "center",
-              dropMenu(
-                actionBttn(
-                  "upgma_branch_label_menu",
-                  label = "",
-                  color = "default",
-                  size = "sm",
-                  style = "material-flat",
-                  icon = icon("sliders")
-                ),
-                placement = "top-start",
-                theme = "translucent",
-                fluidRow(
-                  column(
-                    width = 6,
-                    align = "center",
-                    sliderInput(
-                      "upgma_branchlab_alpha",
-                      label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                      min = 0.1,
-                      max = 1,
-                      value = 0.65,
-                      width = "250px",
-                      ticks = FALSE
-                    ),
-                    br(),
-                    sliderInput(
-                      inputId = "upgma_branch_x",
-                      label = h5("X Position", style = "color:white; margin-bottom: 0px"),
-                      min = -3,
-                      max = 3,
-                      value = 0,
-                      width = "250px",
-                      ticks = FALSE
-                    ),
-                    br(),
-                    sliderInput(
-                      inputId = "upgma_branch_y",
-                      label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
-                      min = -3,
-                      max = 3,
-                      value = 0,
-                      width = "250px",
-                      ticks = FALSE
-                    )
-                  ),
-                  column(
-                    width = 6,
-                    align = "center",
-                    uiOutput("upgma_branch_size"),
-                    selectInput(
-                      "upgma_branchlab_fontface",
-                      label = h5("Fontface", style = "color:white; margin-bottom: 0px;"),
-                      width = "250px",
-                      choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
-                    ),
-                    br(),
-                    sliderInput(
-                      "upgma_branch_labelradius",
-                      label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
-                      min = 0,
-                      max = 0.5,
-                      value = 0.5,
-                      width = "250px",
-                      ticks = FALSE
-                    )
-                  )
-                )
-              )
-            )
-          )
-        )
-      ),
-      hr(),
-      fluidRow(
-        column(
-          width = 12,
-          align = "left",
-          fluidRow(
-            column(
-              width = 3,
-              h5(p("Title"), style = "color:white; position: relative; right: -15px;")   
-            ),
-            column(
-              width = 8,
-              textInput(
-                "upgma_title",
-                label = "",
-                width = "100%",
-                placeholder = "Plot Title"
-              )
-            )
-          )
-        )
-      ),
-      br(),
-      fluidRow(
-        column(
-          width = 12,
-          align = "left",
-          fluidRow(
-            column(
-              width = 3,
-              h5(p("Subtitle"), style = "color:white; position: relative; right: -15px;")   
-            ),
-            column(
-              width = 8,
-              textInput(
-                "upgma_subtitle",
-                label = "",
-                width = "100%",
-                placeholder = "Plot Subtitle"
-              )
-            )
-          )
-        )
-      ),
-      hr(),
-      fluidRow(
-        column(
-          width = 12,
-          align = "left",
-          h4(p("Custom"), style = "color:white; position: relative; right: -15px;"),
-          column(
-            width = 12,
-            align = "center",
-            fluidRow(
-              column(
-                width = 7,
-                textInput(
-                  "upgma_new_label_name",
-                  "",
-                  placeholder = "New Label"
-                )
-              ),
-              column(
-                width = 3,
-                actionButton(
-                  "upgma_add_new_label",
-                  "",
-                  icon = icon("plus")
-                )
-              ),
-              column(
-                width = 2,
-                align = "right",
-                dropMenu(
-                  actionBttn(
-                    "upgma_custom_label_menu",
-                    label = "",
-                    color = "default",
-                    size = "sm",
-                    style = "material-flat",
-                    icon = icon("sliders")
-                  ),
-                  placement = "top-end",
-                  theme = "translucent",
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "center",
-                      uiOutput("upgma_custom_labelsize"),
-                      br(),
-                      uiOutput("upgma_sliderInput_y"),
-                      br(),
-                      uiOutput("upgma_sliderInput_x")
-                    )
-                  )
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 7,
-                uiOutput("upgma_custom_label_select")
-              ),
-              column(
-                width = 4,
-                uiOutput("upgma_del_label"),
-              )
-            ),
-            fluidRow(
-              column(
-                width = 12,
-                align = "center",
-                uiOutput("upgma_cust_label_save")
-              )
-            )
-          )
-        )
-      )
-    )
-  )
   
   ##### Label Menu ----
   
@@ -9544,15 +9052,16 @@ server <- function(input, output, session) {
             column(
               width = 12,
               align = "left",
+              br(),
               fluidRow(
                 column(
-                  width = 8,
+                  width = 6,
                   align = "left",
                   h4(p("Isolate Label"), style = "color:white; position: relative; right: -15px; "),   
                 ),
                 column(
-                  width = 4,
-                  align = "center",
+                  width = 6,
+                  align = "left",
                   div(
                     class = "mat-switch-lab",
                     materialSwitch(
@@ -9605,7 +9114,9 @@ server <- function(input, output, session) {
                           label = h5("Fontface", style = "color:white; margin-bottom: 5px; margin-top: 16px"),
                           width = "250px",
                           choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
-                        )
+                        ),
+                        br(),
+                        uiOutput("nj_tiplab_size")
                       ),
                       column(
                         width = 6,
@@ -9729,13 +9240,13 @@ server <- function(input, output, session) {
               align = "left",
               fluidRow(
                 column(
-                  width = 8,
+                  width = 6,
                   align = "left",
                   h4(p("Branches"), style = "color:white; position: relative; right: -15px;"),
                 ),
                 column(
-                  width = 4,
-                  align = "center",
+                  width = 6,
+                  align = "left",
                   div(
                     class = "mat-switch-lab",
                     materialSwitch(
@@ -9987,20 +9498,27 @@ server <- function(input, output, session) {
                   ),
                   column(
                     width = 4,
-                    uiOutput("nj_del_label"),
+                    actionButton(
+                      "nj_del_label",
+                      "",
+                      icon = icon("minus")
+                    )
                   )
                 ),
                 fluidRow(
                   column(
                     width = 12,
                     align = "center",
-                    uiOutput("nj_cust_label_save")
+                    actionButton(
+                      "nj_cust_label_save",
+                      "Apply"
+                    )
                   )
                 )
               )
             )
           )
-        )
+        ) 
       )
     )
   })
@@ -10201,13 +9719,13 @@ server <- function(input, output, session) {
             align = "left",
             fluidRow(
               column(
-                width = 8,
+                width = 6,
                 align = "left",
                 h4(p("Branches"), style = "color:white; position: relative; right: -15px;"),
               ),
               column(
-                width = 4,
-                align = "center",
+                width = 6,
+                align = "left",
                 div(
                   class = "mat-switch-lab",
                   materialSwitch(
@@ -10976,386 +10494,6 @@ server <- function(input, output, session) {
     )
   })
   
-  
-  ##### Other Menu ----
-  
-  observeEvent(input$nj_misc_menu, {
-    output$nj_controls <- renderUI(
-      div(
-        class = "control-box",
-        box(
-          solidHeader = TRUE,
-          status = "primary",
-          width = "100%",
-          title = "Miscellaneous",
-          #column(
-          #  width = 12,
-            fluidRow(
-              column(
-                width = 12,
-                align = "left",
-                h4(p("Dimensions"), style = "color:white; position: relative; top: 0px; margin-bottom: -10px;"),
-                fluidRow(
-                  column(
-                    width = 4,
-                    align = "left",
-                    HTML(
-                      paste(
-                        tags$span(style='color: white; font-size: 14px; position: relative; top: 27px',
-                                  'Ratio')
-                      )
-                    )
-                  ),
-                  column(
-                    width = 4,
-                    align = "center",
-                    div(
-                      class = "control-ratio",
-                      selectInput(
-                        "nj_ratio",
-                        "",
-                        choices = c("16:10" = (16/10), "16:9" = (16/9), "4:3" = (4/3))
-                      )
-                    )
-                  ),
-                  column(
-                    width = 3,
-                    dropMenu(
-                      actionBttn(
-                        "nj_dim_menu",
-                        label = "",
-                        color = "default",
-                        size = "sm",
-                        style = "material-flat",
-                        icon = icon("sliders")
-                      ),
-                      placement = "top-start",
-                      theme = "translucent",
-                      fluidRow(
-                        column(
-                          width = 12,
-                          sliderInput(
-                            "nj_v",
-                            label = h5("Vertical Position", style = "color:white; margin-bottom: 0px"),
-                            min = -0.5,
-                            max = 0.5,
-                            step = 0.01,
-                            value = 0,
-                            width = "150px",
-                            ticks = FALSE
-                          ),
-                          br(),
-                          sliderInput(
-                            "nj_h",
-                            label = h5("Horizontal Position", style = "color:white; margin-bottom: 0px"),
-                            min = -0.5,
-                            max = 0.5,
-                            step = 0.01,
-                            value = 0,
-                            width = "150px",
-                            ticks = FALSE
-                          )
-                        )
-                      )
-                    )
-                  )
-                ),
-                br(),
-                fluidRow(
-                  column(
-                    width = 6,
-                    align = "left",
-                    HTML(
-                      paste(
-                        tags$span(style='color: white; font-size: 14px; position: relative;',
-                                  'Scale')
-                      )
-                    )
-                  ),
-                  div(
-                    class = "gs-slider-col",
-                    column(
-                      width = 6,
-                      align = "center",
-                      div(
-                        class = "gs-slider-scale",
-                        sliderInput(
-                          "nj_scale",
-                          "",
-                          min = 450,
-                          max = 670,
-                          step = 5,
-                          value = 600,
-                          width = "95%",
-                          ticks = FALSE
-                        )
-                      )
-                    )
-                  )
-                ),
-                br(),
-                fluidRow(
-                  column(
-                    width = 6,
-                    align = "left",
-                    HTML(
-                      paste(
-                        tags$span(style='color: white; font-size: 14px; position: relative;',
-                                  'Zoom')
-                      )
-                    )
-                  ),
-                  div(
-                    class = "gs-slider-col",
-                    column(
-                      width = 6,
-                      align = "center",
-                      div(
-                        class = "gs-slider-scale",
-                        sliderInput(
-                          "nj_zoom",
-                          "",
-                          min = 0.5,
-                          max = 1.5,
-                          step = 0.05,
-                          value = 0.95,
-                          width = "95%",
-                          ticks = FALSE
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            ),
-            hr(),
-            fluidRow(
-              column(
-                width = 12,
-                h4(p("Layout"), style = "color:white; position: relative; top: 0px; margin-bottom: -10px;"),
-                fluidRow(
-                  column(
-                    width = 12,
-                    selectInput(
-                      inputId = "nj_layout",
-                      label = "",
-                      choices = list(
-                        Linear = list(
-                          "Rectangular" = "rectangular",
-                          "Roundrect" = "roundrect",
-                          "Slanted" = "slanted",
-                          "Ellipse" = "ellipse"
-                        ),
-                        Circular = list("Circular" = "circular",
-                                        "Inward" = "inward")
-                      ),
-                      selected = "rectangular",
-                      width = "90%"
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 8,
-                    div(
-                      class = "mat-switch-layout",
-                      materialSwitch(
-                        "nj_rootedge_show",
-                        h5(p("Rootedge"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                        value = FALSE,
-                        right = TRUE
-                      )
-                    )
-                  ),
-                  column(
-                    width = 4,
-                    align = "right",
-                    dropMenu(
-                      actionBttn(
-                        "nj_rootedge_menu",
-                        label = "",
-                        color = "default",
-                        size = "sm",
-                        style = "material-flat",
-                        icon = icon("sliders")
-                      ),
-                      placement = "top-start",
-                      theme = "translucent",
-                      fluidRow(
-                        column(
-                          width = 12,
-                          align = "center",
-                          uiOutput("nj_rootedge_length"),
-                          br(),
-                          selectInput(
-                            "nj_rootedge_line",
-                            label = h5("Rootedge Line", style = "color:white"),
-                            choices = c(Solid = "solid", Dashed = "dashed", Dotted = "dotted"),
-                            selected = c(Dotted = "solid"),
-                            width = "100px"
-                          ),
-                          br(),
-                          conditionalPanel(
-                            "input.nj_layout=='circular'",
-                            sliderInput(
-                              "nj_xlim",
-                              label = h5("Adjust Circular", style = "color:white"),
-                              min = -50,
-                              max = 0,
-                              value = -10,
-                              width = "150px",
-                              ticks = FALSE
-                            )
-                          ),
-                          conditionalPanel(
-                            "input.nj_layout=='inward'",
-                            sliderInput(
-                              "nj_inward_xlim",
-                              label = h5("Adjust Circular", style = "color:white"),
-                              min = 30,
-                              max = 120,
-                              value = 50,
-                              ticks = FALSE,
-                              width = "150px",
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 8,
-                    align = "left",
-                    div(
-                      class = "mat-switch-layout2",
-                      materialSwitch(
-                        "nj_treescale_show",
-                        h5(p("Tree Scale"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                        value = TRUE,
-                        right = TRUE
-                      )
-                    )
-                  ),
-                  column(
-                    width = 4,
-                    align = "right",
-                    dropMenu(
-                      actionBttn(
-                        "nj_treescale_menu",
-                        label = "",
-                        color = "default",
-                        size = "sm",
-                        style = "material-flat",
-                        icon = icon("sliders")
-                      ),
-                      placement = "top-start",
-                      theme = "translucent",
-                      fluidRow(
-                        column(
-                          width = 12,
-                          align = "center",
-                          uiOutput("nj_treescale_width"),
-                          br(),
-                          uiOutput("nj_treescale_x"),
-                          br(),
-                          uiOutput("nj_treescale_y")
-                        )
-                      )
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 8,
-                    div(
-                      class = "mat-switch-layout3",
-                      materialSwitch(
-                        "nj_ladder",
-                        h5(p("Ladderize"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                        value = TRUE,
-                        right = TRUE
-                      )
-                    )
-                  )
-                ),
-                hr(),
-                fluidRow(
-                  column(
-                    width = 7,
-                    align = "left",
-                    prettyRadioButtons(
-                      "nj_legend_orientation",
-                      "",
-                      choices = c(Horizontal = "horizontal",
-                                  Vertical = "vertical"),
-                      selected = c(Vertical = "vertical"),
-                      inline = FALSE
-                    )
-                  ),
-                  column(
-                    width = 5,
-                    align = "right",
-                    dropMenu(
-                      actionBttn(
-                        "nj_legend_menu",
-                        label = "",
-                        color = "default",
-                        size = "sm",
-                        style = "material-flat",
-                        icon = icon("sliders")
-                      ),
-                      placement = "top-start",
-                      theme = "translucent",
-                      fluidRow(
-                        column(
-                          width = 12,
-                          align = "center",
-                          numericInput(
-                            "nj_legend_size",
-                            label = h5("Size", style = "color:white; margin-bottom: 0px"),
-                            value = 10,
-                            min = 5,
-                            max = 25,
-                            step = 1,
-                            width = "80px"
-                          ),
-                          br(),
-                          sliderInput(
-                            "nj_legend_x",
-                            label = h5("Horizontal Position", style = "color:white; margin-bottom: 0px"),
-                            value = 0.9,
-                            min = -0.9,
-                            max = 1.9,
-                            step = 0.2,
-                            width = "150px",
-                            ticks = FALSE
-                          ),
-                          br(),
-                          sliderInput(
-                            "nj_legend_y",
-                            label = h5("Vertical Position", style = "color:white; margin-bottom: 0px"),
-                            value = 0.2,
-                            min = -1.5,
-                            max = 1.5,
-                            step = 0.1,
-                            width = "150px",
-                            ticks = FALSE
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          #)
-        )
-      )
-    )
-  })
-  
   ##### Elements Menu ----
   
   observeEvent(input$nj_elements_menu, {
@@ -11895,6 +11033,469 @@ server <- function(input, output, session) {
     )
   })
   
+  ##### Other Menu ----
+  
+  observeEvent(input$nj_misc_menu, {
+    output$nj_controls <- renderUI(
+      div(
+        class = "control-box",
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          title = "Miscellaneous",
+          #column(
+          #  width = 12,
+          fluidRow(
+            column(
+              width = 12,
+              align = "left",
+              h4(p("Dimensions"), style = "color:white; position: relative; top: 0px; margin-bottom: -10px;"),
+              fluidRow(
+                column(
+                  width = 4,
+                  align = "left",
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 14px; position: relative; top: 27px',
+                                'Ratio')
+                    )
+                  )
+                ),
+                column(
+                  width = 4,
+                  align = "center",
+                  div(
+                    class = "control-ratio",
+                    selectInput(
+                      "nj_ratio",
+                      "",
+                      choices = c("16:10" = (16 / 10), "16:9" = (16 / 9), "4:3" = (4 / 3))
+                    )
+                  )
+                ),
+                column(
+                  width = 3,
+                  dropMenu(
+                    actionBttn(
+                      "nj_dim_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-start",
+                    theme = "translucent",
+                    fluidRow(
+                      column(
+                        width = 12,
+                        sliderInput(
+                          "nj_v",
+                          label = h5("Vertical Position", style = "color:white; margin-bottom: 0px"),
+                          min = -0.5,
+                          max = 0.5,
+                          step = 0.01,
+                          value = 0,
+                          width = "150px",
+                          ticks = FALSE
+                        ),
+                        br(),
+                        sliderInput(
+                          "nj_h",
+                          label = h5("Horizontal Position", style = "color:white; margin-bottom: 0px"),
+                          min = -0.5,
+                          max = 0.5,
+                          step = 0.01,
+                          value = 0,
+                          width = "150px",
+                          ticks = FALSE
+                        )
+                      )
+                    )
+                  )
+                )
+              ),
+              br(),
+              fluidRow(
+                column(
+                  width = 6,
+                  align = "left",
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 14px; position: relative;',
+                                'Scale')
+                    )
+                  )
+                ),
+                div(
+                  class = "gs-slider-col",
+                  column(
+                    width = 6,
+                    align = "center",
+                    div(
+                      class = "gs-slider-scale",
+                      sliderInput(
+                        "nj_scale",
+                        "",
+                        min = 450,
+                        max = 670,
+                        step = 5,
+                        value = 600,
+                        width = "95%",
+                        ticks = FALSE
+                      )
+                    )
+                  )
+                )
+              ),
+              br(),
+              fluidRow(
+                column(
+                  width = 6,
+                  align = "left",
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 14px; position: relative;',
+                                'Zoom')
+                    )
+                  )
+                ),
+                div(
+                  class = "gs-slider-col",
+                  column(
+                    width = 6,
+                    align = "center",
+                    div(
+                      class = "gs-slider-scale",
+                      sliderInput(
+                        "nj_zoom",
+                        "",
+                        min = 0.5,
+                        max = 1.5,
+                        step = 0.05,
+                        value = 0.95,
+                        width = "95%",
+                        ticks = FALSE
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          hr(),
+          fluidRow(
+            column(
+              width = 12,
+              h4(p("Layout"), style = "color:white; position: relative; top: 0px; margin-bottom: -10px;"),
+              fluidRow(
+                column(
+                  width = 12,
+                  selectInput(
+                    inputId = "nj_layout",
+                    label = "",
+                    choices = list(
+                      Linear = list(
+                        "Rectangular" = "rectangular",
+                        "Roundrect" = "roundrect",
+                        "Slanted" = "slanted",
+                        "Ellipse" = "ellipse"
+                      ),
+                      Circular = list("Circular" = "circular",
+                                      "Inward" = "inward")
+                    ),
+                    selected = "rectangular",
+                    width = "90%"
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 8,
+                  div(
+                    class = "mat-switch-layout",
+                    materialSwitch(
+                      "nj_rootedge_show",
+                      h5(p("Rootedge"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                      value = FALSE,
+                      right = TRUE
+                    )
+                  )
+                ),
+                column(
+                  width = 4,
+                  align = "right",
+                  dropMenu(
+                    actionBttn(
+                      "nj_rootedge_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-start",
+                    theme = "translucent",
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        uiOutput("nj_rootedge_length"),
+                        br(),
+                        selectInput(
+                          "nj_rootedge_line",
+                          label = h5("Rootedge Line", style = "color:white"),
+                          choices = c(Solid = "solid", Dashed = "dashed", Dotted = "dotted"),
+                          selected = c(Dotted = "solid"),
+                          width = "100px"
+                        ),
+                        br(),
+                        conditionalPanel(
+                          "input.nj_layout=='circular'",
+                          sliderInput(
+                            "nj_xlim",
+                            label = h5("Adjust Circular", style = "color:white"),
+                            min = -50,
+                            max = 0,
+                            value = -10,
+                            width = "150px",
+                            ticks = FALSE
+                          )
+                        ),
+                        conditionalPanel(
+                          "input.nj_layout=='inward'",
+                          sliderInput(
+                            "nj_inward_xlim",
+                            label = h5("Adjust Circular", style = "color:white"),
+                            min = 30,
+                            max = 120,
+                            value = 50,
+                            ticks = FALSE,
+                            width = "150px",
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 8,
+                  align = "left",
+                  div(
+                    class = "mat-switch-layout2",
+                    materialSwitch(
+                      "nj_treescale_show",
+                      h5(p("Tree Scale"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                      value = TRUE,
+                      right = TRUE
+                    )
+                  )
+                ),
+                column(
+                  width = 4,
+                  align = "right",
+                  dropMenu(
+                    actionBttn(
+                      "nj_treescale_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-start",
+                    theme = "translucent",
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        uiOutput("nj_treescale_width"),
+                        br(),
+                        uiOutput("nj_treescale_x"),
+                        br(),
+                        uiOutput("nj_treescale_y")
+                      )
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 8,
+                  div(
+                    class = "mat-switch-layout3",
+                    materialSwitch(
+                      "nj_ladder",
+                      h5(p("Ladderize"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                      value = TRUE,
+                      right = TRUE
+                    )
+                  )
+                )
+              ),
+              hr(),
+              fluidRow(
+                column(
+                  width = 7,
+                  align = "left",
+                  prettyRadioButtons(
+                    "nj_legend_orientation",
+                    "",
+                    choices = c(Horizontal = "horizontal",
+                                Vertical = "vertical"),
+                    selected = c(Vertical = "vertical"),
+                    inline = FALSE
+                  )
+                ),
+                column(
+                  width = 5,
+                  align = "right",
+                  dropMenu(
+                    actionBttn(
+                      "nj_legend_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "top-start",
+                    theme = "translucent",
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        numericInput(
+                          "nj_legend_size",
+                          label = h5("Size", style = "color:white; margin-bottom: 0px"),
+                          value = 10,
+                          min = 5,
+                          max = 25,
+                          step = 1,
+                          width = "80px"
+                        ),
+                        br(),
+                        sliderInput(
+                          "nj_legend_x",
+                          label = h5("Horizontal Position", style = "color:white; margin-bottom: 0px"),
+                          value = 0.9,
+                          min = -0.9,
+                          max = 1.9,
+                          step = 0.2,
+                          width = "150px",
+                          ticks = FALSE
+                        ),
+                        br(),
+                        sliderInput(
+                          "nj_legend_y",
+                          label = h5("Vertical Position", style = "color:white; margin-bottom: 0px"),
+                          value = 0.2,
+                          min = -1.5,
+                          max = 1.5,
+                          step = 0.1,
+                          width = "150px",
+                          ticks = FALSE
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+          #)
+        )
+      )
+    )
+  })
+  
+  ##### Export Menu ----
+  
+  observeEvent(input$nj_download_menu, {
+    output$nj_controls <- renderUI(
+      div(
+        class = "control-box",
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          title = "Export",
+          fluidRow(
+            column(
+              width = 12,
+              align = "center",
+              br(),
+              fluidRow(
+                column(
+                  width = 6,
+                  align = "left",
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                                'Save plot as')
+                    )
+                  )
+                ),
+                column(
+                  width = 6,
+                  align = "center",
+                  div(
+                    class = "filetype-mst",
+                    selectInput(
+                      inputId = "filetype_nj",
+                      label = "",
+                      choices = c("png", "jpeg", "bmp", "svg")
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(6),
+                column(
+                  width = 6,
+                  downloadBttn(
+                    "download_nj",
+                    style = "simple",
+                    label = "",
+                    size = "sm",
+                    icon =  icon("download"),
+                    color = "primary"
+                  )
+                )
+              ),
+              hr(), 
+              fluidRow(
+                column(
+                  width = 6,
+                  align = "left",
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 17px',
+                                'Print Report')
+                    )
+                  )
+                ),
+                column(
+                  width = 6,
+                  align = "center",
+                  actionButton(
+                    "create_rep",
+                    "",
+                    icon = icon("file-waveform")
+                  )
+                )
+              ),
+              br(), br()
+            ) 
+          )
+        )
+      )
+    ) 
+  })
+  
   ##### Miscellaneous ----
   
   observeEvent(input$nj_heatmap_button, {
@@ -12207,7 +11808,7 @@ server <- function(input, output, session) {
   
   # Delete custom label
   observeEvent(input$nj_del_label, {
-    
+    req(Vis$custom_label_nj)
     if(nrow(Vis$custom_label_nj) > 1) {
       Vis$custom_label_nj <- Vis$custom_label_nj[-which(Vis$custom_label_nj[,1] == input$nj_custom_label_sel), , drop = FALSE]
     } else if (nrow(Vis$custom_label_nj) == 1) {
@@ -12232,12 +11833,25 @@ server <- function(input, output, session) {
   
   # Select custom labels
   output$nj_custom_label_select <- renderUI({
-    req(Vis$custom_label_nj)
-    if(nrow(Vis$custom_label_nj) > 0) {
+    if(!is.null(Vis$custom_label_nj)) {
+      if(nrow(Vis$custom_label_nj) > 0) {
+        selectInput(
+          "nj_custom_label_sel",
+          "",
+          choices = Vis$custom_label_nj[,1]
+        )
+      } else {
+        selectInput(
+          "nj_custom_label_sel",
+          "",
+          choices = NULL
+        )
+      }
+    } else{
       selectInput(
         "nj_custom_label_sel",
         "",
-        choices = Vis$custom_label_nj[,1]
+        choices = NULL
       )
     }
   })
@@ -12248,38 +11862,6 @@ server <- function(input, output, session) {
         "upgma_custom_label_sel",
         "",
         choices = Vis$custom_label_upgma[,1]
-      )
-    }
-  })
-  
-  # Select custom labels
-  output$nj_cust_label_save <- renderUI({
-    req(Vis$custom_label_nj)
-    if(nrow(Vis$custom_label_nj) > 0) {
-      actionButton(
-        "nj_cust_label_save",
-        "Apply"
-      )
-    } else {
-      column(
-        width = 12,
-        br(), br(), br(), br(), br(), br(),
-        h5("test", style = "color: transparent; margin-bottom: 3px")
-      )
-    }
-  })
-  
-  output$upgma_cust_label_save <- renderUI({
-    if(nrow(Vis$custom_label_upgma) > 0) {
-      actionButton(
-        "upgma_cust_label_save",
-        "Apply"
-      )
-    } else {
-      column(
-        width = 12,
-        br(), br(), br(), br(), br(), br(),
-        h5("test", style = "color: transparent; margin-bottom: 3px")
       )
     }
   })
@@ -12321,21 +11903,29 @@ server <- function(input, output, session) {
   
   # Render slider input based on selected label
   output$nj_sliderInput_y <- renderUI({
-    if(length(Vis$custom_label_nj) > 0) {
-      if(!is.null(Vis$nj_label_pos_y[[input$nj_custom_label_sel]])) {
-        sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
-                    label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
-                    min = 0, max = 50, step = 1, ticks = F,
-                    value = Vis$nj_label_pos_y[[input$nj_custom_label_sel]],
-                    width = "150px")
-      } else {
-        sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
-                    label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
-                    min = 0, max = sum(DB$data$Include), step = 1, ticks = F, 
-                    value = sum(DB$data$Include) / 2,
-                    width = "150px")
-      }
-    } 
+    if(!is.null(Vis$custom_label_nj)) {
+      if(length(Vis$custom_label_nj) > 0) {
+        if(!is.null(Vis$nj_label_pos_y[[input$nj_custom_label_sel]])) {
+          sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
+                      label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
+                      min = 0, max = 50, step = 1, ticks = F,
+                      value = Vis$nj_label_pos_y[[input$nj_custom_label_sel]],
+                      width = "150px")
+        } else {
+          sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
+                      label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
+                      min = 0, max = sum(DB$data$Include), step = 1, ticks = F, 
+                      value = sum(DB$data$Include) / 2,
+                      width = "150px")
+        }
+      } 
+    } else {
+      sliderInput(inputId = paste0("nj_slider_y"),
+                  label = h5("Vertical", style = "color: white; margin-bottom: 5px;"),
+                  min = 0, 10, 0, step = 1, ticks = F, 
+                  value = round(10 / 2, 0),
+                  width = "150px")
+    }
   })
   
   output$upgma_sliderInput_y <- renderUI({
@@ -12357,20 +11947,38 @@ server <- function(input, output, session) {
   })
   
   output$nj_sliderInput_x <- renderUI({
-    if(length(Vis$custom_label_nj) > 0) {
-      if(!is.null(Vis$nj_label_pos_x[[input$nj_custom_label_sel]])) {
-        sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
-                    label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
-                    min = 0, max = 50, step = 1, ticks = F,
-                    value = Vis$nj_label_pos_x[[input$nj_custom_label_sel]],
-                    width = "150px")
-      } else {
-        sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
-                    label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
-                    min = 0, max = round(Vis$nj_max_x, 0), step = 1, ticks = F, 
-                    value = round(Vis$nj_max_x / 2, 0),
-                    width = "150px")
-      }
+    if(!is.null(Vis$custom_label_nj)) {
+      if(length(Vis$custom_label_nj) > 0) {
+        if(!is.null(Vis$nj_label_pos_x[[input$nj_custom_label_sel]])) {
+          sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
+                      label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
+                      min = 0, max = 50, step = 1, ticks = F,
+                      value = Vis$nj_label_pos_x[[input$nj_custom_label_sel]],
+                      width = "150px")
+        } else {
+          if(!is.null(Vis$nj_max_x)) {
+            sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
+                        label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
+                        min = 0, 
+                        max = round(Vis$nj_max_x, 0), step = 1, ticks = F, 
+                        value = round(Vis$nj_max_x / 2, 0),
+                        width = "150px")
+          } else {
+            sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
+                        label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
+                        min = 0, 
+                        max = 10, step = 1, ticks = F, 
+                        value = 1,
+                        width = "150px")
+          }
+        }
+      } 
+    } else {
+      sliderInput(inputId = paste0("nj_slider_x"),
+                  label = h5("Horizontal", style = "color: white; margin-bottom: 5px;"),
+                  min = 0, 10, 0, step = 1, ticks = F, 
+                  value = round(10 / 2, 0),
+                  width = "150px")
     }
   })
   
@@ -12415,28 +12023,6 @@ server <- function(input, output, session) {
       Vis$upgma_label_pos_x[[input$upgma_custom_label_sel]] <- input[[paste0("upgma_slider_", input$upgma_custom_label_sel, "_x")]]
       Vis$upgma_label_size[[input$upgma_custom_label_sel]] <- input[[paste0("upgma_slider_", input$upgma_custom_label_sel, "_size")]]
     }
-  })
-  
-  # Show delete custom label button if custam label added
-  output$nj_del_label <- renderUI({
-    req(Vis$custom_label_nj)
-    if(nrow(Vis$custom_label_nj) > 0) {
-      actionButton(
-        "nj_del_label",
-        "",
-        icon = icon("minus")
-      )
-    } else {NULL}
-  })
-  
-  output$upgma_del_label <- renderUI({
-    if(nrow(Vis$custom_label_upgma) > 0) {
-      actionButton(
-        "upgma_del_label",
-        "",
-        icon = icon("minus")
-      )
-    } else {NULL}
   })
   
   # Mapping value number information
@@ -17100,54 +16686,52 @@ server <- function(input, output, session) {
     }
     
     output$mst_controls <- renderUI(
-      box(
-        solidHeader = TRUE,
-        status = "primary",
-        width = "100%",
-        title = "Variable Mapping",
-        fluidRow(
-          column(
-            width = 12,
-            align = "left",
-            br(),
+      div(
+        class = "control-box",
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          title = "Variable Mapping",
+          fluidRow(
             column(
               width = 12,
-              align = "center",
+              align = "left",
+              br(),
               fluidRow(
                 column(
-                  width = 10,
+                  width = 8,
                   align = "left",
-                  div(
-                    class = "mat-switch-mst-nodes",
-                    materialSwitch(
-                      "mst_color_var",
-                      h5(p("Add Variable"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                      value = mst_color_var_selected,
-                      right = TRUE
-                    )
-                  )
-                ),
-                column(
-                  width = 2,
+                  h4(p("Node Color"), style = "color:white; position: relative; right: -15px; "),
                   bslib::tooltip(
                     bsicons::bs_icon("info-circle", title = "Only categorical variables can \nbe mapped to the node color", color = "white", 
-                                     height = "12px", width = "12px", position = "relative", top = "27px", right = "40px"),
+                                     height = "14px", width = "14px", position = "relative", right = "-120px"),
                     "Text shown in the tooltip.",
                     show = FALSE,
                     id = "mst_node_col_info"
+                  )
+                ),
+                column(
+                  width = 4,
+                  align = "center",
+                  div(
+                    class = "mat-switch-v",
+                    materialSwitch(
+                      "mst_color_var",
+                      "",
+                      value = FALSE
+                    )
                   )
                 )
               ),
               fluidRow(
                 column(
-                  width = 12,
-                  align = "left",
-                  br(), br(),
+                  width = 6,
                   div(
-                    class = "mst_col_sel",
+                    class = "mst-color-mapping",
                     selectInput(
                       "mst_col_var",
-                      label = h4("Variable", style = "color:white; margin-bottom: 10px;"),
+                      "",
                       choices = if(any(DB$cust_var[DB$cust_var$Variable[which(DB$cust_var$Variable %in% c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)]))],]$Type != "categ")) {
                         selection <- c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)])
                         cust_vars <- DB$cust_var$Variable[which(DB$cust_var$Variable %in% selection)]
@@ -17156,32 +16740,109 @@ server <- function(input, output, session) {
                       selected = mst_col_var_selected,
                       width = "100%"
                     )
-                  ),
-                  br(), br(),
-                )
-              ),
-              fluidRow(
+                  )
+                ),
                 column(
-                  width = 12,
-                  align = "left",
-                  br(),
+                  width = 6,
                   div(
-                    class = "mst-col-scale",
+                    class = "mst-color-scale",
                     selectInput(
                       "mst_col_scale",
-                      label = h4("Color Scale", style = "color:white; margin-bottom: 10px;"),
+                      "",
                       choices = c("Viridis", "Rainbow"),
                       selected = mst_col_scale_selected,
                       width = "100%"
-                    )
-                  ),
-                  br(), br()
+                    ) 
+                  )
                 )
-              )
+              ),
+              br()
             )
           )
         )
       )
+      # box(
+      #   solidHeader = TRUE,
+      #   status = "primary",
+      #   width = "100%",
+      #   title = "Variable Mapping",
+      #   fluidRow(
+      #     column(
+      #       width = 12,
+      #       align = "left",
+      #       br(),
+      #       column(
+      #         width = 12,
+      #         align = "center",
+      #         fluidRow(
+      #           column(
+      #             width = 10,
+      #             align = "left",
+      #             div(
+      #               class = "mat-switch-mst-nodes",
+      #               materialSwitch(
+      #                 "mst_color_var",
+      #                 h5(p("Add Variable"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+      #                 value = mst_color_var_selected,
+      #                 right = TRUE
+      #               )
+      #             )
+      #           ),
+      #           column(
+      #             width = 2,
+      #             bslib::tooltip(
+      #               bsicons::bs_icon("info-circle", title = "Only categorical variables can \nbe mapped to the node color", color = "white", 
+      #                                height = "12px", width = "12px", position = "relative", top = "27px", right = "40px"),
+      #               "Text shown in the tooltip.",
+      #               show = FALSE,
+      #               id = "mst_node_col_info"
+      #             )
+      #           )
+      #         ),
+      #         fluidRow(
+      #           column(
+      #             width = 12,
+      #             align = "left",
+      #             br(), br(),
+      #             div(
+      #               class = "mst_col_sel",
+      #               selectInput(
+      #                 "mst_col_var",
+      #                 label = h4("Variable", style = "color:white; margin-bottom: 10px;"),
+      #                 choices = if(any(DB$cust_var[DB$cust_var$Variable[which(DB$cust_var$Variable %in% c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)]))],]$Type != "categ")) {
+      #                   selection <- c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)])
+      #                   cust_vars <- DB$cust_var$Variable[which(DB$cust_var$Variable %in% selection)]
+      #                   selection[-which(selection == cust_vars[DB$cust_var[cust_vars,]$Type != "categ"])]
+      #                 } else {c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)])},,
+      #                 selected = mst_col_var_selected,
+      #                 width = "100%"
+      #               )
+      #             ),
+      #             br(), br(),
+      #           )
+      #         ),
+      #         fluidRow(
+      #           column(
+      #             width = 12,
+      #             align = "left",
+      #             br(),
+      #             div(
+      #               class = "mst-col-scale",
+      #               selectInput(
+      #                 "mst_col_scale",
+      #                 label = h4("Color Scale", style = "color:white; margin-bottom: 10px;"),
+      #                 choices = c("Viridis", "Rainbow"),
+      #                 selected = mst_col_scale_selected,
+      #                 width = "100%"
+      #               )
+      #             ),
+      #             br(), br()
+      #           )
+      #         )
+      #       )
+      #     )
+      #   )
+      # )
     ) 
   })
   
@@ -17401,6 +17062,8 @@ server <- function(input, output, session) {
       )
     ) 
   })
+  
+  ##### Sizing Menu ----
   
   scale_nodes_reactive <- reactiveVal(NULL)
   mst_node_scale_reactive <- reactiveVal(NULL)
@@ -17789,120 +17452,6 @@ server <- function(input, output, session) {
       )
     ) 
   })
-  
-  observeEvent(input$mst_download_menu, {
-    output$mst_controls <- renderUI(
-      box(
-        solidHeader = TRUE,
-        status = "primary",
-        width = "100%",
-        title = "Export",
-        column(
-          width = 12,
-          align = "center",
-          br(),
-          fluidRow(
-            column(
-              width = 6,
-              align = "left",
-              HTML(
-                paste(
-                  tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
-                            'Save plot as')
-                )
-              )
-            ),
-            column(
-              width = 6,
-              align = "center",
-              div(
-                class = "filetype-mst",
-                selectInput(
-                  inputId = "mst_plot_format",
-                  label = "",
-                  choices = c("html", "jpeg", "png", "bmp")
-                )
-              )
-            )
-          ),
-          fluidRow(
-            column(6),
-            column(
-              width = 6,
-              conditionalPanel(
-                "input.mst_plot_format=='jpeg'",
-                actionBttn(
-                  "save_plot_jpeg",
-                  style = "simple",
-                  label = "",
-                  size = "sm",
-                  icon =  icon("download"),
-                  color = "primary"
-                )  
-              ),
-              conditionalPanel(
-                "input.mst_plot_format=='png'",
-                actionBttn(
-                  "save_plot_png",
-                  style = "simple",
-                  label = "",
-                  size = "sm",
-                  icon =  icon("download"),
-                  color = "primary"
-                )
-              ),
-              conditionalPanel(
-                "input.mst_plot_format=='bmp'",
-                actionBttn(
-                  "save_plot_bmp",
-                  style = "simple",
-                  label = "",
-                  size = "sm",
-                  icon =  icon("download"),
-                  color = "primary"
-                )  
-              ),
-              conditionalPanel(
-                "input.mst_plot_format=='html'",
-                downloadBttn(
-                  "save_plot_html",
-                  style = "simple",
-                  label = "",
-                  size = "sm",
-                  icon =  icon("download"),
-                  color = "primary"
-                )
-              )    
-            )
-          ),
-          hr(), 
-          fluidRow(
-            column(
-              width = 6,
-              align = "left",
-              HTML(
-                paste(
-                  tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 17px',
-                            'Print Report')
-                )
-              )
-            ),
-            column(
-              width = 6,
-              align = "center",
-              actionButton(
-                "create_rep",
-                "",
-                icon = icon("file-waveform")
-              )
-            )
-          ),
-          br(), br()
-        )
-      )
-    ) 
-  })
-  
   
   ##### Other Menu ----
   
@@ -18372,6 +17921,126 @@ server <- function(input, output, session) {
     ) 
   })
   
+  ##### Export Menu ----
+  
+  observeEvent(input$mst_download_menu, {
+    output$mst_controls <- renderUI(
+      div(
+        class = "control-box",
+        box(
+          solidHeader = TRUE,
+          status = "primary",
+          width = "100%",
+          title = "Export",
+          fluidRow(
+            column(
+              width = 12,
+              align = "center",
+              br(),
+              fluidRow(
+                column(
+                  width = 6,
+                  align = "left",
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 14px; position: relative; left: 10px;',
+                                'Save plot as')
+                    )
+                  )
+                ),
+                column(
+                  width = 6,
+                  align = "center",
+                  div(
+                    class = "filetype-mst",
+                    selectInput(
+                      inputId = "mst_plot_format",
+                      label = "",
+                      choices = c("html", "jpeg", "png", "bmp")
+                    )
+                  )
+                )
+              ),
+              fluidRow(
+                column(6),
+                column(
+                  width = 6,
+                  conditionalPanel(
+                    "input.mst_plot_format=='jpeg'",
+                    actionBttn(
+                      "save_plot_jpeg",
+                      style = "simple",
+                      label = "",
+                      size = "sm",
+                      icon =  icon("download"),
+                      color = "primary"
+                    )  
+                  ),
+                  conditionalPanel(
+                    "input.mst_plot_format=='png'",
+                    actionBttn(
+                      "save_plot_png",
+                      style = "simple",
+                      label = "",
+                      size = "sm",
+                      icon =  icon("download"),
+                      color = "primary"
+                    )
+                  ),
+                  conditionalPanel(
+                    "input.mst_plot_format=='bmp'",
+                    actionBttn(
+                      "save_plot_bmp",
+                      style = "simple",
+                      label = "",
+                      size = "sm",
+                      icon =  icon("download"),
+                      color = "primary"
+                    )  
+                  ),
+                  conditionalPanel(
+                    "input.mst_plot_format=='html'",
+                    downloadBttn(
+                      "save_plot_html",
+                      style = "simple",
+                      label = "",
+                      size = "sm",
+                      icon =  icon("download"),
+                      color = "primary"
+                    )
+                  )    
+                )
+              ),
+              hr(), 
+              fluidRow(
+                column(
+                  width = 6,
+                  align = "left",
+                  HTML(
+                    paste(
+                      tags$span(style='color: white; font-size: 14px; position: relative; left: 10px; top: 17px',
+                                'Print Report')
+                    )
+                  )
+                ),
+                column(
+                  width = 6,
+                  align = "center",
+                  actionButton(
+                    "create_rep",
+                    "",
+                    icon = icon("file-waveform")
+                  )
+                )
+              ),
+              br(), br()
+            ) 
+          )
+        )
+      )
+    ) 
+  })
+  
   # Clustering UI
   output$mst_cluster <- renderUI({
     req(DB$schemeinfo)
@@ -18470,7 +18139,7 @@ server <- function(input, output, session) {
     )
   })
   
-  ### Plot Reactives ----
+  ### Plot Function ----
   
   #### MST ----
   
@@ -22019,7 +21688,7 @@ server <- function(input, output, session) {
     }
   })
   
-  #### Generate Plot ----
+  #### Make Plot ----
   
   # Get distances
   hamming_dist <- reactive({
@@ -22436,9 +22105,21 @@ server <- function(input, output, session) {
           
           log_print("Rendering NJ tree")
           
+          if(!is.null(input$nj_scale)) {
+            nj_scale <- input$nj_scale
+          } else {
+            nj_scale <- 600
+          }
+          
+          if(!is.null(input$nj_ratio)) {
+            nj_ratio <- input$nj_ratio
+          } else {
+            nj_ratio <- 16 / 10
+          }
+          
           output$nj_field <- renderUI({
             addSpinner(
-              plotOutput("tree_nj", width = paste0(as.character(as.numeric(input$nj_scale) * as.numeric(input$nj_ratio)), "px"), height = paste0(as.character(input$nj_scale), "px")),
+              plotOutput("tree_nj", width = paste0(as.character(as.numeric(nj_scale) * as.numeric(nj_ratio)), "px"), height = paste0(as.character(nj_scale), "px")),
               spin = "dots",
               color = "#ffffff"
             )
@@ -27382,16 +27063,6 @@ server <- function(input, output, session) {
   readLogFile <- reactive({
     invalidateLater(5000, session)
     readLines(file.path(logdir, "script_log.txt"))
-  })
-  
-  # Render sidebar dependent on data presence
-  # No sidebar
-  output$typing_sidebar <- renderUI({
-    if(!is.null(DB$exist)) {
-      if(DB$exist) {
-        NULL
-      } else {NULL}
-    }
   })
   
   # No db typing message

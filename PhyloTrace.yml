@@ -26,7 +26,6 @@ dependencies:
   - r-r.oo=1.25.0
   - r-r.utils=2.12.3
   - r-r6=2.5.1
-  - r-rcolorbrewer=1.1_3
   - r-rcpp=1.0.11
   - r-anytime=0.3.9
   - r-ape=5.7_1
@@ -170,7 +169,7 @@ dependencies:
   - r-viridis=0.6.5
   - r-viridisLite=0.4.2
   - r-vroom=1.6.4
-  - r-waiter 0.2.5
+  - r-waiter=0.2.5
   - r-webshot=0.5.5
   - r-withr=2.5.1
   - r-xfun=0.47
