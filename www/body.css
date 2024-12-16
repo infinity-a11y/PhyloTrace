@@ -805,6 +805,11 @@ button#reload_db.btn.btn-default.action-button.shiny-bound-input {
   width: 121px
 }
 
+#scheme_selector {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
 .irs.irs--shiny.js-irs-0 {
   margin-right: -15px;
 }
@@ -1260,7 +1265,7 @@ i.far.fa-pen-to-square {
 }
 
 .pretty input:checked~.state.p-primary label:after {
-  top: -2px;
+  top: -1px;
 }
 
 #download_na_matrix_bttn > i {

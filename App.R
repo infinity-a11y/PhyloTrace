@@ -2152,7 +2152,7 @@ server <- function(input, output, session) {
                                           paste0(gsub(" ", "_", DB$scheme), ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
                     
                     if(!is.null(last_file_change)) {
-                      if(length(last_file_change) > 0) {
+                      if(length(last_file_change) > 0 & length(last_scheme_change) > 0) {
                         if(last_file_change < last_scheme_change) {
                           showModal(
                             div(
