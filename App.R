@@ -161,6 +161,7 @@ ui <- dashboardPage(
   ),
   
   dashboardBody(
+    div(id = "blocking-overlay"),
     tags$head(tags$link(rel = "shortcut icon", href = "pt_small_icon.png")),
     shinyjs::useShinyjs(),
     
@@ -673,7 +674,7 @@ ui <- dashboardPage(
           column(
             width = 5,
             align = "left",
-            uiOutput("test")
+            uiOutput("cgmlst_scheme_table")
           ),
           column(
             width = 5,
@@ -879,18 +880,16 @@ server <- function(input, output, session) {
     }
   })
   
-  # Function to determine entry table height
-  table_height <- reactive({
-    if (input$table_height == TRUE) {
-      NULL
-    } else {900}
-  })
-  
-  # Function to determine distance matrix height
-  distancematrix_height <- reactive({
-    if(DB$distancematrix_nrow > 33) {
-      800
-    } else {NULL}
+  entry_table_height <- reactive({
+    if(!is.null(DB$data)) {
+      if(nrow(DB$data) > 24){
+        height <- 600
+      } else {
+        height <- NULL
+      }
+    } else {
+      height <- NULL
+    }
   })
   
   # Function to check for duplicate isolate IDs for multi typing start
@@ -1363,6 +1362,8 @@ server <- function(input, output, session) {
   ### Load app event ----
   
   observeEvent(input$load, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     
     waiter_show(html = waiting_screen, color = "#384555")
     
@@ -2804,11 +2805,7 @@ server <- function(input, output, session) {
                       fluidRow(
                         column(
                           width = 12,
-                          addSpinner(
-                            rHandsontableOutput("db_entries"),
-                            spin = "dots",
-                            color = "#ffffff"
-                          )
+                          rHandsontableOutput("db_entries")
                         ),
                         br(),
                         column(
@@ -3023,7 +3020,8 @@ server <- function(input, output, session) {
                                 rowHeaders = NULL,
                                 highlightCol = TRUE, 
                                 highlightRow = TRUE,
-                                contextMenu = FALSE
+                                contextMenu = FALSE,
+                                height = entry_table_height()
                               )  %>%
                                 hot_col((14 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)), 
                                         valign = "htMiddle",
@@ -3183,7 +3181,8 @@ server <- function(input, output, session) {
                                 error_highlight = err_thresh() - 1,
                                 contextMenu = FALSE,
                                 highlightCol = TRUE, 
-                                highlightRow = TRUE
+                                highlightRow = TRUE,
+                                height = entry_table_height()
                               ) %>%
                                 hot_cols(fixedColumnsLeft = 1) %>%
                                 hot_col(1, 
@@ -3312,7 +3311,7 @@ server <- function(input, output, session) {
                         }
                       } else {
                         if (length(input$compare_select) > 0) {
-                          if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height) & !is.null(input$compare_select)) {
+                          if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
                             output$db_entries <- renderRHandsontable({
                               
                               entry_data <- DB$data %>%
@@ -3323,7 +3322,7 @@ server <- function(input, output, session) {
                                 entry_data,
                                 col_highlight = diff_allele() - 1,
                                 rowHeaders = NULL,
-                                height = table_height(),
+                                height = entry_table_height(),
                                 row_highlight = true_rows() - 1,
                                 dup_names_high = duplicated_names() - 1,
                                 dup_ids_high = duplicated_ids() - 1,
@@ -3473,12 +3472,13 @@ server <- function(input, output, session) {
                             })    
                           }
                         } else {
-                          if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height)) {
+                          if(!is.null(DB$data) & !is.null(DB$cust_var)) {
                             output$db_entries <- renderRHandsontable({
+                              
                               rhandsontable(
                                 select(DB$data, 1:(13 + nrow(DB$cust_var))),
                                 rowHeaders = NULL,
-                                height = table_height(),
+                                height = entry_table_height(),
                                 dup_names_high = duplicated_names() - 1,
                                 dup_ids_high = duplicated_ids() - 1,
                                 row_highlight = true_rows() - 1,
@@ -3813,14 +3813,26 @@ server <- function(input, output, session) {
                     } else {
                       output$distancematrix_duplicated <- NULL
                       if(!is.null(DB$data) & !is.null(DB$allelic_profile) & !is.null(DB$allelic_profile_true) & !is.null(DB$cust_var) & !is.null(input$distmatrix_label) & !is.null(input$distmatrix_diag) & !is.null(input$distmatrix_triangle)) {
+                        dist_matrix <- hamming_df()
+                        
+                        req(dist_matrix)
+                        
                         output$db_distancematrix <- renderRHandsontable({
-                          rhandsontable(hamming_df(), 
+                          
+                          if(nrow(dist_matrix) > 28) {
+                            height <- 700
+                          } else {
+                            height <- NULL
+                          }
+                          
+                          rhandsontable(dist_matrix, 
                                         digits = 1, 
                                         readOnly = TRUE,
                                         contextMenu = FALSE,
                                         highlightCol = TRUE, 
                                         highlightRow = TRUE,
-                                        height = distancematrix_height(), rowHeaders = NULL) %>%
+                                        height = height, 
+                                        rowHeaders = NULL) %>%
                             hot_heatmap(renderer = paste0("
                             function (instance, td, row, col, prop, value, cellProperties) {
                               Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -4231,21 +4243,29 @@ server <- function(input, output, session) {
                       relocate("Assembly Name", "Errors")
                     
                     DB$na_table <- NA_table
-                    if(nrow(DB$na_table) < 31) {
-                      output$table_missing_values <- renderRHandsontable({
-                        rhandsontable(
-                          DB$na_table,
-                          readOnly = TRUE,
-                          rowHeaders = NULL,
-                          contextMenu = FALSE,
-                          highlightCol = TRUE, 
-                          highlightRow = TRUE,
-                          error_highlight = err_thresh_na() - 1
-                        ) %>%
-                          hot_cols(fixedColumnsLeft = 1) %>%
-                          hot_rows(fixedRowsTop = 0) %>%
-                          hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htLeft") %>%
-                          hot_col(2, renderer = "
+                    
+                    output$table_missing_values <- renderRHandsontable({
+                      
+                      if(nrow(DB$na_table) > 26) {
+                        height <- 650
+                      } else {
+                        height <- NULL
+                      }
+                      
+                      rhandsontable(
+                        DB$na_table,
+                        readOnly = TRUE,
+                        rowHeaders = NULL,
+                        contextMenu = FALSE,
+                        height = height,
+                        highlightCol = TRUE, 
+                        highlightRow = TRUE,
+                        error_highlight = err_thresh_na() - 1
+                      ) %>%
+                        hot_cols(fixedColumnsLeft = 1) %>%
+                        hot_rows(fixedRowsTop = 0) %>%
+                        hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htLeft") %>%
+                        hot_col(2, renderer = "
                             function (instance, td, row, col, prop, value, cellProperties) {
                               Handsontable.renderers.TextRenderer.apply(this, arguments);
                               if (instance.params) {
@@ -4256,8 +4276,8 @@ server <- function(input, output, session) {
                                 }
                               }
                             }") %>%
-                          hot_col(3:ncol(DB$na_table), renderer = htmlwidgets::JS(
-                            "function(instance, td, row, col, prop, value, cellProperties) {
+                        hot_col(3:ncol(DB$na_table), renderer = htmlwidgets::JS(
+                          "function(instance, td, row, col, prop, value, cellProperties) {
                                 if (value.length > 8) {
                                   value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
                                 }
@@ -4265,46 +4285,8 @@ server <- function(input, output, session) {
                                 td.style.textAlign = 'center';
                                 return td;
                                }"
-                          ))
-                      })
-                    } else {
-                      output$table_missing_values <- renderRHandsontable({
-                        rhandsontable(
-                          DB$na_table,
-                          readOnly = TRUE,
-                          rowHeaders = NULL,
-                          height = 800,
-                          contextMenu = FALSE,
-                          highlightCol = TRUE, 
-                          highlightRow = TRUE,
-                          error_highlight = err_thresh() - 1
-                        ) %>%
-                          hot_cols(fixedColumnsLeft = 1) %>%
-                          hot_rows(fixedRowsTop = 0) %>%
-                          hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htLeft") %>%
-                          hot_col(2, renderer = "
-                            function (instance, td, row, col, prop, value, cellProperties) {
-                              Handsontable.renderers.TextRenderer.apply(this, arguments);
-                              if (instance.params) {
-                                hrows = instance.params.error_highlight
-                                hrows = hrows instanceof Array ? hrows : [hrows]
-                                if (hrows.includes(row)) { 
-                                  td.style.backgroundColor = 'rgbA(255, 80, 1, 0.8)' 
-                                }
-                              }
-                            }") %>%
-                          hot_col(3:ncol(DB$na_table), renderer = htmlwidgets::JS(
-                            "function(instance, td, row, col, prop, value, cellProperties) {
-                                if (value.length > 8) {
-                                  value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
-                                }
-                                td.innerHTML = value;
-                                td.style.textAlign = 'center';
-                                return td;
-                               }"
-                          ))
-                      })
-                    }
+                        ))
+                    })
                   }
                 })
                 
@@ -4344,15 +4326,18 @@ server <- function(input, output, session) {
                         width = 12,
                         align = "left",
                         br(),
-                        prettyRadioButtons(
-                          "na_handling",
-                          "",
-                          choiceNames = c("Ignore missing values for pairwise comparison",
-                                          "Omit loci with missing values for all assemblies",
-                                          "Treat missing values as allele variant"),
-                          choiceValues = c("ignore_na", "omit", "category"),
-                          shape = "curve",
-                          selected = c("ignore_na")
+                        div(
+                          class = "na-handling",
+                          prettyRadioButtons(
+                            "na_handling",
+                            "",
+                            choiceNames = c("Ignore missing values for pairwise comparison",
+                                            "Omit loci with missing values for all assemblies",
+                                            "Treat missing values as allele variant"),
+                            choiceValues = c("ignore_na", "omit", "category"),
+                            shape = "curve",
+                            selected = c("ignore_na")
+                          )
                         ),
                         br()
                       )
@@ -4663,7 +4648,8 @@ server <- function(input, output, session) {
         )
       }
     }
-  
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
     waiter_hide()  
   })
   
@@ -5766,6 +5752,7 @@ server <- function(input, output, session) {
   
   # Change scheme
   observeEvent(input$reload_db, {
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     log_print("Input reload_db")
     
     if(tail(readLines(file.path(logdir, "script_log.txt")), 1)!= "0") {
@@ -5816,6 +5803,8 @@ server <- function(input, output, session) {
         )
       )
     }
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   # Create new database
@@ -5838,6 +5827,8 @@ server <- function(input, output, session) {
   
   # Undo db changes
   observeEvent(input$undo_changes, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     log_print("Input undo_changes")
     
     DB$inhibit_change <- FALSE
@@ -5984,7 +5975,8 @@ server <- function(input, output, session) {
                   rowHeaders = NULL,
                   highlightCol = TRUE, 
                   highlightRow = TRUE,
-                  contextMenu = FALSE
+                  contextMenu = FALSE,
+                  height = entry_table_height()
                 )  %>%
                   hot_col((14 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)), 
                           valign = "htMiddle",
@@ -6144,7 +6136,8 @@ server <- function(input, output, session) {
                   error_highlight = err_thresh() - 1,
                   contextMenu = FALSE,
                   highlightCol = TRUE, 
-                  highlightRow = TRUE
+                  highlightRow = TRUE,
+                  height = entry_table_height()
                 ) %>%
                   hot_cols(fixedColumnsLeft = 1) %>%
                   hot_col(1, 
@@ -6273,7 +6266,7 @@ server <- function(input, output, session) {
           }
         } else {
           if (length(input$compare_select) > 0) {
-            if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height) & !is.null(input$compare_select)) {
+            if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
               output$db_entries <- renderRHandsontable({
                 
                 entry_data <- DB$data %>%
@@ -6284,7 +6277,7 @@ server <- function(input, output, session) {
                   entry_data,
                   col_highlight = diff_allele() - 1,
                   rowHeaders = NULL,
-                  height = table_height(),
+                  height = entry_table_height(),
                   row_highlight = true_rows() - 1,
                   dup_names_high = duplicated_names() - 1,
                   dup_ids_high = duplicated_ids() - 1,
@@ -6434,12 +6427,13 @@ server <- function(input, output, session) {
               })    
             }
           } else {
-            if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$table_height)) {
+            if(!is.null(DB$data) & !is.null(DB$cust_var)) {
               output$db_entries <- renderRHandsontable({
+                
                 rhandsontable(
                   select(DB$data, 1:(13 + nrow(DB$cust_var))),
                   rowHeaders = NULL,
-                  height = table_height(),
+                  height = entry_table_height(),
                   dup_names_high = duplicated_names() - 1,
                   dup_ids_high = duplicated_ids() - 1,
                   row_highlight = true_rows() - 1,
@@ -6574,6 +6568,8 @@ server <- function(input, output, session) {
         }
       }
     })
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   observe({
@@ -6644,6 +6640,8 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_new_var, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     log_print("Input conf_new_var")
     
     # User feedback variables
@@ -6681,6 +6679,7 @@ server <- function(input, output, session) {
       timer = 6000
     )
     
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')  
   })
   
   observeEvent(input$delete_new_variable, {
@@ -6718,6 +6717,8 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_var_del, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     log_print("Input conf_var_del")
     
     DB$change <- TRUE
@@ -6745,6 +6746,9 @@ server <- function(input, output, session) {
     DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
     DB$allelic_profile_trunc <- as.data.frame(lapply(DB$allelic_profile, function(x) sapply(x, truncHash)))
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
+    
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   # Select all button
@@ -6920,6 +6924,9 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_db_save, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+    
     log_print("Input conf_db_save")
     
     # Remove isolate assembly file if present
@@ -6993,6 +7000,8 @@ server <- function(input, output, session) {
       position = "bottom-end",
       timer = 4000
     )
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   observeEvent(input$del_button, {
@@ -7058,6 +7067,8 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_delete_all, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     log_print("Input conf_delete_all")
     
     # remove file with typing data
@@ -7084,12 +7095,15 @@ server <- function(input, output, session) {
         )
       )
     )
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   DB$deleted_entries <- character(0)
   
   observeEvent(input$conf_delete, {
     
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     log_print("Input conf_delete")
     
     # Get isolates selected for deletion
@@ -7131,6 +7145,8 @@ server <- function(input, output, session) {
         timer = 4000
       )
     }
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   
@@ -7139,24 +7155,34 @@ server <- function(input, output, session) {
   hamming_df <- reactive({
     req(DB$data, DB$allelic_profile)
     
-    if(input$distmatrix_true == TRUE) {
-      if(anyNA(DB$allelic_profile)) {
-        if(input$na_handling == "omit") {
-          allelic_profile_noNA <- DB$allelic_profile[, colSums(is.na(DB$allelic_profile)) == 0]
-          
-          allelic_profile_noNA_true <- allelic_profile_noNA[which(DB$data$Include == TRUE),]
-          
-          hamming_mat <- compute.distMatrix(allelic_profile_noNA_true, hamming.dist)
-          
-        } else if(input$na_handling == "ignore_na"){
-          hamming_mat <- compute.distMatrix(DB$allelic_profile_true, hamming.distIgnore)
-          
+    if(isTRUE(input$distmatrix_true)) {
+      if(isTRUE(any(DB$data$Include == TRUE))) {
+        if(anyNA(DB$allelic_profile)) {
+          if(input$na_handling == "omit") {
+            allelic_profile_noNA <- DB$allelic_profile[, colSums(is.na(DB$allelic_profile)) == 0]
+            
+            allelic_profile_noNA_true <- allelic_profile_noNA[which(DB$data$Include == TRUE),]
+            
+            hamming_mat <- compute.distMatrix(allelic_profile_noNA_true, hamming.dist)
+            
+          } else if(input$na_handling == "ignore_na"){
+            hamming_mat <- compute.distMatrix(DB$allelic_profile_true, hamming.distIgnore)
+            
+          } else {
+            hamming_mat <- compute.distMatrix(DB$allelic_profile_true, hamming.distCategory)
+            
+          } 
         } else {
-          hamming_mat <- compute.distMatrix(DB$allelic_profile_true, hamming.distCategory)
-          
-        } 
+          hamming_mat <- compute.distMatrix(DB$allelic_profile_true, hamming.dist)
+        }
       } else {
-        hamming_mat <- compute.distMatrix(DB$allelic_profile_true, hamming.dist)
+        show_toast(
+          title = "No isolates selected",
+          type = "warning",
+          position = "bottom-end",
+          timer = 2000
+        )
+        return(NULL)
       }
     } else {
       if(anyNA(DB$allelic_profile)) {
@@ -7171,33 +7197,33 @@ server <- function(input, output, session) {
       } else {
         hamming_mat <- compute.distMatrix(DB$allelic_profile, hamming.dist)
       }
+      
+      
+      # Extreme values for distance matrix heatmap display
+      DB$matrix_min <- min(hamming_mat, na.rm = TRUE)
+      DB$matrix_max <- max(hamming_mat, na.rm = TRUE)
+      
+      if(input$distmatrix_triangle == FALSE) {
+        hamming_mat[upper.tri(hamming_mat, diag = !input$distmatrix_diag)] <- NA
+      } 
+      
+      # Row- and colnames change
+      if(input$distmatrix_true == TRUE) {
+        rownames(hamming_mat) <- unlist(DB$data[input$distmatrix_label][which(DB$data$Include == TRUE),])
+      } else {
+        rownames(hamming_mat) <- unlist(DB$data[input$distmatrix_label])
+      }
+      colnames(hamming_mat) <- rownames(hamming_mat)
+      
+      mode(hamming_mat) <- "integer"
+      
+      DB$ham_matrix <- hamming_mat %>%
+        as.data.frame() %>%
+        mutate(Index = colnames(hamming_mat)) %>%
+        relocate(Index)
+      
+      return(DB$ham_matrix)
     }
-    
-    # Extreme values for distance matrix heatmap display
-    DB$matrix_min <- min(hamming_mat, na.rm = TRUE)
-    DB$matrix_max <- max(hamming_mat, na.rm = TRUE)
-    
-    if(input$distmatrix_triangle == FALSE) {
-      hamming_mat[upper.tri(hamming_mat, diag = !input$distmatrix_diag)] <- NA
-    } 
-    
-    # Row- and colnames change
-    if(input$distmatrix_true == TRUE) {
-      rownames(hamming_mat) <- unlist(DB$data[input$distmatrix_label][which(DB$data$Include == TRUE),])
-    } else {
-      rownames(hamming_mat) <- unlist(DB$data[input$distmatrix_label])
-    }
-    colnames(hamming_mat) <- rownames(hamming_mat)
-    
-    mode(hamming_mat) <- "integer"
-    
-    DB$ham_matrix <- hamming_mat %>%
-      as.data.frame() %>%
-      mutate(Index = colnames(hamming_mat)) %>%
-      relocate(Index)
-    DB$distancematrix_nrow <- nrow(DB$ham_matrix)
-    
-    DB$ham_matrix
   })
   
   output$download_distmatrix <- downloadHandler(
@@ -7486,6 +7512,8 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$download_cgMLST, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     log_print(paste0("Started download of scheme for ", Scheme$folder_name))
     
     show_toast(
@@ -7761,6 +7789,7 @@ server <- function(input, output, session) {
     # Disable pickerInput
     shinyjs::runjs("$('#select_cgmlst').prop('disabled', false);")
     shinyjs::runjs("$('#select_cgmlst').selectpicker('refresh');")  
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   
@@ -7878,7 +7907,7 @@ server <- function(input, output, session) {
       
       shinyjs::enable("download_cgMLST")
       
-      output$test <- renderUI(
+      output$cgmlst_scheme_table <- renderUI(
         addSpinner(
           tableOutput("cgmlst_scheme"),
           spin = "dots",
@@ -16568,6 +16597,8 @@ server <- function(input, output, session) {
   
   observeEvent(input$mst_label_menu, {
     
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+    
     if(!is.null(mst_title_reactive())) {
       mst_title_selected <- mst_title_reactive()
     } else {
@@ -16642,6 +16673,8 @@ server <- function(input, output, session) {
         br(), br()
       )
     ) 
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   
@@ -16666,6 +16699,8 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$mst_variable_menu, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     
     if(!is.null(mst_color_var_reactive())) {
       mst_color_var_selected <- mst_color_var_reactive()
@@ -16844,6 +16879,8 @@ server <- function(input, output, session) {
       #   )
       # )
     ) 
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   ##### Color Menu ----
@@ -16877,6 +16914,8 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$mst_color_menu, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     
     if(!is.null(mst_text_color_reactive())) {
       mst_text_color_selected <-  mst_text_color_reactive()
@@ -17061,6 +17100,8 @@ server <- function(input, output, session) {
         )
       )
     ) 
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   ##### Sizing Menu ----
@@ -17119,6 +17160,8 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$mst_size_menu, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     
     if(!is.null(node_label_fontsize_reactive())) {
       node_label_fontsize_selected <- node_label_fontsize_reactive()
@@ -17451,6 +17494,8 @@ server <- function(input, output, session) {
         )
       )
     ) 
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   ##### Other Menu ----
@@ -17519,6 +17564,8 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$mst_misc_menu, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     
     if(!is.null(mst_ratio_reactive())) {
       mst_ratio_selected <- mst_ratio_reactive()
@@ -17919,11 +17966,16 @@ server <- function(input, output, session) {
         )
       )
     ) 
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   ##### Export Menu ----
   
   observeEvent(input$mst_download_menu, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+    
     output$mst_controls <- renderUI(
       div(
         class = "control-box",
@@ -18039,6 +18091,8 @@ server <- function(input, output, session) {
         )
       )
     ) 
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   # Clustering UI
@@ -22032,6 +22086,8 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$create_tree, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     log_print("Input create_tree")
     
     if(is.null(DB$data)) {
@@ -22516,6 +22572,8 @@ server <- function(input, output, session) {
         }
       }
     }
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   # _______________________ ####
@@ -22538,6 +22596,8 @@ server <- function(input, output, session) {
   ### Report creation UI ----
   
   observeEvent(input$create_rep, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     
     if((input$tree_algo == "Minimum-Spanning" & isTRUE(Vis$mst_true)) |
        (input$tree_algo == "UPGMA" & isTRUE(Vis$upgma_true)) |
@@ -22935,6 +22995,8 @@ server <- function(input, output, session) {
         timer = 6000
       )
     }
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   observe({
@@ -23017,6 +23079,9 @@ server <- function(input, output, session) {
   #### Get Report values ----
   
   observeEvent(input$create_tree, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+    
     if(input$tree_algo == "Minimum-Spanning") {
       Report$report_list_mst <- list(entry_table = DB$meta_true,
                                      scheme = DB$schemeinfo, 
@@ -23042,6 +23107,8 @@ server <- function(input, output, session) {
                                        version = c(phylotraceVersion, "2.5.1"),
                                        plot = "UPGMA")
     }
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   # Save plot for Report
@@ -23611,6 +23678,8 @@ server <- function(input, output, session) {
   
   observeEvent(input$gs_data_menu, {
     
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+    
     if(!is.null(input_gsplot_isolate_label())) {
       gsplot_isolate_label_selected <- input_gsplot_isolate_label()
     } else {
@@ -23874,10 +23943,14 @@ server <- function(input, output, session) {
         )
       )
     )
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   # color menu
   observeEvent(input$gs_color_menu, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     
     if(!is.null(gsplot_color_text())) {
       gsplot_color_text_selected <- gsplot_color_text()
@@ -24092,6 +24165,8 @@ server <- function(input, output, session) {
         )
       )
     })  
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   # variable mapping menu
@@ -24099,6 +24174,9 @@ server <- function(input, output, session) {
   input_gs_vir_variables <- reactive({input$gs_vir_variables}) %>% debounce(1000)
    
   observeEvent(input$gs_variable_menu, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+    
     output$gs_plot_control_ui <- renderUI({
       
       if(!is.null(input_gs_amr_variables())) {
@@ -24298,6 +24376,8 @@ server <- function(input, output, session) {
         )
       )
     })
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   # sizing menu
@@ -24308,6 +24388,9 @@ server <- function(input, output, session) {
   input_gsplot_treeheight_row <- reactive({input$gsplot_treeheight_row}) %>% debounce(1000)
   
   observeEvent(input$gs_size_menu, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+    
     output$gs_plot_control_ui <- renderUI({
       
       if(!is.null(input_gsplot_grid_width())) {
@@ -24485,10 +24568,15 @@ server <- function(input, output, session) {
         )
       )
     })
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   # download menu
   observeEvent(input$gs_download_menu, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+    
     output$gs_plot_control_ui <- renderUI({
       div(
         class = "gs-plot-box4",
@@ -24539,6 +24627,8 @@ server <- function(input, output, session) {
         )
       )
     })
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
  
   input_gs_ratio <- reactive({input$gs_ratio}) %>% debounce(1000)
@@ -24552,6 +24642,9 @@ server <- function(input, output, session) {
   
   # miscellaneous menu
   observeEvent(input$gs_misc_menu, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+    
     output$gs_plot_control_ui <- renderUI({
       
       if(!is.null(input_gs_ratio())) {
@@ -24857,6 +24950,8 @@ server <- function(input, output, session) {
         )
       )
     })
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   }) 
   
   # gs classification scale 
@@ -25843,6 +25938,8 @@ server <- function(input, output, session) {
   
   # Reset screening 
   observeEvent(input$screening_reset_bttn, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     log_print("Reset gene screening")
     
     # reset status file
@@ -25866,6 +25963,8 @@ server <- function(input, output, session) {
     # enable isolate picker
     shinyjs::delay(200, shinyjs::runjs("$('#screening_select').prop('disabled', false);"))
     shinyjs::delay(200, shinyjs::runjs("$('#screening_select').selectpicker('refresh');"))
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   # Cancel screening
@@ -25890,6 +25989,8 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_screening_cancel, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     log_print("Cancelled gene screening")
     removeModal()
     
@@ -25924,6 +26025,8 @@ server <- function(input, output, session) {
     # disable isolate picker
     shinyjs::delay(200, shinyjs::runjs("$('#screening_select').prop('disabled', false);"))
     shinyjs::delay(200, shinyjs::runjs("$('#screening_select').selectpicker('refresh');"))
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   # Get selected assembly
@@ -27780,6 +27883,8 @@ server <- function(input, output, session) {
   
   observeEvent(input$conf_meta_single, {
     
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+    
     if(nchar(trimws(input$assembly_id)) < 1) {
       ass_id <- as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name)))
     } else {
@@ -27905,11 +28010,15 @@ server <- function(input, output, session) {
         )
       })
     }
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   ####  Events Single Typing ----
   
   observeEvent(input$reset_single_typing, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     log_print("Reset single typing")
     
     Typing$status <- "Inactive"
@@ -27978,6 +28087,8 @@ server <- function(input, output, session) {
         )
       )
     })
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   # Notification for finalized Single typing
@@ -28497,6 +28608,8 @@ server <- function(input, output, session) {
   # Confirm typing metadata
   observeEvent(input$conf_meta_multi, {
     
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+    
     multi_select_table <- hot_to_r(input$multi_select_table)[which(hot_to_r(input$multi_select_table)$Include == TRUE), ]
     
     if(any(unlist(gsub(".fasta|.fna|.fa|.fasta.gz|.fna.gz|.fa.gz", "", multi_select_table$Files)) %in% unlist(DB$data["Assembly ID"]))) {
@@ -28618,6 +28731,8 @@ server <- function(input, output, session) {
         )
       )
     }
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   # Set reactive variable to distinguish files/folder selection
@@ -28693,6 +28808,8 @@ server <- function(input, output, session) {
   
   # Confirm Reset after 
   observeEvent(input$conf_multi_kill, {
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     removeModal()
     
     log_print("Kill multi typing")
@@ -28726,6 +28843,7 @@ server <- function(input, output, session) {
     
     output$initiate_multi_typing_ui <- initiate_multi_typing_ui
     
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')  
   })
   
   observeEvent(input$start_typ_multi, {

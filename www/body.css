@@ -96,6 +96,18 @@ table {
   right: 5px;  
 }
 
+#blocking-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0);
+  z-index: 9999;
+  cursor: wait;
+}
+
 .popover {
   max-width: 300px;
  text-align: justify;
@@ -1266,6 +1278,10 @@ i.far.fa-pen-to-square {
 
 .pretty input:checked~.state.p-primary label:after {
   top: -1px;
+}
+
+.na-handling .pretty input:checked~.state.p-primary label:after {
+  top: -2px;
 }
 
 #download_na_matrix_bttn > i {

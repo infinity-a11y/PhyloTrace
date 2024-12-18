@@ -1,3 +1,12 @@
+// showing and hiding the blocking overlay during computation
+Shiny.addCustomMessageHandler('show_overlay', function(message) {
+  document.getElementById('blocking-overlay').style.display = 'block';
+});
+
+Shiny.addCustomMessageHandler('hide_overlay', function(message) {
+  document.getElementById('blocking-overlay').style.display = 'none';
+});
+
 // Disable menu item collapse
 function noCollapse() {
   $('#menu_typing > li.treeview > a').addClass('non-collapsible');
