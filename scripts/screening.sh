@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd execute
+cd "$HOME/.local/share/phylotrace/scripts"
 source ~/miniconda3/etc/profile.d/conda.sh
 conda activate PhyloTrace
 unset R_HOME
@@ -18,8 +18,8 @@ database=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'database'])")
 scheme=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'scheme'])")
 
 # Remove the existing directory (if it exists)
-if [ -d "$base_path/execute/screening" ]; then
-    rm -r "$base_path/execute/screening"
+if [ -d "$HOME/.local/share/phylotrace/scripts/screening" ]; then
+    rm -r "$HOME/.local/share/phylotrace/scripts/screening"
 fi
 
 isolates=($selected)
