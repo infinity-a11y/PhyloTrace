@@ -1,6 +1,4 @@
 #!/bin/bash
-unset R_HOME
-
 log_file="$HOME/.local/share/phylotrace/logs/script_log.txt"
 blat_multi="$HOME/.local/share/phylotrace/scripts/multi_typing.sh"
 automatic_typing='multi_eval.R'

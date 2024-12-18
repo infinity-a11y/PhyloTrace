@@ -1,9 +1,5 @@
 #!/bin/bash
-
 cd "$HOME/.local/share/phylotrace/scripts"
-source ~/miniconda3/etc/profile.d/conda.sh
-conda activate PhyloTrace
-unset R_HOME
 
 # Check if abritamr binary exists in the expected path
 if [[ -f ~/.conda/envs/PhyloTrace/bin/abritamr ]]; then
