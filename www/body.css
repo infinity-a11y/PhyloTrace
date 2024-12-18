@@ -323,6 +323,10 @@ body > div.pcr-app.pickr-color.visible {
   padding: 0px;
 }
 
+.modal-element {
+  margin-left: 15px;
+}
+
 .start-modal .modal-body,
 .load-modal .modal-body {
   background-color: #394657eb;
@@ -503,6 +507,10 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
 
 .handsontableInput {
   box-shadow: inset 0 0 0 2px #20e6e5;
+}
+
+.modal-body table.dataTable thead>tr>th.sorting {
+  padding-right: 0px;
 }
 
 .handsontable .wtBorder.current {
@@ -2497,6 +2505,11 @@ dropdown-menu .open {
   background: white;
   border-radius: 5px;
   border: 1px solid #42536acc;
+}
+
+#delete_select > div > div > div,
+#compare_select > div > div > div > div{
+  width: max-content;
 }
 
 .gs-plot-selected-isolate .open > .dropdown-menu .inner,

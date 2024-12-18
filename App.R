@@ -1686,8 +1686,23 @@ server <- function(input, output, session) {
           div(
             class = "start-modal",
             modalDialog(
-              paste("Download a cgMLST scheme to add a new folder in the database directory.",
-                    "Multiple schemes can be downloaded and included in one database."),
+              fluidRow(
+                br(), 
+                column(
+                  width = 11,
+                  p(
+                    HTML(
+                      paste0(
+                        '<span style="color: white; display: block; font-size: 15px; margin-left: 15px; display: block;">',
+                        "Download a cgMLST scheme to add a new folder in the database directory.",
+                        "Multiple schemes can be downloaded and included in one database.",
+                        '</span>'
+                      )
+                    )
+                  )
+                ),
+                br()
+              ),
               title = paste("Set Up New Database"),
               fade = TRUE,
               easyClose = TRUE,
@@ -1849,9 +1864,24 @@ server <- function(input, output, session) {
               div(
                 class = "start-modal",
                 modalDialog(
-                  paste0("No loci files are present in the local ", 
-                         DB$scheme, 
-                         " folder. Download the scheme again (no influence on already typed assemblies)."),
+                  fluidRow(
+                    br(), 
+                    column(
+                      width = 11,
+                      p(
+                        HTML(
+                          paste0(
+                            '<span style="color: white; font-size: 15px; margin-left: 15px; display: block;">',
+                            "No loci files are present in the local ", 
+                            DB$scheme, 
+                            " folder. Download the scheme again (no influence on already typed assemblies).",
+                            '</span>'
+                          )
+                        )
+                      )
+                    ),
+                    br()
+                  ),
                   title = "Local Database Error",
                   fade = TRUE,
                   easyClose = TRUE,
@@ -1950,9 +1980,24 @@ server <- function(input, output, session) {
               div(
                 class = "start-modal",
                 modalDialog(
-                  paste0("Scheme info of the local ", 
-                         DB$scheme, 
-                         " database is missing. Download the scheme again (no influence on already typed assemblies)."),
+                  fluidRow(
+                    br(), 
+                    column(
+                      width = 11,
+                      p(
+                        HTML(
+                          paste0(
+                            '<span style="color: white; font-size: 15px; display: block; margin-left: 15px;">',
+                            "Scheme info of the local ", 
+                            DB$scheme, 
+                            " database is missing. Download the scheme again (no influence on already typed assemblies).",
+                            '</span>'
+                          )
+                        )
+                      )
+                    ),
+                    br()
+                  ),
                   title = "Local Database Error",
                   fade = TRUE,
                   easyClose = TRUE,
@@ -2159,11 +2204,26 @@ server <- function(input, output, session) {
                             div(
                               class = "start-modal",
                               modalDialog(
-                                paste0("The ", DB$scheme, " scheme was updated at ",
-                                       last_scheme_change,
-                                       " on the ",
-                                       DB$schemeinfo[,2][DB$schemeinfo[,1] == "Database"],
-                                       " database. To fetch the changes download the scheme."),
+                                fluidRow(
+                                  br(), 
+                                  column(
+                                    width = 11,
+                                    p(
+                                      HTML(
+                                        paste0(
+                                          '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                                          "The ", DB$scheme, " scheme was updated at ",
+                                          last_scheme_change,
+                                          " on the ",
+                                          DB$schemeinfo[,2][DB$schemeinfo[,1] == "Database"],
+                                          " database. To fetch the changes download the scheme.",
+                                          '</span>'
+                                        )
+                                      )
+                                    )
+                                  ),
+                                  br()
+                                ),
                                 title = HTML(paste0(
                                   '<i class="fa-solid fa-circle-exclamation" style="font-size:17px;color:white"></i>',
                                   " &nbsp;&nbsp; Scheme update available")),
@@ -2195,9 +2255,24 @@ server <- function(input, output, session) {
                 div(
                   class = "start-modal",
                   modalDialog(
-                    paste0("Scheme info file is missing in the local ", 
-                           DB$scheme, 
-                           " folder. Download the scheme again (no influence on already typed assemblies)."),
+                    fluidRow(
+                      br(), 
+                      column(
+                        width = 11,
+                        p(
+                          HTML(
+                            paste0(
+                              '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                              "Scheme info file is missing in the local ", 
+                              DB$scheme, 
+                              " folder. Download the scheme again (no influence on already typed assemblies).",
+                              '</span>'
+                            )
+                          )
+                        )
+                      ),
+                      br()
+                    ),
                     title = "Local Database Error",
                     fade = TRUE,
                     easyClose = TRUE,
@@ -2219,9 +2294,24 @@ server <- function(input, output, session) {
                 div(
                   class = "start-modal",
                   modalDialog(
-                    paste0("Some loci files are missing in the local ", 
-                           DB$scheme, 
-                           " folder. Download the scheme again (no influence on already typed assemblies)."),
+                    fluidRow(
+                      br(), 
+                      column(
+                        width = 11,
+                        p(
+                          HTML(
+                            paste0(
+                              '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                              "Some loci files are missing in the local ", 
+                              DB$scheme, 
+                              " folder. Download the scheme again (no influence on already typed assemblies).",
+                              '</span>'
+                            )
+                          )
+                        )
+                      ),
+                      br()
+                    ),
                     title = "Local Database Error",
                     fade = TRUE,
                     easyClose = TRUE,
@@ -5454,7 +5544,7 @@ server <- function(input, output, session) {
     
     if (!is.null(DB$available)) {
       output$scheme_db <- renderUI({
-        if (length(DB$available) > 5) {
+        if (length(DB$available) > 3) {
           selectInput(
             "scheme_db",
             label = "",
@@ -5592,7 +5682,7 @@ server <- function(input, output, session) {
               p(
                 HTML(
                   paste0(
-                    '<span style="color: white; font-size: 15px; margin-left: 15px;">',
+                    '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
                     'Are you sure you want to stop the application?',
                     '</span>'
                   )
@@ -5630,7 +5720,7 @@ server <- function(input, output, session) {
               p(
                 HTML(
                   paste0(
-                    '<span style="color: white; font-size: 15px; margin-left: 15px;">',
+                    '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
                     'For help refer to the ',
                     '<a href="https://www.phylotrace.com/user-manual" target="_blank">User Manual</a>',
                     '.',
@@ -5641,7 +5731,7 @@ server <- function(input, output, session) {
               p(
                 HTML(
                   paste0(
-                    '<span style="color: white; font-size: 15px; margin-left: 15px;">',
+                    '<span style="color: white; display: block; font-size: 15px; margin-left: 15px; display: block">',
                     'If issues persist or for any other inquiries contact us at <a href="mailto:info@phylotrace.com">info@phylotrace.com</a>.',
                     '</span>'
                   )
@@ -5673,7 +5763,7 @@ server <- function(input, output, session) {
               p(
                 HTML(
                   paste0(
-                    '<span style="color: white; font-size: 15px; margin-left: 15px;">',
+                    '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
                     'Coming soon ... ',
                     '</span>'
                   )
@@ -5781,16 +5871,30 @@ server <- function(input, output, session) {
         div(
           class = "start-modal",
           modalDialog(
-            column(
-              width = 12,
-              HTML("Select available scheme"),
-              selectInput(
-                "scheme_db",
-                label = "",
-                choices = DB$available,
-                selected = DB$scheme
+            fluidRow(
+              br(), 
+              column(
+                width = 11,
+                p(
+                  HTML(
+                    paste0(
+                      '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                      'Select available scheme',
+                      '</span>'
+                    )
+                  )
+                ),
+                div(
+                  class = "modal-element",
+                  selectInput(
+                    "scheme_db",
+                    label = "",
+                    choices = DB$available,
+                    selected = DB$scheme
+                  )
+                ),
+                br()
               ),
-              br(),
               br()
             ),
             title = "Load Database",
@@ -6620,11 +6724,31 @@ server <- function(input, output, session) {
             div(
               class = "start-modal",
               modalDialog(
-                selectInput(
-                  "new_var_type",
-                  label = "",
-                  choices = c("Categorical (character)",
-                              "Continous (numeric)")),
+                fluidRow(
+                  br(), 
+                  column(
+                    width = 11,
+                    p(
+                      HTML(
+                        paste0(
+                          '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                          'Choose variable type',
+                          '</span>'
+                        )
+                      )
+                    ),
+                    div(
+                      class = "modal-element",
+                      selectInput(
+                        "new_var_type",
+                        label = "",
+                        choices = c("Categorical (character)",
+                                    "Continous (numeric)")
+                      )
+                    )
+                  ),
+                  br()
+                ),
                 title = "Select Data Type",
                 easyClose = TRUE,
                 footer = tagList(
@@ -6698,10 +6822,23 @@ server <- function(input, output, session) {
         div(
           class = "start-modal",
           modalDialog(
-            paste0(
-              "Confirmation will lead to irreversible deletion of the custom ",
-              input$del_which_var,
-              " variable. Continue?"
+            fluidRow(
+              br(), 
+              column(
+                width = 11,
+                p(
+                  HTML(
+                    paste0(
+                      '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                      "Confirmation will lead to irreversible deletion of the custom ",
+                      input$del_which_var,
+                      " variable. Continue?",
+                      '</span>'
+                    )
+                  )
+                )
+              ),
+              br()
             ),
             title = "Delete custom variables",
             fade = TRUE,
@@ -6884,16 +7021,42 @@ server <- function(input, output, session) {
             class = "start-modal",
             modalDialog(
               if(length(DB$deleted_entries > 0)) {
-                paste0(
-                  "Overwriting previous metadata of local ",
-                  DB$scheme,
-                  " database. Deleted entries will be irreversibly removed. Continue?"
+                fluidRow(
+                  br(), 
+                  column(
+                    width = 11,
+                    p(
+                      HTML(
+                        paste0(
+                          '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                          "Overwriting previous metadata of local ",
+                          DB$scheme,
+                          " database. Deleted entries will be irreversibly removed. Continue?",
+                          '</span>'
+                        )
+                      )
+                    )
+                  ),
+                  br()
                 )
               } else {
-                paste0(
-                  "Overwriting previous metadata of local ",
-                  DB$scheme,
-                  " database. Continue?"
+                fluidRow(
+                  br(), 
+                  column(
+                    width = 11,
+                    p(
+                      HTML(
+                        paste0(
+                          '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                          "Overwriting previous metadata of local ",
+                          DB$scheme,
+                          " database. Continue?",
+                          '</span>'
+                        )
+                      )
+                    )
+                  ),
+                  br()
                 )
               },
               title = "Save Database",
@@ -7031,7 +7194,24 @@ server <- function(input, output, session) {
           div(
             class = "start-modal",
             modalDialog(
-              HTML(paste0("Deleting will lead to removal of <strong>ALL entries</strong> and assemblies from local ", DB$scheme, " database. The data can not be recovered afterwards. Continue?")),
+              fluidRow(
+                br(), 
+                column(
+                  width = 11,
+                  p(
+                    HTML(
+                      paste0(
+                        '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                        "Deleting will lead to removal of <strong>ALL entries</strong> and assemblies from local ", 
+                        DB$scheme, 
+                        " database. The data can not be recovered afterwards. Continue?",
+                        '</span>'
+                      )
+                    )
+                  )
+                ),
+                br()
+              ),
               easyClose = TRUE,
               title = "Deleting Entries",
               footer = tagList(
@@ -7046,8 +7226,21 @@ server <- function(input, output, session) {
           div(
             class = "start-modal",
             modalDialog(
-              paste0(
-                "Confirmation will lead to irreversible removal of selected entries and the respectively saved assembly. Continue?"
+              fluidRow(
+                br(), 
+                column(
+                  width = 11,
+                  p(
+                    HTML(
+                      paste0(
+                        '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                        "Confirmation will lead to irreversible removal of selected entries and the respectively saved assembly. Continue?",
+                        '</span>'
+                      )
+                    )
+                  )
+                ),
+                br()
               ),
               title = "Deleting Entries",
               fade = TRUE,
@@ -7079,16 +7272,36 @@ server <- function(input, output, session) {
       div(
         class = "start-modal",
         modalDialog(
-          selectInput(
-            "scheme_db",
-            label = "",
-            choices = if(!is.null(Typing$last_scheme)) {
-              Typing$last_scheme
-            } else {DB$available},
-            selected = if(!is.null(Typing$last_scheme)) {
-              Typing$last_scheme
-            } else {if(!is.null(DB$scheme)) {DB$scheme} else {DB$available[1]}}),
-          title = "All entries have been removed. Select a local database to load.",
+          fluidRow(
+            br(), 
+            column(
+              width = 11,
+              p(
+                HTML(
+                  paste0(
+                    '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                    'All entries have been removed. Select a local database to load.',
+                    '</span>'
+                  )
+                )
+              ),
+              div(
+                class = "modal-element",
+                selectInput(
+                  "scheme_db",
+                  label = "",
+                  choices = if(!is.null(Typing$last_scheme)) {
+                    Typing$last_scheme
+                  } else {DB$available},
+                  selected = if(!is.null(Typing$last_scheme)) {
+                    Typing$last_scheme
+                  } else {if(!is.null(DB$scheme)) {DB$scheme} else {DB$available[1]}}
+                )
+              )
+            ),
+            br()
+          ),
+          title = "Load Database",
           footer = tagList(
             actionButton("load", "Load", class = "load-db", width = "100px")
           )
@@ -7769,16 +7982,36 @@ server <- function(input, output, session) {
       div(
         class = "load-modal",
         modalDialog(
-          selectInput(
-            "scheme_db",
-            label = "",
-            choices = if(!is.null(Typing$last_scheme)) {
-              Typing$last_scheme
-            } else {DB$available},
-            selected = if(!is.null(Typing$last_scheme)) {
-              Typing$last_scheme
-            } else {if(!is.null(DB$scheme)) {gsub("_", " ", input$select_cgmlst)} else {DB$available[1]}}),
-          title = "Success - Load Database",
+          fluidRow(
+            br(), 
+            column(
+              width = 11,
+              p(
+                HTML(
+                  paste0(
+                    '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                    'Scheme successfully downloaded.',
+                    '</span>'
+                  )
+                )
+              ),
+              div(
+                class = "modal-element",
+                selectInput(
+                  "scheme_db",
+                  label = "",
+                  choices = if(!is.null(Typing$last_scheme)) {
+                    Typing$last_scheme
+                  } else {DB$available},
+                  selected = if(!is.null(Typing$last_scheme)) {
+                    Typing$last_scheme
+                  } else {if(!is.null(DB$scheme)) {gsub("_", " ", input$select_cgmlst)} else {DB$available[1]}}
+                )
+              )
+            ),
+            br()
+          ),
+          title = "Load Database",
           footer = tagList(
             actionButton("load", "Load", class = "load-db", width = "100px")
           )
@@ -7797,6 +8030,8 @@ server <- function(input, output, session) {
   # Download Target Info (CSV Table)
   observe({
     req(input$select_cgmlst)
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+    
     input$download_cgMLST
     
     if(dir.exists(file.path(DB$database, input$select_cgmlst))) {
@@ -7981,11 +8216,15 @@ server <- function(input, output, session) {
       warning("Could not retrieve data. Check internet connection.")
       Scheme$species_data <- NULL
     })
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   ### Render species info & image ----
   observe({
     req(Scheme$species_data)
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     
     DB$failCon <- FALSE
     
@@ -8408,6 +8647,8 @@ server <- function(input, output, session) {
       output$species_info <- NULL
       output$species_img <- NULL
     }
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   # Species info selector UI
@@ -11534,26 +11775,40 @@ server <- function(input, output, session) {
         modalDialog(
           conditionalPanel(
             "input.nj_heatmap_map==='Variables'",
-            p(
-              HTML(
-                paste0(
-                  '<span style="color: white; font-size: 14px; position: relative; top: 5px; margin-left: 10px;">',
-                  'Mapping <b>metadata</b> and custom variables.',
-                  '</span>'
+            fluidRow(
+              br(), 
+              column(
+                width = 11,
+                p(
+                  HTML(
+                    paste0(
+                      '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                      'Mapping <b>metadata</b> and custom variables.',
+                      '</span>'
+                    )
+                  )
                 )
-              )
+              ),
+              br()
             )
           ),
           conditionalPanel(
             "input.nj_heatmap_map==='AMR Profile'",
-            p(
-              HTML(
-                paste0(
-                  '<span style="color: white; font-size: 14px; position: relative; top: 5px; margin-left: 10px;">',
-                  'Mapping <b>resistance, virulence and other genes </b> resulting from AMR Screening.',
-                  '</span>'
+            fluidRow(
+              br(), 
+              column(
+                width = 11,
+                p(
+                  HTML(
+                    paste0(
+                      '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                      'Mapping <b>resistance, virulence and other genes </b> resulting from AMR Screening.',
+                      '</span>'
+                    )
+                  )
                 )
-              )
+              ),
+              br()
             )
           ),
           br(),
@@ -11615,26 +11870,40 @@ server <- function(input, output, session) {
         modalDialog(
           conditionalPanel(
             "input.upgma_heatmap_map==='Variables'",
-            p(
-              HTML(
-                paste0(
-                  '<span style="color: white; font-size: 14px; position: relative; top: 5px; margin-left: 10px;">',
-                  'Mapping <b>metadata</b> and custom variables.',
-                  '</span>'
+            fluidRow(
+              br(), 
+              column(
+                width = 11,
+                p(
+                  HTML(
+                    paste0(
+                      '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                      'Mapping <b>metadata</b> and custom variables.',
+                      '</span>'
+                    )
+                  )
                 )
-              )
+              ),
+              br()
             )
           ),
           conditionalPanel(
             "input.upgma_heatmap_map==='AMR Profile'",
-            p(
-              HTML(
-                paste0(
-                  '<span style="color: white; font-size: 14px; position: relative; top: 5px; margin-left: 10px;">',
-                  'Mapping <b>resistance, virulence and other genes </b> resulting from AMR Screening.',
-                  '</span>'
+            fluidRow(
+              br(), 
+              column(
+                width = 11,
+                p(
+                  HTML(
+                    paste0(
+                      '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                      'Mapping <b>resistance, virulence and other genes </b> resulting from AMR Screening.',
+                      '</span>'
+                    )
+                  )
                 )
-              )
+              ),
+              br()
             )
           ),
           br(),
@@ -22122,25 +22391,101 @@ server <- function(input, output, session) {
             modalDialog(
               if((length(dup_name) + length(dup_id)) == 1) {
                 if(length(dup_name) == 1) {
-                  HTML(paste0("Entry #", dup_name,
-                              " contains a duplicated assembly name:", "<br><br>",
-                              DB$meta_true$`Assembly Name`[dup_name]))
+                  fluidRow(
+                    br(), 
+                    column(
+                      width = 11,
+                      p(
+                        HTML(
+                          paste0(
+                            '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                            "Entry #", dup_name,
+                            " contains a duplicated assembly name:", "<br><br>",
+                            DB$meta_true$`Assembly Name`[dup_name],
+                            '</span>'
+                          )
+                        )
+                      )
+                    ),
+                    br()
+                  )
                 } else {
-                  HTML(paste0("Entry #", dup_id,
-                              " contains a duplicated assembly ID:", "<br><br>",
-                              DB$meta_true$`Assembly ID`[dup_id]))
+                  fluidRow(
+                    br(), 
+                    column(
+                      width = 11,
+                      p(
+                        HTML(
+                          paste0(
+                            '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                            "Entry #", dup_id,
+                            " contains a duplicated assembly ID:", "<br><br>",
+                            DB$meta_true$`Assembly ID`[dup_id],
+                            '</span>'
+                          )
+                        )
+                      )
+                    ),
+                    br()
+                  )
                 }
               } else {
                 if(length(dup_name) == 0) {
-                  HTML(c("Entries contain duplicated IDs <br><br>",
-                         paste0(unique(DB$meta_true$`Assembly ID`[dup_id]), "<br>")))
+                  fluidRow(
+                    br(), 
+                    column(
+                      width = 11,
+                      p(
+                        HTML(
+                          paste0(
+                            '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                            c("Entries contain duplicated IDs <br><br>",
+                              paste0(unique(DB$meta_true$`Assembly ID`[dup_id]), 
+                                     "<br>")),
+                            '</span>'
+                          )
+                        )
+                      )
+                    ),
+                    br()
+                  )
                 } else if(length(dup_id) == 0) {
-                  HTML(c("Entries contain duplicated names<br><br>",
-                         paste0(unique(DB$meta_true$`Assembly Name`[dup_name]), "<br>")))
+                  fluidRow(
+                    br(), 
+                    column(
+                      width = 11,
+                      p(
+                        HTML(
+                          paste0(
+                            '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                            c("Entries contain duplicated names<br><br>",
+                              paste0(unique(DB$meta_true$`Assembly Name`[dup_name]), "<br>")),
+                            '</span>'
+                          )
+                        )
+                      )
+                    ),
+                    br()
+                  )
                 } else {
-                  HTML(c("Entries contain duplicated names and IDs <br><br>",
-                         paste0("Name: ", unique(DB$meta_true$`Assembly Name`[dup_name]), "<br>"),
-                         paste0("ID: ", unique(DB$meta_true$`Assembly ID`[dup_id]), "<br>")))
+                  fluidRow(
+                    br(), 
+                    column(
+                      width = 11,
+                      p(
+                        HTML(
+                          paste0(
+                            '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                            c("Entries contain duplicated names and IDs <br><br>",
+                              paste0("Name: ", unique(DB$meta_true$`Assembly Name`[dup_name]), "<br>"),
+                              paste0("ID: ", unique(DB$meta_true$`Assembly ID`[dup_id]), "<br>")),
+                            '</span>'
+                          )
+                        )
+                      )
+                    ),
+                    br()
+                  )
                 }
               },
               title = "Duplicate entries",
@@ -25973,8 +26318,21 @@ server <- function(input, output, session) {
       div(
         class = "start-modal",
         modalDialog(
-          paste0(
-            "Gene Screening still pending. Are you sure you want to stop the screening?"
+          fluidRow(
+            br(), 
+            column(
+              width = 11,
+              p(
+                HTML(
+                  paste0(
+                    '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                    "Gene Screening still pending. Are you sure you want to stop the screening?",
+                    '</span>'
+                  )
+                )
+              )
+            ),
+            br()
           ),
           title = "Cancel Gene Screening",
           fade = TRUE,
@@ -28770,8 +29128,21 @@ server <- function(input, output, session) {
         div(
           class = "start-modal",
           modalDialog(
-            paste0(
-              "A Multi Typing process is still pending. Stopping this process will cancel the processing."
+            fluidRow(
+              br(), 
+              column(
+                width = 11,
+                p(
+                  HTML(
+                    paste0(
+                      '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                      "A Multi Typing process is still pending. Stopping this process will cancel the processing.",
+                      '</span>'
+                    )
+                  )
+                )
+              ),
+              br()
             ),
             title = "Reset Multi Typing",
             fade = TRUE,
