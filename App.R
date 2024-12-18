@@ -1090,7 +1090,9 @@ server <- function(input, output, session) {
           
           DB$exist <- (length(dir_ls(DB$database)) == 0)  # Logical any local database present
           
-          DB$available <- gsub("_", " ", basename(dir_ls(DB$database))) # List of local schemes available
+          # List of local schemes available
+          available <- gsub("_", " ", basename(dir_ls(DB$database)))
+          DB$available <- available[available %in% gsub("_", " ", schemes$species)]
         }
         
       } else if (DB$select_new ==  TRUE) {
@@ -1105,7 +1107,9 @@ server <- function(input, output, session) {
         if(dir_exists(DB$database)) {
           DB$exist <- (length(dir_ls(DB$database)) == 0)  # Logical any local database present
           
-          DB$available <- gsub("_", " ", basename(dir_ls(DB$database))) # List of local schemes available
+          # List of local schemes available
+          available <- gsub("_", " ", basename(dir_ls(DB$database)))
+          DB$available <- available[available %in% gsub("_", " ", schemes$species)]
         }
       }
     }
@@ -1232,7 +1236,37 @@ server <- function(input, output, session) {
           )
         )
       } else if(length(DB$available) > 0 & !(DB$select_new)) {
-        if(any(!(gsub(" ", "_", gsub(" (PM|CM)", "", DB$available)) %in% gsub("_(PM|CM)", "", schemes$species)))) {
+        if(sum(gsub(" ", "_", gsub(" (PM|CM)", "", DB$available)) %in% gsub("_(PM|CM)", "", schemes$species)) == 0) {
+          column(
+            width = 12,
+            p(
+              tags$span(
+                style='color: white; font-size: 15px; font-style: italic;',
+                HTML(
+                  paste('Selected directory:', DB$database)
+                )
+              )
+            ),
+            br(), 
+            p(
+              HTML(
+                paste(
+                  tags$span(style='color: #E18B00; font-size: 13px; font-style: italic;', 
+                            'Warning: Directory contains no valid elements')
+                )
+              )
+            ),
+            p(
+              HTML(
+                paste(
+                  tags$span(style='color: #E18B00; font-size: 13px; font-style: italic;', 
+                            'Select a database directory containing compatible scheme folders.')
+                )
+              )
+            ),
+            br()
+          )
+        } else if(any(!(gsub(" ", "_", gsub(" (PM|CM)", "", DB$available)) %in% gsub("_(PM|CM)", "", schemes$species)))) {
           column(
             width = 12,
             p(
@@ -1280,17 +1314,77 @@ server <- function(input, output, session) {
             )
           )
         }
+      } else {
+        column(
+          width = 12,
+          p(
+            tags$span(
+              style='color: white; font-size: 15px; font-style: italic;',
+              HTML(
+                paste('Selected directory:', DB$database)
+              )
+            )
+          ),
+          br(), 
+          p(
+            HTML(
+              paste(
+                tags$span(style='color: #E18B00; font-size: 13px; font-style: italic;', 
+                          'Warning: Directory contains no valid elements')
+              )
+            )
+          ),
+          p(
+            HTML(
+              paste(
+                tags$span(style='color: #E18B00; font-size: 13px; font-style: italic;', 
+                          'Select a database directory containing compatible scheme folders.')
+              )
+            )
+          ),
+          br()
+        )
       } 
     } else if((!is.null(DB$last_db)) & (!is.null(DB$available))) {
       if (DB$last_db == TRUE & (length(DB$available) > 0)) {
-        if(any(!(gsub(" ", "_", gsub(" (PM|CM)", "", DB$available)) %in% gsub("_(PM|CM)", "", schemes$species)))) {
+        if(sum(gsub(" ", "_", gsub(" (PM|CM)", "", DB$available)) %in% gsub("_(PM|CM)", "", schemes$species)) == 0) {
           column(
             width = 12,
             p(
               tags$span(
                 style='color: white; font-size: 15px; font-style: italic;',
                 HTML(
-                  paste('Last used:', DB$database)
+                  paste('Selected directory:', DB$database)
+                )
+              )
+            ),
+            br(), 
+            p(
+              HTML(
+                paste(
+                  tags$span(style='color: #E18B00; font-size: 13px; font-style: italic;', 
+                            'Warning: Directory contains no valid elements')
+                )
+              )
+            ),
+            p(
+              HTML(
+                paste(
+                  tags$span(style='color: #E18B00; font-size: 13px; font-style: italic;', 
+                            'Select a database containing compatible scheme folders.')
+                )
+              )
+            ),
+            br()
+          )
+        } else if(any(!(gsub(" ", "_", gsub(" (PM|CM)", "", DB$available)) %in% gsub("_(PM|CM)", "", schemes$species)))) {
+          column(
+            width = 12,
+            p(
+              tags$span(
+                style='color: white; font-size: 15px; font-style: italic;',
+                HTML(
+                  paste('Selected directory:', DB$database)
                 )
               )
             ),
@@ -1318,7 +1412,7 @@ server <- function(input, output, session) {
               tags$span(
                 style='color: white; font-size: 15px; font-style: italic;',
                 HTML(
-                  paste('Last used:', DB$database)
+                  paste('Selected directory:', DB$database)
                 )
               )
             ),
@@ -1338,7 +1432,7 @@ server <- function(input, output, session) {
             tags$span(
               style='color: white; font-size: 15px; font-style: italic;',
               HTML(
-                paste('Last used:', DB$database)
+                paste('Selected directory:', DB$database)
               )
             )
           ),
@@ -1360,14 +1454,6 @@ server <- function(input, output, session) {
   }, deleteFile = FALSE)
   
   ### Load app event ----
-  
-  observeEvent(input$load, {
-    
-    req(input$scheme_db)
-    
-    output$start_message <- NULL
-    output$load_db <- NULL
-  })
   
   observeEvent(input$load, {
     
@@ -7975,7 +8061,8 @@ server <- function(input, output, session) {
       )
     }
     
-    DB$available <- gsub("_", " ", basename(dir_ls(DB$database)))
+    available <- gsub("_", " ", basename(dir_ls(DB$database)))
+    DB$available <- available[available %in% gsub("_", " ", schemes$species)]
     DB$exist <- length(dir_ls(DB$database)) == 0
     
     shinyjs::show("download_cgMLST")
@@ -18608,6 +18695,12 @@ server <- function(input, output, session) {
       mst_cluster_width <- 24
     }
     
+    if(!is.null(input$mst_text_color)) {
+      mst_text_color <- input$mst_text_color
+    } else {
+      mst_text_color <- "#000000"
+    }
+    
     visNetwork_graph <- visNetwork(data$nodes, data$edges,
                                    main = mst_title(),
                                    background = mst_background_color(),
@@ -18619,7 +18712,7 @@ server <- function(input, output, session) {
                ctxRenderer = ctxRendererJS,
                scaling = list(min = mst_node_size_min(),
                               max = mst_node_size_max()),
-               font = list(color = mst_text_color_reactive(),
+               font = list(color = mst_text_color,
                            size = node_label_fontsize)) %>%
       visEdges(color = mst_color_edge(),
                font = list(color = mst_edge_font_color(),
