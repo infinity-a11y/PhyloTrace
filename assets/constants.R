@@ -1,5 +1,7 @@
 # Constants
 
+phylotraceVersion <- paste("1.6.0")
+
 sequential_scales <- list(
   "YlOrRd",
   "YlOrBr",

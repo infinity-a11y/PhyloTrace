@@ -622,7 +622,7 @@ ui <- dashboardPage(
                 solidHeader = TRUE,
                 status = "primary",
                 width = "100%",
-                title = "Actions",
+                title = "Fetch Data from Scheme Database",
                 fluidRow(
                   column(1),
                   column(
@@ -870,6 +870,18 @@ ui <- dashboardPage(
 
 server <- function(input, output, session) {
   
+  # Waiting screen config
+  waiting_screen <- tagList(
+    spin_flower(),
+    h4("Loading Database", style = "color: white; cursor: wait")
+  )
+  
+  #TODO Enable this, or leave disabled
+  # Kill server on session end
+  session$onSessionEnded( function() {
+    stopApp()
+  })
+  
   ## Reactives ----
   
   # Get rhandsontable
@@ -964,23 +976,6 @@ server <- function(input, output, session) {
     }
   })
   
-  phylotraceVersion <- paste("1.6.0")
-  
-  # Waiting screen config
-  waiting_screen <- tagList(
-    spin_flower(),
-    h4("Loading Database", style = "color: white")
-  )
-  
-  #TODO Enable this, or leave disabled
-  # Kill server on session end
-  session$onSessionEnded( function() {
-    stopApp()
-  })
-  
-  # Disable various user inputs (visualization control)
-  shinyjs::disable('mst_edge_label') 
-  
   # _______________________ ####
   
   ## Startup ----
@@ -1074,6 +1069,9 @@ server <- function(input, output, session) {
 
   # Locate local Database
   observe({
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')  
+    
     shinyDirChoose(input,
                    "db_location",
                    roots = c(Home = path_home(), Root = "/"),
@@ -1111,6 +1109,8 @@ server <- function(input, output, session) {
         }
       }
     }
+    
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')  
   })
   
   ### Set up typing environment ----
@@ -1139,7 +1139,7 @@ server <- function(input, output, session) {
     }
   })
   
-  output$start_message <- renderUI({
+  output$start_message <- renderUI(
     column(
       width = 12, 
       align = "center",
@@ -1194,7 +1194,7 @@ server <- function(input, output, session) {
         )
       )
     )
-  })
+  )
   
   # User selection new db or load db
   observeEvent(input$create_new_db, {
@@ -1208,7 +1208,7 @@ server <- function(input, output, session) {
   })
   
   # Load db & scheme selection UI
-  output$load_db <- renderUI({
+  output$load_db <- renderUI(
     if(!is.null(DB$select_new)) {
       if(length(DB$new_database) > 0 & DB$select_new) {
         column(
@@ -1351,7 +1351,7 @@ server <- function(input, output, session) {
         )
       }
     }
-  })
+  )
   
   output$imageOutput <- renderImage({
     image_path <- paste0(getwd(), "/www/PhyloTrace.png")
@@ -1363,7 +1363,20 @@ server <- function(input, output, session) {
   
   observeEvent(input$load, {
     
+    req(input$scheme_db)
+    
+    output$start_message <- NULL
+    output$load_db <- NULL
+  })
+  
+  observeEvent(input$load, {
+    
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+    
+    req(input$scheme_db)
+    
+    output$start_message <- NULL
+    output$load_db <- NULL
     
     waiter_show(html = waiting_screen, color = "#384555")
     
@@ -3839,6 +3852,7 @@ server <- function(input, output, session) {
                 #### Render Distance Matrix ----
                 observe({
                   if(!is.null(DB$data)) {
+                    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
                     
                     if(any(duplicated(DB$meta$`Assembly Name`)) | any(duplicated(DB$meta$`Assembly ID`))) {
                       output$db_distancematrix <- NULL
@@ -3939,7 +3953,7 @@ server <- function(input, output, session) {
                             }")) %>%
                             hot_rows(fixedRowsTop = 0) %>%
                             hot_cols(fixedColumnsLeft = 1) %>%
-                            hot_col(1:(dim(DB$ham_matrix)[1]+1),
+                            hot_col(1:(dim(dist_matrix)[1]+1),
                                     halign = "htCenter",
                                     valign = "htMiddle") %>%
                             hot_col(1, renderer = "
@@ -4104,7 +4118,7 @@ server <- function(input, output, session) {
                         }
                       }
                     })
-                    
+                    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
                   }
                 })
                 
@@ -4739,8 +4753,8 @@ server <- function(input, output, session) {
       }
     }
     
-    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
     waiter_hide()  
+    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   # _______________________ ####
@@ -4951,7 +4965,7 @@ server <- function(input, output, session) {
           title = HTML(
             paste0(
               '<span style="color: white; font-size: 15px;">',
-              'Species Information - data fetched from NCBI&nbsp&nbsp&nbsp ',
+              'Species Information - Data Fetched from NCBI&nbsp&nbsp&nbsp ',
               ' <a href="', 'https://www.ncbi.nlm.nih.gov/' , '" target="_blank" style="color:#008edb; font-style:normal; text-decoration:none;"> https://www.ncbi.nlm.nih.gov/ </a>',
               '</span>'
             )
@@ -5842,6 +5856,7 @@ server <- function(input, output, session) {
   
   # Change scheme
   observeEvent(input$reload_db, {
+    
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     log_print("Input reload_db")
     
@@ -5965,6 +5980,9 @@ server <- function(input, output, session) {
     
     observe({
       if (!is.null(DB$data)) {
+        
+        shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+        
         if (nrow(DB$data) == 1) {
           if(!is.null(DB$data) & !is.null(DB$cust_var)) {
             output$db_entries <- renderRHandsontable({
@@ -6670,10 +6688,9 @@ server <- function(input, output, session) {
             }
           }
         }
+        shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
       }
     })
-    
-    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   observe({
@@ -8380,7 +8397,7 @@ server <- function(input, output, session) {
             title = HTML(
               paste0(
                 '<span style="color: white; font-size: 15px;">',
-                'Species Information - data fetched from NCBI&nbsp&nbsp&nbsp ',
+                'Species Information - Data Fetched from NCBI&nbsp&nbsp&nbsp ',
                 ' <a href="', 'https://www.ncbi.nlm.nih.gov/' , '" target="_blank" style="color:#008edb; font-style:normal; text-decoration:none;"> https://www.ncbi.nlm.nih.gov/ </a>',
                 '</span>'
               )
@@ -17023,7 +17040,7 @@ server <- function(input, output, session) {
                     materialSwitch(
                       "mst_color_var",
                       "",
-                      value = FALSE
+                      value = mst_color_var_selected
                     )
                   )
                 )
@@ -17065,88 +17082,6 @@ server <- function(input, output, session) {
           )
         )
       )
-      # box(
-      #   solidHeader = TRUE,
-      #   status = "primary",
-      #   width = "100%",
-      #   title = "Variable Mapping",
-      #   fluidRow(
-      #     column(
-      #       width = 12,
-      #       align = "left",
-      #       br(),
-      #       column(
-      #         width = 12,
-      #         align = "center",
-      #         fluidRow(
-      #           column(
-      #             width = 10,
-      #             align = "left",
-      #             div(
-      #               class = "mat-switch-mst-nodes",
-      #               materialSwitch(
-      #                 "mst_color_var",
-      #                 h5(p("Add Variable"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-      #                 value = mst_color_var_selected,
-      #                 right = TRUE
-      #               )
-      #             )
-      #           ),
-      #           column(
-      #             width = 2,
-      #             bslib::tooltip(
-      #               bsicons::bs_icon("info-circle", title = "Only categorical variables can \nbe mapped to the node color", color = "white", 
-      #                                height = "12px", width = "12px", position = "relative", top = "27px", right = "40px"),
-      #               "Text shown in the tooltip.",
-      #               show = FALSE,
-      #               id = "mst_node_col_info"
-      #             )
-      #           )
-      #         ),
-      #         fluidRow(
-      #           column(
-      #             width = 12,
-      #             align = "left",
-      #             br(), br(),
-      #             div(
-      #               class = "mst_col_sel",
-      #               selectInput(
-      #                 "mst_col_var",
-      #                 label = h4("Variable", style = "color:white; margin-bottom: 10px;"),
-      #                 choices = if(any(DB$cust_var[DB$cust_var$Variable[which(DB$cust_var$Variable %in% c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)]))],]$Type != "categ")) {
-      #                   selection <- c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)])
-      #                   cust_vars <- DB$cust_var$Variable[which(DB$cust_var$Variable %in% selection)]
-      #                   selection[-which(selection == cust_vars[DB$cust_var[cust_vars,]$Type != "categ"])]
-      #                 } else {c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)])},,
-      #                 selected = mst_col_var_selected,
-      #                 width = "100%"
-      #               )
-      #             ),
-      #             br(), br(),
-      #           )
-      #         ),
-      #         fluidRow(
-      #           column(
-      #             width = 12,
-      #             align = "left",
-      #             br(),
-      #             div(
-      #               class = "mst-col-scale",
-      #               selectInput(
-      #                 "mst_col_scale",
-      #                 label = h4("Color Scale", style = "color:white; margin-bottom: 10px;"),
-      #                 choices = c("Viridis", "Rainbow"),
-      #                 selected = mst_col_scale_selected,
-      #                 width = "100%"
-      #               )
-      #             ),
-      #             br(), br()
-      #           )
-      #         )
-      #       )
-      #     )
-      #   )
-      # )
     ) 
     
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
@@ -28554,30 +28489,30 @@ server <- function(input, output, session) {
             paste(
               '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
               paste("<span style='color: white; font-style:italic'>",
-                    "&nbspRename highlighted isolates or deselect them.</br>")),
+                    "&nbspRename highlighted isolates or deselect them</br>")),
             paste(
               '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
               paste("<span style='color: white; font-style:italic'>",
-                    "&nbspFilename(s) contain(s) empty spaces."))
+                    "&nbspFilename(s) contain(s) empty spaces"))
           ))
         } else {
           HTML(paste(
             '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
             paste("<span style='color: white; font-style:italic'>",
-                  "&nbspFilename(s) contain(s) empty spaces.")))
+                  "&nbspFilename(s) contain(s) empty spaces")))
         }
       } else {
         HTML(paste(
           '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
           paste("<span style='color: white; font-style:italic'>", 
-                "&nbspRename highlighted isolates or deselect them.")))
+                "&nbspRename highlighted isolates or deselect them")))
       }
     } else {
       shinyjs::enable("conf_meta_multi")
       HTML(paste(
         '<i class="fa-solid fa-circle-check" style="font-size:15px;color:lightgreen"></i>',
         paste("<span style='color: white; font-style:italic'>",
-              "&nbspFiles ready for allelic typing.")))
+              "&nbspFiles ready for allelic typing")))
     }
   })
   
