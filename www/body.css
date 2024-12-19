@@ -88,6 +88,14 @@ table {
   box-shadow: none;
 }
 
+.staticParent {
+    position: relative;
+}
+
+.waiter-overlay {
+  left: 0px !important;
+}
+
 .htCheckboxRendererInput .handsontable .htCheckboxRendererInput {
   margin-top: 0px;
 }
@@ -104,8 +112,13 @@ table {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0);
-  z-index: 9999;
+  z-index: 99999 !important;
   cursor: wait;
+}
+
+.modal-body .dataTables_info,
+.modal-body .dataTables_paginate .paging_simple_numbers {
+  margin-top: 10px;
 }
 
 .popover {

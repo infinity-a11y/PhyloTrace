@@ -876,6 +876,12 @@ server <- function(input, output, session) {
     h4("Loading Database", style = "color: white; cursor: wait")
   )
   
+  w <- Waiter$new(
+    id = "db_entries",
+    html = spin_3(), 
+    color = transparent(.5)
+  )
+  
   #TODO Enable this, or leave disabled
   # Kill server on session end
   session$onSessionEnded( function() {
@@ -3092,6 +3098,7 @@ server <- function(input, output, session) {
                 
                 if (!is.null(DB$data)) {
                   
+                  
                   observe({
                     
                     if (!is.null(DB$data)) {
@@ -3195,11 +3202,14 @@ server <- function(input, output, session) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
                             output$db_entries <- renderRHandsontable({
                               
+                              shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+                              w$show()
+                              
                               entry_data <- DB$data %>%
                                 select(1:(13 + nrow(DB$cust_var))) %>%
                                 add_column(select(DB$allelic_profile_trunc, input$compare_select))
                               
-                              rhandsontable(
+                              tab <- rhandsontable(
                                 entry_data,
                                 col_highlight = diff_allele() - 1,
                                 dup_names_high = duplicated_names() - 1,
@@ -3356,12 +3366,19 @@ server <- function(input, output, session) {
                                                              }
                                                            }
                                                        }") 
+                              shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
+                              return(tab)
                             })
                           }
                         } else {
                           if(!is.null(DB$data) & !is.null(DB$cust_var)) {
+                            
                             output$db_entries <- renderRHandsontable({
-                              rhandsontable(
+                              
+                              shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+                              w$show()
+                              
+                              tab <- rhandsontable(
                                 select(DB$data, 1:(13 + nrow(DB$cust_var))),
                                 rowHeaders = NULL,
                                 row_highlight = true_rows() - 1,
@@ -3495,7 +3512,9 @@ server <- function(input, output, session) {
                                                              }
                                                            }
                                                        }") 
-                            })    
+                              shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
+                              return(tab)
+                            })
                           }
                         }
                       } else {
@@ -3503,11 +3522,14 @@ server <- function(input, output, session) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
                             output$db_entries <- renderRHandsontable({
                               
+                              shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+                              w$show()
+                              
                               entry_data <- DB$data %>%
                                 select(1:(13 + nrow(DB$cust_var))) %>%
                                 add_column(select(DB$allelic_profile_trunc, input$compare_select))
                               
-                              rhandsontable(
+                              tab <- rhandsontable(
                                 entry_data,
                                 col_highlight = diff_allele() - 1,
                                 rowHeaders = NULL,
@@ -3658,13 +3680,18 @@ server <- function(input, output, session) {
                       td.style.background = 'rgb(116, 188, 139)';
                     }
                 }") 
-                            })    
+                              shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
+                              return(tab)
+                            })
                           }
                         } else {
                           if(!is.null(DB$data) & !is.null(DB$cust_var)) {
                             output$db_entries <- renderRHandsontable({
                               
-                              rhandsontable(
+                              shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+                              w$show()
+                              
+                              tab <- rhandsontable(
                                 select(DB$data, 1:(13 + nrow(DB$cust_var))),
                                 rowHeaders = NULL,
                                 height = entry_table_height(),
@@ -3796,6 +3823,9 @@ server <- function(input, output, session) {
                                                              }
                                                            }
                                                        }") 
+                              
+                              shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
+                              return(tab)
                             })
                           }
                         }
@@ -4004,7 +4034,9 @@ server <- function(input, output, session) {
                       output$distancematrix_duplicated <- NULL
                       if(!is.null(DB$data) & !is.null(DB$allelic_profile) & !is.null(DB$allelic_profile_true) & !is.null(DB$cust_var) & !is.null(input$distmatrix_label) & !is.null(input$distmatrix_diag) & !is.null(input$distmatrix_triangle)) {
                         dist_matrix <- hamming_df()
-                        
+                        dist_matrix1 <<- dist_matrix
+                        DB_matrix_min <<- DB$matrix_min
+                        DB_matrix_max <<- DB$matrix_max
                         req(dist_matrix)
                         
                         output$db_distancematrix <- renderRHandsontable({
@@ -5943,7 +5975,6 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
-    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     log_print("Input reload_db")
     
     if(tail(readLines(file.path(logdir, "script_log.txt")), 1)!= "0") {
@@ -6008,8 +6039,6 @@ server <- function(input, output, session) {
         )
       )
     }
-    
-    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
   # Create new database
@@ -6475,13 +6504,19 @@ server <- function(input, output, session) {
         } else {
           if (length(input$compare_select) > 0) {
             if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
+              
+              
+              
               output$db_entries <- renderRHandsontable({
+                
+                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+                w$show()
                 
                 entry_data <- DB$data %>%
                   select(1:(13 + nrow(DB$cust_var))) %>%
                   add_column(select(DB$allelic_profile_trunc, input$compare_select))
                 
-                rhandsontable(
+                tab <- rhandsontable(
                   entry_data,
                   col_highlight = diff_allele() - 1,
                   rowHeaders = NULL,
@@ -6632,7 +6667,11 @@ server <- function(input, output, session) {
                       td.style.background = 'rgb(116, 188, 139)';
                     }
                 }") 
-              })    
+                
+                
+                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
+                return(tab)
+              })
             }
           } else {
             if(!is.null(DB$data) & !is.null(DB$cust_var)) {
@@ -6868,7 +6907,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$conf_new_var, {
     
-    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+    #shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     log_print("Input conf_new_var")
     
     # User feedback variables
@@ -6906,7 +6945,7 @@ server <- function(input, output, session) {
       timer = 6000
     )
     
-    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')  
+    #shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')  
   })
   
   observeEvent(input$delete_new_variable, {
@@ -18489,6 +18528,7 @@ server <- function(input, output, session) {
   #### MST ----
   
   mst_tree <- reactive({
+    
     data <- toVisNetworkData(Vis$ggraph_1)
     data$nodes <- mutate(data$nodes, 
                          label = label_mst(),
