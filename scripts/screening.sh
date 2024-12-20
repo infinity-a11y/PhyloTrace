@@ -1,21 +1,16 @@
 #!/bin/bash
-cd "$HOME/.local/share/phylotrace/scripts"
-
-# Check if abritamr binary exists in the expected path
-if [[ -f ~/.conda/envs/PhyloTrace/bin/abritamr ]]; then
-    export PATH=$PATH:~/.conda/envs/PhyloTrace/bin
-fi
+APP_LOCAL_SHARE_DIR = "$HOME/.local/share/phylotrace"
 
 # Set base path
-base_path=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'wd'])")
-selected=$(Rscript -e "cat(stringr::str_split_1(readRDS('screening_meta.rds')[,'selected'], ' '))")
-species=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'species'])")
-database=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'database'])")
-scheme=$(Rscript -e "cat(readRDS('screening_meta.rds')[,'scheme'])")
+base_path=$(Rscript -e "cat(readRDS(file.path('$APP_LOCAL_SHARE_DIR', 'screening_meta.rds'))[,'wd'])")
+selected=$(Rscript -e "cat(stringr::str_split_1(readRDS(file.path('$APP_LOCAL_SHARE_DIR', 'screening_meta.rds'))[,'selected'], ' '))")
+species=$(Rscript -e "cat(readRDS(file.path('$APP_LOCAL_SHARE_DIR', 'screening_meta.rds'))[,'species'])")
+database=$(Rscript -e "cat(readRDS(file.path('$APP_LOCAL_SHARE_DIR', 'screening_meta.rds'))[,'database'])")
+scheme=$(Rscript -e "cat(readRDS(file.path('$APP_LOCAL_SHARE_DIR', 'screening_meta.rds'))[,'scheme'])")
 
 # Remove the existing directory (if it exists)
-if [ -d "$HOME/.local/share/phylotrace/scripts/screening" ]; then
-    rm -r "$HOME/.local/share/phylotrace/scripts/screening"
+if [ -d "$APP_LOCAL_SHARE_DIR/screening" ]; then
+    rm -r "$APP_LOCAL_SHARE_DIR/screening"
 fi
 
 isolates=($selected)

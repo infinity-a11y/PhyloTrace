@@ -1,21 +1,18 @@
 library(logr)
 
 iteration <- commandArgs(trailingOnly = TRUE)[1]
-meta_info <- readRDS("multi_typing_df.rds")
-scrdir <- file.path(fs:path_home(), ".local", "share", "phylotrace", "scripts")
-logdir <- file.path(fs::path_home(), ".local", "share", "phylotrace", "logs")
+app_local_share_dir <- file.path(fs::path_home(), ".local", "share", "phylotrace")
+meta_info <- readRDS(file.path(app_local_share_dir, "multi_typing_df.rds"))
+logdir <- file.path(app_local_share_dir, "logs")
 logfile <- file.path(logdir, "multi_eval.log")
-assembly_folder <- paste0(paste0(getwd(), "/selected_genomes/"), 
-                          paste0(stringr::str_split_1(meta_info$filenames, " "), ".fasta"))
+assembly_folder <- file.path(app_local_share_dir, "selected_genomes", paste0(stringr::str_split_1(meta_info$filenames, " "), ".fasta"))
 assembly <- assembly_folder[which(iteration == basename(assembly_folder))]
 filename <- stringr::str_split_1(meta_info$filenames, " ")[which(iteration == basename(assembly_folder))]
-results_folder <- paste0(file.path(scrdir, "blat_multi/results/"),
+results_folder <- paste0(file.path(app_local_share_dir, "blat_multi/results/"),
                          stringr::str_split_1(meta_info$filenames, " "))
 meta_table <- meta_info$metadata[which(meta_info$metadata$Files == filename),]
 
-source("variant_validation.R")
-
-setwd(meta_info$wd)
+source("scripts/variant_validation.R")
 
 # Function to check custom variable classes
 column_classes <- function(df) {
@@ -56,7 +53,7 @@ allele_vector <- character(length(psl_files))
 if(length(assembly_folder) == 1) {
   event_list <- list()
 } else {
-  event_list <- readRDS(file.path(scrdir, "event_list.rds"))
+  event_list <- readRDS(file.path(app_local_share_dir, "event_list.rds"))
 }
 
 event_list[[basename(assembly)]] <- data.frame(Locus = character(0), Event = character(0), Value = character(0))
@@ -156,7 +153,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
     }
   }
 
-  saveRDS(event_list, file.path(scrdir, "event_list.rds"))
+  saveRDS(event_list, file.path(app_local_share_dir, "event_list.rds"))
 
   # Create Results Data Frame 
   if(!any(grepl("Typing", list.files(file.path(meta_info$db_path, meta_info$scheme))))) {
@@ -329,16 +326,14 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       dir.create(file.path(isolate_dir, filename))
       
       # Copy assembly file in isolate directory
-      file.copy(file.path(scrdir, "selected_genomes", paste0(filename, ".fasta")), 
+      file.copy(file.path(app_local_share_dir, "selected_genomes", paste0(filename, ".fasta")), 
                 file.path(isolate_dir, filename))
       
-      setwd(file.path(isolate_dir, filename))
-      
-      zip(zipfile = paste0(filename, ".zip"),
-          files = paste0(filename, ".fasta"),
+      zip(zipfile = file.path(isolate_dir, filename, paste0(filename, ".zip")),
+          files = file.path(isolate_dir, filename, paste0(filename, ".fasta")),
           zip = "zip") 
       
-      file.remove(paste0(filename, ".fasta"))
+      file.remove(file.path(isolate_dir, filename, paste0(filename, ".fasta")))
       
       log_print(paste0("Saved assembly of ", basename(assembly)))
       
@@ -353,31 +348,25 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       dir.create(file.path(isolate_dir, filename))
       
       # Copy assembly file in isolate directory
-      file.copy(file.path(scrdir, "selected_genomes", filename, ".fasta") , 
+      file.copy(file.path(app_local_share_dir, "selected_genomes", paste0(filename, ".fasta")) , 
                 file.path(isolate_dir, filename))
       
-      setwd(file.path(isolate_dir, filename))
+      zip(zipfile = file.path(isolate_dir, filename, paste0(filename, ".zip")),
+          files = file.path(isolate_dir, filename, paste0(filename, ".fasta")),
+          zip = "zip")
       
-      zip(zipfile = paste0(filename, ".zip"),
-          files = paste0(filename, ".fasta"),
-          zip = "zip") 
-      
-      file.remove(paste0(filename, ".fasta"))
+      file.remove(file.path(isolate_dir, filename, paste0(filename, ".fasta")))
       
       log_print(paste0("Saved assembly of ", basename(assembly)))
     }
   }
-  
-  setwd(meta_info$wd)
-  
   # Logging successes
   log.message(log_file = file.path(logdir, "script_log.txt"), 
               message = paste0("Successful typing of ", sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
   log_print(paste0("Successful typing of ", sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
   
 } else {
-  
-  setwd(meta_info$wd)
+
   
   # Logging failures
   log.message(log_file = file.path(logdir, "script_log.txt"), 
