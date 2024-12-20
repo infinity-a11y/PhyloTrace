@@ -144,19 +144,14 @@ ui <- dashboardPage(
     br(),
     sidebarMenu(
       id = "tabs",
+      br(), 
       uiOutput("menu_header_typing"),
       br(),
       sidebarMenuOutput("menu_typing"),
-      uiOutput("menu_footer_typing"),
-      br(),
+      br(), br(), 
       uiOutput("menu_header_screening"),
       br(), 
-      sidebarMenuOutput("menu_screening"),
-      uiOutput("menu_footer_screening"),
-      conditionalPanel(
-        "input.tabs==='gs_profile'",
-        uiOutput("screening_sidebar")
-      )
+      sidebarMenuOutput("menu_screening")
     )
   ),
   
@@ -847,7 +842,6 @@ ui <- dashboardPage(
         br(),
         hr(),
         br(), br(),
-        uiOutput("gs_table_selection"),
         fluidRow(
           column(1),
           uiOutput("gs_profile_display")
@@ -1759,8 +1753,6 @@ server <- function(input, output, session) {
         
         output$menu_header_typing <- NULL
         output$menu_header_screening <- NULL
-        output$menu_footer_typing <- NULL
-        output$menu_footer_screening <- NULL
         
         # Hide start message
         output$start_message <- NULL
@@ -1919,39 +1911,22 @@ server <- function(input, output, session) {
             class = "menu-header-typing",
             HTML(
               paste(
-                tags$span(style="color: white; font-size: 16px; position:relative; top:0px", "cgMLST Typing")
-              )
-            )
-          )
-        )
-        output$menu_header_screening <- renderUI(
-          div(
-            class = "menu-header-screening",
-            HTML(
-              paste(
-                tags$span(style="color: white; font-size: 16px; position:relative; top:1px", "Locus Screening")
+                tags$span(style="color: white; font-size: 14px; position: relative; top: 8px; margin-left: 10px;", "cgMLST Typing")
               )
             )
           )
         )
         
-        output$menu_footer_typing <- renderUI({
-          if(!is.null(DB$allelic_profile)) {
-            if(anyNA(DB$allelic_profile)) {
-              div(
-                class = "menu-footer-typing2"
+        output$menu_header_screening <- renderUI(
+          div(
+            class = "menu-header-screening",
+            HTML(
+              paste(
+                tags$span(style="color: white; font-size: 14px; position: relative; top: 8px; margin-left: 10px;", "Locus Screening")
               )
-            } else {
-              div(
-                class = "menu-footer-typing"
-              )
-            }
-          } else {
-            div(
-              class = "menu-footer-typing"
             )
-          }
-        })
+          )
+        )
         
         # Hide start message
         output$start_message <- NULL
@@ -2050,28 +2025,19 @@ server <- function(input, output, session) {
               )
             )
             
-            output$menu_screening <- renderMenu(
-              sidebarMenu(
-                menuItem(
-                  text = "AMR Profile",
-                  tabName = "gene_screening",
-                  icon = icon("dna"),
-                  startExpanded = TRUE,
-                  menuSubItem(
-                    text = "Browse Results",
-                    tabName = "gs_profile"
-                  ),
-                  menuSubItem(
-                    text = "Screening",
-                    tabName = "gs_screening"
-                  ),
-                  menuSubItem(
-                    text = "Visualization",
-                    tabName = "gs_visualization"
-                  )
-                )
-              )
-            )
+            if(!is.null(DB$scheme)) {
+              amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
+                                                               amrfinder_species = amrfinder_species)
+              
+              if(!isFALSE(amrfinder_available)) {
+                
+                output$menu_screening <- renderMenu(screening_menu_available)
+                
+              } else {
+                output$menu_screening <- renderMenu(screening_menu_available)
+                shinyjs::disable()
+              }
+            }
           } else if (!file.exists(file.path(DB$database, 
                                             gsub(" ", "_", DB$scheme),
                                             "scheme_info.rds"))) {
@@ -2166,28 +2132,18 @@ server <- function(input, output, session) {
               )
             )
             
-            output$menu_screening <- renderMenu(
-              sidebarMenu(
-                menuItem(
-                  text = "AMR Profile",
-                  tabName = "gene_screening",
-                  icon = icon("dna"),
-                  startExpanded = TRUE,
-                  menuSubItem(
-                    text = "Browse Results",
-                    tabName = "gs_profile"
-                  ),
-                  menuSubItem(
-                    text = "Screening",
-                    tabName = "gs_screening"
-                  ),
-                  menuSubItem(
-                    text = "Visualization",
-                    tabName = "gs_visualization"
-                  )
-                )
-              )
-            )
+            if(!is.null(DB$scheme)) {
+              amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
+                                                               amrfinder_species = amrfinder_species)
+              
+              if(!isFALSE(amrfinder_available)) {
+                
+                output$menu_screening <- renderMenu(screening_menu_available)
+                
+              } else {
+                output$menu_screening <- renderMenu(screening_menu_available)
+              }
+            }
             
           } else {
             
@@ -2480,28 +2436,18 @@ server <- function(input, output, session) {
                 )
               )
               
-              output$menu_screening <- renderMenu(
-                sidebarMenu(
-                  menuItem(
-                    text = "AMR Profile",
-                    tabName = "gene_screening",
-                    icon = icon("dna"),
-                    startExpanded = TRUE,
-                    menuSubItem(
-                      text = "Browse Results",
-                      tabName = "gs_profile"
-                    ),
-                    menuSubItem(
-                      text = "Screening",
-                      tabName = "gs_screening"
-                    ),
-                    menuSubItem(
-                      text = "Visualization",
-                      tabName = "gs_visualization"
-                    )
-                  )
-                )
-              )
+              if(!is.null(DB$scheme)) {
+                amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
+                                                                 amrfinder_species = amrfinder_species)
+                
+                if(!isFALSE(amrfinder_available)) {
+                  
+                  output$menu_screening <- renderMenu(screening_menu_available)
+                  
+                } else {
+                  output$menu_screening <- renderMenu(screening_menu_available)
+                }
+              }
               
             } else {
               
@@ -2663,28 +2609,18 @@ server <- function(input, output, session) {
                     )
                   )
                   
-                  output$menu_screening <- renderMenu(
-                    sidebarMenu(
-                      menuItem(
-                        text = "AMR Profile",
-                        tabName = "gene_screening",
-                        icon = icon("dna"),
-                        startExpanded = TRUE,
-                        menuSubItem(
-                          text = "Browse Results",
-                          tabName = "gs_profile"
-                        ),
-                        menuSubItem(
-                          text = "Screening",
-                          tabName = "gs_screening"
-                        ),
-                        menuSubItem(
-                          text = "Visualization",
-                          tabName = "gs_visualization"
-                        )
-                      )
-                    )
-                  )
+                  if(!is.null(DB$scheme)) {
+                    amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
+                                                                     amrfinder_species = amrfinder_species)
+                    
+                    if(!isFALSE(amrfinder_available)) {
+                      
+                      output$menu_screening <- renderMenu(screening_menu_available)
+                      
+                    } else {
+                      output$menu_screening <- renderMenu(screening_menu_available)
+                    }
+                  }
                 } else {
                   output$menu_typing <- renderMenu(
                     sidebarMenu(
@@ -2734,28 +2670,18 @@ server <- function(input, output, session) {
                     )
                   )
                   
-                  output$menu_screening <- renderMenu(
-                    sidebarMenu(
-                      menuItem(
-                        text = "AMR Profile",
-                        tabName = "gene_screening",
-                        icon = icon("dna"),
-                        startExpanded = TRUE,
-                        menuSubItem(
-                          text = "Browse Results",
-                          tabName = "gs_profile"
-                        ),
-                        menuSubItem(
-                          text = "Screening",
-                          tabName = "gs_screening"
-                        ),
-                        menuSubItem(
-                          text = "Visualization",
-                          tabName = "gs_visualization"
-                        )
-                      )
-                    )
-                  )
+                  if(!is.null(DB$scheme)) {
+                    amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
+                                                                     amrfinder_species = amrfinder_species)
+                    
+                    if(!isFALSE(amrfinder_available)) {
+                      
+                      output$menu_screening <- renderMenu(screening_menu_available)
+                      
+                    } else {
+                      output$menu_screening <- renderMenu(screening_menu_available)
+                    }
+                  }
                 }
                 
                 # Render custom variable display
@@ -4624,28 +4550,18 @@ server <- function(input, output, session) {
                   )
                 )
                 
-                output$menu_screening <- renderMenu(
-                  sidebarMenu(
-                    menuItem(
-                      text = "AMR Profile",
-                      tabName = "gene_screening",
-                      icon = icon("dna"),
-                      startExpanded = TRUE,
-                      menuSubItem(
-                        text = "Browse Results",
-                        tabName = "gs_profile"
-                      ),
-                      menuSubItem(
-                        text = "Screening",
-                        tabName = "gs_screening"
-                      ),
-                      menuSubItem(
-                        text = "Visualization",
-                        tabName = "gs_visualization"
-                      )
-                    )
-                  )
-                )
+                if(!is.null(DB$scheme)) {
+                  amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
+                                                                   amrfinder_species = amrfinder_species)
+                  
+                  if(!isFALSE(amrfinder_available)) {
+                    
+                    output$menu_screening <- renderMenu(screening_menu_available)
+                    
+                  } else {
+                    output$menu_screening <- renderMenu(screening_menu_available)
+                  }
+                }
                 
                 observe({
                   if(is.null(DB$data)) {
@@ -5578,28 +5494,18 @@ server <- function(input, output, session) {
             )
           )
           
-          output$menu_screening <- renderMenu(
-            sidebarMenu(
-              menuItem(
-                text = "AMR Profile",
-                tabName = "gene_screening",
-                icon = icon("dna"),
-                startExpanded = TRUE,
-                menuSubItem(
-                  text = "Browse Results",
-                  tabName = "gs_profile"
-                ),
-                menuSubItem(
-                  text = "Screening",
-                  tabName = "gs_screening"
-                ),
-                menuSubItem(
-                  text = "Visualization",
-                  tabName = "gs_visualization"
-                )
-              )
-            )
-          )
+          if(!is.null(DB$scheme)) {
+            amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
+                                                             amrfinder_species = amrfinder_species)
+            
+            if(!isFALSE(amrfinder_available)) {
+              
+              output$menu_screening <- renderMenu(screening_menu_available)
+              
+            } else {
+              output$menu_screening <- renderMenu(screening_menu_available)
+            }
+          }
         }
         
       } else {
@@ -5645,28 +5551,18 @@ server <- function(input, output, session) {
           )
         )
         
-        output$menu_screening <- renderMenu(
-          sidebarMenu(
-            menuItem(
-              text = "AMR Profile",
-              tabName = "gene_screening",
-              icon = icon("dna"),
-              startExpanded = TRUE,
-              menuSubItem(
-                text = "Browse Results",
-                tabName = "gs_profile"
-              ),
-              menuSubItem(
-                text = "Screening",
-                tabName = "gs_screening"
-              ),
-              menuSubItem(
-                text = "Visualization",
-                tabName = "gs_visualization"
-              )
-            )
-          )
-        )
+        if(!is.null(DB$scheme)) {
+          amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
+                                                           amrfinder_species = amrfinder_species)
+          
+          if(!isFALSE(amrfinder_available)) {
+            
+            output$menu_screening <- renderMenu(screening_menu_available)
+            
+          } else {
+            output$menu_screening <- renderMenu(screening_menu_available)
+          }
+        }
       }
     }
     
@@ -5721,9 +5617,11 @@ server <- function(input, output, session) {
           loci_info,
           selection = "single",
           options = list(pageLength = 15,  
+                         autoWidth = TRUE,
                          lengthMenu = list(c(15), c('15')), 
                          columnDefs = list(list(searchable = TRUE,
-                                                targets = "_all")),
+                                                targets = "_all",
+                                                className = "dt-left")),
                          initComplete = DT::JS(
                            "function(settings, json) {",
                            "$('th:first-child').css({'border-top-left-radius': '5px'});",
@@ -5860,6 +5758,7 @@ server <- function(input, output, session) {
                   )
                 )
               ),
+              br(),
               p(
                 HTML(
                   paste0(
@@ -8309,7 +8208,7 @@ server <- function(input, output, session) {
               paste0(
                 '<i class="fa-solid fa-circle-exclamation" style="font-size:20px;color:orange; position:relative; top: 17px; left: -10px;"></i>',
                 '<span style="color: white; font-size: 15px; position:relative; top: 15px;">',
-                "Newer scheme available",
+                "Updated scheme available",
                 '</span>'
               )
             )
@@ -23671,8 +23570,12 @@ server <- function(input, output, session) {
   
   # conditional rendering of gs visualization ui
   
-  output$gs_visualization_ui <- renderUI(
-    if(!is.null(DB$data)) {
+  output$gs_visualization_ui <- renderUI({
+    req(DB$data, DB$scheme)
+    amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
+                                                     amrfinder_species = amrfinder_species)
+    
+    if(!isFALSE(amrfinder_available)) {
       fluidRow(
         column(
           width = 2,
@@ -23827,8 +23730,8 @@ server <- function(input, output, session) {
           uiOutput("gs_field")
         )
       )
-    }
-  )
+    } else {NULL}
+  })
   
   # gs plot control panel
   output$gs_plot_control_ui <- renderUI(
@@ -25793,8 +25696,8 @@ server <- function(input, output, session) {
   # Rendering results table
   output$gs_results_table <- renderUI({
     req(DB$data)
-    if(!is.null(Screening$selected_isolate)) {
-      if(length(Screening$selected_isolate) > 0 & any(Screening$selected_isolate %in% DB$data$`Assembly ID`)) {
+    if(!is.null(input$gs_profile_select)) {
+      if(length(input$gs_profile_select) > 0 & any(input$gs_profile_select %in% DB$data$`Assembly ID`)) {
         fluidRow(
           div(class = "loci_table",
               DT::dataTableOutput("gs_profile_table")),
@@ -25838,8 +25741,8 @@ server <- function(input, output, session) {
   # Gene screening download button
   output$gs_download <- renderUI({
     req(DB$data)
-    if(!is.null(Screening$selected_isolate)) {
-      if(length(Screening$selected_isolate) > 0) {
+    if(!is.null(input$gs_profile_select)) {
+      if(length(input$gs_profile_select) > 0) {
         fluidRow(
           downloadBttn(
             "download_resistance_profile",
@@ -25851,29 +25754,8 @@ server <- function(input, output, session) {
           ),
           bsTooltip("download_resistance_profile_bttn", 
                     HTML(paste0("Save resistance profile table for</br>",
-                                Screening$selected_isolate)), 
+                                input$gs_profile_select)), 
                     placement = "bottom", trigger = "hover")
-        )
-      } else {NULL}
-    } else {NULL}
-  })
-  
-  # Conditionally render table selectiom interface
-  output$gs_table_selection <- renderUI({
-    req(DB$scheme)
-    amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
-                                                     amrfinder_species = amrfinder_species)
-    
-    if(!isFALSE(amrfinder_available)) {
-      req(DB$data, input$gs_view)
-      if(input$gs_view == "Table") {
-        fluidRow(
-          column(1),
-          column(
-            width = 10,
-            div(class = "loci_table",
-                dataTableOutput("gs_isolate_table"))
-          )
         )
       } else {NULL}
     } else {NULL}
@@ -25885,134 +25767,90 @@ server <- function(input, output, session) {
     amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
                                                      amrfinder_species = amrfinder_species)
     if(!isFALSE(amrfinder_available)) {
-      if(!is.null(DB$meta_gs) & !is.null(input$gs_view)) {
-        if(input$gs_view == "Table") {
-          column(
-            width = 10,
-            hr(), 
-            fluidRow(
-              column(
-                width = 4,
-                p(
-                  HTML(
-                    paste0("<span style='color: white; font-size: 18px'>", 
-                           "Gene Screening Results</br>",
-                           "<span style='color: white; font-size: 12px; font-style:italic'>", 
-                           "Comprising genes for resistance, virulence, stress, etc.")
-                  )
+      if(!is.null(DB$meta_gs)) {
+        column(
+          width = 10,
+          fluidRow(
+            column(
+              width = 4,
+              p(
+                HTML(
+                  paste0("<span style='color: white; font-size: 18px'>", 
+                         "Gene Screening Results</br>",
+                         "<span style='color: white; font-size: 12px; font-style:italic'>", 
+                         "Comprising genes for resistance, virulence, stress, etc.")
                 )
-              ),
-              column(
-                width = 4,
-                uiOutput("gs_download")
               )
             ),
-            br(),
-            uiOutput("gs_results_table")
-          )
-        } else {
-          column(
-            width = 10,
-            fluidRow(
-              column(
-                width = 4,
-                p(
-                  HTML(
-                    paste0("<span style='color: white; font-size: 18px'>", 
-                           "Gene Screening Results</br>",
-                           "<span style='color: white; font-size: 12px; font-style:italic'>", 
-                           "Comprising genes for resistance, virulence, stress, etc.")
-                  )
-                )
-              ),
-              column(
-                width = 4,
-                div(
-                  class = "gs-picker",
-                  pickerInput(
-                    "gs_profile_select",
-                    "",
-                    choices = list(
-                      Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
-                        as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
-                      } else {
-                        DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
-                      },
-                      Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
-                        as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
-                      } else {
-                        DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
-                      },
-                      `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
-                        as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
-                      } else {
-                        DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
-                      }
-                    ),
-                    choicesOpt = list(
-                      disabled = c(
-                        rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
-                        rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
-                        rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
-                      )
-                    ),
-                    options = list(
-                      `live-search` = TRUE,
-                      size = 10,
-                      style = "background-color: white; border-radius: 5px;"
+            column(
+              width = 3,
+              div(
+                class = "gs-picker",
+                pickerInput(
+                  "gs_profile_select",
+                  "",
+                  choices = list(
+                    Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
+                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
+                    } else {
+                      DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+                    },
+                    Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
+                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
+                    } else {
+                      DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
+                    },
+                    `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
+                      as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
+                    } else {
+                      DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
+                    }
+                  ),
+                  choicesOpt = list(
+                    disabled = c(
+                      rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
+                      rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
+                      rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
                     )
+                  ),
+                  options = list(
+                    `live-search` = TRUE,
+                    size = 10,
+                    style = "background-color: white; border-radius: 5px;"
                   )
                 )
-              ),
-              column(
-                width = 3,
-                uiOutput("gs_download")
               )
             ),
-            br(),
-            uiOutput("gs_results_table")
-          )
-        }
+            column(
+              width = 1,
+              actionButton(
+                "gs_table_view",
+                "",
+                icon = icon("table-list")
+              ),
+              bsTooltip("gs_table_view", 
+                        HTML("Select from table"), 
+                        placement = "bottom", trigger = "hover")
+            ),
+            column(
+              width = 3,
+              align = "center",
+              uiOutput("gs_download")
+            )
+          ),
+          br(),
+          uiOutput("gs_results_table")
+        )
       } else {NULL}
     } else {NULL}
   })
   
-  # Screening sidebar
-  output$screening_sidebar <- renderUI({
-    req(DB$data)
-    if(!is.null(DB$meta_gs)) {
-      column(
-        width = 12,
-        align = "center",
-        br(), br(),
-        p(
-          HTML(
-            paste(
-              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Toggle View')
-            )
-          )
-        ),
-        radioGroupButtons(
-          inputId = "gs_view",
-          choices = c("Picker", "Table"),
-          selected = "Picker",
-          checkIcon = list(
-            yes = icon("square-check"),
-            no = icon("square")
-          )
-        ),
-        br()
-      )
-    } else {NULL}
-  })
-  
-  
   # Resistance profile table
   observe({
-    req(DB$meta_gs, Screening$selected_isolate, DB$database, DB$scheme, DB$data)
+    req(DB$meta_gs, input$gs_profile_select, DB$database, DB$scheme, DB$data)
     
-    if(length(Screening$selected_isolate) > 0 & any(Screening$selected_isolate %in% DB$data$`Assembly ID`)) {
-      iso_select <- Screening$selected_isolate
+    if(length(input$gs_profile_select) > 0 & any(input$gs_profile_select %in% DB$data$`Assembly ID`)) {
+      iso_select <- input$gs_profile_select
       iso_path <- file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates", 
                             iso_select, "amrfinder.out")
       
@@ -26073,8 +25911,10 @@ server <- function(input, output, session) {
       selection = "single",
       rownames= FALSE,
       options = list(pageLength = 10,
+                     autoWidth = TRUE,
                      columnDefs = list(list(searchable = TRUE,
-                                            targets = "_all")),
+                                            targets = "_all",
+                                            className = "dt-left")),
                      initComplete = DT::JS(
                        "function(settings, json) {",
                        "$('th:first-child').css({'border-top-left-radius': '5px'});",
@@ -26090,6 +25930,62 @@ server <- function(input, output, session) {
                        "}"
                      ))
     )
+  })
+  
+  observeEvent(input$gs_table_view, {
+    showModal(
+      div(
+        class = "start-modal",
+        div(
+          class = "modal-fit-content",
+          modalDialog(
+            fluidRow(
+              fluidRow(
+                br(), 
+                column(
+                  width = 11,
+                  p(
+                    HTML(
+                      paste0(
+                        '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                        "Click an isolate from the local database to display the corresponding gene screening results.",
+                        '</span>'
+                      )
+                    )
+                  ),
+                  uiOutput("gs_table_selected_isolate")
+                ),
+                br()
+              ),
+              br(),
+              column(
+                width = 12,
+                div(class = "loci_table",
+                    dataTableOutput("gs_isolate_table"))
+              ),
+              br()
+            ),
+            title = paste("Select Isolate"),
+            fade = TRUE,
+            easyClose = TRUE,
+            footer = tagList(
+              modalButton("Dismiss"),
+              actionButton("conf_gs_select", "Select")
+            )
+          )
+        )
+      )
+    )
+  })
+  
+  observeEvent(input$conf_gs_select, {
+    meta_gs <- DB$meta_gs[which(DB$meta_gs$Screened == "Yes"), ]
+    selected_isolate <- meta_gs$`Assembly ID`[input$gs_isolate_table_rows_selected]
+    
+    updatePickerInput(session, "gs_profile_select",
+                      selected = selected_isolate)
+    
+    removeModal()
   })
   
   observe({
@@ -26110,6 +26006,7 @@ server <- function(input, output, session) {
               options = list(pageLength = 10,
                              columnDefs = list(list(searchable = TRUE,
                                                     targets = "_all")),
+                             dom = "tip",
                              initComplete = DT::JS(
                                "function(settings, json) {",
                                "$('th:first-child').css({'border-top-left-radius': '5px'});",
@@ -26217,80 +26114,85 @@ server <- function(input, output, session) {
             fluidRow(
               column(
                 width = 3,
-                align = "center",
-                box(
-                  solidHeader = TRUE,
-                  status = "primary",
-                  width = "100%",
-                  column(
-                    width = 12,
-                    p(
-                      HTML(
-                        paste(
-                          tags$span(style='color: white; font-size: 16px; margin-bottom: 0px', 'Select Isolates for Screening')
+                align = "left",
+                div(
+                  class = "screening-box",
+                  box(
+                    solidHeader = TRUE,
+                    status = "primary",
+                    width = "100%",
+                    title = "Initiate Screening",
+                    column(
+                      width = 12,
+                      align = "center",
+                      p(
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select Isolates for Screening')
+                          )
                         )
-                      )
-                    ),
-                    if(Screening$picker_status) {
-                      div(
-                        class = "screening_div",
-                        pickerInput(
-                          "screening_select",
-                          "",
-                          choices = list(
-                            Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
-                              as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
-                            } else {
-                              DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
-                            },
-                            Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
-                              as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
-                            } else {
-                              DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
-                            },
-                            `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
-                              as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
-                            } else {
-                              DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
-                            }
-                          ),
-                          choicesOpt = list(
-                            disabled = c(
-                              rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
-                              rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
-                              rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
-                            )
-                          ),
-                          options = list(
-                            `live-search` = TRUE,
-                            `actions-box` = TRUE,
-                            size = 10,
-                            style = "background-color: white; border-radius: 5px;"
-                          ),
-                          multiple = TRUE
+                      ),
+                      if(Screening$picker_status) {
+                        div(
+                          class = "screening_div",
+                          pickerInput(
+                            "screening_select",
+                            "",
+                            choices = list(
+                              Unscreened = if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")]) == 1) {
+                                as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])
+                              } else {
+                                DB$data$`Assembly ID`[which(DB$data$Screened == "No")]
+                              },
+                              Screened =  if (length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]) == 1) {
+                                as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])
+                              } else {
+                                DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")]
+                              },
+                              `No Assembly File` =  if (sum(DB$data$Screened == "NA") == 1) {
+                                as.list(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")])
+                              } else {
+                                DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]
+                              }
+                            ),
+                            choicesOpt = list(
+                              disabled = c(
+                                rep(FALSE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "No")])),
+                                rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "Yes")])),
+                                rep(TRUE, length(DB$data$`Assembly ID`[which(DB$data$Screened == "NA")]))
+                              )
+                            ),
+                            options = list(
+                              `live-search` = TRUE,
+                              `actions-box` = TRUE,
+                              size = 10,
+                              style = "background-color: white; border-radius: 5px;"
+                            ),
+                            multiple = TRUE
+                          )
                         )
-                      )
-                    } else {
-                      div(
-                        class = "screening_div",
-                        pickerInput(
-                          "screening_select",
-                          "",
-                          choices = Screening$picker_choices,
-                          selected = Screening$picker_selected,
-                          options = list(
-                            `live-search` = TRUE,
-                            `actions-box` = TRUE,
-                            size = 10,
-                            style = "background-color: white; border-radius: 5px;"
-                          ),
-                          multiple = TRUE
-                        ) 
-                      )
-                    },
-                    br(), br(),
-                    uiOutput("genome_path_gs"),
-                    br()
+                      } else {
+                        div(
+                          class = "screening_div",
+                          pickerInput(
+                            "screening_select",
+                            "",
+                            choices = Screening$picker_choices,
+                            selected = Screening$picker_selected,
+                            options = list(
+                              `live-search` = TRUE,
+                              `actions-box` = TRUE,
+                              size = 10,
+                              style = "background-color: white; border-radius: 5px;"
+                            ),
+                            multiple = TRUE
+                          ) 
+                        )
+                      },
+                      br(), br(),
+                      uiOutput("genome_path_gs"),
+                      br()
+                    )
                   )
                 )
               ),
@@ -26298,12 +26200,7 @@ server <- function(input, output, session) {
                 width = 3,
                 uiOutput("screening_start")
               ),
-              column(3),
-              column(
-                width = 3,
-                align = "center",
-                uiOutput("screening_result_sel")
-              )
+              uiOutput("screening_result_sel")
             )    
           )
         ),
@@ -26322,21 +26219,11 @@ server <- function(input, output, session) {
   
   ### Screening Events ----
   
-  observe({
-    req(DB$data, input$gs_view)
-    if(input$gs_view == "Table") {
-      meta_gs <- DB$meta_gs[which(DB$meta_gs$Screened == "Yes"), ]
-      Screening$selected_isolate <- meta_gs$`Assembly ID`[input$gs_isolate_table_rows_selected]
-    } else if(input$gs_view == "Picker") {
-      Screening$selected_isolate <- input$gs_profile_select
-    }
-  })
-  
   output$download_resistance_profile <- downloadHandler(
     filename = function() {
-      log_print(paste0("Save resistance profile table ", Screening$selected_isolate, "_Profile.csv"))
+      log_print(paste0("Save resistance profile table ", input$gs_profile_select, "_Profile.csv"))
       
-      paste0(format(Sys.Date()), "_", Screening$selected_isolate, "_Profile.csv")
+      paste0(format(Sys.Date()), "_", input$gs_profile_select, "_Profile.csv")
     },
     content = function(file) {
       write.table(
@@ -26468,100 +26355,104 @@ server <- function(input, output, session) {
     } else if (length(input$screening_select) > 0) {
       
       output$screening_start <- renderUI({
-        box(
-          solidHeader = TRUE,
-          status = "primary",
-          width = "100%",
-          if(length(input$screening_select) < 1) {
-            column(
-              width = 12,
-              align = "center",
-              p(
-                HTML(paste(
-                  '<i class="fa-solid fa-circle-exclamation" style="font-size:16px;color:orange"></i>',
-                  paste("<span style='color: white; font-style:italic'>", 
-                        "&nbsp Select Isolate(s) for Screening")))
-              ),
-              br(),
-              br()
-            )
-          } else if(Screening$status == "finished") {
-            column(
-              width = 12,
-              align = "center",
-              p(
-                HTML(paste(
-                  '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:white"></i>',
-                  paste("<span style='color: white; font-style:italic'>", 
-                        "&nbsp Reset to Perform Screening Again")))
-              ),
-              fluidRow(
-                actionButton(
-                  "screening_reset_bttn",
-                  "Reset",
-                  icon = icon("arrows-rotate")
-                )
-              ),
-              if(!is.null(Screening$status_df)) {
-                HTML(paste("<span style='color: white; font-style:italic;'>", 
-                          sum(Screening$status_df$status != "unfinished"), "/",
-                          nrow(Screening$status_df), " isolate(s) screened"))
-              },
-              br(),
-              br()
-            )
-          } else if(Screening$status == "idle") {
-            column(
-              width = 12,
-              align = "center",
-              p(
-                HTML(paste(
-                  '<i class="fa-solid fa-circle-check" style="font-size:16px;color:lightgreen"></i>',
-                  paste("<span style='color: white;font-size:16px'>",
-                        "&nbsp Select Isolates for Screening")))
-              ),
-              actionButton(
-                inputId = "screening_start_button",
-                label = "Start",
-                icon = icon("circle-play")
-              ),
-              br(),
-              br()
-            )
-          } else if(Screening$status == "started") {
-            column(
-              width = 12,
-              align = "center",
-              p(
-                HTML(paste(
-                  '<i class="fa-solid fa-clock" style="font-size:16px;color:white"></i>',
-                  paste("<span style='color: white;font-size:16px'>",
-                        "&nbsp Running Screening ...")))
-              ),
-              fluidRow(
-                column(3),
-                column(
-                  width = 3,
+        div(
+          class = "screening-box",
+          box(
+            solidHeader = TRUE,
+            status = "primary",
+            width = "100%",
+            title = "Perform Screening",
+            if(length(input$screening_select) < 1) {
+              column(
+                width = 12,
+                align = "center",
+                p(
+                  HTML(paste(
+                    '<i class="fa-solid fa-circle-exclamation" style="font-size:16px;color:orange"></i>',
+                    paste("<span style='color: white; font-style:italic'>", 
+                          "&nbsp Select Isolate(s) for Screening")))
+                ),
+                br(),
+                br()
+              )
+            } else if(Screening$status == "finished") {
+              column(
+                width = 12,
+                align = "center",
+                p(
+                  HTML(paste(
+                    '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:white"></i>',
+                    paste("<span style='color: white; font-style:italic'>", 
+                          "&nbsp Reset to perform screening again")))
+                ),
+                fluidRow(
                   actionButton(
-                    inputId = "screening_cancel",
-                    label = "Terminate",
-                    icon = icon("ban")
+                    "screening_reset_bttn",
+                    "Reset",
+                    icon = icon("arrows-rotate")
                   )
                 ),
-                column(
-                  width = 3,
-                  HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:22px;color:white;margin-top:27px;position:relative;left:35px; top:-10px"></i>'))
-                )
-              ),
-              if(!is.null(Screening$status_df)) {
-                HTML(paste("<span style='color: white; font-style:italic;'>", 
-                           sum(Screening$status_df$status != "unfinished"), "/",
-                           nrow(Screening$status_df), " isolate(s) screened"))
-              },
-              br(),
-              br()
-            )
-          }
+                if(!is.null(Screening$status_df)) {
+                  HTML(paste("<span style='color: white; font-style:italic;'>", 
+                             sum(Screening$status_df$status != "unfinished"), "/",
+                             nrow(Screening$status_df), " isolate(s) screened"))
+                },
+                br(),
+                br()
+              )
+            } else if(Screening$status == "idle") {
+              column(
+                width = 12,
+                align = "center",
+                p(
+                  HTML(paste(
+                    '<i class="fa-solid fa-circle-check" style="font-size:15px;color:lightgreen"></i>',
+                    paste("<span style='color: white;font-size:15px'>",
+                          "&nbsp Select isolates for screening")))
+                ),
+                actionButton(
+                  inputId = "screening_start_button",
+                  label = "Start",
+                  icon = icon("circle-play")
+                ),
+                br(),
+                br()
+              )
+            } else if(Screening$status == "started") {
+              column(
+                width = 12,
+                align = "center",
+                p(
+                  HTML(paste(
+                    '<i class="fa-solid fa-clock" style="font-size:16px;color:white"></i>',
+                    paste("<span style='color: white;font-size:16px'>",
+                          "&nbsp Running Screening ...")))
+                ),
+                fluidRow(
+                  column(3),
+                  column(
+                    width = 3,
+                    actionButton(
+                      inputId = "screening_cancel",
+                      label = "Terminate",
+                      icon = icon("ban")
+                    )
+                  ),
+                  column(
+                    width = 3,
+                    HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:22px;color:white;margin-top:27px;position:relative;left:35px; top:-10px"></i>'))
+                  )
+                ),
+                if(!is.null(Screening$status_df)) {
+                  HTML(paste("<span style='color: white; font-style:italic;'>", 
+                             sum(Screening$status_df$status != "unfinished"), "/",
+                             nrow(Screening$status_df), " isolate(s) screened"))
+                },
+                br(),
+                br()
+              )
+            }
+          )
         )
       })
     } else {NULL}
@@ -26668,7 +26559,6 @@ server <- function(input, output, session) {
                     )
                   )
                 ),
-                br(),
                 dataTableOutput("screening_table") 
               )
             )
@@ -26723,43 +26613,57 @@ server <- function(input, output, session) {
         
         if(isTRUE(Screening$first_result)) {
           output$screening_result_sel <- renderUI(
-            box(
-              solidHeader = TRUE,
-              status = "primary",
-              width = "100%",
+            fluidRow(
               column(
-                width = 12,
+                width = 2,
                 align = "center",
-                p(
-                  HTML(
-                    paste(
-                      tags$span(style='color: white; font-size: 16px; margin-bottom: 0px', 'Select Result')
+                HTML('<i class="fa-solid fa-right-long fa-beat-fade" style="font-size: 50px; color: white; margin-top: 80px;"></i>')
+              ),
+              column(
+                width = 3,
+                align = "left",
+                div(
+                  class = "screening-box",
+                  box(
+                    solidHeader = TRUE,
+                    status = "primary",
+                    width = "100%",
+                    title = "Browse Result(s)",
+                    column(
+                      width = 12,
+                      align = "center",
+                      p(
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px', 'Select screening results')
+                          )
+                        )
+                      ),
+                      div(
+                        class = "screening-div",
+                        selectInput(
+                          "screening_res_sel",
+                          label = "",
+                          choices = ""
+                        )
+                      ),
+                      if(!is.null(Screening$status_df)) {
+                        HTML(paste("<span style='color: white; font-style:italic;'>", 
+                                   if(sum(Screening$status_df$status == "success") == 1) {
+                                     "1 success &nbsp / &nbsp"
+                                   } else {
+                                     paste0(sum(Screening$status_df$status == "success"), " successes &nbsp / &nbsp")
+                                   },
+                                   if(sum(Screening$status_df$status == "fail") == 1) {
+                                     "1 failure"
+                                   } else {
+                                     paste0(sum(Screening$status_df$status == "fail"), " failures")
+                                   }))
+                      }, 
+                      br(), br()
                     )
                   )
-                ),
-                div(
-                  class = "screening-div",
-                  selectInput(
-                    "screening_res_sel",
-                    label = "",
-                    choices = ""
-                  )
-                ),
-                br(),
-                if(!is.null(Screening$status_df)) {
-                  HTML(paste("<span style='color: white; font-style:italic;'>", 
-                             if(sum(Screening$status_df$status == "success") == 1) {
-                               "1 success &nbsp / &nbsp"
-                             } else {
-                               paste0(sum(Screening$status_df$status == "success"), " successes &nbsp / &nbsp")
-                             },
-                             if(sum(Screening$status_df$status == "fail") == 1) {
-                               "1 failure"
-                             } else {
-                               paste0(sum(Screening$status_df$status == "fail"), " failures")
-                             }))
-                }, 
-                br(), br()
+                )   
               )
             )
           )

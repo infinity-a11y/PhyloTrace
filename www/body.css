@@ -20,6 +20,14 @@ input[type="checkbox"] {
   background-color: transparent;
 }
 
+.modal-fit-content .modal-content {
+  width: fit-content;
+}
+
+.modal-fit-content .modal-dialog {
+  width: fit-content !important;
+}
+
 body > div.waiter-overlay.waiter-fullscreen,
 .waiter-overlay.waiter-fullscreen {
   background: linear-gradient(135deg, rgb(40, 47, 56), rgb(56, 68, 84), rgb(73, 93, 120));
@@ -94,6 +102,7 @@ table {
 
 .waiter-overlay {
   left: 0px !important;
+  z-index: 777;
 }
 
 .htCheckboxRendererInput .handsontable .htCheckboxRendererInput {
@@ -117,7 +126,9 @@ table {
 }
 
 .modal-body .dataTables_info,
-.modal-body .dataTables_paginate .paging_simple_numbers {
+.modal-body .dataTables_paginate .paging_simple_numbers,
+.dataTables_wrapper .dataTables_paginate,
+.dataTables_wrapper .dataTables_info {
   margin-top: 10px;
 }
 
@@ -126,47 +137,49 @@ table {
  text-align: justify;
 }
 
+#menu_screening,
 #menu_typing {
-  margin-left: 25px;
-  margin-right: 5px;
+  margin-top: 10px;
 }
 
-#menu_screening {
-  margin-left: 25px;
-  margin-right: 5px;
-}
-
-#menu_header_typing {
-  margin-top: -25px;
+.sidebar-menu:hover {
+  overflow: hidden;
 }
 
 .menu-header-typing {
-  background: #1F4E5D;
-  padding-bottom: 2px;
-  padding-left: 23px;
-  border: 1px solid #ffffff;
-  position: relative;
-  top: 222px;
-  border-radius: 5px;
-  width: 70%;
-  left: -60px;
-  transform: rotate(270deg);
-  z-index: 9999;
+    /* background: #0000002e; */
+    /* padding-bottom: 2px; */
+    /* padding-left: 9px; */
+    border: 1px solid #ffffff42;
+    position: relative;
+    /* border-radius: 5px; */
+    width: 100%;
+    /* left: 21px; */
+    /* transform: rotate(270deg); */
+    z-index: -9998;
+    padding-right: 0px;
+    height: 20px;
+    border-right: none;
+    border-left: none;
+    border-bottom: none;
 }
 
 .menu-header-screening {
-  background: #1F4E5D;
-  padding-bottom: 2px;
-  padding-left: 9px;
-  border: 1px solid #ffffff;
-  position: relative;
-  top: 126px;
-  border-radius: 5px;
-  width: 60%;
-  left: -48px;
-  transform: rotate(270deg);
-  z-index: 9999;
-  padding-right: 0px;
+    /* background: #0000002e; */
+    /* padding-bottom: 2px; */
+    /* padding-left: 9px; */
+    border: 1px solid #ffffff42;
+    position: relative;
+    /* border-radius: 5px; */
+    width: 100%;
+    /* left: 21px; */
+    /* transform: rotate(270deg); */
+    z-index: -9998;
+    padding-right: 0px;
+    height: 20px;
+    border-right: none;
+    border-left: none;
+    border-bottom: none;
 }
 
 .menu-footer-typing {
@@ -278,8 +291,6 @@ body > div.pcr-app.pickr-color.visible {
   top: -2px;
 }
 
-
-
 #nj_heatmap_confirm,
 #change_entries,
 #conf_screening_cancel,
@@ -292,7 +303,8 @@ body > div.pcr-app.pickr-color.visible {
 #conf_delete,
 #conf_delete_all,
 #shiny-modal > div > div > div.modal-footer > button:nth-child(1),
-#conf_shutdown {
+#conf_shutdown,
+#conf_gs_select {
   min-width: 100px !important;
   border-color: white;
 }
@@ -732,16 +744,17 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
   border: 1px solid #ffffff75 !important;
   background: #282F38;
   width: 75%;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .skin-blue .sidebar-menu>li>a {
-  background: #282F38;
-  border: 1px solid #ffffff75 !important;
+  background: #d1d9df;
+  border: 1px solid #ffffff00 !important;
   margin-top: 5px;
-  border-radius: 5px !important;
-  width: 84%;
-  left: 18px;
+  border-radius: 10px !important;
+  width: 90%;
+  left: 10px;
+  color: black !important;
 }
 
 .main-sidebar .sidebar .sidebar-menu .treeview-menu li.active a {
@@ -751,7 +764,7 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
   margin-bottom: 7px;
   border: 1px solid transparent !important;
   background: #20E6E5;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .main-sidebar .sidebar .sidebar-menu .treeview-menu li:hover a {
@@ -760,7 +773,7 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
   margin-top: 7px; 
   margin-bottom: 7px;
   border: 1px solid #ffffff75 !important;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover {
@@ -1017,10 +1030,25 @@ table.dataTable tbody tr {
   border-radius: 5px !important;
 }
 
+table.dataTable th, table.dataTable td {
+  white-space: nowrap;
+}
+
+table.dataTable thead th .dt-left .sorting, table.dataTable thead tr th,
+.modal-fit-content table.dataTable > thead > tr > th:nth-child(n) {
+  white-space: nowrap;
+  text-align: left;
+  padding-right: 35px;
+}
+
 #gs_profile_table table.dataTable tbody tr {
   background-color: transparent;
   border-bottom-left-radius: 0px !important;
   border-bottom-right-radius: 0px !important;
+}
+
+#gs_isolate_table {
+  padding: 10px;
 }
 
 table.dataTable.stripe>tbody>tr.odd.selected>*, table.dataTable.display>tbody>tr.odd.selected>* {
@@ -4126,7 +4154,7 @@ button#download_report_bttn {
 }
 
 /* Gene Screening */
-
+  
 .screening_div {
   margin-top: -10px;
   margin-bottom: -10px;
@@ -4134,7 +4162,7 @@ button#download_report_bttn {
 
 .screening-div {
   margin-top: -10px;
-  margin-bottom: 10px;
+  margin-bottom: 26px;
 }
 
 button#gsplot_isolate_label_menu {
@@ -4448,6 +4476,13 @@ button#gs_download_plot_bttn {
   margin-bottom: 5px;
 }
 
+#gs_table_view {
+  margin-top: 7px;
+  border: 1px solid white;
+  width: 40px;
+  margin-left: -30px;
+}
+
 #gsplot_isolate_label_menu_dropmenu .tippy-popper {
   width: 240px;
 }
@@ -4458,12 +4493,13 @@ button#gs_download_plot_bttn {
 
 button#download_resistance_profile_bttn {
   background: #282F38;
-  Color: #ffffff;
+  color: #ffffff;
   border: 1px solid white;
   transition: border-color 0.3s ease;
   opacity: 1;
   font-size: 15px;
-  margin-top: 10px;
+  margin-top: 7px;
+  height: 34px;
 }
 
 .dataTables_wrapper.no-footer .dataTables_scrollBody {
@@ -4478,19 +4514,27 @@ button#download_resistance_profile_bttn {
 }
 
 #screening_cancel {
-  margin-bottom: 31px; 
+  margin-bottom: 30px; 
   margin-left: -25px;
 }
 
 #screening_reset_bttn {
   margin-top: 12px !important;
-  margin-bottom: 31px;
+  margin-bottom: 30px;
 }
 
 #screening_start_button {
-  margin-bottom: 51px !important;
+  margin-bottom: 50px !important;
 }
 
 #screening_fail {
-  max-width: 1000px;
+  white-space: break-spaces;
+  margin-top: -20px;
+  margin-left: -10px;
+  max-width: 70%;
+}
+
+.screening-box .box-body {
+  padding-top: 15px;
+  padding-bottom: 0px;
 }

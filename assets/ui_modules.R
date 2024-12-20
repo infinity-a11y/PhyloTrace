@@ -322,14 +322,28 @@ upgma_control_box <- box(
   )
 )
 
-# empty_plot_field <- renderUI(
-#   fluidRow(
-#     br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-#     br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-#     br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
-#     br(), br(), br(), br(), br(), br(), br(), br(), br(), br()
-#   )
-# )
+# Locus Screening Menu
+screening_menu_available <- sidebarMenu(
+  menuItem(
+    text = "AMR Profile",
+    tabName = "gene_screening",
+    icon = icon("dna"),
+    startExpanded = TRUE,
+    menuSubItem(
+      text = "Browse Results",
+      tabName = "gs_profile"
+    ),
+    menuSubItem(
+      text = "Screening",
+      tabName = "gs_screening"
+    ),
+    menuSubItem(
+      text = "Visualization",
+      tabName = "gs_visualization"
+    )
+  )
+)
+
 
 initiate_multi_typing_ui <- renderUI({
   column(
