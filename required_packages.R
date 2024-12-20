@@ -60,7 +60,7 @@ required_github_packages <- c(
 # Install CRAN packages only if they are not already installed
 for (package in required_cran_packages) {
   if (!require(package, character.only = TRUE)) {
-    install.packages(package)
+    install.packages(package, repos="https://cloud.r-project.org/")
   }
 }
 
