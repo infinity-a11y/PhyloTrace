@@ -978,48 +978,28 @@ server <- function(input, output, session) {
   
   # _______________________ ####
   
+  
   ## Startup ----
   
-  addTooltip(session, id = 'settings_menu_dropmenu', 
-             title = "Labels",
-             placement = "bottom", trigger = "hover", 
-             options = list(delay = list(show = 400, hide = 300)))
-  
-  shinyjs::addClass(selector = "body", class = "sidebar-collapse")
-  shinyjs::removeClass(selector = "body", class = "sidebar-toggle")
-  
-  output$messageMenu <- renderText({
-    HTML(format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"))
-  })
-  
+  ### Logging ----
+  # Set log paths
   logdir <- file.path(path_home(), ".local", "share", "phylotrace", "logs")
   logfile <- file.path(logdir, "phylotrace.log")
   
-  # Initiate logging
+  # Create log dir
   if(!dir_exists(logdir)) {
     dir_create(logdir, recurse = TRUE)
   }
   
+  # Initiate logging
   logfile <- file.path(file.path(logdir, "phylotrace.log"))
-  
   log <- log_open(logfile, logdir = FALSE)
-  
   log_print("Session started")
   
-  # Clear screening file
-  if(file.exists(paste0(getwd(), "/execute/screening/output_file.tsv"))) {
-    file.remove(paste0(getwd(), "/execute/screening/output_file.tsv"))
-  }
-  
-  if(file.exists(paste0(getwd(), "/execute/screening/error.txt"))) {
-    file.remove(paste0(getwd(), "/execute/screening/error.txt"))
-  }
-  
-  ## Declare reactive variables
+  ### Reactive variables ----
   
   # reactive variables related to startup process
-  Startup <- reactiveValues(sidebar = TRUE, 
-                            header = TRUE) 
+  Startup <- reactiveValues(sidebar = TRUE) 
   
   # reactive variables related to local database
   DB <- reactiveValues(data = NULL, 
@@ -1059,15 +1039,32 @@ server <- function(input, output, session) {
   # reactive variables related to report functions
   Report <- reactiveValues() 
   
-  # reactive variables related to scheme  functions
+  # reactive variables related to scheme functions
   Scheme <- reactiveValues() 
+  
+  
+  ### Set up environment ----
+  
+  
+  #### Screening environment ----
+  
+  # Clear screening file
+  if(file.exists(paste0(getwd(), "/execute/screening/output_file.tsv"))) {
+    file.remove(paste0(getwd(), "/execute/screening/output_file.tsv"))
+  }
+  
+  if(file.exists(paste0(getwd(), "/execute/screening/error.txt"))) {
+    file.remove(paste0(getwd(), "/execute/screening/error.txt"))
+  }
+  
+  
+  #### Database environment ----
   
   # Load last used database if possible
   if(paste0(getwd(), "/execute/last_db.rds") %in% dir_ls(paste0(getwd(), "/execute"))) {
     DB$last_db <- TRUE
   }
-
-  # Locate local Database
+  
   observe({
     
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')  
@@ -1117,7 +1114,7 @@ server <- function(input, output, session) {
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')  
   })
   
-  ### Set up typing environment ----
+  #### Typing environment ----
   
   # Null typing progress trackers
   writeLines("0", file.path(logdir, "script_log.txt"))
@@ -1136,6 +1133,16 @@ server <- function(input, output, session) {
   Typing$last_failure <- "0" # Null last multi typing failure name
   
   ### Landing page UI ----
+  
+  # Hide sidebar on startup
+  shinyjs::addClass(selector = "body", class = "sidebar-collapse")
+  shinyjs::removeClass(selector = "body", class = "sidebar-toggle")
+  
+  # Show system time
+  output$messageMenu <- renderText({
+    HTML(format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"))
+  })
+  
   observe({
     if (Startup$sidebar == FALSE) {
       shinyjs::removeClass(selector = "body", class = "sidebar-collapse")
@@ -1199,17 +1206,6 @@ server <- function(input, output, session) {
       )
     )
   )
-  
-  # User selection new db or load db
-  observeEvent(input$create_new_db, {
-    log_print("Input create_new_db")
-    DB$select_new <- TRUE
-  })
-  
-  observeEvent(input$db_location, {
-    log_print("Input db_location")
-    DB$select_new <- FALSE
-  })
   
   # Load db & scheme selection UI
   output$load_db <- renderUI(
@@ -1453,6 +1449,20 @@ server <- function(input, output, session) {
          height = 180)
   }, deleteFile = FALSE)
   
+  
+  ### Landing page events ----
+  
+  # User selection new db or load db
+  observeEvent(input$create_new_db, {
+    log_print("Input create_new_db")
+    DB$select_new <- TRUE
+  })
+  
+  observeEvent(input$db_location, {
+    log_print("Input db_location")
+    DB$select_new <- FALSE
+  })
+  
   ### Load app event ----
   
   observeEvent(input$load, {
@@ -1464,7 +1474,48 @@ server <- function(input, output, session) {
     output$start_message <- NULL
     output$load_db <- NULL
     
+    shinyjs::addClass(selector = "body", class = "sidebar-collapse")
+    shinyjs::removeClass(selector = "body", class = "sidebar-toggle")
+    
     waiter_show(html = waiting_screen, color = "#384555")
+    
+    #### Reset reactive variables ----
+    
+    # Reset typing reactive values
+    resetVars(Typing)
+    Typing <- reactiveValues(table = data.frame(), 
+                             single_path = data.frame(),
+                             progress = 0, 
+                             progress_format_start = 0, 
+                             progress_format_end = 0,
+                             status = "",
+                             file_selection = "") 
+    
+    # Reset screening reactive values
+    resetVars(Screening)
+    Screening <- reactiveValues(status = "idle",
+                                picker_status = TRUE) 
+    
+    # Reset visualization reactive values
+    resetVars(Vis)
+    Vis <- reactiveValues(metadata = list(),
+                          custom_label_nj = data.frame(),
+                          nj_label_pos_y = list(),
+                          nj_label_pos_x = list(),
+                          nj_label_size = list(),
+                          custom_label_upgma = data.frame(),
+                          upgma_label_pos_y = list(),
+                          upgma_label_pos_x = list(),
+                          upgma_label_size = list()) 
+    
+    # Reset report reactive values
+    resetVars(Report)
+    
+    # Reset report reactive values
+    resetVars(Scheme)
+    
+    ### Reset UI elements ----
+    
     
     # Reset reactive screening variables 
     output$screening_start <- NULL
@@ -1502,7 +1553,7 @@ server <- function(input, output, session) {
     if(Typing$status == "Finalized") {Typing$status <- "Inactive"}
     if(!is.null(Typing$single_path)) {Typing$single_path <- data.frame()}
     
-    #### Render status bar ----
+    ### Render status bar ----
     observe({
       req(DB$scheme)
       
@@ -1746,10 +1797,9 @@ server <- function(input, output, session) {
         
         removeModal()
         
-        #### Render Menu Items ----
+        ### Render Menu Items ----
         
         Startup$sidebar <- FALSE
-        Startup$header <- FALSE
         
         output$menu_header_typing <- NULL
         output$menu_header_screening <- NULL
@@ -1901,10 +1951,7 @@ server <- function(input, output, session) {
         
         removeModal()
         
-        #### Render Menu Items ----
-        
         Startup$sidebar <- FALSE
-        Startup$header <- FALSE
         
         output$menu_header_typing <- renderUI(
           div(
@@ -2204,109 +2251,6 @@ server <- function(input, output, session) {
                 # Cluster threshold
                 DB$cluster_thresh <- 10
               }
-              
-              ### Check if scheme update available
-              if(isTRUE(DB$scheme_new)) {
-                # Query remote scheme
-                if(DB$scheme_db == "cgMLST.org Nomenclature Server (h25)") {
-                  
-                  db_spec <- schemes[schemes[,"database"] == "cgMLST.org",]
-                  DB$url_link <- db_spec[, "url"][db_spec[, "species"] == gsub(" ", "_", DB$scheme)]
-                  
-                  remote <- tryCatch({
-                    read_html(DB$url_link)
-                  }, error = function(e) {
-                    DB$failCon <- TRUE
-                    show_toast(
-                      title = "Could not retrieve data. Check internet connection.",
-                      type = "error",
-                      position = "bottom-end",
-                      timer = 6000
-                    )
-                    warning("Could not retrieve data. Check internet connection.")
-                    return(NULL)
-                  })
-                  
-                  if(is.null(remote)) {
-                    last_scheme_change <- NULL
-                  } else {
-                    DB$failCon <- FALSE
-                    remote_scheme <- remote %>%
-                      html_table(header = FALSE) %>%
-                      as.data.frame(stringsAsFactors = FALSE)
-                    
-                    last_scheme_change <- strptime(remote_scheme[,2][remote_scheme[,1] == "Last Change"],
-                                                   format = "%B %d, %Y, %H:%M %p")
-                  }
-                } else if(DB$scheme_db == "pubMLST") {
-                  
-                  db_spec <- schemes[schemes[,"database"] == "pubMLST",]
-                  DB$url_link <- db_spec[, "url"][db_spec[, "species"] == gsub(" ", "_", DB$scheme)]
-                  
-                  remote_scheme <- get.schemeinfo(url_link = DB$url_link)
-                  
-                  if(is.null(remote_scheme)) {
-                    last_scheme_change <- NULL
-                  } else {
-                    last_scheme_change <- remote_scheme[["last_updated"]]
-                  }
-                }
-                
-                if(!is.null(last_scheme_change)) {
-                  if(length(last_scheme_change) > 0) {
-                    last_file_change <- format(
-                      file.info(file.path(DB$database, ".downloaded_schemes",
-                                          paste0(gsub(" ", "_", DB$scheme), ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
-                    
-                    if(!is.null(last_file_change)) {
-                      if(length(last_file_change) > 0 & length(last_scheme_change) > 0) {
-                        if(last_file_change < last_scheme_change) {
-                          showModal(
-                            div(
-                              class = "start-modal",
-                              modalDialog(
-                                fluidRow(
-                                  br(), 
-                                  column(
-                                    width = 11,
-                                    p(
-                                      HTML(
-                                        paste0(
-                                          '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
-                                          "The ", DB$scheme, " scheme was updated at ",
-                                          last_scheme_change,
-                                          " on the ",
-                                          DB$schemeinfo[,2][DB$schemeinfo[,1] == "Database"],
-                                          " database. To fetch the changes download the scheme.",
-                                          '</span>'
-                                        )
-                                      )
-                                    )
-                                  ),
-                                  br()
-                                ),
-                                title = HTML(paste0(
-                                  '<i class="fa-solid fa-circle-exclamation" style="font-size:17px;color:white"></i>',
-                                  " &nbsp;&nbsp; Scheme update available")),
-                                fade = TRUE,
-                                easyClose = TRUE,
-                                footer = tagList(
-                                  modalButton("Dismiss"),
-                                  actionButton("update_scheme", "Update Scheme", 
-                                               icon = icon("layer-group"),
-                                               class = "btn btn-default")
-                                )
-                              )
-                            )
-                          )
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-              
-              DB$scheme_new <- FALSE
               
             } else {
               log_print(paste0("Scheme info file missing in the local ", DB$scheme, " folder"))
@@ -2823,7 +2767,7 @@ server <- function(input, output, session) {
                   }
                 })
                 
-                #### Render Entry Data Table ----
+                ##### Render Entry Data Table ----
                 output$db_entries_table <- renderUI({
                   if(!is.null(DB$data)) {
                     if(between(nrow(DB$data), 1, 30)) {
@@ -3891,7 +3835,7 @@ server <- function(input, output, session) {
                   )
                 })
                 
-                #### Render Distance Matrix ----
+                ## Render Distance Matrix ----
                 observe({
                   if(!is.null(DB$data)) {
                     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
@@ -4374,7 +4318,7 @@ server <- function(input, output, session) {
                   )
                 })
                 
-                #### Missing Values UI ----
+                # Missing Values UI ----
                 
                 # Missing values calculations and table 
                 observe({
@@ -4789,6 +4733,112 @@ server <- function(input, output, session) {
     
     waiter_hide()  
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
+    
+    ### Check if scheme update available
+    if(isTRUE(DB$scheme_new)) {
+      # Query remote scheme
+      if(DB$scheme_db == "cgMLST.org Nomenclature Server (h25)") {
+        
+        db_spec <- schemes[schemes[,"database"] == "cgMLST.org",]
+        DB$url_link <- db_spec[, "url"][db_spec[, "species"] == gsub(" ", "_", DB$scheme)]
+        
+        remote <- tryCatch({
+          read_html(DB$url_link)
+        }, error = function(e) {
+          DB$failCon <- TRUE
+          show_toast(
+            title = "Could not retrieve data. Check internet connection.",
+            type = "error",
+            position = "bottom-end",
+            timer = 6000
+          )
+          warning("Could not retrieve data. Check internet connection.")
+          return(NULL)
+        })
+        
+        if(is.null(remote)) {
+          last_scheme_change <- NULL
+        } else {
+          DB$failCon <- FALSE
+          remote_scheme <- remote %>%
+            html_table(header = FALSE) %>%
+            as.data.frame(stringsAsFactors = FALSE)
+          
+          last_scheme_change <- strptime(remote_scheme[,2][remote_scheme[,1] == "Last Change"],
+                                         format = "%B %d, %Y, %H:%M %p")
+        }
+      } else if(DB$scheme_db == "pubMLST") {
+        
+        db_spec <- schemes[schemes[,"database"] == "pubMLST",]
+        DB$url_link <- db_spec[, "url"][db_spec[, "species"] == gsub(" ", "_", DB$scheme)]
+        
+        remote_scheme <- get.schemeinfo(url_link = DB$url_link)
+        
+        if(is.null(remote_scheme)) {
+          last_scheme_change <- NULL
+        } else {
+          last_scheme_change <- remote_scheme[["last_updated"]]
+        }
+      }
+      
+      if(!is.null(last_scheme_change)) {
+        if(length(last_scheme_change) > 0) {
+          last_file_change <- format(
+            file.info(file.path(DB$database, ".downloaded_schemes",
+                                paste0(gsub(" ", "_", DB$scheme), ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
+          
+          if(!is.null(last_file_change)) {
+            if(length(last_file_change) > 0 & length(last_scheme_change) > 0) {
+              if(last_file_change < last_scheme_change) {
+                showModal(
+                  div(
+                    class = "start-modal",
+                    modalDialog(
+                      fluidRow(
+                        br(), 
+                        column(
+                          width = 11,
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                                "The ", DB$scheme, " scheme was updated at ",
+                                last_scheme_change,
+                                " on the ",
+                                DB$schemeinfo[,2][DB$schemeinfo[,1] == "Database"],
+                                " database. To fetch the changes download the scheme.",
+                                '</span>'
+                              )
+                            )
+                          )
+                        ),
+                        br()
+                      ),
+                      title = HTML(paste0(
+                        '<i class="fa-solid fa-circle-exclamation" style="font-size:17px;color:white"></i>',
+                        " &nbsp;&nbsp; Scheme update available")),
+                      fade = TRUE,
+                      easyClose = TRUE,
+                      footer = tagList(
+                        modalButton("Dismiss"),
+                        actionButton("update_scheme", "Update Scheme", 
+                                     icon = icon("layer-group"),
+                                     class = "btn btn-default")
+                      )
+                    )
+                  )
+                )
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    DB$scheme_new <- FALSE
+    
+    shinyjs::removeClass(selector = "body", class = "sidebar-collapse")
+    shinyjs::addClass(selector = "body", class = "sidebar-toggle")
   })
   
   # _______________________ ####
@@ -28426,7 +28476,7 @@ server <- function(input, output, session) {
   Typing$progress_format_end <- 0
   
   observe({
-    if(Typing$single_end == FALSE) {
+    if(isFALSE(Typing$single_end)) {
       if (Typing$progress_format_end == 999999) {
         show_toast(
           title = "Single Typing finalized",
@@ -29271,7 +29321,7 @@ server <- function(input, output, session) {
   
   observe({
     if(file.exists(file.path(logdir, "script_log.txt"))) {
-      if(Typing$multi_started == TRUE) {
+      if(isTRUE(Typing$multi_started)) {
         check_multi_status()
       } else {
         Typing$status <- "Inactive"

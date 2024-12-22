@@ -1,5 +1,12 @@
 # Functions
 
+# Reset reactive variables
+resetVars <- function(varList) {
+  for (name in names(varList)) {
+    varList[[name]] <- NULL
+  }
+}
+
 # Function to read and format FASTA sequences
 format_fasta <- function(filepath) {
   fasta <- readLines(filepath)
