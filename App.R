@@ -922,7 +922,7 @@ server <- function(input, output, session) {
   # Render Entry Table Highlights 
   diff_allele <- reactive({
     if (!is.null(DB$data) & !is.null(input$compare_select) & !is.null(DB$cust_var)) {
-      var_alleles(select(DB$data, input$compare_select)) + (13 + nrow(DB$cust_var))
+      var_alleles(select(DB$data, any_of(input$compare_select))) + (13 + nrow(DB$cust_var))
     }
   })
   
@@ -2998,6 +2998,7 @@ server <- function(input, output, session) {
                       if (nrow(DB$data) == 1) {
                         if(!is.null(DB$data) & !is.null(DB$cust_var)) {
                           output$db_entries <- renderRHandsontable({
+                            
                             rhandsontable(
                               select(DB$data, 1:(13 + nrow(DB$cust_var))),
                               error_highlight = err_thresh() - 1,                              
@@ -3095,37 +3096,39 @@ server <- function(input, output, session) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
                             output$db_entries <- renderRHandsontable({
                               
-                              shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-                              w$show()
-                              
-                              entry_data <- DB$data %>%
-                                select(1:(13 + nrow(DB$cust_var))) %>%
-                                add_column(select(DB$allelic_profile_trunc, input$compare_select))
-                              
-                              tab <- rhandsontable(
-                                entry_data,
-                                col_highlight = diff_allele() - 1,
-                                dup_names_high = duplicated_names() - 1,
-                                dup_ids_high = duplicated_ids() - 1,
-                                row_highlight = true_rows() - 1,
-                                error_highlight = err_thresh() - 1,
-                                rowHeaders = NULL,
-                                highlightCol = TRUE, 
-                                highlightRow = TRUE,
-                                contextMenu = FALSE,
-                                height = entry_table_height()
-                              )  %>%
-                                hot_col((14 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)), 
-                                        valign = "htMiddle",
-                                        halign = "htCenter",
-                                        readOnly = TRUE) %>%
-                                hot_col(1, 
-                                        valign = "htMiddle",
-                                        halign = "htCenter") %>%
-                                hot_col(3, readOnly = TRUE) %>%
-                                hot_col(c(1, 5, 10, 11, 12, 13),
-                                        readOnly = TRUE) %>%
-                                hot_col(3, validator = "
+                              if(!any(input$compare_select %in% colnames(DB$allelic_profile) != TRUE)) {
+                                
+                                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+                                w$show()
+                                  
+                                entry_data <- DB$data %>%
+                                  select(1:(13 + nrow(DB$cust_var))) %>%
+                                  add_column(select(DB$allelic_profile_trunc, any_of(input$compare_select)))
+                                
+                                tab <- rhandsontable(
+                                  entry_data,
+                                  col_highlight = diff_allele() - 1,
+                                  dup_names_high = duplicated_names() - 1,
+                                  dup_ids_high = duplicated_ids() - 1,
+                                  row_highlight = true_rows() - 1,
+                                  error_highlight = err_thresh() - 1,
+                                  rowHeaders = NULL,
+                                  highlightCol = TRUE,
+                                  highlightRow = TRUE,
+                                  contextMenu = FALSE,
+                                  height = entry_table_height()
+                                ) %>%
+                                  hot_col((14 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)),
+                                          valign = "htMiddle",
+                                          halign = "htCenter",
+                                          readOnly = TRUE) %>%
+                                  hot_col(1,
+                                          valign = "htMiddle",
+                                          halign = "htCenter") %>%
+                                  hot_col(3, readOnly = TRUE) %>%
+                                  hot_col(c(1, 5, 10, 11, 12, 13),
+                                          readOnly = TRUE) %>%
+                                  hot_col(3, validator = "
                                   function(value, callback) {
                                     try {
                                       if (value === null || value.trim() === '') {
@@ -3142,7 +3145,7 @@ server <- function(input, output, session) {
                                     }
                                   }
                                 ") %>%
-                                hot_col(4, validator = "
+                                  hot_col(4, validator = "
                                   function(value, callback) {
                                     try {
                                       if (value === null || value.trim() === '') {
@@ -3159,108 +3162,109 @@ server <- function(input, output, session) {
                                     }
                                   }
                                 ") %>%
-                                hot_col(3:(13 + nrow(DB$cust_var)), 
-                                        valign = "htMiddle",
-                                        halign = "htLeft") %>%
-                                hot_col(8, type = "dropdown", source = country_names) %>%
-                                hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
-                                        validator = "
+                                  hot_col(3:(13 + nrow(DB$cust_var)),
+                                          valign = "htMiddle",
+                                          halign = "htLeft") %>%
+                                  hot_col(8, type = "dropdown", source = country_names) %>%
+                                  hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                                          validator = "
                                 function (value, callback) {
                                   var today_date = new Date();
                                   today_date.setHours(0, 0, 0, 0);
-                                  
+
                                   var new_date = new Date(value);
                                   new_date.setHours(0, 0, 0, 0);
-                                  
+
                                   try {
                                     if (new_date <= today_date) {
                                       callback(true);
                                       Shiny.setInputValue('invalid_date', false);
                                     } else {
-                                      callback(false); 
+                                      callback(false);
                                       Shiny.setInputValue('invalid_date', true);
                                     }
                                   } catch (err) {
                                     console.log(err);
-                                    callback(false); 
+                                    callback(false);
                                     Shiny.setInputValue('invalid_date', true);
                                   }
                                 }") %>%
-                                hot_col(2, type = "checkbox", width = "auto",
-                                        valign = "htTop",
-                                        halign = "htCenter",
-                                        strict = TRUE,
-                                        allowInvalid = FALSE,
-                                        copyable = TRUE) %>%
-                                hot_cols(fixedColumnsLeft = 1) %>%
-                                hot_rows(fixedRowsTop = 0) %>%
-                                hot_col(1, renderer = "
+                                  hot_col(2, type = "checkbox", width = "auto",
+                                          valign = "htTop",
+                                          halign = "htCenter",
+                                          strict = TRUE,
+                                          allowInvalid = FALSE,
+                                          copyable = TRUE) %>%
+                                  hot_cols(fixedColumnsLeft = 1) %>%
+                                  hot_rows(fixedRowsTop = 0) %>%
+                                  hot_col(1, renderer = "
               function (instance, td, row, col, prop, value, cellProperties) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
-  
+
                        if (instance.params) {
                          hrows = instance.params.row_highlight
                          hrows = hrows instanceof Array ? hrows : [hrows]
-  
-                         if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)' 
+
+                         if (hrows.includes(row)) {
+                           td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)'
                          }
-  
+
                        }
               }") %>%
-                                hot_col(diff_allele(),
-                                        renderer = "
+                                  hot_col(diff_allele(),
+                                          renderer = "
                   function(instance, td, row, col, prop, value, cellProperties) {
                     Handsontable.renderers.NumericRenderer.apply(this, arguments);
-  
+
                     if (instance.params) {
                           hcols = instance.params.col_highlight;
                           hcols = hcols instanceof Array ? hcols : [hcols];
                         }
-  
+
                     if (instance.params && hcols.includes(col)) {
                       td.style.background = 'rgb(116, 188, 139)';
                     }
                 }"
-                                ) %>%
-                                hot_col(4, renderer = "
+                                  ) %>%
+                                  hot_col(4, renderer = "
               function (instance, td, row, col, prop, value, cellProperties) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
-  
+
                        if (instance.params) {
                          hrows = instance.params.dup_names_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
-  
-                         if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+
+                         if (hrows.includes(row)) {
+                           td.style.backgroundColor = 'rgb(224, 179, 0)'
                          }
                        }
               }") %>%
-                                hot_col(3, renderer = "
+                                  hot_col(3, renderer = "
               function (instance, td, row, col, prop, value, cellProperties) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
-  
+
                        if (instance.params) {
                          hrows = instance.params.dup_ids_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
-  
-                         if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+
+                         if (hrows.includes(row)) {
+                           td.style.backgroundColor = 'rgb(224, 179, 0)'
                          }
                        }
               }") %>%
-                                hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                  hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
                                                            Handsontable.renderers.TextRenderer.apply(this, arguments);
                                                            if (instance.params) {
                                                              hrows = instance.params.error_highlight
                                                              hrows = hrows instanceof Array ? hrows : [hrows]
-                                                             if (hrows.includes(row)) { 
-                                                               td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)' 
+                                                             if (hrows.includes(row)) {
+                                                               td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)'
                                                              }
                                                            }
-                                                       }") 
-                              shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
-                              return(tab)
+                                                       }")
+                                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
+                                return(tab)
+                              }
                             })
                           }
                         } else {
@@ -3268,32 +3272,33 @@ server <- function(input, output, session) {
                             
                             output$db_entries <- renderRHandsontable({
                               
-                              shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-                              w$show()
-                              
-                              tab <- rhandsontable(
-                                select(DB$data, 1:(13 + nrow(DB$cust_var))),
-                                rowHeaders = NULL,
-                                row_highlight = true_rows() - 1,
-                                dup_names_high = duplicated_names()- 1,
-                                dup_ids_high = duplicated_ids() - 1,
-                                error_highlight = err_thresh() - 1,
-                                contextMenu = FALSE,
-                                highlightCol = TRUE, 
-                                highlightRow = TRUE,
-                                height = entry_table_height()
-                              ) %>%
-                                hot_cols(fixedColumnsLeft = 1) %>%
-                                hot_col(1, 
-                                        valign = "htMiddle",
-                                        halign = "htCenter") %>%
-                                hot_col(3, readOnly = TRUE) %>%
-                                hot_col(c(1, 5, 10, 11, 12, 13),
-                                        readOnly = TRUE) %>%
-                                hot_col(3:(13 + nrow(DB$cust_var)), 
-                                        valign = "htMiddle",
-                                        halign = "htLeft") %>%
-                                hot_col(3, validator = "
+                              if(!any(input$compare_select %in% colnames(DB$allelic_profile) != TRUE)) {
+                                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+                                w$show()
+                                
+                                tab <- rhandsontable(
+                                  select(DB$data, 1:(13 + nrow(DB$cust_var))),
+                                  rowHeaders = NULL,
+                                  row_highlight = true_rows() - 1,
+                                  dup_names_high = duplicated_names()- 1,
+                                  dup_ids_high = duplicated_ids() - 1,
+                                  error_highlight = err_thresh() - 1,
+                                  contextMenu = FALSE,
+                                  highlightCol = TRUE, 
+                                  highlightRow = TRUE,
+                                  height = entry_table_height()
+                                ) %>%
+                                  hot_cols(fixedColumnsLeft = 1) %>%
+                                  hot_col(1, 
+                                          valign = "htMiddle",
+                                          halign = "htCenter") %>%
+                                  hot_col(3, readOnly = TRUE) %>%
+                                  hot_col(c(1, 5, 10, 11, 12, 13),
+                                          readOnly = TRUE) %>%
+                                  hot_col(3:(13 + nrow(DB$cust_var)), 
+                                          valign = "htMiddle",
+                                          halign = "htLeft") %>%
+                                  hot_col(3, validator = "
                                   function(value, callback) {
                                     try {
                                       if (value === null || value.trim() === '') {
@@ -3310,7 +3315,7 @@ server <- function(input, output, session) {
                                     }
                                   }
                                 ") %>%
-                                hot_col(4, validator = "
+                                  hot_col(4, validator = "
                                   function(value, callback) {
                                     try {
                                       if (value === null || value.trim() === '') {
@@ -3327,9 +3332,9 @@ server <- function(input, output, session) {
                                     }
                                   }
                                 ") %>%
-                                hot_col(8, type = "dropdown", source = country_names) %>%
-                                hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
-                                        validator = "
+                                  hot_col(8, type = "dropdown", source = country_names) %>%
+                                  hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                                          validator = "
                                 function (value, callback) {
                                   var today_date = new Date();
                                   today_date.setHours(0, 0, 0, 0);
@@ -3351,11 +3356,11 @@ server <- function(input, output, session) {
                                     Shiny.setInputValue('invalid_date', true);
                                   }
                                 }") %>%
-                                hot_col(2, type = "checkbox", width = "auto",
-                                        valign = "htTop",
-                                        halign = "htCenter") %>%
-                                hot_rows(fixedRowsTop = 0) %>%
-                                hot_col(1, renderer = "
+                                  hot_col(2, type = "checkbox", width = "auto",
+                                          valign = "htTop",
+                                          halign = "htCenter") %>%
+                                  hot_rows(fixedRowsTop = 0) %>%
+                                  hot_col(1, renderer = "
               function (instance, td, row, col, prop, value, cellProperties) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
@@ -3369,7 +3374,7 @@ server <- function(input, output, session) {
   
                        }
               }") %>%
-                                hot_col(4, renderer = "
+                                  hot_col(4, renderer = "
               function (instance, td, row, col, prop, value, cellProperties) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
@@ -3382,7 +3387,7 @@ server <- function(input, output, session) {
                          }
                        }
               }") %>%
-                                hot_col(3, renderer = "
+                                  hot_col(3, renderer = "
               function (instance, td, row, col, prop, value, cellProperties) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
   
@@ -3395,7 +3400,7 @@ server <- function(input, output, session) {
                          }
                        }
               }") %>%
-                                hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                  hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
                                                            Handsontable.renderers.TextRenderer.apply(this, arguments);
                                                            if (instance.params) {
                                                              hrows = instance.params.error_highlight
@@ -3405,8 +3410,9 @@ server <- function(input, output, session) {
                                                              }
                                                            }
                                                        }") 
-                              shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
-                              return(tab)
+                                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
+                                return(tab)
+                              }
                             })
                           }
                         }
@@ -3415,35 +3421,37 @@ server <- function(input, output, session) {
                           if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
                             output$db_entries <- renderRHandsontable({
                               
-                              shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-                              w$show()
-                              
-                              entry_data <- DB$data %>%
-                                select(1:(13 + nrow(DB$cust_var))) %>%
-                                add_column(select(DB$allelic_profile_trunc, input$compare_select))
-                              
-                              tab <- rhandsontable(
-                                entry_data,
-                                col_highlight = diff_allele() - 1,
-                                rowHeaders = NULL,
-                                height = entry_table_height(),
-                                row_highlight = true_rows() - 1,
-                                dup_names_high = duplicated_names() - 1,
-                                dup_ids_high = duplicated_ids() - 1,
-                                error_highlight = err_thresh() - 1,
-                                contextMenu = FALSE,
-                                highlightCol = TRUE, 
-                                highlightRow = TRUE
-                              ) %>%
-                                hot_col((14 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)),
-                                        readOnly = TRUE, 
-                                        valign = "htMiddle",
-                                        halign = "htCenter") %>%
-                                hot_col(3:(13 + nrow(DB$cust_var)), 
-                                        valign = "htMiddle",
-                                        halign = "htLeft") %>%
-                                hot_col(3, readOnly = TRUE) %>%
-                                hot_col(3, validator = "
+                              if(!any(input$compare_select %in% colnames(DB$allelic_profile) != TRUE)) {
+                                
+                                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+                                w$show()
+                                
+                                entry_data <- DB$data %>%
+                                  select(1:(13 + nrow(DB$cust_var))) %>%
+                                  add_column(select(DB$allelic_profile_trunc, any_of(input$compare_select)))
+                                
+                                tab <- rhandsontable(
+                                  entry_data,
+                                  col_highlight = diff_allele() - 1,
+                                  rowHeaders = NULL,
+                                  height = entry_table_height(),
+                                  row_highlight = true_rows() - 1,
+                                  dup_names_high = duplicated_names() - 1,
+                                  dup_ids_high = duplicated_ids() - 1,
+                                  error_highlight = err_thresh() - 1,
+                                  contextMenu = FALSE,
+                                  highlightCol = TRUE,
+                                  highlightRow = TRUE
+                                ) %>%
+                                  hot_col((14 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)),
+                                          readOnly = TRUE,
+                                          valign = "htMiddle",
+                                          halign = "htCenter") %>%
+                                  hot_col(3:(13 + nrow(DB$cust_var)),
+                                          valign = "htMiddle",
+                                          halign = "htLeft") %>%
+                                  hot_col(3, readOnly = TRUE) %>%
+                                  hot_col(3, validator = "
                                   function(value, callback) {
                                     try {
                                       if (value === null || value.trim() === '') {
@@ -3460,7 +3468,7 @@ server <- function(input, output, session) {
                                     }
                                   }
                                 ") %>%
-                                hot_col(4, validator = "
+                                  hot_col(4, validator = "
                                   function(value, callback) {
                                     try {
                                       if (value === null || value.trim() === '') {
@@ -3477,248 +3485,251 @@ server <- function(input, output, session) {
                                     }
                                   }
                                 ") %>%
-                                hot_col(c(1, 5, 10, 11, 12, 13),
-                                        readOnly = TRUE) %>%
-                                hot_col(8, type = "dropdown", source = country_names) %>%
-                                hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
-                                        validator = "
+                                  hot_col(c(1, 5, 10, 11, 12, 13),
+                                          readOnly = TRUE) %>%
+                                  hot_col(8, type = "dropdown", source = country_names) %>%
+                                  hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                                          validator = "
                                 function (value, callback) {
                                   var today_date = new Date();
                                   today_date.setHours(0, 0, 0, 0);
-                                  
+
                                   var new_date = new Date(value);
                                   new_date.setHours(0, 0, 0, 0);
-                                  
+
                                   try {
                                     if (new_date <= today_date) {
                                       callback(true);
                                       Shiny.setInputValue('invalid_date', false);
                                     } else {
-                                      callback(false); 
+                                      callback(false);
                                       Shiny.setInputValue('invalid_date', true);
                                     }
                                   } catch (err) {
                                     console.log(err);
-                                    callback(false); 
+                                    callback(false);
                                     Shiny.setInputValue('invalid_date', true);
                                   }
                                 }") %>%
-                                hot_col(1, 
-                                        valign = "htMiddle",
-                                        halign = "htCenter") %>%
-                                hot_col(2, type = "checkbox", width = "auto",
-                                        valign = "htTop",
-                                        halign = "htCenter",
-                                        allowInvalid = FALSE,
-                                        copyable = TRUE) %>%
-                                hot_cols(fixedColumnsLeft = 1) %>%
-                                hot_rows(fixedRowsTop = 0) %>%
-                                hot_col(1, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                  hot_col(1,
+                                          valign = "htMiddle",
+                                          halign = "htCenter") %>%
+                                  hot_col(2, type = "checkbox", width = "auto",
+                                          valign = "htTop",
+                                          halign = "htCenter",
+                                          allowInvalid = FALSE,
+                                          copyable = TRUE) %>%
+                                  hot_cols(fixedColumnsLeft = 1) %>%
+                                  hot_rows(fixedRowsTop = 0) %>%
+                                  hot_col(1, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
                                                            Handsontable.renderers.TextRenderer.apply(this, arguments);
                                                            if (instance.params) {
                                                              hrows = instance.params.row_highlight
                                                              hrows = hrows instanceof Array ? hrows : [hrows]
-                                                             if (hrows.includes(row)) { 
-                                                               td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)' 
+                                                             if (hrows.includes(row)) {
+                                                               td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)'
                                                              }
                                                            }
                                                        }") %>%
-                                hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                  hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
                                                            Handsontable.renderers.TextRenderer.apply(this, arguments);
                                                            if (instance.params) {
                                                              hrows = instance.params.error_highlight
                                                              hrows = hrows instanceof Array ? hrows : [hrows]
-                                                             if (hrows.includes(row)) { 
-                                                               td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)' 
+                                                             if (hrows.includes(row)) {
+                                                               td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)'
                                                              }
                                                            }
                                                        }") %>%
-                                hot_col(4, renderer = "
+                                  hot_col(4, renderer = "
               function (instance, td, row, col, prop, value, cellProperties) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
-  
+
                        if (instance.params) {
                          hrows = instance.params.dup_names_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
-  
-                         if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+
+                         if (hrows.includes(row)) {
+                           td.style.backgroundColor = 'rgb(224, 179, 0)'
                          }
                        }
               }") %>%
-                                hot_col(3, renderer = "
+                                  hot_col(3, renderer = "
               function (instance, td, row, col, prop, value, cellProperties) {
                        Handsontable.renderers.TextRenderer.apply(this, arguments);
-  
+
                        if (instance.params) {
                          hrows = instance.params.dup_ids_high
                          hrows = hrows instanceof Array ? hrows : [hrows]
-  
-                         if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+
+                         if (hrows.includes(row)) {
+                           td.style.backgroundColor = 'rgb(224, 179, 0)'
                          }
                        }
               }") %>%
-                                hot_col(diff_allele(),
-                                        renderer = "
+                                  hot_col(diff_allele(),
+                                          renderer = "
                   function(instance, td, row, col, prop, value, cellProperties) {
                     Handsontable.renderers.NumericRenderer.apply(this, arguments);
-  
+
                     if (instance.params) {
                           hcols = instance.params.col_highlight;
                           hcols = hcols instanceof Array ? hcols : [hcols];
                         }
-  
+
                     if (instance.params && hcols.includes(col)) {
                       td.style.background = 'rgb(116, 188, 139)';
                     }
-                }") 
-                              shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
-                              return(tab)
+                }")
+                                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')    
+                                return(tab)
+                              }
                             })
                           }
                         } else {
                           if(!is.null(DB$data) & !is.null(DB$cust_var)) {
                             output$db_entries <- renderRHandsontable({
                               
-                              shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-                              w$show()
-                              
-                              tab <- rhandsontable(
-                                select(DB$data, 1:(13 + nrow(DB$cust_var))),
-                                rowHeaders = NULL,
-                                height = entry_table_height(),
-                                dup_names_high = duplicated_names() - 1,
-                                dup_ids_high = duplicated_ids() - 1,
-                                row_highlight = true_rows() - 1,
-                                error_highlight = err_thresh() - 1,
-                                contextMenu = FALSE,
-                                highlightCol = TRUE, 
-                                highlightRow = TRUE
-                              ) %>%
-                                hot_cols(fixedColumnsLeft = 1) %>%
-                                hot_col(1, 
-                                        valign = "htMiddle",
-                                        halign = "htCenter") %>%
-                                hot_col(3, readOnly = TRUE) %>%
-                                hot_col(c(1, 5, 10, 11, 12, 13),
-                                        readOnly = TRUE) %>%
-                                hot_col(3, validator = "
-                                  function(value, callback) {
-                                    try {
-                                      if (value === null || value.trim() === '') {
-                                        callback(false); // Cell is empty
+                              if(!any(input$compare_select %in% colnames(DB$allelic_profile) != TRUE)) {
+                                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+                                w$show()
+                                
+                                tab <- rhandsontable(
+                                  select(DB$data, 1:(13 + nrow(DB$cust_var))),
+                                  rowHeaders = NULL,
+                                  height = entry_table_height(),
+                                  dup_names_high = duplicated_names() - 1,
+                                  dup_ids_high = duplicated_ids() - 1,
+                                  row_highlight = true_rows() - 1,
+                                  error_highlight = err_thresh() - 1,
+                                  contextMenu = FALSE,
+                                  highlightCol = TRUE, 
+                                  highlightRow = TRUE
+                                ) %>%
+                                  hot_cols(fixedColumnsLeft = 1) %>%
+                                  hot_col(1, 
+                                          valign = "htMiddle",
+                                          halign = "htCenter") %>%
+                                  hot_col(3, readOnly = TRUE) %>%
+                                  hot_col(c(1, 5, 10, 11, 12, 13),
+                                          readOnly = TRUE) %>%
+                                  hot_col(3, validator = "
+                                    function(value, callback) {
+                                      try {
+                                        if (value === null || value.trim() === '') {
+                                          callback(false); // Cell is empty
+                                          Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                        } else {
+                                          callback(true); // Cell is not empty
+                                          Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
+                                        }
+                                      } catch (err) {
+                                        console.log(err);
+                                        callback(false); // In case of error, consider it as invalid
                                         Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
-                                      } else {
-                                        callback(true); // Cell is not empty
-                                        Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
                                       }
-                                    } catch (err) {
-                                      console.log(err);
-                                      callback(false); // In case of error, consider it as invalid
-                                      Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
                                     }
-                                  }
-                                ") %>%
-                                hot_col(4, validator = "
-                                  function(value, callback) {
-                                    try {
-                                      if (value === null || value.trim() === '') {
-                                        callback(false); // Cell is empty
+                                  ") %>%
+                                  hot_col(4, validator = "
+                                    function(value, callback) {
+                                      try {
+                                        if (value === null || value.trim() === '') {
+                                          callback(false); // Cell is empty
+                                          Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                        } else {
+                                          callback(true); // Cell is not empty
+                                          Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
+                                        }
+                                      } catch (err) {
+                                        console.log(err);
+                                        callback(false); // In case of error, consider it as invalid
                                         Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                      }
+                                    }
+                                  ") %>%
+                                  hot_col(8, type = "dropdown", source = country_names) %>%
+                                  hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                                          validator = "
+                                  function (value, callback) {
+                                    var today_date = new Date();
+                                    today_date.setHours(0, 0, 0, 0);
+                                    
+                                    var new_date = new Date(value);
+                                    new_date.setHours(0, 0, 0, 0);
+                                    
+                                    try {
+                                      if (new_date <= today_date) {
+                                        callback(true);
+                                        Shiny.setInputValue('invalid_date', false);
                                       } else {
-                                        callback(true); // Cell is not empty
-                                        Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
+                                        callback(false); 
+                                        Shiny.setInputValue('invalid_date', true);
                                       }
                                     } catch (err) {
                                       console.log(err);
-                                      callback(false); // In case of error, consider it as invalid
-                                      Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
-                                    }
-                                  }
-                                ") %>%
-                                hot_col(8, type = "dropdown", source = country_names) %>%
-                                hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
-                                        validator = "
-                                function (value, callback) {
-                                  var today_date = new Date();
-                                  today_date.setHours(0, 0, 0, 0);
-                                  
-                                  var new_date = new Date(value);
-                                  new_date.setHours(0, 0, 0, 0);
-                                  
-                                  try {
-                                    if (new_date <= today_date) {
-                                      callback(true);
-                                      Shiny.setInputValue('invalid_date', false);
-                                    } else {
                                       callback(false); 
                                       Shiny.setInputValue('invalid_date', true);
                                     }
-                                  } catch (err) {
-                                    console.log(err);
-                                    callback(false); 
-                                    Shiny.setInputValue('invalid_date', true);
-                                  }
-                                }") %>%
-                                hot_col(3:(13 + nrow(DB$cust_var)), 
-                                        valign = "htMiddle",
-                                        halign = "htLeft") %>%
-                                hot_rows(fixedRowsTop = 0) %>%
-                                hot_col(1, renderer = "
-              function (instance, td, row, col, prop, value, cellProperties) {
-                       Handsontable.renderers.TextRenderer.apply(this, arguments);
-  
-                       if (instance.params) {
-                         hrows = instance.params.row_highlight
-                         hrows = hrows instanceof Array ? hrows : [hrows]
-  
-                         if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)' 
+                                  }") %>%
+                                  hot_col(3:(13 + nrow(DB$cust_var)), 
+                                          valign = "htMiddle",
+                                          halign = "htLeft") %>%
+                                  hot_rows(fixedRowsTop = 0) %>%
+                                  hot_col(1, renderer = "
+                function (instance, td, row, col, prop, value, cellProperties) {
+                         Handsontable.renderers.TextRenderer.apply(this, arguments);
+    
+                         if (instance.params) {
+                           hrows = instance.params.row_highlight
+                           hrows = hrows instanceof Array ? hrows : [hrows]
+    
+                           if (hrows.includes(row)) { 
+                             td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)' 
+                           }
                          }
-                       }
-              }") %>%
-                                hot_col(2, type = "checkbox", width = "auto",
-                                        valign = "htTop", halign = "htCenter") %>%
-                                hot_col(4, renderer = "
-              function (instance, td, row, col, prop, value, cellProperties) {
-                       Handsontable.renderers.TextRenderer.apply(this, arguments);
-  
-                       if (instance.params) {
-                         hrows = instance.params.dup_names_high
-                         hrows = hrows instanceof Array ? hrows : [hrows]
-  
-                         if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                }") %>%
+                                  hot_col(2, type = "checkbox", width = "auto",
+                                          valign = "htTop", halign = "htCenter") %>%
+                                  hot_col(4, renderer = "
+                function (instance, td, row, col, prop, value, cellProperties) {
+                         Handsontable.renderers.TextRenderer.apply(this, arguments);
+    
+                         if (instance.params) {
+                           hrows = instance.params.dup_names_high
+                           hrows = hrows instanceof Array ? hrows : [hrows]
+    
+                           if (hrows.includes(row)) { 
+                             td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                           }
                          }
-                       }
-              }") %>%
-                                hot_col(3, renderer = "
-              function (instance, td, row, col, prop, value, cellProperties) {
-                       Handsontable.renderers.TextRenderer.apply(this, arguments);
-  
-                       if (instance.params) {
-                         hrows = instance.params.dup_ids_high
-                         hrows = hrows instanceof Array ? hrows : [hrows]
-  
-                         if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                }") %>%
+                                  hot_col(3, renderer = "
+                function (instance, td, row, col, prop, value, cellProperties) {
+                         Handsontable.renderers.TextRenderer.apply(this, arguments);
+    
+                         if (instance.params) {
+                           hrows = instance.params.dup_ids_high
+                           hrows = hrows instanceof Array ? hrows : [hrows]
+    
+                           if (hrows.includes(row)) { 
+                             td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                           }
                          }
-                       }
-              }") %>%
-                                hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
-                                                           Handsontable.renderers.TextRenderer.apply(this, arguments);
-                                                           if (instance.params) {
-                                                             hrows = instance.params.error_highlight
-                                                             hrows = hrows instanceof Array ? hrows : [hrows]
-                                                             if (hrows.includes(row)) { 
-                                                               td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)' 
+                }") %>%
+                                  hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                             Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                             if (instance.params) {
+                                                               hrows = instance.params.error_highlight
+                                                               hrows = hrows instanceof Array ? hrows : [hrows]
+                                                               if (hrows.includes(row)) { 
+                                                                 td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)' 
+                                                               }
                                                              }
-                                                           }
-                                                       }") 
-                              
-                              shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
-                              return(tab)
+                                                         }") 
+                                
+                                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
+                                return(tab)  
+                              }
                             })
                           }
                         }
@@ -6060,31 +6071,29 @@ server <- function(input, output, session) {
     DB$deleted_entries <- character(0)
     
     observe({
-      if (!is.null(DB$data)) {
-        
-        shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-        
-        if (nrow(DB$data) == 1) {
-          if(!is.null(DB$data) & !is.null(DB$cust_var)) {
-            output$db_entries <- renderRHandsontable({
-              rhandsontable(
-                select(DB$data, 1:(13 + nrow(DB$cust_var))),
-                error_highlight = err_thresh() - 1,                              
-                rowHeaders = NULL,
-                contextMenu = FALSE,
-                highlightCol = TRUE, 
-                highlightRow = TRUE
-              ) %>%
-                hot_col(1, 
-                        valign = "htMiddle",
-                        halign = "htCenter") %>%
-                hot_col(3, readOnly = TRUE) %>%
-                hot_col(c(1, 5, 10, 11, 12, 13),
-                        readOnly = TRUE) %>%
-                hot_col(3:(13 + nrow(DB$cust_var)), 
-                        valign = "htMiddle",
-                        halign = "htLeft") %>%
-                hot_col(3, validator = "
+      req(DB$data)
+      
+      if(nrow(DB$data) == 1) {
+        if(!is.null(DB$data) & !is.null(DB$cust_var)) {
+          output$db_entries <- renderRHandsontable({
+            rhandsontable(
+              select(DB$data, 1:(13 + nrow(DB$cust_var))),
+              error_highlight = err_thresh() - 1,                              
+              rowHeaders = NULL,
+              contextMenu = FALSE,
+              highlightCol = TRUE, 
+              highlightRow = TRUE
+            ) %>%
+              hot_col(1, 
+                      valign = "htMiddle",
+                      halign = "htCenter") %>%
+              hot_col(3, readOnly = TRUE) %>%
+              hot_col(c(1, 5, 10, 11, 12, 13),
+                      readOnly = TRUE) %>%
+              hot_col(3:(13 + nrow(DB$cust_var)), 
+                      valign = "htMiddle",
+                      halign = "htLeft") %>%
+              hot_col(3, validator = "
                                   function(value, callback) {
                                     try {
                                       if (value === null || value.trim() === '') {
@@ -6101,7 +6110,7 @@ server <- function(input, output, session) {
                                     }
                                   }
                                 ") %>%
-                hot_col(4, validator = "
+              hot_col(4, validator = "
                                   function(value, callback) {
                                     try {
                                       if (value === null || value.trim() === '') {
@@ -6118,9 +6127,9 @@ server <- function(input, output, session) {
                                     }
                                   }
                                 ") %>%
-                hot_col(8, type = "dropdown", source = country_names) %>%
-                hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
-                        validator = "
+              hot_col(8, type = "dropdown", source = country_names) %>%
+              hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                      validator = "
                                 function (value, callback) {
                                   var today_date = new Date();
                                   today_date.setHours(0, 0, 0, 0);
@@ -6142,12 +6151,12 @@ server <- function(input, output, session) {
                                     Shiny.setInputValue('invalid_date', true);
                                   }
                                 }") %>%
-                hot_cols(fixedColumnsLeft = 1) %>%
-                hot_col(2, type = "checkbox", width = "auto",
-                        valign = "htTop",
-                        halign = "htCenter") %>%
-                hot_rows(fixedRowsTop = 0) %>%
-                hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+              hot_cols(fixedColumnsLeft = 1) %>%
+              hot_col(2, type = "checkbox", width = "auto",
+                      valign = "htTop",
+                      halign = "htCenter") %>%
+              hot_rows(fixedRowsTop = 0) %>%
+              hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
                                                            Handsontable.renderers.TextRenderer.apply(this, arguments);
                                                            if (instance.params) {
                                                              hrows = instance.params.error_highlight
@@ -6157,13 +6166,14 @@ server <- function(input, output, session) {
                                                              }
                                                            }
                                                        }") 
-            })
-          }
-        } else if (between(nrow(DB$data), 1, 40)) {
-          if (length(input$compare_select) > 0) {
-            if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
-              output$db_entries <- renderRHandsontable({
-                
+          })
+        }
+      } else if (between(nrow(DB$data), 1, 40)) {
+        if (length(input$compare_select) > 0) {
+          if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
+            output$db_entries <- renderRHandsontable({
+              
+              if(!any(input$compare_select %in% colnames(DB$allelic_profile) != TRUE)) {
                 entry_data <- DB$data %>%
                   select(1:(13 + nrow(DB$cust_var))) %>%
                   add_column(select(DB$allelic_profile_trunc, input$compare_select))
@@ -6324,12 +6334,15 @@ server <- function(input, output, session) {
                                                                td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)' 
                                                              }
                                                            }
-                                                       }") 
-              })
-            }
-          } else {
-            if(!is.null(DB$data) & !is.null(DB$cust_var)) {
-              output$db_entries <- renderRHandsontable({
+                                                       }")  
+              }
+            })
+          }
+        } else {
+          if(!is.null(DB$data) & !is.null(DB$cust_var)) {
+            output$db_entries <- renderRHandsontable({
+              
+              if(!any(input$compare_select %in% colnames(DB$allelic_profile) != TRUE)) {
                 rhandsontable(
                   select(DB$data, 1:(13 + nrow(DB$cust_var))),
                   rowHeaders = NULL,
@@ -6463,18 +6476,18 @@ server <- function(input, output, session) {
                                                                td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)' 
                                                              }
                                                            }
-                                                       }") 
-              })    
-            }
+                                                       }")  
+              }
+            })    
           }
-        } else {
-          if (length(input$compare_select) > 0) {
-            if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
+        }
+      } else {
+        if (length(input$compare_select) > 0) {
+          if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
+            
+            output$db_entries <- renderRHandsontable({
               
-              
-              
-              output$db_entries <- renderRHandsontable({
-                
+              if(!any(input$compare_select %in% colnames(DB$allelic_profile) != TRUE)) {
                 shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
                 w$show()
                 
@@ -6634,16 +6647,19 @@ server <- function(input, output, session) {
                     }
                 }") 
                 
-                
                 shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
-                return(tab)
-              })
-            }
-          } else {
-            if(!is.null(DB$data) & !is.null(DB$cust_var)) {
-              output$db_entries <- renderRHandsontable({
+                return(tab) 
+              }
+            })
+          }
+        } else {
+          if(!is.null(DB$data) & !is.null(DB$cust_var)) {
+            output$db_entries <- renderRHandsontable({
+              if(!any(input$compare_select %in% colnames(DB$allelic_profile) != TRUE)) {
+                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+                w$show()
                 
-                rhandsontable(
+                tab <- rhandsontable(
                   select(DB$data, 1:(13 + nrow(DB$cust_var))),
                   rowHeaders = NULL,
                   height = entry_table_height(),
@@ -6775,11 +6791,13 @@ server <- function(input, output, session) {
                                                              }
                                                            }
                                                        }") 
-              })
-            }
+                
+                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
+                return(tab) 
+              }
+            })
           }
         }
-        shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
       }
     })
   })
