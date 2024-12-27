@@ -159,7 +159,6 @@ ui <- dashboardPage(
     div(id = "blocking-overlay"),
     tags$head(tags$link(rel = "shortcut icon", href = "pt_small_icon.png")),
     shinyjs::useShinyjs(),
-    
     shinyDashboardThemeDIY(
       ### general
       appFontFamily = "Liberation Sans",
@@ -864,24 +863,6 @@ ui <- dashboardPage(
 
 server <- function(input, output, session) {
   
-  # Waiting screen config
-  waiting_screen <- tagList(
-    spin_flower(),
-    h4("Loading Database", style = "color: white; cursor: wait")
-  )
-  
-  w <- Waiter$new(
-    id = "db_entries",
-    html = spin_3(), 
-    color = transparent(.5)
-  )
-  
-  #TODO Enable this, or leave disabled
-  # Kill server on session end
-  session$onSessionEnded( function() {
-    stopApp()
-  })
-  
   ## Reactives ----
   
   # Get rhandsontable
@@ -918,10 +899,10 @@ server <- function(input, output, session) {
     
     invalidateLater(5000, session)
     
-    if(!is.null(DB$database) & !is.null(DB$scheme)) {
-      if(file_exists(file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))) {
+    if(!is.null(Startup$database) & !is.null(DB$scheme)) {
+      if(file_exists(file.path(Startup$database, gsub(" ", "_", DB$scheme), "Typing.rds"))) {
         
-        Database <- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme),"Typing.rds"))
+        Database <- readRDS(file.path(Startup$database, gsub(" ", "_", DB$scheme),"Typing.rds"))
         
         if(is.null(DB$data)) {
           if(nrow(Database[["Typing"]]) >= 1) {
@@ -939,7 +920,6 @@ server <- function(input, output, session) {
   })
   
   # Render Entry Table Highlights 
-  
   diff_allele <- reactive({
     if (!is.null(DB$data) & !is.null(input$compare_select) & !is.null(DB$cust_var)) {
       var_alleles(select(DB$data, input$compare_select)) + (13 + nrow(DB$cust_var))
@@ -981,6 +961,28 @@ server <- function(input, output, session) {
   
   ## Startup ----
   
+  ### Miscellaneous ----
+  
+  # Waiting screen config
+  waiting_screen <- tagList(
+    spin_flower(),
+    h4("Loading Database", style = "color: white; cursor: wait")
+  )
+  
+  # Waiter confid
+  w <- Waiter$new(
+    id = "db_entries",
+    html = spin_3(), 
+    color = transparent(.5)
+  )
+  
+  #TODO Enable this, or leave disabled
+  # Kill server on session end
+  session$onSessionEnded( function() {
+    stopApp()
+  })
+  
+  
   ### Logging ----
   # Set log paths
   logdir <- file.path(path_home(), ".local", "share", "phylotrace", "logs")
@@ -996,52 +998,34 @@ server <- function(input, output, session) {
   log <- log_open(logfile, logdir = FALSE)
   log_print("Session started")
   
+  
   ### Reactive variables ----
   
   # reactive variables related to startup process
-  Startup <- reactiveValues(sidebar = TRUE) 
+  Startup <- reactiveValues(sidebar = TRUE,
+                            block_db = FALSE) 
   
   # reactive variables related to local database
-  DB <- reactiveValues(data = NULL, 
-                       block_db = FALSE, 
-                       load_selected = TRUE,
-                       no_na_switch = FALSE,
-                       first_look = FALSE,
-                       status = "") 
+  DB <- reactiveValues()
   
   # reactive variables related to typing process
-  Typing <- reactiveValues(table = data.frame(), 
-                           single_path = data.frame(),
-                           progress = 0, 
-                           progress_format_start = 0, 
-                           progress_format_end = 0,
-                           result_list = NULL,
-                           status = "",
-                           file_selection = "") 
+  Typing <- reactiveValues() 
+  
+  # Null typing progress trackers
+  writeLines("0", file.path(logdir, "script_log.txt"))
+  saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
   
   # reactive variables related to gene screening
-  Screening <- reactiveValues(status = "idle",
-                              picker_status = TRUE,
-                              first_result = NULL) 
+  Screening <- reactiveValues()
   
   # reactive variables related to visualization
-  Vis <- reactiveValues(cluster = NULL, 
-                        metadata = list(),
-                        custom_label_nj = data.frame(),
-                        nj_label_pos_y = list(),
-                        nj_label_pos_x = list(),
-                        nj_label_size = list(),
-                        custom_label_upgma = data.frame(),
-                        upgma_label_pos_y = list(),
-                        upgma_label_pos_x = list(),
-                        upgma_label_size = list()) 
+  Vis <- reactiveValues() 
   
   # reactive variables related to report functions
   Report <- reactiveValues() 
   
   # reactive variables related to scheme functions
-  Scheme <- reactiveValues() 
-  
+  Scheme <- reactiveValues()
   
   ### Set up environment ----
   
@@ -1075,37 +1059,39 @@ server <- function(input, output, session) {
                    defaultRoot = "Home",
                    session = session)
     
-    if(!is.null(DB$select_new)) {
-      if(DB$select_new == FALSE) {
-        if(DB$block_db == FALSE) {
-          DB$database <- as.character(
+    if(!is.null(Startup$select_new)) {
+      if(isFALSE(Startup$select_new)) {
+        if(isFALSE(Startup$block_db)) {
+          
+          req(input$db_location)
+          
+          Startup$database <- as.character(
             parseDirPath(
               roots = c(Home = path_home(), Root = "/"),
               input$db_location
             )
           )
           
-          DB$exist <- (length(dir_ls(DB$database)) == 0)  # Logical any local database present
+          # Logical any local database present
+          DB$exist <- (length(dir_ls(Startup$database)) == 0)  
           
           # List of local schemes available
-          available <- gsub("_", " ", basename(dir_ls(DB$database)))
+          available <- gsub("_", " ", basename(dir_ls(Startup$database)))
           DB$available <- available[available %in% gsub("_", " ", schemes$species)]
         }
         
-      } else if (DB$select_new ==  TRUE) {
-        DB$database <- paste0(DB$new_database, "/Database")
-        
+      } else if(isTRUE(Startup$select_new)) {
+        Startup$database <- paste0(DB$new_database, "/Database")
       }
     } else {
       if(!is.null(DB$last_db) & file.exists(paste0(getwd(), "/execute/last_db.rds"))) {
-        
-        DB$database <- readRDS(paste0(getwd(), "/execute/last_db.rds"))
-        
-        if(dir_exists(DB$database)) {
-          DB$exist <- (length(dir_ls(DB$database)) == 0)  # Logical any local database present
+        Startup$database <- readRDS(paste0(getwd(), "/execute/last_db.rds"))
+       
+        if(dir_exists(Startup$database)) {
+          DB$exist <- (length(dir_ls(Startup$database)) == 0)  # Logical any local database present
           
           # List of local schemes available
-          available <- gsub("_", " ", basename(dir_ls(DB$database)))
+          available <- gsub("_", " ", basename(dir_ls(Startup$database)))
           DB$available <- available[available %in% gsub("_", " ", schemes$species)]
         }
       }
@@ -1114,23 +1100,6 @@ server <- function(input, output, session) {
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')  
   })
   
-  #### Typing environment ----
-  
-  # Null typing progress trackers
-  writeLines("0", file.path(logdir, "script_log.txt"))
-  writeLines("0\n", file.path(logdir, "progress.txt"))
-  
-  if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
-    unlink(list.files(paste0(getwd(), "/execute/blat_single/results"), full.names = TRUE), recursive = TRUE)
-  }
-  
-  # Reset typing feedback values
-  Typing$pending <- FALSE
-  Typing$multi_started <- FALSE
-  Typing$multi_help <- FALSE
-  saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
-  Typing$last_success <- "0" # Null last multi typing success name
-  Typing$last_failure <- "0" # Null last multi typing failure name
   
   ### Landing page UI ----
   
@@ -1144,7 +1113,7 @@ server <- function(input, output, session) {
   })
   
   observe({
-    if (Startup$sidebar == FALSE) {
+    if (isFALSE(Startup$sidebar)) {
       shinyjs::removeClass(selector = "body", class = "sidebar-collapse")
       shinyjs::addClass(selector = "body", class = "sidebar-toggle")
     }
@@ -1209,8 +1178,8 @@ server <- function(input, output, session) {
   
   # Load db & scheme selection UI
   output$load_db <- renderUI(
-    if(!is.null(DB$select_new)) {
-      if(length(DB$new_database) > 0 & DB$select_new) {
+    if(!is.null(Startup$select_new)) {
+      if(length(DB$new_database) > 0 & Startup$select_new) {
         column(
           width = 12,
           p(
@@ -1231,7 +1200,7 @@ server <- function(input, output, session) {
             class = "load-start"
           )
         )
-      } else if(length(DB$available) > 0 & !(DB$select_new)) {
+      } else if(length(DB$available) > 0 & !(Startup$select_new)) {
         if(sum(gsub(" ", "_", gsub(" (PM|CM)", "", DB$available)) %in% gsub("_(PM|CM)", "", schemes$species)) == 0) {
           column(
             width = 12,
@@ -1239,7 +1208,7 @@ server <- function(input, output, session) {
               tags$span(
                 style='color: white; font-size: 15px; font-style: italic;',
                 HTML(
-                  paste('Selected directory:', DB$database)
+                  paste('Selected directory:', Startup$database)
                 )
               )
             ),
@@ -1269,7 +1238,7 @@ server <- function(input, output, session) {
               tags$span(
                 style='color: white; font-size: 15px; font-style: italic;',
                 HTML(
-                  paste('Selected:', DB$database)
+                  paste('Selected:', Startup$database)
                 )
               )
             ),
@@ -1297,7 +1266,7 @@ server <- function(input, output, session) {
               tags$span(
                 style='color: white; font-size: 15px; font-style: italic;',
                 HTML(
-                  paste('Selected:', DB$database)
+                  paste('Selected:', Startup$database)
                 )
               )
             ),
@@ -1317,7 +1286,7 @@ server <- function(input, output, session) {
             tags$span(
               style='color: white; font-size: 15px; font-style: italic;',
               HTML(
-                paste('Selected directory:', DB$database)
+                paste('Selected directory:', Startup$database)
               )
             )
           ),
@@ -1342,7 +1311,7 @@ server <- function(input, output, session) {
         )
       } 
     } else if((!is.null(DB$last_db)) & (!is.null(DB$available))) {
-      if (DB$last_db == TRUE & (length(DB$available) > 0)) {
+      if (isTRUE(DB$last_db) & (length(DB$available) > 0)) {
         if(sum(gsub(" ", "_", gsub(" (PM|CM)", "", DB$available)) %in% gsub("_(PM|CM)", "", schemes$species)) == 0) {
           column(
             width = 12,
@@ -1350,7 +1319,7 @@ server <- function(input, output, session) {
               tags$span(
                 style='color: white; font-size: 15px; font-style: italic;',
                 HTML(
-                  paste('Selected directory:', DB$database)
+                  paste('Selected directory:', Startup$database)
                 )
               )
             ),
@@ -1380,7 +1349,7 @@ server <- function(input, output, session) {
               tags$span(
                 style='color: white; font-size: 15px; font-style: italic;',
                 HTML(
-                  paste('Selected directory:', DB$database)
+                  paste('Selected directory:', Startup$database)
                 )
               )
             ),
@@ -1408,7 +1377,7 @@ server <- function(input, output, session) {
               tags$span(
                 style='color: white; font-size: 15px; font-style: italic;',
                 HTML(
-                  paste('Selected directory:', DB$database)
+                  paste('Selected directory:', Startup$database)
                 )
               )
             ),
@@ -1421,14 +1390,14 @@ server <- function(input, output, session) {
             )
           )
         }
-      } else if (DB$last_db == TRUE & (length(DB$available) == 0)) {
+      } else if (isTRUE(DB$last_db) & (length(DB$available) == 0)) {
         column(
           width = 12,
           p(
             tags$span(
               style='color: white; font-size: 15px; font-style: italic;',
               HTML(
-                paste('Selected directory:', DB$database)
+                paste('Selected directory:', Startup$database)
               )
             )
           ),
@@ -1455,12 +1424,12 @@ server <- function(input, output, session) {
   # User selection new db or load db
   observeEvent(input$create_new_db, {
     log_print("Input create_new_db")
-    DB$select_new <- TRUE
+    Startup$select_new <- TRUE
   })
   
   observeEvent(input$db_location, {
     log_print("Input db_location")
-    DB$select_new <- FALSE
+    Startup$select_new <- FALSE
   })
   
   ### Load app event ----
@@ -1479,44 +1448,146 @@ server <- function(input, output, session) {
     
     waiter_show(html = waiting_screen, color = "#384555")
     
+    
     #### Reset reactive variables ----
     
-    # Reset typing reactive values
-    resetVars(Typing)
-    Typing <- reactiveValues(table = data.frame(), 
-                             single_path = data.frame(),
-                             progress = 0, 
-                             progress_format_start = 0, 
-                             progress_format_end = 0,
-                             status = "",
-                             file_selection = "") 
+    # reactive variables related to local database
+    DB$data <- NULL 
+    DB$load_selected <- TRUE
+    DB$no_na_switch <- FALSE
+    DB$first_look <- FALSE
+    DB$new_database <- NULL
+    DB$scheme <- NULL
+    DB$check_new_entries <- NULL
+    DB$meta_gs <- NULL
+    DB$meta <- NULL
+    DB$meta_true <- NULL
+    DB$allelic_profile <- NULL
+    DB$allelic_profile_trunc <- NULL
+    DB$allelic_profile_true <- NULL
+    DB$scheme_new <- NULL
+    DB$loci_info <- NULL
+    DB$schemeinfo <- NULL
+    DB$scheme_db <- NULL
+    DB$scheme_link <- NULL
+    DB$number_loci <- NULL
+    DB$cluster_thresh <- NULL
+    DB$cust_var <- data.frame()
+    DB$change <- NULL
+    DB$matrix_min <- NULL
+    DB$matrix_max <- NULL
+    DB$na_table <- NULL
+    DB$url_link <- NULL
+    DB$failCon <- NULL
+    DB$inhibit_change <- NULL
+    DB$count <- NULL
+    DB$deleted_entries <- NULL
+    DB$remove_iso <- NULL
+    DB$ham_matrix <- NULL
+    DB$loci <- NULL
+    DB$seq <- NULL
     
-    # Reset screening reactive values
-    resetVars(Screening)
-    Screening <- reactiveValues(status = "idle",
-                                picker_status = TRUE) 
+    # reactive variables related to typing process
+    Typing$reload <- NULL
+    Typing$multi_sel_table <- NULL
+    Typing$pending <- FALSE
+    Typing$multi_started <- FALSE
+    Typing$multi_help <- FALSE
+    Typing$last_success <- "0"
+    Typing$last_failure <- "0"
+    Typing$last_scheme <- NULL
+    Typing$assembly_folder_path <- NULL
+    Typing$files_filtered <- NULL
+    Typing$assembly_files_path <- NULL
+    Typing$result_list <- NULL
+    Typing$multi_table_length <- NULL
+    Typing$multi_result_status <- NULL
+    Typing$last_scheme <- NULL
+    Typing$status <- ""
+    Typing$file_selection <- ""
     
-    # Reset visualization reactive values
-    resetVars(Vis)
-    Vis <- reactiveValues(metadata = list(),
-                          custom_label_nj = data.frame(),
-                          nj_label_pos_y = list(),
-                          nj_label_pos_x = list(),
-                          nj_label_size = list(),
-                          custom_label_upgma = data.frame(),
-                          upgma_label_pos_y = list(),
-                          upgma_label_pos_x = list(),
-                          upgma_label_size = list()) 
+    # Null typing progress trackers
+    writeLines("0", file.path(logdir, "script_log.txt"))
+    saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
     
-    # Reset report reactive values
-    resetVars(Report)
+    # reactive variables related to gene screening
+    Screening$status <- "idle"
+    Screening$picker_status <- TRUE
+    Screening$first_result <- NULL
+    Screening$status_df <- NULL
+    Screening$choices <- NULL
+    Screening$amr_results <- NULL
+    Screening$amr_class <- NULL
+    Screening$vir_class <- NULL
+    Screening$hm_meta <- NULL
+    Screening$res_profile <- NULL
+    Screening$picker_choices <- NULL
+    Screening$picker_selected <- NULL
+    Screening$meta_df <- NULL
     
-    # Reset report reactive values
-    resetVars(Scheme)
+    # reactive variables related to visualization
+    Vis$custom_label_nj <- data.frame()
+    Vis$nj_label_pos_y <- list()
+    Vis$nj_label_pos_x <- list()
+    Vis$nj_label_size <- list()
+    Vis$custom_label_upgma <- data.frame()
+    Vis$upgma_label_pos_y <- list()
+    Vis$upgma_label_pos_x <- list()
+    Vis$upgma_label_size <- list()
+    Vis$nj <- NULL
+    Vis$upgma <- NULL
+    Vis$mst_pre <- NULL
+    Vis$tree_algo <- NULL
+    Vis$title <- NULL
+    Vis$nj_true <- NULL
+    Vis$upgma_true <- NULL
+    Vis$nj_max_x <- NULL
+    Vis$upgma_max_x <- NULL
+    Vis$meta_nj <- NULL
+    Vis$meta_upgma <- NULL
+    Vis$nj_parentnodes <- NULL
+    Vis$upgma_parentnodes <- NULL
+    Vis$branch_size_nj <- NULL
+    Vis$branch_size_upgma <- NULL
+    Vis$tiplab_padding_nj <- NULL
+    Vis$tiplab_padding_upgma <- NULL
+    Vis$nodepointsize_nj <- NULL
+    Vis$nodepointsize_upgma <- NULL
+    Vis$tippointsize_nj <- NULL
+    Vis$tippointsize_upgma <- NULL
+    Vis$labelsize_nj <- NULL
+    Vis$labelsize_upgma <- NULL
+    Vis$nj_min_x <- NULL
+    Vis$upgma_min_x <- NULL
+    Vis$amr_nj <- NULL
+    Vis$amr_upgma <- NULL
+    Vis$var_cols <- NULL
+    Vis$meta_mst <- NULL
+    Vis$unique_meta <- NULL
+    Vis$nj_heatmap_select <- NULL
+    Vis$upgma_heatmap_select <- NULL
+    Vis$nj_plot <- NULL
+    Vis$upgma_plot <- NULL
+    Vis$nj_tree <- NULL
+    Vis$upgma_tree <- NULL
+    Vis$mst_true <- NULL
+    
+    # reactive variables related to report functions
+    Report$report_list_mst <- NULL
+    Report$report_list_nj <- NULL
+    Report$report_list_upgma <- NULL
+    Report$report_df <- NULL
+    
+    # reactive variables related to scheme functions
+    Scheme$link_scheme <- NULL
+    Scheme$link_cgmlst <- NULL
+    Scheme$link_targets <- NULL
+    Scheme$folder_name <- NULL
+    Scheme$species_data <- NULL
     
     ### Reset UI elements ----
     
-    
+  
     # Reset reactive screening variables 
     output$screening_start <- NULL
     output$screening_result_sel <- NULL
@@ -1534,9 +1605,6 @@ server <- function(input, output, session) {
     }
     
     # Reset reactive visualization variables
-    # Vis$mst_true <- NULL
-    # Vis$nj_true <- NULL
-    # Vis$upgma_true <- NULL
     lapply(names(Vis), function(x) Vis[[x]] <- NULL)
     
     # Empty tree plot fields
@@ -1549,9 +1617,6 @@ server <- function(input, output, session) {
     # set typing start control variable
     Typing$reload <- TRUE
     
-    # reset typing status on start
-    if(Typing$status == "Finalized") {Typing$status <- "Inactive"}
-    if(!is.null(Typing$single_path)) {Typing$single_path <- data.frame()}
     
     ### Render status bar ----
     observe({
@@ -1604,12 +1669,13 @@ server <- function(input, output, session) {
     })
     
     observe({
-      if(!is.null(DB$database)){
-        if(nchar(DB$database) > 35) {
-          database <- paste0(substring(DB$database, first = 1, last = 35), "...")
+      if(!is.null(Startup$database)){
+        if(nchar(Startup$database) > 35) {
+          database <- paste0(substring(Startup$database, first = 1, last = 35), "...")
         } else {
-          database <- DB$database
+          database <- Startup$database
         }
+        
         output$databasetext <- renderUI({
           fluidRow(
             tags$li(
@@ -1622,7 +1688,7 @@ server <- function(input, output, session) {
                 style = "color:black;")
             ),
             if(nchar(database) > 35) {bsTooltip("databasetext", 
-                                                HTML(DB$database), 
+                                                HTML(Startup$database), 
                                                 placement = "bottom", 
                                                 trigger = "hover")}
           )
@@ -1631,7 +1697,7 @@ server <- function(input, output, session) {
     })
     
     observe({
-      if(!is.null(DB$database)) {
+      if(!is.null(Startup$database)) {
         if(Typing$status == "Finalized"){
           output$statustext <- renderUI(
             fluidRow(
@@ -1708,34 +1774,6 @@ server <- function(input, output, session) {
       }
     })
     
-    # Null single typing status
-    if(readLines(file.path(logdir, "progress.txt"))[1] != "0") {
-      Typing$progress <- 0
-      
-      Typing$progress_format <- 900000
-      
-      output$single_typing_progress <- NULL
-      
-      output$typing_fin <- NULL
-      
-      output$single_typing_results <- NULL
-      
-      output$typing_formatting <- NULL
-      
-      Typing$single_path <- data.frame()
-      
-      # reset results file 
-      if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
-        unlink(list.files(paste0(getwd(), "/execute/blat_single/results"), full.names = TRUE), recursive = TRUE)
-        # Resetting single typing progress logfile bar 
-        con <- file(file.path(logdir, "progress.txt"), open = "w")
-        
-        cat("0\n", file = con)   
-        
-        close(con)
-      }
-    }
-    
     shinyjs::runjs(
       'if(document.querySelector("#loaded_scheme > div > li > span") !== null) {
           // Select the span element
@@ -1752,20 +1790,20 @@ server <- function(input, output, session) {
     )
     
     # Load app elements based on database availability and missing value presence
-    if(!is.null(DB$select_new)) {
-      if(DB$select_new & (paste0(DB$new_database, "/Database") %in% dir_ls(DB$new_database))) {
-        
-        log_print("Directory already contains a database")
-        
-        show_toast(
-          title = "Directory already contains a database",
-          type = "error",
-          position = "bottom-end",
-          timer = 6000
-        )
-        DB$load_selected <- FALSE
-        
-      } else if(DB$select_new | (DB$select_new == FALSE & is.null(input$scheme_db))) {
+    if(!is.null(Startup$select_new)) {
+      if(Startup$select_new & !is.null(DB$new_database)) {
+        if(file.path(DB$new_database, "Database") %in% dir_ls(DB$new_database)) {
+          log_print("Directory already contains a database")
+          
+          show_toast(
+            title = "Directory already contains a database",
+            type = "error",
+            position = "bottom-end",
+            timer = 6000
+          )
+          DB$load_selected <- FALSE
+        }
+      } else if(Startup$select_new | (isFALSE(Startup$select_new) & is.null(input$scheme_db))) {
         
         log_print(paste0("New database created in ", DB$new_database))
         
@@ -1793,7 +1831,7 @@ server <- function(input, output, session) {
         # null plots
         Vis$nj <- NULL
         Vis$upgma <- NULL
-        Vis$ggraph_1 <- NULL
+        Vis$mst_pre <- NULL
         
         removeModal()
         
@@ -1810,11 +1848,11 @@ server <- function(input, output, session) {
         DB$load_selected <- FALSE
         
         # Declare database path
-        DB$database <- file.path(DB$new_database, "Database")
+        Startup$database <- file.path(DB$new_database, "Database")
         
         # Set database availability screening variables to present database
-        DB$block_db <- TRUE
-        DB$select_new <- FALSE
+        Startup$block_db <- TRUE
+        Startup$select_new <- FALSE
         
         # Render menu with Manage Schemes as start tab and no Missing values tab
         output$menu_typing <- renderMenu(
@@ -1889,15 +1927,15 @@ server <- function(input, output, session) {
         output$start_typing_ui <- NULL
       }
     } else {
-      log_print(paste0("Loading existing ", input$scheme_db, " database from ", DB$database))
+      log_print(paste0("Loading existing ", input$scheme_db, " database from ", Startup$database))
     }
     
-    if(DB$load_selected == TRUE) {
+    if(isTRUE(DB$load_selected)) {
       #Check if selected scheme valid
       if(gsub(" ", "_", gsub(" (PM|CM)", "", input$scheme_db)) %in% gsub("_(PM|CM)", "", schemes$species)) {
         
         # Save database path for next start
-        saveRDS(DB$database, paste0(getwd(), "/execute/last_db.rds"))
+        saveRDS(Startup$database, paste0(getwd(), "/execute/last_db.rds"))
         
         DB$check_new_entries <- TRUE
         DB$data <- NULL
@@ -1914,7 +1952,7 @@ server <- function(input, output, session) {
         }
         
         # Load AMR profile
-        profile_path <- file.path(DB$database, gsub(" ", "_", DB$scheme), "AMR_Profile.rds")
+        profile_path <- file.path(Startup$database, gsub(" ", "_", DB$scheme), "AMR_Profile.rds")
         if(file.exists(profile_path)) {
           amr_profile <- readRDS(profile_path)
           Screening$amr_results <- amr_profile$results
@@ -1947,7 +1985,7 @@ server <- function(input, output, session) {
         # null plots
         Vis$nj <- NULL
         Vis$upgma <- NULL
-        Vis$ggraph_1 <- NULL
+        Vis$mst_pre <- NULL
         
         removeModal()
         
@@ -1978,10 +2016,10 @@ server <- function(input, output, session) {
         # Hide start message
         output$start_message <- NULL
         
-        if(any(grepl(gsub(" ", "_", DB$scheme), dir_ls(DB$database)))) {
+        if(any(grepl(gsub(" ", "_", DB$scheme), dir_ls(Startup$database)))) {
           
           if(!any(grepl("alleles", dir_ls(paste0(
-            DB$database, "/", 
+            Startup$database, "/", 
             gsub(" ", "_", DB$scheme)))))) {
             
             log_print("Missing loci files")
@@ -2085,7 +2123,7 @@ server <- function(input, output, session) {
                 shinyjs::disable()
               }
             }
-          } else if (!file.exists(file.path(DB$database, 
+          } else if (!file.exists(file.path(Startup$database, 
                                             gsub(" ", "_", DB$scheme),
                                             "scheme_info.rds"))) {
             
@@ -2195,11 +2233,11 @@ server <- function(input, output, session) {
           } else {
             
             # Produce Loci Info Table
-            if(file.exists(file.path(DB$database, 
+            if(file.exists(file.path(Startup$database, 
                                      gsub(" ", "_", DB$scheme), 
                                      "targets.csv"))) {
               DB$loci_info <- read.csv(
-                file.path(DB$database, gsub(" ", "_", DB$scheme), "targets.csv"),
+                file.path(Startup$database, gsub(" ", "_", DB$scheme), "targets.csv"),
                 header = TRUE,
                 sep = "\t",
                 row.names = NULL,
@@ -2219,11 +2257,11 @@ server <- function(input, output, session) {
             }
             
             # Produce Scheme Info Table
-            if(file.exists(file.path(DB$database, 
+            if(file.exists(file.path(Startup$database, 
                                      gsub(" ", "_", DB$scheme),
                                      "scheme_info.rds"))) {
               
-              DB$schemeinfo <- readRDS(file.path(DB$database, 
+              DB$schemeinfo <- readRDS(file.path(Startup$database, 
                                                  gsub(" ", "_", DB$scheme), 
                                                  "scheme_info.rds"))
               
@@ -2290,7 +2328,12 @@ server <- function(input, output, session) {
             } 
             
             # Check if number of loci/fastq-files of alleles is coherent with number of targets in scheme
-            if(DB$number_loci > length(dir_ls(paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles")))) {
+            if(DB$number_loci > length(dir_ls(paste0(Startup$database, 
+                                                     "/", 
+                                                     gsub(" ", "_", DB$scheme), 
+                                                     "/", 
+                                                     gsub(" ", "_", DB$scheme), 
+                                                     "_alleles")))) {
               
               log_print(paste0("Loci files are missing in the local ", DB$scheme, " folder"))
               
@@ -2395,17 +2438,14 @@ server <- function(input, output, session) {
               
             } else {
               
-              shinyjs::delay(5000, shinyjs::runjs("noCollapse();"))
-              shinyjs::delay(5000, shinyjs::runjs("noCollapse()"))
-              
-              ###### Alle checks bestanden -> Laden der DTB
+              ###### All checks passed - load database
               # If typed entries present
-              if (any(grepl("Typing.rds", dir_ls(paste0(
-                DB$database, "/", gsub(" ", "_", DB$scheme)
-              ))))) {
+              if (any(grepl("Typing.rds", 
+                            dir_ls(paste0(Startup$database, "/", 
+                                          gsub(" ", "_", DB$scheme)))))) {
                 
                 # Load database from files  
-                Database <- readRDS(file.path(DB$database, 
+                Database <- readRDS(file.path(Startup$database, 
                                               gsub(" ", "_", DB$scheme), 
                                               "Typing.rds"))
                 
@@ -2428,32 +2468,14 @@ server <- function(input, output, session) {
                 DB$allelic_profile_trunc <- as.data.frame(lapply(DB$allelic_profile, function(x) sapply(x, truncHash)))
                 DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
                 
-                # Null pipe 
-                con <- file(file.path(logdir, "progress.txt"), open = "w")
-                
-                cat("0\n", file = con)
-                
-                # Close the file connection
-                close(con)
-                
                 # Reset other reactive typing variables
-                Typing$progress_format_end <- 0 
-                Typing$progress_format_start <- 0
-                Typing$pending_format <- 0
-                Typing$entry_added <- 0
-                Typing$progress <- 0
-                Typing$progress_format <- 900000
                 output$single_typing_progress <- NULL
                 output$typing_fin <- NULL
                 output$single_typing_results <- NULL
                 output$typing_formatting <- NULL
-                Typing$single_path <- data.frame()
                 
-                # Null multi typing feedback variable
-                Typing$reset <- TRUE
-                
-                # Check need for new missing vlaue display
-                if(DB$first_look == TRUE) {
+                # Check need for new missing value display
+                if(isTRUE(Startup$first_look)) {
                   if(sum(apply(DB$data, 1, anyNA)) >= 1) {
                     DB$no_na_switch <- TRUE
                   } else {
@@ -2461,7 +2483,7 @@ server <- function(input, output, session) {
                   }
                 }
                 
-                DB$first_look <- TRUE
+                Startup$first_look <- TRUE
                 
                 output$initiate_typing_ui <- renderUI({
                   column(
@@ -2658,6 +2680,7 @@ server <- function(input, output, session) {
                 
                 # render visualization sidebar elements
                 observe({
+                  req(input$tree_algo)
                   Vis$tree_algo <- input$tree_algo
                 })
                 
@@ -2726,7 +2749,7 @@ server <- function(input, output, session) {
                     )
                   } else {
                     if(!is.null(input$compare_difference)) {
-                      if (input$compare_difference == FALSE) {
+                      if (isFALSE(input$compare_difference)) {
                         div(
                           class = "compare-select",
                           pickerInput(
@@ -3704,7 +3727,10 @@ server <- function(input, output, session) {
                     
                     # Dynamic save button when rhandsontable changes or new entries
                     output$edit_entry_table <- renderUI({
-                      if(!is.null(check_new_entry()) & 
+                      
+                      check_new_entry <- check_new_entry()
+                      
+                      if(!is.null(check_new_entry) & 
                          !is.null(DB$check_new_entries) & 
                          !is.null(DB$meta)) {
                         
@@ -3714,7 +3740,7 @@ server <- function(input, output, session) {
                           new_meta <- FALSE
                         }
                         
-                        if(check_new_entry() & DB$check_new_entries) {
+                        if(check_new_entry & DB$check_new_entries) {
                           Typing$reload <- FALSE
                           fluidRow(
                             column(
@@ -3754,7 +3780,7 @@ server <- function(input, output, session) {
                               HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:20px; color:white; margin-top: 10px"></i>'))
                             )
                           )
-                        } else if((DB$change == TRUE) | new_meta) {
+                        } else if(isTRUE(DB$change) | new_meta) {
                           
                           if(!is.null(input$db_entries)) {
                             fluidRow(
@@ -3904,9 +3930,7 @@ server <- function(input, output, session) {
                       output$distancematrix_duplicated <- NULL
                       if(!is.null(DB$data) & !is.null(DB$allelic_profile) & !is.null(DB$allelic_profile_true) & !is.null(DB$cust_var) & !is.null(input$distmatrix_label) & !is.null(input$distmatrix_diag) & !is.null(input$distmatrix_triangle)) {
                         dist_matrix <- hamming_df()
-                        dist_matrix1 <<- dist_matrix
-                        DB_matrix_min <<- DB$matrix_min
-                        DB_matrix_max <<- DB$matrix_max
+                        
                         req(dist_matrix)
                         
                         output$db_distancematrix <- renderRHandsontable({
@@ -4784,7 +4808,7 @@ server <- function(input, output, session) {
       if(!is.null(last_scheme_change)) {
         if(length(last_scheme_change) > 0) {
           last_file_change <- format(
-            file.info(file.path(DB$database, ".downloaded_schemes",
+            file.info(file.path(Startup$database, ".downloaded_schemes",
                                 paste0(gsub(" ", "_", DB$scheme), ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
           
           if(!is.null(last_file_change)) {
@@ -4925,9 +4949,9 @@ server <- function(input, output, session) {
   
   # Species info selector UI
   observe({
-    req(DB$database, DB$scheme, DB$database)
+    req(Startup$database, DB$scheme, Startup$database)
     
-    scheme_path <- file.path(DB$database, 
+    scheme_path <- file.path(Startup$database, 
                              gsub(" ", "_", DB$scheme), 
                              gsub(" ", "_", DB$scheme))
     
@@ -4984,9 +5008,9 @@ server <- function(input, output, session) {
   })
   
   output$species_info_saved <- renderUI({
-    req(DB$database, DB$scheme)
+    req(Startup$database, DB$scheme)
     
-    species_data_path <- file.path(DB$database,
+    species_data_path <- file.path(Startup$database,
                                    gsub(" ", "_", DB$scheme),
                                    paste0(gsub(" ", "_", DB$scheme), ".rds"))
     
@@ -4994,7 +5018,7 @@ server <- function(input, output, session) {
       species_data <- readRDS(species_data_path)
       if(length(species_data) > 1) {
         if(!is.null(input$selected_species_saved)) {
-          image_path <- file.path(DB$database,
+          image_path <- file.path(Startup$database,
                                   gsub(" ", "_", DB$scheme),
                                   paste0(names(species_data)[names(species_data) == input$selected_species_saved],
                                          ".jpg"))
@@ -5017,7 +5041,7 @@ server <- function(input, output, session) {
           output$species_img_saved <- NULL
         }
       } else if (length(species_data) > 0) {
-        image_path <- file.path(DB$database,
+        image_path <- file.path(Startup$database,
                                 gsub(" ", "_", DB$scheme),
                                 paste0(gsub(" ", "_", DB$scheme), ".jpg"))
         if(file.exists(image_path)) {
@@ -5495,7 +5519,7 @@ server <- function(input, output, session) {
     # Conditional Missing Values Tab
     if(!is.null(DB$allelic_profile)) {
       if(anyNA(DB$allelic_profile)) {
-        if(DB$no_na_switch == FALSE) {
+        if(isFALSE(DB$no_na_switch)) {
           output$menu_typing <- renderMenu(
             sidebarMenu(
               menuItem(
@@ -5933,13 +5957,6 @@ server <- function(input, output, session) {
         position = "bottom-end",
         timer = 6000
       )
-    } else if(readLines(file.path(logdir, "progress.txt"))[1] != "0") {
-      show_toast(
-        title = "Pending Single Typing",
-        type = "warning",
-        position = "bottom-end",
-        timer = 6000
-      )
     } else if(Screening$status == "started") {
       show_toast(
         title = "Pending Screening",
@@ -6017,7 +6034,7 @@ server <- function(input, output, session) {
     DB$inhibit_change <- FALSE
     
     Data <- readRDS(paste0(
-      DB$database, "/",
+      Startup$database, "/",
       gsub(" ", "_", DB$scheme),
       "/Typing.rds"
     ))
@@ -6772,7 +6789,6 @@ server <- function(input, output, session) {
       if ((ncol(DB$data)-13) != DB$number_loci) {
         cust_var <- select(DB$data, 14:(ncol(DB$data) - DB$number_loci))
         DB$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
-        
       } else {
         DB$cust_var <- data.frame()
       }
@@ -6883,6 +6899,7 @@ server <- function(input, output, session) {
     DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
     DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
     DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
+    DB$allelic_profile_trunc <- as.data.frame(lapply(DB$allelic_profile, function(x) sapply(x, truncHash)))
     DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
     
     log_print(paste0("New custom variable added: ", input$new_var_name))
@@ -7075,17 +7092,17 @@ server <- function(input, output, session) {
     content = function(file) {
       download_matrix <- hot_to_r(input$db_entries)
       
-      if(input$download_table_hashes == FALSE) {
+      if(isFALSE(input$download_table_hashes)) {
         included_loci <- colnames(select(download_matrix, -(1:(13 + nrow(DB$cust_var)))))
         full_hashes <- DB$allelic_profile[included_loci]
         download_matrix[included_loci] <- full_hashes
       }
       
-      if (input$download_table_include == TRUE) {
+      if(isTRUE(input$download_table_include)) {
         download_matrix <- download_matrix[which(download_matrix$Include == TRUE),]
       }
       
-      if (input$download_table_loci == FALSE) {
+      if(isFALSE(input$download_table_loci)) {
         download_matrix <- select(download_matrix, 1:(13 + nrow(DB$cust_var)))
       } 
       
@@ -7191,7 +7208,7 @@ server <- function(input, output, session) {
     }
     DB$remove_iso <- NULL
     
-    Data <- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme),"Typing.rds"))
+    Data <- readRDS(file.path(Startup$database, gsub(" ", "_", DB$scheme),"Typing.rds"))
     
     if ((ncol(Data[["Typing"]]) - 13) != DB$number_loci) {
       cust_vars_pre <- select(Data[["Typing"]], 
@@ -7219,10 +7236,10 @@ server <- function(input, output, session) {
     
     # Ensure correct logical data type
     Data[["Typing"]][["Include"]] <- as.logical(Data[["Typing"]][["Include"]])
-    saveRDS(Data, file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
+    saveRDS(Data, file.path(Startup$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
     
     # Load database from files  
-    Database <- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
+    Database <- readRDS(file.path(Startup$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
     
     DB$data <- Database[["Typing"]]
     
@@ -7265,16 +7282,6 @@ server <- function(input, output, session) {
       log_print("Delete entries; no entry selected")
       show_toast(
         title = "No entry selected",
-        type = "warning",
-        position = "bottom-end",
-        timer = 4000
-      )
-    } else if((readLines(file.path(logdir, "progress.txt"))[1] != "0") |
-              (tail(readLogFile(), 1) != "0")) {
-      log_print("Delete entries; pending typing")
-      
-      show_toast(
-        title = "Pending Typing",
         type = "warning",
         position = "bottom-end",
         timer = 4000
@@ -7356,8 +7363,8 @@ server <- function(input, output, session) {
     log_print("Input conf_delete_all")
     
     # remove file with typing data
-    file.remove(file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
-    unlink(file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates"), recursive = TRUE, force = FALSE, expand =TRUE)
+    file.remove(file.path(Startup$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
+    unlink(file.path(Startup$database, gsub(" ", "_", DB$scheme), "Isolates"), recursive = TRUE, force = FALSE, expand =TRUE)
     
     showModal(
       div(
@@ -7419,7 +7426,7 @@ server <- function(input, output, session) {
     DB$check_new_entries <- FALSE
     
     # Set isolate directory deletion variables
-    isopath <- dir_ls(file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates"))
+    isopath <- dir_ls(file.path(Startup$database, gsub(" ", "_", DB$scheme), "Isolates"))
     DB$remove_iso <- isopath[which(basename(isopath) == DB$data$`Assembly ID`[as.numeric(input$select_delete)])]
     
     # Reload updated database reactive variables
@@ -7507,12 +7514,12 @@ server <- function(input, output, session) {
       DB$matrix_min <- min(hamming_mat, na.rm = TRUE)
       DB$matrix_max <- max(hamming_mat, na.rm = TRUE)
       
-      if(input$distmatrix_triangle == FALSE) {
+      if(isFALSE(input$distmatrix_triangle)) {
         hamming_mat[upper.tri(hamming_mat, diag = !input$distmatrix_diag)] <- NA
       } 
       
       # Row- and colnames change
-      if(input$distmatrix_true == TRUE) {
+      if(isTRUE(input$distmatrix_true)) {
         rownames(hamming_mat) <- unlist(DB$data[input$distmatrix_label][which(DB$data$Include == TRUE),])
       } else {
         rownames(hamming_mat) <- unlist(DB$data[input$distmatrix_label])
@@ -7546,9 +7553,9 @@ server <- function(input, output, session) {
   ## Locus sequences ----
   
   observe({
-    if(!is.null(DB$database) & !is.null(DB$scheme)) {
+    if(!is.null(Startup$database) & !is.null(DB$scheme)) {
       DB$loci <- list.files(
-        path = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles"),
+        path = paste0(Startup$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles"),
         pattern = "\\.(fasta|fa|fna)$",
         full.names = TRUE
       )
@@ -7621,10 +7628,10 @@ server <- function(input, output, session) {
   
   output$loci_sequences <- renderUI({
     if (!is.null(DB$loci_info)) {
-      req(input$db_loci_rows_selected, DB$database, DB$scheme, input$seq_sel)
+      req(input$db_loci_rows_selected, Startup$database, DB$scheme, input$seq_sel)
       
       DB$loci <- list.files(
-        path = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles"),
+        path = paste0(Startup$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles"),
         pattern = "\\.(fasta|fa|fna)$",
         full.names = TRUE
       )
@@ -7658,10 +7665,10 @@ server <- function(input, output, session) {
   output$sequence_selector <- renderUI({
     if(!is.null(input$db_loci_rows_selected) & !is.null(DB$loci_info)) {
       
-      req(input$db_loci_rows_selected, DB$database, DB$scheme)
+      req(input$db_loci_rows_selected, Startup$database, DB$scheme)
       
       DB$loci <- list.files(
-        path = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles"),
+        path = paste0(Startup$database, "/", gsub(" ", "_", DB$scheme), "/", gsub(" ", "_", DB$scheme), "_alleles"),
         pattern = "\\.(fasta|fa|fna)$",
         full.names = TRUE
       )
@@ -7842,13 +7849,13 @@ server <- function(input, output, session) {
     DB$load_selected <- TRUE
     
     # Check if .downloaded_schemes folder exists and if not create it
-    if (!dir.exists(file.path(DB$database, ".downloaded_schemes"))) {
-      dir.create(file.path(DB$database, ".downloaded_schemes"), recursive = TRUE)
+    if (!dir.exists(file.path(Startup$database, ".downloaded_schemes"))) {
+      dir.create(file.path(Startup$database, ".downloaded_schemes"), recursive = TRUE)
     }
     
     # Check if remains of old temporary folder exists and remove them
-    if (dir.exists(file.path(DB$database, Scheme$folder_name, paste0(Scheme$folder_name, ".tmp")))) {
-      unlink(file.path(DB$database, Scheme$folder_name, paste0(Scheme$folder_name, ".tmp")), recursive = TRUE)
+    if (dir.exists(file.path(Startup$database, Scheme$folder_name, paste0(Scheme$folder_name, ".tmp")))) {
+      unlink(file.path(Startup$database, Scheme$folder_name, paste0(Scheme$folder_name, ".tmp")), recursive = TRUE)
     }
     
     ### Download Loci Fasta Files
@@ -7864,13 +7871,13 @@ server <- function(input, output, session) {
     tryCatch({
       if(grepl("_PM", input$select_cgmlst)) {
         download.alleles.PM(url_link = schemes$url[schemes$species == input$select_cgmlst],
-                            database = DB$database,
+                            database = Startup$database,
                             folder_name = Scheme$folder_name,
                             progress = progress)
         "Download successful!"
       } else if(grepl("_CM", input$select_cgmlst)) {
         download.alleles.CM(url_link = schemes$url[schemes$species == input$select_cgmlst],
-                            database = DB$database,
+                            database = Startup$database,
                             folder_name = Scheme$folder_name,
                             progress = progress)
         "Download successful!"
@@ -7881,8 +7888,8 @@ server <- function(input, output, session) {
     
     # Unzip the scheme in temporary folder
     unzip(
-      zipfile = file.path(DB$database, ".downloaded_schemes", paste0(Scheme$folder_name, ".zip")),
-      exdir = file.path(DB$database, 
+      zipfile = file.path(Startup$database, ".downloaded_schemes", paste0(Scheme$folder_name, ".zip")),
+      exdir = file.path(Startup$database, 
                         Scheme$folder_name, 
                         paste0(Scheme$folder_name, ".tmp")
       )
@@ -7892,14 +7899,14 @@ server <- function(input, output, session) {
     if(!is.null(Scheme$species_data)) {
       if(length(Scheme$species_data) > 0) {
         saveRDS(Scheme$species_data,
-                file.path(DB$database, 
+                file.path(Startup$database, 
                           schemes$species[schemes$species == input$select_cgmlst], 
                           paste0(schemes$species[schemes$species == input$select_cgmlst], ".rds")))
         
         if(length(Scheme$species_data) > 1) {
           for(i in seq_along(Scheme$species_data)) {
             # Download image
-            destination_file <- file.path(DB$database, 
+            destination_file <- file.path(Startup$database, 
                                           input$select_cgmlst, 
                                           paste0(gsub(" ", "_", Scheme$species_data[[i]]$Name$name), ".jpg"))
             response_download <- httr::GET(Scheme$species_data[[i]]$Image)
@@ -7913,7 +7920,7 @@ server <- function(input, output, session) {
             }
           }
         } else {
-          destination_file <- file.path(DB$database, input$select_cgmlst,
+          destination_file <- file.path(Startup$database, input$select_cgmlst,
                                         paste0(gsub(" ", "_", Scheme$species_data[[1]]$Name$name), ".jpg"))
           
           response_download <- httr::GET(Scheme$species_data[[1]]$Image)
@@ -7940,19 +7947,19 @@ server <- function(input, output, session) {
     )
     
     # Hash temporary folder
-    hash_database(file.path(DB$database, 
+    hash_database(file.path(Startup$database, 
                             Scheme$folder_name, 
                             paste0(Scheme$folder_name, ".tmp")),
                   progress = progress)
     
     # Get list from local database
-    local_db_filelist <- list.files(file.path(DB$database, 
+    local_db_filelist <- list.files(file.path(Startup$database, 
                                               Scheme$folder_name, 
                                               paste0(Scheme$folder_name, "_alleles")))
     
     if (!is_empty(local_db_filelist)) {
       # Get list from temporary database
-      tmp_db_filelist <- list.files(file.path(DB$database,
+      tmp_db_filelist <- list.files(file.path(Startup$database,
                                               Scheme$folder_name,
                                               paste0(Scheme$folder_name, ".tmp")))
       
@@ -7960,19 +7967,19 @@ server <- function(input, output, session) {
       local_db_extra <- setdiff(local_db_filelist, tmp_db_filelist)
       
       # Copy extra files to temporary folder
-      file.copy(file.path(DB$database,
+      file.copy(file.path(Startup$database,
                           Scheme$folder_name, 
                           paste0(Scheme$folder_name, "_alleles"), local_db_extra),
-                file.path(DB$database,
+                file.path(Startup$database,
                           Scheme$folder_name,
                           paste0(Scheme$folder_name, ".tmp")))
       
       # Check differences in file pairs
-      local_db_hashes <- tools::md5sum(file.path(DB$database,
+      local_db_hashes <- tools::md5sum(file.path(Startup$database,
                                                  Scheme$folder_name,
                                                  paste0(Scheme$folder_name, "_alleles"),
                                                  local_db_filelist))
-      tmp_db_hashes <- tools::md5sum(file.path(DB$database,
+      tmp_db_hashes <- tools::md5sum(file.path(Startup$database,
                                                Scheme$folder_name,
                                                paste0(Scheme$folder_name, ".tmp"),
                                                local_db_filelist))
@@ -7983,23 +7990,23 @@ server <- function(input, output, session) {
       
       # Check locus hashes
       for (locus in diff_loci) {
-        local_db_hashes <- get_locus_hashes(file.path(DB$database,
+        local_db_hashes <- get_locus_hashes(file.path(Startup$database,
                                                       Scheme$folder_name,
                                                       paste0(Scheme$folder_name, "_alleles"),
                                                       locus))
-        tmp_db_hashes <- get_locus_hashes(file.path(DB$database,
+        tmp_db_hashes <- get_locus_hashes(file.path(Startup$database,
                                                     Scheme$folder_name,
                                                     paste0(Scheme$folder_name, ".tmp"),
                                                     locus))
         diff_hashes <- setdiff(local_db_hashes, tmp_db_hashes)
         
-        sequences <- extract_seq(file.path(DB$database,
+        sequences <- extract_seq(file.path(Startup$database,
                                            Scheme$folder_name,
                                            paste0(Scheme$folder_name, "_alleles"),
                                            locus), diff_hashes)
         if (!is_empty(sequences$idx) && !is_empty(sequences$seq) &&
             length(sequences$idx) == length(sequences$seq)) {
-          add_new_sequences(file.path(DB$database,
+          add_new_sequences(file.path(Startup$database,
                                       Scheme$folder_name,
                                       paste0(Scheme$folder_name, ".tmp"),
                                       locus), sequences)
@@ -8007,12 +8014,12 @@ server <- function(input, output, session) {
       }
     }
     
-    unlink(file.path(DB$database, Scheme$folder_name, 
+    unlink(file.path(Startup$database, Scheme$folder_name, 
                      paste0(Scheme$folder_name, "_alleles")), recursive = TRUE)
     
-    file.rename(file.path(DB$database, Scheme$folder_name,
+    file.rename(file.path(Startup$database, Scheme$folder_name,
                           paste0(Scheme$folder_name, ".tmp")),
-                file.path(DB$database, Scheme$folder_name,
+                file.path(Startup$database, Scheme$folder_name,
                           paste0(Scheme$folder_name, "_alleles")))
     
     # Download Scheme Info (pubMLST already downloaded)
@@ -8039,7 +8046,7 @@ server <- function(input, output, session) {
           
           names(scheme_overview) <- NULL
           
-          saveRDS(scheme_overview, file.path(DB$database, Scheme$folder_name, "scheme_info.rds"))
+          saveRDS(scheme_overview, file.path(Startup$database, Scheme$folder_name, "scheme_info.rds"))
           
           message("Scheme info downloaded")
         },
@@ -8049,9 +8056,9 @@ server <- function(input, output, session) {
       )
     }
     
-    available <- gsub("_", " ", basename(dir_ls(DB$database)))
+    available <- gsub("_", " ", basename(dir_ls(Startup$database)))
     DB$available <- available[available %in% gsub("_", " ", schemes$species)]
-    DB$exist <- length(dir_ls(DB$database)) == 0
+    DB$exist <- length(dir_ls(Startup$database)) == 0
     
     shinyjs::show("download_cgMLST")
     shinyjs::hide("hashing")
@@ -8121,12 +8128,13 @@ server <- function(input, output, session) {
   
   # Download Target Info (CSV Table)
   observe({
-    req(input$select_cgmlst)
+    req(input$select_cgmlst, Scheme$link_scheme)
+    
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     
     input$download_cgMLST
     
-    if(dir.exists(file.path(DB$database, input$select_cgmlst))) {
+    if(dir.exists(file.path(Startup$database, input$select_cgmlst))) {
       updateActionButton(session, "download_cgMLST", label = "Fetch Update")
     } else {
       updateActionButton(session, "download_cgMLST", label = "Download")
@@ -8173,7 +8181,7 @@ server <- function(input, output, session) {
         names(scheme_overview) <- NULL
         
         last_file_change <- format(
-          file.info(file.path(DB$database, ".downloaded_schemes",
+          file.info(file.path(Startup$database, ".downloaded_schemes",
                               paste0(Scheme$folder_name, ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
       }
     } else if(grepl("_PM", input$select_cgmlst)) {
@@ -8199,7 +8207,7 @@ server <- function(input, output, session) {
         if(!is.null(scheme_overview[["last_updated"]])) {
           last_scheme_change <- scheme_overview[["last_updated"]]
           last_file_change <- format(
-            file.info(file.path(DB$database, ".downloaded_schemes",
+            file.info(file.path(Startup$database, ".downloaded_schemes",
                                 paste0(Scheme$folder_name, ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
         } else {
           last_scheme_change <- "Not Available"
@@ -8333,7 +8341,7 @@ server <- function(input, output, session) {
       if(length(Scheme$species_data) > 1 & length(Scheme$species_data) > 0) {
         if(!is.null(input$selected_species)) {
           # Download image
-          destination_file <- file.path(DB$database, 
+          destination_file <- file.path(Startup$database, 
                                         schemes$species[schemes$species == input$select_cgmlst], 
                                         paste0(input$selected_species, ".jpg"))
           if(!dir.exists(dirname(destination_file))) {
@@ -8401,7 +8409,7 @@ server <- function(input, output, session) {
       } else if(length(Scheme$species_data) > 0) {
         
         # Download image
-        destination_file <- file.path(DB$database, 
+        destination_file <- file.path(Startup$database, 
                                       schemes$species[schemes$species == input$select_cgmlst], 
                                       paste0(schemes$species[schemes$species == input$select_cgmlst], ".jpg"))
         
@@ -8817,6 +8825,7 @@ server <- function(input, output, session) {
     list(src = image_path,
          height = 180)
   }, deleteFile = FALSE)
+  
   
   ### Plot Controls ----
   
@@ -18425,7 +18434,7 @@ server <- function(input, output, session) {
       mst_color_var_selected <- FALSE
     }
     
-    if(mst_color_var_selected == FALSE) {
+    if(isFALSE(mst_color_var_selected)) {
       mst_color_node
     } else {
       shinyjs::disabled(mst_color_node)
@@ -18434,7 +18443,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$mst_color_var, {
     
-    if(input$mst_color_var == TRUE) {
+    if(isTRUE(input$mst_color_var)) {
       updateSelectizeInput(session, inputId = "mst_node_shape", choices = c("Pie Nodes" = "custom"))
       updateSelectizeInput(session, inputId = "mst_node_label", choices = c("Assembly Name"))
     } else {
@@ -18478,7 +18487,7 @@ server <- function(input, output, session) {
   
   mst_tree <- reactive({
     
-    data <- toVisNetworkData(Vis$ggraph_1)
+    data <- toVisNetworkData(Vis$mst_pre)
     data$nodes <- mutate(data$nodes, 
                          label = label_mst(),
                          value = mst_node_scaling())
@@ -18646,7 +18655,7 @@ server <- function(input, output, session) {
     }
     
     data$edges <- mutate(data$edges,
-                         length = if(mst_scale_edges == FALSE) {
+                         length = if(isFALSE(mst_scale_edges)) {
                            mst_edge_length
                          } else {
                            log(data$edges$weight) * mst_edge_length_scale
@@ -19021,7 +19030,7 @@ server <- function(input, output, session) {
     # Convert negative edges 
     Vis$nj[["edge.length"]] <- abs(Vis$nj[["edge.length"]])
     
-    if(input$nj_nodelabel_show == TRUE) {
+    if(isTRUE(input$nj_nodelabel_show)) {
       ggtree(Vis$nj, alpha = 0.2, layout = layout_nj()) + 
         geom_nodelab(aes(label = node), color = "#29303A", size = nj_tiplab_size() + 1, hjust = 0.7) +
         nj_limit() +
@@ -19115,7 +19124,7 @@ server <- function(input, output, session) {
       
       # Add heatmap
       if(!is.null(Vis$nj_heatmap_select)) {
-        if(input$nj_heatmap_show == TRUE & length(Vis$nj_heatmap_select) > 0) {
+        if(isTRUE(input$nj_heatmap_show) & length(Vis$nj_heatmap_select) > 0) {
           if (!(any(sapply(Vis$meta_nj[Vis$nj_heatmap_select], is.numeric)) & 
                 any(!sapply(Vis$meta_nj[Vis$nj_heatmap_select], is.numeric)))) {
             tree <- gheatmap.mod(
@@ -19450,7 +19459,7 @@ server <- function(input, output, session) {
     if(!is.null(input$nj_tiles_show_1) & 
        !is.null(input$nj_fruit_variable) & 
        !is.null(input$nj_tiles_scale_1)) {
-      if(input$nj_tiles_show_1 == TRUE) {
+      if(isTRUE(input$nj_tiles_show_1)) {
         if(input$nj_tiles_scale_1 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(!is.null(input$nj_tiles_mapping_div_mid_1)) {
             if(input$nj_tiles_mapping_div_mid_1 == "Zero") {
@@ -19516,7 +19525,7 @@ server <- function(input, output, session) {
     if(!is.null(input$nj_tiles_show_2) & 
        !is.null(input$nj_fruit_variable_2) & 
        !is.null(input$nj_tiles_scale_2)) {
-      if(input$nj_tiles_show_2 == TRUE) {
+      if(isTRUE(input$nj_tiles_show_2)) {
         if(input$nj_tiles_scale_2 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(!is.null(input$nj_tiles_mapping_div_mid_2)) {
             if(input$nj_tiles_mapping_div_mid_2 == "Zero") {
@@ -19582,7 +19591,7 @@ server <- function(input, output, session) {
     if(!is.null(input$nj_tiles_show_3) & 
        !is.null(input$nj_fruit_variable_3) & 
        !is.null(input$nj_tiles_scale_3)) {
-      if(input$nj_tiles_show_3 == TRUE) {
+      if(isTRUE(input$nj_tiles_show_3)) {
         if(input$nj_tiles_scale_3 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(!is.null(input$nj_tiles_mapping_div_mid_3)) {
             if(input$nj_tiles_mapping_div_mid_3 == "Zero") {
@@ -19648,7 +19657,7 @@ server <- function(input, output, session) {
     if(!is.null(input$nj_tiles_show_4) & 
        !is.null(input$nj_fruit_variable_4) & 
        !is.null(input$nj_tiles_scale_4)) {
-      if(input$nj_tiles_show_4 == TRUE) {
+      if(isTRUE(input$nj_tiles_show_4)) {
         if(input$nj_tiles_scale_4 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(!is.null(input$nj_tiles_mapping_div_mid_4)) {
             if(input$nj_tiles_mapping_div_mid_4 == "Zero") {
@@ -19714,7 +19723,7 @@ server <- function(input, output, session) {
     if(!is.null(input$nj_tiles_show_5) & 
        !is.null(input$nj_fruit_variable_5) & 
        !is.null(input$nj_tiles_scale_5)) {
-      if(input$nj_tiles_show_5 == TRUE) {
+      if(isTRUE(input$nj_tiles_show_5)) {
         if(input$nj_tiles_scale_5 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(!is.null(input$nj_tiles_mapping_div_mid_5)) {
             if(input$nj_tiles_mapping_div_mid_5 == "Zero") {
@@ -19791,7 +19800,7 @@ server <- function(input, output, session) {
        (!is.null(input$nj_fruit_offset_circ)) & 
        (!is.null(input$nj_fruit_width_circ)) & 
        (!is.null(input$nj_fruit_alpha))) {
-      if(input$nj_tiles_show_1 == TRUE) {
+      if(isTRUE(input$nj_tiles_show_1)) {
         if(input$nj_layout == "circular" | input$nj_layout == "inward") {
           geom_fruit(
             geom = geom_tile,
@@ -19811,7 +19820,7 @@ server <- function(input, output, session) {
         }
       } else {NULL}
     } else {
-      if(input$nj_tiles_show_1 == TRUE) {
+      if(isTRUE(input$nj_tiles_show_1)) {
         if(!is.null(Vis$nj_max_x)) {
           if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
             width <- 1
@@ -19850,7 +19859,7 @@ server <- function(input, output, session) {
        (!is.null(input$nj_fruit_offset_circ_2)) & 
        (!is.null(input$nj_fruit_width_circ_2)) & 
        (!is.null(input$nj_fruit_alpha_2))) {
-      if(input$nj_tiles_show_2 == TRUE) {
+      if(isTRUE(input$nj_tiles_show_2)) {
         if(input$nj_layout == "circular" | input$nj_layout == "inward") {
           geom_fruit(
             geom = geom_tile,
@@ -19870,7 +19879,7 @@ server <- function(input, output, session) {
         }
       } else {NULL}
     } else {
-      if(input$nj_tiles_show_2 == TRUE) {
+      if(isTRUE(input$nj_tiles_show_2)) {
         if(!is.null(Vis$nj_max_x)) {
           if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
             width <- 1
@@ -19908,7 +19917,7 @@ server <- function(input, output, session) {
        (!is.null(input$nj_fruit_offset_circ_3)) & 
        (!is.null(input$nj_fruit_width_circ_3)) & 
        (!is.null(input$nj_fruit_alpha_3))) {
-      if(input$nj_tiles_show_3 == TRUE) {
+      if(isTRUE(input$nj_tiles_show_3)) {
         if(input$nj_layout == "circular" | input$nj_layout == "inward") {
           geom_fruit(
             geom = geom_tile,
@@ -19928,7 +19937,7 @@ server <- function(input, output, session) {
         }
       } else {NULL}
     } else {
-      if(input$nj_tiles_show_3 == TRUE) {
+      if(isTRUE(input$nj_tiles_show_3)) {
         if(!is.null(Vis$nj_max_x)) {
           if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
             width <- 1
@@ -19966,7 +19975,7 @@ server <- function(input, output, session) {
        (!is.null(input$nj_fruit_offset_circ_4)) & 
        (!is.null(input$nj_fruit_width_circ_4)) & 
        (!is.null(input$nj_fruit_alpha_4))) {
-      if(input$nj_tiles_show_4 == TRUE) {
+      if(isTRUE(input$nj_tiles_show_4)) {
         if(input$nj_layout == "circular" | input$nj_layout == "inward") {
           geom_fruit(
             geom = geom_tile,
@@ -19985,7 +19994,7 @@ server <- function(input, output, session) {
           )
         }
       } else {
-        if(input$nj_tiles_show_4 == TRUE) {
+        if(isTRUE(input$nj_tiles_show_4)) {
           if(!is.null(Vis$nj_max_x)) {
             if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
               width <- 1
@@ -20024,7 +20033,7 @@ server <- function(input, output, session) {
        (!is.null(input$nj_fruit_offset_circ_5)) & 
        (!is.null(input$nj_fruit_width_circ_5)) & 
        (!is.null(input$nj_fruit_alpha_5))) {
-      if(input$nj_tiles_show_5 == TRUE) {
+      if(isTRUE(input$nj_tiles_show_5)) {
         if(input$nj_layout == "circular" | input$nj_layout == "inward") {
           geom_fruit(
             geom = geom_tile,
@@ -20044,7 +20053,7 @@ server <- function(input, output, session) {
         }
       } else {NULL}
     } else {
-      if(input$nj_tiles_show_5 == TRUE) {
+      if(isTRUE(input$nj_tiles_show_5)) {
         if(!is.null(Vis$nj_max_x)) {
           if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
             width <- 1
@@ -20085,7 +20094,7 @@ server <- function(input, output, session) {
   # Treescale
   nj_treescale <- reactive({
     if(!input$nj_layout == "circular") {
-      if(input$nj_treescale_show == TRUE) {
+      if(isTRUE(input$nj_treescale_show)) {
         geom_treescale(x = nj_treescale_x(),
                        y = nj_treescale_y(),
                        width = nj_treescale_width(),
@@ -20121,7 +20130,7 @@ server <- function(input, output, session) {
   # Label branches
   nj_label_branch <- reactive({
     if(!input$nj_layout == "circular" | !input$nj_layout == "inward") {
-      if(input$nj_show_branch_label == TRUE) {
+      if(isTRUE(input$nj_show_branch_label)) {
         geom_label(
           aes(
             x=!!sym("branch"), 
@@ -20149,7 +20158,7 @@ server <- function(input, output, session) {
   
   # Rootedge
   nj_rootedge <- reactive({
-    if(input$nj_rootedge_show == TRUE) {
+    if(isTRUE(input$nj_rootedge_show)) {
       if(is.null(input$nj_rootedge_length)) {
         geom_rootedge(rootedge = round(ceiling(Vis$nj_max_x) * 0.05, 0),
                       linetype = input$nj_rootedge_line)
@@ -20162,22 +20171,22 @@ server <- function(input, output, session) {
   
   # Tippoints
   nj_tippoint <- reactive({
-    if(input$nj_tippoint_show == TRUE | input$nj_tipcolor_mapping_show == TRUE | input$nj_tipshape_mapping_show == TRUE) {
-      if(input$nj_tipcolor_mapping_show == TRUE & input$nj_tipshape_mapping_show == FALSE) {
+    if(isTRUE(input$nj_tippoint_show) | isTRUE(input$nj_tipcolor_mapping_show) | isTRUE(input$nj_tipshape_mapping_show)) {
+      if(isTRUE(input$nj_tipcolor_mapping_show) & isFALSE(input$nj_tipshape_mapping_show)) {
         geom_tippoint(
           aes(color = !!sym(input$nj_tipcolor_mapping)),
           alpha = input$nj_tippoint_alpha,
           shape = input$nj_tippoint_shape,
           size = nj_tippoint_size()
         )
-      } else if (input$nj_tipcolor_mapping_show == FALSE & input$nj_tipshape_mapping_show == TRUE) {
+      } else if (isFALSE(input$nj_tipcolor_mapping_show) & isTRUE(input$nj_tipshape_mapping_show)) {
         geom_tippoint(
           aes(shape = !!sym(input$nj_tipshape_mapping)),
           alpha = input$nj_tippoint_alpha,
           color = input$nj_tippoint_color,
           size = nj_tippoint_size()
         )
-      } else if (input$nj_tipcolor_mapping_show == TRUE & input$nj_tipshape_mapping_show == TRUE) {
+      } else if (isTRUE(input$nj_tipcolor_mapping_show) & isTRUE(input$nj_tipshape_mapping_show)) {
         geom_tippoint(
           aes(shape = !!sym(input$nj_tipshape_mapping),
               color = !!sym(input$nj_tipcolor_mapping)),
@@ -20198,7 +20207,7 @@ server <- function(input, output, session) {
   
   # Nodepoints
   nj_nodepoint <- reactive({
-    if(input$nj_nodepoint_show == TRUE) {
+    if(isTRUE(input$nj_nodepoint_show)) {
       geom_nodepoint(
         alpha = input$nj_nodepoint_alpha,
         color = input$nj_nodepoint_color,
@@ -20219,9 +20228,9 @@ server <- function(input, output, session) {
   
   # NJ circularity
   nj_tiplab <- reactive({
-    if(input$nj_tiplab_show == TRUE) {
+    if(isTRUE(input$nj_tiplab_show)) {
       if(input$nj_layout == "circular") {
-        if(input$nj_mapping_show == TRUE) {
+        if(isTRUE(input$nj_mapping_show)) {
           geom_tiplab(
             nj_mapping_tiplab(), 
             geom = "text",
@@ -20246,7 +20255,7 @@ server <- function(input, output, session) {
           )
         }
       } else if (input$nj_layout == "inward") {
-        if(input$nj_mapping_show == TRUE) {
+        if(isTRUE(input$nj_mapping_show)) {
           geom_tiplab(
             nj_mapping_tiplab(), 
             geom = "text",
@@ -20271,8 +20280,8 @@ server <- function(input, output, session) {
           )
         }
       } else {
-        if(input$nj_mapping_show == TRUE) {
-          if(input$nj_geom == TRUE) {
+        if(isTRUE(input$nj_mapping_show)) {
+          if(isTRUE(input$nj_geom)) {
             geom_tiplab(
               nj_mapping_tiplab(), 
               geom = nj_geom(),
@@ -20301,7 +20310,7 @@ server <- function(input, output, session) {
             )
           }
         } else {
-          if(input$nj_geom == TRUE) {
+          if(isTRUE(input$nj_geom)) {
             geom_tiplab(
               nj_mapping_tiplab(), 
               geom = nj_geom(),
@@ -20365,14 +20374,14 @@ server <- function(input, output, session) {
   
   # Show Label Panels?
   nj_geom <- reactive({
-    if(input$nj_geom == TRUE) {
+    if(isTRUE(input$nj_geom)) {
       "label"
     } else {"text"}
   })
   
   # NJ Tiplab color
   nj_mapping_tiplab <- reactive({
-    if(input$nj_mapping_show == TRUE) {
+    if(isTRUE(input$nj_mapping_show)) {
       if(!is.null(input$nj_tiplab)) {
         aes(label = !!sym(input$nj_tiplab),
             color = !!sym(input$nj_color_mapping))
@@ -20410,7 +20419,7 @@ server <- function(input, output, session) {
   upgma_tree <- reactive({
     Vis$upgma$tip.label <- Vis$meta_upgma$Index
     
-    if(input$upgma_nodelabel_show == TRUE) {
+    if(isTRUE(input$upgma_nodelabel_show)) {
       ggtree(Vis$upgma, alpha = 0.2, layout = layout_upgma()) + 
         geom_nodelab(aes(label = node), color = "#29303A", size = upgma_tiplab_size() + 1, hjust = 0.7) +
         upgma_limit() +
@@ -20504,7 +20513,7 @@ server <- function(input, output, session) {
       
       # Add heatmap
       if(!is.null(Vis$upgma_heatmap_select)) {
-        if(input$upgma_heatmap_show == TRUE & length(Vis$upgma_heatmap_select) > 0) {
+        if(isTRUE(input$upgma_heatmap_show) & length(Vis$upgma_heatmap_select) > 0) {
           if (!(any(sapply(Vis$meta_upgma[Vis$upgma_heatmap_select], is.numeric)) & 
                 any(!sapply(Vis$meta_upgma[Vis$upgma_heatmap_select], is.numeric)))) {
             tree <- gheatmap.mod(
@@ -20836,7 +20845,7 @@ server <- function(input, output, session) {
     if(!is.null(input$upgma_tiles_show_1) & 
        !is.null(input$upgma_fruit_variable) & 
        !is.null(input$upgma_tiles_scale_1)) {
-      if(input$upgma_tiles_show_1 == TRUE) {
+      if(isTRUE(input$upgma_tiles_show_1)) {
         if(input$upgma_tiles_scale_1 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(!is.null(input$upgma_tiles_mapping_div_mid_1)) {
             if(input$upgma_tiles_mapping_div_mid_1 == "Zero") {
@@ -20902,7 +20911,7 @@ server <- function(input, output, session) {
     if(!is.null(input$upgma_tiles_show_2) & 
        !is.null(input$upgma_fruit_variable_2) & 
        !is.null(input$upgma_tiles_scale_2)) {
-      if(input$upgma_tiles_show_2 == TRUE) {
+      if(isTRUE(input$upgma_tiles_show_2)) {
         if(input$upgma_tiles_scale_2 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(!is.null(input$upgma_tiles_mapping_div_mid_2)) {
             if(input$upgma_tiles_mapping_div_mid_2 == "Zero") {
@@ -20968,7 +20977,7 @@ server <- function(input, output, session) {
     if(!is.null(input$upgma_tiles_show_3) & 
        !is.null(input$upgma_fruit_variable_3) & 
        !is.null(input$upgma_tiles_scale_3)) {
-      if(input$upgma_tiles_show_3 == TRUE) {
+      if(isTRUE(input$upgma_tiles_show_3)) {
         if(input$upgma_tiles_scale_3 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(!is.null(input$upgma_tiles_mapping_div_mid_3)) {
             if(input$upgma_tiles_mapping_div_mid_3 == "Zero") {
@@ -21034,7 +21043,7 @@ server <- function(input, output, session) {
     if(!is.null(input$upgma_tiles_show_4) & 
        !is.null(input$upgma_fruit_variable_4) & 
        !is.null(input$upgma_tiles_scale_4)) {
-      if(input$upgma_tiles_show_4 == TRUE) {
+      if(isTRUE(input$upgma_tiles_show_4)) {
         if(input$upgma_tiles_scale_4 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(!is.null(input$upgma_tiles_mapping_div_mid_4)) {
             if(input$upgma_tiles_mapping_div_mid_4 == "Zero") {
@@ -21100,7 +21109,7 @@ server <- function(input, output, session) {
     if(!is.null(input$upgma_tiles_show_5) & 
        !is.null(input$upgma_fruit_variable_5) & 
        !is.null(input$upgma_tiles_scale_5)) {
-      if(input$upgma_tiles_show_5 == TRUE) {
+      if(isTRUE(input$upgma_tiles_show_5)) {
         if(input$upgma_tiles_scale_5 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
           if(!is.null(input$upgma_tiles_mapping_div_mid_5)) {
             if(input$upgma_tiles_mapping_div_mid_5 == "Zero") {
@@ -21177,7 +21186,7 @@ server <- function(input, output, session) {
        (!is.null(input$upgma_fruit_offset_circ)) & 
        (!is.null(input$upgma_fruit_width_circ)) & 
        (!is.null(input$upgma_fruit_alpha))) {
-      if(input$upgma_tiles_show_1 == TRUE) {
+      if(isTRUE(input$upgma_tiles_show_1)) {
         if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
           geom_fruit(
             geom = geom_tile,
@@ -21197,7 +21206,7 @@ server <- function(input, output, session) {
         }
       } else {NULL}
     } else {
-      if(input$upgma_tiles_show_1 == TRUE) {
+      if(isTRUE()) {
         if(!is.null(Vis$upgma_max_x)) {
           if(round(ceiling(Vis$upgma_max_x) * 0.1, 0) < 1) {
             width <- 1
@@ -21236,7 +21245,7 @@ server <- function(input, output, session) {
        (!is.null(input$upgma_fruit_offset_circ_2)) & 
        (!is.null(input$upgma_fruit_width_circ_2)) & 
        (!is.null(input$upgma_fruit_alpha_2))) {
-      if(input$upgma_tiles_show_2 == TRUE) {
+      if(isTRUE(input$upgma_tiles_show_2)) {
         if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
           geom_fruit(
             geom = geom_tile,
@@ -21256,7 +21265,7 @@ server <- function(input, output, session) {
         }
       } else {NULL}
     } else {
-      if(input$upgma_tiles_show_2 == TRUE) {
+      if(isTRUE(input$upgma_tiles_show_2)) {
         if(!is.null(Vis$upgma_max_x)) {
           if(round(ceiling(Vis$upgma_max_x) * 0.1, 0) < 1) {
             width <- 1
@@ -21294,7 +21303,7 @@ server <- function(input, output, session) {
        (!is.null(input$upgma_fruit_offset_circ_3)) & 
        (!is.null(input$upgma_fruit_width_circ_3)) & 
        (!is.null(input$upgma_fruit_alpha_3))) {
-      if(input$upgma_tiles_show_3 == TRUE) {
+      if(isTRUE()) {
         if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
           geom_fruit(
             geom = geom_tile,
@@ -21314,7 +21323,7 @@ server <- function(input, output, session) {
         }
       } else {NULL}
     } else {
-      if(input$upgma_tiles_show_3 == TRUE) {
+      if(isTRUE(input$upgma_tiles_show_3)) {
         if(!is.null(Vis$upgma_max_x)) {
           if(round(ceiling(Vis$upgma_max_x) * 0.1, 0) < 1) {
             width <- 1
@@ -21352,7 +21361,7 @@ server <- function(input, output, session) {
        (!is.null(input$upgma_fruit_offset_circ_4)) & 
        (!is.null(input$upgma_fruit_width_circ_4)) & 
        (!is.null(input$upgma_fruit_alpha_4))) {
-      if(input$upgma_tiles_show_4 == TRUE) {
+      if(isTRUE(input$upgma_tiles_show_4)) {
         if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
           geom_fruit(
             geom = geom_tile,
@@ -21371,7 +21380,7 @@ server <- function(input, output, session) {
           )
         }
       } else {
-        if(input$upgma_tiles_show_4 == TRUE) {
+        if(isTRUE(input$upgma_tiles_show_4)) {
           if(!is.null(Vis$upgma_max_x)) {
             if(round(ceiling(Vis$upgma_max_x) * 0.1, 0) < 1) {
               width <- 1
@@ -21410,7 +21419,7 @@ server <- function(input, output, session) {
        (!is.null(input$upgma_fruit_offset_circ_5)) & 
        (!is.null(input$upgma_fruit_width_circ_5)) & 
        (!is.null(input$upgma_fruit_alpha_5))) {
-      if(input$upgma_tiles_show_5 == TRUE) {
+      if(isTRUE(input$upgma_tiles_show_5)) {
         if(input$upgma_layout == "circular" | input$upgma_layout == "inward") {
           geom_fruit(
             geom = geom_tile,
@@ -21430,7 +21439,7 @@ server <- function(input, output, session) {
         }
       } else {NULL}
     } else {
-      if(input$upgma_tiles_show_5 == TRUE) {
+      if(isTRUE(input$upgma_tiles_show_5)) {
         if(!is.null(Vis$upgma_max_x)) {
           if(round(ceiling(Vis$upgma_max_x) * 0.1, 0) < 1) {
             width <- 1
@@ -21471,7 +21480,7 @@ server <- function(input, output, session) {
   # Treescale
   upgma_treescale <- reactive({
     if(!input$upgma_layout == "circular") {
-      if(input$upgma_treescale_show == TRUE) {
+      if(isTRUE(input$upgma_treescale_show)) {
         geom_treescale(x = upgma_treescale_x(),
                        y = upgma_treescale_y(),
                        width = upgma_treescale_width(),
@@ -21507,7 +21516,7 @@ server <- function(input, output, session) {
   # Label branches
   upgma_label_branch <- reactive({
     if(!input$upgma_layout == "circular" | !input$upgma_layout == "inward") {
-      if(input$upgma_show_branch_label == TRUE) {
+      if(isTRUE(input$upgma_show_branch_label)) {
         geom_label(
           aes(
             x=!!sym("branch"), 
@@ -21535,7 +21544,7 @@ server <- function(input, output, session) {
   
   # Rootedge
   upgma_rootedge <- reactive({
-    if(input$upgma_rootedge_show == TRUE) {
+    if(isTRUE(input$upgma_rootedge_show)) {
       if(is.null(input$upgma_rootedge_length)) {
         geom_rootedge(rootedge = round(ceiling(Vis$upgma_max_x) * 0.05, 0),
                       linetype = input$upgma_rootedge_line)
@@ -21548,22 +21557,22 @@ server <- function(input, output, session) {
   
   # Tippoints
   upgma_tippoint <- reactive({
-    if(input$upgma_tippoint_show == TRUE | input$upgma_tipcolor_mapping_show == TRUE | input$upgma_tipshape_mapping_show == TRUE) {
-      if(input$upgma_tipcolor_mapping_show == TRUE & input$upgma_tipshape_mapping_show == FALSE) {
+    if(isTRUE(input$upgma_tippoint_show) | isTRUE(input$upgma_tipcolor_mapping_show) | isTRUE(input$upgma_tipshape_mapping_show)) {
+      if(isTRUE(input$upgma_tipcolor_mapping_show) & isFALSE(input$upgma_tipshape_mapping_show)) {
         geom_tippoint(
           aes(color = !!sym(input$upgma_tipcolor_mapping)),
           alpha = input$upgma_tippoint_alpha,
           shape = input$upgma_tippoint_shape,
           size = upgma_tippoint_size()
         )
-      } else if (input$upgma_tipcolor_mapping_show == FALSE & input$upgma_tipshape_mapping_show == TRUE) {
+      } else if (isFALSE(input$upgma_tipcolor_mapping_show) & isTRUE(input$upgma_tipshape_mapping_show)) {
         geom_tippoint(
           aes(shape = !!sym(input$upgma_tipshape_mapping)),
           alpha = input$upgma_tippoint_alpha,
           color = input$upgma_tippoint_color,
           size = upgma_tippoint_size()
         )
-      } else if (input$upgma_tipcolor_mapping_show == TRUE & input$upgma_tipshape_mapping_show == TRUE) {
+      } else if (isTRUE(input$upgma_tipcolor_mapping_show) & isTRUE(input$upgma_tipshape_mapping_show)) {
         geom_tippoint(
           aes(shape = !!sym(input$upgma_tipshape_mapping),
               color = !!sym(input$upgma_tipcolor_mapping)),
@@ -21584,7 +21593,7 @@ server <- function(input, output, session) {
   
   # Nodepoints
   upgma_nodepoint <- reactive({
-    if(input$upgma_nodepoint_show == TRUE) {
+    if(isTRUE(input$upgma_nodepoint_show)) {
       geom_nodepoint(
         alpha = input$upgma_nodepoint_alpha,
         color = input$upgma_nodepoint_color,
@@ -21605,9 +21614,9 @@ server <- function(input, output, session) {
   
   # upgma circular or not
   upgma_tiplab <- reactive({
-    if(input$upgma_tiplab_show == TRUE) {
+    if(isTRUE(input$upgma_tiplab_show)) {
       if(input$upgma_layout == "circular") {
-        if(input$upgma_mapping_show == TRUE) {
+        if(isTRUE(input$upgma_mapping_show)) {
           geom_tiplab(
             upgma_mapping_tiplab(), 
             geom = "text",
@@ -21632,7 +21641,7 @@ server <- function(input, output, session) {
           )
         }
       } else if (input$upgma_layout == "inward") {
-        if(input$upgma_mapping_show == TRUE) {
+        if(isTRUE(input$upgma_mapping_show)) {
           geom_tiplab(
             upgma_mapping_tiplab(), 
             geom = "text",
@@ -21657,8 +21666,8 @@ server <- function(input, output, session) {
           )
         }
       } else {
-        if(input$upgma_mapping_show == TRUE) {
-          if(input$upgma_geom == TRUE) {
+        if(isTRUE(input$upgma_mapping_show)) {
+          if(isTRUE(input$upgma_geom)) {
             geom_tiplab(
               upgma_mapping_tiplab(), 
               geom = upgma_geom(),
@@ -21687,7 +21696,7 @@ server <- function(input, output, session) {
             )
           }
         } else {
-          if(input$upgma_geom == TRUE) {
+          if(isTRUE(input$upgma_geom)) {
             geom_tiplab(
               upgma_mapping_tiplab(), 
               geom = upgma_geom(),
@@ -21751,14 +21760,14 @@ server <- function(input, output, session) {
   
   # Show Label Panels?
   upgma_geom <- reactive({
-    if(input$upgma_geom == TRUE) {
+    if(isTRUE(input$upgma_geom)) {
       "label"
     } else {"text"}
   })
   
   # upgma Tiplab color
   upgma_mapping_tiplab <- reactive({
-    if(input$upgma_mapping_show == TRUE) {
+    if(isTRUE(input$upgma_mapping_show)) {
       if(!is.null(input$upgma_tiplab)) {
         aes(label = !!sym(input$upgma_tiplab),
             color = !!sym(input$upgma_color_mapping))
@@ -22545,11 +22554,11 @@ server <- function(input, output, session) {
           
           meta_nj <- select(DB$meta_true, -2)
           
-          if(file.exists(file.path(DB$database, 
+          if(file.exists(file.path(Startup$database, 
                                    gsub(" ", "_", DB$scheme),
                                    "AMR_Profile.rds"))) {
             
-            amr_profile <- readRDS(file.path(DB$database, 
+            amr_profile <- readRDS(file.path(Startup$database, 
                                              gsub(" ", "_", DB$scheme),
                                              "AMR_Profile.rds"))
             
@@ -22663,14 +22672,14 @@ server <- function(input, output, session) {
               Vis$branch_size_nj <- 3.5
             }
             
-            Vis$nj_tree <- ggtree(Vis$nj)
+            nj_tree <- ggtree(Vis$nj)
             
             # Get upper and lower end of x range
-            Vis$nj_max_x <- max(Vis$nj_tree$data$x)
-            Vis$nj_min_x <- min(Vis$nj_tree$data$x)
+            Vis$nj_max_x <- max(nj_tree$data$x)
+            Vis$nj_min_x <- min(nj_tree$data$x)
             
             # Get parent node numbers
-            Vis$nj_parentnodes <- Vis$nj_tree$data$parent
+            Vis$nj_parentnodes <- nj_tree$data$parent
             
             # Update visualization control inputs
             if(!is.null(input$nj_tiplab_size)) {
@@ -22715,11 +22724,11 @@ server <- function(input, output, session) {
           
           meta_upgma <- select(DB$meta_true, -2)
           
-          if(file.exists(file.path(DB$database, 
+          if(file.exists(file.path(Startup$database, 
                                    gsub(" ", "_", DB$scheme),
                                    "AMR_Profile.rds"))) {
             
-            amr_profile <- readRDS(file.path(DB$database, 
+            amr_profile <- readRDS(file.path(Startup$database, 
                                              gsub(" ", "_", DB$scheme),
                                              "AMR_Profile.rds"))
             
@@ -22832,14 +22841,14 @@ server <- function(input, output, session) {
               Vis$branch_size_upgma <- 3.5
             }
             
-            Vis$upgma_tree <- ggtree(Vis$upgma)
+            upgma_tree <- ggtree(Vis$upgma)
             
             # Get upper and lower end of x range
-            Vis$upgma_max_x <- max(Vis$upgma_tree$data$x)
-            Vis$upgma_min_x <- min(Vis$upgma_tree$data$x)
+            Vis$upgma_max_x <- max(upgma_tree$data$x)
+            Vis$upgma_min_x <- min(upgma_tree$data$x)
             
             # Get parent node numbers
-            Vis$upgma_parentnodes <- Vis$upgma_tree$data$parent
+            Vis$upgma_parentnodes <- upgma_tree$data$parent
             
             # Update visualization control inputs
             if(!is.null(input$upgma_tiplab_size)) {
@@ -22894,7 +22903,7 @@ server <- function(input, output, session) {
               background_transparent <- FALSE
             }
             
-            if(background_transparent == TRUE) {
+            if(isTRUE(background_transparent)) {
               visNetworkOutput("tree_mst", width = paste0(scale * ratio, "px"), height = paste0(scale, "px"))
             } else {
               addSpinner(
@@ -22921,7 +22930,7 @@ server <- function(input, output, session) {
           Vis$meta_mst <- meta_mst
           
           # prepare igraph object
-          Vis$ggraph_1 <- hamming_mst() |>
+          Vis$mst_pre <- hamming_mst() |>
             as.matrix() |>
             graph.adjacency(weighted = TRUE) |>
             igraph::mst() 
@@ -23616,7 +23625,7 @@ server <- function(input, output, session) {
     }
   )
   
-  ### Render UI Elements ----
+  ### Screening UI Elements ----
   
   # conditional rendering of gs visualization ui
   
@@ -25897,11 +25906,11 @@ server <- function(input, output, session) {
   
   # Resistance profile table
   observe({
-    req(DB$meta_gs, input$gs_profile_select, DB$database, DB$scheme, DB$data)
+    req(DB$meta_gs, input$gs_profile_select, Startup$database, DB$scheme, DB$data)
     
     if(length(input$gs_profile_select) > 0 & any(input$gs_profile_select %in% DB$data$`Assembly ID`)) {
       iso_select <- input$gs_profile_select
-      iso_path <- file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates", 
+      iso_path <- file.path(Startup$database, gsub(" ", "_", DB$scheme), "Isolates", 
                             iso_select, "amrfinder.out")
       
       if(file.exists(iso_path)) {
@@ -26039,7 +26048,7 @@ server <- function(input, output, session) {
   })
   
   observe({
-    req(input$screening_res_sel, DB$database, DB$scheme, DB$data)
+    req(input$screening_res_sel, Startup$database, DB$scheme, DB$data)
     if(!is.null(Screening$status_df) &
        !is.null(input$screening_res_sel) & 
        !is.null(Screening$status_df$status) & 
@@ -26047,7 +26056,7 @@ server <- function(input, output, session) {
       if(length(input$screening_res_sel) > 0) {
         if(any(Screening$status_df$isolate == input$screening_res_sel)) {
           if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "success") {
-            results <- read.delim(file.path(DB$database, gsub(" ", "_", DB$scheme), "Isolates", 
+            results <- read.delim(file.path(Startup$database, gsub(" ", "_", DB$scheme), "Isolates", 
                                             input$screening_res_sel, "amrfinder.out"))
             
             output$screening_table <- renderDataTable(
@@ -26294,7 +26303,7 @@ server <- function(input, output, session) {
     
     # reset status file
     sapply(Screening$status_df$isolate, remove.screening.status, 
-           database = DB$database, scheme = DB$scheme)
+           database = Startup$database, scheme = DB$scheme)
     
     # set feedback variables
     Screening$status <- "idle"
@@ -26370,7 +26379,7 @@ server <- function(input, output, session) {
     
     # reset status file
     sapply(Screening$status_df$isolate, remove.screening.status, 
-           database = DB$database, scheme = DB$scheme)
+           database = Startup$database, scheme = DB$scheme)
     
     # set feedback variables
     Screening$status <- "idle"
@@ -26519,13 +26528,6 @@ server <- function(input, output, session) {
         position = "bottom-end",
         timer = 6000
       )
-    } else if(readLines(file.path(logdir, "progress.txt"))[1] != "0") {
-      show_toast(
-        title = "Pending Single Typing",
-        type = "warning",
-        position = "bottom-end",
-        timer = 6000
-      )
     } else {
       
       log_print("Started gene screening")
@@ -26560,14 +26562,14 @@ server <- function(input, output, session) {
       
       Screening$meta_df <- data.frame(wd = getwd(),
                                       selected = paste(
-                                        file.path(DB$database, gsub(" ", "_", DB$scheme),
+                                        file.path(Startup$database, gsub(" ", "_", DB$scheme),
                                                   "Isolates", input$screening_select,
                                                   paste0(input$screening_select, ".zip")), 
                                         collapse = " "),
                                       species = gsub(" ", "_", check.amrfinder.available(
                                         selected_scheme = DB$scheme,
                                         amrfinder_species = amrfinder_species)),
-                                      database = DB$database,
+                                      database = Startup$database,
                                       scheme = DB$scheme)
       
       Screening$status_df <- data.frame(isolate = basename(gsub(".zip", "", str_split_1(Screening$meta_df$selected, " "))), 
@@ -26575,7 +26577,7 @@ server <- function(input, output, session) {
       
       # Reset screening status
       sapply(Screening$status_df$isolate, remove.screening.status, 
-             database = DB$database, scheme = DB$scheme)
+             database = Startup$database, scheme = DB$scheme)
       
       saveRDS(Screening$meta_df, paste0(getwd(), "/execute/screening_meta.rds"))
       
@@ -26640,7 +26642,7 @@ server <- function(input, output, session) {
         if(any(Screening$status_df$isolate == input$screening_res_sel)) {
           if(Screening$status_df$status[which(Screening$status_df$isolate == input$screening_res_sel)] == "fail") {
             output$screening_fail <- renderPrint({
-              cat(paste(readLines(file.path(DB$database, gsub(" ", "_", DB$scheme),
+              cat(paste(readLines(file.path(Startup$database, gsub(" ", "_", DB$scheme),
                                             "Isolates", input$screening_res_sel, "status.txt")),"\n"))
             })
           }
@@ -26734,7 +26736,7 @@ server <- function(input, output, session) {
     if(Screening$status == "started") {
       
       Screening$status_df$status <- sapply(Screening$status_df$isolate, check_status, 
-                                           database = DB$database, scheme = DB$scheme)
+                                           database = Startup$database, scheme = DB$scheme)
       
       if(any("unfinished" != Screening$status_df$status) &
          !identical(Screening$choices, Screening$status_df$isolate[which(Screening$status_df$status != "unfinished")])) {
@@ -26753,11 +26755,11 @@ server <- function(input, output, session) {
         if(tail(status_df$status, 1) == "success") {
           
           # Changing "Screened" metadata variable in database
-          Database <- readRDS(file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
+          Database <- readRDS(file.path(Startup$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
           
           Database[["Typing"]]$Screened[which(Database[["Typing"]]["Assembly ID"] == tail(Screening$choices, 1))] <- "Yes"
           
-          saveRDS(Database, file.path(DB$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
+          saveRDS(Database, file.path(Startup$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
           
           DB$data$Screened[which(DB$data["Assembly ID"] == tail(Screening$choices, 1))] <- "Yes"
           
@@ -26903,7 +26905,7 @@ server <- function(input, output, session) {
   })
   
   gs_plot <- reactive({
-    req(DB$data, Screening$amr_results, DB$database, DB$scheme)
+    req(DB$data, Screening$amr_results, Startup$database, DB$scheme)
     
     # get inputs
     if(!is.null(input$gs_plot_selected_isolate)) {
@@ -27572,931 +27574,15 @@ server <- function(input, output, session) {
     } else {NULL}
   })
   
-  ### Single Typing ----
-  
-  #### Render UI Elements ----
-  
-  # Render single typing naming issues
-  output$single_select_issues <- renderUI({
-    req(input$assembly_id)
-    
-    if(nchar(trimws(input$assembly_id)) < 1) {
-      ass_id <- as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name)))
-    } else {
-      ass_id <- trimws(input$assembly_id)
-    }
-    
-    if(ass_id %in% unlist(DB$data["Assembly ID"])) {
-      HTML(paste(
-        '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
-        paste("<span style='color: white; font-style:italic'>", 
-              "&nbsp Assembly ID already present in database.")))
-    } else if (ass_id == "") {
-      HTML(paste(
-        '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
-        paste("<span style='color: white; font-style:italic'>", 
-              "&nbsp Empty Assembly ID.")))
-    } else if (grepl("[()/\\:*?\"<>|]", ass_id)) {
-      HTML(paste(
-        '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
-        paste("<span style='color: white; font-style:italic'>", 
-              "&nbsp Invalid Assembly ID. Avoid special characters.")))
-    } else if(grepl(" ", ass_id)) {
-      HTML(paste(
-        '<i class="fa-solid fa-circle-exclamation" style="font-size:15px;color:orange"></i>',
-        paste("<span style='color: white; font-style:italic'>", 
-              "&nbsp Invalid Assembly ID. Avoid empty spaces.")))
-    } else {HTML(paste(
-      '<i class="fa-solid fa-circle-check" style="font-size:15px;color:lightgreen"></i>',
-      paste("<span style='color: white; font-style:italic'>",
-            "&nbsp Assembly ID compatible with local database.")))}
-  })
-  
-  # Render Typing Results if finished
-  observe({
-    if(Typing$progress_format_end == 999999) {
-      if(file.exists(file.path(logdir, "single_typing_log.txt"))) {
-        if(str_detect(tail(readLines(file.path(logdir, "single_typing_log.txt")), 1), "Successful")) {
-          output$typing_result_table <- renderRHandsontable({
-            Typing$typing_result_table <- readRDS(paste0(getwd(), "/execute/event_df.rds"))
-            Typing$typing_result_table <- mutate_all(Typing$typing_result_table, as.character)
-            if(nrow(Typing$typing_result_table) > 0) {
-              if(nrow(Typing$typing_result_table) > 15) {
-                rhandsontable(Typing$typing_result_table, rowHeaders = NULL, 
-                              stretchH = "all", height = 500, readOnly = TRUE,
-                              contextMenu = FALSE) %>%
-                  hot_cols(columnSorting = TRUE) %>%
-                  hot_rows(rowHeights = 25) %>%
-                  hot_col(1:ncol(Typing$typing_result_table), valign = "htMiddle", halign = "htCenter",
-                          cellWidths = list(100, 160, NULL)) %>%
-                  hot_col("Value", renderer=htmlwidgets::JS(
-                    "function(instance, td, row, col, prop, value, cellProperties) {
-                      if (value.length > 8) {
-                        value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
-                      }
-                      td.innerHTML = value;
-                      td.style.textAlign = 'center';
-                      return td;
-                     }"
-                  ))
-              } else {
-                rhandsontable(Typing$typing_result_table, rowHeaders = NULL, 
-                              stretchH = "all", readOnly = TRUE,
-                              contextMenu = FALSE,) %>%
-                  hot_cols(columnSorting = TRUE) %>%
-                  hot_rows(rowHeights = 25) %>%
-                  hot_col(1:ncol(Typing$typing_result_table), valign = "htMiddle", halign = "htCenter",
-                          cellWidths = list(100, 160, NULL)) %>%
-                  hot_col("Value", renderer=htmlwidgets::JS(
-                    "function(instance, td, row, col, prop, value, cellProperties) {
-                      if (value.length > 8) {
-                        value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
-                      }
-                      td.innerHTML = value;
-                      td.style.textAlign = 'center';
-                      return td;
-                     }"
-                  ))
-              }
-            }
-          })
-          
-          output$single_typing_results <- renderUI({
-            result_table <- readRDS(paste0(getwd(), "/execute/event_df.rds"))
-            number_events <- nrow(result_table)
-            
-            n_new <- length(grep("New Variant", result_table$Event))
-            
-            n_missing <- number_events - n_new
-            
-            # Show results table only if successful typing 
-            if(file.exists(file.path(logdir, "single_typing_log.txt"))) {
-              if(str_detect(tail(readLines(file.path(logdir, "single_typing_log.txt")), 1), "Successful")) {
-                if(number_events > 0) {
-                  column(
-                    width = 12,
-                    HTML(paste("<span style='color: white;'>", 
-                               length(Typing$scheme_loci_f) - number_events,
-                               "loci were assigned a variant from local scheme.")),
-                    br(), 
-                    HTML(paste("<span style='color: white;'>", 
-                               n_missing,
-                               if(n_missing == 1) " locus not assigned (<i>NA</i>)." else " loci not assigned (<i>NA</i>).")),
-                    br(),
-                    HTML(paste("<span style='color: white;'>", 
-                               n_new,
-                               if(n_new == 1) " locus with new variant."  else " loci with new variants.")),
-                    br(), br(),
-                    rHandsontableOutput("typing_result_table")
-                  )
-                } else {
-                  column(
-                    width = 12,
-                    HTML(paste("<span style='color: white;'>", 
-                               length(Typing$scheme_loci_f),
-                               "successfully assigned from local scheme."))
-                  )
-                }
-              }
-            }
-          })
-          
-        } else {
-          
-          output$single_typing_results <- NULL
-          
-        }
-      } else {
-        output$single_typing_results <- NULL
-      }
-    }
-    
-  })
-  
-  # Render Initiate Typing UI
-  output$initiate_typing_ui <- renderUI({
-    column(
-      width = 4,
-      align = "center",
-      br(),
-      br(),
-      h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
-      br(),
-      br(),
-      p(
-        HTML(
-          paste(
-            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly File (FASTA)')
-          )
-        )
-      ),
-      fluidRow(
-        column(1),
-        column(
-          width = 11,
-          align = "center",
-          shinyFilesButton(
-            "genome_file",
-            "Browse" ,
-            icon = icon("file"),
-            title = "Select the assembly in .fasta/.fna/.fa format:",
-            multiple = FALSE,
-            buttonType = "default",
-            class = NULL,
-            root = path_home()
-          ),
-          br(),
-          br(),
-          uiOutput("genome_path"),
-          br()
-        )
-      )
-    )
-  })
-  
-  # Render Declare Metadata UI
-  
-  observe({
-    if (nrow(Typing$single_path) < 1) {
-      output$genome_path <- renderUI(HTML(
-        paste("<span style='color: white; margin-left:-30px'>", "No file selected.")
-      ))
-      
-      # dont show subsequent metadata declaration and typing start UI
-      output$metadata_single_box <- NULL
-      output$start_typing_ui <- NULL
-      
-    } else if (nrow(Typing$single_path) > 0) {
-      
-      if (str_detect(str_sub(Typing$single_path$name, start = -6), ".fasta") | 
-          str_detect(str_sub(Typing$single_path$name, start = -6), ".fna") | 
-          str_detect(str_sub(Typing$single_path$name, start = -6), ".fa")) {
-        
-        # Render selected assembly path
-        output$genome_path <- renderUI({
-          HTML(
-            paste(
-              "<span style='color: white; margin-left:-30px; font-weight: bolder'>",
-              as.character(Typing$single_path$name)
-            )
-          )
-        })
-        
-        # Render metadata declaration box
-        output$metadata_single_box <- renderUI({
-          
-          # Render placeholder 
-          updateTextInput(session, "assembly_id", value = as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name))))
-          updateTextInput(session, "assembly_name", value = as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name))))
-          
-          column(
-            width = 3,
-            align = "center",
-            br(), br(),
-            h3(p("Declare Metadata"), style = "color:white; margin-left:-40px"),
-            br(), br(),
-            div(
-              class = "multi_meta_box",
-              box(
-                solidHeader = TRUE,
-                status = "primary",
-                width = "90%",
-                fluidRow(
-                  column(
-                    width = 5,
-                    align = "left",
-                    h5("Assembly ID", style = "color:white; margin-top: 30px; margin-left: 15px")
-                  ),
-                  column(
-                    width = 7,
-                    align = "left",
-                    div(
-                      class = "append_table",
-                      textInput("assembly_id",
-                                value = "",
-                                label = "",
-                                width = "80%")
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 12,
-                    uiOutput("single_select_issues")
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 5,
-                    align = "left",
-                    h5("Assembly Name", style = "color:white; margin-top: 30px; margin-left: 15px")
-                  ),
-                  column(
-                    width = 7,
-                    align = "left",
-                    div(
-                      class = "append_table",
-                      textInput("assembly_name",
-                                label = "",
-                                width = "80%")
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 5,
-                    align = "left",
-                    h5("Isolation Date", style = "color:white; margin-top: 30px; margin-left: 15px")
-                  ),
-                  column(
-                    width = 7,
-                    align = "left",
-                    div(
-                      class = "append_table",
-                      dateInput("append_isodate",
-                                label = "",
-                                width = "80%",
-                                max = Sys.Date())
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 5,
-                    align = "left",
-                    h5("Host", style = "color:white; margin-top: 30px; margin-left: 15px")
-                  ),
-                  column(
-                    width = 7,
-                    align = "left",
-                    div(
-                      class = "append_table",
-                      textInput("append_host",
-                                label = "",
-                                width = "80%")
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 5,
-                    align = "left",
-                    h5("Country", style = "color:white; margin-top: 30px; margin-left: 15px")
-                  ),
-                  column(
-                    width = 7,
-                    align = "left",
-                    div(
-                      class = "append_table_country",
-                      pickerInput(
-                        "append_country",
-                        label = "",
-                        choices = list("Common" = sel_countries,
-                                       "All Countries" = country_names),
-                        options = list(
-                          `live-search` = TRUE,
-                          `actions-box` = TRUE,
-                          size = 10,
-                          style = "background-color: white; border-radius: 5px;"
-                        ),
-                        width = "90%"
-                      )
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 5,
-                    align = "left",
-                    h5("City", style = "color:white; margin-top: 30px; margin-left: 15px")
-                  ),
-                  column(
-                    width = 7,
-                    align = "left",
-                    div(
-                      class = "append_table",
-                      textInput(
-                        "append_city",
-                        label = "",
-                        width = "80%"
-                      )
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 5,
-                    align = "left",
-                    h5("Typing Date", style = "color:white; margin-top: 30px; margin-left: 15px")
-                  ),
-                  column(
-                    width = 7,
-                    align = "left",
-                    h5(paste0(" ", Sys.Date()), style = "color:white; margin-top: 30px; margin-left: 5px; font-style: italic")
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 12,
-                    align = "center",
-                    br(), br(),
-                    actionButton(
-                      inputId = "conf_meta_single",
-                      label = "Confirm"
-                    ),
-                    br()
-                  )
-                ),
-                br()
-              )
-            )
-          )
-        })
-      } else {
-        show_toast(
-          title = "Wrong file type (only fasta/fna/fa)",
-          type = "error",
-          position = "bottom-end",
-          timer = 6000
-        )
-      }
-    }
-  })
-  
-  # Get genome datapath
-  
-  observe({
-    # Get selected Genome in Single Mode
-    shinyFileChoose(input,
-                    "genome_file",
-                    roots = c(Home = path_home(), Root = "/"),
-                    defaultRoot = "Home",
-                    session = session,
-                    filetypes = c('', 'fasta', 'fna', 'fa'))
-    Typing$single_path <- parseFilePaths(roots = c(Home = path_home(), Root = "/"), input$genome_file)
-    
-  })
-  
-  #### Run blat ----
-  
-  observeEvent(input$typing_start, {
-    
-    log_print("Input typing_start")
-    
-    if(tail(readLogFile(), 1) != "0") {
-      show_toast(
-        title = "Pending Multi Typing",
-        type = "warning",
-        position = "bottom-end",
-        timer = 6000
-      )
-    } else if (Screening$status == "started") {
-      show_toast(
-        title = "Pending Gene Screening",
-        type = "warning",
-        position = "bottom-end",
-        timer = 6000
-      )
-    } else {
-      
-      if(!is.null(DB$data)) {
-        if(sum(apply(DB$data, 1, anyNA)) >= 1) {
-          DB$no_na_switch <- TRUE
-        } else {
-          DB$no_na_switch <- FALSE
-        }
-      }
-      
-      # Activate entry detection
-      DB$check_new_entries <- TRUE
-      
-      Typing$single_end <- FALSE
-      
-      Typing$progress_format_start <- 0
-      Typing$progress_format_end <- 0
-      
-      # Remove Initiate Typing UI 
-      output$initiate_typing_ui <- NULL
-      output$metadata_single_box <- NULL
-      output$start_typing_ui <- NULL
-      
-      # status feedback
-      Typing$status <- "Processing"
-      
-      # Locate folder containing cgMLST scheme
-      search_string <- paste0(gsub(" ", "_", DB$scheme), "_alleles")
-      
-      scheme_folders <- dir_ls(paste0(DB$database, "/", gsub(" ", "_", DB$scheme)))
-      
-      if (any(grepl(search_string, scheme_folders))) {
-        
-        # reset results file 
-        if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
-          unlink(list.files(paste0(getwd(), "/execute/blat_single/results"), full.names = TRUE), recursive = TRUE)
-        }
-        
-        # blat initiate index
-        scheme_select <- as.character(scheme_folders[which(grepl(search_string, scheme_folders))])
-        
-        show_toast(
-          title = "Typing Initiated",
-          type = "success",
-          position = "bottom-end",
-          timer = 6000
-        )
-        
-        log_print("Initiated single typing")
-        
-        ### Run blat Typing
-        
-        single_typing_df <- data.frame(
-          db_path = DB$database,
-          wd = getwd(),
-          save = input$save_assembly_st,
-          scheme = paste0(gsub(" ", "_", DB$scheme)),
-          genome = Typing$single_path$datapath,
-          alleles = paste0(DB$database, "/", gsub(" ", "_", DB$scheme), "/", search_string)
-        )
-        
-        saveRDS(single_typing_df, "execute/single_typing_df.rds")
-        
-        # Execute single typing script
-        system(paste("bash", paste0(getwd(), "/execute/single_typing.sh")), 
-               wait = FALSE)
-        
-        scheme_loci <- list.files(path = scheme_select, full.names = TRUE)
-        
-        # Filter the files that have FASTA extensions
-        Typing$scheme_loci_f <-
-          scheme_loci[grep("\\.(fasta|fa|fna)$", scheme_loci, ignore.case = TRUE)]
-        
-        output$single_typing_progress <- renderUI({
-          fluidRow(
-            br(), br(), 
-            column(width = 1),
-            column(
-              width = 3,
-              h3(p("Pending Single Typing ..."), style = "color:white")
-            ),
-            br(), br(), br(), 
-            fluidRow(
-              column(width = 1),
-              column(
-                width = 4,
-                br(), br(), br(),
-                fluidRow(
-                  column(
-                    width = 12,
-                    uiOutput("reset_single_typing"),
-                    HTML(
-                      paste(
-                        "<span style='color: white; font-weight: bolder'>",
-                        as.character(Typing$single_path$name)
-                      )
-                    ),
-                    br(), br(),
-                    progressBar(
-                      "progress_bar",
-                      value = 0,
-                      display_pct = TRUE,
-                      title = ""
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 12,
-                    uiOutput("typing_formatting"),
-                    uiOutput("typing_fin")
-                  )
-                )
-              ),
-              column(1),
-              column(
-                width = 5,
-                br(), br(), br(),
-                uiOutput("single_typing_results")
-              )
-            )
-          )
-        })
-      } else {
-        log_print("Folder containing cgMLST alleles not in working directory")
-        
-        show_alert(
-          title = "Error",
-          text = paste0(
-            "Folder containing cgMLST alleles not in working directory.",
-            "\n",
-            "Download cgMLST Scheme for selected Organism first."
-          ),
-          type = "error"
-        )
-      }
-    }
-  })
-  
-  # Function to update Progress Bar
-  update <- reactive({
-    invalidateLater(3000, session)
-    
-    # write progress in process tracker
-    cat(
-      c(length(list.files(paste0(getwd(), "/execute/blat_single/results"))),
-        readLines(file.path(logdir, "progress.txt"))[-1]), 
-      file = file.path(logdir, "progress.txt"),
-      sep = "\n"
-    )
-    
-    progress <- readLines(file.path(logdir, "progress.txt"))
-    
-    # if typing with blat is finished -> "attaching" phase started
-    if(!is.na(progress[1])) {
-      if(!is.na(progress[2])) {
-        if(progress[2] == "888888") {
-          Typing$progress_format_start <- progress[2]
-          Typing$pending_format <- progress[2]
-          Typing$status <- "Attaching"
-        }
-      }
-      # "attaching" phase completed
-      if(!is.na(progress[3])) {
-        if(progress[3] == "999999") {
-          Typing$progress_format_end <- progress[3]
-          Typing$entry_added <- progress[3]
-          Typing$status <- "Finalized"
-        }
-      }
-      Typing$progress <- as.numeric(progress[1])
-      floor((Typing$progress / length(Typing$scheme_loci_f)) * 100)
-    } else {
-      floor((Typing$progress / length(Typing$scheme_loci_f)) * 100)
-    }
-  })
-  
-  # Observe Typing Progress
-  observe({
-    
-    if(readLogFile()[1] == "0") {
-      # Update Progress Bar
-      updateProgressBar(
-        session = session,
-        id = "progress_bar",
-        value = update(),
-        total = 100,
-        title = paste0(as.character(Typing$progress), "/", length(Typing$scheme_loci_f), " loci screened")
-      )
-    }
-    
-    if (Typing$progress_format_start == 888888) {
-      output$typing_formatting <- renderUI({
-        column(
-          width = 12,
-          align = "center",
-          br(),
-          fluidRow(
-            column(
-              width = 6,
-              HTML(paste("<span style='color: white;'>", "Transforming data ..."))
-            ),
-            column(
-              width = 3,
-              align = "left",
-              HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:20px;color:white"></i>'))
-            )
-          )
-        )
-      })
-    } else {
-      output$typing_formatting <- NULL
-    }
-    
-    # Render when finalized  
-    if (Typing$progress_format_end == 999999) {
-      
-      output$typing_formatting <- NULL
-      
-      output$typing_fin <- renderUI({
-        fluidRow(
-          column(
-            width = 12,
-            align = "center",
-            br(), br(),
-            if(file.exists(file.path(logdir, "single_typing_log.txt"))) {
-              if(str_detect(tail(readLines(file.path(logdir, "single_typing_log.txt")), 1), "Successful")) {
-                req(Typing$scheme_loci_f, Typing$typing_result_table)
-                if(sum(Typing$typing_result_table$Event != "New Variant") >  (0.5 * length(Typing$scheme_loci_f))){
-                  HTML(
-                    paste("<span style='color: white;'>", 
-                          sub(".*Successful", "Finished", tail(readLines(file.path(logdir, "single_typing_log.txt")), 1)),
-                          paste("<span style='color: orange;'>", "Warning: Isolate contains large number of failed allele assignments."),
-                          paste("<span style='color: white;'>", "Reset to start another typing process."),
-                          sep = '<br/>\n'))                    
-                } else {
-                  HTML(paste("<span style='color: white;'>", 
-                             sub(".*Successful", "Successful", tail(readLines(file.path(logdir, "single_typing_log.txt")), 1)),
-                             "Reset to start another typing process.", sep = '<br/>'))
-                }
-              } else {
-                HTML(paste("<span style='color: white;'>", 
-                             sub(".*typing", "Typing", tail(readLines(file.path(logdir, "single_typing_log.txt")), 1)),
-                           "Reset to start another typing process.", sep = '<br/>'))
-              }
-            },
-            br(), br(),
-            actionButton(
-              "reset_single_typing",
-              "Reset",
-              icon = icon("arrows-rotate")
-            )
-          )
-        )
-      })
-    } else {
-      output$typing_fin <- NULL
-      output$single_typing_results <- NULL
-    }
-    
-  })
-  
-  #### Declare Metadata  ----
-  
-  observeEvent(input$conf_meta_single, {
-    
-    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-    
-    if(nchar(trimws(input$assembly_id)) < 1) {
-      ass_id <- as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name)))
-    } else {
-      ass_id <- trimws(input$assembly_id)
-    }
-    
-    if(nchar(trimws(input$assembly_name)) < 1) {
-      ass_name <- as.character(gsub("\\.fasta|\\.fna|\\.fa", "", basename(Typing$single_path$name)))
-    } else {
-      ass_name <- trimws(input$assembly_name)
-    }
-    
-    if(ass_id %in% unlist(DB$data["Assembly ID"])) {
-      show_toast(
-        title = "Assembly ID already present",
-        type = "error",
-        position = "bottom-end",
-        timer = 3000
-      )
-    } else if (isFALSE(Typing$reload)) {
-      show_toast(
-        title = "Reload Database first",
-        type = "warning",
-        position = "bottom-end",
-        timer = 6000
-      )
-    } else if (ass_id == "") {
-      show_toast(
-        title = "Empty Assembly ID",
-        type = "error",
-        position = "bottom-end",
-        timer = 3000
-      )
-    } else if (grepl("[()/\\:*?\"<>|]", ass_id)) {
-      show_toast(
-        title = "Invalid Assembly ID. No special characters allowed: ()/\\:*?\"<>|",
-        type = "error",
-        position = "bottom-end",
-        timer = 3000
-      )
-    } else if(grepl(" ", ass_id)) {
-      show_toast(
-        title = "Empty spaces in Assembly ID not allowed",
-        type = "error",
-        position = "bottom-end",
-        timer = 3000
-      )
-    } else if(Screening$status == "started") {
-      show_toast(
-        title = "Pending Single Typing",
-        type = "warning",
-        position = "bottom-end",
-        timer = 6000
-      )
-    } else {
-      
-      log_print("Single typing metadata confirmed")
-      
-      meta_info <- data.frame(assembly_id = ass_id,
-                              assembly_name = ass_name,
-                              cgmlst_typing = DB$scheme,
-                              append_isodate = input$append_isodate,
-                              append_host = trimws(input$append_host),
-                              append_country = trimws(input$append_country),
-                              append_city = trimws(input$append_city),
-                              append_analysisdate = Sys.Date(),
-                              db_directory = getwd()) 
-      
-      saveRDS(meta_info, paste0(
-        getwd(),
-        "/execute/meta_info_single.rds"
-      ))
-      
-      show_toast(
-        title = "Metadata declared",
-        type = "success",
-        position = "bottom-end",
-        timer = 3000
-      )
-      
-      # Render Start Typing UI
-      output$start_typing_ui <- renderUI({
-        div(
-          class = "multi_start_col",
-          column(
-            width = 3,
-            align = "center",
-            br(),
-            br(),
-            h3(p("Start Typing"), style = "color:white"),
-            br(),
-            br(),
-            HTML(
-              paste(
-                "<span style='color: white;'>",
-                "Typing by <strong>",
-                DB$scheme,
-                "</strong> scheme."
-              )
-            ),
-            br(), br(), br(), br(),
-            div(
-              class = "save-assembly",
-              materialSwitch(
-                "save_assembly_st",
-                h5(p("Save Assemblies in Local Database"), style = "color:white; padding-left: 0px; position: relative; top: -3px; right: -20px;"),
-                value = TRUE,
-                right = TRUE)
-            ),
-            HTML(
-              paste(
-                "<span style='color: orange;'>",
-                "Isolates with unsaved assembly files can NOT be applied to screening for resistance genes."
-              )
-            ),
-            br(), br(), br(), br(),
-            actionButton(
-              inputId = "typing_start",
-              label = "Start",
-              icon = icon("circle-play")
-            )
-          )
-        )
-      })
-    }
-    
-    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
-  })
-  
-  ####  Events Single Typing ----
-  
-  observeEvent(input$reset_single_typing, {
-    
-    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-    log_print("Reset single typing")
-    
-    Typing$status <- "Inactive"
-    
-    Typing$progress <- 0
-    
-    Typing$progress_format <- 900000
-    
-    output$single_typing_progress <- NULL
-    
-    output$typing_fin <- NULL
-    
-    output$single_typing_results <- NULL
-    
-    output$typing_formatting <- NULL
-    
-    Typing$single_path <- data.frame()
-    
-    # reset results file 
-    if(dir_exists(paste0(getwd(), "/execute/blat_single/results"))) {
-      unlink(list.files(paste0(getwd(), "/execute/blat_single/results"), full.names = TRUE), recursive = TRUE)
-      # Resetting single typing progress logfile bar 
-      con <- file(file.path(logdir, "progress.txt"), open = "w")
-      
-      cat("0\n", file = con)   
-      
-      close(con)
-    }
-    
-    output$initiate_typing_ui <- renderUI({
-      column(
-        width = 4,
-        align = "center",
-        br(),
-        br(),
-        h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
-        br(),
-        br(),
-        p(
-          HTML(
-            paste(
-              tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly File (FASTA)')
-            )
-          )
-        ),
-        fluidRow(
-          column(1),
-          column(
-            width = 11,
-            align = "center",
-            shinyFilesButton(
-              "genome_file",
-              "Browse" ,
-              icon = icon("file"),
-              title = "Select the assembly in .fasta/.fna/.fa format:",
-              multiple = FALSE,
-              buttonType = "default",
-              class = NULL,
-              root = path_home()
-            ),
-            br(),
-            br(),
-            uiOutput("genome_path"),
-            br()
-          )
-        )
-      )
-    })
-    
-    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
-  })
-  
-  # Notification for finalized Single typing
-  Typing$single_end <- TRUE
-  Typing$progress_format_end <- 0
-  
-  observe({
-    if(isFALSE(Typing$single_end)) {
-      if (Typing$progress_format_end == 999999) {
-        show_toast(
-          title = "Single Typing finalized",
-          type = "success",
-          position = "bottom-end",
-          timer = 8000
-        )
-        Typing$single_end <- TRUE
-      }
-    }
-  })
-  
-  ### Multi Typing ----
-  
-  #### Render Multi Typing UI Elements ----
+  ### Typing UI Elements ----
   output$initiate_multi_typing_ui <- initiate_multi_typing_ui
   
   # Render selection info
   output$multi_folder_sel_info <- renderUI({
-    if(!is.null(Typing$assembly_folder_path) & Typing$file_selection == "folder") {
+    
+    req(Typing$assembly_folder_path, Typing$file_selection)
+    
+    if(Typing$file_selection == "folder") {
       if(length(Typing$assembly_folder_path) < 1) {
         HTML(paste("<span style='color: white; position:relative; top:8px; font-style: italic'>", 
                    "No files selected"))
@@ -28513,7 +27599,10 @@ server <- function(input, output, session) {
   })
   
   output$multi_file_sel_info <- renderUI({
-    if(!is.null(Typing$assembly_files_path) & Typing$file_selection == "files") {
+    
+    req(Typing$assembly_files_path, Typing$file_selection)
+    
+    if(Typing$file_selection == "files") {
       if(nrow(Typing$assembly_files_path) < 1) {
         HTML(paste("<span style='color: white; position:relative; top:7px; font-style: italic'>", 
                    "No files selected"))
@@ -28531,7 +27620,9 @@ server <- function(input, output, session) {
   
   # Render multi selection table issues
   output$multi_select_issues <- renderUI({
+    
     req(Typing$multi_sel_table, input$multi_select_table)
+    
     if(any(hot_to_r(input$multi_select_table)$Files %in% dupl_mult_id()) & 
        any(duplicated(hot_to_r(input$multi_select_table)$Files))){
       HTML(
@@ -28661,6 +27752,7 @@ server <- function(input, output, session) {
   
   # Check if ongoing Multi Typing - Render accordingly
   observe({
+    req(Typing$file_selection)
     
     # Folder selection
     shinyDirChoose(input,
@@ -28983,7 +28075,7 @@ server <- function(input, output, session) {
     } 
   })
   
-  #### Events Multi Typing ----
+  ### Typing Events ----
   
   # Confirm typing metadata
   observeEvent(input$conf_meta_multi, {
@@ -29189,7 +28281,6 @@ server <- function(input, output, session) {
       writeLines("0", file.path(logdir, "script_log.txt"))
       
       # Reset User Feedback variable
-      Typing$pending_format <- 0
       Typing$multi_started <- FALSE
       
       output$initiate_multi_typing_ui <- initiate_multi_typing_ui
@@ -29227,11 +28318,8 @@ server <- function(input, output, session) {
     Typing$result_list <- NULL
     
     # Reset User Feedback variable
-    Typing$pending_format <- 0
     output$pending_typing <- NULL
     output$multi_typing_results <- NULL
-    Typing$failures <- 0
-    Typing$successes <- 0
     Typing$multi_started <- FALSE
     
     output$initiate_multi_typing_ui <- initiate_multi_typing_ui
@@ -29242,14 +28330,7 @@ server <- function(input, output, session) {
   observeEvent(input$start_typ_multi, {
     log_print("Initiate multi typing")
     
-    if(readLines(file.path(logdir, "progress.txt"))[1] != "0") {
-      show_toast(
-        title = "Pending Single Typing",
-        type = "warning",
-        position = "bottom-end",
-        timer = 6000
-      )
-    } else if (Screening$status == "started") {
+    if (Screening$status == "started") {
       show_toast(
         title = "Pending Gene Screening",
         type = "warning",
@@ -29266,8 +28347,6 @@ server <- function(input, output, session) {
         timer = 10000
       )
       
-      Typing$new_table <- NULL
-      
       # Remove Allelic Typing Controls
       output$initiate_multi_typing_ui <- NULL
       output$metadata_multi_box <- NULL
@@ -29279,8 +28358,6 @@ server <- function(input, output, session) {
       # Initiate Feedback variables
       Typing$multi_started <- TRUE
       Typing$pending <- TRUE
-      Typing$failures <- 0
-      Typing$successes <- 0
       
       # Arrange metadata
       multi_select_table <- hot_to_r(input$multi_select_table)
@@ -29298,7 +28375,7 @@ server <- function(input, output, session) {
       
       # Save metadata RDS file for bash script
       multi_typing_df <- list(
-        db_path = DB$database,
+        db_path = Startup$database,
         wd = getwd(),
         metadata = hot_to_r(input$multi_select_table)[hot_to_r(input$multi_select_table)$Include == TRUE,],
         save = input$save_assembly_mt,
@@ -29306,7 +28383,7 @@ server <- function(input, output, session) {
         genome_folder = genome_folder,
         filenames = paste0(filenames, collapse= " "),
         genome_names = genome_names,
-        alleles = file.path(DB$database, gsub(" ", "_", DB$scheme), paste0(gsub(" ", "_", DB$scheme), "_alleles"))
+        alleles = file.path(Startup$database, gsub(" ", "_", DB$scheme), paste0(gsub(" ", "_", DB$scheme), "_alleles"))
       )
       
       saveRDS(multi_typing_df, "execute/multi_typing_df.rds")
@@ -29317,7 +28394,7 @@ server <- function(input, output, session) {
   })
   
   
-  #### User Feedback ----
+  ### User Feedback ----
   
   observe({
     if(file.exists(file.path(logdir, "script_log.txt"))) {
@@ -29334,13 +28411,6 @@ server <- function(input, output, session) {
     invalidateLater(3000, session)
     
     log <- readLines(file.path(logdir, "script_log.txt"))
-    
-    # Determine if Single or Multi Typing
-    if(str_detect(log[1], "Multi")) {
-      Typing$pending_mode <- "Multi"
-    } else {
-      Typing$pending_mode <- "Single"
-    }
     
     # Check typing status
     if(str_detect(tail(log, 1), "Attaching")) {
@@ -29396,7 +28466,7 @@ server <- function(input, output, session) {
       Typing$multi_help <- TRUE
       Typing$status <- "Finalized"
       
-      if(Typing$pending == TRUE) {
+      if(isTRUE(Typing$pending)) {
         show_toast(
           title = "Typing finalized",
           type = "success",
@@ -29408,8 +28478,6 @@ server <- function(input, output, session) {
       }
     }
   })
-  
-  ##### Render Multi Typing UI Feedback ----
   
   observe({
     if(!is.null(input$multi_results_picker)) {
@@ -29442,28 +28510,9 @@ server <- function(input, output, session) {
                                "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
                                "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
                                "}"
-                             ))
-            
-            
-            # Typing$result_list[[input$multi_results_picker]]
-            # rhandsontable(Typing$result_list[[input$multi_results_picker]], 
-            #               rowHeaders = NULL, stretchH = "all",
-            #               readOnly = TRUE, contextMenu = FALSE) %>%
-            #   hot_rows(rowHeights = 25) %>%
-            #   hot_col(1:3, valign = "htMiddle", halign = "htCenter",
-            #           cellWidths = list(100, 160, NULL)) %>%
-            #   hot_col("Value", renderer=htmlwidgets::JS(
-            #     "function(instance, td, row, col, prop, value, cellProperties) {
-            #       if (value.length > 8) {
-            #         value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
-            #       }
-            #       td.innerHTML = value;
-            #       td.style.textAlign = 'center';
-            #       return td;
-            #      }"
-            #   ))
-          )
-          
+                             )
+                            )
+              )
         } else {
           if(Typing$multi_table_length > 15) {
             output$multi_typing_result_table <- renderDataTable(
@@ -29521,7 +28570,7 @@ server <- function(input, output, session) {
     if(!is.null(Typing$multi_result_status)) {
       if(Typing$multi_result_status == "start" | Typing$multi_result_status == "finalized"){
         
-        if(Typing$multi_help == TRUE) {
+        if(isTRUE(Typing$multi_help)) {
           Typing$result_list <- readRDS(paste0(getwd(), "/execute/event_list.rds"))
           Typing$multi_help <- FALSE
         }
@@ -29529,9 +28578,8 @@ server <- function(input, output, session) {
     }
   })
   
-  
+  #Render multi typing result feedback table
   observe({
-    #Render multi typing result feedback table
     
     if(!is.null(Typing$result_list)) {
       if(length(Typing$result_list) > 0) {
