@@ -1,5 +1,33 @@
 # Functions
 
+# function to fetch latest urls
+get_latest_url <- function(abb) {
+  
+  response <- httr::GET("https://www.cgmlst.org/ncs/schema/")
+  
+  if (response$status_code == 200) {
+    
+    page_content <- read_html(content(response, as = "text"))
+    
+    links <- page_content %>%
+      html_nodes("a") %>% 
+      html_attr("href")
+    
+    pattern <- paste(abb, collapse = "|")
+    
+    filtered_urls <- links[grep(pattern, links)]
+    
+    # Neuesten Link basierend auf der Suffix-Zahl finden
+    if (length(filtered_links) > 0) {
+      return(filtered_urls)
+    } else {
+      return(NULL)
+    }
+  } else {
+    return(NULL)
+  }
+}
+
 # Reset reactive variables
 resetVars <- function(varList) {
   for (name in names(varList)) {

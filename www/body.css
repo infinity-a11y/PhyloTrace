@@ -2044,6 +2044,13 @@ button#mst_cluster_col_menu {
   margin-top: 10px;
 }
 
+button#mst_legend_menu {
+  height: 34px;
+  border-radius: 5px;
+  margin-left: -32px;
+  margin-top: 20px;
+}
+
 button#mst_edgecolor_menu {
   height: 34px; 
   margin-top: 20px; 
@@ -2169,13 +2176,11 @@ top: -10px;
 
 /* Visualization NJ & UPGMA */
 
-#tree_algo {
-  margin-top: -9px;
-  margin-bottom: 10px;
-  margin-left: 20px;
-}
-  
 /* Classes*/
+
+.nj-label-control-col {
+  margin-top: -10px;
+}
 
 .control-color {
   margin-top: -17px;
@@ -2455,6 +2460,42 @@ top: -10px;
 	margin-top: 10px;
 }
 
+.nj-label-slider{
+  width: 100%;
+  margin-left: 30px;
+  margin-top: -20px;
+}
+
+.nj-custom-label-menu-col {
+  padding-left: 0px;
+  padding-right: 30px;
+}
+
+#nj_labeltext_menu_dropmenu .tippy-popper,
+#nj_labelformat_menu_dropmenu .tippy-popper,
+#nj_branch_label_menu_dropmenu .tippy-popper,
+#nj_title_menu_dropmenu .tippy-popper,
+#nj_subtitle_menu_dropmenu .tippy-popper,
+#nj_tippoint_menu_dropmenu .tippy-popper,
+#nj_nodepoint_menu_dropmenu .tippy-popper,
+#nj_tile_menu_dropmenu .tippy-popper,
+#nj_heatmap_menu_dropmenu .tippy-popper,
+#nj_clade_menu_dropmenu .tippy-popper,
+#nj_dim_menu_dropmenu .tippy-popper,
+#nj_rootedge_menu_dropmenu .tippy-popper,
+#nj_treescale_menu_dropmenu .tippy-popper,
+#nj_legend_menu_dropmenu .tippy-popper,
+#nj_custom_label_menu_dropmenu .tippy-popper {
+top: 0px !important;
+left: 15px !important
+}
+
+#tree_algo {
+  margin-top: -9px;
+  margin-bottom: 10px;
+  margin-left: 20px;
+}
+
 #nj_heatmap_map {
   margin-top: -25px;
 }
@@ -2489,13 +2530,6 @@ button#nj_del_label, button#upgma_del_label {
 	width: 38px;
 	margin-top: 10px;
 	margin-left: -43px;
-}
-
-#nj_sliderInput_y, #nj_sliderInput_x,
-#upgma_sliderInput_y, #upgma_sliderInput_x{
-  margin-left: 15px;
-  margin-bottom: 10px;
-  margin-right: 15px;
 }
 
 #nj_heatmap_sel > div > div > button,
