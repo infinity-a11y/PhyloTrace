@@ -7,7 +7,7 @@ get_latest_url <- function(abb) {
   
   if (response$status_code == 200) {
     
-    page_content <- read_html(content(response, as = "text"))
+    page_content <- read_html(httr::content(response, as = "text", encoding = "utf-8"), "utf-8")
     
     links <- page_content %>%
       html_nodes("a") %>% 
@@ -18,7 +18,7 @@ get_latest_url <- function(abb) {
     filtered_urls <- links[grep(pattern, links)]
     
     # Neuesten Link basierend auf der Suffix-Zahl finden
-    if (length(filtered_links) > 0) {
+    if (length(filtered_urls) > 0) {
       return(filtered_urls)
     } else {
       return(NULL)

@@ -20,6 +20,10 @@ body > div > header > nav > a {
   visibility: hidden
 }
 
+.form-control {
+  border: 1px solid black;
+}
+
 .modal-content {
   background-color: transparent;
 }
@@ -861,17 +865,7 @@ button#reload_db.btn.btn-default.action-button.shiny-bound-input {
   margin-bottom: 10px;
 }
 
-.irs.irs--shiny.js-irs-0 {
-  margin-right: -15px;
-}
 
-.irs.irs--shiny.js-irs-1 {
-  margin-right: -15px;
-}
-
-.irs.irs--shiny.js-irs-2 {
-  margin-right: -15px;
-}
 
 div#scheme_db .form-control, .selectize-input, .selectize-control.single .selectize-input {
 border-color: #000000 !important;
@@ -2290,7 +2284,7 @@ top: -10px;
 }
 
 .mat-switch-align {
-  margin-top: 25px;
+  margin-top: 40px;
   margin-left: -10px;
 }
 
@@ -2471,6 +2465,10 @@ top: -10px;
   padding-right: 30px;
 }
 
+.nj-variable-menu-selector {
+  margin-top: -5px;
+}
+
 #nj_labeltext_menu_dropmenu .tippy-popper,
 #nj_labelformat_menu_dropmenu .tippy-popper,
 #nj_branch_label_menu_dropmenu .tippy-popper,
@@ -2485,7 +2483,11 @@ top: -10px;
 #nj_rootedge_menu_dropmenu .tippy-popper,
 #nj_treescale_menu_dropmenu .tippy-popper,
 #nj_legend_menu_dropmenu .tippy-popper,
-#nj_custom_label_menu_dropmenu .tippy-popper {
+#nj_custom_label_menu_dropmenu .tippy-popper,
+#nj_variable_tipcolor_menu_dropmenu .tippy-popper,
+#nj_variable_tiplab_menu_dropmenu .tippy-popper,
+#nj_variable_tiles_menu_dropmenu .tippy-popper,
+#nj_variable_heatmap_menu_dropmenu .tippy-popper {
 top: 0px !important;
 left: 15px !important
 }
@@ -2783,6 +2785,16 @@ button#nj_clade_menu, button#upgma_clade_menu {
 	margin-left: -15px;
 }
 
+button#nj_variable_tiplab_menu,
+button#nj_variable_tipcolor_menu,
+button#nj_variable_tiles_menu,
+button#nj_variable_heatmap_menu {
+	height: 34px;
+	border-radius: 5px;
+	margin-top: 10px;
+	margin-left: 11px;
+}
+
 #nj_heatmap_title {
   margin-top: -15px;
 }
@@ -2825,11 +2837,6 @@ button#nj_nodepoint_menu, button#upgma_nodepoint_menu {
   margin-left: -5px
 }
 
-#nj_align, #upgma_align {
-  margin-top: 10px; 
-  margin-left: -60px
-}
-
 #nj_rootedge_show, #upgma_rootedge_show {
   margin-top: 8px;
   margin-left: -15px;
@@ -2842,20 +2849,6 @@ button#nj_nodepoint_menu, button#upgma_nodepoint_menu {
 #nj_tipcolor_mapping, #nj_tipshape_mapping_show, #upgma_tipcolor_mapping, #upgma_tipshape_mapping_show {
   margin-top: -10px;
   margin-right: 30px;
-}
-
-#nj_tiplab_scale, #upgma_tiplab_scale,
-#nj_tippoint_scale, #upgma_tippoint_scale,
-#nj_tiles_scale_1, #upgma_tiles_scale_1,
-#nj_tiles_scale_2, #upgma_tiles_scale_2,
-#nj_tiles_scale_3, #upgma_tiles_scale_3,
-#nj_tiles_scale_4, #upgma_tiles_scale_4,
-#nj_tiles_scale_5, #upgma_tiles_scale_5,
-#nj_heatmap_scale, #upgma_heatmap_scale {
-	margin-right: 10px;
-	width: 100%;
-	margin-left: -10px;
-	margin-top: -10px;
 }
 
 .mst-color-scale {

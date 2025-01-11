@@ -9049,27 +9049,28 @@ server <- function(input, output, session) {
                           )
                         ),
                         br(),
+                        uiOutput("nj_tiplab_size"),
+                        br(),
+                        sliderInput(
+                          "nj_tiplab_alpha",
+                          label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                          min = 0.1,
+                          max = 1,
+                          step = 0.05,
+                          value = 1,
+                          width = "150px",
+                          ticks = FALSE
+                        )
+                      ),
+                      column(
+                        width = 6,
+                        align = "center",
                         selectInput(
                           "nj_tiplab_fontface",
                           label = h5("Fontface", style = "color:white; margin-bottom: 5px; margin-top: 16px"),
                           width = "250px",
                           choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic"),
                           selected = "plain"
-                        ),
-                        br(),
-                        uiOutput("nj_tiplab_size")
-                      ),
-                      column(
-                        width = 6,
-                        align = "center",
-                        sliderInput(
-                          "nj_tiplab_alpha",
-                          label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                          min = 0.1,
-                          max = 1,
-                          value = 1,
-                          width = "150px",
-                          ticks = FALSE
                         ),
                         br(),
                         conditionalPanel(
@@ -9080,7 +9081,7 @@ server <- function(input, output, session) {
                             min = -3,
                             max = 3,
                             step = 0.05,
-                            value = 1,
+                            value = 0,
                             width = "150px",
                             ticks = FALSE
                           )
@@ -9165,6 +9166,7 @@ server <- function(input, output, session) {
                     inputId = "nj_tiplab_labelradius",
                     label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
                     min = 0,
+                    step = 0.05,
                     max = 0.5,
                     value = 0.2,
                     width = "150px",
@@ -9228,14 +9230,11 @@ server <- function(input, output, session) {
                       column(
                         width = 6,
                         align = "center",
-                        sliderInput(
-                          "nj_branchlab_alpha",
-                          label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                          min = 0.1,
-                          max = 1,
-                          value = 0.65,
+                        selectInput(
+                          "nj_branchlab_fontface",
+                          label = h5("Fontface", style = "color:white; margin-bottom: 0px;"),
                           width = "250px",
-                          ticks = FALSE
+                          choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
                         ),
                         br(),
                         sliderInput(
@@ -9249,11 +9248,12 @@ server <- function(input, output, session) {
                         ),
                         br(),
                         sliderInput(
-                          inputId = "nj_branch_y",
-                          label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
-                          min = -3,
-                          max = 3,
-                          value = 0,
+                          "nj_branchlab_alpha",
+                          label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                          min = 0.1,
+                          max = 1,
+                          step = 0.05,
+                          value = 0.65,
                           width = "250px",
                           ticks = FALSE
                         )
@@ -9262,11 +9262,14 @@ server <- function(input, output, session) {
                         width = 6,
                         align = "center",
                         uiOutput("nj_branch_size"),
-                        selectInput(
-                          "nj_branchlab_fontface",
-                          label = h5("Fontface", style = "color:white; margin-bottom: 0px;"),
+                        sliderInput(
+                          inputId = "nj_branch_y",
+                          label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+                          min = -3,
+                          max = 3,
+                          value = 0,
                           width = "250px",
-                          choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
+                          ticks = FALSE
                         ),
                         br(),
                         sliderInput(
@@ -9274,6 +9277,7 @@ server <- function(input, output, session) {
                           label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
                           min = 0,
                           max = 0.5,
+                          step = 0.05,
                           value = 0.5,
                           width = "250px",
                           ticks = FALSE
@@ -9318,14 +9322,15 @@ server <- function(input, output, session) {
                     column(
                       width = 12,
                       align = "center",
-                      numericInput(
+                      sliderInput(
                         "nj_title_size",
                         label = h5("Title Size", style = "color:white; margin-bottom: 0px"),
                         value = 30,
                         min = 15,
                         max = 40,
                         step = 1,
-                        width = "80px"
+                        width = "150px",
+                        ticks = FALSE
                       )
                     )
                   )
@@ -9366,14 +9371,15 @@ server <- function(input, output, session) {
                     column(
                       width = 12,
                       align = "center",
-                      numericInput(
+                      sliderInput(
                         "nj_subtitle_size",
                         label = h5("Subtitle Size", style = "color:white; margin-bottom: 0px"),
                         value = 30,
                         min = 15,
                         max = 40,
                         step = 1,
-                        width = "80px"
+                        width = "150px",
+                        ticks = FALSE
                       )
                     )
                   )
@@ -9530,491 +9536,13 @@ server <- function(input, output, session) {
     )
   )
   
-  output$upgma_controls <- renderUI(
-    div(
-      class = "control-box",
-      box(
-        solidHeader = TRUE,
-        status = "primary",
-        width = "100%",
-        title = "Labels",
-        fluidRow(
-          column(
-            width = 12,
-            align = "left",
-            br(),
-            fluidRow(
-              column(
-                width = 6,
-                align = "left",
-                h4(p("Isolate Label"), style = "color:white; position: relative; right: -15px; "),   
-              ),
-              column(
-                width = 6,
-                align = "left",
-                div(
-                  class = "mat-switch-lab",
-                  materialSwitch(
-                    "upgma_tiplab_show",
-                    "",
-                    value = TRUE
-                  )
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 9,
-                align = "left",
-                div(
-                  class = "upgma-label-sel",
-                  uiOutput("upgma_tiplab")
-                )   
-              ),
-              column(
-                width = 3,
-                align = "center",
-                dropMenu(
-                  actionBttn(
-                    "upgma_labeltext_menu",
-                    label = "",
-                    color = "default",
-                    size = "sm",
-                    style = "material-flat",
-                    icon = icon("sliders")
-                  ),
-                  placement = "top-start",
-                  theme = "translucent",
-                  fluidRow(
-                    column(
-                      width = 6,
-                      align = "center",
-                      div(
-                        class = "mat-switch-align",
-                        materialSwitch(
-                          "upgma_align",
-                          h5(p("Align"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                          value = FALSE,
-                          right = TRUE
-                        )
-                      ),
-                      br(),
-                      selectInput(
-                        "upgma_tiplab_fontface",
-                        label = h5("Fontface", style = "color:white; margin-bottom: 5px; margin-top: 16px"),
-                        width = "250px",
-                        choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
-                      )
-                    ),
-                    column(
-                      width = 6,
-                      align = "center",
-                      sliderInput(
-                        "upgma_tiplab_alpha",
-                        label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                        min = 0.1,
-                        max = 1,
-                        value = 1,
-                        width = "150px",
-                        ticks = FALSE
-                      ),
-                      br(),
-                      conditionalPanel(
-                        "!(input.upgma_layout=='inward'|input.upgma_layout=='circular')",
-                        sliderInput(
-                          inputId = "upgma_tiplab_nudge_x",
-                          label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                          min = -3,
-                          max = 3,
-                          step = 0.05,
-                          value = 0,
-                          width = "150px",
-                          ticks = FALSE
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.upgma_layout=='circular'",
-                        sliderInput(
-                          inputId = "upgma_tiplab_position",
-                          label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                          min = -3,
-                          max = 3,
-                          step = 0.05,
-                          value = -0.05,
-                          width = "150px",
-                          ticks = FALSE
-                        )
-                      ),
-                      conditionalPanel(
-                        "input.upgma_layout=='inward'",
-                        sliderInput(
-                          inputId = "upgma_tiplab_position_inw",
-                          label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                          min = -3,
-                          max = 3,
-                          step = 0.05,
-                          value = 1.1,
-                          width = "150px",
-                          ticks = FALSE
-                        )
-                      ),
-                      br(),
-                      sliderInput(
-                        inputId = "upgma_tiplab_angle",
-                        label = h5("Angle", style = "color:white; margin-bottom: 0px"),
-                        min = -90,
-                        max = 90,
-                        value = 0,
-                        ticks = FALSE,
-                        width = "150px",
-                      )      
-                    )
-                  )
-                )
-              )
-            )
-          )
-        ),
-        fluidRow(
-          column(
-            width = 8,
-            div(
-              class = "mat-switch-geom",
-              materialSwitch(
-                "upgma_geom",
-                h5(p("Panels"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: 5px;"),
-                value = FALSE,
-                right = FALSE
-              )
-            )
-          ),
-          column(
-            width = 4,
-            dropMenu(
-              actionBttn(
-                "upgma_labelformat_menu",
-                label = "",
-                color = "default",
-                size = "sm",
-                style = "material-flat",
-                icon = icon("sliders")
-              ),
-              placement = "top-start",
-              theme = "translucent",
-              fluidRow(
-                column(
-                  width = 12,
-                  align = "center",
-                  uiOutput("upgma_tiplab_padding_ui"),
-                  br(),
-                  sliderInput(
-                    inputId = "upgma_tiplab_labelradius",
-                    label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
-                    min = 0,
-                    max = 0.5,
-                    value = 0.2,
-                    width = "150px",
-                    ticks = FALSE
-                  )
-                )
-              )
-            )
-          )
-        ),
-        hr(),
-        fluidRow(
-          column(
-            width = 12,
-            align = "left",
-            fluidRow(
-              column(
-                width = 6,
-                align = "left",
-                h4(p("Branches"), style = "color:white; position: relative; right: -15px;"),
-              ),
-              column(
-                width = 6,
-                align = "left",
-                div(
-                  class = "mat-switch-lab",
-                  materialSwitch(
-                    "upgma_show_branch_label",
-                    "",
-                    value = FALSE
-                  )
-                )
-              )
-            ),
-            fluidRow(
-              column(
-                width = 9,
-                align = "left",
-                div(
-                  class = "upgma-label-sel",
-                  uiOutput("upgma_branch_label")
-                )   
-              ),
-              column(
-                width = 3,
-                align = "center",
-                dropMenu(
-                  actionBttn(
-                    "upgma_branch_label_menu",
-                    label = "",
-                    color = "default",
-                    size = "sm",
-                    style = "material-flat",
-                    icon = icon("sliders")
-                  ),
-                  placement = "top-start",
-                  theme = "translucent",
-                  fluidRow(
-                    column(
-                      width = 6,
-                      align = "center",
-                      sliderInput(
-                        "upgma_branchlab_alpha",
-                        label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                        min = 0.1,
-                        max = 1,
-                        value = 0.65,
-                        width = "250px",
-                        ticks = FALSE
-                      ),
-                      br(),
-                      sliderInput(
-                        inputId = "upgma_branch_x",
-                        label = h5("X Position", style = "color:white; margin-bottom: 0px"),
-                        min = -3,
-                        max = 3,
-                        value = 0,
-                        width = "250px",
-                        ticks = FALSE
-                      ),
-                      br(),
-                      sliderInput(
-                        inputId = "upgma_branch_y",
-                        label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
-                        min = -3,
-                        max = 3,
-                        value = 0,
-                        width = "250px",
-                        ticks = FALSE
-                      )
-                    ),
-                    column(
-                      width = 6,
-                      align = "center",
-                      uiOutput("upgma_branch_size"),
-                      selectInput(
-                        "upgma_branchlab_fontface",
-                        label = h5("Fontface", style = "color:white; margin-bottom: 0px;"),
-                        width = "250px",
-                        choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic")
-                      ),
-                      br(),
-                      sliderInput(
-                        "upgma_branch_labelradius",
-                        label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
-                        min = 0,
-                        max = 0.5,
-                        value = 0.5,
-                        width = "250px",
-                        ticks = FALSE
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
-        ),
-        hr(),
-        fluidRow(
-          column(
-            width = 12,
-            align = "left",
-            fluidRow(
-              column(
-                width = 8,
-                textInput(
-                  "upgma_title",
-                  label = "",
-                  width = "100%",
-                  placeholder = "Plot Title"
-                )
-              ),
-              column(
-                width = 4,
-                dropMenu(
-                  actionBttn(
-                    "upgma_title_menu",
-                    label = "",
-                    color = "default",
-                    size = "sm",
-                    style = "material-flat",
-                    icon = icon("sliders")
-                  ),
-                  placement = "top-start",
-                  theme = "translucent",
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "center",
-                      numericInput(
-                        "upgma_title_size",
-                        label = h5("Title Size", style = "color:white; margin-bottom: 0px"),
-                        value = 30,
-                        min = 15,
-                        max = 40,
-                        step = 1,
-                        width = "80px"
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
-        ),
-        br(),
-        fluidRow(
-          column(
-            width = 12,
-            align = "left",
-            fluidRow(
-              column(
-                width = 8,
-                textInput(
-                  "upgma_subtitle",
-                  label = "",
-                  width = "100%",
-                  placeholder = "Plot Subtitle"
-                )
-              ),
-              column(
-                width = 4,
-                dropMenu(
-                  actionBttn(
-                    "upgma_subtitle_menu",
-                    label = "",
-                    color = "default",
-                    size = "sm",
-                    style = "material-flat",
-                    icon = icon("sliders")
-                  ),
-                  placement = "top-start",
-                  theme = "translucent",
-                  fluidRow(
-                    column(
-                      width = 12,
-                      align = "center",
-                      numericInput(
-                        "upgma_subtitle_size",
-                        label = h5("Subtitle Size", style = "color:white; margin-bottom: 0px"),
-                        value = 30,
-                        min = 15,
-                        max = 40,
-                        step = 1,
-                        width = "80px"
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
-        ),
-        hr(),
-        fluidRow(
-          column(
-            width = 12,
-            align = "left",
-            h4(p("Custom"), style = "color:white; position: relative; right: -15px;"),
-            column(
-              width = 12,
-              align = "center",
-              fluidRow(
-                column(
-                  width = 7,
-                  textInput(
-                    "upgma_new_label_name",
-                    "",
-                    placeholder = "New Label"
-                  )
-                ),
-                column(
-                  width = 3,
-                  actionButton(
-                    "upgma_add_new_label",
-                    "",
-                    icon = icon("plus")
-                  )
-                ),
-                column(
-                  width = 2,
-                  align = "right",
-                  dropMenu(
-                    actionBttn(
-                      "upgma_custom_label_menu",
-                      label = "",
-                      color = "default",
-                      size = "sm",
-                      style = "material-flat",
-                      icon = icon("sliders")
-                    ),
-                    placement = "top-end",
-                    theme = "translucent",
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "center",
-                        uiOutput("upgma_custom_labelsize"),
-                        br(),
-                        uiOutput("upgma_sliderInput_y"),
-                        br(),
-                        uiOutput("upgma_sliderInput_x")
-                      )
-                    )
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 7,
-                  uiOutput("upgma_custom_label_select")
-                ),
-                column(
-                  width = 4,
-                  actionButton(
-                    "upgma_del_label",
-                    "",
-                    icon = icon("minus")
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 12,
-                  align = "center",
-                  actionButton(
-                    "upgma_cust_label_save",
-                    "Apply"
-                  )
-                )
-              )
-            )
-          )
-        )
-      ) 
-    )
-  )
   
   ##### Label Menu ----
   
   nj_tiplab_reactive <- reactiveVal(NULL) 
   nj_tiplab_show_reactive <- reactiveVal(NULL) 
   nj_align_reactive <- reactiveVal(NULL)
+  nj_tiplab_size_reactive <- reactiveVal(NULL)
   nj_tiplab_fontface_reactive <- reactiveVal(NULL)
   nj_tiplab_alpha_reactive <- reactiveVal(NULL)
   nj_tiplab_nudge_x_reactive <- reactiveVal(NULL)
@@ -10025,6 +9553,7 @@ server <- function(input, output, session) {
   nj_tiplab_padding_reactive <- reactiveVal(NULL)
   nj_tiplab_labelradius_reactive <- reactiveVal(NULL)
   nj_show_branch_label_reactive <- reactiveVal(NULL)
+  nj_branch_size_reactive <- reactiveVal(NULL)
   nj_branch_label_reactive <- reactiveVal(NULL)
   nj_branchlab_alpha_reactive <- reactiveVal(NULL)
   nj_branch_x_reactive <- reactiveVal(NULL)
@@ -10047,6 +9576,10 @@ server <- function(input, output, session) {
     
     if(!is.null(input$nj_align)) {
       nj_align_reactive(input$nj_align)
+    }
+    
+    if(!is.null(input$nj_tiplab_size)) {
+      nj_tiplab_size_reactive(input$nj_tiplab_size)
     }
     
     if(!is.null(input$nj_tiplab_fontface)) {
@@ -10087,6 +9620,10 @@ server <- function(input, output, session) {
     
     if(!is.null(input$nj_show_branch_label)) {
       nj_show_branch_label_reactive(input$nj_show_branch_label)
+    }
+    
+    if(!is.null(input$nj_branch_size)) {
+      nj_branch_size_reactive(input$nj_branch_size)
     }
     
     if(!is.null(input$nj_branch_label)) {
@@ -10161,7 +9698,7 @@ server <- function(input, output, session) {
     if(!is.null(nj_tiplab_nudge_x_reactive())) {
       nj_tiplab_nudge_x_selected <- nj_tiplab_nudge_x_reactive()
     } else {
-      nj_tiplab_nudge_x_selected <- 1
+      nj_tiplab_nudge_x_selected <- 0
     }
     
     if(!is.null(nj_tiplab_position_reactive())) {
@@ -10263,138 +9800,142 @@ server <- function(input, output, session) {
           width = "100%",
           title = "Labels",
           fluidRow(
-            column(
-              width = 12,
-              align = "left",
-              br(),
-              fluidRow(
-                column(
-                  width = 6,
-                  align = "left",
-                  h4(p("Isolate Label"), style = "color:white; position: relative; right: -15px; "),   
-                ),
-                column(
-                  width = 6,
-                  align = "left",
-                  div(
-                    class = "mat-switch-lab",
-                    materialSwitch(
-                      "nj_tiplab_show",
-                      "",
-                      value = nj_tiplab_show_selected
+            div(
+              class = "nj-label-control-col",
+              column(
+                width = 12,
+                align = "left",
+                br(),
+                fluidRow(
+                  column(
+                    width = 6,
+                    align = "left",
+                    h4(p("Isolate Label"), style = "color:white; position: relative; right: -15px; "),   
+                  ),
+                  column(
+                    width = 6,
+                    align = "left",
+                    div(
+                      class = "mat-switch-lab",
+                      materialSwitch(
+                        "nj_tiplab_show",
+                        "",
+                        value = nj_tiplab_show_selected
+                      )
                     )
                   )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 9,
-                  align = "left",
-                  div(
-                    class = "nj-label-sel",
-                    uiOutput("nj_tiplab")
-                  )   
                 ),
-                column(
-                  width = 3,
-                  align = "center",
-                  dropMenu(
-                    actionBttn(
-                      "nj_labeltext_menu",
-                      label = "",
-                      color = "default",
-                      size = "sm",
-                      style = "material-flat",
-                      icon = icon("sliders")
-                    ),
-                    placement = "right",
-                    theme = "translucent",
-                    fluidRow(
-                      column(
-                        width = 6,
-                        align = "center",
-                        div(
-                          class = "mat-switch-align",
-                          materialSwitch(
-                            "nj_align",
-                            h5(p("Align"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                            value = nj_align_selected,
-                            right = TRUE
-                          )
-                        ),
-                        br(),
-                        selectInput(
-                          "nj_tiplab_fontface",
-                          label = h5("Fontface", style = "color:white; margin-bottom: 5px; margin-top: 16px"),
-                          width = "250px",
-                          choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic"),
-                          selected = nj_tiplab_fontface_selected
-                        ),
-                        br(),
-                        uiOutput("nj_tiplab_size")
+                fluidRow(
+                  column(
+                    width = 9,
+                    align = "left",
+                    div(
+                      class = "nj-label-sel",
+                      uiOutput("nj_tiplab")
+                    )   
+                  ),
+                  column(
+                    width = 3,
+                    align = "center",
+                    dropMenu(
+                      actionBttn(
+                        "nj_labeltext_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("sliders")
                       ),
-                      column(
-                        width = 6,
-                        align = "center",
-                        sliderInput(
-                          "nj_tiplab_alpha",
-                          label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                          min = 0.1,
-                          max = 1,
-                          value = nj_tiplab_alpha_selected,
-                          width = "150px",
-                          ticks = FALSE
-                        ),
-                        br(),
-                        conditionalPanel(
-                          "!(input.nj_layout=='inward'|input.nj_layout=='circular')",
+                      placement = "right",
+                      theme = "translucent",
+                      fluidRow(
+                        column(
+                          width = 6,
+                          align = "center",
+                          div(
+                            class = "mat-switch-align",
+                            materialSwitch(
+                              "nj_align",
+                              h5(p("Align"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                              value = nj_align_selected,
+                              right = TRUE
+                            )
+                          ),
+                          br(),
+                          uiOutput("nj_tiplab_size"),
+                          br(),
                           sliderInput(
-                            inputId = "nj_tiplab_nudge_x",
-                            label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                            min = -3,
-                            max = 3,
+                            "nj_tiplab_alpha",
+                            label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                            min = 0.1,
+                            max = 1,
                             step = 0.05,
-                            value = nj_tiplab_nudge_x_selected,
+                            value = nj_tiplab_alpha_selected,
                             width = "150px",
                             ticks = FALSE
                           )
                         ),
-                        conditionalPanel(
-                          "input.nj_layout=='circular'",
+                        column(
+                          width = 6,
+                          align = "center",
+                          selectInput(
+                            "nj_tiplab_fontface",
+                            label = h5("Fontface", style = "color:white; margin-bottom: 5px; margin-top: 16px"),
+                            width = "250px",
+                            choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic"),
+                            selected = nj_tiplab_fontface_selected
+                          ),
+                          br(),
+                          conditionalPanel(
+                            "!(input.nj_layout=='inward'|input.nj_layout=='circular')",
+                            sliderInput(
+                              inputId = "nj_tiplab_nudge_x",
+                              label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                              min = -3,
+                              max = 3,
+                              step = 0.05,
+                              value = nj_tiplab_nudge_x_selected,
+                              width = "150px",
+                              ticks = FALSE
+                            )
+                          ),
+                          conditionalPanel(
+                            "input.nj_layout=='circular'",
+                            sliderInput(
+                              inputId = "nj_tiplab_position",
+                              label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                              min = -3,
+                              max = 3,
+                              step = 0.05,
+                              value = nj_tiplab_position_selected,
+                              width = "150px",
+                              ticks = FALSE
+                            )
+                          ),
+                          conditionalPanel(
+                            "input.nj_layout=='inward'",
+                            sliderInput(
+                              inputId = "nj_tiplab_position_inw",
+                              label = h5("Position", style = "color:white; margin-bottom: 0px"),
+                              min = -3,
+                              max = 3,
+                              step = 0.05,
+                              value = nj_tiplab_position_inw_selected,
+                              width = "150px",
+                              ticks = FALSE
+                            )
+                          ),
+                          br(),
                           sliderInput(
-                            inputId = "nj_tiplab_position",
-                            label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                            min = -3,
-                            max = 3,
-                            step = 0.05,
-                            value = nj_tiplab_position_selected,
+                            inputId = "nj_tiplab_angle",
+                            label = h5("Angle", style = "color:white; margin-bottom: 0px"),
+                            min = -90,
+                            max = 90,
+                            value = nj_tiplab_angle_selected,
+                            ticks = FALSE,
                             width = "150px",
-                            ticks = FALSE
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.nj_layout=='inward'",
-                          sliderInput(
-                            inputId = "nj_tiplab_position_inw",
-                            label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                            min = -3,
-                            max = 3,
-                            step = 0.05,
-                            value = nj_tiplab_position_inw_selected,
-                            width = "150px",
-                            ticks = FALSE
-                          )
-                        ),
-                        br(),
-                        sliderInput(
-                          inputId = "nj_tiplab_angle",
-                          label = h5("Angle", style = "color:white; margin-bottom: 0px"),
-                          min = -90,
-                          max = 90,
-                          value = nj_tiplab_angle_selected,
-                          ticks = FALSE,
-                          width = "150px",
-                        )      
+                          )      
+                        )
                       )
                     )
                   )
@@ -10432,12 +9973,13 @@ server <- function(input, output, session) {
                   column(
                     width = 12,
                     align = "center",
-                    uiOutput("nj_tiplab_padding"),
+                    uiOutput("nj_tiplab_padding_ui"),
                     br(),
                     sliderInput(
                       inputId = "nj_tiplab_labelradius",
                       label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
                       min = 0,
+                      step = 0.05,
                       max = 0.5,
                       value = nj_tiplab_labelradius_selected,
                       width = "150px",
@@ -10450,105 +9992,110 @@ server <- function(input, output, session) {
           ),
           hr(),
           fluidRow(
-            column(
-              width = 12,
-              align = "left",
-              fluidRow(
-                column(
-                  width = 6,
-                  align = "left",
-                  h4(p("Branches"), style = "color:white; position: relative; right: -15px;"),
-                ),
-                column(
-                  width = 6,
-                  align = "left",
-                  div(
-                    class = "mat-switch-lab",
-                    materialSwitch(
-                      "nj_show_branch_label",
-                      "",
-                      value = nj_show_branch_label_selected
+            div(
+              class = "nj-label-control-col",
+              column(
+                width = 12,
+                align = "left",
+                fluidRow(
+                  column(
+                    width = 6,
+                    align = "left",
+                    h4(p("Branches"), style = "color:white; position: relative; right: -15px;"),
+                  ),
+                  column(
+                    width = 6,
+                    align = "left",
+                    div(
+                      class = "mat-switch-lab",
+                      materialSwitch(
+                        "nj_show_branch_label",
+                        "",
+                        value = nj_show_branch_label_selected
+                      )
                     )
                   )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 9,
-                  align = "left",
-                  div(
-                    class = "nj-label-sel",
-                    uiOutput("nj_branch_label")
-                  )   
                 ),
-                column(
-                  width = 3,
-                  align = "center",
-                  dropMenu(
-                    actionBttn(
-                      "nj_branch_label_menu",
-                      label = "",
-                      color = "default",
-                      size = "sm",
-                      style = "material-flat",
-                      icon = icon("sliders")
-                    ),
-                    placement = "right",
-                    theme = "translucent",
-                    fluidRow(
-                      column(
-                        width = 6,
-                        align = "center",
-                        sliderInput(
-                          "nj_branchlab_alpha",
-                          label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                          min = 0.1,
-                          max = 1,
-                          value = nj_branchlab_alpha_selected,
-                          width = "250px",
-                          ticks = FALSE
-                        ),
-                        br(),
-                        sliderInput(
-                          inputId = "nj_branch_x",
-                          label = h5("X Position", style = "color:white; margin-bottom: 0px"),
-                          min = -3,
-                          max = 3,
-                          value = nj_branch_x_selected,
-                          width = "250px",
-                          ticks = FALSE
-                        ),
-                        br(),
-                        sliderInput(
-                          inputId = "nj_branch_y",
-                          label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
-                          min = -3,
-                          max = 3,
-                          value = nj_branch_y_selected,
-                          width = "250px",
-                          ticks = FALSE
-                        )
+                fluidRow(
+                  column(
+                    width = 9,
+                    align = "left",
+                    div(
+                      class = "nj-label-sel",
+                      uiOutput("nj_branch_label")
+                    )   
+                  ),
+                  column(
+                    width = 3,
+                    align = "center",
+                    dropMenu(
+                      actionBttn(
+                        "nj_branch_label_menu",
+                        label = "",
+                        color = "default",
+                        size = "sm",
+                        style = "material-flat",
+                        icon = icon("sliders")
                       ),
-                      column(
-                        width = 6,
-                        align = "center",
-                        uiOutput("nj_branch_size"),
-                        selectInput(
-                          "nj_branchlab_fontface",
-                          label = h5("Fontface", style = "color:white; margin-bottom: 0px;"),
-                          width = "250px",
-                          choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic"),
-                          selected = nj_branchlab_fontface_selected
+                      placement = "right",
+                      theme = "translucent",
+                      fluidRow(
+                        column(
+                          width = 6,
+                          align = "center",
+                          selectInput(
+                            "nj_branchlab_fontface",
+                            label = h5("Fontface", style = "color:white; margin-bottom: 0px;"),
+                            width = "250px",
+                            choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic"),
+                            selected = nj_branchlab_fontface_selected
+                          ),
+                          br(),
+                          sliderInput(
+                            inputId = "nj_branch_x",
+                            label = h5("X Position", style = "color:white; margin-bottom: 0px"),
+                            min = -3,
+                            max = 3,
+                            value = nj_branch_x_selected,
+                            width = "250px",
+                            ticks = FALSE
+                          ),
+                          br(),
+                          sliderInput(
+                            "nj_branchlab_alpha",
+                            label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
+                            min = 0.1,
+                            max = 1,
+                            step = 0.05,
+                            value = nj_branchlab_alpha_selected,
+                            width = "250px",
+                            ticks = FALSE
+                          )
                         ),
-                        br(),
-                        sliderInput(
-                          "nj_branch_labelradius",
-                          label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
-                          min = 0,
-                          max = 0.5,
-                          value = nj_branch_labelradius_selected,
-                          width = "250px",
-                          ticks = FALSE
+                        column(
+                          width = 6,
+                          align = "center",
+                          uiOutput("nj_branch_size"),
+                          sliderInput(
+                            inputId = "nj_branch_y",
+                            label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+                            min = -3,
+                            max = 3,
+                            value = nj_branch_y_selected,
+                            width = "250px",
+                            ticks = FALSE
+                          ),
+                          br(),
+                          sliderInput(
+                            "nj_branch_labelradius",
+                            label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
+                            min = 0,
+                            max = 0.5,
+                            step = 0.05,
+                            value = nj_branch_labelradius_selected,
+                            width = "250px",
+                            ticks = FALSE
+                          )
                         )
                       )
                     )
@@ -10590,14 +10137,15 @@ server <- function(input, output, session) {
                       column(
                         width = 12,
                         align = "center",
-                        numericInput(
+                        sliderInput(
                           "nj_title_size",
                           label = h5("Title Size", style = "color:white; margin-bottom: 0px"),
                           value = nj_title_size_selected,
                           min = 15,
                           max = 40,
                           step = 1,
-                          width = "80px"
+                          width = "150px",
+                          ticks = FALSE
                         )
                       )
                     )
@@ -10639,14 +10187,15 @@ server <- function(input, output, session) {
                       column(
                         width = 12,
                         align = "center",
-                        numericInput(
+                        sliderInput(
                           "nj_subtitle_size",
                           label = h5("Subtitle Size", style = "color:white; margin-bottom: 0px"),
                           value = nj_subtitle_size_selected,
                           min = 15,
                           max = 40,
                           step = 1,
-                          width = "80px"
+                          width = "150px",
+                          ticks = FALSE
                         )
                       )
                     )
@@ -10657,79 +10206,142 @@ server <- function(input, output, session) {
           ),
           hr(),
           fluidRow(
-            column(
-              width = 12,
-              align = "left",
-              h4(p("Custom"), style = "color:white; position: relative; right: -15px;"),
+            div(
+              class = "nj-label-control-col",
               column(
                 width = 12,
-                align = "center",
-                fluidRow(
-                  column(
-                    width = 7,
-                    textInput(
-                      "nj_new_label_name",
-                      "",
-                      placeholder = "New Label"
-                    )
-                  ),
-                  column(
-                    width = 3,
-                    actionButton(
-                      "nj_add_new_label",
-                      "",
-                      icon = icon("plus")
-                    )
-                  ),
-                  column(
-                    width = 2,
-                    align = "right",
-                    dropMenu(
-                      actionBttn(
-                        "nj_custom_label_menu",
-                        label = "",
-                        color = "default",
-                        size = "sm",
-                        style = "material-flat",
-                        icon = icon("sliders")
-                      ),
-                      placement = "right",
-                      theme = "translucent",
-                      fluidRow(
-                        column(
-                          width = 12,
-                          align = "center",
-                          uiOutput("nj_custom_labelsize"),
-                          br(),
-                          uiOutput("nj_sliderInput_y"),
-                          br(),
-                          uiOutput("nj_sliderInput_x")
+                align = "left",
+                h4(p("Custom"), style = "color:white; position: relative; right: -15px;"),
+                column(
+                  width = 12,
+                  align = "center",
+                  fluidRow(
+                    column(
+                      width = 7,
+                      textInput(
+                        "nj_new_label_name",
+                        "",
+                        placeholder = "New Label"
+                      )
+                    ),
+                    column(
+                      width = 3,
+                      actionButton(
+                        "nj_add_new_label",
+                        "",
+                        icon = icon("plus")
+                      )
+                    ),
+                    column(
+                      width = 2,
+                      align = "right",
+                      dropMenu(
+                        actionBttn(
+                          "nj_custom_label_menu",
+                          label = "",
+                          color = "default",
+                          size = "sm",
+                          style = "material-flat",
+                          icon = icon("sliders")
+                        ),
+                        placement = "right",
+                        theme = "translucent",
+                        fluidRow(
+                          div(
+                            class = "nj-custom-label-menu-col",
+                            column(
+                              width = 12,
+                              align = "center",
+                              fluidRow(
+                                column(
+                                  width = 3,
+                                  align = "left",
+                                  HTML(
+                                    paste(
+                                      tags$span(style='color: white; font-size: 14px; position: relative; top: 7px;',
+                                                'Size')
+                                    )
+                                  )
+                                ),
+                                column(
+                                  width = 9,
+                                  align = "right",
+                                  div(
+                                    class = "nj-label-slider",
+                                    uiOutput("nj_custom_labelsize")
+                                  )
+                                )
+                              ),
+                              br(),
+                              fluidRow(
+                                column(
+                                  width = 3,
+                                  align = "left",
+                                  HTML(
+                                    paste(
+                                      tags$span(style='color: white; font-size: 14px; position: relative; top: 7px;',
+                                                'Vertical')
+                                    )
+                                  )
+                                ),
+                                column(
+                                  width = 9,
+                                  align = "right",
+                                  div(
+                                    class = "nj-label-slider",
+                                    uiOutput("nj_sliderInput_y")
+                                  )
+                                )
+                              ),
+                              br(),
+                              fluidRow(
+                                column(
+                                  width = 3,
+                                  align = "left",
+                                  HTML(
+                                    paste(
+                                      tags$span(style='color: white; font-size: 14px; position: relative; top: 7px;',
+                                                'Horizontal')
+                                    )
+                                  )
+                                ),
+                                column(
+                                  width = 9,
+                                  align = "right",
+                                  div(
+                                    class = "nj-label-slider",
+                                    uiOutput("nj_sliderInput_x")
+                                  )
+                                )
+                              )
+                            )
+                          )
                         )
                       )
                     )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 7,
-                    uiOutput("nj_custom_label_select")
                   ),
-                  column(
-                    width = 4,
-                    actionButton(
-                      "nj_del_label",
-                      "",
-                      icon = icon("minus")
+                  fluidRow(
+                    column(
+                      width = 7,
+                      uiOutput("nj_custom_label_select")
+                    ),
+                    column(
+                      width = 4,
+                      actionButton(
+                        "nj_del_label",
+                        "",
+                        icon = icon("minus")
+                      )
                     )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 12,
-                    align = "center",
-                    actionButton(
-                      "nj_cust_label_save",
-                      "Apply"
+                  ),
+                  fluidRow(
+                    column(
+                      width = 12,
+                      align = "center",
+                      actionButton(
+                        "nj_cust_label_save",
+                        "Apply"
+                      )
                     )
                   )
                 )
@@ -10743,736 +10355,6 @@ server <- function(input, output, session) {
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
-  upgma_tiplab_reactive <- reactiveVal(NULL) 
-  upgma_tiplab_show_reactive <- reactiveVal(NULL) 
-  upgma_align_reactive <- reactiveVal(NULL)
-  upgma_tiplab_fontface_reactive <- reactiveVal(NULL)
-  upgma_tiplab_alpha_reactive <- reactiveVal(NULL)
-  upgma_tiplab_nudge_x_reactive <- reactiveVal(NULL)
-  upgma_tiplab_position_reactive <- reactiveVal(NULL)
-  upgma_tiplab_position_inw_reactive <- reactiveVal(NULL)
-  upgma_tiplab_angle_reactive <- reactiveVal(NULL)
-  upgma_geom_reactive <- reactiveVal(NULL)
-  upgma_tiplab_padding_reactive <- reactiveVal(NULL)
-  upgma_tiplab_labelradius_reactive <- reactiveVal(NULL)
-  upgma_show_branch_label_reactive <- reactiveVal(NULL)
-  upgma_branch_label_reactive <- reactiveVal(NULL)
-  upgma_branchlab_alpha_reactive <- reactiveVal(NULL)
-  upgma_branch_x_reactive <- reactiveVal(NULL)
-  upgma_branch_y_reactive <- reactiveVal(NULL)
-  upgma_branchlab_fontface_reactive <- reactiveVal(NULL)
-  upgma_branch_labelradius_reactive <- reactiveVal(NULL)
-  upgma_title_reactive <- reactiveVal(NULL)
-  upgma_title_size_reactive <- reactiveVal(NULL)
-  upgma_subtitle_reactive <- reactiveVal(NULL)
-  upgma_subtitle_size_reactive <- reactiveVal(NULL)
-  
-  observe({
-    if(!is.null(input$upgma_tiplab)) {
-      upgma_tiplab_reactive(input$upgma_tiplab)
-    }
-    
-    if(!is.null(input$upgma_tiplab_show)) {
-      upgma_tiplab_show_reactive(input$upgma_tiplab_show)
-    }
-    
-    if(!is.null(input$upgma_align)) {
-      upgma_align_reactive(input$upgma_align)
-    }
-    
-    if(!is.null(input$upgma_tiplab_fontface)) {
-      upgma_tiplab_fontface_reactive(input$upgma_tiplab_fontface)
-    }
-    
-    if(!is.null(input$upgma_tiplab_alpha)) {
-      upgma_tiplab_alpha_reactive(input$upgma_tiplab_alpha)
-    }
-    
-    if(!is.null(input$upgma_tiplab_nudge_x)) {
-      upgma_tiplab_nudge_x_reactive(input$upgma_tiplab_nudge_x)
-    }
-    
-    if(!is.null(input$upgma_tiplab_position)) {
-      upgma_tiplab_position_reactive(input$upgma_tiplab_position)
-    }
-    
-    if(!is.null(input$upgma_tiplab_position_inw)) {
-      upgma_tiplab_position_inw_reactive(input$upgma_tiplab_position_inw)
-    }
-    
-    if(!is.null(input$upgma_tiplab_angle)) {
-      upgma_tiplab_angle_reactive(input$upgma_tiplab_angle)
-    }
-    
-    if(!is.null(input$upgma_geom)) {
-      upgma_geom_reactive(input$upgma_geom)
-    }
-    
-    if(!is.null(input$upgma_tiplab_labelradius)) {
-      upgma_tiplab_labelradius_reactive(input$upgma_tiplab_labelradius)
-    }
-    
-    if(!is.null(input$upgma_tiplab_padding)) {
-      upgma_tiplab_padding_reactive(input$upgma_tiplab_padding)
-    }
-    
-    if(!is.null(input$upgma_show_branch_label)) {
-      upgma_show_branch_label_reactive(input$upgma_show_branch_label)
-    }
-    
-    if(!is.null(input$upgma_branch_label)) {
-      upgma_branch_label_reactive(input$upgma_branch_label)
-    }
-    
-    if(!is.null(input$upgma_branchlab_alpha)) {
-      upgma_branchlab_alpha_reactive(input$upgma_branchlab_alpha)
-    }
-    
-    if(!is.null(input$upgma_branch_x)) {
-      upgma_branch_x_reactive(input$upgma_branch_x)
-    }
-    
-    if(!is.null(input$upgma_branch_y)) {
-      upgma_branch_y_reactive(input$upgma_branch_y)
-    }
-    
-    if(!is.null(input$upgma_branchlab_fontface)) {
-      upgma_branchlab_fontface_reactive(input$upgma_branchlab_fontface)
-    }
-    
-    if(!is.null(input$upgma_branch_labelradius)) {
-      upgma_branch_labelradius_reactive(input$upgma_branch_labelradius)
-    }
-    
-    if(!is.null(input$upgma_title)) {
-      upgma_title_reactive(input$upgma_title)
-    }
-    
-    if(!is.null(input$upgma_title_size)) {
-      upgma_title_size_reactive(input$upgma_title_size)
-    }
-    
-    if(!is.null(input$upgma_subtitle)) {
-      upgma_subtitle_reactive(input$upgma_subtitle)
-    }
-    
-    if(!is.null(input$upgma_subtitle_size)) {
-      upgma_subtitle_size_reactive(input$upgma_subtitle_size)
-    }
-  })
-  
-  observeEvent(input$upgma_label_menu, {
-    
-    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-    
-    if(!is.null(upgma_tiplab_show_reactive())) {
-      upgma_tiplab_show_selected <- upgma_tiplab_show_reactive()
-    } else {
-      upgma_tiplab_show_selected <- TRUE
-    }
-    
-    if(!is.null(upgma_align_reactive())) {
-      upgma_align_selected <- upgma_align_reactive()
-    } else {
-      upgma_align_selected <- FALSE
-    }
-    
-    if(!is.null(upgma_tiplab_fontface_reactive())) {
-      upgma_tiplab_fontface_selected <- upgma_tiplab_fontface_reactive()
-    } else {
-      upgma_tiplab_fontface_selected <- "plain"
-    }
-    
-    if(!is.null(upgma_tiplab_alpha_reactive())) {
-      upgma_tiplab_alpha_selected <- upgma_tiplab_alpha_reactive()
-    } else {
-      upgma_tiplab_alpha_selected <- 1
-    }
-    
-    if(!is.null(upgma_tiplab_nudge_x_reactive())) {
-      upgma_tiplab_nudge_x_selected <- upgma_tiplab_nudge_x_reactive()
-    } else {
-      upgma_tiplab_nudge_x_selected <- 1
-    }
-    
-    if(!is.null(upgma_tiplab_position_reactive())) {
-      upgma_tiplab_position_selected <- upgma_tiplab_position_reactive()
-    } else {
-      upgma_tiplab_position_selected <- -0.05
-    }
-    
-    if(!is.null(upgma_tiplab_position_inw_reactive())) {
-      upgma_tiplab_position_inw_selected <- upgma_tiplab_position_inw_reactive()
-    } else {
-      upgma_tiplab_position_inw_selected <- 1.1
-    }
-    
-    if(!is.null(upgma_tiplab_angle_reactive())) {
-      upgma_tiplab_angle_selected <- upgma_tiplab_angle_reactive()
-    } else {
-      upgma_tiplab_angle_selected <- 0
-    }
-    
-    if(!is.null(upgma_geom_reactive())) {
-      upgma_geom_selected <- upgma_geom_reactive()
-    } else {
-      upgma_geom_selected <- FALSE
-    }
-    
-    if(!is.null(upgma_tiplab_labelradius_reactive())) {
-      upgma_tiplab_labelradius_selected <- upgma_tiplab_labelradius_reactive()
-    } else {
-      upgma_tiplab_labelradius_selected <- 0.2
-    }
-    
-    if(!is.null(upgma_show_branch_label_reactive())) {
-      upgma_show_branch_label_selected <- upgma_show_branch_label_reactive()
-    } else {
-      upgma_show_branch_label_selected <- FALSE
-    }
-    
-    if(!is.null(upgma_branchlab_alpha_reactive())) {
-      upgma_branchlab_alpha_selected <- upgma_branchlab_alpha_reactive()
-    } else {
-      upgma_branchlab_alpha_selected <- 0.65
-    }
-    
-    if(!is.null(upgma_branch_x_reactive())) {
-      upgma_branch_x_selected <- upgma_branch_x_reactive()
-    } else {
-      upgma_branch_x_selected <- 0
-    }
-    
-    if(!is.null(upgma_branch_y_reactive())) {
-      upgma_branch_y_selected <- upgma_branch_y_reactive()
-    } else {
-      upgma_branch_y_selected <- 0
-    }
-    
-    if(!is.null(upgma_branchlab_fontface_reactive())) {
-      upgma_branchlab_fontface_selected <- upgma_branchlab_fontface_reactive()
-    } else {
-      upgma_branchlab_fontface_selected <- "plain"
-    }
-    
-    if(!is.null(upgma_branch_labelradius_reactive())) {
-      upgma_branch_labelradius_selected <- upgma_branch_labelradius_reactive()
-    } else {
-      upgma_branch_labelradius_selected <- 0.5
-    }
-    
-    if(!is.null(upgma_title_reactive())) {
-      upgma_title_selected <- upgma_title_reactive()
-    } else {
-      upgma_title_selected <- NULL
-    }
-    
-    if(!is.null(upgma_title_size_reactive())) {
-      upgma_title_size_selected <- upgma_title_size_reactive()
-    } else {
-      upgma_title_size_selected <- 30
-    }
-    
-    if(!is.null(upgma_subtitle_reactive())) {
-      upgma_subtitle_selected <- upgma_subtitle_reactive()
-    } else {
-      upgma_subtitle_selected <- NULL
-    }
-    
-    if(!is.null(upgma_subtitle_size_reactive())) {
-      upgma_subtitle_size_selected <- upgma_subtitle_size_reactive()
-    } else {
-      upgma_subtitle_size_selected <- 30
-    }
-    
-    output$upgma_controls <- renderUI(
-      div(
-        class = "control-box",
-        box(
-          solidHeader = TRUE,
-          status = "primary",
-          width = "100%",
-          title = "Labels",
-          fluidRow(
-            column(
-              width = 12,
-              align = "left",
-              br(),
-              fluidRow(
-                column(
-                  width = 6,
-                  align = "left",
-                  h4(p("Isolate Label"), style = "color:white; position: relative; right: -15px; "),   
-                ),
-                column(
-                  width = 6,
-                  align = "left",
-                  div(
-                    class = "mat-switch-lab",
-                    materialSwitch(
-                      "upgma_tiplab_show",
-                      "",
-                      value = upgma_tiplab_show_selected
-                    )
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 9,
-                  align = "left",
-                  div(
-                    class = "upgma-label-sel",
-                    uiOutput("upgma_tiplab")
-                  )   
-                ),
-                column(
-                  width = 3,
-                  align = "center",
-                  dropMenu(
-                    actionBttn(
-                      "upgma_labeltext_menu",
-                      label = "",
-                      color = "default",
-                      size = "sm",
-                      style = "material-flat",
-                      icon = icon("sliders")
-                    ),
-                    placement = "top-start",
-                    theme = "translucent",
-                    fluidRow(
-                      column(
-                        width = 6,
-                        align = "center",
-                        div(
-                          class = "mat-switch-align",
-                          materialSwitch(
-                            "upgma_align",
-                            h5(p("Align"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                            value = upgma_align_selected,
-                            right = TRUE
-                          )
-                        ),
-                        br(),
-                        selectInput(
-                          "upgma_tiplab_fontface",
-                          label = h5("Fontface", style = "color:white; margin-bottom: 5px; margin-top: 16px"),
-                          width = "250px",
-                          choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic"),
-                          selected = upgma_tiplab_fontface_selected
-                        ),
-                        br(),
-                        uiOutput("upgma_tiplab_size")
-                      ),
-                      column(
-                        width = 6,
-                        align = "center",
-                        sliderInput(
-                          "upgma_tiplab_alpha",
-                          label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                          min = 0.1,
-                          max = 1,
-                          value = upgma_tiplab_alpha_selected,
-                          width = "150px",
-                          ticks = FALSE
-                        ),
-                        br(),
-                        conditionalPanel(
-                          "!(input.upgma_layout=='inward'|input.upgma_layout=='circular')",
-                          sliderInput(
-                            inputId = "upgma_tiplab_nudge_x",
-                            label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                            min = -3,
-                            max = 3,
-                            step = 0.05,
-                            value = upgma_tiplab_nudge_x_selected,
-                            width = "150px",
-                            ticks = FALSE
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.upgma_layout=='circular'",
-                          sliderInput(
-                            inputId = "upgma_tiplab_position",
-                            label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                            min = -3,
-                            max = 3,
-                            step = 0.05,
-                            value = upgma_tiplab_position_selected,
-                            width = "150px",
-                            ticks = FALSE
-                          )
-                        ),
-                        conditionalPanel(
-                          "input.upgma_layout=='inward'",
-                          sliderInput(
-                            inputId = "upgma_tiplab_position_inw",
-                            label = h5("Position", style = "color:white; margin-bottom: 0px"),
-                            min = -3,
-                            max = 3,
-                            step = 0.05,
-                            value = upgma_tiplab_position_inw_selected,
-                            width = "150px",
-                            ticks = FALSE
-                          )
-                        ),
-                        br(),
-                        sliderInput(
-                          inputId = "upgma_tiplab_angle",
-                          label = h5("Angle", style = "color:white; margin-bottom: 0px"),
-                          min = -90,
-                          max = 90,
-                          value = upgma_tiplab_angle_selected,
-                          ticks = FALSE,
-                          width = "150px",
-                        )      
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          ),
-          fluidRow(
-            column(
-              width = 8,
-              div(
-                class = "mat-switch-geom",
-                materialSwitch(
-                  "upgma_geom",
-                  h5(p("Panels"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: 5px;"),
-                  value = upgma_geom_selected,
-                  right = FALSE
-                )
-              )
-            ),
-            column(
-              width = 4,
-              dropMenu(
-                actionBttn(
-                  "upgma_labelformat_menu",
-                  label = "",
-                  color = "default",
-                  size = "sm",
-                  style = "material-flat",
-                  icon = icon("sliders")
-                ),
-                placement = "top-start",
-                theme = "translucent",
-                fluidRow(
-                  column(
-                    width = 12,
-                    align = "center",
-                    uiOutput("upgma_tiplab_padding"),
-                    br(),
-                    sliderInput(
-                      inputId = "upgma_tiplab_labelradius",
-                      label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
-                      min = 0,
-                      max = 0.5,
-                      value = upgma_tiplab_labelradius_selected,
-                      width = "150px",
-                      ticks = FALSE
-                    )
-                  )
-                )
-              )
-            )
-          ),
-          hr(),
-          fluidRow(
-            column(
-              width = 12,
-              align = "left",
-              fluidRow(
-                column(
-                  width = 6,
-                  align = "left",
-                  h4(p("Branches"), style = "color:white; position: relative; right: -15px;"),
-                ),
-                column(
-                  width = 6,
-                  align = "left",
-                  div(
-                    class = "mat-switch-lab",
-                    materialSwitch(
-                      "upgma_show_branch_label",
-                      "",
-                      value = upgma_show_branch_label_selected
-                    )
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 9,
-                  align = "left",
-                  div(
-                    class = "upgma-label-sel",
-                    uiOutput("upgma_branch_label")
-                  )   
-                ),
-                column(
-                  width = 3,
-                  align = "center",
-                  dropMenu(
-                    actionBttn(
-                      "upgma_branch_label_menu",
-                      label = "",
-                      color = "default",
-                      size = "sm",
-                      style = "material-flat",
-                      icon = icon("sliders")
-                    ),
-                    placement = "top-start",
-                    theme = "translucent",
-                    fluidRow(
-                      column(
-                        width = 6,
-                        align = "center",
-                        sliderInput(
-                          "upgma_branchlab_alpha",
-                          label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
-                          min = 0.1,
-                          max = 1,
-                          value = upgma_branchlab_alpha_selected,
-                          width = "250px",
-                          ticks = FALSE
-                        ),
-                        br(),
-                        sliderInput(
-                          inputId = "upgma_branch_x",
-                          label = h5("X Position", style = "color:white; margin-bottom: 0px"),
-                          min = -3,
-                          max = 3,
-                          value = upgma_branch_x_selected,
-                          width = "250px",
-                          ticks = FALSE
-                        ),
-                        br(),
-                        sliderInput(
-                          inputId = "upgma_branch_y",
-                          label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
-                          min = -3,
-                          max = 3,
-                          value = upgma_branch_y_selected,
-                          width = "250px",
-                          ticks = FALSE
-                        )
-                      ),
-                      column(
-                        width = 6,
-                        align = "center",
-                        uiOutput("upgma_branch_size"),
-                        selectInput(
-                          "upgma_branchlab_fontface",
-                          label = h5("Fontface", style = "color:white; margin-bottom: 0px;"),
-                          width = "250px",
-                          choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic"),
-                          selected = upgma_branchlab_fontface_selected
-                        ),
-                        br(),
-                        sliderInput(
-                          "upgma_branch_labelradius",
-                          label = h5("Smooth edge", style = "color:white; margin-bottom: 0px"),
-                          min = 0,
-                          max = 0.5,
-                          value = upgma_branch_labelradius_selected,
-                          width = "250px",
-                          ticks = FALSE
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          ),
-          hr(),
-          fluidRow(
-            column(
-              width = 12,
-              align = "left",
-              fluidRow(
-                column(
-                  width = 8,
-                  textInput(
-                    "upgma_title",
-                    label = "",
-                    width = "100%",
-                    placeholder = "Plot Title",
-                    value = upgma_title_selected
-                  )
-                ),
-                column(
-                  width = 4,
-                  dropMenu(
-                    actionBttn(
-                      "upgma_title_menu",
-                      label = "",
-                      color = "default",
-                      size = "sm",
-                      style = "material-flat",
-                      icon = icon("sliders")
-                    ),
-                    placement = "top-start",
-                    theme = "translucent",
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "center",
-                        numericInput(
-                          "upgma_title_size",
-                          label = h5("Title Size", style = "color:white; margin-bottom: 0px"),
-                          value = upgma_title_size_selected,
-                          min = 15,
-                          max = 40,
-                          step = 1,
-                          width = "80px"
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          ),
-          br(),
-          fluidRow(
-            column(
-              width = 12,
-              align = "left",
-              fluidRow(
-                column(
-                  width = 8,
-                  textInput(
-                    "upgma_subtitle",
-                    label = "",
-                    width = "100%",
-                    placeholder = "Plot Subtitle",
-                    selected = upgma_subtitle_selected
-                  )
-                ),
-                column(
-                  width = 4,
-                  dropMenu(
-                    actionBttn(
-                      "upgma_subtitle_menu",
-                      label = "",
-                      color = "default",
-                      size = "sm",
-                      style = "material-flat",
-                      icon = icon("sliders")
-                    ),
-                    placement = "top-start",
-                    theme = "translucent",
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "center",
-                        numericInput(
-                          "upgma_subtitle_size",
-                          label = h5("Subtitle Size", style = "color:white; margin-bottom: 0px"),
-                          value = upgma_subtitle_size_selected,
-                          min = 15,
-                          max = 40,
-                          step = 1,
-                          width = "80px"
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          ),
-          hr(),
-          fluidRow(
-            column(
-              width = 12,
-              align = "left",
-              h4(p("Custom"), style = "color:white; position: relative; right: -15px;"),
-              column(
-                width = 12,
-                align = "center",
-                fluidRow(
-                  column(
-                    width = 7,
-                    textInput(
-                      "upgma_new_label_name",
-                      "",
-                      placeholder = "New Label"
-                    )
-                  ),
-                  column(
-                    width = 3,
-                    actionButton(
-                      "upgma_add_new_label",
-                      "",
-                      icon = icon("plus")
-                    )
-                  ),
-                  column(
-                    width = 2,
-                    align = "right",
-                    dropMenu(
-                      actionBttn(
-                        "upgma_custom_label_menu",
-                        label = "",
-                        color = "default",
-                        size = "sm",
-                        style = "material-flat",
-                        icon = icon("sliders")
-                      ),
-                      placement = "top-end",
-                      theme = "translucent",
-                      fluidRow(
-                        column(
-                          width = 12,
-                          align = "center",
-                          uiOutput("upgma_custom_labelsize"),
-                          br(),
-                          uiOutput("upgma_sliderInput_y"),
-                          br(),
-                          uiOutput("upgma_sliderInput_x")
-                        )
-                      )
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 7,
-                    uiOutput("upgma_custom_label_select")
-                  ),
-                  column(
-                    width = 4,
-                    actionButton(
-                      "upgma_del_label",
-                      "",
-                      icon = icon("minus")
-                    )
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 12,
-                    align = "center",
-                    actionButton(
-                      "upgma_cust_label_save",
-                      "Apply"
-                    )
-                  )
-                )
-              )
-            )
-          )
-        ) 
-      )
-    )
-    
-    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
-  })
   
   ##### Variable Menu ----
   
@@ -11483,6 +10365,7 @@ server <- function(input, output, session) {
   nj_tipcolor_mapping_show_reactive <- reactiveVal(NULL)
   nj_tipcolor_mapping_reactive <- reactiveVal(NULL) 
   nj_tippoint_scale_reactive <- reactiveVal(NULL)
+  nj_tipcolor_mapping_div_mid_reactive <- reactiveVal(NULL) 
   nj_tipshape_mapping_show_reactive <- reactiveVal(NULL)
   nj_tipshape_mapping_reactive <- reactiveVal(NULL)
   nj_tiles_show_1_reactive <- reactiveVal(NULL)
@@ -11500,6 +10383,11 @@ server <- function(input, output, session) {
   nj_tiles_scale_3_reactive <- reactiveVal(NULL)
   nj_tiles_scale_4_reactive <- reactiveVal(NULL)
   nj_tiles_scale_5_reactive <- reactiveVal(NULL)
+  nj_tiles_mapping_div_mid_1_reactive <- reactiveVal(NULL)
+  nj_tiles_mapping_div_mid_2_reactive <- reactiveVal(NULL)
+  nj_tiles_mapping_div_mid_3_reactive <- reactiveVal(NULL)
+  nj_tiles_mapping_div_mid_4_reactive <- reactiveVal(NULL)
+  nj_tiles_mapping_div_mid_5_reactive <- reactiveVal(NULL)
   nj_heatmap_show_reactive <- reactiveVal(NULL)
   nj_heatmap_select_reactive <- reactiveVal(NULL)
   nj_heatmap_scale_reactive <- reactiveVal(NULL)
@@ -11606,6 +10494,26 @@ server <- function(input, output, session) {
       nj_tiles_scale_5_reactive(input$nj_tiles_scale_5)
     }
     
+    if(!is.null(input$nj_tiles_mapping_div_mid_1)) {
+      nj_tiles_mapping_div_mid_1_reactive(input$nj_tiles_mapping_div_mid_1)
+    }
+    
+    if(!is.null(input$nj_tiles_mapping_div_mid_2)) {
+      nj_tiles_mapping_div_mid_2_reactive(input$nj_tiles_mapping_div_mid_2)
+    }
+    
+    if(!is.null(input$nj_tiles_mapping_div_mid_3)) {
+      nj_tiles_mapping_div_mid_3_reactive(input$nj_tiles_mapping_div_mid_3)
+    }
+    
+    if(!is.null(input$nj_tiles_scale_nj_tiles_mapping_div_mid_4)) {
+      nj_tiles_mapping_div_mid_4_reactive(input$nj_tiles_mapping_div_mid_4)
+    }
+    
+    if(!is.null(input$nj_tiles_mapping_div_mid_5)) {
+      nj_tiles_mapping_div_mid_5_reactive(input$nj_tiles_mapping_div_mid_5)
+    }
+    
     if(!is.null(input$nj_heatmap_show)) {
       nj_heatmap_show_reactive(input$nj_heatmap_show)
     }
@@ -11695,32 +10603,59 @@ server <- function(input, output, session) {
               align = "left",
               br(),
               fluidRow(
-                column(
-                  width = 8,
-                  align = "left",
-                  h4(p("Tip Label Color"), style = "color:white; position: relative; right: -15px; ")
+                div(
+                  class = "nj-label-control-col",
+                  column(
+                    width = 8,
+                    align = "left",
+                    h4(p("Tip Label Color"), style = "color:white; position: relative; right: -15px; ")
+                  )
                 ),
-                column(
-                  width = 4,
-                  align = "center",
-                  div(
-                    class = "mat-switch-v",
-                    materialSwitch(
-                      "nj_mapping_show",
-                      "",
-                      value = nj_mapping_show_selected
+                div(
+                  class = "nj-label-control-col",
+                  column(
+                    width = 4,
+                    align = "center",
+                    div(
+                      class = "mat-switch-v",
+                      materialSwitch(
+                        "nj_mapping_show",
+                        "",
+                        value = nj_mapping_show_selected
+                      )
                     )
                   )
                 )
               ),
               fluidRow(
                 column(
-                  width = 6,
+                  width = 8,
                   uiOutput("nj_color_mapping")
                 ),
                 column(
-                  width = 6,
-                  uiOutput("nj_tiplab_scale")
+                  width = 3,
+                  align = "center",
+                  dropMenu(
+                    actionBttn(
+                      "nj_variable_tiplab_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "right",
+                    theme = "translucent",
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        uiOutput("nj_tiplab_scale"),
+                        br(),
+                        uiOutput("nj_tiplab_mid_scale")
+                      )
+                    )
+                  )
                 )
               ),
               fluidRow(
@@ -11731,32 +10666,59 @@ server <- function(input, output, session) {
               ),
               hr(),
               fluidRow(
-                column(
-                  width = 8,
-                  align = "left",
-                  h4(p("Tip Point Color"), style = "color:white; position: relative; right: -15px; ")
+                div(
+                  class = "nj-label-control-col",
+                  column(
+                    width = 8,
+                    align = "left",
+                    h4(p("Tip Point Color"), style = "color:white; position: relative; right: -15px; ")
+                  )
                 ),
-                column(
-                  width = 4,
-                  align = "center",
-                  div(
-                    class = "mat-switch-v",
-                    materialSwitch(
-                      "nj_tipcolor_mapping_show",
-                      "",
-                      value = nj_tipcolor_mapping_show_selected
+                div(
+                  class = "nj-label-control-col",
+                  column(
+                    width = 4,
+                    align = "center",
+                    div(
+                      class = "mat-switch-v",
+                      materialSwitch(
+                        "nj_tipcolor_mapping_show",
+                        "",
+                        value = nj_tipcolor_mapping_show_selected
+                      )
                     )
                   )
                 )
               ),
               fluidRow(
                 column(
-                  width = 6,
+                  width = 8,
                   uiOutput("nj_tipcolor_mapping")
                 ),
                 column(
-                  width = 6,
-                  uiOutput("nj_tippoint_scale")
+                  width = 3,
+                  align = "center",
+                  dropMenu(
+                    actionBttn(
+                      "nj_variable_tipcolor_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "right",
+                    theme = "translucent",
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        uiOutput("nj_tippoint_scale"),
+                        br(),
+                        uiOutput("nj_tippoint_mid_scale")
+                      )
+                    )
+                  )
                 )
               ),
               fluidRow(
@@ -11767,20 +10729,26 @@ server <- function(input, output, session) {
               ),
               hr(),
               fluidRow(
-                column(
-                  width = 8,
-                  align = "left",
-                  h4(p("Tip Point Shape"), style = "color:white; position: relative; right: -15px; ")
+                div(
+                  class = "nj-label-control-col",
+                  column(
+                    width = 8,
+                    align = "left",
+                    h4(p("Tip Point Shape"), style = "color:white; position: relative; right: -15px; ")
+                  )
                 ),
-                column(
-                  width = 4,
-                  align = "center",
-                  div(
-                    class = "mat-switch-v",
-                    materialSwitch(
-                      "nj_tipshape_mapping_show",
-                      "",
-                      value = nj_tipshape_mapping_show_selected
+                div(
+                  class = "nj-label-control-col",
+                  column(
+                    width = 4,
+                    align = "center",
+                    div(
+                      class = "mat-switch-v",
+                      materialSwitch(
+                        "nj_tipshape_mapping_show",
+                        "",
+                        value = nj_tipshape_mapping_show_selected
+                      )
                     )
                   )
                 )
@@ -11789,7 +10757,7 @@ server <- function(input, output, session) {
                 column(
                   width = 6,
                   uiOutput("nj_tipshape_mapping")
-                ),
+                )
               ),
               fluidRow(
                 column(
@@ -11799,20 +10767,26 @@ server <- function(input, output, session) {
               ),
               hr(),
               fluidRow(
-                column(
-                  width = 4,
-                  align = "left",
-                  h4(p("Tiles"), style = "color:white; position: relative; right: -15px; ")
+                div(
+                  class = "nj-label-control-col",
+                  column(
+                    width = 4,
+                    align = "left",
+                    h4(p("Tiles"), style = "color:white; position: relative; right: -15px; ")
+                  )
                 ),
-                column(
-                  width = 4,
-                  div(
-                    class = "tile-sel",
-                    selectInput(
-                      "nj_tile_num",
-                      "",
-                      choices = 1:5,
-                      width = "50px"
+                div(
+                  class = "nj-label-control-col",
+                  column(
+                    width = 4,
+                    div(
+                      class = "tile-sel",
+                      selectInput(
+                        "nj_tile_num",
+                        "",
+                        choices = 1:5,
+                        width = "50px"
+                      )
                     )
                   )
                 ),
@@ -11878,7 +10852,7 @@ server <- function(input, output, session) {
               ),
               fluidRow(
                 column(
-                  width = 6,
+                  width = 8,
                   conditionalPanel(
                     "input.nj_tile_num == 1",
                     uiOutput("nj_fruit_variable")
@@ -11901,26 +10875,55 @@ server <- function(input, output, session) {
                   )
                 ),
                 column(
-                  width = 6,
-                  conditionalPanel(
-                    "input.nj_tile_num == 1",
-                    uiOutput("nj_tiles_scale_1")
-                  ),
-                  conditionalPanel(
-                    "input.nj_tile_num == 2",
-                    uiOutput("nj_tiles_scale_2")
-                  ),
-                  conditionalPanel(
-                    "input.nj_tile_num == 3",
-                    uiOutput("nj_tiles_scale_3")
-                  ),
-                  conditionalPanel(
-                    "input.nj_tile_num == 4",
-                    uiOutput("nj_tiles_scale_4")
-                  ),
-                  conditionalPanel(
-                    "input.nj_tile_num == 5",
-                    uiOutput("nj_tiles_scale_5")
+                  width = 3,
+                  align = "center",
+                  dropMenu(
+                    actionBttn(
+                      "nj_variable_tiles_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "right",
+                    theme = "translucent",
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        conditionalPanel(
+                          "input.nj_tile_num == 1",
+                          uiOutput("nj_tiles_scale_1"),
+                          br(),
+                          uiOutput("nj_tiles_mid_scale_1")
+                        ),
+                        conditionalPanel(
+                          "input.nj_tile_num == 2",
+                          uiOutput("nj_tiles_scale_2"),
+                          br(),
+                          uiOutput("nj_tiles_mid_scale_2")
+                        ),
+                        conditionalPanel(
+                          "input.nj_tile_num == 3",
+                          uiOutput("nj_tiles_scale_3"),
+                          br(),
+                          uiOutput("nj_tiles_mid_scale_3")
+                        ),
+                        conditionalPanel(
+                          "input.nj_tile_num == 4",
+                          uiOutput("nj_tiles_scale_4"),
+                          br(),
+                          uiOutput("nj_tiles_mid_scale_4")
+                        ),
+                        conditionalPanel(
+                          "input.nj_tile_num == 5",
+                          uiOutput("nj_tiles_scale_5"),
+                          br(),
+                          uiOutput("nj_tiles_mid_scale_5")
+                        )
+                      )
+                    )
                   )
                 )
               ), 
@@ -11932,32 +10935,57 @@ server <- function(input, output, session) {
               ),
               hr(),
               fluidRow(
-                column(
-                  width = 8,
-                  align = "left",
-                  h4(p("Heatmap"), style = "color:white; position: relative; right: -15px; ")
+                div(
+                  class = "nj-label-control-col",
+                  column(
+                    width = 8,
+                    align = "left",
+                    h4(p("Heatmap"), style = "color:white; position: relative; right: -15px; ")
+                  )
                 ),
-                column(
-                  width = 4,
-                  align = "center",
-                  div(
-                    class = "mat-switch-v",
-                    materialSwitch(
-                      "nj_heatmap_show",
-                      "",
-                      value = nj_heatmap_show_selected
+                div(
+                  class = "nj-label-control-col",
+                  column(
+                    width = 4,
+                    align = "center",
+                    div(
+                      class = "mat-switch-v",
+                      materialSwitch(
+                        "nj_heatmap_show",
+                        "",
+                        value = nj_heatmap_show_selected
+                      )
                     )
                   )
                 )
               ),
               fluidRow(
                 column(
-                  width = 6,
+                  width = 8,
                   uiOutput("nj_heatmap_sel")
                 ),
                 column(
-                  width = 6,
-                  uiOutput("nj_heatmap_scale")
+                  width = 3,
+                  align = "center",
+                  dropMenu(
+                    actionBttn(
+                      "nj_variable_heatmap_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "right",
+                    theme = "translucent",
+                    fluidRow(
+                      column(
+                        width = 12,
+                        align = "center",
+                        uiOutput("nj_heatmap_scale")
+                      )
+                    )
+                  )
                 )
               ),
               fluidRow(
@@ -12675,6 +11703,7 @@ server <- function(input, output, session) {
                           label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
                           value = nj_tippoint_alpha_selected,
                           min = 0.1,
+                          step = 0.05,
                           max = 1,
                           width = "150px",
                           ticks = FALSE
@@ -12748,6 +11777,7 @@ server <- function(input, output, session) {
                           label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
                           value = nj_nodepoint_alpha_selected,
                           min = 0.1,
+                          step = 0.05,
                           max = 1,
                           width = "150px",
                           ticks = FALSE
@@ -13996,60 +13026,59 @@ server <- function(input, output, session) {
   
   # Control enable/disable of variable mapping inputs
   observe({
-    shinyjs::toggleState(id = "nj_color_mapping", condition = isTRUE(input$nj_mapping_show))
-    shinyjs::toggleState(id = "nj_tiplab_scale", condition = isTRUE(input$nj_mapping_show))
-    shinyjs::toggleState(id = "upgma_color_mapping", condition = isTRUE(input$upgma_mapping_show))
-    shinyjs::toggleState(id = "upgma_tiplab_scale", condition = isTRUE(input$upgma_mapping_show))
+    shinyjs::toggleState(id = "nj_color_mapping", condition = isTRUE(nj_mapping_show_reactive()))
+    shinyjs::toggleState(id = "nj_tiplab_scale", condition = isTRUE(nj_mapping_show_reactive()))
+    # shinyjs::toggleState(id = "upgma_color_mapping", condition = isTRUE(upgma_mapping_show_reactive()))
+    # shinyjs::toggleState(id = "upgma_tiplab_scale", condition = isTRUE(upgma_mapping_show_reactive()))
     
-    shinyjs::toggleState(id = "nj_tipcolor_mapping", condition = isTRUE(input$nj_tipcolor_mapping_show))
-    shinyjs::toggleState(id = "nj_tippoint_scale", condition = isTRUE(input$nj_tipcolor_mapping_show))
-    shinyjs::toggleState(id = "upgma_tipcolor_mapping", condition = isTRUE(input$upgma_tipcolor_mapping_show))
-    shinyjs::toggleState(id = "upgma_tippoint_scale", condition = isTRUE(input$upgma_tipcolor_mapping_show))
+    shinyjs::toggleState(id = "nj_tipcolor_mapping", condition = isTRUE(nj_tipcolor_mapping_show_reactive()))
+    shinyjs::toggleState(id = "nj_tippoint_scale", condition = isTRUE(nj_tipcolor_mapping_show_reactive()))
+    # shinyjs::toggleState(id = "upgma_tipcolor_mapping", condition = isTRUE(upgma_tipcolor_mapping_show_reactive()))
+    # shinyjs::toggleState(id = "upgma_tippoint_scale", condition = isTRUE(upgma_tipcolor_mapping_show_reactive()))
     
-    shinyjs::toggleState(id = "nj_tipshape_mapping", condition = isTRUE(input$nj_tipshape_mapping_show))
-    shinyjs::toggleState(id = "upgma_tipshape_mapping", condition = isTRUE(input$upgma_tipshape_mapping_show))
+    shinyjs::toggleState(id = "nj_tipshape_mapping", condition = isTRUE(nj_tipshape_mapping_show_reactive()))
+    # shinyjs::toggleState(id = "upgma_tipshape_mapping", condition = isTRUE(upgma_tipshape_mapping_show_reactive()))
     
-    shinyjs::toggleState(id = "nj_fruit_variable", condition = isTRUE(input$nj_tiles_show_1))
-    shinyjs::toggleState(id = "upgma_fruit_variable", condition = isTRUE(input$upgma_tiles_show_1))
-    shinyjs::toggleState(id = "nj_fruit_variable_2", condition = isTRUE(input$nj_tiles_show_2))
-    shinyjs::toggleState(id = "upgma_fruit_variable_2", condition = isTRUE(input$upgma_tiles_show_2))
-    shinyjs::toggleState(id = "nj_fruit_variable_3", condition = isTRUE(input$nj_tiles_show_3))
-    shinyjs::toggleState(id = "upgma_fruit_variable_3", condition = isTRUE(input$upgma_tiles_show_3))
-    shinyjs::toggleState(id = "nj_fruit_variable_4", condition = isTRUE(input$nj_tiles_show_4))
-    shinyjs::toggleState(id = "upgma_fruit_variable_4", condition = isTRUE(input$upgma_tiles_show_4))
-    shinyjs::toggleState(id = "nj_fruit_variable_5", condition = isTRUE(input$nj_tiles_show_5))
-    shinyjs::toggleState(id = "upgma_fruit_variable_5", condition = isTRUE(input$upgma_tiles_show_5))
-    shinyjs::toggleState(id = "nj_tiles_scale_1", condition = isTRUE(input$nj_tiles_show_1))
-    shinyjs::toggleState(id = "upgma_tiles_scale_1", condition = isTRUE(input$upgma_tiles_show_1))
-    shinyjs::toggleState(id = "nj_tiles_scale_2", condition = isTRUE(input$nj_tiles_show_2))
-    shinyjs::toggleState(id = "upgma_tiles_scale_2", condition = isTRUE(input$upgma_tiles_show_2))
-    shinyjs::toggleState(id = "nj_tiles_scale_3", condition = isTRUE(input$nj_tiles_show_3))
-    shinyjs::toggleState(id = "upgma_tiles_scale_3", condition = isTRUE(input$upgma_tiles_show_3))
-    shinyjs::toggleState(id = "nj_tiles_scale_4", condition = isTRUE(input$nj_tiles_show_4))
-    shinyjs::toggleState(id = "upgma_tiles_scale_4", condition = isTRUE(input$upgma_tiles_show_4))
-    shinyjs::toggleState(id = "nj_tiles_scale_5", condition = isTRUE(input$nj_tiles_show_5))
-    shinyjs::toggleState(id = "upgma_tiles_scale_5", condition = isTRUE(input$upgma_tiles_show_5))
+    shinyjs::toggleState(id = "nj_fruit_variable", condition = isTRUE(nj_tiles_show_1_reactive()))
+    # shinyjs::toggleState(id = "upgma_fruit_variable", condition = isTRUE(upgma_tiles_show_1_reactive()))
+    shinyjs::toggleState(id = "nj_fruit_variable_2", condition = isTRUE(nj_tiles_show_2_reactive()))
+    # shinyjs::toggleState(id = "upgma_fruit_variable_2", condition = isTRUE(upgma_tiles_show_2_reactive()))
+    shinyjs::toggleState(id = "nj_fruit_variable_3", condition = isTRUE(nj_tiles_show_3_reactive()))
+    # shinyjs::toggleState(id = "upgma_fruit_variable_3", condition = isTRUE(upgma_tiles_show_3_reactive()))
+    shinyjs::toggleState(id = "nj_fruit_variable_4", condition = isTRUE(nj_tiles_show_4_reactive()))
+    # shinyjs::toggleState(id = "upgma_fruit_variable_4", condition = isTRUE(upgma_tiles_show_4_reactive()))
+    shinyjs::toggleState(id = "nj_fruit_variable_5", condition = isTRUE(nj_tiles_show_5_reactive()))
+    # shinyjs::toggleState(id = "upgma_fruit_variable_5", condition = isTRUE(upgma_tiles_show_5_reactive()))
+    shinyjs::toggleState(id = "nj_tiles_scale_1", condition = isTRUE(nj_tiles_show_1_reactive()))
+    # shinyjs::toggleState(id = "upgma_tiles_scale_1", condition = isTRUE(upgma_tiles_show_1_reactive()))
+    shinyjs::toggleState(id = "nj_tiles_scale_2", condition = isTRUE(nj_tiles_show_2_reactive()))
+    # shinyjs::toggleState(id = "upgma_tiles_scale_2", condition = isTRUE(upgma_tiles_show_2_reactive()))
+    shinyjs::toggleState(id = "nj_tiles_scale_3", condition = isTRUE(nj_tiles_show_3_reactive()))
+    # shinyjs::toggleState(id = "upgma_tiles_scale_3", condition = isTRUE(upgma_tiles_show_3_reactive()))
+    shinyjs::toggleState(id = "nj_tiles_scale_4", condition = isTRUE(nj_tiles_show_4_reactive()))
+    # shinyjs::toggleState(id = "upgma_tiles_scale_4", condition = isTRUE(upgma_tiles_show_4_reactive()))
+    shinyjs::toggleState(id = "nj_tiles_scale_5", condition = isTRUE(nj_tiles_show_5_reactive()))
+    # shinyjs::toggleState(id = "upgma_tiles_scale_5", condition = isTRUE(upgma_tiles_show_5_reactive()))
     
-    shinyjs::toggleState(id = "nj_heatmap_sel", condition = isTRUE(input$nj_heatmap_show))
-    shinyjs::toggleState(id = "nj_heatmap_scale", condition = isTRUE(input$nj_heatmap_show))
-    shinyjs::toggleState(id = "upgma_heatmap_sel", condition = isTRUE(input$upgma_heatmap_show))
-    shinyjs::toggleState(id = "upgma_heatmap_scale", condition = isTRUE(input$upgma_heatmap_show))
-    shinyjs::toggleState(id = "nj_heatmap_button", condition = isTRUE(input$nj_heatmap_show))
-    shinyjs::toggleState(id = "upgma_heatmap_button", condition = isTRUE(input$upgma_heatmap_show))
+    shinyjs::toggleState(id = "nj_heatmap_sel", condition = isTRUE(nj_heatmap_show_reactive()))
+    shinyjs::toggleState(id = "nj_heatmap_scale", condition = isTRUE(nj_heatmap_show_reactive()))
+    # shinyjs::toggleState(id = "upgma_heatmap_sel", condition = isTRUE(upgma_heatmap_show_reactive()))
+    # shinyjs::toggleState(id = "upgma_heatmap_scale", condition = isTRUE(upgma_heatmap_show_reactive()))
+    shinyjs::toggleState(id = "nj_heatmap_button", condition = isTRUE(nj_heatmap_show_reactive()))
+    # shinyjs::toggleState(id = "upgma_heatmap_button", condition = isTRUE(upgma_heatmap_show_reactive()))
     shinyjs::toggleState(id = "nj_heatmap_button", condition = isTRUE(Vis$nj_true))
-    shinyjs::toggleState(id = "upgma_heatmap_button", condition = isTRUE(Vis$upgma_true))
+    # shinyjs::toggleState(id = "upgma_heatmap_button", condition = isTRUE(Vis$upgma_true))
   })
   
   # Size scaling NJ
   observe({
-    req(input$nj_ratio)
-    if(input$nj_ratio == "1.6") {
+    if(equals(nj_ratio_reactive(), "1.6")) {
       updateSliderInput(session, "nj_scale",
                         step = 5, value = 600, min = 450, max = 670)
-    } else if(input$nj_ratio == "1.77777777777778") {
+    } else if(equals(nj_ratio_reactive(), "1.77777777777778")) {
       updateSliderInput(session, "nj_scale",
                         step = 9, value = 657, min = 450, max = 666)
-    } else if(input$nj_ratio == "1.33333333333333"){
+    } else if(equals(nj_ratio_reactive(), "1.33333333333333")) {
       updateSliderInput(session, "nj_scale",
                         step = 3, value = 654, min = 450, max = 669)
     }
@@ -14070,30 +13099,14 @@ server <- function(input, output, session) {
     }
   })
   
-  # Size scaling MST
-  observe({
-    req(input$mst_ratio)
-    if(input$mst_ratio == "1.6") {
-      updateSliderInput(session, "mst_scale",
-                        step = 5, value = 600, min = 450, max = 670)
-    } else if(input$mst_ratio == "1.77777777777778") {
-      updateSliderInput(session, "mst_scale",
-                        step = 9, value = 657, min = 450, max = 666)
-    } else if(input$mst_ratio == "1.33333333333333"){
-      updateSliderInput(session, "mst_scale",
-                        step = 3, value = 654, min = 450, max = 669)
-    }
-  })
-  
-  # Custom Labels
-  
+  ### Custom Labels
   # Add custom label
   observeEvent(input$nj_add_new_label, {
     
     if(nchar(input$nj_new_label_name) > 0) {
       if(!(input$nj_new_label_name %in% Vis$custom_label_nj)) {
         Vis$custom_label_nj <- rbind(Vis$custom_label_nj, input$nj_new_label_name) 
-        if(!(nrow(Vis$custom_label_nj) == 1)) {
+        if(nrow(Vis$custom_label_nj) != 1) {
           updateSelectInput(session, "nj_custom_label_sel", selected = input$nj_new_label_name)
         }
       } else {
@@ -14169,25 +13182,19 @@ server <- function(input, output, session) {
   output$nj_custom_label_select <- renderUI({
     if(!is.null(Vis$custom_label_nj)) {
       if(nrow(Vis$custom_label_nj) > 0) {
-        selectInput(
-          "nj_custom_label_sel",
-          "",
-          choices = Vis$custom_label_nj[,1]
-        )
+        choices <- Vis$custom_label_nj[,1]
       } else {
-        selectInput(
-          "nj_custom_label_sel",
-          "",
-          choices = NULL
-        )
+        choices <- NULL
       }
     } else{
-      selectInput(
-        "nj_custom_label_sel",
-        "",
-        choices = NULL
-      )
+      choices <- NULL
     }
+    
+    selectInput(
+      "nj_custom_label_sel",
+      "",
+      choices = choices
+    )
   })
   
   output$upgma_custom_label_select <- renderUI({
@@ -14258,27 +13265,29 @@ server <- function(input, output, session) {
   output$nj_sliderInput_y <- renderUI({
     if(!is.null(Vis$custom_label_nj)) {
       if(length(Vis$custom_label_nj) > 0) {
+        
+        inputId <- paste0("nj_slider_", input$nj_custom_label_sel, "_y")
+        max <- sum(DB$data$Include)
+        
         if(!is.null(Vis$nj_label_pos_y[[input$nj_custom_label_sel]])) {
-          sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
-                      label = "",
-                      min = 0, max = 50, step = 1, ticks = F,
-                      value = Vis$nj_label_pos_y[[input$nj_custom_label_sel]],
-                      width = "150px")
+          value <- Vis$nj_label_pos_y[[input$nj_custom_label_sel]]
         } else {
-          sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_y"),
-                      label = "",
-                      min = 0, max = sum(DB$data$Include), step = 1, ticks = F, 
-                      value = sum(DB$data$Include) / 2,
-                      width = "150px")
+          value <- round(sum(DB$data$Include) / 2, 0)
         }
       } 
     } else {
-      sliderInput(inputId = paste0("nj_slider_y"),
-                  label = "",
-                  min = 0, 10, 0, step = 1, ticks = F, 
-                  value = round(10 / 2, 0),
-                  width = "150px")
+      inputId <- "nj_slider_y"
+      max <- 10
+      value <- 5
     }
+    
+    sliderInput(inputId = inputId,
+                label = "",
+                min = 0, 
+                max = max, 
+                value = value,
+                width = "150px",
+                ticks = FALSE)
   })
   
   output$upgma_sliderInput_y <- renderUI({
@@ -14302,37 +13311,39 @@ server <- function(input, output, session) {
   output$nj_sliderInput_x <- renderUI({
     if(!is.null(Vis$custom_label_nj)) {
       if(length(Vis$custom_label_nj) > 0) {
+        inputId <- paste0("nj_slider_", input$nj_custom_label_sel, "_x")
+        
         if(!is.null(Vis$nj_label_pos_x[[input$nj_custom_label_sel]])) {
-          sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
-                      label = "",
-                      min = 0, max = 50, step = 1, ticks = F,
-                      value = Vis$nj_label_pos_x[[input$nj_custom_label_sel]],
-                      width = "100%")
+          max <- 50
+          value <- Vis$nj_label_pos_x[[input$nj_custom_label_sel]]
         } else {
           if(!is.null(Vis$nj_max_x)) {
-            sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
-                        label = "",
-                        min = 0, 
-                        max = round(Vis$nj_max_x, 0), step = 1, ticks = F, 
-                        value = round(Vis$nj_max_x / 2, 0),
-                        width = "100%")
+            max <- round(Vis$nj_max_x, 0)
+            value <- round(Vis$nj_max_x / 2, 0)
           } else {
-            sliderInput(inputId = paste0("nj_slider_", input$nj_custom_label_sel, "_x"),
-                        label = "",
-                        min = 0, 
-                        max = 10, step = 1, ticks = F, 
-                        value = 1,
-                        width = "100%")
+            max <- 10
+            value <- 1
           }
         }
+      } else {
+        inputId <- "nj_slider_x"
+        max <- 10
+        value <- 5
       } 
     } else {
-      sliderInput(inputId = paste0("nj_slider_x"),
-                  label = "",
-                  min = 0, 10, 0, step = 1, ticks = F, 
-                  value = round(10 / 2, 0),
-                  width = "100%")
+      inputId <- "nj_slider_x"
+      max <- 10
+      value <- 5
     }
+    
+    sliderInput(inputId = inputId,
+                label = "",
+                min = 0, 
+                max = max, 
+                value = value,
+                step = 1, 
+                ticks = FALSE,
+                width = "100%")
   })
   
   output$upgma_sliderInput_x <- renderUI({
@@ -14355,15 +13366,12 @@ server <- function(input, output, session) {
   
   # Apply custom label changes
   observeEvent(input$nj_cust_label_save, {
+    req(Vis$nj_label_pos_y, Vis$nj_label_pos_x, 
+        Vis$nj_label_size, input$nj_custom_label_sel)
     
-    if(!is.null(Vis$nj_label_pos_y) &
-       !is.null(Vis$nj_label_pos_x) &
-       !is.null(Vis$nj_label_size) &
-       !is.null(input$nj_custom_label_sel)) {
-      Vis$nj_label_pos_y[[input$nj_custom_label_sel]] <- input[[paste0("nj_slider_", input$nj_custom_label_sel, "_y")]]
-      Vis$nj_label_pos_x[[input$nj_custom_label_sel]] <- input[[paste0("nj_slider_", input$nj_custom_label_sel, "_x")]]
-      Vis$nj_label_size[[input$nj_custom_label_sel]] <- input[[paste0("nj_slider_", input$nj_custom_label_sel, "_size")]]
-    }
+    Vis$nj_label_pos_y[[input$nj_custom_label_sel]] <- input[[paste0("nj_slider_", input$nj_custom_label_sel, "_y")]]
+    Vis$nj_label_pos_x[[input$nj_custom_label_sel]] <- input[[paste0("nj_slider_", input$nj_custom_label_sel, "_x")]]
+    Vis$nj_label_size[[input$nj_custom_label_sel]] <- input[[paste0("nj_slider_", input$nj_custom_label_sel, "_size")]]
   })
   
   observeEvent(input$upgma_cust_label_save, {
@@ -14380,51 +13388,29 @@ server <- function(input, output, session) {
   
   # Mapping value number information
   output$nj_tiplab_mapping_info <- renderUI({
-    if(!is.null(input$nj_color_mapping) & (!is.null(Vis$meta_nj))) {
-      if(is.numeric(unlist(Vis$meta_nj[input$nj_color_mapping]))) {
-        if(input$nj_tiplab_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-          
-          if(!is.null(nj_color_mapping_div_mid_reactive())) {
-            nj_color_mapping_div_mid_selected <- nj_color_mapping_div_mid_reactive()
-          } else {
-            nj_color_mapping_div_mid_selected <- "Mean"
-          }
-          
-          fluidRow(
-            column(
-              width = 4,
-              h5("Midpoint", style = "color: white; margin-top: 22px;")
-            ),
-            column(
-              width = 8,
-              div(
-                class = "divmid-sel1",
-                selectInput(
-                  "nj_color_mapping_div_mid",
-                  label = "",
-                  choices = c("Zero", "Mean", "Median"),
-                  selected = nj_color_mapping_div_mid_selected
-                )
-              )
-            )
-          )
-        } else {
-          fluidRow(
-            h5("Continous values", style = "color: white; font-size: 14px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")
-          ) 
-        }
+    req(Vis$meta_nj)
+    
+    if(!is.null(nj_color_mapping_reactive())) {
+      nj_color_mapping <- nj_color_mapping_reactive()
+    } else {
+      nj_color_mapping <- "Country"
+    }
+    
+    if(is.numeric(unlist(Vis$meta_nj[nj_color_mapping]))) {
+      fluidRow(
+        h5("Continous values", style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
+      ) 
+    } else {
+      if(length(unique(unlist(Vis$meta_nj[nj_color_mapping]))) > 7) {
+        fluidRow(
+          h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[nj_color_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+        )
       } else {
-        if(length(unique(unlist(Vis$meta_nj[input$nj_color_mapping]))) > 7) {
-          fluidRow(
-            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_color_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
-          )
-        } else {
-          fluidRow(
-            h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_color_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
-          )
-        }
+        fluidRow(
+          h5(paste0(length(unique(unlist(Vis$meta_nj[nj_color_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+        )
       }
-    } else {NULL}
+    }
   })
   
   output$upgma_tiplab_mapping_info <- renderUI({
@@ -14469,51 +13455,29 @@ server <- function(input, output, session) {
   })
   
   output$nj_tipcolor_mapping_info <- renderUI({
-    if(!is.null(input$nj_tipcolor_mapping) & (!is.null(Vis$meta_nj))) {
-      if(is.numeric(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))) {
-        if(input$nj_tippoint_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-          
-          if(!is.null(nj_tipcolor_mapping_div_mid_reactive())) {
-            nj_tipcolor_mapping_div_mid_selected <- nj_tipcolor_mapping_div_mid_reactive()
-          } else {
-            nj_tipcolor_mapping_div_mid_selected <- "Mean"
-          }
-          
-          fluidRow(
-            column(
-              width = 4,
-              h5("Midpoint", style = "color: white; margin-top: 22px;")
-            ),
-            column(
-              width = 8,
-              div(
-                class = "divmid-sel1",
-                selectInput(
-                  "nj_tipcolor_mapping_div_mid",
-                  label = "",
-                  choices = c("Zero", "Mean", "Median"),
-                  selected = nj_tipcolor_mapping_div_mid_selected
-                )
-              )
-            )
-          )
-        } else {
-          fluidRow(
-            h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
-          ) 
-        }
+    req(Vis$meta_nj)
+    
+    if(!is.null(nj_tipcolor_mapping_reactive())) {
+      nj_tipcolor_mapping <- nj_tipcolor_mapping_reactive()
+    } else {
+      nj_tipcolor_mapping <- "Country"
+    }
+    
+    if(is.numeric(unlist(Vis$meta_nj[nj_tipcolor_mapping]))) {
+      fluidRow(
+        h5("Continous values", style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
+      ) 
+    } else {
+      if(length(unique(unlist(Vis$meta_nj[nj_tipcolor_mapping]))) > 7) {
+        fluidRow(
+          h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[nj_tipcolor_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+        )
       } else {
-        if(length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))) > 7) {
-          fluidRow(
-            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
-          )
-        } else {
-          fluidRow(
-            h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
-          )
-        }
+        fluidRow(
+          h5(paste0(length(unique(unlist(Vis$meta_nj[nj_tipcolor_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")      
+        )
       }
-    } else {NULL}
+    }
   })
   
   output$upgma_tipcolor_mapping_info <- renderUI({
@@ -14558,23 +13522,29 @@ server <- function(input, output, session) {
   })
   
   output$nj_tipshape_mapping_info <- renderUI({
-    if(!is.null(input$nj_tipshape_mapping) & (!is.null(Vis$meta_nj))) {
-      if(is.numeric(unlist(Vis$meta_nj[input$nj_tipshape_mapping]))) {
+    req(Vis$meta_nj)
+    
+    if(!is.null(nj_tipshape_mapping_reactive())) {
+      nj_tipshape_mapping <- nj_tipshape_mapping_reactive()
+    } else {
+      nj_tipshape_mapping <- "Country"
+    }
+    
+    if(is.numeric(unlist(Vis$meta_nj[nj_tipshape_mapping]))) {
+      fluidRow(
+        h5("Mapping continous variables to shape not possible", style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+      )
+    } else {
+      if(length(unique(unlist(Vis$meta_nj[nj_tipshape_mapping]))) > 6) {
         fluidRow(
-          h5("Mapping continous variables to shape not possible", style = "color: #E18B00; font-style: italic; font-size: 12px; margin-top: 15px;  margin-left: 40px")        
+          h5("Mapping > 6 variables to shape not possible", style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
         )
       } else {
-        if(length(unique(unlist(Vis$meta_nj[input$nj_tipshape_mapping]))) > 6) {
-          fluidRow(
-            h5("Mapping > 6 variables to shape not possible", style = "color: #E18B00; font-style: italic; font-size: 12px; margin-top: 15px;  margin-left: 40px")        
-          )
-        } else {
-          fluidRow(
-            h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_tipshape_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
-          )    
-        }
+        fluidRow(
+          h5(paste0(length(unique(unlist(Vis$meta_nj[nj_tipshape_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+        )    
       }
-    } else {NULL}
+    }
   })
   
   output$upgma_tipshape_mapping_info <- renderUI({
@@ -14598,236 +13568,123 @@ server <- function(input, output, session) {
   })
   
   output$nj_fruit_mapping_info <- renderUI({
+    req(input$nj_tile_num, Vis$meta_nj)
+    
     if(input$nj_tile_num == 1) {
-      if(!is.null(input$nj_fruit_variable) & (!is.null(Vis$meta_nj))) {
-        if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable]))) {
-          if(input$nj_tiles_scale_1 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-            
-            if(!is.null(nj_tiles_mapping_div_mid_1_reactive())) {
-              nj_tiles_mapping_div_mid_1_selected <- nj_tiles_mapping_div_mid_1_reactive()
-            } else {
-              nj_tiles_mapping_div_mid_1_selected <- "Mean"
-            }
-            
-            fluidRow(
-              column(
-                width = 4,
-                h5("Midpoint", style = "color: white; margin-top: 22px;")
-              ),
-              column(
-                width = 8,
-                div(
-                  class = "divmid-sel1",
-                  selectInput(
-                    "nj_tiles_mapping_div_mid_1",
-                    label = "",
-                    choices = c("Zero", "Mean", "Median"),
-                    selected = nj_tiles_mapping_div_mid_1_selected
-                  )
-                )
-              )
-            )
-          } else {
-            fluidRow(
-              h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
-            ) 
-          }
+      
+      if(!is.null(nj_fruit_variable_reactive())) {
+        nj_fruit_variable <- nj_fruit_variable_reactive()
+      } else {
+        nj_fruit_variable <- "Country"
+      }
+      
+      if(is.numeric(unlist(Vis$meta_nj[nj_fruit_variable]))) {
+        fluidRow(
+          h5("Continous values", style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
+        ) 
+      } else {
+        if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable]))) > 7) {
+          fluidRow(
+            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[nj_fruit_variable]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+          )
         } else {
-          if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))) > 7) {
-            fluidRow(
-              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
-            )
-          } else {
-            fluidRow(
-              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
-            )
-          }
+          fluidRow(
+            h5(paste0(length(unique(unlist(Vis$meta_nj[nj_fruit_variable]))), paste0(" categorical values")), style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+          )
         }
-      } else {NULL}
+      }
     } else if (input$nj_tile_num == 2) {
-      if(!is.null(input$nj_fruit_variable_2) & (!is.null(Vis$meta_nj))) {
-        if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))) {
-          if(input$nj_tiles_scale_2 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-            
-            if(!is.null(nj_tiles_mapping_div_mid_2_reactive())) {
-              nj_tiles_mapping_div_mid_2_selected <- nj_tiles_mapping_div_mid_2_reactive()
-            } else {
-              nj_tiles_mapping_div_mid_2_selected <- "Mean"
-            }
-            
-            fluidRow(
-              column(
-                width = 4,
-                h5("Midpoint", style = "color: white; margin-top: 22px;")
-              ),
-              column(
-                width = 8,
-                div(
-                  class = "divmid-sel1",
-                  selectInput(
-                    "nj_tiles_mapping_div_mid_2",
-                    label = "",
-                    choices = c("Zero", "Mean", "Median"),
-                    selected = nj_tiles_mapping_div_mid_2_selected
-                  )
-                )
-              )
-            )
-          } else {
-            fluidRow(
-              h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
-            ) 
-          }
+      
+      if(!is.null(nj_fruit_variable_2_reactive())) {
+        nj_fruit_variable_2 <- nj_fruit_variable_2_reactive()
+      } else {
+        nj_fruit_variable_2 <- "Country"
+      }
+      
+      if(is.numeric(unlist(Vis$meta_nj[nj_fruit_variable_2]))) {
+        fluidRow(
+          h5("Continous values", style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
+        )
+      } else {
+        if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_2]))) > 7) {
+          fluidRow(
+            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[nj_fruit_variable_2]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+          )
         } else {
-          if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))) > 7) {
-            fluidRow(
-              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
-            )
-          } else {
-            fluidRow(
-              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_2]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
-            )
-          }
+          fluidRow(
+            h5(paste0(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_2]))), paste0(" categorical values")), style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+          )
         }
-      } else {NULL}
+      }
     } else if (input$nj_tile_num == 3) {
-      if(!is.null(input$nj_fruit_variable_3) & (!is.null(Vis$meta_nj))) {
-        if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))) {
-          if(input$nj_tiles_scale_3 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-            
-            if(!is.null(nj_tiles_mapping_div_mid_3_reactive())) {
-              nj_tiles_mapping_div_mid_3_selected <- nj_tiles_mapping_div_mid_3_reactive()
-            } else {
-              nj_tiles_mapping_div_mid_3_selected <- "Mean"
-            }
-            
-            fluidRow(
-              column(
-                width = 4,
-                h5("Midpoint", style = "color: white; margin-top: 22px;")
-              ),
-              column(
-                width = 8,
-                div(
-                  class = "divmid-sel1",
-                  selectInput(
-                    "nj_tiles_mapping_div_mid_3",
-                    label = "",
-                    choices = c("Zero", "Mean", "Median"),
-                    selected = nj_tiles_mapping_div_mid_3_selected
-                  )
-                )
-              )
-            )
-          } else {
-            fluidRow(
-              h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
-            ) 
-          }
+      
+      if(!is.null(nj_fruit_variable_3_reactive())) {
+        nj_fruit_variable_3 <- nj_fruit_variable_3_reactive()
+      } else {
+        nj_fruit_variable_3 <- "Country"
+      }
+      
+      if(is.numeric(unlist(Vis$meta_nj[nj_fruit_variable_3]))) {
+        fluidRow(
+          h5("Continous values", style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
+        )
+      } else {
+        if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_3]))) > 7) {
+          fluidRow(
+            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[nj_fruit_variable_3]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+          )
         } else {
-          if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))) > 7) {
-            fluidRow(
-              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
-            )
-          } else {
-            fluidRow(
-              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_3]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
-            )
-          }
+          fluidRow(
+            h5(paste0(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_3]))), paste0(" categorical values")), style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+          )
         }
-      } else {NULL}
+      }
     } else if (input$nj_tile_num == 4) {
-      if(!is.null(input$nj_fruit_variable_4) & (!is.null(Vis$meta_nj))) {
-        if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable_4]))) {
-          if(input$nj_tiles_scale_4 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-            
-            if(!is.null(nj_tiles_mapping_div_mid_4_reactive())) {
-              nj_tiles_mapping_div_mid_4_selected <- nj_tiles_mapping_div_mid_4_reactive()
-            } else {
-              nj_tiles_mapping_div_mid_4_selected <- "Mean"
-            }
-            
-            fluidRow(
-              column(
-                width = 4,
-                h5("Midpoint", style = "color: white; margin-top: 22px;")
-              ),
-              column(
-                width = 8,
-                div(
-                  class = "divmid-sel1",
-                  selectInput(
-                    "nj_tiles_mapping_div_mid_4",
-                    label = "",
-                    choices = c("Zero", "Mean", "Median"),
-                    selected = nj_tiles_mapping_div_mid_4_selected
-                  )
-                )
-              )
-            )
-          } else {
-            fluidRow(
-              h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
-            ) 
-          }
+      
+      if(!is.null(nj_fruit_variable_4_reactive())) {
+        nj_fruit_variable_4 <- nj_fruit_variable_4_reactive()
+      } else {
+        nj_fruit_variable_4 <- "Country"
+      }
+      
+      if(is.numeric(unlist(Vis$meta_nj[nj_fruit_variable_4]))) {
+        fluidRow(
+          h5("Continous values", style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
+        )
+      } else {
+        if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_4]))) > 7) {
+          fluidRow(
+            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[nj_fruit_variable_4]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+          )
         } else {
-          if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_4]))) > 7) {
-            fluidRow(
-              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_4]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
-            )
-          } else {
-            fluidRow(
-              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_4]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
-            )
-          }
+          fluidRow(
+            h5(paste0(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_4]))), paste0(" categorical values")), style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+          )
         }
-      } else {NULL}
+      }
     } else if (input$nj_tile_num == 5) {
-      if(!is.null(input$nj_fruit_variable_5) & (!is.null(Vis$meta_nj))) {
-        if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))) {
-          if(input$nj_tiles_scale_5 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-            
-            if(!is.null(nj_tiles_mapping_div_mid_5_reactive())) {
-              nj_tiles_mapping_div_mid_5_selected <- nj_tiles_mapping_div_mid_5_reactive()
-            } else {
-              nj_tiles_mapping_div_mid_5_selected <- "Mean"
-            }
-            
-            fluidRow(
-              column(
-                width = 4,
-                h5("Midpoint", style = "color: white; margin-top: 22px;")
-              ),
-              column(
-                width = 8,
-                div(
-                  class = "divmid-sel1",
-                  selectInput(
-                    "nj_tiles_mapping_div_mid_5",
-                    label = "",
-                    choices = c("Zero", "Mean", "Median"),
-                    selected = nj_tiles_mapping_div_mid_5_selected
-                  )
-                )
-              )
-            )
-          } else {
-            fluidRow(
-              h5("Continous values", style = "color: white; font-size: 14px; margin-top: 20px; margin-left: 40px")
-            ) 
-          }
+      
+      if(!is.null(nj_fruit_variable_5_reactive())) {
+        nj_fruit_variable_5 <- nj_fruit_variable_5_reactive()
+      } else {
+        nj_fruit_variable_5 <- "Country"
+      }
+      
+      if(is.numeric(unlist(Vis$meta_nj[nj_fruit_variable_5]))) {
+        fluidRow(
+          h5("Continous values", style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
+        )
+      } else {
+        if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_5]))) > 7) {
+          fluidRow(
+            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[nj_fruit_variable_5]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+          )
         } else {
-          if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))) > 7) {
-            fluidRow(
-              h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
-            )
-          } else {
-            fluidRow(
-              h5(paste0(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable_5]))), paste0(" categorical values")), style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
-            )
-          }
+          fluidRow(
+            h5(paste0(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_5]))), paste0(" categorical values")), style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+          )
         }
-      } else {NULL}
+      }
     }
   })
   
@@ -15032,15 +13889,23 @@ server <- function(input, output, session) {
   })
   
   output$nj_heatmap_mapping_info <- renderUI({
-    if(!is.null(input$nj_heatmap_select) & (!is.null(Vis$meta_nj))) {
-      if (any(sapply(Vis$meta_nj[input$nj_heatmap_select], is.numeric)) & 
-          any(!sapply(Vis$meta_nj[input$nj_heatmap_select], is.numeric))) {
+    req(Vis$meta_nj)
+    
+    if(!is.null(nj_heatmap_select_reactive())) {
+      nj_heatmap_select <- nj_heatmap_select_reactive()
+    } else {
+      nj_heatmap_select <- NULL
+    }
+    
+    if(!is.null(nj_heatmap_select)) {
+      if (any(sapply(Vis$meta_nj[nj_heatmap_select], is.numeric)) & 
+          any(!sapply(Vis$meta_nj[nj_heatmap_select], is.numeric))) {
         fluidRow(
-          h5("Heatmap with categorical and continous values not possible", 
-             style = "color: #E18B00; font-size: 12px; font-style: italic; margin-top: 15px;  margin-left: 40px") 
+          h5("Heatmap with both categorical and continous values not possible", 
+             style = "color: #E18B00; font-size: 12px; font-style: italic; margin-top: 10px; margin-bottom: -12px; margin-left: 35px") 
         )
       } else {
-        if(any(sapply(Vis$meta_nj[input$nj_heatmap_select], is.numeric))) {
+        if(any(sapply(Vis$meta_nj[nj_heatmap_select], is.numeric))) {
           if(input$nj_heatmap_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             
             if(!is.null(nj_heatmap_div_mid_reactive())) {
@@ -15069,17 +13934,17 @@ server <- function(input, output, session) {
             )
           } else {
             fluidRow(
-              h5("Continous values", style = "color: white; font-size: 14px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")
+              h5("Continous values", style = "color: white; font-size: 12px; margin-top: 10px; margin-left: 35px; margin-bottom: -12px;")
             ) 
           }
         } else {
-          if(length(unique(unlist(Vis$meta_nj[input$nj_heatmap_select]))) > 7) {
+          if(length(unique(unlist(Vis$meta_nj[nj_heatmap_select]))) > 7) {
             fluidRow(
-              h5(paste0("> 7 categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 18px; margin-left: 40px; margin-bottom: -5px;")        
+              h5(paste0("> 7 categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 10px; margin-left: 35px; margin-bottom: -12px;")        
             )
           } else {
             fluidRow(
-              h5("Categorical values", style = "color: white; font-size: 14px; margin-top: 15px;  margin-left: 40px;margin-bottom: -5px;")        
+              h5("Categorical values", style = "color: white; font-size: 12px; margin-top: 10px; margin-left: 35px; margin-bottom: -12px;")        
             )
           }
         }
@@ -15139,47 +14004,42 @@ server <- function(input, output, session) {
   # Tiles offset
   output$nj_fruit_offset_circ <- renderUI({
     
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
+    } else {
+      nj_layout<- "rectangular"
+    }
+    
     if(!is.null(nj_fruit_offset_circ_reactive())) {
       nj_fruit_offset_circ_selected <- nj_fruit_offset_circ_reactive()
     } else {
-      nj_fruit_offset_circ_selected <- 0
+      if(nj_layout == "circular" | nj_layout == "inward") {
+        nj_fruit_offset_circ_selected <- 0.15
+      } else {
+        nj_fruit_offset_circ_selected <- 0.05
+      }
     }
     
-    if(!is.null(input$nj_layout)) {
-      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-        offset <- 0.15
-        step <- 0.03
-        min <- -0.6
-        max <- 0.6
-      } else {
-        offset <- 0.05
-        step <- 0.01
-        min <- -0.2
-        max <- 0.2
-      }
-      
-      sliderInput(
-        "nj_fruit_offset_circ",
-        label = "",
-        min = min,
-        max = max,
-        step= step,
-        value = nj_fruit_offset_circ_selected,
-        width = "150px",
-        ticks = FALSE
-      )
+    if(nj_layout == "circular" | nj_layout == "inward") {
+      step <- 0.03
+      min <- -0.6
+      max <- 0.6
     } else {
-      sliderInput(
-        "nj_fruit_offset_circ",
-        label = "",
-        min = -0.2,
-        max = 0.2,
-        step= 0.01,
-        value = nj_fruit_offset_circ_selected,
-        width = "150px",
-        ticks = FALSE
-      )
+      step <- 0.01
+      min <- -0.2
+      max <- 0.2
     }
+    
+    sliderInput(
+      "nj_fruit_offset_circ",
+      label = "",
+      min = min,
+      max = max,
+      step= step,
+      value = nj_fruit_offset_circ_selected,
+      width = "150px",
+      ticks = FALSE
+    )
   })
   
   output$upgma_fruit_offset_circ <- renderUI({
@@ -15222,47 +14082,42 @@ server <- function(input, output, session) {
   
   output$nj_fruit_offset_circ_2 <- renderUI({
     
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
+    } else {
+      nj_layout<- "rectangular"
+    }
+    
     if(!is.null(nj_fruit_offset_circ_2_reactive())) {
       nj_fruit_offset_circ_selected_2 <- nj_fruit_offset_circ_2_reactive()
     } else {
-      nj_fruit_offset_circ_selected_2 <- 0
+      if(nj_layout == "circular" | nj_layout == "inward") {
+        nj_fruit_offset_circ_selected_2 <- 0.15
+      } else {
+        nj_fruit_offset_circ_selected_2 <- 0.05
+      }
     }
     
-    if(!is.null(input$nj_layout)) {
-      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-        offset <- 0.15
-        step <- 0.03
-        min <- -0.6
-        max <- 0.6
-      } else {
-        offset <- 0.05
-        step <- 0.01
-        min <- -0.2
-        max <- 0.2
-      }
-      
-      sliderInput(
-        "nj_fruit_offset_circ_2",
-        label = "",
-        min = min,
-        max = max,
-        step= step,
-        value = nj_fruit_offset_circ_2_selected,
-        width = "150px",
-        ticks = FALSE
-      )
+    if(nj_layout == "circular" | nj_layout == "inward") {
+      step <- 0.03
+      min <- -0.6
+      max <- 0.6
     } else {
-      sliderInput(
-        "nj_fruit_offset_circ_2",
-        label = "",
-        min = -0.2,
-        max = 0.2,
-        step= 0.01,
-        value = nj_fruit_offset_circ_2_selected,
-        width = "150px",
-        ticks = FALSE
-      )
+      step <- 0.01
+      min <- -0.2
+      max <- 0.2
     }
+    
+    sliderInput(
+      "nj_fruit_offset_circ_2",
+      label = "",
+      min = min,
+      max = max,
+      step= step,
+      value = nj_fruit_offset_circ_selected_2,
+      width = "150px",
+      ticks = FALSE
+    )
   })
   
   output$upgma_fruit_offset_circ_2 <- renderUI({
@@ -15305,47 +14160,42 @@ server <- function(input, output, session) {
   
   output$nj_fruit_offset_circ_3 <- renderUI({
     
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
+    } else {
+      nj_layout<- "rectangular"
+    }
+    
     if(!is.null(nj_fruit_offset_circ_3_reactive())) {
       nj_fruit_offset_circ_selected_3 <- nj_fruit_offset_circ_3_reactive()
     } else {
-      nj_fruit_offset_circ_selected_3 <- 0
+      if(nj_layout == "circular" | nj_layout == "inward") {
+        nj_fruit_offset_circ_selected_3 <- 0.15
+      } else {
+        nj_fruit_offset_circ_selected_3 <- 0.05
+      }
     }
     
-    if(!is.null(input$nj_layout)) {
-      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-        offset <- 0.15
-        step <- 0.03
-        min <- -0.6
-        max <- 0.6
-      } else {
-        offset <- 0.05
-        step <- 0.01
-        min <- -0.2
-        max <- 0.2
-      }
-      
-      sliderInput(
-        "nj_fruit_offset_circ_3",
-        label = "",
-        min = min,
-        max = max,
-        step= step,
-        value = nj_fruit_offset_circ_3_selected,
-        width = "150px",
-        ticks = FALSE
-      )
+    if(nj_layout == "circular" | nj_layout == "inward") {
+      step <- 0.03
+      min <- -0.6
+      max <- 0.6
     } else {
-      sliderInput(
-        "nj_fruit_offset_circ_3",
-        label = "",
-        min = -0.2,
-        max = 0.2,
-        step= 0.01,
-        value = nj_fruit_offset_circ_3_selected,
-        width = "150px",
-        ticks = FALSE
-      )
+      step <- 0.01
+      min <- -0.2
+      max <- 0.2
     }
+    
+    sliderInput(
+      "nj_fruit_offset_circ_3",
+      label = "",
+      min = min,
+      max = max,
+      step= step,
+      value = nj_fruit_offset_circ_selected_3,
+      width = "150px",
+      ticks = FALSE
+    )
   })
   
   output$upgma_fruit_offset_circ_3 <- renderUI({
@@ -15388,47 +14238,42 @@ server <- function(input, output, session) {
   
   output$nj_fruit_offset_circ_4 <- renderUI({
     
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
+    } else {
+      nj_layout<- "rectangular"
+    }
+    
     if(!is.null(nj_fruit_offset_circ_4_reactive())) {
       nj_fruit_offset_circ_selected_4 <- nj_fruit_offset_circ_4_reactive()
     } else {
-      nj_fruit_offset_circ_selected_4 <- 0
+      if(nj_layout == "circular" | nj_layout == "inward") {
+        nj_fruit_offset_circ_selected_4 <- 0.15
+      } else {
+        nj_fruit_offset_circ_selected_4 <- 0.05
+      }
     }
     
-    if(!is.null(input$nj_layout)) {
-      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-        offset <- 0.15
-        step <- 0.03
-        min <- -0.6
-        max <- 0.6
-      } else {
-        offset <- 0.05
-        step <- 0.01
-        min <- -0.2
-        max <- 0.2
-      }
-      
-      sliderInput(
-        "nj_fruit_offset_circ_4",
-        label = "",
-        min = min,
-        max = max,
-        step= step,
-        value = nj_fruit_offset_circ_4_selected,
-        width = "150px",
-        ticks = FALSE
-      )
+    if(nj_layout == "circular" | nj_layout == "inward") {
+      step <- 0.03
+      min <- -0.6
+      max <- 0.6
     } else {
-      sliderInput(
-        "nj_fruit_offset_circ_4",
-        label = "",
-        min = -0.2,
-        max = 0.2,
-        step= 0.01,
-        value = nj_fruit_offset_circ_4_selected,
-        width = "150px",
-        ticks = FALSE
-      )
+      step <- 0.01
+      min <- -0.2
+      max <- 0.2
     }
+    
+    sliderInput(
+      "nj_fruit_offset_circ_4",
+      label = "",
+      min = min,
+      max = max,
+      step= step,
+      value = nj_fruit_offset_circ_selected_4,
+      width = "150px",
+      ticks = FALSE
+    )
   })
   
   output$upgma_fruit_offset_circ_4 <- renderUI({
@@ -15471,47 +14316,42 @@ server <- function(input, output, session) {
   
   output$nj_fruit_offset_circ_5 <- renderUI({
     
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
+    } else {
+      nj_layout<- "rectangular"
+    }
+    
     if(!is.null(nj_fruit_offset_circ_5_reactive())) {
       nj_fruit_offset_circ_selected_5 <- nj_fruit_offset_circ_5_reactive()
     } else {
-      nj_fruit_offset_circ_selected_5 <- 0
+      if(nj_layout == "circular" | nj_layout == "inward") {
+        nj_fruit_offset_circ_selected_5 <- 0.15
+      } else {
+        nj_fruit_offset_circ_selected_5 <- 0.05
+      }
     }
     
-    if(!is.null(input$nj_layout)) {
-      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-        offset <- 0.15
-        step <- 0.03
-        min <- -0.6
-        max <- 0.6
-      } else {
-        offset <- 0.05
-        step <- 0.01
-        min <- -0.2
-        max <- 0.2
-      }
-      
-      sliderInput(
-        "nj_fruit_offset_circ_5",
-        label = "",
-        min = min,
-        max = max,
-        step= step,
-        value = nj_fruit_offset_circ_5_selected,
-        width = "150px",
-        ticks = FALSE
-      )
+    if(nj_layout == "circular" | nj_layout == "inward") {
+      step <- 0.03
+      min <- -0.6
+      max <- 0.6
     } else {
-      sliderInput(
-        "nj_fruit_offset_circ_5",
-        label = "",
-        min = -0.2,
-        max = 0.2,
-        step= 0.01,
-        value = nj_fruit_offset_circ_5_selected,
-        width = "150px",
-        ticks = FALSE
-      )
+      step <- 0.01
+      min <- -0.2
+      max <- 0.2
     }
+    
+    sliderInput(
+      "nj_fruit_offset_circ_5",
+      label = "",
+      min = min,
+      max = max,
+      step= step,
+      value = nj_fruit_offset_circ_selected_5,
+      width = "150px",
+      ticks = FALSE
+    )
   })
   
   output$upgma_fruit_offset_circ_5 <- renderUI({
@@ -15597,9 +14437,22 @@ server <- function(input, output, session) {
   
   # Heatmap width
   output$nj_heatmap_width <- renderUI({
-    if(!is.null(input$nj_heatmap_select)) {
-      length_input <- length(input$nj_heatmap_select)
-      if((!(input$nj_layout == "circular")) & (!(input$nj_layout == "inward"))) {
+    
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
+    } else {
+      nj_layout <- "rectangular"
+    }
+    
+    if(!is.null(nj_heatmap_select_reactive())) {
+      nj_heatmap_select <- nj_heatmap_select_reactive()
+    } else {
+      nj_heatmap_select <- NULL
+    }
+    
+    if(!is.null(nj_heatmap_select)) {
+      length_input <- length(nj_heatmap_select)
+      if(nj_layout != "circular" & nj_layout != "inward") {
         if(length_input < 3) {
           width <- 0.1
         } else {
@@ -15624,17 +14477,6 @@ server <- function(input, output, session) {
       } else {
         nj_heatmap_width_selected <- width
       }
-      
-      sliderInput(
-        "nj_heatmap_width",
-        label = "",
-        min = 0.05,
-        max = 1.5,
-        value = nj_heatmap_width_selected,
-        step = 0.05,
-        width = "150px",
-        ticks = FALSE
-      )
     } else {
       
       if(!is.null(nj_heatmap_width_reactive())) {
@@ -15642,18 +14484,18 @@ server <- function(input, output, session) {
       } else {
         nj_heatmap_width_selected <- 0.1
       }
-      
-      sliderInput(
-        "nj_heatmap_width",
-        label = "",
-        min = 0.05,
-        max = 1.5,
-        value = nj_heatmap_width_selected,
-        step = 0.05,
-        width = "150px",
-        ticks = FALSE
-      )
     }
+    
+    sliderInput(
+      "nj_heatmap_width",
+      label = "",
+      min = 0.05,
+      max = 1.5,
+      value = nj_heatmap_width_selected,
+      step = 0.05,
+      width = "150px",
+      ticks = FALSE
+    )
   })
   
   output$upgma_heatmap_width <- renderUI({
@@ -15706,8 +14548,14 @@ server <- function(input, output, session) {
   # Update value if new variables added
   observeEvent(input$nj_heatmap_select, {
     
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
+    } else {
+      nj_layout <- "rectangular"
+    }
+    
     length_input <- length(input$nj_heatmap_select)
-    if((!(input$nj_layout == "circular")) & (!(input$nj_layout == "inward"))) {
+    if(nj_layout != "circular" & nj_layout != "inward") {
       if(length_input < 3) {
         width <- 0.1
       } else {
@@ -15756,8 +14604,15 @@ server <- function(input, output, session) {
   
   # Update value if layout changed
   observeEvent(input$nj_layout, {
-    length_input <- length(input$nj_heatmap_select)
-    if((!(input$nj_layout == "circular")) & (!(input$nj_layout == "inward"))) {
+    
+    if(!is.null(nj_heatmap_select_reactive())) {
+      nj_heatmap_select <- nj_heatmap_select_reactive()
+    } else {
+      nj_heatmap_select <- NULL
+    }
+    
+    length_input <- length(nj_heatmap_select)
+    if(input$nj_layout != "circular" & input$nj_layout != "inward") {
       if(length_input < 3) {
         width <- 0.1
       } else {
@@ -15805,7 +14660,8 @@ server <- function(input, output, session) {
   
   # Heatmap column titles position
   observeEvent(input$nj_layout, {
-    if(!(input$nj_layout == "inward" | input$nj_layout == "circular")) {
+    
+    if(input$nj_layout != "inward" & input$nj_layout != "circular") {
       updateSliderInput(session, "nj_colnames_y", value = -1)
     } else {
       updateSliderInput(session, "nj_colnames_y", value = 0)
@@ -15821,41 +14677,16 @@ server <- function(input, output, session) {
   })
   
   output$nj_colnames_y <- renderUI({
-    if(!is.null(sum(DB$data$Include)) & !is.null(input$nj_layout)) {
-      if(input$nj_layout == "inward" | input$nj_layout == "circular") {
-        min <- 0
-        
-        if(!is.null(nj_colnames_y_reactive())) {
-          nj_colnames_y_selected <- nj_colnames_y_reactive()
-        } else {
-          nj_colnames_y_selected <- 0
-        }
-        
-      } else {
-        
-        if((sum(DB$data$Include) * -0.1) > -2) {
-          min <- -2
-        } else {
-          min <- round(sum(DB$data$Include) * -0.1, 0)
-        }
-        
-        if(!is.null(nj_colnames_y_reactive())) {
-          nj_colnames_y_selected <- nj_colnames_y_reactive()
-        } else {
-          nj_colnames_y_selected <- -1
-        }
-      }
-      sliderInput(
-        "nj_colnames_y",
-        label = h5("Names Y-Position", style = "color:white; margin-bottom: 0px"),
-        min = min,
-        max = sum(DB$data$Include),
-        value = nj_colnames_y_selected,
-        step = 1,
-        width = "150px",
-        ticks = FALSE
-      )
+    req(DB$data)
+    
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
     } else {
+      nj_layout <- "rectangular"
+    }
+    
+    if(nj_layout == "inward" | nj_layout == "circular") {
+      min <- 0
       
       if(!is.null(nj_colnames_y_reactive())) {
         nj_colnames_y_selected <- nj_colnames_y_reactive()
@@ -15863,17 +14694,30 @@ server <- function(input, output, session) {
         nj_colnames_y_selected <- 0
       }
       
-      sliderInput(
-        "nj_colnames_y",
-        label = h5("Names Y-Position", style = "color:white; margin-bottom: 0px"),
-        min = -10,
-        max = 10,
-        value = nj_colnames_y_selected,
-        step = 1,
-        width = "150px",
-        ticks = FALSE
-      )
+    } else {
+      if((sum(DB$data$Include) * -0.1) > -2) {
+        min <- -2
+      } else {
+        min <- round(sum(DB$data$Include) * -0.1, 0)
+      }
+      
+      if(!is.null(nj_colnames_y_reactive())) {
+        nj_colnames_y_selected <- nj_colnames_y_reactive()
+      } else {
+        nj_colnames_y_selected <- -1
+      }
     }
+    
+    sliderInput(
+      "nj_colnames_y",
+      label = h5("Names Y-Position", style = "color:white; margin-bottom: 0px"),
+      min = min,
+      max = sum(DB$data$Include),
+      value = nj_colnames_y_selected,
+      step = 1,
+      width = "150px",
+      ticks = FALSE
+    )
   })
   
   output$upgma_colnames_y <- renderUI({
@@ -15916,47 +14760,35 @@ server <- function(input, output, session) {
   # Heatmap column titles angle
   output$nj_colnames_angle <- renderUI({
     
-    if(!is.null(input$nj_layout)) {
-      if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-        if(!is.null(nj_colnames_angle_reactive())) {
-          nj_colnames_angle_selected <- nj_colnames_angle_reactive()
-        } else {
-          nj_colnames_angle_selected <- 90
-        }
-      } else {
-        if(!is.null(nj_colnames_angle_reactive())) {
-          nj_colnames_angle_selected <- nj_colnames_angle_reactive()
-        } else {
-          nj_colnames_angle_selected <- -90
-        }
-      }
-      sliderInput(
-        "nj_colnames_angle",
-        label = h5("Names Angle", style = "color:white; margin-bottom: 0px"),
-        min = -90,
-        max = 90,
-        value = nj_colnames_angle_selected,
-        width = "150px",
-        ticks = FALSE
-      )
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
     } else {
-      
+      nj_layout <- "rectangular"
+    }
+    
+    if(nj_layout == "circular" | nj_layout == "inward") {
       if(!is.null(nj_colnames_angle_reactive())) {
         nj_colnames_angle_selected <- nj_colnames_angle_reactive()
       } else {
-        nj_colnames_angle_selected <- 0
+        nj_colnames_angle_selected <- 90
       }
-      
-      sliderInput(
-        "nj_colnames_angle",
-        label = h5("Names Angle", style = "color:white; margin-bottom: 0px"),
-        min = -90,
-        max = 90,
-        value = nj_colnames_angle_selected,
-        width = "150px",
-        ticks = FALSE
-      )
+    } else {
+      if(!is.null(nj_colnames_angle_reactive())) {
+        nj_colnames_angle_selected <- nj_colnames_angle_reactive()
+      } else {
+        nj_colnames_angle_selected <- -90
+      }
     }
+    
+    sliderInput(
+      "nj_colnames_angle",
+      label = h5("Names Angle", style = "color:white; margin-bottom: 0px"),
+      min = -90,
+      max = 90,
+      value = nj_colnames_angle_selected,
+      width = "150px",
+      ticks = FALSE
+    )
   })
   
   output$upgma_colnames_angle <- renderUI({
@@ -16030,7 +14862,14 @@ server <- function(input, output, session) {
   
   # Clade coloring
   output$nj_clade_scale <- renderUI({
-    if(length(input$nj_parentnode) <= 1) {
+    
+    if(!is.null(nj_parentnode_reactive())) {
+      nj_parentnode <- nj_parentnode_reactive()
+    } else {
+      nj_parentnode <- NULL
+    }
+    
+    if(length(nj_parentnode) <= 1) {
       
       if(!is.null(nj_clade_scale_reactive())) {
         nj_clade_scale_selected <- nj_clade_scale_reactive()
@@ -16140,7 +14979,21 @@ server <- function(input, output, session) {
   
   # Heatmap variable color scale
   output$nj_heatmap_scale <- renderUI({
-    if(class(unlist(Vis$meta_nj[input$nj_heatmap_select])) == "numeric") {
+    req(Vis$meta_nj)
+    
+    if(!is.null(nj_heatmap_select_reactive())) {
+      nj_heatmap_select <- nj_heatmap_select_reactive()
+    } else {
+      nj_heatmap_select <- NULL
+    }
+    
+    if(!is.null(nj_heatmap_show_reactive())) {
+      nj_heatmap_show <- nj_heatmap_show_reactive()
+    } else {
+      nj_heatmap_show <- FALSE
+    }
+    
+    if(class(unlist(Vis$meta_nj[nj_heatmap_select])) == "numeric") {
       
       if(!is.null(nj_heatmap_scale_reactive())) {
         nj_heatmap_scale_selected <- nj_heatmap_scale_reactive()
@@ -16148,20 +15001,10 @@ server <- function(input, output, session) {
         nj_heatmap_scale_selected <- "viridis"
       }
       
-      nj_heatmap_scale <- selectInput(
-        "nj_heatmap_scale",
-        "",
-        choices = list(
-          Continous = gradient_scales,
-          Diverging = diverging_scales
-        ),
-        selected = nj_heatmap_scale_selected
-      )
-      if(input$nj_heatmap_show) {
-        nj_heatmap_scale
-      } else {shinyjs::disabled(nj_heatmap_scale)}
+      choices <- list(Continous = gradient_scales,
+                      Diverging = diverging_scales)
     } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_heatmap_select]))) > 7) {
+      if(length(unique(unlist(Vis$meta_nj[nj_heatmap_select]))) > 7) {
         
         if(!is.null(nj_heatmap_scale_reactive())) {
           nj_heatmap_scale_selected <- nj_heatmap_scale_reactive()
@@ -16169,17 +15012,7 @@ server <- function(input, output, session) {
           nj_heatmap_scale_selected <- "turbo"
         }
         
-        nj_heatmap_scale <- selectInput(
-          "nj_heatmap_scale",
-          "",
-          choices = list(
-            Gradient = gradient_scales
-          ),
-          selected = nj_heatmap_scale_selected
-        )
-        if(input$nj_heatmap_show) {
-          nj_heatmap_scale
-        } else {shinyjs::disabled(nj_heatmap_scale)}
+        choices <- list(Gradient = gradient_scales)
       } else {
         
         if(!is.null(nj_heatmap_scale_reactive())) {
@@ -16188,20 +15021,22 @@ server <- function(input, output, session) {
           nj_heatmap_scale_selected <- "Dark2"
         }
         
-        nj_heatmap_scale <- selectInput(
-          "nj_heatmap_scale",
-          "",
-          choices = list(
-            Qualitative = qualitative_scales,
-            Sequential = sequential_scales
-          ),
-          selected = nj_heatmap_scale_selected
-        )
-        if(input$nj_heatmap_show) {
-          nj_heatmap_scale
-        } else {shinyjs::disabled(nj_heatmap_scale)}
+        choices <- list(Qualitative = qualitative_scales,
+                        Sequential = sequential_scales)
       }
     }
+    
+    nj_heatmap_scale <- selectInput(
+      "nj_heatmap_scale",
+      label = h5("Color Scale", style = "color: white; margin-bottom: 0px;"),
+      width = "150px",
+      choices = choices,
+      selected = nj_heatmap_scale_selected
+    )
+    
+    if(nj_heatmap_show) {
+      nj_heatmap_scale
+    } else {shinyjs::disabled(nj_heatmap_scale)}
   })
   
   output$upgma_heatmap_scale <- renderUI({
@@ -16249,7 +15084,21 @@ server <- function(input, output, session) {
   
   # Tiles variable color scale
   output$nj_tiles_scale_1 <- renderUI({
-    if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
+    req(Vis$meta_nj)
+    
+    if(!is.null(nj_fruit_variable_reactive())) {
+      nj_fruit_variable <- nj_fruit_variable_reactive()
+    } else {
+      nj_fruit_variable <- "Isolation Date"
+    }
+    
+    if(!is.null(nj_tiles_show_1_reactive())) {
+      nj_tiles_show_1 <- nj_tiles_show_1_reactive()
+    } else {
+      nj_tiles_show_1 <- FALSE
+    }
+    
+    if(class(unlist(Vis$meta_nj[nj_fruit_variable])) == "numeric") {
       
       if(!is.null(nj_tiles_scale_1_reactive())) {
         nj_tiles_scale_1_selected <- nj_tiles_scale_1_reactive()
@@ -16257,20 +15106,11 @@ server <- function(input, output, session) {
         nj_tiles_scale_1_selected <- "viridis"
       }
       
-      nj_tiles_scale_1 <- selectInput(
-        "nj_tiles_scale_1",
-        "",
-        choices = list(
-          Continous = gradient_scales,
-          Diverging = diverging_scales
-        ),
-        selected = nj_tiles_scale_1_selected
-      )
-      if(input$nj_tiles_show_1) {
-        nj_tiles_scale_1
-      } else {shinyjs::disabled(nj_tiles_scale_1)}
+      choices <- list(Continous = gradient_scales,
+                      Diverging = diverging_scales)
+      
     } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))) > 7) {
+      if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable]))) > 7) {
         
         if(!is.null(nj_tiles_scale_1_reactive())) {
           nj_tiles_scale_1_selected <- nj_tiles_scale_1_reactive()
@@ -16278,17 +15118,7 @@ server <- function(input, output, session) {
           nj_tiles_scale_1_selected <- "turbo"
         }
         
-        nj_tiles_scale_1 <- selectInput(
-          "nj_tiles_scale_1",
-          "",
-          choices = list(
-            Gradient = gradient_scales
-          ),
-          selected = nj_tiles_scale_1_selected
-        )
-        if(input$nj_tiles_show_1) {
-          nj_tiles_scale_1
-        } else {shinyjs::disabled(nj_tiles_scale_1)}
+        choices <- list(Gradient = gradient_scales)
       } else {
         
         if(!is.null(nj_tiles_scale_1_reactive())) {
@@ -16297,20 +15127,21 @@ server <- function(input, output, session) {
           nj_tiles_scale_1_selected <- "Accent"
         }
         
-        nj_tiles_scale_1 <- selectInput(
-          "nj_tiles_scale_1",
-          "",
-          choices = list(
-            Qualitative = qualitative_scales,
-            Sequential = sequential_scales
-          ),
-          selected = nj_tiles_scale_1_selected
-        )
-        if(input$nj_tiles_show_1) {
-          nj_tiles_scale_1
-        } else {shinyjs::disabled(nj_tiles_scale_1)}
+        choices <- list(Qualitative = qualitative_scales,
+                        Sequential = sequential_scales)
       }
     }
+    
+    nj_tiles_scale_1 <- selectInput(
+      "nj_tiles_scale_1",
+      label = h5("Color Scale", style = "color: white; margin-bottom: 0px;"),
+      width = "150px",
+      choices = choices,
+      selected = nj_tiles_scale_1_selected
+    )
+    if(nj_tiles_show_1) {
+      nj_tiles_scale_1
+    } else {shinyjs::disabled(nj_tiles_scale_1)}
   })
   
   output$upgma_tiles_scale_1 <- renderUI({
@@ -16357,7 +15188,21 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiles_scale_2 <- renderUI({
-    if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
+    req(Vis$meta_nj)
+    
+    if(!is.null(nj_fruit_variable_2_reactive())) {
+      nj_fruit_variable_2 <- nj_fruit_variable_2_reactive()
+    } else {
+      nj_fruit_variable_2 <- "Country"
+    }
+    
+    if(!is.null(nj_tiles_show_2_reactive())) {
+      nj_tiles_show_2 <- nj_tiles_show_2_reactive()
+    } else {
+      nj_tiles_show_2 <- FALSE
+    }
+    
+    if(class(unlist(Vis$meta_nj[nj_fruit_variable_2])) == "numeric") {
       
       if(!is.null(nj_tiles_scale_2_reactive())) {
         nj_tiles_scale_2_selected <- nj_tiles_scale_2_reactive()
@@ -16365,20 +15210,10 @@ server <- function(input, output, session) {
         nj_tiles_scale_2_selected <- "viridis"
       }
       
-      nj_tiles_scale_2 <- selectInput(
-        "nj_tiles_scale_2",
-        "",
-        choices = list(
-          Continous = gradient_scales,
-          Diverging = diverging_scales
-        ),
-        selected = nj_tiles_scale_2_selected
-      )
-      if(input$nj_tiles_show_2) {
-        nj_tiles_scale_2
-      } else {shinyjs::disabled(nj_tiles_scale_2)}
+      choices <- list(Continous = gradient_scales,
+                      Diverging = diverging_scales)
     } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))) > 7) {
+      if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_2]))) > 7) {
         
         if(!is.null(nj_tiles_scale_2_reactive())) {
           nj_tiles_scale_2_selected <- nj_tiles_scale_2_reactive()
@@ -16386,17 +15221,7 @@ server <- function(input, output, session) {
           nj_tiles_scale_2_selected <- "turbo"
         }
         
-        nj_tiles_scale_2 <- selectInput(
-          "nj_tiles_scale_2",
-          "",
-          choices = list(
-            Gradient = gradient_scales
-          ),
-          selected = nj_tiles_scale_2_selected
-        )
-        if(input$nj_tiles_show_2) {
-          nj_tiles_scale_2
-        } else {shinyjs::disabled(nj_tiles_scale_2)}
+        choices <- list(Gradient = gradient_scales)
       } else {
         
         if(!is.null(nj_tiles_scale_2_reactive())) {
@@ -16405,20 +15230,21 @@ server <- function(input, output, session) {
           nj_tiles_scale_2_selected <- "Accent"
         }
         
-        nj_tiles_scale_2 <- selectInput(
-          "nj_tiles_scale_2",
-          "",
-          choices = list(
-            Qualitative = qualitative_scales,
-            Sequential = sequential_scales
-          ),
-          selected = nj_tiles_scale_2_selected
-        )
-        if(input$nj_tiles_show_2) {
-          nj_tiles_scale_2
-        } else {shinyjs::disabled(nj_tiles_scale_2)}
+        choices <- list(Qualitative = qualitative_scales,
+                        Sequential = sequential_scales)
       }
     }
+    
+    nj_tiles_scale_2 <- selectInput(
+      "nj_tiles_scale_2",
+      label = h5("Color Scale", style = "color: white; margin-bottom: 0px;"),
+      width = "150px",
+      choices = choices,
+      selected = nj_tiles_scale_2_selected
+    )
+    if(nj_tiles_show_2) {
+      nj_tiles_scale_2
+    } else {shinyjs::disabled(nj_tiles_scale_2)}
   })
   
   output$upgma_tiles_scale_2 <- renderUI({
@@ -16465,7 +15291,21 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiles_scale_3 <- renderUI({
-    if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
+    req(Vis$meta_nj)
+    
+    if(!is.null(nj_fruit_variable_3_reactive())) {
+      nj_fruit_variable_3 <- nj_fruit_variable_3_reactive()
+    } else {
+      nj_fruit_variable_3 <- "Country"
+    }
+    
+    if(!is.null(nj_tiles_show_3_reactive())) {
+      nj_tiles_show_3 <- nj_tiles_show_3_reactive()
+    } else {
+      nj_tiles_show_3 <- FALSE
+    }
+    
+    if(class(unlist(Vis$meta_nj[nj_fruit_variable_3])) == "numeric") {
       
       if(!is.null(nj_tiles_scale_3_reactive())) {
         nj_tiles_scale_3_selected <- nj_tiles_scale_3_reactive()
@@ -16473,20 +15313,10 @@ server <- function(input, output, session) {
         nj_tiles_scale_3_selected <- "viridis"
       }
       
-      nj_tiles_scale_3 <- selectInput(
-        "nj_tiles_scale_3",
-        "",
-        choices = list(
-          Continous = gradient_scales,
-          Diverging = diverging_scales
-        ),
-        selected = nj_tiles_scale_3_selected
-      )
-      if(input$nj_tiles_show_3) {
-        nj_tiles_scale_3
-      } else {shinyjs::disabled(nj_tiles_scale_3)}
+      choices <- list(Continous = gradient_scales,
+                      Diverging = diverging_scales)
     } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))) > 7) {
+      if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_3]))) > 7) {
         
         if(!is.null(nj_tiles_scale_3_reactive())) {
           nj_tiles_scale_3_selected <- nj_tiles_scale_3_reactive()
@@ -16494,17 +15324,7 @@ server <- function(input, output, session) {
           nj_tiles_scale_3_selected <- "turbo"
         }
         
-        nj_tiles_scale_3 <- selectInput(
-          "nj_tiles_scale_3",
-          "",
-          choices = list(
-            Gradient = gradient_scales
-          ),
-          selected = nj_tiles_scale_3_selected
-        )
-        if(input$nj_tiles_show_3) {
-          nj_tiles_scale_3
-        } else {shinyjs::disabled(nj_tiles_scale_3)}
+        choices <- list(Gradient = gradient_scales)
       } else {
         
         if(!is.null(nj_tiles_scale_3_reactive())) {
@@ -16513,20 +15333,21 @@ server <- function(input, output, session) {
           nj_tiles_scale_3_selected <- "Accent"
         }
         
-        nj_tiles_scale_3 <- selectInput(
-          "nj_tiles_scale_3",
-          "",
-          choices = list(
-            Qualitative = qualitative_scales,
-            Sequential = sequential_scales
-          ),
-          selected = nj_tiles_scale_3_selected
-        )
-        if(input$nj_tiles_show_3) {
-          nj_tiles_scale_3
-        } else {shinyjs::disabled(nj_tiles_scale_3)}
+        choices <- list(Qualitative = qualitative_scales,
+                        Sequential = sequential_scales)
       }
     }
+    
+    nj_tiles_scale_3 <- selectInput(
+      "nj_tiles_scale_3",
+      label = h5("Color Scale", style = "color: white; margin-bottom: 0px;"),
+      width = "150px",
+      choices = choices,
+      selected = nj_tiles_scale_3_selected
+    )
+    if(nj_tiles_show_3) {
+      nj_tiles_scale_3
+    } else {shinyjs::disabled(nj_tiles_scale_3)}
   })
   
   output$upgma_tiles_scale_3 <- renderUI({
@@ -16573,7 +15394,21 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiles_scale_4 <- renderUI({
-    if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
+    req(Vis$meta_nj)
+    
+    if(!is.null(nj_fruit_variable_4_reactive())) {
+      nj_fruit_variable_4 <- nj_fruit_variable_4_reactive()
+    } else {
+      nj_fruit_variable_4 <- "Country"
+    }
+    
+    if(!is.null(nj_tiles_show_4_reactive())) {
+      nj_tiles_show_4 <- nj_tiles_show_4_reactive()
+    } else {
+      nj_tiles_show_4 <- FALSE
+    }
+    
+    if(class(unlist(Vis$meta_nj[nj_fruit_variable_4])) == "numeric") {
       
       if(!is.null(nj_tiles_scale_4_reactive())) {
         nj_tiles_scale_4_selected <- nj_tiles_scale_4_reactive()
@@ -16581,20 +15416,10 @@ server <- function(input, output, session) {
         nj_tiles_scale_4_selected <- "viridis"
       }
       
-      nj_tiles_scale_4 <- selectInput(
-        "nj_tiles_scale_4",
-        "",
-        choices = list(
-          Continous = gradient_scales,
-          Diverging = diverging_scales
-        ),
-        selected = nj_tiles_scale_4_selected
-      )
-      if(input$nj_tiles_show_4) {
-        nj_tiles_scale_4
-      } else {shinyjs::disabled(nj_tiles_scale_4)}
+      list(Continous = gradient_scales,
+           Diverging = diverging_scales)
     } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))) > 7) {
+      if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_4]))) > 7) {
         
         if(!is.null(nj_tiles_scale_4_reactive())) {
           nj_tiles_scale_4_selected <- nj_tiles_scale_4_reactive()
@@ -16602,17 +15427,7 @@ server <- function(input, output, session) {
           nj_tiles_scale_4_selected <- "turbo"
         }
         
-        nj_tiles_scale_4 <- selectInput(
-          "nj_tiles_scale_4",
-          "",
-          choices = list(
-            Gradient = gradient_scales
-          ),
-          selected = nj_tiles_scale_4_selected
-        )
-        if(input$nj_tiles_show_4) {
-          nj_tiles_scale_4
-        } else {shinyjs::disabled(nj_tiles_scale_4)}
+        choices <- list(Gradient = gradient_scales)
       } else {
         
         if(!is.null(nj_tiles_scale_4_reactive())) {
@@ -16621,20 +15436,21 @@ server <- function(input, output, session) {
           nj_tiles_scale_4_selected <- "Accent"
         }
         
-        nj_tiles_scale_4 <- selectInput(
-          "nj_tiles_scale_4",
-          "",
-          choices = list(
-            Qualitative = qualitative_scales,
-            Sequential = sequential_scales
-          ),
-          selected = nj_tiles_scale_4_selected
-        )
-        if(input$nj_tiles_show_4) {
-          nj_tiles_scale_4
-        } else {shinyjs::disabled(nj_tiles_scale_4)}
+        choices <- list(Qualitative = qualitative_scales,
+                        Sequential = sequential_scales)
       }
     }
+    
+    nj_tiles_scale_4 <- selectInput(
+      "nj_tiles_scale_4",
+      label = h5("Color Scale", style = "color: white; margin-bottom: 0px;"),
+      width = "150px",
+      choices = choices,
+      selected = nj_tiles_scale_4_selected
+    )
+    if(nj_tiles_show_4) {
+      nj_tiles_scale_4
+    } else {shinyjs::disabled(nj_tiles_scale_4)}
   })
   
   output$upgma_tiles_scale_4 <- renderUI({
@@ -16681,7 +15497,21 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiles_scale_5 <- renderUI({
-    if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
+    req(Vis$meta_nj)
+    
+    if(!is.null(nj_fruit_variable_5_reactive())) {
+      nj_fruit_variable_5 <- nj_fruit_variable_5_reactive()
+    } else {
+      nj_fruit_variable_5 <- "Country"
+    }
+    
+    if(!is.null(nj_tiles_show_5_reactive())) {
+      nj_tiles_show_5 <- nj_tiles_show_5_reactive()
+    } else {
+      nj_tiles_show_5 <- FALSE
+    }
+    
+    if(class(unlist(Vis$meta_nj[nj_fruit_variable_5])) == "numeric") {
       
       if(!is.null(nj_tiles_scale_5_reactive())) {
         nj_tiles_scale_5_selected <- nj_tiles_scale_5_reactive()
@@ -16689,20 +15519,10 @@ server <- function(input, output, session) {
         nj_tiles_scale_5_selected <- "viridis"
       }
       
-      nj_tiles_scale_5 <- selectInput(
-        "nj_tiles_scale_5",
-        "",
-        choices = list(
-          Continous = gradient_scales,
-          Diverging = diverging_scales
-        ),
-        selected = nj_tiles_scale_5_selected
-      )
-      if(input$nj_tiles_show_5) {
-        nj_tiles_scale_5
-      } else {shinyjs::disabled(nj_tiles_scale_5)}
+      choices <- list(Continous = gradient_scales,
+                      Diverging = diverging_scales)
     } else {
-      if(length(unique(unlist(Vis$meta_nj[input$nj_fruit_variable]))) > 7) {
+      if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_5]))) > 7) {
         
         if(!is.null(nj_tiles_scale_5_reactive())) {
           nj_tiles_scale_5_selected <- nj_tiles_scale_5_reactive()
@@ -16710,17 +15530,7 @@ server <- function(input, output, session) {
           nj_tiles_scale_5_selected <- "turbo"
         }
         
-        nj_tiles_scale_5 <- selectInput(
-          "nj_tiles_scale_5",
-          "",
-          choices = list(
-            Gradient = gradient_scales
-          ),
-          selected = nj_tiles_scale_5_selected
-        )
-        if(input$nj_tiles_show_5) {
-          nj_tiles_scale_5
-        } else {shinyjs::disabled(nj_tiles_scale_5)}
+        choices <- list(Gradient = gradient_scales)
       } else {
         
         if(!is.null(nj_tiles_scale_5_reactive())) {
@@ -16729,20 +15539,21 @@ server <- function(input, output, session) {
           nj_tiles_scale_5_selected <- "Accent"
         }
         
-        nj_tiles_scale_5 <- selectInput(
-          "nj_tiles_scale_5",
-          "",
-          choices = list(
-            Qualitative = qualitative_scales,
-            Sequential = sequential_scales
-          ),
-          selected = nj_tiles_scale_5_selected
-        )
-        if(input$nj_tiles_show_5) {
-          nj_tiles_scale_5
-        } else {shinyjs::disabled(nj_tiles_scale_5)}
+        choices <- list(Qualitative = qualitative_scales,
+                        Sequential = sequential_scales)
       }
     }
+    
+    nj_tiles_scale_5 <- selectInput(
+      "nj_tiles_scale_5",
+      label = h5("Color Scale", style = "color: white; margin-bottom: 0px;"),
+      width = "150px",
+      choices = choices,
+      selected = nj_tiles_scale_5_selected
+    )
+    if(nj_tiles_show_5) {
+      nj_tiles_scale_5
+    } else {shinyjs::disabled(nj_tiles_scale_5)}
   })
   
   output$upgma_tiles_scale_5 <- renderUI({
@@ -16788,6 +15599,40 @@ server <- function(input, output, session) {
     }
   })
   
+  output$nj_tiles_mid_scale_1 <- renderUI({
+    req(Vis$meta_nj)
+    if(!is.null(nj_tiles_show_1_reactive())) {
+      nj_tiles_show_1 <- nj_tiles_show_1_reactive()
+    } else {
+      nj_tiles_show_1 <- FALSE
+    }
+    
+    if(!is.null(nj_tiles_mapping_div_mid_1_reactive())) {
+      nj_tiles_mapping_div_mid_1_selected <- nj_tiles_mapping_div_mid_1_reactive()
+    } else {
+      nj_tiles_mapping_div_mid_1_selected <- "Mean"
+    }
+    
+    nj_tiles_mapping_div_mid_1 <- selectInput(
+      "nj_tiles_mapping_div_mid_1",
+      label = h5("Midpoint", style = "color: white; margin-bottom: 0px;"),
+      choices = c("Zero", "Mean", "Median"),
+      selected = nj_tiles_mapping_div_mid_1_selected
+    )
+    
+    if(nj_tiles_show_1) {
+      if(!is.null(input$nj_fruit_variable) & !is.null(input$nj_tiles_scale_1) & 
+         !is.null(Vis$meta_nj)) {
+        if(is.numeric(unlist(Vis$meta_nj[input$nj_fruit_variable]))) {
+          if(input$nj_tiles_scale_1 %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 
+                                          'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
+            nj_tiles_mapping_div_mid_1
+          } else {shinyjs::disabled(nj_tiles_mapping_div_mid_1)}
+        } else {shinyjs::disabled(nj_tiles_mapping_div_mid_1)}
+      } else {shinyjs::disabled(nj_tiles_mapping_div_mid_1)}
+    } else {shinyjs::disabled(nj_tiles_mapping_div_mid_1)}
+  })
+  
   # Tip Labels Variable Color Scale
   output$nj_tiplab_scale <- renderUI({
     
@@ -16797,8 +15642,8 @@ server <- function(input, output, session) {
       nj_color_mapping <- "Country"
     }
     
-    if(!is.null(input$nj_mapping_show)) {
-      nj_mapping_show <- input$nj_mapping_show
+    if(!is.null(nj_mapping_show_reactive())) {
+      nj_mapping_show <- nj_mapping_show_reactive()
     } else {
       nj_mapping_show <- FALSE
     }
@@ -16811,19 +15656,10 @@ server <- function(input, output, session) {
         nj_tiplab_scale_selected <- "viridis"
       }
       
-      nj_tiplab_scale <- selectInput(
-        "nj_tiplab_scale",
-        "",
-        selectize = FALSE,
-        choices = list(
-          Continous = gradient_scales,
-          Diverging = diverging_scales
-        ),
-        selected = nj_tiplab_scale_selected
+      choices <- list(
+        Continous = gradient_scales,
+        Diverging = diverging_scales
       )
-      if(nj_mapping_show) {
-        nj_tiplab_scale
-      } else {shinyjs::disabled(nj_tiplab_scale)}
     } else {
       if(length(unique(unlist(Vis$meta_nj[nj_color_mapping]))) > 7) {
         
@@ -16833,18 +15669,7 @@ server <- function(input, output, session) {
           nj_tiplab_scale_selected <- "turbo"
         }
         
-        nj_tiplab_scale <- selectInput(
-          "nj_tiplab_scale",
-          "",
-          selectize = FALSE,
-          choices = list(
-            Gradient = gradient_scales
-          ),
-          selected = nj_tiplab_scale_selected
-        )
-        if(nj_mapping_show) {
-          nj_tiplab_scale
-        } else {shinyjs::disabled(nj_tiplab_scale)}
+        choices <- list(Gradient = gradient_scales)
       } else {
         
         if(!is.null(nj_tiplab_scale_reactive())) {
@@ -16853,20 +15678,57 @@ server <- function(input, output, session) {
           nj_tiplab_scale_selected <- "Set1"
         }
         
-        nj_tiplab_scale <- selectInput(
-          "nj_tiplab_scale",
-          "",
-          choices = list(
-            Qualitative = qualitative_scales,
-            Sequential = sequential_scales
-          ),
-          selected = nj_tiplab_scale_selected
-        )
-        if(nj_mapping_show) {
-          nj_tiplab_scale
-        } else {shinyjs::disabled(nj_tiplab_scale)}
+        choices <- list(Qualitative = qualitative_scales,
+                        Sequential = sequential_scales)
       }
     }
+    
+    nj_tiplab_scale <- selectInput(
+      "nj_tiplab_scale",
+      label = h5("Color Scale", style = "color: white; margin-bottom: 0px;"),
+      selectize = FALSE,
+      width = "150px",
+      choices = choices,
+      selected = nj_tiplab_scale_selected
+    )
+    
+    if(nj_mapping_show) {
+      nj_tiplab_scale
+    } else {shinyjs::disabled(nj_tiplab_scale)}
+  })
+  
+  output$nj_tiplab_mid_scale <- renderUI({
+    
+    if(!is.null(nj_mapping_show_reactive())) {
+      nj_mapping_show <- nj_mapping_show_reactive()
+    } else {
+      nj_mapping_show <- FALSE
+    }
+    
+    if(!is.null(nj_color_mapping_div_mid_reactive())) {
+      nj_color_mapping_div_mid_selected <- nj_color_mapping_div_mid_reactive()
+    } else {
+      nj_color_mapping_div_mid_selected <- "Mean"
+    }
+    
+    nj_color_mapping_div_mid <- selectInput(
+      "nj_color_mapping_div_mid",
+      label = h5("Midpoint", style = "color: white; margin-bottom: 0px;"),
+      choices = c("Zero", "Mean", "Median"),
+      selected = nj_color_mapping_div_mid_selected
+    )
+    
+    if(nj_mapping_show) {
+      if(!is.null(input$nj_color_mapping) & !is.null(input$nj_tiplab_scale) & 
+         !is.null(Vis$meta_nj)) {
+        if(is.numeric(unlist(Vis$meta_nj[input$nj_color_mapping]))) {
+          if(input$nj_tiplab_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 
+                                          'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
+            nj_color_mapping_div_mid
+          } else {shinyjs::disabled(nj_color_mapping_div_mid)}
+        } else {shinyjs::disabled(nj_color_mapping_div_mid)}
+      } else {shinyjs::disabled(nj_color_mapping_div_mid)}
+    } else {shinyjs::disabled(nj_color_mapping_div_mid)}
   })
   
   output$upgma_tiplab_scale <- renderUI({
@@ -16924,18 +15786,8 @@ server <- function(input, output, session) {
           nj_tippoint_scale_selected <- "viridis"
         }
         
-        nj_tippoint_scale <- selectInput(
-          "nj_tippoint_scale",
-          "",
-          choices = list(
-            Continous = gradient_scales,
-            Diverging = diverging_scales
-          ),
-          selected = nj_tippoint_scale_selected
-        )
-        if(input$nj_tipcolor_mapping_show) {
-          nj_tippoint_scale
-        } else {shinyjs::disabled(nj_tippoint_scale)}
+        choices <- list(Continous = gradient_scales,
+                        Diverging = diverging_scales)
       } else {
         if(length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))) > 7) {
           
@@ -16945,17 +15797,7 @@ server <- function(input, output, session) {
             nj_tippoint_scale_selected <- "turbo"
           }
           
-          nj_tippoint_scale <- selectInput(
-            "nj_tippoint_scale",
-            "",
-            choices = list(
-              Gradient = gradient_scales
-            ),
-            selected = nj_tippoint_scale_selected
-          )
-          if(input$nj_tipcolor_mapping_show) {
-            nj_tippoint_scale
-          } else {shinyjs::disabled(nj_tippoint_scale)}
+          choices <- list(Gradient = gradient_scales)
         } else {
           
           if(!is.null(nj_tippoint_scale_reactive())) {
@@ -16964,18 +15806,8 @@ server <- function(input, output, session) {
             nj_tippoint_scale_selected <- "Set2"
           }
           
-          nj_tippoint_scale <- selectInput(
-            "nj_tippoint_scale",
-            "",
-            choices = list(
-              Qualitative = qualitative_scales,
-              Sequential = sequential_scales
-            ),
-            selected = nj_tippoint_scale_selected
-          )
-          if(input$nj_tipcolor_mapping_show) {
-            nj_tippoint_scale
-          } else {shinyjs::disabled(nj_tippoint_scale)}
+          choices <- list(Qualitative = qualitative_scales,
+                          Sequential = sequential_scales)
         }
       }
     } else {
@@ -16986,20 +15818,55 @@ server <- function(input, output, session) {
         nj_tippoint_scale_selected <- "Set2"
       }
       
-      nj_tippoint_scale <- selectInput(
-        "nj_tippoint_scale",
-        "",
-        choices = list(
-          Qualitative = qualitative_scales,
-          Sequential = sequential_scales
-        ),
-        selected = nj_tippoint_scale_selected
-      )
-      
-      if(input$nj_tipcolor_mapping_show) {
-        nj_tippoint_scale
-      } else {shinyjs::disabled(nj_tippoint_scale)}
+      choices <- list(Qualitative = qualitative_scales,
+                      Sequential = sequential_scales)
     }
+    
+    nj_tippoint_scale <- selectInput(
+      "nj_tippoint_scale",
+      label = h5("Color Scale", style = "color: white; margin-bottom: 0px;"),
+      width = "150px",
+      choices = choices,
+      selected = nj_tippoint_scale_selected
+    )
+    
+    if(input$nj_tipcolor_mapping_show) {
+      nj_tippoint_scale
+    } else {shinyjs::disabled(nj_tippoint_scale)}
+  })
+  
+  output$nj_tippoint_mid_scale <- renderUI({
+    
+    if(!is.null(nj_tipcolor_mapping_show_reactive())) {
+      nj_tipcolor_mapping_show <- nj_tipcolor_mapping_show_reactive()
+    } else {
+      nj_tipcolor_mapping_show <- FALSE
+    }
+    
+    if(!is.null(nj_tipcolor_mapping_div_mid_reactive())) {
+      nj_tipcolor_mapping_div_mid_selected <- nj_tipcolor_mapping_div_mid_reactive()
+    } else {
+      nj_tipcolor_mapping_div_mid_selected <- "Mean"
+    }
+    
+    nj_tipcolor_mapping_div_mid <- selectInput(
+      "nj_tipcolor_mapping_div_mid",
+      label = h5("Midpoint", style = "color: white; margin-bottom: 0px;"),
+      choices = c("Zero", "Mean", "Median"),
+      selected = nj_tipcolor_mapping_div_mid_selected
+    )
+    
+    if(nj_tipcolor_mapping_show) {
+      if(!is.null(input$nj_tipcolor_mapping) & !is.null(input$nj_tippoint_scale) & 
+         !is.null(Vis$meta_nj)) {
+        if(is.numeric(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))) {
+          if(input$nj_tippoint_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 
+                                            'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
+            nj_tipcolor_mapping_div_mid
+          } else {shinyjs::disabled(nj_tipcolor_mapping_div_mid)}
+        } else {shinyjs::disabled(nj_tipcolor_mapping_div_mid)}
+      } else {shinyjs::disabled(nj_tipcolor_mapping_div_mid)}
+    } else {shinyjs::disabled(nj_tipcolor_mapping_div_mid)}
   })
   
   output$upgma_tippoint_scale <- renderUI({
@@ -17071,34 +15938,24 @@ server <- function(input, output, session) {
     }
     
     if(!is.null(Vis$nj_parentnodes)) {
-      pickerInput(
-        "nj_parentnode",
-        label = "",
-        choices = sort(unique(as.numeric(Vis$nj_parentnodes))),
-        multiple = TRUE,
-        options = list(
-          `live-search` = TRUE,
-          size = 10,
-          style = "background-color: white; border-radius: 5px;"
-        ),
-        selected = nj_parentnode_selected,
-        width = "99%"
-      )
+      choices <- sort(unique(as.numeric(Vis$nj_parentnodes)))
     } else {
-      pickerInput(
-        "nj_parentnode",
-        label = "",
-        choices = c(),
-        selected = nj_parentnode_selected,
-        multiple = TRUE,
-        options = list(
-          `live-search` = TRUE,
-          size = 10,
-          style = "background-color: white; border-radius: 5px;"
-        ),
-        width = "99%"
-      )
+      choices <- c()
     }
+    
+    pickerInput(
+      "nj_parentnode",
+      label = "",
+      choices = choices,
+      multiple = TRUE,
+      options = list(
+        `live-search` = TRUE,
+        size = 10,
+        style = "background-color: white; border-radius: 5px;"
+      ),
+      selected = nj_parentnode_selected,
+      width = "99%"
+    )
   })
   
   output$upgma_parentnode <- renderUI({
@@ -17132,17 +15989,29 @@ server <- function(input, output, session) {
   })
   
   # Branch label size
-  output$nj_branch_size <- renderUI(
-    numericInput(
+  output$nj_branch_size <- renderUI({
+    
+    if(!is.null(nj_branch_size_reactive())) {
+      nj_branch_size_selected <- nj_branch_size_reactive()
+    } else {
+      if(!is.null(Vis$branch_size_nj)) {
+        nj_branch_size_selected <- Vis$branch_size_nj
+      } else {
+        nj_branch_size_selected <- 4 
+      }
+    }
+    
+    sliderInput(
       "nj_branch_size",
       label = h5("Size", style = "color:white; margin-bottom: 0px"),
       min = 2,
       max = 10,
       step = 0.5,
-      value = Vis$branch_size_nj,
-      width = "80px"
+      value = nj_branch_size_selected,
+      width = "150px",
+      ticks = FALSE
     )
-  )
+  })
   
   output$upgma_branch_size <- renderUI(
     numericInput(
@@ -17159,36 +16028,26 @@ server <- function(input, output, session) {
   # Tippanel size
   output$nj_tiplab_padding_ui <- renderUI({
     
-    if(!is.null(Vis$tiplab_padding_nj)) {
-      sliderInput(
-        inputId = "nj_tiplab_padding",
-        label = h5("Size", style = "color:white; margin-bottom: 0px"),
-        min = 0.05,
-        max = 1,
-        value = Vis$tiplab_padding_nj,
-        step = 0.05,
-        width = "150px",
-        ticks = FALSE
-      )
+    if(!is.null(nj_tiplab_padding_reactive())) {
+      nj_tiplab_padding_selected <- nj_tiplab_padding_reactive()
     } else {
-      
-      if(!is.null(nj_tiplab_padding_reactive())) {
-        nj_tiplab_padding_selected <- nj_tiplab_padding_reactive()
+      if(!is.null(Vis$tiplab_padding_nj)) {
+        nj_tiplab_padding_selected <- Vis$tiplab_padding_nj
       } else {
         nj_tiplab_padding_selected <- 0.2
       }
-      
-      sliderInput(
-        inputId = "nj_tiplab_padding",
-        label = h5("Size", style = "color:white; margin-bottom: 0px"),
-        min = 0.05,
-        max = 1,
-        value = nj_tiplab_padding_selected,
-        step = 0.05,
-        width = "150px",
-        ticks = FALSE
-      )
     }
+    
+    sliderInput(
+      inputId = "nj_tiplab_padding",
+      label = h5("Size", style = "color:white; margin-bottom: 0px"),
+      min = 0.05,
+      max = 1,
+      value = nj_tiplab_padding_selected,
+      step = 0.05,
+      width = "150px",
+      ticks = FALSE
+    )
   })
   
   output$upgma_tiplab_padding <- renderUI(
@@ -17218,38 +16077,28 @@ server <- function(input, output, session) {
   )
   
   # Nodepoint size
-  output$nj_nodepoint_size <- renderUI(
-    if(!is.null(Vis$nodepointsize_nj)) {
-      sliderInput(
-        inputId = "nj_nodepoint_size",
-        label = h5("Size", style = "color:white; margin-bottom: 0px"),
-        min = 1,
-        max = 20,
-        value = Vis$nodepointsize_nj,
-        step = 0.5,
-        width = "150px",
-        ticks = FALSE
-      )
+  output$nj_nodepoint_size <- renderUI({
+    if(!is.null(nj_nodepoint_size_reactive())) {
+      nj_nodepoint_size_selected <- nj_nodepoint_size_reactive()
     } else {
-      
-      if(!is.null(nj_nodepoint_size_reactive())) {
-        nj_nodepoint_size_selected <- nj_nodepoint_size_reactive()
+      if(!is.null(Vis$nodepointsize_nj)) {
+        nj_nodepoint_size_selected <- Vis$nodepointsize_nj
       } else {
         nj_nodepoint_size_selected <- 2.5
       }
-      
-      sliderInput(
-        inputId = "nj_nodepoint_size",
-        label = h5("Size", style = "color:white; margin-bottom: 0px"),
-        min = 1,
-        max = 20,
-        value = 2.5,
-        step = 0.5,
-        width = "150px",
-        ticks = FALSE
-      )
     }
-  )
+    
+    sliderInput(
+      inputId = "nj_nodepoint_size",
+      label = h5("Size", style = "color:white; margin-bottom: 0px"),
+      min = 1,
+      max = 20,
+      value = nj_nodepoint_size_selected,
+      step = 0.5,
+      width = "150px",
+      ticks = FALSE
+    )
+  })
   
   output$upgma_nodepoint_size <- renderUI(
     if(!is.null(Vis$nodepointsize_upgma)) {
@@ -17279,37 +16128,26 @@ server <- function(input, output, session) {
   
   # Tippoint size 
   output$nj_tippoint_size <- renderUI({
-    
-    if(!is.null(Vis$tippointsize_nj)) {
-      sliderInput(
-        inputId = "nj_tippoint_size",
-        label = h5("Size", style = "color:white; margin-bottom: 0px"),
-        min = 1,
-        max = 20,
-        step = 0.5,
-        value = Vis$tippointsize_nj,
-        width = "150px",
-        ticks = FALSE
-      )
+    if(!is.null(nj_tippoint_size_reactive())) {
+      nj_tippoint_size_selected <- nj_tippoint_size_reactive()
     } else {
-      
-      if(!is.null(nj_tippoint_size_reactive())) {
-        nj_tippoint_size_selected <- nj_tippoint_size_reactive()
+      if(!is.null(Vis$tippointsize_nj)) {
+        nj_tippoint_size_selected <- Vis$tippointsize_nj
       } else {
         nj_tippoint_size_selected <- 4
       }
-      
-      sliderInput(
-        inputId = "nj_tippoint_size",
-        label = h5("Size", style = "color:white; margin-bottom: 0px"),
-        min = 1,
-        max = 20,
-        step = 0.5,
-        value = nj_tippoint_size_selected,
-        width = "150px",
-        ticks = FALSE
-      )
     }
+    
+    sliderInput(
+      inputId = "nj_tippoint_size",
+      label = h5("Size", style = "color:white; margin-bottom: 0px"),
+      min = 1,
+      max = 20,
+      step = 0.5,
+      value = nj_tippoint_size_selected,
+      width = "150px",
+      ticks = FALSE
+    )
   })
   
   output$upgma_tippoint_size <- renderUI(
@@ -17339,29 +16177,28 @@ server <- function(input, output, session) {
   )
   
   # Tiplabel size
-  output$nj_tiplab_size <- renderUI(
-    if(!is.null(Vis$labelsize_nj)) {
-      numericInput(
-        "nj_tiplab_size",
-        label = h5("Label size", style = "color:white; margin-bottom: 0px"),
-        min = 1,
-        max = 10,
-        step = 0.5,
-        value = Vis$labelsize_nj,
-        width = "80px"
-      )
+  output$nj_tiplab_size <- renderUI({
+    if(!is.null(nj_tiplab_size_reactive())) {
+      nj_tiplab_size_selected <- nj_tiplab_size_reactive()
     } else {
-      numericInput(
-        "nj_tiplab_size",
-        label = h5("Label size", style = "color:white; margin-bottom: 0px"),
-        min = 1,
-        max = 10,
-        step = 0.5,
-        value = 4,
-        width = "80px"
-      )
+      if(!is.null(Vis$Vis$labelsize_nj)) {
+        nj_tiplab_size_selected <- Vis$Vis$labelsize_nj
+      } else {
+        nj_tiplab_size_selected <- 4
+      }
     }
-  )
+    
+    sliderInput(
+      "nj_tiplab_size",
+      label = h5("Label size", style = "color:white; margin-bottom: 0px"),
+      min = 1,
+      max = 10,
+      step = 0.5,
+      value = nj_tiplab_size_selected,
+      width = "150px",
+      ticks = FALSE
+    )
+  })
   
   output$upgma_tiplab_size <- renderUI(
     if(!is.null(Vis$labelsize_upgma)) {
@@ -17395,6 +16232,7 @@ server <- function(input, output, session) {
       } else {
         min <- round(ceiling(Vis$nj_max_x) * 0.02, 0)  
       }
+      
       max <- round(ceiling(Vis$nj_max_x) * 0.2, 0)
       
       if(!is.null(nj_rootedge_length_reactive())) {
@@ -17402,34 +16240,26 @@ server <- function(input, output, session) {
       } else {
         nj_rootedge_length_selected <- round(ceiling(Vis$nj_max_x) * 0.05, 0)
       }
-      
-      sliderInput(
-        "nj_rootedge_length",
-        label = h5("Rootedge Length", style = "color:white; margin-bottom: 0px"),
-        min = min,
-        max = max,
-        value = nj_rootedge_length_selected,
-        width = "150px",
-        ticks = FALSE
-      )
     } else {
+      min <- 1
+      max <- 10
       
       if(!is.null(nj_rootedge_length_reactive())) {
         nj_rootedge_length_selected <- nj_rootedge_length_reactive()
       } else {
         nj_rootedge_length_selected <- 2
       }
-      
-      sliderInput(
-        "nj_rootedge_length",
-        label = h5("Length", style = "color:white; margin-bottom: 0px"),
-        min = 1,
-        max = 10,
-        value = nj_rootedge_length_selected,
-        width = "150px",
-        ticks = FALSE
-      )
     }
+    
+    sliderInput(
+      "nj_rootedge_length",
+      label = h5("Length", style = "color:white; margin-bottom: 0px"),
+      min = min,
+      max = max,
+      value = nj_rootedge_length_selected,
+      width = "150px",
+      ticks = FALSE
+    )
   })
   
   output$upgma_rootedge_length <- renderUI({
@@ -17465,40 +16295,32 @@ server <- function(input, output, session) {
   # Treescale 
   output$nj_treescale_width <- renderUI({
     if(!is.null(Vis$nj_max_x)) {
+      max <- round(floor(Vis$nj_max_x) * 0.5, 0)
       
       if(!is.null(nj_treescale_width_reactive())) {
         nj_treescale_width_selected <- nj_treescale_width_reactive()
       } else {
         nj_treescale_width_selected <- round(ceiling(Vis$nj_max_x) * 0.1, 0)
       }
-      
-      numericInput(
-        "nj_treescale_width",
-        label = h5("Length", style = "color:white; margin-bottom: 0px"),
-        value = nj_treescale_width_selected,
-        min = 1,
-        max = round(floor(Vis$nj_max_x) * 0.5, 0),
-        step = 1,
-        width = "80px"
-      )
     } else {
+      max <- 10
       
       if(!is.null(nj_treescale_width_reactive())) {
         nj_treescale_width_selected <- nj_treescale_width_reactive()
       } else {
         nj_treescale_width_selected <- 2
       }
-      
-      numericInput(
-        "nj_treescale_width",
-        label = h5("Length", style = "color:white; margin-bottom: 0px"),
-        value = nj_treescale_width_selected,
-        min = 1,
-        max = 10,
-        step = 1,
-        width = "80px"
-      )
     }
+    
+    numericInput(
+      "nj_treescale_width",
+      label = h5("Length", style = "color:white; margin-bottom: 0px"),
+      value = nj_treescale_width_selected,
+      min = 1,
+      max = max,
+      step = 1,
+      width = "80px"
+    )
   })
   
   output$upgma_treescale_width <- renderUI({
@@ -17528,44 +16350,38 @@ server <- function(input, output, session) {
   output$nj_treescale_x <- renderUI({
     if((!is.null(Vis$nj_min_x)) & (!is.null(Vis$nj_max_x))) {
       if(ceiling(Vis$nj_min_x) < 1) {
-        floor <- 1
+        min <- 1
       } else {
-        floor <- ceiling(Vis$nj_min_x)
+        min <- ceiling(Vis$nj_min_x)
       }
       
+      max <- round(floor(Vis$nj_max_x))
+        
       if(!is.null(nj_treescale_x_reactive())) {
         nj_treescale_x_selected <- nj_treescale_x_reactive()
       } else {
         nj_treescale_x_selected <- round(ceiling(Vis$nj_max_x) * 0.2, 0)
       }
-      
-      sliderInput(
-        "nj_treescale_x",
-        label = h5("X Position", style = "color:white; margin-bottom: 0px"),
-        min = floor,
-        max = round(floor(Vis$nj_max_x)),
-        value = nj_treescale_x_selected,
-        width = "150px",
-        ticks = FALSE
-      )
     } else {
+      min <- 1
+      max <- 10
       
       if(!is.null(nj_treescale_x_reactive())) {
         nj_treescale_x_selected <- nj_treescale_x_reactive()
       } else {
         nj_treescale_x_selected <- 2
       }
-      
-      sliderInput(
-        "nj_treescale_x",
-        label = h5("X Position", style = "color:white; margin-bottom: 0px"),
-        min = 1,
-        max = 10,
-        value = nj_treescale_x_selected,
-        width = "150px",
-        ticks = FALSE
-      )
     }
+    
+    sliderInput(
+      "nj_treescale_x",
+      label = h5("X Position", style = "color:white; margin-bottom: 0px"),
+      min = min,
+      max = max,
+      value = nj_treescale_x_selected,
+      width = "150px",
+      ticks = FALSE
+    )
   })
   
   output$upgma_treescale_x <- renderUI({
@@ -17606,26 +16422,20 @@ server <- function(input, output, session) {
     }
     
     if(!is.null(sum(DB$data$Include))) {
-      sliderInput(
-        "nj_treescale_y",
-        label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
-        min = 0,
-        max = sum(DB$data$Include),
-        value = nj_treescale_y_selected,
-        width = "150px",
-        ticks = FALSE
-      )
+      max <- sum(DB$data$Include)
     } else {
-      sliderInput(
-        "nj_treescale_y",
-        label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
-        min = 0,
-        max = 10,
-        value = nj_treescale_y_selected,
-        width = "150px",
-        ticks = FALSE
-      )
+      max <- 10
     }
+    
+    sliderInput(
+      "nj_treescale_y",
+      label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
+      min = 0,
+      max = max,
+      value = nj_treescale_y_selected,
+      width = "150px",
+      ticks = FALSE
+    )
   })
   
   output$upgma_treescale_y <- renderUI({
@@ -17656,8 +16466,8 @@ server <- function(input, output, session) {
   # Heatmap picker
   output$nj_heatmap_sel <- renderUI({
     
-    if(!is.null(input$nj_heatmap_show)) {
-      nj_heatmap_show <- input$nj_heatmap_show
+    if(!is.null(nj_heatmap_show_reactive())) {
+      nj_heatmap_show <- nj_heatmap_show_reactive()
     } else {
       nj_heatmap_show <- FALSE
     }
@@ -17670,8 +16480,9 @@ server <- function(input, output, session) {
         nj_heatmap_map <- "Variables"
       }
       
-      meta <- select(Vis$meta_nj, -c(taxa, Index, `Assembly ID`, `Assembly Name`,
-                                     Scheme, `Typing Date`, Successes, Errors))
+      meta <- select(Vis$meta_nj, -c(taxa, Index, `Assembly ID`, 
+                                     `Assembly Name`, Scheme, `Typing Date`, 
+                                     Successes, Errors))
       
       if(nj_heatmap_map == "Variables") {
         meta <- select(meta, -colnames(Vis$amr_nj))
@@ -17885,28 +16696,19 @@ server <- function(input, output, session) {
     }
     
     if(!is.null(Vis$nj_max_x)) {
-      sliderInput(
-        "nj_heatmap_offset",
-        label = "",
-        min = 0,
-        max = round(ceiling(Vis$nj_max_x)*1.5, 0),
-        step = 1,
-        value = nj_heatmap_offset_selected,
-        width = "150px",
-        ticks = FALSE
-      )
-    } else {
-      sliderInput(
-        "nj_heatmap_offset",
-        label = "",
-        min = 0,
-        max = 10,
-        step = 1,
-        value = nj_heatmap_offset_selected,
-        width = "150px",
-        ticks = FALSE
-      )
-    }
+      max <- round(ceiling(Vis$nj_max_x) * 1.5, 0)
+    } else {max <- 10}
+    
+    sliderInput(
+      "nj_heatmap_offset",
+      label = "",
+      min = 0,
+      max = max,
+      step = 1,
+      value = nj_heatmap_offset_selected,
+      width = "150px",
+      ticks = FALSE
+    )
   })
   
   output$upgma_heatmap_offset <- renderUI({
@@ -17945,233 +16747,201 @@ server <- function(input, output, session) {
       nj_fruit_variable_selected <- "Isolation Date"
     }
     
-    if(!is.null(Vis$meta_nj)) {
-      nj_fruit_variable <- selectInput(
-        "nj_fruit_variable",
-        "",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
-            `Isolation Date` = "Isolation Date",
-            Host = "Host",
-            Country = "Country",
-            City = "City"
-          )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
-        },
-        selected = nj_fruit_variable_selected,
-        width = "100%"
-      )
-      
-      if(input$nj_tiles_show_1) {
-        nj_fruit_variable
-      } else {shinyjs::disabled(nj_fruit_variable)}
+    if(!is.null(nj_tiles_show_1_reactive())) {
+      nj_tiles_show_1 <- nj_tiles_show_1_reactive()
     } else {
-      nj_fruit_variable <- selectInput(
-        "nj_fruit_variable",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        ),
-        selected = nj_fruit_variable_selected
-      )
-      
-      if(input$nj_tiles_show_1) {
-        nj_fruit_variable
-      } else {shinyjs::disabled(nj_fruit_variable)}
+      nj_tiles_show_1 <- FALSE
     }
+    
+    if(!is.null(Vis$meta_nj)) {
+      if(ncol(Vis$meta_nj) == 11) {
+        choices <- c(`Isolation Date` = "Isolation Date", Host = "Host", 
+                     Country = "Country",City = "City")
+      } else {
+        choices <- append(c(`Isolation Date` = "Isolation Date", 
+                            Host = "Host", Country = "Country", City = "City"),
+                          names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
+      }
+    } else {
+      choices <- c(`Isolation Date` = "Isolation Date", Host = "Host",
+                   Country = "Country", City = "City")
+    }
+    
+    nj_fruit_variable <- selectInput(
+      "nj_fruit_variable",
+      "",
+      choices = choices,
+      selected = nj_fruit_variable_selected,
+      width = "100%"
+    )
+    
+    if(nj_tiles_show_1) {
+      nj_fruit_variable
+    } else {shinyjs::disabled(nj_fruit_variable)}
   })
   
   output$nj_fruit_variable2 <- renderUI({
     
-    if(!is.null(nj_fruit_variable2_reactive())) {
-      nj_fruit_variable2_selected <- nj_fruit_variable2_reactive()
+    if(!is.null(nj_fruit_variable_2_reactive())) {
+      nj_fruit_variable_2_selected <- nj_fruit_variable_2_reactive()
     } else {
-      nj_fruit_variable2_selected <- "Isolation Date"
+      nj_fruit_variable_2_selected <- "Isolation Date"
+    }
+    
+    if(!is.null(nj_tiles_show_2_reactive())) {
+      nj_tiles_show_2 <- nj_tiles_show_2_reactive()
+    } else {
+      nj_tiles_show_2 <- FALSE
     }
     
     if(!is.null(Vis$meta_nj)) {
-      nj_fruit_variable_2 <- selectInput(
-        "nj_fruit_variable_2",
-        "",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
-            `Isolation Date` = "Isolation Date",
-            Host = "Host",
-            Country = "Country",
-            City = "City"
-          )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
-        },
-        selected = nj_fruit_variable2_selected,
-        width = "100%"
-      )
-      if(input$nj_tiles_show_2) {
-        nj_fruit_variable_2
-      } else {shinyjs::disabled(nj_fruit_variable_2)}
+      if(ncol(Vis$meta_nj) == 11) {
+        choices <- c(`Isolation Date` = "Isolation Date", Host = "Host", 
+                     Country = "Country",City = "City")
+      } else {
+        choices <- append(c(`Isolation Date` = "Isolation Date", 
+                            Host = "Host", Country = "Country", City = "City"),
+                          names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
+      }
     } else {
-      nj_fruit_variable_2 <- selectInput(
-        "nj_fruit_variable_2",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        ),
-        selected = nj_fruit_variable2_selected
-      )
-      if(input$nj_tiles_show_2) {
-        nj_fruit_variable_2
-      } else {shinyjs::disabled(nj_fruit_variable_2)}
+      choices <- c(`Isolation Date` = "Isolation Date", Host = "Host",
+                   Country = "Country", City = "City")
     }
+    
+    nj_fruit_variable_2 <- selectInput(
+      "nj_fruit_variable_2",
+      "",
+      choices = choices,
+      selected = nj_fruit_variable_selected_2,
+      width = "100%"
+    )
+    
+    if(nj_tiles_show_2) {
+      nj_fruit_variable_2
+    } else {shinyjs::disabled(nj_fruit_variable_2)}
   })
   
   output$nj_fruit_variable3 <- renderUI({
     
-    if(!is.null(nj_fruit_variable3_reactive())) {
-      nj_fruit_variable3_selected <- nj_fruit_variable3_reactive()
+    if(!is.null(nj_fruit_variable_3_reactive())) {
+      nj_fruit_variable_3_selected <- nj_fruit_variable_3_reactive()
     } else {
-      nj_fruit_variable3_selected <- "Isolation Date"
+      nj_fruit_variable_3_selected <- "Isolation Date"
+    }
+    
+    if(!is.null(nj_tiles_show_3_reactive())) {
+      nj_tiles_show_3 <- nj_tiles_show_3_reactive()
+    } else {
+      nj_tiles_show_3 <- FALSE
     }
     
     if(!is.null(Vis$meta_nj)) {
-      nj_fruit_variable_3 <- selectInput(
-        "nj_fruit_variable_3",
-        "",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
-            `Isolation Date` = "Isolation Date",
-            Host = "Host",
-            Country = "Country",
-            City = "City"
-          )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
-        },
-        selected = nj_fruit_variable3_selected,
-        width = "100%"
-      )
-      if(input$nj_tiles_show_3) {
-        nj_fruit_variable_3
-      } else {shinyjs::disabled(nj_fruit_variable_3)}
+      if(ncol(Vis$meta_nj) == 11) {
+        choices <- c(`Isolation Date` = "Isolation Date", Host = "Host", 
+                     Country = "Country",City = "City")
+      } else {
+        choices <- append(c(`Isolation Date` = "Isolation Date", 
+                            Host = "Host", Country = "Country", City = "City"),
+                          names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
+      }
     } else {
-      nj_fruit_variable_3 <- selectInput(
-        "nj_fruit_variable_3",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        ),
-        selected = nj_fruit_variable3_selected
-      )
-      if(input$nj_tiles_show_3) {
-        nj_fruit_variable_3
-      } else {shinyjs::disabled(nj_fruit_variable_3)}
+      choices <- c(`Isolation Date` = "Isolation Date", Host = "Host",
+                   Country = "Country", City = "City")
     }
+    
+    nj_fruit_variable_3 <- selectInput(
+      "nj_fruit_variable_3",
+      "",
+      choices = choices,
+      selected = nj_fruit_variable_selected_3,
+      width = "100%"
+    )
+    
+    if(nj_tiles_show_3) {
+      nj_fruit_variable_3
+    } else {shinyjs::disabled(nj_fruit_variable_3)}
   })
   
   output$nj_fruit_variable4 <- renderUI({
     
-    if(!is.null(nj_fruit_variable4_reactive())) {
-      nj_fruit_variable4_selected <- nj_fruit_variable4_reactive()
+    if(!is.null(nj_fruit_variable_4_reactive())) {
+      nj_fruit_variable_4_selected <- nj_fruit_variable_4_reactive()
     } else {
-      nj_fruit_variable4_selected <- "Isolation Date"
+      nj_fruit_variable_4_selected <- "Isolation Date"
+    }
+    
+    if(!is.null(nj_tiles_show_4_reactive())) {
+      nj_tiles_show_4 <- nj_tiles_show_4_reactive()
+    } else {
+      nj_tiles_show_4 <- FALSE
     }
     
     if(!is.null(Vis$meta_nj)) {
-      nj_fruit_variable_4 <- selectInput(
-        "nj_fruit_variable_4",
-        "",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
-            `Isolation Date` = "Isolation Date",
-            Host = "Host",
-            Country = "Country",
-            City = "City"
-          )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
-        },
-        selected = nj_fruit_variable4_selected,
-        width = "100%"
-      )
-      if(input$nj_tiles_show_4) {
-        nj_fruit_variable_4
-      } else {shinyjs::disabled(nj_fruit_variable_4)}
+      if(ncol(Vis$meta_nj) == 11) {
+        choices <- c(`Isolation Date` = "Isolation Date", Host = "Host", 
+                     Country = "Country",City = "City")
+      } else {
+        choices <- append(c(`Isolation Date` = "Isolation Date", 
+                            Host = "Host", Country = "Country", City = "City"),
+                          names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
+      }
     } else {
-      nj_fruit_variable_4 <- selectInput(
-        "nj_fruit_variable_4",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        ),
-        selected = nj_fruit_variable4_selected
-      )
-      if(input$nj_tiles_show_4) {
-        nj_fruit_variable_4
-      } else {shinyjs::disabled(nj_fruit_variable_4)}
+      choices <- c(`Isolation Date` = "Isolation Date", Host = "Host",
+                   Country = "Country", City = "City")
     }
+    
+    nj_fruit_variable_4 <- selectInput(
+      "nj_fruit_variable_4",
+      "",
+      choices = choices,
+      selected = nj_fruit_variable_selected_4,
+      width = "100%"
+    )
+    
+    if(nj_tiles_show_4) {
+      nj_fruit_variable_4
+    } else {shinyjs::disabled(nj_fruit_variable_4)}
   })
   
   output$nj_fruit_variable5 <- renderUI({
     
-    if(!is.null(nj_fruit_variable5_reactive())) {
-      nj_fruit_variable5_selected <- nj_fruit_variable5_reactive()
+    if(!is.null(nj_fruit_variable_5_reactive())) {
+      nj_fruit_variable_5_selected <- nj_fruit_variable_5_reactive()
     } else {
-      nj_fruit_variable5_selected <- "Isolation Date"
+      nj_fruit_variable_5_selected <- "Isolation Date"
+    }
+    
+    if(!is.null(nj_tiles_show_5_reactive())) {
+      nj_tiles_show_5 <- nj_tiles_show_5_reactive()
+    } else {
+      nj_tiles_show_5 <- FALSE
     }
     
     if(!is.null(Vis$meta_nj)) {
-      nj_fruit_variable_5 <- selectInput(
-        "nj_fruit_variable_5",
-        "",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
-            `Isolation Date` = "Isolation Date",
-            Host = "Host",
-            Country = "Country",
-            City = "City"
-          )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
-        },
-        selected = nj_fruit_variable5_selected,
-        width = "100%"
-      )
-      if(input$nj_tiles_show_5) {
-        nj_fruit_variable_5
-      } else {shinyjs::disabled(nj_fruit_variable_5)}
+      if(ncol(Vis$meta_nj) == 11) {
+        choices <- c(`Isolation Date` = "Isolation Date", Host = "Host", 
+                     Country = "Country",City = "City")
+      } else {
+        choices <- append(c(`Isolation Date` = "Isolation Date", 
+                            Host = "Host", Country = "Country", City = "City"),
+                          names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
+      }
     } else {
-      nj_fruit_variable_5 <- selectInput(
-        "nj_fruit_variable_5",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        ),
-        selected = nj_fruit_variable5_selected
-      )
-      if(input$nj_tiles_show_5) {
-        nj_fruit_variable_5
-      } else {shinyjs::disabled(nj_fruit_variable_5)}
+      choices <- c(`Isolation Date` = "Isolation Date", Host = "Host",
+                   Country = "Country", City = "City")
     }
+    
+    nj_fruit_variable_5 <- selectInput(
+      "nj_fruit_variable_5",
+      "",
+      choices = choices,
+      selected = nj_fruit_variable_selected_5,
+      width = "100%"
+    )
+    
+    if(nj_tiles_show_5) {
+      nj_fruit_variable_5
+    } else {shinyjs::disabled(nj_fruit_variable_5)}
   })
   
   output$upgma_fruit_variable <- renderUI({
@@ -18373,32 +17143,28 @@ server <- function(input, output, session) {
   
   # Geom Fruit Width
   output$nj_fruit_width <- renderUI({
+    
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
+    } else {
+      nj_layout <- "rectangular"
+    }
+    
     if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
       
       max <- round(ceiling(Vis$nj_max_x) * 0.5, 0)
       
       if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
-        if(!is.null(input$nj_layout)) { 
-          if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-            width <- 3
-          } else {
-            width <- 1
-          }
+        if(nj_layout == "circular" | nj_layout == "inward") {
+          width <- 3
         } else {
           width <- 1
         }
       } else {
-        if(!is.null(input$nj_layout)) {
-          if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-            width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
-            if(width < 1) {
-              width <- 1
-            }
-          } else {
-            width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
-            if(width < 1) {
-              width <- 1
-            }
+        if(nj_layout == "circular" | nj_layout == "inward") {
+          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          if(width < 1) {
+            width <- 1
           }
         } else {
           width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
@@ -18408,18 +17174,13 @@ server <- function(input, output, session) {
         }
       }
     } else {
-      if(!is.null(input$layout)) {
-        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          max <- 10
-          width <- 3
-        } else {
-          max <- 10
-          width <- 1
-        } 
+      if(nj_layout == "circular" | nj_layout == "inward") {
+        max <- 10
+        width <- 3
       } else {
         max <- 10
         width <- 1
-      }
+      } 
     }
     
     if(!is.null(nj_fruit_width_circ_reactive())) {
@@ -18440,32 +17201,28 @@ server <- function(input, output, session) {
   })
   
   output$nj_fruit_width2 <- renderUI({
+    
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
+    } else {
+      nj_layout <- "rectangular"
+    }
+    
     if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
       
       max <- round(ceiling(Vis$nj_max_x) * 0.5, 0)
       
       if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
-        if(!is.null(input$nj_layout)) { 
-          if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-            width <- 3
-          } else {
-            width <- 1
-          }
+        if(nj_layout == "circular" | nj_layout == "inward") {
+          width <- 3
         } else {
           width <- 1
         }
       } else {
-        if(!is.null(input$nj_layout)) {
-          if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-            width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
-            if(width < 1) {
-              width <- 1
-            }
-          } else {
-            width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
-            if(width < 1) {
-              width <- 1
-            }
+        if(nj_layout == "circular" | nj_layout == "inward") {
+          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          if(width < 1) {
+            width <- 1
           }
         } else {
           width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
@@ -18475,18 +17232,13 @@ server <- function(input, output, session) {
         }
       }
     } else {
-      if(!is.null(input$layout)) {
-        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          max <- 10
-          width <- 3
-        } else {
-          max <- 10
-          width <- 1
-        } 
+      if(nj_layout == "circular" | nj_layout == "inward") {
+        max <- 10
+        width <- 3
       } else {
         max <- 10
         width <- 1
-      }
+      } 
     }
     
     if(!is.null(nj_fruit_width_circ_2_reactive())) {
@@ -18507,32 +17259,28 @@ server <- function(input, output, session) {
   })
   
   output$nj_fruit_width3 <- renderUI({
+    
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
+    } else {
+      nj_layout <- "rectangular"
+    }
+    
     if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
       
       max <- round(ceiling(Vis$nj_max_x) * 0.5, 0)
       
       if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
-        if(!is.null(input$nj_layout)) { 
-          if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-            width <- 3
-          } else {
-            width <- 1
-          }
+        if(nj_layout == "circular" | nj_layout == "inward") {
+          width <- 3
         } else {
           width <- 1
         }
       } else {
-        if(!is.null(input$nj_layout)) {
-          if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-            width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
-            if(width < 1) {
-              width <- 1
-            }
-          } else {
-            width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
-            if(width < 1) {
-              width <- 1
-            }
+        if(nj_layout == "circular" | nj_layout == "inward") {
+          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          if(width < 1) {
+            width <- 1
           }
         } else {
           width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
@@ -18542,18 +17290,13 @@ server <- function(input, output, session) {
         }
       }
     } else {
-      if(!is.null(input$layout)) {
-        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          max <- 10
-          width <- 3
-        } else {
-          max <- 10
-          width <- 1
-        } 
+      if(nj_layout == "circular" | nj_layout == "inward") {
+        max <- 10
+        width <- 3
       } else {
         max <- 10
         width <- 1
-      }
+      } 
     }
     
     if(!is.null(nj_fruit_width_circ_3_reactive())) {
@@ -18574,32 +17317,28 @@ server <- function(input, output, session) {
   })
   
   output$nj_fruit_width4 <- renderUI({
+    
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
+    } else {
+      nj_layout <- "rectangular"
+    }
+    
     if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
       
       max <- round(ceiling(Vis$nj_max_x) * 0.5, 0)
       
       if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
-        if(!is.null(input$nj_layout)) { 
-          if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-            width <- 3
-          } else {
-            width <- 1
-          }
+        if(nj_layout == "circular" | nj_layout == "inward") {
+          width <- 3
         } else {
           width <- 1
         }
       } else {
-        if(!is.null(input$nj_layout)) {
-          if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-            width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
-            if(width < 1) {
-              width <- 1
-            }
-          } else {
-            width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
-            if(width < 1) {
-              width <- 1
-            }
+        if(nj_layout == "circular" | nj_layout == "inward") {
+          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          if(width < 1) {
+            width <- 1
           }
         } else {
           width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
@@ -18609,18 +17348,13 @@ server <- function(input, output, session) {
         }
       }
     } else {
-      if(!is.null(input$layout)) {
-        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          max <- 10
-          width <- 3
-        } else {
-          max <- 10
-          width <- 1
-        } 
+      if(nj_layout == "circular" | nj_layout == "inward") {
+        max <- 10
+        width <- 3
       } else {
         max <- 10
         width <- 1
-      }
+      } 
     }
     
     if(!is.null(nj_fruit_width_circ_4_reactive())) {
@@ -18641,32 +17375,28 @@ server <- function(input, output, session) {
   })
   
   output$nj_fruit_width5 <- renderUI({
+    
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
+    } else {
+      nj_layout <- "rectangular"
+    }
+    
     if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
       
       max <- round(ceiling(Vis$nj_max_x) * 0.5, 0)
       
       if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
-        if(!is.null(input$nj_layout)) { 
-          if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-            width <- 3
-          } else {
-            width <- 1
-          }
+        if(nj_layout == "circular" | nj_layout == "inward") {
+          width <- 3
         } else {
           width <- 1
         }
       } else {
-        if(!is.null(input$nj_layout)) {
-          if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-            width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
-            if(width < 1) {
-              width <- 1
-            }
-          } else {
-            width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
-            if(width < 1) {
-              width <- 1
-            }
+        if(nj_layout == "circular" | nj_layout == "inward") {
+          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
+          if(width < 1) {
+            width <- 1
           }
         } else {
           width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
@@ -18676,18 +17406,13 @@ server <- function(input, output, session) {
         }
       }
     } else {
-      if(!is.null(input$layout)) {
-        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          max <- 10
-          width <- 3
-        } else {
-          max <- 10
-          width <- 1
-        } 
+      if(nj_layout == "circular" | nj_layout == "inward") {
+        max <- 10
+        width <- 3
       } else {
         max <- 10
         width <- 1
-      }
+      } 
     }
     
     if(!is.null(nj_fruit_width_circ_5_reactive())) {
@@ -19020,45 +17745,41 @@ server <- function(input, output, session) {
       nj_tipcolor_mapping_selected <- "City"
     }
     
-    if(!is.null(Vis$meta_nj)) {
-      nj_tipcolor_mapping <- selectInput(
-        "nj_tipcolor_mapping",
-        "",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
-            `Assembly Name` = "Assembly Name",
-            `Isolation Date` = "Isolation Date",
-            Host = "Host",
-            Country = "Country",
-            City = "City"
-          )
-        } else {
-          append(c(`Assembly Name` = "Assembly Name", `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
-        },
-        selected = nj_tipcolor_mapping_selected,
-        width = "100%"
-      )
-      if(input$nj_tipcolor_mapping_show) {
-        nj_tipcolor_mapping
-      } else {shinyjs::disabled(nj_tipcolor_mapping)}
+    if(!is.null(nj_tipcolor_mapping_show_reactive())) {
+      nj_tipcolor_mapping_show <- nj_tipcolor_mapping_show_reactive()
     } else {
-      nj_tipcolor_mapping <- selectInput(
-        "nj_tipcolor_mapping",
-        "",
-        choices = c(
-          `Assembly Name` = "Assembly Name",
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        ),
-        selected = nj_tipcolor_mapping_selected
-      )
-      if(input$nj_tipcolor_mapping_show) {
-        nj_tipcolor_mapping
-      } else {shinyjs::disabled(nj_tipcolor_mapping)}
+      nj_tipcolor_mapping_show <- FALSE
     }
+    
+    if(!is.null(Vis$meta_nj)) {
+      if(ncol(Vis$meta_nj) == 11) {
+        choices <- c(`Assembly Name` = "Assembly Name", 
+                     `Isolation Date` = "Isolation Date", Host = "Host", 
+                     Country = "Country", City = "City")
+      } else {
+        choices <- append(c(`Assembly Name` = "Assembly Name", 
+                            `Isolation Date` = "Isolation Date", 
+                            Host = "Host", Country = "Country", 
+                            City = "City"),
+                          names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
+      }
+    } else {
+      choices <- c(`Assembly Name` = "Assembly Name",
+                   `Isolation Date` = "Isolation Date", Host = "Host", 
+                   Country = "Country", City = "City")
+    }
+    
+    nj_tipcolor_mapping <- selectInput(
+      "nj_tipcolor_mapping",
+      "",
+      choices = choices,
+      selected = nj_tipcolor_mapping_selected,
+      width = "100%"
+    )
+    
+    if(nj_tipcolor_mapping_show) {
+      nj_tipcolor_mapping
+    } else {shinyjs::disabled(nj_tipcolor_mapping)}
   })
   
   output$upgma_tipcolor_mapping <- renderUI({
@@ -19112,44 +17833,37 @@ server <- function(input, output, session) {
       nj_tipshape_mapping_selected <- "Host"
     }
     
-    if(!is.null(Vis$meta_nj)) {
-      nj_tipshape_mapping <- selectInput(
-        "nj_tipshape_mapping",
-        "",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
-            `Isolation Date` = "Isolation Date",
-            Host = "Host",
-            Country = "Country",
-            City = "City"
-          )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
-        },
-        selected = nj_tipshape_mapping_selected,
-        width = "100%"
-      )
-      if(input$nj_tipshape_mapping_show) {
-        nj_tipshape_mapping
-      } else {shinyjs::disabled(nj_tipshape_mapping)}
+    if(!is.null(nj_tipshape_mapping_show_reactive())) {
+      nj_tipshape_mapping_show <- nj_tipshape_mapping_show_reactive()
     } else {
-      nj_tipshape_mapping <- selectInput(
-        "nj_tipshape_mapping",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        ),
-        selected = nj_tipshape_mapping_selected,
-        width = "100%"
-      )
-      if(input$nj_tipshape_mapping_show) {
-        nj_tipshape_mapping
-      } else {shinyjs::disabled(nj_tipshape_mapping)}
+      nj_tipshape_mapping_show <- FALSE
     }
+    
+    if(!is.null(Vis$meta_nj)) {
+      if(ncol(Vis$meta_nj) == 11) {
+        choices <- c( `Isolation Date` = "Isolation Date",
+                      Host = "Host", Country = "Country", City = "City")
+      } else {
+        choices <- append(c(`Isolation Date` = "Isolation Date", 
+                            Host = "Host", Country = "Country", City = "City"),
+                          names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
+      }
+    } else {
+      choices = c(`Isolation Date` = "Isolation Date", Host = "Host",
+                  Country = "Country", City = "City")
+    }
+    
+    nj_tipshape_mapping <- selectInput(
+      "nj_tipshape_mapping",
+      "",
+      choices = choices,
+      selected = nj_tipshape_mapping_selected,
+      width = "100%"
+    )
+    
+    if(nj_tipshape_mapping_show) {
+      nj_tipshape_mapping
+    } else {shinyjs::disabled(nj_tipshape_mapping)}
   })
   
   output$upgma_tipshape_mapping <- renderUI({
@@ -19203,37 +17917,26 @@ server <- function(input, output, session) {
     }
     
     if(!is.null(Vis$meta_nj)) {
-      selectInput(
-        "nj_branch_label",
-        "",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
-            `Isolation Date` = "Isolation Date",
-            Host = "Host",
-            Country = "Country",
-            City = "City"
-          )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
-        },
-        selected = nj_branch_label_selected,
-        width = "100%"
-      )
+      if(ncol(Vis$meta_nj) == 11) {
+        choices <- c(`Isolation Date` = "Isolation Date", Host = "Host",
+                     Country = "Country", City = "City")
+      } else {
+        choices <- append(c(`Isolation Date` = "Isolation Date", Host = "Host", 
+                            Country = "Country", City = "City"),
+                          names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
+      }
     } else {
-      selectInput(
-        "nj_branch_label",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        ),
-        selected = c("Host" = "Host"),
-        width = "100%"
-      )
+      choices <- c(`Isolation Date` = "Isolation Date", Host = "Host",
+                   Country = "Country", City = "City")
     }
+    
+    selectInput(
+      "nj_branch_label",
+      "",
+      choices = choices,
+      selected = nj_branch_label_selected,
+      width = "100%"
+    )
   })
   
   output$upgma_branch_label <- renderUI({
@@ -19280,44 +17983,37 @@ server <- function(input, output, session) {
       nj_color_mapping_selected <- "Country"
     }
     
-    if(!is.null(Vis$meta_nj)) {
-      nj_color_mapping <- selectInput(
-        "nj_color_mapping",
-        "",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
-            `Isolation Date` = "Isolation Date",
-            Host = "Host",
-            Country = "Country",
-            City = "City"
-          )
-        } else {
-          append(c(`Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
-        },
-        selected = nj_color_mapping_selected,
-        width = "100%"
-      )
-      if(input$nj_mapping_show) {
-        nj_color_mapping
-      } else {shinyjs::disabled(nj_color_mapping)}
+    if(!is.null(nj_mapping_show_reactive())) {
+      nj_mapping_show <- nj_mapping_show_reactive()
     } else {
-      nj_color_mapping <- selectInput(
-        "nj_color_mapping",
-        "",
-        choices = c(
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        ),
-        selected = nj_color_mapping_selected,
-        width = "100%"
-      )
-      if(input$nj_mapping_show) {
-        nj_color_mapping
-      } else {shinyjs::disabled(nj_color_mapping)}
+      nj_mapping_show <- FALSE
     }
+    
+    if(!is.null(Vis$meta_nj)) {
+      if(ncol(Vis$meta_nj) == 11) {
+        choices <- c(`Isolation Date` = "Isolation Date", Host = "Host",
+                     Country = "Country", City = "City")
+      } else {
+        choices <- append(c(`Isolation Date` = "Isolation Date", Host = "Host", 
+                            Country = "Country", City = "City"),
+                          names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
+      }
+    } else {
+      choices <- c(`Isolation Date` = "Isolation Date", Host = "Host",
+                   Country = "Country", City = "City")
+    }
+    
+    nj_color_mapping <- selectInput(
+      "nj_color_mapping",
+      "",
+      choices = choices,
+      selected = nj_color_mapping_selected,
+      width = "100%"
+    )
+    
+    if(nj_mapping_show) {
+      nj_color_mapping
+    } else {shinyjs::disabled(nj_color_mapping)}
   })
   
   output$upgma_color_mapping <- renderUI({
@@ -19371,44 +18067,32 @@ server <- function(input, output, session) {
     }
     
     if(!is.null(Vis$meta_nj)) {
-      selectInput(
-        "nj_tiplab",
-        label = "",
-        choices = if(ncol(Vis$meta_nj) == 11) {
-          c(
-            Index = "Index",
-            `Assembly ID` = "Assembly ID",
-            `Assembly Name` = "Assembly Name",
-            `Isolation Date` = "Isolation Date",
-            Host = "Host",
-            Country = "Country",
-            City = "City"
-          )
-        } else {
-          append(c(Index = "Index", `Assembly ID` = "Assembly ID", `Assembly Name` = "Assembly Name",
-                   `Isolation Date` = "Isolation Date", Host = "Host", Country = "Country", City = "City"),
-                 names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
-        },
-        selected = nj_tiplab_selected,
-        width = "100%"
-      )
+      if(ncol(Vis$meta_nj) == 11) {
+        choices <- c(Index = "Index", `Assembly ID` = "Assembly ID",
+                     `Assembly Name` = "Assembly Name",
+                     `Isolation Date` = "Isolation Date", Host = "Host",
+                     Country = "Country", City = "City")
+      } else {
+        choices <- append(c(Index = "Index", `Assembly ID` = "Assembly ID", 
+                            `Assembly Name` = "Assembly Name",
+                            `Isolation Date` = "Isolation Date", Host = "Host", 
+                            Country = "Country", City = "City"),
+                          names(Vis$meta_nj)[14:ncol(Vis$meta_nj)])
+      }
     } else {
-      selectInput(
-        "nj_tiplab",
-        label = "",
-        choices = c(
-          Index = "Index",
-          `Assembly ID` = "Assembly ID",
-          `Assembly Name` = "Assembly Name",
-          `Isolation Date` = "Isolation Date",
-          Host = "Host",
-          Country = "Country",
-          City = "City"
-        ),
-        selected = c(`Assembly Name` = "Assembly Name"),
-        width = "100%"
-      )
+      choices = c(Index = "Index", `Assembly ID` = "Assembly ID",
+                  `Assembly Name` = "Assembly Name",
+                  `Isolation Date` = "Isolation Date", Host = "Host",
+                  Country = "Country", City = "City")
     }
+    
+    selectInput(
+      "nj_tiplab",
+      label = "",
+      choices = choices,
+      selected = nj_tiplab_selected,
+      width = "100%"
+    )
   })
   
   output$upgma_tiplab <- renderUI({
@@ -20956,6 +19640,24 @@ server <- function(input, output, session) {
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
   })
   
+  
+  ##### Miscellaneous ----
+  
+  # Size scaling MST
+  observe({
+    req(input$mst_ratio)
+    if(input$mst_ratio == "1.6") {
+      updateSliderInput(session, "mst_scale",
+                        step = 5, value = 600, min = 450, max = 670)
+    } else if(input$mst_ratio == "1.77777777777778") {
+      updateSliderInput(session, "mst_scale",
+                        step = 9, value = 657, min = 450, max = 666)
+    } else if(input$mst_ratio == "1.33333333333333"){
+      updateSliderInput(session, "mst_scale",
+                        step = 3, value = 654, min = 450, max = 669)
+    }
+  })
+  
   # Clustering UI
   output$mst_cluster <- renderUI({
     req(DB$schemeinfo)
@@ -21761,8 +20463,8 @@ server <- function(input, output, session) {
         }
       }
       
-      if(!is.null(input$nj_heatmap_show)) {
-        nj_heatmap_show <- input$nj_heatmap_show
+      if(!is.null(nj_heatmap_show_reactive())) {
+        nj_heatmap_show <- nj_heatmap_show_reactive()
       } else {
         nj_heatmap_show <- FALSE
       }
@@ -21826,52 +20528,53 @@ server <- function(input, output, session) {
   
   # Heatmap width
   nj_heatmap_width <- reactive({
-    if(!is.null(input$nj_heatmap_width)) {
-      input$nj_heatmap_width
+    
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
     } else {
-      
-      if(!is.null(input$nj_layout)) {
-        nj_layout <- input$nj_layout
-      } else {
-        nj_layout <- "rectangular"
-      }
-      
-      length_input <- length(Vis$nj_heatmap_select)
-      if(input$nj_layout != "circular" & input$nj_layout != "inward") {
-        if(length_input < 3) {
-          0.1
-        } else {
-          if (length_input >= 3 && length_input <= 50) {
-            min(0.15 + 0.05 * floor((length_input - 3) / 2), 1.5)
+      nj_layout <- "rectangular"
+    }
+    
+    if(!is.null(nj_heatmap_width_reactive())) {
+      nj_heatmap_width_reactive()
+    } else {
+      if(!is.null(Vis$nj_heatmap_select)) {
+        length_input <- length(Vis$nj_heatmap_select)
+        if(nj_layout != "circular" & nj_layout != "inward") {
+          if(length_input < 3) {
+            0.1
           } else {
-            1.5
-          }   
-        }
-      } else {
-        if(length_input < 3) {
-          0.3
-        } else if (length_input >= 3 && length_input <= 27) {
-          min(0.6 + 0.2 * floor((length_input - 3) / 2), 1.5)
+            if (length_input >= 3 && length_input <= 50) {
+              min(0.15 + 0.05 * floor((length_input - 3) / 2), 1.5)
+            } else {
+              1.5
+            }   
+          }
         } else {
-          3
+          if(length_input < 3) {
+            0.3
+          } else if (length_input >= 3 && length_input <= 27) {
+            min(0.6 + 0.2 * floor((length_input - 3) / 2), 1.5)
+          } else {
+            3
+          }
         }
-      }
+      } else {NULL}
     }
   })
   
   # Heatmap column titles position
   nj_colnames_y <- reactive({
-    if(!is.null(input$nj_colnames_y)) {
-      input$nj_colnames_y
+    if(!is.null(nj_colnames_y_reactive())) {
+      nj_colnames_y_reactive()
     } else {
-      
-      if(!is.null(input$nj_layout)) {
-        nj_layout <- input$nj_layout
+      if(!is.null(nj_layout_reactive())) {
+        nj_layout <- nj_layout_reactive()
       } else {
         nj_layout <- "rectangular"
       }
       
-      if(input$nj_layout == "inward" | input$nj_layout == "circular") {
+      if(nj_layout == "inward" | nj_layout == "circular") {
         0
       } else {-1}
     }
@@ -21879,101 +20582,111 @@ server <- function(input, output, session) {
   
   # Heatmap column titles angle
   nj_colnames_angle <- reactive({
-    if(!is.null(input$nj_colnames_angle)) {
-      input$nj_colnames_angle
+    if(!is.null(nj_colnames_angle_reactive)) {
+      nj_colnames_angle_reactive
     } else {
-      if(!is.null(input$nj_layout)) {
-        if(input$nj_layout == "inward" | input$nj_layout == "circular") {
-          90
-        } else {-90}
+      if(!is.null(nj_layout_reactive())) {
+        nj_layout <- nj_layout_reactive()
+      } else {
+        nj_layout <- "rectangular"
+      }
+      
+      if(nj_layout == "inward" | nj_layout == "circular") {
+        90
       } else {-90}
     }
   })
   
   # Heatmap scale
   nj_heatmap_scale <- reactive({
-    if(!is.null(input$nj_heatmap_scale)) {
+    req(nj_heatmap_scale_reactive(), Vis$meta_nj)
+    
+    if(!is.null(nj_heatmap_title_reactive())) {
+      nj_heatmap_title <- nj_heatmap_title_reactive()
+    } else {
+      nj_heatmap_title <- "Heatmap"
+    }
+    
+    if(nj_heatmap_scale_reactive() %in% c("Spectral", "RdYlGn", "RdYlBu", 
+                                          "RdGy", "RdBu", "PuOr", "PRGn", 
+                                          "PiYG", "BrBG")) {
       
-      if(!is.null(input$nj_heatmap_title)) {
-        nj_heatmap_title <- input$nj_heatmap_title
+      if(!is.null(nj_heatmap_div_mid_reactive())) {
+        nj_heatmap_div_mid <- nj_heatmap_div_mid_reactive()
       } else {
-        nj_heatmap_title <- "Heatmap"
+        nj_heatmap_div_mid <- "Mean"
       }
       
-      if(input$nj_heatmap_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-        if(!is.null(input$nj_heatmap_div_mid)) {
-          if(input$nj_heatmap_div_mid == "Zero") {
-            midpoint <- 0
-          } else if(input$nj_heatmap_div_mid == "Mean") {
-            midpoint <- mean(as.matrix(Vis$meta_nj[Vis$nj_heatmap_select]), na.rm = TRUE)
-          } else {
-            midpoint <- median(as.matrix(Vis$meta_nj[Vis$nj_heatmap_select]), na.rm = TRUE)
-          }
-          scale_fill_gradient2(low = brewer.pal(3, input$nj_heatmap_scale)[1],
-                               mid = brewer.pal(3, input$nj_heatmap_scale)[2],
-                               high = brewer.pal(3, input$nj_heatmap_scale)[3],
-                               midpoint = midpoint,
+      if(nj_heatmap_div_mid == "Zero") {
+        midpoint <- 0
+      } else if(nj_heatmap_div_mid == "Mean") {
+        midpoint <- mean(as.matrix(Vis$meta_nj[Vis$nj_heatmap_select]), na.rm = TRUE)
+      } else {
+        midpoint <- median(as.matrix(Vis$meta_nj[Vis$nj_heatmap_select]), na.rm = TRUE)
+      }
+      scale_fill_gradient2(low = brewer.pal(3, nj_heatmap_scale_reactive())[1],
+                           mid = brewer.pal(3, nj_heatmap_scale_reactive())[2],
+                           high = brewer.pal(3, nj_heatmap_scale_reactive())[3],
+                           midpoint = midpoint,
+                           name = nj_heatmap_title)
+    } else {
+      if(nj_heatmap_scale_reactive() %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+        if(class(unlist(Vis$meta_nj[Vis$nj_heatmap_select])) == "numeric") {
+          if(nj_heatmap_scale_reactive() == "magma") {
+            scale_fill_viridis(option = "A",
                                name = nj_heatmap_title)
+          } else if(nj_heatmap_scale_reactive() == "inferno") {
+            scale_fill_viridis(option = "B",
+                               name = nj_heatmap_title)
+          } else if(nj_heatmap_scale_reactive() == "plasma") {
+            scale_fill_viridis(option = "C",
+                               name = nj_heatmap_title)
+          } else if(nj_heatmap_scale_reactive() == "viridis") {
+            scale_fill_viridis(option = "D",
+                               name = nj_heatmap_title)
+          } else if(nj_heatmap_scale_reactive() == "cividis") {
+            scale_fill_viridis(option = "E",
+                               name = nj_heatmap_title)
+          } else if(nj_heatmap_scale_reactive() == "rocket") {
+            scale_fill_viridis(option = "F",
+                               name = nj_heatmap_title)
+          } else if(nj_heatmap_scale_reactive() == "mako") {
+            scale_fill_viridis(option = "G",
+                               name = nj_heatmap_title)
+          } else if(nj_heatmap_scale_reactive() == "turbo") {
+            scale_fill_viridis(option = "H",
+                               name = nj_heatmap_title)
+          } 
+        } else {
+          if(nj_heatmap_scale_reactive() == "magma") {
+            scale_fill_viridis(discrete = TRUE, option = "A",
+                               name = nj_heatmap_title)
+          } else if(nj_heatmap_scale_reactive() == "inferno") {
+            scale_fill_viridis(discrete = TRUE, option = "B",
+                               name = nj_heatmap_title)
+          } else if(nj_heatmap_scale_reactive() == "plasma") {
+            scale_fill_viridis(discrete = TRUE, option = "C",
+                               name = nj_heatmap_title)
+          } else if(nj_heatmap_scale_reactive() == "viridis") {
+            scale_fill_viridis(discrete = TRUE, option = "D",
+                               name = nj_heatmap_title)
+          } else if(nj_heatmap_scale_reactive() == "cividis") {
+            scale_fill_viridis(discrete = TRUE, option = "E",
+                               name = nj_heatmap_title)
+          } else if(nj_heatmap_scale_reactive() == "rocket") {
+            scale_fill_viridis(discrete = TRUE, option = "F",
+                               name = nj_heatmap_title)
+          } else if(nj_heatmap_scale_reactive() == "mako") {
+            scale_fill_viridis(discrete = TRUE, option = "G",
+                               name = nj_heatmap_title)
+          } else if(nj_heatmap_scale_reactive() == "turbo") {
+            scale_fill_viridis(discrete = TRUE, option = "H",
+                               name = nj_heatmap_title)
+          } 
         }
       } else {
-        if(input$nj_heatmap_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-          if(class(unlist(Vis$meta_nj[Vis$nj_heatmap_select])) == "numeric") {
-            if(input$nj_heatmap_scale == "magma") {
-              scale_fill_viridis(option = "A",
-                                 name = nj_heatmap_title)
-            } else if(input$nj_heatmap_scale == "inferno") {
-              scale_fill_viridis(option = "B",
-                                 name = nj_heatmap_title)
-            } else if(input$nj_heatmap_scale == "plasma") {
-              scale_fill_viridis(option = "C",
-                                 name = nj_heatmap_title)
-            } else if(input$nj_heatmap_scale == "viridis") {
-              scale_fill_viridis(option = "D",
-                                 name = nj_heatmap_title)
-            } else if(input$nj_heatmap_scale == "cividis") {
-              scale_fill_viridis(option = "E",
-                                 name = nj_heatmap_title)
-            } else if(input$nj_heatmap_scale == "rocket") {
-              scale_fill_viridis(option = "F",
-                                 name = nj_heatmap_title)
-            } else if(input$nj_heatmap_scale == "mako") {
-              scale_fill_viridis(option = "G",
-                                 name = nj_heatmap_title)
-            } else if(input$nj_heatmap_scale == "turbo") {
-              scale_fill_viridis(option = "H",
-                                 name = nj_heatmap_title)
-            } 
-          } else {
-            if(input$nj_heatmap_scale == "magma") {
-              scale_fill_viridis(discrete = TRUE, option = "A",
-                                 name = nj_heatmap_title)
-            } else if(input$nj_heatmap_scale == "inferno") {
-              scale_fill_viridis(discrete = TRUE, option = "B",
-                                 name = nj_heatmap_title)
-            } else if(input$nj_heatmap_scale == "plasma") {
-              scale_fill_viridis(discrete = TRUE, option = "C",
-                                 name = nj_heatmap_title)
-            } else if(input$nj_heatmap_scale == "viridis") {
-              scale_fill_viridis(discrete = TRUE, option = "D",
-                                 name = nj_heatmap_title)
-            } else if(input$nj_heatmap_scale == "cividis") {
-              scale_fill_viridis(discrete = TRUE, option = "E",
-                                 name = nj_heatmap_title)
-            } else if(input$nj_heatmap_scale == "rocket") {
-              scale_fill_viridis(discrete = TRUE, option = "F",
-                                 name = nj_heatmap_title)
-            } else if(input$nj_heatmap_scale == "mako") {
-              scale_fill_viridis(discrete = TRUE, option = "G",
-                                 name = nj_heatmap_title)
-            } else if(input$nj_heatmap_scale == "turbo") {
-              scale_fill_viridis(discrete = TRUE, option = "H",
-                                 name = nj_heatmap_title)
-            } 
-          }
-        } else {
-          scale_fill_brewer(palette = input$nj_heatmap_scale,
-                            name = nj_heatmap_title)
-        }
+        scale_fill_brewer(palette = nj_heatmap_scale_reactive(),
+                          name = nj_heatmap_title)
       }
     }
   })
@@ -21981,194 +20694,224 @@ server <- function(input, output, session) {
   # Tippoint Scale
   nj_tippoint_scale <- reactive({
     
-    if(!is.null(input$nj_tippoint_scale)) {
-      nj_tippoint_scale <- input$nj_tippoint_scale
+    req(nj_tippoint_scale_reactive(), Vis$meta_nj)
+    
+    if(!is.null(nj_tipcolor_mapping_reactive())) {
+      nj_tipcolor_mapping <- nj_tipcolor_mapping_reactive()
     } else {
-      nj_tippoint_scale <- "rectangular"
+      nj_tipcolor_mapping <- "Country"
     }
     
-    if(!is.null(input$nj_tippoint_scale)) {
-      if(input$nj_tippoint_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-        if(!is.null(input$nj_tipcolor_mapping_div_mid)) {
-          if(input$nj_tipcolor_mapping_div_mid == "Zero") {
-            midpoint <- 0
-          } else if(input$nj_tipcolor_mapping_div_mid == "Mean") {
-            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_tipcolor_mapping]), na.rm = TRUE)
-          } else {
-            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_tipcolor_mapping]), na.rm = TRUE)
-          }
-          scale_color_gradient2(low = brewer.pal(3, input$nj_tippoint_scale)[1],
-                                mid = brewer.pal(3, input$nj_tippoint_scale)[2],
-                                high = brewer.pal(3, input$nj_tippoint_scale)[3],
-                                midpoint = midpoint)
+    if(nj_tippoint_scale_reactive() %in% c("Spectral", "RdYlGn", "RdYlBu", 
+                                           "RdGy", "RdBu", "PuOr", "PRGn", 
+                                           "PiYG", "BrBG")) {
+      
+      if(!is.null(nj_tipcolor_mapping_div_mid_reactive())) {
+        nj_tipcolor_mapping_div_mid <- nj_tipcolor_mapping_div_mid_reactive()
+      } else {
+        nj_tipcolor_mapping_div_mid <- "Mean"
+      }
+      
+      if(nj_tipcolor_mapping_div_mid == "Zero") {
+        midpoint <- 0
+      } else if(nj_tipcolor_mapping_div_mid == "Mean") {
+        midpoint <- mean(as.matrix(Vis$meta_nj[nj_tipcolor_mapping]), na.rm = TRUE)
+      } else {
+        midpoint <- median(as.matrix(Vis$meta_nj[nj_tipcolor_mapping]), na.rm = TRUE)
+      }
+      scale_color_gradient2(low = brewer.pal(3, nj_tippoint_scale_reactive())[1],
+                            mid = brewer.pal(3, nj_tippoint_scale_reactive())[2],
+                            high = brewer.pal(3, nj_tippoint_scale_reactive())[3],
+                            midpoint = midpoint)
+    } else {
+      if(nj_tippoint_scale_reactive() %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+        if(class(unlist(Vis$meta_nj[nj_tipcolor_mapping])) == "numeric") {
+          if(nj_tippoint_scale_reactive() == "magma") {
+            scale_color_viridis(option = "A")
+          } else if(nj_tippoint_scale_reactive() == "inferno") {
+            scale_color_viridis(option = "B")
+          } else if(nj_tippoint_scale_reactive() == "plasma") {
+            scale_color_viridis(option = "C")
+          } else if(nj_tippoint_scale_reactive() == "viridis") {
+            scale_color_viridis(option = "D")
+          } else if(nj_tippoint_scale_reactive() == "cividis") {
+            scale_color_viridis(option = "E")
+          } else if(nj_tippoint_scale_reactive() == "rocket") {
+            scale_color_viridis(option = "F")
+          } else if(nj_tippoint_scale_reactive() == "mako") {
+            scale_color_viridis(option = "G")
+          } else if(nj_tippoint_scale_reactive() == "turbo") {
+            scale_color_viridis(option = "H")
+          } 
+        } else {
+          if(nj_tippoint_scale_reactive() == "magma") {
+            scale_color_viridis(discrete = TRUE, option = "A")
+          } else if(nj_tippoint_scale_reactive() == "inferno") {
+            scale_color_viridis(discrete = TRUE, option = "B")
+          } else if(nj_tippoint_scale_reactive() == "plasma") {
+            scale_color_viridis(discrete = TRUE, option = "C")
+          } else if(nj_tippoint_scale_reactive() == "viridis") {
+            scale_color_viridis(discrete = TRUE, option = "D")
+          } else if(nj_tippoint_scale_reactive() == "cividis") {
+            scale_color_viridis(discrete = TRUE, option = "E")
+          } else if(nj_tippoint_scale_reactive() == "rocket") {
+            scale_color_viridis(discrete = TRUE, option = "F")
+          } else if(nj_tippoint_scale_reactive() == "mako") {
+            scale_color_viridis(discrete = TRUE, option = "G")
+          } else if(nj_tippoint_scale_reactive() == "turbo") {
+            scale_color_viridis(discrete = TRUE, option = "H")
+          } 
         }
       } else {
-        if(input$nj_tippoint_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-          if(class(unlist(Vis$meta_nj[input$nj_tipcolor_mapping])) == "numeric") {
-            if(input$nj_tippoint_scale == "magma") {
-              scale_color_viridis(option = "A")
-            } else if(input$nj_tippoint_scale == "inferno") {
-              scale_color_viridis(option = "B")
-            } else if(input$nj_tippoint_scale == "plasma") {
-              scale_color_viridis(option = "C")
-            } else if(input$nj_tippoint_scale == "viridis") {
-              scale_color_viridis(option = "D")
-            } else if(input$nj_tippoint_scale == "cividis") {
-              scale_color_viridis(option = "E")
-            } else if(input$nj_tippoint_scale == "rocket") {
-              scale_color_viridis(option = "F")
-            } else if(input$nj_tippoint_scale == "mako") {
-              scale_color_viridis(option = "G")
-            } else if(input$nj_tippoint_scale == "turbo") {
-              scale_color_viridis(option = "H")
-            } 
-          } else {
-            if(input$nj_tippoint_scale == "magma") {
-              scale_color_viridis(discrete = TRUE, option = "A")
-            } else if(input$nj_tippoint_scale == "inferno") {
-              scale_color_viridis(discrete = TRUE, option = "B")
-            } else if(input$nj_tippoint_scale == "plasma") {
-              scale_color_viridis(discrete = TRUE, option = "C")
-            } else if(input$nj_tippoint_scale == "viridis") {
-              scale_color_viridis(discrete = TRUE, option = "D")
-            } else if(input$nj_tippoint_scale == "cividis") {
-              scale_color_viridis(discrete = TRUE, option = "E")
-            } else if(input$nj_tippoint_scale == "rocket") {
-              scale_color_viridis(discrete = TRUE, option = "F")
-            } else if(input$nj_tippoint_scale == "mako") {
-              scale_color_viridis(discrete = TRUE, option = "G")
-            } else if(input$nj_tippoint_scale == "turbo") {
-              scale_color_viridis(discrete = TRUE, option = "H")
-            } 
-          }
-        } else {
-          scale_color_brewer(palette = input$nj_tippoint_scale)
-        }
+        scale_color_brewer(palette = nj_tippoint_scale_reactive())
       }
     }
   })
   
   # Tiplab Scale
   nj_tiplab_scale <- reactive({
-    if(!is.null(input$nj_tiplab_scale)) {
-      if(input$nj_tiplab_scale %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-        if(!is.null(input$nj_color_mapping_div_mid)) {
-          if(input$nj_color_mapping_div_mid == "Zero") {
-            midpoint <- 0
-          } else if(input$nj_color_mapping_div_mid == "Mean") {
-            midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_color_mapping]), na.rm = TRUE)
-          } else {
-            midpoint <- median(as.matrix(Vis$meta_nj[input$nj_color_mapping]), na.rm = TRUE)
-          }
-          scale_color_gradient2(low = brewer.pal(3, input$nj_tiplab_scale)[1],
-                                mid = brewer.pal(3, input$nj_tiplab_scale)[2],
-                                high = brewer.pal(3, input$nj_tiplab_scale)[3],
-                                midpoint = midpoint) 
+    
+    req(nj_tiplab_scale_reactive(), Vis$meta_nj)
+    
+    if(!is.null(nj_color_mapping_reactive())) {
+      nj_color_mapping <- nj_color_mapping_reactive()
+    } else {
+      nj_color_mapping <- "Country"
+    }
+    
+    if(nj_tiplab_scale_reactive() %in% c("Spectral", "RdYlGn", "RdYlBu", 
+                                         "RdGy", "RdBu", "PuOr", "PRGn", 
+                                         "PiYG", "BrBG")) {
+      
+      if(!is.null(nj_color_mapping_div_mid_reactive())) {
+        nj_color_mapping_div_mid <- nj_color_mapping_div_mid_reactive()
+      } else {
+        nj_color_mapping_div_mid <- "Mean"
+      }
+      
+      if(nj_color_mapping_div_mid == "Zero") {
+        midpoint <- 0
+      } else if(nj_color_mapping_div_mid == "Mean") {
+        midpoint <- mean(as.matrix(Vis$meta_nj[nj_color_mapping]), na.rm = TRUE)
+      } else {
+        midpoint <- median(as.matrix(Vis$meta_nj[nj_color_mapping]), na.rm = TRUE)
+      }
+      scale_color_gradient2(low = brewer.pal(3, nj_tiplab_scale_reactive())[1],
+                            mid = brewer.pal(3, nj_tiplab_scale_reactive())[2],
+                            high = brewer.pal(3, nj_tiplab_scale_reactive())[3],
+                            midpoint = midpoint) 
+    } else {
+      if(nj_tiplab_scale_reactive() %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+        if(class(unlist(Vis$meta_nj[nj_color_mapping])) == "numeric") {
+          if(nj_tiplab_scale_reactive() == "magma") {
+            scale_color_viridis(option = "A")
+          } else if(nj_tiplab_scale_reactive() == "inferno") {
+            scale_color_viridis(option = "B")
+          } else if(nj_tiplab_scale_reactive() == "plasma") {
+            scale_color_viridis(option = "C")
+          } else if(nj_tiplab_scale_reactive() == "viridis") {
+            scale_color_viridis(option = "D")
+          } else if(nj_tiplab_scale_reactive() == "cividis") {
+            scale_color_viridis(option = "E")
+          } else if(nj_tiplab_scale_reactive() == "rocket") {
+            scale_color_viridis(option = "F")
+          } else if(nj_tiplab_scale_reactive() == "mako") {
+            scale_color_viridis(option = "G")
+          } else if(nj_tiplab_scale_reactive() == "turbo") {
+            scale_color_viridis(option = "H")
+          } 
+        } else {
+          if(nj_tiplab_scale_reactive() == "magma") {
+            scale_color_viridis(discrete = TRUE, option = "A")
+          } else if(nj_tiplab_scale_reactive() == "inferno") {
+            scale_color_viridis(discrete = TRUE, option = "B")
+          } else if(nj_tiplab_scale_reactive() == "plasma") {
+            scale_color_viridis(discrete = TRUE, option = "C")
+          } else if(nj_tiplab_scale_reactive() == "viridis") {
+            scale_color_viridis(discrete = TRUE, option = "D")
+          } else if(nj_tiplab_scale_reactive() == "cividis") {
+            scale_color_viridis(discrete = TRUE, option = "E")
+          } else if(nj_tiplab_scale_reactive() == "rocket") {
+            scale_color_viridis(discrete = TRUE, option = "F")
+          } else if(nj_tiplab_scale_reactive() == "mako") {
+            scale_color_viridis(discrete = TRUE, option = "G")
+          } else if(nj_tiplab_scale_reactive() == "turbo") {
+            scale_color_viridis(discrete = TRUE, option = "H")
+          } 
         }
       } else {
-        if(input$nj_tiplab_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-          if(class(unlist(Vis$meta_nj[input$nj_color_mapping])) == "numeric") {
-            if(input$nj_tiplab_scale == "magma") {
-              scale_color_viridis(option = "A")
-            } else if(input$nj_tiplab_scale == "inferno") {
-              scale_color_viridis(option = "B")
-            } else if(input$nj_tiplab_scale == "plasma") {
-              scale_color_viridis(option = "C")
-            } else if(input$nj_tiplab_scale == "viridis") {
-              scale_color_viridis(option = "D")
-            } else if(input$nj_tiplab_scale == "cividis") {
-              scale_color_viridis(option = "E")
-            } else if(input$nj_tiplab_scale == "rocket") {
-              scale_color_viridis(option = "F")
-            } else if(input$nj_tiplab_scale == "mako") {
-              scale_color_viridis(option = "G")
-            } else if(input$nj_tiplab_scale == "turbo") {
-              scale_color_viridis(option = "H")
-            } 
-          } else {
-            if(input$nj_tiplab_scale == "magma") {
-              scale_color_viridis(discrete = TRUE, option = "A")
-            } else if(input$nj_tiplab_scale == "inferno") {
-              scale_color_viridis(discrete = TRUE, option = "B")
-            } else if(input$nj_tiplab_scale == "plasma") {
-              scale_color_viridis(discrete = TRUE, option = "C")
-            } else if(input$nj_tiplab_scale == "viridis") {
-              scale_color_viridis(discrete = TRUE, option = "D")
-            } else if(input$nj_tiplab_scale == "cividis") {
-              scale_color_viridis(discrete = TRUE, option = "E")
-            } else if(input$nj_tiplab_scale == "rocket") {
-              scale_color_viridis(discrete = TRUE, option = "F")
-            } else if(input$nj_tiplab_scale == "mako") {
-              scale_color_viridis(discrete = TRUE, option = "G")
-            } else if(input$nj_tiplab_scale == "turbo") {
-              scale_color_viridis(discrete = TRUE, option = "H")
-            } 
-          }
-        } else {
-          scale_color_brewer(palette = input$nj_tiplab_scale)
-        }
+        scale_color_brewer(palette = nj_tiplab_scale_reactive())
       }
     }
   })
   
   # Clade Highlight
   nj_clades <- reactive({
+    req(nj_parentnode_reactive())
     
-    if(!is.null(input$nj_parentnode)) {
-      nj_parentnode <- input$nj_parentnode
-    } else {
-      nj_parentnode <- NULL
-    }
-    
-    if(!is.null(input$nj_clade_scale)) {
-      nj_clade_scale <- input$nj_clade_scale
+    if(!is.null(nj_clade_scale_reactive())) {
+      nj_clade_scale <- nj_clade_scale_reactive()
     } else {
       nj_clade_scale <- "#D0F221"
     }
     
-    if(!is.null(input$nj_clade_type)) {
-      nj_clade_type <- input$nj_clade_type
+    if(!is.null(nj_clade_type_reactive())) {
+      nj_clade_type <- nj_clade_type_reactive()
     } else {
       nj_clade_type <- "roundrect"
     }
     
-    if(!is.null(nj_parentnode)) {
-      if(!length(nj_parentnode) == 0) {
-        if(length(nj_parentnode) == 1) {
-          fill <- nj_clade_scale
-        } else if (length(nj_parentnode) == 2) {
-          if(startsWith(nj_clade_scale, "#")) {
-            fill <- brewer.pal(3, "Set1")[1:2]
-          } else {
-            fill <- brewer.pal(3, nj_clade_scale)[1:2]
-          }
+    if(!length(nj_parentnode()) == 0) {
+      if(length(nj_parentnode()) == 1) {
+        fill <- nj_clade_scale
+      } else if (length(nj_parentnode()) == 2) {
+        if(startsWith(nj_clade_scale, "#")) {
+          fill <- brewer.pal(3, "Set1")[1:2]
         } else {
-          fill <- brewer.pal(length(nj_parentnode), nj_clade_scale)
+          fill <- brewer.pal(3, nj_clade_scale)[1:2]
         }
-        geom_hilight(node = as.numeric(nj_parentnode),
-                     fill = fill,
-                     type = nj_clade_type,
-                     to.bottom = TRUE
-        )
-      } else {NULL}
-    }
+      } else {
+        fill <- brewer.pal(length(nj_parentnode()), nj_clade_scale)
+      }
+      
+      geom_hilight(node = as.numeric(nj_parentnode()),
+                   fill = fill,
+                   type = nj_clade_type,
+                   to.bottom = TRUE)
+    } else {NULL}
   })
   
   # Legend Position
   nj_legend_pos <- reactive({
-    if(!is.null(input$nj_legend_x) & !is.null(input$nj_legend_y)) {
-      c(input$nj_legend_x, input$nj_legend_y)
+    
+    if(!is.null(nj_legend_x_reactive())) {
+      nj_legend_x <- nj_legend_x_reactive()
     } else {
-      c(0.1, 1)
+      nj_legend_x <- 0.9
     }
+    
+    if(!is.null(nj_legend_y_reactive())) {
+      nj_legend_y <- nj_legend_y_reactive()
+    } else {
+      nj_legend_y <- 0.2
+    }
+    
+    c(nj_legend_x, nj_legend_y)
   })
   
   # Heatmap offset
   nj_heatmap_offset <- reactive({
-    if(is.null(input$nj_heatmap_offset)) {
-      0
-    } else {input$nj_heatmap_offset}
+    
+    if(!is.null(nj_heatmap_offset_reactive())) {
+      nj_heatmap_offset <- nj_heatmap_offset_reactive()
+    } else {
+      nj_heatmap_offset <- 0
+    }
+    
+    nj_heatmap_offset
   })
+  
+  ##<< continue here
   
   # Tiles fill color gradient
   nj_gradient <- reactive({
@@ -22544,8 +21287,8 @@ server <- function(input, output, session) {
       } else {NULL}
     } else {
       
-      if(!is.null(input$nj_layout)) {
-        nj_layout <- input$nj_layout()
+      if(!is.null(nj_layout_reactive())) {
+        nj_layout <- nj_layout_reactive()
       } else {
         nj_layout <- "rectangular"
       }
