@@ -11540,7 +11540,7 @@ server <- function(input, output, session) {
     if(!is.null(nj_tippoint_shape_reactive())) {
       nj_tippoint_shape_selected <- nj_tippoint_shape_reactive()
     } else {
-      nj_tippoint_shape_selected <- FALSE
+      nj_tippoint_shape_selected <- "circle"
     }
     
     if(!is.null(nj_tippoint_alpha_reactive())) {
@@ -13527,7 +13527,7 @@ server <- function(input, output, session) {
     if(!is.null(nj_tipshape_mapping_reactive())) {
       nj_tipshape_mapping <- nj_tipshape_mapping_reactive()
     } else {
-      nj_tipshape_mapping <- "Country"
+      nj_tipshape_mapping <- "Host"
     }
     
     if(is.numeric(unlist(Vis$meta_nj[nj_tipshape_mapping]))) {
@@ -13595,8 +13595,8 @@ server <- function(input, output, session) {
       }
     } else if (input$nj_tile_num == 2) {
       
-      if(!is.null(nj_fruit_variable_2_reactive())) {
-        nj_fruit_variable_2 <- nj_fruit_variable_2_reactive()
+      if(!is.null(nj_fruit_variable2_reactive())) {
+        nj_fruit_variable_2 <- nj_fruit_variable2_reactive()
       } else {
         nj_fruit_variable_2 <- "Country"
       }
@@ -15190,8 +15190,8 @@ server <- function(input, output, session) {
   output$nj_tiles_scale_2 <- renderUI({
     req(Vis$meta_nj)
     
-    if(!is.null(nj_fruit_variable_2_reactive())) {
-      nj_fruit_variable_2 <- nj_fruit_variable_2_reactive()
+    if(!is.null(nj_fruit_variable2_reactive())) {
+      nj_fruit_variable_2 <- nj_fruit_variable2_reactive()
     } else {
       nj_fruit_variable_2 <- "Country"
     }
@@ -16782,8 +16782,8 @@ server <- function(input, output, session) {
   
   output$nj_fruit_variable2 <- renderUI({
     
-    if(!is.null(nj_fruit_variable_2_reactive())) {
-      nj_fruit_variable_2_selected <- nj_fruit_variable_2_reactive()
+    if(!is.null(nj_fruit_variable2_reactive())) {
+      nj_fruit_variable_2_selected <- nj_fruit_variable2_reactive()
     } else {
       nj_fruit_variable_2_selected <- "Isolation Date"
     }
@@ -17161,24 +17161,17 @@ server <- function(input, output, session) {
           width <- 1
         }
       } else {
+        width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
         if(nj_layout == "circular" | nj_layout == "inward") {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
-          if(width < 1) {
-            width <- 1
-          }
-        } else {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
-          if(width < 1) {
-            width <- 1
-          }
+          width <- width * 3
         }
+        if(width < 1) {width <- 1}
       }
     } else {
+      max <- 10
       if(nj_layout == "circular" | nj_layout == "inward") {
-        max <- 10
         width <- 3
       } else {
-        max <- 10
         width <- 1
       } 
     }
@@ -17219,24 +17212,17 @@ server <- function(input, output, session) {
           width <- 1
         }
       } else {
+        width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
         if(nj_layout == "circular" | nj_layout == "inward") {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
-          if(width < 1) {
-            width <- 1
-          }
-        } else {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
-          if(width < 1) {
-            width <- 1
-          }
+          width <- width * 3
         }
+        if(width < 1) {width <- 1}
       }
     } else {
+      max <- 10
       if(nj_layout == "circular" | nj_layout == "inward") {
-        max <- 10
         width <- 3
       } else {
-        max <- 10
         width <- 1
       } 
     }
@@ -17277,24 +17263,17 @@ server <- function(input, output, session) {
           width <- 1
         }
       } else {
+        width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
         if(nj_layout == "circular" | nj_layout == "inward") {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
-          if(width < 1) {
-            width <- 1
-          }
-        } else {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
-          if(width < 1) {
-            width <- 1
-          }
+          width <- width * 3
         }
+        if(width < 1) {width <- 1}
       }
     } else {
+      max <- 10
       if(nj_layout == "circular" | nj_layout == "inward") {
-        max <- 10
         width <- 3
       } else {
-        max <- 10
         width <- 1
       } 
     }
@@ -17335,24 +17314,17 @@ server <- function(input, output, session) {
           width <- 1
         }
       } else {
+        width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
         if(nj_layout == "circular" | nj_layout == "inward") {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
-          if(width < 1) {
-            width <- 1
-          }
-        } else {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
-          if(width < 1) {
-            width <- 1
-          }
+          width <- width * 3
         }
+        if(width < 1) {width <- 1}
       }
     } else {
+      max <- 10
       if(nj_layout == "circular" | nj_layout == "inward") {
-        max <- 10
         width <- 3
       } else {
-        max <- 10
         width <- 1
       } 
     }
@@ -17393,24 +17365,17 @@ server <- function(input, output, session) {
           width <- 1
         }
       } else {
+        width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
         if(nj_layout == "circular" | nj_layout == "inward") {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
-          if(width < 1) {
-            width <- 1
-          }
-        } else {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
-          if(width < 1) {
-            width <- 1
-          }
+          width <- width * 3
         }
+        if(width < 1) {width <- 1}
       }
     } else {
+      max <- 10
       if(nj_layout == "circular" | nj_layout == "inward") {
-        max <- 10
         width <- 3
       } else {
-        max <- 10
         width <- 1
       } 
     }
@@ -20915,340 +20880,395 @@ server <- function(input, output, session) {
   
   # Tiles fill color gradient
   nj_gradient <- reactive({
-    if(!is.null(input$nj_tiles_show_1) & 
-       !is.null(input$nj_fruit_variable) & 
-       !is.null(input$nj_tiles_scale_1)) {
-      if(isTRUE(input$nj_tiles_show_1)) {
-        if(input$nj_tiles_scale_1 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-          if(!is.null(input$nj_tiles_mapping_div_mid_1)) {
-            if(input$nj_tiles_mapping_div_mid_1 == "Zero") {
-              midpoint <- 0
-            } else if(input$nj_tiles_mapping_div_mid_1 == "Mean") {
-              midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable]), na.rm = TRUE)
-            } else {
-              midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable]), na.rm = TRUE)
-            }
-            scale_fill_gradient2(low = brewer.pal(3, input$nj_tiles_scale_1)[1],
-                                 mid = brewer.pal(3, input$nj_tiles_scale_1)[2],
-                                 high = brewer.pal(3, input$nj_tiles_scale_1)[3],
-                                 midpoint = midpoint)
+    
+    req(nj_tiles_scale_1_reactive(), Vis$meta_nj)
+    
+    if(!is.null(nj_fruit_variable_reactive())) {
+      nj_fruit_variable <- nj_fruit_variable_reactive()
+    } else {
+      nj_fruit_variable <- "Country"
+    }
+    
+    if(isTRUE(nj_tiles_show_1_reactive())) {
+      if(nj_tiles_scale_1_reactive() %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
+        
+        
+        if(!is.null(nj_tiles_mapping_div_mid_1_reactive())) {
+          nj_tiles_mapping_div_mid_1 <- nj_tiles_mapping_div_mid_1_reactive()
+        } else {
+          nj_tiles_mapping_div_mid_1 <- "Mean"
+        }
+        
+        if(nj_tiles_mapping_div_mid_1 == "Zero") {
+          midpoint <- 0
+        } else if(nj_tiles_mapping_div_mid_1 == "Mean") {
+          midpoint <- mean(as.matrix(Vis$meta_nj[nj_fruit_variable]), na.rm = TRUE)
+        } else {
+          midpoint <- median(as.matrix(Vis$meta_nj[nj_fruit_variable]), na.rm = TRUE)
+        }
+        scale_fill_gradient2(low = brewer.pal(3, nj_tiles_scale_1_reactive())[1],
+                             mid = brewer.pal(3, nj_tiles_scale_1_reactive())[2],
+                             high = brewer.pal(3, nj_tiles_scale_1_reactive())[3],
+                             midpoint = midpoint)
+      } else {
+        if(nj_tiles_scale_1_reactive() %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+          if(class(unlist(Vis$meta_nj[nj_fruit_variable])) == "numeric") {
+            if(nj_tiles_scale_1_reactive() == "magma") {
+              scale_fill_viridis(option = "A")
+            } else if(nj_tiles_scale_1_reactive() == "inferno") {
+              scale_fill_viridis(option = "B")
+            } else if(nj_tiles_scale_1_reactive() == "plasma") {
+              scale_fill_viridis(option = "C")
+            } else if(nj_tiles_scale_1_reactive() == "viridis") {
+              scale_fill_viridis(option = "D")
+            } else if(nj_tiles_scale_1_reactive() == "cividis") {
+              scale_fill_viridis(option = "E")
+            } else if(nj_tiles_scale_1_reactive() == "rocket") {
+              scale_fill_viridis(option = "F")
+            } else if(nj_tiles_scale_1_reactive() == "mako") {
+              scale_fill_viridis(option = "G")
+            } else if(nj_tiles_scale_1_reactive() == "turbo") {
+              scale_fill_viridis(option = "H")
+            } 
+          } else {
+            if(nj_tiles_scale_1_reactive() == "magma") {
+              scale_fill_viridis(discrete = TRUE, option = "A")
+            } else if(nj_tiles_scale_1_reactive() == "inferno") {
+              scale_fill_viridis(discrete = TRUE, option = "B")
+            } else if(nj_tiles_scale_1_reactive() == "plasma") {
+              scale_fill_viridis(discrete = TRUE, option = "C")
+            } else if(nj_tiles_scale_1_reactive() == "viridis") {
+              scale_fill_viridis(discrete = TRUE, option = "D")
+            } else if(nj_tiles_scale_1_reactive() == "cividis") {
+              scale_fill_viridis(discrete = TRUE, option = "E")
+            } else if(nj_tiles_scale_1_reactive() == "rocket") {
+              scale_fill_viridis(discrete = TRUE, option = "F")
+            } else if(nj_tiles_scale_1_reactive() == "mako") {
+              scale_fill_viridis(discrete = TRUE, option = "G")
+            } else if(nj_tiles_scale_1_reactive() == "turbo") {
+              scale_fill_viridis(discrete = TRUE, option = "H")
+            } 
           }
         } else {
-          if(input$nj_tiles_scale_1 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
-              if(input$nj_tiles_scale_1 == "magma") {
-                scale_fill_viridis(option = "A")
-              } else if(input$nj_tiles_scale_1 == "inferno") {
-                scale_fill_viridis(option = "B")
-              } else if(input$nj_tiles_scale_1 == "plasma") {
-                scale_fill_viridis(option = "C")
-              } else if(input$nj_tiles_scale_1 == "viridis") {
-                scale_fill_viridis(option = "D")
-              } else if(input$nj_tiles_scale_1 == "cividis") {
-                scale_fill_viridis(option = "E")
-              } else if(input$nj_tiles_scale_1 == "rocket") {
-                scale_fill_viridis(option = "F")
-              } else if(input$nj_tiles_scale_1 == "mako") {
-                scale_fill_viridis(option = "G")
-              } else if(input$nj_tiles_scale_1 == "turbo") {
-                scale_fill_viridis(option = "H")
-              } 
-            } else {
-              if(input$nj_tiles_scale_1 == "magma") {
-                scale_fill_viridis(discrete = TRUE, option = "A")
-              } else if(input$nj_tiles_scale_1 == "inferno") {
-                scale_fill_viridis(discrete = TRUE, option = "B")
-              } else if(input$nj_tiles_scale_1 == "plasma") {
-                scale_fill_viridis(discrete = TRUE, option = "C")
-              } else if(input$nj_tiles_scale_1 == "viridis") {
-                scale_fill_viridis(discrete = TRUE, option = "D")
-              } else if(input$nj_tiles_scale_1 == "cividis") {
-                scale_fill_viridis(discrete = TRUE, option = "E")
-              } else if(input$nj_tiles_scale_1 == "rocket") {
-                scale_fill_viridis(discrete = TRUE, option = "F")
-              } else if(input$nj_tiles_scale_1 == "mako") {
-                scale_fill_viridis(discrete = TRUE, option = "G")
-              } else if(input$nj_tiles_scale_1 == "turbo") {
-                scale_fill_viridis(discrete = TRUE, option = "H")
-              } 
-            }
-          } else {
-            scale_fill_brewer(palette = input$nj_tiles_scale_1)
-          }
+          scale_fill_brewer(palette = nj_tiles_scale_1_reactive())
         }
-      } else {NULL}
-    }
+      }
+    } else {NULL}
   })
   
   nj_gradient2 <- reactive({
-    if(!is.null(input$nj_tiles_show_2) & 
-       !is.null(input$nj_fruit_variable_2) & 
-       !is.null(input$nj_tiles_scale_2)) {
-      if(isTRUE(input$nj_tiles_show_2)) {
-        if(input$nj_tiles_scale_2 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-          if(!is.null(input$nj_tiles_mapping_div_mid_2)) {
-            if(input$nj_tiles_mapping_div_mid_2 == "Zero") {
-              midpoint <- 0
-            } else if(input$nj_tiles_mapping_div_mid_2 == "Mean") {
-              midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_2]), na.rm = TRUE)
-            } else {
-              midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_2]), na.rm = TRUE)
-            }
-            scale_fill_gradient2(low = brewer.pal(3, input$nj_tiles_scale_2)[1],
-                                 mid = brewer.pal(3, input$nj_tiles_scale_2)[2],
-                                 high = brewer.pal(3, input$nj_tiles_scale_2)[3],
-                                 midpoint = midpoint)
+    
+    req(nj_tiles_scale_2_reactive(), Vis$meta_nj)
+    
+    if(!is.null(nj_fruit_variable2_reactive())) {
+      nj_fruit_variable_2 <- nj_fruit_variable2_reactive()
+    } else {
+      nj_fruit_variable_2 <- "Country"
+    }
+    
+    if(isTRUE(nj_tiles_show_2_reactive())) {
+      if(nj_tiles_scale_2_reactive() %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
+        
+        
+        if(!is.null(nj_tiles_mapping_div_mid_2_reactive())) {
+          nj_tiles_mapping_div_mid_2 <- nj_tiles_mapping_div_mid_2_reactive()
+        } else {
+          nj_tiles_mapping_div_mid_2 <- "Mean"
+        }
+        
+        if(nj_tiles_mapping_div_mid_2 == "Zero") {
+          midpoint <- 0
+        } else if(nj_tiles_mapping_div_mid_2 == "Mean") {
+          midpoint <- mean(as.matrix(Vis$meta_nj[nj_fruit_variable_2]), na.rm = TRUE)
+        } else {
+          midpoint <- median(as.matrix(Vis$meta_nj[nj_fruit_variable_2]), na.rm = TRUE)
+        }
+        scale_fill_gradient2(low = brewer.pal(3, nj_tiles_scale_2_reactive())[1],
+                             mid = brewer.pal(3, nj_tiles_scale_2_reactive())[2],
+                             high = brewer.pal(3, nj_tiles_scale_2_reactive())[3],
+                             midpoint = midpoint)
+      } else {
+        if(nj_tiles_scale_2_reactive() %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+          if(class(unlist(Vis$meta_nj[nj_fruit_variable_2])) == "numeric") {
+            if(nj_tiles_scale_2_reactive() == "magma") {
+              scale_fill_viridis(option = "A")
+            } else if(nj_tiles_scale_2_reactive() == "inferno") {
+              scale_fill_viridis(option = "B")
+            } else if(nj_tiles_scale_2_reactive() == "plasma") {
+              scale_fill_viridis(option = "C")
+            } else if(nj_tiles_scale_2_reactive() == "viridis") {
+              scale_fill_viridis(option = "D")
+            } else if(nj_tiles_scale_2_reactive() == "cividis") {
+              scale_fill_viridis(option = "E")
+            } else if(nj_tiles_scale_2_reactive() == "rocket") {
+              scale_fill_viridis(option = "F")
+            } else if(nj_tiles_scale_2_reactive() == "mako") {
+              scale_fill_viridis(option = "G")
+            } else if(nj_tiles_scale_2_reactive() == "turbo") {
+              scale_fill_viridis(option = "H")
+            } 
+          } else {
+            if(nj_tiles_scale_2_reactive() == "magma") {
+              scale_fill_viridis(discrete = TRUE, option = "A")
+            } else if(nj_tiles_scale_2_reactive() == "inferno") {
+              scale_fill_viridis(discrete = TRUE, option = "B")
+            } else if(nj_tiles_scale_2_reactive() == "plasma") {
+              scale_fill_viridis(discrete = TRUE, option = "C")
+            } else if(nj_tiles_scale_2_reactive() == "viridis") {
+              scale_fill_viridis(discrete = TRUE, option = "D")
+            } else if(nj_tiles_scale_2_reactive() == "cividis") {
+              scale_fill_viridis(discrete = TRUE, option = "E")
+            } else if(nj_tiles_scale_2_reactive() == "rocket") {
+              scale_fill_viridis(discrete = TRUE, option = "F")
+            } else if(nj_tiles_scale_2_reactive() == "mako") {
+              scale_fill_viridis(discrete = TRUE, option = "G")
+            } else if(nj_tiles_scale_2_reactive() == "turbo") {
+              scale_fill_viridis(discrete = TRUE, option = "H")
+            } 
           }
         } else {
-          if(input$nj_tiles_scale_2 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_2])) == "numeric") {
-              if(input$nj_tiles_scale_2 == "magma") {
-                scale_fill_viridis(option = "A")
-              } else if(input$nj_tiles_scale_2 == "inferno") {
-                scale_fill_viridis(option = "B")
-              } else if(input$nj_tiles_scale_2 == "plasma") {
-                scale_fill_viridis(option = "C")
-              } else if(input$nj_tiles_scale_2 == "viridis") {
-                scale_fill_viridis(option = "D")
-              } else if(input$nj_tiles_scale_2 == "cividis") {
-                scale_fill_viridis(option = "E")
-              } else if(input$nj_tiles_scale_2 == "rocket") {
-                scale_fill_viridis(option = "F")
-              } else if(input$nj_tiles_scale_2 == "mako") {
-                scale_fill_viridis(option = "G")
-              } else if(input$nj_tiles_scale_2 == "turbo") {
-                scale_fill_viridis(option = "H")
-              } 
-            } else {
-              if(input$nj_tiles_scale_2 == "magma") {
-                scale_fill_viridis(discrete = TRUE, option = "A")
-              } else if(input$nj_tiles_scale_2 == "inferno") {
-                scale_fill_viridis(discrete = TRUE, option = "B")
-              } else if(input$nj_tiles_scale_2 == "plasma") {
-                scale_fill_viridis(discrete = TRUE, option = "C")
-              } else if(input$nj_tiles_scale_2 == "viridis") {
-                scale_fill_viridis(discrete = TRUE, option = "D")
-              } else if(input$nj_tiles_scale_2 == "cividis") {
-                scale_fill_viridis(discrete = TRUE, option = "E")
-              } else if(input$nj_tiles_scale_2 == "rocket") {
-                scale_fill_viridis(discrete = TRUE, option = "F")
-              } else if(input$nj_tiles_scale_2 == "mako") {
-                scale_fill_viridis(discrete = TRUE, option = "G")
-              } else if(input$nj_tiles_scale_2 == "turbo") {
-                scale_fill_viridis(discrete = TRUE, option = "H")
-              } 
-            }
-          } else {
-            scale_fill_brewer(palette = input$nj_tiles_scale_2)
-          }
+          scale_fill_brewer(palette = nj_tiles_scale_2_reactive())
         }
-      } else {NULL}
-    }
+      }
+    } else {NULL}
   })
   
   nj_gradient3 <- reactive({
-    if(!is.null(input$nj_tiles_show_3) & 
-       !is.null(input$nj_fruit_variable_3) & 
-       !is.null(input$nj_tiles_scale_3)) {
-      if(isTRUE(input$nj_tiles_show_3)) {
-        if(input$nj_tiles_scale_3 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-          if(!is.null(input$nj_tiles_mapping_div_mid_3)) {
-            if(input$nj_tiles_mapping_div_mid_3 == "Zero") {
-              midpoint <- 0
-            } else if(input$nj_tiles_mapping_div_mid_3 == "Mean") {
-              midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_3]), na.rm = TRUE)
-            } else {
-              midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_3]), na.rm = TRUE)
-            }
-            scale_fill_gradient3(low = brewer.pal(3, input$nj_tiles_scale_3)[1],
-                                 mid = brewer.pal(3, input$nj_tiles_scale_3)[2],
-                                 high = brewer.pal(3, input$nj_tiles_scale_3)[3],
-                                 midpoint = midpoint)
+    
+    req(nj_tiles_scale_3_reactive(), Vis$meta_nj)
+    
+    if(!is.null(nj_fruit_variable3_reactive())) {
+      nj_fruit_variable_3 <- nj_fruit_variable3_reactive()
+    } else {
+      nj_fruit_variable_3 <- "Country"
+    }
+    
+    if(isTRUE(nj_tiles_show_3_reactive())) {
+      if(nj_tiles_scale_3_reactive() %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
+        
+        
+        if(!is.null(nj_tiles_mapping_div_mid_3_reactive())) {
+          nj_tiles_mapping_div_mid_3 <- nj_tiles_mapping_div_mid_3_reactive()
+        } else {
+          nj_tiles_mapping_div_mid_3 <- "Mean"
+        }
+        
+        if(nj_tiles_mapping_div_mid_3 == "Zero") {
+          midpoint <- 0
+        } else if(nj_tiles_mapping_div_mid_3 == "Mean") {
+          midpoint <- mean(as.matrix(Vis$meta_nj[nj_fruit_variable_3]), na.rm = TRUE)
+        } else {
+          midpoint <- median(as.matrix(Vis$meta_nj[nj_fruit_variable_3]), na.rm = TRUE)
+        }
+        scale_fill_gradient2(low = brewer.pal(3, nj_tiles_scale_3_reactive())[1],
+                             mid = brewer.pal(3, nj_tiles_scale_3_reactive())[2],
+                             high = brewer.pal(3, nj_tiles_scale_3_reactive())[3],
+                             midpoint = midpoint)
+      } else {
+        if(nj_tiles_scale_3_reactive() %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+          if(class(unlist(Vis$meta_nj[nj_fruit_variable_3])) == "numeric") {
+            if(nj_tiles_scale_3_reactive() == "magma") {
+              scale_fill_viridis(option = "A")
+            } else if(nj_tiles_scale_3_reactive() == "inferno") {
+              scale_fill_viridis(option = "B")
+            } else if(nj_tiles_scale_3_reactive() == "plasma") {
+              scale_fill_viridis(option = "C")
+            } else if(nj_tiles_scale_3_reactive() == "viridis") {
+              scale_fill_viridis(option = "D")
+            } else if(nj_tiles_scale_3_reactive() == "cividis") {
+              scale_fill_viridis(option = "E")
+            } else if(nj_tiles_scale_3_reactive() == "rocket") {
+              scale_fill_viridis(option = "F")
+            } else if(nj_tiles_scale_3_reactive() == "mako") {
+              scale_fill_viridis(option = "G")
+            } else if(nj_tiles_scale_3_reactive() == "turbo") {
+              scale_fill_viridis(option = "H")
+            } 
+          } else {
+            if(nj_tiles_scale_3_reactive() == "magma") {
+              scale_fill_viridis(discrete = TRUE, option = "A")
+            } else if(nj_tiles_scale_3_reactive() == "inferno") {
+              scale_fill_viridis(discrete = TRUE, option = "B")
+            } else if(nj_tiles_scale_3_reactive() == "plasma") {
+              scale_fill_viridis(discrete = TRUE, option = "C")
+            } else if(nj_tiles_scale_3_reactive() == "viridis") {
+              scale_fill_viridis(discrete = TRUE, option = "D")
+            } else if(nj_tiles_scale_3_reactive() == "cividis") {
+              scale_fill_viridis(discrete = TRUE, option = "E")
+            } else if(nj_tiles_scale_3_reactive() == "rocket") {
+              scale_fill_viridis(discrete = TRUE, option = "F")
+            } else if(nj_tiles_scale_3_reactive() == "mako") {
+              scale_fill_viridis(discrete = TRUE, option = "G")
+            } else if(nj_tiles_scale_3_reactive() == "turbo") {
+              scale_fill_viridis(discrete = TRUE, option = "H")
+            } 
           }
         } else {
-          if(input$nj_tiles_scale_3 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_3])) == "numeric") {
-              if(input$nj_tiles_scale_3 == "magma") {
-                scale_fill_viridis(option = "A")
-              } else if(input$nj_tiles_scale_3 == "inferno") {
-                scale_fill_viridis(option = "B")
-              } else if(input$nj_tiles_scale_3 == "plasma") {
-                scale_fill_viridis(option = "C")
-              } else if(input$nj_tiles_scale_3 == "viridis") {
-                scale_fill_viridis(option = "D")
-              } else if(input$nj_tiles_scale_3 == "cividis") {
-                scale_fill_viridis(option = "E")
-              } else if(input$nj_tiles_scale_3 == "rocket") {
-                scale_fill_viridis(option = "F")
-              } else if(input$nj_tiles_scale_3 == "mako") {
-                scale_fill_viridis(option = "G")
-              } else if(input$nj_tiles_scale_3 == "turbo") {
-                scale_fill_viridis(option = "H")
-              } 
-            } else {
-              if(input$nj_tiles_scale_3 == "magma") {
-                scale_fill_viridis(discrete = TRUE, option = "A")
-              } else if(input$nj_tiles_scale_3 == "inferno") {
-                scale_fill_viridis(discrete = TRUE, option = "B")
-              } else if(input$nj_tiles_scale_3 == "plasma") {
-                scale_fill_viridis(discrete = TRUE, option = "C")
-              } else if(input$nj_tiles_scale_3 == "viridis") {
-                scale_fill_viridis(discrete = TRUE, option = "D")
-              } else if(input$nj_tiles_scale_3 == "cividis") {
-                scale_fill_viridis(discrete = TRUE, option = "E")
-              } else if(input$nj_tiles_scale_3 == "rocket") {
-                scale_fill_viridis(discrete = TRUE, option = "F")
-              } else if(input$nj_tiles_scale_3 == "mako") {
-                scale_fill_viridis(discrete = TRUE, option = "G")
-              } else if(input$nj_tiles_scale_3 == "turbo") {
-                scale_fill_viridis(discrete = TRUE, option = "H")
-              } 
-            }
-          } else {
-            scale_fill_brewer(palette = input$nj_tiles_scale_3)
-          }
+          scale_fill_brewer(palette = nj_tiles_scale_3_reactive())
         }
-      } else {NULL}
-    }
+      }
+    } else {NULL}
   })
   
   nj_gradient4 <- reactive({
-    if(!is.null(input$nj_tiles_show_4) & 
-       !is.null(input$nj_fruit_variable_4) & 
-       !is.null(input$nj_tiles_scale_4)) {
-      if(isTRUE(input$nj_tiles_show_4)) {
-        if(input$nj_tiles_scale_4 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-          if(!is.null(input$nj_tiles_mapping_div_mid_4)) {
-            if(input$nj_tiles_mapping_div_mid_4 == "Zero") {
-              midpoint <- 0
-            } else if(input$nj_tiles_mapping_div_mid_4 == "Mean") {
-              midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_4]), na.rm = TRUE)
-            } else {
-              midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_4]), na.rm = TRUE)
-            }
-            scale_fill_gradient4(low = brewer.pal(3, input$nj_tiles_scale_4)[1],
-                                 mid = brewer.pal(3, input$nj_tiles_scale_4)[2],
-                                 high = brewer.pal(3, input$nj_tiles_scale_4)[3],
-                                 midpoint = midpoint)
+    
+    req(nj_tiles_scale_4_reactive(), Vis$meta_nj)
+    
+    if(!is.null(nj_fruit_variable4_reactive())) {
+      nj_fruit_variable_4 <- nj_fruit_variable4_reactive()
+    } else {
+      nj_fruit_variable_4 <- "Country"
+    }
+    
+    if(isTRUE(nj_tiles_show_4_reactive())) {
+      if(nj_tiles_scale_4_reactive() %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
+        
+        
+        if(!is.null(nj_tiles_mapping_div_mid_4_reactive())) {
+          nj_tiles_mapping_div_mid_4 <- nj_tiles_mapping_div_mid_4_reactive()
+        } else {
+          nj_tiles_mapping_div_mid_4 <- "Mean"
+        }
+        
+        if(nj_tiles_mapping_div_mid_4 == "Zero") {
+          midpoint <- 0
+        } else if(nj_tiles_mapping_div_mid_4 == "Mean") {
+          midpoint <- mean(as.matrix(Vis$meta_nj[nj_fruit_variable_4]), na.rm = TRUE)
+        } else {
+          midpoint <- median(as.matrix(Vis$meta_nj[nj_fruit_variable_4]), na.rm = TRUE)
+        }
+        scale_fill_gradient2(low = brewer.pal(3, nj_tiles_scale_4_reactive())[1],
+                             mid = brewer.pal(3, nj_tiles_scale_4_reactive())[2],
+                             high = brewer.pal(3, nj_tiles_scale_4_reactive())[3],
+                             midpoint = midpoint)
+      } else {
+        if(nj_tiles_scale_4_reactive() %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+          if(class(unlist(Vis$meta_nj[nj_fruit_variable_4])) == "numeric") {
+            if(nj_tiles_scale_4_reactive() == "magma") {
+              scale_fill_viridis(option = "A")
+            } else if(nj_tiles_scale_4_reactive() == "inferno") {
+              scale_fill_viridis(option = "B")
+            } else if(nj_tiles_scale_4_reactive() == "plasma") {
+              scale_fill_viridis(option = "C")
+            } else if(nj_tiles_scale_4_reactive() == "viridis") {
+              scale_fill_viridis(option = "D")
+            } else if(nj_tiles_scale_4_reactive() == "cividis") {
+              scale_fill_viridis(option = "E")
+            } else if(nj_tiles_scale_4_reactive() == "rocket") {
+              scale_fill_viridis(option = "F")
+            } else if(nj_tiles_scale_4_reactive() == "mako") {
+              scale_fill_viridis(option = "G")
+            } else if(nj_tiles_scale_4_reactive() == "turbo") {
+              scale_fill_viridis(option = "H")
+            } 
+          } else {
+            if(nj_tiles_scale_4_reactive() == "magma") {
+              scale_fill_viridis(discrete = TRUE, option = "A")
+            } else if(nj_tiles_scale_4_reactive() == "inferno") {
+              scale_fill_viridis(discrete = TRUE, option = "B")
+            } else if(nj_tiles_scale_4_reactive() == "plasma") {
+              scale_fill_viridis(discrete = TRUE, option = "C")
+            } else if(nj_tiles_scale_4_reactive() == "viridis") {
+              scale_fill_viridis(discrete = TRUE, option = "D")
+            } else if(nj_tiles_scale_4_reactive() == "cividis") {
+              scale_fill_viridis(discrete = TRUE, option = "E")
+            } else if(nj_tiles_scale_4_reactive() == "rocket") {
+              scale_fill_viridis(discrete = TRUE, option = "F")
+            } else if(nj_tiles_scale_4_reactive() == "mako") {
+              scale_fill_viridis(discrete = TRUE, option = "G")
+            } else if(nj_tiles_scale_4_reactive() == "turbo") {
+              scale_fill_viridis(discrete = TRUE, option = "H")
+            } 
           }
         } else {
-          if(input$nj_tiles_scale_4 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(Vis$meta_nj[input$nj_fruit_variable])) == "numeric") {
-              if(input$nj_tiles_scale_4 == "magma") {
-                scale_fill_viridis(option = "A")
-              } else if(input$nj_tiles_scale_4 == "inferno") {
-                scale_fill_viridis(option = "B")
-              } else if(input$nj_tiles_scale_4 == "plasma") {
-                scale_fill_viridis(option = "C")
-              } else if(input$nj_tiles_scale_4 == "viridis") {
-                scale_fill_viridis(option = "D")
-              } else if(input$nj_tiles_scale_4 == "cividis") {
-                scale_fill_viridis(option = "E")
-              } else if(input$nj_tiles_scale_4 == "rocket") {
-                scale_fill_viridis(option = "F")
-              } else if(input$nj_tiles_scale_4 == "mako") {
-                scale_fill_viridis(option = "G")
-              } else if(input$nj_tiles_scale_4 == "turbo") {
-                scale_fill_viridis(option = "H")
-              } 
-            } else {
-              if(input$nj_tiles_scale_4 == "magma") {
-                scale_fill_viridis(discrete = TRUE, option = "A")
-              } else if(input$nj_tiles_scale_4 == "inferno") {
-                scale_fill_viridis(discrete = TRUE, option = "B")
-              } else if(input$nj_tiles_scale_4 == "plasma") {
-                scale_fill_viridis(discrete = TRUE, option = "C")
-              } else if(input$nj_tiles_scale_4 == "viridis") {
-                scale_fill_viridis(discrete = TRUE, option = "D")
-              } else if(input$nj_tiles_scale_4 == "cividis") {
-                scale_fill_viridis(discrete = TRUE, option = "E")
-              } else if(input$nj_tiles_scale_4 == "rocket") {
-                scale_fill_viridis(discrete = TRUE, option = "F")
-              } else if(input$nj_tiles_scale_4 == "mako") {
-                scale_fill_viridis(discrete = TRUE, option = "G")
-              } else if(input$nj_tiles_scale_4 == "turbo") {
-                scale_fill_viridis(discrete = TRUE, option = "H")
-              } 
-            }
-          } else {
-            scale_fill_brewer(palette = input$nj_tiles_scale_4)
-          }
+          scale_fill_brewer(palette = nj_tiles_scale_4_reactive())
         }
-      } else {NULL}
-    }
+      }
+    } else {NULL}
   })
   
   nj_gradient5 <- reactive({
-    if(!is.null(input$nj_tiles_show_5) & 
-       !is.null(input$nj_fruit_variable_5) & 
-       !is.null(input$nj_tiles_scale_5)) {
-      if(isTRUE(input$nj_tiles_show_5)) {
-        if(input$nj_tiles_scale_5 %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
-          if(!is.null(input$nj_tiles_mapping_div_mid_5)) {
-            if(input$nj_tiles_mapping_div_mid_5 == "Zero") {
-              midpoint <- 0
-            } else if(input$nj_tiles_mapping_div_mid_5 == "Mean") {
-              midpoint <- mean(as.matrix(Vis$meta_nj[input$nj_fruit_variable_5]), na.rm = TRUE)
-            } else {
-              midpoint <- median(as.matrix(Vis$meta_nj[input$nj_fruit_variable_5]), na.rm = TRUE)
-            }
-            scale_fill_gradient5(low = brewer.pal(3, input$nj_tiles_scale_5)[1],
-                                 mid = brewer.pal(3, input$nj_tiles_scale_5)[2],
-                                 high = brewer.pal(3, input$nj_tiles_scale_5)[3],
-                                 midpoint = midpoint)
+    
+    req(nj_tiles_scale_5_reactive(), Vis$meta_nj)
+    
+    if(!is.null(nj_fruit_variable5_reactive())) {
+      nj_fruit_variable_5 <- nj_fruit_variable5_reactive()
+    } else {
+      nj_fruit_variable_5 <- "Country"
+    }
+    
+    if(isTRUE(nj_tiles_show_5_reactive())) {
+      if(nj_tiles_scale_5_reactive() %in% c("Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")) {
+        
+        
+        if(!is.null(nj_tiles_mapping_div_mid_5_reactive())) {
+          nj_tiles_mapping_div_mid_5 <- nj_tiles_mapping_div_mid_5_reactive()
+        } else {
+          nj_tiles_mapping_div_mid_5 <- "Mean"
+        }
+        
+        if(nj_tiles_mapping_div_mid_5 == "Zero") {
+          midpoint <- 0
+        } else if(nj_tiles_mapping_div_mid_5 == "Mean") {
+          midpoint <- mean(as.matrix(Vis$meta_nj[nj_fruit_variable_5]), na.rm = TRUE)
+        } else {
+          midpoint <- median(as.matrix(Vis$meta_nj[nj_fruit_variable_5]), na.rm = TRUE)
+        }
+        scale_fill_gradient2(low = brewer.pal(3, nj_tiles_scale_5_reactive())[1],
+                             mid = brewer.pal(3, nj_tiles_scale_5_reactive())[2],
+                             high = brewer.pal(3, nj_tiles_scale_5_reactive())[3],
+                             midpoint = midpoint)
+      } else {
+        if(nj_tiles_scale_5_reactive() %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+          if(class(unlist(Vis$meta_nj[nj_fruit_variable_5])) == "numeric") {
+            if(nj_tiles_scale_5_reactive() == "magma") {
+              scale_fill_viridis(option = "A")
+            } else if(nj_tiles_scale_5_reactive() == "inferno") {
+              scale_fill_viridis(option = "B")
+            } else if(nj_tiles_scale_5_reactive() == "plasma") {
+              scale_fill_viridis(option = "C")
+            } else if(nj_tiles_scale_5_reactive() == "viridis") {
+              scale_fill_viridis(option = "D")
+            } else if(nj_tiles_scale_5_reactive() == "cividis") {
+              scale_fill_viridis(option = "E")
+            } else if(nj_tiles_scale_5_reactive() == "rocket") {
+              scale_fill_viridis(option = "F")
+            } else if(nj_tiles_scale_5_reactive() == "mako") {
+              scale_fill_viridis(option = "G")
+            } else if(nj_tiles_scale_5_reactive() == "turbo") {
+              scale_fill_viridis(option = "H")
+            } 
+          } else {
+            if(nj_tiles_scale_5_reactive() == "magma") {
+              scale_fill_viridis(discrete = TRUE, option = "A")
+            } else if(nj_tiles_scale_5_reactive() == "inferno") {
+              scale_fill_viridis(discrete = TRUE, option = "B")
+            } else if(nj_tiles_scale_5_reactive() == "plasma") {
+              scale_fill_viridis(discrete = TRUE, option = "C")
+            } else if(nj_tiles_scale_5_reactive() == "viridis") {
+              scale_fill_viridis(discrete = TRUE, option = "D")
+            } else if(nj_tiles_scale_5_reactive() == "cividis") {
+              scale_fill_viridis(discrete = TRUE, option = "E")
+            } else if(nj_tiles_scale_5_reactive() == "rocket") {
+              scale_fill_viridis(discrete = TRUE, option = "F")
+            } else if(nj_tiles_scale_5_reactive() == "mako") {
+              scale_fill_viridis(discrete = TRUE, option = "G")
+            } else if(nj_tiles_scale_5_reactive() == "turbo") {
+              scale_fill_viridis(discrete = TRUE, option = "H")
+            } 
           }
         } else {
-          if(input$nj_tiles_scale_5 %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-            if(class(unlist(Vis$meta_nj[input$nj_fruit_variable_5])) == "numeric") {
-              if(input$nj_tiles_scale_5 == "magma") {
-                scale_fill_viridis(option = "A")
-              } else if(input$nj_tiles_scale_5 == "inferno") {
-                scale_fill_viridis(option = "B")
-              } else if(input$nj_tiles_scale_5 == "plasma") {
-                scale_fill_viridis(option = "C")
-              } else if(input$nj_tiles_scale_5 == "viridis") {
-                scale_fill_viridis(option = "D")
-              } else if(input$nj_tiles_scale_5 == "cividis") {
-                scale_fill_viridis(option = "E")
-              } else if(input$nj_tiles_scale_5 == "rocket") {
-                scale_fill_viridis(option = "F")
-              } else if(input$nj_tiles_scale_5 == "mako") {
-                scale_fill_viridis(option = "G")
-              } else if(input$nj_tiles_scale_5 == "turbo") {
-                scale_fill_viridis(option = "H")
-              } 
-            } else {
-              if(input$nj_tiles_scale_5 == "magma") {
-                scale_fill_viridis(discrete = TRUE, option = "A")
-              } else if(input$nj_tiles_scale_5 == "inferno") {
-                scale_fill_viridis(discrete = TRUE, option = "B")
-              } else if(input$nj_tiles_scale_5 == "plasma") {
-                scale_fill_viridis(discrete = TRUE, option = "C")
-              } else if(input$nj_tiles_scale_5 == "viridis") {
-                scale_fill_viridis(discrete = TRUE, option = "D")
-              } else if(input$nj_tiles_scale_5 == "cividis") {
-                scale_fill_viridis(discrete = TRUE, option = "E")
-              } else if(input$nj_tiles_scale_5 == "rocket") {
-                scale_fill_viridis(discrete = TRUE, option = "F")
-              } else if(input$nj_tiles_scale_5 == "mako") {
-                scale_fill_viridis(discrete = TRUE, option = "G")
-              } else if(input$nj_tiles_scale_5 == "turbo") {
-                scale_fill_viridis(discrete = TRUE, option = "H")
-              } 
-            }
-          } else {
-            scale_fill_brewer(palette = input$nj_tiles_scale_5)
-          }
+          scale_fill_brewer(palette = nj_tiles_scale_5_reactive())
         }
-      } else {NULL}
-    }
+      }
+    } else {NULL}
   })
   
   # No label clip off for linear NJ tree
   nj_clip_label <- reactive({
     
-    if(!is.null(input$nj_layout)) {
-      nj_layout <- input$nj_layout
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
     } else {
       nj_layout <- "rectangular"
     }
@@ -21260,329 +21280,329 @@ server <- function(input, output, session) {
   
   # Geom Fruit
   nj_fruit <- reactive({
-    if((!is.null(input$nj_tiles_show_1)) & 
-       (!is.null(input$nj_fruit_variable)) & 
-       (!is.null(input$nj_layout)) & 
-       (!is.null(input$nj_fruit_offset_circ)) & 
-       (!is.null(input$nj_fruit_width_circ)) & 
-       (!is.null(input$nj_fruit_alpha))) {
-      if(isTRUE(input$nj_tiles_show_1)) {
-        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          geom_fruit(
-            geom = geom_tile,
-            mapping = aes(fill= !!sym(input$nj_fruit_variable)),
-            offset = input$nj_fruit_offset_circ,
-            width = input$nj_fruit_width_circ,
-            alpha = input$nj_fruit_alpha
-          )
-        } else {
-          geom_fruit(
-            geom = geom_tile,
-            mapping = aes(fill= !!sym(input$nj_fruit_variable)),
-            offset = input$nj_fruit_offset_circ,
-            width = input$nj_fruit_width_circ,
-            alpha = input$nj_fruit_alpha
-          )
-        }
-      } else {NULL}
+    
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
     } else {
-      
-      if(!is.null(nj_layout_reactive())) {
-        nj_layout <- nj_layout_reactive()
+      nj_layout <- "rectangular"
+    }
+    
+    if(!is.null(nj_fruit_variable_reactive())) {
+      nj_fruit_variable <- nj_fruit_variable_reactive()
+    } else {
+      nj_fruit_variable <- "Country"
+    }
+    
+    if(!is.null(nj_fruit_offset_circ_reactive())) {
+      nj_fruit_offset_circ <- nj_fruit_offset_circ_reactive()
+    } else {
+      if(nj_layout == "circular" | nj_layout == "inward") {
+        nj_fruit_offset_circ <- 0.15
       } else {
-        nj_layout <- "rectangular"
+        nj_fruit_offset_circ <- 0.05
       }
-      
-      if(isTRUE(input$nj_tiles_show_1)) {
-        if(!is.null(Vis$nj_max_x)) {
-          if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
-            width <- 1
+    }
+    
+    if(!is.null(nj_fruit_alpha_reactive())) {
+      nj_fruit_alpha <- nj_fruit_alpha_reactive()
+    } else {
+      nj_fruit_alpha <- 1
+    }
+    
+    if(!is.null(nj_fruit_width_circ_reactive())) {
+      nj_fruit_width_circ <- nj_fruit_width_circ_reactive()
+    } else {
+      if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
+        if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+          if(nj_layout == "circular" | nj_layout == "inward") {
+            nj_fruit_width_circ <- 3
           } else {
-            width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+            nj_fruit_width_circ <- 1
           }
         } else {
-          width <- 2
+          nj_fruit_width_circ <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          if(nj_layout == "circular" | nj_layout == "inward") {
+            nj_fruit_width_circ <- nj_fruit_width_circ * 3
+          }
+          if(nj_fruit_width_circ < 1) {nj_fruit_width_circ <- 1}
         }
+      } else {
         if(nj_layout == "circular" | nj_layout == "inward") {
-          geom_fruit(
-            geom = geom_tile,
-            mapping = aes(fill= !!sym(input$nj_fruit_variable)),
-            offset = 0,
-            width = width * 3,
-            alpha = 1
-          )
+          nj_fruit_width_circ <- 3
         } else {
-          geom_fruit(
-            geom = geom_tile,
-            mapping = aes(fill= !!sym(input$nj_fruit_variable)),
-            offset = 0,
-            width = width,
-            alpha = 1
-          )
-        }
-      } else {NULL}
+          nj_fruit_width_circ <- 1
+        } 
+      }
     }
+    
+    geom_fruit(
+      geom = geom_tile,
+      mapping = aes(fill= !!sym(nj_fruit_variable)),
+      offset = nj_fruit_offset_circ,
+      width = nj_fruit_width_circ,
+      alpha = nj_fruit_alpha
+    )
   })
   
   # Geom Fruit
   nj_fruit2 <- reactive({
-    if((!is.null(input$nj_tiles_show_2)) & 
-       (!is.null(input$nj_fruit_variable_2)) & 
-       (!is.null(input$nj_layout)) & 
-       (!is.null(input$nj_fruit_offset_circ_2)) & 
-       (!is.null(input$nj_fruit_width_circ_2)) & 
-       (!is.null(input$nj_fruit_alpha_2))) {
-      if(isTRUE(input$nj_tiles_show_2)) {
-        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          geom_fruit(
-            geom = geom_tile,
-            mapping = aes(fill = !!sym(input$nj_fruit_variable_2)),
-            offset = input$nj_fruit_offset_circ_2,
-            width = input$nj_fruit_width_circ_2,
-            alpha = input$nj_fruit_alpha_2
-          )
-        } else {
-          geom_fruit(
-            geom = geom_tile,
-            mapping = aes(fill = !!sym(input$nj_fruit_variable_2)),
-            offset = input$nj_fruit_offset_circ_2,
-            width = input$nj_fruit_width_circ_2,
-            alpha = input$nj_fruit_alpha_2
-          )
-        }
-      } else {NULL}
+    
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
     } else {
-      
-      if(!is.null(input$nj_layout)) {
-        nj_layout <- input$nj_layout
+      nj_layout <- "rectangular"
+    }
+    
+    if(!is.null(nj_fruit_variable2_reactive())) {
+      nj_fruit_variable_2 <- nj_fruit_variable2_reactive()
+    } else {
+      nj_fruit_variable_2 <- "Country"
+    }
+    
+    if(!is.null(nj_fruit_offset_circ_2_reactive())) {
+      nj_fruit_offset_circ_2 <- nj_fruit_offset_circ_2_reactive()
+    } else {
+      if(nj_layout == "circular" | nj_layout == "inward") {
+        nj_fruit_offset_circ_2 <- 0.15
       } else {
-        nj_layout <- "rectangular"
+        nj_fruit_offset_circ_2 <- 0.05
       }
-      
-      if(isTRUE(input$nj_tiles_show_2)) {
-        if(!is.null(Vis$nj_max_x)) {
-          if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
-            width <- 1
+    }
+    
+    if(!is.null(nj_fruit_alpha_2_reactive())) {
+      nj_fruit_alpha_2 <- nj_fruit_alpha_2_reactive()
+    } else {
+      nj_fruit_alpha_2 <- 1
+    }
+    
+    if(!is.null(nj_fruit_width_circ_2_reactive())) {
+      nj_fruit_width_circ_2 <- nj_fruit_width_circ_2_reactive()
+    } else {
+      if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
+        if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+          if(nj_layout == "circular" | nj_layout == "inward") {
+            nj_fruit_width_circ_2 <- 3
           } else {
-            width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+            nj_fruit_width_circ_2 <- 1
           }
         } else {
-          width <- 2
+          nj_fruit_width_circ_2 <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          if(nj_layout == "circular" | nj_layout == "inward") {
+            nj_fruit_width_circ_2 <- nj_fruit_width_circ_2 * 3
+          }
+          if(nj_fruit_width_circ_2 < 1) {nj_fruit_width_circ_2 <- 1}
         }
+      } else {
         if(nj_layout == "circular" | nj_layout == "inward") {
-          geom_fruit(
-            geom = geom_tile,
-            mapping = aes(fill= !!sym(input$nj_fruit_variable_2)),
-            offset = 0.15,
-            width = width * 3,
-            alpha = 1
-          )
+          nj_fruit_width_circ_2 <- 3
         } else {
-          geom_fruit(
-            geom = geom_tile,
-            mapping = aes(fill= !!sym(input$nj_fruit_variable_2)),
-            offset = 0.05,
-            width = width,
-            alpha = 1
-          )
-        }
-      } else {NULL}
+          nj_fruit_width_circ_2 <- 1
+        } 
+      }
     }
+    
+    geom_fruit(
+      geom = geom_tile,
+      mapping = aes(fill= !!sym(nj_fruit_variable)),
+      offset = nj_fruit_offset_circ_2,
+      width = nj_fruit_width_circ_2,
+      alpha = nj_fruit_alpha_2
+    )
   })
   
   nj_fruit3 <- reactive({
-    if((!is.null(input$nj_tiles_show_3)) & 
-       (!is.null(input$nj_fruit_variable_3)) & 
-       (!is.null(input$nj_layout)) & 
-       (!is.null(input$nj_fruit_offset_circ_3)) & 
-       (!is.null(input$nj_fruit_width_circ_3)) & 
-       (!is.null(input$nj_fruit_alpha_3))) {
-      if(isTRUE(input$nj_tiles_show_3)) {
-        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          geom_fruit(
-            geom = geom_tile,
-            mapping = aes(fill = !!sym(input$nj_fruit_variable_3)),
-            offset = input$nj_fruit_offset_circ_3,
-            width = input$nj_fruit_width_circ_3,
-            alpha = input$nj_fruit_alpha_3
-          )
-        } else {
-          geom_fruit(
-            geom = geom_tile,
-            mapping = aes(fill = !!sym(input$nj_fruit_variable_3)),
-            offset = input$nj_fruit_offset_circ_3,
-            width = input$nj_fruit_width_circ_3,
-            alpha = input$nj_fruit_alpha_3
-          )
-        }
-      } else {NULL}
+    
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
     } else {
-      
-      if(!is.null(input$nj_layout)) {
-        nj_layout <- input$nj_layout
+      nj_layout <- "rectangular"
+    }
+    
+    if(!is.null(nj_fruit_variable3_reactive())) {
+      nj_fruit_variable_3 <- nj_fruit_variable3_reactive()
+    } else {
+      nj_fruit_variable_3 <- "Country"
+    }
+    
+    if(!is.null(nj_fruit_offset_circ_3_reactive())) {
+      nj_fruit_offset_circ_3 <- nj_fruit_offset_circ_3_reactive()
+    } else {
+      if(nj_layout == "circular" | nj_layout == "inward") {
+        nj_fruit_offset_circ_3 <- 0.15
       } else {
-        nj_layout <- "rectangular"
+        nj_fruit_offset_circ_3 <- 0.05
       }
-      
-      if(isTRUE(input$nj_tiles_show_3)) {
-        if(!is.null(Vis$nj_max_x)) {
-          if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
-            width <- 1
+    }
+    
+    if(!is.null(nj_fruit_alpha_3_reactive())) {
+      nj_fruit_alpha_3 <- nj_fruit_alpha_3_reactive()
+    } else {
+      nj_fruit_alpha_3 <- 1
+    }
+    
+    if(!is.null(nj_fruit_width_circ_3_reactive())) {
+      nj_fruit_width_circ_3 <- nj_fruit_width_circ_3_reactive()
+    } else {
+      if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
+        if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+          if(nj_layout == "circular" | nj_layout == "inward") {
+            nj_fruit_width_circ_3 <- 3
           } else {
-            width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+            nj_fruit_width_circ_3 <- 1
           }
         } else {
-          width <- 2
+          nj_fruit_width_circ_3 <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          if(nj_layout == "circular" | nj_layout == "inward") {
+            nj_fruit_width_circ_3 <- nj_fruit_width_circ_3 * 3
+          }
+          if(nj_fruit_width_circ_3 < 1) {nj_fruit_width_circ_3 <- 1}
         }
+      } else {
         if(nj_layout == "circular" | nj_layout == "inward") {
-          geom_fruit(
-            geom = geom_tile,
-            mapping = aes(fill= !!sym(input$nj_fruit_variable_3)),
-            offset = 0.15,
-            width = width * 3,
-            alpha = 1
-          )
+          nj_fruit_width_circ_3 <- 3
         } else {
-          geom_fruit(
-            geom = geom_tile,
-            mapping = aes(fill= !!sym(input$nj_fruit_variable_3)),
-            offset = 0.05,
-            width = width,
-            alpha = 1
-          )
-        }
-      } else {NULL}
+          nj_fruit_width_circ_3 <- 1
+        } 
+      }
     }
+    
+    geom_fruit(
+      geom = geom_tile,
+      mapping = aes(fill= !!sym(nj_fruit_variable)),
+      offset = nj_fruit_offset_circ_3,
+      width = nj_fruit_width_circ_3,
+      alpha = nj_fruit_alpha_3
+    )
   })
   
   nj_fruit4 <- reactive({
-    if((!is.null(input$nj_tiles_show_4)) & 
-       (!is.null(input$nj_fruit_variable_4)) & 
-       (!is.null(input$nj_layout)) & 
-       (!is.null(input$nj_fruit_offset_circ_4)) & 
-       (!is.null(input$nj_fruit_width_circ_4)) & 
-       (!is.null(input$nj_fruit_alpha_4))) {
-      if(isTRUE(input$nj_tiles_show_4)) {
-        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          geom_fruit(
-            geom = geom_tile,
-            mapping = aes(fill = !!sym(input$nj_fruit_variable_4)),
-            offset = input$nj_fruit_offset_circ_4,
-            width = input$nj_fruit_width_circ_4,
-            alpha = input$nj_fruit_alpha_4
-          )
-        } else {
-          geom_fruit(
-            geom = geom_tile,
-            mapping = aes(fill = !!sym(input$nj_fruit_variable_4)),
-            offset = input$nj_fruit_offset_circ_4,
-            width = input$nj_fruit_width_circ_4,
-            alpha = input$nj_fruit_alpha_4
-          )
-        }
+    
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
+    } else {
+      nj_layout <- "rectangular"
+    }
+    
+    if(!is.null(nj_fruit_variable4_reactive())) {
+      nj_fruit_variable_4 <- nj_fruit_variable4_reactive()
+    } else {
+      nj_fruit_variable_4 <- "Country"
+    }
+    
+    if(!is.null(nj_fruit_offset_circ_4_reactive())) {
+      nj_fruit_offset_circ_4 <- nj_fruit_offset_circ_4_reactive()
+    } else {
+      if(nj_layout == "circular" | nj_layout == "inward") {
+        nj_fruit_offset_circ_4 <- 0.15
       } else {
-        
-        if(!is.null(input$nj_layout)) {
-          nj_layout <- input$nj_layout
-        } else {
-          nj_layout <- "rectangular"
-        }
-        
-        if(isTRUE(input$nj_tiles_show_4)) {
-          if(!is.null(Vis$nj_max_x)) {
-            if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
-              width <- 1
-            } else {
-              width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
-            }
-          } else {
-            width <- 2
-          }
-          if(nj_layout == "circular" | nj_layout == "inward") {
-            geom_fruit(
-              geom = geom_tile,
-              mapping = aes(fill= !!sym(input$nj_fruit_variable_4)),
-              offset = 0.15,
-              width = width * 3,
-              alpha = 1
-            )
-          } else {
-            geom_fruit(
-              geom = geom_tile,
-              mapping = aes(fill= !!sym(input$nj_fruit_variable_4)),
-              offset = 0.05,
-              width = width,
-              alpha = 1
-            )
-          }
-        } else {NULL}
+        nj_fruit_offset_circ_4 <- 0.05
       }
     }
+    
+    if(!is.null(nj_fruit_alpha_4_reactive())) {
+      nj_fruit_alpha_4 <- nj_fruit_alpha_4_reactive()
+    } else {
+      nj_fruit_alpha_4 <- 1
+    }
+    
+    if(!is.null(nj_fruit_width_circ_4_reactive())) {
+      nj_fruit_width_circ_4 <- nj_fruit_width_circ_4_reactive()
+    } else {
+      if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
+        if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+          if(nj_layout == "circular" | nj_layout == "inward") {
+            nj_fruit_width_circ_4 <- 3
+          } else {
+            nj_fruit_width_circ_4 <- 1
+          }
+        } else {
+          nj_fruit_width_circ_4 <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          if(nj_layout == "circular" | nj_layout == "inward") {
+            nj_fruit_width_circ_4 <- nj_fruit_width_circ_4 * 3
+          }
+          if(nj_fruit_width_circ_4 < 1) {nj_fruit_width_circ_4 <- 1}
+        }
+      } else {
+        if(nj_layout == "circular" | nj_layout == "inward") {
+          nj_fruit_width_circ_4 <- 3
+        } else {
+          nj_fruit_width_circ_4 <- 1
+        } 
+      }
+    }
+    
+    geom_fruit(
+      geom = geom_tile,
+      mapping = aes(fill= !!sym(nj_fruit_variable)),
+      offset = nj_fruit_offset_circ_4,
+      width = nj_fruit_width_circ_4,
+      alpha = nj_fruit_alpha_4
+    )
   })
   
   nj_fruit5 <- reactive({
-    if((!is.null(input$nj_tiles_show_5)) & 
-       (!is.null(input$nj_fruit_variable_5)) & 
-       (!is.null(input$nj_layout)) & 
-       (!is.null(input$nj_fruit_offset_circ_5)) & 
-       (!is.null(input$nj_fruit_width_circ_5)) & 
-       (!is.null(input$nj_fruit_alpha_5))) {
-      if(isTRUE(input$nj_tiles_show_5)) {
-        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          geom_fruit(
-            geom = geom_tile,
-            mapping = aes(fill = !!sym(input$nj_fruit_variable_5)),
-            offset = input$nj_fruit_offset_circ_5,
-            width = input$nj_fruit_width_circ_5,
-            alpha = input$nj_fruit_alpha_5
-          )
-        } else {
-          geom_fruit(
-            geom = geom_tile,
-            mapping = aes(fill = !!sym(input$nj_fruit_variable_5)),
-            offset = input$nj_fruit_offset_circ_5,
-            width = input$nj_fruit_width_circ_5,
-            alpha = input$nj_fruit_alpha_5
-          )
-        }
-      } else {NULL}
+    
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
     } else {
-      
-      if(!is.null(input$nj_layout)) {
-        nj_layout <- input$nj_layout
+      nj_layout <- "rectangular"
+    }
+    
+    if(!is.null(nj_fruit_variable5_reactive())) {
+      nj_fruit_variable_5 <- nj_fruit_variable5_reactive()
+    } else {
+      nj_fruit_variable_5 <- "Country"
+    }
+    
+    if(!is.null(nj_fruit_offset_circ_5_reactive())) {
+      nj_fruit_offset_circ_5 <- nj_fruit_offset_circ_5_reactive()
+    } else {
+      if(nj_layout == "circular" | nj_layout == "inward") {
+        nj_fruit_offset_circ_5 <- 0.15
       } else {
-        nj_layout <- "rectangular"
+        nj_fruit_offset_circ_5 <- 0.05
       }
-      
-      if(isTRUE(input$nj_tiles_show_5)) {
-        if(!is.null(Vis$nj_max_x)) {
-          if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
-            width <- 1
+    }
+    
+    if(!is.null(nj_fruit_alpha_5_reactive())) {
+      nj_fruit_alpha_5 <- nj_fruit_alpha_5_reactive()
+    } else {
+      nj_fruit_alpha_5 <- 1
+    }
+    
+    if(!is.null(nj_fruit_width_circ_5_reactive())) {
+      nj_fruit_width_circ_5 <- nj_fruit_width_circ_5_reactive()
+    } else {
+      if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
+        if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+          if(nj_layout == "circular" | nj_layout == "inward") {
+            nj_fruit_width_circ_5 <- 3
           } else {
-            width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+            nj_fruit_width_circ_5 <- 1
           }
         } else {
-          width <- 2
+          nj_fruit_width_circ_5 <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+          if(nj_layout == "circular" | nj_layout == "inward") {
+            nj_fruit_width_circ_5 <- nj_fruit_width_circ_5 * 3
+          }
+          if(nj_fruit_width_circ_5 < 1) {nj_fruit_width_circ_5 <- 1}
         }
+      } else {
         if(nj_layout == "circular" | nj_layout == "inward") {
-          geom_fruit(
-            geom = geom_tile,
-            mapping = aes(fill= !!sym(input$nj_fruit_variable_5)),
-            offset = 0.15,
-            width = width * 3,
-            alpha = 1
-          )
+          nj_fruit_width_circ_5 <- 3
         } else {
-          geom_fruit(
-            geom = geom_tile,
-            mapping = aes(fill= !!sym(input$nj_fruit_variable_5)),
-            offset = 0.05,
-            width = width,
-            alpha = 1
-          )
-        }
-      } else {NULL}
+          nj_fruit_width_circ_5 <- 1
+        } 
+      }
     }
+    
+    geom_fruit(
+      geom = geom_tile,
+      mapping = aes(fill= !!sym(nj_fruit_variable)),
+      offset = nj_fruit_offset_circ_5,
+      width = nj_fruit_width_circ_5,
+      alpha = nj_fruit_alpha_5
+    )
   })
   
   # Xlim
@@ -21595,7 +21615,7 @@ server <- function(input, output, session) {
     }
     
     if(!is.null(input$nj_xlim)) {
-      nj_xlimnj_xlim <- input$nj_xlim
+      nj_xlim <- input$nj_xlim
     } else {
       nj_xlim <- -10
     }
@@ -21608,26 +21628,20 @@ server <- function(input, output, session) {
   # Treescale
   nj_treescale <- reactive({
     
-    if(!is.null(input$nj_layout)) {
-      nj_layout <- input$nj_layout
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
     } else {
       nj_layout <- "rectangular"
     }
     
-    if(!is.null(input$nj_treescale_show)) {
-      nj_treescale_show <- input$nj_treescale_show
-    } else {
-      nj_treescale_show <- TRUE
-    }
-    
-    if(!is.null(input$nj_color)) {
-      nj_color <- input$nj_color
+    if(!is.null(nj_color_reactive())) {
+      nj_color <- nj_color_reactive()
     } else {
       nj_color <- "#000000"
     }
     
     if(nj_layout != "circular") {
-      if(isTRUE(nj_treescale_show)) {
+      if(isTRUE(nj_treescale_show_reactive())) {
         geom_treescale(x = nj_treescale_x(),
                        y = nj_treescale_y(),
                        width = nj_treescale_width(),
@@ -21639,74 +21653,74 @@ server <- function(input, output, session) {
   
   # Treescale Y Position
   nj_treescale_y <- reactive({
-    if(is.null(input$nj_treescale_y)) {
-      0
-    } else {input$nj_treescale_y}
+    if(!is.null(nj_treescale_y_reactive())) {
+      nj_treescale_y_reactive()
+    } else {0}
   })
   
   # Treescale X Position
   nj_treescale_x <- reactive({
-    if(is.null(input$nj_treescale_x)) {
-      round(ceiling(Vis$nj_max_x) * 0.2, 0)
-    } else {input$nj_treescale_x}
+    if(!is.null(nj_treescale_x_reactive())) {
+      nj_treescale_x_reactive()
+    } else {
+      if(!is.null(Vis$nj_max_x)) {
+        round(ceiling(Vis$nj_max_x) * 0.2, 0)
+      } else {2}
+    }
   })
   
   # Treescale width
   nj_treescale_width <- reactive({
-    if(!is.null(input$nj_treescale_width)) {
-      input$nj_treescale_width
+    if(!is.null(nj_treescale_width_reactive())) {
+     nj_treescale_width_reactive()
     } else {
-      round(ceiling(Vis$nj_max_x) * 0.1, 0)
+      if(!is.null(Vis$nj_max_x)) {
+        round(ceiling(Vis$nj_max_x) * 0.1, 0)
+      } else {2}
     }
   })
   
   # Label branches
   nj_label_branch <- reactive({
     
-    if(!is.null(input$nj_layout)) {
-      nj_layout <- input$nj_layout
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
     } else {
       nj_layout <- "rectangular"
     }
     
-    if(!is.null(input$nj_show_branch_label)) {
-      nj_show_branch_label <- input$nj_show_branch_label
-    } else {
-      nj_show_branch_label <- FALSE
-    }
-    
-    if(!is.null(input$nj_branch_label)) {
-      nj_branch_label <- input$nj_branch_label
+    if(!is.null(nj_branch_label_reactive())) {
+      nj_branch_label <- nj_branch_label_reactive()
     } else {
       nj_branch_label <- "Host"
     }
     
-    if(!is.null(input$nj_branch_x)) {
-      nj_branch_x <- input$nj_branch_x
+    if(!is.null(nj_branch_x_reactive())) {
+      nj_branch_x <- nj_branch_x_reactive()
     } else {
       nj_branch_x <- 0
     }
     
-    if(!is.null(input$nj_branch_y)) {
-      nj_branch_y <- input$nj_branch_y
+    if(!is.null(nj_branch_y_reactive())) {
+      nj_branch_y <- nj_branch_y_reactive()
     } else {
       nj_branch_y <- 0
     }
     
-    if(!is.null(input$nj_branchlab_fontface)) {
-      nj_branchlab_fontface <- input$nj_branchlab_fontface
+    if(!is.null(nj_branchlab_fontface_reactive())) {
+      nj_branchlab_fontface <- nj_branchlab_fontface_reactive()
     } else {
       nj_branchlab_fontface <- "plain"
     }
     
-    if(!is.null(input$nj_branchlab_alpha)) {
-      nj_branchlab_alpha <- input$nj_branchlab_alpha
+    if(!is.null(nj_branchlab_alpha_reactive())) {
+      nj_branchlab_alpha <- nj_branchlab_alpha_reactive()
     } else {
       nj_branchlab_alpha <- 0.65
     }
     
-    if(!nj_layout == "circular" | !nj_layout == "inward") {
-      if(isTRUE(nj_show_branch_label)) {
+    if(nj_layout != "circular" | nj_layout != "inward") {
+      if(isTRUE(nj_show_branch_label_reactive())) {
         geom_label(
           aes(
             x=!!sym("branch"), 
@@ -21725,39 +21739,32 @@ server <- function(input, output, session) {
   
   # Branch label size
   nj_branch_size <- reactive({
-    if(!is.null(input$nj_branch_size)) {
-      input$nj_branch_size
+    if(!is.null(nj_branch_size_reactive())) {
+      nj_branch_size_reactive()
     } else {
-      Vis$branch_size_nj
+      if(!is.null(Vis$branch_size_nj)) {
+        Vis$branch_size_nj
+      } else {4}
     }
   })
   
   # Rootedge
   nj_rootedge <- reactive({
-    
-    if(!is.null(input$nj_rootedge_show)) {
-      nj_rootedge_show <- input$nj_rootedge_show
-    } else {
-      nj_rootedge_show <- FALSE
-    }
-    
-    if(!is.null(input$nj_rootedge_length)) {
-      nj_rootedge_length <- input$nj_rootedge_length
+    if(!is.null(nj_rootedge_length_reactive())) {
+      nj_rootedge_length <- nj_rootedge_length_reactive()
     } else {
       if(!is.null(Vis$nj_max_x)) {
         nj_rootedge_length <- round(ceiling(Vis$nj_max_x) * 0.05, 0)
-      } else {
-        nj_rootedge_length <- 2
-      }
+      } else {2}
     }
     
-    if(!is.null(input$nj_rootedge_line)) {
-      nj_rootedge_line <- input$nj_rootedge_line
+    if(!is.null(nj_rootedge_line_reactive())) {
+      nj_rootedge_line <- nj_rootedge_line_reactive()
     } else {
       nj_rootedge_line <- "solid"
     }
     
-    if(isTRUE(nj_rootedge_show)) {
+    if(isTRUE(nj_rootedge_show_reactive())) {
       geom_rootedge(rootedge = nj_rootedge_length,
                     linetype = nj_rootedge_line)
     } else {NULL}
@@ -21766,70 +21773,57 @@ server <- function(input, output, session) {
   # Tippoints
   nj_tippoint <- reactive({
     
-    if(!is.null(input$nj_tippoint_show)) {
-      nj_tippoint_show <- input$nj_tippoint_show
+    if(!is.null(nj_tipcolor_mapping_reactive())) {
+      nj_tipcolor_mapping <- nj_tipcolor_mapping_reactive()
     } else {
-      nj_tippoint_show <- FALSE 
+      nj_tipcolor_mapping <- "Country" 
     }
     
-    if(!is.null(input$nj_tipcolor_mapping_show)) {
-      nj_tipcolor_mapping_show <- input$nj_tipcolor_mapping_show
-    } else {
-      nj_tipcolor_mapping_show <- FALSE 
-    }
-    
-    if(!is.null(input$nj_tipshape_mapping_show)) {
-      nj_tipshape_mapping_show <- input$nj_tipshape_mapping_show
-    } else {
-      nj_tipshape_mapping_show <- FALSE 
-    }
-    
-    if(!is.null(input$nj_tipcolor_mapping)) {
-      nj_tipcolor_mapping <- input$nj_tipcolor_mapping
-    } else {
-      nj_tipcolor_mapping <- "City" 
-    }
-    
-    if(!is.null(input$nj_tippoint_alpha)) {
-      nj_tippoint_alpha <- input$nj_tippoint_alpha
+    if(!is.null(nj_tippoint_alpha_reactive())) {
+      nj_tippoint_alpha <- nj_tippoint_alpha_reactive()
     } else {
       nj_tippoint_alpha <- 0.5
     }
     
-    if(!is.null(input$nj_tippoint_shape)) {
-      nj_tippoint_shape <- input$nj_tippoint_shape
+    if(!is.null(nj_tippoint_shape_reactive())) {
+      nj_tippoint_shape <- nj_tippoint_shape_reactive()
     } else {
       nj_tippoint_shape <- "circle"
     }
     
-    if(!is.null(input$nj_tipshape_mapping)) {
-      nj_tipshape_mapping <- input$nj_tipshape_mapping
+    if(!is.null(nj_tipshape_mapping_reactive())) {
+      nj_tipshape_mapping <- nj_tipshape_mapping_reactive()
     } else {
       nj_tipshape_mapping <- "Host"
     }
     
-    if(!is.null(input$nj_tippoint_color)) {
-      nj_tippoint_color <- input$nj_tippoint_color
+    if(!is.null(nj_tippoint_color_reactive())) {
+      nj_tippoint_color <- nj_tippoint_color_reactive()
     } else {
       nj_tippoint_color <- "#3A4657"
     }
     
-    if(isTRUE(nj_tippoint_show) | isTRUE(nj_tipcolor_mapping_show) | isTRUE(nj_tipshape_mapping_show)) {
-      if(isTRUE(nj_tipcolor_mapping_show) & isFALSE(nj_tipshape_mapping_show)) {
+    if(isTRUE(nj_tippoint_show_reactive()) | 
+       isTRUE(nj_tipcolor_mapping_show_reactive()) | 
+       isTRUE(nj_tipshape_mapping_show_reactive())) {
+      if(isTRUE(nj_tipcolor_mapping_show_reactive()) & 
+         isFALSE(nj_tipshape_mapping_show_reactive())) {
         geom_tippoint(
           aes(color = !!sym(nj_tipcolor_mapping)),
           alpha = nj_tippoint_alpha,
           shape = nj_tippoint_shape,
           size = nj_tippoint_size()
         )
-      } else if (isFALSE(nj_tipcolor_mapping_show) & isTRUE(nj_tipshape_mapping_show)) {
+      } else if (isFALSE(nj_tipcolor_mapping_show_reactive()) & 
+                 isTRUE(nj_tipshape_mapping_show_reactive())) {
         geom_tippoint(
           aes(shape = !!sym(nj_tipshape_mapping)),
           alpha = nj_tippoint_alpha,
           color = nj_tippoint_color,
           size = nj_tippoint_size()
         )
-      } else if (isTRUE(nj_tipcolor_mapping_show) & isTRUE(nj_tipshape_mapping_show)) {
+      } else if (isTRUE(nj_tipcolor_mapping_show_reactive()) & 
+                 isTRUE(nj_tipshape_mapping_show_reactive())) {
         geom_tippoint(
           aes(shape = !!sym(nj_tipshape_mapping),
               color = !!sym(nj_tipcolor_mapping)),
@@ -21851,31 +21845,25 @@ server <- function(input, output, session) {
   # Nodepoints
   nj_nodepoint <- reactive({
     
-    if(!is.null(input$nj_nodepoint_show)) {
-      nj_nodepoint_show <- input$nj_nodepoint_show
-    } else {
-      nj_nodepoint_show <- FALSE
-    }
-    
-    if(!is.null(input$nj_nodepoint_alpha)) {
-      nj_nodepoint_alpha <- input$nj_nodepoint_alpha
+    if(!is.null(nj_nodepoint_alpha_reactive())) {
+      nj_nodepoint_alpha <- nj_nodepoint_alpha_reactive()
     } else {
       nj_nodepoint_alpha <- 1
     }
     
-    if(!is.null(input$nj_nodepoint_color)) {
-      nj_nodepoint_color <- input$nj_nodepoint_color
+    if(!is.null(nj_nodepoint_color_reactive())) {
+      nj_nodepoint_color <- nj_nodepoint_color_reactive()
     } else {
       nj_nodepoint_color <- "#3A4657"
     }
     
-    if(!is.null(input$nj_nodepoint_shape)) {
-      nj_nodepoint_shape <- input$nj_nodepoint_shape
+    if(!is.null(nj_nodepoint_shape_reactive())) {
+      nj_nodepoint_shape <- nj_nodepoint_shape_reactive()
     } else {
       nj_nodepoint_shape <- "circle"
     }
     
-    if(isTRUE(nj_nodepoint_show)) {
+    if(isTRUE(nj_nodepoint_show_reactive())) {
       geom_nodepoint(
         alpha = nj_nodepoint_alpha,
         color = nj_nodepoint_color,
@@ -21887,249 +21875,167 @@ server <- function(input, output, session) {
   
   # Nodepoint size
   nj_nodepoint_size <- reactive({
-    if(!is.null(input$nj_nodepoint_size)) {
-      input$nj_nodepoint_size
+    if(!is.null(nj_nodepoint_size_reactive())) {
+      nj_nodepoint_size_reactive()
     } else {
-      Vis$nodepointsize_nj
+      if(!is.null(Vis$nodepointsize_nj)) {
+        Vis$nodepointsize_nj
+      } else {2.5}
     }
   })
   
   # NJ circularity
   nj_tiplab <- reactive({
-    
-    if(!is.null(input$nj_tiplab_show)) {
-      nj_tiplab_show <- input$nj_tiplab_show
-    } else {
-      nj_tiplab_show <- TRUE
-    }
-    
-    if(!is.null(input$nj_layout)) {
-      nj_layout <- input$nj_layout
-    } else {
-      nj_layout <- "rectangular"
-    }
-    
-    if(!is.null(input$nj_mapping_show)) {
-      nj_mapping_show <- input$nj_mapping_show
-    } else {
-      nj_mapping_show <- FALSE
-    }
-    
-    if(!is.null(input$nj_tiplab_alpha)) {
-      nj_tiplab_alpha <- input$nj_tiplab_alpha
-    } else {
-      nj_tiplab_alpha <- 1
-    }
-    
-    if(!is.null(input$nj_tiplab_fontface)) {
-      nj_tiplab_fontface <- input$nj_tiplab_fontface
-    } else {
-      nj_tiplab_fontface <- "plain"
-    }
-    
-    if(!is.null(input$nj_align)) {
-      nj_align <- input$nj_align
-    } else {
-      nj_align <- FALSE
-    }
-    
-    if(!is.null(input$nj_tiplab_position)) {
-      nj_tiplab_position <- input$nj_tiplab_position
-    } else {
-      nj_tiplab_position <- -0.05
-    }
-    
-    if(!is.null(input$nj_tiplab_color)) {
-      nj_tiplab_color <- input$nj_tiplab_color
-    } else {
-      nj_tiplab_color <- "#000000"
-    }
-    
-    if(!is.null(input$nj_geom)) {
-      nj_geom <- input$nj_geom
-    } else {
-      nj_geom <- FALSE
-    }
-    
-    if(!is.null(input$nj_tiplab_angle)) {
-      nj_tiplab_angle <- input$nj_tiplab_angle
-    } else {
-      nj_tiplab_angle <- 0
-    }
-    
-    if(!is.null(input$nj_tiplab_nudge_x)) {
-      nj_tiplab_nudge_x <- input$nj_tiplab_nudge_x
-    } else {
-      nj_tiplab_nudge_x <- 0
-    }
-    
-    if(!is.null(input$nj_tiplab_labelradius)) {
-      nj_tiplab_labelradius <- input$nj_tiplab_labelradius
-    } else {
-      nj_tiplab_labelradius <- 0.2
-    }
-    
-    if(!is.null(input$nj_tiplab_fill)) {
-      nj_tiplab_fill <- input$nj_tiplab_fill
-    } else {
-      nj_tiplab_fill <- "#84D9A0"
-    }
-    
-    if(isTRUE(nj_tiplab_show)) {
-      if(nj_layout == "circular") {
-        if(isTRUE(nj_mapping_show)) {
-          geom_tiplab(
-            nj_mapping_tiplab(), 
-            geom = "text",
-            size = nj_tiplab_size(),
-            alpha = nj_tiplab_alpha,
-            fontface = nj_tiplab_fontface,
-            align = as.logical(nj_align),
-            hjust = as.numeric(nj_tiplab_position)
-          )
-        } else {
-          geom_tiplab(
-            nj_mapping_tiplab(),
-            color = nj_tiplab_color,
-            geom = "text",
-            size = nj_tiplab_size(),
-            alpha = nj_tiplab_alpha,
-            fontface = nj_tiplab_fontface,
-            align = as.logical(nj_align),
-            hjust = as.numeric(nj_tiplab_position)
-          )
-        }
-      } else if (nj_layout == "inward") {
-        if(isTRUE(nj_mapping_show)) {
-          geom_tiplab(
-            nj_mapping_tiplab(), 
-            geom = "text",
-            size = nj_tiplab_size(),
-            alpha = nj_tiplab_alpha,
-            fontface = nj_tiplab_fontface,
-            align = as.logical(nj_align),
-            hjust = as.numeric(nj_tiplab_position_inw)
-          )
-        } else {
-          geom_tiplab(
-            nj_mapping_tiplab(),
-            color = nj_tiplab_color,
-            geom = "text",
-            size = nj_tiplab_size(),
-            alpha = nj_tiplab_alpha,
-            fontface = nj_tiplab_fontface,
-            align = as.logical(nj_align),
-            hjust = as.numeric(nj_tiplab_position_inw)
-          )
-        }
+    if(isTRUE(nj_tiplab_show_reactive())) {
+      
+      if(!is.null(nj_layout_reactive())) {
+        nj_layout <- nj_layout_reactive()
       } else {
-        if(isTRUE(nj_mapping_show)) {
-          if(isTRUE(nj_geom)) {
-            geom_tiplab(
-              nj_mapping_tiplab(), 
-              geom = nj_geom(),
-              angle = nj_tiplab_angle,
-              size = nj_tiplab_size(),
-              alpha = nj_tiplab_alpha,
-              fontface = nj_tiplab_fontface,
-              align = as.logical(nj_align),
-              nudge_x = nj_tiplab_nudge_x,
-              label.padding = unit(nj_tiplab_padding(), "lines"),
-              label.r = unit(nj_tiplab_labelradius, "lines"), 
-              fill = nj_tiplab_fill
-            )
-          } else {
-            geom_tiplab(
-              nj_mapping_tiplab(), 
-              geom = nj_geom(),
-              angle = nj_tiplab_angle,
-              size = nj_tiplab_size(),
-              alpha = nj_tiplab_alpha,
-              fontface = nj_tiplab_fontface,
-              align = as.logical(nj_align),
-              nudge_x = nj_tiplab_nudge_x
-            )
-          }
+        nj_layout <- "rectangular"
+      }
+      
+      if(!is.null(nj_tiplab_alpha_reactive())) {
+        nj_tiplab_alpha <- nj_tiplab_alpha_reactive()
+      } else {
+        nj_tiplab_alpha <- 1
+      }
+      
+      if(!is.null(nj_tiplab_fontface_reactive())) {
+        nj_tiplab_fontface <- nj_tiplab_fontface_reactive()
+      } else {
+        nj_tiplab_fontface <- "plain"
+      }
+      
+      if(!is.null(nj_tiplab_position_reactive())) {
+        nj_tiplab_position <- nj_tiplab_position_reactive()
+      } else {
+        nj_tiplab_position <- -0.05
+      }
+      
+      if(!is.null(nj_tiplab_position_inw_reactive())) {
+        nj_tiplab_position_inw <- nj_tiplab_position_inw_reactive()
+      } else {
+        nj_tiplab_position_inw <- 1.1
+      }
+      
+      if(!is.null(nj_tiplab_color_reactive())) {
+        nj_tiplab_color <- nj_tiplab_color_reactive()
+      } else {
+        nj_tiplab_color <- "#000000"
+      }
+      
+      if(!is.null(nj_tiplab_angle_reactive())) {
+        nj_tiplab_angle <- nj_tiplab_angle_reactive()
+      } else {
+        nj_tiplab_angle <- 0
+      }
+      
+      if(!is.null(nj_tiplab_nudge_x_reactive())) {
+        nj_tiplab_nudge_x <- nj_tiplab_nudge_x_reactive()
+      } else {
+        nj_tiplab_nudge_x <- 0
+      }
+      
+      if(!is.null(nj_tiplab_labelradius_reactive())) {
+        nj_tiplab_labelradius <- nj_tiplab_labelradius_reactive()
+      } else {
+        nj_tiplab_labelradius <- 0.2
+      }
+      
+      if(!is.null(nj_tiplab_fill_reactive())) {
+        nj_tiplab_fill <- nj_tiplab_fill_reactive()
+      } else {
+        nj_tiplab_fill <- "#84D9A0"
+      }
+      
+      if(isTRUE(nj_mapping_show_reactive())) {
+        color <- NULL
+        fill <- NULL
+      } else {
+        color <- nj_tiplab_color
+        fill <- nj_tiplab_fill
+      }
+      
+      if(nj_layout == "circular" | nj_layout == "inward") {
+        if(nj_layout == "inward") {
+          hjust <- as.numeric(nj_tiplab_position_inw)
         } else {
-          if(isTRUE(nj_geom)) {
-            geom_tiplab(
-              nj_mapping_tiplab(), 
-              geom = nj_geom(),
-              color = nj_tiplab_color,
-              angle = nj_tiplab_angle,
-              size = nj_tiplab_size(),
-              alpha = nj_tiplab_alpha,
-              fontface = nj_tiplab_fontface,
-              align = as.logical(nj_align),
-              nudge_x = nj_tiplab_nudge_x,
-              label.padding = unit(nj_tiplab_padding(), "lines"),
-              label.r = unit(nj_tiplab_labelradius, "lines"), 
-              fill = nj_tiplab_fill
-            )
-          } else {
-            geom_tiplab(
-              nj_mapping_tiplab(), 
-              geom = nj_geom(),
-              color = nj_tiplab_color,
-              angle = nj_tiplab_angle,
-              size = nj_tiplab_size(),
-              alpha = nj_tiplab_alpha,
-              fontface = nj_tiplab_fontface,
-              align = as.logical(nj_align),
-              nudge_x = nj_tiplab_nudge_x
-            )
-          }
+          hjust <- as.numeric(nj_tiplab_position)
+        }
+        geom <- "text"
+        nudge_x <- NULL
+        angle <- NULL
+        label.padding <- NULL
+        label.r <- NULL
+      } else {
+        geom <- nj_geom()
+        hjust <- NULL
+        nudge_x <- nj_tiplab_nudge_x
+        angle <- nj_tiplab_angle
+        
+        if(isTRUE(nj_geom_reactive())) {
+          label.padding <- unit(nj_tiplab_padding(), "lines")
+          label.r <- unit(nj_tiplab_labelradius, "lines")
+        } else {
+          label.padding <- NULL
+          label.r <- NULL
         }
       }
+      
+      geom_tiplab(
+        nj_mapping_tiplab(),
+        color = color,
+        fill = fill,
+        geom = geom,
+        size = nj_tiplab_size(),
+        alpha = nj_tiplab_alpha,
+        fontface = nj_tiplab_fontface,
+        align = as.logical(nj_align_reactive()),
+        hjust = hjust,
+        nudge_x = nj_tiplab_nudge_x,
+        angle = angle,
+        label.padding = label.padding,
+        label.r = label.r
+      )
     } else {NULL}
   })
   
   # Tip panel size
   nj_tiplab_padding <- reactive({
-    if(!is.null(input$nj_tiplab_padding)) {
-      input$nj_tiplab_padding
+    if(!is.null(nj_tiplab_padding_reactive())) {
+      nj_tiplab_padding_reactive()
     } else {
-      Vis$tiplab_padding_nj
+      if(!is.null(Vis$tiplab_padding_nj)) {
+        Vis$tiplab_padding_nj
+      } else {0.2}
     }
   })
   
   # Tiplab size
   nj_tiplab_size <- reactive({
-    
-    if(!is.null(Vis$labelsize_nj)) {
-      labelsize_nj <- Vis$labelsize_nj
+    if(!is.null(nj_tiplab_size_reactive())) {
+      nj_tiplab_size_reactive()
     } else {
-      labelsize_nj <- 4
+      if(!is.null(Vis$labelsize_nj)) {
+        Vis$labelsize_nj
+      } else {4}
     }
-    
-    if(!is.null(input$nj_tiplab_size)) {
-      nj_tiplab_size <- input$nj_tiplab_size
-    } else {
-      nj_tiplab_size <- labelsize_nj
-    }
-    
-    nj_tiplab_size
   })
   
   # Tippoint size
   nj_tippoint_size <- reactive({
-    if(!is.null(input$nj_tippoint_size)) {
-      input$nj_tippoint_size
+    if(!is.null(nj_tippoint_size_reactive())) {
+      nj_tippoint_size_reactive()
     } else {
-      Vis$tippointsize_nj
+      if(!is.null(Vis$tippointsize_nj)) {
+        Vis$tippointsize_nj
+      } else {4}
     }
   })
   
-  # Show Label Panels?
+  # Show Label Panels
   nj_geom <- reactive({
-    
-    if(!is.null(input$nj_geom)) {
-      nj_geom <- input$nj_geom
-    } else {
-      nj_geom <- FALSE
-    }
-    
-    if(isTRUE(nj_geom)) {
+    if(isTRUE(nj_geom_reactive())) {
       "label"
     } else {"text"}
   })
@@ -22137,25 +22043,19 @@ server <- function(input, output, session) {
   # NJ Tiplab color
   nj_mapping_tiplab <- reactive({
     
-    if(!is.null(input$nj_mapping_show)) {
-      nj_mapping_show <- input$nj_mapping_show
-    } else {
-      nj_mapping_show <- FALSE
-    }
-    
-    if(!is.null(input$nj_tiplab)) {
-      nj_tiplab <- input$nj_tiplab
+    if(!is.null(nj_tiplab_reactive())) {
+      nj_tiplab <- nj_tiplab_reactive()
     } else {
       nj_tiplab <- "Assembly Name"
     }
     
-    if(!is.null(input$nj_color_mapping)) {
-      nj_color_mapping <- input$nj_color_mapping
+    if(!is.null(nj_color_mapping_reactive())) {
+      nj_color_mapping <- nj_color_mapping_reactive()
     } else {
       nj_color_mapping <- "Country"
     }
     
-    if(isTRUE(nj_mapping_show)) {
+    if(isTRUE(nj_mapping_show_reactive())) {
       if(!is.null(nj_tiplab)) {
         aes(label = !!sym(nj_tiplab),
             color = !!sym(nj_color_mapping))
@@ -22175,8 +22075,8 @@ server <- function(input, output, session) {
   # NJ Tree Layout
   layout_nj <- reactive({
     
-    if(!is.null(input$nj_layout)) {
-      nj_layout <- input$nj_layout
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
     } else {
       nj_layout <- "rectangular"
     }
@@ -22189,19 +22089,19 @@ server <- function(input, output, session) {
   # NJ inward circular
   nj_inward <- reactive({
     
-    if(!is.null(input$nj_layout)) {
-      nj_layout <- input$nj_layout
+    if(!is.null(nj_layout_reactive())) {
+      nj_layout <- nj_layout_reactive()
     } else {
       nj_layout <- "rectangular"
     }
     
-    if(!is.null(input$nj_inward_xlim)) {
-      nj_inward_xlim <- input$nj_inward_xlim
+    if(!is.null(nj_inward_xlim_reactive())) {
+      nj_inward_xlim <- nj_inward_xlim_reactive()
     } else {
       nj_inward_xlim <- 50
     }
     
-    if (nj_layout == "inward") {
+    if(nj_layout == "inward") {
       layout_inward_circular(xlim = nj_inward_xlim)
     } else {
       NULL
