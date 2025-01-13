@@ -9566,230 +9566,116 @@ server <- function(input, output, session) {
   nj_subtitle_size_reactive <- reactiveVal(NULL)
   
   observe({
-    if(!is.null(input$nj_tiplab)) {
-      nj_tiplab_reactive(input$nj_tiplab)
-    }
+    ifelse(!is.null(input$nj_tiplab),
+           nj_tiplab_reactive(input$nj_tiplab),
+           nj_tiplab_reactive("Assembly Name"))
     
-    if(!is.null(input$nj_tiplab_show)) {
-      nj_tiplab_show_reactive(input$nj_tiplab_show)
-    }
+    ifelse(!is.null(input$nj_tiplab_show),
+           nj_tiplab_show_reactive(input$nj_tiplab_show),
+           nj_tiplab_show_reactive(TRUE))
     
-    if(!is.null(input$nj_align)) {
-      nj_align_reactive(input$nj_align)
-    }
+    ifelse(!is.null(input$nj_align),
+           nj_align_reactive(input$nj_align),
+           nj_align_reactive(FALSE))
     
-    if(!is.null(input$nj_tiplab_size)) {
-      nj_tiplab_size_reactive(input$nj_tiplab_size)
-    }
+    ifelse(!is.null(input$nj_tiplab_size),
+           nj_tiplab_size_reactive(input$nj_tiplab_size),
+           ifelse(!is.null(Vis$labelsize_nj),
+                  nj_tiplab_size_reactive(Vis$labelsize_nj),
+                  nj_tiplab_size_reactive(4)))
     
-    if(!is.null(input$nj_tiplab_fontface)) {
-      nj_tiplab_fontface_reactive(input$nj_tiplab_fontface)
-    }
+    ifelse(!is.null(input$nj_tiplab_fontface),
+           nj_tiplab_fontface_reactive(input$nj_tiplab_fontface),
+           nj_tiplab_fontface_reactive("plain"))
     
-    if(!is.null(input$nj_tiplab_alpha)) {
-      nj_tiplab_alpha_reactive(input$nj_tiplab_alpha)
-    }
+    ifelse(!is.null(input$nj_tiplab_alpha),
+           nj_tiplab_alpha_reactive(input$nj_tiplab_alpha),
+           nj_tiplab_alpha_reactive(1))
     
-    if(!is.null(input$nj_tiplab_nudge_x)) {
-      nj_tiplab_nudge_x_reactive(input$nj_tiplab_nudge_x)
-    }
+    ifelse(!is.null(input$nj_tiplab_nudge_x),
+           nj_tiplab_nudge_x_reactive(input$nj_tiplab_nudge_x),
+           nj_tiplab_nudge_x_reactive(0))
     
-    if(!is.null(input$nj_tiplab_position)) {
-      nj_tiplab_position_reactive(input$nj_tiplab_position)
-    }
+    ifelse(!is.null(input$nj_tiplab_position),
+           nj_tiplab_position_reactive(input$nj_tiplab_position),
+           nj_tiplab_position_reactive(-0.05))
     
-    if(!is.null(input$nj_tiplab_position_inw)) {
-      nj_tiplab_position_inw_reactive(input$nj_tiplab_position_inw)
-    }
+    ifelse(!is.null(input$nj_tiplab_position_inw),
+           nj_tiplab_position_inw_reactive(input$nj_tiplab_position_inw),
+           nj_tiplab_position_inw_reactive(1.1))
     
-    if(!is.null(input$nj_tiplab_angle)) {
-      nj_tiplab_angle_reactive(input$nj_tiplab_angle)
-    }
+    ifelse(!is.null(input$nj_tiplab_angle),
+           nj_tiplab_angle_reactive(input$nj_tiplab_angle),
+           nj_tiplab_angle_reactive(0))
     
-    if(!is.null(input$nj_geom)) {
-      nj_geom_reactive(input$nj_geom)
-    }
+    ifelse(!is.null(input$nj_geom),
+           nj_geom_reactive(input$nj_geom),
+           nj_geom_reactive(FALSE))
     
-    if(!is.null(input$nj_tiplab_labelradius)) {
-      nj_tiplab_labelradius_reactive(input$nj_tiplab_labelradius)
-    }
+    ifelse(!is.null(input$nj_tiplab_labelradius),
+           nj_tiplab_labelradius_reactive(input$nj_tiplab_labelradius),
+           nj_tiplab_labelradius_reactive(0.2))
     
-    if(!is.null(input$nj_tiplab_padding)) {
-      nj_tiplab_padding_reactive(input$nj_tiplab_padding)
-    }
+    ifelse(!is.null(input$nj_tiplab_padding),
+           nj_tiplab_padding_reactive(input$nj_tiplab_padding),
+           ifelse(!is.null(Vis$tiplab_padding_nj),
+                  nj_tiplab_padding_reactive(Vis$tiplab_padding_nj),
+                  nj_tiplab_padding_reactive(0.2)))
     
-    if(!is.null(input$nj_show_branch_label)) {
-      nj_show_branch_label_reactive(input$nj_show_branch_label)
-    }
+    ifelse(!is.null(input$nj_show_branch_label),
+           nj_show_branch_label_reactive(input$nj_show_branch_label),
+           nj_show_branch_label_reactive(FALSE))
     
-    if(!is.null(input$nj_branch_size)) {
-      nj_branch_size_reactive(input$nj_branch_size)
-    }
+    ifelse(!is.null(input$nj_branch_size),
+           nj_branch_size_reactive(input$nj_branch_size),
+           ifelse(!is.null(Vis$branch_size_nj),
+                  nj_branch_size_reactive(Vis$branch_size_nj),
+                  nj_branch_size_reactive(4)))
     
-    if(!is.null(input$nj_branch_label)) {
-      nj_branch_label_reactive(input$nj_branch_label)
-    }
+    ifelse(!is.null(input$nj_branch_label),
+           nj_branch_label_reactive(input$nj_branch_label),
+           nj_branch_label_reactive("Host"))
     
-    if(!is.null(input$nj_branchlab_alpha)) {
-      nj_branchlab_alpha_reactive(input$nj_branchlab_alpha)
-    }
+    ifelse(!is.null(input$nj_branchlab_alpha),
+           nj_branchlab_alpha_reactive(input$nj_branchlab_alpha),
+           nj_branchlab_alpha_reactive(0.65))
     
-    if(!is.null(input$nj_branch_x)) {
-      nj_branch_x_reactive(input$nj_branch_x)
-    }
+    ifelse(!is.null(input$nj_branch_x),
+           nj_branch_x_reactive(input$nj_branch_x),
+           nj_branch_x_reactive(0))
     
-    if(!is.null(input$nj_branch_y)) {
-      nj_branch_y_reactive(input$nj_branch_y)
-    }
+    ifelse(!is.null(input$nj_branch_y),
+           nj_branch_y_reactive(input$nj_branch_y),
+           nj_branch_y_reactive(0))
     
-    if(!is.null(input$nj_branchlab_fontface)) {
-      nj_branchlab_fontface_reactive(input$nj_branchlab_fontface)
-    }
+    ifelse(!is.null(input$nj_branchlab_fontface),
+           nj_branchlab_fontface_reactive(input$nj_branchlab_fontface),
+           nj_branchlab_fontface_reactive("plain"))
     
-    if(!is.null(input$nj_branch_labelradius)) {
-      nj_branch_labelradius_reactive(input$nj_branch_labelradius)
-    }
+    ifelse(!is.null(input$nj_branch_labelradius),
+           nj_branch_labelradius_reactive(input$nj_branch_labelradius),
+           nj_branch_labelradius_reactive(0.5))
     
-    if(!is.null(input$nj_title)) {
-      nj_title_reactive(input$nj_title)
-    }
+    ifelse(!is.null(input$nj_title),
+           nj_title_reactive(input$nj_title),
+           nj_title_reactive(NULL))
     
-    if(!is.null(input$nj_title_size)) {
-      nj_title_size_reactive(input$nj_title_size)
-    }
+    ifelse(!is.null(input$nj_title_size),
+           nj_title_size_reactive(input$nj_title_size),
+           nj_title_size_reactive(30))
     
-    if(!is.null(input$nj_subtitle)) {
-      nj_subtitle_reactive(input$nj_subtitle)
-    }
+    ifelse(!is.null(input$nj_subtitle),
+           nj_subtitle_reactive(input$nj_subtitle),
+           nj_subtitle_reactive(NULL))
     
-    if(!is.null(input$nj_subtitle_size)) {
-      nj_subtitle_size_reactive(input$nj_subtitle_size)
-    }
+    ifelse(!is.null(input$nj_subtitle_size),
+           nj_subtitle_size_reactive(input$nj_subtitle_size),
+           nj_subtitle_size_reactive(30))
   })
   
   observeEvent(input$nj_label_menu, {
     
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-    
-    if(!is.null(nj_tiplab_show_reactive())) {
-      nj_tiplab_show_selected <- nj_tiplab_show_reactive()
-    } else {
-      nj_tiplab_show_selected <- TRUE
-    }
-    
-    if(!is.null(nj_align_reactive())) {
-      nj_align_selected <- nj_align_reactive()
-    } else {
-      nj_align_selected <- FALSE
-    }
-    
-    if(!is.null(nj_tiplab_fontface_reactive())) {
-      nj_tiplab_fontface_selected <- nj_tiplab_fontface_reactive()
-    } else {
-      nj_tiplab_fontface_selected <- "plain"
-    }
-    
-    if(!is.null(nj_tiplab_alpha_reactive())) {
-      nj_tiplab_alpha_selected <- nj_tiplab_alpha_reactive()
-    } else {
-      nj_tiplab_alpha_selected <- 1
-    }
-    
-    if(!is.null(nj_tiplab_nudge_x_reactive())) {
-      nj_tiplab_nudge_x_selected <- nj_tiplab_nudge_x_reactive()
-    } else {
-      nj_tiplab_nudge_x_selected <- 0
-    }
-    
-    if(!is.null(nj_tiplab_position_reactive())) {
-      nj_tiplab_position_selected <- nj_tiplab_position_reactive()
-    } else {
-      nj_tiplab_position_selected <- -0.05
-    }
-    
-    if(!is.null(nj_tiplab_position_inw_reactive())) {
-      nj_tiplab_position_inw_selected <- nj_tiplab_position_inw_reactive()
-    } else {
-      nj_tiplab_position_inw_selected <- 1.1
-    }
-    
-    if(!is.null(nj_tiplab_angle_reactive())) {
-      nj_tiplab_angle_selected <- nj_tiplab_angle_reactive()
-    } else {
-      nj_tiplab_angle_selected <- 0
-    }
-    
-    if(!is.null(nj_geom_reactive())) {
-      nj_geom_selected <- nj_geom_reactive()
-    } else {
-      nj_geom_selected <- FALSE
-    }
-    
-    if(!is.null(nj_tiplab_labelradius_reactive())) {
-      nj_tiplab_labelradius_selected <- nj_tiplab_labelradius_reactive()
-    } else {
-      nj_tiplab_labelradius_selected <- 0.2
-    }
-    
-    if(!is.null(nj_show_branch_label_reactive())) {
-      nj_show_branch_label_selected <- nj_show_branch_label_reactive()
-    } else {
-      nj_show_branch_label_selected <- FALSE
-    }
-    
-    if(!is.null(nj_branchlab_alpha_reactive())) {
-      nj_branchlab_alpha_selected <- nj_branchlab_alpha_reactive()
-    } else {
-      nj_branchlab_alpha_selected <- 0.65
-    }
-    
-    if(!is.null(nj_branch_x_reactive())) {
-      nj_branch_x_selected <- nj_branch_x_reactive()
-    } else {
-      nj_branch_x_selected <- 0
-    }
-    
-    if(!is.null(nj_branch_y_reactive())) {
-      nj_branch_y_selected <- nj_branch_y_reactive()
-    } else {
-      nj_branch_y_selected <- 0
-    }
-    
-    if(!is.null(nj_branchlab_fontface_reactive())) {
-      nj_branchlab_fontface_selected <- nj_branchlab_fontface_reactive()
-    } else {
-      nj_branchlab_fontface_selected <- "plain"
-    }
-    
-    if(!is.null(nj_branch_labelradius_reactive())) {
-      nj_branch_labelradius_selected <- nj_branch_labelradius_reactive()
-    } else {
-      nj_branch_labelradius_selected <- 0.5
-    }
-    
-    if(!is.null(nj_title_reactive())) {
-      nj_title_selected <- nj_title_reactive()
-    } else {
-      nj_title_selected <- NULL
-    }
-    
-    if(!is.null(nj_title_size_reactive())) {
-      nj_title_size_selected <- nj_title_size_reactive()
-    } else {
-      nj_title_size_selected <- 30
-    }
-    
-    if(!is.null(nj_subtitle_reactive())) {
-      nj_subtitle_selected <- nj_subtitle_reactive()
-    } else {
-      nj_subtitle_selected <- NULL
-    }
-    
-    if(!is.null(nj_subtitle_size_reactive())) {
-      nj_subtitle_size_selected <- nj_subtitle_size_reactive()
-    } else {
-      nj_subtitle_size_selected <- 30
-    }
     
     output$nj_controls <- renderUI(
       div(
@@ -9820,7 +9706,7 @@ server <- function(input, output, session) {
                       materialSwitch(
                         "nj_tiplab_show",
                         "",
-                        value = nj_tiplab_show_selected
+                        value = nj_tiplab_show_reactive()
                       )
                     )
                   )
@@ -9857,7 +9743,7 @@ server <- function(input, output, session) {
                             materialSwitch(
                               "nj_align",
                               h5(p("Align"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                              value = nj_align_selected,
+                              value = nj_align_reactive(),
                               right = TRUE
                             )
                           ),
@@ -9870,7 +9756,7 @@ server <- function(input, output, session) {
                             min = 0.1,
                             max = 1,
                             step = 0.05,
-                            value = nj_tiplab_alpha_selected,
+                            value = nj_tiplab_alpha_reactive(),
                             width = "150px",
                             ticks = FALSE
                           )
@@ -9883,7 +9769,7 @@ server <- function(input, output, session) {
                             label = h5("Fontface", style = "color:white; margin-bottom: 5px; margin-top: 16px"),
                             width = "250px",
                             choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic"),
-                            selected = nj_tiplab_fontface_selected
+                            selected = nj_tiplab_fontface_reactive()
                           ),
                           br(),
                           conditionalPanel(
@@ -9894,7 +9780,7 @@ server <- function(input, output, session) {
                               min = -3,
                               max = 3,
                               step = 0.05,
-                              value = nj_tiplab_nudge_x_selected,
+                              value = nj_tiplab_nudge_x_reactive(),
                               width = "150px",
                               ticks = FALSE
                             )
@@ -9907,7 +9793,7 @@ server <- function(input, output, session) {
                               min = -3,
                               max = 3,
                               step = 0.05,
-                              value = nj_tiplab_position_selected,
+                              value = nj_tiplab_position_reactive(),
                               width = "150px",
                               ticks = FALSE
                             )
@@ -9920,7 +9806,7 @@ server <- function(input, output, session) {
                               min = -3,
                               max = 3,
                               step = 0.05,
-                              value = nj_tiplab_position_inw_selected,
+                              value = nj_tiplab_position_inw_reactive(),
                               width = "150px",
                               ticks = FALSE
                             )
@@ -9931,7 +9817,7 @@ server <- function(input, output, session) {
                             label = h5("Angle", style = "color:white; margin-bottom: 0px"),
                             min = -90,
                             max = 90,
-                            value = nj_tiplab_angle_selected,
+                            value = nj_tiplab_angle_reactive(),
                             ticks = FALSE,
                             width = "150px",
                           )      
@@ -9951,7 +9837,7 @@ server <- function(input, output, session) {
                 materialSwitch(
                   "nj_geom",
                   h5(p("Panels"), style = "color:white; padding-left: 5px; position: relative; top: -4px; right: 5px;"),
-                  value = nj_geom_selected,
+                  value = nj_geom_reactive(),
                   right = FALSE
                 )
               )
@@ -9981,7 +9867,7 @@ server <- function(input, output, session) {
                       min = 0,
                       step = 0.05,
                       max = 0.5,
-                      value = nj_tiplab_labelradius_selected,
+                      value = nj_tiplab_labelradius_reactive(),
                       width = "150px",
                       ticks = FALSE
                     )
@@ -10011,7 +9897,7 @@ server <- function(input, output, session) {
                       materialSwitch(
                         "nj_show_branch_label",
                         "",
-                        value = nj_show_branch_label_selected
+                        value = nj_show_branch_label_reactive()
                       )
                     )
                   )
@@ -10048,7 +9934,7 @@ server <- function(input, output, session) {
                             label = h5("Fontface", style = "color:white; margin-bottom: 0px;"),
                             width = "250px",
                             choices = c(Plain = "plain", Bold =  "bold", Italic =  "italic", `B & I` = "bold.italic"),
-                            selected = nj_branchlab_fontface_selected
+                            selected = nj_branchlab_fontface_reactive()
                           ),
                           br(),
                           sliderInput(
@@ -10056,7 +9942,7 @@ server <- function(input, output, session) {
                             label = h5("X Position", style = "color:white; margin-bottom: 0px"),
                             min = -3,
                             max = 3,
-                            value = nj_branch_x_selected,
+                            value = nj_branch_x_reactive(),
                             width = "250px",
                             ticks = FALSE
                           ),
@@ -10067,7 +9953,7 @@ server <- function(input, output, session) {
                             min = 0.1,
                             max = 1,
                             step = 0.05,
-                            value = nj_branchlab_alpha_selected,
+                            value = nj_branchlab_alpha_reactive(),
                             width = "250px",
                             ticks = FALSE
                           )
@@ -10081,7 +9967,7 @@ server <- function(input, output, session) {
                             label = h5("Y Position", style = "color:white; margin-bottom: 0px"),
                             min = -3,
                             max = 3,
-                            value = nj_branch_y_selected,
+                            value = nj_branch_y_reactive(),
                             width = "250px",
                             ticks = FALSE
                           ),
@@ -10092,7 +9978,7 @@ server <- function(input, output, session) {
                             min = 0,
                             max = 0.5,
                             step = 0.05,
-                            value = nj_branch_labelradius_selected,
+                            value = nj_branch_labelradius_reactive(),
                             width = "250px",
                             ticks = FALSE
                           )
@@ -10117,7 +10003,7 @@ server <- function(input, output, session) {
                     label = "",
                     width = "100%",
                     placeholder = "Plot Title",
-                    value = nj_title_selected
+                    value = nj_title_reactive()
                   )
                 ),
                 column(
@@ -10140,7 +10026,7 @@ server <- function(input, output, session) {
                         sliderInput(
                           "nj_title_size",
                           label = h5("Title Size", style = "color:white; margin-bottom: 0px"),
-                          value = nj_title_size_selected,
+                          value = nj_title_size_reactive(),
                           min = 15,
                           max = 40,
                           step = 1,
@@ -10167,7 +10053,7 @@ server <- function(input, output, session) {
                     label = "",
                     width = "100%",
                     placeholder = "Plot Subtitle",
-                    value = nj_subtitle_selected
+                    value = nj_subtitle_reactive()
                   )
                 ),
                 column(
@@ -10190,7 +10076,7 @@ server <- function(input, output, session) {
                         sliderInput(
                           "nj_subtitle_size",
                           label = h5("Subtitle Size", style = "color:white; margin-bottom: 0px"),
-                          value = nj_subtitle_size_selected,
+                          value = nj_subtitle_size_reactive(),
                           min = 15,
                           max = 40,
                           step = 1,
@@ -10394,200 +10280,202 @@ server <- function(input, output, session) {
   nj_heatmap_div_mid_reactive <- reactiveVal(NULL)
   
   observe({
-    if(!is.null(input$nj_mapping_show)) {
-      nj_mapping_show_reactive(input$nj_mapping_show)
-    }
+    ifelse(!is.null(input$nj_mapping_show),
+           nj_mapping_show_reactive(input$nj_mapping_show),
+           nj_mapping_show_reactive(FALSE))
     
-    if(!is.null(input$nj_color_mapping)) {
-      nj_color_mapping_reactive(input$nj_color_mapping)
-    }
+    ifelse(!is.null(input$nj_color_mapping),
+           nj_color_mapping_reactive(input$nj_color_mapping),
+           nj_color_mapping_reactive("Country"))
     
-    if(!is.null(input$nj_tiplab_scale)) {
-      nj_tiplab_scale_reactive(input$nj_tiplab_scale)
-    }
+    ifelse(!is.null(input$nj_tiplab_scale),
+           nj_tiplab_scale_reactive(input$nj_tiplab_scale),
+           ifelse(!is.null(nj_color_mapping_reactive()) & 
+                    !is.null(Vis$meta_nj),
+                  ifelse(class(unlist(Vis$meta_nj[nj_color_mapping_reactive()])) == "numeric",
+                         nj_tiplab_scale_reactive("viridis"),
+                         ifelse(length(unique(unlist(Vis$meta_nj[nj_color_mapping_reactive()]))) > 7,
+                                nj_tiplab_scale_reactive("turbo"),
+                                nj_tiplab_scale_reactive("Set1"))),
+                  nj_tiplab_scale_reactive("viridis")))
     
-    if(!is.null(input$nj_color_mapping_div_mid)) {
-      nj_color_mapping_div_mid_reactive(input$nj_color_mapping_div_mid)
-    }
+    ifelse(!is.null(input$nj_color_mapping_div_mid),
+           nj_color_mapping_div_mid_reactive(input$nj_color_mapping_div_mid),
+           nj_color_mapping_div_mid_reactive("Mean"))
     
-    if(!is.null(input$nj_tipcolor_mapping_show)) {
-      nj_tipcolor_mapping_show_reactive(input$nj_tipcolor_mapping_show)
-    }
+    ifelse(!is.null(input$nj_tipcolor_mapping_show),
+           nj_tipcolor_mapping_show_reactive(input$nj_tipcolor_mapping_show),
+           nj_tipcolor_mapping_show_reactive(FALSE))
     
-    if(!is.null(input$nj_tipcolor_mapping)) {
-      nj_tipcolor_mapping_reactive(input$nj_tipcolor_mapping)
-    }
+    ifelse(!is.null(input$nj_tipcolor_mapping),
+           nj_tipcolor_mapping_reactive(input$nj_tipcolor_mapping),
+           nj_tipcolor_mapping_reactive("Country"))
     
-    if(!is.null(input$nj_tippoint_scale)) {
-      nj_tippoint_scale_reactive(input$nj_tippoint_scale)
-    }
+    ifelse(!is.null(input$nj_tipcolor_scale),
+           nj_tippoint_scale_reactive(input$nj_tipcolor_scale),
+           ifelse(!is.null(nj_tipcolor_mapping_reactive()) & 
+                    !is.null(Vis$meta_nj),
+                  ifelse(class(unlist(Vis$meta_nj[nj_tipcolor_mapping_reactive()])) == "numeric",
+                         nj_tippoint_scale_reactive("viridis"),
+                         ifelse(length(unique(unlist(Vis$meta_nj[nj_tipcolor_mapping_reactive()]))) > 7,
+                                nj_tippoint_scale_reactive("turbo"),
+                                nj_tippoint_scale_reactive("Set1"))),
+                  nj_tippoint_scale_reactive("viridis")))
     
-    if(!is.null(input$nj_tipcolor_mapping_div_mid)) {
-      nj_tipcolor_mapping_div_mid_reactive(input$nj_tipcolor_mapping_div_mid)
-    }
+    ifelse(!is.null(input$nj_tipcolor_mapping_div_mid),
+           nj_tipcolor_mapping_div_mid_reactive(input$nj_tipcolor_mapping_div_mid),
+           nj_tipcolor_mapping_div_mid_reactive("Mean"))
     
-    if(!is.null(input$nj_tipshape_mapping_show)) {
-      nj_tipshape_mapping_show_reactive(input$nj_tipshape_mapping_show)
-    }
+    ifelse(!is.null(input$nj_tipshape_mapping_show),
+           nj_tipshape_mapping_show_reactive(input$nj_tipshape_mapping_show),
+           nj_tipshape_mapping_show_reactive(FALSE))
     
-    if(!is.null(input$nj_tipshape_mapping)) {
-      nj_tipshape_mapping_reactive(input$nj_tipshape_mapping)
-    }
+    ifelse(!is.null(input$nj_tipshape_mapping),
+           nj_tipshape_mapping_reactive(input$nj_tipshape_mapping),
+           nj_tipshape_mapping_reactive("Host"))
     
-    if(!is.null(input$nj_tiles_show_1)) {
-      nj_tiles_show_1_reactive(input$nj_tiles_show_1)
-    }
+    ifelse(!is.null(input$nj_tiles_show_1),
+           nj_tiles_show_1_reactive(input$nj_tiles_show_1),
+           nj_tiles_show_1_reactive(FALSE))
     
-    if(!is.null(input$nj_tiles_show_2)) {
-      nj_tiles_show_2_reactive(input$nj_tiles_show_2)
-    }
+    ifelse(!is.null(input$nj_tiles_show_2),
+           nj_tiles_show_2_reactive(input$nj_tiles_show_2),
+           nj_tiles_show_2_reactive(FALSE))
     
-    if(!is.null(input$nj_tiles_show_3)) {
-      nj_tiles_show_3_reactive(input$nj_tiles_show_3)
-    }
+    ifelse(!is.null(input$nj_tiles_show_3),
+           nj_tiles_show_3_reactive(input$nj_tiles_show_3),
+           nj_tiles_show_3_reactive(FALSE))
     
-    if(!is.null(input$nj_tiles_show_4)) {
-      nj_tiles_show_4_reactive(input$nj_tiles_show_4)
-    }
+    ifelse(!is.null(input$nj_tiles_show_4),
+           nj_tiles_show_4_reactive(input$nj_tiles_show_4),
+           nj_tiles_show_4_reactive(FALSE))
     
-    if(!is.null(input$nj_tiles_show_5)) {
-      nj_tiles_show_5_reactive(input$nj_tiles_show_5)
-    }
+    ifelse(!is.null(input$nj_tiles_show_5),
+           nj_tiles_show_5_reactive(input$nj_tiles_show_5),
+           nj_tiles_show_5_reactive(FALSE))
     
-    if(!is.null(input$nj_fruit_variable)) {
-      nj_fruit_variable_reactive(input$nj_fruit_variable)
-    }
+    ifelse(!is.null(input$nj_fruit_variable),
+           nj_fruit_variable_reactive(input$nj_fruit_variable),
+           nj_fruit_variable_reactive("Isolation Date"))
     
-    if(!is.null(input$nj_fruit_variable_2)) {
-      nj_fruit_variable2_reactive(input$nj_fruit_variable_2)
-    }
+    ifelse(!is.null(input$nj_fruit_variable_2),
+           nj_fruit_variable2_reactive(input$nj_fruit_variable_2),
+           nj_fruit_variable2_reactive("Isolation Date"))
     
-    if(!is.null(input$nj_fruit_variable_3)) {
-      nj_fruit_variable3_reactive(input$nj_fruit_variable_3)
-    }
+    ifelse(!is.null(input$nj_fruit_variable_3),
+           nj_fruit_variable3_reactive(input$nj_fruit_variable_3),
+           nj_fruit_variable3_reactive("Isolation Date"))
     
-    if(!is.null(input$nj_fruit_variable_4)) {
-      nj_fruit_variable4_reactive(input$nj_fruit_variable_4)
-    }
+    ifelse(!is.null(input$nj_fruit_variable_4),
+           nj_fruit_variable4_reactive(input$nj_fruit_variable_4),
+           nj_fruit_variable4_reactive("Isolation Date"))
     
-    if(!is.null(input$nj_fruit_variable_5)) {
-      nj_fruit_variable5_reactive(input$nj_fruit_variable_5)
-    }
+    ifelse(!is.null(input$nj_fruit_variable_5),
+           nj_fruit_variable5_reactive(input$nj_fruit_variable_5),
+           nj_fruit_variable5_reactive("Isolation Date"))
     
-    if(!is.null(input$nj_tiles_scale_1)) {
-      nj_tiles_scale_1_reactive(input$nj_tiles_scale_1)
-    }
+    ifelse(!is.null(input$nj_tiles_scale_1),
+           nj_tiles_scale_1_reactive(input$nj_tiles_scale_1),
+           ifelse(!is.null(nj_fruit_variable_reactive()) & 
+                    !is.null(Vis$meta_nj),
+                  ifelse(class(unlist(Vis$meta_nj[nj_fruit_variable_reactive()])) == "numeric",
+                         nj_tiles_scale_1_reactive("viridis"),
+                         ifelse(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_reactive()]))) > 7,
+                                nj_tiles_scale_1_reactive("turbo"),
+                                nj_tiles_scale_1_reactive("Accent"))),
+                  nj_tiles_scale_1_reactive("viridis")))
     
-    if(!is.null(input$nj_tiles_scale_2)) {
-      nj_tiles_scale_2_reactive(input$nj_tiles_scale_2)
-    }
+    ifelse(!is.null(input$nj_tiles_scale_2),
+           nj_tiles_scale_2_reactive(input$nj_tiles_scale_2),
+           ifelse(!is.null(nj_fruit_variable2_reactive()) & 
+                    !is.null(Vis$meta_nj),
+                  ifelse(class(unlist(Vis$meta_nj[nj_fruit_variable2_reactive()])) == "numeric",
+                         nj_tiles_scale_2_reactive("viridis"),
+                         ifelse(length(unique(unlist(Vis$meta_nj[nj_fruit_variable2_reactive()]))) > 7,
+                                nj_tiles_scale_2_reactive("turbo"),
+                                nj_tiles_scale_2_reactive("Accent"))),
+                  nj_tiles_scale_2_reactive("viridis")))
     
-    if(!is.null(input$nj_tiles_scale_3)) {
-      nj_tiles_scale_3_reactive(input$nj_tiles_scale_3)
-    }
+    ifelse(!is.null(input$nj_tiles_scale_3),
+           nj_tiles_scale_3_reactive(input$nj_tiles_scale_3),
+           ifelse(!is.null(nj_fruit_variable3_reactive()) & 
+                    !is.null(Vis$meta_nj),
+                  ifelse(class(unlist(Vis$meta_nj[nj_fruit_variable3_reactive()])) == "numeric",
+                         nj_tiles_scale_3_reactive("viridis"),
+                         ifelse(length(unique(unlist(Vis$meta_nj[nj_fruit_variable3_reactive()]))) > 7,
+                                nj_tiles_scale_3_reactive("turbo"),
+                                nj_tiles_scale_3_reactive("Accent"))),
+                  nj_tiles_scale_3_reactive("viridis")))
     
-    if(!is.null(input$nj_tiles_scale_4)) {
-      nj_tiles_scale_4_reactive(input$nj_tiles_scale_4)
-    }
+    ifelse(!is.null(input$nj_tiles_scale_4),
+           nj_tiles_scale_4_reactive(input$nj_tiles_scale_4),
+           ifelse(!is.null(nj_fruit_variable4_reactive()) & 
+                    !is.null(Vis$meta_nj),
+                  ifelse(class(unlist(Vis$meta_nj[nj_fruit_variable4_reactive()])) == "numeric",
+                         nj_tiles_scale_4_reactive("viridis"),
+                         ifelse(length(unique(unlist(Vis$meta_nj[nj_fruit_variable4_reactive()]))) > 7,
+                                nj_tiles_scale_4_reactive("turbo"),
+                                nj_tiles_scale_4_reactive("Accent"))),
+                  nj_tiles_scale_4_reactive("viridis")))
     
-    if(!is.null(input$nj_tiles_scale_5)) {
-      nj_tiles_scale_5_reactive(input$nj_tiles_scale_5)
-    }
+    ifelse(!is.null(input$nj_tiles_scale_5),
+           nj_tiles_scale_5_reactive(input$nj_tiles_scale_5),
+           ifelse(!is.null(nj_fruit_variable5_reactive()) & 
+                    !is.null(Vis$meta_nj),
+                  ifelse(class(unlist(Vis$meta_nj[nj_fruit_variable5_reactive()])) == "numeric",
+                         nj_tiles_scale_5_reactive("viridis"),
+                         ifelse(length(unique(unlist(Vis$meta_nj[nj_fruit_variable5_reactive()]))) > 7,
+                                nj_tiles_scale_5_reactive("turbo"),
+                                nj_tiles_scale_5_reactive("Accent"))),
+                  nj_tiles_scale_5_reactive("viridis")))
     
-    if(!is.null(input$nj_tiles_mapping_div_mid_1)) {
-      nj_tiles_mapping_div_mid_1_reactive(input$nj_tiles_mapping_div_mid_1)
-    }
+    ifelse(!is.null(input$nj_tiles_mapping_div_mid_1),
+           nj_tiles_mapping_div_mid_1_reactive(input$nj_tiles_mapping_div_mid_1),
+           nj_tiles_mapping_div_mid_1_reactive("Mean"))
     
-    if(!is.null(input$nj_tiles_mapping_div_mid_2)) {
-      nj_tiles_mapping_div_mid_2_reactive(input$nj_tiles_mapping_div_mid_2)
-    }
+    ifelse(!is.null(input$nj_tiles_mapping_div_mid_2),
+           nj_tiles_mapping_div_mid_2_reactive(input$nj_tiles_mapping_div_mid_2),
+           nj_tiles_mapping_div_mid_2_reactive("Mean"))
     
-    if(!is.null(input$nj_tiles_mapping_div_mid_3)) {
-      nj_tiles_mapping_div_mid_3_reactive(input$nj_tiles_mapping_div_mid_3)
-    }
+    ifelse(!is.null(input$nj_tiles_mapping_div_mid_3),
+           nj_tiles_mapping_div_mid_3_reactive(input$nj_tiles_mapping_div_mid_3),
+           nj_tiles_mapping_div_mid_3_reactive("Mean"))
     
-    if(!is.null(input$nj_tiles_scale_nj_tiles_mapping_div_mid_4)) {
-      nj_tiles_mapping_div_mid_4_reactive(input$nj_tiles_mapping_div_mid_4)
-    }
+    ifelse(!is.null(input$nj_tiles_scale_nj_tiles_mapping_div_mid_4),
+           nj_tiles_mapping_div_mid_4_reactive(input$nj_tiles_mapping_div_mid_4),
+           nj_tiles_mapping_div_mid_4_reactive("Mean"))
     
-    if(!is.null(input$nj_tiles_mapping_div_mid_5)) {
-      nj_tiles_mapping_div_mid_5_reactive(input$nj_tiles_mapping_div_mid_5)
-    }
+    ifelse(!is.null(input$nj_tiles_mapping_div_mid_5),
+           nj_tiles_mapping_div_mid_5_reactive(input$nj_tiles_mapping_div_mid_5),
+           nj_tiles_mapping_div_mid_5_reactive("Mean"))
     
-    if(!is.null(input$nj_heatmap_show)) {
-      nj_heatmap_show_reactive(input$nj_heatmap_show)
-    }
+    ifelse(!is.null(input$nj_heatmap_show),
+           nj_heatmap_show_reactive(input$nj_heatmap_show),
+           nj_heatmap_show_reactive(FALSE))
     
-    if(!is.null(input$nj_heatmap_select)) {
-      nj_heatmap_select_reactive(input$nj_heatmap_select)
-    }
+    ifelse(!is.null(input$nj_heatmap_select),
+           nj_heatmap_select_reactive(input$nj_heatmap_select),
+           nj_heatmap_select_reactive(NULL))
     
-    if(!is.null(input$nj_heatmap_scale)) {
-      nj_heatmap_scale_reactive(input$nj_heatmap_scale)
-    }
+    ifelse(!is.null(input$nj_heatmap_scale),
+           nj_heatmap_scale_reactive(input$nj_heatmap_scale),
+           ifelse(!is.null(nj_heatmap_select_reactive()) &
+                    !is.null(Vis$meta_nj),
+                  ifelse(class(unlist(Vis$meta_nj[nj_heatmap_select_reactive()])) == "numeric",
+                         nj_heatmap_scale_reactive("viridis"),
+                         ifelse(length(unique(unlist(Vis$meta_nj[nj_heatmap_select_reactive()]))) > 7,
+                                nj_heatmap_scale_reactive("turbo"),
+                                nj_heatmap_scale_reactive("Dark2"))),
+                  nj_heatmap_scale_reactive("viridis")))
     
-    if(!is.null(input$nj_heatmap_div_mid)) {
-      nj_heatmap_div_mid_reactive(input$nj_heatmap_div_mid)
-    }
+    ifelse(!is.null(input$nj_heatmap_div_mid),
+           nj_heatmap_div_mid_reactive(input$nj_heatmap_div_mid),
+           nj_heatmap_div_mid_reactive("Mean"))
   })
   
   observeEvent(input$nj_variable_menu, {
     
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-    
-    if(!is.null(nj_mapping_show_reactive())) {
-      nj_mapping_show_selected <- nj_mapping_show_reactive()
-    } else {
-      nj_mapping_show_selected <- FALSE
-    }
-    
-    if(!is.null(nj_tipcolor_mapping_show_reactive())) {
-      nj_tipcolor_mapping_show_selected <- nj_tipcolor_mapping_show_reactive()
-    } else {
-      nj_tipcolor_mapping_show_selected <- FALSE
-    }
-    
-    if(!is.null(nj_tipshape_mapping_show_reactive())) {
-      nj_tipshape_mapping_show_selected <- nj_tipshape_mapping_show_reactive()
-    } else {
-      nj_tipshape_mapping_show_selected <- FALSE
-    }
-    
-    if(!is.null(nj_tiles_show_1_reactive())) {
-      nj_tiles_show_1_selected <- nj_tiles_show_1_reactive()
-    } else {
-      nj_tiles_show_1_selected <- FALSE
-    }
-    
-    if(!is.null(nj_tiles_show_2_reactive())) {
-      nj_tiles_show_2_selected <- nj_tiles_show_2_reactive()
-    } else {
-      nj_tiles_show_2_selected <- FALSE
-    }
-    
-    if(!is.null(nj_tiles_show_3_reactive())) {
-      nj_tiles_show_3_selected <- nj_tiles_show_3_reactive()
-    } else {
-      nj_tiles_show_3_selected <- FALSE
-    }
-    
-    if(!is.null(nj_tiles_show_4_reactive())) {
-      nj_tiles_show_4_selected <- nj_tiles_show_4_reactive()
-    } else {
-      nj_tiles_show_4_selected <- FALSE
-    }
-    
-    if(!is.null(nj_tiles_show_5_reactive())) {
-      nj_tiles_show_5_selected <- nj_tiles_show_5_reactive()
-    } else {
-      nj_tiles_show_5_selected <- FALSE
-    }
-    
-    if(!is.null(nj_heatmap_show_reactive())) {
-      nj_heatmap_show_selected <- nj_heatmap_show_reactive()
-    } else {
-      nj_heatmap_show_selected <- FALSE
-    }
     
     output$nj_controls <- renderUI(
       div(
@@ -10621,7 +10509,7 @@ server <- function(input, output, session) {
                       materialSwitch(
                         "nj_mapping_show",
                         "",
-                        value = nj_mapping_show_selected
+                        value = nj_mapping_show_reactive()
                       )
                     )
                   )
@@ -10684,7 +10572,7 @@ server <- function(input, output, session) {
                       materialSwitch(
                         "nj_tipcolor_mapping_show",
                         "",
-                        value = nj_tipcolor_mapping_show_selected
+                        value = nj_tipcolor_mapping_show_reactive()
                       )
                     )
                   )
@@ -10747,7 +10635,7 @@ server <- function(input, output, session) {
                       materialSwitch(
                         "nj_tipshape_mapping_show",
                         "",
-                        value = nj_tipshape_mapping_show_selected
+                        value = nj_tipshape_mapping_show_reactive()
                       )
                     )
                   )
@@ -10800,7 +10688,7 @@ server <- function(input, output, session) {
                       materialSwitch(
                         "nj_tiles_show_1",
                         "",
-                        value = nj_tiles_show_1_selected
+                        value = nj_tiles_show_1_reactive()
                       )
                     )
                   ),
@@ -10811,7 +10699,7 @@ server <- function(input, output, session) {
                       materialSwitch(
                         "nj_tiles_show_2",
                         "",
-                        value = nj_tiles_show_2_selected
+                        value = nj_tiles_show_2_reactive()
                       )
                     )
                   ),
@@ -10822,7 +10710,7 @@ server <- function(input, output, session) {
                       materialSwitch(
                         "nj_tiles_show_3",
                         "",
-                        value = nj_tiles_show_3_selected
+                        value = nj_tiles_show_3_reactive()
                       )
                     )
                   ),
@@ -10833,7 +10721,7 @@ server <- function(input, output, session) {
                       materialSwitch(
                         "nj_tiles_show_4",
                         "",
-                        value = nj_tiles_show_4_selected
+                        value = nj_tiles_show_4_reactive()
                       )
                     )
                   ),
@@ -10844,7 +10732,7 @@ server <- function(input, output, session) {
                       materialSwitch(
                         "nj_tiles_show_5",
                         "",
-                        value = nj_tiles_show_5_selected
+                        value = nj_tiles_show_5_reactive()
                       )
                     )
                   )
@@ -10953,7 +10841,7 @@ server <- function(input, output, session) {
                       materialSwitch(
                         "nj_heatmap_show",
                         "",
-                        value = nj_heatmap_show_selected
+                        value = nj_heatmap_show_reactive()
                       )
                     )
                   )
@@ -11514,9 +11402,8 @@ server <- function(input, output, session) {
       nj_nodelabel_show_reactive(input$nj_nodelabel_show)
     }
     
-    if(!is.null(input$nj_parentnode)) {      
-      nj_parentnode_reactive(input$nj_parentnode)
-    }
+    # parent node input allowed to be NULL
+    nj_parentnode_reactive(input$nj_parentnode) 
     
     if(!is.null(input$nj_clade_scale)) {      
       nj_clade_scale_reactive(input$nj_clade_scale)
@@ -13390,24 +13277,24 @@ server <- function(input, output, session) {
   output$nj_tiplab_mapping_info <- renderUI({
     req(Vis$meta_nj)
     
-    if(!is.null(nj_color_mapping_reactive())) {
-      nj_color_mapping <- nj_color_mapping_reactive()
-    } else {
-      nj_color_mapping <- "Country"
-    }
-    
-    if(is.numeric(unlist(Vis$meta_nj[nj_color_mapping]))) {
+    if(is.numeric(unlist(Vis$meta_nj[nj_color_mapping_reactive()]))) {
       fluidRow(
-        h5("Continous values", style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
+        h5("Continous values", 
+           style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
       ) 
     } else {
-      if(length(unique(unlist(Vis$meta_nj[nj_color_mapping]))) > 7) {
+      if(length(unique(unlist(Vis$meta_nj[nj_color_mapping_reactive()]))) > 7) {
         fluidRow(
-          h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[nj_color_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+          h5(paste0("> 7 (", 
+                    length(unique(unlist(Vis$meta_nj[nj_color_mapping_reactive()]))),
+                    ") categorical values"), 
+             style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
         )
       } else {
         fluidRow(
-          h5(paste0(length(unique(unlist(Vis$meta_nj[nj_color_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+          h5(paste0(length(unique(unlist(Vis$meta_nj[nj_color_mapping_reactive()]))), 
+                    paste0(" categorical values")), 
+             style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
         )
       }
     }
@@ -13457,24 +13344,24 @@ server <- function(input, output, session) {
   output$nj_tipcolor_mapping_info <- renderUI({
     req(Vis$meta_nj)
     
-    if(!is.null(nj_tipcolor_mapping_reactive())) {
-      nj_tipcolor_mapping <- nj_tipcolor_mapping_reactive()
-    } else {
-      nj_tipcolor_mapping <- "Country"
-    }
-    
-    if(is.numeric(unlist(Vis$meta_nj[nj_tipcolor_mapping]))) {
+    if(is.numeric(unlist(Vis$meta_nj[nj_tipcolor_mapping_reactive()]))) {
       fluidRow(
-        h5("Continous values", style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
+        h5("Continous values", 
+           style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
       ) 
     } else {
-      if(length(unique(unlist(Vis$meta_nj[nj_tipcolor_mapping]))) > 7) {
+      if(length(unique(unlist(Vis$meta_nj[nj_tipcolor_mapping_reactive()]))) > 7) {
         fluidRow(
-          h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[nj_tipcolor_mapping]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+          h5(paste0("> 7 (", 
+                    length(unique(unlist(Vis$meta_nj[nj_tipcolor_mapping_reactive()]))), 
+                    ") categorical values"), 
+             style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
         )
       } else {
         fluidRow(
-          h5(paste0(length(unique(unlist(Vis$meta_nj[nj_tipcolor_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")      
+          h5(paste0(length(unique(unlist(Vis$meta_nj[nj_tipcolor_mapping_reactive()]))), 
+                    paste0(" categorical values")), 
+             style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")      
         )
       }
     }
@@ -13524,24 +13411,22 @@ server <- function(input, output, session) {
   output$nj_tipshape_mapping_info <- renderUI({
     req(Vis$meta_nj)
     
-    if(!is.null(nj_tipshape_mapping_reactive())) {
-      nj_tipshape_mapping <- nj_tipshape_mapping_reactive()
-    } else {
-      nj_tipshape_mapping <- "Host"
-    }
-    
-    if(is.numeric(unlist(Vis$meta_nj[nj_tipshape_mapping]))) {
+    if(is.numeric(unlist(Vis$meta_nj[nj_tipshape_mapping_reactive()]))) {
       fluidRow(
-        h5("Mapping continous variables to shape not possible", style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+        h5("Mapping continous variables to shape not possible", 
+           style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
       )
     } else {
-      if(length(unique(unlist(Vis$meta_nj[nj_tipshape_mapping]))) > 6) {
+      if(length(unique(unlist(Vis$meta_nj[nj_tipshape_mapping_reactive()]))) > 6) {
         fluidRow(
-          h5("Mapping > 6 variables to shape not possible", style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+          h5("Mapping > 6 variables to shape not possible", 
+             style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
         )
       } else {
         fluidRow(
-          h5(paste0(length(unique(unlist(Vis$meta_nj[nj_tipshape_mapping]))), paste0(" categorical values")), style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+          h5(paste0(length(unique(unlist(Vis$meta_nj[nj_tipshape_mapping_reactive()]))), 
+                    paste0(" categorical values")), 
+             style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
         )    
       }
     }
@@ -13572,116 +13457,111 @@ server <- function(input, output, session) {
     
     if(input$nj_tile_num == 1) {
       
-      if(!is.null(nj_fruit_variable_reactive())) {
-        nj_fruit_variable <- nj_fruit_variable_reactive()
-      } else {
-        nj_fruit_variable <- "Country"
-      }
-      
-      if(is.numeric(unlist(Vis$meta_nj[nj_fruit_variable]))) {
+      if(is.numeric(unlist(Vis$meta_nj[nj_fruit_variable_reactive()]))) {
         fluidRow(
-          h5("Continous values", style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
+          h5("Continous values", 
+             style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
         ) 
       } else {
-        if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable]))) > 7) {
+        if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_reactive()]))) > 7) {
           fluidRow(
-            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[nj_fruit_variable]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[nj_fruit_variable_reactive()]))), 
+                      ") categorical values"), 
+               style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
           )
         } else {
           fluidRow(
-            h5(paste0(length(unique(unlist(Vis$meta_nj[nj_fruit_variable]))), paste0(" categorical values")), style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+            h5(paste0(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_reactive()]))), 
+                      paste0(" categorical values")), 
+               style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
           )
         }
       }
     } else if (input$nj_tile_num == 2) {
       
-      if(!is.null(nj_fruit_variable2_reactive())) {
-        nj_fruit_variable_2 <- nj_fruit_variable2_reactive()
-      } else {
-        nj_fruit_variable_2 <- "Country"
-      }
-      
-      if(is.numeric(unlist(Vis$meta_nj[nj_fruit_variable_2]))) {
+      if(is.numeric(unlist(Vis$meta_nj[nj_fruit_variable2_reactive()]))) {
         fluidRow(
-          h5("Continous values", style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
+          h5("Continous values", 
+             tyle = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
         )
       } else {
-        if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_2]))) > 7) {
+        if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable2_reactive()]))) > 7) {
           fluidRow(
-            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[nj_fruit_variable_2]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+            h5(paste0("> 7 (", 
+                      length(unique(unlist(Vis$meta_nj[nj_fruit_variable2_reactive()]))), 
+                      ") categorical values"), 
+               style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
           )
         } else {
           fluidRow(
-            h5(paste0(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_2]))), paste0(" categorical values")), style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+            h5(paste0(length(unique(unlist(Vis$meta_nj[nj_fruit_variable2_reactive()]))), 
+                      paste0(" categorical values")), 
+               style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
           )
         }
       }
     } else if (input$nj_tile_num == 3) {
-      
-      if(!is.null(nj_fruit_variable_3_reactive())) {
-        nj_fruit_variable_3 <- nj_fruit_variable_3_reactive()
-      } else {
-        nj_fruit_variable_3 <- "Country"
-      }
-      
-      if(is.numeric(unlist(Vis$meta_nj[nj_fruit_variable_3]))) {
+      if(is.numeric(unlist(Vis$meta_nj[nj_fruit_variable3_reactive()]))) {
         fluidRow(
-          h5("Continous values", style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
+          h5("Continous values", 
+             style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
         )
       } else {
-        if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_3]))) > 7) {
+        if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable3_reactive()]))) > 7) {
           fluidRow(
-            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[nj_fruit_variable_3]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+            h5(paste0("> 7 (", 
+                      length(unique(unlist(Vis$meta_nj[nj_fruit_variable3_reactive()]))), 
+                      ") categorical values"), 
+               style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
           )
         } else {
           fluidRow(
-            h5(paste0(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_3]))), paste0(" categorical values")), style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+            h5(paste0(length(unique(unlist(Vis$meta_nj[nj_fruit_variable3_reactive()]))), 
+                      paste0(" categorical values")), 
+               style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
           )
         }
       }
     } else if (input$nj_tile_num == 4) {
-      
-      if(!is.null(nj_fruit_variable_4_reactive())) {
-        nj_fruit_variable_4 <- nj_fruit_variable_4_reactive()
-      } else {
-        nj_fruit_variable_4 <- "Country"
-      }
-      
-      if(is.numeric(unlist(Vis$meta_nj[nj_fruit_variable_4]))) {
+      if(is.numeric(unlist(Vis$meta_nj[nj_fruit_variable4_reactive()]))) {
         fluidRow(
-          h5("Continous values", style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
+          h5("Continous values", 
+             style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
         )
       } else {
-        if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_4]))) > 7) {
+        if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable4_reactive()]))) > 7) {
           fluidRow(
-            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[nj_fruit_variable_4]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+            h5(paste0("> 7 (", 
+                      length(unique(unlist(Vis$meta_nj[nj_fruit_variable4_reactive()]))), 
+                      ") categorical values"), 
+               style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
           )
         } else {
           fluidRow(
-            h5(paste0(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_4]))), paste0(" categorical values")), style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+            h5(paste0(length(unique(unlist(Vis$meta_nj[nj_fruit_variable4_reactive()]))), 
+                      paste0(" categorical values")), 
+               style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
           )
         }
       }
     } else if (input$nj_tile_num == 5) {
-      
-      if(!is.null(nj_fruit_variable_5_reactive())) {
-        nj_fruit_variable_5 <- nj_fruit_variable_5_reactive()
-      } else {
-        nj_fruit_variable_5 <- "Country"
-      }
-      
-      if(is.numeric(unlist(Vis$meta_nj[nj_fruit_variable_5]))) {
+      if(is.numeric(unlist(Vis$meta_nj[nj_fruit_variable5_reactive()]))) {
         fluidRow(
-          h5("Continous values", style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
+          h5("Continous values", 
+             style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")
         )
       } else {
-        if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_5]))) > 7) {
+        if(length(unique(unlist(Vis$meta_nj[nj_fruit_variable5_reactive()]))) > 7) {
           fluidRow(
-            h5(paste0("> 7 (", length(unique(unlist(Vis$meta_nj[nj_fruit_variable_5]))), ") categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+            h5(paste0("> 7 (", 
+                      length(unique(unlist(Vis$meta_nj[nj_fruit_variable5_reactive()]))), 
+                      ") categorical values"), 
+               style = "color: #E18B00; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
           )
         } else {
           fluidRow(
-            h5(paste0(length(unique(unlist(Vis$meta_nj[nj_fruit_variable_5]))), paste0(" categorical values")), style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
+            h5(paste0(length(unique(unlist(Vis$meta_nj[nj_fruit_variable5_reactive()]))), 
+                      paste0(" categorical values")), style = "color: white; font-size: 12px; margin-top: 5px; margin-left: 35px; margin-bottom: -12px;")        
           )
         }
       }
@@ -13892,28 +13772,15 @@ server <- function(input, output, session) {
     req(Vis$meta_nj)
     
     if(!is.null(nj_heatmap_select_reactive())) {
-      nj_heatmap_select <- nj_heatmap_select_reactive()
-    } else {
-      nj_heatmap_select <- NULL
-    }
-    
-    if(!is.null(nj_heatmap_select)) {
-      if (any(sapply(Vis$meta_nj[nj_heatmap_select], is.numeric)) & 
-          any(!sapply(Vis$meta_nj[nj_heatmap_select], is.numeric))) {
+      if (any(sapply(Vis$meta_nj[nj_heatmap_select_reactive()], is.numeric)) & 
+          any(!sapply(Vis$meta_nj[nj_heatmap_select_reactive()], is.numeric))) {
         fluidRow(
           h5("Heatmap with both categorical and continous values not possible", 
              style = "color: #E18B00; font-size: 12px; font-style: italic; margin-top: 10px; margin-bottom: -12px; margin-left: 35px") 
         )
       } else {
-        if(any(sapply(Vis$meta_nj[nj_heatmap_select], is.numeric))) {
+        if(any(sapply(Vis$meta_nj[nj_heatmap_select_reactive()], is.numeric))) {
           if(input$nj_heatmap_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
-            
-            if(!is.null(nj_heatmap_div_mid_reactive())) {
-              nj_heatmap_div_mid_selected <- nj_heatmap_div_mid_reactive()
-            } else {
-              nj_heatmap_div_mid_selected <- "Mean"
-            }
-            
             fluidRow(
               column(
                 width = 4,
@@ -13927,20 +13794,22 @@ server <- function(input, output, session) {
                     "nj_heatmap_div_mid",
                     label = "",
                     choices = c("Zero", "Mean", "Median"),
-                    selected = nj_heatmap_div_mid_selected
+                    selected = nj_heatmap_div_mid_reactive()
                   )
                 )
               )
             )
           } else {
             fluidRow(
-              h5("Continous values", style = "color: white; font-size: 12px; margin-top: 10px; margin-left: 35px; margin-bottom: -12px;")
+              h5("Continous values", 
+                 style = "color: white; font-size: 12px; margin-top: 10px; margin-left: 35px; margin-bottom: -12px;")
             ) 
           }
         } else {
-          if(length(unique(unlist(Vis$meta_nj[nj_heatmap_select]))) > 7) {
+          if(length(unique(unlist(Vis$meta_nj[nj_heatmap_select_reactive()]))) > 7) {
             fluidRow(
-              h5(paste0("> 7 categorical values"), style = "color: #E18B00; font-size: 12px; margin-top: 10px; margin-left: 35px; margin-bottom: -12px;")        
+              h5(paste0("> 7 categorical values"), 
+                 style = "color: #E18B00; font-size: 12px; margin-top: 10px; margin-left: 35px; margin-bottom: -12px;")        
             )
           } else {
             fluidRow(
@@ -14863,70 +14732,70 @@ server <- function(input, output, session) {
   # Clade coloring
   output$nj_clade_scale <- renderUI({
     
-    if(!is.null(nj_parentnode_reactive())) {
-      nj_parentnode <- nj_parentnode_reactive()
-    } else {
-      nj_parentnode <- NULL
-    }
-    
-    if(length(nj_parentnode) <= 1) {
-      
-      if(!is.null(nj_clade_scale_reactive())) {
-        nj_clade_scale_selected <- nj_clade_scale_reactive()
-      } else {
-        nj_clade_scale_selected <- "#D0F221"
-      }
-      
-      fluidRow(
-        column(
-          width = 5,
-          h5("Color", style = "color:white; position: relative; right: -15px; margin-top: 30px")
-        ),
-        column(
-          width = 7,
-          align = "center",
-          colorPickr(
-            inputId = "nj_clade_scale",
-            selected = nj_clade_scale_selected,
-            label = "",
-            update = "changestop",
-            interaction = list(clear = FALSE,
-                               save = FALSE),
-            position = "right-start",
-            width = "100%"
-          )
-        )
-      )
-    } else {
-      
-      if(!is.null(nj_clade_scale_reactive())) {
-        nj_clade_scale_selected <- nj_clade_scale_reactive()
-      } else {
-        nj_clade_scale_selected <- "Set1"
-      }
-      
-      fluidRow(
-        column(
-          width = 5,
-          h5("Scale", style = "color:white; position: relative; right: -15px; margin-top: 30px")
-        ),
-        column(
-          width = 7,
-          align = "center",
-          div(
-            class = "sel-clade-scale",
-            selectInput(
-              "nj_clade_scale",
-              "",
-              choices = list(
-                Qualitative = qualitative_scales,
-                Sequential = sequential_scales
-              ),
-              selected = nj_clade_scale_selected
+    if(length(nj_parentnode_reactive()) > 0) {
+      if(length(nj_parentnode_reactive()) == 1) {
+        
+        if(!is.null(nj_clade_scale_reactive())) {
+          if(!startsWith(nj_clade_scale_reactive(), "#")) {
+            nj_clade_scale_selected <- "#D0F221"
+          } else {
+            nj_clade_scale_selected <- nj_clade_scale_reactive()
+          }
+        } else {
+          nj_clade_scale_selected <- "#D0F221"
+        }
+        
+        fluidRow(
+          column(
+            width = 5,
+            h5("Color", style = "color:white; position: relative; right: -15px; margin-top: 30px")
+          ),
+          column(
+            width = 7,
+            align = "center",
+            colorPickr(
+              inputId = "nj_clade_scale",
+              selected = nj_clade_scale_selected,
+              label = "",
+              update = "changestop",
+              interaction = list(clear = FALSE,
+                                 save = FALSE),
+              position = "right-start",
+              width = "100%"
             )
           )
         )
-      )
+      } else {
+        
+        if(!is.null(nj_clade_scale_reactive())) {
+          nj_clade_scale_selected <- nj_clade_scale_reactive()
+        } else {
+          nj_clade_scale_selected <- "Set1"
+        }
+        
+        fluidRow(
+          column(
+            width = 5,
+            h5("Scale", style = "color:white; position: relative; right: -15px; margin-top: 30px")
+          ),
+          column(
+            width = 7,
+            align = "center",
+            div(
+              class = "sel-clade-scale",
+              selectInput(
+                "nj_clade_scale",
+                "",
+                choices = list(
+                  Qualitative = qualitative_scales,
+                  Sequential = sequential_scales
+                ),
+                selected = nj_clade_scale_selected
+              )
+            )
+          )
+        )
+      }
     }
   })
   
@@ -14981,46 +14850,13 @@ server <- function(input, output, session) {
   output$nj_heatmap_scale <- renderUI({
     req(Vis$meta_nj)
     
-    if(!is.null(nj_heatmap_select_reactive())) {
-      nj_heatmap_select <- nj_heatmap_select_reactive()
-    } else {
-      nj_heatmap_select <- NULL
-    }
-    
-    if(!is.null(nj_heatmap_show_reactive())) {
-      nj_heatmap_show <- nj_heatmap_show_reactive()
-    } else {
-      nj_heatmap_show <- FALSE
-    }
-    
-    if(class(unlist(Vis$meta_nj[nj_heatmap_select])) == "numeric") {
-      
-      if(!is.null(nj_heatmap_scale_reactive())) {
-        nj_heatmap_scale_selected <- nj_heatmap_scale_reactive()
-      } else {
-        nj_heatmap_scale_selected <- "viridis"
-      }
-      
+    if(class(unlist(Vis$meta_nj[nj_heatmap_select_reactive()])) == "numeric") {
       choices <- list(Continous = gradient_scales,
                       Diverging = diverging_scales)
     } else {
-      if(length(unique(unlist(Vis$meta_nj[nj_heatmap_select]))) > 7) {
-        
-        if(!is.null(nj_heatmap_scale_reactive())) {
-          nj_heatmap_scale_selected <- nj_heatmap_scale_reactive()
-        } else {
-          nj_heatmap_scale_selected <- "turbo"
-        }
-        
+      if(length(unique(unlist(Vis$meta_nj[nj_heatmap_select_reactive()]))) > 7) {
         choices <- list(Gradient = gradient_scales)
       } else {
-        
-        if(!is.null(nj_heatmap_scale_reactive())) {
-          nj_heatmap_scale_selected <- nj_heatmap_scale_reactive()
-        } else {
-          nj_heatmap_scale_selected <- "Dark2"
-        }
-        
         choices <- list(Qualitative = qualitative_scales,
                         Sequential = sequential_scales)
       }
@@ -15031,10 +14867,10 @@ server <- function(input, output, session) {
       label = h5("Color Scale", style = "color: white; margin-bottom: 0px;"),
       width = "150px",
       choices = choices,
-      selected = nj_heatmap_scale_selected
+      selected = nj_heatmap_scale_reactive()
     )
     
-    if(nj_heatmap_show) {
+    if(nj_heatmap_show_reactive()) {
       nj_heatmap_scale
     } else {shinyjs::disabled(nj_heatmap_scale)}
   })
@@ -15635,49 +15471,13 @@ server <- function(input, output, session) {
   
   # Tip Labels Variable Color Scale
   output$nj_tiplab_scale <- renderUI({
-    
-    if(!is.null(input$nj_color_mapping)) {
-      nj_color_mapping <- input$nj_color_mapping
+    if(class(unlist(Vis$meta_nj[nj_color_mapping_reactive()])) == "numeric") {
+      choices <- list(Continous = gradient_scales,
+                      Diverging = diverging_scales)
     } else {
-      nj_color_mapping <- "Country"
-    }
-    
-    if(!is.null(nj_mapping_show_reactive())) {
-      nj_mapping_show <- nj_mapping_show_reactive()
-    } else {
-      nj_mapping_show <- FALSE
-    }
-    
-    if(class(unlist(Vis$meta_nj[nj_color_mapping])) == "numeric") {
-      
-      if(!is.null(nj_tiplab_scale_reactive())) {
-        nj_tiplab_scale_selected <- nj_tiplab_scale_reactive()
-      } else {
-        nj_tiplab_scale_selected <- "viridis"
-      }
-      
-      choices <- list(
-        Continous = gradient_scales,
-        Diverging = diverging_scales
-      )
-    } else {
-      if(length(unique(unlist(Vis$meta_nj[nj_color_mapping]))) > 7) {
-        
-        if(!is.null(nj_tiplab_scale_reactive())) {
-          nj_tiplab_scale_selected <- nj_tiplab_scale_reactive()
-        } else {
-          nj_tiplab_scale_selected <- "turbo"
-        }
-        
+      if(length(unique(unlist(Vis$meta_nj[nj_color_mapping_reactive()]))) > 7) {
         choices <- list(Gradient = gradient_scales)
       } else {
-        
-        if(!is.null(nj_tiplab_scale_reactive())) {
-          nj_tiplab_scale_selected <- nj_tiplab_scale_reactive()
-        } else {
-          nj_tiplab_scale_selected <- "Set1"
-        }
-        
         choices <- list(Qualitative = qualitative_scales,
                         Sequential = sequential_scales)
       }
@@ -15689,40 +15489,27 @@ server <- function(input, output, session) {
       selectize = FALSE,
       width = "150px",
       choices = choices,
-      selected = nj_tiplab_scale_selected
+      selected = nj_tiplab_scale_reactive()
     )
     
-    if(nj_mapping_show) {
+    if(nj_mapping_show_reactive()) {
       nj_tiplab_scale
     } else {shinyjs::disabled(nj_tiplab_scale)}
   })
   
   output$nj_tiplab_mid_scale <- renderUI({
     
-    if(!is.null(nj_mapping_show_reactive())) {
-      nj_mapping_show <- nj_mapping_show_reactive()
-    } else {
-      nj_mapping_show <- FALSE
-    }
-    
-    if(!is.null(nj_color_mapping_div_mid_reactive())) {
-      nj_color_mapping_div_mid_selected <- nj_color_mapping_div_mid_reactive()
-    } else {
-      nj_color_mapping_div_mid_selected <- "Mean"
-    }
-    
     nj_color_mapping_div_mid <- selectInput(
       "nj_color_mapping_div_mid",
       label = h5("Midpoint", style = "color: white; margin-bottom: 0px;"),
       choices = c("Zero", "Mean", "Median"),
-      selected = nj_color_mapping_div_mid_selected
+      selected = nj_color_mapping_div_mid_reactive()
     )
     
-    if(nj_mapping_show) {
-      if(!is.null(input$nj_color_mapping) & !is.null(input$nj_tiplab_scale) & 
-         !is.null(Vis$meta_nj)) {
-        if(is.numeric(unlist(Vis$meta_nj[input$nj_color_mapping]))) {
-          if(input$nj_tiplab_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 
+    if(nj_mapping_show_reactive()) {
+      if(!is.null(Vis$meta_nj)) {
+        if(is.numeric(unlist(Vis$meta_nj[nj_color_mapping_reactive()]))) {
+          if(nj_tiplab_scale_reactive() %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 
                                           'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             nj_color_mapping_div_mid
           } else {shinyjs::disabled(nj_color_mapping_div_mid)}
@@ -15778,46 +15565,16 @@ server <- function(input, output, session) {
   # Tippoint Scale
   output$nj_tippoint_scale <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      if(class(unlist(Vis$meta_nj[input$nj_tipcolor_mapping])) == "numeric") {
-        
-        if(!is.null(nj_tippoint_scale_reactive())) {
-          nj_tippoint_scale_selected <- nj_tippoint_scale_reactive()
-        } else {
-          nj_tippoint_scale_selected <- "viridis"
-        }
-        
+      if(class(unlist(Vis$meta_nj[nj_tipcolor_mapping_reactive()])) == "numeric") {
         choices <- list(Continous = gradient_scales,
                         Diverging = diverging_scales)
+      } else if(length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))) > 7) {
+        choices <- list(Gradient = gradient_scales)
       } else {
-        if(length(unique(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))) > 7) {
-          
-          if(!is.null(nj_tippoint_scale_reactive())) {
-            nj_tippoint_scale_selected <- nj_tippoint_scale_reactive()
-          } else {
-            nj_tippoint_scale_selected <- "turbo"
-          }
-          
-          choices <- list(Gradient = gradient_scales)
-        } else {
-          
-          if(!is.null(nj_tippoint_scale_reactive())) {
-            nj_tippoint_scale_selected <- nj_tippoint_scale_reactive()
-          } else {
-            nj_tippoint_scale_selected <- "Set2"
-          }
-          
-          choices <- list(Qualitative = qualitative_scales,
-                          Sequential = sequential_scales)
-        }
+        choices <- list(Qualitative = qualitative_scales,
+                        Sequential = sequential_scales)
       }
     } else {
-      
-      if(!is.null(nj_tippoint_scale_reactive())) {
-        nj_tippoint_scale_selected <- nj_tippoint_scale_reactive()
-      } else {
-        nj_tippoint_scale_selected <- "Set2"
-      }
-      
       choices <- list(Qualitative = qualitative_scales,
                       Sequential = sequential_scales)
     }
@@ -15827,40 +15584,27 @@ server <- function(input, output, session) {
       label = h5("Color Scale", style = "color: white; margin-bottom: 0px;"),
       width = "150px",
       choices = choices,
-      selected = nj_tippoint_scale_selected
+      selected = nj_tippoint_scale_reactive()
     )
     
-    if(input$nj_tipcolor_mapping_show) {
+    if(nj_tipcolor_mapping_show_reactive()) {
       nj_tippoint_scale
     } else {shinyjs::disabled(nj_tippoint_scale)}
   })
   
   output$nj_tippoint_mid_scale <- renderUI({
     
-    if(!is.null(nj_tipcolor_mapping_show_reactive())) {
-      nj_tipcolor_mapping_show <- nj_tipcolor_mapping_show_reactive()
-    } else {
-      nj_tipcolor_mapping_show <- FALSE
-    }
-    
-    if(!is.null(nj_tipcolor_mapping_div_mid_reactive())) {
-      nj_tipcolor_mapping_div_mid_selected <- nj_tipcolor_mapping_div_mid_reactive()
-    } else {
-      nj_tipcolor_mapping_div_mid_selected <- "Mean"
-    }
-    
     nj_tipcolor_mapping_div_mid <- selectInput(
       "nj_tipcolor_mapping_div_mid",
       label = h5("Midpoint", style = "color: white; margin-bottom: 0px;"),
       choices = c("Zero", "Mean", "Median"),
-      selected = nj_tipcolor_mapping_div_mid_selected
+      selected = nj_tipcolor_mapping_div_mid_reactive()
     )
     
-    if(nj_tipcolor_mapping_show) {
-      if(!is.null(input$nj_tipcolor_mapping) & !is.null(input$nj_tippoint_scale) & 
-         !is.null(Vis$meta_nj)) {
-        if(is.numeric(unlist(Vis$meta_nj[input$nj_tipcolor_mapping]))) {
-          if(input$nj_tippoint_scale %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 
+    if(nj_tipcolor_mapping_show_reactive()) {
+      if(!is.null(Vis$meta_nj)) {
+        if(is.numeric(unlist(Vis$meta_nj[nj_tipcolor_mapping_reactive()]))) {
+          if(nj_tippoint_scale_reactive() %in% c('Spectral', 'RdYlGn', 'RdYlBu', 'RdGy', 
                                             'RdBu', 'PuOr', 'PRGn', 'PiYG', 'BrBG')) {
             nj_tipcolor_mapping_div_mid
           } else {shinyjs::disabled(nj_tipcolor_mapping_div_mid)}
@@ -15931,12 +15675,6 @@ server <- function(input, output, session) {
   # Clade Highlights
   output$nj_parentnode <- renderUI({
     
-    if(!is.null(nj_parentnode_reactive())) {
-      nj_parentnode_selected <- nj_parentnode_reactive()
-    } else {
-      nj_parentnode_selected <- NULL
-    }
-    
     if(!is.null(Vis$nj_parentnodes)) {
       choices <- sort(unique(as.numeric(Vis$nj_parentnodes)))
     } else {
@@ -15953,7 +15691,7 @@ server <- function(input, output, session) {
         size = 10,
         style = "background-color: white; border-radius: 5px;"
       ),
-      selected = nj_parentnode_selected,
+      selected = nj_parentnode_reactive(),
       width = "99%"
     )
   })
@@ -15990,24 +15728,13 @@ server <- function(input, output, session) {
   
   # Branch label size
   output$nj_branch_size <- renderUI({
-    
-    if(!is.null(nj_branch_size_reactive())) {
-      nj_branch_size_selected <- nj_branch_size_reactive()
-    } else {
-      if(!is.null(Vis$branch_size_nj)) {
-        nj_branch_size_selected <- Vis$branch_size_nj
-      } else {
-        nj_branch_size_selected <- 4 
-      }
-    }
-    
     sliderInput(
       "nj_branch_size",
       label = h5("Size", style = "color:white; margin-bottom: 0px"),
       min = 2,
       max = 10,
       step = 0.5,
-      value = nj_branch_size_selected,
+      value = nj_branch_size_reactive(),
       width = "150px",
       ticks = FALSE
     )
@@ -16027,23 +15754,12 @@ server <- function(input, output, session) {
   
   # Tippanel size
   output$nj_tiplab_padding_ui <- renderUI({
-    
-    if(!is.null(nj_tiplab_padding_reactive())) {
-      nj_tiplab_padding_selected <- nj_tiplab_padding_reactive()
-    } else {
-      if(!is.null(Vis$tiplab_padding_nj)) {
-        nj_tiplab_padding_selected <- Vis$tiplab_padding_nj
-      } else {
-        nj_tiplab_padding_selected <- 0.2
-      }
-    }
-    
     sliderInput(
       inputId = "nj_tiplab_padding",
       label = h5("Size", style = "color:white; margin-bottom: 0px"),
       min = 0.05,
       max = 1,
-      value = nj_tiplab_padding_selected,
+      value = nj_tiplab_padding_reactive(),
       step = 0.05,
       width = "150px",
       ticks = FALSE
@@ -16178,23 +15894,13 @@ server <- function(input, output, session) {
   
   # Tiplabel size
   output$nj_tiplab_size <- renderUI({
-    if(!is.null(nj_tiplab_size_reactive())) {
-      nj_tiplab_size_selected <- nj_tiplab_size_reactive()
-    } else {
-      if(!is.null(Vis$Vis$labelsize_nj)) {
-        nj_tiplab_size_selected <- Vis$Vis$labelsize_nj
-      } else {
-        nj_tiplab_size_selected <- 4
-      }
-    }
-    
     sliderInput(
       "nj_tiplab_size",
       label = h5("Label size", style = "color:white; margin-bottom: 0px"),
       min = 1,
       max = 10,
       step = 0.5,
-      value = nj_tiplab_size_selected,
+      value = nj_tiplab_size_reactive(),
       width = "150px",
       ticks = FALSE
     )
@@ -16465,13 +16171,6 @@ server <- function(input, output, session) {
   ### Heatmap 
   # Heatmap picker
   output$nj_heatmap_sel <- renderUI({
-    
-    if(!is.null(nj_heatmap_show_reactive())) {
-      nj_heatmap_show <- nj_heatmap_show_reactive()
-    } else {
-      nj_heatmap_show <- FALSE
-    }
-
     if(!is.null(Vis$meta_nj)) {
       
       if(!is.null(input$nj_heatmap_map)) {
@@ -16528,12 +16227,6 @@ server <- function(input, output, session) {
           selector_choices <- choices
         }
         
-        if(!is.null(nj_heatmap_select_reactive())) {
-          nj_heatmap_select_selected <- nj_heatmap_select_reactive()
-        } else {
-          nj_heatmap_select_selected <- NULL
-        }
-        
         nj_heatmap_select <- pickerInput(
           inputId = "nj_heatmap_select",
           label = "",
@@ -16545,12 +16238,12 @@ server <- function(input, output, session) {
             size = 10,
             style = "background-color: white; border-radius: 5px;"
           ),
-          selected = nj_heatmap_select_selected,
+          selected = nj_heatmap_select_reactive(),
           multiple = TRUE
         )
       }
       
-      if(nj_heatmap_show) {
+      if(nj_heatmap_show_reactive()) {
         nj_heatmap_select
       } else {shinyjs::disabled(nj_heatmap_select)}
     } else {
@@ -16812,7 +16505,7 @@ server <- function(input, output, session) {
       "nj_fruit_variable_2",
       "",
       choices = choices,
-      selected = nj_fruit_variable_selected_2,
+      selected = nj_fruit_variable_2_selected,
       width = "100%"
     )
     
@@ -16853,7 +16546,7 @@ server <- function(input, output, session) {
       "nj_fruit_variable_3",
       "",
       choices = choices,
-      selected = nj_fruit_variable_selected_3,
+      selected = nj_fruit_variable_3_selected,
       width = "100%"
     )
     
@@ -16894,7 +16587,7 @@ server <- function(input, output, session) {
       "nj_fruit_variable_4",
       "",
       choices = choices,
-      selected = nj_fruit_variable_selected_4,
+      selected = nj_fruit_variable_4_selected,
       width = "100%"
     )
     
@@ -16935,7 +16628,7 @@ server <- function(input, output, session) {
       "nj_fruit_variable_5",
       "",
       choices = choices,
-      selected = nj_fruit_variable_selected_5,
+      selected = nj_fruit_variable_5_selected,
       width = "100%"
     )
     
@@ -17874,13 +17567,6 @@ server <- function(input, output, session) {
   
   # Branch label 
   output$nj_branch_label <- renderUI({
-    
-    if(!is.null(nj_branch_label_reactive())) {
-      nj_branch_label_selected <- nj_branch_label_reactive()
-    } else {
-      nj_branch_label_selected <- "Host"
-    }
-    
     if(!is.null(Vis$meta_nj)) {
       if(ncol(Vis$meta_nj) == 11) {
         choices <- c(`Isolation Date` = "Isolation Date", Host = "Host",
@@ -17899,7 +17585,7 @@ server <- function(input, output, session) {
       "nj_branch_label",
       "",
       choices = choices,
-      selected = nj_branch_label_selected,
+      selected = nj_branch_label_reactive(),
       width = "100%"
     )
   })
@@ -17942,18 +17628,6 @@ server <- function(input, output, session) {
   # Color mapping 
   output$nj_color_mapping <- renderUI({
     
-    if(!is.null(nj_color_mapping_reactive())) {
-      nj_color_mapping_selected <- nj_color_mapping_reactive()
-    } else {
-      nj_color_mapping_selected <- "Country"
-    }
-    
-    if(!is.null(nj_mapping_show_reactive())) {
-      nj_mapping_show <- nj_mapping_show_reactive()
-    } else {
-      nj_mapping_show <- FALSE
-    }
-    
     if(!is.null(Vis$meta_nj)) {
       if(ncol(Vis$meta_nj) == 11) {
         choices <- c(`Isolation Date` = "Isolation Date", Host = "Host",
@@ -17972,11 +17646,11 @@ server <- function(input, output, session) {
       "nj_color_mapping",
       "",
       choices = choices,
-      selected = nj_color_mapping_selected,
+      selected = nj_color_mapping_reactive(),
       width = "100%"
     )
     
-    if(nj_mapping_show) {
+    if(nj_mapping_show_reactive()) {
       nj_color_mapping
     } else {shinyjs::disabled(nj_color_mapping)}
   })
@@ -18025,11 +17699,11 @@ server <- function(input, output, session) {
   # Tip labels 
   output$nj_tiplab <- renderUI({
     
-    if(!is.null(nj_tiplab_reactive())) {
-      nj_tiplab_selected <- nj_tiplab_reactive()
-    } else {
-      nj_tiplab_selected <- "Assembly Name"
-    }
+    # if(!is.null(nj_tiplab_reactive())) {
+    #   nj_tiplab_selected <- nj_tiplab_reactive()
+    # } else {
+    #   nj_tiplab_selected <- "Assembly Name"
+    # }
     
     if(!is.null(Vis$meta_nj)) {
       if(ncol(Vis$meta_nj) == 11) {
@@ -18055,7 +17729,7 @@ server <- function(input, output, session) {
       "nj_tiplab",
       label = "",
       choices = choices,
-      selected = nj_tiplab_selected,
+      selected = nj_tiplab_reactive(),
       width = "100%"
     )
   })
@@ -20266,7 +19940,9 @@ server <- function(input, output, session) {
   #### NJ ----
   
   nj_tree <- reactive({
+    
     Vis$nj$tip.label <- Vis$meta_nj$Index
+    
     # Convert negative edges 
     Vis$nj[["edge.length"]] <- abs(Vis$nj[["edge.length"]])
     
@@ -20349,7 +20025,7 @@ server <- function(input, output, session) {
                ladderize = nj_ladder) %<+% Vis$meta_nj +
         nj_clades() +
         nj_tiplab() +
-        nj_tiplab_scale() + 
+        nj_tiplab_scale() +
         new_scale_color() +
         nj_limit() +
         nj_inward() +
@@ -20357,7 +20033,7 @@ server <- function(input, output, session) {
         nj_treescale() +
         nj_nodepoint() +
         nj_tippoint() +
-        nj_tippoint_scale() + 
+        nj_tippoint_scale() +
         new_scale_color() +
         nj_clip_label() +
         nj_rootedge() +
@@ -20374,7 +20050,7 @@ server <- function(input, output, session) {
                                           size = nj_legend_size * 1.2),
               legend.title.align = 0.5,
               legend.position = nj_legend_pos(),
-              legend.text = element_text(color = nj_color, 
+              legend.text = element_text(color = nj_color,
                                          size = nj_legend_size),
               legend.key = element_rect(fill = nj_bg),
               legend.box.spacing = unit(1.5, "cm"),
@@ -20395,98 +20071,98 @@ server <- function(input, output, session) {
         new_scale_fill() +
         nj_fruit5() +
         nj_gradient5() +
-        new_scale_fill() 
-      
+        new_scale_fill()
+
       # Add custom labels
       if(length(Vis$custom_label_nj) > 0) {
-        
+
         for(i in Vis$custom_label_nj[,1]) {
-          
+
           if(!is.null(Vis$nj_label_pos_x[[i]])) {
             x_pos <- Vis$nj_label_pos_x[[i]]
           } else {
             x_pos <- round(Vis$nj_max_x / 2, 0)
           }
-          
+
           if(!is.null(Vis$nj_label_pos_y[[i]])) {
             y_pos <- Vis$nj_label_pos_y[[i]]
           } else {
             y_pos <- sum(DB$data$Include) / 2
           }
-          
+
           if(!is.null(Vis$nj_label_size[[i]])) {
             size <- Vis$nj_label_size[[i]]
           } else {
             size <- 5
           }
-          
+
           tree <- tree + annotate("text",
                                   x = x_pos,
-                                  y = y_pos, 
+                                  y = y_pos,
                                   label = i,
                                   size = size)
         }
       }
-      
+
       if(!is.null(nj_heatmap_show_reactive())) {
         nj_heatmap_show <- nj_heatmap_show_reactive()
       } else {
         nj_heatmap_show <- FALSE
       }
-      
+
       if(!is.null(input$nj_heatmap_title)) {
         nj_heatmap_title <- input$nj_heatmap_title
       } else {
         nj_heatmap_title <- "Heatmap"
       }
-      
+
       # Add heatmap
       if(!is.null(Vis$nj_heatmap_select)) {
         if(isTRUE(nj_heatmap_show) & length(Vis$nj_heatmap_select) > 0) {
-          if(!(any(sapply(Vis$meta_nj[Vis$nj_heatmap_select], is.numeric)) & 
+          if(!(any(sapply(Vis$meta_nj[Vis$nj_heatmap_select], is.numeric)) &
                 any(!sapply(Vis$meta_nj[Vis$nj_heatmap_select], is.numeric)))) {
             tree <- gheatmap.mod(
-              tree, 
+              tree,
               data = select(Vis$meta_nj, Vis$nj_heatmap_select),
               offset = nj_heatmap_offset(),
               width = nj_heatmap_width(),
               legend_title = nj_heatmap_title,
               colnames_angle = -nj_colnames_angle(),
               colnames_offset_y = nj_colnames_y(),
-              colnames_color = nj_color) + 
+              colnames_color = nj_color) +
               nj_heatmap_scale()
           }
-        } 
+        }
       }
-      
+
       if(!is.null(input$nj_zoom)) {
         nj_zoom <- input$nj_zoom
       } else {
         nj_zoom <- 0.95
       }
-      
+
       if(!is.null(input$nj_h)) {
         nj_h <- input$nj_h
       } else {
         nj_h <- 0
       }
-      
+
       if(!is.null(input$nj_v)) {
         nj_v <- input$nj_v
       } else {
         nj_v <- 0
       }
-      
+
       # Sizing control
-      Vis$nj_plot <- ggplotify::as.ggplot(tree, 
+      Vis$nj_plot <- ggplotify::as.ggplot(tree,
                                           scale = nj_zoom,
                                           hjust = nj_h,
-                                          vjust = nj_v)  
-      
+                                          vjust = nj_v)
+
       Vis$nj_true <- TRUE
-      
+
       # Correct background color if zoomed out
-      cowplot::ggdraw(Vis$nj_plot) + 
+      cowplot::ggdraw(Vis$nj_plot) +
         theme(plot.background = element_rect(fill = nj_bg, color = nj_bg))
     }
   })
@@ -20585,10 +20261,11 @@ server <- function(input, output, session) {
       if(nj_heatmap_div_mid == "Zero") {
         midpoint <- 0
       } else if(nj_heatmap_div_mid == "Mean") {
-        midpoint <- mean(as.matrix(Vis$meta_nj[Vis$nj_heatmap_select]), na.rm = TRUE)
+        midpoint <- mean(as.matrix(Vis$meta_nj[nj_heatmap_select()]), na.rm = TRUE)
       } else {
-        midpoint <- median(as.matrix(Vis$meta_nj[Vis$nj_heatmap_select]), na.rm = TRUE)
+        midpoint <- median(as.matrix(Vis$meta_nj[nj_heatmap_select()]), na.rm = TRUE)
       }
+      
       scale_fill_gradient2(low = brewer.pal(3, nj_heatmap_scale_reactive())[1],
                            mid = brewer.pal(3, nj_heatmap_scale_reactive())[2],
                            high = brewer.pal(3, nj_heatmap_scale_reactive())[3],
@@ -20596,59 +20273,21 @@ server <- function(input, output, session) {
                            name = nj_heatmap_title)
     } else {
       if(nj_heatmap_scale_reactive() %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-        if(class(unlist(Vis$meta_nj[Vis$nj_heatmap_select])) == "numeric") {
-          if(nj_heatmap_scale_reactive() == "magma") {
-            scale_fill_viridis(option = "A",
-                               name = nj_heatmap_title)
-          } else if(nj_heatmap_scale_reactive() == "inferno") {
-            scale_fill_viridis(option = "B",
-                               name = nj_heatmap_title)
-          } else if(nj_heatmap_scale_reactive() == "plasma") {
-            scale_fill_viridis(option = "C",
-                               name = nj_heatmap_title)
-          } else if(nj_heatmap_scale_reactive() == "viridis") {
-            scale_fill_viridis(option = "D",
-                               name = nj_heatmap_title)
-          } else if(nj_heatmap_scale_reactive() == "cividis") {
-            scale_fill_viridis(option = "E",
-                               name = nj_heatmap_title)
-          } else if(nj_heatmap_scale_reactive() == "rocket") {
-            scale_fill_viridis(option = "F",
-                               name = nj_heatmap_title)
-          } else if(nj_heatmap_scale_reactive() == "mako") {
-            scale_fill_viridis(option = "G",
-                               name = nj_heatmap_title)
-          } else if(nj_heatmap_scale_reactive() == "turbo") {
-            scale_fill_viridis(option = "H",
-                               name = nj_heatmap_title)
-          } 
-        } else {
-          if(nj_heatmap_scale_reactive() == "magma") {
-            scale_fill_viridis(discrete = TRUE, option = "A",
-                               name = nj_heatmap_title)
-          } else if(nj_heatmap_scale_reactive() == "inferno") {
-            scale_fill_viridis(discrete = TRUE, option = "B",
-                               name = nj_heatmap_title)
-          } else if(nj_heatmap_scale_reactive() == "plasma") {
-            scale_fill_viridis(discrete = TRUE, option = "C",
-                               name = nj_heatmap_title)
-          } else if(nj_heatmap_scale_reactive() == "viridis") {
-            scale_fill_viridis(discrete = TRUE, option = "D",
-                               name = nj_heatmap_title)
-          } else if(nj_heatmap_scale_reactive() == "cividis") {
-            scale_fill_viridis(discrete = TRUE, option = "E",
-                               name = nj_heatmap_title)
-          } else if(nj_heatmap_scale_reactive() == "rocket") {
-            scale_fill_viridis(discrete = TRUE, option = "F",
-                               name = nj_heatmap_title)
-          } else if(nj_heatmap_scale_reactive() == "mako") {
-            scale_fill_viridis(discrete = TRUE, option = "G",
-                               name = nj_heatmap_title)
-          } else if(nj_heatmap_scale_reactive() == "turbo") {
-            scale_fill_viridis(discrete = TRUE, option = "H",
-                               name = nj_heatmap_title)
-          } 
-        }
+        ifelse(class(unlist(Vis$meta_nj[nj_heatmap_select()])) == "numeric",
+               discrete <- FALSE,
+               discrete <- TRUE)
+        
+        if(nj_heatmap_scale_reactive() == "magma") option <- "A"
+        else if(nj_heatmap_scale_reactive() == "inferno") option <- "B"
+        else if(nj_heatmap_scale_reactive() == "plasma") option <- "C"
+        else if(nj_heatmap_scale_reactive() == "viridis") option <- "D"
+        else if(nj_heatmap_scale_reactive() == "cividis") option <- "E"
+        else if(nj_heatmap_scale_reactive() == "rocket") option <- "F"
+        else if(nj_heatmap_scale_reactive() == "mako") option <- "G"
+        else if(nj_heatmap_scale_reactive() == "turbo") option <- "H"
+        
+        scale_fill_viridis(name = nj_heatmap_title,
+                           discrete = discrete, option = option)
       } else {
         scale_fill_brewer(palette = nj_heatmap_scale_reactive(),
                           name = nj_heatmap_title)
@@ -20659,7 +20298,7 @@ server <- function(input, output, session) {
   # Tippoint Scale
   nj_tippoint_scale <- reactive({
     
-    req(nj_tippoint_scale_reactive(), Vis$meta_nj)
+    req(Vis$meta_nj)
     
     if(!is.null(nj_tipcolor_mapping_reactive())) {
       nj_tipcolor_mapping <- nj_tipcolor_mapping_reactive()
@@ -20687,162 +20326,130 @@ server <- function(input, output, session) {
       scale_color_gradient2(low = brewer.pal(3, nj_tippoint_scale_reactive())[1],
                             mid = brewer.pal(3, nj_tippoint_scale_reactive())[2],
                             high = brewer.pal(3, nj_tippoint_scale_reactive())[3],
+                            name = nj_tippoint_scale_reactive(), 
                             midpoint = midpoint)
     } else {
-      if(nj_tippoint_scale_reactive() %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-        if(class(unlist(Vis$meta_nj[nj_tipcolor_mapping])) == "numeric") {
-          if(nj_tippoint_scale_reactive() == "magma") {
-            scale_color_viridis(option = "A")
-          } else if(nj_tippoint_scale_reactive() == "inferno") {
-            scale_color_viridis(option = "B")
-          } else if(nj_tippoint_scale_reactive() == "plasma") {
-            scale_color_viridis(option = "C")
-          } else if(nj_tippoint_scale_reactive() == "viridis") {
-            scale_color_viridis(option = "D")
-          } else if(nj_tippoint_scale_reactive() == "cividis") {
-            scale_color_viridis(option = "E")
-          } else if(nj_tippoint_scale_reactive() == "rocket") {
-            scale_color_viridis(option = "F")
-          } else if(nj_tippoint_scale_reactive() == "mako") {
-            scale_color_viridis(option = "G")
-          } else if(nj_tippoint_scale_reactive() == "turbo") {
-            scale_color_viridis(option = "H")
-          } 
-        } else {
-          if(nj_tippoint_scale_reactive() == "magma") {
-            scale_color_viridis(discrete = TRUE, option = "A")
-          } else if(nj_tippoint_scale_reactive() == "inferno") {
-            scale_color_viridis(discrete = TRUE, option = "B")
-          } else if(nj_tippoint_scale_reactive() == "plasma") {
-            scale_color_viridis(discrete = TRUE, option = "C")
-          } else if(nj_tippoint_scale_reactive() == "viridis") {
-            scale_color_viridis(discrete = TRUE, option = "D")
-          } else if(nj_tippoint_scale_reactive() == "cividis") {
-            scale_color_viridis(discrete = TRUE, option = "E")
-          } else if(nj_tippoint_scale_reactive() == "rocket") {
-            scale_color_viridis(discrete = TRUE, option = "F")
-          } else if(nj_tippoint_scale_reactive() == "mako") {
-            scale_color_viridis(discrete = TRUE, option = "G")
-          } else if(nj_tippoint_scale_reactive() == "turbo") {
-            scale_color_viridis(discrete = TRUE, option = "H")
-          } 
-        }
+      if(nj_tiplab_scale_reactive() %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+        ifelse(class(unlist(Vis$meta_nj[nj_tipcolor_mapping])) == "numeric",
+               discrete <- FALSE,
+               discrete <- TRUE)
+        
+        if(nj_tippoint_scale_reactive() == "magma") option <- "A"
+        else if(nj_tippoint_scale_reactive() == "inferno") option <- "B"
+        else if(nj_tippoint_scale_reactive() == "plasma") option <- "C"
+        else if(nj_tippoint_scale_reactive() == "viridis") option <- "D"
+        else if(nj_tippoint_scale_reactive() == "cividis") option <- "E"
+        else if(nj_tippoint_scale_reactive() == "rocket") option <- "F"
+        else if(nj_tippoint_scale_reactive() == "mako") option <- "G"
+        else if(nj_tippoint_scale_reactive() == "turbo") option <- "H"
+        
+        scale_color_viridis(name = nj_tippoint_scale_reactive(), 
+                            discrete = discrete, option = option)
       } else {
-        scale_color_brewer(palette = nj_tippoint_scale_reactive())
+        scale_color_brewer(name = nj_tippoint_scale_reactive(), 
+                           palette = nj_tippoint_scale_reactive())
       }
     }
   })
   
   # Tiplab Scale
   nj_tiplab_scale <- reactive({
-    
-    req(nj_tiplab_scale_reactive(), Vis$meta_nj)
-    
-    if(!is.null(nj_color_mapping_reactive())) {
-      nj_color_mapping <- nj_color_mapping_reactive()
-    } else {
-      nj_color_mapping <- "Country"
-    }
+    req(Vis$meta_nj)
     
     if(nj_tiplab_scale_reactive() %in% c("Spectral", "RdYlGn", "RdYlBu", 
                                          "RdGy", "RdBu", "PuOr", "PRGn", 
                                          "PiYG", "BrBG")) {
       
-      if(!is.null(nj_color_mapping_div_mid_reactive())) {
-        nj_color_mapping_div_mid <- nj_color_mapping_div_mid_reactive()
-      } else {
-        nj_color_mapping_div_mid <- "Mean"
-      }
-      
-      if(nj_color_mapping_div_mid == "Zero") {
+      if(nj_color_mapping_div_mid_reactive() == "Zero") {
         midpoint <- 0
-      } else if(nj_color_mapping_div_mid == "Mean") {
-        midpoint <- mean(as.matrix(Vis$meta_nj[nj_color_mapping]), na.rm = TRUE)
+      } else if(nj_color_mapping_div_mid_reactive() == "Mean") {
+        midpoint <- mean(as.matrix(Vis$meta_nj[nj_color_mapping_reactive()]), na.rm = TRUE)
       } else {
-        midpoint <- median(as.matrix(Vis$meta_nj[nj_color_mapping]), na.rm = TRUE)
+        midpoint <- median(as.matrix(Vis$meta_nj[nj_color_mapping_reactive()]), na.rm = TRUE)
       }
-      scale_color_gradient2(low = brewer.pal(3, nj_tiplab_scale_reactive())[1],
+      scale_color_gradient2(name = nj_color_mapping_reactive(), 
+                            low = brewer.pal(3, nj_tiplab_scale_reactive())[1],
                             mid = brewer.pal(3, nj_tiplab_scale_reactive())[2],
                             high = brewer.pal(3, nj_tiplab_scale_reactive())[3],
                             midpoint = midpoint) 
     } else {
       if(nj_tiplab_scale_reactive() %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
-        if(class(unlist(Vis$meta_nj[nj_color_mapping])) == "numeric") {
-          if(nj_tiplab_scale_reactive() == "magma") {
-            scale_color_viridis(option = "A")
-          } else if(nj_tiplab_scale_reactive() == "inferno") {
-            scale_color_viridis(option = "B")
-          } else if(nj_tiplab_scale_reactive() == "plasma") {
-            scale_color_viridis(option = "C")
-          } else if(nj_tiplab_scale_reactive() == "viridis") {
-            scale_color_viridis(option = "D")
-          } else if(nj_tiplab_scale_reactive() == "cividis") {
-            scale_color_viridis(option = "E")
-          } else if(nj_tiplab_scale_reactive() == "rocket") {
-            scale_color_viridis(option = "F")
-          } else if(nj_tiplab_scale_reactive() == "mako") {
-            scale_color_viridis(option = "G")
-          } else if(nj_tiplab_scale_reactive() == "turbo") {
-            scale_color_viridis(option = "H")
-          } 
-        } else {
-          if(nj_tiplab_scale_reactive() == "magma") {
-            scale_color_viridis(discrete = TRUE, option = "A")
-          } else if(nj_tiplab_scale_reactive() == "inferno") {
-            scale_color_viridis(discrete = TRUE, option = "B")
-          } else if(nj_tiplab_scale_reactive() == "plasma") {
-            scale_color_viridis(discrete = TRUE, option = "C")
-          } else if(nj_tiplab_scale_reactive() == "viridis") {
-            scale_color_viridis(discrete = TRUE, option = "D")
-          } else if(nj_tiplab_scale_reactive() == "cividis") {
-            scale_color_viridis(discrete = TRUE, option = "E")
-          } else if(nj_tiplab_scale_reactive() == "rocket") {
-            scale_color_viridis(discrete = TRUE, option = "F")
-          } else if(nj_tiplab_scale_reactive() == "mako") {
-            scale_color_viridis(discrete = TRUE, option = "G")
-          } else if(nj_tiplab_scale_reactive() == "turbo") {
-            scale_color_viridis(discrete = TRUE, option = "H")
-          } 
-        }
+        ifelse(class(unlist(Vis$meta_nj[nj_color_mapping_reactive()])) == "numeric",
+               discrete <- FALSE,
+               discrete <- TRUE)
+        
+        if(nj_tiplab_scale_reactive() == "magma") option <- "A"
+        else if(nj_tiplab_scale_reactive() == "inferno") option <- "B"
+        else if(nj_tiplab_scale_reactive() == "plasma") option <- "C"
+        else if(nj_tiplab_scale_reactive() == "viridis") option <- "D"
+        else if(nj_tiplab_scale_reactive() == "cividis") option <- "E"
+        else if(nj_tiplab_scale_reactive() == "rocket") option <- "F"
+        else if(nj_tiplab_scale_reactive() == "mako") option <- "G"
+        else if(nj_tiplab_scale_reactive() == "turbo") option <- "H"
+        
+        scale_color_viridis(name = nj_color_mapping_reactive(), 
+                            discrete = discrete, option = option)
       } else {
-        scale_color_brewer(palette = nj_tiplab_scale_reactive())
+        scale_color_brewer(name = nj_color_mapping_reactive(), 
+                           palette = nj_tiplab_scale_reactive())
       }
     }
   })
   
   # Clade Highlight
   nj_clades <- reactive({
-    req(nj_parentnode_reactive())
     
-    if(!is.null(nj_clade_scale_reactive())) {
-      nj_clade_scale <- nj_clade_scale_reactive()
-    } else {
-      nj_clade_scale <- "#D0F221"
-    }
+    num_clades <- length(nj_parentnode_reactive())
     
-    if(!is.null(nj_clade_type_reactive())) {
-      nj_clade_type <- nj_clade_type_reactive()
-    } else {
-      nj_clade_type <- "roundrect"
-    }
-    
-    if(!length(nj_parentnode()) == 0) {
-      if(length(nj_parentnode()) == 1) {
-        fill <- nj_clade_scale
-      } else if (length(nj_parentnode()) == 2) {
-        if(startsWith(nj_clade_scale, "#")) {
-          fill <- brewer.pal(3, "Set1")[1:2]
-        } else {
-          fill <- brewer.pal(3, nj_clade_scale)[1:2]
-        }
+    if(num_clades != 0) {
+      if(num_clades > 9) {
+        show_toast(
+          title = "Max. 9 clade highlights allowed",
+          type = "error",
+          position = "bottom-end",
+          timer = 6000
+        )
+        return(NULL)
       } else {
-        fill <- brewer.pal(length(nj_parentnode()), nj_clade_scale)
+        if(!is.null(nj_clade_scale_reactive())) {
+          nj_clade_scale <- nj_clade_scale_reactive()
+        } else {
+          if(num_clades == 1) {
+            nj_clade_scale <- "#D0F221"
+          } else {
+            nj_clade_scale <- "Set1"
+          }
+        }
+        
+        if(!is.null(nj_clade_type_reactive())) {
+          nj_clade_type <- nj_clade_type_reactive()
+        } else {
+          nj_clade_type <- "roundrect"
+        }
+        
+        if(num_clades == 1) {
+          if(!startsWith(nj_clade_scale, "#")) {
+            fill <- "#D0F221"
+          } else {
+            fill <- nj_clade_scale
+          }
+        } else if (num_clades >= 1) {
+          ifelse(num_clades < 3, 
+                 num_cols <- 3,
+                 num_cols <- num_clades)
+          
+          if(startsWith(nj_clade_scale, "#")) {
+            fill <- brewer.pal(num_cols, "Set1")[1:num_clades]
+          } else {
+            fill <- brewer.pal(num_cols, nj_clade_scale)[1:num_clades]
+          }
+        }
+        
+        geom_hilight(node = as.numeric(nj_parentnode_reactive()),
+                     fill = fill,
+                     type = nj_clade_type,
+                     to.bottom = TRUE)
       }
-      
-      geom_hilight(node = as.numeric(nj_parentnode()),
-                   fill = fill,
-                   type = nj_clade_type,
-                   to.bottom = TRUE)
     } else {NULL}
   })
   
@@ -20881,7 +20488,7 @@ server <- function(input, output, session) {
   # Tiles fill color gradient
   nj_gradient <- reactive({
     
-    req(nj_tiles_scale_1_reactive(), Vis$meta_nj)
+    req(Vis$meta_nj)
     
     if(!is.null(nj_fruit_variable_reactive())) {
       nj_fruit_variable <- nj_fruit_variable_reactive()
@@ -21281,328 +20888,334 @@ server <- function(input, output, session) {
   # Geom Fruit
   nj_fruit <- reactive({
     
-    if(!is.null(nj_layout_reactive())) {
-      nj_layout <- nj_layout_reactive()
-    } else {
-      nj_layout <- "rectangular"
-    }
-    
-    if(!is.null(nj_fruit_variable_reactive())) {
-      nj_fruit_variable <- nj_fruit_variable_reactive()
-    } else {
-      nj_fruit_variable <- "Country"
-    }
-    
-    if(!is.null(nj_fruit_offset_circ_reactive())) {
-      nj_fruit_offset_circ <- nj_fruit_offset_circ_reactive()
-    } else {
-      if(nj_layout == "circular" | nj_layout == "inward") {
-        nj_fruit_offset_circ <- 0.15
+    if(isTRUE(nj_tiles_show_1_reactive())) {
+      if(!is.null(nj_layout_reactive())) {
+        nj_layout <- nj_layout_reactive()
       } else {
-        nj_fruit_offset_circ <- 0.05
+        nj_layout <- "rectangular"
       }
-    }
-    
-    if(!is.null(nj_fruit_alpha_reactive())) {
-      nj_fruit_alpha <- nj_fruit_alpha_reactive()
-    } else {
-      nj_fruit_alpha <- 1
-    }
-    
-    if(!is.null(nj_fruit_width_circ_reactive())) {
-      nj_fruit_width_circ <- nj_fruit_width_circ_reactive()
-    } else {
-      if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
-        if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+      
+      if(!is.null(nj_fruit_variable_reactive())) {
+        nj_fruit_variable <- nj_fruit_variable_reactive()
+      } else {
+        nj_fruit_variable <- "Country"
+      }
+      
+      if(!is.null(nj_fruit_offset_circ_reactive())) {
+        nj_fruit_offset_circ <- nj_fruit_offset_circ_reactive()
+      } else {
+        if(nj_layout == "circular" | nj_layout == "inward") {
+          nj_fruit_offset_circ <- 0.15
+        } else {
+          nj_fruit_offset_circ <- 0.05
+        }
+      }
+      
+      if(!is.null(nj_fruit_alpha_reactive())) {
+        nj_fruit_alpha <- nj_fruit_alpha_reactive()
+      } else {
+        nj_fruit_alpha <- 1
+      }
+      
+      if(!is.null(nj_fruit_width_circ_reactive())) {
+        nj_fruit_width_circ <- nj_fruit_width_circ_reactive()
+      } else {
+        if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
+          if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+            if(nj_layout == "circular" | nj_layout == "inward") {
+              nj_fruit_width_circ <- 3
+            } else {
+              nj_fruit_width_circ <- 1
+            }
+          } else {
+            nj_fruit_width_circ <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+            if(nj_layout == "circular" | nj_layout == "inward") {
+              nj_fruit_width_circ <- nj_fruit_width_circ * 3
+            }
+            if(nj_fruit_width_circ < 1) {nj_fruit_width_circ <- 1}
+          }
+        } else {
           if(nj_layout == "circular" | nj_layout == "inward") {
             nj_fruit_width_circ <- 3
           } else {
             nj_fruit_width_circ <- 1
-          }
-        } else {
-          nj_fruit_width_circ <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
-          if(nj_layout == "circular" | nj_layout == "inward") {
-            nj_fruit_width_circ <- nj_fruit_width_circ * 3
-          }
-          if(nj_fruit_width_circ < 1) {nj_fruit_width_circ <- 1}
+          } 
         }
-      } else {
-        if(nj_layout == "circular" | nj_layout == "inward") {
-          nj_fruit_width_circ <- 3
-        } else {
-          nj_fruit_width_circ <- 1
-        } 
       }
-    }
-    
-    geom_fruit(
-      geom = geom_tile,
-      mapping = aes(fill= !!sym(nj_fruit_variable)),
-      offset = nj_fruit_offset_circ,
-      width = nj_fruit_width_circ,
-      alpha = nj_fruit_alpha
-    )
+      
+      geom_fruit(
+        geom = geom_tile,
+        mapping = aes(fill= !!sym(nj_fruit_variable)),
+        offset = nj_fruit_offset_circ,
+        width = nj_fruit_width_circ,
+        alpha = nj_fruit_alpha
+      )
+    } else {NULL}
   })
   
   # Geom Fruit
   nj_fruit2 <- reactive({
-    
-    if(!is.null(nj_layout_reactive())) {
-      nj_layout <- nj_layout_reactive()
-    } else {
-      nj_layout <- "rectangular"
-    }
-    
-    if(!is.null(nj_fruit_variable2_reactive())) {
-      nj_fruit_variable_2 <- nj_fruit_variable2_reactive()
-    } else {
-      nj_fruit_variable_2 <- "Country"
-    }
-    
-    if(!is.null(nj_fruit_offset_circ_2_reactive())) {
-      nj_fruit_offset_circ_2 <- nj_fruit_offset_circ_2_reactive()
-    } else {
-      if(nj_layout == "circular" | nj_layout == "inward") {
-        nj_fruit_offset_circ_2 <- 0.15
+    if(isTRUE(nj_tiles_show_2_reactive())) {
+      if(!is.null(nj_layout_reactive())) {
+        nj_layout <- nj_layout_reactive()
       } else {
-        nj_fruit_offset_circ_2 <- 0.05
+        nj_layout <- "rectangular"
       }
-    }
-    
-    if(!is.null(nj_fruit_alpha_2_reactive())) {
-      nj_fruit_alpha_2 <- nj_fruit_alpha_2_reactive()
-    } else {
-      nj_fruit_alpha_2 <- 1
-    }
-    
-    if(!is.null(nj_fruit_width_circ_2_reactive())) {
-      nj_fruit_width_circ_2 <- nj_fruit_width_circ_2_reactive()
-    } else {
-      if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
-        if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+      
+      if(!is.null(nj_fruit_variable2_reactive())) {
+        nj_fruit_variable_2 <- nj_fruit_variable2_reactive()
+      } else {
+        nj_fruit_variable_2 <- "Country"
+      }
+      
+      if(!is.null(nj_fruit_offset_circ_2_reactive())) {
+        nj_fruit_offset_circ_2 <- nj_fruit_offset_circ_2_reactive()
+      } else {
+        if(nj_layout == "circular" | nj_layout == "inward") {
+          nj_fruit_offset_circ_2 <- 0.15
+        } else {
+          nj_fruit_offset_circ_2 <- 0.05
+        }
+      }
+      
+      if(!is.null(nj_fruit_alpha_2_reactive())) {
+        nj_fruit_alpha_2 <- nj_fruit_alpha_2_reactive()
+      } else {
+        nj_fruit_alpha_2 <- 1
+      }
+      
+      if(!is.null(nj_fruit_width_circ_2_reactive())) {
+        nj_fruit_width_circ_2 <- nj_fruit_width_circ_2_reactive()
+      } else {
+        if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
+          if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+            if(nj_layout == "circular" | nj_layout == "inward") {
+              nj_fruit_width_circ_2 <- 3
+            } else {
+              nj_fruit_width_circ_2 <- 1
+            }
+          } else {
+            nj_fruit_width_circ_2 <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+            if(nj_layout == "circular" | nj_layout == "inward") {
+              nj_fruit_width_circ_2 <- nj_fruit_width_circ_2 * 3
+            }
+            if(nj_fruit_width_circ_2 < 1) {nj_fruit_width_circ_2 <- 1}
+          }
+        } else {
           if(nj_layout == "circular" | nj_layout == "inward") {
             nj_fruit_width_circ_2 <- 3
           } else {
             nj_fruit_width_circ_2 <- 1
-          }
-        } else {
-          nj_fruit_width_circ_2 <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
-          if(nj_layout == "circular" | nj_layout == "inward") {
-            nj_fruit_width_circ_2 <- nj_fruit_width_circ_2 * 3
-          }
-          if(nj_fruit_width_circ_2 < 1) {nj_fruit_width_circ_2 <- 1}
+          } 
         }
-      } else {
-        if(nj_layout == "circular" | nj_layout == "inward") {
-          nj_fruit_width_circ_2 <- 3
-        } else {
-          nj_fruit_width_circ_2 <- 1
-        } 
       }
-    }
-    
-    geom_fruit(
-      geom = geom_tile,
-      mapping = aes(fill= !!sym(nj_fruit_variable)),
-      offset = nj_fruit_offset_circ_2,
-      width = nj_fruit_width_circ_2,
-      alpha = nj_fruit_alpha_2
-    )
+      
+      geom_fruit(
+        geom = geom_tile,
+        mapping = aes(fill= !!sym(nj_fruit_variable_2)),
+        offset = nj_fruit_offset_circ_2,
+        width = nj_fruit_width_circ_2,
+        alpha = nj_fruit_alpha_2
+      )
+    } else {NULL}
   })
   
   nj_fruit3 <- reactive({
-    
-    if(!is.null(nj_layout_reactive())) {
-      nj_layout <- nj_layout_reactive()
-    } else {
-      nj_layout <- "rectangular"
-    }
-    
-    if(!is.null(nj_fruit_variable3_reactive())) {
-      nj_fruit_variable_3 <- nj_fruit_variable3_reactive()
-    } else {
-      nj_fruit_variable_3 <- "Country"
-    }
-    
-    if(!is.null(nj_fruit_offset_circ_3_reactive())) {
-      nj_fruit_offset_circ_3 <- nj_fruit_offset_circ_3_reactive()
-    } else {
-      if(nj_layout == "circular" | nj_layout == "inward") {
-        nj_fruit_offset_circ_3 <- 0.15
+    if(isTRUE(nj_tiles_show_3_reactive())) {
+      if(!is.null(nj_layout_reactive())) {
+        nj_layout <- nj_layout_reactive()
       } else {
-        nj_fruit_offset_circ_3 <- 0.05
+        nj_layout <- "rectangular"
       }
-    }
-    
-    if(!is.null(nj_fruit_alpha_3_reactive())) {
-      nj_fruit_alpha_3 <- nj_fruit_alpha_3_reactive()
-    } else {
-      nj_fruit_alpha_3 <- 1
-    }
-    
-    if(!is.null(nj_fruit_width_circ_3_reactive())) {
-      nj_fruit_width_circ_3 <- nj_fruit_width_circ_3_reactive()
-    } else {
-      if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
-        if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+      
+      if(!is.null(nj_fruit_variable3_reactive())) {
+        nj_fruit_variable_3 <- nj_fruit_variable3_reactive()
+      } else {
+        nj_fruit_variable_3 <- "Country"
+      }
+      
+      if(!is.null(nj_fruit_offset_circ_3_reactive())) {
+        nj_fruit_offset_circ_3 <- nj_fruit_offset_circ_3_reactive()
+      } else {
+        if(nj_layout == "circular" | nj_layout == "inward") {
+          nj_fruit_offset_circ_3 <- 0.15
+        } else {
+          nj_fruit_offset_circ_3 <- 0.05
+        }
+      }
+      
+      if(!is.null(nj_fruit_alpha_3_reactive())) {
+        nj_fruit_alpha_3 <- nj_fruit_alpha_3_reactive()
+      } else {
+        nj_fruit_alpha_3 <- 1
+      }
+      
+      if(!is.null(nj_fruit_width_circ_3_reactive())) {
+        nj_fruit_width_circ_3 <- nj_fruit_width_circ_3_reactive()
+      } else {
+        if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
+          if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+            if(nj_layout == "circular" | nj_layout == "inward") {
+              nj_fruit_width_circ_3 <- 3
+            } else {
+              nj_fruit_width_circ_3 <- 1
+            }
+          } else {
+            nj_fruit_width_circ_3 <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+            if(nj_layout == "circular" | nj_layout == "inward") {
+              nj_fruit_width_circ_3 <- nj_fruit_width_circ_3 * 3
+            }
+            if(nj_fruit_width_circ_3 < 1) {nj_fruit_width_circ_3 <- 1}
+          }
+        } else {
           if(nj_layout == "circular" | nj_layout == "inward") {
             nj_fruit_width_circ_3 <- 3
           } else {
             nj_fruit_width_circ_3 <- 1
-          }
-        } else {
-          nj_fruit_width_circ_3 <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
-          if(nj_layout == "circular" | nj_layout == "inward") {
-            nj_fruit_width_circ_3 <- nj_fruit_width_circ_3 * 3
-          }
-          if(nj_fruit_width_circ_3 < 1) {nj_fruit_width_circ_3 <- 1}
+          } 
         }
-      } else {
-        if(nj_layout == "circular" | nj_layout == "inward") {
-          nj_fruit_width_circ_3 <- 3
-        } else {
-          nj_fruit_width_circ_3 <- 1
-        } 
       }
-    }
-    
-    geom_fruit(
-      geom = geom_tile,
-      mapping = aes(fill= !!sym(nj_fruit_variable)),
-      offset = nj_fruit_offset_circ_3,
-      width = nj_fruit_width_circ_3,
-      alpha = nj_fruit_alpha_3
-    )
+      
+      geom_fruit(
+        geom = geom_tile,
+        mapping = aes(fill= !!sym(nj_fruit_variable_3)),
+        offset = nj_fruit_offset_circ_3,
+        width = nj_fruit_width_circ_3,
+        alpha = nj_fruit_alpha_3
+      )
+    } else {NULL}
   })
   
   nj_fruit4 <- reactive({
-    
-    if(!is.null(nj_layout_reactive())) {
-      nj_layout <- nj_layout_reactive()
-    } else {
-      nj_layout <- "rectangular"
-    }
-    
-    if(!is.null(nj_fruit_variable4_reactive())) {
-      nj_fruit_variable_4 <- nj_fruit_variable4_reactive()
-    } else {
-      nj_fruit_variable_4 <- "Country"
-    }
-    
-    if(!is.null(nj_fruit_offset_circ_4_reactive())) {
-      nj_fruit_offset_circ_4 <- nj_fruit_offset_circ_4_reactive()
-    } else {
-      if(nj_layout == "circular" | nj_layout == "inward") {
-        nj_fruit_offset_circ_4 <- 0.15
+    if(isTRUE(nj_tiles_show_4_reactive())) {
+      if(!is.null(nj_layout_reactive())) {
+        nj_layout <- nj_layout_reactive()
       } else {
-        nj_fruit_offset_circ_4 <- 0.05
+        nj_layout <- "rectangular"
       }
-    }
-    
-    if(!is.null(nj_fruit_alpha_4_reactive())) {
-      nj_fruit_alpha_4 <- nj_fruit_alpha_4_reactive()
-    } else {
-      nj_fruit_alpha_4 <- 1
-    }
-    
-    if(!is.null(nj_fruit_width_circ_4_reactive())) {
-      nj_fruit_width_circ_4 <- nj_fruit_width_circ_4_reactive()
-    } else {
-      if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
-        if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+      
+      if(!is.null(nj_fruit_variable4_reactive())) {
+        nj_fruit_variable_4 <- nj_fruit_variable4_reactive()
+      } else {
+        nj_fruit_variable_4 <- "Country"
+      }
+      
+      if(!is.null(nj_fruit_offset_circ_4_reactive())) {
+        nj_fruit_offset_circ_4 <- nj_fruit_offset_circ_4_reactive()
+      } else {
+        if(nj_layout == "circular" | nj_layout == "inward") {
+          nj_fruit_offset_circ_4 <- 0.15
+        } else {
+          nj_fruit_offset_circ_4 <- 0.05
+        }
+      }
+      
+      if(!is.null(nj_fruit_alpha_4_reactive())) {
+        nj_fruit_alpha_4 <- nj_fruit_alpha_4_reactive()
+      } else {
+        nj_fruit_alpha_4 <- 1
+      }
+      
+      if(!is.null(nj_fruit_width_circ_4_reactive())) {
+        nj_fruit_width_circ_4 <- nj_fruit_width_circ_4_reactive()
+      } else {
+        if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
+          if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+            if(nj_layout == "circular" | nj_layout == "inward") {
+              nj_fruit_width_circ_4 <- 3
+            } else {
+              nj_fruit_width_circ_4 <- 1
+            }
+          } else {
+            nj_fruit_width_circ_4 <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+            if(nj_layout == "circular" | nj_layout == "inward") {
+              nj_fruit_width_circ_4 <- nj_fruit_width_circ_4 * 3
+            }
+            if(nj_fruit_width_circ_4 < 1) {nj_fruit_width_circ_4 <- 1}
+          }
+        } else {
           if(nj_layout == "circular" | nj_layout == "inward") {
             nj_fruit_width_circ_4 <- 3
           } else {
             nj_fruit_width_circ_4 <- 1
-          }
-        } else {
-          nj_fruit_width_circ_4 <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
-          if(nj_layout == "circular" | nj_layout == "inward") {
-            nj_fruit_width_circ_4 <- nj_fruit_width_circ_4 * 3
-          }
-          if(nj_fruit_width_circ_4 < 1) {nj_fruit_width_circ_4 <- 1}
+          } 
         }
-      } else {
-        if(nj_layout == "circular" | nj_layout == "inward") {
-          nj_fruit_width_circ_4 <- 3
-        } else {
-          nj_fruit_width_circ_4 <- 1
-        } 
       }
-    }
-    
-    geom_fruit(
-      geom = geom_tile,
-      mapping = aes(fill= !!sym(nj_fruit_variable)),
-      offset = nj_fruit_offset_circ_4,
-      width = nj_fruit_width_circ_4,
-      alpha = nj_fruit_alpha_4
-    )
+      
+      geom_fruit(
+        geom = geom_tile,
+        mapping = aes(fill= !!sym(nj_fruit_variable_4)),
+        offset = nj_fruit_offset_circ_4,
+        width = nj_fruit_width_circ_4,
+        alpha = nj_fruit_alpha_4
+      )
+    } else {NULL}
   })
   
   nj_fruit5 <- reactive({
-    
-    if(!is.null(nj_layout_reactive())) {
-      nj_layout <- nj_layout_reactive()
-    } else {
-      nj_layout <- "rectangular"
-    }
-    
-    if(!is.null(nj_fruit_variable5_reactive())) {
-      nj_fruit_variable_5 <- nj_fruit_variable5_reactive()
-    } else {
-      nj_fruit_variable_5 <- "Country"
-    }
-    
-    if(!is.null(nj_fruit_offset_circ_5_reactive())) {
-      nj_fruit_offset_circ_5 <- nj_fruit_offset_circ_5_reactive()
-    } else {
-      if(nj_layout == "circular" | nj_layout == "inward") {
-        nj_fruit_offset_circ_5 <- 0.15
+    if(isTRUE(nj_tiles_show_5_reactive())) {
+      if(!is.null(nj_layout_reactive())) {
+        nj_layout <- nj_layout_reactive()
       } else {
-        nj_fruit_offset_circ_5 <- 0.05
+        nj_layout <- "rectangular"
       }
-    }
-    
-    if(!is.null(nj_fruit_alpha_5_reactive())) {
-      nj_fruit_alpha_5 <- nj_fruit_alpha_5_reactive()
-    } else {
-      nj_fruit_alpha_5 <- 1
-    }
-    
-    if(!is.null(nj_fruit_width_circ_5_reactive())) {
-      nj_fruit_width_circ_5 <- nj_fruit_width_circ_5_reactive()
-    } else {
-      if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
-        if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+      
+      if(!is.null(nj_fruit_variable5_reactive())) {
+        nj_fruit_variable_5 <- nj_fruit_variable5_reactive()
+      } else {
+        nj_fruit_variable_5 <- "Country"
+      }
+      
+      if(!is.null(nj_fruit_offset_circ_5_reactive())) {
+        nj_fruit_offset_circ_5 <- nj_fruit_offset_circ_5_reactive()
+      } else {
+        if(nj_layout == "circular" | nj_layout == "inward") {
+          nj_fruit_offset_circ_5 <- 0.15
+        } else {
+          nj_fruit_offset_circ_5 <- 0.05
+        }
+      }
+      
+      if(!is.null(nj_fruit_alpha_5_reactive())) {
+        nj_fruit_alpha_5 <- nj_fruit_alpha_5_reactive()
+      } else {
+        nj_fruit_alpha_5 <- 1
+      }
+      
+      if(!is.null(nj_fruit_width_circ_5_reactive())) {
+        nj_fruit_width_circ_5 <- nj_fruit_width_circ_5_reactive()
+      } else {
+        if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
+          if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
+            if(nj_layout == "circular" | nj_layout == "inward") {
+              nj_fruit_width_circ_5 <- 3
+            } else {
+              nj_fruit_width_circ_5 <- 1
+            }
+          } else {
+            nj_fruit_width_circ_5 <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
+            if(nj_layout == "circular" | nj_layout == "inward") {
+              nj_fruit_width_circ_5 <- nj_fruit_width_circ_5 * 3
+            }
+            if(nj_fruit_width_circ_5 < 1) {nj_fruit_width_circ_5 <- 1}
+          }
+        } else {
           if(nj_layout == "circular" | nj_layout == "inward") {
             nj_fruit_width_circ_5 <- 3
           } else {
             nj_fruit_width_circ_5 <- 1
-          }
-        } else {
-          nj_fruit_width_circ_5 <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
-          if(nj_layout == "circular" | nj_layout == "inward") {
-            nj_fruit_width_circ_5 <- nj_fruit_width_circ_5 * 3
-          }
-          if(nj_fruit_width_circ_5 < 1) {nj_fruit_width_circ_5 <- 1}
+          } 
         }
-      } else {
-        if(nj_layout == "circular" | nj_layout == "inward") {
-          nj_fruit_width_circ_5 <- 3
-        } else {
-          nj_fruit_width_circ_5 <- 1
-        } 
       }
-    }
-    
-    geom_fruit(
-      geom = geom_tile,
-      mapping = aes(fill= !!sym(nj_fruit_variable)),
-      offset = nj_fruit_offset_circ_5,
-      width = nj_fruit_width_circ_5,
-      alpha = nj_fruit_alpha_5
-    )
+      
+      geom_fruit(
+        geom = geom_tile,
+        mapping = aes(fill= !!sym(nj_fruit_variable_5)),
+        offset = nj_fruit_offset_circ_5,
+        width = nj_fruit_width_circ_5,
+        alpha = nj_fruit_alpha_5
+      )
+    } else {NULL}
   })
   
   # Xlim
@@ -21886,7 +21499,7 @@ server <- function(input, output, session) {
   
   # NJ circularity
   nj_tiplab <- reactive({
-    if(isTRUE(nj_tiplab_show_reactive())) {
+    #if(isTRUE(nj_tiplab_show_reactive())) {
       
       if(!is.null(nj_layout_reactive())) {
         nj_layout <- nj_layout_reactive()
@@ -21948,56 +21561,249 @@ server <- function(input, output, session) {
         nj_tiplab_fill <- "#84D9A0"
       }
       
-      if(isTRUE(nj_mapping_show_reactive())) {
-        color <- NULL
-        fill <- NULL
-      } else {
-        color <- nj_tiplab_color
-        fill <- nj_tiplab_fill
-      }
-      
-      if(nj_layout == "circular" | nj_layout == "inward") {
-        if(nj_layout == "inward") {
-          hjust <- as.numeric(nj_tiplab_position_inw)
-        } else {
-          hjust <- as.numeric(nj_tiplab_position)
-        }
-        geom <- "text"
-        nudge_x <- NULL
-        angle <- NULL
-        label.padding <- NULL
-        label.r <- NULL
-      } else {
-        geom <- nj_geom()
-        hjust <- NULL
-        nudge_x <- nj_tiplab_nudge_x
-        angle <- nj_tiplab_angle
-        
-        if(isTRUE(nj_geom_reactive())) {
-          label.padding <- unit(nj_tiplab_padding(), "lines")
-          label.r <- unit(nj_tiplab_labelradius, "lines")
-        } else {
-          label.padding <- NULL
-          label.r <- NULL
-        }
-      }
-      
-      geom_tiplab(
-        nj_mapping_tiplab(),
-        color = color,
-        fill = fill,
-        geom = geom,
-        size = nj_tiplab_size(),
-        alpha = nj_tiplab_alpha,
-        fontface = nj_tiplab_fontface,
-        align = as.logical(nj_align_reactive()),
-        hjust = hjust,
-        nudge_x = nj_tiplab_nudge_x,
-        angle = angle,
-        label.padding = label.padding,
-        label.r = label.r
-      )
-    } else {NULL}
+    #   if(isTRUE(nj_mapping_show_reactive())) {
+    #     color <- NULL
+    #     fill <- NULL
+    #   } else {
+    #     color <- nj_tiplab_color
+    #     fill <- nj_tiplab_fill
+    #   }
+    #   
+    #   if(nj_layout == "circular" | nj_layout == "inward") {
+    #     if(nj_layout == "inward") {
+    #       hjust <- as.numeric(nj_tiplab_position_inw)
+    #     } else {
+    #       hjust <- as.numeric(nj_tiplab_position)
+    #     }
+    #     geom <- "text"
+    #     nudge_x <- NULL
+    #     angle <- NULL
+    #     label.padding <- NULL
+    #     label.r <- NULL
+    #   } else {
+    #     geom <- nj_geom()
+    #     hjust <- 0
+    #     nudge_x <- nj_tiplab_nudge_x
+    #     angle <- nj_tiplab_angle
+    #     
+    #     if(isTRUE(nj_geom_reactive())) {
+    #       label.padding <- unit(nj_tiplab_padding(), "lines")
+    #       label.r <- unit(nj_tiplab_labelradius, "lines")
+    #     } else {
+    #       label.padding <- NULL
+    #       label.r <- NULL
+    #     }
+    #   }
+    #   
+    #   color1 <<- color
+    #   fill1 <<- fill
+    #   geom1 <<- geom
+    #   size1 <<- nj_tiplab_size()
+    #   alpha1 <<- nj_tiplab_alpha
+    #   fontface1 <<- nj_tiplab_fontface
+    #   align1 <<- as.logical(nj_align_reactive())
+    #   hjust1 <<- hjust
+    #   nudge_x1 <<- nudge_x
+    #   angle1 <<- angle
+    #   label.padding1 <<- label.padding
+    #   label.r1 <<- label.r
+    #   
+    #   if(isTRUE(nj_mapping_show_reactive())) {
+    #     aes <- aes(label = !!sym(nj_tiplab_reactive()),
+    #                # color = !!sym(nj_color_mapping_reactive()),
+    #                color = "Host")
+    #   } else {
+    #     aes <- aes(label = !!sym(nj_tiplab_reactive()))
+    #   }
+    #   
+    #   aes1 <<- aes
+    #   
+    #   geom_tiplab(
+    #     mapping = aes,
+    #     color = color,
+    #     fill = fill,
+    #     geom = geom,
+    #     size = nj_tiplab_size(),
+    #     alpha = nj_tiplab_alpha,
+    #     fontface = nj_tiplab_fontface,
+    #     align = as.logical(nj_align_reactive()),
+    #     hjust = hjust,
+    #     nudge_x = nudge_x,
+    #     angle = angle,
+    #     label.padding = label.padding,
+    #     label.r = label.r
+    #   )
+    # } else {NULL}
+    
+    # if(nj_mapping_show_reactive() == TRUE) {
+    #   if(!is.null(nj_tiplab_reactive())) {
+    #     aes <- aes(label = !!sym(nj_tiplab_reactive()),
+    #         color = !!sym(nj_color_mapping_reactive()))
+    #   } else {
+    #     aes <- aes(label = !!sym("Assembly Name"),
+    #         color = !!sym(nj_color_mapping_reactive()))
+    #   }
+    # } else {
+    #   if(!is.null(nj_tiplab_reactive())) {
+    #     aes <- aes(label = !!sym(nj_tiplab_reactive()))
+    #   } else {
+    #     aes <- aes(label = !!sym("Assembly Name"))
+    #   }
+    # }
+    #   if(nj_tiplab_show_reactive() == TRUE) {
+    #     if(nj_layout == "circular") {
+    #       if(nj_mapping_show_reactive() == TRUE) {
+    #         geom_tiplab(
+    #           aes, 
+    #           geom = "text",
+    #           size = nj_tiplab_size(),
+    #           alpha = nj_tiplab_alpha,
+    #           fontface = nj_tiplab_fontface,
+    #           align = FALSE,
+    #           hjust = as.numeric(nj_tiplab_position)
+    #         )
+    #       } else {
+    #         geom_tiplab(
+    #           aes,
+    #           color = nj_tiplab_color,
+    #           geom = "text",
+    #           size = nj_tiplab_size(),
+    #           alpha = nj_tiplab_alpha,
+    #           fontface = nj_tiplab_fontface,
+    #           align = FALSE,
+    #           hjust = as.numeric(nj_tiplab_position)
+    #         )
+    #       }
+    #     } else if (nj_layout == "inward") {
+    #       if(nj_mapping_show_reactive() == TRUE) {
+    #         geom_tiplab(
+    #           aes, 
+    #           geom = "text",
+    #           size = nj_tiplab_size(),
+    #           alpha = nj_tiplab_alpha,
+    #           fontface = nj_tiplab_fontface,
+    #           align = FALSE,
+    #           hjust = as.numeric(nj_tiplab_position_inw)
+    #         )
+    #       } else {
+    #         geom_tiplab(
+    #           aes,
+    #           color = nj_tiplab_color,
+    #           geom = "text",
+    #           size = nj_tiplab_size(),
+    #           alpha = nj_tiplab_alpha,
+    #           fontface = nj_tiplab_fontface,
+    #           align = FALSE,
+    #           hjust = as.numeric(nj_tiplab_position_inw)
+    #         )
+    #       }
+    #     } else {
+    #       if(nj_mapping_show_reactive() == TRUE) {
+    #         if(isTRUE(nj_geom_reactive())) {
+    #           geom_tiplab(
+    #             aes, 
+    #             geom = nj_geom(),
+    #             angle = nj_tiplab_angle,
+    #             size = nj_tiplab_size(),
+    #             alpha = nj_tiplab_alpha,
+    #             fontface = nj_tiplab_fontface,
+    #             align = FALSE,
+    #             nudge_x = nj_tiplab_nudge_x,
+    #             label.padding = unit(nj_tiplab_padding(), "lines"),
+    #             label.r = unit(nj_tiplab_labelradius, "lines"), 
+    #             fill = nj_tiplab_fill
+    #           )
+    #         } else {
+    #           geom_tiplab(
+    #             aes, 
+    #             geom = nj_geom(),
+    #             angle = nj_tiplab_angle,
+    #             size = nj_tiplab_size(),
+    #             alpha = nj_tiplab_alpha,
+    #             fontface = nj_tiplab_fontface,
+    #             align = FALSE,
+    #             nudge_x = nj_tiplab_nudge_x
+    #           )
+    #         }
+    #       } else {
+    #         if(isTRUE(nj_geom_reactive())) {
+    #           geom_tiplab(
+    #             aes, 
+    #             geom = nj_geom(),
+    #             color = nj_tiplab_color,
+    #             angle = nj_tiplab_angle,
+    #             size = nj_tiplab_size(),
+    #             alpha = nj_tiplab_alpha,
+    #             fontface = nj_tiplab_fontface,
+    #             align = FALSE,
+    #             nudge_x = nj_tiplab_nudge_x,
+    #             label.padding = unit(nj_tiplab_padding(), "lines"),
+    #             label.r = unit(nj_tiplab_labelradius, "lines"), 
+    #             fill = nj_tiplab_fill
+    #           )
+    #         } else {
+    #           geom_tiplab(
+    #             aes,
+    #             geom = nj_geom(),
+    #             color = nj_tiplab_color,
+    #             angle = nj_tiplab_angle,
+    #             size = nj_tiplab_size(),
+    #             alpha = nj_tiplab_alpha,
+    #             fontface = nj_tiplab_fontface,
+    #             align = FALSE,
+    #             nudge_x = nj_tiplab_nudge_x
+    #           )
+    #         }
+    #       }
+    #     }
+    #   }  
+    
+    # Determine `aes` based on reactive inputs
+    aes <- aes(
+      label = !!sym(if (!is.null(nj_tiplab_reactive())) nj_tiplab_reactive() else "Assembly Name"),
+      color = if (isTRUE(nj_mapping_show_reactive())) !!sym(nj_color_mapping_reactive()) else NULL
+    )
+    
+    # Define common parameters for geom_tiplab
+    common_params <- list(
+      geom = if (isTRUE(nj_geom_reactive())) nj_geom() else "text",
+      size = nj_tiplab_size(),
+      alpha = nj_tiplab_alpha,
+      fontface = nj_tiplab_fontface,
+      align = FALSE,
+      angle = if (!is.null(nj_tiplab_angle)) nj_tiplab_angle else NULL,
+      nudge_x = if (!is.null(nj_tiplab_nudge_x)) nj_tiplab_nudge_x else NULL
+    )
+    
+    # Add optional parameters for labels with padding and fill
+    if (isTRUE(nj_geom_reactive())) {
+      common_params <- append(common_params, list(
+        label.padding = unit(nj_tiplab_padding(), "lines"),
+        label.r = unit(nj_tiplab_labelradius, "lines"),
+        fill = nj_tiplab_fill
+      ))
+    }
+    
+    # Add `color` if not using mapped colors
+    if (!isTRUE(nj_mapping_show_reactive())) {
+      common_params <- append(common_params, list(color = nj_tiplab_color))
+    }
+    
+    # Define alignment adjustments based on layout
+    hjust_param <- if (nj_layout == "inward") {
+      as.numeric(nj_tiplab_position_inw)
+    } else {
+      as.numeric(nj_tiplab_position)
+    }
+    
+    # Build the geom_tiplab layer
+    if (isTRUE(nj_tiplab_show_reactive())) {
+      # Combine aes and common parameters correctly
+      do.call(geom_tiplab, c(list(mapping = aes, hjust = hjust_param), common_params))
+    }
+    
+    
+      # } else {NULL}
   })
   
   # Tip panel size
@@ -22038,38 +21844,6 @@ server <- function(input, output, session) {
     if(isTRUE(nj_geom_reactive())) {
       "label"
     } else {"text"}
-  })
-  
-  # NJ Tiplab color
-  nj_mapping_tiplab <- reactive({
-    
-    if(!is.null(nj_tiplab_reactive())) {
-      nj_tiplab <- nj_tiplab_reactive()
-    } else {
-      nj_tiplab <- "Assembly Name"
-    }
-    
-    if(!is.null(nj_color_mapping_reactive())) {
-      nj_color_mapping <- nj_color_mapping_reactive()
-    } else {
-      nj_color_mapping <- "Country"
-    }
-    
-    if(isTRUE(nj_mapping_show_reactive())) {
-      if(!is.null(nj_tiplab)) {
-        aes(label = !!sym(nj_tiplab),
-            color = !!sym(nj_color_mapping))
-      } else {
-        aes(label = !!sym("Assembly Name"),
-            color = !!sym(nj_color_mapping))
-      }
-    } else {
-      if(!is.null(nj_tiplab)) {
-        aes(label = !!sym(nj_tiplab))
-      } else {
-        aes(label = !!sym("Assembly Name"))
-      }
-    }
   })
   
   # NJ Tree Layout
