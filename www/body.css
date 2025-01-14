@@ -2176,6 +2176,18 @@ top: -10px;
   margin-top: -10px;
 }
 
+.nj-elements-control-col {
+  margin-top: -15px;
+}
+
+.nj-elements-control-tiles {
+  margin-top: -10px;
+}
+
+.nj-elements-hr {
+  margin-top: -10px;
+}
+
 .control-color {
   margin-top: -17px;
 }
@@ -2212,6 +2224,7 @@ top: -10px;
 
 .sel-clade-scale {
   margin-bottom: -14px;
+  margin-top: -10px;
 }
 
 .divmid-sel {
@@ -2488,8 +2501,14 @@ top: -10px;
 #nj_variable_tiplab_menu_dropmenu .tippy-popper,
 #nj_variable_tiles_menu_dropmenu .tippy-popper,
 #nj_variable_heatmap_menu_dropmenu .tippy-popper {
-top: 0px !important;
-left: 15px !important
+  top: 0px !important;
+  left: 15px !important
+}
+
+#nj_clade_menu_dropmenu .tippy-popper,
+#nj_legend_menu_dropmenu .tippy-popper {
+  top: -50px !important;
+  left: 15px !important
 }
 
 #tree_algo {
@@ -2545,7 +2564,7 @@ button#nj_del_label, button#upgma_del_label {
 }
 
 #nj_clade_scale, #upgma_clade_scale {
-  margin-bottom:; 1px;
+  margin-top: -10px;
 }
 
 #nj_parentnode, #upgma_parentnode {
@@ -2577,6 +2596,10 @@ button#nj_del_label, button#upgma_del_label {
 
 .gs-plot-selected-isolate .dropdown-menu .open .open > .dropdown-menu,
 .gs-plot-selected-isolate .dropdown-menu .open > .dropdown-menu,
+.nj-custom-labe-sel .dropdown-menu .open .open > .dropdown-menu,
+.nj-custom-labe-sel .dropdown-menu .open > .dropdown-menu,
+.nj-heatmap-scale .dropdown-menu .open .open > .dropdown-menu,
+.nj-heatmap-scale .dropdown-menu .open > .dropdown-menu,
 dropdown-menu open,
 .dropdown-menu .open,
 dropdown-menu .open {
@@ -2672,7 +2695,12 @@ margin-left: -10px;
 .heatmap-scale div>.selectize-dropdown,
 .gs-gene-class-scale div>.selectize-dropdown,
 .gs-plot-selected-isolate div>.selectize-dropdown, 
-.gs-cluster-sel div>.selectize-dropdown {
+.gs-cluster-sel div>.selectize-dropdown,
+.nj-custom-labe-sel div>.selectize-dropdown, 
+.nj-heatmap-scale div>.selectize-dropdown,
+.nj-fruit-variable div>.selectize-dropdown,
+.sel-clade div>.selectize-dropdown,
+.sel-clade-scale div>.selectize-dropdown {
   bottom: 100% !important; 
   top: auto !important;
 }
@@ -2777,12 +2805,19 @@ button#nj_labeltext_menu, button#upgma_labeltext_menu {
 	margin-left: -25px;
 }
 
-button#nj_heatmap_menu, button#upgma_heatmap_menu,
+button#nj_heatmap_menu, button#upgma_heatmap_menu {
+  height: 34px;
+	margin-top: 6px;
+	border-radius: 5px;
+	margin-left: -15px;
+}
+
 button#nj_clade_menu, button#upgma_clade_menu {
   height: 34px;
 	margin-top: 6px;
 	border-radius: 5px;
 	margin-left: -15px;
+	margin-bottom: 15px;
 }
 
 button#nj_variable_tiplab_menu,
