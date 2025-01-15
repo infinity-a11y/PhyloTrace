@@ -7,107 +7,108 @@ mst_control_box <- box(
   title = "Controls",
   fluidRow(
     column(
-      width = 2,
-      align = "center",
-      div(
-        id = "plot-control",
-        tipify(
-          actionBttn(
-            "mst_label_menu",
-            label = "",
-            color = "default",
-            size = "sm",
-            style = "material-flat",
-            icon = icon("tags")
-          ),
-          title = "Labeling",
-          options = list("delay': 400, 'foo" = "foo")
+      width = 10,
+      column(
+        width = 2,
+        align = "center",
+        div(
+          id = "plot-control",
+          tipify(
+            actionBttn(
+              "mst_label_menu",
+              label = "",
+              color = "default",
+              size = "sm",
+              style = "material-flat",
+              icon = icon("tags")
+            ),
+            title = "Labeling",
+            options = list("delay': 400, 'foo" = "foo")
+          )
         )
-      )
-    ),
-    column(
-      width = 2,
-      align = "center",
-      div(
-        id = "plot-control",
-        tipify(
-          actionBttn(
-            "mst_variable_menu",
-            label = "",
-            color = "default",
-            size = "sm",
-            style = "material-flat",
-            icon = icon("map-pin")
-          ),
-          title = "Variable Mapping",
-          options = list("delay': 400, 'foo" = "foo")
+      ),
+      column(
+        width = 2,
+        align = "center",
+        div(
+          id = "plot-control",
+          tipify(
+            actionBttn(
+              "mst_variable_menu",
+              label = "",
+              color = "default",
+              size = "sm",
+              style = "material-flat",
+              icon = icon("map-pin")
+            ),
+            title = "Variable Mapping",
+            options = list("delay': 400, 'foo" = "foo")
+          )
         )
-      )
-    ),
-    column(
-      width = 2,
-      align = "center",
-      div(
-        id = "plot-control",
-        tipify(
-          actionBttn(
-            "mst_color_menu",
-            label = "",
-            color = "default",
-            size = "sm",
-            style = "material-flat",
-            icon = icon("palette")
-          ),
-          title = "Colors",
-          options = list("delay': 400, 'foo" = "foo")
+      ),
+      column(
+        width = 2,
+        align = "center",
+        div(
+          id = "plot-control",
+          tipify(
+            actionBttn(
+              "mst_color_menu",
+              label = "",
+              color = "default",
+              size = "sm",
+              style = "material-flat",
+              icon = icon("palette")
+            ),
+            title = "Colors",
+            options = list("delay': 400, 'foo" = "foo")
+          )
         )
-      )
-    ),
-    column(
-      width = 2,
-      align = "center",
-      div(
-        id = "plot-control",
-        tipify(
-          actionBttn(
-            "mst_size_menu",
-            label = "",
-            color = "default",
-            size = "sm",
-            style = "material-flat",
-            icon = icon("up-right-and-down-left-from-center")
-          ),
-          title = "Sizing",
-          options = list("delay': 400, 'foo" = "foo")
+      ),
+      column(
+        width = 2,
+        align = "center",
+        div(
+          id = "plot-control",
+          tipify(
+            actionBttn(
+              "mst_size_menu",
+              label = "",
+              color = "default",
+              size = "sm",
+              style = "material-flat",
+              icon = icon("up-right-and-down-left-from-center")
+            ),
+            title = "Sizing",
+            options = list("delay': 400, 'foo" = "foo")
+          )
         )
-      )
-    ),
-    column(
-      width = 2,
-      align = "center",
-      div(
-        id = "plot-control",
-        tipify(
-          actionBttn(
-            "mst_misc_menu",
-            label = "",
-            color = "default",
-            size = "sm",
-            style = "material-flat",
-            icon = icon("ellipsis")
-          ),
-          title = "Other Settings",
-          options = list("delay': 400, 'foo" = "foo")
+      ),
+      column(
+        width = 2,
+        align = "center",
+        div(
+          id = "plot-control",
+          tipify(
+            actionBttn(
+              "mst_misc_menu",
+              label = "",
+              color = "default",
+              size = "sm",
+              style = "material-flat",
+              icon = icon("ellipsis")
+            ),
+            title = "Other Settings",
+            options = list("delay': 400, 'foo" = "foo")
+          )
         )
-      )
-    ),
-    column(
-      width = 2,
-      align = "center",
-      div(
-        id = "plot-control",
-        tipify(
-          
+      ),
+      column(
+        width = 2,
+        align = "center",
+        div(
+          id = "plot-control",
+          tipify(
             actionBttn(
               "mst_download_menu",
               label = "",
@@ -116,7 +117,27 @@ mst_control_box <- box(
               style = "material-flat",
               icon = icon("download")
             ),
-          title = "Export",
+            title = "Export",
+            options = list("delay': 400, 'foo" = "foo")
+          )
+        )
+      )
+    ),
+    column(
+      width = 2,
+      align = "center",
+      div(
+        id = "plot-control-reset",
+        tipify(
+          actionBttn(
+            "mst_reset",
+            label = "",
+            color = "default",
+            size = "sm",
+            style = "material-flat",
+            icon = icon("rotate-right")
+          ),
+          title = "Reset",
           options = list("delay': 400, 'foo" = "foo")
         )
       )
@@ -131,17 +152,119 @@ nj_control_box <- box(
   title = "Controls",
   fluidRow(
     column(
-      width = 2,
-      align = "center",
-      div(
-        id = "plot-control",
-        actionBttn(
-          "nj_label_menu",
-          label = "",
-          color = "default",
-          size = "sm",
-          style = "material-flat",
-          icon = icon("tags")
+      width = 10,
+      column(
+        width = 2,
+        align = "center",
+        div(
+          id = "plot-control",
+          tipify(
+            actionBttn(
+              "nj_label_menu",
+              label = "",
+              color = "default",
+              size = "sm",
+              style = "material-flat",
+              icon = icon("tags")
+            ),
+            title = "Labeling",
+            options = list("delay': 400, 'foo" = "foo")
+          )
+        )
+      ),
+      column(
+        width = 2,
+        align = "center",
+        div(
+          id = "plot-control",
+          tipify(
+            actionBttn(
+              "nj_variable_menu",
+              label = "",
+              color = "default",
+              size = "sm",
+              style = "material-flat",
+              icon = icon("map-pin")
+            ),
+            title = "Variable Mapping",
+            options = list("delay': 400, 'foo" = "foo")
+          )
+        )
+      ),
+      column(
+        width = 2,
+        align = "center",
+        div(
+          id = "plot-control",
+          tipify(
+            actionBttn(
+              "nj_color_menu",
+              label = "",
+              color = "default",
+              size = "sm",
+              style = "material-flat",
+              icon = icon("palette")
+            ),
+            title = "Coloring",
+            options = list("delay': 400, 'foo" = "foo")
+          )
+        )
+      ),
+      column(
+        width = 2,
+        align = "center",
+        div(
+          id = "plot-control",
+          tipify(
+            actionBttn(
+              "nj_elements_menu",
+              label = "",
+              color = "default",
+              size = "sm",
+              style = "material-flat",
+              icon = icon("diagram-project")
+            ),
+            title = "Other Elements",
+            options = list("delay': 400, 'foo" = "foo")
+          )
+        )
+      ),
+      column(
+        width = 2,
+        align = "center",
+        div(
+          id = "plot-control",
+          tipify(
+            actionBttn(
+              "nj_misc_menu",
+              label = "",
+              color = "default",
+              size = "sm",
+              style = "material-flat",
+              icon = icon("ellipsis")
+            ),
+            title = "Other Settings",
+            options = list("delay': 400, 'foo" = "foo")
+          )
+        )
+      ),
+      column(
+        width = 2,
+        align = "center",
+        div(
+          id = "plot-control",
+          tipify(
+            actionBttn(
+              "nj_download_menu",
+              label = "",
+              color = "default",
+              size = "sm",
+              style = "material-flat",
+              icon = icon("download")
+            ),
+            title = "Export",
+            options = list("delay': 400, 'foo" = "foo")
+          )
         )
       )
     ),
@@ -149,74 +272,18 @@ nj_control_box <- box(
       width = 2,
       align = "center",
       div(
-        id = "plot-control",
-        actionBttn(
-          "nj_variable_menu",
-          label = "",
-          color = "default",
-          size = "sm",
-          style = "material-flat",
-          icon = icon("map-pin")
-        )
-      )
-    ),
-    column(
-      width = 2,
-      align = "center",
-      div(
-        id = "plot-control",
-        actionBttn(
-          "nj_color_menu",
-          label = "",
-          color = "default",
-          size = "sm",
-          style = "material-flat",
-          icon = icon("palette")
-        )
-      )
-    ),
-    column(
-      width = 2,
-      align = "center",
-      div(
-        id = "plot-control",
-        actionBttn(
-          "nj_elements_menu",
-          label = "",
-          color = "default",
-          size = "sm",
-          style = "material-flat",
-          icon = icon("diagram-project")
-        )
-      )
-    ),
-    column(
-      width = 2,
-      align = "center",
-      div(
-        id = "plot-control",
-        actionBttn(
-          "nj_misc_menu",
-          label = "",
-          color = "default",
-          size = "sm",
-          style = "material-flat",
-          icon = icon("ellipsis")
-        )
-      )
-    ),
-    column(
-      width = 2,
-      align = "center",
-      div(
-        id = "plot-control",
-        actionBttn(
-          "nj_download_menu",
-          label = "",
-          color = "default",
-          size = "sm",
-          style = "material-flat",
-          icon = icon("download")
+        id = "plot-control-reset",
+        tipify(
+          actionBttn(
+            "nj_reset",
+            label = "",
+            color = "default",
+            size = "sm",
+            style = "material-flat",
+            icon = icon("rotate-right")
+          ),
+          title = "Reset",
+          options = list("delay': 400, 'foo" = "foo")
         )
       )
     )

@@ -300,6 +300,7 @@ body > div.pcr-app.pickr-color.visible {
 }
 
 #nj_heatmap_confirm,
+#nj_reset_confirm,
 #change_entries,
 #conf_screening_cancel,
 #start_typ_multi,
@@ -1919,9 +1920,13 @@ button#mst_cluster_reset.btn.btn-default.action-button.shiny-bound-input {
   margin-bottom: -10px;
 }
 
-.control-ratio,
 .mst-shape {
   margin-bottom: 10px;
+  margin-left: -20px;
+}
+
+.control-ratio {
+  margin-bottom: -20px;
   margin-left: -20px;
 }
 
@@ -2038,24 +2043,19 @@ button#mst_cluster_col_menu {
   margin-top: 10px;
 }
 
-button#mst_legend_menu {
+button#nj_legend_menu, button#upgma_legend_menu {
   height: 34px;
+  background: #20E6E5;
+  color: #000000;
+  margin-top: 25px;
   border-radius: 5px;
-  margin-left: -32px;
-  margin-top: 20px;
+  margin-right: -8px;
 }
 
 button#mst_edgecolor_menu {
   height: 34px; 
   margin-top: 20px; 
   border-radius: 5px
-}
-
-button#nj_legend_menu, button#upgma_legend_menu {
-	height: 34px;
-	margin-top: 20px;
-	border-radius: 5px;
-	margin-right: 7px;
 }
 
 #mst_node_label {
@@ -2279,19 +2279,19 @@ top: -10px;
 }
 
 .mat-switch-layout {
-  margin-left: 10px;
-  margin-top: 20px;
+  margin-left: 20px;
+  margin-top: 10px;
 }
 
 .mat-switch-layout2 {
-  margin-left: 10px;
+  margin-left: 20px;
   margin-top: 10px;
   margin-block: -2px;
-  margin-bottom: 14px;
+  margin-bottom: -12px;
 }
 
 .mat-switch-layout3 {
-  margin-left: 10px;
+  margin-left: 20px;
   margin-top: 10px;
   margin-block: -2px;
 }
@@ -2647,7 +2647,7 @@ button#create_rep.btn.btn-default.action-button.shiny-bound-input {
 	border: 1px solid white;
 	width: 100%;
 	margin-top: 10px;
-	margin-left: -25px;
+	margin-left: -30px;
 }
 
 #nj_v, #nj_h, #upgma_h, #upgma_v {
@@ -2674,8 +2674,8 @@ margin-left: -10px;
 #nj_tipcolor_mapping, #upgma_tipcolor_mapping,
 #nj_tipshape_mapping, #upgma_tipshape_mapping,
 #nj_tipshape_mapping, #nj_fruit_variable, 
-#nj_fruit_variable2, #nj_fruit_variable3, 
-#nj_fruit_variable4, #nj_fruit_variable5, 
+#nj_fruit_variable_2, #nj_fruit_variable_3, 
+#nj_fruit_variable_4, #nj_fruit_variable_5, 
 #upgma_tipshape_mapping, #upgma_fruit_variable, 
 #upgma_fruit_variable2, #upgma_fruit_variable3, 
 #upgma_fruit_variable4, #upgma_fruit_variable5,
@@ -2700,7 +2700,8 @@ margin-left: -10px;
 .nj-heatmap-scale div>.selectize-dropdown,
 .nj-fruit-variable div>.selectize-dropdown,
 .sel-clade div>.selectize-dropdown,
-.sel-clade-scale div>.selectize-dropdown {
+.sel-clade-scale div>.selectize-dropdown,
+.nj-tiles-scale div>.selectize-dropdown {
   bottom: 100% !important; 
   top: auto !important;
 }
@@ -2753,7 +2754,7 @@ button#nj_dim_menu, button#upgma_dim_menu {
 	color: #000000;
 	margin-top: 20px;
 	border-radius: 5px;
-	margin-left: 7px;
+	margin-left: 8px;
 }
 
 button#nj_branch_label_menu, button#upgma_branch_label_menu {
@@ -2775,14 +2776,15 @@ button#nj_legend_menu, button#upgma_legend_menu {
   background: #20E6E5; 
   color: #000000; 
   margin-top: 20px; 
-  border-radius: 5px
+  border-radius: 5px;
+  margin-right: 15px;
 }
 
 button#nj_treescale_menu, button#upgma_treescale_menu {
-  height: 34px; 
-  margin-top: 20px; 
+  height: 34px;
+  margin-top: -7px;
   border-radius: 5px;
-  margin-right: 7px;
+  margin-right: 15px;
 }
 
 button#nj_tippoint_menu, button#upgma_tippoint_menu,
@@ -2793,7 +2795,7 @@ button#upgma_tile_menu, button#upgma_tile_menu_2,
 button#upgma_tile_menu_3, button#upgma_tile_menu_4, 
 button#upgma_tile_menu_5 {
 	height: 34px;
-	margin-top: 21px;
+	margin-top: 20px;
 	border-radius: 5px;
 	margin-left: -15px;
 }
@@ -2842,11 +2844,11 @@ button#nj_tile_menu {
 } 
 
 button#nj_rootedge_menu, button#upgma_rootedge_menu {
-	height: 34px;
-	margin-top: 16px;
-	border-radius: 5px;
-	margin-right: 7px;
-	margin-bottom: 23px;
+  height: 34px;
+  margin-top: 6px;
+  border-radius: 5px;
+  margin-right: 15px;
+  margin-bottom: 20px;
 }
 
 button#nj_nodepoint_menu, button#upgma_nodepoint_menu {
@@ -2855,6 +2857,29 @@ button#nj_nodepoint_menu, button#upgma_nodepoint_menu {
   color: #000000; 
   margin-top: 21px; 
   border-radius: 5px
+}
+
+.nj-layout-select {
+  margin-top: -19px;
+  margin-bottom: 20px;
+  right: 2px;
+  position: relative;
+}
+
+.nj-rootedge-line {
+  margin-top: -21px;
+}
+
+.nj-circ-adjust {
+  margin-left: -10px;
+}
+
+#nj_legend_orientation {
+  margin-left: 20px;
+}
+
+#nj_legend_orientation > div > div:nth-child(2) {
+  margin-bottom: 10px;
 }
 
 #nj_treescale_show, #upgma_treescale_show {
@@ -3018,7 +3043,7 @@ button#nj_nodepoint_menu, button#upgma_nodepoint_menu {
 #nj_fruit_offset_circ {
   margin-top: -5px;
   margin-bottom: -15px;
-  width: 80%;
+  width: 90%;
   margin-right: 10px;
 }
 
@@ -3030,6 +3055,10 @@ button#nj_nodepoint_menu, button#upgma_nodepoint_menu {
 #nj_nodepoint_show, #nj_tippoint_show, #upgma_nodepoint_show, #upgma_tippoint_show {
 margin-top: 18px; 
 margin-left: -5px
+}
+
+.nj-xlim {
+  margin-left: -5px;
 }
 
 #nj_tiplab_scale .option[data-value="Set1"],
@@ -4151,7 +4180,7 @@ margin-left: -5px
 .filetype-mst {
 	margin-top: -28px;
 	width: 100%;
-	margin-left: -26px;
+	margin-left: -30px;
 }
 
 .datepicker { 
@@ -4306,7 +4335,7 @@ button#download_nj_bttn, button#download_upgma_bttn {
 	border: 1px solid white;
 	margin-top: 20px;
 	margin-bottom: 10px;
-	margin-left: -25px;
+	margin-left: -30px;
 }
 
 #save_plot_html_bttn > i,
@@ -4457,6 +4486,23 @@ button#gs_download_plot_bttn {
   width: 75px;
   height: 35px;
   margin-left: 0px;
+}
+
+#plot-control-reset .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input {
+  background: #164054 !important;
+  border: 1px solid transparent;
+  border-color: transparent !important;
+  display: inline-block;
+  border-width: 1px !important;
+  color: white !important;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
+  transition: box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  border-radius: 8px;
+  width: 38px;
+  height: 30px;
+  margin-left: -30px;
+  margin-top: 13px;
+  margin-bottom: 10px;
 }
 
 #plot-control .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input {
