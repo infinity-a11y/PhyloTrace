@@ -3,6 +3,15 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 CONDA_PATH=$( conda info --base )/bin/conda
 
 eval "$($CONDA_PATH shell.bash hook)"
+
+if conda env list | grep -q "PhyloTrace"; then
+  echo "Environment PhyloTrace already exists. Updating the environment..."
+  conda env update -f PhyloTrace.yml
+else
+  echo "Environment PhyloTrace does not exist. Creating the environment..."
+  conda env create -f PhyloTrace.yml
+fi
+
 conda activate PhyloTrace
 
 # Generate PhyloTrace Desktop Entry
@@ -35,9 +44,6 @@ else
    R_BROWSER=xdg-open Rscript -e "shiny::runApp('${SCRIPT_DIR}/App.R', launch.browser=TRUE)"
 fi
 EOF
-
-# Install visNetwork modification
-Rscript -e "remotes::install_github('fpaskali/visNetwork', force = TRUE)"
 
 # Setting up the Desktop Icon
 mkdir -p $HOME/.local/share/applications
