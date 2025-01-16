@@ -982,13 +982,15 @@ server <- function(input, output, session) {
     stopApp()
   })
   
-  
+
   ### Logging ----
   # Set log paths
-  logdir <- file.path(path_home(), ".local", "share", "phylotrace", "logs")
+  app_local_share_path <- file.path(path_home(), ".local", "share", "phylotrace")
+  logdir <- file.path(app_local_share_path, "logs")
   logfile <- file.path(logdir, "phylotrace.log")
   
-  # Create log dir
+  # Initiate logging
+  # Create logs dir in user's local share
   if(!dir_exists(logdir)) {
     dir_create(logdir, recurse = TRUE)
   }
@@ -1013,7 +1015,7 @@ server <- function(input, output, session) {
   
   # Null typing progress trackers
   writeLines("0", file.path(logdir, "script_log.txt"))
-  saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
+  saveRDS(list(), file.path(app_local_share_path, "event_list.rds"))
   
   # reactive variables related to gene screening
   Screening <- reactiveValues()
@@ -1065,19 +1067,19 @@ server <- function(input, output, session) {
   #### Screening environment ----
   
   # Clear screening file
-  if(file.exists(paste0(getwd(), "/execute/screening/output_file.tsv"))) {
-    file.remove(paste0(getwd(), "/execute/screening/output_file.tsv"))
+  if(file.exists(file.path(app_local_share_path, "screening", "output_file.tsv"))) {
+    file.remove(file.path(app_local_share_path, "screening", "output_file.tsv"))
   }
   
-  if(file.exists(paste0(getwd(), "/execute/screening/error.txt"))) {
-    file.remove(paste0(getwd(), "/execute/screening/error.txt"))
+  if(file.exists(file.path(app_local_share_path, "screening", "error.txt"))) {
+    file.remove(file.path(app_local_share_path, "screening", "error.txt"))
   }
   
   
   #### Database environment ----
   
   # Load last used database if possible
-  if(paste0(getwd(), "/execute/last_db.rds") %in% dir_ls(paste0(getwd(), "/execute"))) {
+  if(file.path(app_local_share_path, "last_db.rds") %in% dir_ls(file.path(app_local_share_path))) {
     DB$last_db <- TRUE
   }
   
@@ -1116,11 +1118,11 @@ server <- function(input, output, session) {
         Startup$database <- paste0(DB$new_database, "/Database")
       }
     } else {
-      if(!is.null(DB$last_db) & file.exists(paste0(getwd(), "/execute/last_db.rds"))) {
-        Startup$database <- readRDS(paste0(getwd(), "/execute/last_db.rds"))
-       
-        if(dir_exists(Startup$database)) {
-          DB$exist <- (length(dir_ls(Startup$database)) == 0)  # Logical any local database present
+      if(!is.null(DB$last_db) & file.exists(file.path(app_local_share_path, "last_db.rds"))) {
+        DB$database <- readRDS(file.path(app_local_share_path, "last_db.rds"))
+        
+        if(dir_exists(DB$database)) {
+          DB$exist <- (length(dir_ls(DB$database)) == 0)  # Logical any local database present
           
           # List of local schemes available
           available <- gsub("_", " ", basename(dir_ls(Startup$database)))
@@ -1131,7 +1133,6 @@ server <- function(input, output, session) {
     
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')  
   })
-  
   
   ### Landing page UI ----
   
@@ -1540,7 +1541,7 @@ server <- function(input, output, session) {
     
     # Null typing progress trackers
     writeLines("0", file.path(logdir, "script_log.txt"))
-    saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
+    saveRDS(list(), file.path(app_local_share_path, "event_list.rds"))
     
     # reactive variables related to gene screening
     Screening$status <- "idle"
@@ -1967,7 +1968,7 @@ server <- function(input, output, session) {
       if(gsub(" ", "_", gsub(" (PM|CM)", "", input$scheme_db)) %in% gsub("_(PM|CM)", "", schemes$species)) {
         
         # Save database path for next start
-        saveRDS(Startup$database, paste0(getwd(), "/execute/last_db.rds"))
+        saveRDS(DB$database, file.path(app_local_share_path, "last_db.rds"))
         
         DB$check_new_entries <- TRUE
         DB$data <- NULL
@@ -7893,8 +7894,8 @@ server <- function(input, output, session) {
     shinyjs::runjs("$('#select_cgmlst').selectpicker('refresh');")
     
     if(length(DB$available) == 0) {
-      saveRDS(DB$new_database, paste0(getwd(), "/execute/new_db.rds"))
-      dir.create(file.path(readRDS(paste0(getwd(), "/execute/new_db.rds")), "Database"), recursive = TRUE)
+      saveRDS(DB$new_database, file.path(app_local_share_path, "new_db.rds"))
+      dir.create(file.path(readRDS(file.path(app_local_share_path, "new_db.rds")), "Database"), recursive = TRUE)
     }
     
     DB$load_selected <- TRUE
@@ -26551,7 +26552,7 @@ server <- function(input, output, session) {
     )
     
     # terminate screening
-    system(paste("kill $(pgrep -f 'execute/screening.sh')"), wait = FALSE)
+    system(paste0("kill $(pgrep -f 'scripts/screening.sh')"), wait = FALSE)
     system(paste("killall -TERM tblastn"), wait = FALSE)
     
     # reset status file
@@ -26756,14 +26757,14 @@ server <- function(input, output, session) {
       sapply(Screening$status_df$isolate, remove.screening.status, 
              database = Startup$database, scheme = DB$scheme)
       
-      saveRDS(Screening$meta_df, paste0(getwd(), "/execute/screening_meta.rds"))
+      saveRDS(Screening$meta_df, file.path(app_local_share_path, "screening_meta.rds"))
       
       # Disable pickerInput
       shinyjs::delay(200, shinyjs::runjs("$('#screening_select').prop('disabled', true);"))
       shinyjs::delay(200, shinyjs::runjs("$('#screening_select').selectpicker('refresh');"))
       
       # System execution screening.sh
-      system(paste("bash", paste0(getwd(), "/execute/screening.sh")), wait = FALSE)
+      system(paste("bash", paste0(getwd(), "/scripts/screening.sh")), wait = FALSE)
     }
   })
   
@@ -28450,7 +28451,7 @@ server <- function(input, output, session) {
       log_print("Reset multi typing")
       
       # Reset multi typing result list
-      saveRDS(list(), file.path(logdir, "execute/event_list.rds"))
+      saveRDS(list(), file.path(app_local_share_path, "event_list.rds"))
       multi_help <- FALSE
       Typing$result_list <- NULL
       
@@ -28476,7 +28477,7 @@ server <- function(input, output, session) {
     log_print("Kill multi typing")
     
     # Kill multi typing and reset logfile  
-    system(paste("bash", paste0(getwd(), "/execute/kill_multi.sh")), 
+    system(paste("bash", paste0(getwd(), "/scripts/kill_multi.sh")),  
            wait = TRUE)
     
     show_toast(
@@ -28490,7 +28491,7 @@ server <- function(input, output, session) {
     writeLines("0", file.path(logdir, "script_log.txt"))
     
     #Reset multi typing result list
-    saveRDS(list(), paste0(getwd(), "/execute/event_list.rds"))
+    saveRDS(list(), file.path(app_local_share_path, "event_list.rds"))
     multi_help <- FALSE
     Typing$result_list <- NULL
     
@@ -28563,10 +28564,10 @@ server <- function(input, output, session) {
         alleles = file.path(Startup$database, gsub(" ", "_", DB$scheme), paste0(gsub(" ", "_", DB$scheme), "_alleles"))
       )
       
-      saveRDS(multi_typing_df, "execute/multi_typing_df.rds")
+      saveRDS(multi_typing_df, file.path(app_local_share_path, "multi_typing_df.rds"))
       
       # Execute multi blat script  
-      system(paste("bash", paste0(getwd(), "/execute/multi_typing.sh")), wait = FALSE)
+      system(paste("bash", paste0(getwd(), "/scripts/multi_typing.sh")), wait = FALSE)
     }
   })
   
@@ -28747,8 +28748,8 @@ server <- function(input, output, session) {
     if(!is.null(Typing$multi_result_status)) {
       if(Typing$multi_result_status == "start" | Typing$multi_result_status == "finalized"){
         
-        if(isTRUE(Typing$multi_help)) {
-          Typing$result_list <- readRDS(paste0(getwd(), "/execute/event_list.rds"))
+        if(Typing$multi_help == TRUE) {
+          Typing$result_list <- readRDS(file.path(app_local_share_path, "event_list.rds"))
           Typing$multi_help <- FALSE
         }
       } 

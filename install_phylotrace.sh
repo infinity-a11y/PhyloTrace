@@ -50,4 +50,4 @@ mkdir -p $HOME/.local/share/applications
 mkdir -p $HOME/.local/share/icons/hicolor/scalable/apps
 mv $SCRIPT_DIR/PhyloTrace.desktop $HOME/.local/share/applications
 cp $SCRIPT_DIR/www/phylo.png $HOME/.local/share/icons/hicolor/scalable/apps/PhyloTrace.png
-chmod +x $SCRIPT_DIR/run_phylotrace.sh
+chmod 700 $SCRIPT_DIR/run_phylotrace.sh

@@ -1,18 +1,18 @@
 library(logr)
 
 iteration <- commandArgs(trailingOnly = TRUE)[1]
-meta_info <- readRDS("multi_typing_df.rds")
-assembly_folder <- paste0(paste0(getwd(), "/selected_genomes/"), 
-                          paste0(stringr::str_split_1(meta_info$filenames, " "), ".fasta"))
+app_local_share_dir <- file.path(fs::path_home(), ".local", "share", "phylotrace")
+meta_info <- readRDS(file.path(app_local_share_dir, "multi_typing_df.rds"))
+logdir <- file.path(app_local_share_dir, "logs")
+logfile <- file.path(logdir, "multi_eval.log")
+assembly_folder <- file.path(app_local_share_dir, "selected_genomes", paste0(stringr::str_split_1(meta_info$filenames, " "), ".fasta"))
 assembly <- assembly_folder[which(iteration == basename(assembly_folder))]
 filename <- stringr::str_split_1(meta_info$filenames, " ")[which(iteration == basename(assembly_folder))]
-results_folder <- paste0(paste0(meta_info$wd, "/execute/blat_multi/results/"), 
+results_folder <- paste0(file.path(app_local_share_dir, "blat_multi/results/"),
                          stringr::str_split_1(meta_info$filenames, " "))
 meta_table <- meta_info$metadata[which(meta_info$metadata$Files == filename),]
 
-source("variant_validation.R")
-
-setwd(meta_info$wd)
+source("scripts/variant_validation.R")
 
 # Function to check custom variable classes
 column_classes <- function(df) {
@@ -31,9 +31,6 @@ column_classes <- function(df) {
 log.message <- function(log_file, message) {
   cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "-", message, "\n", file = log_file, append = TRUE)
 }
-
-logdir <- file.path(fs::path_home(), ".local", "share", "phylotrace", "logs")
-logfile <- file.path(logdir, "multi_eval.log")
 
 log <- log_open(logfile, logdir = FALSE)
 
@@ -56,7 +53,7 @@ allele_vector <- character(length(psl_files))
 if(length(assembly_folder) == 1) {
   event_list <- list()
 } else {
-  event_list <- readRDS(paste0(getwd(), "/execute/event_list.rds"))
+  event_list <- readRDS(file.path(app_local_share_dir, "event_list.rds"))
 }
 
 event_list[[basename(assembly)]] <- data.frame(Locus = character(0), Event = character(0), Value = character(0))
@@ -98,22 +95,23 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         
         # select allele fasta file to get present variants in scheme
         locus_file <- list.files(meta_info$alleles, full.names = TRUE)[which(sub("\\.f(na|a|asta)$", "", list.files(meta_info$alleles)) == allele_index)]
-        
+
         variants <- readLines(locus_file)
-        
+
         # new variant validation 
         # decision what is reference sequence
-        
+
         # sort by score, then number of gaps then number of bases in the gaps
         matches <- dplyr::arrange(matches, desc(V1), desc(V5 + V7), desc(V6 + V7))
         
         # check which reference sequences have different alignment positions with the template
         unique_template_seq <- matches[which(!(duplicated(matches$V16) & duplicated(matches$V17)))]
-        
+
         # loop over all unique template alignments (regarding position)
-        variant_valid <- variant_validation(references = unique_template_seq, 
-                                            start_codons = start_codons, stop_codons = stop_codons)
-        
+        variant_valid <- variant_validation(references = unique_template_seq,
+                                            start_codons = start_codons,
+                                            stop_codons = stop_codons)
+
         # if valid variant found 
         if(variant_valid == "Ambigous Nucleotides") {
           allele_vector[[i]] <- NA
@@ -126,49 +124,48 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
         } else if(variant_valid != FALSE) {
           
           hashed_variant <- as.character(openssl::sha256(variant_valid))
-          
+
           # Append new variant number to allele fasta file
           cat(paste0("\n>", hashed_variant), file = locus_file, append = TRUE)
-          
+
           # Append new variant sequence to allele fasta file
           cat(paste0("\n", variant_valid, "\n"), file = locus_file, append = TRUE)
-          
+
           # Entry in results data frame
           event_list[[basename(assembly)]] <- rbind(event_list[[basename(assembly)]], data.frame(Locus = allele_index, Event = "New Variant", Value = hashed_variant))
-          
+
           allele_vector[[i]] <- hashed_variant
-          
+
           cat(paste0(allele_index, " has new variant.\n"))
-          
+
         } else {
-          
+
           #no valid variant found
           allele_vector[[i]] <- NA
-          
+
           # Entry in results data frame
           event_list[[basename(assembly)]] <- rbind(event_list[[basename(assembly)]], data.frame(Locus = allele_index, Event = "Invalid Sequence", Value = "NA"))
-          
+
           cat(paste0(allele_index, " has invalid sequence.\n"))
         }
-        
+
       }
     }
   }
-  
-  saveRDS(event_list, "execute/event_list.rds")
-  
+
+  saveRDS(event_list, file.path(app_local_share_dir, "event_list.rds"))
+
   # Create Results Data Frame 
   if(!any(grepl("Typing", list.files(file.path(meta_info$db_path, meta_info$scheme))))) {
-    
+
     Database <- list(Typing = data.frame())
-    
-    Typing <-
-      data.frame(matrix(
-        NA,
-        nrow = 0,
-        ncol = 13 + length(psl_files)
-      ))
-    
+
+    Typing <- data.frame(matrix(
+      NA,
+      nrow = 0,
+      ncol = 13 + length(psl_files)
+    ))
+
     if(!meta_info$save) {screen <- "NA"} else {screen <- "No"}
     
     metadata <- c(1,
@@ -329,16 +326,14 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       dir.create(file.path(isolate_dir, filename))
       
       # Copy assembly file in isolate directory
-      file.copy(file.path(getwd(), "execute/selected_genomes", paste0(filename, ".fasta")), 
+      file.copy(file.path(app_local_share_dir, "selected_genomes", paste0(filename, ".fasta")), 
                 file.path(isolate_dir, filename))
       
-      setwd(file.path(isolate_dir, filename))
-      
-      zip(zipfile = paste0(filename, ".zip"),
-          files = paste0(filename, ".fasta"),
+      zip(zipfile = file.path(isolate_dir, filename, paste0(filename, ".zip")),
+          files = file.path(isolate_dir, filename, paste0(filename, ".fasta")),
           zip = "zip") 
       
-      file.remove(paste0(filename, ".fasta"))
+      file.remove(file.path(isolate_dir, filename, paste0(filename, ".fasta")))
       
       log_print(paste0("Saved assembly of ", basename(assembly)))
       
@@ -353,31 +348,25 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(psl_files) <=
       dir.create(file.path(isolate_dir, filename))
       
       # Copy assembly file in isolate directory
-      file.copy(paste0(getwd(), "/execute/selected_genomes/", filename, ".fasta") , 
+      file.copy(file.path(app_local_share_dir, "selected_genomes", paste0(filename, ".fasta")) , 
                 file.path(isolate_dir, filename))
       
-      setwd(file.path(isolate_dir, filename))
+      zip(zipfile = file.path(isolate_dir, filename, paste0(filename, ".zip")),
+          files = file.path(isolate_dir, filename, paste0(filename, ".fasta")),
+          zip = "zip")
       
-      zip(zipfile = paste0(filename, ".zip"),
-          files = paste0(filename, ".fasta"),
-          zip = "zip") 
-      
-      file.remove(paste0(filename, ".fasta"))
+      file.remove(file.path(isolate_dir, filename, paste0(filename, ".fasta")))
       
       log_print(paste0("Saved assembly of ", basename(assembly)))
     }
   }
-  
-  setwd(meta_info$wd)
-  
   # Logging successes
   log.message(log_file = file.path(logdir, "script_log.txt"), 
               message = paste0("Successful typing of ", sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
   log_print(paste0("Successful typing of ", sub("\\.(fasta|fna|fa)$", "", basename(assembly))))
   
 } else {
-  
-  setwd(meta_info$wd)
+
   
   # Logging failures
   log.message(log_file = file.path(logdir, "script_log.txt"), 
