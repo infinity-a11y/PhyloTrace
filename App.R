@@ -26274,7 +26274,7 @@ server <- function(input, output, session) {
     )
     
     # terminate screening
-    system(paste0("kill $(pgrep -f 'scripts/screening.sh')"), wait = FALSE)
+    system(paste0("kill $(pgrep -f 'bin/screening.sh')"), wait = FALSE)
     system(paste("killall -TERM tblastn"), wait = FALSE)
     
     # reset status file
@@ -26486,7 +26486,7 @@ server <- function(input, output, session) {
       shinyjs::delay(200, shinyjs::runjs("$('#screening_select').selectpicker('refresh');"))
       
       # System execution screening.sh
-      system(paste("bash", paste0(getwd(), "/scripts/screening.sh")), wait = FALSE)
+      system(paste("bash", paste0(getwd(), "/bin/screening.sh")), wait = FALSE)
     }
   })
   
@@ -28199,7 +28199,7 @@ server <- function(input, output, session) {
     log_print("Kill multi typing")
     
     # Kill multi typing and reset logfile  
-    system(paste("bash", paste0(getwd(), "/scripts/kill_multi.sh")),  
+    system(paste("bash", paste0(getwd(), "/bin/kill_multi.sh")),  
            wait = TRUE)
     
     show_toast(
@@ -28289,7 +28289,7 @@ server <- function(input, output, session) {
       saveRDS(multi_typing_df, file.path(app_local_share_path, "multi_typing_df.rds"))
       
       # Execute multi blat script  
-      system(paste("bash", paste0(getwd(), "/scripts/multi_typing.sh")), wait = FALSE)
+      system(paste("bash", paste0(getwd(), "/bin/multi_typing.sh")), wait = FALSE)
     }
   })
   

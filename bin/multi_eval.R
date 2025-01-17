@@ -12,7 +12,7 @@ results_folder <- paste0(file.path(app_local_share_dir, "blat_multi/results/"),
                          stringr::str_split_1(meta_info$filenames, " "))
 meta_table <- meta_info$metadata[which(meta_info$metadata$Files == filename),]
 
-source("scripts/variant_validation.R")
+source("bin/variant_validation.R")
 
 # Function to check custom variable classes
 column_classes <- function(df) {

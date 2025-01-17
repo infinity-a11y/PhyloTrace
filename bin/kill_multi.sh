@@ -1,6 +1,6 @@
 #!/bin/bash
 log_file="$HOME/.local/share/phylotrace/logs/script_log.txt"
-blat_multi='scripts/multi_typing.sh'
+blat_multi='bin/multi_typing.sh'
 automatic_typing='multi_eval.R'
 
 # Function to log messages to the file

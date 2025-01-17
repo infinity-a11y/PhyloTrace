@@ -68,7 +68,7 @@ genome_filename_noext=""
 for genome in "$selected_genomes"/*; do   
 
     # Check fasta and formatting
-    if ! Rscript "$base_path/scripts/check_duplicate_multi.R" "$base_path"; then
+    if ! Rscript "$base_path/bin/check_duplicate_multi.R" "$base_path"; then
         echo "$(date +"%Y-%m-%d %H:%M:%S") - FASTA check failed. Typing of $(basename "$genome") aborted." >> "$log_file"
         continue
     fi
@@ -91,7 +91,7 @@ for genome in "$selected_genomes"/*; do
     echo "$(date +"%Y-%m-%d %H:%M:%S") - Attaching $genome_filename" >> "$log_file"
     
     # Check fasta and formatting
-    if ! Rscript "$base_path/scripts/multi_eval.R" "$genome_filename"; then
+    if ! Rscript "$base_path/bin/multi_eval.R" "$genome_filename"; then
         echo "$(date +"%Y-%m-%d %H:%M:%S") - Results evaluation failed. Typing of $genome_filename aborted." >> "$log_file"
         continue
     fi
