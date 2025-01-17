@@ -1119,11 +1119,13 @@ server <- function(input, output, session) {
       }
     } else {
       if(!is.null(DB$last_db) & file.exists(file.path(app_local_share_path, "last_db.rds"))) {
-        DB$database <- readRDS(file.path(app_local_share_path, "last_db.rds"))
         
-        if(dir_exists(DB$database)) {
-          DB$exist <- (length(dir_ls(DB$database)) == 0)  # Logical any local database present
-          
+        last_db <- readRDS(file.path(app_local_share_path, "last_db.rds"))
+        
+        if(!is.null(last_db) && dir_exists(last_db)) {
+          Startup$database <- last_db
+          DB$exist <- (length(dir_ls(Startup$database)) == 0)  # Logical any local database present
+
           # List of local schemes available
           available <- gsub("_", " ", basename(dir_ls(Startup$database)))
           DB$available <- available[available %in% gsub("_", " ", schemes$species)]
@@ -1471,8 +1473,6 @@ server <- function(input, output, session) {
     
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     
-    req(input$scheme_db)
-    
     output$start_message <- NULL
     output$load_db <- NULL
     
@@ -1489,7 +1489,7 @@ server <- function(input, output, session) {
     DB$load_selected <- TRUE
     DB$no_na_switch <- FALSE
     DB$first_look <- FALSE
-    DB$new_database <- NULL
+    #DB$new_database <- NULL
     DB$scheme <- NULL
     DB$check_new_entries <- NULL
     DB$meta_gs <- NULL
@@ -1538,7 +1538,6 @@ server <- function(input, output, session) {
     Typing$last_scheme <- NULL
     Typing$status <- ""
     Typing$file_selection <- ""
-    
     # Null typing progress trackers
     writeLines("0", file.path(logdir, "script_log.txt"))
     saveRDS(list(), file.path(app_local_share_path, "event_list.rds"))
@@ -1557,7 +1556,6 @@ server <- function(input, output, session) {
     Screening$picker_choices <- NULL
     Screening$picker_selected <- NULL
     Screening$meta_df <- NULL
-    
     # reactive variables related to visualization
     Vis$custom_label_nj <- data.frame()
     Vis$nj_label_pos_y <- list()
@@ -1618,9 +1616,9 @@ server <- function(input, output, session) {
     Scheme$folder_name <- NULL
     Scheme$species_data <- NULL
     
+    
     ### Reset UI elements ----
     
-  
     # Reset reactive screening variables 
     output$screening_start <- NULL
     output$screening_result_sel <- NULL
@@ -1637,14 +1635,10 @@ server <- function(input, output, session) {
       }
     }
     
-    # Reset reactive visualization variables
-    lapply(names(Vis), function(x) Vis[[x]] <- NULL)
-    
     # Empty tree plot fields
     output$nj_field <- NULL
     output$mst_field <- NULL
     output$upgma_field <- NULL
-    
     log_print("Input load")
     
     # set typing start control variable
@@ -1702,13 +1696,12 @@ server <- function(input, output, session) {
     })
     
     observe({
-      if(!is.null(Startup$database)){
+      if(!is.null(Startup$database) && length(Startup$database) > 0){
         if(nchar(Startup$database) > 35) {
           database <- paste0(substring(Startup$database, first = 1, last = 35), "...")
         } else {
           database <- Startup$database
         }
-        
         output$databasetext <- renderUI({
           fluidRow(
             tags$li(
@@ -1823,141 +1816,141 @@ server <- function(input, output, session) {
     )
     
     # Load app elements based on database availability and missing value presence
-    if(!is.null(Startup$select_new)) {
-      if(Startup$select_new & !is.null(DB$new_database)) {
-        if(file.path(DB$new_database, "Database") %in% dir_ls(DB$new_database)) {
-          log_print("Directory already contains a database")
-          
-          show_toast(
-            title = "Directory already contains a database",
-            type = "error",
-            position = "bottom-end",
-            timer = 6000
-          )
-          DB$load_selected <- FALSE
-        }
-      } else if(Startup$select_new | (isFALSE(Startup$select_new) & is.null(input$scheme_db))) {
+    if(isTRUE(Startup$select_new) && !is.null(DB$new_database)) {
+      if(file.path(DB$new_database, "Database") %in% dir_ls(DB$new_database)) {
+        log_print("Directory already contains a database")
         
-        log_print(paste0("New database created in ", DB$new_database))
-        
-        DB$check_new_entries <- TRUE
-        DB$data <- NULL
-        DB$meta_gs <- NULL
-        DB$meta <- NULL
-        DB$meta_true <- NULL
-        DB$allelic_profile <- NULL
-        DB$allelic_profile_trunc <- NULL
-        DB$allelic_profile_true <- NULL
-        
-        # null Distance matrix, entry table and plots
-        output$db_distancematrix <- NULL 
-        output$db_entries_table <- NULL
-        output$tree_mst <- NULL
-        output$tree_nj <- NULL
-        output$tree_upgma <- NULL
-        
-        # null report values
-        Report$report_list_mst <- list()
-        Report$report_list_nj <- list()
-        Report$report_list_upgma <- list()
-        
-        # null plots
-        Vis$nj <- NULL
-        Vis$upgma <- NULL
-        Vis$mst_pre <- NULL
-        
-        removeModal()
-        
-        ### Render Menu Items ----
-        
-        Startup$sidebar <- FALSE
-        
-        output$menu_header_typing <- NULL
-        output$menu_header_screening <- NULL
-        
-        # Hide start message
-        output$start_message <- NULL
-        
-        DB$load_selected <- FALSE
-        
-        # Declare database path
-        Startup$database <- file.path(DB$new_database, "Database")
-        
-        # Set database availability screening variables to present database
-        Startup$block_db <- TRUE
-        Startup$select_new <- FALSE
-        
-        # Render menu with Manage Schemes as start tab and no Missing values tab
-        output$menu_typing <- renderMenu(
-          sidebarMenu(
-            menuItem(
-              text = "Schemes",
-              tabName = "init",
-              icon = icon("layer-group"),
-              selected = TRUE
-            )
-          )
+        show_toast(
+          title = "Directory already contains a database",
+          type = "error",
+          position = "bottom-end",
+          timer = 6000
         )
-        
-        # Show message that loci files are missing
-        showModal(
-          div(
-            class = "start-modal",
-            modalDialog(
-              fluidRow(
-                br(), 
-                column(
-                  width = 11,
-                  p(
-                    HTML(
-                      paste0(
-                        '<span style="color: white; display: block; font-size: 15px; margin-left: 15px; display: block;">',
-                        "Download a cgMLST scheme to add a new folder in the database directory.",
-                        "Multiple schemes can be downloaded and included in one database.",
-                        '</span>'
-                      )
-                    )
-                  )
-                ),
-                br()
-              ),
-              title = paste("Set Up New Database"),
-              fade = TRUE,
-              easyClose = TRUE,
-              footer = tagList(
-                modalButton("Okay")
+        DB$load_selected <- FALSE
+      } else {
+        if(Startup$select_new | (isFALSE(Startup$select_new) & is.null(input$scheme_db))) {
+          
+          log_print(paste0("New database created in ", DB$new_database))
+          
+          DB$check_new_entries <- TRUE
+          DB$data <- NULL
+          DB$meta_gs <- NULL
+          DB$meta <- NULL
+          DB$meta_true <- NULL
+          DB$allelic_profile <- NULL
+          DB$allelic_profile_trunc <- NULL
+          DB$allelic_profile_true <- NULL
+          
+          # null Distance matrix, entry table and plots
+          output$db_distancematrix <- NULL 
+          output$db_entries_table <- NULL
+          output$tree_mst <- NULL
+          output$tree_nj <- NULL
+          output$tree_upgma <- NULL
+          
+          # null report values
+          Report$report_list_mst <- list()
+          Report$report_list_nj <- list()
+          Report$report_list_upgma <- list()
+          
+          # null plots
+          Vis$nj <- NULL
+          Vis$upgma <- NULL
+          Vis$mst_pre <- NULL
+          
+          removeModal()
+          
+          ### Render Menu Items ----
+          
+          Startup$sidebar <- FALSE
+          
+          output$menu_header_typing <- NULL
+          output$menu_header_screening <- NULL
+          
+          # Hide start message
+          output$start_message <- NULL
+          
+          DB$load_selected <- FALSE
+          
+          # Declare database path
+          Startup$database <- file.path(DB$new_database, "Database")
+          
+          # Set database availability screening variables to present database
+          Startup$block_db <- TRUE
+          Startup$select_new <- FALSE
+          
+          # Render menu with Manage Schemes as start tab and no Missing values tab
+          output$menu_typing <- renderMenu(
+            sidebarMenu(
+              menuItem(
+                text = "Schemes",
+                tabName = "init",
+                icon = icon("layer-group"),
+                selected = TRUE
               )
             )
           )
-        )
-        
-        # Dont render these elements
-        output$db_no_entries <- NULL
-        output$distancematrix_no_entries <- NULL
-        output$db_entries <- NULL
-        output$edit_index <- NULL
-        output$edit_scheme_d <- NULL
-        output$edit_entries <- NULL
-        output$compare_select <- NULL
-        output$delete_select <- NULL
-        output$del_bttn <- NULL
-        output$compare_allele_box <- NULL
-        output$download_entries <- NULL
-        output$missing_values <- NULL
-        output$custom_var_box <- NULL
-        output$delete_box <- NULL
-        output$missing_values_sidebar <- NULL
-        output$download_scheme_info <- NULL
-        output$download_loci <- NULL
-        output$entry_table_controls <- NULL
-        output$multi_stop <- NULL
-        output$metadata_multi_box <- NULL
-        output$start_multi_typing_ui <- NULL
-        output$pending_typing <- NULL
-        output$multi_typing_results <- NULL
-        output$single_typing_progress <- NULL
-        output$metadata_single_box <- NULL
-        output$start_typing_ui <- NULL
+          
+          # Show message that loci files are missing
+          showModal(
+            div(
+              class = "start-modal",
+              modalDialog(
+                fluidRow(
+                  br(), 
+                  column(
+                    width = 11,
+                    p(
+                      HTML(
+                        paste0(
+                          '<span style="color: white; display: block; font-size: 15px; margin-left: 15px; display: block;">',
+                          "Download a cgMLST scheme to add a new folder in the database directory.",
+                          " Multiple schemes can be downloaded and included in one database.",
+                          '</span>'
+                        )
+                      )
+                    )
+                  ),
+                  br()
+                ),
+                title = paste("Set Up New Database"),
+                fade = TRUE,
+                easyClose = TRUE,
+                footer = tagList(
+                  modalButton("Okay")
+                )
+              )
+            )
+          )
+          
+          # Dont render these elements
+          output$db_no_entries <- NULL
+          output$distancematrix_no_entries <- NULL
+          output$db_entries <- NULL
+          output$edit_index <- NULL
+          output$edit_scheme_d <- NULL
+          output$edit_entries <- NULL
+          output$compare_select <- NULL
+          output$delete_select <- NULL
+          output$del_bttn <- NULL
+          output$compare_allele_box <- NULL
+          output$download_entries <- NULL
+          output$missing_values <- NULL
+          output$custom_var_box <- NULL
+          output$delete_box <- NULL
+          output$missing_values_sidebar <- NULL
+          output$download_scheme_info <- NULL
+          output$download_loci <- NULL
+          output$entry_table_controls <- NULL
+          output$multi_stop <- NULL
+          output$metadata_multi_box <- NULL
+          output$start_multi_typing_ui <- NULL
+          output$pending_typing <- NULL
+          output$multi_typing_results <- NULL
+          output$single_typing_progress <- NULL
+          output$metadata_single_box <- NULL
+          output$start_typing_ui <- NULL
+        }
       }
     } else {
       log_print(paste0("Loading existing ", input$scheme_db, " database from ", Startup$database))
@@ -1968,7 +1961,7 @@ server <- function(input, output, session) {
       if(gsub(" ", "_", gsub(" (PM|CM)", "", input$scheme_db)) %in% gsub("_(PM|CM)", "", schemes$species)) {
         
         # Save database path for next start
-        saveRDS(DB$database, file.path(app_local_share_path, "last_db.rds"))
+        saveRDS(Startup$database, file.path(app_local_share_path, "last_db.rds"))
         
         DB$check_new_entries <- TRUE
         DB$data <- NULL
@@ -4801,7 +4794,8 @@ server <- function(input, output, session) {
     
     
     ### Check if scheme update available
-    if(isTRUE(DB$scheme_new)) {
+    if(!is.null(DB$scheme_db) && isTRUE(DB$scheme_new)) {
+      
       # Query remote scheme
       if(DB$scheme_db == "cgMLST.org Nomenclature Server (h25)") {
         
@@ -4994,7 +4988,7 @@ server <- function(input, output, session) {
   
   # Species info selector UI
   observe({
-    req(Startup$database, DB$scheme, Startup$database)
+    req(DB$scheme, Startup$database)
     
     scheme_path <- file.path(Startup$database, 
                              gsub(" ", "_", DB$scheme), 
@@ -5067,6 +5061,7 @@ server <- function(input, output, session) {
                                   gsub(" ", "_", DB$scheme),
                                   paste0(names(species_data)[names(species_data) == input$selected_species_saved],
                                          ".jpg"))
+          
           if(file.exists(image_path)) {
             output$species_no_img_saved <- NULL
             output$species_img_saved <- renderImage({
@@ -5086,9 +5081,10 @@ server <- function(input, output, session) {
           output$species_img_saved <- NULL
         }
       } else if (length(species_data) > 0) {
-        image_path <- file.path(Startup$database,
-                                gsub(" ", "_", DB$scheme),
-                                paste0(gsub(" ", "_", DB$scheme), ".jpg"))
+        image_path <- file.path(Startup$database, gsub(" ", "_", DB$scheme),
+                                paste0(gsub("_(PM|CM)", "", 
+                                            gsub(" ", "_", DB$scheme)), ".jpg"))
+        
         if(file.exists(image_path)) {
           output$species_no_img_saved <- NULL
           output$species_img_saved <- renderImage({
@@ -8186,7 +8182,11 @@ server <- function(input, output, session) {
     
     input$download_cgMLST
     
-    if(dir.exists(file.path(Startup$database, input$select_cgmlst))) {
+    ifelse(length(DB$new_database) > 0,
+           database <- DB$new_database,
+           database <- Startup$database)
+    
+    if(dir.exists(file.path(database, input$select_cgmlst))) {
       updateActionButton(session, "download_cgMLST", label = "Fetch Update")
     } else {
       updateActionButton(session, "download_cgMLST", label = "Download")
@@ -9556,136 +9556,161 @@ server <- function(input, output, session) {
   ##### Label Menu ----
   
   nj_tiplab_reactive <- reactiveVal(NULL)
-  nj_tiplab_show_reactive <- reactiveVal(NULL) 
+  input_nj_tiplab <- reactive({input$nj_tiplab}) %>% debounce(500)
+  nj_tiplab_show_reactive <- reactiveVal(NULL)
+  input_nj_tiplab_show <- reactive({input$nj_tiplab_show}) %>% debounce(500)
   nj_align_reactive <- reactiveVal(NULL)
+  input_nj_align <- reactive({input$nj_align}) %>% debounce(500)
   nj_tiplab_size_reactive <- reactiveVal(NULL)
+  input_nj_tiplab_size <- reactive({input$nj_tiplab_size}) %>% debounce(500)
   nj_tiplab_fontface_reactive <- reactiveVal(NULL)
+  input_nj_tiplab_fontface <- reactive({input$nj_tiplab_fontface}) %>% debounce(500)
   nj_tiplab_alpha_reactive <- reactiveVal(NULL)
+  input_nj_tiplab_alpha <- reactive({input$nj_tiplab_alpha}) %>% debounce(500)
   nj_tiplab_nudge_x_reactive <- reactiveVal(NULL)
+  input_nj_tiplab_nudge_x <- reactive({input$nj_tiplab_nudge_x}) %>% debounce(500)
   nj_tiplab_position_reactive <- reactiveVal(NULL)
+  input_nj_tiplab_position <- reactive({input$nj_tiplab_position}) %>% debounce(500)
   nj_tiplab_position_inw_reactive <- reactiveVal(NULL)
+  input_nj_tiplab_position_inw <- reactive({input$nj_tiplab_position_inw}) %>% debounce(500)
   nj_tiplab_angle_reactive <- reactiveVal(NULL)
+  input_nj_tiplab_angle <- reactive({input$nj_tiplab_angle}) %>% debounce(500)
   nj_geom_reactive <- reactiveVal(NULL)
+  input_nj_geom <- reactive({input$nj_geom}) %>% debounce(500)
   nj_tiplab_padding_reactive <- reactiveVal(NULL)
+  input_nj_tiplab_padding <- reactive({input$nj_tiplab_padding}) %>% debounce(500)
   nj_tiplab_labelradius_reactive <- reactiveVal(NULL)
+  input_nj_tiplab_labelradius <- reactive({input$nj_tiplab_labelradius}) %>% debounce(500)
   nj_show_branch_label_reactive <- reactiveVal(NULL)
+  input_nj_show_branch_label <- reactive({input$nj_show_branch_label}) %>% debounce(500)
   nj_branch_size_reactive <- reactiveVal(NULL)
+  input_nj_branch_size <- reactive({input$nj_branch_size}) %>% debounce(500)
   nj_branch_label_reactive <- reactiveVal(NULL)
+  input_nj_branch_label <- reactive({input$nj_branch_label}) %>% debounce(500)
   nj_branchlab_alpha_reactive <- reactiveVal(NULL)
+  input_nj_branchlab_alpha <- reactive({input$nj_branchlab_alpha}) %>% debounce(500)
   nj_branch_x_reactive <- reactiveVal(NULL)
+  input_nj_branch_x <- reactive({input$nj_branch_x}) %>% debounce(500)
   nj_branch_y_reactive <- reactiveVal(NULL)
+  input_nj_branch_y <- reactive({input$nj_branch_y}) %>% debounce(500)
   nj_branchlab_fontface_reactive <- reactiveVal(NULL)
+  input_nj_branchlab_fontface <- reactive({input$nj_branchlab_fontface}) %>% debounce(500)
   nj_branch_labelradius_reactive <- reactiveVal(NULL)
+  input_nj_branch_labelradius <- reactive({input$nj_branch_labelradius}) %>% debounce(500)
   nj_title_reactive <- reactiveVal(NULL)
+  input_nj_title <- reactive({input$nj_title}) %>% debounce(500)
   nj_title_size_reactive <- reactiveVal(NULL)
+  input_nj_title_size <- reactive({input$nj_title_size}) %>% debounce(500)
   nj_subtitle_reactive <- reactiveVal(NULL)
+  input_nj_subtitle <- reactive({input$nj_subtitle}) %>% debounce(500)
   nj_subtitle_size_reactive <- reactiveVal(NULL)
+  input_nj_subtitle_size <- reactive({input$nj_subtitle_size}) %>% debounce(500)
   
   observe({
-    ifelse(!is.null(input$nj_tiplab),
-           nj_tiplab_reactive(input$nj_tiplab),
+    ifelse(!is.null(input_nj_tiplab()),
+           nj_tiplab_reactive(input_nj_tiplab()),
            nj_tiplab_reactive("Assembly Name"))
     
-    ifelse(!is.null(input$nj_tiplab_show),
-           nj_tiplab_show_reactive(input$nj_tiplab_show),
+    ifelse(!is.null(input_nj_tiplab_show()),
+           nj_tiplab_show_reactive(input_nj_tiplab_show()),
            nj_tiplab_show_reactive(TRUE))
     
-    ifelse(!is.null(input$nj_align),
-           nj_align_reactive(input$nj_align),
+    ifelse(!is.null(input_nj_align()),
+           nj_align_reactive(input_nj_align()),
            nj_align_reactive(FALSE))
     
-    ifelse(!is.null(input$nj_tiplab_size),
-           nj_tiplab_size_reactive(input$nj_tiplab_size),
+    ifelse(!is.null(input_nj_tiplab_size()),
+           nj_tiplab_size_reactive(input_nj_tiplab_size()),
            ifelse(!is.null(Vis$labelsize_nj),
                   nj_tiplab_size_reactive(Vis$labelsize_nj),
                   nj_tiplab_size_reactive(4)))
     
-    ifelse(!is.null(input$nj_tiplab_fontface),
-           nj_tiplab_fontface_reactive(input$nj_tiplab_fontface),
+    ifelse(!is.null(input_nj_tiplab_fontface()),
+           nj_tiplab_fontface_reactive(input_nj_tiplab_fontface()),
            nj_tiplab_fontface_reactive("plain"))
     
-    ifelse(!is.null(input$nj_tiplab_alpha),
-           nj_tiplab_alpha_reactive(input$nj_tiplab_alpha),
+    ifelse(!is.null(input_nj_tiplab_alpha()),
+           nj_tiplab_alpha_reactive(input_nj_tiplab_alpha()),
            nj_tiplab_alpha_reactive(1))
     
-    ifelse(!is.null(input$nj_tiplab_nudge_x),
-           nj_tiplab_nudge_x_reactive(input$nj_tiplab_nudge_x),
+    ifelse(!is.null(input_nj_tiplab_nudge_x()),
+           nj_tiplab_nudge_x_reactive(input_nj_tiplab_nudge_x()),
            nj_tiplab_nudge_x_reactive(0))
     
-    ifelse(!is.null(input$nj_tiplab_position),
-           nj_tiplab_position_reactive(input$nj_tiplab_position),
+    ifelse(!is.null(input_nj_tiplab_position()),
+           nj_tiplab_position_reactive(input_nj_tiplab_position()),
            nj_tiplab_position_reactive(-0.05))
     
-    ifelse(!is.null(input$nj_tiplab_position_inw),
-           nj_tiplab_position_inw_reactive(input$nj_tiplab_position_inw),
+    ifelse(!is.null(input_nj_tiplab_position_inw()),
+           nj_tiplab_position_inw_reactive(input_nj_tiplab_position_inw()),
            nj_tiplab_position_inw_reactive(1.1))
     
-    ifelse(!is.null(input$nj_tiplab_angle),
-           nj_tiplab_angle_reactive(input$nj_tiplab_angle),
+    ifelse(!is.null(input_nj_tiplab_angle()),
+           nj_tiplab_angle_reactive(input_nj_tiplab_angle()),
            nj_tiplab_angle_reactive(0))
     
-    ifelse(!is.null(input$nj_geom),
-           nj_geom_reactive(input$nj_geom),
+    ifelse(!is.null(input_nj_geom()),
+           nj_geom_reactive(input_nj_geom()),
            nj_geom_reactive(FALSE))
     
-    ifelse(!is.null(input$nj_tiplab_labelradius),
-           nj_tiplab_labelradius_reactive(input$nj_tiplab_labelradius),
+    ifelse(!is.null(input_nj_tiplab_labelradius()),
+           nj_tiplab_labelradius_reactive(input_nj_tiplab_labelradius()),
            nj_tiplab_labelradius_reactive(0.2))
     
-    ifelse(!is.null(input$nj_tiplab_padding),
-           nj_tiplab_padding_reactive(input$nj_tiplab_padding),
+    ifelse(!is.null(input_nj_tiplab_padding()),
+           nj_tiplab_padding_reactive(input_nj_tiplab_padding()),
            ifelse(!is.null(Vis$tiplab_padding_nj),
                   nj_tiplab_padding_reactive(Vis$tiplab_padding_nj),
                   nj_tiplab_padding_reactive(0.2)))
     
-    ifelse(!is.null(input$nj_show_branch_label),
-           nj_show_branch_label_reactive(input$nj_show_branch_label),
+    ifelse(!is.null(input_nj_show_branch_label()),
+           nj_show_branch_label_reactive(input_nj_show_branch_label()),
            nj_show_branch_label_reactive(FALSE))
     
-    ifelse(!is.null(input$nj_branch_size),
-           nj_branch_size_reactive(input$nj_branch_size),
+    ifelse(!is.null(input_nj_branch_size()),
+           nj_branch_size_reactive(input_nj_branch_size()),
            ifelse(!is.null(Vis$branch_size_nj),
                   nj_branch_size_reactive(Vis$branch_size_nj),
                   nj_branch_size_reactive(4)))
     
-    ifelse(!is.null(input$nj_branch_label),
-           nj_branch_label_reactive(input$nj_branch_label),
+    ifelse(!is.null(input_nj_branch_label()),
+           nj_branch_label_reactive(input_nj_branch_label()),
            nj_branch_label_reactive("Host"))
     
-    ifelse(!is.null(input$nj_branchlab_alpha),
-           nj_branchlab_alpha_reactive(input$nj_branchlab_alpha),
+    ifelse(!is.null(input_nj_branchlab_alpha()),
+           nj_branchlab_alpha_reactive(input_nj_branchlab_alpha()),
            nj_branchlab_alpha_reactive(0.65))
     
-    ifelse(!is.null(input$nj_branch_x),
-           nj_branch_x_reactive(input$nj_branch_x),
+    ifelse(!is.null(input_nj_branch_x()),
+           nj_branch_x_reactive(input_nj_branch_x()),
            nj_branch_x_reactive(0))
     
-    ifelse(!is.null(input$nj_branch_y),
-           nj_branch_y_reactive(input$nj_branch_y),
+    ifelse(!is.null(input_nj_branch_y()),
+           nj_branch_y_reactive(input_nj_branch_y()),
            nj_branch_y_reactive(0))
     
-    ifelse(!is.null(input$nj_branchlab_fontface),
-           nj_branchlab_fontface_reactive(input$nj_branchlab_fontface),
+    ifelse(!is.null(input_nj_branchlab_fontface()),
+           nj_branchlab_fontface_reactive(input_nj_branchlab_fontface()),
            nj_branchlab_fontface_reactive("plain"))
     
-    ifelse(!is.null(input$nj_branch_labelradius),
-           nj_branch_labelradius_reactive(input$nj_branch_labelradius),
+    ifelse(!is.null(input_nj_branch_labelradius()),
+           nj_branch_labelradius_reactive(input_nj_branch_labelradius()),
            nj_branch_labelradius_reactive(0.5))
     
-    ifelse(!is.null(input$nj_title),
-           nj_title_reactive(input$nj_title),
+    ifelse(!is.null(input_nj_title()),
+           nj_title_reactive(input_nj_title()),
            nj_title_reactive(NULL))
     
-    ifelse(!is.null(input$nj_title_size),
-           nj_title_size_reactive(input$nj_title_size),
+    ifelse(!is.null(input_nj_title_size()),
+           nj_title_size_reactive(input_nj_title_size()),
            nj_title_size_reactive(30))
     
-    ifelse(!is.null(input$nj_subtitle),
-           nj_subtitle_reactive(input$nj_subtitle),
+    ifelse(!is.null(input_nj_subtitle()),
+           nj_subtitle_reactive(input_nj_subtitle()),
            nj_subtitle_reactive(NULL))
     
-    ifelse(!is.null(input$nj_subtitle_size),
-           nj_subtitle_size_reactive(input$nj_subtitle_size),
+    ifelse(!is.null(input_nj_subtitle_size()),
+           nj_subtitle_size_reactive(input_nj_subtitle_size()),
            nj_subtitle_size_reactive(30))
   })
   
@@ -10288,51 +10313,85 @@ server <- function(input, output, session) {
   ##### Variable Menu ----
   
   nj_mapping_show_reactive <- reactiveVal(NULL)
+  input_nj_mapping_show <- reactive({input$nj_mapping_show}) %>% debounce(500)
   nj_color_mapping_reactive <- reactiveVal(NULL)
+  input_nj_color_mapping <- reactive({input$nj_color_mapping}) %>% debounce(500)
   nj_tiplab_scale_reactive <- reactiveVal(NULL)
+  input_nj_tiplab_scale <- reactive({input$nj_tiplab_scale}) %>% debounce(500)
   nj_color_mapping_div_mid_reactive <- reactiveVal(NULL)
+  input_nj_color_mapping_div_mid <- reactive({input$nj_color_mapping_div_mid}) %>% debounce(500)
   nj_tipcolor_mapping_show_reactive <- reactiveVal(NULL)
-  nj_tipcolor_mapping_reactive <- reactiveVal(NULL) 
+  input_nj_tipcolor_mapping_show <- reactive({input$nj_tipcolor_mapping_show}) %>% debounce(500)
+  nj_tipcolor_mapping_reactive <- reactiveVal(NULL)
+  input_nj_tipcolor_mapping <- reactive({input$nj_tipcolor_mapping}) %>% debounce(500)
   nj_tippoint_scale_reactive <- reactiveVal(NULL)
-  nj_tipcolor_mapping_div_mid_reactive <- reactiveVal(NULL) 
+  input_nj_tipcolor_scale <- reactive({input$nj_tipcolor_scale}) %>% debounce(500)
+  nj_tipcolor_mapping_div_mid_reactive <- reactiveVal(NULL)
+  input_nj_tipcolor_mapping_div_mid <- reactive({input$nj_tipcolor_mapping_div_mid}) %>% debounce(500)
   nj_tipshape_mapping_show_reactive <- reactiveVal(NULL)
+  input_nj_tipshape_mapping_show <- reactive({input$nj_tipshape_mapping_show}) %>% debounce(500)
   nj_tipshape_mapping_reactive <- reactiveVal(NULL)
+  input_nj_tipshape_mapping <- reactive({input$nj_tipshape_mapping}) %>% debounce(500)
   nj_tiles_show_1_reactive <- reactiveVal(NULL)
+  input_nj_tiles_show_1 <- reactive({input$nj_tiles_show_1}) %>% debounce(500)
   nj_tiles_show_2_reactive <- reactiveVal(NULL)
+  input_nj_tiles_show_2 <- reactive({input$nj_tiles_show_2}) %>% debounce(500)
   nj_tiles_show_3_reactive <- reactiveVal(NULL)
+  input_nj_tiles_show_3 <- reactive({input$nj_tiles_show_3}) %>% debounce(500)
   nj_tiles_show_4_reactive <- reactiveVal(NULL)
+  input_nj_tiles_show_4 <- reactive({input$nj_tiles_show_4}) %>% debounce(500)
   nj_tiles_show_5_reactive <- reactiveVal(NULL)
+  input_nj_tiles_show_5 <- reactive({input$nj_tiles_show_5}) %>% debounce(500)
   nj_fruit_variable_reactive <- reactiveVal(NULL)
+  input_nj_fruit_variable <- reactive({input$nj_fruit_variable}) %>% debounce(500)
   nj_fruit_variable_2_reactive <- reactiveVal(NULL)
+  input_nj_fruit_variable_2 <- reactive({input$nj_fruit_variable_2}) %>% debounce(500)
   nj_fruit_variable_3_reactive <- reactiveVal(NULL)
+  input_nj_fruit_variable_3 <- reactive({input$nj_fruit_variable_3}) %>% debounce(500)
   nj_fruit_variable_4_reactive <- reactiveVal(NULL)
+  input_nj_fruit_variable_4 <- reactive({input$nj_fruit_variable_4}) %>% debounce(500)
   nj_fruit_variable_5_reactive <- reactiveVal(NULL)
+  input_nj_fruit_variable_5 <- reactive({input$nj_fruit_variable_5}) %>% debounce(500)
   nj_tiles_scale_1_reactive <- reactiveVal(NULL)
+  input_nj_tiles_scale_1 <- reactive({input$nj_tiles_scale_1}) %>% debounce(500)
   nj_tiles_scale_2_reactive <- reactiveVal(NULL)
+  input_nj_tiles_scale_2 <- reactive({input$nj_tiles_scale_2}) %>% debounce(500)
   nj_tiles_scale_3_reactive <- reactiveVal(NULL)
+  input_nj_tiles_scale_3 <- reactive({input$nj_tiles_scale_3}) %>% debounce(500)
   nj_tiles_scale_4_reactive <- reactiveVal(NULL)
+  input_nj_tiles_scale_4 <- reactive({input$nj_tiles_scale_4}) %>% debounce(500)
   nj_tiles_scale_5_reactive <- reactiveVal(NULL)
+  input_nj_tiles_scale_5 <- reactive({input$nj_tiles_scale_5}) %>% debounce(500)
   nj_tiles_mapping_div_mid_1_reactive <- reactiveVal(NULL)
+  input_nj_tiles_mapping_div_mid_1 <- reactive({input$nj_tiles_mapping_div_mid_1}) %>% debounce(500)
   nj_tiles_mapping_div_mid_2_reactive <- reactiveVal(NULL)
+  input_nj_tiles_mapping_div_mid_2 <- reactive({input$nj_tiles_mapping_div_mid_2}) %>% debounce(500)
   nj_tiles_mapping_div_mid_3_reactive <- reactiveVal(NULL)
+  input_nj_tiles_mapping_div_mid_3 <- reactive({input$nj_tiles_mapping_div_mid_3}) %>% debounce(500)
   nj_tiles_mapping_div_mid_4_reactive <- reactiveVal(NULL)
+  input_nj_tiles_mapping_div_mid_4 <- reactive({input$nj_tiles_mapping_div_mid_4}) %>% debounce(500)
   nj_tiles_mapping_div_mid_5_reactive <- reactiveVal(NULL)
+  input_nj_tiles_mapping_div_mid_5 <- reactive({input$nj_tiles_mapping_div_mid_5}) %>% debounce(500)
   nj_heatmap_show_reactive <- reactiveVal(NULL)
+  input_nj_heatmap_show <- reactive({input$nj_heatmap_show}) %>% debounce(500)
   nj_heatmap_select_reactive <- reactiveVal(NULL)
+  input_nj_heatmap_select <- reactive({input$nj_heatmap_select}) %>% debounce(500)
   nj_heatmap_scale_reactive <- reactiveVal(NULL)
+  input_nj_heatmap_scale <- reactive({input$nj_heatmap_scale}) %>% debounce(500)
   nj_heatmap_div_mid_reactive <- reactiveVal(NULL)
+  input_nj_heatmap_div_mid <- reactive({input$nj_heatmap_div_mid}) %>% debounce(500)
   
   observe({
-    ifelse(!is.null(input$nj_mapping_show),
-           nj_mapping_show_reactive(input$nj_mapping_show),
+    ifelse(!is.null(input_nj_mapping_show()),
+           nj_mapping_show_reactive(input_nj_mapping_show()),
            nj_mapping_show_reactive(FALSE))
     
-    ifelse(!is.null(input$nj_color_mapping),
-           nj_color_mapping_reactive(input$nj_color_mapping),
+    ifelse(!is.null(input_nj_color_mapping()),
+           nj_color_mapping_reactive(input_nj_color_mapping()),
            nj_color_mapping_reactive("Country"))
     
-    ifelse(!is.null(input$nj_tiplab_scale),
-           nj_tiplab_scale_reactive(input$nj_tiplab_scale),
+    ifelse(!is.null(input_nj_tiplab_scale()),
+           nj_tiplab_scale_reactive(input_nj_tiplab_scale()),
            ifelse(!is.null(nj_color_mapping_reactive()) & 
                     !is.null(Vis$meta_nj),
                   ifelse(class(unlist(Vis$meta_nj[nj_color_mapping_reactive()])) == "numeric",
@@ -10342,20 +10401,20 @@ server <- function(input, output, session) {
                                 nj_tiplab_scale_reactive("Set1"))),
                   nj_tiplab_scale_reactive("viridis")))
     
-    ifelse(!is.null(input$nj_color_mapping_div_mid),
-           nj_color_mapping_div_mid_reactive(input$nj_color_mapping_div_mid),
+    ifelse(!is.null(input_nj_color_mapping_div_mid()),
+           nj_color_mapping_div_mid_reactive(input_nj_color_mapping_div_mid()),
            nj_color_mapping_div_mid_reactive("Mean"))
     
-    ifelse(!is.null(input$nj_tipcolor_mapping_show),
-           nj_tipcolor_mapping_show_reactive(input$nj_tipcolor_mapping_show),
+    ifelse(!is.null(input_nj_tipcolor_mapping_show()),
+           nj_tipcolor_mapping_show_reactive(input_nj_tipcolor_mapping_show()),
            nj_tipcolor_mapping_show_reactive(FALSE))
     
-    ifelse(!is.null(input$nj_tipcolor_mapping),
-           nj_tipcolor_mapping_reactive(input$nj_tipcolor_mapping),
+    ifelse(!is.null(input_nj_tipcolor_mapping()),
+           nj_tipcolor_mapping_reactive(input_nj_tipcolor_mapping()),
            nj_tipcolor_mapping_reactive("Country"))
     
-    ifelse(!is.null(input$nj_tipcolor_scale),
-           nj_tippoint_scale_reactive(input$nj_tipcolor_scale),
+    ifelse(!is.null(input_nj_tipcolor_scale()),
+           nj_tippoint_scale_reactive(input_nj_tipcolor_scale()),
            ifelse(!is.null(nj_tipcolor_mapping_reactive()) & 
                     !is.null(Vis$meta_nj),
                   ifelse(class(unlist(Vis$meta_nj[nj_tipcolor_mapping_reactive()])) == "numeric",
@@ -10365,60 +10424,60 @@ server <- function(input, output, session) {
                                 nj_tippoint_scale_reactive("Set1"))),
                   nj_tippoint_scale_reactive("viridis")))
     
-    ifelse(!is.null(input$nj_tipcolor_mapping_div_mid),
-           nj_tipcolor_mapping_div_mid_reactive(input$nj_tipcolor_mapping_div_mid),
+    ifelse(!is.null(input_nj_tipcolor_mapping_div_mid()),
+           nj_tipcolor_mapping_div_mid_reactive(input_nj_tipcolor_mapping_div_mid()),
            nj_tipcolor_mapping_div_mid_reactive("Mean"))
     
-    ifelse(!is.null(input$nj_tipshape_mapping_show),
-           nj_tipshape_mapping_show_reactive(input$nj_tipshape_mapping_show),
+    ifelse(!is.null(input_nj_tipshape_mapping_show()),
+           nj_tipshape_mapping_show_reactive(input_nj_tipshape_mapping_show()),
            nj_tipshape_mapping_show_reactive(FALSE))
     
-    ifelse(!is.null(input$nj_tipshape_mapping),
-           nj_tipshape_mapping_reactive(input$nj_tipshape_mapping),
+    ifelse(!is.null(input_nj_tipshape_mapping()),
+           nj_tipshape_mapping_reactive(input_nj_tipshape_mapping()),
            nj_tipshape_mapping_reactive("Host"))
     
-    ifelse(!is.null(input$nj_tiles_show_1),
-           nj_tiles_show_1_reactive(input$nj_tiles_show_1),
+    ifelse(!is.null(input_nj_tiles_show_1()),
+           nj_tiles_show_1_reactive(input_nj_tiles_show_1()),
            nj_tiles_show_1_reactive(FALSE))
     
-    ifelse(!is.null(input$nj_tiles_show_2),
-           nj_tiles_show_2_reactive(input$nj_tiles_show_2),
+    ifelse(!is.null(input_nj_tiles_show_2()),
+           nj_tiles_show_2_reactive(input_nj_tiles_show_2()),
            nj_tiles_show_2_reactive(FALSE))
     
-    ifelse(!is.null(input$nj_tiles_show_3),
-           nj_tiles_show_3_reactive(input$nj_tiles_show_3),
+    ifelse(!is.null(input_nj_tiles_show_3()),
+           nj_tiles_show_3_reactive(input_nj_tiles_show_3()),
            nj_tiles_show_3_reactive(FALSE))
     
-    ifelse(!is.null(input$nj_tiles_show_4),
-           nj_tiles_show_4_reactive(input$nj_tiles_show_4),
+    ifelse(!is.null(input_nj_tiles_show_4()),
+           nj_tiles_show_4_reactive(input_nj_tiles_show_4()),
            nj_tiles_show_4_reactive(FALSE))
     
-    ifelse(!is.null(input$nj_tiles_show_5),
-           nj_tiles_show_5_reactive(input$nj_tiles_show_5),
+    ifelse(!is.null(input_nj_tiles_show_5()),
+           nj_tiles_show_5_reactive(input_nj_tiles_show_5()),
            nj_tiles_show_5_reactive(FALSE))
     
-    ifelse(!is.null(input$nj_fruit_variable),
-           nj_fruit_variable_reactive(input$nj_fruit_variable),
+    ifelse(!is.null(input_nj_fruit_variable()),
+           nj_fruit_variable_reactive(input_nj_fruit_variable()),
            nj_fruit_variable_reactive("Isolation Date"))
     
-    ifelse(!is.null(input$nj_fruit_variable_2),
-           nj_fruit_variable_2_reactive(input$nj_fruit_variable_2),
+    ifelse(!is.null(input_nj_fruit_variable_2()),
+           nj_fruit_variable_2_reactive(input_nj_fruit_variable_2()),
            nj_fruit_variable_2_reactive("Isolation Date"))
     
-    ifelse(!is.null(input$nj_fruit_variable_3),
-           nj_fruit_variable_3_reactive(input$nj_fruit_variable_3),
+    ifelse(!is.null(input_nj_fruit_variable_3()),
+           nj_fruit_variable_3_reactive(input_nj_fruit_variable_3()),
            nj_fruit_variable_3_reactive("Isolation Date"))
     
-    ifelse(!is.null(input$nj_fruit_variable_4),
-           nj_fruit_variable_4_reactive(input$nj_fruit_variable_4),
+    ifelse(!is.null(input_nj_fruit_variable_4()),
+           nj_fruit_variable_4_reactive(input_nj_fruit_variable_4()),
            nj_fruit_variable_4_reactive("Isolation Date"))
     
-    ifelse(!is.null(input$nj_fruit_variable_5),
-           nj_fruit_variable_5_reactive(input$nj_fruit_variable_5),
+    ifelse(!is.null(input_nj_fruit_variable_5()),
+           nj_fruit_variable_5_reactive(input_nj_fruit_variable_5()),
            nj_fruit_variable_5_reactive("Isolation Date"))
     
-    ifelse(!is.null(input$nj_tiles_scale_1),
-           nj_tiles_scale_1_reactive(input$nj_tiles_scale_1),
+    ifelse(!is.null(input_nj_tiles_scale_1()),
+           nj_tiles_scale_1_reactive(input_nj_tiles_scale_1()),
            ifelse(!is.null(nj_fruit_variable_reactive()) & 
                     !is.null(Vis$meta_nj),
                   ifelse(class(unlist(Vis$meta_nj[nj_fruit_variable_reactive()])) == "numeric",
@@ -10428,8 +10487,8 @@ server <- function(input, output, session) {
                                 nj_tiles_scale_1_reactive("Accent"))),
                   nj_tiles_scale_1_reactive("viridis")))
     
-    ifelse(!is.null(input$nj_tiles_scale_2),
-           nj_tiles_scale_2_reactive(input$nj_tiles_scale_2),
+    ifelse(!is.null(input_nj_tiles_scale_2()),
+           nj_tiles_scale_2_reactive(input_nj_tiles_scale_2()),
            ifelse(!is.null(nj_fruit_variable_2_reactive()) & 
                     !is.null(Vis$meta_nj),
                   ifelse(class(unlist(Vis$meta_nj[nj_fruit_variable_2_reactive()])) == "numeric",
@@ -10439,8 +10498,8 @@ server <- function(input, output, session) {
                                 nj_tiles_scale_2_reactive("Accent"))),
                   nj_tiles_scale_2_reactive("viridis")))
     
-    ifelse(!is.null(input$nj_tiles_scale_3),
-           nj_tiles_scale_3_reactive(input$nj_tiles_scale_3),
+    ifelse(!is.null(input_nj_tiles_scale_3()),
+           nj_tiles_scale_3_reactive(input_nj_tiles_scale_3()),
            ifelse(!is.null(nj_fruit_variable_3_reactive()) & 
                     !is.null(Vis$meta_nj),
                   ifelse(class(unlist(Vis$meta_nj[nj_fruit_variable_3_reactive()])) == "numeric",
@@ -10450,8 +10509,8 @@ server <- function(input, output, session) {
                                 nj_tiles_scale_3_reactive("Accent"))),
                   nj_tiles_scale_3_reactive("viridis")))
     
-    ifelse(!is.null(input$nj_tiles_scale_4),
-           nj_tiles_scale_4_reactive(input$nj_tiles_scale_4),
+    ifelse(!is.null(input_nj_tiles_scale_4()),
+           nj_tiles_scale_4_reactive(input_nj_tiles_scale_4()),
            ifelse(!is.null(nj_fruit_variable_4_reactive()) & 
                     !is.null(Vis$meta_nj),
                   ifelse(class(unlist(Vis$meta_nj[nj_fruit_variable_4_reactive()])) == "numeric",
@@ -10461,8 +10520,8 @@ server <- function(input, output, session) {
                                 nj_tiles_scale_4_reactive("Accent"))),
                   nj_tiles_scale_4_reactive("viridis")))
     
-    ifelse(!is.null(input$nj_tiles_scale_5),
-           nj_tiles_scale_5_reactive(input$nj_tiles_scale_5),
+    ifelse(!is.null(input_nj_tiles_scale_5()),
+           nj_tiles_scale_5_reactive(input_nj_tiles_scale_5()),
            ifelse(!is.null(nj_fruit_variable_5_reactive()) & 
                     !is.null(Vis$meta_nj),
                   ifelse(class(unlist(Vis$meta_nj[nj_fruit_variable_5_reactive()])) == "numeric",
@@ -10472,36 +10531,36 @@ server <- function(input, output, session) {
                                 nj_tiles_scale_5_reactive("Accent"))),
                   nj_tiles_scale_5_reactive("viridis")))
     
-    ifelse(!is.null(input$nj_tiles_mapping_div_mid_1),
-           nj_tiles_mapping_div_mid_1_reactive(input$nj_tiles_mapping_div_mid_1),
+    ifelse(!is.null(input_nj_tiles_mapping_div_mid_1()),
+           nj_tiles_mapping_div_mid_1_reactive(input_nj_tiles_mapping_div_mid_1()),
            nj_tiles_mapping_div_mid_1_reactive("Mean"))
     
-    ifelse(!is.null(input$nj_tiles_mapping_div_mid_2),
-           nj_tiles_mapping_div_mid_2_reactive(input$nj_tiles_mapping_div_mid_2),
+    ifelse(!is.null(input_nj_tiles_mapping_div_mid_2()),
+           nj_tiles_mapping_div_mid_2_reactive(input_nj_tiles_mapping_div_mid_2()),
            nj_tiles_mapping_div_mid_2_reactive("Mean"))
     
-    ifelse(!is.null(input$nj_tiles_mapping_div_mid_3),
-           nj_tiles_mapping_div_mid_3_reactive(input$nj_tiles_mapping_div_mid_3),
+    ifelse(!is.null(input_nj_tiles_mapping_div_mid_3()),
+           nj_tiles_mapping_div_mid_3_reactive(input_nj_tiles_mapping_div_mid_3()),
            nj_tiles_mapping_div_mid_3_reactive("Mean"))
     
-    ifelse(!is.null(input$nj_tiles_scale_nj_tiles_mapping_div_mid_4),
-           nj_tiles_mapping_div_mid_4_reactive(input$nj_tiles_mapping_div_mid_4),
+    ifelse(!is.null(input_nj_tiles_mapping_div_mid_4()),
+           nj_tiles_mapping_div_mid_4_reactive(input_nj_tiles_mapping_div_mid_4()),
            nj_tiles_mapping_div_mid_4_reactive("Mean"))
     
-    ifelse(!is.null(input$nj_tiles_mapping_div_mid_5),
-           nj_tiles_mapping_div_mid_5_reactive(input$nj_tiles_mapping_div_mid_5),
+    ifelse(!is.null(input_nj_tiles_mapping_div_mid_5()),
+           nj_tiles_mapping_div_mid_5_reactive(input_nj_tiles_mapping_div_mid_5()),
            nj_tiles_mapping_div_mid_5_reactive("Mean"))
     
-    ifelse(!is.null(input$nj_heatmap_show),
-           nj_heatmap_show_reactive(input$nj_heatmap_show),
+    ifelse(!is.null(input_nj_heatmap_show()),
+           nj_heatmap_show_reactive(input_nj_heatmap_show()),
            nj_heatmap_show_reactive(FALSE))
     
-    ifelse(!is.null(input$nj_heatmap_select),
-           nj_heatmap_select_reactive(input$nj_heatmap_select),
+    ifelse(!is.null(input_nj_heatmap_select()),
+           nj_heatmap_select_reactive(input_nj_heatmap_select()),
            nj_heatmap_select_reactive(NULL))
     
-    ifelse(!is.null(input$nj_heatmap_scale),
-           nj_heatmap_scale_reactive(input$nj_heatmap_scale),
+    ifelse(!is.null(input_nj_heatmap_scale()),
+           nj_heatmap_scale_reactive(input_nj_heatmap_scale()),
            ifelse(!is.null(nj_heatmap_select_reactive()) &
                     !is.null(Vis$meta_nj),
                   ifelse(class(unlist(Vis$meta_nj[nj_heatmap_select_reactive()])) == "numeric",
@@ -10511,8 +10570,8 @@ server <- function(input, output, session) {
                                 nj_heatmap_scale_reactive("Dark2"))),
                   nj_heatmap_scale_reactive("viridis")))
     
-    ifelse(!is.null(input$nj_heatmap_div_mid),
-           nj_heatmap_div_mid_reactive(input$nj_heatmap_div_mid),
+    ifelse(!is.null(input_nj_heatmap_div_mid()),
+           nj_heatmap_div_mid_reactive(input_nj_heatmap_div_mid()),
            nj_heatmap_div_mid_reactive("Mean"))
   })
   
@@ -10938,45 +10997,53 @@ server <- function(input, output, session) {
   ##### Color Menu ----
   
   nj_color_reactive <- reactiveVal(NULL)
+  input_nj_color <- reactive({input$nj_color}) %>% debounce(500)
   nj_bg_reactive <- reactiveVal(NULL)
+  input_nj_bg <- reactive({input$nj_bg}) %>% debounce(500)
   nj_title_color_reactive <- reactiveVal(NULL)
+  input_nj_title_color <- reactive({input$nj_title_color}) %>% debounce(500)
   nj_tiplab_color_reactive <- reactiveVal(NULL)
+  input_nj_tiplab_color <- reactive({input$nj_tiplab_color}) %>% debounce(500)
   nj_tiplab_fill_reactive <- reactiveVal(NULL)
+  input_nj_tiplab_fill <- reactive({input$nj_tiplab_fill}) %>% debounce(500)
   nj_branch_label_color_reactive <- reactiveVal(NULL)
+  input_nj_branch_label_color <- reactive({input$nj_branch_label_color}) %>% debounce(500)
   nj_tippoint_color_reactive <- reactiveVal(NULL)
+  input_nj_tippoint_color <- reactive({input$nj_tippoint_color}) %>% debounce(500)
   nj_nodepoint_color_reactive <- reactiveVal(NULL)
+  input_nj_nodepoint_color <- reactive({input$nj_nodepoint_color}) %>% debounce(500)
   
   observe({
-    ifelse(!is.null(input$nj_color),
-           nj_color_reactive(input$nj_color),
+    ifelse(!is.null(input_nj_color()),
+           nj_color_reactive(input_nj_color()),
            nj_color_reactive("#000000"))
     
-    ifelse(!is.null(input$nj_bg),
-           nj_bg_reactive(input$nj_bg),
+    ifelse(!is.null(input_nj_bg()),
+           nj_bg_reactive(input_nj_bg()),
            nj_bg_reactive("#ffffff"))
     
-    ifelse(!is.null(input$nj_title_color),
-           nj_title_color_reactive(input$nj_title_color),
+    ifelse(!is.null(input_nj_title_color()),
+           nj_title_color_reactive(input_nj_title_color()),
            nj_title_color_reactive("#000000"))
     
-    ifelse(!is.null(input$nj_tiplab_color),
-           nj_tiplab_color_reactive(input$nj_tiplab_color),
+    ifelse(!is.null(input_nj_tiplab_color()),
+           nj_tiplab_color_reactive(input_nj_tiplab_color()),
            nj_tiplab_color_reactive("#000000"))
     
-    ifelse(!is.null(input$nj_tiplab_fill),
-           nj_tiplab_fill_reactive(input$nj_tiplab_fill),
+    ifelse(!is.null(input_nj_tiplab_fill()),
+           nj_tiplab_fill_reactive(input_nj_tiplab_fill()),
            nj_tiplab_fill_reactive("#84D9A0"))
     
-    ifelse(!is.null(input$nj_branch_label_color),
-           nj_branch_label_color_reactive(input$nj_branch_label_color),
+    ifelse(!is.null(input_nj_branch_label_color()),
+           nj_branch_label_color_reactive(input_nj_branch_label_color()),
            nj_branch_label_color_reactive("#FFB7B7"))
     
-    ifelse(!is.null(input$nj_tippoint_color),
-           nj_tippoint_color_reactive(input$nj_tippoint_color),
+    ifelse(!is.null(input_nj_tippoint_color()),
+           nj_tippoint_color_reactive(input_nj_tippoint_color()),
            nj_tippoint_color_reactive("#3A4657"))
     
-    ifelse(!is.null(input$nj_nodepoint_color),
-           nj_nodepoint_color_reactive(input$nj_nodepoint_color),
+    ifelse(!is.null(input_nj_nodepoint_color()),
+           nj_nodepoint_color_reactive(input_nj_nodepoint_color()),
            nj_nodepoint_color_reactive("#3A4657"))
   })
   
@@ -11242,198 +11309,223 @@ server <- function(input, output, session) {
   
   ##### Elements Menu ----
   
-  nj_tippoint_show_reactive <- reactiveVal(NULL) 
-  nj_tippoint_shape_reactive <- reactiveVal(NULL) 
-  nj_tippoint_alpha_reactive <- reactiveVal(NULL) 
-  nj_tippoint_size_reactive <- reactiveVal(NULL) 
+  nj_tippoint_show_reactive <- reactiveVal(NULL)
+  input_nj_tippoint_show <- reactive({input$nj_tippoint_show}) %>% debounce(500)
+  nj_tippoint_shape_reactive <- reactiveVal(NULL)
+  input_nj_tippoint_shape <- reactive({input$nj_tippoint_shape}) %>% debounce(500)
+  nj_tippoint_alpha_reactive <- reactiveVal(NULL)
+  input_nj_tippoint_alpha <- reactive({input$nj_tippoint_alpha}) %>% debounce(500)
+  nj_tippoint_size_reactive <- reactiveVal(NULL)
+  input_nj_tippoint_size <- reactive({input$nj_tippoint_size}) %>% debounce(500)
   nj_nodepoint_show_reactive <- reactiveVal(NULL)
+  input_nj_nodepoint_show <- reactive({input$nj_nodepoint_show}) %>% debounce(500)
   nj_nodepoint_shape_reactive <- reactiveVal(NULL)
+  input_nj_nodepoint_shape <- reactive({input$nj_nodepoint_shape}) %>% debounce(500)
   nj_nodepoint_alpha_reactive <- reactiveVal(NULL)
+  input_nj_nodepoint_alpha <- reactive({input$nj_nodepoint_alpha}) %>% debounce(500)
   nj_nodepoint_size_reactive <- reactiveVal(NULL)
+  input_nj_nodepoint_size <- reactive({input$nj_nodepoint_size}) %>% debounce(500)
   nj_tile_number_reactive <- reactiveVal(NULL)
+  input_nj_tile_number <- reactive({input$nj_tile_number}) %>% debounce(500)
   nj_fruit_alpha_reactive <- reactiveVal(NULL)
+  input_nj_fruit_alpha <- reactive({input$nj_fruit_alpha}) %>% debounce(500)
   nj_fruit_alpha_2_reactive <- reactiveVal(NULL)
+  input_nj_fruit_alpha_2 <- reactive({input$nj_fruit_alpha_2}) %>% debounce(500)
   nj_fruit_alpha_3_reactive <- reactiveVal(NULL)
+  input_nj_fruit_alpha_3 <- reactive({input$nj_fruit_alpha_3}) %>% debounce(500)
   nj_fruit_alpha_4_reactive <- reactiveVal(NULL)
+  input_nj_fruit_alpha_4 <- reactive({input$nj_fruit_alpha_4}) %>% debounce(500)
   nj_fruit_alpha_5_reactive <- reactiveVal(NULL)
+  input_nj_fruit_alpha_5 <- reactive({input$nj_fruit_alpha_5}) %>% debounce(500)
   nj_fruit_width_circ_reactive <- reactiveVal(NULL)
+  input_nj_fruit_width_circ <- reactive({input$nj_fruit_width_circ}) %>% debounce(500)
   nj_fruit_width_circ_2_reactive <- reactiveVal(NULL)
+  input_nj_fruit_width_circ_2 <- reactive({input$nj_fruit_width_circ_2}) %>% debounce(500)
   nj_fruit_width_circ_3_reactive <- reactiveVal(NULL)
+  input_nj_fruit_width_circ_3 <- reactive({input$nj_fruit_width_circ_3}) %>% debounce(500)
   nj_fruit_width_circ_4_reactive <- reactiveVal(NULL)
+  input_nj_fruit_width_circ_4 <- reactive({input$nj_fruit_width_circ_4}) %>% debounce(500)
   nj_fruit_width_circ_5_reactive <- reactiveVal(NULL)
+  input_nj_fruit_width_circ_5 <- reactive({input$nj_fruit_width_circ_5}) %>% debounce(500)
   nj_fruit_offset_circ_reactive <- reactiveVal(NULL)
+  input_nj_fruit_offset_circ <- reactive({input$nj_fruit_offset_circ}) %>% debounce(500)
   nj_fruit_offset_circ_2_reactive <- reactiveVal(NULL)
+  input_nj_fruit_offset_circ_2 <- reactive({input$nj_fruit_offset_circ_2}) %>% debounce(500)
   nj_fruit_offset_circ_3_reactive <- reactiveVal(NULL)
+  input_nj_fruit_offset_circ_3 <- reactive({input$nj_fruit_offset_circ_3}) %>% debounce(500)
   nj_fruit_offset_circ_4_reactive <- reactiveVal(NULL)
+  input_nj_fruit_offset_circ_4 <- reactive({input$nj_fruit_offset_circ_4}) %>% debounce(500)
   nj_fruit_offset_circ_5_reactive <- reactiveVal(NULL)
+  input_nj_fruit_offset_circ_5 <- reactive({input$nj_fruit_offset_circ_5}) %>% debounce(500)
   nj_heatmap_title_reactive <- reactiveVal(NULL)
+  input_nj_heatmap_title <- reactive({input$nj_heatmap_title}) %>% debounce(500)
   nj_colnames_angle_reactive <- reactiveVal(NULL)
+  input_nj_colnames_angle <- reactive({input$nj_colnames_angle}) %>% debounce(500)
   nj_colnames_y_reactive <- reactiveVal(NULL)
+  input_nj_colnames_y <- reactive({input$nj_colnames_y}) %>% debounce(500)
   nj_heatmap_width_reactive <- reactiveVal(NULL)
+  input_nj_heatmap_width <- reactive({input$nj_heatmap_width}) %>% debounce(500)
   nj_heatmap_offset_reactive <- reactiveVal(NULL)
+  input_nj_heatmap_offset <- reactive({input$nj_heatmap_offset}) %>% debounce(500)
   nj_nodelabel_show_reactive <- reactiveVal(NULL)
+  input_nj_nodelabel_show <- reactive({input$nj_nodelabel_show}) %>% debounce(500)
   nj_parentnode_reactive <- reactiveVal(NULL)
+  input_nj_parentnode <- reactive({input$nj_parentnode}) %>% debounce(500)
   nj_clade_scale_reactive <- reactiveVal(NULL)
+  input_nj_clade_scale <- reactive({input$nj_clade_scale}) %>% debounce(500)
   nj_clade_type_reactive <- reactiveVal(NULL)
+  input_nj_clade_type <- reactive({input$nj_clade_type}) %>% debounce(500)
   
   observe({
-    ifelse(!is.null(input$nj_tippoint_show),
-           nj_tippoint_show_reactive(input$nj_tippoint_show),
+    ifelse(!is.null(input_nj_tippoint_show()),
+           nj_tippoint_show_reactive(input_nj_tippoint_show()),
            nj_tippoint_show_reactive(FALSE))
     
-    ifelse(!is.null(input$nj_tippoint_shape),
-           nj_tippoint_shape_reactive(input$nj_tippoint_shape),
+    ifelse(!is.null(input_nj_tippoint_shape()),
+           nj_tippoint_shape_reactive(input_nj_tippoint_shape()),
            nj_tippoint_shape_reactive("circle"))
     
-    ifelse(!is.null(input$nj_tippoint_alpha),
-           nj_tippoint_alpha_reactive(input$nj_tippoint_alpha),
+    ifelse(!is.null(input_nj_tippoint_alpha()),
+           nj_tippoint_alpha_reactive(input_nj_tippoint_alpha()),
            nj_tippoint_alpha_reactive(0.5))
     
-    ifelse(!is.null(input$nj_tippoint_size),
-           nj_tippoint_size_reactive(input$nj_tippoint_size),
+    ifelse(!is.null(input_nj_tippoint_size()),
+           nj_tippoint_size_reactive(input_nj_tippoint_size()),
            ifelse(!is.null(Vis$tippointsize_nj),
                   nj_tippoint_size_reactive(Vis$tippointsize_nj),
                   nj_tippoint_size_reactive(4)))
     
-    ifelse(!is.null(input$nj_nodepoint_show),
-           nj_nodepoint_show_reactive(input$nj_nodepoint_show),
+    ifelse(!is.null(input_nj_nodepoint_show()),
+           nj_nodepoint_show_reactive(input_nj_nodepoint_show()),
            nj_nodepoint_show_reactive(FALSE))
     
-    ifelse(!is.null(input$nj_nodepoint_shape),
-           nj_nodepoint_shape_reactive(input$nj_nodepoint_shape),
+    ifelse(!is.null(input_nj_nodepoint_shape()),
+           nj_nodepoint_shape_reactive(input_nj_nodepoint_shape()),
            nj_nodepoint_shape_reactive("circle"))
     
-    ifelse(!is.null(input$nj_nodepoint_alpha),
-           nj_nodepoint_alpha_reactive(input$nj_nodepoint_alpha),
+    ifelse(!is.null(input_nj_nodepoint_alpha()),
+           nj_nodepoint_alpha_reactive(input_nj_nodepoint_alpha()),
            nj_nodepoint_alpha_reactive(1))
     
-    ifelse(!is.null(input$nj_nodepoint_size),
-           nj_nodepoint_size_reactive(input$nj_nodepoint_size),
+    ifelse(!is.null(input_nj_nodepoint_size()),
+           nj_nodepoint_size_reactive(input_nj_nodepoint_size()),
            ifelse(!is.null(Vis$nodepointsize_nj),
                   nj_nodepoint_size_reactive(Vis$nodepointsize_nj),
                   nj_nodepoint_size_reactive(2.5)))
     
-    ifelse(!is.null(input$nj_tile_number),
-           nj_tile_number_reactive(input$nj_tile_number),
+    ifelse(!is.null(input_nj_tile_number()),
+           nj_tile_number_reactive(input_nj_tile_number()),
            nj_tile_number_reactive(1))
     
-    ifelse(!is.null(input$nj_fruit_alpha),
-           nj_fruit_alpha_reactive(input$nj_fruit_alpha),
+    ifelse(!is.null(input_nj_fruit_alpha()),
+           nj_fruit_alpha_reactive(input_nj_fruit_alpha()),
            nj_fruit_alpha_reactive(1))
     
-    ifelse(!is.null(input$nj_fruit_alpha_2),
-           nj_fruit_alpha_2_reactive(input$nj_fruit_alpha_2),
+    ifelse(!is.null(input_nj_fruit_alpha_2()),
+           nj_fruit_alpha_2_reactive(input_nj_fruit_alpha_2()),
            nj_fruit_alpha_2_reactive(1))
     
-    ifelse(!is.null(input$nj_fruit_alpha_3),
-           nj_fruit_alpha_3_reactive(input$nj_fruit_alpha_3),
+    ifelse(!is.null(input_nj_fruit_alpha_3()),
+           nj_fruit_alpha_3_reactive(input_nj_fruit_alpha_3()),
            nj_fruit_alpha_3_reactive(1))
     
-    ifelse(!is.null(input$nj_fruit_alpha_4),
-           nj_fruit_alpha_4_reactive(input$nj_fruit_alpha_4),
+    ifelse(!is.null(input_nj_fruit_alpha_4()),
+           nj_fruit_alpha_4_reactive(input_nj_fruit_alpha_4()),
            nj_fruit_alpha_4_reactive(1))
     
-    ifelse(!is.null(input$nj_fruit_alpha_5),
-           nj_fruit_alpha_5_reactive(input$nj_fruit_alpha_5),
+    ifelse(!is.null(input_nj_fruit_alpha_5()),
+           nj_fruit_alpha_5_reactive(input_nj_fruit_alpha_5()),
            nj_fruit_alpha_5_reactive(1))
     
-    ifelse(!is.null(input$nj_fruit_width_circ),
-           nj_fruit_width_circ_reactive(input$nj_fruit_width_circ),
+    ifelse(!is.null(input_nj_fruit_width_circ()),
+           nj_fruit_width_circ_reactive(input_nj_fruit_width_circ()),
            nj_fruit_width_circ_reactive(fruit_width()))
     
-    ifelse(!is.null(input$nj_fruit_width_circ_2),
-           nj_fruit_width_circ_2_reactive(input$nj_fruit_width_circ_2),
+    ifelse(!is.null(input_nj_fruit_width_circ_2()),
+           nj_fruit_width_circ_2_reactive(input_nj_fruit_width_circ_2()),
            nj_fruit_width_circ_2_reactive(fruit_width()))
     
-    ifelse(!is.null(input$nj_fruit_width_circ_3),
-           nj_fruit_width_circ_3_reactive(input$nj_fruit_width_circ_3),
+    ifelse(!is.null(input_nj_fruit_width_circ_3()),
+           nj_fruit_width_circ_3_reactive(input_nj_fruit_width_circ_3()),
            nj_fruit_width_circ_3_reactive(fruit_width()))
     
-    ifelse(!is.null(input$nj_fruit_width_circ_4),
-           nj_fruit_width_circ_4_reactive(input$nj_fruit_width_circ_4),
+    ifelse(!is.null(input_nj_fruit_width_circ_4()),
+           nj_fruit_width_circ_4_reactive(input_nj_fruit_width_circ_4()),
            nj_fruit_width_circ_4_reactive(fruit_width()))
     
-    ifelse(!is.null(input$nj_fruit_width_circ_5),
-           nj_fruit_width_circ_5_reactive(input$nj_fruit_width_circ_5),
+    ifelse(!is.null(input_nj_fruit_width_circ_5()),
+           nj_fruit_width_circ_5_reactive(input_nj_fruit_width_circ_5()),
            nj_fruit_width_circ_5_reactive(fruit_width()))
     
-    ifelse(!is.null(input$nj_fruit_offset_circ),
-           nj_fruit_offset_circ_reactive(input$nj_fruit_offset_circ),
-           ifelse(nj_layout_reactive() == "circular" |
-                    nj_layout_reactive() == "inward",
+    ifelse(!is.null(input_nj_fruit_offset_circ()),
+           nj_fruit_offset_circ_reactive(input_nj_fruit_offset_circ()),
+           ifelse(nj_layout_reactive() == "circular" | nj_layout_reactive() == "inward",
                   nj_fruit_offset_circ_reactive(0.15),
                   nj_fruit_offset_circ_reactive(0.05)))
     
-    ifelse(!is.null(input$nj_fruit_offset_circ_2),
-           nj_fruit_offset_circ_2_reactive(input$nj_fruit_offset_circ_2),
-           ifelse(nj_layout_reactive() == "circular" |
-                    nj_layout_reactive() == "inward",
+    ifelse(!is.null(input_nj_fruit_offset_circ_2()),
+           nj_fruit_offset_circ_2_reactive(input_nj_fruit_offset_circ_2()),
+           ifelse(nj_layout_reactive() == "circular" | nj_layout_reactive() == "inward",
                   nj_fruit_offset_circ_2_reactive(0.15),
                   nj_fruit_offset_circ_2_reactive(0.05)))
     
-    ifelse(!is.null(input$nj_fruit_offset_circ_3),
-           nj_fruit_offset_circ_3_reactive(input$nj_fruit_offset_circ_3),
-           ifelse(nj_layout_reactive() == "circular" |
-                    nj_layout_reactive() == "inward",
+    ifelse(!is.null(input_nj_fruit_offset_circ_3()),
+           nj_fruit_offset_circ_3_reactive(input_nj_fruit_offset_circ_3()),
+           ifelse(nj_layout_reactive() == "circular" | nj_layout_reactive() == "inward",
                   nj_fruit_offset_circ_3_reactive(0.15),
                   nj_fruit_offset_circ_3_reactive(0.05)))
     
-    ifelse(!is.null(input$nj_fruit_offset_circ_4),
-           nj_fruit_offset_circ_4_reactive(input$nj_fruit_offset_circ_4),
-           ifelse(nj_layout_reactive() == "circular" |
-                    nj_layout_reactive() == "inward",
+    ifelse(!is.null(input_nj_fruit_offset_circ_4()),
+           nj_fruit_offset_circ_4_reactive(input_nj_fruit_offset_circ_4()),
+           ifelse(nj_layout_reactive() == "circular" | nj_layout_reactive() == "inward",
                   nj_fruit_offset_circ_4_reactive(0.15),
                   nj_fruit_offset_circ_4_reactive(0.05)))
     
-    ifelse(!is.null(input$nj_fruit_offset_5_circ),
-           nj_fruit_offset_circ_5_reactive(input$nj_fruit_offset_circ_5),
-           ifelse(nj_layout_reactive() == "circular" |
-                    nj_layout_reactive() == "inward",
+    ifelse(!is.null(input_nj_fruit_offset_circ_5()),
+           nj_fruit_offset_circ_5_reactive(input_nj_fruit_offset_circ_5()),
+           ifelse(nj_layout_reactive() == "circular" | nj_layout_reactive() == "inward",
                   nj_fruit_offset_circ_5_reactive(0.15),
                   nj_fruit_offset_circ_5_reactive(0.05)))
     
-    ifelse(!is.null(input$nj_heatmap_title),
-           nj_heatmap_title_reactive(input$nj_heatmap_title),
+    ifelse(!is.null(input_nj_heatmap_title()),
+           nj_heatmap_title_reactive(input_nj_heatmap_title()),
            nj_heatmap_title_reactive("Heatmap"))
     
-    ifelse(!is.null(input$nj_colnames_angle),
-           nj_colnames_angle_reactive(input$nj_colnames_angle),
+    ifelse(!is.null(input_nj_colnames_angle()),
+           nj_colnames_angle_reactive(input_nj_colnames_angle()),
            ifelse(!is.null(nj_layout_reactive()),
-                  ifelse(nj_layout_reactive() == "circular" |
-                           nj_layout_reactive() == "inward",
+                  ifelse(nj_layout_reactive() == "circular" | nj_layout_reactive() == "inward",
                          nj_colnames_angle_reactive(90),
                          nj_colnames_angle_reactive(-90)),
-                  nj_colnames_angle_reactive(-90))
-           )
+                  nj_colnames_angle_reactive(-90)))
     
-    ifelse(!is.null(input$nj_colnames_y),
-           nj_colnames_y_reactive(input$nj_colnames_y),
-           ifelse(nj_layout_reactive() == "circular" |
-                    nj_layout_reactive() == "inward",
+    ifelse(!is.null(input_nj_colnames_y()),
+           nj_colnames_y_reactive(input_nj_colnames_y()),
+           ifelse(nj_layout_reactive() == "circular" | nj_layout_reactive() == "inward",
                   nj_colnames_y_reactive(0),
                   nj_colnames_y_reactive(-1)))
     
-    ifelse(!is.null(input$nj_heatmap_width),
-           nj_heatmap_width_reactive(input$nj_heatmap_width),
+    ifelse(!is.null(input_nj_heatmap_width()),
+           nj_heatmap_width_reactive(input_nj_heatmap_width()),
            nj_heatmap_width_reactive(heatmap_width()))
     
-    ifelse(!is.null(input$nj_heatmap_offset),
-           nj_heatmap_offset_reactive(input$nj_heatmap_offset),
+    ifelse(!is.null(input_nj_heatmap_offset()),
+           nj_heatmap_offset_reactive(input_nj_heatmap_offset()),
            nj_heatmap_offset_reactive(0))
     
-    ifelse(!is.null(input$nj_nodelabel_show),
-           nj_nodelabel_show_reactive(input$nj_nodelabel_show),
+    ifelse(!is.null(input_nj_nodelabel_show()),
+           nj_nodelabel_show_reactive(input_nj_nodelabel_show()),
            nj_nodelabel_show_reactive(FALSE))
     
     # parent node input allowed to be NULL
-    nj_parentnode_reactive(input$nj_parentnode)
+    nj_parentnode_reactive(input_nj_parentnode())
     
-    ifelse(!is.null(input$nj_clade_scale),
-           nj_clade_scale_reactive(input$nj_clade_scale),
+    ifelse(!is.null(input_nj_clade_scale()),
+           nj_clade_scale_reactive(input_nj_clade_scale()),
            nj_clade_scale_reactive(clade_highlight_color()))
     
-    ifelse(!is.null(input$nj_clade_type),
-           nj_clade_type_reactive(input$nj_clade_type),
+    ifelse(!is.null(input_nj_clade_type()),
+           nj_clade_type_reactive(input_nj_clade_type()),
            nj_clade_type_reactive("roundrect"))
   })
   
@@ -11759,7 +11851,7 @@ server <- function(input, output, session) {
                           width = 12,
                           align = "center",
                           conditionalPanel(
-                            "input.nj_tile_num == 1",
+                            "input.nj_tile_number == 1",
                             sliderInput(
                               "nj_fruit_alpha",
                               label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
@@ -11772,7 +11864,7 @@ server <- function(input, output, session) {
                             )
                           ),
                           conditionalPanel(
-                            "input.nj_tile_num == 2",
+                            "input.nj_tile_number == 2",
                             sliderInput(
                               "nj_fruit_alpha_2",
                               label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
@@ -11785,7 +11877,7 @@ server <- function(input, output, session) {
                             )
                           ),
                           conditionalPanel(
-                            "input.nj_tile_num == 3",
+                            "input.nj_tile_number == 3",
                             sliderInput(
                               "nj_fruit_alpha_3",
                               label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
@@ -11798,7 +11890,7 @@ server <- function(input, output, session) {
                             )
                           ),
                           conditionalPanel(
-                            "input.nj_tile_num == 4",
+                            "input.nj_tile_number == 4",
                             sliderInput(
                               "nj_fruit_alpha_4",
                               label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
@@ -11811,7 +11903,7 @@ server <- function(input, output, session) {
                             )
                           ),
                           conditionalPanel(
-                            "input.nj_tile_num == 5",
+                            "input.nj_tile_number == 5",
                             sliderInput(
                               "nj_fruit_alpha_5",
                               label = h5("Opacity", style = "color:white; margin-bottom: 0px"),
@@ -11830,7 +11922,7 @@ server <- function(input, output, session) {
                 )
               ),
               conditionalPanel(
-                "input.nj_tile_num == 1",
+                "input.nj_tile_number == 1",
                 fluidRow(
                   column(
                     width = 5,
@@ -11855,7 +11947,7 @@ server <- function(input, output, session) {
                 )
               ),
               conditionalPanel(
-                "input.nj_tile_num == 2",
+                "input.nj_tile_number == 2",
                 fluidRow(
                   column(
                     width = 5,
@@ -11880,7 +11972,7 @@ server <- function(input, output, session) {
                 )
               ),
               conditionalPanel(
-                "input.nj_tile_num == 3",
+                "input.nj_tile_number == 3",
                 fluidRow(
                   column(
                     width = 5,
@@ -11930,7 +12022,7 @@ server <- function(input, output, session) {
                 )
               ),
               conditionalPanel(
-                "input.nj_tile_num == 5",
+                "input.nj_tile_number == 5",
                 fluidRow(
                   column(
                     width = 5,
@@ -12183,111 +12275,131 @@ server <- function(input, output, session) {
   ##### Other Menu ----
   
   nj_ratio_reactive <- reactiveVal(NULL)
+  input_nj_ratio <- reactive({input$nj_ratio}) %>% debounce(500)
   nj_v_reactive <- reactiveVal(NULL)
+  input_nj_v <- reactive({input$nj_v}) %>% debounce(500)
   nj_h_reactive <- reactiveVal(NULL)
+  input_nj_h <- reactive({input$nj_h}) %>% debounce(500)
   nj_scale_reactive <- reactiveVal(NULL)
+  input_nj_scale <- reactive({input$nj_scale}) %>% debounce(500)
   nj_zoom_reactive <- reactiveVal(NULL)
+  input_nj_zoom <- reactive({input$nj_zoom}) %>% debounce(500)
   nj_layout_reactive <- reactiveVal(NULL)
+  input_nj_layout <- reactive({input$nj_layout}) %>% debounce(500)
   nj_rootedge_show_reactive <- reactiveVal(NULL)
+  input_nj_rootedge_show <- reactive({input$nj_rootedge_show}) %>% debounce(500)
   nj_rootedge_length_reactive <- reactiveVal(NULL)
+  input_nj_rootedge_length <- reactive({input$nj_rootedge_length}) %>% debounce(500)
   nj_rootedge_line_reactive <- reactiveVal(NULL)
+  input_nj_rootedge_line <- reactive({input$nj_rootedge_line}) %>% debounce(500)
   nj_xlim_reactive <- reactiveVal(NULL)
+  input_nj_xlim <- reactive({input$nj_xlim}) %>% debounce(500)
   nj_inward_xlim_reactive <- reactiveVal(NULL)
+  input_nj_inward_xlim <- reactive({input$nj_inward_xlim}) %>% debounce(500)
   nj_treescale_show_reactive <- reactiveVal(NULL)
+  input_nj_treescale_show <- reactive({input$nj_treescale_show}) %>% debounce(500)
   nj_treescale_width_reactive <- reactiveVal(NULL)
+  input_nj_treescale_width <- reactive({input$nj_treescale_width}) %>% debounce(500)
   nj_treescale_x_reactive <- reactiveVal(NULL)
+  input_nj_treescale_x <- reactive({input$nj_treescale_x}) %>% debounce(500)
   nj_treescale_y_reactive <- reactiveVal(NULL)
+  input_nj_treescale_y <- reactive({input$nj_treescale_y}) %>% debounce(500)
   nj_ladder_reactive <- reactiveVal(NULL)
+  input_nj_ladder <- reactive({input$nj_ladder}) %>% debounce(500)
   nj_legend_orientation_reactive <- reactiveVal(NULL)
+  input_nj_legend_orientation <- reactive({input$nj_legend_orientation}) %>% debounce(500)
   nj_legend_size_reactive <- reactiveVal(NULL)
+  input_nj_legend_size <- reactive({input$nj_legend_size}) %>% debounce(500)
   nj_legend_x_reactive <- reactiveVal(NULL)
+  input_nj_legend_x <- reactive({input$nj_legend_x}) %>% debounce(500)
   nj_legend_y_reactive <- reactiveVal(NULL)
+  input_nj_legend_y <- reactive({input$nj_legend_y}) %>% debounce(500)
   
   observe({
-    ifelse(!is.null(input$nj_ratio),
-           nj_ratio_reactive(input$nj_ratio),
+    ifelse(!is.null(input_nj_ratio()),
+           nj_ratio_reactive(input_nj_ratio()),
            nj_ratio_reactive(c("16:10" = (16 / 10))))
     
-    ifelse(!is.null(input$nj_v),
-           nj_v_reactive(input$nj_v),
+    ifelse(!is.null(input_nj_v()),
+           nj_v_reactive(input_nj_v()),
            nj_v_reactive(0))
     
-    ifelse(!is.null(input$nj_h),
-           nj_h_reactive(input$nj_h),
+    ifelse(!is.null(input_nj_h()),
+           nj_h_reactive(input_nj_h()),
            nj_h_reactive(0))
     
-    ifelse(!is.null(input$nj_scale),
-           nj_scale_reactive(input$nj_scale),
+    ifelse(!is.null(input_nj_scale()),
+           nj_scale_reactive(input_nj_scale()),
            nj_scale_reactive(600))
     
-    ifelse(!is.null(input$nj_zoom),
-           nj_zoom_reactive(input$nj_zoom),
+    ifelse(!is.null(input_nj_zoom()),
+           nj_zoom_reactive(input_nj_zoom()),
            nj_zoom_reactive(0.95))
     
-    ifelse(!is.null(input$nj_layout),
-           nj_layout_reactive(input$nj_layout),
+    ifelse(!is.null(input_nj_layout()),
+           nj_layout_reactive(input_nj_layout()),
            nj_layout_reactive("rectangular"))
     
-    ifelse(!is.null(input$nj_rootedge_show),
-           nj_rootedge_show_reactive(input$nj_rootedge_show),
+    ifelse(!is.null(input_nj_rootedge_show()),
+           nj_rootedge_show_reactive(input_nj_rootedge_show()),
            nj_rootedge_show_reactive(FALSE))
     
-    ifelse(!is.null(input$nj_rootedge_length),
-           nj_rootedge_length_reactive(input$nj_rootedge_length),
+    ifelse(!is.null(input_nj_rootedge_length()),
+           nj_rootedge_length_reactive(input_nj_rootedge_length()),
            ifelse(!is.null(Vis$nj_max_x),
                   nj_rootedge_length_reactive(round(ceiling(Vis$nj_max_x) * 0.05)),
                   nj_rootedge_length_reactive(2)))
     
-    ifelse(!is.null(input$nj_rootedge_line),
-           nj_rootedge_line_reactive(input$nj_rootedge_line),
+    ifelse(!is.null(input_nj_rootedge_line()),
+           nj_rootedge_line_reactive(input_nj_rootedge_line()),
            nj_rootedge_line_reactive("solid"))
     
-    ifelse(!is.null(input$nj_xlim),
-           nj_xlim_reactive(input$nj_xlim),
+    ifelse(!is.null(input_nj_xlim()),
+           nj_xlim_reactive(input_nj_xlim()),
            nj_xlim_reactive(-10))
     
-    ifelse(!is.null(input$nj_inward_xlim),
-           nj_inward_xlim_reactive(input$nj_inward_xlim),
+    ifelse(!is.null(input_nj_inward_xlim()),
+           nj_inward_xlim_reactive(input_nj_inward_xlim()),
            nj_inward_xlim_reactive(50))
     
-    ifelse(!is.null(input$nj_treescale_show),
-           nj_treescale_show_reactive(input$nj_treescale_show),
+    ifelse(!is.null(input_nj_treescale_show()),
+           nj_treescale_show_reactive(input_nj_treescale_show()),
            nj_treescale_show_reactive(TRUE))
     
-    ifelse(!is.null(input$nj_treescale_width),
-           nj_treescale_width_reactive(input$nj_treescale_width),
+    ifelse(!is.null(input_nj_treescale_width()),
+           nj_treescale_width_reactive(input_nj_treescale_width()),
            ifelse(!is.null(Vis$nj_max_x),
                   nj_treescale_width_reactive(round(ceiling(Vis$nj_max_x) * 0.1, 0)),
                   nj_treescale_width_reactive(2)))
     
-    ifelse(!is.null(input$nj_treescale_x),
-           nj_treescale_x_reactive(input$nj_treescale_x),
+    ifelse(!is.null(input_nj_treescale_x()),
+           nj_treescale_x_reactive(input_nj_treescale_x()),
            ifelse(!is.null(Vis$nj_max_x),
                   nj_treescale_x_reactive(round(ceiling(Vis$nj_max_x) * 0.2, 0)),
                   nj_treescale_x_reactive(2)))
     
-    ifelse(!is.null(input$nj_treescale_y),
-           nj_treescale_y_reactive(input$nj_treescale_y),
+    ifelse(!is.null(input_nj_treescale_y()),
+           nj_treescale_y_reactive(input_nj_treescale_y()),
            nj_treescale_y_reactive(0))
     
-    ifelse(!is.null(input$nj_ladder),
-           nj_ladder_reactive(input$nj_ladder),
+    ifelse(!is.null(input_nj_ladder()),
+           nj_ladder_reactive(input_nj_ladder()),
            nj_ladder_reactive(TRUE))
     
-    ifelse(!is.null(input$nj_legend_orientation),
-           nj_legend_orientation_reactive(input$nj_legend_orientation),
+    ifelse(!is.null(input_nj_legend_orientation()),
+           nj_legend_orientation_reactive(input_nj_legend_orientation()),
            nj_legend_orientation_reactive("vertical"))
     
-    ifelse(!is.null(input$nj_legend_size),
-           nj_legend_size_reactive(input$nj_legend_size),
+    ifelse(!is.null(input_nj_legend_size()),
+           nj_legend_size_reactive(input_nj_legend_size()),
            nj_legend_size_reactive(10))
     
-    ifelse(!is.null(input$nj_legend_x),
-           nj_legend_x_reactive(input$nj_legend_x),
+    ifelse(!is.null(input_nj_legend_x()),
+           nj_legend_x_reactive(input_nj_legend_x()),
            nj_legend_x_reactive(0.9))
     
-    ifelse(!is.null(input$nj_legend_y),
-           nj_legend_y_reactive(input$nj_legend_y),
+    ifelse(!is.null(input_nj_legend_y()),
+           nj_legend_y_reactive(input_nj_legend_y()),
            nj_legend_y_reactive(0.2))
   })
   
@@ -12326,7 +12438,7 @@ server <- function(input, output, session) {
                   width = 4,
                   align = "center",
                   div(
-                    class = "control-ratio",
+                    class = "nj-control-ratio",
                     selectInput(
                       "nj_ratio",
                       "",
@@ -12999,7 +13111,7 @@ server <- function(input, output, session) {
             ),
             br()
           ),
-          title = "Load Database",
+          title = "Reset Plot Settings",
           footer = tagList(
             modalButton("Cancel"),
             actionButton("nj_reset_confirm", "Reset", class = "btn btn-default")
@@ -15859,7 +15971,7 @@ server <- function(input, output, session) {
     
     ifelse(!is.null(Vis$nj_parentnodes),
            choices <- sort(unique(as.numeric(Vis$nj_parentnodes))),
-           choices <- c())
+           choices <- "")
     
     pickerInput(
       "nj_parentnode",
@@ -17620,39 +17732,32 @@ server <- function(input, output, session) {
   
   ##### Label Menu ----
   
-  mst_node_label_reactive <- reactiveVal(NULL) 
-  mst_title_reactive <- reactiveVal(NULL) 
-  mst_subtitle_reactive <- reactiveVal(NULL) 
+  mst_node_label_reactive <- reactiveVal(NULL)
+  input_mst_node_label <- reactive({input$mst_node_label}) %>% debounce(500)
+  mst_title_reactive <- reactiveVal(NULL)
+  input_mst_title <- reactive({input$mst_title}) %>% debounce(500)
+  mst_subtitle_reactive <- reactiveVal(NULL)
+  input_mst_subtitle <- reactive({input$mst_subtitle}) %>% debounce(500)
   
   observe({
-    if (!is.null(input$mst_node_label)) {
-      mst_node_label_reactive(input$mst_node_label)
-    }
+    ifelse(isTRUE(mst_color_var_reactive()),
+           mst_node_label_reactive("Assembly Name"),
+           ifelse(!is.null(input_mst_node_label()),
+                  mst_node_label_reactive(input_mst_node_label()),
+                  mst_node_label_reactive("Assembly Name")))
     
-    if (!is.null(input$mst_title)) {
-      mst_title_reactive(input$mst_title)
-    }
+    ifelse(!is.null(input_mst_title()),
+           mst_title_reactive(input_mst_title()),
+           mst_title_reactive(""))
     
-    if (!is.null(input$mst_subtitle)) {
-      mst_subtitle_reactive(input$mst_subtitle)
-    }
+    ifelse(!is.null(input_mst_subtitle()),
+           mst_subtitle_reactive(input_mst_subtitle()),
+           mst_subtitle_reactive(""))
   })
   
   observeEvent(input$mst_label_menu, {
     
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-    
-    if(!is.null(mst_title_reactive())) {
-      mst_title_selected <- mst_title_reactive()
-    } else {
-      mst_title_selected <- ""
-    }
-    
-    if(!is.null(mst_subtitle_reactive())) {
-      mst_subtitle_selected <- mst_subtitle_reactive()
-    } else {
-      mst_subtitle_selected <- ""
-    }
     
     output$mst_controls <- renderUI(
       box(
@@ -17686,7 +17791,7 @@ server <- function(input, output, session) {
               align = "center",
               textInput(
                 "mst_title",
-                value = mst_title_selected,
+                value = mst_title_reactive(),
                 label = "",
                 width = "100%",
                 placeholder = "Plot Title"
@@ -17705,7 +17810,7 @@ server <- function(input, output, session) {
               align = "center",
               textInput(
                 "mst_subtitle",
-                value = mst_subtitle_selected,
+                value = mst_subtitle_reactive(),
                 label = "",
                 width = "100%",
                 placeholder = "Plot Subtitle"
@@ -17724,44 +17829,29 @@ server <- function(input, output, session) {
   ##### Variable Mapping Menu ----
   
   mst_color_var_reactive <- reactiveVal(NULL)
+  input_mst_color_var <- reactive({input$mst_color_var}) %>% debounce(500)
   mst_col_var_reactive <- reactiveVal(NULL)
+  input_mst_col_var <- reactive({input$mst_col_var}) %>% debounce(500)
   mst_col_scale_reactive <- reactiveVal(NULL)
+  input_mst_col_scale <- reactive({input$mst_col_scale}) %>% debounce(500)
   
   observe({
-    if (!is.null(input$mst_color_var)) {
-      mst_color_var_reactive(input$mst_color_var)
-    }
+    ifelse(!is.null(input_mst_color_var()),
+           mst_color_var_reactive(input_mst_color_var()),
+           mst_color_var_reactive(FALSE))
     
-    if (!is.null(input$mst_col_var)) {
-      mst_col_var_reactive(input$mst_col_var)
-    }
+    ifelse(!is.null(input_mst_col_var()),
+           mst_col_var_reactive(input_mst_col_var()),
+           mst_col_var_reactive("Isolation Date"))
     
-    if (!is.null(input$mst_col_scale)) {
-      mst_col_scale_reactive(input$mst_col_scale)
-    }
+    ifelse(!is.null(input_mst_col_scale()),
+           mst_col_scale_reactive(input_mst_col_scale()),
+           mst_col_scale_reactive("Viridis"))
   })
   
   observeEvent(input$mst_variable_menu, {
     
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-    
-    if(!is.null(mst_color_var_reactive())) {
-      mst_color_var_selected <- mst_color_var_reactive()
-    } else {
-      mst_color_var_selected <- FALSE
-    }
-    
-    if(!is.null(mst_col_var_reactive())) {
-      mst_col_var_selected <- mst_col_var_reactive()
-    } else {
-      mst_col_var_selected <- "Isolation Date"
-    }
-    
-    if(!is.null(mst_col_scale_reactive())) {
-      mst_col_scale_selected <- mst_col_scale_reactive()
-    } else {
-      mst_col_scale_selected <- "Viridis"
-    }
     
     output$mst_controls <- renderUI(
       div(
@@ -17797,7 +17887,7 @@ server <- function(input, output, session) {
                     materialSwitch(
                       "mst_color_var",
                       "",
-                      value = mst_color_var_selected
+                      value = mst_color_var_reactive()
                     )
                   )
                 )
@@ -17815,7 +17905,7 @@ server <- function(input, output, session) {
                         cust_vars <- DB$cust_var$Variable[which(DB$cust_var$Variable %in% selection)]
                         selection[-which(selection == cust_vars[DB$cust_var[cust_vars,]$Type != "categ"])]
                       } else {c("Isolation Date", names(DB$meta)[-c(1, 2, 3, 4, 5, 6, 10, 11, 12)])},,
-                      selected = mst_col_var_selected,
+                      selected = mst_col_var_reactive(),
                       width = "100%"
                     )
                   )
@@ -17828,7 +17918,7 @@ server <- function(input, output, session) {
                       "mst_col_scale",
                       "",
                       choices = c("Viridis", "Rainbow"),
-                      selected = mst_col_scale_selected,
+                      selected = mst_col_scale_reactive(),
                       width = "100%"
                     ) 
                   )
@@ -17847,66 +17937,47 @@ server <- function(input, output, session) {
   ##### Color Menu ----
   
   mst_text_color_reactive <- reactiveVal(NULL)
+  input_mst_text_color <- reactive({input$mst_text_color}) %>% debounce(500)
   mst_color_node_reactive <- reactiveVal(NULL)
+  input_mst_color_node <- reactive({input$mst_color_node}) %>% debounce(500)
   mst_color_edge_reactive <- reactiveVal(NULL)
+  input_mst_color_edge <- reactive({input$mst_color_edge}) %>% debounce(500)
   mst_edge_font_color_reactive <- reactiveVal(NULL)
+  input_mst_edge_font_color <- reactive({input$mst_edge_font_color}) %>% debounce(500)
   mst_background_color_reactive <- reactiveVal(NULL)
+  input_mst_background_color <- reactive({input$mst_background_color}) %>% debounce(500)
   mst_background_transparent_reactive <- reactiveVal(NULL)
+  input_mst_background_transparent <- reactive({input$mst_background_transparent}) %>% debounce(500)
   
   observe({
-    if (!is.null(input$mst_text_color)) {
-      mst_text_color_reactive(input$mst_text_color)
-    }
-    if (!is.null(input$mst_color_node)) {
-      mst_color_node_reactive(input$mst_color_node)
-    }
-    if (!is.null(input$mst_color_edge)) {
-      mst_color_edge_reactive(input$mst_color_edge)
-    }
-    if (!is.null(input$mst_edge_font_color)) {
-      mst_edge_font_color_reactive(input$mst_edge_font_color)
-    }
-    if (!is.null(input$mst_background_color)) {
-      mst_background_color_reactive(input$mst_background_color)
-    }
-    if (!is.null(input$mst_background_transparent)) {
-      mst_background_transparent_reactive(input$mst_background_transparent)
-    }
+    ifelse(!is.null(input_mst_text_color()),
+           mst_text_color_reactive(input_mst_text_color()),
+           mst_text_color_reactive("#000000"))
+    
+    ifelse(!is.null(input_mst_color_node()),
+           mst_color_node_reactive(input_mst_color_node()),
+           mst_color_node_reactive("#B2FACA"))
+    
+    ifelse(!is.null(input_mst_color_edge()),
+           mst_color_edge_reactive(input_mst_color_edge()),
+           mst_color_edge_reactive("#000000"))
+    
+    ifelse(!is.null(input_mst_edge_font_color()),
+           mst_edge_font_color_reactive(input_mst_edge_font_color()),
+           mst_edge_font_color_reactive("#000000"))
+    
+    ifelse(!is.null(input_mst_background_color()),
+           mst_background_color_reactive(input_mst_background_color()),
+           mst_background_color_reactive("#ffffff"))
+    
+    ifelse(!is.null(input_mst_background_transparent()),
+           mst_background_transparent_reactive(input_mst_background_transparent()),
+           mst_background_transparent_reactive(FALSE))
   })
   
   observeEvent(input$mst_color_menu, {
     
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-    
-    if(!is.null(mst_text_color_reactive())) {
-      mst_text_color_selected <-  mst_text_color_reactive()
-    } else {
-      mst_text_color_selected <- "#000000"
-    }
-    
-    if(!is.null(mst_color_edge_reactive())) {
-      mst_color_edge_selected <-  mst_color_edge_reactive()
-    } else {
-      mst_color_edge_selected <- "#000000"
-    }
-    
-    if(!is.null(mst_edge_font_color_reactive())) {
-      mst_edge_font_color_selected <-  mst_edge_font_color_reactive()
-    } else {
-      mst_edge_font_color_selected <- "#000000"
-    }
-    
-    if(!is.null(mst_background_color_reactive())) {
-      mst_background_color_selected <-  mst_background_color_reactive()
-    } else {
-      mst_background_color_selected <- "#ffffff"
-    }
-    
-    if(!is.null(mst_background_transparent_reactive())) {
-      mst_background_transparent_selected <-  mst_background_transparent_reactive()
-    } else {
-      mst_background_transparent_selected <- FALSE
-    }
     
     output$mst_controls <- renderUI(
       box(
@@ -17933,7 +18004,7 @@ server <- function(input, output, session) {
               align = "center",
               colorPickr(
                 inputId = "mst_text_color",
-                selected = mst_text_color_selected,
+                selected = mst_text_color_reactive(),
                 label = "",
                 update = "changestop",
                 interaction = list(clear = FALSE,
@@ -17979,7 +18050,7 @@ server <- function(input, output, session) {
               colorPickr(
                 inputId = "mst_color_edge",
                 width = "100%",
-                selected = mst_color_edge_selected,
+                selected = mst_color_edge_reactive(),
                 label = "",
                 update = "changestop",
                 interaction = list(clear = FALSE,
@@ -18006,7 +18077,7 @@ server <- function(input, output, session) {
               colorPickr(
                 inputId = "mst_edge_font_color",
                 width = "100%",
-                selected = mst_edge_font_color_selected,
+                selected = mst_edge_font_color_reactive(),
                 label = "",
                 update = "changestop",
                 interaction = list(clear = FALSE,
@@ -18033,7 +18104,7 @@ server <- function(input, output, session) {
               colorPickr(
                 inputId = "mst_background_color",
                 width = "100%",
-                selected = mst_background_color_selected,
+                selected = mst_background_color_reactive(),
                 label = "",
                 update = "changestop",
                 interaction = list(clear = FALSE,
@@ -18051,7 +18122,7 @@ server <- function(input, output, session) {
                 materialSwitch(
                   "mst_background_transparent",
                   h5(p("Transparent"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                  value = mst_background_transparent_selected,
+                  value = mst_background_transparent_reactive(),
                   right = TRUE
                 )
               )
@@ -18068,121 +18139,71 @@ server <- function(input, output, session) {
   ##### Sizing Menu ----
   
   scale_nodes_reactive <- reactiveVal(NULL)
+  input_scale_nodes <- reactive({input$scale_nodes}) %>% debounce(500)
   mst_node_scale_reactive <- reactiveVal(NULL)
+  input_mst_node_scale <- reactive({input$mst_node_scale}) %>% debounce(500)
   mst_node_size_reactive <- reactiveVal(NULL)
+  input_mst_node_size <- reactive({input$mst_node_size}) %>% debounce(500)
   mst_scale_edges_reactive <- reactiveVal(NULL)
+  input_mst_scale_edges <- reactive({input$mst_scale_edges}) %>% debounce(500)
   mst_edge_length_scale_reactive <- reactiveVal(NULL)
+  input_mst_edge_length_scale <- reactive({input$mst_edge_length_scale}) %>% debounce(500)
   mst_edge_length_reactive <- reactiveVal(NULL)
+  input_mst_edge_length <- reactive({input$mst_edge_length}) %>% debounce(500)
   mst_edge_font_size_reactive <- reactiveVal(NULL)
-  mst_title_size_reactive <- reactiveVal(NULL) 
-  mst_subtitle_size_reactive <- reactiveVal(NULL) 
-  node_label_fontsize_reactive <- reactiveVal(NULL) 
+  input_mst_edge_font_size <- reactive({input$mst_edge_font_size}) %>% debounce(500)
+  mst_title_size_reactive <- reactiveVal(NULL)
+  input_mst_title_size <- reactive({input$mst_title_size}) %>% debounce(500)
+  mst_subtitle_size_reactive <- reactiveVal(NULL)
+  input_mst_subtitle_size <- reactive({input$mst_subtitle_size}) %>% debounce(500)
+  node_label_fontsize_reactive <- reactiveVal(NULL)
+  input_node_label_fontsize <- reactive({input$node_label_fontsize}) %>% debounce(500)
   
   observe({
-    if (!is.null(input$scale_nodes)) {
-      scale_nodes_reactive(input$scale_nodes)
-    }
+    ifelse(!is.null(input_scale_nodes()),
+           scale_nodes_reactive(input_scale_nodes()),
+           scale_nodes_reactive(TRUE))
     
-    if (!is.null(input$mst_node_scale)) {
-      mst_node_scale_reactive(input$mst_node_scale)
-    }
+    ifelse(!is.null(input_mst_node_scale()),
+           mst_node_scale_reactive(input_mst_node_scale()),
+           mst_node_scale_reactive(c(20, 40)))
     
-    if (!is.null(input$mst_node_size)) {
-      mst_node_size_reactive(input$mst_node_size)
-    }
+    ifelse(!is.null(input_mst_node_size()),
+           mst_node_size_reactive(input_mst_node_size()),
+           mst_node_size_reactive(30))
     
-    if (!is.null(input$mst_scale_edges)) {
-      mst_scale_edges_reactive(input$mst_scale_edges)
-    }
+    ifelse(!is.null(input_mst_scale_edges()),
+           mst_scale_edges_reactive(input_mst_scale_edges()),
+           mst_scale_edges_reactive(TRUE))
     
-    if (!is.null(input$mst_edge_length_scale)) {
-      mst_edge_length_scale_reactive(input$mst_edge_length_scale)
-    }
+    ifelse(!is.null(input_mst_edge_length_scale()),
+           mst_edge_length_scale_reactive(input_mst_edge_length_scale()),
+           mst_edge_length_scale_reactive(15))
     
-    if (!is.null(input$mst_edge_length)) {
-      mst_edge_length_reactive(input$mst_edge_length)
-    }
+    ifelse(!is.null(input_mst_edge_length()),
+           mst_edge_length_reactive(input_mst_edge_length()),
+           mst_edge_length_reactive(35))
     
-    if (!is.null(input$mst_edge_font_size)) {
-      mst_edge_font_size_reactive(input$mst_edge_font_size)
-    }
+    ifelse(!is.null(input_mst_edge_font_size()),
+           mst_edge_font_size_reactive(input_mst_edge_font_size()),
+           mst_edge_font_size_reactive(18))
     
-    if (!is.null(input$node_label_fontsize)) {
-      node_label_fontsize_reactive(input$node_label_fontsize)
-    }
+    ifelse(!is.null(input_node_label_fontsize()),
+           node_label_fontsize_reactive(input_node_label_fontsize()),
+           node_label_fontsize_reactive(14))
     
-    if (!is.null(input$mst_title_size)) {
-      mst_title_size_reactive(input$mst_title_size)
-    }
+    ifelse(!is.null(input_mst_title_size()),
+           mst_title_size_reactive(input_mst_title_size()),
+           mst_title_size_reactive(35))
     
-    if (!is.null(input$mst_subtitle_size)) {
-      mst_subtitle_size_reactive(input$mst_subtitle_size)
-    }
+    ifelse(!is.null(input_mst_subtitle_size()),
+           mst_subtitle_size_reactive(input_mst_subtitle_size()),
+           mst_subtitle_size_reactive(20))
   })
   
   observeEvent(input$mst_size_menu, {
     
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-    
-    if(!is.null(node_label_fontsize_reactive())) {
-      node_label_fontsize_selected <- node_label_fontsize_reactive()
-    } else {
-      node_label_fontsize_selected <- 14
-    }
-    
-    if(!is.null(mst_title_size_reactive())) {
-      mst_title_size_selected <- mst_title_size_reactive()
-    } else {
-      mst_title_size_selected <- 35
-    }
-    
-    if(!is.null(mst_title_size_reactive())) {
-      mst_subtitle_size_selected <- mst_subtitle_size_reactive()
-    } else {
-      mst_subtitle_size_selected <- 20
-    }
-    
-    if(!is.null(scale_nodes_reactive())) {
-      scale_nodes_selected <- scale_nodes_reactive()
-    } else {
-      scale_nodes_selected <- TRUE
-    }
-    
-    if(!is.null(mst_node_scale_reactive())) {
-      mst_node_scale_selected <- mst_node_scale_reactive()
-    } else {
-      mst_node_scale_selected <- c(20, 40)
-    }
-    
-    if(!is.null(mst_node_size_reactive())) {
-      mst_node_size_selected <- mst_node_size_reactive()
-    } else {
-      mst_node_size_selected <- 30
-    }
-    
-    if(!is.null(mst_scale_edges_reactive())) {
-      mst_scale_edges_selected <- mst_scale_edges_reactive()
-    } else {
-      mst_scale_edges_selected <- TRUE
-    }
-    
-    if(!is.null(mst_edge_length_scale_reactive())) {
-      mst_edge_length_scale_selected <- mst_edge_length_scale_reactive()
-    } else {
-      mst_edge_length_scale_selected <- 15
-    }
-    
-    if(!is.null(mst_edge_length_reactive())) {
-      mst_edge_length_selected <- mst_edge_length_reactive()
-    } else {
-      mst_edge_length_selected <- 35
-    }
-    
-    if(!is.null(mst_edge_font_size_reactive())) {
-      mst_edge_font_size_selected <- mst_edge_font_size_reactive()
-    } else {
-      mst_edge_font_size_selected <- 18
-    }
     
     output$mst_controls <- renderUI(
       box(
@@ -18202,7 +18223,7 @@ server <- function(input, output, session) {
                 materialSwitch(
                   "scale_nodes",
                   h5(p("Scale by Duplicates"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                  value = scale_nodes_selected,
+                  value = scale_nodes_reactive(),
                   right = TRUE
                 )
               )
@@ -18245,7 +18266,7 @@ server <- function(input, output, session) {
                         label = "",
                         min = 1,
                         max = 80,
-                        value = mst_node_scale_selected,
+                        value = mst_node_scale_reactive(),
                         ticks = FALSE
                       )
                     )
@@ -18259,7 +18280,7 @@ server <- function(input, output, session) {
                         label = "",
                         min = 1,
                         max = 100,
-                        value = mst_node_size_selected,
+                        value = mst_node_size_reactive(),
                         ticks = FALSE
                       ) 
                     )
@@ -18280,7 +18301,7 @@ server <- function(input, output, session) {
                 materialSwitch(
                   "mst_scale_edges",
                   h5(p("Scale Allelic Distance"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                  value = mst_scale_edges_selected,
+                  value = mst_scale_edges_reactive(),
                   right = TRUE
                 )
               ),
@@ -18317,7 +18338,7 @@ server <- function(input, output, session) {
                         label = NULL,
                         min = 1,
                         max = 40,
-                        value = mst_edge_length_scale_selected,
+                        value = mst_edge_length_scale_reactive(),
                         ticks = FALSE
                       ) 
                     )
@@ -18330,7 +18351,7 @@ server <- function(input, output, session) {
                         inputId = "mst_edge_length",
                         label = NULL,
                         choices = append(seq(0.1, 1, 0.1), 2:100),
-                        selected = mst_edge_length_selected,
+                        selected = mst_edge_length_reactive(),
                         hide_min_max = FALSE
                       ) 
                     )
@@ -18356,7 +18377,7 @@ server <- function(input, output, session) {
                     sliderInput(
                       "mst_edge_font_size",
                       "",
-                      value = mst_edge_font_size_selected,
+                      value = mst_edge_font_size_reactive(),
                       step = 1,
                       min = 8,
                       max = 30,
@@ -18387,7 +18408,7 @@ server <- function(input, output, session) {
                 sliderInput(
                   "node_label_fontsize",
                   "",
-                  value = node_label_fontsize_selected,
+                  value = node_label_fontsize_reactive(),
                   min = 8,
                   max = 30,
                   step = 1,
@@ -18415,7 +18436,7 @@ server <- function(input, output, session) {
                 sliderInput(
                   "mst_title_size",
                   "",
-                  value = mst_title_size_selected,
+                  value = mst_title_size_reactive(),
                   min = 15,
                   max = 50,
                   step = 1,
@@ -18443,7 +18464,7 @@ server <- function(input, output, session) {
                 sliderInput(
                   "mst_subtitle_size",
                   "",
-                  value = mst_subtitle_size_selected,
+                  value = mst_subtitle_size_reactive(),
                   min = 15,
                   max = 40,
                   step = 1,
@@ -18462,147 +18483,87 @@ server <- function(input, output, session) {
   ##### Other Menu ----
   
   mst_ratio_reactive <- reactiveVal(NULL)
+  input_mst_ratio <- reactive({input$mst_ratio}) %>% debounce(500)
   mst_scale_reactive <- reactiveVal(NULL)
+  input_mst_scale <- reactive({input$mst_scale}) %>% debounce(500)
   mst_shadow_reactive <- reactiveVal(NULL)
+  input_mst_shadow <- reactive({input$mst_shadow}) %>% debounce(500)
   mst_node_shape_reactive <- reactiveVal(NULL)
+  input_mst_node_shape <- reactive({input$mst_node_shape}) %>% debounce(500)
   mst_show_clusters_reactive <- reactiveVal(NULL)
+  input_mst_show_clusters <- reactive({input$mst_show_clusters}) %>% debounce(500)
   mst_cluster_col_scale_reactive <- reactiveVal(NULL)
+  input_mst_cluster_col_scale <- reactive({input$mst_cluster_col_scale}) %>% debounce(500)
   mst_cluster_type_reactive <- reactiveVal(NULL)
+  input_mst_cluster_type <- reactive({input$mst_cluster_type}) %>% debounce(500)
   mst_cluster_width_reactive <- reactiveVal(NULL)
+  input_mst_cluster_width <- reactive({input$mst_cluster_width}) %>% debounce(500)
   mst_cluster_threshold_reactive <- reactiveVal(NULL)
+  input_mst_cluster_threshold <- reactive({input$mst_cluster_threshold}) %>% debounce(500)
   mst_legend_ori_reactive <- reactiveVal(NULL)
+  input_mst_legend_ori <- reactive({input$mst_legend_ori}) %>% debounce(500)
   mst_font_size_reactive <- reactiveVal(NULL)
+  input_mst_font_size <- reactive({input$mst_font_size}) %>% debounce(500)
   mst_symbol_size_reactive <- reactiveVal(NULL)
+  input_mst_symbol_size <- reactive({input$mst_symbol_size}) %>% debounce(500)
   
   observe({
-    if (!is.null(input$mst_ratio)) {
-      mst_ratio_reactive(input$mst_ratio)
-    }
+    ifelse(!is.null(input_mst_ratio()),
+           mst_ratio_reactive(input_mst_ratio()),
+           mst_ratio_reactive(16/10))
     
-    if (!is.null(input$mst_scale)) {
-      mst_scale_reactive(input$mst_scale)
-    }
+    ifelse(!is.null(input_mst_scale()),
+           mst_scale_reactive(input_mst_scale()),
+           mst_scale_reactive(600))
     
-    if (!is.null(input$mst_shadow)) {
-      mst_shadow_reactive(input$mst_shadow)
-    }
+    ifelse(!is.null(input_mst_shadow()),
+           mst_shadow_reactive(input_mst_shadow()),
+           mst_shadow_reactive(TRUE))
     
-    if (!is.null(input$mst_node_shape)) {
-      mst_node_shape_reactive(input$mst_node_shape)
-    }
+    ifelse(isTRUE(mst_color_var_reactive()),
+           mst_node_shape_reactive("custom"),
+           ifelse(!is.null(input_mst_node_shape()),
+                  mst_node_shape_reactive(input_mst_node_shape()),
+                  mst_node_shape_reactive("dot")))
     
-    if (!is.null(input$mst_show_clusters)) {
-      mst_show_clusters_reactive(input$mst_show_clusters)
-    }
+    ifelse(!is.null(input_mst_show_clusters()),
+           mst_show_clusters_reactive(input_mst_show_clusters()),
+           mst_show_clusters_reactive(FALSE))
     
-    if (!is.null(input$mst_cluster_col_scale)) {
-      mst_cluster_col_scale_reactive(input$mst_cluster_col_scale)
-    }
+    ifelse(!is.null(input_mst_cluster_col_scale()),
+           mst_cluster_col_scale_reactive(input_mst_cluster_col_scale()),
+           mst_cluster_col_scale_reactive("Viridis"))
     
-    if (!is.null(input$mst_cluster_type)) {
-      mst_cluster_type_reactive(input$mst_cluster_type)
-    }
+    ifelse(!is.null(input_mst_cluster_type()),
+           mst_cluster_type_reactive(input_mst_cluster_type()),
+           mst_cluster_type_reactive("Area"))
     
-    if (!is.null(input$mst_cluster_width)) {
-      mst_cluster_width_reactive(input$mst_cluster_width)
-    }
+    ifelse(!is.null(input_mst_cluster_width()),
+           mst_cluster_width_reactive(input_mst_cluster_width()),
+           mst_cluster_width_reactive(24))
     
-    if (!is.null(input$mst_cluster_threshold)) {
-      mst_cluster_threshold_reactive(input$mst_cluster_threshold)
-    }
+    ifelse(!is.null(input_mst_cluster_threshold()),
+           mst_cluster_threshold_reactive(input_mst_cluster_threshold()),
+           ifelse(!is.null(DB$cluster_thresh),
+                  mst_cluster_threshold_reactive(DB$cluster_thresh),
+                  mst_cluster_threshold_reactive(10)))
     
-    if (!is.null(input$mst_legend_ori)) {
-      mst_legend_ori_reactive(input$mst_legend_ori)
-    }
+    ifelse(!is.null(input_mst_legend_ori()),
+           mst_legend_ori_reactive(input_mst_legend_ori()),
+           mst_legend_ori_reactive("left"))
     
-    if (!is.null(input$mst_font_size)) {
-      mst_font_size_reactive(input$mst_font_size)
-    }
+    ifelse(!is.null(input_mst_font_size()),
+           mst_font_size_reactive(input_mst_font_size()),
+           mst_font_size_reactive(18))
     
-    if (!is.null(input$mst_symbol_size)) {
-      mst_symbol_size_reactive(input$mst_symbol_size)
-    }
+    ifelse(!is.null(input_mst_symbol_size()),
+           mst_symbol_size_reactive(input_mst_symbol_size()),
+           mst_symbol_size_reactive(20))
   })
   
   observeEvent(input$mst_misc_menu, {
     
     shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-    
-    if(!is.null(mst_ratio_reactive())) {
-      mst_ratio_selected <- mst_ratio_reactive()
-    } else {
-      mst_ratio_selected <- 16/10
-    }
-    
-    if(!is.null(mst_scale_reactive())) {
-      mst_scale_selected <- mst_scale_reactive()
-    } else {
-      mst_scale_selected <- 600
-    }
-    
-    if(!is.null(mst_shadow_reactive())) {
-      mst_shadow_selected <- mst_shadow_reactive()
-    } else {
-      mst_shadow_selected <- TRUE
-    }
-    
-    if(isTRUE(mst_color_var_reactive())) {
-      mst_node_shape_selected <- "custom"
-    } else {
-      if(!is.null(mst_node_shape_reactive())) {
-        mst_node_shape_selected <- mst_node_shape()
-      } else {
-        mst_node_shape_selected <- "dot"
-      }
-    }
-    
-    if(!is.null(mst_show_clusters_reactive())) {
-      mst_show_clusters_selected <- mst_show_clusters_reactive()
-    } else {
-      mst_show_clusters_selected <- FALSE
-    }
-    
-    if(!is.null(mst_cluster_col_scale_reactive())) {
-      mst_cluster_col_scale_selected <- mst_cluster_col_scale_reactive()
-    } else {
-      mst_cluster_col_scale_selected <- "Viridis"
-    }
-    
-    if(!is.null(mst_cluster_type_reactive())) {
-      mst_cluster_type_selected <- mst_cluster_type_reactive()
-    } else {
-      mst_cluster_type_selected <- "Area"
-    }
-    
-    if(!is.null(mst_cluster_width_reactive())) {
-      mst_cluster_width_selected <- mst_cluster_width_reactive()
-    } else {
-      mst_cluster_width_selected <- 24
-    }
-    
-    if(!is.null(mst_cluster_threshold_reactive())) {
-      mst_cluster_threshold_selected <- mst_cluster_threshold_reactive()
-    } else {
-      mst_cluster_threshold_selected <- 24
-    }
-    
-    if(!is.null(mst_legend_ori_reactive())) {
-      mst_legend_ori_selected <- mst_legend_ori_reactive()
-    } else {
-      mst_legend_ori_selected <- "left"
-    }
-    
-    if(!is.null(mst_font_size_reactive())) {
-      mst_font_size_selected <- mst_font_size_reactive()
-    } else {
-      mst_font_size_selected <- 18
-    }
-    
-    if(!is.null(mst_symbol_size_reactive())) {
-      mst_symbol_size_selected <- mst_symbol_size_reactive()
-    } else {
-      mst_symbol_size_selected <- 20
-    }
     
     if(isTRUE(mst_color_var_reactive())) {
       mst_node_shape <- selectInput(
@@ -18617,7 +18578,7 @@ server <- function(input, output, session) {
         "",
         choices = list(`Label inside` = c("Circle" = "circle", "Box" = "box", "Text" = "text"),
                        `Label outside` = c("Diamond" = "diamond", "Hexagon" = "hexagon", "Dot" = "dot", "Square" = "square")),
-        selected = mst_node_shape_selected
+        selected = mst_node_shape_reactive()
       )
     }
     
@@ -18649,12 +18610,12 @@ server <- function(input, output, session) {
                   width = 6,
                   align = "center",
                   div(
-                    class = "control-ratio",
+                    class = "mst-control-ratio",
                     selectInput(
                       "mst_ratio",
                       "",
                       choices = c("16:10" = (16/10), "16:9" = (16/9), "4:3" = (4/3)),
-                      selected = mst_ratio_selected
+                      selected = mst_ratio_reactive()
                     )
                   )
                 )
@@ -18684,7 +18645,7 @@ server <- function(input, output, session) {
                         min = 450,
                         max = 670,
                         step = 5,
-                        value = mst_scale_selected,
+                        value = mst_scale_reactive(),
                         width = "95%",
                         ticks = FALSE
                       )
@@ -18709,7 +18670,7 @@ server <- function(input, output, session) {
                 materialSwitch(
                   "mst_shadow",
                   h5(p("Show Shadow"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                  value = mst_shadow_selected,
+                  value = mst_shadow_reactive(),
                   right = TRUE
                 )
               ),
@@ -18761,7 +18722,7 @@ server <- function(input, output, session) {
                     materialSwitch(
                       "mst_show_clusters",
                       h5(p("Show"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                      value = mst_show_clusters_selected,
+                      value = mst_show_clusters_reactive(),
                       right = TRUE
                     )
                   )
@@ -18789,7 +18750,7 @@ server <- function(input, output, session) {
                           "mst_cluster_col_scale",
                           label = h5("Color Scale", style = "color:white; margin-bottom: 0px;"),
                           choices = c("Viridis", "Rainbow"),
-                          selected = mst_cluster_col_scale_selected,
+                          selected = mst_cluster_col_scale_reactive(),
                           width = "150px"
                         ),
                         br(),
@@ -18797,7 +18758,7 @@ server <- function(input, output, session) {
                           "mst_cluster_type",
                           label = h5("Cluster Type", style = "color:white; margin-bottom: 0px;"),
                           choices = c("Area", "Skeleton"),
-                          selected = mst_cluster_type_selected,
+                          selected = mst_cluster_type_reactive(),
                           width = "150px"
                         ),
                         br(),
@@ -18806,7 +18767,7 @@ server <- function(input, output, session) {
                           sliderInput(
                             "mst_cluster_width",
                             label = h5("Skeleton Width", style = "color:white; margin-bottom: 0px;"),
-                            value = mst_cluster_width_selected,
+                            value = mst_cluster_width_reactive(),
                             step = 1,
                             min = 1,
                             max = 50,
@@ -18870,7 +18831,7 @@ server <- function(input, output, session) {
                     label = "",
                     width = "100%",
                     choices = c("Left" = "left", "Right" = "right"),
-                    selected = mst_legend_ori_selected
+                    selected = mst_legend_ori_reactive()
                   )
                 ),
                 column(2),
@@ -18894,7 +18855,7 @@ server <- function(input, output, session) {
                         sliderInput(
                           "mst_font_size",
                           label = h5("Font Size", style = "color:white; margin-bottom: 0px;"),
-                          value = mst_font_size_selected,
+                          value = mst_font_size_reactive(),
                           min = 15,
                           max = 30,
                           step = 1,
@@ -18911,7 +18872,7 @@ server <- function(input, output, session) {
                         sliderInput(
                           "mst_symbol_size",
                           label = h5("Key Size", style = "color:white; margin-bottom: 0px;"),
-                          value = mst_symbol_size_selected,
+                          value = mst_symbol_size_reactive(),
                           min = 10,
                           max = 30,
                           step = 1,
@@ -19064,14 +19025,13 @@ server <- function(input, output, session) {
   
   # Size scaling MST
   observe({
-    req(input$mst_ratio)
-    if(input$mst_ratio == "1.6") {
+    if(mst_ratio_reactive() == "1.6") {
       updateSliderInput(session, "mst_scale",
                         step = 5, value = 600, min = 450, max = 670)
-    } else if(input$mst_ratio == "1.77777777777778") {
+    } else if(mst_ratio_reactive() == "1.77777777777778") {
       updateSliderInput(session, "mst_scale",
                         step = 9, value = 657, min = 450, max = 666)
-    } else if(input$mst_ratio == "1.33333333333333"){
+    } else if(mst_ratio_reactive() == "1.33333333333333"){
       updateSliderInput(session, "mst_scale",
                         step = 3, value = 654, min = 450, max = 669)
     }
@@ -19081,22 +19041,12 @@ server <- function(input, output, session) {
   output$mst_cluster <- renderUI({
     req(DB$schemeinfo)
     
-    if(!is.null(mst_cluster_threshold_reactive())) {
-      mst_cluster_threshold_selected <- mst_cluster_threshold_reactive()
-    } else {
-      if(!is.null(DB$cluster_thresh)) {
-        mst_cluster_threshold_selected <- DB$cluster_thresh 
-      } else {
-        mst_cluster_threshold_selected <- 10
-      }
-    }
-    
     div(
       class = "mst-threshold",
       numericInput(
         inputId = "mst_cluster_threshold",
         label = NULL,
-        value = mst_cluster_threshold_selected,
+        value = mst_cluster_threshold_reactive(),
         min = 1,
         max = 99
       )
@@ -19105,16 +19055,10 @@ server <- function(input, output, session) {
   
   # MST color mapping
   output$mst_color_mapping <- renderUI({
-    
-    if(!is.null(mst_color_node_reactive())) {
-      mst_color_node_selected <- mst_color_node_reactive()
-    } else {
-      mst_color_node_selected <- "#B2FACA"
-    }
     mst_color_node <- colorPickr(
       inputId = "mst_color_node",
       width = "100%",
-      selected = mst_color_node_selected,
+      selected = mst_color_node_reactive(),
       label = "",
       update = "changestop",
       interaction = list(clear = FALSE,
@@ -19122,13 +19066,7 @@ server <- function(input, output, session) {
       position = "right-start"
     )
     
-    if(!is.null(mst_color_var_reactive())) {
-      mst_color_var_selected <- mst_color_var_reactive()
-    } else {
-      mst_color_var_selected <- FALSE
-    }
-    
-    if(isFALSE(mst_color_var_selected)) {
+    if(isFALSE(mst_color_var_reactive())) {
       mst_color_node
     } else {
       shinyjs::disabled(mst_color_node)
@@ -19155,22 +19093,16 @@ server <- function(input, output, session) {
   output$mst_node_label <- renderUI({
     
     if(isTRUE(mst_color_var_reactive())) {
-      mst_node_label_selected <- "Assembly Name"
       choices <- "Assembly Name"
     } else {
       choices <- names(DB$meta)[c(1, 3, 4, 6, 7, 8, 9)]
-      if(!is.null(mst_node_label_reactive())) {
-        mst_node_label_selected <- mst_node_label_reactive()
-      } else {
-        mst_node_label_selected <- "Assembly Name"
-      }
     }
     
     selectInput(
       "mst_node_label",
       label = "",
       choices = choices,
-      selected = mst_node_label_selected,
+      selected = mst_node_label_reactive(),
       width = "100%"
     )
   })
@@ -19183,7 +19115,7 @@ server <- function(input, output, session) {
     
     data <- toVisNetworkData(Vis$mst_pre)
     data$nodes <- mutate(data$nodes, 
-                         label = label_mst(),
+                         label = Vis$unique_meta[, colnames(Vis$unique_meta) %in% mst_node_label_reactive()],
                          value = mst_node_scaling())
     
     ctxRendererJS <- htmlwidgets::JS("({ctx, id, x, y, state: { selected, hover }, style, font, label, metadata}) => {
@@ -19287,7 +19219,7 @@ server <- function(input, output, session) {
       for(i in 1:nrow(data$nodes)) {
         
         iso_subset <- strsplit(data$nodes$label[i], split = "\n")[[1]]
-        variable <- Vis$meta_mst[[input$mst_col_var]]
+        variable <- Vis$meta_mst[[mst_col_var_reactive()]]
         values <- variable[which(Vis$meta_mst$`Assembly Name` %in% iso_subset)]
         
         for(j in 1:length(unique(values))) {
@@ -19306,109 +19238,37 @@ server <- function(input, output, session) {
       }
     }
     
-    if(!is.null(input$mst_scale_edges)) {
-      mst_scale_edges <- input$mst_scale_edges
-    } else {
-      mst_scale_edges <- TRUE
-    }
-    
-    if(!is.null(input$mst_edge_length)) {
-      mst_edge_length <- input$mst_edge_length
-    } else {
-      mst_edge_length <- 35
-    }
-    
-    if(!is.null(input$mst_edge_length_scale)) {
-      mst_edge_length_scale <- input$mst_edge_length_scale
-    } else {
-      mst_edge_length_scale <- 15
-    }
-    
-    if(!is.null(input$mst_cluster_threshold)) {
-      mst_cluster_threshold <- input$mst_cluster_threshold
-    } else {
-      mst_cluster_threshold <- DB$cluster_thresh
-    }
-    
-    if(!is.null(input$mst_show_clusters)) {
-      mst_show_clusters <- input$mst_show_clusters
-    } else {
-      mst_show_clusters <- FALSE
-    }
-    
-    if(!is.null(input$mst_cluster_type)) {
-      mst_cluster_type <- input$mst_cluster_type
-    } else {
-      mst_cluster_type <- "Area"
-    }
-    
-    if(!is.null(input$mst_cluster_col_scale)) {
-      mst_cluster_col_scale <- input$mst_cluster_col_scale
-    } else {
-      mst_cluster_col_scale <- "Viridis"
-    }
-    
     data$edges <- mutate(data$edges,
-                         length = if(isFALSE(mst_scale_edges)) {
-                           mst_edge_length
+                         length = if(isFALSE(mst_scale_edges_reactive())) {
+                           mst_edge_length_reactive()
                          } else {
-                           log(data$edges$weight) * mst_edge_length_scale
+                           log(data$edges$weight) * mst_edge_length_scale_reactive()
                          },
                          label = as.character(data$edges$weight))
     
-    if (mst_show_clusters) {
-      clusters <- compute_clusters(data$nodes, data$edges, mst_cluster_threshold)
-      if (mst_cluster_type == "Area") {
+    if (mst_show_clusters_reactive()) {
+      clusters <- compute_clusters(data$nodes, data$edges, mst_cluster_threshold_reactive())
+      if (mst_cluster_type_reactive() == "Area") {
         data$nodes$group <- clusters$group
       }
-    }
-    
-    if(!is.null(input$mst_shadow)) {
-      mst_shadow <- input$mst_shadow
-    } else {
-      mst_shadow <- TRUE
-    }
-    
-    if(!is.null(input$node_label_fontsize)) {
-      node_label_fontsize <- input$node_label_fontsize
-    } else {
-      node_label_fontsize <- 14
-    }
-    
-    if(!is.null(input$mst_legend_ori)) {
-      mst_legend_ori <- input$mst_legend_ori
-    } else {
-      mst_legend_ori <- "left"
-    }
-    
-    if(!is.null(input$mst_cluster_width)) {
-      mst_cluster_width <- input$mst_cluster_width
-    } else {
-      mst_cluster_width <- 24
-    }
-    
-    if(!is.null(input$mst_text_color)) {
-      mst_text_color <- input$mst_text_color
-    } else {
-      mst_text_color <- "#000000"
     }
     
     visNetwork_graph <- visNetwork(data$nodes, data$edges,
                                    main = mst_title(),
                                    background = mst_background_color(),
                                    submain = mst_subtitle()) %>%
-      visNodes(size = mst_node_size(),
+      visNodes(size = mst_node_size_reactive(),
                shape = mst_node_shape(),
-               shadow = mst_shadow,
-               color = mst_color_node(),
+               shadow = mst_shadow_reactive(),
+               color = mst_color_node_reactive(),
                ctxRenderer = ctxRendererJS,
-               scaling = list(min = mst_node_size_min(),
-                              max = mst_node_size_max()),
-               font = list(color = mst_text_color,
-                           size = node_label_fontsize)) %>%
-      visEdges(color = mst_color_edge(),
-               font = list(color = mst_edge_font_color(),
-                           size = mst_edge_font_size(),
+               scaling = list(min = mst_node_scale_reactive()[1],
+                              max = mst_node_scale_reactive()[2]),
+               font = list(color = mst_text_color_reactive(),
+                           size = node_label_fontsize_reactive())) %>%
+      visEdges(color = mst_color_edge_reactive(),
+               font = list(color = mst_edge_font_color_reactive(),
+                           size = mst_edge_font_size_reactive(),
                            strokeWidth = 4,
                            strokeColor = mst_background_color())) %>%
       visOptions(collapse = TRUE) %>%
@@ -19417,15 +19277,15 @@ server <- function(input, output, session) {
       visLegend(useGroups = FALSE,
                 zoom = TRUE,
                 width = 0.2,
-                position = mst_legend_ori,
+                position = mst_legend_ori_reactive(),
                 ncol = legend_col(),
                 addNodes = mst_legend())
     
-    if(mst_show_clusters) {
+    if(mst_show_clusters_reactive()) {
       no_color <- length(unique(data$nodes$group[duplicated(data$nodes$group)]))
       no_color_edges <- length(unique(clusters$edge_group))
       
-      if(mst_cluster_col_scale == "Viridis") {
+      if(mst_cluster_col_scale_reactive() == "Viridis") {
         color_palette <- viridis(no_color)
         color_edges <- viridis(no_color_edges)
       } else {
@@ -19434,7 +19294,7 @@ server <- function(input, output, session) {
       }
       
       j <- 1
-      if(mst_cluster_type == "Area") {
+      if(mst_cluster_type_reactive() == "Area") {
         for(i in 1:length(unique(data$nodes$group))) {
           # Color only cluster with 2 or more nodes
           if(sum(data$nodes$group == unique(data$nodes$group)[i]) > 1) { 
@@ -19443,7 +19303,7 @@ server <- function(input, output, session) {
             j <- j + 1
           } else {
             visNetwork_graph <- visNetwork_graph %>% 
-              visGroups(groupname = unique(data$nodes$group)[i], color = mst_color_node())
+              visGroups(groupname = unique(data$nodes$group)[i], color = mst_color_node_reactive())
           }
         }
       } else {
@@ -19452,7 +19312,7 @@ server <- function(input, output, session) {
         thin_edges$color <- "black"
         
         thick_edges <- data$edges
-        thick_edges$width <- mst_cluster_width
+        thick_edges$width <- mst_cluster_width_reactive()
         thick_edges$color <- rep("rgba(0, 0, 0, 0)", length(data$edges$from))
         
         for(i in 1:length(unique(clusters$edge_group))) {
@@ -19467,18 +19327,18 @@ server <- function(input, output, session) {
                                        main = mst_title(),
                                        background = mst_background_color(),
                                        submain = mst_subtitle()) %>%
-          visNodes(size = mst_node_size(),
+          visNodes(size = mst_node_size_reactive(),
                    shape = mst_node_shape(),
-                   shadow = mst_shadow,
-                   color = mst_color_node(),
+                   shadow = mst_shadow_reactive(),
+                   color = mst_color_node_reactive(),
                    ctxRenderer = ctxRendererJS,
-                   scaling = list(min = mst_node_size_min(),
-                                  max = mst_node_size_max()),
+                   scaling = list(min = mst_node_scale_reactive()[1],
+                                  max = mst_node_scale_reactive()[2]),
                    font = list(color = mst_text_color_reactive(),
-                               size = node_label_fontsize)) %>%
-          visEdges(color = mst_color_edge(),
-                   font = list(color = mst_edge_font_color(),
-                               size = mst_edge_font_size(),
+                               size = node_label_fontsize_reactive())) %>%
+          visEdges(color = mst_color_edge_reactive(),
+                   font = list(color = mst_edge_font_color_reactive(),
+                               size = mst_edge_font_size_reactive(),
                                strokeWidth = 4),
                    smooth = FALSE,
                    physics = FALSE) %>%
@@ -19488,7 +19348,7 @@ server <- function(input, output, session) {
           visLegend(useGroups = FALSE,
                     zoom = TRUE,
                     width = 0.2,
-                    position = mst_legend_ori,
+                    position = mst_legend_ori_reactive(),
                     ncol = legend_col(),
                     addNodes = mst_legend())
       }
@@ -19516,161 +19376,65 @@ server <- function(input, output, session) {
       legend <- Vis$var_cols
       names(legend)[1] <- "label"
       mutate(legend, shape = "dot",
-             font.color = input$mst_text_color,
-             size = input$mst_symbol_size,
-             font.size = input$mst_font_size)
+             font.color = mst_text_color_reactive(),
+             size = mst_symbol_size_reactive(),
+             font.size = mst_font_size_reactive())
     }
   })
   
   # Set MST node shape
   mst_node_shape <- reactive({
-    
-    if(isTRUE(mst_color_var_reactive())) {
-      mst_node_shape <- "custom"
-    } else {
-      if(!is.null(mst_node_shape_reactive())) {
-        if(mst_node_shape_reactive() != "custom") {
-          mst_node_shape <- mst_node_shape_reactive()
-        } else {
-          
-          mst_node_shape <- "dot"
-        }
-      } else {
-        mst_node_shape <- "dot"
-      }
-    }
-    
-    if(mst_node_shape == "custom"){
-      mst_node_shape
-    } else if(mst_node_shape %in% c("circle", "database", "box", "text")) {
+    if(mst_node_shape_reactive() == "custom"){
+      mst_node_shape_reactive()
+    } else if(mst_node_shape_reactive() %in% c("circle", "database", "box", "text")) {
       shinyjs::disable('scale_nodes') 
       updateCheckboxInput(session, "scale_nodes", value = FALSE)
       shinyjs::disable('mst_node_size') 
       shinyjs::disable('mst_node_scale')
-      mst_node_shape
+      mst_node_shape_reactive()
     } else {
       shinyjs::enable('scale_nodes') 
       shinyjs::enable('mst_node_size') 
       shinyjs::enable('mst_node_scale')
-      mst_node_shape
-    }
-  })
-  
-  # Set MST label
-  label_mst <- reactive({
-    
-    if(isTRUE(mst_color_var_reactive())) {
-      mst_node_label <- "Assembly Name"
-    } else {
-      if(!is.null(mst_node_label_reactive())) {
-        mst_node_label <- mst_node_label_reactive()
-      } else {
-        mst_node_label <- "Assembly Name"
-      }
-    }
-    
-    Vis$unique_meta[, colnames(Vis$unique_meta) %in% mst_node_label]
-  })
-  
-  # Set node color
-  mst_color_node <- reactive({
-    if(!is.null(input$mst_color_node)) {
-      input$mst_color_node
-    } else {
-      "#B2FACA"
+      mst_node_shape_reactive()
     }
   })
   
   # Node Size Scaling
   mst_node_scaling <- reactive({
-    if(isTRUE(input$scale_nodes)){
+    if(isTRUE(scale_nodes_reactive())){
       Vis$unique_meta$size
     } else {NULL}
   })
   
-  # Node Size Min/May
-  mst_node_size_min <- reactive({
-    if(!is.null(input$mst_node_scale[1])) {
-      input$mst_node_scale[1]
-    } else {
-      20
-    }
-  })
-  
-  mst_node_size_max <- reactive({
-    if(!is.null(input$mst_node_scale[2])) {
-      input$mst_node_scale[2]
-    } else {
-      40
-    }
-  })
-  
-  # Node Size
-  mst_node_size <- reactive({
-    if(!is.null(input$mst_node_size)) {
-      input$mst_node_size
-    } else {
-      30
-    }
-  })
-  
   # Set Title
   mst_title <- reactive({
-    
-    if(!is.null(mst_title_size_reactive())) {
-      mst_title_size <- mst_title_size_reactive()
-    } else {
-      mst_title_size <- 35
-    }
-    
-    if(!is.null(input$mst_title)) {
-      if(nchar(input$mst_title) < 1) {
-        list(text = "title",
-             style = paste0(
-               "font-family:Georgia, Times New Roman, Times, serif;",
-               "text-align:center;",
-               "font-size: ", as.character(mst_title_size), "px", 
-               "; color: ", as.character(mst_background_color()))
-        )
-      } else {
-        list(text = input$mst_title,
-             style = paste0(
-               "font-family:Georgia, Times New Roman, Times, serif;",
-               "text-align:center;",
-               "font-size: ", as.character(mst_title_size), "px", 
-               "; color: ", as.character(mst_text_color_reactive()))
-        )
-      }
-    } else {
+    if(nchar(mst_title_reactive()) < 1) {
       list(text = "title",
            style = paste0(
              "font-family:Georgia, Times New Roman, Times, serif;",
              "text-align:center;",
-             "font-size: ", as.character(mst_title_size), "px", 
+             "font-size: ", as.character(mst_title_size_reactive()), "px", 
              "; color: ", as.character(mst_background_color()))
+      )
+    } else {
+      list(text = mst_title_reactive(),
+           style = paste0(
+             "font-family:Georgia, Times New Roman, Times, serif;",
+             "text-align:center;",
+             "font-size: ", as.character(mst_title_size_reactive()), "px", 
+             "; color: ", as.character(mst_text_color_reactive()))
       )
     }
   })
   
   # Set Subtitle
   mst_subtitle <- reactive({
-    if(!is.null(input$mst_subtitle)) {
-      mst_subtitle <- input$mst_subtitle
-    } else {
-      mst_subtitle <- "" 
-    }
-    
-    if(!is.null(mst_subtitle_size_reactive())) {
-      mst_subtitle_size <- mst_subtitle_size_reactive()
-    } else {
-      mst_subtitle_size <- 20
-    }
-    
-    list(text = mst_subtitle,
+    list(text = mst_subtitle_reactive(),
          style = paste0(
            "font-family:Georgia, Times New Roman, Times, serif;",
            "text-align:center;",
-           "font-size: ", as.character(mst_subtitle_size), "px", 
+           "font-size: ", as.character(mst_subtitle_size_reactive()), "px", 
            "; color: ", as.character(mst_text_color_reactive()))
     )
   })
@@ -19678,44 +19442,13 @@ server <- function(input, output, session) {
   # Background color
   
   mst_background_color <- reactive({
-    if(isTRUE(input$mst_background_transparent)) {
+    if(isTRUE(mst_background_transparent_reactive())) {
       'rgba(0, 0, 0, 0)'
     } else{
-      if(!is.null(input$mst_background_color)) {
-        mst_background_color <- input$mst_background_color
-      } else {
-        mst_background_color <- "#ffffff"
-      }
-      mst_background_color
+      mst_background_color_reactive()
     }
   })
   
-  # Edge font color
-  mst_edge_font_color <- reactive({
-    if(!is.null(input$mst_edge_font_color)) {
-      input$mst_edge_font_color
-    } else {
-      "#000000"
-    }
-  })
-  
-  # Edge color
-  mst_color_edge <- reactive({
-    if(!is.null(input$mst_color_edge)) {
-      input$mst_color_edge
-    } else {
-      "#000000"
-    }
-  })
-  
-  # Edge font size
-  mst_edge_font_size <- reactive({
-    if(!is.null(input$mst_edge_font_size)) {
-      input$mst_edge_font_size
-    } else {
-      18
-    }
-  })
   
   #### NJ ----
   
@@ -23059,30 +22792,19 @@ server <- function(input, output, session) {
           log_print("Rendering MST graph")
           
           output$mst_field <- renderUI({
-            
-            if(!is.null(input$mst_scale)) {
-              scale <- input$mst_scale
-            } else {
-              scale <- 600
-            }
-            
-            if(!is.null(input$mst_ratio)) {
-              ratio <- as.numeric(input$mst_ratio)
-            } else {
-              ratio <- as.numeric("1.6")
-            }
-            
-            if(!is.null(input$mst_background_transparent)) {
-              background_transparent <- input$mst_background_transparent
-            } else {
-              background_transparent <- FALSE
-            }
-            
-            if(isTRUE(background_transparent)) {
-              visNetworkOutput("tree_mst", width = paste0(scale * ratio, "px"), height = paste0(scale, "px"))
+            if(isTRUE(mst_background_transparent_reactive())) {
+              visNetworkOutput("tree_mst", 
+                               width = paste0(mst_scale_reactive() * 
+                                                as.numeric(mst_ratio_reactive()), 
+                                              "px"), 
+                               height = paste0(mst_scale_reactive(), "px"))
             } else {
               addSpinner(
-                visNetworkOutput("tree_mst", width = paste0(scale * ratio, "px"), height = paste0(scale, "px")),
+                visNetworkOutput("tree_mst", 
+                                 width = paste0(mst_scale_reactive() * 
+                                                  as.numeric(mst_ratio_reactive()), 
+                                                "px"), 
+                                 height = paste0(mst_scale_reactive(), "px")),
                 spin = "dots",
                 color = "#ffffff"
               )
@@ -23160,8 +22882,8 @@ server <- function(input, output, session) {
       extra_var <- character()
       if(input$tree_algo == "Minimum-Spanning") {
         shinyjs::runjs("mstReport();")
-        if(isTRUE(input$mst_color_var)) {
-          extra_var <- c(extra_var, input$mst_col_var)
+        if(isTRUE(mst_color_var_reactive())) {
+          extra_var <- c(extra_var, mst_col_var_reactive())
         }
       } else if(input$tree_algo == "Neighbour-Joining") {
         if(isTRUE(input$nj_mapping_show)) {

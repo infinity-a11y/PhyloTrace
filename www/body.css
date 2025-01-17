@@ -1925,8 +1925,8 @@ button#mst_cluster_reset.btn.btn-default.action-button.shiny-bound-input {
   margin-left: -20px;
 }
 
-.control-ratio {
-  margin-bottom: -20px;
+.mst-control-ratio {
+  margin-bottom: 0px;
   margin-left: -20px;
 }
 
@@ -2036,7 +2036,8 @@ button#mst_edgelabel_menu {
   border-radius: 5px
 }
 
-button#mst_cluster_col_menu {
+button#mst_cluster_col_menu,
+button#mst_legend_menu {
   height: 34px;
   border-radius: 5px;
   margin-left: -32px;
@@ -2480,6 +2481,11 @@ top: -10px;
 
 .nj-variable-menu-selector {
   margin-top: -5px;
+}
+
+.nj-control-ratio {
+  margin-bottom: -20px;
+  margin-left: -20px;
 }
 
 #nj_labeltext_menu_dropmenu .tippy-popper,
@@ -3040,7 +3046,9 @@ button#nj_nodepoint_menu, button#upgma_nodepoint_menu {
 #nj_fruit_width5, #upgma_fruit_width, 
 #upgma_fruit_width2, #upgma_fruit_width3, 
 #upgma_fruit_width4, #upgma_fruit_width5,
-#nj_fruit_offset_circ {
+#nj_fruit_offset_circ, #nj_fruit_offset_circ_2,
+#nj_fruit_offset_circ_3, #nj_fruit_offset_circ_4,
+#nj_fruit_offset_circ_5 {
   margin-top: -5px;
   margin-bottom: -15px;
   width: 90%;
