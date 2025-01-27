@@ -1,4 +1,113 @@
-# Functions
+# Helper function for determining variable mapping choices
+determine_variable_choices <- function(meta_nj) {
+  default_choices <- c(
+    `Isolation Date` = "Isolation Date",
+    Host = "Host",
+    Country = "Country",
+    City = "City"
+  )
+  
+  if (!is.null(meta_nj)) {
+    if (ncol(meta_nj) == 11) {
+      default_choices
+    } else {
+      # Append additional column names from 14th column to the end
+      append(default_choices, names(meta_nj)[14:ncol(meta_nj)])
+    }
+  } else {
+    default_choices
+  }
+}
+
+# Helper function for determining scale choices
+determine_scale_choices <- function(meta_nj, variable_val, 
+                              gradient_scales, 
+                              diverging_scales, 
+                              qualitative_scales, 
+                              sequential_scales) {
+  if (!is.null(meta_nj)) {
+    variable_data <- unlist(meta_nj[variable_val])
+    if (class(variable_data) == "numeric") {
+      list(Continuous = gradient_scales, Diverging = diverging_scales)
+    } else if (length(unique(variable_data)) > 7) {
+      list(Gradient = gradient_scales)
+    } else {
+      list(Qualitative = qualitative_scales, Sequential = sequential_scales)
+    }
+  } else {
+    list(Qualitative = qualitative_scales, Sequential = sequential_scales)
+  }
+}
+
+# Helper function for determining the scale value
+determine_scale <- function(variable_val, meta_nj, numeric_scale = "viridis", 
+                            long_scale = "turbo", short_scale = "Accent") {
+  if (!is.null(variable_val) && !is.null(meta_nj)) {
+    if (class(unlist(meta_nj[variable_val])) == "numeric") {
+      numeric_scale
+    } else if (length(unique(unlist(meta_nj[variable_val]))) > 7) {
+      long_scale
+    } else {
+      short_scale
+    }
+  } else {
+    numeric_scale
+  }
+}
+
+# Render reactive plot control input
+render_plot_control <- function(input_id, input_type, label = "", choices = NA, 
+                                reactive_value, min = 0, max = 100, 
+                                default_value, reset = FALSE, width = "100%", 
+                                show_condition = TRUE, div_class = "", 
+                                right = TRUE, ticks = FALSE, step = 1,
+                                options = NA, multiple = FALSE) {
+  
+  # Determine the selected value based on reset condition
+  if (is.null(reactive_value)) {
+    sel <- NULL
+  } else {
+    if(isTRUE(reset)) {
+      sel <- default_value
+    } else {
+      sel <- reactive_value
+    }
+  }
+  
+  # Prepare the initial arguments list
+  args <- list(
+    inputId = input_id,
+    label = label,
+    choices = choices,
+    selected = sel,
+    width = width,
+    right = right,
+    value = sel,
+    min = min,
+    max = max,
+    step = step,
+    ticks = ticks,
+    options = options,
+    multiple = multiple
+  )
+  
+  # Get the formal arguments of the specified input_type function
+  formal_args <- names(formals(input_type))
+  
+  # Filter the args list to include only those valid for the input_type function
+  filtered_args <- args[names(args) %in% formal_args]
+  
+  # Use do.call to dynamically call the input_type function with filtered arguments
+  output <- do.call(input_type, filtered_args)
+  
+  # Wrap the output in a div or shinyjs::disabled conditionally
+  if (length(div_class) > 0) {
+    div(class = div_class, if (show_condition) output else shinyjs::disabled(output))
+  } else {
+    if (show_condition) output else shinyjs::disabled(output)
+  }
+}
+
 
 # function to fetch latest urls
 get_latest_url <- function(abb) {

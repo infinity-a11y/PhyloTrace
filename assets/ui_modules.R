@@ -12,7 +12,7 @@ mst_control_box <- box(
         width = 2,
         align = "center",
         div(
-          id = "plot-control",
+          class = "plot-control-buttons",
           tipify(
             actionBttn(
               "mst_label_menu",
@@ -31,7 +31,7 @@ mst_control_box <- box(
         width = 2,
         align = "center",
         div(
-          id = "plot-control",
+          class = "plot-control-buttons",
           tipify(
             actionBttn(
               "mst_variable_menu",
@@ -50,7 +50,7 @@ mst_control_box <- box(
         width = 2,
         align = "center",
         div(
-          id = "plot-control",
+          class = "plot-control-buttons",
           tipify(
             actionBttn(
               "mst_color_menu",
@@ -69,7 +69,7 @@ mst_control_box <- box(
         width = 2,
         align = "center",
         div(
-          id = "plot-control",
+          class = "plot-control-buttons",
           tipify(
             actionBttn(
               "mst_size_menu",
@@ -88,7 +88,7 @@ mst_control_box <- box(
         width = 2,
         align = "center",
         div(
-          id = "plot-control",
+          class = "plot-control-buttons",
           tipify(
             actionBttn(
               "mst_misc_menu",
@@ -107,7 +107,7 @@ mst_control_box <- box(
         width = 2,
         align = "center",
         div(
-          id = "plot-control",
+          class = "plot-control-buttons",
           tipify(
             actionBttn(
               "mst_download_menu",
@@ -127,7 +127,7 @@ mst_control_box <- box(
       width = 2,
       align = "center",
       div(
-        id = "plot-control-reset",
+        class = "plot-control-reset",
         tipify(
           actionBttn(
             "mst_reset",
@@ -157,7 +157,7 @@ nj_control_box <- box(
         width = 2,
         align = "center",
         div(
-          id = "plot-control",
+          class = "plot-control-buttons",
           tipify(
             actionBttn(
               "nj_label_menu",
@@ -176,7 +176,7 @@ nj_control_box <- box(
         width = 2,
         align = "center",
         div(
-          id = "plot-control",
+          class = "plot-control-buttons",
           tipify(
             actionBttn(
               "nj_variable_menu",
@@ -195,7 +195,7 @@ nj_control_box <- box(
         width = 2,
         align = "center",
         div(
-          id = "plot-control",
+          class = "plot-control-buttons",
           tipify(
             actionBttn(
               "nj_color_menu",
@@ -214,7 +214,7 @@ nj_control_box <- box(
         width = 2,
         align = "center",
         div(
-          id = "plot-control",
+          class = "plot-control-buttons",
           tipify(
             actionBttn(
               "nj_elements_menu",
@@ -233,7 +233,7 @@ nj_control_box <- box(
         width = 2,
         align = "center",
         div(
-          id = "plot-control",
+          class = "plot-control-buttons",
           tipify(
             actionBttn(
               "nj_misc_menu",
@@ -252,7 +252,7 @@ nj_control_box <- box(
         width = 2,
         align = "center",
         div(
-          id = "plot-control",
+          class = "plot-control-buttons",
           tipify(
             actionBttn(
               "nj_download_menu",
@@ -272,7 +272,7 @@ nj_control_box <- box(
       width = 2,
       align = "center",
       div(
-        id = "plot-control-reset",
+        class = "plot-control-reset",
         tipify(
           actionBttn(
             "nj_reset",
@@ -284,105 +284,6 @@ nj_control_box <- box(
           ),
           title = "Reset",
           options = list("delay': 400, 'foo" = "foo")
-        )
-      )
-    )
-  )
-)
-
-upgma_control_box <- box(
-  solidHeader = TRUE,
-  status = "primary",
-  width = "100%",
-  title = "Controls",
-  fluidRow(
-    column(
-      width = 2,
-      align = "center",
-      div(
-        id = "plot-control",
-        actionBttn(
-          "upgma_label_menu",
-          label = "",
-          color = "default",
-          size = "sm",
-          style = "material-flat",
-          icon = icon("tags")
-        )
-      )
-    ),
-    column(
-      width = 2,
-      align = "center",
-      div(
-        id = "plot-control",
-        actionBttn(
-          "upgma_variable_menu",
-          label = "",
-          color = "default",
-          size = "sm",
-          style = "material-flat",
-          icon = icon("map-pin")
-        )
-      )
-    ),
-    column(
-      width = 2,
-      align = "center",
-      div(
-        id = "plot-control",
-        actionBttn(
-          "upgma_color_menu",
-          label = "",
-          color = "default",
-          size = "sm",
-          style = "material-flat",
-          icon = icon("palette")
-        )
-      )
-    ),
-    column(
-      width = 2,
-      align = "center",
-      div(
-        id = "plot-control",
-        actionBttn(
-          "upgma_elements_menu",
-          label = "",
-          color = "default",
-          size = "sm",
-          style = "material-flat",
-          icon = icon("diagram-project")
-        )
-      )
-    ),
-    column(
-      width = 2,
-      align = "center",
-      div(
-        id = "plot-control",
-        actionBttn(
-          "upgma_misc_menu",
-          label = "",
-          color = "default",
-          size = "sm",
-          style = "material-flat",
-          icon = icon("ellipsis")
-        )
-      )
-    ),
-    column(
-      width = 2,
-      align = "center",
-      div(
-        id = "plot-control",
-        actionBttn(
-          "upgma_download_menu",
-          label = "",
-          color = "default",
-          size = "sm",
-          style = "material-flat",
-          icon = icon("download")
         )
       )
     )

@@ -1,3 +1,31 @@
+
+// highlighting clicked plot control buttons
+Shiny.addCustomMessageHandler('nj_highlight', function(id) {
+  document.getElementById(id).style.backgroundColor = '#1f4e5d';
+});
+
+Shiny.addCustomMessageHandler('nj_reset_style', function(id) {
+  document.getElementById('nj_label_menu').style.backgroundColor = ''; 
+  document.getElementById('nj_variable_menu').style.backgroundColor = ''; 
+  document.getElementById('nj_color_menu').style.backgroundColor = ''; 
+  document.getElementById('nj_elements_menu').style.backgroundColor = ''; 
+  document.getElementById('nj_misc_menu').style.backgroundColor = ''; 
+  document.getElementById('nj_download_menu').style.backgroundColor = ''; 
+});
+
+Shiny.addCustomMessageHandler('mst_highlight', function(id) {
+  document.getElementById(id).style.backgroundColor = '#1f4e5d';
+});
+
+Shiny.addCustomMessageHandler('mst_reset_style', function(id) {
+  document.getElementById('mst_label_menu').style.backgroundColor = ''; 
+  document.getElementById('mst_variable_menu').style.backgroundColor = ''; 
+  document.getElementById('mst_color_menu').style.backgroundColor = ''; 
+  document.getElementById('mst_size_menu').style.backgroundColor = ''; 
+  document.getElementById('mst_misc_menu').style.backgroundColor = ''; 
+  document.getElementById('mst_download_menu').style.backgroundColor = ''; 
+});
+
 // showing and hiding the blocking overlay during computation
 Shiny.addCustomMessageHandler('show_overlay', function(message) {
   document.getElementById('blocking-overlay').style.display = 'block';

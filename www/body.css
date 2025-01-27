@@ -70,16 +70,16 @@ div#selectize-input .items .has-options .full .has-items,
   z-index: 2;
 }
 
-#tree_algo > div > div >.btn {
+#tree_type > div > div >.btn {
   border: 1px solid white;
 }
 
-#tree_algo > div > div:first-child:not(:last-child)>.btn:last-child {
+#tree_type > div > div:first-child:not(:last-child)>.btn:last-child {
   border-right: none;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
 }
-#tree_algo > div > div:last-child:not(:first-child)>.btn:first-child {
+#tree_type > div > div:last-child:not(:first-child)>.btn:first-child {
   border-left: none;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
@@ -142,7 +142,12 @@ table {
 
 .popover {
   max-width: 300px;
- text-align: justify;
+  text-align: justify;
+}
+
+.tree-info {
+  left: 157px;
+  position: relative;
 }
 
 #menu_screening,
@@ -155,39 +160,27 @@ table {
 }
 
 .menu-header-typing {
-    /* background: #0000002e; */
-    /* padding-bottom: 2px; */
-    /* padding-left: 9px; */
-    border: 1px solid #ffffff42;
-    position: relative;
-    /* border-radius: 5px; */
-    width: 100%;
-    /* left: 21px; */
-    /* transform: rotate(270deg); */
-    z-index: -9998;
-    padding-right: 0px;
-    height: 20px;
-    border-right: none;
-    border-left: none;
-    border-bottom: none;
+  border: 1px solid #ffffff42;
+  position: relative;
+  width: 100%;
+  z-index: -9998;
+  padding-right: 0px;
+  height: 20px;
+  border-right: none;
+  border-left: none;
+  border-bottom: none;
 }
 
 .menu-header-screening {
-    /* background: #0000002e; */
-    /* padding-bottom: 2px; */
-    /* padding-left: 9px; */
-    border: 1px solid #ffffff42;
-    position: relative;
-    /* border-radius: 5px; */
-    width: 100%;
-    /* left: 21px; */
-    /* transform: rotate(270deg); */
-    z-index: -9998;
-    padding-right: 0px;
-    height: 20px;
-    border-right: none;
-    border-left: none;
-    border-bottom: none;
+  border: 1px solid #ffffff42;
+  position: relative;
+  width: 100%;
+  z-index: -9998;
+  padding-right: 0px;
+  height: 20px;
+  border-right: none;
+  border-left: none;
+  border-bottom: none;
 }
 
 .menu-footer-typing {
@@ -301,6 +294,7 @@ body > div.pcr-app.pickr-color.visible {
 
 #nj_heatmap_confirm,
 #nj_reset_confirm,
+#mst_reset_confirm,
 #change_entries,
 #conf_screening_cancel,
 #start_typ_multi,
@@ -685,6 +679,66 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
   background-color: #20E6E5 !important;
 }
 
+.lower-line-inactive {
+  width: 35px;
+  height: 9px;
+  border-radius: 0 0 7px 0px;
+  background-color: transparent;
+  position: relative;
+  left: 209px;
+  border: 2px solid;
+  border-bottom-color: grey;
+  border-right-color: grey;
+  border-top-color: transparent !important;
+  border-left-color: transparent !important;
+  top: 20px;
+}
+
+.upper-line-inactive {
+  width: 35px;
+  height: 9px;
+  border-radius: 0px 7px 0px 0px;
+  background-color: transparent;
+  position: relative;
+  left: 209px;
+  border: 2px solid;
+  border-top-color: grey;
+  border-right-color: grey;
+  border-bottom-color: transparent !important;
+  border-left-color: transparent !important;
+  top: 18px;
+}
+
+.lower-line-active {
+  width: 35px;
+  height: 9px;
+  border-radius: 0 0 7px 0px;
+  background-color: transparent;
+  position: relative;
+  left: 209px;
+  border: 2px solid;
+  border-bottom-color: white;
+  border-right-color: white;
+  border-top-color: transparent !important;
+  border-left-color: transparent !important;
+  top: 20px;
+}
+
+.upper-line-active {
+  width: 35px;
+  height: 9px;
+  border-radius: 0px 7px 0px 0px;
+  background-color: transparent;
+  position: relative;
+  left: 209px;
+  border: 2px solid;
+  border-top-color: white;
+  border-right-color: white;
+  border-bottom-color: transparent !important;
+  border-left-color: transparent !important;
+  top: 18px;
+}
+
 .irs--shiny .irs-bar {
   border-color: #20E6E5;
   background: #20E6E5;
@@ -703,7 +757,7 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
 
 .selectize-input, .selectize-control.single .selectize-input {
   border: 1px solid transparent !important;
-  transition: border-color 0.3s ease; /* Smooth transition for border color */
+  transition: border-color 0.3s ease; 
 }
 
 .bootstrap-select>.dropdown-toggle.bs-placeholder:hover {
@@ -713,8 +767,8 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
 .bttn-material-flat {
   border: 1px solid #00000000;
   border-width: 1px;
-  display: inline-block; /* Make the element inline-block */
-  transition: border-color 0.3s ease; /* Smooth transition for border color */
+  display: inline-block; 
+  transition: border-color 0.3s ease; 
 }
 
 .bttn-material-flat:hover{
@@ -722,15 +776,15 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
 }
 
 .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input {
-  background: #282F38 !important;
-  border: 1px solid transparent; /* Default border color */
-  display: inline-block; /* Make the element inline-block */
-  transition: border-color 0.3s ease; /* Smooth transition for border color */
+  background: #282F38;
+  border: 1px solid transparent; 
+  display: inline-block; 
+  transition: border-color 0.3s ease; 
   border-width: 1px !important;
   border-color: white !important;
   color: white !important;
-  transition: background 0.3s ease; /* Smooth transition for border color */
-  transition: color 0.3s ease; /* Smooth transition for border color */
+  transition: background 0.3s ease; 
+  transition: color 0.3s ease;
 }
 
 .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input:hover {
@@ -1832,7 +1886,7 @@ body > div.wrapper > header > nav > div > ul > li.dropdown.notifications-menu:ho
 }
 
 .bttn-material-flat:focus, .bttn-material-flat:hover{
-  background: #888F97 !important;
+  background: #888F97;
   color: black !important;
   box-shadow: 0 5px 11px 0 rgba(0,0,0,0.3);  
 }
@@ -1909,8 +1963,8 @@ button#mst_cluster_reset.btn.btn-default.action-button.shiny-bound-input {
 }
 
 .switch-mst-edges {
-  margin-top: 25px;
-  margin-left: 3px;
+  margin-top: 20px;
+  margin-left: 20px;
   margin-bottom: -10px;
 }
 
@@ -1920,9 +1974,26 @@ button#mst_cluster_reset.btn.btn-default.action-button.shiny-bound-input {
   margin-bottom: -10px;
 }
 
+.mst-legend-ori {
+  margin-left: 15px;  
+}
+
+.mst-scale-slider {
+  margin-top: -26px;
+  width: 85%;
+  margin-left: -20px;
+}
+
+.mst-cluster-switch {
+  margin-left: 20px;
+  margin-bottom: -10px;
+  margin-top: 0px;
+}
+
 .mst-shape {
   margin-bottom: 10px;
   margin-left: -20px;
+  margin-top: -5px;
 }
 
 .mst-control-ratio {
@@ -1930,18 +2001,9 @@ button#mst_cluster_reset.btn.btn-default.action-button.shiny-bound-input {
   margin-left: -20px;
 }
 
-.mst-shape {
-  margin-top: -5px;
-}
-
 #maindivtree_mst, #graphtree_mst {
   border-radius: 10px;
   height: 100% !important;
-}
-
-.mst-cluster-switch {
-  margin-top: 6px;
-  margin-left: 20px;
 }
 
 #mst_cluster_threshold {
@@ -1975,9 +2037,9 @@ button#create_tree:hover {
 .icon {
 	transition: transform 0.3s ease;
 	position: absolute;
-	top: 13px;
+	top: 10px;
 	left: 15px;
-	width: 23px;
+	width: 27px;
 	height: auto;
 	z-index: 1;
 	pointer-events: none;
@@ -1988,7 +2050,7 @@ button#create_tree:hover {
   width: 43px;
   height: auto;
   top: -2px;
-  left: 0px;
+  left: 5px;
 }
 
 #mst_ratio {
@@ -1997,9 +2059,10 @@ button#create_tree:hover {
   top: 23px;
 }
 
-#mst_field, #nj_field, #upgma_field {
+#mst_field, #tree_field {
   margin-left: 45px;
   margin-top: -15px;
+  z-index: 0;
 }
 
 button#mst_general_menu {
@@ -2036,18 +2099,24 @@ button#mst_edgelabel_menu {
   border-radius: 5px
 }
 
-button#mst_cluster_col_menu,
+button#mst_cluster_col_menu {
+  height: 34px;
+  border-radius: 5px;
+  margin-left: -32px;
+  margin-top: -4px;
+  margin-bottom: 25px;
+}
+
 button#mst_legend_menu {
   height: 34px;
   border-radius: 5px;
   margin-left: -32px;
-  margin-top: 10px;
+  margin-top: 19px;
+  margin-bottom: 20px;
 }
 
-button#nj_legend_menu, button#upgma_legend_menu {
+button#nj_legend_menu {
   height: 34px;
-  background: #20E6E5;
-  color: #000000;
   margin-top: 25px;
   border-radius: 5px;
   margin-right: -8px;
@@ -2060,7 +2129,7 @@ button#mst_edgecolor_menu {
 }
 
 #mst_node_label {
-  margin-bottom: 15px;
+  margin-bottom: 5px;
 }
 
 .mst-col-scale {
@@ -2169,7 +2238,7 @@ position: relative;
 top: -10px;
 }
 
-/* Visualization NJ & UPGMA */
+/* Visualization Tree Plot */
 
 /* Classes*/
 
@@ -2202,8 +2271,7 @@ top: -10px;
   margin-bottom: -16px;
 }
 
-.nj-label-sel,
-.upgma-label-sel {
+.nj-label-sel {
   margin-left: 14px;
   margin-top: -10px;
 }
@@ -2318,6 +2386,51 @@ top: -10px;
 
 .save-assembly {
   margin-left: 10px;
+}
+
+.plot-control-buttons .bttn-material-flat:focus {
+  background-color: rgb(31, 78, 93);
+}
+
+.plot-control-buttons {
+  margin-bottom: 9px;  
+}
+
+.plot-control-buttons .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input {
+  background: #282F38;
+  border: 1px solid transparent;
+  display: inline-block;
+  transition: border-color 0.3s ease;
+  border-width: 1px !important;
+  border-color: white !important;
+  color: white;
+  transition: background 0.3s ease;
+  transition: color 0.3s ease;
+  border-radius: 5px;
+  width: 80px;
+  margin-top: 10px;
+}
+
+.plot-control-reset .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input {
+  background: #282F38;
+  border: 1px solid transparent;
+  display: inline-block;
+  transition: border-color 0.3s ease;
+  border-width: 1px !important;
+  border-color: white !important;
+  color: white;
+  transition: background 0.3s ease;
+  transition: color 0.3s ease;
+  border-radius: 8px;
+  width: 38px;
+  height: 30px;
+  margin-left: -30px;
+  margin-top: 13px;
+  margin-bottom: 10px;
+}
+
+.plot-control-buttons .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input:hover .fas .fa-map-pin {
+  color: black !important;
 }
 
 .typing-modal .modal-title {
@@ -2488,6 +2601,29 @@ top: -10px;
   margin-left: -20px;
 }
 
+#tree_algo {
+  margin-top: -31px;
+  margin-bottom: -25px;
+  font-size: 14px;
+  margin-left: 15px;
+}
+
+#tree_algo-label .label,
+#tree_algo-label label,
+#tree_algo label,
+#tree_algo .label,
+#tree_algo control-label label{
+  font-size: 14px;
+}
+
+#tree_algo .pretty.p-round .state label:before {
+  top: -1px;
+}
+
+#tree_algo > div > div:nth-child(2) {
+  margin-bottom: 10px;
+}
+
 #nj_labeltext_menu_dropmenu .tippy-popper,
 #nj_labelformat_menu_dropmenu .tippy-popper,
 #nj_branch_label_menu_dropmenu .tippy-popper,
@@ -2505,8 +2641,7 @@ top: -10px;
 #nj_custom_label_menu_dropmenu .tippy-popper,
 #nj_variable_tipcolor_menu_dropmenu .tippy-popper,
 #nj_variable_tiplab_menu_dropmenu .tippy-popper,
-#nj_variable_tiles_menu_dropmenu .tippy-popper,
-#nj_variable_heatmap_menu_dropmenu .tippy-popper {
+#nj_variable_tiles_menu_dropmenu .tippy-popper {
   top: 0px !important;
   left: 15px !important
 }
@@ -2517,7 +2652,12 @@ top: -10px;
   left: 15px !important
 }
 
-#tree_algo {
+#nj_variable_heatmap_menu_dropmenu .tippy-popper {
+  top: -80px !important;
+  left: 15px !important
+}
+
+#tree_type {
   margin-top: -9px;
   margin-bottom: 10px;
   margin-left: 20px;
@@ -2532,14 +2672,14 @@ top: -10px;
   border-radius: 5px;
 }
 
-#nj_cust_label_save, #upgma_cust_label_save {
+#nj_cust_label_save {
 	border-color: white;
 	width: 90%;
 	margin-top: 11px;
 	margin-bottom: 13px;
 }
 
-#nj_add_new_label, #upgma_add_new_label {
+#nj_add_new_label {
 	background: green;
 	height: 35px;
 	width: 38px;
@@ -2547,11 +2687,11 @@ top: -10px;
 	margin-left: -25px;
 }
 
-#nj_custom_label_select, #upgma_custom_label_select {
+#nj_custom_label_select {
   margin-top: -10px;
 }
 
-button#nj_del_label, button#upgma_del_label {
+button#nj_del_label {
 	background: #FF5964;
 	height: 35px;
 	width: 38px;
@@ -2559,26 +2699,23 @@ button#nj_del_label, button#upgma_del_label {
 	margin-left: -43px;
 }
 
-#nj_heatmap_sel > div > div > button,
-#upgma_heatmap_sel > div > div > button {
+#nj_heatmap_sel > div > div > button {
   background-color: white;
 }
 
-#nj_heatmap_sel .filter-option-inner,
-#upgma_heatmap_sel .filter-option-inner {
+#nj_heatmap_sel .filter-option-inner {
   text-align: center;
 }
 
-#nj_clade_scale, #upgma_clade_scale {
+#nj_clade_scale {
   margin-top: -10px;
 }
 
-#nj_parentnode, #upgma_parentnode {
+#nj_parentnode {
 	margin-top: -15px;
 }
 
-#nj_layout_ctrl, #nj_label_ctrl, #nj_elements_ctrl,
-#upgma_layout_ctrl, #upgma_label_ctrl, #upgma_elements_ctrl {
+#nj_layout_ctrl, #nj_label_ctrl, #nj_elements_ctrl {
   width: 134px;
   margin-left: 25px;
   margin-bottom: 5px;
@@ -2588,12 +2725,11 @@ button#nj_del_label, button#upgma_del_label {
   font-size: larger;
 }
 
-#nj_layout_ctrl, #upgma_layout_ctrl {
+#nj_layout_ctrl {
   margin-top: 20px !important;
 }
 
-#nj_field img,
-#upgma_field img,
+#tree_field img,
 #gs_field img,
 #gs_plot img{
   border-radius: 10px;
@@ -2645,8 +2781,8 @@ inner open,
   border-color: white;
   margin-top: 11px;
   height: 32px;
-  width: 170px;
-  margin-right: 29px;
+  margin-left: 15px;
+  width: 100%;
 }
 
 button#create_rep.btn.btn-default.action-button.shiny-bound-input {
@@ -2656,36 +2792,31 @@ button#create_rep.btn.btn-default.action-button.shiny-bound-input {
 	margin-left: -30px;
 }
 
-#nj_v, #nj_h, #upgma_h, #upgma_v {
-padding: initial; 
-margin-top: 3px; 
-width: 75px; 
-text-align: center;
+#nj_v, #nj_h {
+  padding: initial; 
+  margin-top: 3px; 
+  width: 75px; 
+  text-align: center;
 }
 
-#nj_branch_label_menu-template > div > div:nth-child(2) > div:nth-child(2),
-#upgma_branch_label_menu-template > div > div:nth-child(2) > div:nth-child(2) {
-margin-top: 26px;
-margin-bottom: -10px;
-margin-left: -10px;
+#nj_branch_label_menu-template > div > div:nth-child(2) > div:nth-child(2) {
+  margin-top: 26px;
+  margin-bottom: -10px;
+  margin-left: -10px;
 }
 
-#nj_title, #nj_subtitle,
-#upgma_title, #upgma_subtitle {
+#nj_title, #nj_subtitle {
   margin-left: 15px;
   margin-top: -19px;
 }
 
-#nj_color_mapping, #upgma_color_mapping,
-#nj_tipcolor_mapping, #upgma_tipcolor_mapping,
-#nj_tipshape_mapping, #upgma_tipshape_mapping,
+#nj_color_mapping, 
+#nj_tipcolor_mapping, 
+#nj_tipshape_mapping, 
 #nj_tipshape_mapping, #nj_fruit_variable, 
 #nj_fruit_variable_2, #nj_fruit_variable_3, 
 #nj_fruit_variable_4, #nj_fruit_variable_5, 
-#upgma_tipshape_mapping, #upgma_fruit_variable, 
-#upgma_fruit_variable2, #upgma_fruit_variable3, 
-#upgma_fruit_variable4, #upgma_fruit_variable5,
-#nj_heatmap_sel, #upgma_heatmap_sel {
+#nj_heatmap_sel {
 	margin-left: 15px;
 	width: 100%;
 	margin-top: -10px;
@@ -2699,7 +2830,8 @@ margin-left: -10px;
 
 
 .heatmap-scale div>.selectize-dropdown,
-.gs-gene-class-scale div>.selectize-dropdown,
+.gs-amr-class-scale div>.selectize-dropdown,
+.gs-vir-class-scale div>.selectize-dropdown,
 .gs-plot-selected-isolate div>.selectize-dropdown, 
 .gs-cluster-sel div>.selectize-dropdown,
 .nj-custom-labe-sel div>.selectize-dropdown, 
@@ -2707,7 +2839,8 @@ margin-left: -10px;
 .nj-fruit-variable div>.selectize-dropdown,
 .sel-clade div>.selectize-dropdown,
 .sel-clade-scale div>.selectize-dropdown,
-.nj-tiles-scale div>.selectize-dropdown {
+.nj-tiles-scale div>.selectize-dropdown,
+.nj-heatmap-div-mid div>.selectize-dropdown {
   bottom: 100% !important; 
   top: auto !important;
 }
@@ -2716,7 +2849,7 @@ margin-left: -10px;
   top: -200px !important;
 }
 
-#nj_new_label_name, #upgma_new_label_name {
+#nj_new_label_name {
 	width: 100%;
 	margin-top: -10px;
 }
@@ -2725,28 +2858,28 @@ margin-left: -10px;
   margin-right: 105px
 }
 
-button#nj_labeltext_menu, button#upgma_labeltext_menu {
+button#nj_labeltext_menu {
 	height: 34px;
 	border-radius: 5px;
 	margin-top: 10px;
 	margin-left: -20px;
 }
 
-button#nj_labelformat_menu, button#upgma_labelformat_menu {
+button#nj_labelformat_menu {
 	height: 34px;
 	border-radius: 5px;
 	margin-top: 20px;
 	margin-left: 11px;
 }
 
-button#nj_footer_menu, button#upgma_footer_menu {
+button#nj_footer_menu {
   height: 34px; 
   margin-top: 20px; 
   border-radius: 5px
 }
 
-button#nj_title_menu, button#upgma_title_menu, 
-button#nj_subtitle_menu, button#upgma_subtitle_menu {
+button#nj_title_menu,
+button#nj_subtitle_menu {
 	height: 34px;
 	margin-top: 1px;
 	border-radius: 5px;
@@ -2754,73 +2887,66 @@ button#nj_subtitle_menu, button#upgma_subtitle_menu {
 	margin-left: 11px;
 }
 
-button#nj_dim_menu, button#upgma_dim_menu {
+button#nj_dim_menu {
 	height: 34px;
-	background: #20E6E5;
-	color: #000000;
 	margin-top: 20px;
 	border-radius: 5px;
 	margin-left: 8px;
 }
 
-button#nj_branch_label_menu, button#upgma_branch_label_menu {
+button#nj_branch_label_menu {
 	height: 34px;
 	margin-top: 10px;
 	border-radius: 5px;
 	margin-left: -24px;
 }
 
-button#nj_custom_label_menu, button#upgma_custom_label_menu {
+button#nj_custom_label_menu {
 	height: 34px;
 	margin-top: 10px;
 	border-radius: 5px;
 	margin-left: -25px;
 }
 
-button#nj_legend_menu, button#upgma_legend_menu {
+button#nj_legend_menu {
   height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
   margin-top: 20px; 
   border-radius: 5px;
   margin-right: 15px;
 }
 
-button#nj_treescale_menu, button#upgma_treescale_menu {
+button#nj_treescale_menu {
   height: 34px;
   margin-top: -7px;
   border-radius: 5px;
   margin-right: 15px;
 }
 
-button#nj_tippoint_menu, button#upgma_tippoint_menu,
-button#nj_nodepoint_menu, button#upgma_nodepoint_menu,
+button#nj_tippoint_menu,
+button#nj_nodepoint_menu,
 button#nj_tile_menu_2, button#nj_tile_menu_3, 
-button#nj_tile_menu_4, button#nj_tile_menu_5, 
-button#upgma_tile_menu, button#upgma_tile_menu_2, 
-button#upgma_tile_menu_3, button#upgma_tile_menu_4, 
-button#upgma_tile_menu_5 {
+button#nj_tile_menu_4, button#nj_tile_menu_5 {
 	height: 34px;
 	margin-top: 20px;
 	border-radius: 5px;
 	margin-left: -15px;
 }
 
-button#nj_labeltext_menu, button#upgma_labeltext_menu {
+button#nj_labeltext_menu {
 	height: 34px;
 	margin-top: 11px;
 	border-radius: 5px;
 	margin-left: -25px;
 }
 
-button#nj_heatmap_menu, button#upgma_heatmap_menu {
+button#nj_heatmap_menu {
   height: 34px;
 	margin-top: 6px;
 	border-radius: 5px;
 	margin-left: -15px;
 }
 
-button#nj_clade_menu, button#upgma_clade_menu {
+button#nj_clade_menu {
   height: 34px;
 	margin-top: 6px;
 	border-radius: 5px;
@@ -2849,7 +2975,7 @@ button#nj_tile_menu {
 	margin-left: -15px;
 } 
 
-button#nj_rootedge_menu, button#upgma_rootedge_menu {
+button#nj_rootedge_menu {
   height: 34px;
   margin-top: 6px;
   border-radius: 5px;
@@ -2857,10 +2983,8 @@ button#nj_rootedge_menu, button#upgma_rootedge_menu {
   margin-bottom: 20px;
 }
 
-button#nj_nodepoint_menu, button#upgma_nodepoint_menu {
+button#nj_nodepoint_menu {
   height: 34px; 
-  background: #20E6E5; 
-  color: #000000; 
   margin-top: 21px; 
   border-radius: 5px
 }
@@ -2888,31 +3012,31 @@ button#nj_nodepoint_menu, button#upgma_nodepoint_menu {
   margin-bottom: 10px;
 }
 
-#nj_treescale_show, #upgma_treescale_show {
+#nj_treescale_show {
   margin-top: 17px;
 }
 
-#nj_tiles_show, #nj_tiles_show_2, #nj_tiles_show_3, #nj_tiles_show_4, #nj_tiles_show_5,
-#upgma_tiles_show, #upgma_tiles_show_2, #upgma_tiles_show_3, #upgma_tiles_show_4, #upgma_tiles_show_5 {
+#nj_tiles_show, #nj_tiles_show_2, #nj_tiles_show_3, 
+#nj_tiles_show_4, #nj_tiles_show_5 {
   margin-top: 18px; 
   margin-left: -5px
 }
 
-#nj_ladder, #upgma_ladder {
+#nj_ladder {
   margin-top: 8px; 
   margin-left: -5px
 }
 
-#nj_rootedge_show, #upgma_rootedge_show {
+#nj_rootedge_show {
   margin-top: 8px;
   margin-left: -15px;
 }
 
-#nj_mapping_show, #upgma_mapping_show {
+#nj_mapping_show {
   margin-top: 13px;
 }
 
-#nj_tipcolor_mapping, #nj_tipshape_mapping_show, #upgma_tipcolor_mapping, #upgma_tipshape_mapping_show {
+#nj_tipcolor_mapping, #nj_tipshape_mapping_show {
   margin-top: -10px;
   margin-right: 30px;
 }
@@ -2932,120 +3056,113 @@ button#nj_nodepoint_menu, button#upgma_nodepoint_menu {
   margin-top: -10px;
 }
 
-#nj_tipcolor_mapping, #upgma_tipcolor_mapping {
+#nj_tipcolor_mapping {
   margin-top: -10px;
 }
 
-#nj_geom, #upgma_geom {
+#nj_geom {
   margin-top: 0px; 
   margin-left: -5px;
   margin-bottom: 0px;
 }
 
-#nj_show_branch_label, #upgma_show_branch_label {
+#nj_show_branch_label {
   margin-top: 17px; 
   margin-left: -5px
 }
 
-#nj_tiplab_show, #upgma_tiplab_show {
+#nj_tiplab_show {
   margin-top: 17px; 
   margin-left: -5px
 }
 
-#nj_fruit_offset, #upgma_fruit_offset {
+#nj_fruit_offset {
   position: relative; 
   top: -20px
 }
 
-#nj_layout .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y,
-#upgma_layout .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y{
+#nj_layout .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {
   margin-bottom: 16px
 }
 
-#nj_div_tiles, #upgma_div_tiles {
+#nj_div_tiles {
   position: absolute; 
   bottom: 4px; 
   margin-left: -5px
 }
 
-#nj_fruit_offset_2, #upgma_fruit_offset_2 {
+#nj_fruit_offset_2 {
   position: relative; 
   top: -20px
 }
 
-#nj_layout_2 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y,
-#upgma_layout_2 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y{
+#nj_layout_2 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {
   margin-bottom: 16px
 }
 
-#nj_div_tiles_2, #upgma_div_tiles_2 {
+#nj_div_tiles_2 {
   position: absolute; 
   bottom: 4px; 
   margin-left: -5px
 }
 
-#nj_fruit_offset_3, #upgma_fruit_offset_3 {
+#nj_fruit_offset_3 {
   position: relative; 
   top: -20px
 }
 
-#nj_layout_3 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y,
-#upgma_layout_3 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y{
+#nj_layout_3 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {
   margin-bottom: 16px
 }
 
-#nj_div_tiles_3, #upgma_div_tiles_3 {
+#nj_div_tiles_3 {
   position: absolute; 
   bottom: 4px; 
   margin-left: -5px
 }
 
-#nj_fruit_offset_4, #upgma_fruit_offset_4 {
+#nj_fruit_offset_4 {
   position: relative; 
   top: -20px
 }
 
-#nj_layout_4 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y,
-#upgma_layout_4 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y{
+#nj_layout_4 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {
   margin-bottom: 16px
 }
 
-#nj_div_tiles_4, #upgma_div_tiles_4 {
+#nj_div_tiles_4 {
   position: absolute; 
   bottom: 4px; 
   margin-left: -5px
 }
 
-#nj_fruit_offset_5, #upgma_fruit_offset_5 {
+#nj_fruit_offset_5 {
   position: relative; 
   top: -20px
 }
 
-#nj_layout_5 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y,
-#upgma_layout_5 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {
+#nj_layout_5 .shiny-input-select.shinyjs-resettable.selectize-control.single plugin-selectize-plugin-a11y {
   margin-bottom: 16px
 }
 
-#nj_div_tiles_5, #upgma_div_tiles_5 {
+#nj_div_tiles_5 {
   position: absolute; 
   bottom: 4px; 
   margin-left: -5px
 }
 
-#nj_heatmap_width, #upgma_heatmap_width {
+#nj_heatmap_width {
   margin-top: 8px;
 }
 
-#nj_heatmap_offset, #upgma_heatmap_offset {
+#nj_heatmap_offset {
   margin-top: 4px;
   margin-bottom: 2px;
 }
 
 #nj_fruit_width, #nj_fruit_width2, 
 #nj_fruit_width3, #nj_fruit_width4, 
-#nj_fruit_width5, #upgma_fruit_width, 
-#upgma_fruit_width2, #upgma_fruit_width3, 
-#upgma_fruit_width4, #upgma_fruit_width5,
+#nj_fruit_width5, 
 #nj_fruit_offset_circ, #nj_fruit_offset_circ_2,
 #nj_fruit_offset_circ_3, #nj_fruit_offset_circ_4,
 #nj_fruit_offset_circ_5 {
@@ -3055,12 +3172,12 @@ button#nj_nodepoint_menu, button#upgma_nodepoint_menu {
   margin-right: 10px;
 }
 
-#nj_heatmap_show, #upgma_heatmap_show {
+#nj_heatmap_show {
   margin-top: 18px; 
   margin-left: -5px;
 }
 
-#nj_nodepoint_show, #nj_tippoint_show, #upgma_nodepoint_show, #upgma_tippoint_show {
+#nj_nodepoint_show, #nj_tippoint_show {
 margin-top: 18px; 
 margin-left: -5px
 }
@@ -3078,15 +3195,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="Set1"],
 #nj_heatmap_scale .option[data-value="Set1"],
 #nj_clade_scale .option[data-value="Set1"],
-#upgma_tiplab_scale .option[data-value="Set1"],
-#upgma_tippoint_scale .option[data-value="Set1"],
-#upgma_tiles_scale_1 .option[data-value="Set1"],
-#upgma_tiles_scale_2 .option[data-value="Set1"],
-#upgma_tiles_scale_3 .option[data-value="Set1"],
-#upgma_tiles_scale_4 .option[data-value="Set1"],
-#upgma_tiles_scale_5 .option[data-value="Set1"],
-#upgma_heatmap_scale .option[data-value="Set1"],
-#upgma_clade_scale .option[data-value="Set1"],
 #gs_mapping_scale_ui .option[data-value="Set1"],
 #gs_amrclass_scale_ui .option[data-value="Set1"],
 #gs_virclass_scale_ui .option[data-value="Set1"] {
@@ -3104,15 +3212,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="Set2"], 
 #nj_heatmap_scale .option[data-value="Set2"],
 #nj_clade_scale .option[data-value="Set2"],
-#upgma_tiplab_scale .option[data-value="Set2"], 
-#upgma_tippoint_scale .option[data-value="Set2"], 
-#upgma_tiles_scale_1 .option[data-value="Set2"], 
-#upgma_tiles_scale_2 .option[data-value="Set2"], 
-#upgma_tiles_scale_3 .option[data-value="Set2"], 
-#upgma_tiles_scale_4 .option[data-value="Set2"], 
-#upgma_tiles_scale_5 .option[data-value="Set2"], 
-#upgma_heatmap_scale .option[data-value="Set2"],
-#upgma_clade_scale .option[data-value="Set2"],
 #gs_mapping_scale_ui .option[data-value="Set2"],
 #gs_amrclass_scale_ui .option[data-value="Set2"],
 #gs_virclass_scale_ui .option[data-value="Set2"] {
@@ -3130,15 +3229,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="Set3"], 
 #nj_heatmap_scale .option[data-value="Set3"],
 #nj_clade_scale .option[data-value="Set3"],
-#upgma_tiplab_scale .option[data-value="Set3"], 
-#upgma_tippoint_scale .option[data-value="Set3"], 
-#upgma_tiles_scale_1 .option[data-value="Set3"], 
-#upgma_tiles_scale_2 .option[data-value="Set3"], 
-#upgma_tiles_scale_3 .option[data-value="Set3"], 
-#upgma_tiles_scale_4 .option[data-value="Set3"], 
-#upgma_tiles_scale_5 .option[data-value="Set3"], 
-#upgma_heatmap_scale .option[data-value="Set3"],
-#upgma_clade_scale .option[data-value="Set3"],
 #gs_mapping_scale_ui .option[data-value="Set3"],
 #gs_amrclass_scale_ui .option[data-value="Set3"],
 #gs_virclass_scale_ui .option[data-value="Set3"] {
@@ -3156,15 +3246,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="Pastel1"], 
 #nj_heatmap_scale .option[data-value="Pastel1"],
 #nj_clade_scale .option[data-value="Pastel1"],
-#upgma_tiplab_scale .option[data-value="Pastel1"], 
-#upgma_tippoint_scale .option[data-value="Pastel1"], 
-#upgma_tiles_scale_1 .option[data-value="Pastel1"], 
-#upgma_tiles_scale_2 .option[data-value="Pastel1"], 
-#upgma_tiles_scale_3 .option[data-value="Pastel1"], 
-#upgma_tiles_scale_4 .option[data-value="Pastel1"], 
-#upgma_tiles_scale_5 .option[data-value="Pastel1"], 
-#upgma_heatmap_scale .option[data-value="Pastel1"],
-#upgma_clade_scale .option[data-value="Pastel1"],
 #gs_mapping_scale_ui .option[data-value="Pastel1"],
 #gs_amrclass_scale_ui .option[data-value="Pastel1"],
 #gs_virclass_scale_ui .option[data-value="Pastel1"] {
@@ -3182,15 +3263,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="Pastel2"], 
 #nj_heatmap_scale .option[data-value="Pastel2"],
 #nj_clade_scale .option[data-value="Pastel2"],
-#upgma_tiplab_scale .option[data-value="Pastel2"], 
-#upgma_tippoint_scale .option[data-value="Pastel2"], 
-#upgma_tiles_scale_1 .option[data-value="Pastel2"], 
-#upgma_tiles_scale_2 .option[data-value="Pastel2"], 
-#upgma_tiles_scale_3 .option[data-value="Pastel2"], 
-#upgma_tiles_scale_4 .option[data-value="Pastel2"], 
-#upgma_tiles_scale_5 .option[data-value="Pastel2"], 
-#upgma_heatmap_scale .option[data-value="Pastel2"],
-#upgma_clade_scale .option[data-value="Pastel2"],
 #gs_mapping_scale_ui .option[data-value="Pastel2"],
 #gs_amrclass_scale_ui .option[data-value="Pastel2"],
 #gs_virclass_scale_ui .option[data-value="Pastel2"] {
@@ -3208,15 +3280,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="Paired"], 
 #nj_heatmap_scale .option[data-value="Paired"],
 #nj_clade_scale .option[data-value="Paired"],
-#upgma_tiplab_scale .option[data-value="Paired"], 
-#upgma_tippoint_scale .option[data-value="Paired"], 
-#upgma_tiles_scale_1 .option[data-value="Paired"], 
-#upgma_tiles_scale_2 .option[data-value="Paired"], 
-#upgma_tiles_scale_3 .option[data-value="Paired"], 
-#upgma_tiles_scale_4 .option[data-value="Paired"], 
-#upgma_tiles_scale_5 .option[data-value="Paired"], 
-#upgma_heatmap_scale .option[data-value="Paired"],
-#upgma_clade_scale .option[data-value="Paired"],
 #gs_mapping_scale_ui .option[data-value="Paired"],
 #gs_amrclass_scale_ui .option[data-value="Paired"],
 #gs_virclass_scale_ui .option[data-value="Paired"] {
@@ -3234,15 +3297,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="Dark2"], 
 #nj_heatmap_scale .option[data-value="Dark2"],
 #nj_clade_scale .option[data-value="Dark2"],
-#upgma_tiplab_scale .option[data-value="Dark2"], 
-#upgma_tippoint_scale .option[data-value="Dark2"], 
-#upgma_tiles_scale_1 .option[data-value="Dark2"], 
-#upgma_tiles_scale_2 .option[data-value="Dark2"], 
-#upgma_tiles_scale_3 .option[data-value="Dark2"], 
-#upgma_tiles_scale_4 .option[data-value="Dark2"], 
-#upgma_tiles_scale_5 .option[data-value="Dark2"], 
-#upgma_heatmap_scale .option[data-value="Dark2"],
-#upgma_clade_scale .option[data-value="Dark2"],
 #gs_mapping_scale_ui .option[data-value="Dark2"],
 #gs_amrclass_scale_ui .option[data-value="Dark2"],
 #gs_virclass_scale_ui .option[data-value="Dark2"] {
@@ -3260,15 +3314,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="Accent"], 
 #nj_heatmap_scale .option[data-value="Accent"],
 #nj_clade_scale .option[data-value="Accent"],
-#upgma_tiplab_scale .option[data-value="Accent"], 
-#upgma_tippoint_scale .option[data-value="Accent"], 
-#upgma_tiles_scale_1 .option[data-value="Accent"], 
-#upgma_tiles_scale_2 .option[data-value="Accent"], 
-#upgma_tiles_scale_3 .option[data-value="Accent"], 
-#upgma_tiles_scale_4 .option[data-value="Accent"], 
-#upgma_tiles_scale_5 .option[data-value="Accent"], 
-#upgma_heatmap_scale .option[data-value="Accent"],
-#upgma_clade_scale .option[data-value="Accent"],
 #gs_mapping_scale_ui .option[data-value="Accent"],
 #gs_amrclass_scale_ui .option[data-value="Accent"],
 #gs_virclass_scale_ui .option[data-value="Accent"] {
@@ -3285,15 +3330,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="YlOrRd"], 
 #nj_heatmap_scale .option[data-value="YlOrRd"],
 #nj_clade_scale .option[data-value="YlOrRd"],
-#upgma_tiplab_scale .option[data-value="YlOrRd"], 
-#upgma_tippoint_scale .option[data-value="YlOrRd"], 
-#upgma_tiles_scale_1 .option[data-value="YlOrRd"], 
-#upgma_tiles_scale_2 .option[data-value="YlOrRd"], 
-#upgma_tiles_scale_3 .option[data-value="YlOrRd"], 
-#upgma_tiles_scale_4 .option[data-value="YlOrRd"], 
-#upgma_tiles_scale_5 .option[data-value="YlOrRd"], 
-#upgma_heatmap_scale .option[data-value="YlOrRd"],
-#upgma_clade_scale .option[data-value="YlOrRd"],
 #gs_mapping_scale_ui .option[data-value="YlOrRd"],
 #gs_amrclass_scale_ui .option[data-value="YlOrRd"],
 #gs_virclass_scale_ui .option[data-value="YlOrRd"] {
@@ -3311,15 +3347,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="YlOrBr"], 
 #nj_heatmap_scale .option[data-value="YlOrBr"],
 #nj_clade_scale .option[data-value="YlOrBr"],
-#upgma_tiplab_scale .option[data-value="YlOrBr"], 
-#upgma_tippoint_scale .option[data-value="YlOrBr"], 
-#upgma_tiles_scale_1 .option[data-value="YlOrBr"], 
-#upgma_tiles_scale_2 .option[data-value="YlOrBr"], 
-#upgma_tiles_scale_3 .option[data-value="YlOrBr"], 
-#upgma_tiles_scale_4 .option[data-value="YlOrBr"], 
-#upgma_tiles_scale_5 .option[data-value="YlOrBr"], 
-#upgma_heatmap_scale .option[data-value="YlOrBr"],
-#upgma_clade_scale .option[data-value="YlOrBr"],
 #gs_mapping_scale_ui .option[data-value="YlOrBr"],
 #gs_amrclass_scale_ui .option[data-value="YlOrBr"],
 #gs_virclass_scale_ui .option[data-value="YlOrBr"] {
@@ -3337,15 +3364,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="YlGnBu"], 
 #nj_heatmap_scale .option[data-value="YlGnBu"],
 #nj_clade_scale .option[data-value="YlGnBu"],
-#upgma_tiplab_scale .option[data-value="YlGnBu"], 
-#upgma_tippoint_scale .option[data-value="YlGnBu"], 
-#upgma_tiles_scale_1 .option[data-value="YlGnBu"], 
-#upgma_tiles_scale_2 .option[data-value="YlGnBu"], 
-#upgma_tiles_scale_3 .option[data-value="YlGnBu"], 
-#upgma_tiles_scale_4 .option[data-value="YlGnBu"], 
-#upgma_tiles_scale_5 .option[data-value="YlGnBu"], 
-#upgma_heatmap_scale .option[data-value="YlGnBu"],
-#upgma_clade_scale .option[data-value="YlGnBu"],
 #gs_mapping_scale_ui .option[data-value="YlGnBu"],
 #gs_amrclass_scale_ui .option[data-value="YlGnBu"],
 #gs_virclass_scale_ui .option[data-value="YlGnBu"] {
@@ -3363,15 +3381,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="YlGn"], 
 #nj_heatmap_scale .option[data-value="YlGn"],
 #nj_clade_scale .option[data-value="YlGn"],
-#upgma_tiplab_scale .option[data-value="YlGn"], 
-#upgma_tippoint_scale .option[data-value="YlGn"], 
-#upgma_tiles_scale_1 .option[data-value="YlGn"], 
-#upgma_tiles_scale_2 .option[data-value="YlGn"], 
-#upgma_tiles_scale_3 .option[data-value="YlGn"], 
-#upgma_tiles_scale_4 .option[data-value="YlGn"], 
-#upgma_tiles_scale_5 .option[data-value="YlGn"], 
-#upgma_heatmap_scale .option[data-value="YlGn"],
-#upgma_clade_scale .option[data-value="YlGn"],
 #gs_mapping_scale_ui .option[data-value="YlGn"],
 #gs_amrclass_scale_ui .option[data-value="YlGn"],
 #gs_virclass_scale_ui .option[data-value="YlGn"] {
@@ -3389,15 +3398,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="Reds"], 
 #nj_heatmap_scale .option[data-value="Reds"],
 #nj_clade_scale .option[data-value="Reds"],
-#upgma_tiplab_scale .option[data-value="Reds"], 
-#upgma_tippoint_scale .option[data-value="Reds"], 
-#upgma_tiles_scale_1 .option[data-value="Reds"], 
-#upgma_tiles_scale_2 .option[data-value="Reds"], 
-#upgma_tiles_scale_3 .option[data-value="Reds"], 
-#upgma_tiles_scale_4 .option[data-value="Reds"], 
-#upgma_tiles_scale_5 .option[data-value="Reds"], 
-#upgma_heatmap_scale .option[data-value="Reds"],
-#upgma_clade_scale .option[data-value="Reds"],
 #gs_mapping_scale_ui .option[data-value="Reds"],
 #gs_amrclass_scale_ui .option[data-value="Reds"],
 #gs_virclass_scale_ui .option[data-value="Reds"] {
@@ -3415,15 +3415,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="RdPu"], 
 #nj_heatmap_scale .option[data-value="RdPu"],
 #nj_clade_scale .option[data-value="RdPu"],
-#upgma_tiplab_scale .option[data-value="RdPu"], 
-#upgma_tippoint_scale .option[data-value="RdPu"], 
-#upgma_tiles_scale_1 .option[data-value="RdPu"], 
-#upgma_tiles_scale_2 .option[data-value="RdPu"], 
-#upgma_tiles_scale_3 .option[data-value="RdPu"], 
-#upgma_tiles_scale_4 .option[data-value="RdPu"], 
-#upgma_tiles_scale_5 .option[data-value="RdPu"], 
-#upgma_heatmap_scale .option[data-value="RdPu"],
-#upgma_clade_scale .option[data-value="RdPu"],
 #gs_mapping_scale_ui .option[data-value="RdPu"],
 #gs_amrclass_scale_ui .option[data-value="RdPu"],
 #gs_virclass_scale_ui .option[data-value="RdPu"] {
@@ -3441,15 +3432,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="Purples"], 
 #nj_heatmap_scale .option[data-value="Purples"],
 #nj_clade_scale .option[data-value="Purples"],
-#upgma_tiplab_scale .option[data-value="Purples"], 
-#upgma_tippoint_scale .option[data-value="Purples"], 
-#upgma_tiles_scale_1 .option[data-value="Purples"], 
-#upgma_tiles_scale_2 .option[data-value="Purples"], 
-#upgma_tiles_scale_3 .option[data-value="Purples"], 
-#upgma_tiles_scale_4 .option[data-value="Purples"], 
-#upgma_tiles_scale_5 .option[data-value="Purples"], 
-#upgma_heatmap_scale .option[data-value="Purples"],
-#upgma_clade_scale .option[data-value="Purples"],
 #gs_mapping_scale_ui .option[data-value="Purples"],
 #gs_amrclass_scale_ui .option[data-value="Purples"],
 #gs_virclass_scale_ui .option[data-value="Purples"] {
@@ -3467,15 +3449,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="PuRd"], 
 #nj_heatmap_scale .option[data-value="PuRd"],
 #nj_clade_scale .option[data-value="PuRd"],
-#upgma_tiplab_scale .option[data-value="PuRd"], 
-#upgma_tippoint_scale .option[data-value="PuRd"], 
-#upgma_tiles_scale_1 .option[data-value="PuRd"], 
-#upgma_tiles_scale_2 .option[data-value="PuRd"], 
-#upgma_tiles_scale_3 .option[data-value="PuRd"], 
-#upgma_tiles_scale_4 .option[data-value="PuRd"], 
-#upgma_tiles_scale_5 .option[data-value="PuRd"], 
-#upgma_heatmap_scale .option[data-value="PuRd"],
-#upgma_clade_scale .option[data-value="PuRd"],
 #gs_mapping_scale_ui .option[data-value="PuRd"],
 #gs_amrclass_scale_ui .option[data-value="PuRd"],
 #gs_virclass_scale_ui .option[data-value="PuRd"] {
@@ -3493,15 +3466,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="PuBuGn"], 
 #nj_heatmap_scale .option[data-value="PuBuGn"],
 #nj_clade_scale .option[data-value="PuBuGn"],
-#upgma_tiplab_scale .option[data-value="PuBuGn"], 
-#upgma_tippoint_scale .option[data-value="PuBuGn"], 
-#upgma_tiles_scale_1 .option[data-value="PuBuGn"], 
-#upgma_tiles_scale_2 .option[data-value="PuBuGn"], 
-#upgma_tiles_scale_3 .option[data-value="PuBuGn"], 
-#upgma_tiles_scale_4 .option[data-value="PuBuGn"], 
-#upgma_tiles_scale_5 .option[data-value="PuBuGn"], 
-#upgma_heatmap_scale .option[data-value="PuBuGn"],
-#upgma_clade_scale .option[data-value="PuBuGn"],
 #gs_mapping_scale_ui .option[data-value="PuBuGn"],
 #gs_amrclass_scale_ui .option[data-value="PuBuGn"],
 #gs_virclass_scale_ui .option[data-value="PuBuGn"] {
@@ -3519,15 +3483,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="PuBu"], 
 #nj_heatmap_scale .option[data-value="PuBu"],
 #nj_clade_scale .option[data-value="PuBu"],
-#upgma_tiplab_scale .option[data-value="PuBu"], 
-#upgma_tippoint_scale .option[data-value="PuBu"], 
-#upgma_tiles_scale_1 .option[data-value="PuBu"], 
-#upgma_tiles_scale_2 .option[data-value="PuBu"], 
-#upgma_tiles_scale_3 .option[data-value="PuBu"], 
-#upgma_tiles_scale_4 .option[data-value="PuBu"], 
-#upgma_tiles_scale_5 .option[data-value="PuBu"], 
-#upgma_heatmap_scale .option[data-value="PuBu"],
-#upgma_clade_scale .option[data-value="PuBu"],
 #gs_mapping_scale_ui .option[data-value="PuBu"],
 #gs_amrclass_scale_ui .option[data-value="PuBu"],
 #gs_virclass_scale_ui .option[data-value="PuBu"] {
@@ -3545,15 +3500,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="OrRd"], 
 #nj_heatmap_scale .option[data-value="OrRd"],
 #nj_clade_scale .option[data-value="OrRd"],
-#upgma_tiplab_scale .option[data-value="OrRd"], 
-#upgma_tippoint_scale .option[data-value="OrRd"], 
-#upgma_tiles_scale_1 .option[data-value="OrRd"], 
-#upgma_tiles_scale_2 .option[data-value="OrRd"], 
-#upgma_tiles_scale_3 .option[data-value="OrRd"], 
-#upgma_tiles_scale_4 .option[data-value="OrRd"], 
-#upgma_tiles_scale_5 .option[data-value="OrRd"], 
-#upgma_heatmap_scale .option[data-value="OrRd"],
-#upgma_clade_scale .option[data-value="OrRd"],
 #gs_mapping_scale_ui .option[data-value="OrRd"],
 #gs_amrclass_scale_ui .option[data-value="OrRd"],
 #gs_virclass_scale_ui .option[data-value="OrRd"] {
@@ -3571,15 +3517,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="Oranges"], 
 #nj_heatmap_scale .option[data-value="Oranges"],
 #nj_clade_scale .option[data-value="Oranges"],
-#upgma_tiplab_scale .option[data-value="Oranges"], 
-#upgma_tippoint_scale .option[data-value="Oranges"], 
-#upgma_tiles_scale_1 .option[data-value="Oranges"], 
-#upgma_tiles_scale_2 .option[data-value="Oranges"], 
-#upgma_tiles_scale_3 .option[data-value="Oranges"], 
-#upgma_tiles_scale_4 .option[data-value="Oranges"], 
-#upgma_tiles_scale_5 .option[data-value="Oranges"], 
-#upgma_heatmap_scale .option[data-value="Oranges"],
-#upgma_clade_scale .option[data-value="Oranges"],
 #gs_mapping_scale_ui .option[data-value="Oranges"],
 #gs_amrclass_scale_ui .option[data-value="Oranges"],
 #gs_virclass_scale_ui .option[data-value="Oranges"] {
@@ -3597,15 +3534,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="Greys"], 
 #nj_heatmap_scale .option[data-value="Greys"],
 #nj_clade_scale .option[data-value="Greys"],
-#upgma_tiplab_scale .option[data-value="Greys"], 
-#upgma_tippoint_scale .option[data-value="Greys"], 
-#upgma_tiles_scale_1 .option[data-value="Greys"], 
-#upgma_tiles_scale_2 .option[data-value="Greys"], 
-#upgma_tiles_scale_3 .option[data-value="Greys"], 
-#upgma_tiles_scale_4 .option[data-value="Greys"], 
-#upgma_tiles_scale_5 .option[data-value="Greys"], 
-#upgma_heatmap_scale .option[data-value="Greys"],
-#upgma_clade_scale .option[data-value="Greys"],
 #gs_mapping_scale_ui .option[data-value="Greys"],
 #gs_amrclass_scale_ui .option[data-value="Greys"],
 #gs_virclass_scale_ui .option[data-value="Greys"] {
@@ -3622,15 +3550,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="Greens"], 
 #nj_heatmap_scale .option[data-value="Greens"],
 #nj_clade_scale .option[data-value="Greens"],
-#upgma_tiplab_scale .option[data-value="Greens"], 
-#upgma_tippoint_scale .option[data-value="Greens"], 
-#upgma_tiles_scale_1 .option[data-value="Greens"], 
-#upgma_tiles_scale_2 .option[data-value="Greens"], 
-#upgma_tiles_scale_3 .option[data-value="Greens"], 
-#upgma_tiles_scale_4 .option[data-value="Greens"], 
-#upgma_tiles_scale_5 .option[data-value="Greens"], 
-#upgma_heatmap_scale .option[data-value="Greens"],
-#upgma_clade_scale .option[data-value="Greens"],
 #gs_mapping_scale_ui .option[data-value="Greens"],
 #gs_amrclass_scale_ui .option[data-value="Greens"],
 #gs_virclass_scale_ui .option[data-value="Greens"] {
@@ -3648,15 +3567,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="GnBu"], 
 #nj_heatmap_scale .option[data-value="GnBu"],
 #nj_clade_scale .option[data-value="GnBu"],
-#upgma_tiplab_scale .option[data-value="GnBu"], 
-#upgma_tippoint_scale .option[data-value="GnBu"], 
-#upgma_tiles_scale_1 .option[data-value="GnBu"], 
-#upgma_tiles_scale_2 .option[data-value="GnBu"], 
-#upgma_tiles_scale_3 .option[data-value="GnBu"], 
-#upgma_tiles_scale_4 .option[data-value="GnBu"], 
-#upgma_tiles_scale_5 .option[data-value="GnBu"], 
-#upgma_heatmap_scale .option[data-value="GnBu"],
-#upgma_clade_scale .option[data-value="GnBu"],
 #gs_mapping_scale_ui .option[data-value="GnBu"],
 #gs_amrclass_scale_ui .option[data-value="GnBu"],
 #gs_virclass_scale_ui .option[data-value="GnBu"] {
@@ -3674,15 +3584,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="BuPu"], 
 #nj_heatmap_scale .option[data-value="BuPu"],
 #nj_clade_scale .option[data-value="BuPu"],
-#upgma_tiplab_scale .option[data-value="BuPu"], 
-#upgma_tippoint_scale .option[data-value="BuPu"], 
-#upgma_tiles_scale_1 .option[data-value="BuPu"], 
-#upgma_tiles_scale_2 .option[data-value="BuPu"], 
-#upgma_tiles_scale_3 .option[data-value="BuPu"],
-#upgma_tiles_scale_4 .option[data-value="BuPu"], 
-#upgma_tiles_scale_5 .option[data-value="BuPu"], 
-#upgma_heatmap_scale .option[data-value="BuPu"],
-#upgma_clade_scale .option[data-value="BuPu"],
 #gs_mapping_scale_ui .option[data-value="BuPu"],
 #gs_amrclass_scale_ui .option[data-value="BuPu"],
 #gs_virclass_scale_ui .option[data-value="BuPu"] {
@@ -3700,15 +3601,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="BuGn"], 
 #nj_heatmap_scale .option[data-value="BuGn"],
 #nj_clade_scale .option[data-value="BuGn"],
-#upgma_tiplab_scale .option[data-value="BuGn"], 
-#upgma_tippoint_scale .option[data-value="BuGn"], 
-#upgma_tiles_scale_1 .option[data-value="BuGn"], 
-#upgma_tiles_scale_2 .option[data-value="BuGn"], 
-#upgma_tiles_scale_3 .option[data-value="BuGn"], 
-#upgma_tiles_scale_4 .option[data-value="BuGn"], 
-#upgma_tiles_scale_5 .option[data-value="BuGn"], 
-#upgma_heatmap_scale .option[data-value="BuGn"],
-#upgma_clade_scale .option[data-value="BuGn"],
 #gs_mapping_scale_ui .option[data-value="BuGn"],
 #gs_amrclass_scale_ui .option[data-value="BuGn"],
 #gs_virclass_scale_ui .option[data-value="BuGn"] {
@@ -3726,15 +3618,6 @@ margin-left: -5px
 #nj_tiles_scale_5 .option[data-value="Blues"], 
 #nj_heatmap_scale .option[data-value="Blues"],
 #nj_clade_scale .option[data-value="Blues"],
-#upgma_tiplab_scale .option[data-value="Blues"], 
-#upgma_tippoint_scale .option[data-value="Blues"], 
-#upgma_tiles_scale_1 .option[data-value="Blues"], 
-#upgma_tiles_scale_2 .option[data-value="Blues"], 
-#upgma_tiles_scale_3 .option[data-value="Blues"], 
-#upgma_tiles_scale_4 .option[data-value="Blues"], 
-#upgma_tiles_scale_5 .option[data-value="Blues"], 
-#upgma_heatmap_scale .option[data-value="Blues"],
-#upgma_clade_scale .option[data-value="Blues"],
 #gs_mapping_scale_ui .option[data-value="Blues"],
 #gs_amrclass_scale_ui .option[data-value="Blues"],
 #gs_virclass_scale_ui .option[data-value="Blues"] {
@@ -3751,14 +3634,6 @@ margin-left: -5px
 #nj_tiles_scale_4 .option[data-value="magma"], 
 #nj_tiles_scale_5 .option[data-value="magma"], 
 #nj_heatmap_scale .option[data-value="magma"],
-#upgma_tiplab_scale .option[data-value="magma"], 
-#upgma_tippoint_scale .option[data-value="magma"], 
-#upgma_tiles_scale_1 .option[data-value="magma"], 
-#upgma_tiles_scale_2 .option[data-value="magma"], 
-#upgma_tiles_scale_3 .option[data-value="magma"], 
-#upgma_tiles_scale_4 .option[data-value="magma"], 
-#upgma_tiles_scale_5 .option[data-value="magma"], 
-#upgma_heatmap_scale .option[data-value="magma"],
 #gs_mapping_scale_ui .option[data-value="magma"],
 #gs_amrclass_scale_ui .option[data-value="magma"],
 #gs_virclass_scale_ui .option[data-value="magma"] {
@@ -3775,14 +3650,6 @@ margin-left: -5px
 #nj_tiles_scale_4 .option[data-value="inferno"], 
 #nj_tiles_scale_5 .option[data-value="inferno"], 
 #nj_heatmap_scale .option[data-value="inferno"],
-#upgma_tiplab_scale .option[data-value="inferno"], 
-#upgma_tippoint_scale .option[data-value="inferno"], 
-#upgma_tiles_scale_1 .option[data-value="inferno"], 
-#upgma_tiles_scale_2 .option[data-value="inferno"], 
-#upgma_tiles_scale_3 .option[data-value="inferno"], 
-#upgma_tiles_scale_4 .option[data-value="inferno"], 
-#upgma_tiles_scale_5 .option[data-value="inferno"], 
-#upgma_heatmap_scale .option[data-value="inferno"],
 #gs_mapping_scale_ui .option[data-value="inferno"],
 #gs_amrclass_scale_ui .option[data-value="inferno"],
 #gs_virclass_scale_ui .option[data-value="inferno"]  {
@@ -3799,14 +3666,6 @@ margin-left: -5px
 #nj_tiles_scale_4 .option[data-value="plasma"], 
 #nj_tiles_scale_5 .option[data-value="plasma"], 
 #nj_heatmap_scale .option[data-value="plasma"],
-#upgma_tiplab_scale .option[data-value="plasma"], 
-#upgma_tippoint_scale .option[data-value="plasma"], 
-#upgma_tiles_scale_1 .option[data-value="plasma"], 
-#upgma_tiles_scale_2 .option[data-value="plasma"], 
-#upgma_tiles_scale_3 .option[data-value="plasma"], 
-#upgma_tiles_scale_4 .option[data-value="plasma"], 
-#upgma_tiles_scale_5 .option[data-value="plasma"], 
-#upgma_heatmap_scale .option[data-value="plasma"],
 #gs_mapping_scale_ui .option[data-value="plasma"],
 #gs_amrclass_scale_ui .option[data-value="plasma"],
 #gs_virclass_scale_ui .option[data-value="plasma"]  {
@@ -3823,14 +3682,6 @@ margin-left: -5px
 #nj_tiles_scale_4 .option[data-value="viridis"], 
 #nj_tiles_scale_5 .option[data-value="viridis"], 
 #nj_heatmap_scale .option[data-value="viridis"],
-#upgma_tiplab_scale .option[data-value="viridis"], 
-#upgma_tippoint_scale .option[data-value="viridis"], 
-#upgma_tiles_scale_1 .option[data-value="viridis"], 
-#upgma_tiles_scale_2 .option[data-value="viridis"], 
-#upgma_tiles_scale_3 .option[data-value="viridis"], 
-#upgma_tiles_scale_4 .option[data-value="viridis"], 
-#upgma_tiles_scale_5 .option[data-value="viridis"], 
-#upgma_heatmap_scale .option[data-value="viridis"],
 #gs_mapping_scale_ui .option[data-value="viridis"],
 #gs_amrclass_scale_ui .option[data-value="viridis"],
 #gs_virclass_scale_ui .option[data-value="viridis"] {
@@ -3847,14 +3698,6 @@ margin-left: -5px
 #nj_tiles_scale_4 .option[data-value="cividis"], 
 #nj_tiles_scale_5 .option[data-value="cividis"], 
 #nj_heatmap_scale .option[data-value="cividis"],
-#upgma_tiplab_scale .option[data-value="cividis"], 
-#upgma_tippoint_scale .option[data-value="cividis"], 
-#upgma_tiles_scale_1 .option[data-value="cividis"], 
-#upgma_tiles_scale_2 .option[data-value="cividis"], 
-#upgma_tiles_scale_3 .option[data-value="cividis"], 
-#upgma_tiles_scale_4 .option[data-value="cividis"], 
-#upgma_tiles_scale_5 .option[data-value="cividis"], 
-#upgma_heatmap_scale .option[data-value="cividis"],
 #gs_mapping_scale_ui .option[data-value="cividis"],
 #gs_amrclass_scale_ui .option[data-value="cividis"],
 #gs_virclass_scale_ui .option[data-value="cividis"]  {
@@ -3871,14 +3714,6 @@ margin-left: -5px
 #nj_tiles_scale_4 .option[data-value="rocket"], 
 #nj_tiles_scale_5 .option[data-value="rocket"], 
 #nj_heatmap_scale .option[data-value="rocket"],
-#upgma_tiplab_scale .option[data-value="rocket"], 
-#upgma_tippoint_scale .option[data-value="rocket"], 
-#upgma_tiles_scale_1 .option[data-value="rocket"], 
-#upgma_tiles_scale_2 .option[data-value="rocket"], 
-#upgma_tiles_scale_3 .option[data-value="rocket"], 
-#upgma_tiles_scale_4 .option[data-value="rocket"], 
-#upgma_tiles_scale_5 .option[data-value="rocket"], 
-#upgma_heatmap_scale .option[data-value="rocket"],
 #gs_mapping_scale_ui .option[data-value="rocket"],
 #gs_amrclass_scale_ui .option[data-value="rocket"],
 #gs_virclass_scale_ui .option[data-value="rocket"]  {
@@ -3895,14 +3730,6 @@ margin-left: -5px
 #nj_tiles_scale_4 .option[data-value="mako"], 
 #nj_tiles_scale_5 .option[data-value="mako"], 
 #nj_heatmap_scale .option[data-value="mako"],
-#upgma_tiplab_scale .option[data-value="mako"], 
-#upgma_tippoint_scale .option[data-value="mako"], 
-#upgma_tiles_scale_1 .option[data-value="mako"], 
-#upgma_tiles_scale_2 .option[data-value="mako"], 
-#upgma_tiles_scale_3 .option[data-value="mako"], 
-#upgma_tiles_scale_4 .option[data-value="mako"], 
-#upgma_tiles_scale_5 .option[data-value="mako"], 
-#upgma_heatmap_scale .option[data-value="mako"],
 #gs_mapping_scale_ui .option[data-value="mako"],
 #gs_amrclass_scale_ui .option[data-value="mako"],
 #gs_virclass_scale_ui .option[data-value="mako"]  {
@@ -3919,14 +3746,6 @@ margin-left: -5px
 #nj_tiles_scale_4 .option[data-value="turbo"], 
 #nj_tiles_scale_5 .option[data-value="turbo"], 
 #nj_heatmap_scale .option[data-value="turbo"],
-#upgma_tiplab_scale .option[data-value="turbo"], 
-#upgma_tippoint_scale .option[data-value="turbo"], 
-#upgma_tiles_scale_1 .option[data-value="turbo"], 
-#upgma_tiles_scale_2 .option[data-value="turbo"], 
-#upgma_tiles_scale_3 .option[data-value="turbo"], 
-#upgma_tiles_scale_4 .option[data-value="turbo"], 
-#upgma_tiles_scale_5 .option[data-value="turbo"], 
-#upgma_heatmap_scale .option[data-value="turbo"],
 #gs_mapping_scale_ui .option[data-value="turbo"],
 #gs_amrclass_scale_ui .option[data-value="turbo"],
 #gs_virclass_scale_ui .option[data-value="turbo"]  {
@@ -3942,14 +3761,6 @@ margin-left: -5px
 #nj_tiles_scale_4 .option[data-value="Spectral"], 
 #nj_tiles_scale_5 .option[data-value="Spectral"], 
 #nj_heatmap_scale .option[data-value="Spectral"],
-#upgma_tiplab_scale .option[data-value="Spectral"], 
-#upgma_tippoint_scale .option[data-value="Spectral"], 
-#upgma_tiles_scale_1 .option[data-value="Spectral"], 
-#upgma_tiles_scale_2 .option[data-value="Spectral"], 
-#upgma_tiles_scale_3 .option[data-value="Spectral"], 
-#upgma_tiles_scale_4 .option[data-value="Spectral"], 
-#upgma_tiles_scale_5 .option[data-value="Spectral"], 
-#upgma_heatmap_scale .option[data-value="Spectral"],
 #gs_mapping_scale_ui .option[data-value="Spectral"],
 #gs_amrclass_scale_ui .option[data-value="Spectral"],
 #gs_virclass_scale_ui .option[data-value="SPectral"] {
@@ -3966,14 +3777,6 @@ margin-left: -5px
 #nj_tiles_scale_4 .option[data-value="RdYlGn"], 
 #nj_tiles_scale_5 .option[data-value="RdYlGn"], 
 #nj_heatmap_scale .option[data-value="RdYlGn"],
-#upgma_tiplab_scale .option[data-value="RdYlGn"], 
-#upgma_tippoint_scale .option[data-value="RdYlGn"], 
-#upgma_tiles_scale_1 .option[data-value="RdYlGn"], 
-#upgma_tiles_scale_2 .option[data-value="RdYlGn"], 
-#upgma_tiles_scale_3 .option[data-value="RdYlGn"], 
-#upgma_tiles_scale_4 .option[data-value="RdYlGn"], 
-#upgma_tiles_scale_5 .option[data-value="RdYlGn"], 
-#upgma_heatmap_scale .option[data-value="RdYlGn"],
 #gs_mapping_scale_ui .option[data-value="RdYlGn"],
 #gs_amrclass_scale_ui .option[data-value="RdYlGn"],
 #gs_virclass_scale_ui .option[data-value="RdYlGn"] {
@@ -3990,14 +3793,6 @@ margin-left: -5px
 #nj_tiles_scale_4 .option[data-value="RdYlBu"], 
 #nj_tiles_scale_5 .option[data-value="RdYlBu"], 
 #nj_heatmap_scale .option[data-value="RdYlBu"],
-#upgma_tiplab_scale .option[data-value="RdYlBu"], 
-#upgma_tippoint_scale .option[data-value="RdYlBu"], 
-#upgma_tiles_scale_1 .option[data-value="RdYlBu"], 
-#upgma_tiles_scale_2 .option[data-value="RdYlBu"], 
-#upgma_tiles_scale_3 .option[data-value="RdYlBu"], 
-#upgma_tiles_scale_4 .option[data-value="RdYlBu"], 
-#upgma_tiles_scale_5 .option[data-value="RdYlBu"], 
-#upgma_heatmap_scale .option[data-value="RdYlBu"],
 #gs_mapping_scale_ui .option[data-value="RdYlBu"],
 #gs_amrclass_scale_ui .option[data-value="RdYlBu"],
 #gs_virclass_scale_ui .option[data-value="RdYlBu"] {
@@ -4014,14 +3809,6 @@ margin-left: -5px
 #nj_tiles_scale_4 .option[data-value="RdGy"], 
 #nj_tiles_scale_5 .option[data-value="RdGy"], 
 #nj_heatmap_scale .option[data-value="RdGy"],
-#upgma_tiplab_scale .option[data-value="RdGy"], 
-#upgma_tippoint_scale .option[data-value="RdGy"], 
-#upgma_tiles_scale_1 .option[data-value="RdGy"], 
-#upgma_tiles_scale_2 .option[data-value="RdGy"], 
-#upgma_tiles_scale_3 .option[data-value="RdGy"], 
-#upgma_tiles_scale_4 .option[data-value="RdGy"], 
-#upgma_tiles_scale_5 .option[data-value="RdGy"], 
-#upgma_heatmap_scale .option[data-value="RdGy"],
 #gs_mapping_scale_ui .option[data-value="RdGy"],
 #gs_amrclass_scale_ui .option[data-value="RdGy"],
 #gs_virclass_scale_ui .option[data-value="RdGy"] {
@@ -4038,14 +3825,6 @@ margin-left: -5px
 #nj_tiles_scale_4 .option[data-value="RdBu"], 
 #nj_tiles_scale_5 .option[data-value="RdBu"], 
 #nj_heatmap_scale .option[data-value="RdBu"],
-#upgma_tiplab_scale .option[data-value="RdBu"], 
-#upgma_tippoint_scale .option[data-value="RdBu"], 
-#upgma_tiles_scale_1 .option[data-value="RdBu"], 
-#upgma_tiles_scale_2 .option[data-value="RdBu"], 
-#upgma_tiles_scale_3 .option[data-value="RdBu"], 
-#upgma_tiles_scale_4 .option[data-value="RdBu"], 
-#upgma_tiles_scale_5 .option[data-value="RdBu"], 
-#upgma_heatmap_scale .option[data-value="RdBu"],
 #gs_mapping_scale_ui .option[data-value="RdBu"],
 #gs_amrclass_scale_ui .option[data-value="RdBu"],
 #gs_virclass_scale_ui .option[data-value="RdBu"] {
@@ -4062,14 +3841,6 @@ margin-left: -5px
 #nj_tiles_scale_4 .option[data-value="PuOr"], 
 #nj_tiles_scale_5 .option[data-value="PuOr"], 
 #nj_heatmap_scale .option[data-value="PuOr"],
-#upgma_tiplab_scale .option[data-value="PuOr"], 
-#upgma_tippoint_scale .option[data-value="PuOr"], 
-#upgma_tiles_scale_1 .option[data-value="PuOr"], 
-#upgma_tiles_scale_2 .option[data-value="PuOr"], 
-#upgma_tiles_scale_3 .option[data-value="PuOr"], 
-#upgma_tiles_scale_4 .option[data-value="PuOr"], 
-#upgma_tiles_scale_5 .option[data-value="PuOr"], 
-#upgma_heatmap_scale .option[data-value="PuOr"],
 #gs_mapping_scale_ui .option[data-value="PuOr"],
 #gs_amrclass_scale_ui .option[data-value="PuOr"],
 #gs_virclass_scale_ui .option[data-value="PuOr"] {
@@ -4086,14 +3857,6 @@ margin-left: -5px
 #nj_tiles_scale_4 .option[data-value="PRGn"], 
 #nj_tiles_scale_5 .option[data-value="PRGn"], 
 #nj_heatmap_scale .option[data-value="PRGn"],
-#upgma_tiplab_scale .option[data-value="PRGn"], 
-#upgma_tippoint_scale .option[data-value="PRGn"], 
-#upgma_tiles_scale_1 .option[data-value="PRGn"], 
-#upgma_tiles_scale_2 .option[data-value="PRGn"], 
-#upgma_tiles_scale_3 .option[data-value="PRGn"], 
-#upgma_tiles_scale_4 .option[data-value="PRGn"], 
-#upgma_tiles_scale_5 .option[data-value="PRGn"], 
-#upgma_heatmap_scale .option[data-value="PRGn"],
 #gs_mapping_scale_ui .option[data-value="PRGn"],
 #gs_amrclass_scale_ui .option[data-value="PRGn"],
 #gs_virclass_scale_ui .option[data-value="PRGn"] {
@@ -4110,14 +3873,6 @@ margin-left: -5px
 #nj_tiles_scale_4 .option[data-value="PiYG"], 
 #nj_tiles_scale_5 .option[data-value="PiYG"], 
 #nj_heatmap_scale .option[data-value="PiYG"],
-#upgma_tiplab_scale .option[data-value="PiYG"], 
-#upgma_tippoint_scale .option[data-value="PiYG"], 
-#upgma_tiles_scale_1 .option[data-value="PiYG"], 
-#upgma_tiles_scale_2 .option[data-value="PiYG"], 
-#upgma_tiles_scale_3 .option[data-value="PiYG"], 
-#upgma_tiles_scale_4 .option[data-value="PiYG"], 
-#upgma_tiles_scale_5 .option[data-value="PiYG"], 
-#upgma_heatmap_scale .option[data-value="PiYG"],
 #gs_mapping_scale_ui .option[data-value="PiYG"],
 #gs_amrclass_scale_ui .option[data-value="PiYG"],
 #gs_virclass_scale_ui .option[data-value="PiYG"] {
@@ -4134,14 +3889,6 @@ margin-left: -5px
 #nj_tiles_scale_4 .option[data-value="BrBG"], 
 #nj_tiles_scale_5 .option[data-value="BrBG"], 
 #nj_heatmap_scale .option[data-value="BrBG"],
-#upgma_tiplab_scale .option[data-value="BrBG"], 
-#upgma_tippoint_scale .option[data-value="BrBG"], 
-#upgma_tiles_scale_1 .option[data-value="BrBG"], 
-#upgma_tiles_scale_2 .option[data-value="BrBG"], 
-#upgma_tiles_scale_3 .option[data-value="BrBG"], 
-#upgma_tiles_scale_4 .option[data-value="BrBG"], 
-#upgma_tiles_scale_5 .option[data-value="BrBG"], 
-#upgma_heatmap_scale .option[data-value="BrBG"],
 #gs_mapping_scale_ui .option[data-value="BrBG"],
 #gs_amrclass_scale_ui .option[data-value="BrBG"],
 #gs_virclass_scale_ui .option[data-value="BrBG"] {
@@ -4333,7 +4080,7 @@ button#gsplot_isolate_label_menu {
 
 button#save_plot_html_bttn, button#save_plot_jpeg, 
 button#save_plot_png, button#save_plot_bmp, 
-button#download_nj_bttn, button#download_upgma_bttn {
+button#download_nj_bttn {
 	font-size: 14px;
 	height: 34px;
 	width: 100%;
@@ -4347,8 +4094,7 @@ button#download_nj_bttn, button#download_upgma_bttn {
 }
 
 #save_plot_html_bttn > i,
-#download_nj_bttn > i,
-#download_upgma_bttn > i {
+#download_nj_bttn > i {
   font-size: 16px;
   margin-left: 8px;
   left: -3px;
@@ -4374,16 +4120,21 @@ button#gs_download_plot_bttn {
 .gs-plot-box2,
 .gs-plot-box3,
 .gs-plot-box4,
-.vis-control-box,
-.mst_control_box,
-.nj_control_box,
-.upgma_control_box {
+.nj_control_box {
   margin-left: 35px;
   margin-right: -30px;
 }
 
+
+.vis-control-box,
+.mst_control_box {
+  margin-left: 35px;
+  width: 90%;
+}
+
 .vis-control-box-2 {
-  margin-left: 42px;
+  margin-left: -25px;
+  margin-right: 60px;
 }
 
 .vis-control-box-3 {
@@ -4408,18 +4159,8 @@ button#gs_download_plot_bttn {
 #nj_variable_menu > i,
 #nj_download_menu > i,
 #nj_misc_menu > i,
-#nj_color_menu > i,
-#upgma_label_menu > i,
-#upgma_size_menu > i,
-#upgma_variable_menu > i,
-#upgma_download_menu > i,
-#upgma_misc_menu > i,
-#upgma_color_menu > i {
+#nj_color_menu > i {
   font-size: 22px;
-  background: white;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
   position: relative;
   left: 2px;
   top: 2px;
@@ -4449,7 +4190,8 @@ button#gs_download_plot_bttn {
 .gs-ratio .selectize-dropdown-content,
 .gs-var-mapping-sel .selectize-dropdown-content,
 .gs-mapping-scale .selectize-dropdown-content,
-.gs-gene-class-scale .selectize-dropdown-content,
+.gs-amr-class-scale .selectize-dropdown-content,
+.gs-vir-class-scale .selectize-dropdown-content,
 .gsplot-isolate-label .selectize-dropdown-content,
 .filetype-gs .selectize-dropdown-content {
   padding: 5px 0;
@@ -4457,10 +4199,6 @@ button#gs_download_plot_bttn {
   background: white;
   border-radius: 5px;
   border: 1px solid #42536acc;
-}
-
-#plot-control{
-  width: 110px;  
 }
 
 #gs-control,
@@ -4496,40 +4234,6 @@ button#gs_download_plot_bttn {
   margin-left: 0px;
 }
 
-#plot-control-reset .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input {
-  background: #164054 !important;
-  border: 1px solid transparent;
-  border-color: transparent !important;
-  display: inline-block;
-  border-width: 1px !important;
-  color: white !important;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
-  transition: box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-  border-radius: 8px;
-  width: 38px;
-  height: 30px;
-  margin-left: -30px;
-  margin-top: 13px;
-  margin-bottom: 10px;
-}
-
-#plot-control .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input {
-  background: #164054 !important;
-  border: 1px solid transparent;
-  border-color: transparent !important;
-  display: inline-block;
-  border-width: 1px !important;
-  color: white !important;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7);
-  transition: box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-  border-radius: 8px;
-  width: 75px;
-  height: 35px;
-  margin-left: 0px;
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
 .filetype-gs {
   margin-top: -28px;
   width: 100px;
@@ -4537,7 +4241,6 @@ button#gs_download_plot_bttn {
 }
 
 #gs-control .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input:hover,
-#plot-control .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input:hover,
 #gs-size-menu .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input:hover,
 #gs-dim-menu .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input:hover,
 #gs-variable-menu .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input:hover,
@@ -4559,8 +4262,12 @@ button#gs_download_plot_bttn {
 }
 
 .gs-mapping-scale,
-.gs-gene-class-scale {
+.gs-amr-class-scale {
   margin-bottom: 35px;
+  margin-top: -18px;
+}
+
+.gs-vir-class-scale {
   margin-top: -18px;
 }
 
