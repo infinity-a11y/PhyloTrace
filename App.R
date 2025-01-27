@@ -2022,7 +2022,7 @@ server <- function(input, output, session) {
       nj_xlim_val(-10)
       Vis$nj_xlim_inw_val_reset <- TRUE
       nj_xlim_inw_val(50)
-      nj_treescale_show_val(TRUE)
+      nj_treescale_show_val(FALSE)
       Vis$nj_treescale_width_val_reset <- TRUE
       ifelse(!is.null(Vis$nj_max_x),
              nj_treescale_width_val(round(ceiling(Vis$nj_max_x) * 0.1, 0)),
@@ -2062,6 +2062,8 @@ server <- function(input, output, session) {
     output$screening_result_sel <- NULL
     output$screening_result <- NULL
     output$screening_fail <- NULL
+    output$multi_select_table <- NULL
+    output$multi_select_tab_ctrls <- NULL
     Screening$status_df <- NULL
     Screening$choices <- NULL
     Screening$picker_status <- TRUE
@@ -13984,7 +13986,7 @@ server <- function(input, output, session) {
     
     ifelse(!is.null(input$nj_treescale_show),
            nj_treescale_show_val(input$nj_treescale_show),
-           nj_treescale_show_val(TRUE))
+           nj_treescale_show_val(FALSE))
     
     nj_treescale_width_val(nj_treescale_width_reactive())
     
@@ -15086,7 +15088,7 @@ server <- function(input, output, session) {
     nj_xlim_val(-10)
     Vis$nj_xlim_inw_val_reset <- TRUE
     nj_xlim_inw_val(50)
-    nj_treescale_show_val(TRUE)
+    nj_treescale_show_val(FALSE)
     Vis$nj_treescale_width_val_reset <- TRUE
     ifelse(!is.null(Vis$nj_max_x),
            nj_treescale_width_val(round(ceiling(Vis$nj_max_x) * 0.1, 0)),
@@ -18074,9 +18076,12 @@ server <- function(input, output, session) {
   nj_treescale <- reactive({
     if(nj_layout_val() != "circular") {
       if(isTRUE(nj_treescale_show_val())) {
+        if(nj_treescale_width_val() < 1) {
+          width <- 1
+        } else { width <- nj_treescale_width_val()}
         geom_treescale(x = nj_treescale_x_val(),
                        y = nj_treescale_y_val(),
-                       width = nj_treescale_width_val(),
+                       width = width,
                        color = nj_color_val(),
                        fontsize = 4)
       } else {NULL}
