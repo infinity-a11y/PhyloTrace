@@ -29,7 +29,7 @@ University of Graz (MUG). Featured on ShinyConf 2024 and R/Medicine 2024. </sup>
 
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.10996423-00e896?labelColor=gray&color=609ea5&logoColor=black)](https://doi.org/10.5281/zenodo.10996423)
 [![License: GPLv3](https://img.shields.io/badge/License-GPLv3-659DA3.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Version](https://img.shields.io/badge/Version-1.5.0-659DA3)](https://github.com/infinity-a11y/PhyloTrace/releases/tag/v1.5.0)
+[![Version](https://img.shields.io/badge/Version-1.6.0-659DA3)](https://github.com/infinity-a11y/PhyloTrace/releases/tag/v1.6.0)
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
 ![Windows](https://img.shields.io/badge/Windows-339033?style=flat&logo=windows&logoColor=white)  
 
@@ -50,7 +50,6 @@ University of Graz (MUG). Featured on ShinyConf 2024 and R/Medicine 2024. </sup>
     -   [2.4 Uninstall](#24-uninstall)
     -   [2.5 Troubleshooting](#25-troubleshooting)
 -   [3 Launch PhyloTrace](#3-launch-phylotrace)
--   [4 Roadmap](#4-roadmap)
 
 ## 1 Getting Started
 
@@ -231,7 +230,7 @@ Use the terminal to navigate to an accessible location on your system and clone 
 git clone https://github.com/infinity-a11y/PhyloTrace.git
 ```
 
-Alternatively download PhyloTrace manually from [Version 1.5.0](https://github.com/infinity-a11y/PhyloTrace/archive/refs/tags/v1.5.0.zip) and extract/unzip it to a location on your system.
+Alternatively download PhyloTrace manually from [Version 1.6.0](https://github.com/infinity-a11y/PhyloTrace/archive/refs/tags/v1.6.0.zip) and extract/unzip it to a location on your system.
 
 
 ### 2.2 Install Miniconda
