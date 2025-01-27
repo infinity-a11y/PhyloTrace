@@ -193,12 +193,6 @@ If you use PhyloTrace for your paper or publication, cite us with
 
 PhyloTrace can be installed in a linux environment and, using Windows Subsystem for Linux (WSL) also on Microsoft Windows. 
 
-> <i>If an older version is already installed on your system, make sure to first uninstall PhyloTrace
-> (see [2.5 Uninstall](#25-uninstall)). Since the local database folder is located outside of the
-> app directory the previous analyses and isolates remain unaffected. To update to the newer version
-> first uninstall the previous one, download the new version and follow the complete installation
-> procedure as described below.</i>
-
 For the installation on a linux OS follow the steps starting from [2.2 Install Miniconda](#22-install-miniconda). If you want to install PhyloTrace on Microsoft Windows, you must first follow the steps found in the collapsible menu below before proceeding with the other steps.
 
 <details>
@@ -277,19 +271,7 @@ To start using conda, the terminal should be restarted.
 conda config --set auto_activate_base false
 ```
 
-### 2.3 Create Conda Environment
-
-Create a conda environment containing necessary dependencies and packages.
-
-``` bash
-cd path/to/phylotrace
-conda env create -f PhyloTrace.yml
-```
-
-> *In the command above, replace `path/to/phylotrace` with the actual path linking to the PhyloTrace
-> directory on your system.* *This process might take a while (depends on system performance).*
-
-### 2.4 Create Desktop Launcher
+### 2.3 Install PhyloTrace
 
 Run install script to generate a run script and include PhyloTrace desktop icon in the Applications
 Menu.
@@ -302,12 +284,13 @@ bash install_phylotrace.sh
 > *In the command above, replace `path/to/phylotrace` with the actual path linking to the PhyloTrace
 > directory on your system.*
 
-### 2.5 Uninstall
+### 2.4 Uninstall
 
 To uninstall PhyloTrace from your system, remove the application directory and run the following
 command to remove the desktop launcher and the PhyloTrace conda environment:
 
 ``` bash
+rm -r $HOME/.local/share/PhyloTrace
 rm $HOME/.local/share/applications/PhyloTrace.desktop
 rm $HOME/.local/share/icons/hicolor/scalable/apps/PhyloTrace.png
 conda remove -n PhyloTrace --all -y
