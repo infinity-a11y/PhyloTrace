@@ -139,7 +139,7 @@ gene expression values or any other characteristic, to answer individual researc
 
 <br>
 
-Create and customize sophisticated phylogenetic trees (Neighbour-Joining & UPGMA) or networks
+Create and customize sophisticated hierarchic trees (Neighbour-Joining & UPGMA) or networks
 (Minimum-spanning) to visualize the underlying relationship between the isolates in your local
 database. The plots can be heavily modified and enriched with useful information e.g. by mapping
 previously added custom variables. The resulting visuals can be saved in multiple formats and even
@@ -217,7 +217,7 @@ sudo apt update
 sudo apt install wslu
 ```
 
-After this, the instructions from [2.2 Install Miniconda](#22-install-miniconda) should be followed.
+After this, follow the instructions below.
 
 </details>
 
@@ -240,7 +240,7 @@ Is ***Miniconda*** or another ***Conda Distribution*** installed on the system?
 
 **No**  :arrow_right: Run the installation below and initialize conda  <br>
  
-**Yes** :arrow_right: Proceed to [2.3 Create Conda Environment](#23-create-conda-environment) 
+**Yes** :arrow_right: Proceed to [2.3 Install PhyloTrace](#23-install-phylotrace)
 
 These four commands quickly and quietly install the latest 64-bit version of Miniconda and then
 clean up after themselves. 
