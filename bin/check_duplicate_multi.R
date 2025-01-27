@@ -65,7 +65,7 @@ args <- commandArgs(trailingOnly = TRUE)
 base_path <- args[1]
 
 # Get selected assembly file names
-assemblies <- list.files(paste0(getwd(), "/selected_genomes"), full.names = T)
+assemblies <- list.files(file.path(fs::path_home(), ".local", "share", "phylotrace", "selected_genomes"), full.names = T)
 
 logdir <- file.path(fs::path_home(), ".local", "share", "phylotrace", "logs")
 logfile <- file.path(logdir, "check_duplicate_multi.log")
