@@ -1,7 +1,78 @@
+
+// highlighting clicked plot control buttons
+Shiny.addCustomMessageHandler('nj_highlight', function(id) {
+  document.getElementById(id).style.backgroundColor = '#1f4e5d';
+});
+
+Shiny.addCustomMessageHandler('nj_reset_style', function(id) {
+  document.getElementById('nj_label_menu').style.backgroundColor = ''; 
+  document.getElementById('nj_variable_menu').style.backgroundColor = ''; 
+  document.getElementById('nj_color_menu').style.backgroundColor = ''; 
+  document.getElementById('nj_elements_menu').style.backgroundColor = ''; 
+  document.getElementById('nj_misc_menu').style.backgroundColor = ''; 
+  document.getElementById('nj_download_menu').style.backgroundColor = ''; 
+});
+
+Shiny.addCustomMessageHandler('mst_highlight', function(id) {
+  document.getElementById(id).style.backgroundColor = '#1f4e5d';
+});
+
+Shiny.addCustomMessageHandler('mst_reset_style', function(id) {
+  document.getElementById('mst_label_menu').style.backgroundColor = ''; 
+  document.getElementById('mst_variable_menu').style.backgroundColor = ''; 
+  document.getElementById('mst_color_menu').style.backgroundColor = ''; 
+  document.getElementById('mst_size_menu').style.backgroundColor = ''; 
+  document.getElementById('mst_misc_menu').style.backgroundColor = ''; 
+  document.getElementById('mst_download_menu').style.backgroundColor = ''; 
+});
+
+// showing and hiding the blocking overlay during computation
+Shiny.addCustomMessageHandler('show_overlay', function(message) {
+  document.getElementById('blocking-overlay').style.display = 'block';
+});
+
+Shiny.addCustomMessageHandler('hide_overlay', function(message) {
+  document.getElementById('blocking-overlay').style.display = 'none';
+});
+
+// Functions to find the index of the selected cgMLST option
+function findSelectedIndex() {
+  // Ensure the element exists before proceeding
+  var options = $('#select_cgmlst option');
+  if (options.length === 0) return; // Exit if options are not found
+
+  var selectedIndex = -1;
+
+  // Iterate over the options to find which one is selected
+  options.each(function(index) {
+    if ($(this).prop('selected') === true) {
+      selectedIndex = index;  // Store the index of the selected option
+      return false;  // Exit the loop once the selected option is found
+    }
+  });
+
+  Shiny.setInputValue('selected_index_js', selectedIndex + 1);  // Adding 1 for 1-based index
+}
+
+// Attach the function to run whenever the selection changes
+$(document).on('change', '#select_cgmlst', findSelectedIndex);
+
+// Also run the function when the document is ready (in case there's an initial selection)
+$(document).ready(function() {
+  if ($('#select_cgmlst').length) {
+    findSelectedIndex(); // Run it once on load
+  }
+});
+
 // Copy sequence clipboard
 Shiny.addCustomMessageHandler('txt', function (txt) {
   navigator.clipboard.writeText(txt);
 });
+// Copy hash clipboard
+Shiny.addCustomMessageHandler('txt', function (txt) {
+  navigator.clipboard.writeText(txt);
+});
+
 
 // Get date format
 function getCurrentDate() {
@@ -102,7 +173,12 @@ function mstReport() {
     var ctx = mergedCanvas.getContext('2d');
     
     // Draw title, subtitle, main plot, and footer onto the merged canvas
-    ctx.fillStyle = getBackgroundColor();
+    var bgColor = getBackgroundColor()
+    if(bgColor === 'rgba(0, 0, 0, 0)') {
+      ctx.fillStyle = 'rgb(255, 255, 255)'; 
+    } else {
+      ctx.fillStyle = bgColor; 
+    }
     ctx.fillRect(0, 0, canvas.width, mergedCanvas.height);
     if(!(titleCanvasID.innerText.length === 0)) {
       ctx.drawImage(titleCanvas, 0, 0);
@@ -156,7 +232,12 @@ function mstReport() {
     var ctx = mergedCanvas.getContext('2d');
     
     // Draw background
-    ctx.fillStyle = getBackgroundColorClear();
+    var bgColor = getBackgroundColor()
+    if(bgColor === 'rgba(0, 0, 0, 0)') {
+      ctx.fillStyle = 'rgb(255, 255, 255)'; 
+    } else {
+      ctx.fillStyle = bgColor; 
+    }
     ctx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height);
     
     // Draw title
@@ -242,7 +323,12 @@ $(document).on('click', '#save_plot_jpeg', function() {
     var ctx = mergedCanvas.getContext('2d');
     
     // Draw title, subtitle, main plot, and footer onto the merged canvas
-    ctx.fillStyle = getBackgroundColor();
+    var bgColor = getBackgroundColor()
+    if(bgColor === 'rgba(0, 0, 0, 0)') {
+      ctx.fillStyle = 'rgb(255, 255, 255)'; 
+    } else {
+      ctx.fillStyle = bgColor; 
+    }
     ctx.fillRect(0, 0, canvas.width, mergedCanvas.height);
     if(!(titleCanvasID.innerText.length === 0)) {
       ctx.drawImage(titleCanvas, 0, 0);
@@ -296,7 +382,12 @@ $(document).on('click', '#save_plot_jpeg', function() {
     var ctx = mergedCanvas.getContext('2d');
     
     // Draw background
-    ctx.fillStyle = getBackgroundColorClear();
+    var bgColor = getBackgroundColor()
+    if(bgColor === 'rgba(0, 0, 0, 0)') {
+      ctx.fillStyle = 'rgb(255, 255, 255)'; 
+    } else {
+      ctx.fillStyle = bgColor; 
+    }
     ctx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height);
     
     // Draw title
@@ -435,7 +526,7 @@ $(document).on('click', '#save_plot_png', function() {
     var ctx = mergedCanvas.getContext('2d');
     
     // Draw background
-    ctx.fillStyle = getBackgroundColorClear();
+    ctx.fillStyle = getBackgroundColor();
     ctx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height);
     
     // Draw title
@@ -520,7 +611,12 @@ $(document).on('click', '#save_plot_bmp', function() {
     var ctx = mergedCanvas.getContext('2d');
     
     // Draw title, subtitle, main plot, and footer onto the merged canvas
-    ctx.fillStyle = getBackgroundColor();
+    var bgColor = getBackgroundColor()
+    if(bgColor === 'rgba(0, 0, 0, 0)') {
+      ctx.fillStyle = 'rgb(255, 255, 255)'; 
+    } else {
+      ctx.fillStyle = bgColor; 
+    }
     ctx.fillRect(0, 0, canvas.width, mergedCanvas.height);
     if(!(titleCanvasID.innerText.length === 0)) {
       ctx.drawImage(titleCanvas, 0, 0);
@@ -574,7 +670,12 @@ $(document).on('click', '#save_plot_bmp', function() {
     var ctx = mergedCanvas.getContext('2d');
     
     // Draw background
-    ctx.fillStyle = getBackgroundColorClear();
+    var bgColor = getBackgroundColor()
+    if(bgColor === 'rgba(0, 0, 0, 0)') {
+      ctx.fillStyle = 'rgb(255, 255, 255)'; 
+    } else {
+      ctx.fillStyle = bgColor; 
+    }
     ctx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height);
     
     // Draw title
@@ -641,37 +742,27 @@ function getBackgroundColorClear() {
 
 // Function to get the RGB color from a specific sub-element with a specific ID and class
 function getBackgroundColor() {
-  // Check the state of the Shiny checkbox 
-  var checkboxStatus = $('#mst_background_transparent').prop('checked');
   
-  // If the checkbox is checked, return transparent RGB code
-  if (checkboxStatus) {
-    return 'rgb(255, 255, 255)';
+  // Select the target element by ID
+  var targetElement = document.getElementById("tree_mst");
+  
+  // Check if the element exists
+  if (targetElement) {
+    // Get the computed style of the element
+    var computedStyle = window.getComputedStyle(targetElement);
+    
+    // Retrieve the background color property from the computed style
+    var backgroundColor = computedStyle.backgroundColor;
+    
+    // Return the background color value
+    return backgroundColor;
   } else {
-    // Get the sub-element by ID and class
-    var targetElement = document.querySelector('#mst_background_color input.form-control.pickr-color');
-    // Check if the element is found
-    if (targetElement) {
-      // Get the computed style of the element
-      var computedStyle = window.getComputedStyle(targetElement);
-      // Get the background color property
-      var backgroundColor = computedStyle.backgroundColor;
-      // Parse the RGB values from the string
-      var rgbArray = backgroundColor.match(/\d+/g);
-      // Convert the RGB values to a formatted string
-      var rgbString = 'rgb(' + rgbArray.join(', ') + ')';
-      // Return the RGB string
-      return rgbString;
-    } else {
-      console.error('Element not found.');
-      return null; // or any default value you want to return
-    }
+    console.error('Element with ID "tree_mst" not found.');
+    return null; // Return null if the element does not exist
   }
 };
 
-// Restrict special characters using JA
 
-// Function to apply JavaScript code
 function applyJavaScript_assembly_id() {
   $("#assembly_id").on("input", function() {
     var value = $(this).val();
@@ -694,7 +785,7 @@ $(document).ready(function() {
   checkElement_assembly_id();
 });
 
-// Function to apply JavaScript code
+
 function applyJavaScript_assembly_name() {
   $("#assembly_name").on("input", function() {
     var value = $(this).val();
@@ -717,7 +808,7 @@ $(document).ready(function() {
   checkElement_assembly_name();
 });
 
-// Function to apply JavaScript code
+
 function applyJavaScript_append_host() {
   $("#append_host").on("input", function() {
     var value = $(this).val();
@@ -740,7 +831,6 @@ $(document).ready(function() {
   checkElement_append_host();
 });
 
-// Function to apply JavaScript code
 function applyJavaScript_append_city() {
   $("#append_city").on("input", function() {
     var value = $(this).val();
@@ -764,7 +854,6 @@ $(document).ready(function() {
 });
 
 
-// Function to apply JavaScript code
 function applyJavaScript_append_host_multi() {
   $("#append_host_multi").on("input", function() {
     var value = $(this).val();
@@ -787,7 +876,7 @@ $(document).ready(function() {
   checkElement_append_host_multi();
 });
 
-// Function to apply JavaScript code
+
 function applyJavaScript_append_city_multi() {
   $("#append_city_multi").on("input", function() {
     var value = $(this).val();
@@ -810,7 +899,6 @@ $(document).ready(function() {
   checkElement_append_city_multi();
 });
 
-// Function to apply JavaScript code
 function applyJavaScript_new_var_name() {
   $("#new_var_name").on("input", function() {
     var value = $(this).val();
@@ -827,8 +915,3 @@ function checkElement_new_var_name() {
     setTimeout(checkElement_new_var_name, 100); // Check again in 100 milliseconds
   }
 }
-
-// Initial check on document ready
-$(document).ready(function() {
-  checkElement_new_var_name();
-});
