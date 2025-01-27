@@ -46,10 +46,9 @@ University of Graz (MUG). Featured on ShinyConf 2024 and R/Medicine 2024. </sup>
 -   [2 Installation](#2-installation)
     -   [2.1 Download Source Code](#21-download-source-code)
     -   [2.2 Install Miniconda](#22-install-miniconda)
-    -   [2.3 Create Conda Environment](#23-create-conda-environment)
-    -   [2.4 Create Launcher](#24-create-desktop-launcher)
-    -   [2.5 Uninstall](#25-uninstall)
-    -   [2.6 Troubleshooting](#26-troubleshooting)
+    -   [2.3 Install PhyloTrace](#23-install-phylotrace)
+    -   [2.4 Uninstall](#24-uninstall)
+    -   [2.5 Troubleshooting](#25-troubleshooting)
 -   [3 Launch PhyloTrace](#3-launch-phylotrace)
 -   [4 Roadmap](#4-roadmap)
 
@@ -226,10 +225,9 @@ After this, the instructions from [2.2 Install Miniconda](#22-install-miniconda)
 
 Donwload the source code of the latest stable version. 
 
-Use the terminal to navigate to an accessible location on your system ```path/to/phylotrace``` and clone the repository using Git.
+Use the terminal to navigate to an accessible location on your system and clone the repository using Git.
 
 ```
-cd path/to/phylotrace
 git clone https://github.com/infinity-a11y/PhyloTrace.git
 ```
 
@@ -277,11 +275,11 @@ Run install script to generate a run script and include PhyloTrace desktop icon 
 Menu.
 
 ``` bash
-cd path/to/phylotrace
+cd path/to/phylotrace/directory
 bash install_phylotrace.sh
 ```
 
-> *In the command above, replace `path/to/phylotrace` with the actual path linking to the PhyloTrace
+> *In the command above, replace `path/to/phylotrace/directory` with the actual path linking to the PhyloTrace
 > directory on your system.*
 
 ### 2.4 Uninstall
@@ -290,17 +288,17 @@ To uninstall PhyloTrace from your system, remove the application directory and r
 command to remove the desktop launcher and the PhyloTrace conda environment:
 
 ``` bash
-rm -r $HOME/.local/share/PhyloTrace
+rm -r $HOME/.local/share/phylotrace
 rm $HOME/.local/share/applications/PhyloTrace.desktop
 rm $HOME/.local/share/icons/hicolor/scalable/apps/PhyloTrace.png
 conda remove -n PhyloTrace --all -y
 ```
 
-### 2.6 Troubleshooting
+### 2.5 Troubleshooting
 
 There are multiple possible sources for issues with the installation. Common mistakes during the
 installation are: 
-- Change `path/to/phylotrace` in the command chunks with the actual path of the repository containing all PhyloTrace files
+- Change `path/to/phylotrace/directory` in the command chunks with the actual path of the repository containing all PhyloTrace files
 - Before installation make sure the whole repository is unzipped to a writable location in your system
 
 If the installation issues persist feel free to contact us via
@@ -315,12 +313,12 @@ desired browser (executable names for popular browsers are listed in the table b
 to use Google Chrome, execute the following command:
 
 ``` bash
-cd path/to/phylotrace
+cd path/to/phylotrace/directory
 R_BROWSER=google-chrome
 bash run_phylotrace.sh
 ```
 
-> *In the command above, replace `path/to/phylotrace` with the actual path linking to the PhyloTrace
+> *In the command above, replace `path/to/phylotrace/directory` with the actual path linking to the PhyloTrace
 > directory on your system.*
 
 | Browser       | *browser-name*                                |
@@ -344,11 +342,11 @@ For Windows users, or if launching from the Linux desktop does not work, the alt
 commands:
 
 ``` bash
-cd path/to/phylotrace
+cd path/to/phylotrace/directory
 bash run_phylotrace.sh
 ```
 
-> *In the command above, replace `path/to/phylotrace` with the actual path linking to the PhyloTrace
+> *In the command above, replace `path/to/phylotrace/directory` with the actual path linking to the PhyloTrace
 > directory on your system.*
 
 > _To install and use PhyloTrace on Windows, a user account with administration rights is required._
