@@ -1668,820 +1668,679 @@ server <- function(input, output, session) {
   ### Load app event ----
   
   observeEvent(input$load, {
-    
-    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-    
-    output$start_message <- NULL
-    output$load_db <- NULL
-    
-    shinyjs::addClass(selector = "body", class = "sidebar-collapse")
-    shinyjs::removeClass(selector = "body", class = "sidebar-toggle")
-    
-    waiter_show(html = waiting_screen, color = "#384555")
-    
-    
-    #### Reset reactive variables ----
-    
-    # reactive variables related to local database
-    DB$data <- NULL 
-    DB$load_selected <- TRUE
-    DB$no_na_switch <- FALSE
-    DB$first_look <- FALSE
-    DB$scheme <- NULL
-    DB$check_new_entries <- NULL
-    DB$meta_gs <- NULL
-    DB$meta <- NULL
-    DB$meta_true <- NULL
-    DB$allelic_profile <- NULL
-    DB$allelic_profile_trunc <- NULL
-    DB$allelic_profile_true <- NULL
-    DB$scheme_new <- NULL
-    DB$loci_info <- NULL
-    DB$schemeinfo <- NULL
-    DB$scheme_db <- NULL
-    DB$scheme_link <- NULL
-    DB$number_loci <- NULL
-    DB$cluster_thresh <- NULL
-    DB$cust_var <- data.frame()
-    DB$change <- NULL
-    DB$matrix_min <- NULL
-    DB$matrix_max <- NULL
-    DB$na_table <- NULL
-    DB$url_link <- NULL
-    if(is.null(DB$failCon)) {DB$failCon <- NULL}
-    DB$inhibit_change <- NULL
-    DB$count <- NULL
-    DB$deleted_entries <- NULL
-    DB$remove_iso <- NULL
-    DB$ham_matrix <- NULL
-    DB$loci <- NULL
-    DB$seq <- NULL
-    
-    # reactive variables related to typing process
-    Typing$reload <- NULL
-    Typing$multi_sel_table <- NULL
-    Typing$pending <- FALSE
-    Typing$multi_started <- FALSE
-    Typing$multi_help <- FALSE
-    Typing$last_success <- "0"
-    Typing$last_failure <- "0"
-    Typing$last_scheme <- NULL
-    Typing$assembly_folder_path <- NULL
-    Typing$files_filtered <- NULL
-    Typing$assembly_files_path <- NULL
-    Typing$result_list <- NULL
-    Typing$multi_table_length <- NULL
-    Typing$multi_result_status <- NULL
-    Typing$last_scheme <- NULL
-    Typing$status <- ""
-    Typing$file_selection <- ""
-    # Null typing progress trackers
-    writeLines("0", file.path(logdir, "script_log.txt"))
-    saveRDS(list(), file.path(app_local_share_path, "event_list.rds"))
-    
-    # reactive variables related to gene screening
-    Screening$status <- "idle"
-    Screening$picker_status <- TRUE
-    Screening$first_result <- NULL
-    Screening$status_df <- NULL
-    Screening$choices <- NULL
-    Screening$amr_results <- NULL
-    Screening$amr_class <- NULL
-    Screening$vir_class <- NULL
-    Screening$hm_meta <- NULL
-    Screening$res_profile <- NULL
-    Screening$picker_choices <- NULL
-    Screening$picker_selected <- NULL
-    Screening$meta_df <- NULL
-    
-    # reactive variables related to visualization
-    Vis$custom_label_nj <- data.frame()
-    Vis$nj_label_pos_y <- list()
-    Vis$nj_label_pos_x <- list()
-    Vis$nj_label_size <- list()
-    Vis$nj <- NULL
-    Vis$mst_pre <- NULL
-    Vis$title <- NULL
-    Vis$nj_max_x <- NULL
-    Vis$meta_nj <- NULL
-    Vis$nj_parentnodes <- NULL
-    Vis$branch_size_nj <- NULL
-    Vis$tiplab_padding_nj <- NULL
-    Vis$nodepointsize_nj <- NULL
-    Vis$tippointsize_nj <- NULL
-    Vis$labelsize_nj <- NULL
-    Vis$nj_min_x <- NULL
-    Vis$amr_nj <- NULL
-    Vis$var_cols <- NULL
-    Vis$meta_mst <- NULL
-    Vis$unique_meta <- NULL
-    Vis$nj_heatmap_select <- NULL
-    Vis$nj_plot <- NULL
-    Vis$nj_tree <- NULL
-    
-    # Reactive variables related to plot controls
-    if(isTRUE(Vis$mst_true)) {
-      mst_node_label_reactive("Assembly Name")
-      mst_title_reactive("")
-      mst_subtitle_reactive("")
-      mst_color_var_reactive(FALSE)
-      mst_col_var_reactive("Isolation Date")
-      mst_col_scale_reactive("Viridis")
-      mst_text_color_reactive("#000000")
-      mst_color_node_reactive("#B2FACA")
-      mst_color_edge_reactive("#000000")
-      mst_edge_font_color_reactive("#000000")
-      mst_background_color_reactive("#ffffff")
-      mst_background_transparent_reactive(FALSE)
-      mst_scale_nodes_reactive(TRUE)
-      mst_node_scale_reactive(c(20, 40))
-      mst_node_size_reactive(30)
-      mst_scale_edges_reactive(TRUE)
-      mst_edge_length_scale_reactive(15)
-      mst_edge_length_reactive(35)
-      mst_edge_font_size_reactive(18)
-      mst_node_label_fontsize_reactive(14)
-      mst_title_size_reactive(35)
-      mst_subtitle_size_reactive(20)
-      mst_ratio_reactive(16/10)
-      mst_scale_reactive(600)
-      mst_shadow_reactive(TRUE)
-      mst_node_shape_reactive("dot")
-      mst_show_clusters_reactive(FALSE)
-      mst_cluster_col_scale_reactive("Viridis")
-      mst_cluster_type_reactive("Area")
-      mst_cluster_width_reactive(24)
-      ifelse(!is.null(DB$cluster_thresh),
-             mst_cluster_threshold_reactive(DB$cluster_thresh),
-             mst_cluster_threshold_reactive(10))
-      mst_legend_ori_reactive("left")
-      mst_font_size_reactive(18)
-      mst_symbol_size_reactive(20)
-    }
-    
-    if(isTRUE(Vis$nj_true)) {
-      # Tip label
-      Vis$nj_tiplab_val_reset <- TRUE
-      nj_tiplab_val("Assembly Name")
-      nj_tiplab_show_val(TRUE)
-      Vis$nj_align_reset <- TRUE
-      nj_align_val(FALSE)
-      ifelse(!is.null(Vis$labelsize_nj),
-             nj_tiplab_size_val(Vis$labelsize_nj),
-             nj_tiplab_size_val(4))
-      nj_tiplab_fontface_val("plain")
-      nj_tiplab_alpha_val(1)
-      nj_tiplab_position_val(0)
-      Vis$nj_tiplab_angle_reset <- TRUE
-      nj_tiplab_angle_val(0)
-      
-      # Label panels
-      nj_geom_val(FALSE)
-      nj_tiplab_labelradius_val(0.2)
-      ifelse(!is.null(Vis$tiplab_padding_nj),
-             nj_tiplab_padding_val(Vis$tiplab_padding_nj),
-             nj_tiplab_padding_val(0.2))
-      
-      # Branch labels
-      nj_show_branch_label_val(FALSE)
-      ifelse(!is.null(Vis$branch_size_nj),
-             nj_branch_size_val(Vis$branch_size_nj),
-             nj_branch_size_val(4))
-      Vis$nj_branch_label_val_reset <- TRUE
-      nj_branch_label_val("Host")
-      nj_branchlab_alpha_val(0.65)
-      nj_branch_x_val(0)
-      nj_branchlab_fontface_val("plain")
-      nj_branch_labelradius_val(0.5)
-      
-      # Titles
-      nj_title_val(NULL)
-      nj_title_size_val(30)
-      nj_subtitle_val(NULL)
-      nj_subtitle_size_val(30)
-      
-      # Custom label
-      Vis$nj_label_pos_x <- list()
-      Vis$nj_label_pos_y <- list()
-      Vis$nj_label_size <- list()
-      Vis$custom_label_nj <- data.frame()
-      
-      # Tip label mapping
-      nj_mapping_show_val(FALSE)
-      Vis$nj_color_mapping_val_reset <- TRUE
-      nj_color_mapping_val("Country")
-      Vis$nj_tiplab_scale_reset <- TRUE
-      nj_tiplab_scale_val(nj_tiplab_scale_val_default())
-      Vis$nj_color_mapping_div_mid_reset <- TRUE
-      nj_color_mapping_div_mid_val("Mean")
-      
-      # Tip points mapping
-      nj_tipcolor_mapping_show_val(FALSE)
-      Vis$nj_tipcolor_mapping_val_reset <- TRUE
-      nj_tipcolor_mapping_val("Country")
-      Vis$nj_tippoint_scale_val_reset <- TRUE
-      nj_tippoint_scale_val(nj_tippoint_scale_val_default())
-      Vis$nj_tipcolor_mapping_div_mid_reset <- TRUE
-      nj_tipcolor_mapping_div_mid_val("Mean")
-      
-      # Tip shape mapping
-      nj_tipshape_mapping_show_val(FALSE)
-      Vis$nj_tipshape_mapping_val_reset <- TRUE
-      nj_tipshape_mapping_val("Host")
-      
-      # Tiles mapping
-      nj_tiles_show_1_val(FALSE)
-      nj_tiles_show_2_val(FALSE)
-      nj_tiles_show_3_val(FALSE)
-      nj_tiles_show_4_val(FALSE)
-      nj_tiles_show_5_val(FALSE)
-      Vis$nj_fruit_variable_val_reset <- TRUE
-      nj_fruit_variable_val("Isolation Date")
-      Vis$nj_fruit_variable_2_val_reset <- TRUE
-      nj_fruit_variable_2_val("Isolation Date")
-      Vis$nj_fruit_variable_3_val_reset <- TRUE
-      nj_fruit_variable_3_val("Isolation Date")
-      Vis$nj_fruit_variable_4_val_reset <- TRUE
-      nj_fruit_variable_4_val("Isolation Date")
-      Vis$nj_fruit_variable_5_val_reset <- TRUE
-      nj_fruit_variable_5_val("Isolation Date")
-      Vis$nj_tiles_scale_1_reset <- TRUE
-      nj_tiles_scale_1_val(nj_tiles_scale_1_val_default())
-      Vis$nj_tiles_scale_2_reset <- TRUE
-      nj_tiles_scale_2_val(nj_tiles_scale_2_val_default())
-      Vis$nj_tiles_scale_3_reset <- TRUE
-      nj_tiles_scale_3_val(nj_tiles_scale_3_val_default())
-      Vis$nj_tiles_scale_4_reset <- TRUE
-      nj_tiles_scale_4_val(nj_tiles_scale_4_val_default())
-      Vis$nj_tiles_scale_5_reset <- TRUE
-      nj_tiles_scale_5_val(nj_tiles_scale_5_val_default())
-      Vis$nj_tiles_mapping_div_mid_1_reset <- TRUE
-      nj_tiles_mapping_div_mid_1_val("Mean")
-      Vis$nj_tiles_mapping_div_mid_2_reset <- TRUE
-      nj_tiles_mapping_div_mid_2_val("Mean")
-      Vis$nj_tiles_mapping_div_mid_3_reset <- TRUE
-      nj_tiles_mapping_div_mid_3_val("Mean")
-      Vis$nj_tiles_mapping_div_mid_4_reset <- TRUE
-      nj_tiles_mapping_div_mid_4_val("Mean")
-      Vis$nj_tiles_mapping_div_mid_5_reset <- TRUE
-      nj_tiles_mapping_div_mid_5_val("Mean")
-      
-      nj_heatmap_show_val(FALSE)
-      Vis$nj_heatmap_select_val_reset <- TRUE
-      nj_heatmap_select_val(NULL)
-      Vis$nj_heatmap_scale_reset <- TRUE
-      nj_heatmap_scale_val(nj_heatmap_scale_val_default())
-      Vis$nj_heatmap_div_mid_val_reset <- TRUE
-      nj_heatmap_div_mid_val("Mean")
-      
-      # Color values
-      nj_color_val("#000000")
-      nj_bg_val("#ffffff")
-      nj_title_color_val("#000000")
-      nj_tiplab_color_val("#000000")
-      nj_tiplab_fill_val("#84D9A0")
-      nj_branch_label_color_val("#FFB7B7")
-      nj_tippoint_color_val("#3A4657")
-      nj_nodepoint_color_val("#3A4657")
-      
-      # Tip points
-      nj_tippoint_show_val(FALSE)
-      Vis$nj_tippoint_shape_reset <- TRUE
-      nj_tippoint_shape_val("circle")
-      nj_tippoint_alpha_val(0.5)
-      ifelse(!is.null(Vis$tippointsize_nj),
-             nj_tippoint_size_val(Vis$tippointsize_nj),
-             nj_tippoint_size_val(4))
-      
-      # Node points
-      nj_nodepoint_show_val(FALSE)
-      nj_nodepoint_shape_val("circle")
-      nj_nodepoint_alpha_val(1)
-      ifelse(!is.null(Vis$nodepointsize_nj),
-             nj_nodepoint_size_val(Vis$nodepointsize_nj),
-             nj_nodepoint_size_val(2.5))
-      
-      # Tiles
-      nj_tile_number_val(1)
-      nj_fruit_alpha_val(1)
-      nj_fruit_alpha_2_val(1)
-      nj_fruit_alpha_3_val(1)
-      nj_fruit_alpha_4_val(1)
-      nj_fruit_alpha_5_val(1)
-      Vis$nj_fruit_width_circ_val_reset <- TRUE
-      nj_fruit_width_circ_val(fruit_width())
-      Vis$nj_fruit_width_circ_2_val_reset <- TRUE
-      nj_fruit_width_circ_2_val(fruit_width())
-      Vis$nj_fruit_width_circ_3_val_reset <- TRUE
-      nj_fruit_width_circ_3_val(fruit_width())
-      Vis$nj_fruit_width_circ_4_val_reset <- TRUE
-      nj_fruit_width_circ_4_val(fruit_width())
-      Vis$nj_fruit_width_circ_5_val_reset <- TRUE
-      nj_fruit_width_circ_5_val(fruit_width())
-      Vis$nj_fruit_offset_circ_reset <- TRUE
-      nj_fruit_offset_circ_val(0.05)
-      Vis$nj_fruit_offset_circ_2_reset <- TRUE
-      nj_fruit_offset_circ_2_val(0.05)
-      Vis$nj_fruit_offset_circ_3_reset <- TRUE
-      nj_fruit_offset_circ_3_val(0.05)
-      Vis$nj_fruit_offset_circ_4_reset <- TRUE
-      nj_fruit_offset_circ_4_val(0.05)
-      Vis$nj_fruit_offset_circ_5_reset <- TRUE
-      nj_fruit_offset_circ_5_val(0.05)
-      
-      # Heatmap
-      nj_heatmap_title_val("Heatmap")
-      nj_colnames_angle_val(-90)
-      Vis$nj_colnames_y_val_reset <- TRUE
-      nj_colnames_y_val(-1)
-      nj_heatmap_width_val(heatmap_width())
-      Vis$nj_heatmap_offset_val_reset <- TRUE
-      nj_heatmap_offset_val(0)
-      
-      # Clade highlights
-      nj_nodelabel_show_val(FALSE)
-      Vis$nj_parentnode_val_reset <- TRUE
-      nj_parentnode_val("")
-      nj_clade_scale_val(clade_highlight_color())
-      nj_clade_type_val("roundrect")
-      
-      # Dimensions
-      nj_ratio_val(c("16:10" = (16 / 10)))
-      nj_v_val(0)
-      nj_h_val(-0.05)
-      nj_scale_val(670)
-      nj_zoom_val(0.95)
-      nj_layout_val("rectangular")
-      nj_rootedge_show_val(FALSE)
-      Vis$nj_rootedge_length_val_reset <- TRUE
-      ifelse(!is.null(Vis$nj_max_x),
-             nj_rootedge_length_val(round(ceiling(Vis$nj_max_x) * 0.05)),
-             nj_rootedge_length_val(2))
-      nj_rootedge_line_val("solid")
-      Vis$nj_xlim_val_reset <- TRUE
-      nj_xlim_val(-10)
-      Vis$nj_xlim_inw_val_reset <- TRUE
-      nj_xlim_inw_val(50)
-      nj_treescale_show_val(FALSE)
-      Vis$nj_treescale_width_val_reset <- TRUE
-      ifelse(!is.null(Vis$nj_max_x),
-             nj_treescale_width_val(round(ceiling(Vis$nj_max_x) * 0.1, 0)),
-             nj_treescale_width_val(2))
-      Vis$nj_treescale_x_val_reset <- TRUE
-      ifelse(!is.null(Vis$nj_max_x),
-             nj_treescale_x_val(round(ceiling(Vis$nj_max_x) * 0.2, 0)),
-             nj_treescale_x_val(2))
-      Vis$nj_treescale_y_val_reset <- TRUE
-      nj_treescale_y_val(0)
-      nj_ladder_val(TRUE)
-      
-      # Legend
-      nj_legend_orientation_val("vertical")
-      nj_legend_size_val(10)
-      nj_legend_x_val(0.9)
-      nj_legend_y_val(0.2)
-    }
-    
-    # reactive variables related to report functions
-    Report$report_list_mst <- NULL
-    Report$report_list_nj <- NULL
-    Report$report_df <- NULL
-    
-    # reactive variables related to scheme functions
-    Scheme$link_scheme <- NULL
-    Scheme$link_cgmlst <- NULL
-    Scheme$link_targets <- NULL
-    Scheme$folder_name <- NULL
-    Scheme$species_data <- NULL
-    
-    
-    ### Reset UI elements ----
-    
-    # Reset reactive screening variables 
-    output$screening_start <- NULL
-    output$screening_result_sel <- NULL
-    output$screening_result <- NULL
-    output$screening_fail <- NULL
-    output$multi_select_table <- NULL
-    output$multi_select_tab_ctrls <- NULL
-    Screening$status_df <- NULL
-    Screening$choices <- NULL
-    Screening$picker_status <- TRUE
-    Screening$status <- "idle"
-    Screening$first_result <- NULL
-    if(!is.null(input$screening_select)) {
-      if(!is.null(DB$data)) {
-        updatePickerInput(session, "screening_select", selected = character(0))
-      }
-    }
-    
-    # Empty tree plot fields
-    output$tree_field <- NULL
-    output$mst_field <- NULL
-    log_print("Input load")
-    
-    # set typing start control variable
-    Typing$reload <- TRUE
-    
-    
-    ### Render status bar ----
-    observe({
-      req(DB$scheme)
-      
-      if(is.null(input$scheme_position)) {
-        output$loaded_scheme <- renderUI({
-          fluidRow(
-            tags$li(
-              class = "dropdown", 
-              tags$span(HTML(
-                paste('<i class="fa-solid fa-layer-group"></i>', 
-                      "Selected scheme:&nbsp;&nbsp;&nbsp;<i>",
-                      DB$scheme,
-                      "</i>")), 
-                style = "color:black;")
-            )
-          )
-        })
-      } 
-      
-      if(!is.null(input$scheme_position)) {
-        output$loaded_scheme <- renderUI({
-          fluidRow(
-            tags$li(
-              class = "dropdown", 
-              tags$span(HTML(
-                paste('<i class="fa-solid fa-layer-group"></i>', 
-                      "Selected scheme:&nbsp;&nbsp;&nbsp;<i>",
-                      DB$scheme,
-                      "</i>")), 
-                style = "color:black;"),
-              div(
-                class = "reload-bttn",
-                style = paste0("margin-left:", 30 + input$scheme_position, "px; position: relative; top: -24px;"),
-                tipify(
-                  actionButton(
-                    "reload_db",
-                    label = "",
-                    icon = icon("rotate")
-                  ),
-                  title = "Change scheme",
-                  options = list("delay': 400, 'foo" = "foo")
-                )
-              )
-            )
-          )
-        })
-      }
-    })
-    
-    observe({
-      if(!is.null(Startup$database) && length(Startup$database) > 0){
-        if(nchar(Startup$database) > 35) {
-          database <- paste0(substring(Startup$database, first = 1, last = 35), "...")
-        } else {
-          database <- Startup$database
-        }
-        output$databasetext <- renderUI({
-          fluidRow(
-            tags$li(
-              class = "dropdown", 
-              tags$span(HTML(
-                paste('<i class="fa-solid fa-folder-open"></i>', 
-                      "Database:&nbsp;&nbsp;&nbsp;<i>",
-                      database,
-                      "</i>")), 
-                style = "color:black;")
-            ),
-            if(nchar(database) > 35) {bsTooltip("databasetext", 
-                                                HTML(Startup$database), 
-                                                placement = "bottom", 
-                                                trigger = "hover")}
-          )
-        })
-      }
-    })
-    
-    observe({
-      if(!is.null(Startup$database)) {
-        if(Typing$status == "Finalized"){
-          output$statustext <- renderUI(
-            fluidRow(
-              tags$li(
-                class = "dropdown", 
-                tags$span(HTML(
-                  paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
-                        "Status:&nbsp;&nbsp;&nbsp; <i>typing finalized</i>")),
-                  style = "color:black;")
-              )
-            )
-          )
-        } else if(Typing$status == "Attaching"){
-          output$statustext <- renderUI(
-            fluidRow(
-              tags$li(
-                class = "dropdown", 
-                tags$span(HTML(
-                  paste('<i class="fa-solid fa-circle-dot" style="color:orange !important;"></i>', 
-                        "Status:&nbsp;&nbsp;&nbsp; <i>evaluating typing results</i>")),
-                  style = "color:black;")
-              )
-            )
-          )
-        } else if(Typing$status == "Processing") {
-          output$statustext <- renderUI(
-            fluidRow(
-              tags$li(
-                class = "dropdown", 
-                tags$span(HTML(
-                  paste('<i class="fa-solid fa-circle-dot" style="color:orange !important;"></i>', 
-                        "Status:&nbsp;&nbsp;&nbsp;<i> pending typing</i>")), 
-                  style = "color:black;")
-              )
-            )
-          )
-        } else if(Screening$status == "started") {
-          output$statustext <- renderUI(
-            fluidRow(
-              tags$li(
-                class = "dropdown", 
-                tags$span(HTML(
-                  paste('<i class="fa-solid fa-circle-dot" style="color:orange !important;"></i>', 
-                        "Status:&nbsp;&nbsp;&nbsp;<i> pending gene screening</i>")), 
-                  style = "color:black;")
-              )
-            )
-          )
-        } else if(Screening$status == "finished") {
-          output$statustext <- renderUI(
-            fluidRow(
-              tags$li(
-                class = "dropdown", 
-                tags$span(HTML(
-                  paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
-                        "Status:&nbsp;&nbsp;&nbsp;<i> gene screening finalized</i>")), 
-                  style = "color:black;")
-              )
-            )
-          )
-        } else {
-          output$statustext <- renderUI(
-            fluidRow(
-              tags$li(
-                class = "dropdown", 
-                tags$span(HTML(
-                  paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
-                        "Status:&nbsp;&nbsp;&nbsp; <i>ready</i>")),
-                  style = "color:black;")
-              )
-            )
-          )
-        }    
-      }
-    })
-    
-    shinyjs::runjs(
-      'if(document.querySelector("#loaded_scheme > div > li > span") !== null) {
-          // Select the span element
-          let spanElement = document.querySelector("#loaded_scheme > div > li > span");
-                    
-          // Get the bounding rectangle of the span element
-          let rect = spanElement.getBoundingClientRect();
-          
-          // Extract the width
-          let width = rect.width;
-          
-          Shiny.setInputValue("scheme_position", width);            
-        }'
-    )
-    
-    # Load app elements based on database availability and missing value presence
-    if(isTRUE(Startup$select_new) && !is.null(DB$new_database)) {
-      if(file.path(DB$new_database, "Database") %in% dir_ls(DB$new_database)) {
-        log_print("Directory already contains a database")
-        
-        show_toast(
-          title = "Directory already contains a database",
-          type = "error",
-          position = "bottom-end",
-          timer = 6000
-        )
-        DB$load_selected <- FALSE
-      } else {
-        if(Startup$select_new | (isFALSE(Startup$select_new) & is.null(input$scheme_db))) {
-          
-          log_print(paste0("New database created in ", DB$new_database))
-          
-          DB$check_new_entries <- TRUE
-          DB$data <- NULL
-          DB$meta_gs <- NULL
-          DB$meta <- NULL
-          DB$meta_true <- NULL
-          DB$allelic_profile <- NULL
-          DB$allelic_profile_trunc <- NULL
-          DB$allelic_profile_true <- NULL
-          
-          # null Distance matrix, entry table and plots
-          output$db_distancematrix <- NULL 
-          output$db_entries_table <- NULL
-          output$tree_mst <- NULL
-          output$tree_plot <- NULL
-          
-          # null report values
-          Report$report_list_mst <- list()
-          Report$report_list_nj <- list()
-          
-          # null plots
-          Vis$nj <- NULL
-          Vis$mst_pre <- NULL
-          
-          removeModal()
-          
-          ### Render Menu Items ----
-          
-          Startup$sidebar <- FALSE
-          
-          output$menu_header_typing <- NULL
-          output$menu_header_screening <- NULL
-          
-          # Hide start message
-          output$start_message <- NULL
-          
-          DB$load_selected <- FALSE
-          
-          # Declare database path
-          Startup$database <- file.path(DB$new_database, "Database")
-          
-          # Set database availability screening variables to present database
-          Startup$block_db <- TRUE
-          Startup$select_new <- FALSE
-          
-          # Render menu with Manage Schemes as start tab and no Missing values tab
-          output$menu_typing <- renderMenu(
-            sidebarMenu(
-              menuItem(
-                text = "Schemes",
-                tabName = "init",
-                icon = icon("layer-group"),
-                selected = TRUE
-              )
-            )
-          )
-          
-          # Show message that loci files are missing
-          showModal(
-            div(
-              class = "start-modal",
-              modalDialog(
-                fluidRow(
-                  br(), 
-                  column(
-                    width = 11,
-                    p(
-                      HTML(
-                        paste0(
-                          '<span style="color: white; display: block; font-size: 15px; margin-left: 15px; display: block;">',
-                          "Download a cgMLST scheme to add a new folder in the database directory.",
-                          " Multiple schemes can be downloaded and included in one database.",
-                          '</span>'
-                        )
-                      )
-                    )
-                  ),
-                  br()
-                ),
-                title = paste("Set Up New Database"),
-                fade = TRUE,
-                easyClose = TRUE,
-                footer = tagList(
-                  modalButton("Okay")
-                )
-              )
-            )
-          )
-          
-          # Dont render these elements
-          output$db_no_entries <- NULL
-          output$distancematrix_no_entries <- NULL
-          output$db_entries <- NULL
-          output$edit_index <- NULL
-          output$edit_scheme_d <- NULL
-          output$edit_entries <- NULL
-          output$compare_select <- NULL
-          output$delete_select <- NULL
-          output$del_bttn <- NULL
-          output$compare_allele_box <- NULL
-          output$download_entries <- NULL
-          output$missing_values <- NULL
-          output$custom_var_box <- NULL
-          output$delete_box <- NULL
-          output$missing_values_sidebar <- NULL
-          output$download_scheme_info <- NULL
-          output$download_loci <- NULL
-          output$entry_table_controls <- NULL
-          output$multi_stop <- NULL
-          output$metadata_multi_box <- NULL
-          output$start_multi_typing_ui <- NULL
-          output$pending_typing <- NULL
-          output$multi_typing_results <- NULL
-          output$single_typing_progress <- NULL
-          output$metadata_single_box <- NULL
-          output$start_typing_ui <- NULL
-        }
-      }
+
+    if(tail(readLogFile(), 1) != "0") {
+      show_toast(
+        title = "Pending Multi Typing",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000
+      )
+    } else if(!is.null(Screening$status) && Screening$status == "started") {
+      show_toast(
+        title = "Pending Gene Screening",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000
+      )
     } else {
-      log_print(paste0("Loading existing ", input$scheme_db, " database from ", Startup$database))
-    }
+      shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
     
-    if(isTRUE(DB$load_selected)) {
-      #Check if selected scheme valid
-      if(gsub(" ", "_", gsub(" (PM|CM)", "", input$scheme_db)) %in% gsub("_(PM|CM)", "", schemes$species)) {
+      output$start_message <- NULL
+      output$load_db <- NULL
+      
+      shinyjs::addClass(selector = "body", class = "sidebar-collapse")
+      shinyjs::removeClass(selector = "body", class = "sidebar-toggle")
+      
+      waiter_show(html = waiting_screen, color = "#384555")
+      
+      
+      #### Reset reactive variables ----
+      
+      # reactive variables related to local database
+      DB$data <- NULL 
+      DB$load_selected <- TRUE
+      DB$no_na_switch <- FALSE
+      DB$first_look <- FALSE
+      DB$scheme <- NULL
+      DB$check_new_entries <- NULL
+      DB$meta_gs <- NULL
+      DB$meta <- NULL
+      DB$meta_true <- NULL
+      DB$allelic_profile <- NULL
+      DB$allelic_profile_trunc <- NULL
+      DB$allelic_profile_true <- NULL
+      DB$scheme_new <- NULL
+      DB$loci_info <- NULL
+      DB$schemeinfo <- NULL
+      DB$scheme_db <- NULL
+      DB$scheme_link <- NULL
+      DB$number_loci <- NULL
+      DB$cluster_thresh <- NULL
+      DB$cust_var <- data.frame()
+      DB$change <- NULL
+      DB$matrix_min <- NULL
+      DB$matrix_max <- NULL
+      DB$na_table <- NULL
+      DB$url_link <- NULL
+      if(is.null(DB$failCon)) {DB$failCon <- NULL}
+      DB$inhibit_change <- NULL
+      DB$count <- NULL
+      DB$deleted_entries <- NULL
+      DB$remove_iso <- NULL
+      DB$ham_matrix <- NULL
+      DB$loci <- NULL
+      DB$seq <- NULL
+      
+      # reactive variables related to typing process
+      Typing$reload <- NULL
+      Typing$multi_sel_table <- NULL
+      Typing$pending <- FALSE
+      Typing$multi_started <- FALSE
+      Typing$multi_help <- FALSE
+      Typing$last_success <- "0"
+      Typing$last_failure <- "0"
+      Typing$last_scheme <- NULL
+      Typing$assembly_folder_path <- NULL
+      Typing$files_filtered <- NULL
+      Typing$assembly_files_path <- NULL
+      Typing$result_list <- NULL
+      Typing$multi_table_length <- NULL
+      Typing$multi_result_status <- NULL
+      Typing$last_scheme <- NULL
+      Typing$status <- ""
+      Typing$file_selection <- ""
+      # Null typing progress trackers
+      writeLines("0", file.path(logdir, "script_log.txt"))
+      saveRDS(list(), file.path(app_local_share_path, "event_list.rds"))
+      
+      # reactive variables related to gene screening
+      Screening$status <- "idle"
+      Screening$picker_status <- TRUE
+      Screening$first_result <- NULL
+      Screening$status_df <- NULL
+      Screening$choices <- NULL
+      Screening$amr_results <- NULL
+      Screening$amr_class <- NULL
+      Screening$vir_class <- NULL
+      Screening$hm_meta <- NULL
+      Screening$res_profile <- NULL
+      Screening$picker_choices <- NULL
+      Screening$picker_selected <- NULL
+      Screening$meta_df <- NULL
+      
+      # reactive variables related to visualization
+      Vis$custom_label_nj <- data.frame()
+      Vis$nj_label_pos_y <- list()
+      Vis$nj_label_pos_x <- list()
+      Vis$nj_label_size <- list()
+      Vis$nj <- NULL
+      Vis$mst_pre <- NULL
+      Vis$title <- NULL
+      Vis$nj_max_x <- NULL
+      Vis$meta_nj <- NULL
+      Vis$nj_parentnodes <- NULL
+      Vis$branch_size_nj <- NULL
+      Vis$tiplab_padding_nj <- NULL
+      Vis$nodepointsize_nj <- NULL
+      Vis$tippointsize_nj <- NULL
+      Vis$labelsize_nj <- NULL
+      Vis$nj_min_x <- NULL
+      Vis$amr_nj <- NULL
+      Vis$var_cols <- NULL
+      Vis$meta_mst <- NULL
+      Vis$unique_meta <- NULL
+      Vis$nj_heatmap_select <- NULL
+      Vis$nj_plot <- NULL
+      Vis$nj_tree <- NULL
+      
+      # Reactive variables related to plot controls
+      if(isTRUE(Vis$mst_true)) {
+        mst_node_label_reactive("Assembly Name")
+        mst_title_reactive("")
+        mst_subtitle_reactive("")
+        mst_color_var_reactive(FALSE)
+        mst_col_var_reactive("Isolation Date")
+        mst_col_scale_reactive("Viridis")
+        mst_text_color_reactive("#000000")
+        mst_color_node_reactive("#B2FACA")
+        mst_color_edge_reactive("#000000")
+        mst_edge_font_color_reactive("#000000")
+        mst_background_color_reactive("#ffffff")
+        mst_background_transparent_reactive(FALSE)
+        mst_scale_nodes_reactive(TRUE)
+        mst_node_scale_reactive(c(20, 40))
+        mst_node_size_reactive(30)
+        mst_scale_edges_reactive(TRUE)
+        mst_edge_length_scale_reactive(15)
+        mst_edge_length_reactive(35)
+        mst_edge_font_size_reactive(18)
+        mst_node_label_fontsize_reactive(14)
+        mst_title_size_reactive(35)
+        mst_subtitle_size_reactive(20)
+        mst_ratio_reactive(16/10)
+        mst_scale_reactive(600)
+        mst_shadow_reactive(TRUE)
+        mst_node_shape_reactive("dot")
+        mst_show_clusters_reactive(FALSE)
+        mst_cluster_col_scale_reactive("Viridis")
+        mst_cluster_type_reactive("Area")
+        mst_cluster_width_reactive(24)
+        ifelse(!is.null(DB$cluster_thresh),
+               mst_cluster_threshold_reactive(DB$cluster_thresh),
+               mst_cluster_threshold_reactive(10))
+        mst_legend_ori_reactive("left")
+        mst_font_size_reactive(18)
+        mst_symbol_size_reactive(20)
+      }
+      
+      if(isTRUE(Vis$nj_true)) {
+        # Tip label
+        Vis$nj_tiplab_val_reset <- TRUE
+        nj_tiplab_val("Assembly Name")
+        nj_tiplab_show_val(TRUE)
+        Vis$nj_align_reset <- TRUE
+        nj_align_val(FALSE)
+        ifelse(!is.null(Vis$labelsize_nj),
+               nj_tiplab_size_val(Vis$labelsize_nj),
+               nj_tiplab_size_val(4))
+        nj_tiplab_fontface_val("plain")
+        nj_tiplab_alpha_val(1)
+        nj_tiplab_position_val(0)
+        Vis$nj_tiplab_angle_reset <- TRUE
+        nj_tiplab_angle_val(0)
         
-        # Save database path for next start
-        saveRDS(Startup$database, file.path(app_local_share_path, "last_db.rds"))
+        # Label panels
+        nj_geom_val(FALSE)
+        nj_tiplab_labelradius_val(0.2)
+        ifelse(!is.null(Vis$tiplab_padding_nj),
+               nj_tiplab_padding_val(Vis$tiplab_padding_nj),
+               nj_tiplab_padding_val(0.2))
         
-        DB$check_new_entries <- TRUE
-        DB$data <- NULL
-        DB$meta_gs <- NULL
-        DB$meta <- NULL
-        DB$meta_true <- NULL
-        DB$allelic_profile <- NULL
-        DB$allelic_profile_trunc <- NULL
-        DB$allelic_profile_true <- NULL
+        # Branch labels
+        nj_show_branch_label_val(FALSE)
+        ifelse(!is.null(Vis$branch_size_nj),
+               nj_branch_size_val(Vis$branch_size_nj),
+               nj_branch_size_val(4))
+        Vis$nj_branch_label_val_reset <- TRUE
+        nj_branch_label_val("Host")
+        nj_branchlab_alpha_val(0.65)
+        nj_branch_x_val(0)
+        nj_branchlab_fontface_val("plain")
+        nj_branch_labelradius_val(0.5)
         
-        if(!identical(DB$scheme, input$scheme_db)) {
-          DB$scheme <- input$scheme_db
-          DB$scheme_new <- TRUE
+        # Titles
+        nj_title_val(NULL)
+        nj_title_size_val(30)
+        nj_subtitle_val(NULL)
+        nj_subtitle_size_val(30)
+        
+        # Custom label
+        Vis$nj_label_pos_x <- list()
+        Vis$nj_label_pos_y <- list()
+        Vis$nj_label_size <- list()
+        Vis$custom_label_nj <- data.frame()
+        
+        # Tip label mapping
+        nj_mapping_show_val(FALSE)
+        Vis$nj_color_mapping_val_reset <- TRUE
+        nj_color_mapping_val("Country")
+        Vis$nj_tiplab_scale_reset <- TRUE
+        nj_tiplab_scale_val(nj_tiplab_scale_val_default())
+        Vis$nj_color_mapping_div_mid_reset <- TRUE
+        nj_color_mapping_div_mid_val("Mean")
+        
+        # Tip points mapping
+        nj_tipcolor_mapping_show_val(FALSE)
+        Vis$nj_tipcolor_mapping_val_reset <- TRUE
+        nj_tipcolor_mapping_val("Country")
+        Vis$nj_tippoint_scale_val_reset <- TRUE
+        nj_tippoint_scale_val(nj_tippoint_scale_val_default())
+        Vis$nj_tipcolor_mapping_div_mid_reset <- TRUE
+        nj_tipcolor_mapping_div_mid_val("Mean")
+        
+        # Tip shape mapping
+        nj_tipshape_mapping_show_val(FALSE)
+        Vis$nj_tipshape_mapping_val_reset <- TRUE
+        nj_tipshape_mapping_val("Host")
+        
+        # Tiles mapping
+        nj_tiles_show_1_val(FALSE)
+        nj_tiles_show_2_val(FALSE)
+        nj_tiles_show_3_val(FALSE)
+        nj_tiles_show_4_val(FALSE)
+        nj_tiles_show_5_val(FALSE)
+        Vis$nj_fruit_variable_val_reset <- TRUE
+        nj_fruit_variable_val("Isolation Date")
+        Vis$nj_fruit_variable_2_val_reset <- TRUE
+        nj_fruit_variable_2_val("Isolation Date")
+        Vis$nj_fruit_variable_3_val_reset <- TRUE
+        nj_fruit_variable_3_val("Isolation Date")
+        Vis$nj_fruit_variable_4_val_reset <- TRUE
+        nj_fruit_variable_4_val("Isolation Date")
+        Vis$nj_fruit_variable_5_val_reset <- TRUE
+        nj_fruit_variable_5_val("Isolation Date")
+        Vis$nj_tiles_scale_1_reset <- TRUE
+        nj_tiles_scale_1_val(nj_tiles_scale_1_val_default())
+        Vis$nj_tiles_scale_2_reset <- TRUE
+        nj_tiles_scale_2_val(nj_tiles_scale_2_val_default())
+        Vis$nj_tiles_scale_3_reset <- TRUE
+        nj_tiles_scale_3_val(nj_tiles_scale_3_val_default())
+        Vis$nj_tiles_scale_4_reset <- TRUE
+        nj_tiles_scale_4_val(nj_tiles_scale_4_val_default())
+        Vis$nj_tiles_scale_5_reset <- TRUE
+        nj_tiles_scale_5_val(nj_tiles_scale_5_val_default())
+        Vis$nj_tiles_mapping_div_mid_1_reset <- TRUE
+        nj_tiles_mapping_div_mid_1_val("Mean")
+        Vis$nj_tiles_mapping_div_mid_2_reset <- TRUE
+        nj_tiles_mapping_div_mid_2_val("Mean")
+        Vis$nj_tiles_mapping_div_mid_3_reset <- TRUE
+        nj_tiles_mapping_div_mid_3_val("Mean")
+        Vis$nj_tiles_mapping_div_mid_4_reset <- TRUE
+        nj_tiles_mapping_div_mid_4_val("Mean")
+        Vis$nj_tiles_mapping_div_mid_5_reset <- TRUE
+        nj_tiles_mapping_div_mid_5_val("Mean")
+        
+        nj_heatmap_show_val(FALSE)
+        Vis$nj_heatmap_select_val_reset <- TRUE
+        nj_heatmap_select_val(NULL)
+        Vis$nj_heatmap_scale_reset <- TRUE
+        nj_heatmap_scale_val(nj_heatmap_scale_val_default())
+        Vis$nj_heatmap_div_mid_val_reset <- TRUE
+        nj_heatmap_div_mid_val("Mean")
+        
+        # Color values
+        nj_color_val("#000000")
+        nj_bg_val("#ffffff")
+        nj_title_color_val("#000000")
+        nj_tiplab_color_val("#000000")
+        nj_tiplab_fill_val("#84D9A0")
+        nj_branch_label_color_val("#FFB7B7")
+        nj_tippoint_color_val("#3A4657")
+        nj_nodepoint_color_val("#3A4657")
+        
+        # Tip points
+        nj_tippoint_show_val(FALSE)
+        Vis$nj_tippoint_shape_reset <- TRUE
+        nj_tippoint_shape_val("circle")
+        nj_tippoint_alpha_val(0.5)
+        ifelse(!is.null(Vis$tippointsize_nj),
+               nj_tippoint_size_val(Vis$tippointsize_nj),
+               nj_tippoint_size_val(4))
+        
+        # Node points
+        nj_nodepoint_show_val(FALSE)
+        nj_nodepoint_shape_val("circle")
+        nj_nodepoint_alpha_val(1)
+        ifelse(!is.null(Vis$nodepointsize_nj),
+               nj_nodepoint_size_val(Vis$nodepointsize_nj),
+               nj_nodepoint_size_val(2.5))
+        
+        # Tiles
+        nj_tile_number_val(1)
+        nj_fruit_alpha_val(1)
+        nj_fruit_alpha_2_val(1)
+        nj_fruit_alpha_3_val(1)
+        nj_fruit_alpha_4_val(1)
+        nj_fruit_alpha_5_val(1)
+        Vis$nj_fruit_width_circ_val_reset <- TRUE
+        nj_fruit_width_circ_val(fruit_width())
+        Vis$nj_fruit_width_circ_2_val_reset <- TRUE
+        nj_fruit_width_circ_2_val(fruit_width())
+        Vis$nj_fruit_width_circ_3_val_reset <- TRUE
+        nj_fruit_width_circ_3_val(fruit_width())
+        Vis$nj_fruit_width_circ_4_val_reset <- TRUE
+        nj_fruit_width_circ_4_val(fruit_width())
+        Vis$nj_fruit_width_circ_5_val_reset <- TRUE
+        nj_fruit_width_circ_5_val(fruit_width())
+        Vis$nj_fruit_offset_circ_reset <- TRUE
+        nj_fruit_offset_circ_val(0.05)
+        Vis$nj_fruit_offset_circ_2_reset <- TRUE
+        nj_fruit_offset_circ_2_val(0.05)
+        Vis$nj_fruit_offset_circ_3_reset <- TRUE
+        nj_fruit_offset_circ_3_val(0.05)
+        Vis$nj_fruit_offset_circ_4_reset <- TRUE
+        nj_fruit_offset_circ_4_val(0.05)
+        Vis$nj_fruit_offset_circ_5_reset <- TRUE
+        nj_fruit_offset_circ_5_val(0.05)
+        
+        # Heatmap
+        nj_heatmap_title_val("Heatmap")
+        nj_colnames_angle_val(-90)
+        Vis$nj_colnames_y_val_reset <- TRUE
+        nj_colnames_y_val(-1)
+        nj_heatmap_width_val(heatmap_width())
+        Vis$nj_heatmap_offset_val_reset <- TRUE
+        nj_heatmap_offset_val(0)
+        
+        # Clade highlights
+        nj_nodelabel_show_val(FALSE)
+        Vis$nj_parentnode_val_reset <- TRUE
+        nj_parentnode_val("")
+        nj_clade_scale_val(clade_highlight_color())
+        nj_clade_type_val("roundrect")
+        
+        # Dimensions
+        nj_ratio_val(c("16:10" = (16 / 10)))
+        nj_v_val(0)
+        nj_h_val(-0.05)
+        nj_scale_val(670)
+        nj_zoom_val(0.95)
+        nj_layout_val("rectangular")
+        nj_rootedge_show_val(FALSE)
+        Vis$nj_rootedge_length_val_reset <- TRUE
+        ifelse(!is.null(Vis$nj_max_x),
+               nj_rootedge_length_val(round(ceiling(Vis$nj_max_x) * 0.05)),
+               nj_rootedge_length_val(2))
+        nj_rootedge_line_val("solid")
+        Vis$nj_xlim_val_reset <- TRUE
+        nj_xlim_val(-10)
+        Vis$nj_xlim_inw_val_reset <- TRUE
+        nj_xlim_inw_val(50)
+        nj_treescale_show_val(FALSE)
+        Vis$nj_treescale_width_val_reset <- TRUE
+        ifelse(!is.null(Vis$nj_max_x),
+               nj_treescale_width_val(round(ceiling(Vis$nj_max_x) * 0.1, 0)),
+               nj_treescale_width_val(2))
+        Vis$nj_treescale_x_val_reset <- TRUE
+        ifelse(!is.null(Vis$nj_max_x),
+               nj_treescale_x_val(round(ceiling(Vis$nj_max_x) * 0.2, 0)),
+               nj_treescale_x_val(2))
+        Vis$nj_treescale_y_val_reset <- TRUE
+        nj_treescale_y_val(0)
+        nj_ladder_val(TRUE)
+        
+        # Legend
+        nj_legend_orientation_val("vertical")
+        nj_legend_size_val(10)
+        nj_legend_x_val(0.9)
+        nj_legend_y_val(0.2)
+      }
+      
+      # reactive variables related to report functions
+      Report$report_list_mst <- NULL
+      Report$report_list_nj <- NULL
+      Report$report_df <- NULL
+      
+      # reactive variables related to scheme functions
+      Scheme$link_scheme <- NULL
+      Scheme$link_cgmlst <- NULL
+      Scheme$link_targets <- NULL
+      Scheme$folder_name <- NULL
+      Scheme$species_data <- NULL
+      
+      
+      ### Reset UI elements ----
+      
+      # Reset reactive screening variables 
+      output$screening_start <- NULL
+      output$screening_result_sel <- NULL
+      output$screening_result <- NULL
+      output$screening_fail <- NULL
+      output$multi_select_table <- NULL
+      output$multi_select_tab_ctrls <- NULL
+      Screening$status_df <- NULL
+      Screening$choices <- NULL
+      Screening$picker_status <- TRUE
+      Screening$status <- "idle"
+      Screening$first_result <- NULL
+      if(!is.null(input$screening_select)) {
+        if(!is.null(DB$data)) {
+          updatePickerInput(session, "screening_select", selected = character(0))
         }
+      }
+      
+      # Empty tree plot fields
+      output$tree_field <- NULL
+      output$mst_field <- NULL
+      log_print("Input load")
+      
+      # set typing start control variable
+      Typing$reload <- TRUE
+      
+      
+      ### Render status bar ----
+      observe({
+        req(DB$scheme)
         
-        # Load AMR profile
-        profile_path <- file.path(Startup$database, gsub(" ", "_", DB$scheme), "AMR_Profile.rds")
-        if(file.exists(profile_path)) {
-          amr_profile <- readRDS(profile_path)
-          Screening$amr_results <- amr_profile$results
-          Screening$amr_class <- amr_profile$AMR_classification
-          Screening$vir_class <- amr_profile$virulence_classification
-        }
-        
-        # null Distance matrix, entry table and plots
-        output$db_distancematrix <- NULL 
-        output$db_entries_table <- NULL
-        output$tree_mst <- NULL
-        output$tree_plot <- NULL
-        
-        # null typing initiation UI
-        output$multi_stop <- NULL
-        output$metadata_multi_box <- NULL
-        output$start_multi_typing_ui <- NULL
-        output$pending_typing <- NULL
-        output$multi_typing_results <- NULL
-        output$single_typing_progress <- NULL
-        output$metadata_single_box <- NULL
-        output$start_typing_ui <- NULL
-        
-        # null report values
-        Report$report_list_mst <- list()
-        Report$report_list_nj <- list()
-        
-        # null plots
-        Vis$nj <- NULL
-        Vis$mst_pre <- NULL
-        
-        removeModal()
-        
-        Startup$sidebar <- FALSE
-        
-        output$menu_header_typing <- renderUI(
-          div(
-            class = "menu-header-typing",
-            HTML(
-              paste(
-                tags$span(style="color: white; font-size: 14px; position: relative; top: 8px; margin-left: 10px;", "cgMLST Typing")
+        if(is.null(input$scheme_position)) {
+          output$loaded_scheme <- renderUI({
+            fluidRow(
+              tags$li(
+                class = "dropdown", 
+                tags$span(HTML(
+                  paste('<i class="fa-solid fa-layer-group"></i>', 
+                        "Selected scheme:&nbsp;&nbsp;&nbsp;<i>",
+                        DB$scheme,
+                        "</i>")), 
+                  style = "color:black;")
               )
             )
-          )
-        )
+          })
+        } 
         
-        output$menu_header_screening <- renderUI(
-          div(
-            class = "menu-header-screening",
-            HTML(
-              paste(
-                tags$span(style="color: white; font-size: 14px; position: relative; top: 8px; margin-left: 10px;", "Locus Screening")
+        if(!is.null(input$scheme_position)) {
+          output$loaded_scheme <- renderUI({
+            fluidRow(
+              tags$li(
+                class = "dropdown", 
+                tags$span(HTML(
+                  paste('<i class="fa-solid fa-layer-group"></i>', 
+                        "Selected scheme:&nbsp;&nbsp;&nbsp;<i>",
+                        DB$scheme,
+                        "</i>")), 
+                  style = "color:black;"),
+                div(
+                  class = "reload-bttn",
+                  style = paste0("margin-left:", 30 + input$scheme_position, "px; position: relative; top: -24px;"),
+                  tipify(
+                    actionButton(
+                      "reload_db",
+                      label = "",
+                      icon = icon("rotate")
+                    ),
+                    title = "Change scheme",
+                    options = list("delay': 400, 'foo" = "foo")
+                  )
+                )
               )
             )
-          )
-        )
-        
-        # Hide start message
-        output$start_message <- NULL
-        
-        if(any(grepl(gsub(" ", "_", DB$scheme), dir_ls(Startup$database)))) {
-          
-          if(!any(grepl("alleles", dir_ls(paste0(
-            Startup$database, "/", 
-            gsub(" ", "_", DB$scheme)))))) {
+          })
+        }
+      })
+      
+      observe({
+        if(!is.null(Startup$database) && length(Startup$database) > 0){
+          if(nchar(Startup$database) > 35) {
+            database <- paste0(substring(Startup$database, first = 1, last = 35), "...")
+          } else {
+            database <- Startup$database
+          }
+          output$databasetext <- renderUI({
+            fluidRow(
+              tags$li(
+                class = "dropdown", 
+                tags$span(HTML(
+                  paste('<i class="fa-solid fa-folder-open"></i>', 
+                        "Database:&nbsp;&nbsp;&nbsp;<i>",
+                        database,
+                        "</i>")), 
+                  style = "color:black;")
+              ),
+              if(nchar(database) > 35) {bsTooltip("databasetext", 
+                                                  HTML(Startup$database), 
+                                                  placement = "bottom", 
+                                                  trigger = "hover")}
+            )
+          })
+        }
+      })
+      
+      observe({
+        if(!is.null(Startup$database)) {
+          if(Typing$status == "Finalized"){
+            output$statustext <- renderUI(
+              fluidRow(
+                tags$li(
+                  class = "dropdown", 
+                  tags$span(HTML(
+                    paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
+                          "Status:&nbsp;&nbsp;&nbsp; <i>typing finalized</i>")),
+                    style = "color:black;")
+                )
+              )
+            )
+          } else if(Typing$status == "Attaching"){
+            output$statustext <- renderUI(
+              fluidRow(
+                tags$li(
+                  class = "dropdown", 
+                  tags$span(HTML(
+                    paste('<i class="fa-solid fa-circle-dot" style="color:orange !important;"></i>', 
+                          "Status:&nbsp;&nbsp;&nbsp; <i>evaluating typing results</i>")),
+                    style = "color:black;")
+                )
+              )
+            )
+          } else if(Typing$status == "Processing") {
+            output$statustext <- renderUI(
+              fluidRow(
+                tags$li(
+                  class = "dropdown", 
+                  tags$span(HTML(
+                    paste('<i class="fa-solid fa-circle-dot" style="color:orange !important;"></i>', 
+                          "Status:&nbsp;&nbsp;&nbsp;<i> pending typing</i>")), 
+                    style = "color:black;")
+                )
+              )
+            )
+          } else if(Screening$status == "started") {
+            output$statustext <- renderUI(
+              fluidRow(
+                tags$li(
+                  class = "dropdown", 
+                  tags$span(HTML(
+                    paste('<i class="fa-solid fa-circle-dot" style="color:orange !important;"></i>', 
+                          "Status:&nbsp;&nbsp;&nbsp;<i> pending gene screening</i>")), 
+                    style = "color:black;")
+                )
+              )
+            )
+          } else if(Screening$status == "finished") {
+            output$statustext <- renderUI(
+              fluidRow(
+                tags$li(
+                  class = "dropdown", 
+                  tags$span(HTML(
+                    paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
+                          "Status:&nbsp;&nbsp;&nbsp;<i> gene screening finalized</i>")), 
+                    style = "color:black;")
+                )
+              )
+            )
+          } else {
+            output$statustext <- renderUI(
+              fluidRow(
+                tags$li(
+                  class = "dropdown", 
+                  tags$span(HTML(
+                    paste('<i class="fa-solid fa-circle-dot" style="color:lightgreen !important;"></i>', 
+                          "Status:&nbsp;&nbsp;&nbsp; <i>ready</i>")),
+                    style = "color:black;")
+                )
+              )
+            )
+          }    
+        }
+      })
+      
+      shinyjs::runjs(
+        'if(document.querySelector("#loaded_scheme > div > li > span") !== null) {
+            // Select the span element
+            let spanElement = document.querySelector("#loaded_scheme > div > li > span");
+                      
+            // Get the bounding rectangle of the span element
+            let rect = spanElement.getBoundingClientRect();
             
-            log_print("Missing loci files")
+            // Extract the width
+            let width = rect.width;
+            
+            Shiny.setInputValue("scheme_position", width);            
+          }'
+      )
+      
+      # Load app elements based on database availability and missing value presence
+      if(isTRUE(Startup$select_new) && !is.null(DB$new_database)) {
+        if(file.path(DB$new_database, "Database") %in% dir_ls(DB$new_database)) {
+          log_print("Directory already contains a database")
+          
+          show_toast(
+            title = "Directory already contains a database",
+            type = "error",
+            position = "bottom-end",
+            timer = 6000
+          )
+          DB$load_selected <- FALSE
+        } else {
+          if(Startup$select_new | (isFALSE(Startup$select_new) & is.null(input$scheme_db))) {
+            
+            log_print(paste0("New database created in ", DB$new_database))
+            
+            DB$check_new_entries <- TRUE
+            DB$data <- NULL
+            DB$meta_gs <- NULL
+            DB$meta <- NULL
+            DB$meta_true <- NULL
+            DB$allelic_profile <- NULL
+            DB$allelic_profile_trunc <- NULL
+            DB$allelic_profile_true <- NULL
+            
+            # null Distance matrix, entry table and plots
+            output$db_distancematrix <- NULL 
+            output$db_entries_table <- NULL
+            output$tree_mst <- NULL
+            output$tree_plot <- NULL
+            
+            # null report values
+            Report$report_list_mst <- list()
+            Report$report_list_nj <- list()
+            
+            # null plots
+            Vis$nj <- NULL
+            Vis$mst_pre <- NULL
+            
+            removeModal()
+            
+            ### Render Menu Items ----
+            
+            Startup$sidebar <- FALSE
+            
+            output$menu_header_typing <- NULL
+            output$menu_header_screening <- NULL
+            
+            # Hide start message
+            output$start_message <- NULL
+            
+            DB$load_selected <- FALSE
+            
+            # Declare database path
+            Startup$database <- file.path(DB$new_database, "Database")
+            
+            # Set database availability screening variables to present database
+            Startup$block_db <- TRUE
+            Startup$select_new <- FALSE
+            
+            # Render menu with Manage Schemes as start tab and no Missing values tab
+            output$menu_typing <- renderMenu(
+              sidebarMenu(
+                menuItem(
+                  text = "Schemes",
+                  tabName = "init",
+                  icon = icon("layer-group"),
+                  selected = TRUE
+                )
+              )
+            )
             
             # Show message that loci files are missing
             showModal(
@@ -2495,10 +2354,9 @@ server <- function(input, output, session) {
                       p(
                         HTML(
                           paste0(
-                            '<span style="color: white; font-size: 15px; margin-left: 15px; display: block;">',
-                            "No loci files are present in the local ", 
-                            DB$scheme, 
-                            " folder. Download the scheme again (no influence on already typed assemblies).",
+                            '<span style="color: white; display: block; font-size: 15px; margin-left: 15px; display: block;">',
+                            "Download a cgMLST scheme to add a new folder in the database directory.",
+                            " Multiple schemes can be downloaded and included in one database.",
                             '</span>'
                           )
                         )
@@ -2506,7 +2364,7 @@ server <- function(input, output, session) {
                     ),
                     br()
                   ),
-                  title = "Local Database Error",
+                  title = paste("Set Up New Database"),
                   fade = TRUE,
                   easyClose = TRUE,
                   footer = tagList(
@@ -2516,240 +2374,129 @@ server <- function(input, output, session) {
               )
             )
             
-            # Render menu with Manage Schemes as start tab
-            output$menu_typing <- renderMenu(
-              sidebarMenu(
-                menuItem(
-                  text = "Database",
-                  tabName = "database",
-                  icon = icon("hard-drive"),
-                  startExpanded = TRUE,
-                  menuSubItem(
-                    text = "Browse Entries",
-                    tabName = "db_browse_entries"
-                  ),
-                  menuSubItem(
-                    text = "Scheme Info",
-                    tabName = "db_schemeinfo"
-                  ),
-                  menuSubItem(
-                    text = "Loci Info",
-                    tabName = "db_loci_info"
-                  ),
-                  menuSubItem(
-                    text = "Distance Matrix",
-                    tabName = "db_distmatrix"
-                  ),
-                  if(!is.null(DB$allelic_profile)) {
-                    if(anyNA(DB$allelic_profile)) {
-                      menuSubItem(
-                        text = "Missing Values",
-                        tabName = "db_missing_values",
-                        icon = icon("triangle-exclamation")
-                      )
-                    }
-                  }
-                ),
-                menuItem(
-                  text = "Schemes",
-                  tabName = "init",
-                  icon = icon("layer-group"),
-                  selected = TRUE
-                ),
-                menuItem(
-                  text = "Allelic Typing",
-                  tabName = "typing",
-                  icon = icon("gears")
-                ),
-                menuItem(
-                  text = "Visualization",
-                  tabName = "visualization",
-                  icon = icon("circle-nodes")
-                )
-              )
-            )
-            
-            if(!is.null(DB$scheme)) {
-              amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
-                                                               amrfinder_species = amrfinder_species)
-              
-              if(!isFALSE(amrfinder_available)) {
-                
-                output$menu_screening <- renderMenu(screening_menu_available)
-                
-              } else {
-                output$menu_screening <- renderMenu(screening_menu_available)
-              }
-            }
-          } else if (!file.exists(file.path(Startup$database, 
-                                            gsub(" ", "_", DB$scheme),
-                                            "scheme_info.rds"))) {
-            
+            # Dont render these elements
+            output$db_no_entries <- NULL
+            output$distancematrix_no_entries <- NULL
+            output$db_entries <- NULL
+            output$edit_index <- NULL
+            output$edit_scheme_d <- NULL
+            output$edit_entries <- NULL
+            output$compare_select <- NULL
+            output$delete_select <- NULL
+            output$del_bttn <- NULL
+            output$compare_allele_box <- NULL
+            output$download_entries <- NULL
+            output$missing_values <- NULL
+            output$custom_var_box <- NULL
+            output$delete_box <- NULL
+            output$missing_values_sidebar <- NULL
             output$download_scheme_info <- NULL
-            
-            log_print("Scheme info file missing")
-            
-            # Show message that scheme info is missing
-            showModal(
-              div(
-                class = "start-modal",
-                modalDialog(
-                  fluidRow(
-                    br(), 
-                    column(
-                      width = 11,
-                      p(
-                        HTML(
-                          paste0(
-                            '<span style="color: white; font-size: 15px; display: block; margin-left: 15px;">',
-                            "Scheme info of the local ", 
-                            DB$scheme, 
-                            " database is missing. Download the scheme again (no influence on already typed assemblies).",
-                            '</span>'
-                          )
-                        )
-                      )
-                    ),
-                    br()
-                  ),
-                  title = "Local Database Error",
-                  fade = TRUE,
-                  easyClose = TRUE,
-                  footer = tagList(
-                    modalButton("Okay")
-                  )
+            output$download_loci <- NULL
+            output$entry_table_controls <- NULL
+            output$multi_stop <- NULL
+            output$metadata_multi_box <- NULL
+            output$start_multi_typing_ui <- NULL
+            output$pending_typing <- NULL
+            output$multi_typing_results <- NULL
+            output$single_typing_progress <- NULL
+            output$metadata_single_box <- NULL
+            output$start_typing_ui <- NULL
+          }
+        }
+      } else {
+        log_print(paste0("Loading existing ", input$scheme_db, " database from ", Startup$database))
+      }
+      
+      if(isTRUE(DB$load_selected)) {
+        #Check if selected scheme valid
+        if(gsub(" ", "_", gsub(" (PM|CM)", "", input$scheme_db)) %in% gsub("_(PM|CM)", "", schemes$species)) {
+          
+          # Save database path for next start
+          saveRDS(Startup$database, file.path(app_local_share_path, "last_db.rds"))
+          
+          DB$check_new_entries <- TRUE
+          DB$data <- NULL
+          DB$meta_gs <- NULL
+          DB$meta <- NULL
+          DB$meta_true <- NULL
+          DB$allelic_profile <- NULL
+          DB$allelic_profile_trunc <- NULL
+          DB$allelic_profile_true <- NULL
+          
+          if(!identical(DB$scheme, input$scheme_db)) {
+            DB$scheme <- input$scheme_db
+            DB$scheme_new <- TRUE
+          }
+          
+          # Load AMR profile
+          profile_path <- file.path(Startup$database, gsub(" ", "_", DB$scheme), "AMR_Profile.rds")
+          if(file.exists(profile_path)) {
+            amr_profile <- readRDS(profile_path)
+            Screening$amr_results <- amr_profile$results
+            Screening$amr_class <- amr_profile$AMR_classification
+            Screening$vir_class <- amr_profile$virulence_classification
+          }
+          
+          # null Distance matrix, entry table and plots
+          output$db_distancematrix <- NULL 
+          output$db_entries_table <- NULL
+          output$tree_mst <- NULL
+          output$tree_plot <- NULL
+          
+          # null typing initiation UI
+          output$multi_stop <- NULL
+          output$metadata_multi_box <- NULL
+          output$start_multi_typing_ui <- NULL
+          output$pending_typing <- NULL
+          output$multi_typing_results <- NULL
+          output$single_typing_progress <- NULL
+          output$metadata_single_box <- NULL
+          output$start_typing_ui <- NULL
+          
+          # null report values
+          Report$report_list_mst <- list()
+          Report$report_list_nj <- list()
+          
+          # null plots
+          Vis$nj <- NULL
+          Vis$mst_pre <- NULL
+          
+          removeModal()
+          
+          Startup$sidebar <- FALSE
+          
+          output$menu_header_typing <- renderUI(
+            div(
+              class = "menu-header-typing",
+              HTML(
+                paste(
+                  tags$span(style="color: white; font-size: 14px; position: relative; top: 8px; margin-left: 10px;", "cgMLST Typing")
                 )
               )
             )
-            
-            # Render menu with Manage Schemes as start tab
-            output$menu_typing <- renderMenu(
-              sidebarMenu(
-                menuItem(
-                  text = "Database",
-                  tabName = "database",
-                  icon = icon("hard-drive"),
-                  startExpanded = TRUE,
-                  menuSubItem(
-                    text = "Browse Entries",
-                    tabName = "db_browse_entries"
-                  ),
-                  menuSubItem(
-                    text = "Scheme Info",
-                    tabName = "db_schemeinfo"
-                  ),
-                  menuSubItem(
-                    text = "Loci Info",
-                    tabName = "db_loci_info"
-                  ),
-                  menuSubItem(
-                    text = "Distance Matrix",
-                    tabName = "db_distmatrix"
-                  ),
-                  if(!is.null(DB$allelic_profile)) {
-                    if(anyNA(DB$allelic_profile)) {
-                      menuSubItem(
-                        text = "Missing Values",
-                        tabName = "db_missing_values",
-                        icon = icon("triangle-exclamation")
-                      )
-                    }
-                  }
-                ),
-                menuItem(
-                  text = "Schemes",
-                  tabName = "init",
-                  icon = icon("layer-group"),
-                  selected = TRUE
-                ),
-                menuItem(
-                  text = "Allelic Typing",
-                  tabName = "typing",
-                  icon = icon("gears")
-                ),
-                menuItem(
-                  text = "Visualization",
-                  tabName = "visualization",
-                  icon = icon("circle-nodes")
+          )
+          
+          output$menu_header_screening <- renderUI(
+            div(
+              class = "menu-header-screening",
+              HTML(
+                paste(
+                  tags$span(style="color: white; font-size: 14px; position: relative; top: 8px; margin-left: 10px;", "Locus Screening")
                 )
               )
             )
+          )
+          
+          # Hide start message
+          output$start_message <- NULL
+          
+          if(any(grepl(gsub(" ", "_", DB$scheme), dir_ls(Startup$database)))) {
             
-            if(!is.null(DB$scheme)) {
-              amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
-                                                               amrfinder_species = amrfinder_species)
+            if(!any(grepl("alleles", dir_ls(paste0(
+              Startup$database, "/", 
+              gsub(" ", "_", DB$scheme)))))) {
               
-              if(!isFALSE(amrfinder_available)) {
-                
-                output$menu_screening <- renderMenu(screening_menu_available)
-                
-              } else {
-                output$menu_screening <- renderMenu(screening_menu_available)
-              }
-            }
-            
-          } else {
-            
-            # Produce Loci Info Table
-            if(file.exists(file.path(Startup$database, 
-                                     gsub(" ", "_", DB$scheme), 
-                                     "targets.csv"))) {
-              DB$loci_info <- read.csv(
-                file.path(Startup$database, gsub(" ", "_", DB$scheme), "targets.csv"),
-                header = TRUE,
-                sep = "\t",
-                row.names = NULL,
-                colClasses = c(
-                  "NULL",
-                  "character",
-                  "character",
-                  "integer",
-                  "integer",
-                  "character",
-                  "integer",
-                  "NULL"
-                )
-              ) 
-            } else {
-              DB$loci_info <- NULL
-            }
-            
-            # Produce Scheme Info Table
-            if(file.exists(file.path(Startup$database, 
-                                     gsub(" ", "_", DB$scheme),
-                                     "scheme_info.rds"))) {
-              
-              DB$schemeinfo <- readRDS(file.path(Startup$database, 
-                                                 gsub(" ", "_", DB$scheme), 
-                                                 "scheme_info.rds"))
-              
-              # Get scheme database link
-              DB$scheme_db <- DB$schemeinfo[,2][DB$schemeinfo[,1] == "Database"]
-              
-              # Get scheme database link
-              DB$scheme_link <- str_extract(DB$schemeinfo[,2][DB$schemeinfo[,1] == "URL"], 
-                                            '(?<=href=")[^"]+')
-              
-              # Get locus count
-              number_loci <- DB$schemeinfo[, 2][DB$schemeinfo[,1] == "Locus Count"]
-              
-              if(DB$scheme_db == "cgMLST.org Nomenclature Server (h25)") {
-                # Locus count
-                DB$number_loci <- as.numeric(gsub(",", "", number_loci))
-                
-                # Cluster threshold
-                DB$cluster_thresh <- DB$schemeinfo[,2][DB$schemeinfo[,1] == "Complex Type Distance"]
-                
-              } else if(DB$scheme_db == "pubMLST") {
-                # Locus count
-                DB$number_loci <- as.numeric(number_loci)
-                
-                # Cluster threshold
-                DB$cluster_thresh <- 10
-              }
-              
-            } else {
-              log_print(paste0("Scheme info file missing in the local ", DB$scheme, " folder"))
+              log_print("Missing loci files")
               
               # Show message that loci files are missing
               showModal(
@@ -2763,8 +2510,8 @@ server <- function(input, output, session) {
                         p(
                           HTML(
                             paste0(
-                              '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
-                              "Scheme info file is missing in the local ", 
+                              '<span style="color: white; font-size: 15px; margin-left: 15px; display: block;">',
+                              "No loci files are present in the local ", 
                               DB$scheme, 
                               " folder. Download the scheme again (no influence on already typed assemblies).",
                               '</span>'
@@ -2783,19 +2530,81 @@ server <- function(input, output, session) {
                   )
                 )
               )
-            } 
-            
-            # Check if number of loci/fastq-files of alleles is coherent with number of targets in scheme
-            if(DB$number_loci > length(dir_ls(paste0(Startup$database, 
-                                                     "/", 
-                                                     gsub(" ", "_", DB$scheme), 
-                                                     "/", 
-                                                     gsub(" ", "_", DB$scheme), 
-                                                     "_alleles")))) {
               
-              log_print(paste0("Loci files are missing in the local ", DB$scheme, " folder"))
+              # Render menu with Manage Schemes as start tab
+              output$menu_typing <- renderMenu(
+                sidebarMenu(
+                  menuItem(
+                    text = "Database",
+                    tabName = "database",
+                    icon = icon("hard-drive"),
+                    startExpanded = TRUE,
+                    menuSubItem(
+                      text = "Browse Entries",
+                      tabName = "db_browse_entries"
+                    ),
+                    menuSubItem(
+                      text = "Scheme Info",
+                      tabName = "db_schemeinfo"
+                    ),
+                    menuSubItem(
+                      text = "Loci Info",
+                      tabName = "db_loci_info"
+                    ),
+                    menuSubItem(
+                      text = "Distance Matrix",
+                      tabName = "db_distmatrix"
+                    ),
+                    if(!is.null(DB$allelic_profile)) {
+                      if(anyNA(DB$allelic_profile)) {
+                        menuSubItem(
+                          text = "Missing Values",
+                          tabName = "db_missing_values",
+                          icon = icon("triangle-exclamation")
+                        )
+                      }
+                    }
+                  ),
+                  menuItem(
+                    text = "Schemes",
+                    tabName = "init",
+                    icon = icon("layer-group"),
+                    selected = TRUE
+                  ),
+                  menuItem(
+                    text = "Allelic Typing",
+                    tabName = "typing",
+                    icon = icon("gears")
+                  ),
+                  menuItem(
+                    text = "Visualization",
+                    tabName = "visualization",
+                    icon = icon("circle-nodes")
+                  )
+                )
+              )
               
-              # Show message that loci files are missing
+              if(!is.null(DB$scheme)) {
+                amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
+                                                                 amrfinder_species = amrfinder_species)
+                
+                if(!isFALSE(amrfinder_available)) {
+                  
+                  output$menu_screening <- renderMenu(screening_menu_available)
+                  
+                } else {
+                  output$menu_screening <- renderMenu(screening_menu_available)
+                }
+              }
+            } else if (!file.exists(file.path(Startup$database, 
+                                              gsub(" ", "_", DB$scheme),
+                                              "scheme_info.rds"))) {
+              
+              output$download_scheme_info <- NULL
+              
+              log_print("Scheme info file missing")
+              
+              # Show message that scheme info is missing
               showModal(
                 div(
                   class = "start-modal",
@@ -2807,10 +2616,10 @@ server <- function(input, output, session) {
                         p(
                           HTML(
                             paste0(
-                              '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
-                              "Some loci files are missing in the local ", 
+                              '<span style="color: white; font-size: 15px; display: block; margin-left: 15px;">',
+                              "Scheme info of the local ", 
                               DB$scheme, 
-                              " folder. Download the scheme again (no influence on already typed assemblies).",
+                              " database is missing. Download the scheme again (no influence on already typed assemblies).",
                               '</span>'
                             )
                           )
@@ -2896,101 +2705,2254 @@ server <- function(input, output, session) {
               
             } else {
               
-              ###### All checks passed - load database
-              # If typed entries present
-              if (any(grepl("Typing.rds", 
-                            dir_ls(paste0(Startup$database, "/", 
-                                          gsub(" ", "_", DB$scheme)))))) {
+              # Produce Loci Info Table
+              if(file.exists(file.path(Startup$database, 
+                                       gsub(" ", "_", DB$scheme), 
+                                       "targets.csv"))) {
+                DB$loci_info <- read.csv(
+                  file.path(Startup$database, gsub(" ", "_", DB$scheme), "targets.csv"),
+                  header = TRUE,
+                  sep = "\t",
+                  row.names = NULL,
+                  colClasses = c(
+                    "NULL",
+                    "character",
+                    "character",
+                    "integer",
+                    "integer",
+                    "character",
+                    "integer",
+                    "NULL"
+                  )
+                ) 
+              } else {
+                DB$loci_info <- NULL
+              }
+              
+              # Produce Scheme Info Table
+              if(file.exists(file.path(Startup$database, 
+                                       gsub(" ", "_", DB$scheme),
+                                       "scheme_info.rds"))) {
                 
-                # Load database from files  
-                Database <- readRDS(file.path(Startup$database, 
-                                              gsub(" ", "_", DB$scheme), 
-                                              "Typing.rds"))
+                DB$schemeinfo <- readRDS(file.path(Startup$database, 
+                                                   gsub(" ", "_", DB$scheme), 
+                                                   "scheme_info.rds"))
                 
-                DB$data <- Database[["Typing"]]
+                # Get scheme database link
+                DB$scheme_db <- DB$schemeinfo[,2][DB$schemeinfo[,1] == "Database"]
                 
-                if(!is.null(DB$data)){
-                  if ((ncol(DB$data)-13) != DB$number_loci) {
-                    cust_var <- select(DB$data, 14:(ncol(DB$data) - DB$number_loci))
-                    DB$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
-                  } else {
-                    DB$cust_var <- data.frame()
-                  }
+                # Get scheme database link
+                DB$scheme_link <- str_extract(DB$schemeinfo[,2][DB$schemeinfo[,1] == "URL"], 
+                                              '(?<=href=")[^"]+')
+                
+                # Get locus count
+                number_loci <- DB$schemeinfo[, 2][DB$schemeinfo[,1] == "Locus Count"]
+                
+                if(DB$scheme_db == "cgMLST.org Nomenclature Server (h25)") {
+                  # Locus count
+                  DB$number_loci <- as.numeric(gsub(",", "", number_loci))
+                  
+                  # Cluster threshold
+                  DB$cluster_thresh <- DB$schemeinfo[,2][DB$schemeinfo[,1] == "Complex Type Distance"]
+                  
+                } else if(DB$scheme_db == "pubMLST") {
+                  # Locus count
+                  DB$number_loci <- as.numeric(number_loci)
+                  
+                  # Cluster threshold
+                  DB$cluster_thresh <- 10
                 }
                 
-                DB$change <- FALSE
-                DB$meta_gs <- select(DB$data, c(1, 3:13))
-                DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
-                DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
-                DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
-                DB$allelic_profile_trunc <- as.data.frame(lapply(DB$allelic_profile, function(x) sapply(x, truncHash)))
-                DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
+              } else {
+                log_print(paste0("Scheme info file missing in the local ", DB$scheme, " folder"))
                 
-                # Reset other reactive typing variables
-                output$single_typing_progress <- NULL
-                output$typing_fin <- NULL
-                output$single_typing_results <- NULL
-                output$typing_formatting <- NULL
-                
-                # Check need for new missing value display
-                if(isTRUE(Startup$first_look)) {
-                  if(sum(apply(DB$data, 1, anyNA)) >= 1) {
-                    DB$no_na_switch <- TRUE
-                  } else {
-                    DB$no_na_switch <- FALSE
-                  }
-                }
-                
-                Startup$first_look <- TRUE
-                
-                output$initiate_typing_ui <- renderUI({
-                  column(
-                    width = 3,
-                    align = "center",
-                    br(),
-                    br(),
-                    h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
-                    br(),
-                    br(),
-                    p(
-                      HTML(
-                        paste(
-                          tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly File')
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(1),
-                      column(
-                        width = 11,
-                        align = "center",
-                        shinyFilesButton(
-                          "genome_file",
-                          "Browse" ,
-                          icon = icon("file"),
-                          title = "Select the assembly in .fasta/.fna/.fa format:",
-                          multiple = FALSE,
-                          buttonType = "default",
-                          class = NULL,
-                          root = path_home()
+                # Show message that loci files are missing
+                showModal(
+                  div(
+                    class = "start-modal",
+                    modalDialog(
+                      fluidRow(
+                        br(), 
+                        column(
+                          width = 11,
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                                "Scheme info file is missing in the local ", 
+                                DB$scheme, 
+                                " folder. Download the scheme again (no influence on already typed assemblies).",
+                                '</span>'
+                              )
+                            )
+                          )
                         ),
-                        br(),
-                        br(),
-                        uiOutput("genome_path"),
                         br()
+                      ),
+                      title = "Local Database Error",
+                      fade = TRUE,
+                      easyClose = TRUE,
+                      footer = tagList(
+                        modalButton("Okay")
                       )
                     )
                   )
-                })
+                )
+              } 
+              
+              # Check if number of loci/fastq-files of alleles is coherent with number of targets in scheme
+              if(DB$number_loci > length(dir_ls(paste0(Startup$database, 
+                                                       "/", 
+                                                       gsub(" ", "_", DB$scheme), 
+                                                       "/", 
+                                                       gsub(" ", "_", DB$scheme), 
+                                                       "_alleles")))) {
                 
-                output$initiate_multi_typing_ui <- initiate_multi_typing_ui
+                log_print(paste0("Loci files are missing in the local ", DB$scheme, " folder"))
                 
-                if(!anyNA(DB$allelic_profile)) {
+                # Show message that loci files are missing
+                showModal(
+                  div(
+                    class = "start-modal",
+                    modalDialog(
+                      fluidRow(
+                        br(), 
+                        column(
+                          width = 11,
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                                "Some loci files are missing in the local ", 
+                                DB$scheme, 
+                                " folder. Download the scheme again (no influence on already typed assemblies).",
+                                '</span>'
+                              )
+                            )
+                          )
+                        ),
+                        br()
+                      ),
+                      title = "Local Database Error",
+                      fade = TRUE,
+                      easyClose = TRUE,
+                      footer = tagList(
+                        modalButton("Okay")
+                      )
+                    )
+                  )
+                )
+                
+                # Render menu with Manage Schemes as start tab
+                output$menu_typing <- renderMenu(
+                  sidebarMenu(
+                    menuItem(
+                      text = "Database",
+                      tabName = "database",
+                      icon = icon("hard-drive"),
+                      startExpanded = TRUE,
+                      menuSubItem(
+                        text = "Browse Entries",
+                        tabName = "db_browse_entries"
+                      ),
+                      menuSubItem(
+                        text = "Scheme Info",
+                        tabName = "db_schemeinfo"
+                      ),
+                      menuSubItem(
+                        text = "Loci Info",
+                        tabName = "db_loci_info"
+                      ),
+                      menuSubItem(
+                        text = "Distance Matrix",
+                        tabName = "db_distmatrix"
+                      ),
+                      if(!is.null(DB$allelic_profile)) {
+                        if(anyNA(DB$allelic_profile)) {
+                          menuSubItem(
+                            text = "Missing Values",
+                            tabName = "db_missing_values",
+                            icon = icon("triangle-exclamation")
+                          )
+                        }
+                      }
+                    ),
+                    menuItem(
+                      text = "Schemes",
+                      tabName = "init",
+                      icon = icon("layer-group"),
+                      selected = TRUE
+                    ),
+                    menuItem(
+                      text = "Allelic Typing",
+                      tabName = "typing",
+                      icon = icon("gears")
+                    ),
+                    menuItem(
+                      text = "Visualization",
+                      tabName = "visualization",
+                      icon = icon("circle-nodes")
+                    )
+                  )
+                )
+                
+                if(!is.null(DB$scheme)) {
+                  amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
+                                                                   amrfinder_species = amrfinder_species)
                   
-                  # no NA's -> dont render missing values sidebar elements
-                  output$missing_values_sidebar <- NULL
+                  if(!isFALSE(amrfinder_available)) {
+                    
+                    output$menu_screening <- renderMenu(screening_menu_available)
+                    
+                  } else {
+                    output$menu_screening <- renderMenu(screening_menu_available)
+                  }
+                }
+                
+              } else {
+                
+                ###### All checks passed - load database
+                # If typed entries present
+                if (any(grepl("Typing.rds", 
+                              dir_ls(paste0(Startup$database, "/", 
+                                            gsub(" ", "_", DB$scheme)))))) {
                   
-                  # Render menu if no NA's present
+                  # Load database from files  
+                  Database <- readRDS(file.path(Startup$database, 
+                                                gsub(" ", "_", DB$scheme), 
+                                                "Typing.rds"))
+                  
+                  DB$data <- Database[["Typing"]]
+                  
+                  if(!is.null(DB$data)){
+                    if ((ncol(DB$data)-13) != DB$number_loci) {
+                      cust_var <- select(DB$data, 14:(ncol(DB$data) - DB$number_loci))
+                      DB$cust_var <- data.frame(Variable = names(cust_var), Type = column_classes(cust_var))
+                    } else {
+                      DB$cust_var <- data.frame()
+                    }
+                  }
+                  
+                  DB$change <- FALSE
+                  DB$meta_gs <- select(DB$data, c(1, 3:13))
+                  DB$meta <- select(DB$data, 1:(13 + nrow(DB$cust_var)))
+                  DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
+                  DB$allelic_profile <- select(DB$data, -(1:(13 + nrow(DB$cust_var))))
+                  DB$allelic_profile_trunc <- as.data.frame(lapply(DB$allelic_profile, function(x) sapply(x, truncHash)))
+                  DB$allelic_profile_true <- DB$allelic_profile[which(DB$data$Include == TRUE),]
+                  
+                  # Reset other reactive typing variables
+                  output$single_typing_progress <- NULL
+                  output$typing_fin <- NULL
+                  output$single_typing_results <- NULL
+                  output$typing_formatting <- NULL
+                  
+                  # Check need for new missing value display
+                  if(isTRUE(Startup$first_look)) {
+                    if(sum(apply(DB$data, 1, anyNA)) >= 1) {
+                      DB$no_na_switch <- TRUE
+                    } else {
+                      DB$no_na_switch <- FALSE
+                    }
+                  }
+                  
+                  Startup$first_look <- TRUE
+                  
+                  output$initiate_typing_ui <- renderUI({
+                    column(
+                      width = 3,
+                      align = "center",
+                      br(),
+                      br(),
+                      h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
+                      br(),
+                      br(),
+                      p(
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly File')
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(1),
+                        column(
+                          width = 11,
+                          align = "center",
+                          shinyFilesButton(
+                            "genome_file",
+                            "Browse" ,
+                            icon = icon("file"),
+                            title = "Select the assembly in .fasta/.fna/.fa format:",
+                            multiple = FALSE,
+                            buttonType = "default",
+                            class = NULL,
+                            root = path_home()
+                          ),
+                          br(),
+                          br(),
+                          uiOutput("genome_path"),
+                          br()
+                        )
+                      )
+                    )
+                  })
+                  
+                  output$initiate_multi_typing_ui <- initiate_multi_typing_ui
+                  
+                  if(!anyNA(DB$allelic_profile)) {
+                    
+                    # no NA's -> dont render missing values sidebar elements
+                    output$missing_values_sidebar <- NULL
+                    
+                    # Render menu if no NA's present
+                    output$menu_typing <- renderMenu(
+                      sidebarMenu(
+                        menuItem(
+                          text = "Database",
+                          tabName = "database",
+                          icon = icon("hard-drive"),
+                          startExpanded = TRUE,
+                          menuSubItem(
+                            text = "Browse Entries",
+                            tabName = "db_browse_entries"
+                          ),
+                          menuSubItem(
+                            text = "Scheme Info",
+                            tabName = "db_schemeinfo"
+                          ),
+                          menuSubItem(
+                            text = "Loci Info",
+                            tabName = "db_loci_info"
+                          ),
+                          menuSubItem(
+                            text = "Distance Matrix",
+                            tabName = "db_distmatrix"
+                          )
+                        ),
+                        menuItem(
+                          text = "Schemes",
+                          tabName = "init",
+                          icon = icon("layer-group")
+                        ),
+                        menuItem(
+                          text = "Allelic Typing",
+                          tabName = "typing",
+                          icon = icon("gears")
+                        ),
+                        menuItem(
+                          text = "Visualization",
+                          tabName = "visualization",
+                          icon = icon("circle-nodes")
+                        )
+                      )
+                    )
+                    
+                    if(!is.null(DB$scheme)) {
+                      amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
+                                                                       amrfinder_species = amrfinder_species)
+                      
+                      if(!isFALSE(amrfinder_available)) {
+                        
+                        output$menu_screening <- renderMenu(screening_menu_available)
+                        
+                      } else {
+                        output$menu_screening <- renderMenu(screening_menu_available)
+                      }
+                    }
+                  } else {
+                    output$menu_typing <- renderMenu(
+                      sidebarMenu(
+                        menuItem(
+                          text = "Database",
+                          tabName = "database",
+                          icon = icon("hard-drive"),
+                          startExpanded = TRUE,
+                          menuSubItem(
+                            text = "Browse Entries",
+                            tabName = "db_browse_entries",
+                            selected = TRUE
+                          ),
+                          menuSubItem(
+                            text = "Scheme Info",
+                            tabName = "db_schemeinfo"
+                          ),
+                          menuSubItem(
+                            text = "Loci Info",
+                            tabName = "db_loci_info"
+                          ),
+                          menuSubItem(
+                            text = "Distance Matrix",
+                            tabName = "db_distmatrix"
+                          ),
+                          menuSubItem(
+                            text = "Missing Values",
+                            tabName = "db_missing_values",
+                            icon = icon("triangle-exclamation")
+                          )
+                        ),
+                        menuItem(
+                          text = "Schemes",
+                          tabName = "init",
+                          icon = icon("layer-group")
+                        ),
+                        menuItem(
+                          text = "Allelic Typing",
+                          tabName = "typing",
+                          icon = icon("gears")
+                        ),
+                        menuItem(
+                          text = "Visualization",
+                          tabName = "visualization",
+                          icon = icon("circle-nodes")
+                        )
+                      )
+                    )
+                    
+                    if(!is.null(DB$scheme)) {
+                      amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
+                                                                       amrfinder_species = amrfinder_species)
+                      
+                      if(!isFALSE(amrfinder_available)) {
+                        
+                        output$menu_screening <- renderMenu(screening_menu_available)
+                        
+                      } else {
+                        output$menu_screening <- renderMenu(screening_menu_available)
+                      }
+                    }
+                  }
+                  
+                  # Render custom variable display
+                  output$show_cust_var <- renderDataTable(
+                    DB$cust_var,
+                    selection = "single",
+                    rownames = FALSE, 
+                    options = list(
+                      pageLength = 10,
+                      lengthMenu = list(c(10), c('10')),  
+                      columnDefs = list(list(searchable = TRUE, targets = "_all")),
+                      initComplete = DT::JS(
+                        "function(settings, json) {",
+                        "$('th:first-child').css({'border-top-left-radius': '5px'});",
+                        "$('th:last-child').css({'border-top-right-radius': '5px'});",
+                        "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                        "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                        "}"
+                      ),
+                      drawCallback = DT::JS(
+                        "function(settings) {",
+                        "$('th:first-child').css({'border-top-left-radius': '5px'});",
+                        "$('th:last-child').css({'border-top-right-radius': '5px'});",
+                        "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
+                        "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
+                        "}"
+                      )
+                    )
+                  )
+                  
+                  # Render missing values sidebar elements
+                  output$missing_values_sidebar <- renderUI({
+                    column(
+                      width = 12,
+                      fluidRow(
+                        column(
+                          width = 12,
+                          br(),
+                          materialSwitch(
+                            "miss_val_height",
+                            h5(p("Show Full Table"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                            value = FALSE,
+                            right = TRUE
+                          )
+                        ),
+                        br()
+                      )
+                    )
+                  })
+                  
+                  # Render scheme info download button
+                  output$download_loci <- renderUI({
+                    if (!is.null(DB$loci_info)) {
+                      column(
+                        12,
+                        downloadBttn(
+                          "download_loci_info",
+                          style = "simple",
+                          label = "",
+                          size = "sm",
+                          icon = icon("download"),
+                          color = "primary"
+                        ),
+                        bsTooltip("download_loci_info_bttn", HTML("Save loci information <br> (without sequence)"), placement = "bottom", trigger = "hover")
+                      )
+                    } else {NULL}
+                  })
+                  
+                  # Render scheme info download button
+                  output$download_scheme_info <- renderUI({
+                    column(
+                      12,
+                      downloadBttn(
+                        "download_schemeinfo",
+                        style = "simple",
+                        label = "",
+                        size = "sm",
+                        icon = icon("download"),
+                        color = "primary"
+                      ),
+                      bsTooltip("download_schemeinfo_bttn", HTML("Save scheme information"), placement = "bottom", trigger = "hover")
+                    )
+                  })
+                  
+                  # Render select input to choose displayed loci
+                  output$compare_select <- renderUI({
+                    
+                    if(nrow(DB$data) == 1) {
+                      HTML(
+                        paste(
+                          tags$span(style='color: white; font-size: 15px;', "Type at least two assemblies to compare")
+                        )
+                      )
+                    } else {
+                      if(!is.null(input$compare_difference)) {
+                        if (isFALSE(input$compare_difference)) {
+                          div(
+                            class = "compare-select",
+                            pickerInput(
+                              inputId = "compare_select",
+                              label = "",
+                              width = "85%",
+                              choices = names(DB$allelic_profile),
+                              selected = names(DB$allelic_profile)[1:20],
+                              options = list(
+                                `live-search` = TRUE,
+                                `actions-box` = TRUE,
+                                size = 10,
+                                style = "background-color: white; border-radius: 5px;"
+                              ),
+                              multiple = TRUE
+                            )
+                          )
+                        } else {
+                          div(
+                            class = "compare-select",
+                            pickerInput(
+                              inputId = "compare_select",
+                              label = "",
+                              width = "85%",
+                              choices = names(DB$allelic_profile),
+                              selected = names(DB$allelic_profile)[var_alleles(DB$allelic_profile)],
+                              options = list(
+                                `live-search` = TRUE,
+                                `actions-box` = TRUE,
+                                size = 10,
+                                style = "background-color: white; border-radius: 5px;"
+                              ),
+                              multiple = TRUE
+                            )
+                          )
+                        }
+                      }
+                    }
+                  })
+                  
+                  ##### Render Entry Data Table ----
+                  output$db_entries_table <- renderUI({
+                    if(!is.null(DB$data)) {
+                      if(between(nrow(DB$data), 1, 30)) {
+                        fluidRow(
+                          column(
+                            width = 12,
+                            rHandsontableOutput("db_entries")
+                          ),
+                          br(), br(),
+                          column(
+                            width = 3,
+                            br(),
+                            fluidRow(
+                              column(
+                                width = 3,
+                                div(
+                                  class = "rectangle-blue" 
+                                )
+                              ),
+                              column(
+                                width = 7,
+                                p(
+                                  HTML(
+                                    paste(
+                                      tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px", " = included for analyses")
+                                    )
+                                  )
+                                )
+                              )
+                            )
+                          ),
+                          column(
+                            width = 3,
+                            br(),
+                            fluidRow(
+                              column(
+                                width = 3,
+                                div(
+                                  class = "rectangle-orange" 
+                                )
+                              ),
+                              column(
+                                width = 7,
+                                p(
+                                  HTML(
+                                    paste(
+                                      tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -45px", " =  duplicated assembly name")
+                                    )
+                                  )
+                                )
+                              )
+                            )
+                          ),
+                          column(
+                            width = 3,
+                            br(),
+                            fluidRow(
+                              column(
+                                width = 3,
+                                div(
+                                  class = "rectangle-red" 
+                                )
+                              ),
+                              column(
+                                width = 7,
+                                p(
+                                  HTML(
+                                    paste(
+                                      tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -75px", " =  ≥ 5% of loci missing")
+                                    )
+                                  )
+                                )
+                              )
+                            )
+                          ),
+                          column(
+                            width = 3,
+                            br(),
+                            fluidRow(
+                              column(
+                                width = 3,
+                                div(
+                                  class = "rectangle-green" 
+                                )
+                              ),
+                              column(
+                                width = 9,
+                                p(
+                                  HTML(
+                                    paste(
+                                      tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -105px", " =  locus contains multiple variants")
+                                    )
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        )
+                      } else {
+                        fluidRow(
+                          column(
+                            width = 12,
+                            rHandsontableOutput("db_entries")
+                          ),
+                          br(),
+                          column(
+                            width = 3,
+                            br(),
+                            fluidRow(
+                              column(
+                                width = 3,
+                                div(
+                                  class = "rectangle-blue" 
+                                )
+                              ),
+                              column(
+                                width = 7,
+                                p(
+                                  HTML(
+                                    paste(
+                                      tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px", " = included for analyses")
+                                    )
+                                  )
+                                )
+                              )
+                            )
+                          ),
+                          column(
+                            width = 3,
+                            br(),
+                            fluidRow(
+                              column(
+                                width = 3,
+                                div(
+                                  class = "rectangle-orange" 
+                                )
+                              ),
+                              column(
+                                width = 7,
+                                p(
+                                  HTML(
+                                    paste(
+                                      tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -45px", " =  duplicated assembly name")
+                                    )
+                                  )
+                                )
+                              )
+                            )
+                          ),
+                          column(
+                            width = 3,
+                            br(),
+                            fluidRow(
+                              column(
+                                width = 3,
+                                div(
+                                  class = "rectangle-red" 
+                                )
+                              ),
+                              column(
+                                width = 7,
+                                p(
+                                  HTML(
+                                    paste(
+                                      tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -75px", " =  ≥ 5% of loci missing")
+                                    )
+                                  )
+                                )
+                              )
+                            )
+                          ),
+                          column(
+                            width = 3,
+                            br(),
+                            fluidRow(
+                              column(
+                                width = 3,
+                                div(
+                                  class = "rectangle-green" 
+                                )
+                              ),
+                              column(
+                                width = 9,
+                                p(
+                                  HTML(
+                                    paste(
+                                      tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -105px", " =  locus contains multiple variants")
+                                    )
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        )
+                      }
+                    }
+                  })
+                  
+                  if (!is.null(DB$data)) {
+                    
+                    
+                    observe({
+                      
+                      if (!is.null(DB$data)) {
+                        if (nrow(DB$data) == 1) {
+                          if(!is.null(DB$data) & !is.null(DB$cust_var)) {
+                            output$db_entries <- renderRHandsontable({
+                              
+                              rhandsontable(
+                                select(DB$data, 1:(13 + nrow(DB$cust_var))),
+                                error_highlight = err_thresh() - 1,                              
+                                rowHeaders = NULL,
+                                contextMenu = FALSE,
+                                highlightCol = TRUE, 
+                                highlightRow = TRUE
+                              ) %>%
+                                hot_col(1, 
+                                        valign = "htMiddle",
+                                        halign = "htCenter") %>%
+                                hot_col(3, readOnly = TRUE) %>%
+                                hot_col(c(1, 5, 10, 11, 12, 13),
+                                        readOnly = TRUE) %>%
+                                hot_col(3:(13 + nrow(DB$cust_var)), 
+                                        valign = "htMiddle",
+                                        halign = "htLeft") %>%
+                                hot_col(3, validator = "
+                                    function(value, callback) {
+                                      try {
+                                        if (value === null || value.trim() === '') {
+                                          callback(false); // Cell is empty
+                                          Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                        } else {
+                                          callback(true); // Cell is not empty
+                                          Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
+                                        }
+                                      } catch (err) {
+                                        console.log(err);
+                                        callback(false); // In case of error, consider it as invalid
+                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                      }
+                                    }
+                                  ") %>%
+                                hot_col(4, validator = "
+                                    function(value, callback) {
+                                      try {
+                                        if (value === null || value.trim() === '') {
+                                          callback(false); // Cell is empty
+                                          Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                        } else {
+                                          callback(true); // Cell is not empty
+                                          Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
+                                        }
+                                      } catch (err) {
+                                        console.log(err);
+                                        callback(false); // In case of error, consider it as invalid
+                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                      }
+                                    }
+                                  ") %>%
+                                hot_col(8, type = "dropdown", source = country_names) %>%
+                                hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                                        validator = "
+                                  function (value, callback) {
+                                    var today_date = new Date();
+                                    today_date.setHours(0, 0, 0, 0);
+                                    
+                                    var new_date = new Date(value);
+                                    new_date.setHours(0, 0, 0, 0);
+                                    
+                                    try {
+                                      if (new_date <= today_date) {
+                                        callback(true);
+                                        Shiny.setInputValue('invalid_date', false);
+                                      } else {
+                                        callback(false); 
+                                        Shiny.setInputValue('invalid_date', true);
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); 
+                                      Shiny.setInputValue('invalid_date', true);
+                                    }
+                                  }") %>%
+                                hot_cols(fixedColumnsLeft = 1) %>%
+                                hot_col(2, type = "checkbox", width = "auto",
+                                        valign = "htTop",
+                                        halign = "htCenter") %>%
+                                hot_rows(fixedRowsTop = 0) %>%
+                                hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                             Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                             if (instance.params) {
+                                                               hrows = instance.params.error_highlight
+                                                               hrows = hrows instanceof Array ? hrows : [hrows]
+                                                               if (hrows.includes(row)) { 
+                                                                 td.style.backgroundColor = 'rgbA(255, 80, 1, 0.8)' 
+                                                               }
+                                                             }
+                                                         }") 
+                            })
+                          }
+                        } else if (between(nrow(DB$data), 2, 40)) {
+                          if (length(input$compare_select) > 0) {
+                            if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
+                              output$db_entries <- renderRHandsontable({
+                                
+                                if(!any(input$compare_select %in% colnames(DB$allelic_profile) != TRUE)) {
+                                  
+                                  shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+                                  w$show()
+                                    
+                                  entry_data <- DB$data %>%
+                                    select(1:(13 + nrow(DB$cust_var))) %>%
+                                    add_column(select(DB$allelic_profile_trunc, any_of(input$compare_select)))
+                                  
+                                  tab <- rhandsontable(
+                                    entry_data,
+                                    col_highlight = diff_allele() - 1,
+                                    dup_names_high = duplicated_names() - 1,
+                                    dup_ids_high = duplicated_ids() - 1,
+                                    row_highlight = true_rows() - 1,
+                                    error_highlight = err_thresh() - 1,
+                                    rowHeaders = NULL,
+                                    highlightCol = TRUE,
+                                    highlightRow = TRUE,
+                                    contextMenu = FALSE,
+                                    height = entry_table_height()
+                                  ) %>%
+                                    hot_col((14 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)),
+                                            valign = "htMiddle",
+                                            halign = "htCenter",
+                                            readOnly = TRUE) %>%
+                                    hot_col(1,
+                                            valign = "htMiddle",
+                                            halign = "htCenter") %>%
+                                    hot_col(3, readOnly = TRUE) %>%
+                                    hot_col(c(1, 5, 10, 11, 12, 13),
+                                            readOnly = TRUE) %>%
+                                    hot_col(3, validator = "
+                                    function(value, callback) {
+                                      try {
+                                        if (value === null || value.trim() === '') {
+                                          callback(false); // Cell is empty
+                                          Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                        } else {
+                                          callback(true); // Cell is not empty
+                                          Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
+                                        }
+                                      } catch (err) {
+                                        console.log(err);
+                                        callback(false); // In case of error, consider it as invalid
+                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                      }
+                                    }
+                                  ") %>%
+                                    hot_col(4, validator = "
+                                    function(value, callback) {
+                                      try {
+                                        if (value === null || value.trim() === '') {
+                                          callback(false); // Cell is empty
+                                          Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                        } else {
+                                          callback(true); // Cell is not empty
+                                          Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
+                                        }
+                                      } catch (err) {
+                                        console.log(err);
+                                        callback(false); // In case of error, consider it as invalid
+                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                      }
+                                    }
+                                  ") %>%
+                                    hot_col(3:(13 + nrow(DB$cust_var)),
+                                            valign = "htMiddle",
+                                            halign = "htLeft") %>%
+                                    hot_col(8, type = "dropdown", source = country_names) %>%
+                                    hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                                            validator = "
+                                  function (value, callback) {
+                                    var today_date = new Date();
+                                    today_date.setHours(0, 0, 0, 0);
+  
+                                    var new_date = new Date(value);
+                                    new_date.setHours(0, 0, 0, 0);
+  
+                                    try {
+                                      if (new_date <= today_date) {
+                                        callback(true);
+                                        Shiny.setInputValue('invalid_date', false);
+                                      } else {
+                                        callback(false);
+                                        Shiny.setInputValue('invalid_date', true);
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false);
+                                      Shiny.setInputValue('invalid_date', true);
+                                    }
+                                  }") %>%
+                                    hot_col(2, type = "checkbox", width = "auto",
+                                            valign = "htTop",
+                                            halign = "htCenter",
+                                            strict = TRUE,
+                                            allowInvalid = FALSE,
+                                            copyable = TRUE) %>%
+                                    hot_cols(fixedColumnsLeft = 1) %>%
+                                    hot_rows(fixedRowsTop = 0) %>%
+                                    hot_col(1, renderer = "
+                function (instance, td, row, col, prop, value, cellProperties) {
+                         Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                         if (instance.params) {
+                           hrows = instance.params.row_highlight
+                           hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                           if (hrows.includes(row)) {
+                             td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)'
+                           }
+  
+                         }
+                }") %>%
+                                    hot_col(diff_allele(),
+                                            renderer = "
+                    function(instance, td, row, col, prop, value, cellProperties) {
+                      Handsontable.renderers.NumericRenderer.apply(this, arguments);
+  
+                      if (instance.params) {
+                            hcols = instance.params.col_highlight;
+                            hcols = hcols instanceof Array ? hcols : [hcols];
+                          }
+  
+                      if (instance.params && hcols.includes(col)) {
+                        td.style.background = 'rgb(116, 188, 139)';
+                      }
+                  }"
+                                    ) %>%
+                                    hot_col(4, renderer = "
+                function (instance, td, row, col, prop, value, cellProperties) {
+                         Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                         if (instance.params) {
+                           hrows = instance.params.dup_names_high
+                           hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                           if (hrows.includes(row)) {
+                             td.style.backgroundColor = 'rgb(224, 179, 0)'
+                           }
+                         }
+                }") %>%
+                                    hot_col(3, renderer = "
+                function (instance, td, row, col, prop, value, cellProperties) {
+                         Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                         if (instance.params) {
+                           hrows = instance.params.dup_ids_high
+                           hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                           if (hrows.includes(row)) {
+                             td.style.backgroundColor = 'rgb(224, 179, 0)'
+                           }
+                         }
+                }") %>%
+                                    hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                             Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                             if (instance.params) {
+                                                               hrows = instance.params.error_highlight
+                                                               hrows = hrows instanceof Array ? hrows : [hrows]
+                                                               if (hrows.includes(row)) {
+                                                                 td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)'
+                                                               }
+                                                             }
+                                                         }")
+                                  shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
+                                  return(tab)
+                                }
+                              })
+                            }
+                          } else {
+                            if(!is.null(DB$data) & !is.null(DB$cust_var)) {
+                              
+                              output$db_entries <- renderRHandsontable({
+                                
+                                if(!any(input$compare_select %in% colnames(DB$allelic_profile) != TRUE)) {
+                                  shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+                                  w$show()
+                                  
+                                  tab <- rhandsontable(
+                                    select(DB$data, 1:(13 + nrow(DB$cust_var))),
+                                    rowHeaders = NULL,
+                                    row_highlight = true_rows() - 1,
+                                    dup_names_high = duplicated_names()- 1,
+                                    dup_ids_high = duplicated_ids() - 1,
+                                    error_highlight = err_thresh() - 1,
+                                    contextMenu = FALSE,
+                                    highlightCol = TRUE, 
+                                    highlightRow = TRUE,
+                                    height = entry_table_height()
+                                  ) %>%
+                                    hot_cols(fixedColumnsLeft = 1) %>%
+                                    hot_col(1, 
+                                            valign = "htMiddle",
+                                            halign = "htCenter") %>%
+                                    hot_col(3, readOnly = TRUE) %>%
+                                    hot_col(c(1, 5, 10, 11, 12, 13),
+                                            readOnly = TRUE) %>%
+                                    hot_col(3:(13 + nrow(DB$cust_var)), 
+                                            valign = "htMiddle",
+                                            halign = "htLeft") %>%
+                                    hot_col(3, validator = "
+                                    function(value, callback) {
+                                      try {
+                                        if (value === null || value.trim() === '') {
+                                          callback(false); // Cell is empty
+                                          Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                        } else {
+                                          callback(true); // Cell is not empty
+                                          Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
+                                        }
+                                      } catch (err) {
+                                        console.log(err);
+                                        callback(false); // In case of error, consider it as invalid
+                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                      }
+                                    }
+                                  ") %>%
+                                    hot_col(4, validator = "
+                                    function(value, callback) {
+                                      try {
+                                        if (value === null || value.trim() === '') {
+                                          callback(false); // Cell is empty
+                                          Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                        } else {
+                                          callback(true); // Cell is not empty
+                                          Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
+                                        }
+                                      } catch (err) {
+                                        console.log(err);
+                                        callback(false); // In case of error, consider it as invalid
+                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                      }
+                                    }
+                                  ") %>%
+                                    hot_col(8, type = "dropdown", source = country_names) %>%
+                                    hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                                            validator = "
+                                  function (value, callback) {
+                                    var today_date = new Date();
+                                    today_date.setHours(0, 0, 0, 0);
+                                    
+                                    var new_date = new Date(value);
+                                    new_date.setHours(0, 0, 0, 0);
+                                    
+                                    try {
+                                      if (new_date <= today_date) {
+                                        callback(true);
+                                        Shiny.setInputValue('invalid_date', false);
+                                      } else {
+                                        callback(false); 
+                                        Shiny.setInputValue('invalid_date', true);
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false); 
+                                      Shiny.setInputValue('invalid_date', true);
+                                    }
+                                  }") %>%
+                                    hot_col(2, type = "checkbox", width = "auto",
+                                            valign = "htTop",
+                                            halign = "htCenter") %>%
+                                    hot_rows(fixedRowsTop = 0) %>%
+                                    hot_col(1, renderer = "
+                function (instance, td, row, col, prop, value, cellProperties) {
+                         Handsontable.renderers.TextRenderer.apply(this, arguments);
+    
+                         if (instance.params) {
+                           hrows = instance.params.row_highlight
+                           hrows = hrows instanceof Array ? hrows : [hrows]
+    
+                           if (hrows.includes(row)) { 
+                             td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)' 
+                           }
+    
+                         }
+                }") %>%
+                                    hot_col(4, renderer = "
+                function (instance, td, row, col, prop, value, cellProperties) {
+                         Handsontable.renderers.TextRenderer.apply(this, arguments);
+    
+                         if (instance.params) {
+                           hrows = instance.params.dup_names_high
+                           hrows = hrows instanceof Array ? hrows : [hrows]
+    
+                           if (hrows.includes(row)) { 
+                             td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                           }
+                         }
+                }") %>%
+                                    hot_col(3, renderer = "
+                function (instance, td, row, col, prop, value, cellProperties) {
+                         Handsontable.renderers.TextRenderer.apply(this, arguments);
+    
+                         if (instance.params) {
+                           hrows = instance.params.dup_ids_high
+                           hrows = hrows instanceof Array ? hrows : [hrows]
+    
+                           if (hrows.includes(row)) { 
+                             td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                           }
+                         }
+                }") %>%
+                                    hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                             Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                             if (instance.params) {
+                                                               hrows = instance.params.error_highlight
+                                                               hrows = hrows instanceof Array ? hrows : [hrows]
+                                                               if (hrows.includes(row)) { 
+                                                                 td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)' 
+                                                               }
+                                                             }
+                                                         }") 
+                                  shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
+                                  return(tab)
+                                }
+                              })
+                            }
+                          }
+                        } else {
+                          if (length(input$compare_select) > 0) {
+                            if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
+                              output$db_entries <- renderRHandsontable({
+                                
+                                if(!any(input$compare_select %in% colnames(DB$allelic_profile) != TRUE)) {
+                                  
+                                  shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+                                  w$show()
+                                  
+                                  entry_data <- DB$data %>%
+                                    select(1:(13 + nrow(DB$cust_var))) %>%
+                                    add_column(select(DB$allelic_profile_trunc, any_of(input$compare_select)))
+                                  
+                                  tab <- rhandsontable(
+                                    entry_data,
+                                    col_highlight = diff_allele() - 1,
+                                    rowHeaders = NULL,
+                                    height = entry_table_height(),
+                                    row_highlight = true_rows() - 1,
+                                    dup_names_high = duplicated_names() - 1,
+                                    dup_ids_high = duplicated_ids() - 1,
+                                    error_highlight = err_thresh() - 1,
+                                    contextMenu = FALSE,
+                                    highlightCol = TRUE,
+                                    highlightRow = TRUE
+                                  ) %>%
+                                    hot_col((14 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)),
+                                            readOnly = TRUE,
+                                            valign = "htMiddle",
+                                            halign = "htCenter") %>%
+                                    hot_col(3:(13 + nrow(DB$cust_var)),
+                                            valign = "htMiddle",
+                                            halign = "htLeft") %>%
+                                    hot_col(3, readOnly = TRUE) %>%
+                                    hot_col(3, validator = "
+                                    function(value, callback) {
+                                      try {
+                                        if (value === null || value.trim() === '') {
+                                          callback(false); // Cell is empty
+                                          Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                        } else {
+                                          callback(true); // Cell is not empty
+                                          Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
+                                        }
+                                      } catch (err) {
+                                        console.log(err);
+                                        callback(false); // In case of error, consider it as invalid
+                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                      }
+                                    }
+                                  ") %>%
+                                    hot_col(4, validator = "
+                                    function(value, callback) {
+                                      try {
+                                        if (value === null || value.trim() === '') {
+                                          callback(false); // Cell is empty
+                                          Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                        } else {
+                                          callback(true); // Cell is not empty
+                                          Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
+                                        }
+                                      } catch (err) {
+                                        console.log(err);
+                                        callback(false); // In case of error, consider it as invalid
+                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                      }
+                                    }
+                                  ") %>%
+                                    hot_col(c(1, 5, 10, 11, 12, 13),
+                                            readOnly = TRUE) %>%
+                                    hot_col(8, type = "dropdown", source = country_names) %>%
+                                    hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                                            validator = "
+                                  function (value, callback) {
+                                    var today_date = new Date();
+                                    today_date.setHours(0, 0, 0, 0);
+  
+                                    var new_date = new Date(value);
+                                    new_date.setHours(0, 0, 0, 0);
+  
+                                    try {
+                                      if (new_date <= today_date) {
+                                        callback(true);
+                                        Shiny.setInputValue('invalid_date', false);
+                                      } else {
+                                        callback(false);
+                                        Shiny.setInputValue('invalid_date', true);
+                                      }
+                                    } catch (err) {
+                                      console.log(err);
+                                      callback(false);
+                                      Shiny.setInputValue('invalid_date', true);
+                                    }
+                                  }") %>%
+                                    hot_col(1,
+                                            valign = "htMiddle",
+                                            halign = "htCenter") %>%
+                                    hot_col(2, type = "checkbox", width = "auto",
+                                            valign = "htTop",
+                                            halign = "htCenter",
+                                            allowInvalid = FALSE,
+                                            copyable = TRUE) %>%
+                                    hot_cols(fixedColumnsLeft = 1) %>%
+                                    hot_rows(fixedRowsTop = 0) %>%
+                                    hot_col(1, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                             Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                             if (instance.params) {
+                                                               hrows = instance.params.row_highlight
+                                                               hrows = hrows instanceof Array ? hrows : [hrows]
+                                                               if (hrows.includes(row)) {
+                                                                 td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)'
+                                                               }
+                                                             }
+                                                         }") %>%
+                                    hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                             Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                             if (instance.params) {
+                                                               hrows = instance.params.error_highlight
+                                                               hrows = hrows instanceof Array ? hrows : [hrows]
+                                                               if (hrows.includes(row)) {
+                                                                 td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)'
+                                                               }
+                                                             }
+                                                         }") %>%
+                                    hot_col(4, renderer = "
+                function (instance, td, row, col, prop, value, cellProperties) {
+                         Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                         if (instance.params) {
+                           hrows = instance.params.dup_names_high
+                           hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                           if (hrows.includes(row)) {
+                             td.style.backgroundColor = 'rgb(224, 179, 0)'
+                           }
+                         }
+                }") %>%
+                                    hot_col(3, renderer = "
+                function (instance, td, row, col, prop, value, cellProperties) {
+                         Handsontable.renderers.TextRenderer.apply(this, arguments);
+  
+                         if (instance.params) {
+                           hrows = instance.params.dup_ids_high
+                           hrows = hrows instanceof Array ? hrows : [hrows]
+  
+                           if (hrows.includes(row)) {
+                             td.style.backgroundColor = 'rgb(224, 179, 0)'
+                           }
+                         }
+                }") %>%
+                                    hot_col(diff_allele(),
+                                            renderer = "
+                    function(instance, td, row, col, prop, value, cellProperties) {
+                      Handsontable.renderers.NumericRenderer.apply(this, arguments);
+  
+                      if (instance.params) {
+                            hcols = instance.params.col_highlight;
+                            hcols = hcols instanceof Array ? hcols : [hcols];
+                          }
+  
+                      if (instance.params && hcols.includes(col)) {
+                        td.style.background = 'rgb(116, 188, 139)';
+                      }
+                  }")
+                                  shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')    
+                                  return(tab)
+                                }
+                              })
+                            }
+                          } else {
+                            if(!is.null(DB$data) & !is.null(DB$cust_var)) {
+                              output$db_entries <- renderRHandsontable({
+                                
+                                if(!any(input$compare_select %in% colnames(DB$allelic_profile) != TRUE)) {
+                                  shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+                                  w$show()
+                                  
+                                  tab <- rhandsontable(
+                                    select(DB$data, 1:(13 + nrow(DB$cust_var))),
+                                    rowHeaders = NULL,
+                                    height = entry_table_height(),
+                                    dup_names_high = duplicated_names() - 1,
+                                    dup_ids_high = duplicated_ids() - 1,
+                                    row_highlight = true_rows() - 1,
+                                    error_highlight = err_thresh() - 1,
+                                    contextMenu = FALSE,
+                                    highlightCol = TRUE, 
+                                    highlightRow = TRUE
+                                  ) %>%
+                                    hot_cols(fixedColumnsLeft = 1) %>%
+                                    hot_col(1, 
+                                            valign = "htMiddle",
+                                            halign = "htCenter") %>%
+                                    hot_col(3, readOnly = TRUE) %>%
+                                    hot_col(c(1, 5, 10, 11, 12, 13),
+                                            readOnly = TRUE) %>%
+                                    hot_col(3, validator = "
+                                      function(value, callback) {
+                                        try {
+                                          if (value === null || value.trim() === '') {
+                                            callback(false); // Cell is empty
+                                            Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                          } else {
+                                            callback(true); // Cell is not empty
+                                            Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
+                                          }
+                                        } catch (err) {
+                                          console.log(err);
+                                          callback(false); // In case of error, consider it as invalid
+                                          Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
+                                        }
+                                      }
+                                    ") %>%
+                                    hot_col(4, validator = "
+                                      function(value, callback) {
+                                        try {
+                                          if (value === null || value.trim() === '') {
+                                            callback(false); // Cell is empty
+                                            Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                          } else {
+                                            callback(true); // Cell is not empty
+                                            Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
+                                          }
+                                        } catch (err) {
+                                          console.log(err);
+                                          callback(false); // In case of error, consider it as invalid
+                                          Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
+                                        }
+                                      }
+                                    ") %>%
+                                    hot_col(8, type = "dropdown", source = country_names) %>%
+                                    hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
+                                            validator = "
+                                    function (value, callback) {
+                                      var today_date = new Date();
+                                      today_date.setHours(0, 0, 0, 0);
+                                      
+                                      var new_date = new Date(value);
+                                      new_date.setHours(0, 0, 0, 0);
+                                      
+                                      try {
+                                        if (new_date <= today_date) {
+                                          callback(true);
+                                          Shiny.setInputValue('invalid_date', false);
+                                        } else {
+                                          callback(false); 
+                                          Shiny.setInputValue('invalid_date', true);
+                                        }
+                                      } catch (err) {
+                                        console.log(err);
+                                        callback(false); 
+                                        Shiny.setInputValue('invalid_date', true);
+                                      }
+                                    }") %>%
+                                    hot_col(3:(13 + nrow(DB$cust_var)), 
+                                            valign = "htMiddle",
+                                            halign = "htLeft") %>%
+                                    hot_rows(fixedRowsTop = 0) %>%
+                                    hot_col(1, renderer = "
+                  function (instance, td, row, col, prop, value, cellProperties) {
+                           Handsontable.renderers.TextRenderer.apply(this, arguments);
+      
+                           if (instance.params) {
+                             hrows = instance.params.row_highlight
+                             hrows = hrows instanceof Array ? hrows : [hrows]
+      
+                             if (hrows.includes(row)) { 
+                               td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)' 
+                             }
+                           }
+                  }") %>%
+                                    hot_col(2, type = "checkbox", width = "auto",
+                                            valign = "htTop", halign = "htCenter") %>%
+                                    hot_col(4, renderer = "
+                  function (instance, td, row, col, prop, value, cellProperties) {
+                           Handsontable.renderers.TextRenderer.apply(this, arguments);
+      
+                           if (instance.params) {
+                             hrows = instance.params.dup_names_high
+                             hrows = hrows instanceof Array ? hrows : [hrows]
+      
+                             if (hrows.includes(row)) { 
+                               td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                             }
+                           }
+                  }") %>%
+                                    hot_col(3, renderer = "
+                  function (instance, td, row, col, prop, value, cellProperties) {
+                           Handsontable.renderers.TextRenderer.apply(this, arguments);
+      
+                           if (instance.params) {
+                             hrows = instance.params.dup_ids_high
+                             hrows = hrows instanceof Array ? hrows : [hrows]
+      
+                             if (hrows.includes(row)) { 
+                               td.style.backgroundColor = 'rgb(224, 179, 0)' 
+                             }
+                           }
+                  }") %>%
+                                    hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
+                                                               Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                                               if (instance.params) {
+                                                                 hrows = instance.params.error_highlight
+                                                                 hrows = hrows instanceof Array ? hrows : [hrows]
+                                                                 if (hrows.includes(row)) { 
+                                                                   td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)' 
+                                                                 }
+                                                               }
+                                                           }") 
+                                  
+                                  shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
+                                  return(tab)  
+                                }
+                              })
+                            }
+                          }
+                        }
+                      }
+                      
+                      # Dynamic save button when rhandsontable changes or new entries
+                      output$edit_entry_table <- renderUI({
+                        
+                        check_new_entry <- check_new_entry()
+                        
+                        if(!is.null(check_new_entry) & 
+                           !is.null(DB$check_new_entries) & 
+                           !is.null(DB$meta)) {
+                          
+                          if(!is.null(DB$meta)) {
+                            new_meta <- !identical(get.entry.table.meta(), select(DB$meta, -13))
+                          } else {
+                            new_meta <- FALSE
+                          }
+                          
+                          if(check_new_entry & DB$check_new_entries) {
+                            Typing$reload <- FALSE
+                            fluidRow(
+                              column(
+                                width = 8,
+                                align = "left",
+                                HTML(
+                                  paste(
+                                    tags$span(style='color: white; font-size: 14px; position: absolute; bottom: -30px; right: -5px', 
+                                              'New entries - reload database')
+                                  )
+                                )
+                              ),
+                              column(
+                                width = 4,
+                                actionButton(
+                                  "load",
+                                  "",
+                                  icon = icon("rotate"),
+                                  class = "pulsating-button",
+                                  width = "40px"
+                                )
+                              )
+                            )
+                          } else if(Typing$status == "Attaching") {
+                            fluidRow(
+                              column(
+                                width = 11,
+                                align = "left",
+                                HTML(
+                                  paste(
+                                    tags$span(style='color: white; font-size: 14px; position: absolute; bottom: -30px; right: -5px', 'No database changes possible - pending entry addition')
+                                  )
+                                )
+                              ),
+                              column(
+                                width = 1,
+                                HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:20px; color:white; margin-top: 10px"></i>'))
+                              )
+                            )
+                          } else if(isTRUE(DB$change) | new_meta) {
+                            
+                            if(!is.null(input$db_entries)) {
+                              fluidRow(
+                                column(
+                                  width = 5,
+                                  HTML(
+                                    paste(
+                                      tags$span(style='color: white; font-size: 16px; position: absolute; bottom: -30px; right: -5px', 'Confirm changes')
+                                    )
+                                  )
+                                ),
+                                column(
+                                  width = 3,
+                                  actionButton(
+                                    "edit_button",
+                                    "",
+                                    icon = icon("bookmark"),
+                                    class = "pulsating-button"
+                                  )
+                                ),
+                                column(
+                                  width = 4,
+                                  actionButton(
+                                    "undo_changes",
+                                    "Undo",
+                                    icon = icon("repeat")
+                                  )
+                                )
+                              )
+                            }
+                          } else {NULL}
+                        }
+                      })
+                    })
+                    
+                    # Hide no entry message
+                    output$db_no_entries <- NULL
+                    output$distancematrix_no_entries <- NULL
+                    
+                  } else {
+                    
+                    # If database loading not successful dont show entry table
+                    output$db_entries_table <- NULL
+                    output$entry_table_controls <- NULL
+                  }
+                  
+                  # Render Entry table controls
+                  output$entry_table_controls <- renderUI({
+                    fluidRow(
+                      column(
+                        width = 4,
+                        align = "center",
+                        fluidRow(
+                          column(
+                            width = 4,
+                            align = "center",
+                            actionButton(
+                              "sel_all_entries",
+                              "Select All",
+                              icon = icon("check")
+                            )
+                          ),
+                          column(
+                            width = 4,
+                            align = "left",
+                            actionButton(
+                              "desel_all_entries",
+                              "Deselect All",
+                              icon = icon("xmark")
+                            )
+                          )
+                        )
+                      ),
+                      column(
+                        width = 3,
+                        uiOutput("edit_entry_table")
+                      )
+                    )
+                  })
+                  
+                  ## Render Distance Matrix ----
+                  observe({
+                    if(!is.null(DB$data)) {
+                      shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
+                      
+                      if(any(duplicated(DB$meta$`Assembly Name`)) | any(duplicated(DB$meta$`Assembly ID`))) {
+                        output$db_distancematrix <- NULL
+                        
+                        if( (sum(duplicated(DB$meta$`Assembly Name`)) > 0) & (sum(duplicated(DB$meta$`Assembly ID`)) == 0) ) {
+                          duplicated_txt <- paste0(
+                            paste(
+                              paste0("Name  # ", which(duplicated(DB$meta$`Assembly Name`)), " - "),
+                              DB$meta$`Assembly Name`[which(duplicated(DB$meta$`Assembly Name`))]
+                            ),
+                            "<br>"
+                          )
+                        } else if ( (sum(duplicated(DB$meta$`Assembly ID`)) > 0) & (sum(duplicated(DB$meta$`Assembly Name`)) == 0) ){
+                          duplicated_txt <- paste0(
+                            paste(
+                              paste0("ID  # ", which(duplicated(DB$meta$`Assembly ID`)), " - "),
+                              DB$meta$`Assembly ID`[which(duplicated(DB$meta$`Assembly ID`))]
+                            ),
+                            "<br>"
+                          )
+                        } else {
+                          duplicated_txt <- c(
+                            paste0(
+                              paste(
+                                paste0("Name  # ", which(duplicated(DB$meta$`Assembly Name`)), " - "),
+                                DB$meta$`Assembly Name`[which(duplicated(DB$meta$`Assembly Name`))]
+                              ),
+                              "<br>"
+                            ),
+                            paste0(
+                              paste(
+                                paste0("ID  # ", which(duplicated(DB$meta$`Assembly ID`)), " - "),
+                                DB$meta$`Assembly ID`[which(duplicated(DB$meta$`Assembly ID`))]
+                              ),
+                              "<br>"
+                            )
+                          )
+                        }
+                        
+                        output$distancematrix_duplicated <- renderUI({
+                          column(
+                            width = 12,
+                            tags$span(style = "font-size: 15; color: white",
+                                      "Change duplicated entry names to display distance matrix."),
+                            br(), br(), br(),
+                            actionButton("change_entries", "Go to Entry Table", class = "btn btn-default"),
+                            br(), br(), br(),
+                            tags$span(
+                              style = "font-size: 15; color: white",
+                              HTML(
+                                append(
+                                  "Duplicated:",
+                                  append(
+                                    "<br>",
+                                    duplicated_txt
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        })
+                      } else {
+                        output$distancematrix_duplicated <- NULL
+                        if(!is.null(DB$data) & !is.null(DB$allelic_profile) & !is.null(DB$allelic_profile_true) & !is.null(DB$cust_var) & !is.null(input$distmatrix_label) & !is.null(input$distmatrix_diag) & !is.null(input$distmatrix_triangle)) {
+                          dist_matrix <- hamming_df()
+                          
+                          req(dist_matrix)
+                          
+                          output$db_distancematrix <- renderRHandsontable({
+                            
+                            if(nrow(dist_matrix) > 28) {
+                              height <- 700
+                            } else {
+                              height <- NULL
+                            }
+                            
+                            rhandsontable(dist_matrix, 
+                                          digits = 1, 
+                                          readOnly = TRUE,
+                                          contextMenu = FALSE,
+                                          highlightCol = TRUE, 
+                                          highlightRow = TRUE,
+                                          height = height, 
+                                          rowHeaders = NULL) %>%
+                              hot_heatmap(renderer = paste0("
+                              function (instance, td, row, col, prop, value, cellProperties) {
+                                Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                heatmapScale  = chroma.scale(['#17F556', '#ED6D47']);
+                              
+                                if (instance.heatmap[col]) {
+                                  mn = ", DB$matrix_min, ";
+                                  mx = ", DB$matrix_max, ";
+                              
+                                  pt = (parseInt(value, 10) - mn) / (mx - mn);    
+                              
+                                  td.style.backgroundColor = heatmapScale(pt).hex();
+                                }
+                              }")) %>%
+                              hot_rows(fixedRowsTop = 0) %>%
+                              hot_cols(fixedColumnsLeft = 1) %>%
+                              hot_col(1:(dim(dist_matrix)[1]+1),
+                                      halign = "htCenter",
+                                      valign = "htMiddle") %>%
+                              hot_col(1, renderer = "
+                              function(instance, td, row, col, prop, value, cellProperties) {
+                                Handsontable.renderers.NumericRenderer.apply(this, arguments);
+                                td.style.background = '#F0F0F0'
+                              }"
+                              )
+                          })  
+                        }
+                      }
+                      
+                      # Render Distance Matrix UI
+                      
+                      output$distmatrix_show <- renderUI({
+                        if(!is.null(DB$data)) {
+                          if(nrow(DB$data) > 1) {
+                            
+                            if(!is.null(input$distmatrix_label)) {
+                              distmatrix_label_selected <- input$distmatrix_label
+                            } else {
+                              distmatrix_label_selected <- c("Assembly Name")
+                            }
+                            
+                            if(!is.null(input$distmatrix_true)) {
+                              distmatrix_true_selected <- input$distmatrix_true
+                            } else {
+                              distmatrix_true_selected <- FALSE
+                            }
+                            
+                            if(!is.null(input$distmatrix_triangle)) {
+                              distmatrix_triangle_selected <- input$distmatrix_triangle
+                            } else {
+                              distmatrix_triangle_selected <- FALSE
+                            }
+                            
+                            if(!is.null(input$distmatrix_diag)) {
+                              distmatrix_diag_selected <- input$distmatrix_diag
+                            } else {
+                              distmatrix_diag_selected <- TRUE
+                            }
+                            
+                            fluidRow(
+                              column(1),
+                              div(
+                                class = "distancematrix-options",
+                                column(
+                                  width = 2,
+                                  box(
+                                    solidHeader = TRUE,
+                                    status = "primary",
+                                    width = "100%",
+                                    title = "Options",
+                                    column(
+                                      width = 12,
+                                      br(),
+                                      br(),
+                                      fluidRow(
+                                        column(
+                                          width = 3,
+                                          HTML(
+                                            paste(
+                                              tags$span(style='color: white; font-size: 14px;', 
+                                                        'Label')
+                                            )
+                                          )
+                                        ),
+                                        column(
+                                          width = 9,
+                                          div(
+                                            class = "distmatrix-label",
+                                            selectInput(
+                                              "distmatrix_label",
+                                              label = "",
+                                              choices = c("Index", "Assembly Name", "Assembly ID"),
+                                              selected = distmatrix_label_selected,
+                                              width = "100%"
+                                            )
+                                          )
+                                        )
+                                      ),
+                                      br(),
+                                      br(),
+                                      div(
+                                        class = "mat-switch-dmatrix",
+                                        materialSwitch(
+                                          "distmatrix_true",
+                                          h5(p("Only Included Entries"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                          value = distmatrix_true_selected,
+                                          right = TRUE
+                                        )
+                                      ),
+                                      br(),
+                                      div(
+                                        class = "mat-switch-dmatrix",
+                                        materialSwitch(
+                                          "distmatrix_triangle",
+                                          h5(p("Show Upper Triangle"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                          value = distmatrix_triangle_selected,
+                                          right = TRUE
+                                        )
+                                      ),
+                                      br(),
+                                      div(
+                                        class = "mat-switch-dmatrix",
+                                        materialSwitch(
+                                          "distmatrix_diag",
+                                          h5(p("Show Diagonal"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                          value = distmatrix_diag_selected,
+                                          right = TRUE
+                                        )
+                                      ),
+                                      br(),
+                                      br(),
+                                      br(),
+                                      br(),
+                                      fluidRow(
+                                        column(
+                                          width = 8,
+                                          HTML(
+                                            paste(
+                                              tags$span(style='color: white; font-size: 14px;', 
+                                                        'Download CSV')
+                                            )
+                                          )
+                                        ),
+                                        column(
+                                          width = 4,
+                                          downloadBttn(
+                                            "download_distmatrix",
+                                            style = "simple",
+                                            label = "",
+                                            size = "sm",
+                                            icon = icon("download")
+                                          )
+                                        )
+                                      )
+                                    )
+                                  )
+                                )
+                              ),
+                              column(
+                                width = 9,
+                                uiOutput("distancematrix_duplicated"),
+                                rHandsontableOutput("db_distancematrix")
+                              )
+                            )
+                          } else {
+                            column(
+                              width = 9,
+                              align = "left",
+                              p(
+                                HTML(
+                                  paste(
+                                    tags$span(style='color: white; font-size: 15px;', "Type at least two assemblies to display a distance matrix.")
+                                  )
+                                )
+                              ),
+                              br(),
+                              br()
+                            )
+                          }
+                        }
+                      })
+                      shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
+                    }
+                  })
+                  
+                  # render custom variables box UI
+                  output$custom_var_box <- renderUI(
+                    box(
+                      solidHeader = TRUE,
+                      status = "primary",
+                      width = "100%",
+                      title = "Custom Variables",
+                      fluidRow(
+                        column(1),
+                        column(
+                          width = 7,
+                          fluidRow(
+                            column(
+                              width = 9,
+                              align = "center",
+                              textInput(
+                                "new_var_name",
+                                label = "",
+                                placeholder = "New Variable"
+                              )
+                            ),
+                            column(
+                              width = 2,
+                              actionButton(
+                                "add_new_variable",
+                                "",
+                                icon = icon("plus")
+                              )
+                            )
+                          ),
+                          fluidRow(
+                            column(
+                              width = 9,
+                              align = "center",
+                              selectInput(
+                                "del_which_var",
+                                "",
+                                DB$cust_var$Variable
+                              )
+                            ),
+                            column(
+                              width = 2,
+                              align = "left",
+                              actionButton(
+                                "delete_new_variable",
+                                "",
+                                icon = icon("minus")
+                              )
+                            )
+                          )   
+                        ),
+                        column(
+                          width = 2,
+                          actionButton(
+                            "custom_var_table",
+                            "Browse ",
+                            icon = icon("table-list")
+                          )
+                        )
+                      )
+                    )
+                  )
+                  
+                  # Render delete entry box UI
+                  output$delete_box <- renderUI({
+                    box(
+                      solidHeader = TRUE,
+                      status = "primary",
+                      width = "100%",
+                      title = "Delete Entries",
+                      fluidRow(
+                        column(1),
+                        column(
+                          width = 5,
+                          align = "left",
+                          uiOutput("delete_select")
+                        ),
+                        column(
+                          width = 2,
+                          align = "center",
+                          br(),
+                          uiOutput("del_bttn")
+                        )
+                      ),
+                      br()
+                    )
+                  })
+                  
+                  # Render loci comparison box UI
+                  output$compare_allele_box <- renderUI({
+                    box(
+                      solidHeader = TRUE,
+                      status = "primary",
+                      width = "100%",
+                      title = "Compare Loci",
+                      column(
+                        width = 12,
+                        br(),
+                        fluidRow(
+                          column(1),
+                          column(
+                            width = 10,
+                            align = "left",
+                            uiOutput("compare_select")   
+                          )
+                        ),
+                        br(),
+                        fluidRow(
+                          column(1),
+                          column(
+                            width = 10,
+                            align = "left",
+                            uiOutput("compare_difference_box")
+                          )
+                        )
+                      ),
+                      br()
+                    )
+                  })
+                  
+                  # Render entry table download box UI
+                  output$download_entries <- renderUI({
+                    fluidRow(
+                      column(
+                        width = 12,
+                        box(
+                          solidHeader = TRUE,
+                          status = "primary",
+                          width = "100%",
+                          title = "Export Table",
+                          fluidRow(
+                            column(1),
+                            column(
+                              width = 8,
+                              align = "left",
+                              br(),
+                              div(
+                                class = "mat-switch-db",
+                                materialSwitch(
+                                  "download_table_include",
+                                  h5(p("Only Included Entries"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                  value = FALSE,
+                                  right = TRUE
+                                )
+                              ),
+                              div(
+                                class = "mat-switch-db",
+                                materialSwitch(
+                                  "download_table_loci",
+                                  h5(p("Include Displayed Loci"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                  value = FALSE,
+                                  right = TRUE
+                                )
+                              ),
+                              div(
+                                class = "mat-switch-db",
+                                materialSwitch(
+                                  "download_table_hashes",
+                                  h5(p("Truncate Hashes"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
+                                  value = FALSE,
+                                  right = TRUE
+                                )
+                              )
+                            ),
+                            column(
+                              width = 2,
+                              align = "center",
+                              downloadBttn(
+                                "download_entry_table",
+                                style = "simple",
+                                label = "",
+                                size = "sm",
+                                icon = icon("download"),
+                                color = "primary"
+                              )
+                            )
+                          )
+                        )
+                      )
+                    )
+                  })
+                  
+                  # Render entry deletion select input
+                  output$delete_select <- renderUI({
+                    pickerInput("select_delete",
+                                label = h5("Index", style = "color:white; margin-bottom: 0px;"),
+                                choices = DB$data[, "Index"],
+                                options = list(
+                                  `live-search` = TRUE,
+                                  `actions-box` = TRUE,
+                                  size = 10,
+                                  style = "background-color: white; border-radius: 5px;"
+                                ),
+                                multiple = TRUE)
+                  })
+                  
+                  # Render delete entry button
+                  output$del_bttn <- renderUI({
+                    actionBttn(
+                      "del_button",
+                      label = "",
+                      color = "danger",
+                      size = "sm",
+                      style = "material-circle",
+                      icon = icon("xmark")
+                    )
+                  })
+                  
+                  # Missing Values UI ----
+                  
+                  # Missing values calculations and table 
+                  observe({
+                    if(!is.null(DB$allelic_profile)) {
+                      NA_table <- DB$allelic_profile[, colSums(is.na(DB$allelic_profile)) != 0]
+                      
+                      NA_table <- NA_table[rowSums(is.na(NA_table)) != 0,]
+                      
+                      NA_table[is.na(NA_table)] <- "NA"
+                      
+                      NA_table <- NA_table %>% 
+                        cbind("Assembly Name" = DB$meta[rownames(NA_table),]$`Assembly Name`) %>%
+                        cbind("Errors" = DB$meta[rownames(NA_table),]$Errors) %>%
+                        relocate("Assembly Name", "Errors")
+                      
+                      DB$na_table <- NA_table
+                      
+                      output$table_missing_values <- renderRHandsontable({
+                        
+                        if(nrow(DB$na_table) > 26) {
+                          height <- 650
+                        } else {
+                          height <- NULL
+                        }
+                        
+                        rhandsontable(
+                          DB$na_table,
+                          readOnly = TRUE,
+                          rowHeaders = NULL,
+                          contextMenu = FALSE,
+                          height = height,
+                          highlightCol = TRUE, 
+                          highlightRow = TRUE,
+                          error_highlight = err_thresh_na() - 1
+                        ) %>%
+                          hot_cols(fixedColumnsLeft = 1) %>%
+                          hot_rows(fixedRowsTop = 0) %>%
+                          hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htLeft") %>%
+                          hot_col(2, renderer = "
+                              function (instance, td, row, col, prop, value, cellProperties) {
+                                Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                if (instance.params) {
+                                  hrows = instance.params.error_highlight
+                                  hrows = hrows instanceof Array ? hrows : [hrows]
+                                  if (hrows.includes(row)) { 
+                                    td.style.backgroundColor = 'rgbA(255, 80, 1, 0.8)' 
+                                  }
+                                }
+                              }") %>%
+                          hot_col(3:ncol(DB$na_table), renderer = htmlwidgets::JS(
+                            "function(instance, td, row, col, prop, value, cellProperties) {
+                                  if (value.length > 8) {
+                                    value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
+                                  }
+                                  td.innerHTML = value;
+                                  td.style.textAlign = 'center';
+                                  return td;
+                                 }"
+                          ))
+                      })
+                    }
+                  })
+                  
+                  # Render missing value informatiojn box UI
+                  output$missing_values <- renderUI({
+                    box(
+                      solidHeader = TRUE,
+                      status = "primary",
+                      width = "100%",
+                      title = "Missing Value Handling",
+                      fluidRow(
+                        div(
+                          class = "white",
+                          column(
+                            width = 12,
+                            align = "left",
+                            br(), 
+                            HTML(
+                              paste0("There are ", 
+                                     strong(as.character(sum(is.na(DB$data)))), 
+                                     " unsuccessful allele allocations (NA). ",
+                                     strong(sum(sapply(DB$allelic_profile, anyNA))),
+                                     " out of ",
+                                     strong(ncol(DB$allelic_profile)),
+                                     " total loci in this scheme contain NA's (",
+                                     strong(round((sum(sapply(DB$allelic_profile, anyNA)) / ncol(DB$allelic_profile) * 100), 1)),
+                                     " %). ",
+                                     "<br><br><br>Decide how these missing values should be treated:")
+                              
+                            ),
+                            br()
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(
+                          width = 12,
+                          align = "left",
+                          br(),
+                          div(
+                            class = "na-handling",
+                            prettyRadioButtons(
+                              "na_handling",
+                              "",
+                              choiceNames = c("Ignore missing values for pairwise comparison",
+                                              "Omit loci with missing values for all assemblies",
+                                              "Treat missing values as allele variant"),
+                              choiceValues = c("ignore_na", "omit", "category"),
+                              shape = "curve",
+                              selected = c("ignore_na")
+                            )
+                          ),
+                          br()
+                        )
+                      )
+                    )
+                  })  
+                  
+                } else { 
+                  #if no typed assemblies present
+                  
+                  # null underlying database
+                  
+                  DB$data <- NULL
+                  DB$meta <- NULL
+                  DB$meta_gs <- NULL
+                  DB$meta_true <- NULL
+                  DB$allelic_profile <- NULL
+                  DB$allelic_profile_trunc <- NULL
+                  DB$allelic_profile_true <- NULL
+                  
+                  # Render menu without missing values tab
                   output$menu_typing <- renderMenu(
                     sidebarMenu(
                       menuItem(
@@ -2998,6 +4960,7 @@ server <- function(input, output, session) {
                         tabName = "database",
                         icon = icon("hard-drive"),
                         startExpanded = TRUE,
+                        selected = TRUE,
                         menuSubItem(
                           text = "Browse Entries",
                           tabName = "db_browse_entries"
@@ -3045,2289 +5008,342 @@ server <- function(input, output, session) {
                       output$menu_screening <- renderMenu(screening_menu_available)
                     }
                   }
-                } else {
-                  output$menu_typing <- renderMenu(
-                    sidebarMenu(
-                      menuItem(
-                        text = "Database",
-                        tabName = "database",
-                        icon = icon("hard-drive"),
-                        startExpanded = TRUE,
-                        menuSubItem(
-                          text = "Browse Entries",
-                          tabName = "db_browse_entries",
-                          selected = TRUE
-                        ),
-                        menuSubItem(
-                          text = "Scheme Info",
-                          tabName = "db_schemeinfo"
-                        ),
-                        menuSubItem(
-                          text = "Loci Info",
-                          tabName = "db_loci_info"
-                        ),
-                        menuSubItem(
-                          text = "Distance Matrix",
-                          tabName = "db_distmatrix"
-                        ),
-                        menuSubItem(
-                          text = "Missing Values",
-                          tabName = "db_missing_values",
-                          icon = icon("triangle-exclamation")
-                        )
-                      ),
-                      menuItem(
-                        text = "Schemes",
-                        tabName = "init",
-                        icon = icon("layer-group")
-                      ),
-                      menuItem(
-                        text = "Allelic Typing",
-                        tabName = "typing",
-                        icon = icon("gears")
-                      ),
-                      menuItem(
-                        text = "Visualization",
-                        tabName = "visualization",
-                        icon = icon("circle-nodes")
-                      )
-                    )
-                  )
-                  
-                  if(!is.null(DB$scheme)) {
-                    amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
-                                                                     amrfinder_species = amrfinder_species)
-                    
-                    if(!isFALSE(amrfinder_available)) {
-                      
-                      output$menu_screening <- renderMenu(screening_menu_available)
-                      
-                    } else {
-                      output$menu_screening <- renderMenu(screening_menu_available)
-                    }
-                  }
-                }
-                
-                # Render custom variable display
-                output$show_cust_var <- renderDataTable(
-                  DB$cust_var,
-                  selection = "single",
-                  rownames = FALSE, 
-                  options = list(
-                    pageLength = 10,
-                    lengthMenu = list(c(10), c('10')),  
-                    columnDefs = list(list(searchable = TRUE, targets = "_all")),
-                    initComplete = DT::JS(
-                      "function(settings, json) {",
-                      "$('th:first-child').css({'border-top-left-radius': '5px'});",
-                      "$('th:last-child').css({'border-top-right-radius': '5px'});",
-                      "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
-                      "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
-                      "}"
-                    ),
-                    drawCallback = DT::JS(
-                      "function(settings) {",
-                      "$('th:first-child').css({'border-top-left-radius': '5px'});",
-                      "$('th:last-child').css({'border-top-right-radius': '5px'});",
-                      "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
-                      "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
-                      "}"
-                    )
-                  )
-                )
-                
-                # Render missing values sidebar elements
-                output$missing_values_sidebar <- renderUI({
-                  column(
-                    width = 12,
-                    fluidRow(
-                      column(
-                        width = 12,
-                        br(),
-                        materialSwitch(
-                          "miss_val_height",
-                          h5(p("Show Full Table"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                          value = FALSE,
-                          right = TRUE
-                        )
-                      ),
-                      br()
-                    )
-                  )
-                })
-                
-                # Render scheme info download button
-                output$download_loci <- renderUI({
-                  if (!is.null(DB$loci_info)) {
-                    column(
-                      12,
-                      downloadBttn(
-                        "download_loci_info",
-                        style = "simple",
-                        label = "",
-                        size = "sm",
-                        icon = icon("download"),
-                        color = "primary"
-                      ),
-                      bsTooltip("download_loci_info_bttn", HTML("Save loci information <br> (without sequence)"), placement = "bottom", trigger = "hover")
-                    )
-                  } else {NULL}
-                })
-                
-                # Render scheme info download button
-                output$download_scheme_info <- renderUI({
-                  column(
-                    12,
-                    downloadBttn(
-                      "download_schemeinfo",
-                      style = "simple",
-                      label = "",
-                      size = "sm",
-                      icon = icon("download"),
-                      color = "primary"
-                    ),
-                    bsTooltip("download_schemeinfo_bttn", HTML("Save scheme information"), placement = "bottom", trigger = "hover")
-                  )
-                })
-                
-                # Render select input to choose displayed loci
-                output$compare_select <- renderUI({
-                  
-                  if(nrow(DB$data) == 1) {
-                    HTML(
-                      paste(
-                        tags$span(style='color: white; font-size: 15px;', "Type at least two assemblies to compare")
-                      )
-                    )
-                  } else {
-                    if(!is.null(input$compare_difference)) {
-                      if (isFALSE(input$compare_difference)) {
-                        div(
-                          class = "compare-select",
-                          pickerInput(
-                            inputId = "compare_select",
-                            label = "",
-                            width = "85%",
-                            choices = names(DB$allelic_profile),
-                            selected = names(DB$allelic_profile)[1:20],
-                            options = list(
-                              `live-search` = TRUE,
-                              `actions-box` = TRUE,
-                              size = 10,
-                              style = "background-color: white; border-radius: 5px;"
-                            ),
-                            multiple = TRUE
-                          )
-                        )
-                      } else {
-                        div(
-                          class = "compare-select",
-                          pickerInput(
-                            inputId = "compare_select",
-                            label = "",
-                            width = "85%",
-                            choices = names(DB$allelic_profile),
-                            selected = names(DB$allelic_profile)[var_alleles(DB$allelic_profile)],
-                            options = list(
-                              `live-search` = TRUE,
-                              `actions-box` = TRUE,
-                              size = 10,
-                              style = "background-color: white; border-radius: 5px;"
-                            ),
-                            multiple = TRUE
-                          )
-                        )
-                      }
-                    }
-                  }
-                })
-                
-                ##### Render Entry Data Table ----
-                output$db_entries_table <- renderUI({
-                  if(!is.null(DB$data)) {
-                    if(between(nrow(DB$data), 1, 30)) {
-                      fluidRow(
-                        column(
-                          width = 12,
-                          rHandsontableOutput("db_entries")
-                        ),
-                        br(), br(),
-                        column(
-                          width = 3,
-                          br(),
-                          fluidRow(
-                            column(
-                              width = 3,
-                              div(
-                                class = "rectangle-blue" 
-                              )
-                            ),
-                            column(
-                              width = 7,
-                              p(
-                                HTML(
-                                  paste(
-                                    tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px", " = included for analyses")
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        ),
-                        column(
-                          width = 3,
-                          br(),
-                          fluidRow(
-                            column(
-                              width = 3,
-                              div(
-                                class = "rectangle-orange" 
-                              )
-                            ),
-                            column(
-                              width = 7,
-                              p(
-                                HTML(
-                                  paste(
-                                    tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -45px", " =  duplicated assembly name")
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        ),
-                        column(
-                          width = 3,
-                          br(),
-                          fluidRow(
-                            column(
-                              width = 3,
-                              div(
-                                class = "rectangle-red" 
-                              )
-                            ),
-                            column(
-                              width = 7,
-                              p(
-                                HTML(
-                                  paste(
-                                    tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -75px", " =  ≥ 5% of loci missing")
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        ),
-                        column(
-                          width = 3,
-                          br(),
-                          fluidRow(
-                            column(
-                              width = 3,
-                              div(
-                                class = "rectangle-green" 
-                              )
-                            ),
-                            column(
-                              width = 9,
-                              p(
-                                HTML(
-                                  paste(
-                                    tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -105px", " =  locus contains multiple variants")
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    } else {
-                      fluidRow(
-                        column(
-                          width = 12,
-                          rHandsontableOutput("db_entries")
-                        ),
-                        br(),
-                        column(
-                          width = 3,
-                          br(),
-                          fluidRow(
-                            column(
-                              width = 3,
-                              div(
-                                class = "rectangle-blue" 
-                              )
-                            ),
-                            column(
-                              width = 7,
-                              p(
-                                HTML(
-                                  paste(
-                                    tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px", " = included for analyses")
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        ),
-                        column(
-                          width = 3,
-                          br(),
-                          fluidRow(
-                            column(
-                              width = 3,
-                              div(
-                                class = "rectangle-orange" 
-                              )
-                            ),
-                            column(
-                              width = 7,
-                              p(
-                                HTML(
-                                  paste(
-                                    tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -45px", " =  duplicated assembly name")
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        ),
-                        column(
-                          width = 3,
-                          br(),
-                          fluidRow(
-                            column(
-                              width = 3,
-                              div(
-                                class = "rectangle-red" 
-                              )
-                            ),
-                            column(
-                              width = 7,
-                              p(
-                                HTML(
-                                  paste(
-                                    tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -75px", " =  ≥ 5% of loci missing")
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        ),
-                        column(
-                          width = 3,
-                          br(),
-                          fluidRow(
-                            column(
-                              width = 3,
-                              div(
-                                class = "rectangle-green" 
-                              )
-                            ),
-                            column(
-                              width = 9,
-                              p(
-                                HTML(
-                                  paste(
-                                    tags$span(style="color: white; font-size: 12px; position: relative; bottom: -10px; margin-left: -105px", " =  locus contains multiple variants")
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
-                    }
-                  }
-                })
-                
-                if (!is.null(DB$data)) {
-                  
                   
                   observe({
-                    
-                    if (!is.null(DB$data)) {
-                      if (nrow(DB$data) == 1) {
-                        if(!is.null(DB$data) & !is.null(DB$cust_var)) {
-                          output$db_entries <- renderRHandsontable({
-                            
-                            rhandsontable(
-                              select(DB$data, 1:(13 + nrow(DB$cust_var))),
-                              error_highlight = err_thresh() - 1,                              
-                              rowHeaders = NULL,
-                              contextMenu = FALSE,
-                              highlightCol = TRUE, 
-                              highlightRow = TRUE
-                            ) %>%
-                              hot_col(1, 
-                                      valign = "htMiddle",
-                                      halign = "htCenter") %>%
-                              hot_col(3, readOnly = TRUE) %>%
-                              hot_col(c(1, 5, 10, 11, 12, 13),
-                                      readOnly = TRUE) %>%
-                              hot_col(3:(13 + nrow(DB$cust_var)), 
-                                      valign = "htMiddle",
-                                      halign = "htLeft") %>%
-                              hot_col(3, validator = "
-                                  function(value, callback) {
-                                    try {
-                                      if (value === null || value.trim() === '') {
-                                        callback(false); // Cell is empty
-                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
-                                      } else {
-                                        callback(true); // Cell is not empty
-                                        Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
-                                      }
-                                    } catch (err) {
-                                      console.log(err);
-                                      callback(false); // In case of error, consider it as invalid
-                                      Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
-                                    }
-                                  }
-                                ") %>%
-                              hot_col(4, validator = "
-                                  function(value, callback) {
-                                    try {
-                                      if (value === null || value.trim() === '') {
-                                        callback(false); // Cell is empty
-                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
-                                      } else {
-                                        callback(true); // Cell is not empty
-                                        Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
-                                      }
-                                    } catch (err) {
-                                      console.log(err);
-                                      callback(false); // In case of error, consider it as invalid
-                                      Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
-                                    }
-                                  }
-                                ") %>%
-                              hot_col(8, type = "dropdown", source = country_names) %>%
-                              hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
-                                      validator = "
-                                function (value, callback) {
-                                  var today_date = new Date();
-                                  today_date.setHours(0, 0, 0, 0);
-                                  
-                                  var new_date = new Date(value);
-                                  new_date.setHours(0, 0, 0, 0);
-                                  
-                                  try {
-                                    if (new_date <= today_date) {
-                                      callback(true);
-                                      Shiny.setInputValue('invalid_date', false);
-                                    } else {
-                                      callback(false); 
-                                      Shiny.setInputValue('invalid_date', true);
-                                    }
-                                  } catch (err) {
-                                    console.log(err);
-                                    callback(false); 
-                                    Shiny.setInputValue('invalid_date', true);
-                                  }
-                                }") %>%
-                              hot_cols(fixedColumnsLeft = 1) %>%
-                              hot_col(2, type = "checkbox", width = "auto",
-                                      valign = "htTop",
-                                      halign = "htCenter") %>%
-                              hot_rows(fixedRowsTop = 0) %>%
-                              hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
-                                                           Handsontable.renderers.TextRenderer.apply(this, arguments);
-                                                           if (instance.params) {
-                                                             hrows = instance.params.error_highlight
-                                                             hrows = hrows instanceof Array ? hrows : [hrows]
-                                                             if (hrows.includes(row)) { 
-                                                               td.style.backgroundColor = 'rgbA(255, 80, 1, 0.8)' 
-                                                             }
-                                                           }
-                                                       }") 
-                          })
-                        }
-                      } else if (between(nrow(DB$data), 2, 40)) {
-                        if (length(input$compare_select) > 0) {
-                          if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
-                            output$db_entries <- renderRHandsontable({
-                              
-                              if(!any(input$compare_select %in% colnames(DB$allelic_profile) != TRUE)) {
-                                
-                                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-                                w$show()
-                                  
-                                entry_data <- DB$data %>%
-                                  select(1:(13 + nrow(DB$cust_var))) %>%
-                                  add_column(select(DB$allelic_profile_trunc, any_of(input$compare_select)))
-                                
-                                tab <- rhandsontable(
-                                  entry_data,
-                                  col_highlight = diff_allele() - 1,
-                                  dup_names_high = duplicated_names() - 1,
-                                  dup_ids_high = duplicated_ids() - 1,
-                                  row_highlight = true_rows() - 1,
-                                  error_highlight = err_thresh() - 1,
-                                  rowHeaders = NULL,
-                                  highlightCol = TRUE,
-                                  highlightRow = TRUE,
-                                  contextMenu = FALSE,
-                                  height = entry_table_height()
-                                ) %>%
-                                  hot_col((14 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)),
-                                          valign = "htMiddle",
-                                          halign = "htCenter",
-                                          readOnly = TRUE) %>%
-                                  hot_col(1,
-                                          valign = "htMiddle",
-                                          halign = "htCenter") %>%
-                                  hot_col(3, readOnly = TRUE) %>%
-                                  hot_col(c(1, 5, 10, 11, 12, 13),
-                                          readOnly = TRUE) %>%
-                                  hot_col(3, validator = "
-                                  function(value, callback) {
-                                    try {
-                                      if (value === null || value.trim() === '') {
-                                        callback(false); // Cell is empty
-                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
-                                      } else {
-                                        callback(true); // Cell is not empty
-                                        Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
-                                      }
-                                    } catch (err) {
-                                      console.log(err);
-                                      callback(false); // In case of error, consider it as invalid
-                                      Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
-                                    }
-                                  }
-                                ") %>%
-                                  hot_col(4, validator = "
-                                  function(value, callback) {
-                                    try {
-                                      if (value === null || value.trim() === '') {
-                                        callback(false); // Cell is empty
-                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
-                                      } else {
-                                        callback(true); // Cell is not empty
-                                        Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
-                                      }
-                                    } catch (err) {
-                                      console.log(err);
-                                      callback(false); // In case of error, consider it as invalid
-                                      Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
-                                    }
-                                  }
-                                ") %>%
-                                  hot_col(3:(13 + nrow(DB$cust_var)),
-                                          valign = "htMiddle",
-                                          halign = "htLeft") %>%
-                                  hot_col(8, type = "dropdown", source = country_names) %>%
-                                  hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
-                                          validator = "
-                                function (value, callback) {
-                                  var today_date = new Date();
-                                  today_date.setHours(0, 0, 0, 0);
-
-                                  var new_date = new Date(value);
-                                  new_date.setHours(0, 0, 0, 0);
-
-                                  try {
-                                    if (new_date <= today_date) {
-                                      callback(true);
-                                      Shiny.setInputValue('invalid_date', false);
-                                    } else {
-                                      callback(false);
-                                      Shiny.setInputValue('invalid_date', true);
-                                    }
-                                  } catch (err) {
-                                    console.log(err);
-                                    callback(false);
-                                    Shiny.setInputValue('invalid_date', true);
-                                  }
-                                }") %>%
-                                  hot_col(2, type = "checkbox", width = "auto",
-                                          valign = "htTop",
-                                          halign = "htCenter",
-                                          strict = TRUE,
-                                          allowInvalid = FALSE,
-                                          copyable = TRUE) %>%
-                                  hot_cols(fixedColumnsLeft = 1) %>%
-                                  hot_rows(fixedRowsTop = 0) %>%
-                                  hot_col(1, renderer = "
-              function (instance, td, row, col, prop, value, cellProperties) {
-                       Handsontable.renderers.TextRenderer.apply(this, arguments);
-
-                       if (instance.params) {
-                         hrows = instance.params.row_highlight
-                         hrows = hrows instanceof Array ? hrows : [hrows]
-
-                         if (hrows.includes(row)) {
-                           td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)'
-                         }
-
-                       }
-              }") %>%
-                                  hot_col(diff_allele(),
-                                          renderer = "
-                  function(instance, td, row, col, prop, value, cellProperties) {
-                    Handsontable.renderers.NumericRenderer.apply(this, arguments);
-
-                    if (instance.params) {
-                          hcols = instance.params.col_highlight;
-                          hcols = hcols instanceof Array ? hcols : [hcols];
-                        }
-
-                    if (instance.params && hcols.includes(col)) {
-                      td.style.background = 'rgb(116, 188, 139)';
-                    }
-                }"
-                                  ) %>%
-                                  hot_col(4, renderer = "
-              function (instance, td, row, col, prop, value, cellProperties) {
-                       Handsontable.renderers.TextRenderer.apply(this, arguments);
-
-                       if (instance.params) {
-                         hrows = instance.params.dup_names_high
-                         hrows = hrows instanceof Array ? hrows : [hrows]
-
-                         if (hrows.includes(row)) {
-                           td.style.backgroundColor = 'rgb(224, 179, 0)'
-                         }
-                       }
-              }") %>%
-                                  hot_col(3, renderer = "
-              function (instance, td, row, col, prop, value, cellProperties) {
-                       Handsontable.renderers.TextRenderer.apply(this, arguments);
-
-                       if (instance.params) {
-                         hrows = instance.params.dup_ids_high
-                         hrows = hrows instanceof Array ? hrows : [hrows]
-
-                         if (hrows.includes(row)) {
-                           td.style.backgroundColor = 'rgb(224, 179, 0)'
-                         }
-                       }
-              }") %>%
-                                  hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
-                                                           Handsontable.renderers.TextRenderer.apply(this, arguments);
-                                                           if (instance.params) {
-                                                             hrows = instance.params.error_highlight
-                                                             hrows = hrows instanceof Array ? hrows : [hrows]
-                                                             if (hrows.includes(row)) {
-                                                               td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)'
-                                                             }
-                                                           }
-                                                       }")
-                                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
-                                return(tab)
-                              }
-                            })
-                          }
-                        } else {
-                          if(!is.null(DB$data) & !is.null(DB$cust_var)) {
-                            
-                            output$db_entries <- renderRHandsontable({
-                              
-                              if(!any(input$compare_select %in% colnames(DB$allelic_profile) != TRUE)) {
-                                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-                                w$show()
-                                
-                                tab <- rhandsontable(
-                                  select(DB$data, 1:(13 + nrow(DB$cust_var))),
-                                  rowHeaders = NULL,
-                                  row_highlight = true_rows() - 1,
-                                  dup_names_high = duplicated_names()- 1,
-                                  dup_ids_high = duplicated_ids() - 1,
-                                  error_highlight = err_thresh() - 1,
-                                  contextMenu = FALSE,
-                                  highlightCol = TRUE, 
-                                  highlightRow = TRUE,
-                                  height = entry_table_height()
-                                ) %>%
-                                  hot_cols(fixedColumnsLeft = 1) %>%
-                                  hot_col(1, 
-                                          valign = "htMiddle",
-                                          halign = "htCenter") %>%
-                                  hot_col(3, readOnly = TRUE) %>%
-                                  hot_col(c(1, 5, 10, 11, 12, 13),
-                                          readOnly = TRUE) %>%
-                                  hot_col(3:(13 + nrow(DB$cust_var)), 
-                                          valign = "htMiddle",
-                                          halign = "htLeft") %>%
-                                  hot_col(3, validator = "
-                                  function(value, callback) {
-                                    try {
-                                      if (value === null || value.trim() === '') {
-                                        callback(false); // Cell is empty
-                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
-                                      } else {
-                                        callback(true); // Cell is not empty
-                                        Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
-                                      }
-                                    } catch (err) {
-                                      console.log(err);
-                                      callback(false); // In case of error, consider it as invalid
-                                      Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
-                                    }
-                                  }
-                                ") %>%
-                                  hot_col(4, validator = "
-                                  function(value, callback) {
-                                    try {
-                                      if (value === null || value.trim() === '') {
-                                        callback(false); // Cell is empty
-                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
-                                      } else {
-                                        callback(true); // Cell is not empty
-                                        Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
-                                      }
-                                    } catch (err) {
-                                      console.log(err);
-                                      callback(false); // In case of error, consider it as invalid
-                                      Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
-                                    }
-                                  }
-                                ") %>%
-                                  hot_col(8, type = "dropdown", source = country_names) %>%
-                                  hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
-                                          validator = "
-                                function (value, callback) {
-                                  var today_date = new Date();
-                                  today_date.setHours(0, 0, 0, 0);
-                                  
-                                  var new_date = new Date(value);
-                                  new_date.setHours(0, 0, 0, 0);
-                                  
-                                  try {
-                                    if (new_date <= today_date) {
-                                      callback(true);
-                                      Shiny.setInputValue('invalid_date', false);
-                                    } else {
-                                      callback(false); 
-                                      Shiny.setInputValue('invalid_date', true);
-                                    }
-                                  } catch (err) {
-                                    console.log(err);
-                                    callback(false); 
-                                    Shiny.setInputValue('invalid_date', true);
-                                  }
-                                }") %>%
-                                  hot_col(2, type = "checkbox", width = "auto",
-                                          valign = "htTop",
-                                          halign = "htCenter") %>%
-                                  hot_rows(fixedRowsTop = 0) %>%
-                                  hot_col(1, renderer = "
-              function (instance, td, row, col, prop, value, cellProperties) {
-                       Handsontable.renderers.TextRenderer.apply(this, arguments);
-  
-                       if (instance.params) {
-                         hrows = instance.params.row_highlight
-                         hrows = hrows instanceof Array ? hrows : [hrows]
-  
-                         if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)' 
-                         }
-  
-                       }
-              }") %>%
-                                  hot_col(4, renderer = "
-              function (instance, td, row, col, prop, value, cellProperties) {
-                       Handsontable.renderers.TextRenderer.apply(this, arguments);
-  
-                       if (instance.params) {
-                         hrows = instance.params.dup_names_high
-                         hrows = hrows instanceof Array ? hrows : [hrows]
-  
-                         if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
-                         }
-                       }
-              }") %>%
-                                  hot_col(3, renderer = "
-              function (instance, td, row, col, prop, value, cellProperties) {
-                       Handsontable.renderers.TextRenderer.apply(this, arguments);
-  
-                       if (instance.params) {
-                         hrows = instance.params.dup_ids_high
-                         hrows = hrows instanceof Array ? hrows : [hrows]
-  
-                         if (hrows.includes(row)) { 
-                           td.style.backgroundColor = 'rgb(224, 179, 0)' 
-                         }
-                       }
-              }") %>%
-                                  hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
-                                                           Handsontable.renderers.TextRenderer.apply(this, arguments);
-                                                           if (instance.params) {
-                                                             hrows = instance.params.error_highlight
-                                                             hrows = hrows instanceof Array ? hrows : [hrows]
-                                                             if (hrows.includes(row)) { 
-                                                               td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)' 
-                                                             }
-                                                           }
-                                                       }") 
-                                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
-                                return(tab)
-                              }
-                            })
-                          }
-                        }
-                      } else {
-                        if (length(input$compare_select) > 0) {
-                          if(!is.null(DB$data) & !is.null(DB$cust_var) & !is.null(input$compare_select)) {
-                            output$db_entries <- renderRHandsontable({
-                              
-                              if(!any(input$compare_select %in% colnames(DB$allelic_profile) != TRUE)) {
-                                
-                                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-                                w$show()
-                                
-                                entry_data <- DB$data %>%
-                                  select(1:(13 + nrow(DB$cust_var))) %>%
-                                  add_column(select(DB$allelic_profile_trunc, any_of(input$compare_select)))
-                                
-                                tab <- rhandsontable(
-                                  entry_data,
-                                  col_highlight = diff_allele() - 1,
-                                  rowHeaders = NULL,
-                                  height = entry_table_height(),
-                                  row_highlight = true_rows() - 1,
-                                  dup_names_high = duplicated_names() - 1,
-                                  dup_ids_high = duplicated_ids() - 1,
-                                  error_highlight = err_thresh() - 1,
-                                  contextMenu = FALSE,
-                                  highlightCol = TRUE,
-                                  highlightRow = TRUE
-                                ) %>%
-                                  hot_col((14 + nrow(DB$cust_var)):((13 + nrow(DB$cust_var)) + length(input$compare_select)),
-                                          readOnly = TRUE,
-                                          valign = "htMiddle",
-                                          halign = "htCenter") %>%
-                                  hot_col(3:(13 + nrow(DB$cust_var)),
-                                          valign = "htMiddle",
-                                          halign = "htLeft") %>%
-                                  hot_col(3, readOnly = TRUE) %>%
-                                  hot_col(3, validator = "
-                                  function(value, callback) {
-                                    try {
-                                      if (value === null || value.trim() === '') {
-                                        callback(false); // Cell is empty
-                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
-                                      } else {
-                                        callback(true); // Cell is not empty
-                                        Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
-                                      }
-                                    } catch (err) {
-                                      console.log(err);
-                                      callback(false); // In case of error, consider it as invalid
-                                      Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
-                                    }
-                                  }
-                                ") %>%
-                                  hot_col(4, validator = "
-                                  function(value, callback) {
-                                    try {
-                                      if (value === null || value.trim() === '') {
-                                        callback(false); // Cell is empty
-                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
-                                      } else {
-                                        callback(true); // Cell is not empty
-                                        Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
-                                      }
-                                    } catch (err) {
-                                      console.log(err);
-                                      callback(false); // In case of error, consider it as invalid
-                                      Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
-                                    }
-                                  }
-                                ") %>%
-                                  hot_col(c(1, 5, 10, 11, 12, 13),
-                                          readOnly = TRUE) %>%
-                                  hot_col(8, type = "dropdown", source = country_names) %>%
-                                  hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
-                                          validator = "
-                                function (value, callback) {
-                                  var today_date = new Date();
-                                  today_date.setHours(0, 0, 0, 0);
-
-                                  var new_date = new Date(value);
-                                  new_date.setHours(0, 0, 0, 0);
-
-                                  try {
-                                    if (new_date <= today_date) {
-                                      callback(true);
-                                      Shiny.setInputValue('invalid_date', false);
-                                    } else {
-                                      callback(false);
-                                      Shiny.setInputValue('invalid_date', true);
-                                    }
-                                  } catch (err) {
-                                    console.log(err);
-                                    callback(false);
-                                    Shiny.setInputValue('invalid_date', true);
-                                  }
-                                }") %>%
-                                  hot_col(1,
-                                          valign = "htMiddle",
-                                          halign = "htCenter") %>%
-                                  hot_col(2, type = "checkbox", width = "auto",
-                                          valign = "htTop",
-                                          halign = "htCenter",
-                                          allowInvalid = FALSE,
-                                          copyable = TRUE) %>%
-                                  hot_cols(fixedColumnsLeft = 1) %>%
-                                  hot_rows(fixedRowsTop = 0) %>%
-                                  hot_col(1, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
-                                                           Handsontable.renderers.TextRenderer.apply(this, arguments);
-                                                           if (instance.params) {
-                                                             hrows = instance.params.row_highlight
-                                                             hrows = hrows instanceof Array ? hrows : [hrows]
-                                                             if (hrows.includes(row)) {
-                                                               td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)'
-                                                             }
-                                                           }
-                                                       }") %>%
-                                  hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
-                                                           Handsontable.renderers.TextRenderer.apply(this, arguments);
-                                                           if (instance.params) {
-                                                             hrows = instance.params.error_highlight
-                                                             hrows = hrows instanceof Array ? hrows : [hrows]
-                                                             if (hrows.includes(row)) {
-                                                               td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)'
-                                                             }
-                                                           }
-                                                       }") %>%
-                                  hot_col(4, renderer = "
-              function (instance, td, row, col, prop, value, cellProperties) {
-                       Handsontable.renderers.TextRenderer.apply(this, arguments);
-
-                       if (instance.params) {
-                         hrows = instance.params.dup_names_high
-                         hrows = hrows instanceof Array ? hrows : [hrows]
-
-                         if (hrows.includes(row)) {
-                           td.style.backgroundColor = 'rgb(224, 179, 0)'
-                         }
-                       }
-              }") %>%
-                                  hot_col(3, renderer = "
-              function (instance, td, row, col, prop, value, cellProperties) {
-                       Handsontable.renderers.TextRenderer.apply(this, arguments);
-
-                       if (instance.params) {
-                         hrows = instance.params.dup_ids_high
-                         hrows = hrows instanceof Array ? hrows : [hrows]
-
-                         if (hrows.includes(row)) {
-                           td.style.backgroundColor = 'rgb(224, 179, 0)'
-                         }
-                       }
-              }") %>%
-                                  hot_col(diff_allele(),
-                                          renderer = "
-                  function(instance, td, row, col, prop, value, cellProperties) {
-                    Handsontable.renderers.NumericRenderer.apply(this, arguments);
-
-                    if (instance.params) {
-                          hcols = instance.params.col_highlight;
-                          hcols = hcols instanceof Array ? hcols : [hcols];
-                        }
-
-                    if (instance.params && hcols.includes(col)) {
-                      td.style.background = 'rgb(116, 188, 139)';
-                    }
-                }")
-                                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')    
-                                return(tab)
-                              }
-                            })
-                          }
-                        } else {
-                          if(!is.null(DB$data) & !is.null(DB$cust_var)) {
-                            output$db_entries <- renderRHandsontable({
-                              
-                              if(!any(input$compare_select %in% colnames(DB$allelic_profile) != TRUE)) {
-                                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-                                w$show()
-                                
-                                tab <- rhandsontable(
-                                  select(DB$data, 1:(13 + nrow(DB$cust_var))),
-                                  rowHeaders = NULL,
-                                  height = entry_table_height(),
-                                  dup_names_high = duplicated_names() - 1,
-                                  dup_ids_high = duplicated_ids() - 1,
-                                  row_highlight = true_rows() - 1,
-                                  error_highlight = err_thresh() - 1,
-                                  contextMenu = FALSE,
-                                  highlightCol = TRUE, 
-                                  highlightRow = TRUE
-                                ) %>%
-                                  hot_cols(fixedColumnsLeft = 1) %>%
-                                  hot_col(1, 
-                                          valign = "htMiddle",
-                                          halign = "htCenter") %>%
-                                  hot_col(3, readOnly = TRUE) %>%
-                                  hot_col(c(1, 5, 10, 11, 12, 13),
-                                          readOnly = TRUE) %>%
-                                  hot_col(3, validator = "
-                                    function(value, callback) {
-                                      try {
-                                        if (value === null || value.trim() === '') {
-                                          callback(false); // Cell is empty
-                                          Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
-                                        } else {
-                                          callback(true); // Cell is not empty
-                                          Shiny.setInputValue('empty_id', false); // Reset to false when cell is not empty
-                                        }
-                                      } catch (err) {
-                                        console.log(err);
-                                        callback(false); // In case of error, consider it as invalid
-                                        Shiny.setInputValue('empty_id', true); // Notify Shiny of empty cell
-                                      }
-                                    }
-                                  ") %>%
-                                  hot_col(4, validator = "
-                                    function(value, callback) {
-                                      try {
-                                        if (value === null || value.trim() === '') {
-                                          callback(false); // Cell is empty
-                                          Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
-                                        } else {
-                                          callback(true); // Cell is not empty
-                                          Shiny.setInputValue('empty_name', false); // Reset to false when cell is not empty
-                                        }
-                                      } catch (err) {
-                                        console.log(err);
-                                        callback(false); // In case of error, consider it as invalid
-                                        Shiny.setInputValue('empty_name', true); // Notify Shiny of empty cell
-                                      }
-                                    }
-                                  ") %>%
-                                  hot_col(8, type = "dropdown", source = country_names) %>%
-                                  hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", strict = TRUE, allowInvalid = TRUE,
-                                          validator = "
-                                  function (value, callback) {
-                                    var today_date = new Date();
-                                    today_date.setHours(0, 0, 0, 0);
-                                    
-                                    var new_date = new Date(value);
-                                    new_date.setHours(0, 0, 0, 0);
-                                    
-                                    try {
-                                      if (new_date <= today_date) {
-                                        callback(true);
-                                        Shiny.setInputValue('invalid_date', false);
-                                      } else {
-                                        callback(false); 
-                                        Shiny.setInputValue('invalid_date', true);
-                                      }
-                                    } catch (err) {
-                                      console.log(err);
-                                      callback(false); 
-                                      Shiny.setInputValue('invalid_date', true);
-                                    }
-                                  }") %>%
-                                  hot_col(3:(13 + nrow(DB$cust_var)), 
-                                          valign = "htMiddle",
-                                          halign = "htLeft") %>%
-                                  hot_rows(fixedRowsTop = 0) %>%
-                                  hot_col(1, renderer = "
-                function (instance, td, row, col, prop, value, cellProperties) {
-                         Handsontable.renderers.TextRenderer.apply(this, arguments);
-    
-                         if (instance.params) {
-                           hrows = instance.params.row_highlight
-                           hrows = hrows instanceof Array ? hrows : [hrows]
-    
-                           if (hrows.includes(row)) { 
-                             td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)' 
-                           }
-                         }
-                }") %>%
-                                  hot_col(2, type = "checkbox", width = "auto",
-                                          valign = "htTop", halign = "htCenter") %>%
-                                  hot_col(4, renderer = "
-                function (instance, td, row, col, prop, value, cellProperties) {
-                         Handsontable.renderers.TextRenderer.apply(this, arguments);
-    
-                         if (instance.params) {
-                           hrows = instance.params.dup_names_high
-                           hrows = hrows instanceof Array ? hrows : [hrows]
-    
-                           if (hrows.includes(row)) { 
-                             td.style.backgroundColor = 'rgb(224, 179, 0)' 
-                           }
-                         }
-                }") %>%
-                                  hot_col(3, renderer = "
-                function (instance, td, row, col, prop, value, cellProperties) {
-                         Handsontable.renderers.TextRenderer.apply(this, arguments);
-    
-                         if (instance.params) {
-                           hrows = instance.params.dup_ids_high
-                           hrows = hrows instanceof Array ? hrows : [hrows]
-    
-                           if (hrows.includes(row)) { 
-                             td.style.backgroundColor = 'rgb(224, 179, 0)' 
-                           }
-                         }
-                }") %>%
-                                  hot_col(12, renderer = "function (instance, td, row, col, prop, value, cellProperties) {
-                                                             Handsontable.renderers.TextRenderer.apply(this, arguments);
-                                                             if (instance.params) {
-                                                               hrows = instance.params.error_highlight
-                                                               hrows = hrows instanceof Array ? hrows : [hrows]
-                                                               if (hrows.includes(row)) { 
-                                                                 td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)' 
-                                                               }
-                                                             }
-                                                         }") 
-                                
-                                shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
-                                return(tab)  
-                              }
-                            })
-                          }
-                        }
-                      }
-                    }
-                    
-                    # Dynamic save button when rhandsontable changes or new entries
-                    output$edit_entry_table <- renderUI({
-                      
-                      check_new_entry <- check_new_entry()
-                      
-                      if(!is.null(check_new_entry) & 
-                         !is.null(DB$check_new_entries) & 
-                         !is.null(DB$meta)) {
-                        
-                        if(!is.null(DB$meta)) {
-                          new_meta <- !identical(get.entry.table.meta(), select(DB$meta, -13))
-                        } else {
-                          new_meta <- FALSE
-                        }
-                        
-                        if(check_new_entry & DB$check_new_entries) {
-                          Typing$reload <- FALSE
-                          fluidRow(
-                            column(
-                              width = 8,
-                              align = "left",
-                              HTML(
-                                paste(
-                                  tags$span(style='color: white; font-size: 14px; position: absolute; bottom: -30px; right: -5px', 
-                                            'New entries - reload database')
-                                )
-                              )
-                            ),
-                            column(
-                              width = 4,
-                              actionButton(
-                                "load",
-                                "",
-                                icon = icon("rotate"),
-                                class = "pulsating-button",
-                                width = "40px"
-                              )
-                            )
-                          )
-                        } else if(Typing$status == "Attaching") {
-                          fluidRow(
-                            column(
-                              width = 11,
-                              align = "left",
-                              HTML(
-                                paste(
-                                  tags$span(style='color: white; font-size: 14px; position: absolute; bottom: -30px; right: -5px', 'No database changes possible - pending entry addition')
-                                )
-                              )
-                            ),
-                            column(
-                              width = 1,
-                              HTML(paste('<i class="fa fa-spinner fa-spin" style="font-size:20px; color:white; margin-top: 10px"></i>'))
-                            )
-                          )
-                        } else if(isTRUE(DB$change) | new_meta) {
-                          
-                          if(!is.null(input$db_entries)) {
+                    if(is.null(DB$data)) {
+                      if(check_new_entry()) {
+                        output$db_no_entries <- renderUI(
+                          column(
+                            width = 12,
                             fluidRow(
-                              column(
-                                width = 5,
-                                HTML(
-                                  paste(
-                                    tags$span(style='color: white; font-size: 16px; position: absolute; bottom: -30px; right: -5px', 'Confirm changes')
-                                  )
-                                )
-                              ),
+                              column(1),
                               column(
                                 width = 3,
-                                actionButton(
-                                  "edit_button",
-                                  "",
-                                  icon = icon("bookmark"),
-                                  class = "pulsating-button"
+                                align = "left",
+                                HTML(
+                                  paste(
+                                    tags$span(style='color: white; font-size: 15px; position: absolute; bottom: -30px; right: -5px', 'New entries - reload database')
+                                  )
                                 )
                               ),
                               column(
                                 width = 4,
                                 actionButton(
-                                  "undo_changes",
-                                  "Undo",
-                                  icon = icon("repeat")
+                                  "load",
+                                  "",
+                                  icon = icon("rotate"),
+                                  class = "pulsating-button",
+                                  width = "40px"
                                 )
                               )
                             )
-                          }
-                        } else {NULL}
-                      }
-                    })
-                  })
-                  
-                  # Hide no entry message
-                  output$db_no_entries <- NULL
-                  output$distancematrix_no_entries <- NULL
-                  
-                } else {
-                  
-                  # If database loading not successful dont show entry table
-                  output$db_entries_table <- NULL
-                  output$entry_table_controls <- NULL
-                }
-                
-                # Render Entry table controls
-                output$entry_table_controls <- renderUI({
-                  fluidRow(
-                    column(
-                      width = 4,
-                      align = "center",
-                      fluidRow(
-                        column(
-                          width = 4,
-                          align = "center",
-                          actionButton(
-                            "sel_all_entries",
-                            "Select All",
-                            icon = icon("check")
                           )
-                        ),
-                        column(
-                          width = 4,
-                          align = "left",
-                          actionButton(
-                            "desel_all_entries",
-                            "Deselect All",
-                            icon = icon("xmark")
-                          )
-                        )
-                      )
-                    ),
-                    column(
-                      width = 3,
-                      uiOutput("edit_entry_table")
-                    )
-                  )
-                })
-                
-                ## Render Distance Matrix ----
-                observe({
-                  if(!is.null(DB$data)) {
-                    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
-                    
-                    if(any(duplicated(DB$meta$`Assembly Name`)) | any(duplicated(DB$meta$`Assembly ID`))) {
-                      output$db_distancematrix <- NULL
-                      
-                      if( (sum(duplicated(DB$meta$`Assembly Name`)) > 0) & (sum(duplicated(DB$meta$`Assembly ID`)) == 0) ) {
-                        duplicated_txt <- paste0(
-                          paste(
-                            paste0("Name  # ", which(duplicated(DB$meta$`Assembly Name`)), " - "),
-                            DB$meta$`Assembly Name`[which(duplicated(DB$meta$`Assembly Name`))]
-                          ),
-                          "<br>"
-                        )
-                      } else if ( (sum(duplicated(DB$meta$`Assembly ID`)) > 0) & (sum(duplicated(DB$meta$`Assembly Name`)) == 0) ){
-                        duplicated_txt <- paste0(
-                          paste(
-                            paste0("ID  # ", which(duplicated(DB$meta$`Assembly ID`)), " - "),
-                            DB$meta$`Assembly ID`[which(duplicated(DB$meta$`Assembly ID`))]
-                          ),
-                          "<br>"
                         )
                       } else {
-                        duplicated_txt <- c(
-                          paste0(
-                            paste(
-                              paste0("Name  # ", which(duplicated(DB$meta$`Assembly Name`)), " - "),
-                              DB$meta$`Assembly Name`[which(duplicated(DB$meta$`Assembly Name`))]
-                            ),
-                            "<br>"
-                          ),
-                          paste0(
-                            paste(
-                              paste0("ID  # ", which(duplicated(DB$meta$`Assembly ID`)), " - "),
-                              DB$meta$`Assembly ID`[which(duplicated(DB$meta$`Assembly ID`))]
-                            ),
-                            "<br>"
-                          )
-                        )
-                      }
-                      
-                      output$distancematrix_duplicated <- renderUI({
-                        column(
-                          width = 12,
-                          tags$span(style = "font-size: 15; color: white",
-                                    "Change duplicated entry names to display distance matrix."),
-                          br(), br(), br(),
-                          actionButton("change_entries", "Go to Entry Table", class = "btn btn-default"),
-                          br(), br(), br(),
-                          tags$span(
-                            style = "font-size: 15; color: white",
-                            HTML(
-                              append(
-                                "Duplicated:",
-                                append(
-                                  "<br>",
-                                  duplicated_txt
-                                )
-                              )
-                            )
-                          )
-                        )
-                      })
-                    } else {
-                      output$distancematrix_duplicated <- NULL
-                      if(!is.null(DB$data) & !is.null(DB$allelic_profile) & !is.null(DB$allelic_profile_true) & !is.null(DB$cust_var) & !is.null(input$distmatrix_label) & !is.null(input$distmatrix_diag) & !is.null(input$distmatrix_triangle)) {
-                        dist_matrix <- hamming_df()
-                        
-                        req(dist_matrix)
-                        
-                        output$db_distancematrix <- renderRHandsontable({
-                          
-                          if(nrow(dist_matrix) > 28) {
-                            height <- 700
-                          } else {
-                            height <- NULL
-                          }
-                          
-                          rhandsontable(dist_matrix, 
-                                        digits = 1, 
-                                        readOnly = TRUE,
-                                        contextMenu = FALSE,
-                                        highlightCol = TRUE, 
-                                        highlightRow = TRUE,
-                                        height = height, 
-                                        rowHeaders = NULL) %>%
-                            hot_heatmap(renderer = paste0("
-                            function (instance, td, row, col, prop, value, cellProperties) {
-                              Handsontable.renderers.TextRenderer.apply(this, arguments);
-                              heatmapScale  = chroma.scale(['#17F556', '#ED6D47']);
-                            
-                              if (instance.heatmap[col]) {
-                                mn = ", DB$matrix_min, ";
-                                mx = ", DB$matrix_max, ";
-                            
-                                pt = (parseInt(value, 10) - mn) / (mx - mn);    
-                            
-                                td.style.backgroundColor = heatmapScale(pt).hex();
-                              }
-                            }")) %>%
-                            hot_rows(fixedRowsTop = 0) %>%
-                            hot_cols(fixedColumnsLeft = 1) %>%
-                            hot_col(1:(dim(dist_matrix)[1]+1),
-                                    halign = "htCenter",
-                                    valign = "htMiddle") %>%
-                            hot_col(1, renderer = "
-                            function(instance, td, row, col, prop, value, cellProperties) {
-                              Handsontable.renderers.NumericRenderer.apply(this, arguments);
-                              td.style.background = '#F0F0F0'
-                            }"
-                            )
-                        })  
-                      }
-                    }
-                    
-                    # Render Distance Matrix UI
-                    
-                    output$distmatrix_show <- renderUI({
-                      if(!is.null(DB$data)) {
-                        if(nrow(DB$data) > 1) {
-                          
-                          if(!is.null(input$distmatrix_label)) {
-                            distmatrix_label_selected <- input$distmatrix_label
-                          } else {
-                            distmatrix_label_selected <- c("Assembly Name")
-                          }
-                          
-                          if(!is.null(input$distmatrix_true)) {
-                            distmatrix_true_selected <- input$distmatrix_true
-                          } else {
-                            distmatrix_true_selected <- FALSE
-                          }
-                          
-                          if(!is.null(input$distmatrix_triangle)) {
-                            distmatrix_triangle_selected <- input$distmatrix_triangle
-                          } else {
-                            distmatrix_triangle_selected <- FALSE
-                          }
-                          
-                          if(!is.null(input$distmatrix_diag)) {
-                            distmatrix_diag_selected <- input$distmatrix_diag
-                          } else {
-                            distmatrix_diag_selected <- TRUE
-                          }
-                          
-                          fluidRow(
-                            column(1),
-                            div(
-                              class = "distancematrix-options",
+                        output$db_no_entries <- renderUI(
+                          column(
+                            width = 12,
+                            fluidRow(
+                              column(1),
                               column(
-                                width = 2,
-                                box(
-                                  solidHeader = TRUE,
-                                  status = "primary",
-                                  width = "100%",
-                                  title = "Options",
-                                  column(
-                                    width = 12,
-                                    br(),
-                                    br(),
-                                    fluidRow(
-                                      column(
-                                        width = 3,
-                                        HTML(
-                                          paste(
-                                            tags$span(style='color: white; font-size: 14px;', 
-                                                      'Label')
-                                          )
-                                        )
-                                      ),
-                                      column(
-                                        width = 9,
-                                        div(
-                                          class = "distmatrix-label",
-                                          selectInput(
-                                            "distmatrix_label",
-                                            label = "",
-                                            choices = c("Index", "Assembly Name", "Assembly ID"),
-                                            selected = distmatrix_label_selected,
-                                            width = "100%"
-                                          )
-                                        )
-                                      )
-                                    ),
-                                    br(),
-                                    br(),
-                                    div(
-                                      class = "mat-switch-dmatrix",
-                                      materialSwitch(
-                                        "distmatrix_true",
-                                        h5(p("Only Included Entries"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                        value = distmatrix_true_selected,
-                                        right = TRUE
-                                      )
-                                    ),
-                                    br(),
-                                    div(
-                                      class = "mat-switch-dmatrix",
-                                      materialSwitch(
-                                        "distmatrix_triangle",
-                                        h5(p("Show Upper Triangle"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                        value = distmatrix_triangle_selected,
-                                        right = TRUE
-                                      )
-                                    ),
-                                    br(),
-                                    div(
-                                      class = "mat-switch-dmatrix",
-                                      materialSwitch(
-                                        "distmatrix_diag",
-                                        h5(p("Show Diagonal"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                        value = distmatrix_diag_selected,
-                                        right = TRUE
-                                      )
-                                    ),
-                                    br(),
-                                    br(),
-                                    br(),
-                                    br(),
-                                    fluidRow(
-                                      column(
-                                        width = 8,
-                                        HTML(
-                                          paste(
-                                            tags$span(style='color: white; font-size: 14px;', 
-                                                      'Download CSV')
-                                          )
-                                        )
-                                      ),
-                                      column(
-                                        width = 4,
-                                        downloadBttn(
-                                          "download_distmatrix",
-                                          style = "simple",
-                                          label = "",
-                                          size = "sm",
-                                          icon = icon("download")
-                                        )
-                                      )
-                                    )
+                                width = 11,
+                                align = "left",
+                                HTML(
+                                  paste(
+                                    "<span style='color: white;'>",
+                                    "No Entries for this scheme available.\n",
+                                    "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
+                                    sep = '<br/>'
                                   )
                                 )
                               )
-                            ),
-                            column(
-                              width = 9,
-                              uiOutput("distancematrix_duplicated"),
-                              rHandsontableOutput("db_distancematrix")
                             )
                           )
-                        } else {
-                          column(
-                            width = 9,
-                            align = "left",
-                            p(
-                              HTML(
-                                paste(
-                                  tags$span(style='color: white; font-size: 15px;', "Type at least two assemblies to display a distance matrix.")
-                                )
-                              )
-                            ),
-                            br(),
-                            br()
-                          )
-                        }
+                        )
                       }
-                    })
-                    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
-                  }
-                })
-                
-                # render custom variables box UI
-                output$custom_var_box <- renderUI(
-                  box(
-                    solidHeader = TRUE,
-                    status = "primary",
-                    width = "100%",
-                    title = "Custom Variables",
-                    fluidRow(
-                      column(1),
-                      column(
-                        width = 7,
-                        fluidRow(
-                          column(
-                            width = 9,
-                            align = "center",
-                            textInput(
-                              "new_var_name",
-                              label = "",
-                              placeholder = "New Variable"
-                            )
-                          ),
-                          column(
-                            width = 2,
-                            actionButton(
-                              "add_new_variable",
-                              "",
-                              icon = icon("plus")
-                            )
-                          )
-                        ),
-                        fluidRow(
-                          column(
-                            width = 9,
-                            align = "center",
-                            selectInput(
-                              "del_which_var",
-                              "",
-                              DB$cust_var$Variable
-                            )
-                          ),
-                          column(
-                            width = 2,
-                            align = "left",
-                            actionButton(
-                              "delete_new_variable",
-                              "",
-                              icon = icon("minus")
-                            )
-                          )
-                        )   
-                      ),
-                      column(
-                        width = 2,
-                        actionButton(
-                          "custom_var_table",
-                          "Browse ",
-                          icon = icon("table-list")
-                        )
-                      )
-                    )
-                  )
-                )
-                
-                # Render delete entry box UI
-                output$delete_box <- renderUI({
-                  box(
-                    solidHeader = TRUE,
-                    status = "primary",
-                    width = "100%",
-                    title = "Delete Entries",
-                    fluidRow(
-                      column(1),
-                      column(
-                        width = 5,
-                        align = "left",
-                        uiOutput("delete_select")
-                      ),
-                      column(
-                        width = 2,
-                        align = "center",
-                        br(),
-                        uiOutput("del_bttn")
-                      )
-                    ),
-                    br()
-                  )
-                })
-                
-                # Render loci comparison box UI
-                output$compare_allele_box <- renderUI({
-                  box(
-                    solidHeader = TRUE,
-                    status = "primary",
-                    width = "100%",
-                    title = "Compare Loci",
-                    column(
-                      width = 12,
-                      br(),
-                      fluidRow(
-                        column(1),
-                        column(
-                          width = 10,
-                          align = "left",
-                          uiOutput("compare_select")   
-                        )
-                      ),
-                      br(),
-                      fluidRow(
-                        column(1),
-                        column(
-                          width = 10,
-                          align = "left",
-                          uiOutput("compare_difference_box")
-                        )
-                      )
-                    ),
-                    br()
-                  )
-                })
-                
-                # Render entry table download box UI
-                output$download_entries <- renderUI({
-                  fluidRow(
-                    column(
-                      width = 12,
-                      box(
-                        solidHeader = TRUE,
-                        status = "primary",
-                        width = "100%",
-                        title = "Export Table",
-                        fluidRow(
-                          column(1),
-                          column(
-                            width = 8,
-                            align = "left",
-                            br(),
-                            div(
-                              class = "mat-switch-db",
-                              materialSwitch(
-                                "download_table_include",
-                                h5(p("Only Included Entries"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                value = FALSE,
-                                right = TRUE
-                              )
-                            ),
-                            div(
-                              class = "mat-switch-db",
-                              materialSwitch(
-                                "download_table_loci",
-                                h5(p("Include Displayed Loci"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                value = FALSE,
-                                right = TRUE
-                              )
-                            ),
-                            div(
-                              class = "mat-switch-db",
-                              materialSwitch(
-                                "download_table_hashes",
-                                h5(p("Truncate Hashes"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                value = FALSE,
-                                right = TRUE
-                              )
-                            )
-                          ),
-                          column(
-                            width = 2,
-                            align = "center",
-                            downloadBttn(
-                              "download_entry_table",
-                              style = "simple",
-                              label = "",
-                              size = "sm",
-                              icon = icon("download"),
-                              color = "primary"
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-                })
-                
-                # Render entry deletion select input
-                output$delete_select <- renderUI({
-                  pickerInput("select_delete",
-                              label = h5("Index", style = "color:white; margin-bottom: 0px;"),
-                              choices = DB$data[, "Index"],
-                              options = list(
-                                `live-search` = TRUE,
-                                `actions-box` = TRUE,
-                                size = 10,
-                                style = "background-color: white; border-radius: 5px;"
-                              ),
-                              multiple = TRUE)
-                })
-                
-                # Render delete entry button
-                output$del_bttn <- renderUI({
-                  actionBttn(
-                    "del_button",
-                    label = "",
-                    color = "danger",
-                    size = "sm",
-                    style = "material-circle",
-                    icon = icon("xmark")
-                  )
-                })
-                
-                # Missing Values UI ----
-                
-                # Missing values calculations and table 
-                observe({
-                  if(!is.null(DB$allelic_profile)) {
-                    NA_table <- DB$allelic_profile[, colSums(is.na(DB$allelic_profile)) != 0]
-                    
-                    NA_table <- NA_table[rowSums(is.na(NA_table)) != 0,]
-                    
-                    NA_table[is.na(NA_table)] <- "NA"
-                    
-                    NA_table <- NA_table %>% 
-                      cbind("Assembly Name" = DB$meta[rownames(NA_table),]$`Assembly Name`) %>%
-                      cbind("Errors" = DB$meta[rownames(NA_table),]$Errors) %>%
-                      relocate("Assembly Name", "Errors")
-                    
-                    DB$na_table <- NA_table
-                    
-                    output$table_missing_values <- renderRHandsontable({
-                      
-                      if(nrow(DB$na_table) > 26) {
-                        height <- 650
-                      } else {
-                        height <- NULL
-                      }
-                      
-                      rhandsontable(
-                        DB$na_table,
-                        readOnly = TRUE,
-                        rowHeaders = NULL,
-                        contextMenu = FALSE,
-                        height = height,
-                        highlightCol = TRUE, 
-                        highlightRow = TRUE,
-                        error_highlight = err_thresh_na() - 1
-                      ) %>%
-                        hot_cols(fixedColumnsLeft = 1) %>%
-                        hot_rows(fixedRowsTop = 0) %>%
-                        hot_col(1:ncol(DB$na_table), valign = "htMiddle", halign = "htLeft") %>%
-                        hot_col(2, renderer = "
-                            function (instance, td, row, col, prop, value, cellProperties) {
-                              Handsontable.renderers.TextRenderer.apply(this, arguments);
-                              if (instance.params) {
-                                hrows = instance.params.error_highlight
-                                hrows = hrows instanceof Array ? hrows : [hrows]
-                                if (hrows.includes(row)) { 
-                                  td.style.backgroundColor = 'rgbA(255, 80, 1, 0.8)' 
-                                }
-                              }
-                            }") %>%
-                        hot_col(3:ncol(DB$na_table), renderer = htmlwidgets::JS(
-                          "function(instance, td, row, col, prop, value, cellProperties) {
-                                if (value.length > 8) {
-                                  value = value.slice(0, 4) + '...' + value.slice(value.length - 4);
-                                }
-                                td.innerHTML = value;
-                                td.style.textAlign = 'center';
-                                return td;
-                               }"
-                        ))
-                    })
-                  }
-                })
-                
-                # Render missing value informatiojn box UI
-                output$missing_values <- renderUI({
-                  box(
-                    solidHeader = TRUE,
-                    status = "primary",
-                    width = "100%",
-                    title = "Missing Value Handling",
-                    fluidRow(
-                      div(
-                        class = "white",
-                        column(
-                          width = 12,
-                          align = "left",
-                          br(), 
-                          HTML(
-                            paste0("There are ", 
-                                   strong(as.character(sum(is.na(DB$data)))), 
-                                   " unsuccessful allele allocations (NA). ",
-                                   strong(sum(sapply(DB$allelic_profile, anyNA))),
-                                   " out of ",
-                                   strong(ncol(DB$allelic_profile)),
-                                   " total loci in this scheme contain NA's (",
-                                   strong(round((sum(sapply(DB$allelic_profile, anyNA)) / ncol(DB$allelic_profile) * 100), 1)),
-                                   " %). ",
-                                   "<br><br><br>Decide how these missing values should be treated:")
-                            
-                          ),
-                          br()
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 12,
-                        align = "left",
-                        br(),
-                        div(
-                          class = "na-handling",
-                          prettyRadioButtons(
-                            "na_handling",
-                            "",
-                            choiceNames = c("Ignore missing values for pairwise comparison",
-                                            "Omit loci with missing values for all assemblies",
-                                            "Treat missing values as allele variant"),
-                            choiceValues = c("ignore_na", "omit", "category"),
-                            shape = "curve",
-                            selected = c("ignore_na")
-                          )
-                        ),
-                        br()
-                      )
-                    )
-                  )
-                })  
-                
-              } else { 
-                #if no typed assemblies present
-                
-                # null underlying database
-                
-                DB$data <- NULL
-                DB$meta <- NULL
-                DB$meta_gs <- NULL
-                DB$meta_true <- NULL
-                DB$allelic_profile <- NULL
-                DB$allelic_profile_trunc <- NULL
-                DB$allelic_profile_true <- NULL
-                
-                # Render menu without missing values tab
-                output$menu_typing <- renderMenu(
-                  sidebarMenu(
-                    menuItem(
-                      text = "Database",
-                      tabName = "database",
-                      icon = icon("hard-drive"),
-                      startExpanded = TRUE,
-                      selected = TRUE,
-                      menuSubItem(
-                        text = "Browse Entries",
-                        tabName = "db_browse_entries"
-                      ),
-                      menuSubItem(
-                        text = "Scheme Info",
-                        tabName = "db_schemeinfo"
-                      ),
-                      menuSubItem(
-                        text = "Loci Info",
-                        tabName = "db_loci_info"
-                      ),
-                      menuSubItem(
-                        text = "Distance Matrix",
-                        tabName = "db_distmatrix"
-                      )
-                    ),
-                    menuItem(
-                      text = "Schemes",
-                      tabName = "init",
-                      icon = icon("layer-group")
-                    ),
-                    menuItem(
-                      text = "Allelic Typing",
-                      tabName = "typing",
-                      icon = icon("gears")
-                    ),
-                    menuItem(
-                      text = "Visualization",
-                      tabName = "visualization",
-                      icon = icon("circle-nodes")
-                    )
-                  )
-                )
-                
-                if(!is.null(DB$scheme)) {
-                  amrfinder_available <- check.amrfinder.available(selected_scheme = DB$scheme,
-                                                                   amrfinder_species = amrfinder_species)
-                  
-                  if(!isFALSE(amrfinder_available)) {
-                    
-                    output$menu_screening <- renderMenu(screening_menu_available)
-                    
-                  } else {
-                    output$menu_screening <- renderMenu(screening_menu_available)
-                  }
-                }
-                
-                observe({
-                  if(is.null(DB$data)) {
-                    if(check_new_entry()) {
-                      output$db_no_entries <- renderUI(
-                        column(
-                          width = 12,
-                          fluidRow(
-                            column(1),
-                            column(
-                              width = 3,
-                              align = "left",
-                              HTML(
-                                paste(
-                                  tags$span(style='color: white; font-size: 15px; position: absolute; bottom: -30px; right: -5px', 'New entries - reload database')
-                                )
-                              )
-                            ),
-                            column(
-                              width = 4,
-                              actionButton(
-                                "load",
-                                "",
-                                icon = icon("rotate"),
-                                class = "pulsating-button",
-                                width = "40px"
-                              )
-                            )
-                          )
-                        )
-                      )
-                    } else {
-                      output$db_no_entries <- renderUI(
-                        column(
-                          width = 12,
-                          fluidRow(
-                            column(1),
-                            column(
-                              width = 11,
-                              align = "left",
-                              HTML(
-                                paste(
-                                  "<span style='color: white;'>",
-                                  "No Entries for this scheme available.\n",
-                                  "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
-                                  sep = '<br/>'
-                                )
-                              )
-                            )
-                          )
-                        )
-                      )
                     }
-                  }
-                })
-                
-                # Render scheme info download button
-                output$download_scheme_info <- renderUI({
-                  column(
-                    12,
-                    downloadBttn(
-                      "download_schemeinfo",
-                      style = "simple",
-                      label = "",
-                      size = "sm",
-                      icon = icon("download"),
-                      color = "primary"
-                    ),
-                    bsTooltip("download_schemeinfo_bttn", HTML("Save scheme information"), placement = "bottom", trigger = "hover")
-                  )
-                })
-                
-                # Render scheme info download button
-                output$download_loci <- renderUI({
-                  if (!is.null(DB$loci_info)) {
+                  })
+                  
+                  # Render scheme info download button
+                  output$download_scheme_info <- renderUI({
                     column(
                       12,
                       downloadBttn(
-                        "download_loci_info",
+                        "download_schemeinfo",
                         style = "simple",
                         label = "",
                         size = "sm",
                         icon = icon("download"),
                         color = "primary"
                       ),
-                      bsTooltip("download_loci_info_bttn", HTML("Save loci information <br> (without sequence)"), placement = "bottom", trigger = "hover")
+                      bsTooltip("download_schemeinfo_bttn", HTML("Save scheme information"), placement = "bottom", trigger = "hover")
                     )
-                  } else {NULL}
-                })
-                
-                output$distancematrix_no_entries <- renderUI(
-                  fluidRow(
-                    column(1),
+                  })
+                  
+                  # Render scheme info download button
+                  output$download_loci <- renderUI({
+                    if (!is.null(DB$loci_info)) {
+                      column(
+                        12,
+                        downloadBttn(
+                          "download_loci_info",
+                          style = "simple",
+                          label = "",
+                          size = "sm",
+                          icon = icon("download"),
+                          color = "primary"
+                        ),
+                        bsTooltip("download_loci_info_bttn", HTML("Save loci information <br> (without sequence)"), placement = "bottom", trigger = "hover")
+                      )
+                    } else {NULL}
+                  })
+                  
+                  output$distancematrix_no_entries <- renderUI(
+                    fluidRow(
+                      column(1),
+                      column(
+                        width = 11,
+                        align = "left",
+                        HTML(paste(
+                          "<span style='color: white;'>",
+                          "No Entries for this scheme available.",
+                          "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
+                          sep = '<br/>'
+                        ))
+                      )
+                    )
+                  )
+                  
+                  output$db_entries <- NULL
+                  output$edit_index <- NULL
+                  output$edit_scheme_d <- NULL
+                  output$edit_entries <- NULL
+                  output$compare_select <- NULL
+                  output$delete_select <- NULL
+                  output$del_bttn <- NULL
+                  output$compare_allele_box <- NULL
+                  output$download_entries <- NULL
+                  output$missing_values <- NULL
+                  output$custom_var_box <- NULL
+                  output$delete_box <- NULL
+                  output$entry_table_controls <- NULL
+                  output$multi_stop <- NULL
+                  output$metadata_multi_box <- NULL
+                  output$start_multi_typing_ui <- NULL
+                  output$pending_typing <- NULL
+                  output$multi_typing_results <- NULL
+                  output$single_typing_progress <- NULL
+                  output$metadata_single_box <- NULL
+                  output$start_typing_ui <- NULL
+                  
+                  output$initiate_typing_ui <- renderUI({
                     column(
-                      width = 11,
-                      align = "left",
-                      HTML(paste(
-                        "<span style='color: white;'>",
-                        "No Entries for this scheme available.",
-                        "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
-                        sep = '<br/>'
-                      ))
-                    )
-                  )
-                )
-                
-                output$db_entries <- NULL
-                output$edit_index <- NULL
-                output$edit_scheme_d <- NULL
-                output$edit_entries <- NULL
-                output$compare_select <- NULL
-                output$delete_select <- NULL
-                output$del_bttn <- NULL
-                output$compare_allele_box <- NULL
-                output$download_entries <- NULL
-                output$missing_values <- NULL
-                output$custom_var_box <- NULL
-                output$delete_box <- NULL
-                output$entry_table_controls <- NULL
-                output$multi_stop <- NULL
-                output$metadata_multi_box <- NULL
-                output$start_multi_typing_ui <- NULL
-                output$pending_typing <- NULL
-                output$multi_typing_results <- NULL
-                output$single_typing_progress <- NULL
-                output$metadata_single_box <- NULL
-                output$start_typing_ui <- NULL
-                
-                output$initiate_typing_ui <- renderUI({
-                  column(
-                    width = 4,
-                    align = "center",
-                    br(),
-                    br(),
-                    h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
-                    br(),
-                    br(),
-                    p(
-                      HTML(
-                        paste(
-                          tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly File')
+                      width = 4,
+                      align = "center",
+                      br(),
+                      br(),
+                      h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
+                      br(),
+                      br(),
+                      p(
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly File')
+                          )
                         )
-                      )
-                    ),
-                    fluidRow(
-                      column(1),
-                      column(
-                        width = 11,
-                        align = "center",
-                        shinyFilesButton(
-                          "genome_file",
-                          "Browse" ,
-                          icon = icon("file"),
-                          title = "Select the assembly in .fasta/.fna/.fa format:",
-                          multiple = FALSE,
-                          buttonType = "default",
-                          class = NULL,
-                          root = path_home()
-                        ),
-                        br(),
-                        br(),
-                        uiOutput("genome_path"),
-                        br()
-                      )
-                    )
-                  )
-                })
-                
-                output$initiate_typing_ui <- renderUI({
-                  column(
-                    width = 4,
-                    align = "center",
-                    br(),
-                    br(),
-                    h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
-                    br(),
-                    br(),
-                    p(
-                      HTML(
-                        paste(
-                          tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly File')
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(1),
-                      column(
-                        width = 11,
-                        align = "center",
-                        shinyFilesButton(
-                          "genome_file",
-                          "Browse" ,
-                          icon = icon("file"),
-                          title = "Select the assembly in .fasta/.fna/.fa format:",
-                          multiple = FALSE,
-                          buttonType = "default",
-                          class = NULL,
-                          root = path_home()
-                        ),
-                        br(),
-                        br(),
-                        uiOutput("genome_path"),
-                        br()
-                      )
-                    )
-                  )
-                })
-                
-                output$initiate_multi_typing_ui <- initiate_multi_typing_ui
-              }
-            }
-          }
-        }
-      } else {
-        
-        log_print("Invalid scheme folder")
-        show_toast(
-          title = "Invalid scheme folder",
-          type = "warning",
-          position = "bottom-end",
-          timer = 4000
-        )
-      }
-    }
-    
-    
-    ### Check if scheme update available
-    if(!is.null(DB$scheme_db) && isTRUE(DB$scheme_new)) {
-      
-      # Query remote scheme
-      if(DB$scheme_db == "cgMLST.org Nomenclature Server (h25)") {
-        
-        db_spec <- schemes[schemes[,"database"] == "cgMLST.org",]
-        DB$url_link <- db_spec[, "url"][db_spec[, "species"] == gsub(" ", "_", DB$scheme)]
-        
-        remote <- tryCatch({
-          read_html(DB$url_link)
-        }, error = function(e) {
-          DB$failCon <- TRUE
-          show_toast(
-            title = "Could not retrieve data. Check internet connection.",
-            type = "error",
-            position = "bottom-end",
-            timer = 6000
-          )
-          warning("Could not retrieve data. Check internet connection.")
-          return(NULL)
-        })
-        
-        if(is.null(remote)) {
-          last_scheme_change <- NULL
-        } else {
-          DB$failCon <- FALSE
-          remote_scheme <- remote %>%
-            html_table(header = FALSE) %>%
-            as.data.frame(stringsAsFactors = FALSE)
-          
-          last_scheme_change <- strptime(remote_scheme[,2][remote_scheme[,1] == "Last Change"],
-                                         format = "%B %d, %Y, %H:%M %p")
-        }
-      } else if(DB$scheme_db == "pubMLST") {
-        
-        db_spec <- schemes[schemes[,"database"] == "pubMLST",]
-        DB$url_link <- db_spec[, "url"][db_spec[, "species"] == gsub(" ", "_", DB$scheme)]
-        
-        remote_scheme <- get.schemeinfo(url_link = DB$url_link)
-        
-        if(is.null(remote_scheme)) {
-          last_scheme_change <- NULL
-        } else {
-          last_scheme_change <- remote_scheme[["last_updated"]]
-        }
-      }
-      
-      if(!is.null(last_scheme_change)) {
-        if(length(last_scheme_change) > 0) {
-          last_file_change <- format(
-            file.info(file.path(Startup$database, ".downloaded_schemes",
-                                paste0(gsub(" ", "_", DB$scheme), ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
-          
-          if(!is.null(last_file_change)) {
-            if(length(last_file_change) > 0 & length(last_scheme_change) > 0) {
-              if(last_file_change < last_scheme_change) {
-                showModal(
-                  div(
-                    class = "start-modal",
-                    modalDialog(
+                      ),
                       fluidRow(
-                        br(), 
+                        column(1),
                         column(
                           width = 11,
-                          p(
-                            HTML(
-                              paste0(
-                                '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
-                                "The ", DB$scheme, " scheme was updated at ",
-                                last_scheme_change,
-                                " on the ",
-                                DB$schemeinfo[,2][DB$schemeinfo[,1] == "Database"],
-                                " database. To fetch the changes download the scheme.",
-                                '</span>'
+                          align = "center",
+                          shinyFilesButton(
+                            "genome_file",
+                            "Browse" ,
+                            icon = icon("file"),
+                            title = "Select the assembly in .fasta/.fna/.fa format:",
+                            multiple = FALSE,
+                            buttonType = "default",
+                            class = NULL,
+                            root = path_home()
+                          ),
+                          br(),
+                          br(),
+                          uiOutput("genome_path"),
+                          br()
+                        )
+                      )
+                    )
+                  })
+                  
+                  output$initiate_typing_ui <- renderUI({
+                    column(
+                      width = 4,
+                      align = "center",
+                      br(),
+                      br(),
+                      h3(p("Initiate Typing"), style = "color:white; margin-left: 15px"),
+                      br(),
+                      br(),
+                      p(
+                        HTML(
+                          paste(
+                            tags$span(style='color: white; font-size: 15px; margin-bottom: 0px; margin-left: 15px', 'Select Assembly File')
+                          )
+                        )
+                      ),
+                      fluidRow(
+                        column(1),
+                        column(
+                          width = 11,
+                          align = "center",
+                          shinyFilesButton(
+                            "genome_file",
+                            "Browse" ,
+                            icon = icon("file"),
+                            title = "Select the assembly in .fasta/.fna/.fa format:",
+                            multiple = FALSE,
+                            buttonType = "default",
+                            class = NULL,
+                            root = path_home()
+                          ),
+                          br(),
+                          br(),
+                          uiOutput("genome_path"),
+                          br()
+                        )
+                      )
+                    )
+                  })
+                  
+                  output$initiate_multi_typing_ui <- initiate_multi_typing_ui
+                }
+              }
+            }
+          }
+        } else {
+          
+          log_print("Invalid scheme folder")
+          show_toast(
+            title = "Invalid scheme folder",
+            type = "warning",
+            position = "bottom-end",
+            timer = 4000
+          )
+        }
+      }
+      
+      
+      ### Check if scheme update available
+      if(!is.null(DB$scheme_db) && isTRUE(DB$scheme_new)) {
+        
+        # Query remote scheme
+        if(DB$scheme_db == "cgMLST.org Nomenclature Server (h25)") {
+          
+          db_spec <- schemes[schemes[,"database"] == "cgMLST.org",]
+          DB$url_link <- db_spec[, "url"][db_spec[, "species"] == gsub(" ", "_", DB$scheme)]
+          
+          remote <- tryCatch({
+            read_html(DB$url_link)
+          }, error = function(e) {
+            DB$failCon <- TRUE
+            show_toast(
+              title = "Could not retrieve data. Check internet connection.",
+              type = "error",
+              position = "bottom-end",
+              timer = 6000
+            )
+            warning("Could not retrieve data. Check internet connection.")
+            return(NULL)
+          })
+          
+          if(is.null(remote)) {
+            last_scheme_change <- NULL
+          } else {
+            DB$failCon <- FALSE
+            remote_scheme <- remote %>%
+              html_table(header = FALSE) %>%
+              as.data.frame(stringsAsFactors = FALSE)
+            
+            last_scheme_change <- strptime(remote_scheme[,2][remote_scheme[,1] == "Last Change"],
+                                           format = "%B %d, %Y, %H:%M %p")
+          }
+        } else if(DB$scheme_db == "pubMLST") {
+          
+          db_spec <- schemes[schemes[,"database"] == "pubMLST",]
+          DB$url_link <- db_spec[, "url"][db_spec[, "species"] == gsub(" ", "_", DB$scheme)]
+          
+          remote_scheme <- get.schemeinfo(url_link = DB$url_link)
+          
+          if(is.null(remote_scheme)) {
+            last_scheme_change <- NULL
+          } else {
+            last_scheme_change <- remote_scheme[["last_updated"]]
+          }
+        }
+        
+        if(!is.null(last_scheme_change)) {
+          if(length(last_scheme_change) > 0) {
+            last_file_change <- format(
+              file.info(file.path(Startup$database, ".downloaded_schemes",
+                                  paste0(gsub(" ", "_", DB$scheme), ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
+            
+            if(!is.null(last_file_change)) {
+              if(length(last_file_change) > 0 & length(last_scheme_change) > 0) {
+                if(last_file_change < last_scheme_change) {
+                  showModal(
+                    div(
+                      class = "start-modal",
+                      modalDialog(
+                        fluidRow(
+                          br(), 
+                          column(
+                            width = 11,
+                            p(
+                              HTML(
+                                paste0(
+                                  '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                                  "The ", DB$scheme, " scheme was updated at ",
+                                  last_scheme_change,
+                                  " on the ",
+                                  DB$schemeinfo[,2][DB$schemeinfo[,1] == "Database"],
+                                  " database. To fetch the changes download the scheme.",
+                                  '</span>'
+                                )
                               )
                             )
-                          )
+                          ),
+                          br()
                         ),
-                        br()
-                      ),
-                      title = HTML(paste0(
-                        '<i class="fa-solid fa-circle-exclamation" style="font-size:17px;color:white"></i>',
-                        " &nbsp;&nbsp; Scheme update available")),
-                      fade = TRUE,
-                      easyClose = TRUE,
-                      footer = tagList(
-                        modalButton("Dismiss"),
-                        actionButton("update_scheme", "Update Scheme", 
-                                     icon = icon("layer-group"),
-                                     class = "btn btn-default")
+                        title = HTML(paste0(
+                          '<i class="fa-solid fa-circle-exclamation" style="font-size:17px;color:white"></i>',
+                          " &nbsp;&nbsp; Scheme update available")),
+                        fade = TRUE,
+                        easyClose = TRUE,
+                        footer = tagList(
+                          modalButton("Dismiss"),
+                          actionButton("update_scheme", "Update Scheme", 
+                                       icon = icon("layer-group"),
+                                       class = "btn btn-default")
+                        )
                       )
                     )
                   )
-                )
+                }
               }
             }
           }
         }
       }
-    }
-    
-    DB$scheme_new <- FALSE
-    
-    shinyjs::removeClass(selector = "body", class = "sidebar-collapse")
-    shinyjs::addClass(selector = "body", class = "sidebar-toggle")
-    shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
-    
-    waiter_hide()  
+      
+      DB$scheme_new <- FALSE
+      
+      shinyjs::removeClass(selector = "body", class = "sidebar-collapse")
+      shinyjs::addClass(selector = "body", class = "sidebar-toggle")
+      shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
+      
+      waiter_hide()
+    }  
   })
   
   # _______________________ ####
