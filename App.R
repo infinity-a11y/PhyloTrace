@@ -352,8 +352,7 @@ ui <- dashboardPage(
               align = "left",
               uiOutput("custom_var_box"),
               uiOutput("delete_box"),
-              uiOutput("compare_allele_box"),
-              uiOutput("download_entries")
+              uiOutput("compare_allele_box")
             )
           )
         )
@@ -4226,7 +4225,7 @@ server <- function(input, output, session) {
                                 align = "left",
                                 HTML(
                                   paste(
-                                    tags$span(style='color: white; font-size: 14px; position: absolute; bottom: -30px; right: -5px', 
+                                    tags$span(style='color: white; font-size: 14px; position: absolute; bottom: -28px; right: -5px', 
                                               'New entries - reload database')
                                   )
                                 )
@@ -4249,7 +4248,7 @@ server <- function(input, output, session) {
                                 align = "left",
                                 HTML(
                                   paste(
-                                    tags$span(style='color: white; font-size: 14px; position: absolute; bottom: -30px; right: -5px', 'No database changes possible - pending entry addition')
+                                    tags$span(style='color: white; font-size: 14px; position: absolute; bottom: -28px; right: -5px', 'No database changes possible - pending entry addition')
                                   )
                                 )
                               ),
@@ -4309,12 +4308,12 @@ server <- function(input, output, session) {
                   output$entry_table_controls <- renderUI({
                     fluidRow(
                       column(
-                        width = 4,
+                        width = 5,
                         align = "center",
                         fluidRow(
                           column(
-                            width = 4,
-                            align = "center",
+                            width = 3,
+                            align = "right",
                             actionButton(
                               "sel_all_entries",
                               "Select All",
@@ -4322,18 +4321,27 @@ server <- function(input, output, session) {
                             )
                           ),
                           column(
-                            width = 4,
+                            width = 3,
                             align = "left",
                             actionButton(
                               "desel_all_entries",
                               "Deselect All",
                               icon = icon("xmark")
                             )
+                          ),
+                          column(
+                            width = 5,
+                            align = "right",
+                            actionButton(
+                              "export_menu",
+                              "Export",
+                              icon = icon("download")
+                            )
                           )
                         )
                       ),
                       column(
-                        width = 3,
+                        width = 5,
                         uiOutput("edit_entry_table")
                       )
                     )
@@ -4729,68 +4737,6 @@ server <- function(input, output, session) {
                         )
                       ),
                       br()
-                    )
-                  })
-                  
-                  # Render entry table download box UI
-                  output$download_entries <- renderUI({
-                    fluidRow(
-                      column(
-                        width = 12,
-                        box(
-                          solidHeader = TRUE,
-                          status = "primary",
-                          width = "100%",
-                          title = "Export Table",
-                          fluidRow(
-                            column(1),
-                            column(
-                              width = 8,
-                              align = "left",
-                              br(),
-                              div(
-                                class = "mat-switch-db",
-                                materialSwitch(
-                                  "download_table_include",
-                                  h5(p("Only Included Entries"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                  value = FALSE,
-                                  right = TRUE
-                                )
-                              ),
-                              div(
-                                class = "mat-switch-db",
-                                materialSwitch(
-                                  "download_table_loci",
-                                  h5(p("Include Displayed Loci"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                  value = FALSE,
-                                  right = TRUE
-                                )
-                              ),
-                              div(
-                                class = "mat-switch-db",
-                                materialSwitch(
-                                  "download_table_hashes",
-                                  h5(p("Truncate Hashes"), style = "color:white; padding-left: 0px; position: relative; top: -4px; right: -5px;"),
-                                  value = FALSE,
-                                  right = TRUE
-                                )
-                              )
-                            ),
-                            column(
-                              width = 2,
-                              align = "center",
-                              downloadBttn(
-                                "download_entry_table",
-                                style = "simple",
-                                label = "",
-                                size = "sm",
-                                icon = icon("download"),
-                                color = "primary"
-                              )
-                            )
-                          )
-                        )
-                      )
                     )
                   })
                   
@@ -6256,6 +6202,109 @@ server <- function(input, output, session) {
   
   ### Database Events ----
   
+  observeEvent(input$export_menu, {
+    req(DB$meta, DB$allelic_profile)
+    
+    showModal(
+      div(
+        class = "start-modal",
+        modalDialog(
+          fluidRow(
+            br(), 
+            column(
+              width = 12,
+              fluidRow(
+                column(2),
+                column(
+                  width = 4,
+                  align = "left",
+                  HTML(
+                    paste0(
+                      '<span style="color: white; display: block; font-size: 16px; margin-left: -15px;">',
+                      'Only Included Entries',
+                      '</span>'
+                    )
+                  ),
+                  HTML(
+                    paste0(
+                      '<span style="margin-top: 31px; color: white; display: block; font-size: 16px; margin-left: -15px;">',
+                      'Select Loci',
+                      '</span>'
+                    )
+                  ),
+                  HTML(
+                    paste0(
+                      '<span style="margin-top: 31px; color: white; display: block; font-size: 16px; margin-left: -15px;">',
+                      'Select Metadata',
+                      '</span>'
+                    )
+                  )
+                ),
+                column(
+                  width = 5,
+                  align = "left",
+                  div(
+                    class = "exp-menu-switch2",
+                    materialSwitch(
+                      "download_table_include",
+                      "",
+                      value = FALSE
+                    )
+                  ),
+                  div(
+                    class = "exp-menu-picker",
+                    pickerInput(
+                      "exp_loci_select",
+                      choices = colnames(DB$allelic_profile),
+                      selected = colnames(DB$allelic_profile),
+                      multiple = TRUE,
+                      options = list(
+                        "live-search" = TRUE, "actions-box" = TRUE, size = 10,
+                        style = "background-color: white; border-radius: 5px;")
+                    )
+                  ),
+                  div(
+                    class = "exp-menu-picker",
+                    pickerInput(
+                      "exp_metadata_select",
+                      choices = colnames(DB$meta)[-c(2, 3, 11, 12, 13)],
+                      multiple = TRUE,
+                      selected = c("Scheme", "Isolation Date", "Host", 
+                                   "Country", "City", "Typing Date"),
+                      options = list(
+                        "live-search" = TRUE, "actions-box" = TRUE, size = 10,
+                        style = "background-color: white; border-radius: 5px;")
+                    )
+                  ),
+                  HTML(
+                    paste0(
+                      '<span style="margin-top: 12px; font-style: italic; color: white; display: block; font-size: 13px;">',
+                      'Assembly ID always included',
+                      '</span>'
+                    )
+                  ), br()
+                )
+              )
+            )
+          ),
+          title = "Export Menu",
+          easyClose = TRUE,
+          footer = tagList(
+            modalButton("Dismiss"),
+            downloadBttn(
+              "download_entry_table",
+              style = "simple",
+              label = "",
+              size = "sm",
+              icon = icon("download"),
+              color = "primary"
+            )
+          )
+        )
+      )
+    )
+  })
+  
   # Shutdown
   observeEvent(input$shutdown, {
     showModal(
@@ -7580,23 +7629,32 @@ server <- function(input, output, session) {
       paste0(Sys.Date(), "_", gsub(" ", "_", DB$scheme), "_Entries.csv")
     },
     content = function(file) {
-      download_matrix <- hot_to_r(input$db_entries)
       
-      if(isFALSE(input$download_table_hashes)) {
-        included_loci <- colnames(select(download_matrix, -(1:(13 + nrow(DB$cust_var)))))
-        full_hashes <- DB$allelic_profile[included_loci]
-        download_matrix[included_loci] <- full_hashes
-      }
+      shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "block";')
       
-      if(isTRUE(input$download_table_include)) {
-        download_matrix <- download_matrix[which(download_matrix$Include == TRUE),]
-      }
+      if (isTRUE(input$download_table_include)) {
+        export <- DB$data[which(DB$data$Include == TRUE), ]
+      } else {export <- DB$data}
       
-      if(isFALSE(input$download_table_loci)) {
-        download_matrix <- select(download_matrix, 1:(13 + nrow(DB$cust_var)))
-      } 
+      export <- select(
+        export,
+        -colnames(DB$allelic_profile)[!colnames(
+          DB$allelic_profile) %in% input$exp_loci_select])
       
-      write.csv(download_matrix, file, row.names=FALSE, quote=FALSE) 
+      export <- select(
+        export,
+        -colnames(
+          DB$meta)[-3][!colnames(DB$meta)[-3] %in% input$exp_metadata_select])
+      
+      # Add marker to custom variables
+      colnames(export)[colnames(export) %in% DB$cust_var$Variable] <- paste0(
+        colnames(export)[colnames(export) %in% DB$cust_var$Variable], ":v")
+      
+      write.csv(export, file, row.names = FALSE, quote = FALSE) 
+      
+      shinyjs::runjs('document.getElementById("blocking-overlay").style.display = "none";')
+      
+      removeModal()
     }
   )
   
@@ -24689,7 +24747,7 @@ server <- function(input, output, session) {
       if(length(Typing$result_list) > 0) {
         output$multi_typing_results <- renderUI({
           column(
-            width = 12,
+            width = 11,
             fluidRow(
               column(1),
               column(

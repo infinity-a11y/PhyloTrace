@@ -1315,6 +1315,19 @@ i.far.fa-pen-to-square {
 
 /* Database */
 
+.exp-menu-switch2 {
+  margin-top: 5px;
+}
+
+.exp-menu-switch3 {
+  margin-top: 28px;
+}
+
+.exp-menu-picker {
+  margin-top: 21px;
+  width: 90%;
+}
+
 .scheme-sel-box {
   margin-left: 67px;
   margin-bottom: 35px;
@@ -1395,9 +1408,18 @@ i.far.fa-pen-to-square {
   top: -2px !important;
 }
 
-#sel_all_entries, #desel_all_entries, #typing_start, #start_typ_multi, 
+#typing_start, #start_typ_multi, #export_menu,
 #undo_changes, #genome_file, #genome_file_multi, #reset_multi, #save_cust {
   border-color: white;
+}
+
+#sel_all_entries, #desel_all_entries {
+  border-color: white;
+  width: 115px;
+}
+
+#desel_all_entries {
+  margin-left: 10px;
 }
 
 #genome_file_multi,
@@ -1613,12 +1635,14 @@ button#download_distmatrix_bttn {
 }
 
 button#download_entry_table_bttn {
-  height: 34px; 
+  height: 34px;
   background: #282F38;
   color: #ffffff;
   border: 1px solid white;
-  transition: border-color 0.3s ease; 
-  margin-top: 55px;
+  transition: border-color 0.3s ease;
+  position: relative;
+  top: 1px;
+  width: 100px;
 }
 
 #download_entry_table_bttn .fas .fa-download,
