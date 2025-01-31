@@ -1,3 +1,172 @@
+# Define a helper function to replace .is_not
+is_not <- function(x) {
+  is.null(x) || identical(x, FALSE)
+}
+
+shinyDirChoose_mod <- function (input, id, updateFreq = 0, session = getSession(), 
+                             defaultPath = "", defaultRoot = NULL, allowDirCreate = TRUE, 
+                             ...) 
+{
+  # Access internal functions from shinyFiles
+  dirGet <- shinyFiles:::dirGetter(...)
+  fileGet <- shinyFiles:::fileGetter(...)
+  dirCreate <- shinyFiles:::dirCreator(...)
+  
+  currentDir <- list()
+  currentFiles <- NULL
+  lastDirCreate <- NULL
+  clientId <- session$ns(id)
+  
+  sendDirectoryData <- function(message) {
+    req(input[[id]])
+    tree <- input[[paste0(id, "-modal")]]
+    createDir <- input[[paste0(id, "-newDir")]]
+    
+    if (!identical(createDir, lastDirCreate)) {
+      if (allowDirCreate) {
+        dirCreate(createDir$name, createDir$path, createDir$root)
+        lastDirCreate <<- createDir
+      } else {
+        shiny::showNotification(shiny::p("Creating directories has been disabled."), 
+                                type = "error")
+        lastDirCreate <<- createDir
+      }
+    }
+    
+    exist <- TRUE
+    if (is_not(tree)) {  # REPLACED .is_not(tree) with is_not(tree)
+      dir <- list(tree = list(name = defaultPath, expanded = TRUE), 
+                  root = defaultRoot)
+      files <- list(dir = NA, root = tree$selectedRoot)
+    } else {
+      dir <- list(tree = tree$tree, root = tree$selectedRoot)
+      files <- list(dir = unlist(tree$contentPath), root = tree$selectedRoot)
+      passedPath <- list(list(...)$roots[tree$selectedRoot])
+      exist <- dir.exists(do.call(path, c(passedPath, files$dir[-1])))
+    }
+    
+    newDir <- do.call(dirGet, dir)
+    
+    if (is_not(files$dir)) {  # REPLACED .is_not(files$dir) with is_not(files$dir)
+      newDir$content <- NA
+      newDir$contentPath <- NA
+      newDir$writable <- FALSE
+    } else {
+      newDir$contentPath <- as.list(files$dir)
+      files$dir <- paste0(files$dir, collapse = "/")
+      
+      # content <- do.call(fileGet, files)
+      # newDir$content <- content$files
+      newDir$content <- NULL  # Skip loading files
+      
+      # newDir$writable <- content$writable
+    }
+    
+    newDir$exist <- exist
+    newDir$root <- files$root
+    currentDir <<- newDir
+    session$sendCustomMessage(message, list(id = clientId, dir = newDir))
+    
+    if (updateFreq > 0) 
+      invalidateLater(updateFreq, session)
+  }
+  
+  observe({
+    sendDirectoryData("shinyDirectories")
+  })
+  
+  observeEvent(input[[paste0(id, "-refresh")]], {
+    if (!is.null(input[[paste0(id, "-refresh")]])) {
+      sendDirectoryData("shinyDirectories-refresh")
+    }
+  })
+}
+
+
+
+# map hashes to allele profile
+hash_allele_profile <- function(allele_profile, hashed_loci_folder) {
+  # List all hashed loci files
+  all_loci_files <- list.files(hashed_loci_folder, full.names = TRUE)
+  
+  hashed_data <- list()
+  
+  for (file_path in all_loci_files) {
+    locus_name <- sub("\\.(fasta|fa|fna)$", "", basename(file_path))  # Extract locus name
+    hashed_data[[locus_name]] <- readLines(file_path)  # Store file content
+  }
+  
+  # Convert allele_profile to data.table
+  allele_profile_hashed <- as.data.table(allele_profile)
+  
+  # Process each column (locus)
+  for (locus_name in colnames(allele_profile_hashed)) {
+    if (!locus_name %in% names(hashed_data)) next  # Skip if locus not found
+    
+    variants <- hashed_data[[locus_name]]
+    hashed_index <- gsub(">", "", variants[seq(1, length(variants) - 1, by = 3)])  # Extract hashes
+    
+    allele_profile_hashed[[locus_name]] <- sapply(allele_profile_hashed[[locus_name]], function(varnum) {
+      if (is.na(varnum) || varnum > length(hashed_index)) return(NA) 
+      hashed_index[varnum]
+    })
+  }
+  
+  return(as.data.frame(allele_profile_hashed))  
+}
+
+
+# Truncate strings longer than 37 characters 
+truncate_start <- function(text, max_length = 37, keep_start = 10) {
+  if (nchar(text) <= max_length) return(text)
+  
+  # Calculate how many characters to keep at the end
+  keep_end <- max_length - keep_start - 3
+  
+  # Construct truncated text
+  paste0(substr(text, 1, keep_start), 
+         "...", substr(text, nchar(text) - keep_end + 1, nchar(text)))
+}
+
+# Truncate strings longer than 22 characters at end
+truncate_if_long <- function(x, max_length = 22) {
+  if (nchar(x) > max_length) {
+    return(paste0(substr(x, 1, max_length), "..."))
+  }
+  return(x)
+}
+
+# check allelic profile import index type
+is_integer_vector <- function(vec) {
+  if (!is.vector(vec)) return(FALSE)  # Ensure input is a vector
+  
+  # Try converting to numeric
+  numeric_version <- suppressWarnings(as.numeric(vec))
+  
+  # Ignore NA values and check if the remaining values are whole numbers
+  valid_values <- numeric_version[!is.na(numeric_version)]
+  
+  # Check if all non-NA values are whole numbers (integers)
+  return(all(valid_values == floor(valid_values)))
+}
+
+# detect import file delimiter type
+detect_delimiter <- function(file_path) {
+  first_lines <- readLines(file_path, n = 5)
+  
+  # Define possible delimiters
+  delimiters <- c("," = ",", ";" = ";", "\t" = "tab", "|" = "pipe", ":" = "colon")
+  
+  # Count occurrences of each delimiter
+  counts <- sapply(names(delimiters), function(d) sum(grepl(d, first_lines)))
+  
+  # Pick the most frequent delimiter
+  best_delimiter <- names(which.max(counts))
+  
+  # Return the best match
+  return(best_delimiter)
+}
+
 # Helper function for determining variable mapping choices
 determine_variable_choices <- function(meta_nj) {
   default_choices <- c(
@@ -344,12 +513,13 @@ column_classes <- function(df) {
 }
 
 # Function to hash database
-hash_database <- function(folder, progress) {
+hash_database <- function(folder, progress = NULL) {
   loci_files <- list.files(folder)
   loci_names <- sapply(strsplit(loci_files, "[.]"), function(x) x[1])
   loci_paths <- file.path(folder, loci_files)
   count <- length(loci_files)
   hashes <- sapply(loci_paths, hash_locus, progress = progress, count = count)
+  
   names(hashes) <- loci_names
   hashes
 }
@@ -365,7 +535,7 @@ hash_locus <- function(locus_path, progress, count) {
     locus_file[seq(1, length(locus_file), 3)] <- seq_idx
     writeLines(locus_file, locus_path)
     if(!is.null(progress) & !is.null(count)) {
-      progress$inc(1 / (count * 2), 
+      progress$inc(1 / count, 
                    detail = paste("Hashed", basename(locus_path)),
                    message = "Hashing alleles")
     }

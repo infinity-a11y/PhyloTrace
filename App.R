@@ -2071,7 +2071,19 @@ server <- function(input, output, session) {
       
       ### Reset UI elements ----
       
-      # Reset reactive screening variables 
+      # Reset database tab UI elements
+      output$hash_feedback <- NULL
+      output$hashing_status <- NULL
+      output$hash_import_button <- NULL
+      output$hash_folderpath <- NULL
+      output$hash_dir <- NULL
+      # output$metadata_preview <- NULL
+      output$import_metadata_sel <- NULL
+      # output$id_preview <- NULL
+      output$import_id_sel <- NULL
+      output$import_feedback <- NULL
+      
+      # Reset reactive screening variables
       output$screening_start <- NULL
       output$screening_result_sel <- NULL
       output$screening_result <- NULL
@@ -4330,12 +4342,21 @@ server <- function(input, output, session) {
                             )
                           ),
                           column(
-                            width = 5,
+                            width = 3,
                             align = "right",
                             actionButton(
                               "export_menu",
                               "Export",
                               icon = icon("download")
+                            )
+                          ),
+                          column(
+                            width = 3,
+                            align = "left",
+                            actionButton(
+                              "import_menu",
+                              "Import",
+                              icon = icon("file-import")
                             )
                           )
                         )
@@ -6202,6 +6223,424 @@ server <- function(input, output, session) {
   
   ### Database Events ----
   
+  #### Import & Export dataset ----
+  
+  # Foreign dataset file upload observer
+  observe({
+    shinyFileChoose(input, "import_files", 
+                    roots = c(Home = path_home(), Root = "/"), 
+                    defaultRoot = "Home", session = session, 
+                    filetypes = c("csv", "tsv", "txt", "dat", "tab"))
+  })
+  
+  # Render ID column selection preview 
+  output$id_preview <- renderUI({
+    req(input$import_id_selector, DB$import)
+    
+    if(!is.null(input$import_files) && length(input$import_files) > 1) {
+      if(nrow(DB$import) > 1) {
+        vals <- DB$import[[input$import_id_selector]][1:2]
+      } else {vals <- DB$import[[input$import_id_selector]][1]}
+      
+      if(class(unlist(vals)) == "character") vals <- sapply(
+        vals, truncate_if_long, USE.NAMES = FALSE)
+      
+      HTML(paste0(c(vals, " ..."), collapse = "<br>"))
+    }
+  })
+  
+  # Render metadata selection preview
+  output$metadata_preview <- renderUI({
+    req(input$import_metadata_sel, DB$import)
+    
+    if(!is.null(input$import_files) && length(input$import_files) > 1) {
+      HTML(paste0(length(input$import_metadata_sel), 
+                  " metadata variables selected for import"))
+    }
+  })
+  
+  # Construction of import UI elements & checking of uploaded dataset 
+  observe({
+    req(DB$data, DB$meta, DB$allelic_profile)
+    
+    if(!is.null(input$import_files) && length(input$import_files) > 1) {
+      
+      # adjusting UI element highlighting
+      shinyjs::runjs(paste0("document.getElementById('import_files').style.ani",
+                            "mation = 'none';"))
+      shinyjs::runjs(paste0('document.getElementById("blocking-overlay").style', 
+                            '.display = "block";'))
+      
+      # getting selected file
+      import_path <- parseFilePaths(
+        roots = c(Home = path_home(), Root = "/"), input$import_files)
+      import_filepath <- truncate_start(basename(import_path$datapath))
+      import <- read_delim(import_path$datapath, 
+                           delim = detect_delimiter(import_path$datapath), 
+                           show_col_types = FALSE)
+      DB$import <- import
+      
+      # check compatibe loci in imported dataset
+      shared_loci <- colnames(DB$allelic_profile) %in% colnames(import)
+      if (!any(shared_loci == FALSE)) {
+        
+        # check present metadata of import dataset
+        import_meta <- import[, which(
+          colnames(import) %in% colnames(DB$meta)[-c(1, 2, 3, 5, 11, 12 ,13)])]
+        import_cust_var <- import[, which(!colnames(import) %in%
+                                            colnames(DB$data))]
+        find_id_col <- colnames(import)[which(!colnames(import) %in%
+                                                colnames(DB$allelic_profile))]
+        DB$find_id_col_clean <- find_id_col[!find_id_col %in% 
+                                              colnames(import_meta)]
+        
+        # Preload UI elements
+        feedback <- HTML(
+          paste0('&nbsp;&nbsp; <i class="fa-solid fa-circle-check" style="font',
+               '-size:15px; color:#90EE90; position:relative;"></i> &nbsp; <b>', 
+               'Nomenclature is compatible</b> <br> All loci are matching the', 
+               DB$scheme, ' scheme.'))
+        delim <- hr()
+        id_sel_ui <- div(class = "import-id-sel",
+                         selectInput("import_id_selector",
+                                     "Select ID Column",
+                                     choices = isolate(DB$find_id_col_clean),
+                                     width = "100%"))
+        metadata_sel_ui <- uiOutput("metadata_sel_ui")
+        hash_button_ui <- actionButton("import_start_hash", "Hash Dataset",
+                                       icon = icon("play"))
+        hash_dir_ui <- shinyDirButton(
+          "hash_dir_button", "Select Alleles", icon = icon("folder-open"),
+          title = "Select folder containing allele library", 
+          buttonType = "default", root = path_home())
+        
+        # check if import allele indexes are hashed
+        hash_check <- import[, which(colnames(import) %in%
+                                       colnames(DB$allelic_profile))]
+        
+        # check which processing necessary
+        if((sum((class(unlist(hash_check)) == "character" |
+                 is.na(unlist(hash_check))) == FALSE) == 0) && 
+           !any(nchar(
+             unlist(hash_check)[which(!is.na(unlist(hash_check)))]) != 64)) {
+          
+          # no processing needed - user feedback
+          hash_feedback <- HTML(
+            paste0('&nbsp;&nbsp; <i class="fa-solid fa-circle-check" style="fo', 
+                   'nt-size:15px; color:#90EE90; position:relative;"></i> &nbs', 
+                   'p; <b>Alleles are hashed</b> <br> Allele indexes are alrea', 
+                   'dy hashed. No action necessary.'))
+          hash_button <- shinyjs::disabled(hash_button_ui)
+          output$hash_dir <- renderUI(shinyjs::disabled(hash_dir_ui))
+          shinyjs::runjs(
+            paste0("document.getElementById('append_import').style.animation =", 
+                   "'pulsate-shadow 2s infinite linear';"))
+          shinyjs::enable("append_import")
+        } else {
+          
+          # check if hashing can be performed on dataset
+          if(is_integer_vector(unlist(hash_check))) { 
+            # hashing processing possible - user feedback
+            hash_feedback <- HTML(
+              paste0('&nbsp;&nbsp; <i class="fa-solid fa-circle-exclamation" s', 
+                     'tyle="font-size:15px; color:orange; position:relative;">', 
+                     '</i> &nbsp; <b>Allele indexes not hashed</b> <br>To perf', 
+                     'orm hashing upload allele library containing the sequenc', 
+                     'es for each allele variant of every locus.'))
+            hash_button <- shinyjs::disabled(hash_button_ui)
+            output$hash_dir <- renderUI(hash_dir_ui)
+            shinyjs::disable("append_import")
+            shinyjs::enable("import_start_hash")
+            shinyjs::delay(1000, shinyjs::runjs(
+              paste0("document.getElementById('hash_dir_button').style.animati", 
+                     "on = 'pulsate-shadow 2s infinite linear';")))
+            shinyjs::delay(1000, shinyjs::runjs(
+              paste0("document.getElementById('import_start_hash').style.anima", 
+                     "tion = 'none';")))
+          } else {
+            # hashing processing not possible - user feedback
+            hash_feedback <- HTML(
+              paste0('&nbsp;&nbsp; <i class="fa-solid fa-circle-xmark" style="', 
+                     'font-size:15px; color:#ff0000; position:relative;"></i> ', 
+                     '&nbsp; <b>Allele indexes are faulty</b> <br> Only whole ', 
+                     'numbers are allowed. Import not possible.'))
+            hash_button <- shinyjs::disabled(hash_button_ui)
+            output$hash_dir <- renderUI(shinyjs::disabled(hash_dir_ui))
+            shinyjs::disable("append_import")
+            shinyjs::runjs(
+              paste0("document.getElementById('import_files').style.animation ", 
+                     "= 'pulsate-shadow 2s infinite linear';"))
+          }
+        }
+      } else {
+        
+        # No import possible - adjust element rendering
+        
+        # Import section
+        shinyjs::runjs(
+          paste0("document.getElementById('import_files').style.animation = 'p", 
+                 "ulsate-shadow 2s infinite linear';"))
+        shinyjs::runjs(paste0("document.getElementById('append_import').style.", 
+                              "animation = 'none';"))
+        feedback <- HTML(
+          paste0('&nbsp;&nbsp; <i class="fa-solid fa-circle-xmark" style="font', 
+                 '-size:15px; color:#ff0000; position:relative;"></i> &nbsp; <', 
+                 'b>Nomenclature not compatible</b><br>The loci of the selecte', 
+                 'd dataset do not match the currently selected ', 
+                 DB$scheme, ' scheme.'))
+        delim <- NULL
+        
+        # Metadata section
+        id_sel_ui <- NULL
+        metadata_sel_ui <- NULL
+        DB$import <- NULL
+        
+        # Hashing section
+        output$hash_import_button <- NULL
+        output$hash_dir <- NULL
+        hash_feedback <- NULL
+        hash_button <- NULL
+        output$hashing_status <- NULL
+      }
+      
+      shinyjs::runjs(paste0('document.getElementById("blocking-overlay").style', 
+                            '.display = "none";'))
+    } else {
+      
+      # Nothing imported yet - adjust element rendering
+      
+      # Import section
+      shinyjs::runjs(paste0("document.getElementById('import_files').style.ani", 
+                            "mation = 'pulsate-shadow 2s infinite linear';"))
+      shinyjs::runjs(paste0("document.getElementById('append_import').style.an", 
+                            "imation = 'none';"))
+      import_filepath <- "Select file"
+      feedback <- HTML("No dataset imported")
+      delim <- NULL
+      
+      # Metadata section
+      id_sel_ui <- NULL
+      metadata_sel_ui <- NULL
+      
+      # Hashing section
+      output$hash_dir <- NULL
+      hash_feedback <- NULL
+      hash_button <- NULL
+      output$hashing_status <- NULL
+    }
+    
+    # Render elements
+    
+    # Import section
+    output$import_path <- renderText(import_filepath)
+    output$import_feedback <- renderUI(feedback)
+    output$delim <- renderUI(delim)
+    
+    # Metadata section
+    output$import_id_sel <- renderUI(id_sel_ui)
+    output$import_metadata_sel <- renderUI(metadata_sel_ui)
+    output$delim2 <- renderUI(delim)
+    
+    # Hashing section
+    output$hash_feedback <- renderUI(hash_feedback)
+    output$hash_import_button <- renderUI(hash_button)
+  })
+  
+  
+  # Foreign allele library directory selection
+  observeEvent(input$hash_dir_button, {
+    
+    shinyDirChoose_mod(input, "hash_dir_button", 
+                   roots = c(Home = path_home(), Root = "/"), 
+                   defaultRoot = "Home", session = session)
+    
+    if(length(input$hash_dir_button) <= 1) return({})
+    
+    hash_dir <- as.character(
+      parseDirPath(roots = c(Home = path_home(), Root = "/"),
+                   input$hash_dir_button))
+    
+    output$hash_folderpath <- renderUI(HTML(truncate_start(hash_dir)))
+    
+    DB$hash_dir <- hash_dir
+    
+    # element highlighting adjustment
+    shinyjs::runjs(paste0("document.getElementById('hash_dir_button').style.an", 
+                          "imation = 'none';"))
+    shinyjs::enable("hash_import_button")
+    shinyjs::runjs(paste0("document.getElementById('import_start_hash').style.", 
+                          "animation = 'pulsate-shadow 2s infinite linear';"))
+  })
+  
+  # Reset hashing UI elements on new dataset upload
+  observeEvent(input$import_files, {
+    DB$hash_dir <- NULL
+    output$hash_folderpath <- NULL
+  })
+  
+  # Render metadata selection 
+  output$metadata_sel_ui <- renderUI({
+    req(input$import_id_selector, DB$find_id_col_clean)
+    
+    pickerInput(
+      "import_metadata_sel",
+      "Select Metadata",
+      multiple = TRUE,
+      options = list(
+        "live-search" = TRUE, "actions-box" = TRUE, size = 10,
+        style = "background-color: white; border-radius: 5px;"),
+      choices = DB$find_id_col_clean[DB$find_id_col_clean != 
+                                       input$import_id_selector],
+      width = "100%"
+    )
+  })
+  
+  # Hash imported allele library
+  observeEvent(input$import_start_hash, {
+    req(DB$hash_dir, DB$import)
+    log_print("Start to hash imported database")
+    
+    # adjust element highlighting
+    shinyjs::runjs(paste0('document.getElementById("blocking-overlay").style.d', 
+                          'isplay = "block";'))
+    shinyjs::runjs(paste0("document.getElementById('import_start_hash').style.", 
+                          "animation = 'none';"))
+    
+    tryCatch({
+      
+      # hash allele library
+      hash_database(DB$hash_dir)
+      
+      # assign hashes to integer allele indexes
+      hash_allele_profile(allele_profile = DB$import, 
+                          hashed_loci_folder = DB$hash_dir)
+      
+      # status feedback and element highlighting adjustment
+      log_print("Successful hashing of imported database")
+      show_toast(title = "Hashing successful!", type = "success",
+                 position = "bottom-end",timer = 6000)
+      
+      
+      output$hashing_status <- renderUI(HTML(
+        paste0('&nbsp;&nbsp; <i class="fa-solid fa-circle-check" style="font-s', 
+               'ize:15px; color:#90EE90; position:relative;"></i> &nbsp; <b>Ha', 
+               'shing successful</b><br>Proceed to import the dataset')))
+      shinyjs::enable("append_import")
+      shinyjs::disable("import_start_hash")
+      shinyjs::disable("hash_dir_button")
+      shinyjs::runjs(paste0("document.getElementById('append_import').style.an", 
+                            "imation = 'pulsate-shadow 2s infinite linear';"))
+    }, error = function(e) {
+      paste("Error: ", e$message)
+      log_print("Hashing of imported database failed")
+      show_toast(
+        title = "Hashing failed",
+        type = "error",
+        position = "bottom-end",
+        timer = 6000
+      )
+      
+      # status feedback and element highlighting adjustment
+      shinyjs::enable("hash_dir_button")
+      shinyjs::disable("import_start_hash")
+      output$hashing_status <- renderUI(HTML(
+        paste0('&nbsp;&nbsp; <i class="fa-solid fa-circle-xmark" style="font-s', 
+               'ize:15px; color:#ff0000; position:relative;"></i> &nbsp; <b>Ha', 
+               'shing failed</b><br>Dataset can not be imported.')))
+    })
+    
+    shinyjs::runjs(paste0('document.getElementById("blocking-overlay").style.d', 
+                          'isplay = "none";'))
+  })
+  
+  # Launch import menu
+  observeEvent(input$import_menu, {
+    
+    # Reset previous UI elements
+    output$hash_folderpath <- NULL
+    
+    showModal(
+      div(
+        class = "start-modal",
+        modalDialog(
+          fluidRow(
+            br(),
+            column(
+              width = 12,
+              fluidRow(
+                column(
+                  width = 6,
+                  shinyFilesButton(
+                    "import_files",
+                    "Select Dataset" ,
+                    icon = icon("file"),
+                    title = "Select allelic profile",
+                    multiple = TRUE,
+                    buttonType = "default",
+                    class = NULL,
+                    width = "120px",
+                    root = path_home()
+                  ),
+                  textOutput("import_path"),
+                  br(), br()
+                ),
+                column(
+                  width = 6,
+                  uiOutput("import_feedback"),
+                  br()
+                )
+              ),
+              uiOutput("delim"),
+              fluidRow(
+                column(
+                  width = 6,
+                  br(),
+                  uiOutput("import_id_sel"),
+                  uiOutput("id_preview")
+                ),
+                column(
+                  width = 6,
+                  br(),
+                  uiOutput("import_metadata_sel"),
+                  uiOutput("metadata_preview"),
+                  br()
+                )
+              ),
+              uiOutput("delim2"),
+              fluidRow(
+                column(
+                  width = 6,
+                  br(),
+                  uiOutput("hash_dir"),
+                  uiOutput("hash_folderpath"),
+                  br(),
+                  uiOutput("hash_import_button"),
+                  uiOutput("hashing_status"),
+                  br()
+                ),
+                column(
+                  width = 6,
+                  br(),
+                  uiOutput("hash_feedback"),
+                  br(), br()
+                )
+              )
+            )
+          ),
+          title = "Import Menu",
+          easyClose = TRUE,
+          footer = tagList(
+            modalButton("Dismiss"),
+            shinyjs::disabled(
+              actionButton("append_import", "Pin Import", 
+                           icon = icon("thumbtack"), class = "btn btn-default"))
+          )
+        )
+      )
+    )
+  })
+  
+  # Launch export menu
   observeEvent(input$export_menu, {
     req(DB$meta, DB$allelic_profile)
     
@@ -6219,24 +6658,21 @@ server <- function(input, output, session) {
                   width = 4,
                   align = "left",
                   HTML(
+                    paste0('<span style="color: white; display: block; font-si', 
+                           'ze: 16px; margin-left: -15px;"> Only Included Entr', 
+                           'ies</span>')),
+                  HTML(
                     paste0(
-                      '<span style="color: white; display: block; font-size: 16px; margin-left: -15px;">',
-                      'Only Included Entries',
-                      '</span>'
+                      '<span style="margin-top: 31px; color: white; display: b', 
+                      'lock; font-size: 16px; margin-left: -15px;"> Select Loc', 
+                      'i </span>'
                     )
                   ),
                   HTML(
                     paste0(
-                      '<span style="margin-top: 31px; color: white; display: block; font-size: 16px; margin-left: -15px;">',
-                      'Select Loci',
-                      '</span>'
-                    )
-                  ),
-                  HTML(
-                    paste0(
-                      '<span style="margin-top: 31px; color: white; display: block; font-size: 16px; margin-left: -15px;">',
-                      'Select Metadata',
-                      '</span>'
+                      '<span style="margin-top: 31px; color: white; display: b', 
+                      'lock; font-size: 16px; margin-left: -15px;"> Select Met', 
+                      'adata </span>'
                     )
                   )
                 ),
@@ -6278,9 +6714,9 @@ server <- function(input, output, session) {
                   ),
                   HTML(
                     paste0(
-                      '<span style="margin-top: 12px; font-style: italic; color: white; display: block; font-size: 13px;">',
-                      'Assembly ID always included',
-                      '</span>'
+                      '<span style="margin-top: 12px; font-style: italic; colo', 
+                      'r: white; display: block; font-size: 13px;"> Assembly I', 
+                      'D always included</span>'
                     )
                   ), br()
                 )
@@ -8501,36 +8937,32 @@ server <- function(input, output, session) {
                   progress = progress)
     
     # Get list from local database
-    local_db_filelist <- list.files(file.path(Startup$database, 
-                                              Scheme$folder_name, 
-                                              paste0(Scheme$folder_name, "_alleles")))
+    local_db_filelist <- list.files(
+      file.path(Startup$database, Scheme$folder_name, 
+                paste0(Scheme$folder_name, "_alleles")))
     
     if (!is_empty(local_db_filelist)) {
       # Get list from temporary database
-      tmp_db_filelist <- list.files(file.path(Startup$database,
-                                              Scheme$folder_name,
-                                              paste0(Scheme$folder_name, ".tmp")))
+      tmp_db_filelist <- list.files(
+        file.path(Startup$database, Scheme$folder_name,
+                  paste0(Scheme$folder_name, ".tmp")))
       
       # Find the difference (extra files in local database)
       local_db_extra <- setdiff(local_db_filelist, tmp_db_filelist)
       
       # Copy extra files to temporary folder
-      file.copy(file.path(Startup$database,
-                          Scheme$folder_name, 
+      file.copy(file.path(Startup$database, Scheme$folder_name, 
                           paste0(Scheme$folder_name, "_alleles"), local_db_extra),
-                file.path(Startup$database,
-                          Scheme$folder_name,
+                file.path(Startup$database, Scheme$folder_name,
                           paste0(Scheme$folder_name, ".tmp")))
       
       # Check differences in file pairs
-      local_db_hashes <- tools::md5sum(file.path(Startup$database,
-                                                 Scheme$folder_name,
-                                                 paste0(Scheme$folder_name, "_alleles"),
-                                                 local_db_filelist))
-      tmp_db_hashes <- tools::md5sum(file.path(Startup$database,
-                                               Scheme$folder_name,
-                                               paste0(Scheme$folder_name, ".tmp"),
-                                               local_db_filelist))
+      local_db_hashes <- tools::md5sum(
+        file.path(Startup$database, Scheme$folder_name,
+                  paste0(Scheme$folder_name, "_alleles"), local_db_filelist))
+      tmp_db_hashes <- tools::md5sum(
+        file.path(Startup$database, Scheme$folder_name,
+                  paste0(Scheme$folder_name, ".tmp"), local_db_filelist))
       
       diff_files <- local_db_hashes %in% tmp_db_hashes
       diff_loci <- names(local_db_hashes)[diff_files == FALSE]
@@ -8538,26 +8970,22 @@ server <- function(input, output, session) {
       
       # Check locus hashes
       for (locus in diff_loci) {
-        local_db_hashes <- get_locus_hashes(file.path(Startup$database,
-                                                      Scheme$folder_name,
-                                                      paste0(Scheme$folder_name, "_alleles"),
-                                                      locus))
-        tmp_db_hashes <- get_locus_hashes(file.path(Startup$database,
-                                                    Scheme$folder_name,
-                                                    paste0(Scheme$folder_name, ".tmp"),
-                                                    locus))
+        local_db_hashes <- get_locus_hashes(
+          file.path(Startup$database, Scheme$folder_name,
+                    paste0(Scheme$folder_name, "_alleles"), locus))
+        tmp_db_hashes <- get_locus_hashes(
+          file.path(Startup$database, Scheme$folder_name,
+                    paste0(Scheme$folder_name, ".tmp"), locus))
         diff_hashes <- setdiff(local_db_hashes, tmp_db_hashes)
         
-        sequences <- extract_seq(file.path(Startup$database,
-                                           Scheme$folder_name,
-                                           paste0(Scheme$folder_name, "_alleles"),
-                                           locus), diff_hashes)
+        sequences <- extract_seq(
+          file.path(Startup$database, Scheme$folder_name,
+                    paste0(Scheme$folder_name, "_alleles"), locus), diff_hashes)
         if (!is_empty(sequences$idx) && !is_empty(sequences$seq) &&
             length(sequences$idx) == length(sequences$seq)) {
-          add_new_sequences(file.path(Startup$database,
-                                      Scheme$folder_name,
-                                      paste0(Scheme$folder_name, ".tmp"),
-                                      locus), sequences)
+          add_new_sequences(
+            file.path(Startup$database, Scheme$folder_name,
+                      paste0(Scheme$folder_name, ".tmp"), locus), sequences)
         }
       }
     }
@@ -8842,14 +9270,6 @@ server <- function(input, output, session) {
       
       output$cgmlst_scheme <- NULL
       output$scheme_update_info <- NULL
-      output$test <- renderUI(
-        HTML(
-          paste(
-            '<i class="fas fa-triangle-exclamation" style="font-size:15px; color: yellow;" ></i>',
-            '<span style="color: white; font-size: 15px;">',
-            "&nbsp Failed to fetch data. Check internet connection and try again.")
-        )
-      )
     }
     
     ### Render species info
@@ -24749,7 +25169,6 @@ server <- function(input, output, session) {
           column(
             width = 11,
             fluidRow(
-              column(1),
               column(
                 width = 9,
                 br(), br(),
@@ -24763,8 +25182,7 @@ server <- function(input, output, session) {
                     choices = names(Typing$result_list),
                     selected = names(Typing$result_list)[length(names(Typing$result_list))],
                   )
-                ),
-                br(), br()
+                ), br()
               )
             ),
             dataTableOutput("multi_typing_result_table")

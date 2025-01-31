@@ -307,7 +307,8 @@ body > div.pcr-app.pickr-color.visible {
 #conf_delete_all,
 #shiny-modal > div > div > div.modal-footer > button:nth-child(1),
 #conf_shutdown,
-#conf_gs_select {
+#conf_gs_select,
+#append_import {
   min-width: 100px !important;
   border-color: white;
 }
@@ -482,6 +483,7 @@ body > div.pcr-app.pickr-color.visible {
 .sF-modal .modal-content,
 .modal-content .sF-modal .modal-content {
   background-color: #282f3814 !important;
+  border: none;
 }
 
 #sF-cancelButton,
@@ -490,6 +492,10 @@ body > div.pcr-app.pickr-color.visible {
   border: 1px solid white !important;
 }
 
+#hash_dir_button-modal .sF-dirContent.message,
+#hash_dir_button-modal > div > div > div.modal-body > div.sF-dirWindow > div.sF-dirInfo.col-md-5 {
+  display: none;
+}
 
 .swal2-container .swal2-bottom-end .swal2-backdrop-show,
 body > div.swal2-container.swal2-bottom-end.swal2-backdrop-show,
@@ -579,10 +585,29 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
 }
 
 #start_typ_multi:hover,
-#conf_new_var:hover {
+#conf_new_var:hover,
+#append_import:hover {
   background-color: #008000 !important;
   border-color: #008000 !important;
   color: white !important;
+}
+
+@keyframes pulsate-shadow {
+  0% {
+    box-shadow: 0 0 6px #ffffff75;
+  }
+  25% {
+    box-shadow: 0 0 7px #ffffff9e;
+  }
+  50% {
+    box-shadow: 0 0 10px #ffffffc4, 0 0 12px #ffffff75;
+  }
+  75% {
+    box-shadow: 0 0 7px #ffffff9e;
+  }
+  100% {
+    box-shadow: 0 0 6px #ffffff75;
+  }
 }
 
 #shiny-modal > div > div > div.modal-footer > button {
@@ -920,7 +945,54 @@ button#reload_db.btn.btn-default.action-button.shiny-bound-input {
   margin-bottom: 10px;
 }
 
+#import_feedback, #hash_feedback {
+  margin-right: 20px;
+  text-align: justify;
+}
 
+#import_files, #hash_dir_button, #import_start_hash {
+  border-color: white;
+  margin-left: 10px;
+  width: 150px;
+  animation: none;
+}
+
+#import_files {
+  margin-top: -5px;
+}
+
+#import_start_hash {
+  margin-top: 10px;
+}
+
+#import_id_sel {
+  width: 235px;
+}
+
+#metadata_sel_ui {
+  width: 250px;
+}
+
+#import_path, #hash_folderpath, #hashing_status {
+  font-size: 13px;
+  font-style: italic;
+  margin-left: 10px;
+  margin-top: 10px;
+}
+
+.import-id-sel {
+  margin-left: 10px;
+}
+
+#id_preview, #metadata_preview {
+  font-style: italic;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+#id_preview {
+  margin-left: 10px;
+}
 
 div#scheme_db .form-control, .selectize-input, .selectize-control.single .selectize-input {
 border-color: #000000 !important;
@@ -1408,11 +1480,14 @@ i.far.fa-pen-to-square {
   top: -2px !important;
 }
 
-#typing_start, #start_typ_multi, #export_menu,
+#typing_start, #start_typ_multi, #export_menu, #import_menu,
 #undo_changes, #genome_file, #genome_file_multi, #reset_multi, #save_cust {
   border-color: white;
 }
 
+#undo_changes {
+  width: 90px;
+}
 #sel_all_entries, #desel_all_entries {
   border-color: white;
   width: 115px;
@@ -1420,6 +1495,16 @@ i.far.fa-pen-to-square {
 
 #desel_all_entries {
   margin-left: 10px;
+}
+
+#export_menu {
+  margin-left: 40px;
+  width: 90px;
+}
+
+#import_menu {
+  margin-left: 24px;
+  width: 90px;
 }
 
 #genome_file_multi,
@@ -1716,6 +1801,10 @@ button#edit_button.btn.btn-default.action-button.shiny-bound-input {
 
 #multi_typing_results .mult_res_sel .selectize-input.items.full.has-options.has-items {
   width: -webkit-fill-available;
+}
+
+#multi_typing_results {
+  margin-left: 30px;
 }
 
 body > div.htDatepickerHolder > div > div > table > tbody > tr > td.is-today.is-selected > button{

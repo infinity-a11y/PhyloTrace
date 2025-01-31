@@ -1,5 +1,4 @@
 # UI Modules
-
 mst_control_box <- box(
   solidHeader = TRUE,
   status = "primary",
