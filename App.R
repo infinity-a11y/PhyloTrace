@@ -6450,6 +6450,8 @@ server <- function(input, output, session) {
   # Foreign allele library directory selection
   observeEvent(input$hash_dir_button, {
     
+    output$hashing_status <- NULL
+    
     shinyDirChoose_mod(input, "hash_dir_button", 
                    roots = c(Home = path_home(), Root = "/"), 
                    defaultRoot = "Home", session = session)
@@ -6500,54 +6502,81 @@ server <- function(input, output, session) {
     req(DB$hash_dir, DB$import)
     log_print("Start to hash imported database")
     
-    # adjust element highlighting
-    shinyjs::runjs(paste0('document.getElementById("blocking-overlay").style.d', 
-                          'isplay = "block";'))
-    shinyjs::runjs(paste0("document.getElementById('import_start_hash').style.", 
-                          "animation = 'none';"))
+    # check if directory contains complete loci file list
+    dir_content <- gsub(
+      ".fasta|.fna|.fa", "", basename(list.files(DB$hash_dir, 
+                                                 full.names = FALSE)))
+    filtered_selection <- which(dir_content %in% colnames(DB$allelic_profile))
     
-    tryCatch({
-      
-      # hash allele library
-      hash_database(DB$hash_dir)
-      
-      # assign hashes to integer allele indexes
-      hash_allele_profile(allele_profile = DB$import, 
-                          hashed_loci_folder = DB$hash_dir)
-      
+    if(any(!colnames(DB$allelic_profile) %in% 
+           dir_content[filtered_selection])) {
       # status feedback and element highlighting adjustment
-      log_print("Successful hashing of imported database")
-      show_toast(title = "Hashing successful!", type = "success",
+      log_print("Allele library has missing loci")
+      show_toast(title = "Allele library has missing loci", type = "error",
                  position = "bottom-end",timer = 6000)
-      
-      
       output$hashing_status <- renderUI(HTML(
-        paste0('&nbsp;&nbsp; <i class="fa-solid fa-circle-check" style="font-s', 
-               'ize:15px; color:#90EE90; position:relative;"></i> &nbsp; <b>Ha', 
-               'shing successful</b><br>Proceed to import the dataset')))
-      shinyjs::enable("append_import")
+        paste0('&nbsp;&nbsp; <i class="fa-solid fa-circle-xmark" style="font', 
+               '-size:15px; color:#ff0000; position:relative;"></i> &nbsp; <', 
+               'b>Hashing failed</b><br>Allele library has missing loci')))
+      shinyjs::runjs(paste0("document.getElementById('import_start_hash').styl", 
+                            "e.animation = 'none';"))
+      shinyjs::runjs(paste0("document.getElementById('hash_dir_button').style.", 
+                            "animation = 'pulsate-shadow 2s infinite linear';"))
       shinyjs::disable("import_start_hash")
-      shinyjs::disable("hash_dir_button")
-      shinyjs::runjs(paste0("document.getElementById('append_import').style.an", 
-                            "imation = 'pulsate-shadow 2s infinite linear';"))
-    }, error = function(e) {
-      paste("Error: ", e$message)
-      log_print("Hashing of imported database failed")
-      show_toast(
-        title = "Hashing failed",
-        type = "error",
-        position = "bottom-end",
-        timer = 6000
-      )
+    } else {
       
-      # status feedback and element highlighting adjustment
-      shinyjs::enable("hash_dir_button")
-      shinyjs::disable("import_start_hash")
-      output$hashing_status <- renderUI(HTML(
-        paste0('&nbsp;&nbsp; <i class="fa-solid fa-circle-xmark" style="font-s', 
-               'ize:15px; color:#ff0000; position:relative;"></i> &nbsp; <b>Ha', 
-               'shing failed</b><br>Dataset can not be imported.')))
-    })
+      # adjust element highlighting
+      shinyjs::runjs(paste0('document.getElementById("blocking-overlay").style', 
+                            '.display = "block";'))
+      shinyjs::runjs(paste0("document.getElementById('import_start_hash').styl", 
+                            "e.animation = 'none';"))
+      
+      tryCatch({
+        # hash allele library
+        hash_database(DB$hash_dir, filtered = filtered_selection)
+        
+        # assign hashes to integer allele indexes
+        hash_allele_profile(allele_profile = DB$import, 
+                            hashed_loci_folder = DB$hash_dir)
+        
+        # status feedback and element highlighting adjustment
+        log_print("Successful hashing of imported database")
+        show_toast(title = "Hashing successful!", type = "success",
+                   position = "bottom-end",timer = 6000)
+        
+        
+        output$hashing_status <- renderUI(HTML(
+          paste0('&nbsp;&nbsp; <i class="fa-solid fa-circle-check" style="font', 
+                 '-size:15px; color:#90EE90; position:relative;"></i> &nbsp; <', 
+                 'b>Hashing successful</b><br>Proceed to import the dataset')))
+        shinyjs::enable("append_import")
+        shinyjs::disable("import_start_hash")
+        shinyjs::disable("hash_dir_button")
+        shinyjs::runjs(paste0(
+          "document.getElementById('append_import').style.animation = 'pulsate", 
+          "-shadow 2s infinite linear';"))
+      }, error = function(e) {
+        paste("Error: ", e$message)
+        log_print("Hashing of imported database failed")
+        show_toast(
+          title = "Hashing failed",
+          type = "error",
+          position = "bottom-end",
+          timer = 6000
+        )
+        
+        # status feedback and element highlighting adjustment
+        shinyjs::enable("hash_dir_button")
+        shinyjs::disable("import_start_hash")
+        shinyjs::runjs(paste0(
+          "document.getElementById('hash_dir_button').style.animation = 'pulsa", 
+          "te-shadow 2s infinite linear';"))
+        output$hashing_status <- renderUI(HTML(
+          paste0('&nbsp;&nbsp; <i class="fa-solid fa-circle-xmark" style="font', 
+                 '-size:15px; color:#ff0000; position:relative;"></i> &nbsp; <', 
+                 'b>Hashing failed</b><br>Dataset can not be imported.')))
+      })
+    }
     
     shinyjs::runjs(paste0('document.getElementById("blocking-overlay").style.d', 
                           'isplay = "none";'))
@@ -6595,22 +6624,6 @@ server <- function(input, output, session) {
                 column(
                   width = 6,
                   br(),
-                  uiOutput("import_id_sel"),
-                  uiOutput("id_preview")
-                ),
-                column(
-                  width = 6,
-                  br(),
-                  uiOutput("import_metadata_sel"),
-                  uiOutput("metadata_preview"),
-                  br()
-                )
-              ),
-              uiOutput("delim2"),
-              fluidRow(
-                column(
-                  width = 6,
-                  br(),
                   uiOutput("hash_dir"),
                   uiOutput("hash_folderpath"),
                   br(),
@@ -6623,6 +6636,22 @@ server <- function(input, output, session) {
                   br(),
                   uiOutput("hash_feedback"),
                   br(), br()
+                )
+              ),
+              uiOutput("delim2"),
+              fluidRow(
+                column(
+                  width = 6,
+                  br(),
+                  uiOutput("import_id_sel"),
+                  uiOutput("id_preview")
+                ),
+                column(
+                  width = 6,
+                  br(),
+                  uiOutput("import_metadata_sel"),
+                  uiOutput("metadata_preview"),
+                  br()
                 )
               )
             )

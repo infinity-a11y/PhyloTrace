@@ -513,8 +513,14 @@ column_classes <- function(df) {
 }
 
 # Function to hash database
-hash_database <- function(folder, progress = NULL) {
-  loci_files <- list.files(folder)
+hash_database <- function(folder, filtered = FALSE, progress = NULL) {
+  
+  if(isFALSE(filtered)) {
+    loci_files <- list.files(folder)
+  } else {
+    loci_files <- list.files(folder)[filtered]
+  }
+  
   loci_names <- sapply(strsplit(loci_files, "[.]"), function(x) x[1])
   loci_paths <- file.path(folder, loci_files)
   count <- length(loci_files)
