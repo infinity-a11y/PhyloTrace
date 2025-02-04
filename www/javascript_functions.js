@@ -1,3 +1,20 @@
+// highlighting pin dataset icon
+function highlight_pin() {
+  let iconElement = document.querySelector("#menu_typing > li.treeview > ul > li.active > a > i");
+  let iconButton = document.querySelector("#add_dataset_button > i");
+  
+  if (iconElement) {
+      // Change the icon class
+      iconElement.classList.remove("fas", "fa-angles-right");
+      iconElement.classList.add("fa-solid", "fa-map-pin", "attention-animation-tab");
+  }
+  
+  if (iconButton) {
+      // Change the icon class
+      iconButton.classList.remove("fas", "fa-angles-right");
+      iconButton.classList.add("fa-solid", "fa-map-pin", "attention-animation-button");
+  }
+}
 
 // highlighting clicked plot control buttons
 Shiny.addCustomMessageHandler('nj_highlight', function(id) {

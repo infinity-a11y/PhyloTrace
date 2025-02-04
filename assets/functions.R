@@ -1,4 +1,86 @@
-# Define a helper function to replace .is_not
+merge_and_fix_types <- function(df1, df2) {
+  # Identify common columns
+  common_cols <- intersect(names(df1), names(df2))
+  
+  # Convert all logical columns in df2 to character
+  df2[] <- lapply(df2, function(col) {
+    if (is.logical(col)) {
+      return(as.character(col))  # Convert logical to character
+    }
+    return(col)
+  })
+  
+  # List to store column names that need renaming
+  cols_to_rename <- list()
+  
+  # Check for type mismatches in common columns
+  for (col in common_cols) {
+    class1 <- class(df1[[col]])
+    class2 <- class(df2[[col]])
+    
+    if (!identical(class1, class2)) {
+      # Attempt to convert df2's column to df1's type
+      converted <- tryCatch({
+        if (is.numeric(df1[[col]])) {
+          suppressWarnings(as.numeric(df2[[col]]))  # Avoid warnings
+        } else if (is.character(df1[[col]])) {
+          as.character(df2[[col]])
+        } else {
+          stop("Unsupported type")
+        }
+      }, warning = function(w) NULL, error = function(e) NULL)
+      
+      # If conversion fails or logical/numeric mismatch, move to new column
+      if (is.null(converted) || any(is.na(converted) & !is.na(df2[[col]])) || 
+          (is.logical(df1[[col]]) && is.numeric(df2[[col]])) || 
+          (is.numeric(df1[[col]]) && is.logical(df2[[col]]))) {
+        cols_to_rename[[col]] <- paste0(col, "_ext")
+      } else {
+        df2[[col]] <- converted  # Apply successful conversion
+      }
+    }
+  }
+  
+  # Rename columns in df2 that couldn't be converted
+  for (col in names(cols_to_rename)) {
+    new_col_name <- cols_to_rename[[col]]
+    names(df2)[names(df2) == col] <- new_col_name
+    message(paste("Column", col, "in df2 couldn't be converted and is renamed to", new_col_name))
+  }
+  
+  # Get all unique column names after renaming
+  all_columns <- union(names(df1), names(df2))
+  
+  # Ensure both data frames have all necessary columns (fill missing ones with NA)
+  for (col in all_columns) {
+    if (!col %in% names(df1)) df1[[col]] <- NA  # Add missing column to df1
+    if (!col %in% names(df2)) df2[[col]] <- NA  # Add missing column to df2
+  }
+  
+  # Keep df1’s column order and append any new columns from df2
+  ordered_cols <- c(names(df1), setdiff(names(df2), names(df1)))
+  df1 <- df1[, ordered_cols, drop = FALSE]
+  df2 <- df2[, ordered_cols, drop = FALSE]
+  
+  # Append rows from df2 below df1
+  merged_df <- rbind(df1, df2)
+  
+  merged_df[] <- lapply(merged_df, function(col) {
+    if (is.character(col)) col[is.na(col)] <- ""
+    if (is.numeric(col)) col[is.na(col)] <- 0
+    return(col)
+  })
+  
+  return(merged_df)
+}
+
+help_func <- function(x) {
+  if (is.character(x) && is.na(x)) x <- ""
+  if (is.numeric(x) && is.na(x)) x <- 0
+  return(x)
+}
+
+# helper function to replace .is_not
 is_not <- function(x) {
   is.null(x) || identical(x, FALSE)
 }
