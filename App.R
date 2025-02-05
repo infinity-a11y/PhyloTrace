@@ -1064,9 +1064,14 @@ server <- function(input, output, session) {
   
   # Get rhandsontable
   get.entry.table.meta <- reactive({
-    if(!is.null(hot_to_r(input$db_entries))){
-      table <- hot_to_r(input$db_entries)
-      select(select(table, -13), 1:(12 + nrow(DB$cust_var)))
+    table <- hot_to_r(input$db_entries)
+    if(!is.null(table)){
+      tbl_no_screened <- select(table, -13)
+      num_meta_cols <- 1:(12 + nrow(DB$cust_var))
+      
+      if(ncol(tbl_no_screened) >= length(num_meta_cols)) {
+        select(tbl_no_screened, all_of(num_meta_cols)) 
+      }
     }
   })
   
@@ -3527,6 +3532,13 @@ server <- function(input, output, session) {
                           }
                           
                           if(check_new_entry & DB$check_new_entries) {
+                            
+                            shinyjs::disable("import_menu")
+                            shinyjs::disable("export_menu")
+                            shinyjs::disable("del_button")
+                            shinyjs::disable("add_new_variable")
+                            shinyjs::disable("delete_new_variable")
+                            
                             Typing$reload <- FALSE
                             fluidRow(
                               column(
@@ -3551,6 +3563,13 @@ server <- function(input, output, session) {
                               )
                             )
                           } else if(Typing$status == "Attaching") {
+                            
+                            shinyjs::disable("import_menu")
+                            shinyjs::disable("export_menu")
+                            shinyjs::disable("del_button")
+                            shinyjs::disable("add_new_variable")
+                            shinyjs::disable("delete_new_variable")
+                            
                             fluidRow(
                               column(
                                 width = 11,
@@ -3567,6 +3586,12 @@ server <- function(input, output, session) {
                               )
                             )
                           } else if(isTRUE(DB$change) | new_meta) {
+                            
+                            shinyjs::disable("import_menu")
+                            shinyjs::disable("export_menu")
+                            shinyjs::disable("del_button")
+                            shinyjs::disable("add_new_variable")
+                            shinyjs::disable("delete_new_variable")
                             
                             if(!is.null(input$db_entries)) {
                               fluidRow(
@@ -3597,7 +3622,19 @@ server <- function(input, output, session) {
                                 )
                               )
                             }
-                          } else {NULL}
+                          } else {
+                            shinyjs::enable("import_menu")
+                            shinyjs::enable("export_menu")
+                            shinyjs::enable("del_button")
+                            shinyjs::enable("add_new_variable")
+                            shinyjs::enable("delete_new_variable")
+                          }
+                        } else {
+                          shinyjs::enable("import_menu")
+                          shinyjs::enable("export_menu")
+                          shinyjs::enable("del_button")
+                          shinyjs::enable("add_new_variable")
+                          shinyjs::enable("delete_new_variable")
                         }
                       })
                     })
