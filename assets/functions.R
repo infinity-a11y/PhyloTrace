@@ -1,3 +1,224 @@
+generate_rhandsontable <- function(data, cust_var, compare_select, 
+                                   allelic_profile, allelic_profile_trunc, 
+                                   entry_table_height, country_names, 
+                                   diff_allele, true_rows, 
+                                   duplicated_names, duplicated_ids, 
+                                   err_thresh, pinned_entries_highlight) {
+  
+  if (!is.null(compare_select) && length(compare_select) > 0 && 
+      !is.null(data) && !is.null(cust_var) && !is.null(compare_select)) {
+    
+    if (!any((compare_select %in% colnames(allelic_profile)) == FALSE)) {
+      
+      entry_data <- data %>%
+        select(1:(13 + nrow(cust_var))) %>%
+        add_column(select(allelic_profile_trunc, compare_select))
+      
+      col_range <- (14 + nrow(cust_var)):((13 + nrow(cust_var)) + length(
+        compare_select))
+    } else {
+      entry_data <- select(data, 1:(13 + nrow(cust_var)))
+      col_range <- NULL
+    }
+    
+  } else {
+    
+    if (!is.null(data) && !is.null(cust_var)) {
+      entry_data <- select(data, 1:(13 + nrow(cust_var)))
+      col_range <- NULL
+    }
+  }
+  
+  if (!is.null(diff_allele)) {
+    col_highlight <- diff_allele - 1
+  } else {
+    col_highlight <- NULL
+  }
+  
+  if (!is.null(entry_table_height)) {
+    height <- entry_table_height
+  } else {
+    height <- NULL
+  }
+  
+  if (!is.null(true_rows)) {
+    row_highlight <- true_rows - 1
+  } else {
+    row_highlight <- NULL
+  }
+  
+  if (!is.null(duplicated_names)) {
+    dup_names_high <- duplicated_names - 1
+  } else {
+    dup_names_high <- NULL
+  }
+  
+  if (!is.null(duplicated_ids)) {
+    dup_ids_high <- duplicated_ids - 1
+  } else {
+    dup_ids_high <- NULL
+  }
+  
+  if (!is.null(err_thresh)) {
+    error_highlight <- err_thresh - 1
+  } else {
+    error_highlight <- NULL
+  }
+  
+  if (!is.null(pinned_entries_highlight)) {
+    pinned_highlight <- pinned_entries_highlight - 1
+  } else {
+    pinned_highlight <- NULL
+  }
+  
+  args <- list(
+    entry_data,
+    col_highlight = col_highlight,
+    rowHeaders = NULL,
+    height = height,
+    row_highlight = row_highlight,
+    dup_names_high = dup_names_high,
+    dup_ids_high = dup_ids_high,
+    error_highlight = error_highlight,
+    pinned_highlight = pinned_highlight,
+    contextMenu = FALSE,
+    highlightCol = TRUE,
+    highlightRow = TRUE
+  )
+  
+  tab <- do.call(rhandsontable, args) %>%
+    hot_cols(fixedColumnsLeft = 1) %>%
+    hot_col(1, valign = "htMiddle", halign = "htCenter") %>%
+    hot_col(c(1, 5, 10, 11, 12, 13), readOnly = TRUE) %>%
+    hot_col(3, readOnly = TRUE) %>%
+    hot_col(3, validator = paste0(
+      "function(value, callback) {",
+      "try {",
+      "if (value === null || value.trim() === '') {",
+      "callback(false);",
+      "Shiny.setInputValue('empty_id', true);",
+      "} else {",
+      "callback(true);",
+      "Shiny.setInputValue('empty_id', false);",
+      "}} catch (err) {",
+      "console.log(err);",
+      "callback(false);",
+      "Shiny.setInputValue('empty_id', true);",
+      "}}"
+    )) %>%
+    hot_col(4, validator = paste0(
+      "function(value, callback) {",
+      "try {",
+      "if (value === null || value.trim() === '') {",
+      "callback(false);",
+      "Shiny.setInputValue('empty_name', true);",
+      "} else {",
+      "callback(true);",
+      "Shiny.setInputValue('empty_name', false);",
+      "}} catch (err) {",
+      "console.log(err);",
+      "callback(false);",
+      "Shiny.setInputValue('empty_name', true);",
+      "}}"
+    )) %>%
+    hot_col(8, type = "dropdown", source = country_names) %>%
+    hot_col(6, dateFormat = "YYYY-MM-DD", type = "date", 
+            strict = TRUE, allowInvalid = TRUE,
+            validator = paste0(
+              "function (value, callback) {",
+              "var today_date = new Date(); today_date.setHours(0, 0, 0, 0);",
+              "var new_date = new Date(value); new_date.setHours(0, 0, 0, 0);",
+              "try {",
+              "if (new_date <= today_date) {",
+              "callback(true); Shiny.setInputValue('invalid_date', false);",
+              "} else {",
+              "callback(false); Shiny.setInputValue('invalid_date', true);",
+              "}} catch (err) {",
+              "console.log(err);",
+              "callback(false); Shiny.setInputValue('invalid_date', true);",
+              "}}"
+            ))
+  
+  if (!is.null(cust_var)) {
+    tab <- tab %>% hot_col(3:(13 + nrow(cust_var)), 
+                           valign = "htMiddle", halign = "htLeft")
+  }
+  
+  tab <- tab %>%
+    hot_rows(fixedRowsTop = 0) %>%
+    hot_col(2, type = "checkbox", width = "auto", 
+            valign = "htTop", halign = "htCenter") %>%
+    hot_col(1, renderer = paste0(
+      "function (instance, td, row, col, prop, value, cellProperties) {",
+      "Handsontable.renderers.TextRenderer.apply(this, arguments);",
+      "if (instance.params) {",
+      "var pinnedRows = instance.params.pinned_highlight;",
+      "var highlightedRows = instance.params.row_highlight;",
+      "pinnedRows = pinnedRows instanceof Array ? pinnedRows : [pinnedRows];",
+      "highlightedRows = highlightedRows instanceof Array ? highlightedRows : [highlightedRows];",
+      "if (pinnedRows.includes(row)) {", 
+      "td.style.backgroundColor = 'orange'; td.style.color = 'white'; }",
+      "else if (highlightedRows.includes(row)) {", 
+      "td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)'; }",
+      "}}"
+    )) %>%
+    hot_col(12, renderer = paste0(
+      "function (instance, td, row, col, prop, value, cellProperties) {",
+      "Handsontable.renderers.TextRenderer.apply(this, arguments);",
+      "if (instance.params) {",
+      "hrows = instance.params.error_highlight;",
+      "hrows = hrows instanceof Array ? hrows : [hrows];",
+      "if (hrows.includes(row)) { ", 
+      "td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)'; }",
+      "}}"
+    )) %>%
+    hot_col(4, renderer = paste0(
+      "function (instance, td, row, col, prop, value, cellProperties) {",
+      "Handsontable.renderers.TextRenderer.apply(this, arguments);",
+      "if (instance.params) {",
+      "hrows = instance.params.dup_names_high;",
+      "hrows = hrows instanceof Array ? hrows : [hrows];",
+      "if (hrows.includes(row)) {", 
+      "td.style.backgroundColor = 'rgb(224, 179, 0)'; }",
+      "}}"
+    )) %>%
+    hot_col(3, renderer = paste0(
+      "function (instance, td, row, col, prop, value, cellProperties) {",
+      "Handsontable.renderers.TextRenderer.apply(this, arguments);",
+      "if (instance.params) {",
+      "hrows = instance.params.dup_ids_high;",
+      "hrows = hrows instanceof Array ? hrows : [hrows];",
+      "if (hrows.includes(row)) {", 
+      "td.style.backgroundColor = 'rgb(224, 179, 0)'; }",
+      "}}"
+    ))
+  
+  if (!is.null(diff_allele)) {
+    tab <- tab %>% hot_col(
+      diff_allele,
+      renderer = paste0(
+        "function(instance, td, row, col, prop, value, cellProperties) {",
+        "Handsontable.renderers.NumericRenderer.apply(this, arguments);",
+        "if (instance.params) {",
+        "hcols = instance.params.col_highlight;",
+        "hcols = hcols instanceof Array ? hcols : [hcols];",
+        "if (hcols.includes(col)) {", 
+        "td.style.background = 'rgb(116, 188, 139)'; }",
+        "}}"
+      )
+    )
+  }
+  
+  if (!is.null(col_range)) {
+    tab <- tab %>%
+      hot_col(col_range, readOnly = TRUE, 
+              valign = "htMiddle", halign = "htCenter")
+  }
+  
+  return(tab)
+}
+
+
 merge_and_fix_types <- function(df1, df2) {
   # Identify common columns
   common_cols <- intersect(names(df1), names(df2))
@@ -541,7 +762,6 @@ gheatmap.mod <- function(p, data, offset=0, width=1, low="green", high="red", co
 
 # Function to find columns with varying values
 var_alleles <- function(dataframe) {
-  
   varying_columns <- c()
   
   for (col in 1:ncol(dataframe)) {
