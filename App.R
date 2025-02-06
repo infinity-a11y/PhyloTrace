@@ -1330,7 +1330,9 @@ server <- function(input, output, session) {
         }
         
       } else if(isTRUE(Startup$select_new)) {
-        Startup$database <- paste0(DB$new_database, "/Database")
+        if (length(DB$new_database)){
+          Startup$database <- paste0(DB$new_database, "/Database") 
+        } else {Startup$database <- ""}
       }
     } else {
       if(!is.null(DB$last_db) & file.exists(file.path(app_local_share_path, "last_db.rds"))) {
@@ -1430,6 +1432,7 @@ server <- function(input, output, session) {
   output$load_db <- renderUI(
     if(!is.null(Startup$select_new)) {
       if(length(DB$new_database) > 0 & Startup$select_new) {
+        
         column(
           width = 12,
           p(
@@ -1443,12 +1446,9 @@ server <- function(input, output, session) {
               )
             )
           ),
-          br(),
-          actionButton(
-            "load",
-            "Create",
-            class = "load-start"
-          )
+          uiOutput("new_db_name_ui"),
+          br(), br(),
+          actionButton("load", "Create", class = "load-start")
         )
       } else if(length(DB$available) > 0 & !(Startup$select_new)) {
         if(sum(gsub(" ", "_", gsub(" (PM|CM)", "", DB$available)) %in% gsub("_(PM|CM)", "", schemes$species)) == 0) {
@@ -1675,27 +1675,53 @@ server <- function(input, output, session) {
   observeEvent(input$create_new_db, {
     log_print("Input create_new_db")
     Startup$select_new <- TRUE
+    
+    output$new_db_name_ui <- renderUI(
+      textInput(
+        "new_db_name",
+        "",
+        placeholder = "New database name"
+      )
+    )
   })
   
   observeEvent(input$db_location, {
     log_print("Input db_location")
     Startup$select_new <- FALSE
+    output$new_db_name_ui <- NULL
   })
   
   ### Load app event ----
   
   observeEvent(input$load, {
 
-    if(tail(readLogFile(), 1) != "0") {
+    if (tail(readLogFile(), 1) != "0") {
       show_toast(
         title = "Pending Multi Typing",
         type = "warning",
         position = "bottom-end",
         timer = 6000
       )
-    } else if(!is.null(Screening$status) && Screening$status == "started") {
+    } else if (!is.null(Screening$status) && Screening$status == "started") {
       show_toast(
         title = "Pending Gene Screening",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000
+      )
+    } else if (isTRUE(Startup$select_new) &&
+              !is.null(input$new_db_name) && nchar(input$new_db_name) < 1) {
+      show_toast(
+        title = "Database name empty",
+        type = "warning",
+        position = "bottom-end",
+        timer = 6000
+      )
+    } else if (isTRUE(Startup$select_new) && 
+               !is.null(input$new_db_name) && nchar(input$new_db_name) > 0 && 
+              dir_exists(file.path(DB$new_database, input$new_db_name))) {
+      show_toast(
+        title = "Database already exists",
         type = "warning",
         position = "bottom-end",
         timer = 6000
@@ -2353,7 +2379,7 @@ server <- function(input, output, session) {
             DB$load_selected <- FALSE
             
             # Declare database path
-            Startup$database <- file.path(DB$new_database, "Database")
+            Startup$database <- file.path(DB$new_database, input$new_db_name)
             
             # Set database availability screening variables to present database
             Startup$block_db <- TRUE
