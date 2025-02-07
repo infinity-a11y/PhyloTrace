@@ -2,7 +2,8 @@ library(logr)
 
 process_fasta <- function(fasta_path) {
   # Read the FASTA file into a data.table
-  dt <- data.table::fread(fasta_path, header = FALSE, sep = "\n", col.names = "line", data.table = TRUE)
+  dt <- data.table::fread(fasta_path, header = FALSE, sep = "\n", 
+                          col.names = "line", data.table = TRUE)
 
   # Identify headers and sequence lines
   dt[, is_header := grepl("^>", line)]
@@ -17,12 +18,14 @@ process_fasta <- function(fasta_path) {
 
   # Prepare the final output as a character vector
   # Ensure exactly one empty line between sequence end and next header
-  output <- unlist(result[, .(output = c(header, sequence, "")), by = group]$output)
+  output <- unlist(result[, .(output = c(header, sequence, "")), 
+                          by = group]$output)
 
   # Remove the last empty line to avoid trailing empty line in the file
   output <- output[-length(output)]
 
-  names <- stringr::str_extract(output[seq(1, length(output), by = 3)], "^[^\\s]+")
+  names <- stringr::str_extract(output[seq(1, length(output), by = 3)], 
+                                "^[^\\s]+")
 
   # Test if there are duplicates
   if(length(names) != length(unique(names))){
@@ -65,7 +68,9 @@ args <- commandArgs(trailingOnly = TRUE)
 base_path <- args[1]
 
 # Get selected assembly file names
-assemblies <- list.files(file.path(fs::path_home(), ".local", "share", "phylotrace", "selected_genomes"), full.names = T)
+assemblies <- list.files(
+  file.path(fs::path_home(), ".local", "share", 
+            "phylotrace", "selected_genomes"), full.names = T)
 
 logdir <- file.path(fs::path_home(), ".local", "share", "phylotrace", "logs")
 logfile <- file.path(logdir, "check_duplicate_multi.log")

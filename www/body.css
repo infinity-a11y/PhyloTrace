@@ -976,6 +976,11 @@ button#reload_db.btn.btn-default.action-button.shiny-bound-input {
   text-align: justify;
 }
 
+#import_new_name_ui {
+  margin-left: 10px;
+  margin-right: 35px;
+}
+
 #import_files, #hash_dir_button, #import_start_hash {
   border-color: white;
   margin-left: 10px;
@@ -1624,6 +1629,11 @@ i.far.fa-pen-to-square {
   border-radius: 8px;
   color: black;
   box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.5);
+}
+
+#table_missing_values {
+  width: fit-content !important;
+  max-width: 1000px;
 }
 
 #db_distancematrix {

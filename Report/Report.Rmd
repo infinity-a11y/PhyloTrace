@@ -96,27 +96,31 @@ if(report_vars[["report_df.Include"]][7] == TRUE) {
 }
  
 if(!is.null(report_vars[["na_handling"]])){
-  df <- data.frame(Item = c(if(report_vars[["report_df.Include"]][9]){"Tree construction"},
-                          if(report_vars[["report_df.Include"]][10]){"Distance algorithm"},
-                          if(report_vars[["report_df.Include"]][11]){"Missing value handling"},
-                          if(report_vars[["report_df.Include"]][12]){"PhyloTrace version"},
-                          if(report_vars[["report_df.Include"]][12]){"pblat version"}),
-                 Content = c(if(report_vars[["report_df.Include"]][9]){report_vars[["tree"]]},
-                             if(report_vars[["report_df.Include"]][10]){report_vars[["distance"]]},
-                             if(report_vars[["report_df.Include"]][11]){report_vars[["na_handling"]]},
-                             if(report_vars[["report_df.Include"]][12]){report_vars[["version"]][1]},
-                             if(report_vars[["report_df.Include"]][12]){report_vars[["version"]][2]})
-                           )
+  df <- data.frame(
+    Item = c(
+      if(report_vars[["report_df.Include"]][9]){"Tree construction"},
+      if(report_vars[["report_df.Include"]][10]){"Distance algorithm"},
+      if(report_vars[["report_df.Include"]][11]){"Missing value handling"},
+      if(report_vars[["report_df.Include"]][12]){"PhyloTrace version"},
+      if(report_vars[["report_df.Include"]][12]){"pblat version"}),
+    Content = c(
+      if(report_vars[["report_df.Include"]][9]){report_vars[["tree"]]},
+      if(report_vars[["report_df.Include"]][10]){report_vars[["distance"]]},
+      if(report_vars[["report_df.Include"]][11]){report_vars[["na_handling"]]},
+      if(report_vars[["report_df.Include"]][12]){report_vars[["version"]][1]},
+      if(report_vars[["report_df.Include"]][12]){report_vars[["version"]][2]}))
 } else {
-  df <- data.frame(Item = c(if(report_vars[["report_df.Include"]][9]){"Tree construction"},
-                          if(report_vars[["report_df.Include"]][10]){"Distance algorithm"},
-                          if(report_vars[["report_df.Include"]][12]){"PhyloTrace version"},
-                          if(report_vars[["report_df.Include"]][12]){"pblat version"}),
-                 Content = c(if(report_vars[["report_df.Include"]][9]){report_vars[["tree"]]},
-                             if(report_vars[["report_df.Include"]][10]){report_vars[["distance"]]},
-                             if(report_vars[["report_df.Include"]][12]){report_vars[["version"]][1]},
-                             if(report_vars[["report_df.Include"]][12]){report_vars[["version"]][2]})
-                           )
+  df <- data.frame(
+    Item = c(
+      if(report_vars[["report_df.Include"]][9]){"Tree construction"},
+      if(report_vars[["report_df.Include"]][10]){"Distance algorithm"},
+      if(report_vars[["report_df.Include"]][12]){"PhyloTrace version"},
+      if(report_vars[["report_df.Include"]][12]){"pblat version"}),
+    Content = c(
+      if(report_vars[["report_df.Include"]][9]){report_vars[["tree"]]},
+      if(report_vars[["report_df.Include"]][10]){report_vars[["distance"]]},
+      if(report_vars[["report_df.Include"]][12]){report_vars[["version"]][1]},
+      if(report_vars[["report_df.Include"]][12]){report_vars[["version"]][2]}))
 }
 colnames(df) <- NULL
 

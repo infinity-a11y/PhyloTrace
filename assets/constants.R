@@ -361,3 +361,74 @@ sel_countries <- c(
   "United Kingdom", 
   "United States of America"
 )
+
+block_ui <- 
+  'document.getElementById("blocking-overlay").style.display = "block";'
+unblock_ui <- 
+  'document.getElementById("blocking-overlay").style.display = "none";'
+
+ctxRendererJS <- htmlwidgets::JS(
+  "({ctx, id, x, y, state: { selected, hover }, style, font, label, metadata}) => {
+    var pieData = JSON.parse(metadata);
+    var radius = style.size;
+    var centerX = x;
+    var centerY = y;
+    var total = pieData.reduce((sum, slice) => sum + slice.value, 0)
+    var startAngle = 0;
+    const drawNode = () => {
+    // Set shadow properties
+    if (style.shadow) {
+    var shadowSize = style.shadowSize;
+    ctx.shadowColor = style.shadowColor;
+    ctx.shadowBlur = style.shadowSize;
+    ctx.shadowOffsetX = style.shadowX;
+    ctx.shadowOffsetY = style.shadowY;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    }
+    pieData.forEach(slice => {
+    var sliceAngle = 2 * Math.PI * (slice.value / total);
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+    ctx.closePath();
+    ctx.fillStyle = slice.color;
+    ctx.fill();
+    if (pieData.length > 1) {
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    }
+    startAngle += sliceAngle;
+    });
+    // Draw a border
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    };
+    drawLabel = () => {
+    //Draw the label
+    var lines = label.split(`\n`);
+    var lineHeight = font.size;
+    ctx.font = `${font.size}px ${font.face}`;
+    ctx.fillStyle = font.color;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    lines.forEach((line, index) => {
+    ctx.fillText(line, centerX, 
+    centerY + radius + (index + 1) * lineHeight);
+    })
+    }
+    return {
+    drawNode,
+    drawExternalLabel: drawLabel,
+    nodeDimensions: { width: 2 * radius, height: 2 * radius },
+    };
+    }")
