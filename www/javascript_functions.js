@@ -1,18 +1,21 @@
 // highlighting pin dataset icon
 function highlight_pin() {
   let iconElement = document.querySelector("#menu_typing > li.treeview > ul > li.active > a > i");
-  let iconButton = document.querySelector("#add_dataset_button > i");
   
   if (iconElement) {
       // Change the icon class
       iconElement.classList.remove("fas", "fa-angles-right");
       iconElement.classList.add("fa-solid", "fa-map-pin", "attention-animation-tab");
   }
+}
+
+function unhighlight_pin() {
+  let iconElement = document.querySelector("#menu_typing > li.treeview > ul > li.active > a > i");
   
-  if (iconButton) {
+  if (iconElement) {
       // Change the icon class
-      iconButton.classList.remove("fas", "fa-angles-right");
-      iconButton.classList.add("fa-solid", "fa-map-pin", "attention-animation-button");
+      iconElement.classList.remove("fa-solid", "fa-map-pin", "attention-animation-tab");
+      iconElement.classList.add("fas", "fa-angles-right");
   }
 }
 

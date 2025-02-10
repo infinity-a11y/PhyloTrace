@@ -308,15 +308,9 @@ body > div.pcr-app.pickr-color.visible {
 #shiny-modal > div > div > div.modal-footer > button:nth-child(1),
 #conf_shutdown,
 #conf_gs_select,
-#pin_import,
-#add_dataset_button {
+#pin_import {
   min-width: 100px !important;
   border-color: white;
-}
-
-#add_dataset_button {
-  background-color: #ff8239;
-  margin-left: 25px;
 }
 
 .typing-modal .modal-header {
@@ -1023,6 +1017,11 @@ button#reload_db.btn.btn-default.action-button.shiny-bound-input {
 
 #id_preview {
   margin-left: 10px;
+  margin-right: 33px;
+}
+
+#imp_id_suffix {
+  margin-bottom: -15px;
 }
 
 div#scheme_db .form-control, .selectize-input, .selectize-control.single .selectize-input {
@@ -1788,6 +1787,10 @@ button#download_na_matrix_bttn {
 button#edit_button.btn.btn-default.action-button.shiny-bound-input {
   background: #20E6E5; 
   color: #000000;
+}
+
+.pin-edit {
+  background-color: #ff8239 !important;
 }
 
 /* Typing */

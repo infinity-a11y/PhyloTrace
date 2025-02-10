@@ -1790,7 +1790,7 @@ server <- function(input, output, session) {
       DB$url_link <- NULL
       if(is.null(DB$failCon)) {DB$failCon <- NULL}
       DB$inhibit_change <- NULL
-      DB$count <- NULL
+      DB$count <- 0
       DB$deleted_entries <- NULL
       DB$remove_iso <- NULL
       DB$ham_matrix <- NULL
@@ -2143,9 +2143,7 @@ server <- function(input, output, session) {
       output$hash_import_button <- NULL
       output$hash_folderpath <- NULL
       output$hash_dir <- NULL
-      # output$metadata_preview <- NULL
       output$import_metadata_sel <- NULL
-      # output$id_preview <- NULL
       output$import_id_sel <- NULL
       output$import_feedback <- NULL
       
@@ -3039,7 +3037,6 @@ server <- function(input, output, session) {
                                                 "Typing.rds"))
                   
                   data <- Database[["Typing"]]
-                  
                   # databases produced with version < 1.6.1 receive extra database column
                   if(any(colnames(data) == "Database")) {
                     DB$data <- data
@@ -3699,11 +3696,16 @@ server <- function(input, output, session) {
                            !is.null(DB$meta)) {
                           
                           if(!is.null(DB$meta)) {
-                            new_meta <- !identical(get.entry.table.meta(), 
-                                                   select(DB$meta, -13))
+                            test2 <<- get.entry.table.meta()
+                            test3 <<- DB$meta
+                            ifelse(isTRUE(all.equal(get.entry.table.meta(), 
+                                                     select(DB$meta, -13), 
+                                                     check.attributes = FALSE)),
+                                   new_meta <- FALSE,
+                                   new_meta <- TRUE)
                           } else {
                             new_meta <- FALSE
-                          }
+                          } 
                           
                           if(check_new_entry & DB$check_new_entries) {
                             
@@ -3776,9 +3778,6 @@ server <- function(input, output, session) {
                             
                             shinyjs::disable("import_menu")
                             shinyjs::disable("export_menu")
-                            shinyjs::disable("del_button")
-                            shinyjs::disable("add_new_variable")
-                            shinyjs::disable("delete_new_variable")
                             
                             if(!is.null(input$db_entries)) {
                               fluidRow(
@@ -5850,9 +5849,9 @@ server <- function(input, output, session) {
     external_allelic_profile <- DB$import[, colnames(DB$allelic_profile)]
     merged_allelic_profile <- add_row(DB$allelic_profile,
                                       external_allelic_profile)
-
+    
     ### merge meta data ###
-
+    
     # extract meta data from import dataset
     # here user selects which metadata represents ID
     external_meta <- DB$import[, !colnames(DB$import) %in%
@@ -5874,14 +5873,11 @@ server <- function(input, output, session) {
     # selection of meta data to be imported
     if(length(input$import_metadata_sel)) {
       import_meta <- external_meta[, input$import_metadata_sel]
-      test2 <<- import_meta
-      df1 <<- DB$meta
-      df2 <<- import_meta
       merged_meta <- merge_and_fix_types(DB$meta, import_meta)
 
       # append new external custom metadata
-      external_custom_vars <- which(!colnames(import_meta) %in%
-                           colnames(DB$meta)[-c(1, 2, 3, 5, 6, 12, 13, 14)])
+      external_custom_vars <- which(!colnames(import_meta) %in% 
+                                      colnames(DB$meta))
 
       if(length(external_custom_vars)) {
 
@@ -5901,30 +5897,47 @@ server <- function(input, output, session) {
         }
       }
     } else {
-      df1_b <<- DB$meta
-      df2_b <<- external_meta
       merged_meta <- merge_and_fix_types(DB$meta, external_meta)
     }
-
+    
+    # Get number of added entries
     nrow_diff <- nrow(merged_meta) - nrow(DB$meta)
+    
     # Set index column
     merged_meta$Index <- 1:nrow(merged_meta)
+    
     # Set include column of external data to TRUE
     merged_meta$Include[(nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- TRUE
-    # Set Assembly ID column with external id and _ext suffix
+    
+    # Set Assembly ID column with external id and optional suffix
+    ifelse(is.null(input$imp_id_suffix),
+           suffix <- "",
+           suffix <- input$imp_id_suffix)
+    
     merged_meta$`Assembly ID`[(
-      nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- paste0(id_column,
-                                                                ":ext")
-    # Set Assembly Name column with external id and _ext suffix
+      nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- paste0(id_column, 
+                                                                suffix)
+    
+    # Set Assembly Name column with external id and optional suffix
     if(any(is.na(merged_meta$`Assembly Name`)) |
-       any(merged_meta$`Assembly Name` == "")) {
+       any(merged_meta$`Assembly Name` == "") | 
+       any(duplicated(merged_meta$`Assembly Name`))) {
       merged_meta$`Assembly Name`[(
-        nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- paste0(id_column,
-                                                                  ":ext")
+        nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- paste0(id_column, 
+                                                                  suffix)
+      
+      if(any(duplicated(merged_meta$`Assembly Name`))) {
+        merged_meta$`Assembly Name`[which(
+          duplicated(merged_meta$`Assembly Name`))] <- paste0(
+            merged_meta$`Assembly Name`[which(
+              duplicated(merged_meta$`Assembly Name`))], "_dup")
+      }
     }
+    
     # Set database column
     merged_meta$Database[(nrow(DB$meta) + 1):(nrow(
       DB$meta) + nrow_diff)] <- input$import_new_name
+    
     # Set Scheme column of external data to current scheme
     merged_meta$Scheme[(
       nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- gsub(" ", "_",
@@ -5944,11 +5957,14 @@ server <- function(input, output, session) {
     DB$allelic_profile_true <- DB$allelic_profile[which(
       DB$data$Include == TRUE),]
     
+    DB$pending_import <- TRUE
+    DB$change <- TRUE
+    
     show_toast(title = "Import of external dataset successful", 
                type = "success", position = "bottom-end", timer = 6000)
     removeModal()
-    output$add_dataset_ui <- renderUI(
-      actionButton("add_dataset_button", "Add", icon = icon("map-pin")))
+    shinyjs::disable("export_menu")
+    shinyjs::disable("import_menu")
     shinyjs::runjs(paste0('document.getElementById("blocking-overlay").style.d',
                           'isplay = "none";'))
     shinyjs::delay(2000, shinyjs::runjs("highlight_pin();"))
@@ -5964,17 +5980,98 @@ server <- function(input, output, session) {
   
   # Render ID column selection preview 
   output$id_preview <- renderUI({
-    req(input$import_id_selector, DB$import)
+    req(input$import_id_selector, DB$import, DB$data)
     
     if(!is.null(input$import_files) && length(input$import_files) > 1) {
-      if(nrow(DB$import) > 1) {
-        vals <- DB$import[[input$import_id_selector]][1:2]
-      } else {vals <- DB$import[[input$import_id_selector]][1]}
       
-      if(class(unlist(vals)) == "character") vals <- sapply(
-        vals, truncate_if_long, USE.NAMES = FALSE)
+      # get selected ID column
+      id_column <- DB$import[[input$import_id_selector]]
+      merged_ids <- c(DB$data$`Assembly ID`, id_column)
       
-      HTML(paste0(c(vals, " ..."), collapse = "<br>"))
+      # check if ID's duplicated 
+      if(any(duplicated(id_column))) {
+        shinyjs::disable("pin_import")
+        
+        fluidRow(
+          column(
+            width = 12,
+            HTML(
+              paste0(
+                '&nbsp; <i class="fa-solid fa-circle-xmark" style="font-', 
+                'size:15px; color:#ff0000; position:relative;"></i> &nbsp;',
+                "IDs contain duplicate(s)<br>",
+                "All IDs must be unique."))
+          )
+        )
+        
+      # check if ID's already present in local
+      } else if(any(duplicated(merged_ids))) {
+        fluidRow(
+          column(
+            width = 12,
+            uiOutput("imp_id_dup_info"),
+            textInput("imp_id_suffix", "", placeholder = "_ext")
+          )
+        )
+      } else {
+        fluidRow(
+          column(
+            width = 12,
+            HTML(
+              paste0(
+                '&nbsp <i class="fa-solid fa-circle-check" style="font-', 
+                'size:15px; color:#90EE90; position:relative;"></i> &nbsp;',
+                "IDs are compatible<br>",
+                "Assembly IDs can be imported."))
+          )
+        )
+      }
+      
+      
+      # merged_ids <- c(DB$data$`Assembly ID`, id_column)
+      # dup_ids <<- which(duplicated(merged_ids))
+      # merged_ids[dup_ids] <- paste0(merged_ids[dup_ids], "_B") 
+      
+      # give preview
+      # if(nrow(DB$import) > 1) {
+      #   vals <- DB$import[[input$import_id_selector]][1:2]
+      # } else {vals <- DB$import[[input$import_id_selector]][1]}
+      # 
+      # if(class(unlist(vals)) == "character") vals <- sapply(
+      #   vals, truncate_if_long, USE.NAMES = FALSE)
+      # 
+      # HTML(paste0(c(vals, " ..."), collapse = "<br>"))
+    }
+  })
+  
+  output$imp_id_dup_info <- renderUI({
+    req(DB$import, DB$data)
+    
+    if(!is.null(input$import_files) && length(input$import_files) > 1) {
+      # get selected ID column
+      id_column <- DB$import[[input$import_id_selector]]
+      merged_ids <- c(DB$data$`Assembly ID`, 
+                      paste0(id_column, input$imp_id_suffix))
+      
+      if(any(duplicated(merged_ids))) {
+        shinyjs::disable("pin_import")
+        
+        HTML(
+          paste0(
+            '&nbsp; <i class="fa-solid fa-circle-exclamation" style=', 
+            '"font-size:15px; color:orange; position:relative;"></i> &nbsp;',
+            sum(duplicated(merged_ids)), 
+            " ID(s) already exist in database<br><br>",
+            "Change ID column or append a suffix:"))
+      } else {
+        shinyjs::enable("pin_import")
+        
+        HTML(
+          paste0(
+            '&nbsp; <i class="fa-solid fa-circle-check" style=', 
+            '"font-size:15px; color:#90EE90; position:relative;"></i> &nbsp;',
+            'Suffix "', input$imp_id_suffix, '" appended'))
+      }
     }
   })
   
@@ -6004,25 +6101,31 @@ server <- function(input, output, session) {
         roots = c(Home = path_home(), Root = "/"), input$import_files)
       import_filepath <- truncate_start(basename(import_path$datapath))
       import <- read_delim(import_path$datapath, 
-                           delim = detect_delimiter(import_path$datapath), 
+                           delim = detect_delimiter(import_path$datapath),
                            show_col_types = FALSE)
       DB$import <- import
       
       # check compatibe loci in imported dataset
       shared_loci <- colnames(DB$allelic_profile) %in% colnames(import)
-      if (!any(shared_loci == FALSE)) {
+      
+      # check if import dataset has ID column
+      check_id_col <- DB$number_loci != ncol(import)
+      
+      if (!any(shared_loci == FALSE) & check_id_col) {
         
-        DB$id_col <- colnames(import)[which(
-          !colnames(import) %in% colnames(DB$data)[-c(1, 2, 3, 5, 11, 12, 13)]
-        )]
+        DB$import_all_meta <- colnames(import)[which(!colnames(import) %in% 
+                                                       colnames(all_pro))]
         
-        # Preload UI elements
+        ### Preload UI elements
+        # Import dataset feedback
         feedback <- HTML(
           paste0('&nbsp;&nbsp; <i class="fa-solid fa-circle-check" style="font',
                '-size:15px; color:#90EE90; position:relative;"></i> &nbsp; <b>', 
                'Nomenclature is compatible</b> <br> All loci are matching the ', 
                DB$scheme, ' scheme.'))
+        # Delimiter
         delim <- hr()
+        # Import database name text input
         if(any(colnames(import) == "Database") && 
            is.character(import$Database) && 
            length(unique(import$Database)) == 1) {
@@ -6036,16 +6139,24 @@ server <- function(input, output, session) {
           h5("Import database name",
              style = "font-size: 15px; color: white; margin-bottom: 0px;"),
           value = import_new_name_val)
+        # Import dataset id column selector
+        ifelse(any("Assembly ID" == DB$import_all_meta),
+               id_col_selected <- "Assembly ID",
+               id_col_selected <- DB$import_all_meta[1])
         id_sel_ui <- div(
           class = "import-id-sel", 
           selectInput(
             "import_id_selector",
             h5("Select ID Column",
                style = "font-size: 15px; color: white; margin-bottom: 0px;"),
-            choices = isolate(DB$id_col), width = "100%"))
+            choices = isolate(DB$import_all_meta), selected = id_col_selected,
+            width = "100%"))
+        # Metadata import selector
         metadata_sel_ui <- uiOutput("metadata_sel_ui")
+        # Start hashing button
         hash_button_ui <- actionButton("import_start_hash", "Hash Dataset",
                                        icon = icon("play"))
+        # Allele library directory button
         hash_dir_ui <- shinyDirButton(
           "hash_dir_button", "Select Alleles", icon = icon("folder-open"),
           title = "Select folder containing allele library", 
@@ -6119,12 +6230,22 @@ server <- function(input, output, session) {
                  "ulsate-shadow 2s infinite linear';"))
         shinyjs::runjs(paste0("document.getElementById('pin_import').style.", 
                               "animation = 'none';"))
-        feedback <- HTML(
-          paste0('&nbsp;&nbsp; <i class="fa-solid fa-circle-xmark" style="font', 
-                 '-size:15px; color:#ff0000; position:relative;"></i> &nbsp; <', 
-                 'b>Nomenclature not compatible</b><br>The loci of the selecte', 
-                 'd dataset do not match the currently selected ', 
-                 DB$scheme, ' scheme.'))
+        
+        if(any(shared_loci == FALSE)) {
+          feedback <- HTML(
+            paste0('&nbsp;&nbsp; <i class="fa-solid fa-circle-xmark" style="fo', 
+                   'nt-size:15px; color:#ff0000; position:relative;"></i> &nbs', 
+                   'p; <b>Nomenclature not compatible</b><br>The loci of the s', 
+                   'elected dataset do not match the currently selected ', 
+                   DB$scheme, ' scheme.'))
+        } else {
+          feedback <- HTML(
+            paste0('&nbsp;&nbsp; <i class="fa-solid fa-circle-xmark" style="fo',
+                   'nt-size:15px; color:#ff0000; position:relative;"></i> &nbs',
+                   'p; <b>No isolate ID detected</b><br> Ensure that the exter', 
+                   'nal data set contains a variable for unique isolate identi', 
+                   'fiers.'))
+        }
         delim <- NULL
         import_new_name <- NULL
         
@@ -6171,6 +6292,7 @@ server <- function(input, output, session) {
     
     # Import section
     output$import_path <- renderText(import_filepath)
+    kleiner_test <<- import_new_name
     output$import_new_name_ui <- renderUI(import_new_name)
     output$import_feedback <- renderUI(feedback)
     output$delim <- renderUI(delim)
@@ -6221,7 +6343,7 @@ server <- function(input, output, session) {
   
   # Render metadata selection 
   output$metadata_sel_ui <- renderUI({
-    req(input$import_id_selector, DB$id_col)
+    req(input$import_id_selector, DB$import_all_meta)
     
     pickerInput(
       "import_metadata_sel",
@@ -6231,7 +6353,7 @@ server <- function(input, output, session) {
       options = list(
         "live-search" = TRUE, "actions-box" = TRUE, size = 10,
         style = "background-color: white; border-radius: 5px;"),
-      choices = DB$id_col[DB$id_col != input$import_id_selector],
+      choices = DB$import_all_meta[DB$import_all_meta != input$import_id_selector],
       width = "100%"
     )
   })
@@ -6349,45 +6471,38 @@ server <- function(input, output, session) {
                   ),
                   textOutput("import_path"),
                   br(),
-                  uiOutput("import_new_name_ui"),
-                  br()
+                  uiOutput("import_new_name_ui")
                 ),
                 column(
                   width = 6,
-                  uiOutput("import_feedback"),
-                  br()
+                  uiOutput("import_feedback")
                 )
               ),
               uiOutput("delim"),
               fluidRow(
                 column(
                   width = 6,
-                  br(),
                   uiOutput("hash_dir"),
                   uiOutput("hash_folderpath"),
                   br(),
                   uiOutput("hash_import_button"),
-                  uiOutput("hashing_status"),
-                  br()
+                  uiOutput("hashing_status")
                 ),
                 column(
                   width = 6,
                   br(),
-                  uiOutput("hash_feedback"),
-                  br(), br()
+                  uiOutput("hash_feedback")
                 )
               ),
               uiOutput("delim2"),
               fluidRow(
                 column(
                   width = 6,
-                  br(),
                   uiOutput("import_id_sel"),
                   uiOutput("id_preview")
                 ),
                 column(
                   width = 6,
-                  br(),
                   uiOutput("import_metadata_sel"),
                   uiOutput("metadata_preview"),
                   br()
@@ -6471,7 +6586,7 @@ server <- function(input, output, session) {
                     class = "exp-menu-picker",
                     pickerInput(
                       "exp_metadata_select",
-                      choices = colnames(DB$meta)[-c(2, 3, 11, 12, 13)],
+                      choices = colnames(DB$meta)[-c(2, 3, 12, 13, 14)],
                       multiple = TRUE,
                       selected = c("Database", "Scheme", "Isolation Date", "Host", 
                                    "Country", "City", "Typing Date"),
@@ -6686,6 +6801,12 @@ server <- function(input, output, session) {
   # Change scheme
   observeEvent(input$reload_db, {
     
+    db_change <<- DB$change
+    
+    this1 <<- get.entry.table.meta()
+    that1 <<- select(DB$meta, -13)
+    
+    
     log_print("Input reload_db")
     
     if(tail(readLines(file.path(logdir, "script_log.txt")), 1)!= "0") {
@@ -6801,7 +6922,6 @@ server <- function(input, output, session) {
       req(DB$data)
       
       output$db_entries <- renderRHandsontable({
-        shinyjs::runjs(block_ui)
         w$show()
         
         tab <- generate_rhandsontable(
@@ -6819,26 +6939,14 @@ server <- function(input, output, session) {
           err_thresh = err_thresh(),
           pinned_entries_highlight = pinned_entries_highlight()
         )
-        
-        shinyjs::runjs(unblock_ui)
+          
         tab
       })
     })
+    
+    shinyjs::delay(1000, shinyjs::runjs("unhighlight_pin();"))
+    shinyjs::runjs(unblock_ui)
   })
-  
-  # TODO check if still necessary
-  # observe({
-  #   if(!is.null(DB$data)){
-  #     if ((ncol(DB$data)-13) != DB$number_loci) {
-  #       cust_var <- select(DB$data, 14:(ncol(DB$data) - DB$number_loci))
-  #       DB$cust_var <- data.frame(Variable = names(cust_var),Type = column_classes(cust_var))
-  #     } else {
-  #       DB$cust_var <- data.frame()
-  #     }
-  #   }
-  # })
-  
-  DB$count <- 0
   
   observeEvent(input$add_new_variable, {
     log_print("Input add_new_variable")
@@ -7018,7 +7126,7 @@ server <- function(input, output, session) {
     
     removeModal()
     
-    if(DB$count >= 1) {
+    if(!is.null(DB$count) && DB$count >= 1) {
       DB$count <- DB$count - 1
     } 
     
@@ -7166,10 +7274,6 @@ server <- function(input, output, session) {
         -colnames(
           DB$meta)[-3][!colnames(DB$meta)[-3] %in% input$exp_metadata_select])
       
-      # Add marker to custom variables
-      colnames(export)[colnames(export) %in% DB$cust_var$Variable] <- paste0(
-        colnames(export)[colnames(export) %in% DB$cust_var$Variable], ":v")
-      
       write.csv(export, file, row.names = FALSE, quote = FALSE) 
       
       shinyjs::runjs(unblock_ui)
@@ -7280,53 +7384,70 @@ server <- function(input, output, session) {
     Data <- readRDS(file.path(Startup$database, gsub(" ", "_", DB$scheme),
                               "Typing.rds"))
     
-    if ((ncol(Data[["Typing"]]) - 14) != DB$number_loci) {
-      cust_vars_pre <- select(Data[["Typing"]], 
-                              15:(ncol(Data[["Typing"]]) - DB$number_loci))
-      cust_vars_pre <- names(cust_vars_pre)
+    # case edit metadata only
+    # ifelse(isTRUE(all.equal(get.entry.table.meta(), 
+    #                         select(DB$meta, -13), 
+    #                         check.attributes = FALSE)),
+    #        new_meta <- FALSE,
+    #        new_meta <- TRUE)
+    
+    if(isTRUE(DB$pending_import)) {
+      Data[["Typing"]] <- DB$data
     } else {
-      cust_vars_pre <- character()
+      if ((ncol(Data[["Typing"]]) - 14) != DB$number_loci) {
+        cust_vars_pre <- select(Data[["Typing"]],
+                                15:(ncol(Data[["Typing"]]) - DB$number_loci))
+        cust_vars_pre <- names(cust_vars_pre)
+      } else {
+        cust_vars_pre <- character()
+      }
+    
+      Data[["Typing"]] <- select(Data[["Typing"]], 
+                                 -(1:(14 + length(cust_vars_pre))))
+      
+      meta_hot <- hot_to_r(input$db_entries) %>%
+        select(1:(14 + nrow(DB$cust_var)))
+      
+      if(length(DB$deleted_entries > 0)) {
+        
+        meta_hot <- mutate(meta_hot, Index = as.character(1:nrow(DB$data)))
+        
+        Data[["Typing"]] <- mutate(
+          Data[["Typing"]][-as.numeric(DB$deleted_entries), ],
+          meta_hot, .before = 1)
+        rownames(Data[["Typing"]]) <- Data[["Typing"]]$Index
+      } else {
+        Data[["Typing"]] <- mutate(Data[["Typing"]], meta_hot, .before = 1)
+      }
     }
     
-    Data[["Typing"]] <- select(Data[["Typing"]], 
-                               -(1:(14 + length(cust_vars_pre))))
-    
-    meta_hot <- hot_to_r(input$db_entries) %>% 
-      select(1:(14 + nrow(DB$cust_var))) 
-    
-    if(length(DB$deleted_entries > 0)) {
-      
-      meta_hot <- mutate(meta_hot, Index = as.character(1:nrow(DB$data)))
-      
-      Data[["Typing"]] <- mutate(
-        Data[["Typing"]][-as.numeric(DB$deleted_entries), ], 
-        meta_hot, .before = 1)
-      rownames(Data[["Typing"]]) <- Data[["Typing"]]$Index
-    } else {
-      Data[["Typing"]] <- mutate(Data[["Typing"]], meta_hot, .before = 1)
-    }
-    
+    DB$pending_import <- NULL
+
     # Ensure correct logical data type
     Data[["Typing"]][["Include"]] <- as.logical(Data[["Typing"]][["Include"]])
-    saveRDS(Data, file.path(Startup$database, gsub(" ", "_", DB$scheme), 
+    # saveRDS(Data, file.path(Startup$database, gsub(" ", "_", DB$scheme),
+    #                         "Typing.rds"))
+    
+    
+    saveRDS(Data, file.path(Startup$database, gsub(" ", "_", DB$scheme),
                             "Typing.rds"))
     
-    # Load database from files  
-    Database <- readRDS(file.path(Startup$database, gsub(" ", "_", DB$scheme), 
+    # Load database from files
+    Database <- readRDS(file.path(Startup$database, gsub(" ", "_", DB$scheme),
                                   "Typing.rds"))
-    
+
     DB$data <- Database[["Typing"]]
-    
-    if(!is.null(DB$data)){
+
+    if (!is.null(DB$data)){
       if ((ncol(DB$data) - 14) != DB$number_loci) {
         cust_var <- select(DB$data, 15:(ncol(DB$data) - DB$number_loci))
-        DB$cust_var <- data.frame(Variable = names(cust_var), 
+        DB$cust_var <- data.frame(Variable = names(cust_var),
                                   Type = column_classes(cust_var))
       } else {
         DB$cust_var <- data.frame()
       }
     }
-    
+
     DB$change <- FALSE
     DB$count <- 0
     DB$no_na_switch <- TRUE
@@ -7349,6 +7470,7 @@ server <- function(input, output, session) {
       timer = 4000
     )
     
+    shinyjs::delay(1000, shinyjs::runjs("unhighlight_pin();"))
     shinyjs::runjs(unblock_ui)
   })
   
