@@ -3661,30 +3661,29 @@ server <- function(input, output, session) {
                   if (!is.null(DB$data)) {
                     observe({
                       output$db_entries <- renderRHandsontable({
-                            shinyjs::runjs(block_ui)
-                            w$show()
-
-                            tab <- generate_rhandsontable(
-                              data = DB$data,
-                              cust_var = DB$cust_var,
-                              compare_select = input$compare_select,
-                              allelic_profile = DB$allelic_profile,
-                              allelic_profile_trunc = DB$allelic_profile_trunc,
-                              entry_table_height = entry_table_height(),
-                              country_names = country_names,
-                              diff_allele = diff_allele(),
-                              true_rows = true_rows(),
-                              duplicated_names = duplicated_names(),
-                              duplicated_ids = duplicated_ids(),
-                              err_thresh = err_thresh(),
-                              pinned_entries_highlight = 
-                                pinned_entries_highlight()
-                            )
-
-                            shinyjs::runjs(unblock_ui)
-
-                            tab
-                          })
+                        shinyjs::runjs(block_ui)
+                        w$show()
+                        
+                        tab <- generate_rhandsontable(
+                          data = DB$data,
+                          cust_var = DB$cust_var,
+                          compare_select = input$compare_select,
+                          allelic_profile = DB$allelic_profile,
+                          allelic_profile_trunc = DB$allelic_profile_trunc,
+                          entry_table_height = entry_table_height(),
+                          country_names = country_names,
+                          diff_allele = diff_allele(),
+                          true_rows = true_rows(),
+                          duplicated_names = duplicated_names(),
+                          duplicated_ids = duplicated_ids(),
+                          err_thresh = err_thresh(),
+                          pinned_entries_highlight = pinned_entries_highlight()
+                        )
+                        
+                        shinyjs::runjs(unblock_ui)
+                        
+                        tab
+                      })
                       
                       # Dynamic save button when rhandsontable changes or new entries
                       output$edit_entry_table <- renderUI({
@@ -3696,8 +3695,6 @@ server <- function(input, output, session) {
                            !is.null(DB$meta)) {
                           
                           if(!is.null(DB$meta)) {
-                            test2 <<- get.entry.table.meta()
-                            test3 <<- DB$meta
                             ifelse(isTRUE(all.equal(get.entry.table.meta(), 
                                                      select(DB$meta, -13), 
                                                      check.attributes = FALSE)),
@@ -5831,48 +5828,25 @@ server <- function(input, output, session) {
     req(DB$data, DB$meta, DB$allelic_profile, DB$import, DB$cust_var, DB$scheme)
     
     shinyjs::runjs(block_ui)
+    show_toast(title = "Import of external dataset started", 
+               type = "info", position = "bottom-end", timer = 6000)
     
-    # initial checks
-    if(any(DB$data$Database == input$import_new_name)) {
-      show_toast(
-        title = "Database name already present",
-        type = "error",
-        position = "bottom-end", timer = 6000
-      )
-      shinyjs::runjs(unblock_ui)
-      return()
-    }
-    
-    ### allelic profile ###
-
     # first merge external allelic profile with local allelic profile
     external_allelic_profile <- DB$import[, colnames(DB$allelic_profile)]
     merged_allelic_profile <- add_row(DB$allelic_profile,
                                       external_allelic_profile)
     
-    ### merge meta data ###
-    
-    # extract meta data from import dataset
-    # here user selects which metadata represents ID
-    external_meta <- DB$import[, !colnames(DB$import) %in%
-                                 colnames(DB$allelic_profile)]
-    
     # selection of "Sample ID" as ID column
-    id_column <- external_meta[[input$import_id_selector]]
-    
-    if(any(duplicated(id_column))) {
-      show_toast(title = "Assembly ID's are duplicated", type = "error",
-                 position = "bottom-end", timer = 6000)
-      shinyjs::runjs(unblock_ui)
-      return()
-    }
-    
-    show_toast(title = "Import of external dataset started", 
-               type = "info", position = "bottom-end", timer = 6000)
+    id_column <- DB$import[[input$import_id_selector]]
     
     # selection of meta data to be imported
     if(length(input$import_metadata_sel)) {
+      external_meta <- DB$import[, !colnames(DB$import) %in%
+                                   colnames(DB$allelic_profile)]
       import_meta <- external_meta[, input$import_metadata_sel]
+      if(any(colnames(import_meta) == input$import_id_selector)) {
+        import_meta <- select(import_meta, -c(input$import_id_selector))  
+      }
       merged_meta <- merge_and_fix_types(DB$meta, import_meta)
 
       # append new external custom metadata
@@ -5897,7 +5871,11 @@ server <- function(input, output, session) {
         }
       }
     } else {
-      merged_meta <- merge_and_fix_types(DB$meta, external_meta)
+      # no metadata to be imported introduce dummy column
+      merged_meta <- merge_and_fix_types(
+        DB$meta, 
+        as.data.frame(id_column, nm = "dummy"))
+      merged_meta <- select(merged_meta, -c("dummy"))
     }
     
     # Get number of added entries
@@ -5942,10 +5920,20 @@ server <- function(input, output, session) {
     merged_meta$Scheme[(
       nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- gsub(" ", "_",
                                                                       DB$scheme)
-
-    DB$no_na_switch <- TRUE
-
-    # combine merged metadata and allelic profile
+    
+    # Set Successes & error columns
+    errors <- rowSums(is.na(external_allelic_profile))
+    successes <- DB$number_loci - rowSums(is.na(external_allelic_profile))
+    merged_meta$Errors[(
+      nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- errors
+    merged_meta$Successes[(
+      nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- successes
+    
+    # Set Screened to no
+    merged_meta$Screened[(
+      nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- "No"
+    
+    # Combine merged metadata and allelic profile
     DB$data <- cbind(merged_meta, merged_allelic_profile)
 
     DB$meta_gs <- select(DB$data, c(1, 3:14))
@@ -5957,9 +5945,13 @@ server <- function(input, output, session) {
     DB$allelic_profile_true <- DB$allelic_profile[which(
       DB$data$Include == TRUE),]
     
-    DB$pending_import <- TRUE
+    # Deactivate switching to missing values tabs
+    DB$no_na_switch <- TRUE
+    
+    # Activate database save button
     DB$change <- TRUE
     
+    # UI changes & feedback
     show_toast(title = "Import of external dataset successful", 
                type = "success", position = "bottom-end", timer = 6000)
     removeModal()
@@ -5976,6 +5968,36 @@ server <- function(input, output, session) {
                     roots = c(Home = path_home(), Root = "/"), 
                     defaultRoot = "Home", session = session, 
                     filetypes = c("csv", "tsv", "txt", "dat", "tab"))
+  })
+  
+  # Render import new name preview
+  output$import_new_name_feedback_ui <- renderUI({
+    req(DB$data) 
+    
+    if(!is.null(input$import_files) && length(input$import_files) > 1) {
+      if(is.null(input$import_new_name) || nchar(input$import_new_name) < 1) {
+        shinyjs::disable("pin_import")
+        HTML(
+          paste0(
+            '&nbsp;&nbsp; <i class="fa-solid fa-circle-xmark" style="font-', 
+            'size:15px; color:#ff0000; position:relative;"></i> &nbsp;',
+            "<b>Database name can't be empty</b>"))
+      } else if(any(DB$data$Database == input$import_new_name)) {
+        shinyjs::disable("pin_import")
+        HTML(
+          paste0(
+            '&nbsp;&nbsp; <i class="fa-solid fa-circle-xmark" style="font-', 
+            'size:15px; color:#ff0000; position:relative;"></i> &nbsp;',
+            "<b>Database name already present</b>"))
+      } else {
+        shinyjs::enable("pin_import")
+        HTML(
+          paste0(
+            '&nbsp&nbsp; <i class="fa-solid fa-circle-check" style="font-', 
+            'size:15px; color:#90EE90; position:relative;"></i> &nbsp;',
+            "<b>Database name compatible</b>"))
+      }
+    }
   })
   
   # Render ID column selection preview 
@@ -6026,21 +6048,6 @@ server <- function(input, output, session) {
           )
         )
       }
-      
-      
-      # merged_ids <- c(DB$data$`Assembly ID`, id_column)
-      # dup_ids <<- which(duplicated(merged_ids))
-      # merged_ids[dup_ids] <- paste0(merged_ids[dup_ids], "_B") 
-      
-      # give preview
-      # if(nrow(DB$import) > 1) {
-      #   vals <- DB$import[[input$import_id_selector]][1:2]
-      # } else {vals <- DB$import[[input$import_id_selector]][1]}
-      # 
-      # if(class(unlist(vals)) == "character") vals <- sapply(
-      #   vals, truncate_if_long, USE.NAMES = FALSE)
-      # 
-      # HTML(paste0(c(vals, " ..."), collapse = "<br>"))
     }
   })
   
@@ -6113,8 +6120,8 @@ server <- function(input, output, session) {
       
       if (!any(shared_loci == FALSE) & check_id_col) {
         
-        DB$import_all_meta <- colnames(import)[which(!colnames(import) %in% 
-                                                       colnames(all_pro))]
+        DB$import_all_meta <- colnames(import)[which(
+          !colnames(import) %in% colnames(DB$allelic_profile))]
         
         ### Preload UI elements
         # Import dataset feedback
@@ -6126,19 +6133,26 @@ server <- function(input, output, session) {
         # Delimiter
         delim <- hr()
         # Import database name text input
+        placeholder <- NULL
         if(any(colnames(import) == "Database") && 
            is.character(import$Database) && 
            length(unique(import$Database)) == 1) {
           import_new_name_val <- import$Database[1]
         } else {
-          import_new_name_val <- gsub(".csv|.tsv|.txt|.dat|.tab", "", 
+          import_new_name_val <- gsub("\\.(csv|tsv|txt|dat|tab)$", "", 
                                       basename(import_path$datapath))
+          
+          if(any(DB$data$Database == import_new_name_val)) {
+            import_new_name_val <- ""
+            placeholder <- "Database Name"
+          }
         }
         import_new_name <- textInput(
           "import_new_name", 
           h5("Import database name",
              style = "font-size: 15px; color: white; margin-bottom: 0px;"),
-          value = import_new_name_val)
+          value = import_new_name_val,
+          placeholder = placeholder)
         # Import dataset id column selector
         ifelse(any("Assembly ID" == DB$import_all_meta),
                id_col_selected <- "Assembly ID",
@@ -6292,7 +6306,6 @@ server <- function(input, output, session) {
     
     # Import section
     output$import_path <- renderText(import_filepath)
-    kleiner_test <<- import_new_name
     output$import_new_name_ui <- renderUI(import_new_name)
     output$import_feedback <- renderUI(feedback)
     output$delim <- renderUI(delim)
@@ -6475,7 +6488,9 @@ server <- function(input, output, session) {
                 ),
                 column(
                   width = 6,
-                  uiOutput("import_feedback")
+                  uiOutput("import_feedback"),
+                  br(), br(),
+                  uiOutput("import_new_name_feedback_ui")
                 )
               ),
               uiOutput("delim"),
@@ -6800,12 +6815,6 @@ server <- function(input, output, session) {
   
   # Change scheme
   observeEvent(input$reload_db, {
-    
-    db_change <<- DB$change
-    
-    this1 <<- get.entry.table.meta()
-    that1 <<- select(DB$meta, -13)
-    
     
     log_print("Input reload_db")
     
@@ -7367,9 +7376,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_db_save, {
-    
     shinyjs::runjs(block_ui)
-    
     log_print("Input conf_db_save")
     
     # Remove isolate assembly file if present
@@ -7381,71 +7388,39 @@ server <- function(input, output, session) {
     }
     DB$remove_iso <- NULL
     
+    # Load currently saved entry table
     Data <- readRDS(file.path(Startup$database, gsub(" ", "_", DB$scheme),
                               "Typing.rds"))
     
-    # case edit metadata only
-    # ifelse(isTRUE(all.equal(get.entry.table.meta(), 
-    #                         select(DB$meta, -13), 
-    #                         check.attributes = FALSE)),
-    #        new_meta <- FALSE,
-    #        new_meta <- TRUE)
+    meta_hot <- hot_to_r(input$db_entries) %>%
+      select(1:(14 + nrow(DB$cust_var)))
     
-    if(isTRUE(DB$pending_import)) {
-      Data[["Typing"]] <- DB$data
+    if(length(DB$deleted_entries > 0)) {
+      meta_hot <- mutate(meta_hot, Index = as.character(1:nrow(DB$data)))
+      
+      Data[["Typing"]] <- mutate(
+        DB$allelic_profile,
+        meta_hot, .before = 1)
+      
     } else {
-      if ((ncol(Data[["Typing"]]) - 14) != DB$number_loci) {
-        cust_vars_pre <- select(Data[["Typing"]],
-                                15:(ncol(Data[["Typing"]]) - DB$number_loci))
-        cust_vars_pre <- names(cust_vars_pre)
-      } else {
-        cust_vars_pre <- character()
-      }
-    
-      Data[["Typing"]] <- select(Data[["Typing"]], 
-                                 -(1:(14 + length(cust_vars_pre))))
-      
-      meta_hot <- hot_to_r(input$db_entries) %>%
-        select(1:(14 + nrow(DB$cust_var)))
-      
-      if(length(DB$deleted_entries > 0)) {
-        
-        meta_hot <- mutate(meta_hot, Index = as.character(1:nrow(DB$data)))
-        
-        Data[["Typing"]] <- mutate(
-          Data[["Typing"]][-as.numeric(DB$deleted_entries), ],
-          meta_hot, .before = 1)
-        rownames(Data[["Typing"]]) <- Data[["Typing"]]$Index
-      } else {
-        Data[["Typing"]] <- mutate(Data[["Typing"]], meta_hot, .before = 1)
-      }
+      Data[["Typing"]] <- mutate(DB$allelic_profile, meta_hot, .before = 1)
     }
     
-    DB$pending_import <- NULL
-
-    # Ensure correct logical data type
+    # Ensure correct logical data type & index
     Data[["Typing"]][["Include"]] <- as.logical(Data[["Typing"]][["Include"]])
-    # saveRDS(Data, file.path(Startup$database, gsub(" ", "_", DB$scheme),
-    #                         "Typing.rds"))
-    
+    rownames(Data[["Typing"]]) <- Data[["Typing"]]$Index
     
     saveRDS(Data, file.path(Startup$database, gsub(" ", "_", DB$scheme),
                             "Typing.rds"))
-    
-    # Load database from files
-    Database <- readRDS(file.path(Startup$database, gsub(" ", "_", DB$scheme),
-                                  "Typing.rds"))
 
-    DB$data <- Database[["Typing"]]
+    DB$data <- Data[["Typing"]]
 
-    if (!is.null(DB$data)){
-      if ((ncol(DB$data) - 14) != DB$number_loci) {
-        cust_var <- select(DB$data, 15:(ncol(DB$data) - DB$number_loci))
-        DB$cust_var <- data.frame(Variable = names(cust_var),
-                                  Type = column_classes(cust_var))
-      } else {
-        DB$cust_var <- data.frame()
-      }
+    if ((ncol(DB$data) - 14) != DB$number_loci) {
+      cust_var <- select(DB$data, 15:(ncol(DB$data) - DB$number_loci))
+      DB$cust_var <- data.frame(Variable = names(cust_var),
+                                Type = column_classes(cust_var))
+    } else {
+      DB$cust_var <- data.frame()
     }
 
     DB$change <- FALSE
@@ -7462,7 +7437,6 @@ server <- function(input, output, session) {
     DB$deleted_entries <- character(0)
     
     removeModal()
-    
     show_toast(
       title = "Database successfully saved",
       type = "success",

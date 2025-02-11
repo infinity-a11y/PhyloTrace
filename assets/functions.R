@@ -3,11 +3,12 @@ generate_rhandsontable <- function(
     entry_table_height, country_names, diff_allele, true_rows, 
     duplicated_names, duplicated_ids, err_thresh, pinned_entries_highlight) {
   
+  if(!is.null(compare_select)) test3 <<- compare_select
+  
   if (!is.null(compare_select) && length(compare_select) > 0 && 
       !is.null(data) && !is.null(cust_var) && !is.null(compare_select)) {
     
     if (!any((compare_select %in% colnames(allelic_profile)) == FALSE)) {
-      
       entry_data <- data %>%
         select(all_of(1:(14 + nrow(cust_var)))) %>%
         add_column(select(allelic_profile_trunc, any_of(compare_select)))
@@ -20,7 +21,6 @@ generate_rhandsontable <- function(
     }
     
   } else {
-    
     if (!is.null(data) && !is.null(cust_var)) {
       entry_data <- select(data, 1:(14 + nrow(cust_var)))
       col_range <- NULL

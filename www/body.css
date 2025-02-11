@@ -965,9 +965,13 @@ button#reload_db.btn.btn-default.action-button.shiny-bound-input {
   margin-bottom: 10px;
 }
 
-#import_feedback, #hash_feedback {
+#import_feedback, #hash_feedback, #import_new_name_feedback_ui {
   margin-right: 20px;
   text-align: justify;
+}
+
+#import_new_name_feedback_ui {
+  margin-top: 10px;
 }
 
 #import_new_name_ui {
