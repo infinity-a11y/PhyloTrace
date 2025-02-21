@@ -3039,7 +3039,10 @@ server <- function(input, output, session) {
                                                 "Typing.rds"))
                   
                   data <- Database[["Typing"]]
-                  # databases produced with version < 1.6.1 receive extra database column
+                  
+                  
+                  # databases produced with version < 1.6.1 receive extra 
+                  # database column
                   if(any(colnames(data) == "Database")) {
                     DB$data <- data
                   } else {
@@ -3047,6 +3050,10 @@ server <- function(input, output, session) {
                       data, Database = basename(Startup$database), 
                       .before = "Scheme")
                   }
+                  
+                  # renaming of 'Typing Date' column to 'Entry Date'
+                  colnames(DB$data)[colnames(
+                    DB$data) == "Typing Date"] <- "Entry Date"
                   
                   if(!is.null(DB$data)){
                     if ((ncol(DB$data)-14) != DB$number_loci) {
@@ -4845,8 +4852,6 @@ server <- function(input, output, session) {
           }
         }
         
-        test1 <<- last_scheme_change
-        
         if(!is.null(last_scheme_change) && length(last_scheme_change) &&
            !is.na(last_scheme_change)) {
           last_file_change <- format(
@@ -5930,6 +5935,9 @@ server <- function(input, output, session) {
     merged_meta$Scheme[(
       nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- gsub(" ", "_",
                                                                       DB$scheme)
+    # Set Entry Date column to current cate
+    merged_meta$`Entry Date`[(
+      nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- format(Sys.Date())
     
     # Set Successes & error columns
     errors <- rowSums(is.na(external_allelic_profile))
@@ -6614,7 +6622,7 @@ server <- function(input, output, session) {
                       choices = colnames(DB$meta)[-c(2, 3, 12, 13, 14)],
                       multiple = TRUE,
                       selected = c("Database", "Scheme", "Isolation Date", "Host", 
-                                   "Country", "City", "Typing Date"),
+                                   "Country", "City", "Entry Date"),
                       options = list(
                         "live-search" = TRUE, "actions-box" = TRUE, size = 10,
                         style = "background-color: white; border-radius: 5px;")
@@ -10488,7 +10496,7 @@ server <- function(input, output, session) {
   output$nj_tiplab_ui <- renderUI({
     output <- render_plot_control(
       input_id = "nj_tiplab", input_type = "selectInput", 
-      choices = colnames(Vis$meta_nj)[-c(1, 2, 12, 13, 14)], 
+      choices = colnames(Vis$meta_nj)[-c(1, 2, 6, 12, 13, 14)], 
       reactive_value = nj_tiplab_val(), default_value = "Assembly Name",
       reset = isolate(Vis$nj_tiplab_val_reset))
     
@@ -10541,7 +10549,7 @@ server <- function(input, output, session) {
     output <- render_plot_control(
       input_id = "nj_branch_label",
       input_type = "selectInput",
-      choices = names(Vis$meta_nj)[-c(1:4, 6, 11:14)],
+      choices = names(Vis$meta_nj)[-c(1:4, 6, 12:14)],
       reactive_value = nj_branch_label_val(),
       default_value = "Host",
       reset = isolate(Vis$nj_branch_label_val_reset))
@@ -11346,7 +11354,7 @@ server <- function(input, output, session) {
     output <- render_plot_control(
       input_id = "nj_color_mapping",
       input_type = "selectInput",
-      choices = names(Vis$meta_nj)[-c(1:4, 6, 11:14)],
+      choices = names(Vis$meta_nj)[-c(1:4, 6, 12:14)],
       reactive_value = nj_color_mapping_val(),
       default_value = "Country",
       reset = isolate(Vis$nj_color_mapping_val_reset),
@@ -11429,7 +11437,7 @@ server <- function(input, output, session) {
     output <- render_plot_control(
       input_id = "nj_tipcolor_mapping",
       input_type = "selectInput",
-      choices = names(Vis$meta_nj)[-c(1:4, 6, 11:14)],
+      choices = names(Vis$meta_nj)[-c(1:4, 6, 12:14)],
       reactive_value = nj_tipcolor_mapping_val(),
       default_value = "Country",
       reset = isolate(Vis$nj_tipcolor_mapping_val_reset),
@@ -11510,21 +11518,12 @@ server <- function(input, output, session) {
   
   output$nj_tipshape_mapping <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      # if(ncol(Vis$meta_nj) == 14) {
-      #   choices <- c( `Isolation Date` = "Isolation Date",
-      #                 Host = "Host", Country = "Country", City = "City")
-      # } else {
-      #   choices <- append(c(`Isolation Date` = "Isolation Date", 
-      #                       Host = "Host", Country = "Country", City = "City"),
-      #                     names(Vis$meta_nj)[15:ncol(Vis$meta_nj)])
-        
-        choices <- names(Vis$meta_nj)[-c(1:4, 6, 11:14)]
-        
-        if(!is.null(DB$cust_var) && length(DB$cust_var) > 0 ) {
-          cont_vars <- DB$cust_var$Variable[which(DB$cust_var$Type == "cont")]
-          choices <- choices[-which(choices %in% cont_vars)]
-        }
-      # }
+      choices <- names(Vis$meta_nj)[-c(1:4, 6, 12:14)]
+      
+      if(!is.null(DB$cust_var) && length(DB$cust_var) > 0 ) {
+        cont_vars <- DB$cust_var$Variable[which(DB$cust_var$Type == "cont")]
+        choices <- choices[-which(choices %in% cont_vars)]
+      }
     } else {
       choices = c(Database = "Database", `Isolation Date` = "Isolation Date", 
                   Host = "Host", Country = "Country", City = "City")
@@ -11574,7 +11573,7 @@ server <- function(input, output, session) {
     output <- render_plot_control(
       input_id = "nj_fruit_variable",
       input_type = "selectInput",
-      choices = names(Vis$meta_nj)[-c(1:4, 6, 11:14)],
+      choices = names(Vis$meta_nj)[-c(1:4, 6, 12:14)],
       div_class = "nj-fruit-variable",
       reactive_value = nj_fruit_variable_val(),
       default_value = "Isolation Date",
@@ -11590,7 +11589,7 @@ server <- function(input, output, session) {
     output <- render_plot_control(
       input_id = "nj_fruit_variable_2",
       input_type = "selectInput",
-      choices = names(Vis$meta_nj)[-c(1:4, 6, 11:14)],
+      choices = names(Vis$meta_nj)[-c(1:4, 6, 12:14)],
       div_class = "nj-fruit-variable",
       reactive_value = nj_fruit_variable_2_val(),
       default_value = "Isolation Date",
@@ -11606,7 +11605,7 @@ server <- function(input, output, session) {
     output <- render_plot_control(
       input_id = "nj_fruit_variable_3",
       input_type = "selectInput",
-      choices = names(Vis$meta_nj)[-c(1:4, 6, 11:14)],
+      choices = names(Vis$meta_nj)[-c(1:4, 6, 12:14)],
       div_class = "nj-fruit-variable",
       reactive_value = nj_fruit_variable_3_val(),
       default_value = "Isolation Date",
@@ -11622,7 +11621,7 @@ server <- function(input, output, session) {
     output <- render_plot_control(
       input_id = "nj_fruit_variable_4",
       input_type = "selectInput",
-      choices = names(Vis$meta_nj)[-c(1:4, 6, 11:14)],
+      choices = names(Vis$meta_nj)[-c(1:4, 6, 12:14)],
       div_class = "nj-fruit-variable",
       reactive_value = nj_fruit_variable_4_val(),
       default_value = "Isolation Date",
@@ -11638,7 +11637,7 @@ server <- function(input, output, session) {
     output <- render_plot_control(
       input_id = "nj_fruit_variable_5",
       input_type = "selectInput",
-      choices = names(Vis$meta_nj)[-c(1:4, 6, 11:14)],
+      choices = names(Vis$meta_nj)[-c(1:4, 6, 12:14)],
       div_class = "nj-fruit-variable",
       reactive_value = nj_fruit_variable_5_val(),
       default_value = "Isolation Date",
@@ -11981,7 +11980,7 @@ server <- function(input, output, session) {
     if(!is.null(Vis$meta_nj)) {
       
       meta <- select(Vis$meta_nj, -c(taxa, Index, `Assembly ID`, 
-                                     `Assembly Name`, Scheme, `Typing Date`, 
+                                     `Assembly Name`, Scheme, `Entry Date`, 
                                      Successes, Errors, Screened))
       
       if(input$nj_heatmap_map == "Variables") {
@@ -15560,9 +15559,8 @@ server <- function(input, output, session) {
                     selectInput(
                       "mst_col_var",
                       "",
-                      choices = colnames(DB$meta)[-c(2, 3, 12, 13, 14)],
-                      # choices = names(DB$meta)[-c(1, 2, 3, 4, 6, 7, 11, 
-                      #                             12, 13, 14)],
+                      choices = colnames(Vis$meta_mst)[-c(1, 2, 3, 4, 6, 12, 13, 
+                                                          14)],
                       selected = isolate(mst_col_var_reactive()),
                       width = "100%"
                     )
@@ -16909,7 +16907,7 @@ server <- function(input, output, session) {
                               "Dot" = "dot", "Square" = "square")),
                            selected = c("Dot" = "dot"))
       updateSelectizeInput(session, inputId = "mst_node_label",
-                           choices = names(DB$meta)[c(1, 3, 4, 5)],
+                           choices = names(Vis$meta_mst)[c(1, 3, 4, 5)],
                            selected = "Assembly Name")
     }
   })
@@ -17241,10 +17239,6 @@ server <- function(input, output, session) {
         nj_limit() +
         nj_inward() 
     } else {
-      
-      Vis_nj <<- Vis_nj
-      Vis_meta_nj <<- Vis$meta_nj
-      
       tree <- ggtree(
         Vis_nj, color = nj_color_val(), layout = layout_nj(), 
         ladderize = nj_ladder_val()) %<+% Vis$meta_nj +

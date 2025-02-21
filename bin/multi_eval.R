@@ -213,7 +213,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(
     colnames(Typing) <-
       append(
         c("Index", "Include", "Assembly ID", "Assembly Name", "Database",
-          "Scheme", "Isolation Date", "Host", "Country", "City", "Typing Date",
+          "Scheme", "Isolation Date", "Host", "Country", "City", "Entry Date",
           "Successes", "Errors", "Screened"),
         gsub(".fasta", "", basename(list.files(meta_info$alleles)))
       )
@@ -279,13 +279,13 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(
       
       colnames(merged) <-c(c(
         "Index", "Include", "Assembly ID", "Assembly Name", "Database", 
-        "Scheme", "Isolation Date", "Host", "Country", "City", "Typing Date", 
+        "Scheme", "Isolation Date", "Host", "Country", "City", "Entry Date", 
         "Successes", "Errors", "Screened"), 
         names_vec, gsub(".fasta", "", basename(list.files(meta_info$alleles))))
     } else {
       colnames(merged) <- c(c(
         "Index", "Include", "Assembly ID", "Assembly Name", "Database", 
-        "Scheme", "Isolation Date", "Host", "Country", "City", "Typing Date",
+        "Scheme", "Isolation Date", "Host", "Country", "City", "Entry Date",
         "Successes", "Errors", "Screened"),
         gsub(".fasta", "", basename(list.files(meta_info$alleles))))
     }
