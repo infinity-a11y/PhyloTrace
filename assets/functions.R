@@ -579,6 +579,7 @@ resetVars <- function(varList) {
 
 # Function to read and format FASTA sequences
 format_fasta <- function(filepath) {
+  if(!file.exists(filepath)) return()
   fasta <- readLines(filepath)
   formatted_fasta <- list()
   current_sequence <- ""

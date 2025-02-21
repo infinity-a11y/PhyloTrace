@@ -4845,54 +4845,55 @@ server <- function(input, output, session) {
           }
         }
         
-        if(!is.null(last_scheme_change) && !is.na(last_scheme_change)) {
-          if(length(last_scheme_change) > 0) {
-            last_file_change <- format(
-              file.info(file.path(Startup$database, ".downloaded_schemes",
-                                  paste0(gsub(" ", "_", DB$scheme), ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
-            
-            if(!is.null(last_file_change) && !is.na(last_file_change)) {
-              if(length(last_file_change) > 0 & length(last_scheme_change) > 0) {
-                if(last_file_change < last_scheme_change) {
-                  showModal(
-                    div(
-                      class = "start-modal",
-                      modalDialog(
-                        fluidRow(
-                          br(), 
-                          column(
-                            width = 11,
-                            p(
-                              HTML(
-                                paste0(
-                                  '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
-                                  "The ", DB$scheme, " scheme was updated at ",
-                                  last_scheme_change,
-                                  " on the ",
-                                  DB$schemeinfo[,2][DB$schemeinfo[,1] == "Database"],
-                                  " database. To fetch the changes download the scheme.",
-                                  '</span>'
-                                )
+        test1 <<- last_scheme_change
+        
+        if(!is.null(last_scheme_change) && length(last_scheme_change) &&
+           !is.na(last_scheme_change)) {
+          last_file_change <- format(
+            file.info(file.path(Startup$database, ".downloaded_schemes",
+                                paste0(gsub(" ", "_", DB$scheme), ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
+          
+          if(!is.null(last_file_change) && !is.na(last_file_change)) {
+            if(length(last_file_change) > 0 & length(last_scheme_change) > 0) {
+              if(last_file_change < last_scheme_change) {
+                showModal(
+                  div(
+                    class = "start-modal",
+                    modalDialog(
+                      fluidRow(
+                        br(), 
+                        column(
+                          width = 11,
+                          p(
+                            HTML(
+                              paste0(
+                                '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                                "The ", DB$scheme, " scheme was updated at ",
+                                last_scheme_change,
+                                " on the ",
+                                DB$schemeinfo[,2][DB$schemeinfo[,1] == "Database"],
+                                " database. To fetch the changes download the scheme.",
+                                '</span>'
                               )
                             )
-                          ),
-                          br()
+                          )
                         ),
-                        title = HTML(paste0(
-                          '<i class="fa-solid fa-circle-exclamation" style="font-size:17px;color:white"></i>',
-                          " &nbsp;&nbsp; Scheme update available")),
-                        fade = TRUE,
-                        easyClose = TRUE,
-                        footer = tagList(
-                          modalButton("Dismiss"),
-                          actionButton("update_scheme", "Update Scheme", 
-                                       icon = icon("layer-group"),
-                                       class = "btn btn-default")
-                        )
+                        br()
+                      ),
+                      title = HTML(paste0(
+                        '<i class="fa-solid fa-circle-exclamation" style="font-size:17px;color:white"></i>',
+                        " &nbsp;&nbsp; Scheme update available")),
+                      fade = TRUE,
+                      easyClose = TRUE,
+                      footer = tagList(
+                        modalButton("Dismiss"),
+                        actionButton("update_scheme", "Update Scheme", 
+                                     icon = icon("layer-group"),
+                                     class = "btn btn-default")
                       )
                     )
                   )
-                }
+                )
               }
             }
           }
@@ -5742,15 +5743,13 @@ server <- function(input, output, session) {
       }
       
       if (!is.null(DB$loci_info)) {
-        req()
         loci_info <- DB$loci_info
         names(loci_info)[6] <- "Allele Count"
         
         output$db_loci <- renderDataTable(
           loci_info,
           selection = "single",
-          options = list(pageLength = 15,  
-                         autoWidth = TRUE,
+          options = list(pageLength = 15, 
                          lengthMenu = list(c(15), c('15')), 
                          columnDefs = list(list(searchable = TRUE,
                                                 targets = "_all",
@@ -8507,7 +8506,8 @@ server <- function(input, output, session) {
       output$scheme_update_info <- renderUI({
         req(last_file_change, last_scheme_change)
         
-        if(!is.na(last_file_change) && !is.na(last_scheme_change)) {
+        if(length(last_file_change) && length(last_scheme_change) &&
+           !is.na(last_file_change) && !is.na(last_scheme_change)) {
           new_scheme <- last_file_change < last_scheme_change
           if(length(new_scheme) != 0) {
             if(new_scheme) {

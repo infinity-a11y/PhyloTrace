@@ -159,6 +159,10 @@ table {
   overflow: hidden;
 }
 
+.shiny-notification-close {
+  display: none;  
+}
+
 .menu-header-typing {
   border: 1px solid #ffffff42;
   position: relative;
@@ -546,6 +550,11 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
 
 .modal-body table.dataTable thead>tr>th.sorting {
   padding-right: 0px;
+}
+
+.dataTable td { 
+  white-space: normal !important; 
+  word-wrap: break-word;
 }
 
 .handsontable .wtBorder.current {
