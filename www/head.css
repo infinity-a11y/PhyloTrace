@@ -167,7 +167,8 @@ sF-fileWindow::-webkit-scrollbar-track,
 
 #scheme_info::-webkit-scrollbar-track,
 #cgmlst_scheme::-webkit-scrollbar-track,
-.sequence::-webkit-scrollbar-track {
+.sequence::-webkit-scrollbar-track,
+#hash_dir_button-modal::-webkit-scrollbar-track {
   background: #F0F0F0;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;

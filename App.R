@@ -7,6 +7,7 @@ Sys.setlocale("LC_TIME", "C")
 # _______________________ ####
 # CRAN Packages
 library(shiny)
+library(shinyjs)
 library(R.utils)
 library(igraph)
 library(ComplexHeatmap)
@@ -159,7 +160,7 @@ ui <- dashboardPage(
   dashboardBody(
     div(id = "blocking-overlay"),
     tags$head(tags$link(rel = "shortcut icon", href = "pt_small_icon.png")),
-    shinyjs::useShinyjs(),
+    useShinyjs(),
     shinyDashboardThemeDIY(
       ### general
       appFontFamily = "Liberation Sans",
@@ -622,14 +623,14 @@ ui <- dashboardPage(
                   column(1),
                   column(
                     width = 5,
-                    shinyjs::disabled(
+                    disabled(
                       actionButton(
                         "download_cgMLST",
                         label = "Download",
                         icon = icon("download")
                       )
                     ),
-                    shinyjs::hidden(
+                    hidden(
                       div(
                         id = "downloading",
                         HTML(
@@ -643,7 +644,7 @@ ui <- dashboardPage(
                         )
                       )
                     ),
-                    shinyjs::hidden(
+                    hidden(
                       div(
                         id = "hashing",
                         HTML(
@@ -1300,7 +1301,7 @@ server <- function(input, output, session) {
   
   observe({
     
-    shinyjs::runjs(block_ui)  
+    runjs(block_ui)  
     
     shinyDirChoose(input,
                    "db_location",
@@ -1354,14 +1355,14 @@ server <- function(input, output, session) {
       }
     }
     
-    shinyjs::runjs(unblock_ui)  
+    runjs(unblock_ui)  
   })
   
   ### Landing page UI ----
   
   # Hide sidebar on startup
-  shinyjs::addClass(selector = "body", class = "sidebar-collapse")
-  shinyjs::removeClass(selector = "body", class = "sidebar-toggle")
+  addClass(selector = "body", class = "sidebar-collapse")
+  removeClass(selector = "body", class = "sidebar-toggle")
   
   # Show system time
   output$messageMenu <- renderText({
@@ -1370,8 +1371,8 @@ server <- function(input, output, session) {
   
   observe({
     if (isFALSE(Startup$sidebar)) {
-      shinyjs::removeClass(selector = "body", class = "sidebar-collapse")
-      shinyjs::addClass(selector = "body", class = "sidebar-toggle")
+      removeClass(selector = "body", class = "sidebar-collapse")
+      addClass(selector = "body", class = "sidebar-toggle")
     }
   })
   
@@ -1749,13 +1750,13 @@ server <- function(input, output, session) {
         timer = 6000
       )
     } else {
-      shinyjs::runjs(block_ui)
+      runjs(block_ui)
     
       output$start_message <- NULL
       output$load_db <- NULL
       
-      shinyjs::addClass(selector = "body", class = "sidebar-collapse")
-      shinyjs::removeClass(selector = "body", class = "sidebar-toggle")
+      addClass(selector = "body", class = "sidebar-collapse")
+      removeClass(selector = "body", class = "sidebar-toggle")
       
       waiter_show(html = waiting_screen, color = "#384555")
       
@@ -1775,7 +1776,7 @@ server <- function(input, output, session) {
       DB$allelic_profile <- NULL
       DB$allelic_profile_trunc <- NULL
       DB$allelic_profile_true <- NULL
-      DB$scheme_new <- NULL
+      # DB$scheme_new <- NULL
       DB$loci_info <- NULL
       DB$schemeinfo <- NULL
       DB$scheme_db <- NULL
@@ -2146,6 +2147,7 @@ server <- function(input, output, session) {
       output$import_metadata_sel <- NULL
       output$import_id_sel <- NULL
       output$import_feedback <- NULL
+      output$table_missing_values <- NULL
       
       # Reset reactive screening variables
       output$screening_start <- NULL
@@ -2288,9 +2290,9 @@ server <- function(input, output, session) {
                 tags$li(
                   class = "dropdown", 
                   tags$span(HTML(
-                    paste('<i class="fa-solid fa-circle-dot" style="color:oran', 
-                          'ge !important;"></i> Status:&nbsp;&nbsp;&nbsp;<i> p', 
-                          'ending typing</i>')), 
+                    paste0('<i class="fa-solid fa-circle-dot" style="color:ora', 
+                          'nge !important;"></i> Status:&nbsp;&nbsp;&nbsp;<i> ', 
+                          'pending typing</i>')), 
                     style = "color:black;")
                 )
               )
@@ -2301,9 +2303,9 @@ server <- function(input, output, session) {
                 tags$li(
                   class = "dropdown", 
                   tags$span(HTML(
-                    paste('<i class="fa-solid fa-circle-dot" style="color:oran', 
-                          'ge !important;"></i> Status:&nbsp;&nbsp;&nbsp;<i> p', 
-                          'ending gene screening</i>')), 
+                    paste0('<i class="fa-solid fa-circle-dot" style="color:ora', 
+                          'nge !important;"></i> Status:&nbsp;&nbsp;&nbsp;<i> ', 
+                          'pending gene screening</i>')), 
                     style = "color:black;")
                 )
               )
@@ -2314,9 +2316,9 @@ server <- function(input, output, session) {
                 tags$li(
                   class = "dropdown", 
                   tags$span(HTML(
-                    paste('<i class="fa-solid fa-circle-dot" style="color:ligh', 
-                          'tgreen !important;"></i> Status:&nbsp;&nbsp;&nbsp;<', 
-                          'i> gene screening finalized</i>')), 
+                    paste0('<i class="fa-solid fa-circle-dot" style="color:lig', 
+                          'htgreen !important;"></i> Status:&nbsp;&nbsp;&nbsp;', 
+                          '<i> gene screening finalized</i>')), 
                     style = "color:black;")
                 )
               )
@@ -2338,7 +2340,7 @@ server <- function(input, output, session) {
         }
       })
       
-      shinyjs::runjs(
+      runjs(
         paste0(
         'if(document.querySelector("#loaded_scheme > div > li > span") ', 
         '!== null) {', 
@@ -2935,8 +2937,8 @@ server <- function(input, output, session) {
                                 'nt-size: 15px; margin-left: 15px;">',
                                 "Some loci files are missing in the local ", 
                                 DB$scheme, 
-                                " folder. Download the scheme again (no influe', 
-                                'nce on already typed assemblies).",
+                                " folder. Download the scheme again (no influe", 
+                                "nce on already typed assemblies).",
                                 '</span>'
                               )
                             )
@@ -3661,7 +3663,7 @@ server <- function(input, output, session) {
                   if (!is.null(DB$data)) {
                     observe({
                       output$db_entries <- renderRHandsontable({
-                        shinyjs::runjs(block_ui)
+                        runjs(block_ui)
                         w$show()
                         
                         tab <- generate_rhandsontable(
@@ -3680,7 +3682,7 @@ server <- function(input, output, session) {
                           pinned_entries_highlight = pinned_entries_highlight()
                         )
                         
-                        shinyjs::runjs(unblock_ui)
+                        runjs(unblock_ui)
                         
                         tab
                       })
@@ -3706,11 +3708,11 @@ server <- function(input, output, session) {
                           
                           if(check_new_entry & DB$check_new_entries) {
                             
-                            shinyjs::disable("import_menu")
-                            shinyjs::disable("export_menu")
-                            shinyjs::disable("del_button")
-                            shinyjs::disable("add_new_variable")
-                            shinyjs::disable("delete_new_variable")
+                            disable("import_menu")
+                            disable("export_menu")
+                            disable("del_button")
+                            disable("add_new_variable")
+                            disable("delete_new_variable")
                             
                             Typing$reload <- FALSE
                             fluidRow(
@@ -3741,11 +3743,13 @@ server <- function(input, output, session) {
                             )
                           } else if(Typing$status == "Attaching") {
                             
-                            shinyjs::disable("import_menu")
-                            shinyjs::disable("export_menu")
-                            shinyjs::disable("del_button")
-                            shinyjs::disable("add_new_variable")
-                            shinyjs::disable("delete_new_variable")
+                            disable("import_menu")
+                            disable("export_menu")
+                            disable("del_button")
+                            disable("add_new_variable")
+                            disable("delete_new_variable")
+                            disable("import_menu")
+                            removeModal()
                             
                             fluidRow(
                               column(
@@ -3773,8 +3777,8 @@ server <- function(input, output, session) {
                             )
                           } else if(isTRUE(DB$change) | new_meta) {
                             
-                            shinyjs::disable("import_menu")
-                            shinyjs::disable("export_menu")
+                            disable("import_menu")
+                            disable("export_menu")
                             
                             if(!is.null(input$db_entries)) {
                               fluidRow(
@@ -3810,18 +3814,26 @@ server <- function(input, output, session) {
                               )
                             }
                           } else {
-                            shinyjs::enable("import_menu")
-                            shinyjs::enable("export_menu")
-                            shinyjs::enable("del_button")
-                            shinyjs::enable("add_new_variable")
-                            shinyjs::enable("delete_new_variable")
+                            if(Typing$status != "Processing") {
+                              enable("import_menu")
+                            } else {
+                              disable("import_menu")
+                            }
+                            enable("export_menu")
+                            enable("del_button")
+                            enable("add_new_variable")
+                            enable("delete_new_variable")
                           }
                         } else {
-                          shinyjs::enable("import_menu")
-                          shinyjs::enable("export_menu")
-                          shinyjs::enable("del_button")
-                          shinyjs::enable("add_new_variable")
-                          shinyjs::enable("delete_new_variable")
+                          if(Typing$status != "Processing") {
+                            enable("import_menu")
+                          } else {
+                            disable("import_menu")
+                          }
+                          enable("export_menu")
+                          enable("del_button")
+                          enable("add_new_variable")
+                          enable("delete_new_variable")
                         }
                       })
                     })
@@ -3888,7 +3900,7 @@ server <- function(input, output, session) {
                   ## Render Distance Matrix ----
                   observe({
                     if(!is.null(DB$data)) {
-                      shinyjs::runjs(block_ui)
+                      runjs(block_ui)
                       
                       if(any(duplicated(DB$meta$`Assembly Name`)) | 
                          any(duplicated(DB$meta$`Assembly ID`))) {
@@ -4208,7 +4220,7 @@ server <- function(input, output, session) {
                           }
                         }
                       })
-                      shinyjs::runjs(unblock_ui)
+                      runjs(unblock_ui)
                     }
                   })
                   
@@ -4366,7 +4378,6 @@ server <- function(input, output, session) {
                   # Missing values calculations and table 
                   observe({
                     req(DB$allelic_profile, DB$meta)
-                    
                     NA_table <- DB$allelic_profile[, colSums(
                       is.na(DB$allelic_profile)) != 0]
                     
@@ -4834,13 +4845,13 @@ server <- function(input, output, session) {
           }
         }
         
-        if(!is.null(last_scheme_change)) {
+        if(!is.null(last_scheme_change) && !is.na(last_scheme_change)) {
           if(length(last_scheme_change) > 0) {
             last_file_change <- format(
               file.info(file.path(Startup$database, ".downloaded_schemes",
                                   paste0(gsub(" ", "_", DB$scheme), ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
             
-            if(!is.null(last_file_change)) {
+            if(!is.null(last_file_change) && !is.na(last_file_change)) {
               if(length(last_file_change) > 0 & length(last_scheme_change) > 0) {
                 if(last_file_change < last_scheme_change) {
                   showModal(
@@ -4890,9 +4901,9 @@ server <- function(input, output, session) {
       
       DB$scheme_new <- FALSE
       
-      shinyjs::removeClass(selector = "body", class = "sidebar-collapse")
-      shinyjs::addClass(selector = "body", class = "sidebar-toggle")
-      shinyjs::runjs(unblock_ui)
+      removeClass(selector = "body", class = "sidebar-collapse")
+      addClass(selector = "body", class = "sidebar-toggle")
+      runjs(unblock_ui)
       
       waiter_hide()
     }  
@@ -5827,7 +5838,7 @@ server <- function(input, output, session) {
   observeEvent(input$pin_import, {
     req(DB$data, DB$meta, DB$allelic_profile, DB$import, DB$cust_var, DB$scheme)
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     show_toast(title = "Import of external dataset started", 
                type = "info", position = "bottom-end", timer = 6000)
     
@@ -5882,7 +5893,7 @@ server <- function(input, output, session) {
     nrow_diff <- nrow(merged_meta) - nrow(DB$meta)
     
     # Set index column
-    merged_meta$Index <- 1:nrow(merged_meta)
+    merged_meta$Index <- as.character(1:nrow(merged_meta))
     
     # Set include column of external data to TRUE
     merged_meta$Include[(nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- TRUE
@@ -5931,7 +5942,7 @@ server <- function(input, output, session) {
     
     # Set Screened to no
     merged_meta$Screened[(
-      nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- "No"
+      nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- "NA"
     
     # Combine merged metadata and allelic profile
     DB$data <- cbind(merged_meta, merged_allelic_profile)
@@ -5955,11 +5966,11 @@ server <- function(input, output, session) {
     show_toast(title = "Import of external dataset successful", 
                type = "success", position = "bottom-end", timer = 6000)
     removeModal()
-    shinyjs::disable("export_menu")
-    shinyjs::disable("import_menu")
-    shinyjs::runjs(paste0('document.getElementById("blocking-overlay").style.d',
+    disable("export_menu")
+    disable("import_menu")
+    runjs(paste0('document.getElementById("blocking-overlay").style.d',
                           'isplay = "none";'))
-    shinyjs::delay(2000, shinyjs::runjs("highlight_pin();"))
+    delay(2000, runjs("highlight_pin();"))
   })
   
   # Foreign dataset file upload observer
@@ -5976,21 +5987,21 @@ server <- function(input, output, session) {
     
     if(!is.null(input$import_files) && length(input$import_files) > 1) {
       if(is.null(input$import_new_name) || nchar(input$import_new_name) < 1) {
-        shinyjs::disable("pin_import")
+        disable("pin_import")
         HTML(
           paste0(
             '&nbsp;&nbsp; <i class="fa-solid fa-circle-xmark" style="font-', 
             'size:15px; color:#ff0000; position:relative;"></i> &nbsp;',
             "<b>Database name can't be empty</b>"))
       } else if(any(DB$data$Database == input$import_new_name)) {
-        shinyjs::disable("pin_import")
+        disable("pin_import")
         HTML(
           paste0(
             '&nbsp;&nbsp; <i class="fa-solid fa-circle-xmark" style="font-', 
             'size:15px; color:#ff0000; position:relative;"></i> &nbsp;',
             "<b>Database name already present</b>"))
       } else {
-        shinyjs::enable("pin_import")
+        enable("pin_import")
         HTML(
           paste0(
             '&nbsp&nbsp; <i class="fa-solid fa-circle-check" style="font-', 
@@ -6012,7 +6023,7 @@ server <- function(input, output, session) {
       
       # check if ID's duplicated 
       if(any(duplicated(id_column))) {
-        shinyjs::disable("pin_import")
+        disable("pin_import")
         
         fluidRow(
           column(
@@ -6061,7 +6072,7 @@ server <- function(input, output, session) {
                       paste0(id_column, input$imp_id_suffix))
       
       if(any(duplicated(merged_ids))) {
-        shinyjs::disable("pin_import")
+        disable("pin_import")
         
         HTML(
           paste0(
@@ -6071,7 +6082,7 @@ server <- function(input, output, session) {
             " ID(s) already exist in database<br><br>",
             "Change ID column or append a suffix:"))
       } else {
-        shinyjs::enable("pin_import")
+        enable("pin_import")
         
         HTML(
           paste0(
@@ -6099,9 +6110,9 @@ server <- function(input, output, session) {
     if(!is.null(input$import_files) && length(input$import_files) > 1) {
       
       # adjusting UI element highlighting
-      shinyjs::runjs(paste0("document.getElementById('import_files').style.ani",
+      runjs(paste0("document.getElementById('import_files').style.ani",
                             "mation = 'none';"))
-      shinyjs::runjs(block_ui)
+      runjs(block_ui)
       
       # getting selected file
       import_path <- parseFilePaths(
@@ -6192,12 +6203,12 @@ server <- function(input, output, session) {
                    'nt-size:15px; color:#90EE90; position:relative;"></i> &nbs', 
                    'p; <b>Alleles are hashed</b> <br> Allele indexes are alrea', 
                    'dy hashed. No action necessary.'))
-          hash_button <- shinyjs::disabled(hash_button_ui)
-          output$hash_dir <- renderUI(shinyjs::disabled(hash_dir_ui))
-          shinyjs::runjs(
+          hash_button <- disabled(hash_button_ui)
+          output$hash_dir <- renderUI(disabled(hash_dir_ui))
+          runjs(
             paste0("document.getElementById('pin_import').style.animation =", 
                    "'pulsate-shadow 2s infinite linear';"))
-          shinyjs::enable("pin_import")
+          enable("pin_import")
         } else {
           
           # check if hashing can be performed on dataset
@@ -6209,14 +6220,14 @@ server <- function(input, output, session) {
                      '</i> &nbsp; <b>Allele indexes not hashed</b> <br>To perf', 
                      'orm hashing upload allele library containing the sequenc', 
                      'es for each allele variant of every locus.'))
-            hash_button <- shinyjs::disabled(hash_button_ui)
+            hash_button <- disabled(hash_button_ui)
             output$hash_dir <- renderUI(hash_dir_ui)
-            shinyjs::disable("pin_import")
-            shinyjs::enable("import_start_hash")
-            shinyjs::delay(1000, shinyjs::runjs(
+            disable("pin_import")
+            enable("import_start_hash")
+            delay(1000, runjs(
               paste0("document.getElementById('hash_dir_button').style.animati", 
                      "on = 'pulsate-shadow 2s infinite linear';")))
-            shinyjs::delay(1000, shinyjs::runjs(
+            delay(1000, runjs(
               paste0("document.getElementById('import_start_hash').style.anima", 
                      "tion = 'none';")))
           } else {
@@ -6226,10 +6237,10 @@ server <- function(input, output, session) {
                      'font-size:15px; color:#ff0000; position:relative;"></i> ', 
                      '&nbsp; <b>Allele indexes are faulty</b> <br> Only whole ', 
                      'numbers are allowed. Import not possible.'))
-            hash_button <- shinyjs::disabled(hash_button_ui)
-            output$hash_dir <- renderUI(shinyjs::disabled(hash_dir_ui))
-            shinyjs::disable("pin_import")
-            shinyjs::runjs(
+            hash_button <- disabled(hash_button_ui)
+            output$hash_dir <- renderUI(disabled(hash_dir_ui))
+            disable("pin_import")
+            runjs(
               paste0("document.getElementById('import_files').style.animation ", 
                      "= 'pulsate-shadow 2s infinite linear';"))
           }
@@ -6239,10 +6250,10 @@ server <- function(input, output, session) {
         # No import possible - adjust element rendering
         
         # Import section
-        shinyjs::runjs(
+        runjs(
           paste0("document.getElementById('import_files').style.animation = 'p", 
                  "ulsate-shadow 2s infinite linear';"))
-        shinyjs::runjs(paste0("document.getElementById('pin_import').style.", 
+        runjs(paste0("document.getElementById('pin_import').style.", 
                               "animation = 'none';"))
         
         if(any(shared_loci == FALSE)) {
@@ -6276,15 +6287,15 @@ server <- function(input, output, session) {
         output$hashing_status <- NULL
       }
       
-      shinyjs::runjs(unblock_ui)
+      runjs(unblock_ui)
     } else {
       
       # Nothing imported yet - adjust element rendering
       
       # Import section
-      shinyjs::runjs(paste0("document.getElementById('import_files').style.ani", 
+      runjs(paste0("document.getElementById('import_files').style.ani", 
                             "mation = 'pulsate-shadow 2s infinite linear';"))
-      shinyjs::runjs(paste0("document.getElementById('pin_import').style.an", 
+      runjs(paste0("document.getElementById('pin_import').style.an", 
                             "imation = 'none';"))
       import_filepath <- "Select file"
       import_new_name <- NULL
@@ -6341,10 +6352,10 @@ server <- function(input, output, session) {
     DB$hash_dir <- hash_dir
     
     # element highlighting adjustment
-    shinyjs::runjs(paste0("document.getElementById('hash_dir_button').style.an", 
+    runjs(paste0("document.getElementById('hash_dir_button').style.an", 
                           "imation = 'none';"))
-    shinyjs::enable("hash_import_button")
-    shinyjs::runjs(paste0("document.getElementById('import_start_hash').style.", 
+    enable("hash_import_button")
+    runjs(paste0("document.getElementById('import_start_hash').style.", 
                           "animation = 'pulsate-shadow 2s infinite linear';"))
   })
   
@@ -6392,16 +6403,16 @@ server <- function(input, output, session) {
         paste0('&nbsp;&nbsp; <i class="fa-solid fa-circle-xmark" style="font', 
                '-size:15px; color:#ff0000; position:relative;"></i> &nbsp; <', 
                'b>Hashing failed</b><br>Allele library has missing loci')))
-      shinyjs::runjs(paste0("document.getElementById('import_start_hash').styl", 
+      runjs(paste0("document.getElementById('import_start_hash').styl", 
                             "e.animation = 'none';"))
-      shinyjs::runjs(paste0("document.getElementById('hash_dir_button').style.", 
+      runjs(paste0("document.getElementById('hash_dir_button').style.", 
                             "animation = 'pulsate-shadow 2s infinite linear';"))
-      shinyjs::disable("import_start_hash")
+      disable("import_start_hash")
     } else {
       
       # adjust element highlighting
-      shinyjs::runjs(block_ui)
-      shinyjs::runjs(paste0("document.getElementById('import_start_hash').styl", 
+      runjs(block_ui)
+      runjs(paste0("document.getElementById('import_start_hash').styl", 
                             "e.animation = 'none';"))
       
       tryCatch({
@@ -6422,10 +6433,10 @@ server <- function(input, output, session) {
           paste0('&nbsp;&nbsp; <i class="fa-solid fa-circle-check" style="font', 
                  '-size:15px; color:#90EE90; position:relative;"></i> &nbsp; <', 
                  'b>Hashing successful</b><br>Proceed to import the dataset')))
-        shinyjs::enable("pin_import")
-        shinyjs::disable("import_start_hash")
-        shinyjs::disable("hash_dir_button")
-        shinyjs::runjs(paste0(
+        enable("pin_import")
+        disable("import_start_hash")
+        disable("hash_dir_button")
+        runjs(paste0(
           "document.getElementById('pin_import').style.animation = 'pulsate", 
           "-shadow 2s infinite linear';"))
       }, error = function(e) {
@@ -6439,9 +6450,9 @@ server <- function(input, output, session) {
         )
         
         # status feedback and element highlighting adjustment
-        shinyjs::enable("hash_dir_button")
-        shinyjs::disable("import_start_hash")
-        shinyjs::runjs(paste0(
+        enable("hash_dir_button")
+        disable("import_start_hash")
+        runjs(paste0(
           "document.getElementById('hash_dir_button').style.animation = 'pulsa", 
           "te-shadow 2s infinite linear';"))
         output$hashing_status <- renderUI(HTML(
@@ -6451,7 +6462,7 @@ server <- function(input, output, session) {
       })
     }
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   # Launch import menu
@@ -6529,7 +6540,7 @@ server <- function(input, output, session) {
           easyClose = TRUE,
           footer = tagList(
             modalButton("Dismiss"),
-            shinyjs::disabled(
+            disabled(
               actionButton("pin_import", "Pin Import", 
                            icon = icon("thumbtack"), class = "btn btn-default"))
           )
@@ -6674,7 +6685,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_shutdown, {
-    shinyjs::runjs("window.close();")
+    runjs("window.close();")
     stopApp()
   })
   
@@ -6896,7 +6907,7 @@ server <- function(input, output, session) {
   # Undo db changes
   observeEvent(input$undo_changes, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     log_print("Input undo_changes")
     
     DB$inhibit_change <- FALSE
@@ -6953,8 +6964,8 @@ server <- function(input, output, session) {
       })
     })
     
-    shinyjs::delay(1000, shinyjs::runjs("unhighlight_pin();"))
-    shinyjs::runjs(unblock_ui)
+    delay(1000, runjs("unhighlight_pin();"))
+    runjs(unblock_ui)
   })
   
   observeEvent(input$add_new_variable, {
@@ -7033,7 +7044,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$conf_new_var, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     log_print("Input conf_new_var")
     
     # User feedback variables
@@ -7076,7 +7087,7 @@ server <- function(input, output, session) {
       timer = 6000
     )
     
-    shinyjs::runjs(unblock_ui)  
+    runjs(unblock_ui)  
   })
   
   observeEvent(input$delete_new_variable, {
@@ -7128,7 +7139,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$conf_var_del, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     log_print("Input conf_var_del")
     
     DB$change <- TRUE
@@ -7161,7 +7172,7 @@ server <- function(input, output, session) {
       DB$data$Include == TRUE),]
     
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   # Select all button
@@ -7267,7 +7278,7 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       
-      shinyjs::runjs(block_ui)
+      runjs(block_ui)
       
       if (isTRUE(input$download_table_include)) {
         export <- DB$data[which(DB$data$Include == TRUE), ]
@@ -7285,7 +7296,7 @@ server <- function(input, output, session) {
       
       write.csv(export, file, row.names = FALSE, quote = FALSE) 
       
-      shinyjs::runjs(unblock_ui)
+      runjs(unblock_ui)
       
       removeModal()
     }
@@ -7376,7 +7387,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_db_save, {
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     log_print("Input conf_db_save")
     
     # Remove isolate assembly file if present
@@ -7393,18 +7404,12 @@ server <- function(input, output, session) {
                               "Typing.rds"))
     
     meta_hot <- hot_to_r(input$db_entries) %>%
-      select(1:(14 + nrow(DB$cust_var)))
+      select(1:(14 + nrow(DB$cust_var))) %>%
+      mutate(Index = as.character(1:nrow(DB$data)))
     
-    if(length(DB$deleted_entries > 0)) {
-      meta_hot <- mutate(meta_hot, Index = as.character(1:nrow(DB$data)))
-      
-      Data[["Typing"]] <- mutate(
-        DB$allelic_profile,
-        meta_hot, .before = 1)
-      
-    } else {
-      Data[["Typing"]] <- mutate(DB$allelic_profile, meta_hot, .before = 1)
-    }
+    Data[["Typing"]] <- mutate(
+      DB$allelic_profile,
+      meta_hot, .before = 1)
     
     # Ensure correct logical data type & index
     Data[["Typing"]][["Include"]] <- as.logical(Data[["Typing"]][["Include"]])
@@ -7444,8 +7449,8 @@ server <- function(input, output, session) {
       timer = 4000
     )
     
-    shinyjs::delay(1000, shinyjs::runjs("unhighlight_pin();"))
-    shinyjs::runjs(unblock_ui)
+    delay(1000, runjs("unhighlight_pin();"))
+    runjs(unblock_ui)
   })
   
   observeEvent(input$del_button, {
@@ -7532,7 +7537,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$conf_delete_all, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     log_print("Input conf_delete_all")
     
     # remove file with typing data
@@ -7584,14 +7589,14 @@ server <- function(input, output, session) {
       )
     )
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   DB$deleted_entries <- character(0)
   
   observeEvent(input$conf_delete, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     log_print("Input conf_delete")
     
     # Get isolates selected for deletion
@@ -7640,7 +7645,7 @@ server <- function(input, output, session) {
       )
     }
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   
@@ -8043,7 +8048,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$download_cgMLST, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     log_print(paste0("Started download of scheme for ", Scheme$folder_name))
     
     show_toast(
@@ -8053,12 +8058,12 @@ server <- function(input, output, session) {
       timer = 5000
     )
     
-    shinyjs::hide("download_cgMLST")
-    shinyjs::show("downloading")
+    hide("download_cgMLST")
+    show("downloading")
     
     # Disable pickerInput
-    shinyjs::runjs("$('#select_cgmlst').prop('disabled', true);")
-    shinyjs::runjs("$('#select_cgmlst').selectpicker('refresh');")
+    runjs("$('#select_cgmlst').prop('disabled', true);")
+    runjs("$('#select_cgmlst').selectpicker('refresh');")
     
     if(length(DB$available) == 0) {
       saveRDS(DB$new_database, file.path(app_local_share_path, "new_db.rds"))
@@ -8167,8 +8172,8 @@ server <- function(input, output, session) {
     } else {log_print("Failed to download species data from NCBI.")}
     
     log_print("Hashing downloaded database")
-    shinyjs::show("hashing")
-    shinyjs::hide("downloading")
+    show("hashing")
+    hide("downloading")
     
     show_toast(
       title = paste("Hashing of", input$select_cgmlst,  "started"),
@@ -8284,8 +8289,8 @@ server <- function(input, output, session) {
     DB$available <- available[available %in% gsub("_", " ", schemes$species)]
     DB$exist <- length(dir_ls(Startup$database)) == 0
     
-    shinyjs::show("download_cgMLST")
-    shinyjs::hide("hashing")
+    show("download_cgMLST")
+    hide("hashing")
     
     output$statustext <- renderUI(
       fluidRow(
@@ -8347,9 +8352,9 @@ server <- function(input, output, session) {
     )
     
     # Disable pickerInput
-    shinyjs::runjs("$('#select_cgmlst').prop('disabled', false);")
-    shinyjs::runjs("$('#select_cgmlst').selectpicker('refresh');")  
-    shinyjs::runjs(unblock_ui)
+    runjs("$('#select_cgmlst').prop('disabled', false);")
+    runjs("$('#select_cgmlst').selectpicker('refresh');")  
+    runjs(unblock_ui)
   })
   
   
@@ -8358,7 +8363,7 @@ server <- function(input, output, session) {
   observe({
     req(input$select_cgmlst, Scheme$link_scheme)
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     input$download_cgMLST
     
@@ -8482,7 +8487,7 @@ server <- function(input, output, session) {
     
     if(!is.null(scheme_overview)) {
       
-      shinyjs::enable("download_cgMLST")
+      enable("download_cgMLST")
       
       output$cgmlst_scheme_table <- renderUI(
         addSpinner(
@@ -8501,32 +8506,35 @@ server <- function(input, output, session) {
       # Render scheme update availability info
       output$scheme_update_info <- renderUI({
         req(last_file_change, last_scheme_change)
-        new_scheme <- last_file_change < last_scheme_change
-        if(length(new_scheme) != 0) {
-          if(new_scheme) {
-            HTML(
-              paste0(
-                '<i class="fa-solid fa-circle-exclamation" style="font-size:20px;color:orange; position:relative; top: 17px; left: -10px;"></i>',
-                '<span style="color: white; font-size: 15px; position:relative; top: 15px;">',
-                "Updated scheme available",
-                '</span>'
+        
+        if(!is.na(last_file_change) && !is.na(last_scheme_change)) {
+          new_scheme <- last_file_change < last_scheme_change
+          if(length(new_scheme) != 0) {
+            if(new_scheme) {
+              HTML(
+                paste0(
+                  '<i class="fa-solid fa-circle-exclamation" style="font-size:20px;color:orange; position:relative; top: 17px; left: -10px;"></i>',
+                  '<span style="color: white; font-size: 15px; position:relative; top: 15px;">',
+                  "Updated scheme available",
+                  '</span>'
+                )
               )
-            )
-          } else {
-            HTML(
-              paste0(
-                '<i class="fa-solid fa-check" style="font-size:20px;color:lightgreen; position:relative; top: 17px; left: -10px;"></i>',
-                '<span style="color: white; font-size: 15px; position:relative; top: 15px;">',
-                "Scheme is up-to-date",
-                '</span>'
+            } else {
+              HTML(
+                paste0(
+                  '<i class="fa-solid fa-check" style="font-size:20px;color:lightgreen; position:relative; top: 17px; left: -10px;"></i>',
+                  '<span style="color: white; font-size: 15px; position:relative; top: 15px;">',
+                  "Scheme is up-to-date",
+                  '</span>'
+                )
               )
-            )
-          }
+            }
+          } 
         }
       })
     } else {
       
-      shinyjs::disable("download_cgMLST")
+      disable("download_cgMLST")
       
       output$cgmlst_scheme <- NULL
       output$scheme_update_info <- NULL
@@ -8552,14 +8560,14 @@ server <- function(input, output, session) {
       Scheme$species_data <- NULL
     })
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   ### Render species info & image ----
   observe({
     req(Scheme$species_data)
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     DB$failCon <- FALSE
     
@@ -9002,7 +9010,7 @@ server <- function(input, output, session) {
       output$species_img <- NULL
     }
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   # Species info selector UI
@@ -9162,7 +9170,7 @@ server <- function(input, output, session) {
     )
     
     if(tree_type_reactive() == "MST") {
-      shinyjs::disabled(tree_algo)
+      disabled(tree_algo)
     } else {
       tree_algo
     }
@@ -9896,8 +9904,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$nj_label_menu, {
     
-    shinyjs::runjs(block_ui)
-    
+    runjs(block_ui)
     
     session$sendCustomMessage('nj_reset_style', "")
     session$sendCustomMessage('nj_highlight', "nj_label_menu")
@@ -10472,7 +10479,7 @@ server <- function(input, output, session) {
       )
     )
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   ###### Label Inputs ----
@@ -10481,7 +10488,7 @@ server <- function(input, output, session) {
   output$nj_tiplab_ui <- renderUI({
     output <- render_plot_control(
       input_id = "nj_tiplab", input_type = "selectInput", 
-      choices = colnames(Vis$meta_nj)[-c(1, 2, 11, 12, 13)], 
+      choices = colnames(Vis$meta_nj)[-c(1, 2, 12, 13, 14)], 
       reactive_value = nj_tiplab_val(), default_value = "Assembly Name",
       reset = isolate(Vis$nj_tiplab_val_reset))
     
@@ -10891,7 +10898,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$nj_variable_menu, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     
     session$sendCustomMessage('nj_reset_style', "")
@@ -11267,7 +11274,7 @@ server <- function(input, output, session) {
                     align = "center",
                     div(
                       class = "mat-switch-v",
-                      shinyjs::disabled(
+                      disabled(
                         materialSwitch(
                           "nj_heatmap_show",
                           "",
@@ -11281,7 +11288,7 @@ server <- function(input, output, session) {
               fluidRow(
                 column(
                   width = 8,
-                  shinyjs::disabled(
+                  disabled(
                     actionButton("nj_heatmap_button", "Select Variables")
                   )
                 ),
@@ -11290,7 +11297,7 @@ server <- function(input, output, session) {
                   width = 3,
                   align = "center",
                   dropMenu(
-                    shinyjs::disabled(
+                    disabled(
                       actionBttn(
                         "nj_variable_heatmap_menu",
                         label = "",
@@ -11327,7 +11334,7 @@ server <- function(input, output, session) {
       )
     )
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   
@@ -11503,22 +11510,24 @@ server <- function(input, output, session) {
   
   output$nj_tipshape_mapping <- renderUI({
     if(!is.null(Vis$meta_nj)) {
-      if(ncol(Vis$meta_nj) == 14) {
-        choices <- c( `Isolation Date` = "Isolation Date",
-                      Host = "Host", Country = "Country", City = "City")
-      } else {
-        choices <- append(c(`Isolation Date` = "Isolation Date", 
-                            Host = "Host", Country = "Country", City = "City"),
-                          names(Vis$meta_nj)[15:ncol(Vis$meta_nj)])
+      # if(ncol(Vis$meta_nj) == 14) {
+      #   choices <- c( `Isolation Date` = "Isolation Date",
+      #                 Host = "Host", Country = "Country", City = "City")
+      # } else {
+      #   choices <- append(c(`Isolation Date` = "Isolation Date", 
+      #                       Host = "Host", Country = "Country", City = "City"),
+      #                     names(Vis$meta_nj)[15:ncol(Vis$meta_nj)])
+        
+        choices <- names(Vis$meta_nj)[-c(1:4, 6, 11:14)]
         
         if(!is.null(DB$cust_var) && length(DB$cust_var) > 0 ) {
           cont_vars <- DB$cust_var$Variable[which(DB$cust_var$Type == "cont")]
           choices <- choices[-which(choices %in% cont_vars)]
         }
-      }
+      # }
     } else {
-      choices = c(`Isolation Date` = "Isolation Date", Host = "Host",
-                  Country = "Country", City = "City")
+      choices = c(Database = "Database", `Isolation Date` = "Isolation Date", 
+                  Host = "Host", Country = "Country", City = "City")
     }
     
     output <- render_plot_control(
@@ -12176,7 +12185,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$nj_color_menu, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     session$sendCustomMessage('nj_reset_style', "")
     session$sendCustomMessage('nj_highlight', "nj_color_menu")
@@ -12434,7 +12443,7 @@ server <- function(input, output, session) {
       )
     )
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
     
@@ -12670,7 +12679,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$nj_elements_menu, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     session$sendCustomMessage('nj_reset_style', "")
     session$sendCustomMessage('nj_highlight', "nj_elements_menu")
@@ -13141,7 +13150,7 @@ server <- function(input, output, session) {
                 column(
                   width = 6,
                   align = "left",
-                  shinyjs::disabled(
+                  disabled(
                     textInput(
                       "nj_heatmap_title",
                       label = "",
@@ -13153,7 +13162,7 @@ server <- function(input, output, session) {
                 column(
                   width = 3,
                   dropMenu(
-                    shinyjs::disabled(
+                    disabled(
                       actionBttn(
                         "nj_heatmap_menu",
                         label = "",
@@ -13358,7 +13367,7 @@ server <- function(input, output, session) {
       )
     )
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   
@@ -13894,7 +13903,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$nj_misc_menu, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     session$sendCustomMessage('nj_reset_style', "")
     session$sendCustomMessage('nj_highlight', "nj_misc_menu")
@@ -14467,7 +14476,7 @@ server <- function(input, output, session) {
       )
     })
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   
@@ -14747,7 +14756,7 @@ server <- function(input, output, session) {
   # Reset control values
   observeEvent(input$nj_reset_confirm, {
       
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     removeModal()
     
@@ -14972,7 +14981,10 @@ server <- function(input, output, session) {
     nj_legend_x_val(0.9)
     nj_legend_y_val(0.2)
     
-    shinyjs::runjs(unblock_ui)
+    
+    output$tree_controls <- NULL
+    runjs("document.querySelector('#nj_label_menu').click();")
+    runjs(unblock_ui)
   })
   
   observeEvent(input$nj_heatmap_button, {
@@ -15397,7 +15409,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$mst_label_menu, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     session$sendCustomMessage('mst_reset_style', "")
     session$sendCustomMessage('mst_highlight', "mst_label_menu")
@@ -15468,7 +15480,7 @@ server <- function(input, output, session) {
       )
     ) 
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   
@@ -15494,7 +15506,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$mst_variable_menu, {
     req(mst_col_var_reactive())
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     session$sendCustomMessage('mst_reset_style', "")
     session$sendCustomMessage('mst_highlight', "mst_variable_menu")
@@ -15548,8 +15560,9 @@ server <- function(input, output, session) {
                     selectInput(
                       "mst_col_var",
                       "",
-                      choices = names(DB$meta)[-c(1, 2, 3, 4, 6, 7, 11, 
-                                                  12, 13, 14)],
+                      choices = colnames(DB$meta)[-c(2, 3, 12, 13, 14)],
+                      # choices = names(DB$meta)[-c(1, 2, 3, 4, 6, 7, 11, 
+                      #                             12, 13, 14)],
                       selected = isolate(mst_col_var_reactive()),
                       width = "100%"
                     )
@@ -15576,7 +15589,7 @@ server <- function(input, output, session) {
       )
     ) 
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   ##### Color Menu ----
@@ -15617,7 +15630,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$mst_color_menu, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     session$sendCustomMessage('mst_reset_style', "")
     session$sendCustomMessage('mst_highlight', "mst_color_menu")
@@ -15782,7 +15795,7 @@ server <- function(input, output, session) {
       )
     ) 
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   ##### Sizing Menu ----
@@ -15842,7 +15855,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$mst_size_menu, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     session$sendCustomMessage('mst_reset_style', "")
     session$sendCustomMessage('mst_highlight', "mst_size_menu")
@@ -16159,7 +16172,7 @@ server <- function(input, output, session) {
       )
     ) 
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   ##### Other Menu ----
@@ -16233,7 +16246,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$mst_misc_menu, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     session$sendCustomMessage('mst_reset_style', "")
     session$sendCustomMessage('mst_highlight', "mst_misc_menu")
@@ -16594,14 +16607,14 @@ server <- function(input, output, session) {
       )
     ) 
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   ##### Export Menu ----
   
   observeEvent(input$mst_download_menu, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     session$sendCustomMessage('mst_reset_style', "")
     session$sendCustomMessage('mst_highlight', "mst_download_menu")
@@ -16725,7 +16738,7 @@ server <- function(input, output, session) {
       )
     ) 
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   
@@ -16785,7 +16798,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$mst_reset_confirm, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     removeModal()
     
@@ -16826,7 +16839,7 @@ server <- function(input, output, session) {
     mst_font_size_reactive(18)
     mst_symbol_size_reactive(20)
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   # Size scaling MST
@@ -16875,7 +16888,7 @@ server <- function(input, output, session) {
     if(isFALSE(mst_color_var_reactive())) {
       mst_color_node
     } else {
-      shinyjs::disabled(mst_color_node)
+      disabled(mst_color_node)
     }
   })
   
@@ -17144,15 +17157,15 @@ server <- function(input, output, session) {
       mst_node_shape_reactive()
     } else if(mst_node_shape_reactive() %in% 
               c("circle", "database", "box", "text")) {
-      shinyjs::disable('mst_scale_nodes') 
+      disable('mst_scale_nodes') 
       updateCheckboxInput(session, "mst_scale_nodes", value = FALSE)
-      shinyjs::disable('mst_node_size') 
-      shinyjs::disable('mst_node_scale')
+      disable('mst_node_size') 
+      disable('mst_node_scale')
       mst_node_shape_reactive()
     } else {
-      shinyjs::enable('mst_scale_nodes') 
-      shinyjs::enable('mst_node_size') 
-      shinyjs::enable('mst_node_scale')
+      enable('mst_scale_nodes') 
+      enable('mst_node_size') 
+      enable('mst_node_scale')
       mst_node_shape_reactive()
     }
   })
@@ -17228,9 +17241,13 @@ server <- function(input, output, session) {
         nj_limit() +
         nj_inward() 
     } else {
+      
+      Vis_nj <<- Vis_nj
+      Vis_meta_nj <<- Vis$meta_nj
+      
       tree <- ggtree(
         Vis_nj, color = nj_color_val(), layout = layout_nj(), 
-        ladderize = nj_ladder_val()) %<+%  Vis$meta_nj +
+        ladderize = nj_ladder_val()) %<+% Vis$meta_nj +
         nj_clades() +
         nj_tiplab() +
         nj_tiplab_scale() +
@@ -18164,54 +18181,54 @@ server <- function(input, output, session) {
     
     # Tiles for inward layout
     if(input$nj_layout == "inward") {
-      shinyjs::disable('nj_tiles_show') 
-      shinyjs::disable('nj_tiles_show_2')
-      shinyjs::disable('nj_tiles_show_3') 
-      shinyjs::disable('nj_tiles_show_4')
-      shinyjs::disable('nj_tiles_show_5') 
-      shinyjs::disable('nj_fruit_variable')
-      shinyjs::disable('nj_fruit_variable_2')
-      shinyjs::disable('nj_fruit_variable_3')
-      shinyjs::disable('nj_fruit_variable_4')
-      shinyjs::disable('nj_fruit_variable_5')
-      shinyjs::disable('nj_fruit_width')
-      shinyjs::disable('nj_fruit_width_2')
-      shinyjs::disable('nj_fruit_width_3')
-      shinyjs::disable('nj_fruit_width_4')
-      shinyjs::disable('nj_fruit_width_5')
-      shinyjs::disable('nj_fruit_offset')
-      shinyjs::disable('nj_fruit_offset_2')
-      shinyjs::disable('nj_fruit_offset_3')
-      shinyjs::disable('nj_fruit_offset_4')
-      shinyjs::disable('nj_fruit_offset_5')
+      disable('nj_tiles_show') 
+      disable('nj_tiles_show_2')
+      disable('nj_tiles_show_3') 
+      disable('nj_tiles_show_4')
+      disable('nj_tiles_show_5') 
+      disable('nj_fruit_variable')
+      disable('nj_fruit_variable_2')
+      disable('nj_fruit_variable_3')
+      disable('nj_fruit_variable_4')
+      disable('nj_fruit_variable_5')
+      disable('nj_fruit_width')
+      disable('nj_fruit_width_2')
+      disable('nj_fruit_width_3')
+      disable('nj_fruit_width_4')
+      disable('nj_fruit_width_5')
+      disable('nj_fruit_offset')
+      disable('nj_fruit_offset_2')
+      disable('nj_fruit_offset_3')
+      disable('nj_fruit_offset_4')
+      disable('nj_fruit_offset_5')
     } else {
-      shinyjs::enable('nj_tiles_show') 
-      shinyjs::enable('nj_tiles_show_2')
-      shinyjs::enable('nj_tiles_show_3') 
-      shinyjs::enable('nj_tiles_show_4')
-      shinyjs::enable('nj_tiles_show_5') 
-      shinyjs::enable('nj_fruit_variable')
-      shinyjs::enable('nj_fruit_variable_2')
-      shinyjs::enable('nj_fruit_variable_3')
-      shinyjs::enable('nj_fruit_variable_4')
-      shinyjs::enable('nj_fruit_variable_5')
-      shinyjs::enable('nj_fruit_width')
-      shinyjs::enable('nj_fruit_width_2')
-      shinyjs::enable('nj_fruit_width_3')
-      shinyjs::enable('nj_fruit_width_4')
-      shinyjs::enable('nj_fruit_width_5')
-      shinyjs::enable('nj_fruit_offset')
-      shinyjs::enable('nj_fruit_offset_2')
-      shinyjs::enable('nj_fruit_offset_3')
-      shinyjs::enable('nj_fruit_offset_4')
-      shinyjs::enable('nj_fruit_offset_5')
+      enable('nj_tiles_show') 
+      enable('nj_tiles_show_2')
+      enable('nj_tiles_show_3') 
+      enable('nj_tiles_show_4')
+      enable('nj_tiles_show_5') 
+      enable('nj_fruit_variable')
+      enable('nj_fruit_variable_2')
+      enable('nj_fruit_variable_3')
+      enable('nj_fruit_variable_4')
+      enable('nj_fruit_variable_5')
+      enable('nj_fruit_width')
+      enable('nj_fruit_width_2')
+      enable('nj_fruit_width_3')
+      enable('nj_fruit_width_4')
+      enable('nj_fruit_width_5')
+      enable('nj_fruit_offset')
+      enable('nj_fruit_offset_2')
+      enable('nj_fruit_offset_3')
+      enable('nj_fruit_offset_4')
+      enable('nj_fruit_offset_5')
     }
     
     # Shut off branch labels for circular layout
     if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-      shinyjs::disable('nj_show_branch_label')
+      disable('nj_show_branch_label')
     } else {
-      shinyjs::enable('nj_show_branch_label')
+      enable('nj_show_branch_label')
     }
   })
   
@@ -18583,7 +18600,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$create_tree, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     log_print("Input create_tree")
     
     if(is.null(DB$data)) {
@@ -18947,7 +18964,7 @@ server <- function(input, output, session) {
       }
     }
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   # _______________________ ####
@@ -18958,10 +18975,10 @@ server <- function(input, output, session) {
     if(!is.null(DB$data)) {
       if(!is.null(input$tree_type)) {
         if(input$tree_type == "MST") {
-          shinyjs::disable("rep_plot_report")
+          disable("rep_plot_report")
           updateCheckboxInput(session, "rep_plot_report", value = FALSE)
         } else {
-          shinyjs::enable("rep_plot_report")
+          enable("rep_plot_report")
         }
       }
     }
@@ -18971,7 +18988,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$create_rep, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     if((input$tree_type == "MST" & isTRUE(Vis$mst_true)) |
        (input$tree_type == "Tree" & isTRUE(Vis$nj_true))) {
@@ -18986,7 +19003,7 @@ server <- function(input, output, session) {
       
       extra_var <- character()
       if(input$tree_type == "MST") {
-        shinyjs::runjs("mstReport();")
+        runjs("mstReport();")
         if(isTRUE(mst_color_var_reactive())) {
           extra_var <- c(extra_var, mst_col_var_reactive())
         }
@@ -19359,45 +19376,45 @@ server <- function(input, output, session) {
       )
     }
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   observe({
     if(!is.null(input$rep_general)) {
       if(isFALSE(input$rep_general)) {
-        shinyjs::disable('rep_date_general') 
-        shinyjs::disable('rep_operator_general') 
-        shinyjs::disable('rep_institute_general') 
-        shinyjs::disable('rep_comm_general') 
-        shinyjs::disable('mst_date_general_select') 
-        shinyjs::disable('mst_operator_general_select') 
-        shinyjs::disable('mst_institute_general_select') 
-        shinyjs::disable('mst_comm_general_select') 
+        disable('rep_date_general') 
+        disable('rep_operator_general') 
+        disable('rep_institute_general') 
+        disable('rep_comm_general') 
+        disable('mst_date_general_select') 
+        disable('mst_operator_general_select') 
+        disable('mst_institute_general_select') 
+        disable('mst_comm_general_select') 
       } else {
-        shinyjs::enable('rep_date_general') 
-        shinyjs::enable('rep_operator_general') 
-        shinyjs::enable('rep_institute_general') 
-        shinyjs::enable('rep_comm_general')
-        shinyjs::enable('mst_date_general_select') 
-        shinyjs::enable('mst_operator_general_select') 
-        shinyjs::enable('mst_institute_general_select') 
-        shinyjs::enable('mst_comm_general_select') 
+        enable('rep_date_general') 
+        enable('rep_operator_general') 
+        enable('rep_institute_general') 
+        enable('rep_comm_general')
+        enable('mst_date_general_select') 
+        enable('mst_operator_general_select') 
+        enable('mst_institute_general_select') 
+        enable('mst_comm_general_select') 
       }
     }
     
     if(!is.null(input$rep_analysis)) {
       if(isFALSE(input$rep_analysis)) {
-        shinyjs::disable('rep_cgmlst_analysis') 
-        shinyjs::disable('rep_tree_analysis') 
-        shinyjs::disable('rep_distance') 
-        shinyjs::disable('rep_missval') 
-        shinyjs::disable('rep_version') 
+        disable('rep_cgmlst_analysis') 
+        disable('rep_tree_analysis') 
+        disable('rep_distance') 
+        disable('rep_missval') 
+        disable('rep_version') 
       } else {
-        shinyjs::enable('rep_cgmlst_analysis') 
-        shinyjs::enable('rep_tree_analysis') 
-        shinyjs::enable('rep_distance') 
-        shinyjs::enable('rep_missval') 
-        shinyjs::enable('rep_version') 
+        enable('rep_cgmlst_analysis') 
+        enable('rep_tree_analysis') 
+        enable('rep_distance') 
+        enable('rep_missval') 
+        enable('rep_version') 
       }
     }
     
@@ -19441,7 +19458,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$create_tree, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     if(input$tree_type == "MST") {
       Report$report_list_mst <- list(
@@ -19459,7 +19476,7 @@ server <- function(input, output, session) {
         plot = "NJ")
     }
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   # Save plot for Report
@@ -19471,7 +19488,7 @@ server <- function(input, output, session) {
       print(make.tree())
       dev.off()
     } else if (tree_type_reactive() == "MST") {
-      shinyjs::runjs("mstReport();")
+      runjs("mstReport();")
       decoded_data <- base64enc::base64decode(input$canvas_data)
       writeBin(decoded_data, paste0(getwd(), "/Report/MST.jpg"))
     }
@@ -19487,7 +19504,7 @@ server <- function(input, output, session) {
       }
     },
     content = function(file) {
-      shinyjs::runjs(block_ui)
+      runjs(block_ui)
       if(input$tree_type == "MST") {
         plot.report()
         
@@ -19544,7 +19561,7 @@ server <- function(input, output, session) {
       }
       
       removeModal()
-      shinyjs::runjs(unblock_ui)
+      runjs(unblock_ui)
     }
   )
   
@@ -19576,30 +19593,33 @@ server <- function(input, output, session) {
       fname
     },
     content = function(file) {
+      ht_opt$message <- FALSE
+      
       if (input$filetype_gs == "png") {
         png(file, 
-            width = as.numeric(input$gs_scale) * as.numeric(input$gs_ratio), 
-            height = as.numeric(input$gs_scale))
+            width = as.numeric(input_gs_scale()) * as.numeric(input_gs_ratio()), 
+            height = as.numeric(input_gs_scale()))
         print(gs_plot())
         dev.off()
       } else if (input$filetype_gs == "jpeg") {
-        jpeg(file, 
-             width = as.numeric(input$gs_scale) * as.numeric(input$gs_ratio), 
-             height = as.numeric(input$gs_scale), quality = 100)
+        jpeg(
+          file, 
+          width = as.numeric(input_gs_scale()) * as.numeric(input_gs_ratio()), 
+          height = as.numeric(input_gs_scale()), quality = 100)
         print(gs_plot())
         dev.off()
       } else if (input$filetype_gs == "svg") {
         plot <- print(gs_plot())
         svg(file, 
             width = (as.numeric(
-              input$gs_scale) * as.numeric(input$gs_ratio)) / 92,
-            height = as.numeric(input$gs_scale) / 92)
+              input_gs_scale()) * as.numeric(input_gs_ratio())) / 92,
+            height = as.numeric(input_gs_scale()) / 92)
         print(gs_plot())
         dev.off()
       } else if (input$filetype_gs == "bmp") {
         bmp(file, 
-            width = as.numeric(input$gs_scale) * as.numeric(input$gs_ratio), 
-            height = as.numeric(input$gs_scale))
+            width = as.numeric(input_gs_scale()) * as.numeric(input_gs_ratio()), 
+            height = as.numeric(input_gs_scale()))
         print(gs_plot())
         dev.off()
       }
@@ -20059,7 +20079,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$gs_data_menu, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     if(!is.null(input_gsplot_isolate_label())) {
       gsplot_isolate_label_selected <- input_gsplot_isolate_label()
@@ -20348,13 +20368,13 @@ server <- function(input, output, session) {
       )
     )
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   # color menu
   observeEvent(input$gs_color_menu, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     if(!is.null(gsplot_color_text())) {
       gsplot_color_text_selected <- gsplot_color_text()
@@ -20579,7 +20599,7 @@ server <- function(input, output, session) {
       )
     })  
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   # variable mapping menu
@@ -20590,7 +20610,7 @@ server <- function(input, output, session) {
    
   observeEvent(input$gs_variable_menu, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     output$gs_plot_control_ui <- renderUI({
       
@@ -20608,13 +20628,13 @@ server <- function(input, output, session) {
         gs_vir_variables_selected <- "Classification"
       }
       
-      shinyjs::delay(0, shinyjs::runjs(
+      delay(0, runjs(
         gsub("#col_scale_id", "#gs_virclass_scale", color_scale_bg_JS)))
       
-      shinyjs::delay(0, shinyjs::runjs(
+      delay(0, runjs(
         gsub("#col_scale_id", "#gs_amrclass_scale", color_scale_bg_JS)))
       
-      shinyjs::delay(0, shinyjs::runjs(
+      delay(0, runjs(
         gsub("#col_scale_id", "#gs_mapping_scale", color_scale_bg_JS)))
       
       div(
@@ -20800,7 +20820,7 @@ server <- function(input, output, session) {
       )
     })
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   # sizing menu
@@ -20817,7 +20837,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$gs_size_menu, {
     req(Screening$available)
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     output$gs_plot_control_ui <- renderUI({
       
@@ -21002,13 +21022,13 @@ server <- function(input, output, session) {
       )
     })
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   # download menu
   observeEvent(input$gs_download_menu, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     output$gs_plot_control_ui <- renderUI({
       req(Screening$available)
@@ -21064,13 +21084,13 @@ server <- function(input, output, session) {
       )
     })
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
  
   input_gs_ratio <- reactive({input$gs_ratio}) %>% debounce(1000)
-  input_gs_scale<- reactive({input$gs_scale}) %>% debounce(1000)
+  input_gs_scale <- reactive({input$gs_scale}) %>% debounce(1000)
   input_gs_cluster_row <- reactive({input$gs_cluster_row}) %>% debounce(1000)
-  input_gs_cluster_col<- reactive({input$gs_cluster_col}) %>% debounce(1000)
+  input_gs_cluster_col <- reactive({input$gs_cluster_col}) %>% debounce(1000)
   input_gs_cluster_distance_col <- reactive({
     input$gs_cluster_distance_col}) %>% debounce(1000)
   input_gs_cluster_distance_row <- reactive({
@@ -21083,7 +21103,7 @@ server <- function(input, output, session) {
   # miscellaneous menu
   observeEvent(input$gs_misc_menu, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     output$gs_plot_control_ui <- renderUI({
       req(Screening$available)
@@ -21232,7 +21252,7 @@ server <- function(input, output, session) {
                   paste(
                     tags$span(
                       style = 'color: white; font-size: 15px; position: relative; top: 5px;',
-                              'Cluster Columns')
+                              'Cluster Genes')
                   )
                 )
               ),
@@ -21319,7 +21339,7 @@ server <- function(input, output, session) {
                   paste(
                     tags$span(
                       style = 'color: white; font-size: 15px; position: relative; top: 4px;',
-                              'Cluster Rows')
+                              'Cluster Isolates')
                   )
                 )
               ),
@@ -21403,7 +21423,7 @@ server <- function(input, output, session) {
       )
     })
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   }) 
   
   # gs classification scale 
@@ -21469,7 +21489,7 @@ server <- function(input, output, session) {
       
     }
     
-    shinyjs::delay(0, shinyjs::runjs(
+    delay(0, runjs(
       gsub("#col_scale_id", "#gs_virclass_scale", color_scale_bg_JS)))
     
     div(class = "gs-vir-class-scale",gs_virclass_scale)
@@ -21536,7 +21556,7 @@ server <- function(input, output, session) {
       )
     }
     
-    shinyjs::delay(0, shinyjs::runjs(
+    delay(0, runjs(
       gsub("#col_scale_id", "#gs_amrclass_scale", color_scale_bg_JS)))
     
     div(class = "gs-amr-class-scale", gs_amrclass_scale)
@@ -21627,7 +21647,7 @@ server <- function(input, output, session) {
       
     }
     
-    shinyjs::delay(0, shinyjs::runjs(
+    delay(0, runjs(
       gsub("#col_scale_id", "#gs_mapping_scale", color_scale_bg_JS)))
       
     div(class = "gs-mapping-scale", gs_mapping_scale)
@@ -22136,17 +22156,21 @@ server <- function(input, output, session) {
     req(input$screening_res_sel, Startup$database, DB$scheme, DB$data, 
         Screening$available)
     
-    if(!is.null(Screening$status_df) & !is.null(input$screening_res_sel) & 
-       !is.null(Screening$status_df$status) & 
-       !is.null(Screening$status_df$isolate)) {
+    result_path <- file.path(
+      Startup$database, gsub(" ", "_", DB$scheme), 
+      "Isolates", input$screening_res_sel, "amrfinder.out")
+    
+    if(!is.null(Screening$status_df) &&
+       !is.null(input$screening_res_sel) && 
+       !is.null(Screening$status_df$status) && 
+       !is.null(Screening$status_df$isolate) &&
+       file.exists(result_path)) {
       if(length(input$screening_res_sel) > 0) {
         if(any(Screening$status_df$isolate == input$screening_res_sel)) {
           if(Screening$status_df$status[which(
             Screening$status_df$isolate == input$screening_res_sel)] ==
             "success") {
-            results <- read.delim(
-              file.path(Startup$database, gsub(" ", "_", DB$scheme), "Isolates", 
-                        input$screening_res_sel, "amrfinder.out"))
+            results <- read.delim(result_path)
             
             output$screening_table <- renderDataTable(
               select(results, c(6, 7, 8, 9, 11)),
@@ -22174,7 +22198,6 @@ server <- function(input, output, session) {
     } else {
       output$screening_table <- NULL
     }
-    
   })
   
   # Availablity feedback
@@ -22399,7 +22422,7 @@ server <- function(input, output, session) {
   # Reset screening 
   observeEvent(input$screening_reset_bttn, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     log_print("Reset gene screening")
     
     # reset status file
@@ -22421,12 +22444,12 @@ server <- function(input, output, session) {
     updatePickerInput(session, "screening_select", selected = character(0))
     
     # enable isolate picker
-    shinyjs::delay(
-      200, shinyjs::runjs("$('#screening_select').prop('disabled', false);"))
-    shinyjs::delay(
-      200, shinyjs::runjs("$('#screening_select').selectpicker('refresh');"))
+    delay(
+      200, runjs("$('#screening_select').prop('disabled', false);"))
+    delay(
+      200, runjs("$('#screening_select').selectpicker('refresh');"))
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   # Cancel screening
@@ -22466,7 +22489,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$conf_screening_cancel, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     log_print("Cancelled gene screening")
     removeModal()
     
@@ -22499,12 +22522,12 @@ server <- function(input, output, session) {
     updatePickerInput(session, "screening_select", selected = character(0))
     
     # disable isolate picker
-    shinyjs::delay(
-      200, shinyjs::runjs("$('#screening_select').prop('disabled', false);"))
-    shinyjs::delay(
-      200, shinyjs::runjs("$('#screening_select').selectpicker('refresh');"))
+    delay(
+      200, runjs("$('#screening_select').prop('disabled', false);"))
+    delay(
+      200, runjs("$('#screening_select').selectpicker('refresh');"))
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   # Get selected assembly
@@ -22544,6 +22567,18 @@ server <- function(input, output, session) {
                 br()
               )
             } else if(Screening$status == "finished") {
+              
+              # Load AMR profile
+              profile_path <- file.path(
+                Startup$database, gsub(" ", "_", DB$scheme), "AMR_Profile.rds")
+              
+              if(file.exists(profile_path)) {
+                amr_profile <- readRDS(profile_path)
+                Screening$amr_results <- amr_profile$results
+                Screening$amr_class <- amr_profile$AMR_classification
+                Screening$vir_class <- amr_profile$virulence_classification
+              }
+              
               column(
                 width = 12,
                 align = "center",
@@ -22666,27 +22701,23 @@ server <- function(input, output, session) {
       Screening$picker_selected <- input$screening_select
       Screening$picker_status <- FALSE
       
-      show_toast(
-        title = "Gene screening started",
-        type = "info",
-        position = "bottom-end",
-        timer = 6000
-      )
+      show_toast(title = "Gene screening started", type = "info", 
+                 position = "bottom-end", timer = 6000)
       
       Screening$meta_df <- data.frame(
-        wd = getwd(), selected = paste(
-          file.path(Startup$database, gsub(" ", "_", DB$scheme),
-                    "Isolates", input$screening_select,
-                    paste0(input$screening_select, ".zip")), 
-          collapse = " "),
+        wd = shQuote(getwd()), 
+        selected = paste(
+          shQuote(file.path(Startup$database, gsub(" ", "_", DB$scheme),
+                            "Isolates", input$screening_select,
+                            paste0(input$screening_select, ".zip"))),
+          collapse = " ~ "),
         species = gsub(" ", "_", check.amrfinder.available(
           selected_scheme = DB$scheme,
           amrfinder_species = amrfinder_species)),
-        database = Startup$database, scheme = DB$scheme)
+        database = shQuote(Startup$database), scheme = DB$scheme)
       
       Screening$status_df <- data.frame(
-        isolate = basename(gsub(".zip", "", 
-                                str_split_1(Screening$meta_df$selected, " "))), 
+        isolate = input$screening_select, 
         status = "unfinished")
       
       # Reset screening status
@@ -22697,13 +22728,14 @@ server <- function(input, output, session) {
                                            "screening_meta.rds"))
       
       # Disable pickerInput
-      shinyjs::delay(
-        200, shinyjs::runjs("$('#screening_select').prop('disabled', true);"))
-      shinyjs::delay(
-        200, shinyjs::runjs("$('#screening_select').selectpicker('refresh');"))
+      delay(
+        200, runjs("$('#screening_select').prop('disabled', true);"))
+      delay(
+        200, runjs("$('#screening_select').selectpicker('refresh');"))
       
       # System execution screening.sh
-      system(paste("bash", paste0(getwd(), "/bin/screening.sh")), wait = FALSE)
+      system(paste("bash", shQuote(paste0(getwd(), "/bin/screening.sh"))), 
+             wait = FALSE)
     }
   })
   
@@ -22916,12 +22948,12 @@ server <- function(input, output, session) {
                             selected = tail(Screening$choices, 1))
           
           # Disable pickerInput
-          shinyjs::delay(
+          delay(
             200, 
-            shinyjs::runjs("$('#screening_select').prop('disabled', true);"))
-          shinyjs::delay(
+            runjs("$('#screening_select').prop('disabled', true);"))
+          delay(
             200, 
-            shinyjs::runjs("$('#screening_select').selectpicker('refresh');"))
+            runjs("$('#screening_select').selectpicker('refresh');"))
           
         } else if(tail(status_df$status, 1) == "fail") {
           
@@ -22934,12 +22966,12 @@ server <- function(input, output, session) {
             choices = Screening$choices, selected = tail(Screening$choices, 1))
           
           # Disable pickerInput
-          shinyjs::delay(
+          delay(
             200,
-            shinyjs::runjs("$('#screening_select').prop('disabled', true);"))
-          shinyjs::delay(
+            runjs("$('#screening_select').prop('disabled', true);"))
+          delay(
             200, 
-            shinyjs::runjs("$('#screening_select').selectpicker('refresh');"))
+            runjs("$('#screening_select').selectpicker('refresh');"))
         }
         
         if(sum("unfinished" != Screening$status_df$status) == length(
@@ -23078,8 +23110,15 @@ server <- function(input, output, session) {
         ### get heatmap meta
         amr_profile_numeric_all <- amr_profile_numeric[rownames(
           amr_profile_numeric) %in% gs_plot_selected_isolate, ]
-        amr_profile_numeric <- amr_profile_numeric_all[, c(
-          gs_plot_selected_amr, gs_plot_selected_vir, gs_plot_selected_noclass)]
+        
+        combined_genes <- c(gs_plot_selected_amr, gs_plot_selected_vir, 
+                            gs_plot_selected_noclass)
+        
+        amr_profile_numeric <- 
+          amr_profile_numeric_all[, 
+                                  combined_genes[combined_genes %in% 
+                                                   colnames(
+                                                     amr_profile_numeric_all)]]
         heatmap_mat <- as.matrix(amr_profile_numeric)
         
         # metadata
@@ -23845,7 +23884,7 @@ server <- function(input, output, session) {
        any(grepl(" ", multi_select_table$Files[which(
          multi_select_table$Include == TRUE)]))) {
       
-      shinyjs::disable("conf_meta_multi")
+      disable("conf_meta_multi")
       
       if(any(grepl(" ", multi_select_table$Files[which(
         multi_select_table$Include == TRUE)])))  {
@@ -23877,7 +23916,7 @@ server <- function(input, output, session) {
                 "&nbspRename highlighted isolates or deselect them")))
       }
     } else {
-      shinyjs::enable("conf_meta_multi")
+      enable("conf_meta_multi")
       HTML(paste(
         '<i class="fa-solid fa-circle-check" style="font-size:15px;color:lightgreen"></i>',
         paste("<span style='color: white; font-style:italic'>",
@@ -24282,7 +24321,7 @@ server <- function(input, output, session) {
   # Confirm typing metadata
   observeEvent(input$conf_meta_multi, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     
     multi_select_table <- hot_to_r(input$multi_select_table)[which(
       hot_to_r(input$multi_select_table)$Include == TRUE), ]
@@ -24377,7 +24416,7 @@ server <- function(input, output, session) {
       )
     }
     
-    shinyjs::runjs(unblock_ui)
+    runjs(unblock_ui)
   })
   
   # Set reactive variable to distinguish files/folder selection
@@ -24448,6 +24487,7 @@ server <- function(input, output, session) {
     } else {
       
       log_print("Reset multi typing")
+      delay(1000, runjs("unhighlight_typing();"))
       
       # Reset multi typing result list
       saveRDS(list(), file.path(app_local_share_path, "event_list.rds"))
@@ -24470,13 +24510,13 @@ server <- function(input, output, session) {
   # Confirm Reset after 
   observeEvent(input$conf_multi_kill, {
     
-    shinyjs::runjs(block_ui)
+    runjs(block_ui)
     removeModal()
-    
+    delay(1000, runjs("unhighlight_typing();"))
     log_print("Kill multi typing")
     
     # Kill multi typing and reset logfile  
-    system(paste("bash", paste0(getwd(), "/bin/kill_multi.sh")),  
+    system(paste("bash", shQuote(paste0(getwd(), "/bin/kill_multi.sh"))),  
            wait = TRUE)
     
     show_toast(
@@ -24501,7 +24541,7 @@ server <- function(input, output, session) {
     
     output$initiate_multi_typing_ui <- initiate_multi_typing_ui
     
-    shinyjs::runjs(unblock_ui)  
+    runjs(unblock_ui)  
   })
   
   observeEvent(input$start_typ_multi, {
@@ -24523,6 +24563,8 @@ server <- function(input, output, session) {
         position = "bottom-end",
         timer = 10000
       )
+      
+      delay(1000, runjs("highlight_typing();"))
       
       # Remove Allelic Typing Controls
       output$initiate_multi_typing_ui <- NULL
@@ -24573,7 +24615,7 @@ server <- function(input, output, session) {
                                          "multi_typing_df.rds"))
       
       # Execute multi blat script  
-      system(paste("bash", paste0(getwd(), "/bin/multi_typing.sh")), 
+      system(paste("bash", shQuote(paste0(getwd(), "/bin/multi_typing.sh"))), 
              wait = FALSE)
     }
   })

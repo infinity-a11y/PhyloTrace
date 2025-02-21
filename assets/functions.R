@@ -1254,7 +1254,8 @@ download.alleles2.PM <- function(url_link, database, folder_name, progress) {
   progress$set(message = "Compressing files", value = 50)
   
   # Zip folder
-  system(paste0("zip -r -j ", output_folder, ".zip ", output_folder, "/"))
+  system(paste0("zip -r -j ", shQuote(output_folder), ".zip ", 
+                shQuote(output_folder), "/"))
   unlink(output_folder, recursive = TRUE)
   
   # Final check to ensure all files are non-empty and expected count matches
@@ -1400,7 +1401,8 @@ download.alleles.PM <- function(url_link, database, folder_name, progress) {
   }
   
   # Zip folder
-  system(paste0("zip -r -j ", output_folder, ".zip ", output_folder, "/"))
+  system(paste0("zip -r -j ", shQuote(output_folder), ".zip ", 
+                shQuote(output_folder), "/"))
   unlink(output_folder, recursive = TRUE)
   
   # Final check to ensure all files are non-empty and expected count matches
@@ -1532,7 +1534,8 @@ download.alleles.CM <- function(url_link, database, folder_name, progress) {
     progress$set(message = "Compressing Files")
     
     # Zip folder
-    system(paste0("zip -r -j ", output_folder, ".zip ", output_folder, "/"))
+    system(paste0("zip -r -j ", shQuote(output_folder), ".zip ", 
+                  shQuote(output_folder), "/"))
     unlink(output_folder, recursive = TRUE)
     
     # Final check to ensure all files are non-empty and expected count matches

@@ -19,6 +19,27 @@ function unhighlight_pin() {
   }
 }
 
+// highlighting typing icon
+function highlight_typing() {
+  let iconElement = document.querySelector("#menu_typing > li.active > a > i");
+  
+  if (iconElement) {
+      // Change the icon class
+      iconElement.classList.remove("fas", "fa-gears");
+      iconElement.classList.add("fa-solid", "fa-gears", "fa-spin-pulse");
+  }
+}
+
+function unhighlight_typing() {
+  let iconElement = document.querySelector("#menu_typing > li.active > a > i");
+  
+  if (iconElement) {
+      // Change the icon class
+      iconElement.classList.remove("fa-solid", "fa-gears", "fa-spin-pulse");
+      iconElement.classList.add("fas", "fa-gears");
+  }
+}
+
 // highlighting clicked plot control buttons
 Shiny.addCustomMessageHandler('nj_highlight', function(id) {
   document.getElementById(id).style.backgroundColor = '#1f4e5d';
@@ -148,7 +169,7 @@ function mstReport() {
     // Get all canvas elements on the document
     var canvas = document.querySelector('canvas');
     
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    // Assuming the canvases are ordered as title, subtitle, main
     var titleCanvasID = document.getElementById('titletree_mst');
     if(!(titleCanvasID.innerText.length === 0)) {
       var titleCanvas = document.createElement('canvas');
@@ -185,14 +206,14 @@ function mstReport() {
     var mainCtx = canvas.getContext('2d');
     var mainCanvasWidth = canvas.width;
     
-    // Create a new canvas to merge title, subtitle, main plot, and footer
+    // Create a new canvas to merge title, subtitle, main plot
     var mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = canvas.width;
     mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
     
     var ctx = mergedCanvas.getContext('2d');
     
-    // Draw title, subtitle, main plot, and footer onto the merged canvas
+    // Draw title, subtitle, main plot onto the merged canvas
     var bgColor = getBackgroundColor()
     if(bgColor === 'rgba(0, 0, 0, 0)') {
       ctx.fillStyle = 'rgb(255, 255, 255)'; 
@@ -211,7 +232,7 @@ function mstReport() {
     var legendCanvas = canvases[0];
     var plotCanvas = canvases[1];
     
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    // Assuming the canvases are ordered as title, subtitle, main
     var titleCanvasID = document.getElementById('titletree_mst');
     if(!(titleCanvasID.innerText.length === 0)) {
       var titleCanvas = document.createElement('canvas');
@@ -245,7 +266,7 @@ function mstReport() {
     // Get the heights of the canvas
     var mainCanvasHeight = plotCanvas.height;
     
-    // Create a new canvas to merge title, subtitle, main plot, and footer
+    // Create a new canvas to merge title, subtitle, main plot
     var mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = legendCanvas.width + plotCanvas.width;
     mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
@@ -298,7 +319,7 @@ $(document).on('click', '#save_plot_jpeg', function() {
     // Get all canvas elements on the document
     var canvas = document.querySelector('canvas');
     
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    // Assuming the canvases are ordered as title, subtitle, main
     var titleCanvasID = document.getElementById('titletree_mst');
     if(!(titleCanvasID.innerText.length === 0)) {
       var titleCanvas = document.createElement('canvas');
@@ -335,14 +356,14 @@ $(document).on('click', '#save_plot_jpeg', function() {
     var mainCtx = canvas.getContext('2d');
     var mainCanvasWidth = canvas.width;
     
-    // Create a new canvas to merge title, subtitle, main plot, and footer
+    // Create a new canvas to merge title, subtitle, main plot
     var mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = canvas.width;
     mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
     
     var ctx = mergedCanvas.getContext('2d');
     
-    // Draw title, subtitle, main plot, and footer onto the merged canvas
+    // Draw title, subtitle, main plot onto the merged canvas
     var bgColor = getBackgroundColor()
     if(bgColor === 'rgba(0, 0, 0, 0)') {
       ctx.fillStyle = 'rgb(255, 255, 255)'; 
@@ -361,7 +382,7 @@ $(document).on('click', '#save_plot_jpeg', function() {
     var legendCanvas = canvases[0];
     var plotCanvas = canvases[1];
     
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    // Assuming the canvases are ordered as title, subtitle, main
     var titleCanvasID = document.getElementById('titletree_mst');
     if(!(titleCanvasID.innerText.length === 0)) {
       var titleCanvas = document.createElement('canvas');
@@ -395,7 +416,7 @@ $(document).on('click', '#save_plot_jpeg', function() {
     // Get the heights of the canvas
     var mainCanvasHeight = plotCanvas.height;
     
-    // Create a new canvas to merge title, subtitle, main plot, and footer
+    // Create a new canvas to merge title, subtitle, main plot
     var mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = legendCanvas.width + plotCanvas.width;
     mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
@@ -447,7 +468,7 @@ $(document).on('click', '#save_plot_png', function() {
     // Get all canvas elements on the document
     var canvas = document.querySelector('canvas');
     
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    // Assuming the canvases are ordered as title, subtitle, main
     var titleCanvasID = document.getElementById('titletree_mst');
     if(!(titleCanvasID.innerText.length === 0)) {
       var titleCanvas = document.createElement('canvas');
@@ -484,14 +505,14 @@ $(document).on('click', '#save_plot_png', function() {
     var mainCtx = canvas.getContext('2d');
     var mainCanvasWidth = canvas.width;
     
-    // Create a new canvas to merge title, subtitle, main plot, and footer
+    // Create a new canvas to merge title, subtitle, main plot
     var mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = canvas.width;
     mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
     
     var ctx = mergedCanvas.getContext('2d');
     
-    // Draw title, subtitle, main plot, and footer onto the merged canvas
+    // Draw title, subtitle, main plot onto the merged canvas
     ctx.fillStyle = getBackgroundColor();
     ctx.fillRect(0, 0, canvas.width, mergedCanvas.height);
     if(!(titleCanvasID.innerText.length === 0)) {
@@ -505,7 +526,7 @@ $(document).on('click', '#save_plot_png', function() {
     var legendCanvas = canvases[0];
     var plotCanvas = canvases[1];
     
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    // Assuming the canvases are ordered as title, subtitle, main
     var titleCanvasID = document.getElementById('titletree_mst');
     if(!(titleCanvasID.innerText.length === 0)) {
       var titleCanvas = document.createElement('canvas');
@@ -539,7 +560,7 @@ $(document).on('click', '#save_plot_png', function() {
     // Get the heights of the canvas
     var mainCanvasHeight = plotCanvas.height;
     
-    // Create a new canvas to merge title, subtitle, main plot, and footer
+    // Create a new canvas to merge title, subtitle, main plot
     var mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = legendCanvas.width + plotCanvas.width;
     mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
@@ -586,7 +607,7 @@ $(document).on('click', '#save_plot_bmp', function() {
     // Get all canvas elements on the document
     var canvas = document.querySelector('canvas');
     
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    // Assuming the canvases are ordered as title, subtitle, main
     var titleCanvasID = document.getElementById('titletree_mst');
     if(!(titleCanvasID.innerText.length === 0)) {
       var titleCanvas = document.createElement('canvas');
@@ -623,14 +644,14 @@ $(document).on('click', '#save_plot_bmp', function() {
     var mainCtx = canvas.getContext('2d');
     var mainCanvasWidth = canvas.width;
     
-    // Create a new canvas to merge title, subtitle, main plot, and footer
+    // Create a new canvas to merge title, subtitle, main plot
     var mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = canvas.width;
     mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
     
     var ctx = mergedCanvas.getContext('2d');
     
-    // Draw title, subtitle, main plot, and footer onto the merged canvas
+    // Draw title, subtitle, main plot onto the merged canvas
     var bgColor = getBackgroundColor()
     if(bgColor === 'rgba(0, 0, 0, 0)') {
       ctx.fillStyle = 'rgb(255, 255, 255)'; 
@@ -649,7 +670,7 @@ $(document).on('click', '#save_plot_bmp', function() {
     var legendCanvas = canvases[0];
     var plotCanvas = canvases[1];
     
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    // Assuming the canvases are ordered as title, subtitle, main
     var titleCanvasID = document.getElementById('titletree_mst');
     if(!(titleCanvasID.innerText.length === 0)) {
       var titleCanvas = document.createElement('canvas');
@@ -683,7 +704,7 @@ $(document).on('click', '#save_plot_bmp', function() {
     // Get the heights of the canvas
     var mainCanvasHeight = plotCanvas.height;
     
-    // Create a new canvas to merge title, subtitle, main plot, and footer
+    // Create a new canvas to merge title, subtitle, main plot
     var mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = legendCanvas.width + plotCanvas.width;
     mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
