@@ -3912,59 +3912,6 @@ server <- function(input, output, session) {
                       if(any(duplicated(DB$meta$`Assembly Name`)) | 
                          any(duplicated(DB$meta$`Assembly ID`))) {
                         output$db_distancematrix <- NULL
-                        
-                        if( (sum(duplicated(DB$meta$`Assembly Name`)) > 0) & 
-                            (sum(duplicated(DB$meta$`Assembly ID`)) == 0) ) {
-                          duplicated_txt <- paste0(
-                            paste(
-                              paste0("Name  # ", 
-                                     which(duplicated(DB$meta$`Assembly Name`)), 
-                                     " - "),
-                              DB$meta$`Assembly Name`[which(
-                                duplicated(DB$meta$`Assembly Name`))]
-                            ),
-                            "<br>"
-                          )
-                        } else if ((sum(
-                          duplicated(DB$meta$`Assembly ID`)) > 0) & 
-                          (sum(duplicated(DB$meta$`Assembly Name`)) == 0)){
-                          duplicated_txt <- paste0(
-                            paste(
-                              paste0("ID  # ", 
-                                     which(duplicated(DB$meta$`Assembly ID`)), 
-                                     " - "),
-                              DB$meta$`Assembly ID`[which(
-                                duplicated(DB$meta$`Assembly ID`))]
-                            ),
-                            "<br>"
-                          )
-                        } else {
-                          duplicated_txt <- c(
-                            paste0(
-                              paste(
-                                paste0(
-                                  "Name  # ", 
-                                  which(duplicated(DB$meta$`Assembly Name`)), 
-                                  " - "),
-                                DB$meta$`Assembly Name`[which(
-                                  duplicated(DB$meta$`Assembly Name`))]
-                              ),
-                              "<br>"
-                            ),
-                            paste0(
-                              paste(
-                                paste0(
-                                  "ID  # ", 
-                                  which(duplicated(DB$meta$`Assembly ID`)), 
-                                  " - "),
-                                DB$meta$`Assembly ID`[which(
-                                  duplicated(DB$meta$`Assembly ID`))]
-                              ),
-                              "<br>"
-                            )
-                          )
-                        }
-                        
                         output$distancematrix_duplicated <- renderUI({
                           column(
                             width = 12,
@@ -3973,20 +3920,7 @@ server <- function(input, output, session) {
                                              " display distance matrix.")),
                             br(), br(), br(),
                             actionButton("change_entries", "Go to Entry Table", 
-                                         class = "btn btn-default"),
-                            br(), br(), br(),
-                            tags$span(
-                              style = "font-size: 15; color: white",
-                              HTML(
-                                append(
-                                  "Duplicated:",
-                                  append(
-                                    "<br>",
-                                    duplicated_txt
-                                  )
-                                )
-                              )
-                            )
+                                         class = "btn btn-default")
                           )
                         })
                       } else {
@@ -7229,7 +7163,7 @@ server <- function(input, output, session) {
       log_print(paste0("Save scheme info table ", 
                        paste0(gsub(" ", "_", DB$scheme), "_scheme.csv")))
       
-      paste0(gsub(" ", "_", DB$scheme), "_scheme.csv")
+      paste0(gsub(" ", "_", DB$scheme), "_Scheme_Info.csv")
     },
     content = function(file) {
       if(any(DB$schemeinfo[,1] == "Publications")) {
@@ -8065,8 +7999,8 @@ server <- function(input, output, session) {
       timer = 5000
     )
     
-    hide("download_cgMLST")
-    show("downloading")
+    shinyjs::hide("download_cgMLST")
+    shinyjs::show("downloading")
     
     # Disable pickerInput
     runjs("$('#select_cgmlst').prop('disabled', true);")
@@ -8179,8 +8113,8 @@ server <- function(input, output, session) {
     } else {log_print("Failed to download species data from NCBI.")}
     
     log_print("Hashing downloaded database")
-    show("hashing")
-    hide("downloading")
+    shinyjs::show("hashing")
+    shinyjs::hide("downloading")
     
     show_toast(
       title = paste("Hashing of", input$select_cgmlst,  "started"),
@@ -8296,8 +8230,8 @@ server <- function(input, output, session) {
     DB$available <- available[available %in% gsub("_", " ", schemes$species)]
     DB$exist <- length(dir_ls(Startup$database)) == 0
     
-    show("download_cgMLST")
-    hide("hashing")
+    shinyjs::show("download_cgMLST")
+    shinyjs::hide("hashing")
     
     output$statustext <- renderUI(
       fluidRow(
@@ -18082,7 +18016,7 @@ server <- function(input, output, session) {
   output$save_plot_html <- downloadHandler(
     filename = function() {
       log_print(paste0("Save MST;", paste0("MST_", Sys.Date(), ".html")))
-      paste0("MST_", Sys.Date(), ".html")
+      paste0(Sys.Date(), "_", gsub(" ", "_", DB$scheme), "_MST.html")
     },
     content = function(file) {
       mst_tree() %>% visSave(file = file, background = mst_background_color())
@@ -18097,7 +18031,8 @@ server <- function(input, output, session) {
     filename = function() {
       log_print(paste0("Save NJ;", 
                        paste0("NJ_", Sys.Date(), ".", input$filetype_nj)))
-      paste0("NJ_", Sys.Date(), ".", input$filetype_nj)
+      paste0(Sys.Date(), "_", gsub(" ", "_", DB$scheme), "_Tree.", 
+             input$filetype_nj)
     },
     content = function(file) {
       if (input$filetype_nj == "png") {
@@ -18619,7 +18554,7 @@ server <- function(input, output, session) {
       
       if(any(duplicated(DB$meta$`Assembly Name`)) | 
          any(duplicated(DB$meta$`Assembly ID`))) {
-        log_print("Duplicated assemblies")
+        log_print("Duplicated assemblies present")
         
         dup_name <- which(duplicated(DB$meta_true$`Assembly Name`))
         dup_id <- which(duplicated(DB$meta_true$`Assembly ID`))
@@ -18628,110 +18563,27 @@ server <- function(input, output, session) {
           div(
             class = "start-modal",
             modalDialog(
-              if((length(dup_name) + length(dup_id)) == 1) {
-                if(length(dup_name) == 1) {
-                  fluidRow(
-                    br(), 
-                    column(
-                      width = 11,
-                      p(
-                        HTML(
-                          paste0(
-                            '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
-                            "Entry #", dup_name,
-                            " contains a duplicated assembly name:", "<br><br>",
-                            DB$meta_true$`Assembly Name`[dup_name],
-                            '</span>'
-                          )
-                        )
+              fluidRow(
+                br(), 
+                column(
+                  width = 11,
+                  p(
+                    HTML(
+                      paste0(
+                        '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
+                        "Entries contain duplicated name(s). Please assign only unique assembly name(s).",
+                        '</span>'
                       )
-                    ),
-                    br()
+                    )
                   )
-                } else {
-                  fluidRow(
-                    br(), 
-                    column(
-                      width = 11,
-                      p(
-                        HTML(
-                          paste0(
-                            '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
-                            "Entry #", dup_id,
-                            " contains a duplicated assembly ID:", "<br><br>",
-                            DB$meta_true$`Assembly ID`[dup_id],
-                            '</span>'
-                          )
-                        )
-                      )
-                    ),
-                    br()
-                  )
-                }
-              } else {
-                if(length(dup_name) == 0) {
-                  fluidRow(
-                    br(), 
-                    column(
-                      width = 11,
-                      p(
-                        HTML(
-                          paste0(
-                            '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
-                            c("Entries contain duplicated IDs <br><br>",
-                              paste0(unique(DB$meta_true$`Assembly ID`[dup_id]), 
-                                     "<br>")),
-                            '</span>'
-                          )
-                        )
-                      )
-                    ),
-                    br()
-                  )
-                } else if(length(dup_id) == 0) {
-                  fluidRow(
-                    br(), 
-                    column(
-                      width = 11,
-                      p(
-                        HTML(
-                          paste0(
-                            '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
-                            c("Entries contain duplicated names<br><br>",
-                              paste0(unique(DB$meta_true$`Assembly Name`[dup_name]), "<br>")),
-                            '</span>'
-                          )
-                        )
-                      )
-                    ),
-                    br()
-                  )
-                } else {
-                  fluidRow(
-                    br(), 
-                    column(
-                      width = 11,
-                      p(
-                        HTML(
-                          paste0(
-                            '<span style="color: white; display: block; font-size: 15px; margin-left: 15px;">',
-                            c("Entries contain duplicated names and IDs <br><br>",
-                              paste0("Name: ", unique(DB$meta_true$`Assembly Name`[dup_name]), "<br>"),
-                              paste0("ID: ", unique(DB$meta_true$`Assembly ID`[dup_id]), "<br>")),
-                            '</span>'
-                          )
-                        )
-                      )
-                    ),
-                    br()
-                  )
-                }
-              },
+                ),
+                br()
+              ),
               title = "Duplicate entries",
               fade = TRUE,
               easyClose = TRUE,
               footer = tagList(
-                modalButton("Cancel"),
+                modalButton("Dismiss"),
                 actionButton("change_entries", "Go to Entry Table", 
                              class = "btn btn-default")
               )
@@ -19349,7 +19201,7 @@ server <- function(input, output, session) {
             title = "cgMLST Report Generation",
             easyClose = TRUE,
             footer = tagList(
-              modalButton("Cancel"),
+              modalButton("Dismiss"),
               downloadBttn(
                 "download_report",
                 style = "simple",
@@ -19491,11 +19343,7 @@ server <- function(input, output, session) {
   #### Event Save Report ----
   output$download_report <- downloadHandler(
     filename = function() {
-      if(input$tree_type == "MST") {
-        paste0("MST_Report_", Sys.Date(), ".html")
-      } else if(input$tree_type == "Tree") {
-        paste0("NJ_Report_", Sys.Date(), ".html")
-      }
+      paste0(Sys.Date(), "_", gsub(" ", "_", DB$scheme), "_Report.html")
     },
     content = function(file) {
       runjs(block_ui)
@@ -19582,9 +19430,9 @@ server <- function(input, output, session) {
   # download gs plot
   output$gs_download_plot <- downloadHandler(
     filename = function() {
-      fname <- paste0("GS_heatmap_", Sys.Date(), ".", input$filetype_gs)
-      log_print(paste0("Save GS heatmap"))
-      fname
+      log_print(paste0("Save AMR heatmap"))
+      paste0(Sys.Date(), "_", gsub(" ", "_", DB$scheme), "_AMR_Heatmap.", 
+             input$filetype_gs)
     },
     content = function(file) {
       ht_opt$message <- FALSE
@@ -22400,7 +22248,7 @@ server <- function(input, output, session) {
       log_print(paste0("Save resistance profile table ", 
                        input$gs_profile_select, "_Profile.csv"))
       
-      paste0(format(Sys.Date()), "_", input$gs_profile_select, "_Profile.csv")
+      paste0(Sys.Date(), "_", input$gs_profile_select, "_AMR_Profile.csv")
     },
     content = function(file) {
       write.table(
@@ -24437,7 +24285,7 @@ server <- function(input, output, session) {
     filename = function() {
       log_print(paste0("Save multi typing log ", 
                        paste("Multi_Typing_", Sys.Date(), ".txt", sep = "")))
-      paste("Multi_Typing_", Sys.Date(), ".txt", sep = "")
+      paste0(Sys.Date(), "_", gsub(" ", "_", DB$scheme), "_Typing_Log.txt")
     },
     content = function(file) {
       writeLines(readLines(file.path(logdir, "script_log.txt")), file)
