@@ -1434,6 +1434,11 @@ i.fa-solid.fa-gears.fa-spin-pulse {
 
 /* Database */
 
+#import-menu {
+  margin-left: -24px;
+  margin-top: 2rem;
+}
+
 .exp-menu-switch2 {
   margin-top: 5px;
 }

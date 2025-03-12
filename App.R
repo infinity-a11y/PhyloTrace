@@ -3893,7 +3893,11 @@ server <- function(input, output, session) {
                           column(
                             width = 3,
                             align = "left",
-                            uiOutput("add_dataset_ui")
+                            actionButton(
+                              "import_menu",
+                              "Import",
+                              icon = icon("file-import")
+                            )
                           )
                         )
                       ),
@@ -4559,6 +4563,25 @@ server <- function(input, output, session) {
                                     "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
                                     sep = '<br/>'
                                   )
+                                ),
+                                br(), br(),
+                                HTML(
+                                  paste0(
+                                    "<span style='color: white;'>",
+                                    "Alternatively import a dataset of isolate", 
+                                    "s which were typed using the same ", 
+                                    DB$scheme,
+                                    " cgMLST nomenclature."
+                                  )
+                                ),
+                                br(),
+                                div(
+                                  id = "import-menu",
+                                  actionButton(
+                                    "import_menu",
+                                    "Import",
+                                    icon = icon("file-import")
+                                  )
                                 )
                               )
                             )
@@ -4611,7 +4634,7 @@ server <- function(input, output, session) {
                         HTML(paste(
                           "<span style='color: white;'>",
                           "No Entries for this scheme available.",
-                          "Type a genome in the section <strong>Allelic Typing</strong> and add the result to the local database.",
+                          "Type an assembly in the section <strong>Allelic Typing</strong> and add the result to the local database.",
                           sep = '<br/>'
                         ))
                       )
@@ -4854,14 +4877,6 @@ server <- function(input, output, session) {
   ## Database ----
   
   ### Conditional UI Elements rendering ----
-  
-  output$add_dataset_ui <- renderUI(
-    actionButton(
-      "import_menu",
-      "Import",
-      icon = icon("file-import")
-    )
-  )
   
   # Render the notification dropdown menu
   output$notificationMenu <- renderMenu({
@@ -5774,144 +5789,284 @@ server <- function(input, output, session) {
   
   # Pin import 
   observeEvent(input$pin_import, {
-    req(DB$data, DB$meta, DB$allelic_profile, DB$import, DB$cust_var, DB$scheme)
+    # req(DB$data, DB$meta, DB$allelic_profile, DB$import, DB$cust_var, DB$scheme)
+    req(DB$import, DB$scheme)
     
     runjs(block_ui)
     show_toast(title = "Import of external dataset started", 
                type = "info", position = "bottom-end", timer = 6000)
     
-    # first merge external allelic profile with local allelic profile
-    external_allelic_profile <- DB$import[, colnames(DB$allelic_profile)]
-    merged_allelic_profile <- add_row(DB$allelic_profile,
-                                      external_allelic_profile)
-    
-    # selection of "Sample ID" as ID column
-    id_column <- DB$import[[input$import_id_selector]]
-    
-    # selection of meta data to be imported
-    if(length(input$import_metadata_sel)) {
-      external_meta <- DB$import[, !colnames(DB$import) %in%
-                                   colnames(DB$allelic_profile)]
-      import_meta <- external_meta[, input$import_metadata_sel]
-      if(any(colnames(import_meta) == input$import_id_selector)) {
-        import_meta <- select(import_meta, -c(input$import_id_selector))  
-      }
-      merged_meta <- merge_and_fix_types(DB$meta, import_meta)
-
-      # append new external custom metadata
-      external_custom_vars <- which(!colnames(import_meta) %in% 
-                                      colnames(DB$meta))
-
-      if(length(external_custom_vars)) {
-
-        import_meta_ex_cust <- import_meta[, external_custom_vars]
-
-        for(variable in seq_along(colnames(import_meta_ex_cust))) {
-          class <- class(import_meta_ex_cust[, variable])
-          ifelse(class == "numeric",
-                 type <- "cont",
-                 type <- "categ")
-
-          DB$cust_var <- add_row(
-            DB$cust_var, Variable = colnames(import_meta_ex_cust)[variable],
-            Type = type)
-
-          rownames(DB$cust_var) <- DB$cust_var$Variable
+    if(!is.null(DB$data) && !is.null(DB$meta) && !is.null(DB$allelic_profile)) {
+      # first merge external allelic profile with local allelic profile
+      external_allelic_profile <- DB$import[, colnames(DB$allelic_profile)]
+      merged_allelic_profile <- add_row(DB$allelic_profile,
+                                        external_allelic_profile)
+      
+      # selection of "Sample ID" as ID column
+      id_column <- DB$import[[input$import_id_selector]]
+      
+      # selection of meta data to be imported
+      if(length(input$import_metadata_sel)) {
+        external_meta <- DB$import[, !colnames(DB$import) %in%
+                                     colnames(DB$allelic_profile)]
+        import_meta <- external_meta[, input$import_metadata_sel]
+        if(any(colnames(import_meta) == input$import_id_selector)) {
+          import_meta <- select(import_meta, -c(input$import_id_selector))  
         }
+        merged_meta <- merge_and_fix_types(DB$meta, import_meta)
+        
+        # append new external custom metadata
+        external_custom_vars <- which(!colnames(import_meta) %in% 
+                                        colnames(DB$meta))
+        
+        if(length(external_custom_vars)) {
+          
+          import_meta_ex_cust <- import_meta[, external_custom_vars]
+          
+          for(variable in seq_along(colnames(import_meta_ex_cust))) {
+            class <- class(import_meta_ex_cust[, variable])
+            ifelse(class == "numeric",
+                   type <- "cont",
+                   type <- "categ")
+            
+            DB$cust_var <- add_row(
+              DB$cust_var, Variable = colnames(import_meta_ex_cust)[variable],
+              Type = type)
+            
+            rownames(DB$cust_var) <- DB$cust_var$Variable
+          }
+        }
+      } else {
+        # no metadata to be imported introduce dummy column
+        merged_meta <- merge_and_fix_types(
+          DB$meta, 
+          as.data.frame(id_column, nm = "dummy"))
+        merged_meta <- select(merged_meta, -c("dummy"))
       }
-    } else {
-      # no metadata to be imported introduce dummy column
-      merged_meta <- merge_and_fix_types(
-        DB$meta, 
-        as.data.frame(id_column, nm = "dummy"))
-      merged_meta <- select(merged_meta, -c("dummy"))
-    }
-    
-    # Get number of added entries
-    nrow_diff <- nrow(merged_meta) - nrow(DB$meta)
-    
-    # Set index column
-    merged_meta$Index <- as.character(1:nrow(merged_meta))
-    
-    # Set include column of external data to TRUE
-    merged_meta$Include[(nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- TRUE
-    
-    # Set Assembly ID column with external id and optional suffix
-    ifelse(is.null(input$imp_id_suffix),
-           suffix <- "",
-           suffix <- input$imp_id_suffix)
-    
-    merged_meta$`Assembly ID`[(
-      nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- paste0(id_column, 
-                                                                suffix)
-    
-    # Set Assembly Name column with external id and optional suffix
-    if(any(is.na(merged_meta$`Assembly Name`)) |
-       any(merged_meta$`Assembly Name` == "") | 
-       any(duplicated(merged_meta$`Assembly Name`))) {
-      merged_meta$`Assembly Name`[(
+      
+      # Get number of added entries
+      nrow_diff <- nrow(merged_meta) - nrow(DB$meta)
+      
+      # Set index column
+      merged_meta$Index <- as.character(1:nrow(merged_meta))
+      
+      # Set include column of external data to TRUE
+      merged_meta$Include[(nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- TRUE
+      
+      # Set Assembly ID column with external id and optional suffix
+      ifelse(is.null(input$imp_id_suffix),
+             suffix <- "",
+             suffix <- input$imp_id_suffix)
+      
+      merged_meta$`Assembly ID`[(
         nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- paste0(id_column, 
                                                                   suffix)
       
-      if(any(duplicated(merged_meta$`Assembly Name`))) {
-        merged_meta$`Assembly Name`[which(
-          duplicated(merged_meta$`Assembly Name`))] <- paste0(
-            merged_meta$`Assembly Name`[which(
-              duplicated(merged_meta$`Assembly Name`))], "_dup")
+      # Set Assembly Name column with external id and optional suffix
+      if(any(is.na(merged_meta$`Assembly Name`)) |
+         any(merged_meta$`Assembly Name` == "") | 
+         any(duplicated(merged_meta$`Assembly Name`))) {
+        merged_meta$`Assembly Name`[(
+          nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- paste0(id_column, 
+                                                                    suffix)
+        
+        if(any(duplicated(merged_meta$`Assembly Name`))) {
+          merged_meta$`Assembly Name`[which(
+            duplicated(merged_meta$`Assembly Name`))] <- paste0(
+              merged_meta$`Assembly Name`[which(
+                duplicated(merged_meta$`Assembly Name`))], "_dup")
+        }
       }
+      
+      # Set database column
+      merged_meta$Database[(nrow(DB$meta) + 1):(nrow(
+        DB$meta) + nrow_diff)] <- input$import_new_name
+      
+      # Set Scheme column of external data to current scheme
+      merged_meta$Scheme[(
+        nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- gsub(" ", "_",
+                                                                DB$scheme)
+      # Set Entry Date column to current cate
+      merged_meta$`Entry Date`[(
+        nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- format(Sys.Date())
+      
+      # Set Successes & error columns
+      errors <- rowSums(is.na(external_allelic_profile))
+      successes <- DB$number_loci - rowSums(is.na(external_allelic_profile))
+      merged_meta$Errors[(
+        nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- errors
+      merged_meta$Successes[(
+        nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- successes
+      
+      # Set Screened to no
+      merged_meta$Screened[(
+        nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- "NA"
+      
+      # Combine merged metadata and allelic profile
+      DB$data <- cbind(merged_meta, merged_allelic_profile)
+      
+      DB$meta_gs <- select(DB$data, c(1, 3:14))
+      DB$meta <- select(DB$data, 1:(14 + nrow(DB$cust_var)))
+      DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
+      DB$allelic_profile <- select(DB$data, -(1:(14 + nrow(DB$cust_var))))
+      DB$allelic_profile_trunc <- as.data.frame(
+        lapply(DB$allelic_profile, function(x) sapply(x, truncHash)))
+      DB$allelic_profile_true <- DB$allelic_profile[which(
+        DB$data$Include == TRUE),]
+      
+      # Deactivate switching to missing values tabs
+      DB$no_na_switch <- TRUE
+      
+      # Activate database save button
+      DB$change <- TRUE
+      
+      # UI changes & feedback
+      show_toast(title = "Import of external dataset successful", 
+                 type = "success", position = "bottom-end", timer = 6000)
+      
+      removeModal()
+      disable("export_menu")
+      disable("import_menu")
+      runjs(paste0('document.getElementById("blocking-overlay").style.d',
+                   'isplay = "none";'))
+      delay(2000, runjs("highlight_pin();"))
+    } else {
+      alleles <- list.files(
+        file.path(Startup$database, gsub(" ", "_", DB$scheme), 
+                  paste0(gsub(" ", "_", DB$scheme), "_alleles")), 
+        full.names = FALSE)
+      
+      external_allelic_profile <- DB$import[, gsub(".fasta|.fna|.fa", "", 
+                                                   alleles)]
+      
+      # selection of "Sample ID" as ID column
+      id_column <- DB$import[[input$import_id_selector]]
+      
+      # selection of meta data to be imported
+      dummy_meta <- data.frame(
+        Index = 1, Include = TRUE, `Assembly ID` = "Dummy_ID",
+        `Assembly Name` = "Dummy_ID", Database = "Dummy_DB", 
+        Scheme = "Dummy_Scheme", `Isolation Date`= format(Sys.Date()), 
+        Host = "Dummy_Host", Country = "Dummy_Country", City = "Dummy_City",
+        `Entry Date` = format(Sys.Date()), Successes = 1, Errors = 1,
+        Screened = "NA")
+      colnames(dummy_meta) <- c(
+        "Index", "Include", "Assembly ID", "Assembly Name", "Database",
+        "Scheme", "Isolation Date", "Host", "Country", "City", "Entry Date",
+        "Successes", "Errors", "Screened")
+      
+      if(length(input$import_metadata_sel)) {
+        external_meta <- DB$import[, !colnames(DB$import) %in%
+                                     gsub(".fasta|.fna|.fa", "", 
+                                          alleles)]
+        import_meta <- external_meta[, input$import_metadata_sel]
+        if(any(colnames(import_meta) == input$import_id_selector)) {
+          import_meta <- select(import_meta, -c(input$import_id_selector))  
+        }
+        
+        merged_meta <- merge_and_fix_types(dummy_meta, import_meta)
+        
+        # append new external custom metadata
+        external_custom_vars <- which(
+          !colnames(import_meta) %in% 
+            c("Index", "Include", "Assembly ID", "Assembly Name", "Database",
+              "Scheme", "Isolation Date", "Host", "Country", "City", 
+              "Entry Date", "Successes", "Errors", "Screened"))
+        
+        if(length(external_custom_vars)) {
+          
+          import_meta_ex_cust <- import_meta[, external_custom_vars]
+          
+          for(variable in seq_along(colnames(import_meta_ex_cust))) {
+            class <- class(import_meta_ex_cust[, variable])
+            ifelse(class == "numeric",
+                   type <- "cont",
+                   type <- "categ")
+            cust_var <- data.frame()
+            DB$cust_var <- add_row(
+              cust_var, Variable = colnames(import_meta_ex_cust)[variable],
+              Type = type)
+            
+            rownames(DB$cust_var) <- DB$cust_var$Variable
+          }
+        }
+      } else {
+        # no metadata to be imported introduce dummy column
+        merged_meta <- merge_and_fix_types(
+          dummy_meta, 
+          as.data.frame(id_column, nm = "dummy"))
+        
+        merged_meta <- select(merged_meta, -c("dummy"))
+      }
+      
+      # Remove dummy entry
+      merged_meta <- merged_meta[-1, ]
+      
+      # Set index column
+      merged_meta$Index <- as.character(1:nrow(merged_meta))
+      
+      # Set include column of external data to TRUE
+      merged_meta$Include <- TRUE
+      
+      # Set Assembly ID column with external id and optional suffix
+      # ifelse(is.null(input$imp_id_suffix),
+      #        suffix <- "",
+      #        suffix <- input$imp_id_suffix)
+      
+      merged_meta$`Assembly ID` <- id_column
+      
+      # Set Assembly Name column with external id and optional suffix
+      if(any(is.na(merged_meta$`Assembly Name`)) |
+         any(merged_meta$`Assembly Name` == "") | 
+         any(duplicated(merged_meta$`Assembly Name`))) {
+        merged_meta$`Assembly Name` <- id_column
+        
+        if(any(duplicated(merged_meta$`Assembly Name`))) {
+          merged_meta$`Assembly Name`[which(
+            duplicated(merged_meta$`Assembly Name`))] <- paste0(
+              merged_meta$`Assembly Name`[which(
+                duplicated(merged_meta$`Assembly Name`))], "_dup")
+        }
+      }
+      
+      # Set database column
+      merged_meta$Database <- input$import_new_name
+      
+      # Set Scheme column of external data to current scheme
+      merged_meta$Scheme <- gsub(" ", "_", DB$scheme)
+      
+      # Set Entry Date column to current cate
+      merged_meta$`Entry Date` <- format(Sys.Date())
+      
+      # Set Successes & error columns
+      errors <- rowSums(is.na(external_allelic_profile))
+      successes <- DB$number_loci - rowSums(is.na(external_allelic_profile))
+      merged_meta$Errors <- errors
+      merged_meta$Successes <- successes
+      
+      # Set Screened to NA
+      merged_meta$Screened <- "NA"
+      
+      # Combine merged metadata and allelic profile
+      data <- list()
+      data[["Typing"]] <- cbind(merged_meta, external_allelic_profile)
+      
+      saveRDS(data, file.path(Startup$database, gsub(" ", "_", DB$scheme),
+                              "Typing.rds"))
+      # UI changes & feedback
+      show_toast(title = "Import of external dataset successful", 
+                 type = "success", position = "bottom-end", timer = 6000)
+      
+      # Deactivate switching to missing values tabs
+      DB$no_na_switch <- TRUE
+      
+      disable("export_menu")
+      disable("import_menu")
+      runjs(paste0('document.getElementById("blocking-overlay").style.d',
+                   'isplay = "none";'))
+      
+      removeModal()
     }
-    
-    # Set database column
-    merged_meta$Database[(nrow(DB$meta) + 1):(nrow(
-      DB$meta) + nrow_diff)] <- input$import_new_name
-    
-    # Set Scheme column of external data to current scheme
-    merged_meta$Scheme[(
-      nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- gsub(" ", "_",
-                                                                      DB$scheme)
-    # Set Entry Date column to current cate
-    merged_meta$`Entry Date`[(
-      nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- format(Sys.Date())
-    
-    # Set Successes & error columns
-    errors <- rowSums(is.na(external_allelic_profile))
-    successes <- DB$number_loci - rowSums(is.na(external_allelic_profile))
-    merged_meta$Errors[(
-      nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- errors
-    merged_meta$Successes[(
-      nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- successes
-    
-    # Set Screened to no
-    merged_meta$Screened[(
-      nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- "NA"
-    
-    # Combine merged metadata and allelic profile
-    DB$data <- cbind(merged_meta, merged_allelic_profile)
-
-    DB$meta_gs <- select(DB$data, c(1, 3:14))
-    DB$meta <- select(DB$data, 1:(14 + nrow(DB$cust_var)))
-    DB$meta_true <- DB$meta[which(DB$data$Include == TRUE),]
-    DB$allelic_profile <- select(DB$data, -(1:(14 + nrow(DB$cust_var))))
-    DB$allelic_profile_trunc <- as.data.frame(
-      lapply(DB$allelic_profile, function(x) sapply(x, truncHash)))
-    DB$allelic_profile_true <- DB$allelic_profile[which(
-      DB$data$Include == TRUE),]
-    
-    # Deactivate switching to missing values tabs
-    DB$no_na_switch <- TRUE
-    
-    # Activate database save button
-    DB$change <- TRUE
-    
-    # UI changes & feedback
-    show_toast(title = "Import of external dataset successful", 
-               type = "success", position = "bottom-end", timer = 6000)
-    removeModal()
-    disable("export_menu")
-    disable("import_menu")
-    runjs(paste0('document.getElementById("blocking-overlay").style.d',
-                          'isplay = "none";'))
-    delay(2000, runjs("highlight_pin();"))
   })
   
   # Foreign dataset file upload observer
@@ -5924,8 +6079,6 @@ server <- function(input, output, session) {
   
   # Render import new name preview
   output$import_new_name_feedback_ui <- renderUI({
-    req(DB$data) 
-    
     if(!is.null(input$import_files) && length(input$import_files) > 1) {
       if(is.null(input$import_new_name) || nchar(input$import_new_name) < 1) {
         disable("pin_import")
@@ -5934,7 +6087,8 @@ server <- function(input, output, session) {
             '&nbsp;&nbsp; <i class="fa-solid fa-circle-xmark" style="font-', 
             'size:15px; color:#ff0000; position:relative;"></i> &nbsp;',
             "<b>Database name can't be empty</b>"))
-      } else if(any(DB$data$Database == input$import_new_name)) {
+      } else if(!is.null(DB$data) && 
+                any(DB$data$Database == input$import_new_name)) {
         disable("pin_import")
         HTML(
           paste0(
@@ -5954,9 +6108,21 @@ server <- function(input, output, session) {
   
   # Render ID column selection preview 
   output$id_preview <- renderUI({
-    req(input$import_id_selector, DB$import, DB$data)
+    req(input$import_id_selector, DB$import)
     
-    if(!is.null(input$import_files) && length(input$import_files) > 1) {
+    check_pos_ui <- fluidRow(
+      column(
+        width = 12,
+        HTML(
+          paste0(
+            '&nbsp <i class="fa-solid fa-circle-check" style="font-', 
+            'size:15px; color:#90EE90; position:relative;"></i> &nbsp;',
+            "IDs are compatible<br>",
+            "Assembly IDs can be imported."))
+      )
+    ) 
+    
+    if(!is.null(DB$data) || (!is.null(input$import_files) && length(input$import_files) > 1)) {
       
       # get selected ID column
       id_column <- DB$import[[input$import_id_selector]]
@@ -5987,20 +6153,8 @@ server <- function(input, output, session) {
             textInput("imp_id_suffix", "", placeholder = "_ext")
           )
         )
-      } else {
-        fluidRow(
-          column(
-            width = 12,
-            HTML(
-              paste0(
-                '&nbsp <i class="fa-solid fa-circle-check" style="font-', 
-                'size:15px; color:#90EE90; position:relative;"></i> &nbsp;',
-                "IDs are compatible<br>",
-                "Assembly IDs can be imported."))
-          )
-        )
-      }
-    }
+      } else {check_pos_ui}
+    } else {check_pos_ui}
   })
   
   output$imp_id_dup_info <- renderUI({
@@ -6046,8 +6200,6 @@ server <- function(input, output, session) {
   
   # Construction of import UI elements & checking of uploaded dataset 
   observe({
-    req(DB$data, DB$meta, DB$allelic_profile)
-    
     if(!is.null(input$import_files) && length(input$import_files) > 1) {
       
       # adjusting UI element highlighting
@@ -6065,7 +6217,12 @@ server <- function(input, output, session) {
       DB$import <- import
       
       # check compatibe loci in imported dataset
-      shared_loci <- colnames(DB$allelic_profile) %in% colnames(import)
+      alleles <- list.files(
+        file.path(Startup$database, gsub(" ", "_", DB$scheme), 
+                  paste0(gsub(" ", "_", DB$scheme), "_alleles")), 
+        full.names = FALSE)
+      
+      shared_loci <- gsub(".fasta|.fna|.fa", "", alleles) %in% colnames(import)
       
       # check if import dataset has ID column
       check_id_col <- DB$number_loci != ncol(import)
@@ -6073,7 +6230,7 @@ server <- function(input, output, session) {
       if (!any(shared_loci == FALSE) & check_id_col) {
         
         DB$import_all_meta <- colnames(import)[which(
-          !colnames(import) %in% colnames(DB$allelic_profile))]
+          !colnames(import) %in% gsub(".fasta|.fna|.fa", "", alleles))]
         
         ### Preload UI elements
         # Import dataset feedback
@@ -6094,7 +6251,7 @@ server <- function(input, output, session) {
           import_new_name_val <- gsub("\\.(csv|tsv|txt|dat|tab)$", "", 
                                       basename(import_path$datapath))
           
-          if(any(DB$data$Database == import_new_name_val)) {
+          if(!is.null(DB$data) && any(DB$data$Database == import_new_name_val)) {
             import_new_name_val <- ""
             placeholder <- "Database Name"
           }
@@ -6130,7 +6287,7 @@ server <- function(input, output, session) {
         
         # check if import allele indexes are hashed
         hash_check <- import[, which(colnames(import) %in%
-                                       colnames(DB$allelic_profile))]
+                                       gsub(".fasta|.fna|.fa", "", alleles))]
         
         # check which processing necessary
         if((sum((class(unlist(hash_check)) == "character" |
@@ -6334,7 +6491,12 @@ server <- function(input, output, session) {
                                                  full.names = FALSE)))
     filtered_selection <- which(dir_content %in% colnames(DB$allelic_profile))
     
-    if(any(!colnames(DB$allelic_profile) %in% 
+    alleles <- list.files(
+      file.path(Startup$database, gsub(" ", "_", DB$scheme), 
+                paste0(gsub(" ", "_", DB$scheme), "_alleles")), 
+      full.names = FALSE)
+    
+    if(any(!gsub(".fasta|.fna|.fa", "", alleles) %in% 
            dir_content[filtered_selection])) {
       # status feedback and element highlighting adjustment
       log_print("Allele library has missing loci")
@@ -15439,8 +15601,6 @@ server <- function(input, output, session) {
   mst_subtitle_reactive <- reactiveVal()
 
   observe({
-    #req(mst_color_var_reactive())
-    
     ifelse(isTRUE(mst_color_var_reactive()),
            mst_node_label_reactive("Assembly Name"),
            ifelse(!is.null(input$mst_node_label),
