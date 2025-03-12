@@ -10428,9 +10428,15 @@ server <- function(input, output, session) {
   
   # Tip label
   output$nj_tiplab_ui <- renderUI({
+    if (!is.null(Vis$meta_nj)) {
+      choices <- colnames(Vis$meta_nj)[-c(1, 2, 6, 12, 13, 14)]
+    } else  {
+      choices <- colnames(DB$meta[, -2])[-c(1, 2, 6, 12, 13, 14)]
+    }
+    
     output <- render_plot_control(
       input_id = "nj_tiplab", input_type = "selectInput", 
-      choices = colnames(Vis$meta_nj)[-c(1, 2, 6, 12, 13, 14)], 
+      choices = choices, 
       reactive_value = nj_tiplab_val(), default_value = "Assembly Name",
       reset = isolate(Vis$nj_tiplab_val_reset))
     
@@ -10480,10 +10486,16 @@ server <- function(input, output, session) {
   
   # Branch label
   output$nj_branch_label <- renderUI({
+    if (!is.null(Vis$meta_nj)) {
+      choices <- colnames(Vis$meta_nj)[-c(1:4, 6, 12:14)]
+    } else  {
+      choices <- colnames(DB$meta[, -2])[-c(1:4, 6, 12:14)]
+    }
+    
     output <- render_plot_control(
       input_id = "nj_branch_label",
       input_type = "selectInput",
-      choices = names(Vis$meta_nj)[-c(1:4, 6, 12:14)],
+      choices = choices,
       reactive_value = nj_branch_label_val(),
       default_value = "Host",
       reset = isolate(Vis$nj_branch_label_val_reset))
@@ -11285,10 +11297,16 @@ server <- function(input, output, session) {
   # Tip label variable mapping
   
   output$nj_color_mapping <- renderUI({
+    if (!is.null(Vis$meta_nj)) {
+      choices <- colnames(Vis$meta_nj)[-c(1:4, 6, 12:14)]
+    } else  {
+      choices <- colnames(DB$meta[, -2])[-c(1:4, 6, 12:14)]
+    }
+    
     output <- render_plot_control(
       input_id = "nj_color_mapping",
       input_type = "selectInput",
-      choices = names(Vis$meta_nj)[-c(1:4, 6, 12:14)],
+      choices = choices,
       reactive_value = nj_color_mapping_val(),
       default_value = "Country",
       reset = isolate(Vis$nj_color_mapping_val_reset),
@@ -11300,13 +11318,19 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiplab_scale <- renderUI({
+    if (!is.null(Vis$meta_nj)) {
+      meta_nj <- Vis$meta_nj
+    } else  {
+      meta_nj <- DB$meta[, -2]
+    }
+    
     output <- render_plot_control(
       input_id = "nj_tiplab_scale",
       input_type = "selectInput",
       label = h5("Color Scale", style = "color: white; margin-bottom: 0px;"),
       width = "150px",
       choices = determine_scale_choices(
-        meta_nj = Vis$meta_nj, variable_val = nj_color_mapping_val(),
+        meta_nj = meta_nj, variable_val = nj_color_mapping_val(),
         gradient_scales = gradient_scales, diverging_scales = diverging_scales, 
         qualitative_scales = qualitative_scales, 
         sequential_scales = sequential_scales),
@@ -11321,6 +11345,8 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiplab_mid_scale <- renderUI({
+    req(Vis$meta_nj)
+    
     output <- render_plot_control(
       input_id = "nj_color_mapping_div_mid",
       input_type = "selectInput",
@@ -11368,10 +11394,16 @@ server <- function(input, output, session) {
   # Tip point variable mapping
   
   output$nj_tipcolor_mapping <- renderUI({
+    if (!is.null(Vis$meta_nj)) {
+      choices <- colnames(Vis$meta_nj)[-c(1:4, 6, 12:14)]
+    } else  {
+      choices <- colnames(DB$meta[, -2])[-c(1:4, 6, 12:14)]
+    }
+    
     output <- render_plot_control(
       input_id = "nj_tipcolor_mapping",
       input_type = "selectInput",
-      choices = names(Vis$meta_nj)[-c(1:4, 6, 12:14)],
+      choices = choices,
       reactive_value = nj_tipcolor_mapping_val(),
       default_value = "Country",
       reset = isolate(Vis$nj_tipcolor_mapping_val_reset),
@@ -11383,13 +11415,19 @@ server <- function(input, output, session) {
   })
   
   output$nj_tippoint_scale <- renderUI({
+    if (!is.null(Vis$meta_nj)) {
+      meta_nj <- Vis$meta_nj
+    } else  {
+      meta_nj <- DB$meta[, -2]
+    }
+    
     output <- render_plot_control(
       input_id = "nj_tippoint_scale",
       input_type = "selectInput",
       label = h5("Color Scale", style = "color: white; margin-bottom: 0px;"),
       width = "150px",
       choices = determine_scale_choices(
-        meta_nj = Vis$meta_nj, variable_val = nj_tipcolor_mapping_val(),
+        meta_nj = meta_nj, variable_val = nj_tipcolor_mapping_val(),
         gradient_scales = gradient_scales, diverging_scales = diverging_scales, 
         qualitative_scales = qualitative_scales, 
         sequential_scales = sequential_scales),
@@ -11404,6 +11442,8 @@ server <- function(input, output, session) {
   })
   
   output$nj_tippoint_mid_scale <- renderUI({
+    req(Vis$meta_nj)
+    
     output <- render_plot_control(
       input_id = "nj_tipcolor_mapping_div_mid",
       input_type = "selectInput",
@@ -11504,10 +11544,16 @@ server <- function(input, output, session) {
   # Tiles variables mapping
   
   output$nj_fruit_variable <- renderUI({
+    if (!is.null(Vis$meta_nj)) {
+      choices <- colnames(Vis$meta_nj)[-c(1:4, 6, 12:14)]
+    } else  {
+      choices <- colnames(DB$meta[, -2])[-c(1:4, 6, 12:14)]
+    }
+    
     output <- render_plot_control(
       input_id = "nj_fruit_variable",
       input_type = "selectInput",
-      choices = names(Vis$meta_nj)[-c(1:4, 6, 12:14)],
+      choices = choices,
       div_class = "nj-fruit-variable",
       reactive_value = nj_fruit_variable_val(),
       default_value = "Isolation Date",
@@ -11520,10 +11566,16 @@ server <- function(input, output, session) {
   })
   
   output$nj_fruit_variable_2 <- renderUI({
+    if (!is.null(Vis$meta_nj)) {
+      choices <- colnames(Vis$meta_nj)[-c(1:4, 6, 12:14)]
+    } else  {
+      choices <- colnames(DB$meta[, -2])[-c(1:4, 6, 12:14)]
+    }
+    
     output <- render_plot_control(
       input_id = "nj_fruit_variable_2",
       input_type = "selectInput",
-      choices = names(Vis$meta_nj)[-c(1:4, 6, 12:14)],
+      choices = choices,
       div_class = "nj-fruit-variable",
       reactive_value = nj_fruit_variable_2_val(),
       default_value = "Isolation Date",
@@ -11536,10 +11588,16 @@ server <- function(input, output, session) {
   })
   
   output$nj_fruit_variable_3 <- renderUI({
+    if (!is.null(Vis$meta_nj)) {
+      choices <- colnames(Vis$meta_nj)[-c(1:4, 6, 12:14)]
+    } else  {
+      choices <- colnames(DB$meta[, -2])[-c(1:4, 6, 12:14)]
+    }
+    
     output <- render_plot_control(
       input_id = "nj_fruit_variable_3",
       input_type = "selectInput",
-      choices = names(Vis$meta_nj)[-c(1:4, 6, 12:14)],
+      choices = choices,
       div_class = "nj-fruit-variable",
       reactive_value = nj_fruit_variable_3_val(),
       default_value = "Isolation Date",
@@ -11552,10 +11610,16 @@ server <- function(input, output, session) {
   })
   
   output$nj_fruit_variable_4 <- renderUI({
+    if (!is.null(Vis$meta_nj)) {
+      choices <- colnames(Vis$meta_nj)[-c(1:4, 6, 12:14)]
+    } else  {
+      choices <- colnames(DB$meta[, -2])[-c(1:4, 6, 12:14)]
+    }
+    
     output <- render_plot_control(
       input_id = "nj_fruit_variable_4",
       input_type = "selectInput",
-      choices = names(Vis$meta_nj)[-c(1:4, 6, 12:14)],
+      choices = choices,
       div_class = "nj-fruit-variable",
       reactive_value = nj_fruit_variable_4_val(),
       default_value = "Isolation Date",
@@ -11568,10 +11632,16 @@ server <- function(input, output, session) {
   })
   
   output$nj_fruit_variable_5 <- renderUI({
+    if (!is.null(Vis$meta_nj)) {
+      choices <- colnames(Vis$meta_nj)[-c(1:4, 6, 12:14)]
+    } else  {
+      choices <- colnames(DB$meta[, -2])[-c(1:4, 6, 12:14)]
+    }
+    
     output <- render_plot_control(
       input_id = "nj_fruit_variable_5",
       input_type = "selectInput",
-      choices = names(Vis$meta_nj)[-c(1:4, 6, 12:14)],
+      choices = choices,
       div_class = "nj-fruit-variable",
       reactive_value = nj_fruit_variable_5_val(),
       default_value = "Isolation Date",
@@ -11584,12 +11654,18 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiles_scale_1 <- renderUI({
+    if (!is.null(Vis$meta_nj)) {
+      meta_nj <- Vis$meta_nj
+    } else  {
+      meta_nj <- DB$meta[, -2]
+    }
+    
     output <- render_plot_control(
       input_id = "nj_tiles_scale_1",
       input_type = "selectInput",
       label = h5("Color Scale", style = "color: white; margin-bottom: 0px;"),
       width = "150px",
-      choices = determine_scale_choices(meta_nj = Vis$meta_nj, 
+      choices = determine_scale_choices(meta_nj = meta_nj, 
                                         variable_val = nj_fruit_variable_val(),
                                         gradient_scales = gradient_scales, 
                                         diverging_scales = diverging_scales, 
@@ -11607,12 +11683,18 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiles_scale_2 <- renderUI({
+    if (!is.null(Vis$meta_nj)) {
+      meta_nj <- Vis$meta_nj
+    } else  {
+      meta_nj <- DB$meta[, -2]
+    }
+    
     output <- render_plot_control(
       input_id = "nj_tiles_scale_2",
       input_type = "selectInput",
       label = h5("Color Scale", style = "color: white; margin-bottom: 0px;"),
       width = "150px",
-      choices = determine_scale_choices(meta_nj = Vis$meta_nj,
+      choices = determine_scale_choices(meta_nj = meta_nj,
                                         variable_val = nj_fruit_variable_2_val(),
                                         gradient_scales = gradient_scales, 
                                         diverging_scales = diverging_scales, 
@@ -11630,13 +11712,19 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiles_scale_3 <- renderUI({
+    if (!is.null(Vis$meta_nj)) {
+      meta_nj <- Vis$meta_nj
+    } else  {
+      meta_nj <- DB$meta[, -2]
+    }
+    
     output <- render_plot_control(
       input_id = "nj_tiles_scale_3",
       input_type = "selectInput",
       label = h5("Color Scale", style = "color: white; margin-bottom: 0px;"),
       width = "150px",
       choices = determine_scale_choices(
-        meta_nj = Vis$meta_nj, variable_val = nj_fruit_variable_3_val(),
+        meta_nj = meta_nj, variable_val = nj_fruit_variable_3_val(),
         gradient_scales = gradient_scales, diverging_scales = diverging_scales, 
         qualitative_scales = qualitative_scales, 
         sequential_scales = sequential_scales),
@@ -11652,13 +11740,19 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiles_scale_4 <- renderUI({
+    if (!is.null(Vis$meta_nj)) {
+      meta_nj <- Vis$meta_nj
+    } else  {
+      meta_nj <- DB$meta[, -2]
+    }
+    
     output <- render_plot_control(
       input_id = "nj_tiles_scale_4",
       input_type = "selectInput",
       label = h5("Color Scale", style = "color: white; margin-bottom: 0px;"),
       width = "150px",
       choices = determine_scale_choices(
-        meta_nj = Vis$meta_nj, variable_val = nj_fruit_variable_4_val(),
+        meta_nj = meta_nj, variable_val = nj_fruit_variable_4_val(),
         gradient_scales = gradient_scales, diverging_scales = diverging_scales, 
         qualitative_scales = qualitative_scales, 
         sequential_scales = sequential_scales),
@@ -11674,13 +11768,19 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiles_scale_5 <- renderUI({
+    if (!is.null(Vis$meta_nj)) {
+      meta_nj <- Vis$meta_nj
+    } else  {
+      meta_nj <- DB$meta[, -2]
+    }
+    
     output <- render_plot_control(
       input_id = "nj_tiles_scale_5",
       input_type = "selectInput",
       label = h5("Color Scale", style = "color: white; margin-bottom: 0px;"),
       width = "150px",
       choices = determine_scale_choices(
-        meta_nj = Vis$meta_nj, variable_val = nj_fruit_variable_5_val(),
+        meta_nj = meta_nj, variable_val = nj_fruit_variable_5_val(),
         gradient_scales = gradient_scales, diverging_scales = diverging_scales, 
         qualitative_scales = qualitative_scales, 
         sequential_scales = sequential_scales),
@@ -11696,6 +11796,8 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiles_mid_scale_1 <- renderUI({
+    req(Vis$meta_nj)
+    
     output <- render_plot_control(
       input_id = "nj_tiles_mapping_div_mid_1",
       input_type = "selectInput",
@@ -11715,6 +11817,8 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiles_mid_scale_2 <- renderUI({
+    req(Vis$meta_nj)
+    
     output <- render_plot_control(
       input_id = "nj_tiles_mapping_div_mid_2",
       input_type = "selectInput",
@@ -11734,6 +11838,8 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiles_mid_scale_3 <- renderUI({
+    req(Vis$meta_nj)
+    
     output <- render_plot_control(
       input_id = "nj_tiles_mapping_div_mid_3",
       input_type = "selectInput",
@@ -11753,6 +11859,8 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiles_mid_scale_4 <- renderUI({
+    req(Vis$meta_nj)
+    
     output <- render_plot_control(
       input_id = "nj_tiles_mapping_div_mid_4",
       input_type = "selectInput",
@@ -11772,6 +11880,8 @@ server <- function(input, output, session) {
   })
   
   output$nj_tiles_mid_scale_5 <- renderUI({
+    req(Vis$meta_nj)
+    
     output <- render_plot_control(
       input_id = "nj_tiles_mapping_div_mid_5",
       input_type = "selectInput",
@@ -11908,6 +12018,7 @@ server <- function(input, output, session) {
   # Heatmap variables mapping
   
   output$nj_heatmap_sel <- renderUI({
+    req(Vis$meta_nj)
     
     no_screened <- FALSE
     
@@ -11975,6 +12086,7 @@ server <- function(input, output, session) {
   })
   
   output$nj_heatmap_scale <- renderUI({
+    req(Vis$meta_nj)
     
     if(!is.null(Vis$meta_nj)) {
       if(class(unlist(Vis$meta_nj[nj_heatmap_select_val()])) == "numeric") {
@@ -12011,6 +12123,8 @@ server <- function(input, output, session) {
   })
   
   output$nj_heatmap_mid_scale <- renderUI({
+    req(Vis$meta_nj)
+    
     output <- render_plot_control(
       input_id = "nj_heatmap_div_mid",
       input_type = "selectInput",
@@ -12058,6 +12172,8 @@ server <- function(input, output, session) {
   })
   
   output$nj_heatmap_var_warning <- renderUI({
+    req(Vis$meta_nj)
+    
     if(!is.null(Vis$meta_nj) &&
        any(sapply(Vis$meta_nj[nj_heatmap_select_val()], is.numeric)) & 
        any(!sapply(Vis$meta_nj[nj_heatmap_select_val()], is.numeric))) {
