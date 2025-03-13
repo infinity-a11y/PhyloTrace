@@ -60,7 +60,7 @@ source("./assets/ui_modules.R")
 # User Interface ----
 
 ui <- dashboardPage(
-  title = "PhyloTrace 1.6.0",
+  title = "PhyloTrace 1.6.1",
   
   # Title
   dashboardHeader(
