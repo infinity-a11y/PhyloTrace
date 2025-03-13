@@ -1744,7 +1744,7 @@ server <- function(input, output, session) {
                !is.null(input$new_db_name) && nchar(input$new_db_name) > 0 && 
               dir_exists(file.path(DB$new_database, input$new_db_name))) {
       show_toast(
-        title = "Database already exists",
+        title = "Name already exists in directory",
         type = "warning",
         position = "bottom-end",
         timer = 6000
@@ -2356,141 +2356,128 @@ server <- function(input, output, session) {
       
       # Load app elements based on database availability and missing value presence
       if(isTRUE(Startup$select_new) && !is.null(DB$new_database)) {
-        if(file.path(DB$new_database, "Database") %in% 
-           dir_ls(DB$new_database)) {
-          log_print("Directory already contains a database")
+        if(Startup$select_new | 
+           (isFALSE(Startup$select_new) & is.null(input$scheme_db))) {
           
-          show_toast(
-            title = "Directory already contains a database",
-            type = "error",
-            position = "bottom-end",
-            timer = 6000
-          )
+          log_print(paste0("New database created in ", DB$new_database))
+          
+          DB$check_new_entries <- TRUE
+          DB$data <- NULL
+          DB$meta_gs <- NULL
+          DB$meta <- NULL
+          DB$meta_true <- NULL
+          DB$allelic_profile <- NULL
+          DB$allelic_profile_trunc <- NULL
+          DB$allelic_profile_true <- NULL
+          
+          # null Distance matrix, entry table and plots
+          output$db_distancematrix <- NULL 
+          output$db_entries_table <- NULL
+          output$tree_mst <- NULL
+          output$tree_plot <- NULL
+          
+          # null report values
+          Report$report_list_mst <- list()
+          Report$report_list_nj <- list()
+          
+          # null plots
+          Vis$nj <- NULL
+          Vis$mst_pre <- NULL
+          
+          removeModal()
+          
+          ### Render Menu Items ----
+          
+          Startup$sidebar <- FALSE
+          
+          output$menu_header_typing <- NULL
+          output$menu_header_screening <- NULL
+          
+          # Hide start message
+          output$start_message <- NULL
+          
           DB$load_selected <- FALSE
-        } else {
-          if(Startup$select_new | 
-             (isFALSE(Startup$select_new) & is.null(input$scheme_db))) {
-            
-            log_print(paste0("New database created in ", DB$new_database))
-            
-            DB$check_new_entries <- TRUE
-            DB$data <- NULL
-            DB$meta_gs <- NULL
-            DB$meta <- NULL
-            DB$meta_true <- NULL
-            DB$allelic_profile <- NULL
-            DB$allelic_profile_trunc <- NULL
-            DB$allelic_profile_true <- NULL
-            
-            # null Distance matrix, entry table and plots
-            output$db_distancematrix <- NULL 
-            output$db_entries_table <- NULL
-            output$tree_mst <- NULL
-            output$tree_plot <- NULL
-            
-            # null report values
-            Report$report_list_mst <- list()
-            Report$report_list_nj <- list()
-            
-            # null plots
-            Vis$nj <- NULL
-            Vis$mst_pre <- NULL
-            
-            removeModal()
-            
-            ### Render Menu Items ----
-            
-            Startup$sidebar <- FALSE
-            
-            output$menu_header_typing <- NULL
-            output$menu_header_screening <- NULL
-            
-            # Hide start message
-            output$start_message <- NULL
-            
-            DB$load_selected <- FALSE
-            
-            # Declare database path
-            Startup$database <- file.path(DB$new_database, input$new_db_name)
-            
-            # Set database availability screening variables to present database
-            Startup$block_db <- TRUE
-            Startup$select_new <- FALSE
-            
-            # Render menu with Manage Schemes as start tab and no Missing values tab
-            output$menu_typing <- renderMenu(
-              sidebarMenu(
-                menuItem(
-                  text = "Schemes",
-                  tabName = "init",
-                  icon = icon("layer-group"),
-                  selected = TRUE
-                )
+          
+          # Declare database path
+          Startup$database <- file.path(DB$new_database, input$new_db_name)
+          
+          # Set database availability screening variables to present database
+          Startup$block_db <- TRUE
+          Startup$select_new <- FALSE
+          
+          # Render menu with Manage Schemes as start tab and no Missing values tab
+          output$menu_typing <- renderMenu(
+            sidebarMenu(
+              menuItem(
+                text = "Schemes",
+                tabName = "init",
+                icon = icon("layer-group"),
+                selected = TRUE
               )
             )
-            
-            # Show message that loci files are missing
-            showModal(
-              div(
-                class = "start-modal",
-                modalDialog(
-                  fluidRow(
-                    br(), 
-                    column(
-                      width = 11,
-                      p(
-                        HTML(
-                          paste0(
-                            '<span style="color: white; display: block; font-s', 
-                            'ize: 15px; margin-left: 15px; display: block;">',
-                            "Download a cgMLST scheme to add a new folder in t", 
-                            "he database directory. Multiple schemes can be do", 
-                            "wnloaded and included in one database.",
-                            '</span>'
-                          )
+          )
+          
+          # Show message that loci files are missing
+          showModal(
+            div(
+              class = "start-modal",
+              modalDialog(
+                fluidRow(
+                  br(), 
+                  column(
+                    width = 11,
+                    p(
+                      HTML(
+                        paste0(
+                          '<span style="color: white; display: block; font-s', 
+                          'ize: 15px; margin-left: 15px; display: block;">',
+                          "Download a cgMLST scheme to add a new folder in t", 
+                          "he database directory. Multiple schemes can be do", 
+                          "wnloaded and included in one database.",
+                          '</span>'
                         )
                       )
-                    ),
-                    br()
+                    )
                   ),
-                  title = paste("Set Up New Database"),
-                  fade = TRUE,
-                  easyClose = TRUE,
-                  footer = tagList(
-                    modalButton("Okay")
-                  )
+                  br()
+                ),
+                title = paste("Set Up New Database"),
+                fade = TRUE,
+                easyClose = TRUE,
+                footer = tagList(
+                  modalButton("Okay")
                 )
               )
             )
-            
-            # Dont render these elements
-            output$db_no_entries <- NULL
-            output$distancematrix_no_entries <- NULL
-            output$db_entries <- NULL
-            output$edit_index <- NULL
-            output$edit_scheme_d <- NULL
-            output$edit_entries <- NULL
-            output$compare_select <- NULL
-            output$delete_select <- NULL
-            output$del_bttn <- NULL
-            output$compare_allele_box <- NULL
-            output$download_entries <- NULL
-            output$missing_values <- NULL
-            output$custom_var_box <- NULL
-            output$delete_box <- NULL
-            output$missing_values_sidebar <- NULL
-            output$download_scheme_info <- NULL
-            output$download_loci <- NULL
-            output$entry_table_controls <- NULL
-            output$multi_stop <- NULL
-            output$metadata_multi_box <- NULL
-            output$start_multi_typing_ui <- NULL
-            output$pending_typing <- NULL
-            output$multi_typing_results <- NULL
-            output$single_typing_progress <- NULL
-            output$metadata_single_box <- NULL
-            output$start_typing_ui <- NULL
-          }
+          )
+          
+          # Dont render these elements
+          output$db_no_entries <- NULL
+          output$distancematrix_no_entries <- NULL
+          output$db_entries <- NULL
+          output$edit_index <- NULL
+          output$edit_scheme_d <- NULL
+          output$edit_entries <- NULL
+          output$compare_select <- NULL
+          output$delete_select <- NULL
+          output$del_bttn <- NULL
+          output$compare_allele_box <- NULL
+          output$download_entries <- NULL
+          output$missing_values <- NULL
+          output$custom_var_box <- NULL
+          output$delete_box <- NULL
+          output$missing_values_sidebar <- NULL
+          output$download_scheme_info <- NULL
+          output$download_loci <- NULL
+          output$entry_table_controls <- NULL
+          output$multi_stop <- NULL
+          output$metadata_multi_box <- NULL
+          output$start_multi_typing_ui <- NULL
+          output$pending_typing <- NULL
+          output$multi_typing_results <- NULL
+          output$single_typing_progress <- NULL
+          output$metadata_single_box <- NULL
+          output$start_typing_ui <- NULL
         }
       } else {
         log_print(paste0("Loading existing ", input$scheme_db, 
@@ -3052,8 +3039,10 @@ server <- function(input, output, session) {
                   }
                   
                   # renaming of 'Typing Date' column to 'Entry Date'
-                  colnames(DB$data)[colnames(
-                    DB$data) == "Typing Date"] <- "Entry Date"
+                  if(any(colnames(DB$data)[1:14] == "Typing Date")) {
+                    date_col <- which(colnames(DB$data)[1:14] == "Typing Date")
+                    colnames(DB$data)[date_col] <- "Entry Date"
+                  }
                   
                   if(!is.null(DB$data)){
                     if ((ncol(DB$data)-14) != DB$number_loci) {
@@ -4170,7 +4159,17 @@ server <- function(input, output, session) {
                   })
                   
                   # render custom variables box UI
-                  output$custom_var_box <- renderUI(
+                  output$custom_var_box <- renderUI({
+                    
+                    custom_var_button <- actionButton(
+                      "custom_var_table",
+                      "Browse ",
+                      icon = icon("table-list")
+                    ) 
+                    
+                    if(nrow(DB$cust_var) == 0) 
+                      custom_var_button <- disabled(custom_var_button)
+                    
                     box(
                       solidHeader = TRUE,
                       status = "primary",
@@ -4222,15 +4221,11 @@ server <- function(input, output, session) {
                         ),
                         column(
                           width = 2,
-                          actionButton(
-                            "custom_var_table",
-                            "Browse ",
-                            icon = icon("table-list")
-                          )
+                          custom_var_button
                         )
                       )
                     )
-                  )
+                  })
                   
                   # Render delete entry box UI
                   output$delete_box <- renderUI({
@@ -5789,7 +5784,6 @@ server <- function(input, output, session) {
   
   # Pin import 
   observeEvent(input$pin_import, {
-    # req(DB$data, DB$meta, DB$allelic_profile, DB$import, DB$cust_var, DB$scheme)
     req(DB$import, DB$scheme)
     
     runjs(block_ui)
@@ -5927,8 +5921,7 @@ server <- function(input, output, session) {
       removeModal()
       disable("export_menu")
       disable("import_menu")
-      runjs(paste0('document.getElementById("blocking-overlay").style.d',
-                   'isplay = "none";'))
+      runjs(unblock_ui)
       delay(2000, runjs("highlight_pin();"))
     } else {
       alleles <- list.files(
@@ -5948,41 +5941,44 @@ server <- function(input, output, session) {
         `Assembly Name` = "Dummy_ID", Database = "Dummy_DB", 
         Scheme = "Dummy_Scheme", `Isolation Date`= format(Sys.Date()), 
         Host = "Dummy_Host", Country = "Dummy_Country", City = "Dummy_City",
-        `Entry Date` = format(Sys.Date()), Successes = 1, Errors = 1,
+        `Entry Date` = format(Sys.Date()), Successes = 1L, Errors = 1L,
         Screened = "NA")
-      colnames(dummy_meta) <- c(
+      
+      meta_names <- c(
         "Index", "Include", "Assembly ID", "Assembly Name", "Database",
         "Scheme", "Isolation Date", "Host", "Country", "City", "Entry Date",
         "Successes", "Errors", "Screened")
+      
+      colnames(dummy_meta) <- meta_names
       
       if(length(input$import_metadata_sel)) {
         external_meta <- DB$import[, !colnames(DB$import) %in%
                                      gsub(".fasta|.fna|.fa", "", 
                                           alleles)]
+        test1 <<- external_meta
         import_meta <- external_meta[, input$import_metadata_sel]
+        test2 <<- import_meta
         if(any(colnames(import_meta) == input$import_id_selector)) {
           import_meta <- select(import_meta, -c(input$import_id_selector))  
         }
+        test3 <<- import_meta
         
         merged_meta <- merge_and_fix_types(dummy_meta, import_meta)
+        test4 <<- merged_meta
         
         # append new external custom metadata
-        external_custom_vars <- which(
-          !colnames(import_meta) %in% 
-            c("Index", "Include", "Assembly ID", "Assembly Name", "Database",
-              "Scheme", "Isolation Date", "Host", "Country", "City", 
-              "Entry Date", "Successes", "Errors", "Screened"))
-        
+        external_custom_vars <- which(!colnames(import_meta) %in% meta_names)
+        test5 <<- external_custom_vars
         if(length(external_custom_vars)) {
           
           import_meta_ex_cust <- import_meta[, external_custom_vars]
-          
+          test6 <<- import_meta_ex_cust
           for(variable in seq_along(colnames(import_meta_ex_cust))) {
             class <- class(import_meta_ex_cust[, variable])
             ifelse(class == "numeric",
                    type <- "cont",
                    type <- "categ")
-            cust_var <- data.frame()
+            cust_var <- data.frame(Variable = character(), Type = character())
             DB$cust_var <- add_row(
               cust_var, Variable = colnames(import_meta_ex_cust)[variable],
               Type = type)
@@ -6007,11 +6003,6 @@ server <- function(input, output, session) {
       
       # Set include column of external data to TRUE
       merged_meta$Include <- TRUE
-      
-      # Set Assembly ID column with external id and optional suffix
-      # ifelse(is.null(input$imp_id_suffix),
-      #        suffix <- "",
-      #        suffix <- input$imp_id_suffix)
       
       merged_meta$`Assembly ID` <- id_column
       
@@ -6041,8 +6032,8 @@ server <- function(input, output, session) {
       # Set Successes & error columns
       errors <- rowSums(is.na(external_allelic_profile))
       successes <- DB$number_loci - rowSums(is.na(external_allelic_profile))
-      merged_meta$Errors <- errors
-      merged_meta$Successes <- successes
+      merged_meta$Errors <- as.integer(errors)
+      merged_meta$Successes <- as.integer(successes)
       
       # Set Screened to NA
       merged_meta$Screened <- "NA"
@@ -6062,9 +6053,8 @@ server <- function(input, output, session) {
       
       disable("export_menu")
       disable("import_menu")
-      runjs(paste0('document.getElementById("blocking-overlay").style.d',
-                   'isplay = "none";'))
       
+      delay(5000, runjs(unblock_ui))
       removeModal()
     }
   })
@@ -6122,11 +6112,9 @@ server <- function(input, output, session) {
       )
     ) 
     
-    if(!is.null(DB$data) || (!is.null(input$import_files) && length(input$import_files) > 1)) {
-      
+    if(!is.null(input$import_files) && length(input$import_files) > 1) {
       # get selected ID column
       id_column <- DB$import[[input$import_id_selector]]
-      merged_ids <- c(DB$data$`Assembly ID`, id_column)
       
       # check if ID's duplicated 
       if(any(duplicated(id_column))) {
@@ -6144,17 +6132,26 @@ server <- function(input, output, session) {
           )
         )
         
-      # check if ID's already present in local
-      } else if(any(duplicated(merged_ids))) {
-        fluidRow(
-          column(
-            width = 12,
-            uiOutput("imp_id_dup_info"),
-            textInput("imp_id_suffix", "", placeholder = "_ext")
-          )
-        )
-      } else {check_pos_ui}
-    } else {check_pos_ui}
+        # check if ID's already present in local
+      } else if(!is.null(DB$data)) {
+        merged_ids <- c(DB$data$`Assembly ID`, id_column)
+        if(any(duplicated(merged_ids))) {
+          fluidRow(
+            column(
+              width = 12,
+              uiOutput("imp_id_dup_info"),
+              textInput("imp_id_suffix", "", placeholder = "_ext")
+            )
+          ) 
+        } else {
+          enable("pin_import")
+          check_pos_ui
+        }
+      } else {
+        enable("pin_import")
+        check_pos_ui
+      }
+    }
   })
   
   output$imp_id_dup_info <- renderUI({
@@ -6489,12 +6486,13 @@ server <- function(input, output, session) {
     dir_content <- gsub(
       ".fasta|.fna|.fa", "", basename(list.files(DB$hash_dir, 
                                                  full.names = FALSE)))
-    filtered_selection <- which(dir_content %in% colnames(DB$allelic_profile))
-    
     alleles <- list.files(
       file.path(Startup$database, gsub(" ", "_", DB$scheme), 
                 paste0(gsub(" ", "_", DB$scheme), "_alleles")), 
       full.names = FALSE)
+    
+    filtered_selection <- which(
+      dir_content %in% gsub(".fasta|.fna|.fa", "", alleles))
     
     if(any(!gsub(".fasta|.fna|.fa", "", alleles) %in% 
            dir_content[filtered_selection])) {
