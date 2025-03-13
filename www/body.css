@@ -159,6 +159,10 @@ table {
   overflow: hidden;
 }
 
+.shiny-notification-close {
+  display: none;  
+}
+
 .menu-header-typing {
   border: 1px solid #ffffff42;
   position: relative;
@@ -307,7 +311,8 @@ body > div.pcr-app.pickr-color.visible {
 #conf_delete_all,
 #shiny-modal > div > div > div.modal-footer > button:nth-child(1),
 #conf_shutdown,
-#conf_gs_select {
+#conf_gs_select,
+#pin_import {
   min-width: 100px !important;
   border-color: white;
 }
@@ -482,6 +487,7 @@ body > div.pcr-app.pickr-color.visible {
 .sF-modal .modal-content,
 .modal-content .sF-modal .modal-content {
   background-color: #282f3814 !important;
+  border: none;
 }
 
 #sF-cancelButton,
@@ -490,6 +496,10 @@ body > div.pcr-app.pickr-color.visible {
   border: 1px solid white !important;
 }
 
+#hash_dir_button-modal .sF-dirContent.message,
+#hash_dir_button-modal > div > div > div.modal-body > div.sF-dirWindow > div.sF-dirInfo.col-md-5 {
+  display: none;
+}
 
 .swal2-container .swal2-bottom-end .swal2-backdrop-show,
 body > div.swal2-container.swal2-bottom-end.swal2-backdrop-show,
@@ -542,6 +552,11 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
   padding-right: 0px;
 }
 
+.dataTable td { 
+  white-space: normal !important; 
+  word-wrap: break-word;
+}
+
 .handsontable .wtBorder.current {
   background-color: #282F38 !important;
 }
@@ -579,10 +594,49 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
 }
 
 #start_typ_multi:hover,
-#conf_new_var:hover {
+#conf_new_var:hover,
+#pin_import:hover {
   background-color: #008000 !important;
   border-color: #008000 !important;
   color: white !important;
+}
+
+@keyframes pulsate-shadow {
+  0% {
+    box-shadow: 0 0 6px #ffffff75;
+  }
+  25% {
+    box-shadow: 0 0 7px #ffffff9e;
+  }
+  50% {
+    box-shadow: 0 0 10px #ffffffc4, 0 0 12px #ffffff75;
+  }
+  75% {
+    box-shadow: 0 0 7px #ffffff9e;
+  }
+  100% {
+    box-shadow: 0 0 6px #ffffff75;
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1);}
+  50% { transform: scale(1.3);}
+  100% { transform: scale(1);}
+}
+
+.attention-animation-tab {
+  animation: pulse 1s infinite ease-in-out;
+  margin-right: 4px;
+  width: 14px;
+  color: #ff8239;
+  font-size: 16px;
+  margin-left: 1px;
+}
+
+.attention-animation-button {
+  animation: pulse 1s infinite ease-in-out;
+  color: white;
 }
 
 #shiny-modal > div > div > div.modal-footer > button {
@@ -920,7 +974,68 @@ button#reload_db.btn.btn-default.action-button.shiny-bound-input {
   margin-bottom: 10px;
 }
 
+#import_feedback, #hash_feedback, #import_new_name_feedback_ui {
+  margin-right: 20px;
+  text-align: justify;
+}
 
+#import_new_name_feedback_ui {
+  margin-top: 10px;
+}
+
+#import_new_name_ui {
+  margin-left: 10px;
+  margin-right: 35px;
+}
+
+#import_files, #hash_dir_button, #import_start_hash {
+  border-color: white;
+  margin-left: 10px;
+  width: 150px;
+  animation: none;
+}
+
+#import_files {
+  margin-top: -5px;
+}
+
+#import_start_hash {
+  margin-top: 10px;
+}
+
+#import_id_sel {
+  width: 235px;
+}
+
+#metadata_sel_ui {
+  width: 250px;
+}
+
+#import_path, #hash_folderpath, #hashing_status {
+  font-size: 13px;
+  font-style: italic;
+  margin-left: 10px;
+  margin-top: 10px;
+}
+
+.import-id-sel {
+  margin-left: 10px;
+}
+
+#id_preview, #metadata_preview {
+  font-style: italic;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+#id_preview {
+  margin-left: 10px;
+  margin-right: 33px;
+}
+
+#imp_id_suffix {
+  margin-bottom: -15px;
+}
 
 div#scheme_db .form-control, .selectize-input, .selectize-control.single .selectize-input {
 border-color: #000000 !important;
@@ -1313,7 +1428,29 @@ i.far.fa-pen-to-square {
   top: -2px;
 }
 
+i.fa-solid.fa-gears.fa-spin-pulse {
+  margin-right: 5px;
+}
+
 /* Database */
+
+#import-menu {
+  margin-left: -24px;
+  margin-top: 2rem;
+}
+
+.exp-menu-switch2 {
+  margin-top: 5px;
+}
+
+.exp-menu-switch3 {
+  margin-top: 28px;
+}
+
+.exp-menu-picker {
+  margin-top: 21px;
+  width: 90%;
+}
 
 .scheme-sel-box {
   margin-left: 67px;
@@ -1395,9 +1532,31 @@ i.far.fa-pen-to-square {
   top: -2px !important;
 }
 
-#sel_all_entries, #desel_all_entries, #typing_start, #start_typ_multi, 
+#typing_start, #start_typ_multi, #export_menu, #import_menu,
 #undo_changes, #genome_file, #genome_file_multi, #reset_multi, #save_cust {
   border-color: white;
+}
+
+#undo_changes {
+  width: 90px;
+}
+#sel_all_entries, #desel_all_entries {
+  border-color: white;
+  width: 115px;
+}
+
+#desel_all_entries {
+  margin-left: 10px;
+}
+
+#export_menu {
+  margin-left: 40px;
+  width: 90px;
+}
+
+#import_menu {
+  margin-left: 24px;
+  width: 90px;
 }
 
 #genome_file_multi,
@@ -1491,6 +1650,11 @@ i.far.fa-pen-to-square {
   border-radius: 8px;
   color: black;
   box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.5);
+}
+
+#table_missing_values {
+  width: fit-content !important;
+  max-width: 1000px;
 }
 
 #db_distancematrix {
@@ -1613,12 +1777,14 @@ button#download_distmatrix_bttn {
 }
 
 button#download_entry_table_bttn {
-  height: 34px; 
+  height: 34px;
   background: #282F38;
   color: #ffffff;
   border: 1px solid white;
-  transition: border-color 0.3s ease; 
-  margin-top: 55px;
+  transition: border-color 0.3s ease;
+  position: relative;
+  top: 1px;
+  width: 100px;
 }
 
 #download_entry_table_bttn .fas .fa-download,
@@ -1643,6 +1809,10 @@ button#download_na_matrix_bttn {
 button#edit_button.btn.btn-default.action-button.shiny-bound-input {
   background: #20E6E5; 
   color: #000000;
+}
+
+.pin-edit {
+  background-color: #ff8239 !important;
 }
 
 /* Typing */
@@ -1692,6 +1862,10 @@ button#edit_button.btn.btn-default.action-button.shiny-bound-input {
 
 #multi_typing_results .mult_res_sel .selectize-input.items.full.has-options.has-items {
   width: -webkit-fill-available;
+}
+
+#multi_typing_results {
+  margin-left: 30px;
 }
 
 body > div.htDatepickerHolder > div > div > table > tbody > tr > td.is-today.is-selected > button{
@@ -2001,9 +2175,14 @@ button#mst_cluster_reset.btn.btn-default.action-button.shiny-bound-input {
   margin-left: -20px;
 }
 
-#maindivtree_mst, #graphtree_mst {
+#maindivtree_mst {
+  border-radius: 10px;
+}
+
+#graphtree_mst {
   border-radius: 10px;
   height: 100% !important;
+  box-shadow: 20px 20px 20px -10px rgba(0, 0, 0, 0.5);
 }
 
 #mst_cluster_threshold {
@@ -2196,46 +2375,40 @@ button#mst_col_map_menu {
 #mst_color_edge,
 #mst_color_node,
 #mst_text_color {
-margin-top: -17px;
-margin-left: -10px;
+  margin-top: -17px;
+  margin-left: -10px;
 }
 
 #node_font_color {
-margin-top: 17px
+  margin-top: 17px
 }
 
 #scale_nodes {
-position: relative; 
-bottom: -1px
+  position: relative; 
+  bottom: -1px
 }
 
 #tree_mst {
-border-radius: 10px;
+  border-radius: 10px;
 }
 
 #titletree_mst {
-border-radius: 10px;
-margin-bottom: 10px;
-margin-left: 100px;
-text-align: left !important;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  margin-left: 100px;
+  text-align: left !important;
 }
 
 #subtitletree_mst {
-margin-bottom: 10px;
-margin-left: 100px;
-text-align: left !important;
-}
-
-#footertree_mst {
-border-radius: 10px;
-position: relative;
-top: -10px;
+  margin-bottom: 10px;
+  margin-left: 100px;
+  text-align: left !important;
 }
 
 #legendtree_mst {
-border-radius: 10px;
-position: relative;
-top: -10px;
+  border-radius: 10px;
+  position: relative;
+  top: -10px;
 }
 
 /* Visualization Tree Plot */
@@ -4263,7 +4436,7 @@ button#gs_download_plot_bttn {
 
 .gs-mapping-scale,
 .gs-amr-class-scale {
-  margin-bottom: 35px;
+  margin-bottom: 20px;
   margin-top: -18px;
 }
 
@@ -4364,4 +4537,9 @@ button#download_resistance_profile_bttn {
 .screening-box .box-body {
   padding-top: 15px;
   padding-bottom: 0px;
+}
+
+.screening-box {
+  position: relative;
+  z-index: 9999;
 }

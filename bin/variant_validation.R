@@ -40,7 +40,7 @@ internal_stop_codon <- function(seq, stop_codons) {
   return(FALSE)
 }
 
-# Function to validate start and stop codon position and check for internal stop codons
+# validate start and stop codon position and check for internal stop codons
 validate_start_stop <- function(seq, start_codons, stop_codons) {
   
   seq <- Biostrings::DNAString(seq)
@@ -86,7 +86,8 @@ validate_start_stop <- function(seq, start_codons, stop_codons) {
         if (length(stop_end@ranges) != 0) {
           
           # If no internal stop codons are found return TRUE
-          if(!internal_stop_codon(seq = Biostrings::reverseComplement(seq), stop_codons = stop_codons)) {
+          if(!internal_stop_codon(seq = Biostrings::reverseComplement(seq), 
+                                  stop_codons = stop_codons)) {
             return(TRUE)
             break
           }
@@ -104,7 +105,8 @@ variant_validation <- function(references, start_codons, stop_codons) {
   for(i in 1:nrow(references)){
     
     # extract new variant sequence from template
-    contig <- template[(which(sub(" .*", "", template) == paste0(">", references$V14[i])) + 1)]
+    contig <- template[(which(
+      sub(" .*", "", template) == paste0(">", references$V14[i])) + 1)]
     
     seq <- substring(contig, references$V16[i] + 1, references$V17[i])
     
@@ -113,7 +115,8 @@ variant_validation <- function(references, start_codons, stop_codons) {
       return("Ambigous Nucleotides")
     }
     
-    ref_seq_index <- grep(paste0("^>", references$V10[i], "$"), readLines(locus_file)) + 1
+    ref_seq_index <- grep(paste0("^>", references$V10[i], "$"), 
+                          readLines(locus_file)) + 1
     
     ref_seq <- variants[ref_seq_index]
     

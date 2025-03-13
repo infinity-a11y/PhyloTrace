@@ -1,3 +1,44 @@
+// highlighting pin dataset icon
+function highlight_pin() {
+  let iconElement = document.querySelector("#menu_typing > li.treeview > ul > li.active > a > i");
+  
+  if (iconElement) {
+      // Change the icon class
+      iconElement.classList.remove("fas", "fa-angles-right");
+      iconElement.classList.add("fa-solid", "fa-map-pin", "attention-animation-tab");
+  }
+}
+
+function unhighlight_pin() {
+  let iconElement = document.querySelector("#menu_typing > li.treeview > ul > li.active > a > i");
+  
+  if (iconElement) {
+      // Change the icon class
+      iconElement.classList.remove("fa-solid", "fa-map-pin", "attention-animation-tab");
+      iconElement.classList.add("fas", "fa-angles-right");
+  }
+}
+
+// highlighting typing icon
+function highlight_typing() {
+  let iconElement = document.querySelector("#menu_typing > li.active > a > i");
+  
+  if (iconElement) {
+      // Change the icon class
+      iconElement.classList.remove("fas", "fa-gears");
+      iconElement.classList.add("fa-solid", "fa-gears", "fa-spin-pulse");
+  }
+}
+
+function unhighlight_typing() {
+  let iconElement = document.querySelector("#menu_typing > li.active > a > i");
+  
+  if (iconElement) {
+      // Change the icon class
+      iconElement.classList.remove("fa-solid", "fa-gears", "fa-spin-pulse");
+      iconElement.classList.add("fas", "fa-gears");
+  }
+}
 
 // highlighting clicked plot control buttons
 Shiny.addCustomMessageHandler('nj_highlight', function(id) {
@@ -128,7 +169,7 @@ function mstReport() {
     // Get all canvas elements on the document
     var canvas = document.querySelector('canvas');
     
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    // Assuming the canvases are ordered as title, subtitle, main
     var titleCanvasID = document.getElementById('titletree_mst');
     if(!(titleCanvasID.innerText.length === 0)) {
       var titleCanvas = document.createElement('canvas');
@@ -165,14 +206,14 @@ function mstReport() {
     var mainCtx = canvas.getContext('2d');
     var mainCanvasWidth = canvas.width;
     
-    // Create a new canvas to merge title, subtitle, main plot, and footer
+    // Create a new canvas to merge title, subtitle, main plot
     var mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = canvas.width;
     mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
     
     var ctx = mergedCanvas.getContext('2d');
     
-    // Draw title, subtitle, main plot, and footer onto the merged canvas
+    // Draw title, subtitle, main plot onto the merged canvas
     var bgColor = getBackgroundColor()
     if(bgColor === 'rgba(0, 0, 0, 0)') {
       ctx.fillStyle = 'rgb(255, 255, 255)'; 
@@ -191,7 +232,7 @@ function mstReport() {
     var legendCanvas = canvases[0];
     var plotCanvas = canvases[1];
     
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    // Assuming the canvases are ordered as title, subtitle, main
     var titleCanvasID = document.getElementById('titletree_mst');
     if(!(titleCanvasID.innerText.length === 0)) {
       var titleCanvas = document.createElement('canvas');
@@ -225,7 +266,7 @@ function mstReport() {
     // Get the heights of the canvas
     var mainCanvasHeight = plotCanvas.height;
     
-    // Create a new canvas to merge title, subtitle, main plot, and footer
+    // Create a new canvas to merge title, subtitle, main plot
     var mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = legendCanvas.width + plotCanvas.width;
     mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
@@ -278,7 +319,7 @@ $(document).on('click', '#save_plot_jpeg', function() {
     // Get all canvas elements on the document
     var canvas = document.querySelector('canvas');
     
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    // Assuming the canvases are ordered as title, subtitle, main
     var titleCanvasID = document.getElementById('titletree_mst');
     if(!(titleCanvasID.innerText.length === 0)) {
       var titleCanvas = document.createElement('canvas');
@@ -315,14 +356,14 @@ $(document).on('click', '#save_plot_jpeg', function() {
     var mainCtx = canvas.getContext('2d');
     var mainCanvasWidth = canvas.width;
     
-    // Create a new canvas to merge title, subtitle, main plot, and footer
+    // Create a new canvas to merge title, subtitle, main plot
     var mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = canvas.width;
     mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
     
     var ctx = mergedCanvas.getContext('2d');
     
-    // Draw title, subtitle, main plot, and footer onto the merged canvas
+    // Draw title, subtitle, main plot onto the merged canvas
     var bgColor = getBackgroundColor()
     if(bgColor === 'rgba(0, 0, 0, 0)') {
       ctx.fillStyle = 'rgb(255, 255, 255)'; 
@@ -341,7 +382,7 @@ $(document).on('click', '#save_plot_jpeg', function() {
     var legendCanvas = canvases[0];
     var plotCanvas = canvases[1];
     
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    // Assuming the canvases are ordered as title, subtitle, main
     var titleCanvasID = document.getElementById('titletree_mst');
     if(!(titleCanvasID.innerText.length === 0)) {
       var titleCanvas = document.createElement('canvas');
@@ -375,7 +416,7 @@ $(document).on('click', '#save_plot_jpeg', function() {
     // Get the heights of the canvas
     var mainCanvasHeight = plotCanvas.height;
     
-    // Create a new canvas to merge title, subtitle, main plot, and footer
+    // Create a new canvas to merge title, subtitle, main plot
     var mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = legendCanvas.width + plotCanvas.width;
     mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
@@ -427,7 +468,7 @@ $(document).on('click', '#save_plot_png', function() {
     // Get all canvas elements on the document
     var canvas = document.querySelector('canvas');
     
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    // Assuming the canvases are ordered as title, subtitle, main
     var titleCanvasID = document.getElementById('titletree_mst');
     if(!(titleCanvasID.innerText.length === 0)) {
       var titleCanvas = document.createElement('canvas');
@@ -464,14 +505,14 @@ $(document).on('click', '#save_plot_png', function() {
     var mainCtx = canvas.getContext('2d');
     var mainCanvasWidth = canvas.width;
     
-    // Create a new canvas to merge title, subtitle, main plot, and footer
+    // Create a new canvas to merge title, subtitle, main plot
     var mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = canvas.width;
     mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
     
     var ctx = mergedCanvas.getContext('2d');
     
-    // Draw title, subtitle, main plot, and footer onto the merged canvas
+    // Draw title, subtitle, main plot onto the merged canvas
     ctx.fillStyle = getBackgroundColor();
     ctx.fillRect(0, 0, canvas.width, mergedCanvas.height);
     if(!(titleCanvasID.innerText.length === 0)) {
@@ -485,7 +526,7 @@ $(document).on('click', '#save_plot_png', function() {
     var legendCanvas = canvases[0];
     var plotCanvas = canvases[1];
     
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    // Assuming the canvases are ordered as title, subtitle, main
     var titleCanvasID = document.getElementById('titletree_mst');
     if(!(titleCanvasID.innerText.length === 0)) {
       var titleCanvas = document.createElement('canvas');
@@ -519,7 +560,7 @@ $(document).on('click', '#save_plot_png', function() {
     // Get the heights of the canvas
     var mainCanvasHeight = plotCanvas.height;
     
-    // Create a new canvas to merge title, subtitle, main plot, and footer
+    // Create a new canvas to merge title, subtitle, main plot
     var mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = legendCanvas.width + plotCanvas.width;
     mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
@@ -566,7 +607,7 @@ $(document).on('click', '#save_plot_bmp', function() {
     // Get all canvas elements on the document
     var canvas = document.querySelector('canvas');
     
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    // Assuming the canvases are ordered as title, subtitle, main
     var titleCanvasID = document.getElementById('titletree_mst');
     if(!(titleCanvasID.innerText.length === 0)) {
       var titleCanvas = document.createElement('canvas');
@@ -603,14 +644,14 @@ $(document).on('click', '#save_plot_bmp', function() {
     var mainCtx = canvas.getContext('2d');
     var mainCanvasWidth = canvas.width;
     
-    // Create a new canvas to merge title, subtitle, main plot, and footer
+    // Create a new canvas to merge title, subtitle, main plot
     var mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = canvas.width;
     mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
     
     var ctx = mergedCanvas.getContext('2d');
     
-    // Draw title, subtitle, main plot, and footer onto the merged canvas
+    // Draw title, subtitle, main plot onto the merged canvas
     var bgColor = getBackgroundColor()
     if(bgColor === 'rgba(0, 0, 0, 0)') {
       ctx.fillStyle = 'rgb(255, 255, 255)'; 
@@ -629,7 +670,7 @@ $(document).on('click', '#save_plot_bmp', function() {
     var legendCanvas = canvases[0];
     var plotCanvas = canvases[1];
     
-    // Assuming the canvases are ordered as title, subtitle, main, and footer
+    // Assuming the canvases are ordered as title, subtitle, main
     var titleCanvasID = document.getElementById('titletree_mst');
     if(!(titleCanvasID.innerText.length === 0)) {
       var titleCanvas = document.createElement('canvas');
@@ -663,7 +704,7 @@ $(document).on('click', '#save_plot_bmp', function() {
     // Get the heights of the canvas
     var mainCanvasHeight = plotCanvas.height;
     
-    // Create a new canvas to merge title, subtitle, main plot, and footer
+    // Create a new canvas to merge title, subtitle, main plot
     var mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = legendCanvas.width + plotCanvas.width;
     mergedCanvas.height = mainCanvasHeight + titleCanvasHeight + subtitleCanvasHeight;
@@ -762,156 +803,12 @@ function getBackgroundColor() {
   }
 };
 
-
-function applyJavaScript_assembly_id() {
-  $("#assembly_id").on("input", function() {
-    var value = $(this).val();
-    $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
-  });
-}
-
-// Check if the textInput element is available
-function checkElement_assembly_id() {
-  if ($("#assembly_id").length) {
-    applyJavaScript_assembly_id();
-    setTimeout(checkElement_assembly_id, 100);
-  } else {
-    setTimeout(checkElement_assembly_id, 100); // Check again in 100 milliseconds
+document.addEventListener("input", function(event) {
+  if ((event.target.tagName === "INPUT" && event.target.type === "text") || event.target.classList.contains("handsontableInput")) {
+    const regex = /^[a-zA-Z0-9_-]*$/;
+    if (!regex.test(event.target.value)) {
+      event.target.value = event.target.value.replace(/[^a-zA-Z0-9_-]/g, "");
+    }
   }
-}
-
-// Initial check on document ready
-$(document).ready(function() {
-  checkElement_assembly_id();
 });
 
-
-function applyJavaScript_assembly_name() {
-  $("#assembly_name").on("input", function() {
-    var value = $(this).val();
-    $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
-  });
-}
-
-// Check if the textInput element is available
-function checkElement_assembly_name() {
-  if ($("#assembly_name").length) {
-    applyJavaScript_assembly_name();
-    setTimeout(checkElement_assembly_name, 100);
-  } else {
-    setTimeout(checkElement_assembly_name, 100); // Check again in 100 milliseconds
-  }
-}
-
-// Initial check on document ready
-$(document).ready(function() {
-  checkElement_assembly_name();
-});
-
-
-function applyJavaScript_append_host() {
-  $("#append_host").on("input", function() {
-    var value = $(this).val();
-    $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
-  });
-}
-
-// Check if the textInput element is available
-function checkElement_append_host() {
-  if ($("#append_host").length) {
-    applyJavaScript_append_host();
-    setTimeout(checkElement_append_host, 100);
-  } else {
-    setTimeout(checkElement_append_host, 100); // Check again in 100 milliseconds
-  }
-}
-
-// Initial check on document ready
-$(document).ready(function() {
-  checkElement_append_host();
-});
-
-function applyJavaScript_append_city() {
-  $("#append_city").on("input", function() {
-    var value = $(this).val();
-    $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
-  });
-}
-
-// Check if the textInput element is available
-function checkElement_append_city() {
-  if ($("#append_city").length) {
-    applyJavaScript_append_city();
-    setTimeout(checkElement_append_city, 100);
-  } else {
-    setTimeout(checkElement_append_city, 100); // Check again in 100 milliseconds
-  }
-}
-
-// Initial check on document ready
-$(document).ready(function() {
-  checkElement_append_city();
-});
-
-
-function applyJavaScript_append_host_multi() {
-  $("#append_host_multi").on("input", function() {
-    var value = $(this).val();
-    $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
-  });
-}
-
-// Check if the textInput element is available
-function checkElement_append_host_multi() {
-  if ($("#append_host_multi").length) {
-    applyJavaScript_append_host_multi();
-    setTimeout(checkElement_append_host_multi, 100);
-  } else {
-    setTimeout(checkElement_append_host_multi, 100); // Check again in 100 milliseconds
-  }
-}
-
-// Initial check on document ready
-$(document).ready(function() {
-  checkElement_append_host_multi();
-});
-
-
-function applyJavaScript_append_city_multi() {
-  $("#append_city_multi").on("input", function() {
-    var value = $(this).val();
-    $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
-  }); 
-}
-
-// Check if the textInput element is available
-function checkElement_append_city_multi() {
-  if ($("#append_city_multi").length) {
-    applyJavaScript_append_city_multi();
-    setTimeout(checkElement_append_city_multi, 100);
-  } else {
-    setTimeout(checkElement_append_city_multi, 100); // Check again in 100 milliseconds
-  }
-}
-
-// Initial check on document ready
-$(document).ready(function() {
-  checkElement_append_city_multi();
-});
-
-function applyJavaScript_new_var_name() {
-  $("#new_var_name").on("input", function() {
-    var value = $(this).val();
-    $(this).val(value.replace(/[^a-zA-Z0-9_\\. -]/g, ""));
-  }); 
-}
-
-// Check if the textInput element is available
-function checkElement_new_var_name() {
-  if ($("#new_var_name").length) {
-    applyJavaScript_new_var_name();
-    setTimeout(checkElement_new_var_name, 100);
-  } else {
-    setTimeout(checkElement_new_var_name, 100); // Check again in 100 milliseconds
-  }
-}
