@@ -236,7 +236,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(
     Database <- readRDS(file.path(meta_info$db_path, meta_info$scheme, 
                                   "Typing.rds"))
     
-    if(!meta_info$save) {screen <- "NA"} else {screen <- "No"}
+    if (!meta_info$save) {screen <- "NA"} else {screen <- "No"}
     
     metadata <- data.frame(
       nrow(Database[["Typing"]]) + 1, TRUE, meta_table$Files, meta_table$Files,
@@ -255,7 +255,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(
       
       class_df <- data.frame()
       for (i in 1:nrow(cust_var)) {
-        if(cust_var$Type[i] == "(categ.)") {
+        if (cust_var$Type[i] == "(categ.)") {
           class_df[1, i] <- ""
         } else {
           class_df[1, i] <- 0
@@ -263,7 +263,7 @@ if(sum(unname(base::sapply(psl_files, file.size)) <= 427) / length(
       }
       
       metadata <- cbind(metadata, class_df)
-    } 
+    }
     
     df_profile <- data.frame(matrix(allele_vector, 
                                     ncol = length(allele_vector)))

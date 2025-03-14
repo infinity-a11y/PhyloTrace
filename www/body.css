@@ -1920,6 +1920,9 @@ body > div.datepicker.datepicker-dropdown.dropdown-menu.datepicker-orient-left.d
 
 #logText, #logTextFull {
   margin-top: 5px;
+  max-height: 50vh;
+  white-space: pre-line;
+  word-wrap: break-word;
 }
 
 .append_table {

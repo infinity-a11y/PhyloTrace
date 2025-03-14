@@ -3025,34 +3025,36 @@ server <- function(input, output, session) {
                                                 gsub(" ", "_", DB$scheme), 
                                                 "Typing.rds"))
                   
-                  data <- Database[["Typing"]]
+                  # Databases produced with version < 1.6.1 receive extra column
+                  if(!any(colnames(Database[["Typing"]])[1:14] == "Database")) {
+                    Database[["Typing"]] <- add_column(
+                      Database[["Typing"]],
+                      Database = basename(Startup$database),
+                      .before = "Scheme"
+                    )
+                  }
                   
+                  # Renaming of 'Typing Date' column to 'Entry Date'
+                  if(any(
+                    colnames(Database[["Typing"]])[1:14] == "Typing Date")) {
+                    date_col <- which(
+                      colnames(Database[["Typing"]])[1:14] == "Typing Date")
+                    colnames(Database[["Typing"]])[date_col] <- "Entry Date"
+                  }
                   
-                  # databases produced with version < 1.6.1 receive extra 
-                  # database column
-                  if(any(colnames(data) == "Database")) {
-                    DB$data <- data
+                  # Save changes
+                  saveRDS(Database, file.path(
+                    Startup$database, gsub(" ", "_", DB$scheme), "Typing.rds"))
+                  
+                  DB$data <- Database[["Typing"]]
+                  
+                  if ((ncol(DB$data)-14) != DB$number_loci) {
+                    cust_var <- select(DB$data, 
+                                       15:(ncol(DB$data) - DB$number_loci))
+                    DB$cust_var <- data.frame(Variable = names(cust_var),
+                                              Type = column_classes(cust_var))
                   } else {
-                    DB$data <- add_column(
-                      data, Database = basename(Startup$database), 
-                      .before = "Scheme")
-                  }
-                  
-                  # renaming of 'Typing Date' column to 'Entry Date'
-                  if(any(colnames(DB$data)[1:14] == "Typing Date")) {
-                    date_col <- which(colnames(DB$data)[1:14] == "Typing Date")
-                    colnames(DB$data)[date_col] <- "Entry Date"
-                  }
-                  
-                  if(!is.null(DB$data)){
-                    if ((ncol(DB$data)-14) != DB$number_loci) {
-                      cust_var <- select(DB$data, 
-                                         15:(ncol(DB$data) - DB$number_loci))
-                      DB$cust_var <- data.frame(Variable = names(cust_var),
-                                                Type = column_classes(cust_var))
-                    } else {
-                      DB$cust_var <- data.frame()
-                    }
+                    DB$cust_var <- data.frame()
                   }
                   
                   DB$change <- FALSE
