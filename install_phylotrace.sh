@@ -20,7 +20,7 @@ cat > PhyloTrace.desktop << EOF
 Name=PhyloTrace
 Exec=$SCRIPT_DIR/run_phylotrace.sh
 Icon=PhyloTrace
-Terminal=true
+Terminal=false
 Type=Application
 Categories=Education
 EOF
@@ -37,17 +37,18 @@ cat >> run_phylotrace.sh << 'EOF'
 eval "$($CONDA_PATH shell.bash hook)"
 conda activate PhyloTrace
 if [ "$R_BROWSER" != "" ]; then
-   Rscript -e "shiny::runApp('${SCRIPT_DIR}/App.R', launch.browser=TRUE)"
+   Rscript -e "shiny::runApp('${SCRIPT_DIR}/App.R', launch.browser=TRUE)" > $HOME/.local/share/phylotrace/logs/last_session.log 2>&1
 elif [[ $(uname -r) == *"microsoft"* ]]; then
-   R_BROWSER=wslview Rscript -e "shiny::runApp('${SCRIPT_DIR}/App.R', launch.browser=TRUE)"
+   R_BROWSER=wslview Rscript -e "shiny::runApp('${SCRIPT_DIR}/App.R', launch.browser=TRUE)" > $HOME/.local/share/phylotrace/logs/last_session.log 2>&1
 else
-   R_BROWSER=xdg-open Rscript -e "shiny::runApp('${SCRIPT_DIR}/App.R', launch.browser=TRUE)"
+   R_BROWSER=xdg-open Rscript -e "shiny::runApp('${SCRIPT_DIR}/App.R', launch.browser=TRUE)" > $HOME/.local/share/phylotrace/logs/last_session.log 2>&1
 fi
 EOF
 
 # Setting up the Desktop Icon
 mkdir -p $HOME/.local/share/applications
 mkdir -p $HOME/.local/share/icons/hicolor/scalable/apps
+mkdir -p $HOME/.local/share/phylotrace/logs
 mv $SCRIPT_DIR/PhyloTrace.desktop $HOME/.local/share/applications
 cp $SCRIPT_DIR/www/phylo.png $HOME/.local/share/icons/hicolor/scalable/apps/PhyloTrace.png
 chmod 700 $SCRIPT_DIR/run_phylotrace.sh
