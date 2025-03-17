@@ -1192,6 +1192,8 @@ server <- function(input, output, session) {
   #TODO Enable this, or leave disabled
   # Kill server on session end
   session$onSessionEnded( function() {
+    system(paste("bash", shQuote(paste0(getwd(), "/bin/kill_multi.sh"))),  
+           wait = FALSE)
     stopApp()
   })
   
@@ -6788,6 +6790,8 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$conf_shutdown, {
+    system(paste("bash", shQuote(paste0(getwd(), "/bin/kill_multi.sh"))),  
+           wait = FALSE)
     runjs("window.close();")
     stopApp()
   })

@@ -395,7 +395,7 @@ body > div.pcr-app.pickr-color.visible {
   max-height: calc(100vh - 45px);
   background-color: #394657eb;
   color: white;
-  border: solid 1px;
+  border: solid 1px !important;
   border-radius: 5px;
 }
 
@@ -423,6 +423,13 @@ body > div.pcr-app.pickr-color.visible {
   margin-right: 5px;
   border: 1px solid white;
   border-radius: 4px;
+}
+
+#assembly_files-modal > div > div > div.modal-header,
+#assembly_folder-modal > div > div > div.modal-header,
+#assembly_files-modal > div > div > div.modal-footer,
+#assembly_folder-modal > div > div > div.modal-footer {
+  border: none !important
 }
 
 .skin-blue .input-group-btn > .btn {
@@ -718,6 +725,7 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
 
 .open > .dropdown-menu {
   border-color: white;
+  z-index: 9999;
 }
 
 .shiny-input-container input[type="text"] {
@@ -1166,6 +1174,12 @@ body > div.waiter-overlay.waiter-fullscreen {
 .dataTables_scrollHead,
 .dataTables_scrollBody {
   box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.5);
+}
+
+.dataTables_scrollHead {
+  border-radius: 5px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
 }
 
 thead {
@@ -1920,9 +1934,10 @@ body > div.datepicker.datepicker-dropdown.dropdown-menu.datepicker-orient-left.d
 
 #logText, #logTextFull {
   margin-top: 5px;
-  max-height: 50vh;
+  max-height: 40vh;
   white-space: pre-line;
   word-wrap: break-word;
+  box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.5);
 }
 
 .append_table {
@@ -4542,7 +4557,10 @@ button#download_resistance_profile_bttn {
   padding-bottom: 0px;
 }
 
-.screening-box {
-  position: relative;
-  z-index: 9999;
+.loci_table .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody {
+  max-height: 45vh;
+}
+
+#screening_start {
+  z-index: 1111;
 }
