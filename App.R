@@ -1193,7 +1193,7 @@ server <- function(input, output, session) {
   # Kill server on session end
   session$onSessionEnded( function() {
     system(paste("bash", shQuote(paste0(getwd(), "/bin/kill_multi.sh"))),  
-           wait = FALSE)
+           wait = TRUE) 
     stopApp()
   })
   
@@ -4239,9 +4239,13 @@ server <- function(input, output, session) {
                       width = "100%",
                       title = "Delete Entries",
                       fluidRow(
-                        column(1),
+                        column(width = 1),
                         column(
-                          width = 5,
+                          width = 2,
+                          h5("Index", style = "color: white; margin-top: 5vh")
+                        ),
+                        column(
+                          width = 6,
                           align = "left",
                           uiOutput("delete_select")
                         ),
@@ -4291,9 +4295,7 @@ server <- function(input, output, session) {
                   # Render entry deletion select input
                   output$delete_select <- renderUI({
                     pickerInput("select_delete",
-                                label = h5(
-                                  "Index", 
-                                  style = "color:white; margin-bottom: 0px;"),
+                                label = "",
                                 choices = DB$data[, "Index"],
                                 options = list(
                                   `live-search` = TRUE,
@@ -5959,24 +5961,22 @@ server <- function(input, output, session) {
         external_meta <- DB$import[, !colnames(DB$import) %in%
                                      gsub(".fasta|.fna|.fa", "", 
                                           alleles)]
-        test1 <<- external_meta
+        
         import_meta <- external_meta[, input$import_metadata_sel]
-        test2 <<- import_meta
+        
         if(any(colnames(import_meta) == input$import_id_selector)) {
           import_meta <- select(import_meta, -c(input$import_id_selector))  
         }
-        test3 <<- import_meta
         
         merged_meta <- merge_and_fix_types(dummy_meta, import_meta)
-        test4 <<- merged_meta
         
         # append new external custom metadata
         external_custom_vars <- which(!colnames(import_meta) %in% meta_names)
-        test5 <<- external_custom_vars
+        
         if(length(external_custom_vars)) {
           
           import_meta_ex_cust <- import_meta[, external_custom_vars]
-          test6 <<- import_meta_ex_cust
+          
           for(variable in seq_along(colnames(import_meta_ex_cust))) {
             class <- class(import_meta_ex_cust[, variable])
             ifelse(class == "numeric",
@@ -6791,7 +6791,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$conf_shutdown, {
     system(paste("bash", shQuote(paste0(getwd(), "/bin/kill_multi.sh"))),  
-           wait = FALSE)
+           wait = TRUE) 
     runjs("window.close();")
     stopApp()
   })
@@ -7497,10 +7497,12 @@ server <- function(input, output, session) {
     runjs(block_ui)
     log_print("Input conf_db_save")
     
+    remove_iso <<- DB$remove_iso
+    
     # Remove isolate assembly file if present
     if(!is.null(DB$remove_iso)) {
       if(length(DB$remove_iso) > 0) {
-        lapply(DB$remove_iso, unlink, recursive = TRUE, force = FALSE, 
+        lapply(DB$remove_iso, unlink, recursive = TRUE, force = FALSE,
                expand = TRUE)
       }
     }
@@ -7718,8 +7720,12 @@ server <- function(input, output, session) {
     # Set isolate directory deletion variables
     isopath <- dir_ls(file.path(Startup$database, gsub(" ", "_", DB$scheme), 
                                 "Isolates"))
+    isopath1 <<- isopath
+    dataa <<- DB$data
+    select_delete <<- input$select_delete
+    
     DB$remove_iso <- isopath[which(
-      basename(isopath) == DB$data$`Assembly ID`[as.numeric(
+      basename(isopath) %in% DB$data$`Assembly ID`[as.numeric(
         input$select_delete)])]
     
     # Reload updated database reactive variables
@@ -23964,10 +23970,10 @@ server <- function(input, output, session) {
   
   # Render multi selection table issues
   output$multi_select_issues <- renderUI({
-    
     req(Typing$multi_sel_table, input$multi_select_table)
     
-    if(any(hot_to_r(input$multi_select_table)$Files %in% dupl_mult_id()) & 
+    if(any(hot_to_r(input$multi_select_table)$Files %in% 
+           unlist(DB$data["Assembly ID"])) &
        any(duplicated(hot_to_r(input$multi_select_table)$Files))){
       HTML(
         paste(
@@ -23977,8 +23983,8 @@ server <- function(input, output, session) {
                 "Duplicated name(s). <br/>")
         )
       )
-    } else if (any(hot_to_r(input$multi_select_table)$Files %in% 
-                   dupl_mult_id()) & 
+    } else if (any(hot_to_r(input$multi_select_table)$Files %in%
+                   unlist(DB$data["Assembly ID"])) &
                !any(duplicated(hot_to_r(input$multi_select_table)$Files))) {
       HTML(
         paste("<span style='color: #e0b300; position:relative; top:2px'>",
@@ -24057,7 +24063,7 @@ server <- function(input, output, session) {
                style = "color:white; margin-left: 15px"),
             br(),
             column(
-              width = 1,
+              width = 2,
               align = "left",
               actionButton(
                 "sel_all_mt",
@@ -24066,7 +24072,7 @@ server <- function(input, output, session) {
               )
             ),
             column(
-              width = 1,
+              width = 2,
               align = "left",
               actionButton(
                 "desel_all_mt",
@@ -24075,7 +24081,7 @@ server <- function(input, output, session) {
               )
             ),
             column(
-              width = 10,
+              width = 8,
               align = "center",
               br(),
               uiOutput("multi_select_issues")
@@ -24171,7 +24177,7 @@ server <- function(input, output, session) {
              style = "color:white; margin-left: 15px"),
           br(),
           column(
-            width = 1,
+            width = 2,
             align = "left",
             actionButton(
               "sel_all_mt",
@@ -24180,7 +24186,7 @@ server <- function(input, output, session) {
             )
           ),
           column(
-            width = 1,
+            width = 2,
             align = "left",
             actionButton(
               "desel_all_mt",
@@ -24448,6 +24454,7 @@ server <- function(input, output, session) {
     multi_select_table <- hot_to_r(input$multi_select_table)[which(
       hot_to_r(input$multi_select_table)$Include == TRUE), ]
     
+    # Safety checks
     if(any(unlist(gsub(".fasta|.fna|.fa|.fasta.gz|.fna.gz|.fa.gz", "", 
                        multi_select_table$Files)) %in% 
            unlist(DB$data["Assembly ID"]))) {

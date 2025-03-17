@@ -850,7 +850,7 @@ body > div.swal2-container.swal2-bottom-start.swal2-backdrop-show{
 }
 
 .action-button.bttn.bttn-material-flat.bttn-sm.bttn-default.bttn-no-outline.shiny-bound-input:hover {
-  border-color: transparent !important; /* Change border color to white on hover */
+  border-color: transparent !important;
   background: #20E6E5 !important;
   color: black !important;
 }
@@ -1448,6 +1448,12 @@ i.fa-solid.fa-gears.fa-spin-pulse {
 
 /* Database */
 
+#custom_var_box .box-body,
+#delete_box .box-body,
+#compare_allele_box .box-body {
+  height: 13vh;
+}
+
 #import-menu {
   margin-left: -24px;
   margin-top: 2rem;
@@ -1720,6 +1726,7 @@ div#db_distancematrix.rhandsontable {
 
 #del_bttn {
   top: 8px;
+  margin-top: 2vh;
 }
 
 .compare-select {
@@ -1847,14 +1854,14 @@ button#edit_button.btn.btn-default.action-button.shiny-bound-input {
 }
 
 #desel_all_mt {
-  margin-left: 15px;
+  margin-left: -5vh;
 }
 
-#sel_all_mt,
-#desel_all_mt{
-  margin-top: 20px;
-  margin-bottom: 25px;
-  border: 1px solid white;
+#sel_all_mt, #desel_all_mt {
+    margin-top: 20px;
+    margin-bottom: 25px;
+    border: 1px solid white;
+    width: 7vh;
 }
 
 #multi_select_issues {
@@ -2952,6 +2959,10 @@ dropdown-menu .open {
 #delete_select > div > div > div,
 #compare_select > div > div > div > div{
   width: max-content;
+}
+
+#delete_select {
+  margin-top: 2vh;
 }
 
 .gs-plot-selected-isolate .open > .dropdown-menu .inner,
