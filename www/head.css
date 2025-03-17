@@ -86,7 +86,10 @@
 *::-webkit-scrollbar {
   width: 15px;
   height: 15px;
-  border-bottom-right-radius: 5px;
+}
+
+*::-webkit-scrollbar-track:vertical {
+  border-bottom-right-radius: 5px !important;
 }
 
 *::-webkit-scrollbar-track {
@@ -131,23 +134,22 @@
 }
 
 .sF-fileWindow::-webkit-scrollbar-corner,
-.loci_table::-webkit-scrollbar-corner {
+.loci-table::-webkit-scrollbar-corner,
+.amr-table::-webkit-scrollbar-corner,
+.var-table::-webkit-scrollbar-corner,
+.typing-result-table::-webkit-scrollbar-corner,
+.screening-table::-webkit-scrollbar-corner {
   border-bottom-right-radius: 5px;
-}
-
-.loci_table::-webkit-scrollbar-track:horizontal {
-  border-bottom-right-radius: 0px;
-}
-
-.loci_table::-webkit-scrollbar-track:vertical {
-  border-bottom-right-radius: 0px;
-  border-bottom-left-radius: 0px;
 }
 
 #mst_comm_general_select::-webkit-scrollbar-track {
   background: #F0F0F0;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
+}
+
+.selectize-dropdown-content::-webkit-scrollbar-track{
+  border-top-right-radius: 5px !important;
 }
 
 div#bs-select-1::-webkit-scrollbar-track,
@@ -182,26 +184,18 @@ div.bs-select::-webkit-scrollbar-track{
   border-radius: 5px;
 }
 
-#DataTables_Table_8_wrapper > div.dataTables_scroll > div.dataTables_scrollBody::-webkit-scrollbar-track:horizontal,
-.display .dataTable .no-footer::-webkit-scrollbar-track:horizontal,
-#DataTables_Table_8::-webkit-scrollbar-track:horizontal,
-.dataTables_scrollBody::-webkit-scrollbar-track:horizontal,
-div#gs_profile_table::-webkit-scrollbar-track:horizontal,
-#gs_profile_table::-webkit-scrollbar-track:horizontal {
-  background: #F0F0F0;
+.dataTables_scrollBody::-webkit-scrollbar-track:horizontal {
   border-bottom-right-radius: 0px;
   border-bottom-left-radius: 5px;
 }
 
-#DataTables_Table_8_wrapper > div.dataTables_scroll > div.dataTables_scrollBody::-webkit-scrollbar-track:vertical,
-.display .dataTable .no-footer::-webkit-scrollbar-track:vertical,
-#DataTables_Table_8::-webkit-scrollbar-track:vertical,
-.dataTables_scrollBody::-webkit-scrollbar-track:vertical,
-div#gs_profile_table::-webkit-scrollbar-track:vertical,
-#gs_profile_table::-webkit-scrollbar-track:vertical {
-  background: #F0F0F0;
-  border-bottom-right-radius: 0px;
+#gs_profile_table .dataTables_scrollBody::-webkit-scrollbar-track:vertical {
+  border-bottom-right-radius: 0px !important;
   border-bottom-left-radius: 0px;
+}
+
+#gs_isolate_table .dataTables_scrollBody::-webkit-scrollbar-track:vertical {
+  border-bottom-right-radius: 5px;
 }
 
 #scheme_info::-webkit-scrollbar-track,

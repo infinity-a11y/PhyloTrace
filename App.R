@@ -431,7 +431,7 @@ ui <- dashboardPage(
               width = 7,
               align = "center",
               br(),
-              div(class = "loci_table",
+              div(class = "loci-table",
                   dataTableOutput("db_loci"))
             )
           ),
@@ -3271,37 +3271,8 @@ server <- function(input, output, session) {
                     selection = "single",
                     rownames = FALSE, 
                     options = list(
-                      pageLength = 10,
-                      lengthMenu = list(c(10), c('10')),  
-                      columnDefs = list(list(searchable = TRUE, targets = "_all")),
-                      initComplete = DT::JS(
-                        paste0(
-                          "function(settings, json) {",
-                          "$('th:first-child').css({'border-top-left-radius':", 
-                          " '5px'});",
-                          "$('th:last-child').css({'border-top-right-radius':", 
-                          " '5px'});",
-                          "$('tbody tr:last-child td:first-child').css({'borde", 
-                          "r-bottom-left-radius': '5px'});",
-                          "$('tbody tr:last-child td:last-child').css({'borde", 
-                          "r-bottom-right-radius': '5px'});",
-                          "}"
-                        )
-                      ),
-                      drawCallback = DT::JS(
-                        paste0(
-                          "function(settings) {",
-                          "$('th:first-child').css({'border-top-left-radius':", 
-                          " '5px'});",
-                          "$('th:last-child').css({'border-top-right-radius':", 
-                          " '5px'});",
-                          "$('tbody tr:last-child td:first-child').css({'borde", 
-                          "r-bottom-left-radius': '5px'});",
-                          "$('tbody tr:last-child td:last-child').css({'borde", 
-                          "r-bottom-right-radius': '5px'});",
-                          "}"
-                        )
-                      )
+                      scrollY = TRUE, pageLength = 10,
+                      columnDefs = list(list(searchable = TRUE, targets = "_all"))
                     )
                   )
                   
@@ -5704,25 +5675,10 @@ server <- function(input, output, session) {
         output$db_loci <- renderDataTable(
           loci_info,
           selection = "single",
-          options = list(pageLength = 15, 
-                         lengthMenu = list(c(15), c('15')), 
+          options = list(pageLength = 15, scrollY = TRUE,
                          columnDefs = list(list(searchable = TRUE,
                                                 targets = "_all",
-                                                className = "dt-left")),
-                         initComplete = DT::JS(
-                           "function(settings, json) {",
-                           "$('th:first-child').css({'border-top-left-radius': '5px'});",
-                           "$('th:last-child').css({'border-top-right-radius': '5px'});",
-                           "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
-                           "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
-                           "}"
-                         ),
-                         drawCallback = DT::JS(
-                           "function(settings) {",
-                           "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
-                           "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
-                           "}"
-                         ))
+                                                className = "dt-left")))
         )
         
         output$db_loci_no <- NULL
@@ -6880,7 +6836,8 @@ server <- function(input, output, session) {
         modalDialog(
           column(
             width = 12,
-            dataTableOutput("show_cust_var"),
+            div(class = "var-table",
+                dataTableOutput("show_cust_var")),
             br(),
             br()
           ),
@@ -7497,8 +7454,6 @@ server <- function(input, output, session) {
     runjs(block_ui)
     log_print("Input conf_db_save")
     
-    remove_iso <<- DB$remove_iso
-    
     # Remove isolate assembly file if present
     if(!is.null(DB$remove_iso)) {
       if(length(DB$remove_iso) > 0) {
@@ -7720,9 +7675,6 @@ server <- function(input, output, session) {
     # Set isolate directory deletion variables
     isopath <- dir_ls(file.path(Startup$database, gsub(" ", "_", DB$scheme), 
                                 "Isolates"))
-    isopath1 <<- isopath
-    dataa <<- DB$data
-    select_delete <<- input$select_delete
     
     DB$remove_iso <- isopath[which(
       basename(isopath) %in% DB$data$`Assembly ID`[as.numeric(
@@ -7883,24 +7835,9 @@ server <- function(input, output, session) {
       output$db_loci <- renderDataTable(
         loci_info,
         selection = "single",
-        options = list(pageLength = 15,  
-                       lengthMenu = list(c(15), c('15')), 
+        options = list(pageLength = 15, scrollY = TRUE,
                        columnDefs = list(list(searchable = TRUE,
-                                              targets = "_all")),
-                       initComplete = DT::JS(
-                         "function(settings, json) {",
-                         "$('th:first-child').css({'border-top-left-radius': '5px'});",
-                         "$('th:last-child').css({'border-top-right-radius': '5px'});",
-                         "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
-                         "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
-                         "}"
-                       ),
-                       drawCallback = DT::JS(
-                         "function(settings) {",
-                         "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
-                         "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
-                         "}"
-                       ))
+                                              targets = "_all")))
       )
       
       output$db_loci_no <- NULL
@@ -21980,7 +21917,7 @@ server <- function(input, output, session) {
       if(length(input$gs_profile_select) > 0 &
          any(input$gs_profile_select %in% DB$data$`Assembly ID`)) {
         fluidRow(
-          div(class = "loci_table",
+          div(class = "amr-table",
               DT::dataTableOutput("gs_profile_table")),
           br(),
           HTML(
@@ -22168,28 +22105,14 @@ server <- function(input, output, session) {
         output$gs_profile_table <- DT::renderDataTable(
           Screening$res_profile,
           selection = "single",
-          rownames= FALSE,
+          rownames = FALSE,
           options = list(
             scrollX = TRUE, autoWidth = TRUE, pageLength = 10,
-            columnDefs = list(list(searchable = TRUE, targets = "_all")),
-            columnDefs = list(
-              list(width = '400px', targets = c("Sequence Name",
-                                                "Name of Closest Sequence"))),
-            columnDefs = list(list(width = 'auto', targets = "_all")),
-            columnDefs = list(list(searchable = TRUE,
-                                   targets = "_all")),
-            initComplete = DT::JS(
-              "function(settings, json) {",
-              "$('th:first-child').css({'border-top-left-radius': '5px'});",
-              "$('th:last-child').css({'border-top-right-radius': '5px'});",
-              "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '0px'});",
-              "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '0px'});",
-              "}"),
-            drawCallback = DT::JS(
-              "function(settings) {",
-              "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '0px'});",
-              "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '0px'});",
-              "}"))
+            columnDefs = list(list(searchable = TRUE, targets = "_all"),
+                              list(width = '300px', 
+                                   targets = c("Sequence Name", 
+                                               "Name of Closest Sequence")))
+          )
         )
       } 
     } else {
@@ -22206,21 +22129,10 @@ server <- function(input, output, session) {
       selection = "single",
       rownames= FALSE,
       options = list(
+        scrollY = TRUE,
         pageLength = 10, autoWidth = TRUE, columnDefs = list(
           list(searchable = TRUE, targets = "_all",
-               className = "dt-left")),
-        initComplete = DT::JS(
-          "function(settings, json) {",
-          "$('th:first-child').css({'border-top-left-radius': '5px'});",
-          "$('th:last-child').css({'border-top-right-radius': '5px'});",
-          "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
-          "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
-          "}"),
-        drawCallback = DT::JS(
-          "function(settings) {",
-          "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
-          "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
-          "}"))
+               className = "dt-left")))
     )
   })
   
@@ -22252,7 +22164,7 @@ server <- function(input, output, session) {
               br(),
               column(
                 width = 12,
-                div(class = "loci_table",
+                div(class = "amr-table",
                     dataTableOutput("gs_isolate_table"))
               ),
               br()
@@ -22298,26 +22210,16 @@ server <- function(input, output, session) {
           if(Screening$status_df$status[which(
             Screening$status_df$isolate == input$screening_res_sel)] ==
             "success") {
-            results <- read.delim(result_path)
+            results <- select(read.delim(result_path), c(6, 7, 8, 9, 11))
+            colnames(results) <- c("Gene Symbol", "Sequence Name", "Scope", 
+                                   "Element Type", "Class")
             
             output$screening_table <- renderDataTable(
-              select(results, c(6, 7, 8, 9, 11)),
+              results,
               selection = "single",
-              options = list(
-                pageLength = 10, columnDefs = list(list(searchable = TRUE,
-                                                        targets = "_all")),
-                dom = "tip", initComplete = DT::JS(
-                  "function(settings, json) {",
-                  "$('th:first-child').css({'border-top-left-radius': '5px'});",
-                  "$('th:last-child').css({'border-top-right-radius': '5px'});",
-                  "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
-                  "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
-                  "}"), 
-                drawCallback = DT::JS(
-                  "function(settings) {",
-                  "$('tbody tr:last-child td:first-child').css({'border-bottom-left-radius': '5px'});",
-                  "$('tbody tr:last-child td:last-child').css({'border-bottom-right-radius': '5px'});",
-                  "}")))
+              options = list(scrollY = TRUE, pageLength = 10, 
+                             columnDefs = list(list(searchable = TRUE,
+                                                    targets = "_all"))))
           } else {output$screening_table <- NULL}
         }
       } else {
@@ -22518,7 +22420,6 @@ server <- function(input, output, session) {
           column(1),
           column(
             width = 10,
-            br(),  
             uiOutput("screening_result"),
             br(), br()
           )
@@ -22891,7 +22792,10 @@ server <- function(input, output, session) {
                     )
                   )
                 ),
-                dataTableOutput("screening_table") 
+                div(
+                  class = "screening-table",
+                  dataTableOutput("screening_table")  
+                )
               )
             )
           } else {
@@ -24837,8 +24741,8 @@ server <- function(input, output, session) {
           output$multi_typing_result_table <- renderDataTable(
               Typing$result_list[[input$multi_results_picker]],
               selection = "single",
-              options = list(
-                pageLength = 10, columnDefs = list(list(searchable = TRUE,
+              options = list(pageLength = 10, scrollY = TRUE,
+                             columnDefs = list(list(searchable = TRUE,
                                                         targets = "_all")),
                 initComplete = DT::JS(
                   "function(settings, json) {", 
@@ -24860,10 +24764,9 @@ server <- function(input, output, session) {
             output$multi_typing_result_table <- renderDataTable(
               Typing$result_list[[input$multi_results_picker]],
               selection = "single",
-              options = list(
-                pageLength = 10,
-                columnDefs = list(list(searchable = TRUE,
-                                       targets = "_all")),
+              options = list(pageLength = 10, scrollY = TRUE,
+                             columnDefs = list(list(searchable = TRUE,
+                                                    targets = "_all")),
                 initComplete = DT::JS(
                   "function(settings, json) {",
                   "$('th:first-child').css({'border-top-left-radius': '5px'});",
@@ -24882,9 +24785,9 @@ server <- function(input, output, session) {
             output$multi_typing_result_table <- renderDataTable(
               Typing$result_list[[input$multi_results_picker]],
               selection = "single",
-              options = list(
-                pageLength = 10, columnDefs = list(list(searchable = TRUE,
-                                                        targets = "_all")),
+              options = list(pageLength = 10, scrollY = TRUE,
+                             columnDefs = list(list(searchable = TRUE,
+                                                    targets = "_all")),
                 initComplete = DT::JS(
                   "function(settings, json) {",
                   "$('th:first-child').css({'border-top-left-radius': '5px'});",
@@ -24949,7 +24852,10 @@ server <- function(input, output, session) {
                 ), br()
               )
             ),
-            dataTableOutput("multi_typing_result_table")
+            div(
+              class = "typing-result-table",
+              dataTableOutput("multi_typing_result_table")
+            )
           )
         })
       }

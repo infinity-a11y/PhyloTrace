@@ -24,6 +24,23 @@ body > div > header > nav > a {
   border: 1px solid black;
 }
 
+.selectize-dropdown-content,
+.open > .dropdown-menu {
+  box-shadow: 0px 0px 8px 2px #0000008c;
+  background: white;
+  border-radius: 5px;
+}
+
+.selectize-dropdown, .selectize-dropdown.form-control {
+  height: auto;
+  padding: 0;
+  margin: 2px 0 0 0;
+  z-index: 1000;
+  background: #fff;
+  border: none;
+  border-radius: 5px;
+}
+
 .modal-content {
   background-color: transparent;
 }
@@ -1167,8 +1184,18 @@ body > div.waiter-overlay.waiter-fullscreen {
   cursor: wait !important;
 }
   
-.loci_table .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_processing, .dataTables_wrapper .dataTables_paginate {
+.dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_processing, .dataTables_wrapper .dataTables_paginate {
   color: #ffffff !important;
+}
+
+.dataTables_wrapper.no-footer div.dataTables_scrollHead table.dataTable {
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+.dataTables_scrollHeadInner {
+  padding-right: 0 !important;
+  width: 100% !important;
 }
 
 .dataTables_scrollHead,
@@ -2948,14 +2975,6 @@ dropdown-menu .open {
   border-radius: 0px;
 }
 
-.gs-plot-selected-isolate .open > .dropdown-menu {
-  padding: 5px 0;
-  box-shadow: 0px 0px 7px 3px #0FF4DC;
-  background: white;
-  border-radius: 5px;
-  border: 1px solid #42536acc;
-}
-
 #delete_select > div > div > div,
 #compare_select > div > div > div > div{
   width: max-content;
@@ -4397,10 +4416,7 @@ button#gs_download_plot_bttn {
 .gsplot-isolate-label .selectize-dropdown-content,
 .filetype-gs .selectize-dropdown-content {
   padding: 5px 0;
-  box-shadow: 0px 0px 7px 3px #0FF4DC;
-  background: white;
-  border-radius: 5px;
-  border: 1px solid #42536acc;
+  width: 150%;
 }
 
 #gs-control,
@@ -4568,10 +4584,35 @@ button#download_resistance_profile_bttn {
   padding-bottom: 0px;
 }
 
-.loci_table .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody {
+.loci-table .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody {
+  max-height: 60vh;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.amr-table .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody,
+.var-table .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody {
   max-height: 45vh;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.screening-table .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody {
+  max-height: 38vh;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.typing-result-table .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody {
+  max-height: 40vh;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
 }
 
 #screening_start {
   z-index: 1111;
+}
+
+#screening_result {
+  margin-top: 1em;
 }
