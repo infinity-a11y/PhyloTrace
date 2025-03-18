@@ -121,6 +121,28 @@ table {
   box-shadow: none;
 }
 
+.handsontable .autocompleteEditor.handsontable,
+.handsontable.listbox .ht_master table {
+  width: 300px !important;
+}
+
+#db_entries .handsontable .htDimmed {
+  cursor: no-drop;
+  color: #545454 !important;
+}
+
+.handsontable .autocompleteEditor.handsontable .wtHolder {
+  width: 300px !important;
+  overflow-x: hidden;
+}
+
+.handsontable .autocompleteEditor.handsontable,
+.handsontable.listbox .ht_master table,
+.handsontable.listbox {
+  box-shadow: 0px 0px 8px 2px #0000008c;
+  padding: 0;
+}
+
 .staticParent {
     position: relative;
 }
@@ -1531,13 +1553,16 @@ i.fa-solid.fa-gears.fa-spin-pulse {
   margin-left: -70px;
 }
 
-#db_entries > div > div > div > div > table > tbody > tr > td,
 #db_distancematrix > div > div > div > div > table > tbody > tr > td,
 #table_missing_values > div > div > div > div > table > tbody > tr > td,
 #multi_select_table > div > div > div > div > table > tbody > tr > td,
 #multi_typing_result_table > div > div > div > div > table > tbody > tr > td,
 #typing_result_table > div > div > div > div > table > tbody > tr > td {
   color: black !important;
+}
+
+#db_entries > div > div > div > div > table > tbody > tr > td {
+  color: black;  
 }
 
 .miss_val_box,
@@ -1697,6 +1722,7 @@ i.fa-solid.fa-gears.fa-spin-pulse {
   border-radius: 8px;
   color: black;
   box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.5);
+  overflow-x: clip;
 }
 
 #table_missing_values {
@@ -1935,6 +1961,10 @@ body > div.htDatepickerHolder > div > div > table > tbody > tr > td.is-selected,
 .pika-button:hover {
   background: #20E6E5; 
     color: #000000;
+}
+
+.pika-lendar {
+  margin: 0px;
 }
 
 .pika-button {

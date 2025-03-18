@@ -6857,8 +6857,9 @@ server <- function(input, output, session) {
   })
   
   # Invalid entries table input
-  observe({
+  observeEvent(input$invalid_date | input$empty_name | input$empty_id, {
     req(DB$data, input$db_entries)
+    
     if (isTRUE(input$invalid_date)) {
       show_toast(
         title = "Invalid date",
