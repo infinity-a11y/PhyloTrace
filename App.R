@@ -855,32 +855,32 @@ server <- function(input, output, session) {
   
   # default plot control input values
   
-  fruit_width <- reactive({
-    if(!is.null(nj_layout_val())) {
-      if(!is.null(Vis$nj_min_x) & !is.null(Vis$nj_max_x)) {
-        if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
-          ifelse(nj_layout_val() == "circular" | 
-                   nj_layout_val() == "inward",
-                 width <- 3,
-                 width <- 1) 
+  fruit_width <- function(nj_layout = nj_layout_val(),
+                          nj_max_x = Vis$nj_max_x) {
+    if(!is.null(nj_layout)) {
+      if(!is.null(nj_max_x)) {
+        if(round(ceiling(nj_max_x) * 0.033, 1) < 0.1) {
+          width <- 0.1
+          ifelse(nj_layout == "circular" | 
+                   nj_layout == "inward",
+                 width <- 1.5,
+                 width <- 0.5) 
         } else {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
-          if(nj_layout_val() == "circular" | 
-             nj_layout_val() == "inward") {
-            width <- width * 3
+          width <- round(ceiling(nj_max_x) * 0.033, 1)
+          if(nj_layout == "circular" | 
+             nj_layout == "inward") {
+            width <- width * 4
           }
-          if(width < 1) {width <- 1}
         }
       } else {
-        ifelse(nj_layout_val() == "circular" | 
-                 nj_layout_val() == "inward",
-               width <- 3,
-               width <- 1) 
+        ifelse(nj_layout == "circular" | 
+                 nj_layout == "inward",
+               width <- 1.5,
+               width <- 0.5) 
       } 
     } else {width <- 1}
-    
     return(width)
-  })
+  }
   
   heatmap_width <- reactive({
     if(!is.null(nj_layout_val())) {
@@ -6893,7 +6893,7 @@ server <- function(input, output, session) {
   observeEvent(input$reload_db, {
     
     log_print("Input reload_db")
-    
+
     if(tail(readLines(file.path(logdir, "script_log.txt")), 1)!= "0") {
       show_toast(
         title = "Pending Multi Typing",
@@ -6914,7 +6914,7 @@ server <- function(input, output, session) {
           class = "start-modal",
           modalDialog(
             fluidRow(
-              br(), 
+              br(),
               column(
                 width = 11,
                 p(
@@ -12727,7 +12727,7 @@ server <- function(input, output, session) {
            nj_fruit_alpha_5_val(input$nj_fruit_alpha_5),
            nj_fruit_alpha_5_val(1))
     
-    nj_fruit_width_circ_val(nj_fruit_width_circ_reactive())
+    nj_fruit_width_circ_val(nj_fruit_width_circ_reactive()) 
     nj_fruit_width_circ_2_val(nj_fruit_width_circ_2_reactive())
     nj_fruit_width_circ_3_val(nj_fruit_width_circ_3_reactive())
     nj_fruit_width_circ_4_val(nj_fruit_width_circ_4_reactive())
@@ -13682,6 +13682,10 @@ server <- function(input, output, session) {
   # Tiles settings
   
   output$nj_fruit_width <- renderUI({
+    fruit_width <- fruit_width()
+    min_val <- max(round(fruit_width / 5, 1), 0.1)
+    step_val <- max(round(fruit_width / 10, 1), 0.1)
+    
     ifelse(!is.null(Vis$nj_max_x),
            max <- round(ceiling(Vis$nj_max_x) * 0.5, 0),
            max <- 10)
@@ -13690,10 +13694,11 @@ server <- function(input, output, session) {
       input_id = "nj_fruit_width_circ",
       input_type = "sliderInput",
       width = "150px",
-      min = 1,
+      min = min_val,
+      step = step_val,
       max = max,
-      reactive_value = nj_fruit_width_circ_val(),
-      default_value = fruit_width(),
+      reactive_value = isolate(nj_fruit_width_circ_val()),
+      default_value = fruit_width,
       reset = isolate(Vis$nj_fruit_width_circ_val_reset))
     
     isolate(Vis$nj_fruit_width_circ_val_reset <- FALSE)
@@ -13800,7 +13805,7 @@ server <- function(input, output, session) {
       step = step,
       min = min,
       max = max,
-      reactive_value = nj_fruit_offset_circ_val(),
+      reactive_value = isolate(nj_fruit_offset_circ_val()),
       default_value = 0.05,
       reset = isolate(Vis$nj_fruit_offset_circ_reset))
     
@@ -15366,27 +15371,21 @@ server <- function(input, output, session) {
   
   # Changes when tree layout changes
   observeEvent(input$nj_layout, {
-    
-    if((!is.null(Vis$nj_min_x)) & (!is.null(Vis$nj_max_x))) {
-      if(round(ceiling(Vis$nj_max_x) * 0.1, 0) < 1) {
-        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          width <- 3
-        } else {
-          width <- 1
-        }
-      } else {
-        if(input$nj_layout == "circular" | input$nj_layout == "inward") {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0) * 3
-        } else {
-          width <- round(ceiling(Vis$nj_max_x) * 0.033, 0)
-        }
-      }
-      
-      nj_fruit_width_circ_val(width)
-      nj_fruit_width_circ_2_val(width)
-      nj_fruit_width_circ_3_val(width)
-      nj_fruit_width_circ_4_val(width)
-      nj_fruit_width_circ_5_val(width)
+     
+    if(!is.null(Vis$nj_max_x)) {
+      fruit_width <- fruit_width(nj_layout = input$nj_layout)
+
+      nj_fruit_width_circ_val(fruit_width)
+      nj_fruit_width_circ_2_val(fruit_width)
+      nj_fruit_width_circ_3_val(fruit_width)
+      nj_fruit_width_circ_4_val(fruit_width)
+      nj_fruit_width_circ_5_val(fruit_width)
+
+      updateSliderInput(session, "nj_fruit_width_circ", value = fruit_width)
+      updateSliderInput(session, "nj_fruit_width_circ_2", value = fruit_width)
+      updateSliderInput(session, "nj_fruit_width_circ_3", value = fruit_width)
+      updateSliderInput(session, "nj_fruit_width_circ_4", value = fruit_width)
+      updateSliderInput(session, "nj_fruit_width_circ_5", value = fruit_width)
     }
     
     # if(input$nj_layout == "circular" | input$nj_layout == "inward") {
@@ -15405,34 +15404,37 @@ server <- function(input, output, session) {
     # updateSliderInput(session, "nj_fruit_offset_circ_2", min = min, step = step, max = max, value = offset)
     # updateSliderInput(session, "nj_fruit_offset_circ_3", min = min, step = step, max = max, value = offset)
     # updateSliderInput(session, "nj_fruit_offset_circ_4", min = min, step = step, max = max, value = offset)
-    # updateSliderInput(session, "nj_fruit_offset_circ_5", min = min, step = step, max = max, value = offset) 
-    
+    # updateSliderInput(session, "nj_fruit_offset_circ_5", min = min, step = step, max = max, value = offset)
+
     #
     
     if(input$nj_layout != "inward" & input$nj_layout != "circular") {
       # nj_colnames_angle_val(-90)
       # updateSliderInput(session, "nj_colnames_angle", value = -90)
       # nj_colnames_y_val(-1)
-      
+
       if(!is.null(Vis$tree_algo) && Vis$tree_algo == "NJ") nj_align_val(FALSE)
-      
+
       nj_h_val(-0.05)
       updateSliderInput(session, "nj_h", value = -0.05)
-      
+
+      nj_v_val(0)
+      updateSliderInput(session, "nj_v", value = 0)
+
       nj_zoom_val(0.95)
       updateSliderInput(session, "nj_zoom", value = 0.95)
     } else {
       # nj_colnames_angle_val(90)
       # updateSliderInput(session, "nj_colnames_angle", value = 90)
       # nj_colnames_y_val(0)
-      
+
       nj_align_val(TRUE)
-      
+
       nj_h_val(0)
       updateSliderInput(session, "nj_h", value = 0)
-      
-      nj_v_val(0.03)
-      updateSliderInput(session, "nj_v", value = 0.03)
+
+      nj_v_val(0.04)
+      updateSliderInput(session, "nj_v", value = 0.04)
     }
     
     # Adapt heatmap control inputs

@@ -118,6 +118,10 @@
   background: #F0F0F0;
 }
 
+.wtHolder::-webkit-scrollbar-track {
+  border-bottom-right-radius: 0px !important;
+}
+
 .sF-fileWindow::-webkit-scrollbar-track:vertical {
   background: #F0F0F0;
   border-top-right-radius: 5px;
