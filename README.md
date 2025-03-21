@@ -71,18 +71,16 @@ The **user manual** containing detailed instruction and information is available
 
 <details open>
 
-<summary><b>Downloading cgMLST Scheme</b></summary>
+<summary><b>Manage cgMLST Scheme</b></summary>
 
 <br>
 
-Download a standardized scheme that defines the genetic targets, nomenclature and variant sequences
-for the bacterial species of interest from the [cgMLST.org](https://www.cgmlst.org/ncs) public
-database. The connection to the server including information on the scheme is integrated in the app.
-Once one of the 32 available species has been selected and downloaded, everything is ready to go.
+Download a standardized scheme that defines the genetic targets, nomenclature and allele sequences
+for the bacterial species of interest from the [cgMLST.org](https://www.cgmlst.org/ncs) and [PubMLST](https://pubmlst.org/) public databases. The connection to the server including information on the scheme is integrated in the app. Once one of the 69 available species has been selected and downloaded, everything is ready to go. The scheme can be inspected in detail using the locus info interface.
 
 <div style="display: flex; justify-content: space-between;">
-<img src="docs/resources/preview_11.png" width="47.5%"/>
-<img src="docs/resources/preview_10.png" width="48.5%"/>
+<img src="docs/resources/manage_schemes.png" width="47.5%"/>
+<img src="docs/resources/loci_info.png" width="48.5%"/>
 </div>
 
 <br>
@@ -103,8 +101,8 @@ discovered, it is checked whether the existing allele is still capable of produc
 protein. Successfully typed assemblies are appended to the local database in real time.\
 
 <div style="display: flex; justify-content: space-between;">
-<img src="docs/resources/preview_01.png" width="48%"/>
-<img src="docs/resources/preview_02.png" width="48%"/>
+<img src="docs/resources/typing_start.png" width="48%"/>
+<img src="docs/resources/typing_results.png" width="48%"/>
 </div>
 
 <br>
@@ -124,8 +122,8 @@ introduce custom variables with information about presence/absence of antimicrob
 gene expression values or any other characteristic, to answer individual research questions.
 
 <div style="display: flex; justify-content: space-between;">
-<img src="docs/resources/preview_08.png" width="48%"/>
-<img src="docs/resources/preview_09.png" width="48%"/>
+<img src="docs/resources/browse_entries.png" width="48%"/>
+<img src="docs/resources/dist_matrix.png" width="48%"/>
 </div>
 
 <br>
@@ -145,8 +143,8 @@ previously added custom variables. The resulting visuals can be saved in multipl
 included in a report document that can be generated from within the app.\
 
 <div style="display: flex; justify-content: space-between;">
-<img src="docs/resources/preview_07.png" width="53%"/>
-<img src="docs/resources/preview_05.png" width="43%"/>
+<img src="docs/resources/mst_visualization.png" width="53%"/>
+<img src="docs/resources/2025-03-18_Bordetella_pertussis_CM_Tree.png" width="43%"/>
 </div>
 
 <br>
