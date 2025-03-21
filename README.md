@@ -29,7 +29,7 @@ University of Graz (MUG). Featured on ShinyConf 2024 and R/Medicine 2024. </sup>
 
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.10996423-00e896?labelColor=gray&color=609ea5&logoColor=black)](https://doi.org/10.5281/zenodo.10996423)
 [![License: GPLv3](https://img.shields.io/badge/License-GPLv3-659DA3.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Version](https://img.shields.io/badge/Version-1.6.0-659DA3)](https://github.com/infinity-a11y/PhyloTrace/releases/tag/v1.6.0)
+[![Version](https://img.shields.io/badge/Version-1.6.1-659DA3)](https://github.com/infinity-a11y/PhyloTrace/releases/tag/v1.6.1)
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
 ![Windows](https://img.shields.io/badge/Windows-339033?style=flat&logo=windows&logoColor=white)  
 
@@ -93,12 +93,12 @@ for the bacterial species of interest from the [cgMLST.org](https://www.cgmlst.o
 
 <br>
 
-Whole-genome assemblies (`.fasta`) can be entered into the pipeline and are automatically analyzed
+Whole-genome assemblies can be entered into the pipeline and are automatically analyzed
 at high speed. Using the downloaded cgMLST scheme, the bacterial genome is aligned to the known
 variants at the respective genetic target. By iterating this process over all genes that are part of
 the core genome, an individual allele profile is generated. If a potential new genetic variant is
 discovered, it is checked whether the existing allele is still capable of producing a functional
-protein. Successfully typed assemblies are appended to the local database in real time.\
+protein. Successfully typed assemblies are appended to the local database in real time.
 
 <div style="display: flex; justify-content: space-between;">
 <img src="docs/resources/typing_start.png" width="48%"/>
@@ -132,7 +132,7 @@ gene expression values or any other characteristic, to answer individual researc
 
 <details>
 
-<summary><b>Visualizing Results</b></summary>
+<summary><b>Visualizing Typing Results</b></summary>
 
 <br>
 
@@ -140,11 +140,30 @@ Create and customize sophisticated hierarchic trees (Neighbour-Joining & UPGMA) 
 (Minimum-spanning) to visualize the underlying relationship between the isolates in your local
 database. The plots can be heavily modified and enriched with useful information e.g. by mapping
 previously added custom variables. The resulting visuals can be saved in multiple formats and even
-included in a report document that can be generated from within the app.\
+included in a report document that can be generated from within the app.
 
 <div style="display: flex; justify-content: space-between;">
-<img src="docs/resources/mst_visualization.png" width="53%"/>
-<img src="docs/resources/2025-03-18_Bordetella_pertussis_CM_Tree.png" width="43%"/>
+<img src="docs/resources/mst_visualization.png" width="54%"/>
+<img src="docs/resources/2025-03-18_Bordetella_pertussis_CM_Tree.png" width="42%"/>
+</div>
+
+<br>
+
+</details>
+
+<details>
+
+<summary><b>Antimicrobial Resistance Screening</b></summary>
+
+<br>
+
+Screen isolates in seconds for known resistance, virulence and stress genes using an interface 
+that wraps around the proven AMRFinder tool. Visualize the presence or absence of these markers 
+along with user-defined variables among isolates in a fully interactive heatmap.
+
+<div style="display: flex; justify-content: space-between;">
+<img src="docs/resources/amr_screening.png" width="48%"/>
+<img src="docs/resources/amr_heatmap.png" width="49%"/>
 </div>
 
 <br>
