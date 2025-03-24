@@ -60,7 +60,7 @@ source("./assets/ui_modules.R")
 # User Interface ----
 
 ui <- dashboardPage(
-  title = paste("PhyloTrace", phylotraceVersion)
+  title = paste("PhyloTrace", phylotraceVersion),
   
   # Title
   dashboardHeader(
