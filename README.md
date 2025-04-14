@@ -247,7 +247,7 @@ Use the terminal to navigate to an accessible location on your system and clone 
 git clone https://github.com/infinity-a11y/PhyloTrace.git
 ```
 
-Alternatively download PhyloTrace manually from [Version 1.6.0](https://github.com/infinity-a11y/PhyloTrace/archive/refs/tags/v1.6.0.zip) and extract/unzip it to a location on your system.
+Alternatively download PhyloTrace manually from [Version 1.6.1](https://github.com/infinity-a11y/PhyloTrace/archive/refs/tags/v1.6.1.zip) and extract/unzip it to a location on your system.
 
 
 ### 2.2 Install Miniconda
