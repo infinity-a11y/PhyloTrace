@@ -33,11 +33,10 @@ University of Graz (MUG). Featured on ShinyConf 2024 and R/Medicine 2024. </sup>
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
 ![Windows](https://img.shields.io/badge/Windows-339033?style=flat&logo=windows&logoColor=white)  
 
+<br><br><br>
 
+# <img src="www/dark_white_green_wname.svg" align="right" width="20%"/>
 
-----------------------------------------------------------------------------------------------------
-
-## Table of Content
 
 -   [1 Getting Started](#1-getting-started)
     -   [1.1 Workflow](#11-workflow)
