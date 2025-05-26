@@ -11622,8 +11622,9 @@ server <- function(input, output, session) {
       choices <- names(Vis$meta_nj)[-c(1:4, 6, 12:14)]
       
       if(!is.null(DB$cust_var) && length(DB$cust_var) > 0 ) {
-        cont_vars <- DB$cust_var$Variable[which(DB$cust_var$Type == "cont")]
-        choices <- choices[-which(choices %in% cont_vars)]
+        categ_vars <- DB$cust_var$Variable[which(DB$cust_var$Type == "categ")]
+        choices <- choices[-which(choices %in% categ_vars)]
+        choices <- c(choices, categ_vars)
       }
     } else {
       choices = c(Database = "Database", `Isolation Date` = "Isolation Date", 
