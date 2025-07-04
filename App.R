@@ -2111,6 +2111,11 @@ server <- function(input, output, session) {
         nj_h_val(-0.05)
         nj_scale_val(670)
         nj_zoom_val(0.95)
+        
+        # Root tree
+        nj_root_isolate_val("Automatic")
+        
+        # Layout
         nj_layout_val("rectangular")
         nj_rootedge_show_val(FALSE)
         Vis$nj_rootedge_length_val_reset <- TRUE
@@ -13980,6 +13985,15 @@ server <- function(input, output, session) {
            nj_zoom_val(0.95))
   })
   
+  # Root Tree
+  nj_root_isolate_val <- reactiveVal()
+  
+  observe({
+    ifelse(!is.null(input$nj_root_isolate),
+           nj_root_isolate_val(input$nj_root_isolate),
+           nj_root_isolate_val("Automatic"))
+  })
+  
   # Layout
   nj_layout_val <- reactiveVal()
   nj_rootedge_show_val <- reactiveVal()
@@ -14210,52 +14224,102 @@ server <- function(input, output, session) {
                               )
                             )
                           )
+                        ),
+                        br(),
+                        fluidRow(
+                          column(
+                            width = 2,
+                            align = "left",
+                            HTML(
+                              paste(
+                                tags$span(
+                                  style = 'color: white; font-size: 14px; position: relative; right: 10px; top: 7px;',
+                                  'Horizontal')
+                              )
+                            )
+                          ),
+                          column(
+                            width = 9,
+                            align = "right",
+                            div(
+                              class = "nj-label-slider",
+                              sliderInput(
+                                "nj_scale",
+                                "",
+                                min = 450,
+                                max = 670,
+                                step = 5,
+                                value = isolate(nj_scale_val()),
+                                width = "150px",
+                                ticks = FALSE
+                              )
+                            )
+                          )
+                        ),
+                        br(),
+                        fluidRow(
+                          column(
+                            width = 2,
+                            align = "left",
+                            HTML(
+                              paste(
+                                tags$span(
+                                  style = 'color: white; font-size: 14px; position: relative; right: 10px; top: 7px;',
+                                  'Zoom')
+                              )
+                            )
+                          ),
+                          column(
+                            width = 9,
+                            align = "right",
+                            div(
+                              class = "nj-label-slider",
+                              sliderInput(
+                                "nj_zoom",
+                                "",
+                                min = 0.5,
+                                max = 1.5,
+                                step = 0.05,
+                                value = isolate(nj_zoom_val()),
+                                width = "150px",
+                                ticks = FALSE
+                              )
+                            )
+                          )
                         )
                       )
                     )
                   )
                 )
-              ),
-              fluidRow(
-                column(
-                  width = 4,
-                  h5("Scale", 
-                     style = "color:white; margin-left: 15px; margin-top: 30px;")
-                ),
-                column(
-                  width = 8,
-                  align = "center",
-                  sliderInput(
-                    "nj_scale",
+              )
+            )
+          ),
+          hr(),
+          fluidRow(
+            div(
+              class = "nj-label-control-col",
+              column(
+                width = 4,
+                h4(p("Root"), 
+                   style = paste0("color:white; position: relative; top: 0px;", 
+                                  " margin-bottom: -10px; right: -15px"))
+              )
+            ),
+            div(
+              class = "nj-elements-control-col",
+              column(
+                width = 8,
+                div(
+                  class = "nj-root-select",
+                  selectInput(
+                    "nj_root_isolate",
                     "",
-                    min = 450,
-                    max = 670,
-                    step = 5,
-                    value = isolate(nj_scale_val()),
-                    width = "80%",
-                    ticks = FALSE
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 4,
-                  h5(
-                    "Zoom", 
-                    style = "color:white; margin-left: 15px; margin-top: 32px;")
-                ),
-                column(
-                  width = 8,
-                  align = "center",
-                  sliderInput(
-                    "nj_zoom",
-                    "",
-                    min = 0.5,
-                    max = 1.5,
-                    step = 0.05,
-                    value = isolate(nj_zoom_val()),
-                    width = "80%",
-                    ticks = FALSE
+                    choices = c(
+                      "Automatic", 
+                      DB$data$`Assembly Name`[which(DB$data$Include == TRUE)]
+                    ),
+                    selected = isolate(nj_root_isolate_val()),
+                    width = "90%"
                   )
                 )
               )
@@ -15133,6 +15197,11 @@ server <- function(input, output, session) {
     nj_h_val(-0.05)
     nj_scale_val(670)
     nj_zoom_val(0.95)
+    
+    # Root Tree
+    nj_root_isolate_val("Automatic")
+    
+    # Layout
     nj_layout_val("rectangular")
     nj_rootedge_show_val(FALSE)
     Vis$nj_rootedge_length_val_reset <- TRUE
@@ -17399,15 +17468,17 @@ server <- function(input, output, session) {
   #### Hierarchical Tree ----
   
   make.tree <- reactive({
-    
-    Vis$nj$tip.label <- Vis$meta_nj$Index
-    
-    # Convert negative edges 
-    edge_lengths_abs <- abs(Vis$nj[["edge.length"]])
-    edge_lengths_log <- log(edge_lengths_abs + sqrt(edge_lengths_abs^2 + 1))
-    
     Vis_nj <- Vis$nj
-    Vis_nj[["edge.length"]] <- edge_lengths_log
+    Vis_nj$tip.label <- Vis$meta_nj$Index
+    test <<- nj_root_isolate_val()
+    # Rooted tree
+    if(nj_root_isolate_val() != "Automatic") {
+      Vis_nj <- ape::root(
+        Vis_nj, 
+        outgroup = which(Vis$meta_nj$`Assembly Name` == nj_root_isolate_val()),
+        resolve.root = TRUE
+      )
+    }
     
     if(isTRUE(nj_nodelabel_show_val())) {
       ggtree(
@@ -18885,6 +18956,7 @@ server <- function(input, output, session) {
               Vis$tree_algo <- "UPGMA"
             }
             
+            # Convert negative edges 
             edge_lengths_abs <- abs(Vis_nj[["edge.length"]])
             edge_lengths_log <- log(
               edge_lengths_abs + sqrt(edge_lengths_abs^2 + 1))

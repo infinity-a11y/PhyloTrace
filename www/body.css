@@ -3251,6 +3251,12 @@ button#nj_nodepoint_menu {
   position: relative;
 }
 
+.nj-root-select {
+  margin-top: -19px;
+  right: 2px;
+  position: relative;
+}
+
 .nj-rootedge-line {
   margin-top: -21px;
 }
