@@ -10,7 +10,7 @@ library(shiny)
 library(shinyjs)
 library(R.utils)
 library(igraph)
-library(ComplexHeatmap)
+suppressPackageStartupMessages(library(ComplexHeatmap))
 library(shinyWidgets)
 library(shinydashboard)
 library(dashboardthemes)
@@ -19717,7 +19717,7 @@ server <- function(input, output, session) {
   # conditional rendering of gs visualization ui
   
   output$gs_visualization_ui <- renderUI({
-    req(DB$data, DB$scheme, Screening$available)
+    req(DB$data, DB$scheme, Screening$available, Screening$amr_results)
     amrfinder_available <- check.amrfinder.available(
       selected_scheme = DB$scheme,
       amrfinder_species = amrfinder_species)
@@ -19882,281 +19882,279 @@ server <- function(input, output, session) {
   
   # gs plot control panel
   output$gs_plot_control_ui <- renderUI({
-    req(Screening$available)
-    if(!is.null(DB$data) && !is.null(Screening$amr_results) &&
-       !is.null(Screening$vir_class) && !is.null(Screening$amr_class)) {
-      amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, 
-                                                  as.numeric))
-      rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
-      colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
-      heatmap_matrix <- as.matrix(amr_profile_numeric)
-      
-      if(!is.null(Screening$amr_class)) {
-        if(nrow(Screening$amr_class) > 0) {
-          amr_meta <- get.gsMeta(gene_class = Screening$amr_class, 
-                                 hm_matrix = heatmap_matrix)
-          choices_amr <- rownames(amr_meta)[which(!is.na(amr_meta$class))]
-          amr_classes <- amr_meta$class
-          names(amr_classes) <- rownames(amr_meta)
-          amr_classes_filtered <- na.omit(amr_classes)
-          choices_amr <- list()
-          for(i in 1:length(unique(amr_classes_filtered))) {
-            group <- names(amr_classes_filtered)[which(
-              amr_classes_filtered == unique(amr_classes_filtered)[i])]
-            if(length(group) == 1) {
-              choices_amr[[unique(amr_classes_filtered)[i]]] <- as.list(group)
-            } else {
-              choices_amr[[unique(amr_classes_filtered)[i]]] <- group
-            }
-          }
-          choices_amr <- choices_amr[order(names(choices_amr))]
-        } else {choices_amr <- character(0)}
-      } else {choices_amr <- character(0)}
-      
-      if(!is.null(Screening$vir_class)) {
-        if(nrow(Screening$vir_class) > 0) {
-          vir_meta <- get.gsMeta(gene_class = Screening$vir_class, 
-                                 hm_matrix = heatmap_matrix)
-          choices_vir <- rownames(vir_meta)[which(!is.na(vir_meta$class))]
-          vir_classes <- vir_meta$class
-          names(vir_classes) <- rownames(amr_meta)
-          vir_classes_filtered <- na.omit(vir_classes)
-          choices_vir <- list()
-          for(i in 1:length(unique(vir_classes_filtered))) {
-            group <- names(vir_classes_filtered)[which(
-              vir_classes_filtered == unique(vir_classes_filtered)[i])]
-            if(length(group) == 1) {
-              choices_vir[[unique(vir_classes_filtered)[i]]] <- as.list(group)
-            } else {
-              choices_vir[[unique(vir_classes_filtered)[i]]] <- group
-            }
-          }
-          choices_vir <- choices_vir[order(names(choices_vir))]
-        } else {choices_vir <- character(0)}
-      } else {choices_vir <- character(0)}
-      
-      if(all(!is.na(vir_meta$class) && !is.na(amr_meta$class))) {
-        choices_noclass <- character(0)
-      } else {
-        choices_noclass <- rownames(amr_meta)[which(is.na(vir_meta$class) &
-                                                      is.na(amr_meta$class))]  
+    req(Screening$available, DB$data, Screening$amr_results, 
+        Screening$vir_class, Screening$amr_class)
+    amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, 
+                                                as.numeric))
+    rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
+    colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
+    heatmap_matrix <- as.matrix(amr_profile_numeric)
+    
+    if(nrow(Screening$amr_class) > 0) {
+      amr_meta <- get.gsMeta(gene_class = Screening$amr_class, 
+                             hm_matrix = heatmap_matrix)
+      amr_classes <- amr_meta$class
+      names(amr_classes) <- rownames(amr_meta)
+      amr_classes_filtered <- na.omit(amr_classes)
+      choices_amr <- list()
+      for(i in 1:length(unique(amr_classes_filtered))) {
+        group <- names(amr_classes_filtered)[which(
+          amr_classes_filtered == unique(amr_classes_filtered)[i])]
+        if(length(group) == 1) {
+          choices_amr[[unique(amr_classes_filtered)[i]]] <- as.list(group)
+        } else {
+          choices_amr[[unique(amr_classes_filtered)[i]]] <- group
+        }
       }
-      
-      div(
-        class = "gs-plot-box2",
-        box(
-          solidHeader = TRUE,
-          status = "primary",
-          width = "100%",
-          title = "Heatmap Data",
-          column(
-            width = 12,
-            fluidRow(
-              column(
-                width = 12,
-                align = "center",
-                HTML(
-                  paste(
-                    tags$span(
-                      style = 'color: white; font-size: 16px; position: relative; top: 10px;', 
-                              'Isolates')
+      choices_amr <- choices_amr[order(names(choices_amr))]
+    } else {
+      choices_amr <- character(0)
+      amr_meta <- data.frame(results = NA)
+    }
+    
+    if(nrow(Screening$vir_class) > 0) {
+      vir_meta <- get.gsMeta(gene_class = Screening$vir_class, 
+                             hm_matrix = heatmap_matrix)
+      vir_classes <- vir_meta$class
+      names(vir_classes) <- rownames(amr_meta)
+      vir_classes_filtered <- na.omit(vir_classes)
+      choices_vir <- list()
+      for(i in 1:length(unique(vir_classes_filtered))) {
+        group <- names(vir_classes_filtered)[which(
+          vir_classes_filtered == unique(vir_classes_filtered)[i])]
+        if(length(group) == 1) {
+          choices_vir[[unique(vir_classes_filtered)[i]]] <- as.list(group)
+        } else {
+          choices_vir[[unique(vir_classes_filtered)[i]]] <- group
+        }
+      }
+      choices_vir <- choices_vir[order(names(choices_vir))]
+    } else {
+      choices_vir <- character(0)
+      vir_meta <- data.frame(results = NA)
+    }
+    
+    if(all(!is.na(vir_meta$class)) && all(!is.na(amr_meta$class))) {
+      choices_noclass <- character(0)
+    } else {
+      choices_noclass <- rownames(amr_meta)[which(is.na(vir_meta$class) &
+                                                    is.na(amr_meta$class))]  
+    }
+    
+    div(
+      class = "gs-plot-box2",
+      box(
+        solidHeader = TRUE,
+        status = "primary",
+        width = "100%",
+        title = "Heatmap Data",
+        column(
+          width = 12,
+          fluidRow(
+            column(
+              width = 12,
+              align = "center",
+              HTML(
+                paste(
+                  tags$span(
+                    style = 'color: white; font-size: 16px; position: relative; top: 10px;', 
+                    'Isolates')
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 9,
+                  div(
+                    class = "gs-plot-selected-isolate",
+                    pickerInput(
+                      "gs_plot_selected_isolate",
+                      label = "",
+                      choices = list(
+                        Screened =  if (length(DB$data$`Assembly ID`[which(
+                          DB$data$Screened == "Yes")]) == 1) {
+                          as.list(DB$data$`Assembly ID`[which(
+                            DB$data$Screened == "Yes")])
+                        } else {
+                          DB$data$`Assembly ID`[which(
+                            DB$data$Screened == "Yes")]
+                        },
+                        Unscreened = if (length(DB$data$`Assembly ID`[which(
+                          DB$data$Screened == "No")]) == 1) {
+                          as.list(DB$data$`Assembly ID`[which(
+                            DB$data$Screened == "No")])
+                        } else {
+                          DB$data$`Assembly ID`[which(
+                            DB$data$Screened == "No")]
+                        },
+                        `No Assembly File` =  if (sum(
+                          DB$data$Screened == "NA") == 1) {
+                          as.list(DB$data$`Assembly ID`[which(
+                            DB$data$Screened == "NA")])
+                        } else {
+                          DB$data$`Assembly ID`[which(
+                            DB$data$Screened == "NA")]
+                        }
+                      ),
+                      choicesOpt = list(
+                        disabled = c(
+                          rep(FALSE, length(DB$data$`Assembly ID`[which(
+                            DB$data$Screened == "Yes")])),
+                          rep(TRUE, length(DB$data$`Assembly ID`[which(
+                            DB$data$Screened == "No")])),
+                          rep(TRUE, length(DB$data$`Assembly ID`[which(
+                            DB$data$Screened == "NA")]))
+                        )
+                      ),
+                      selected = DB$data$`Assembly ID`[which(
+                        DB$data$Screened == "Yes")],
+                      options = list(
+                        `live-search` = TRUE,
+                        `actions-box` = TRUE,
+                        size = 10,
+                        style = "background-color: white; border-radius: 5px;"
+                      ),
+                      multiple = TRUE,
+                      width = "96%"
+                    )
                   )
                 ),
-                fluidRow(
-                  column(
-                    width = 9,
-                    div(
-                      class = "gs-plot-selected-isolate",
-                      pickerInput(
-                        "gs_plot_selected_isolate",
-                        label = "",
-                        choices = list(
-                          Screened =  if (length(DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "Yes")]) == 1) {
-                            as.list(DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "Yes")])
-                          } else {
-                            DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "Yes")]
-                          },
-                          Unscreened = if (length(DB$data$`Assembly ID`[which(
-                            DB$data$Screened == "No")]) == 1) {
-                            as.list(DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "No")])
-                          } else {
-                            DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "No")]
-                          },
-                          `No Assembly File` =  if (sum(
-                            DB$data$Screened == "NA") == 1) {
-                            as.list(DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "NA")])
-                          } else {
-                            DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "NA")]
-                          }
-                        ),
-                        choicesOpt = list(
-                          disabled = c(
-                            rep(FALSE, length(DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "Yes")])),
-                            rep(TRUE, length(DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "No")])),
-                            rep(TRUE, length(DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "NA")]))
-                          )
-                        ),
-                        selected = DB$data$`Assembly ID`[which(
-                          DB$data$Screened == "Yes")],
-                        options = list(
-                          `live-search` = TRUE,
-                          `actions-box` = TRUE,
-                          size = 10,
-                          style = "background-color: white; border-radius: 5px;"
-                        ),
-                        multiple = TRUE,
-                        width = "96%"
+                column(
+                  width = 3,
+                  align = "center",
+                  dropMenu(
+                    actionBttn(
+                      "gsplot_isolate_label_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "right-start",
+                    theme = "translucent",
+                    fluidRow(
+                      div(
+                        class = "gsplot-isolate-label",
+                        selectInput(
+                          "gsplot_isolate_label",
+                          label = h5("Isolate Label", style = "color:white;"),
+                          choices = c("Assembly ID", "Assembly Name"),
+                          selected = "Assembly Name",
+                          width = "70%"
+                        ) 
                       )
                     )
                   ),
-                  column(
-                    width = 3,
-                    align = "center",
-                    dropMenu(
-                      actionBttn(
-                        "gsplot_isolate_label_menu",
-                        label = "",
-                        color = "default",
-                        size = "sm",
-                        style = "material-flat",
-                        icon = icon("sliders")
-                      ),
-                      placement = "right-start",
-                      theme = "translucent",
-                      fluidRow(
-                        div(
-                          class = "gsplot-isolate-label",
-                          selectInput(
-                            "gsplot_isolate_label",
-                            label = h5("Isolate Label", style = "color:white;"),
-                            choices = c("Assembly ID", "Assembly Name"),
-                            selected = "Assembly Name",
-                            width = "70%"
-                          ) 
-                        )
-                      )
-                    ),
-                    bsTooltip("gsplot_isolate_label_menu",
-                              title = "Label",
-                              placement = "right")
-                  )
-                ),
-                uiOutput("gs_plot_sel_isolate_info")
+                  bsTooltip("gsplot_isolate_label_menu",
+                            title = "Label",
+                            placement = "right")
+                )
               ),
-              column(
-                width = 12,
-                align = "center",
-                br(),
-                div(
-                  class = "gs-heatmap-text1",
-                  HTML(
-                    paste(
-                      tags$span(
-                        style = 'color: white; font-size: 16px; position: relative;', 
-                                'AMR Genes')
-                    )
+              uiOutput("gs_plot_sel_isolate_info")
+            ),
+            column(
+              width = 12,
+              align = "center",
+              br(),
+              div(
+                class = "gs-heatmap-text1",
+                HTML(
+                  paste(
+                    tags$span(
+                      style = 'color: white; font-size: 16px; position: relative;', 
+                      'AMR Genes')
                   )
-                ),
-                div(
-                  class = "gs-plot-selected-isolate",
-                  pickerInput(
-                    "gs_plot_selected_amr",
-                    label = "",
-                    choices = choices_amr,
-                    options = list(
-                      `live-search` = TRUE,
-                      `actions-box` = TRUE,
-                      size = 10,
-                      style = "background-color: white; border-radius: 5px;"
-                    ),
-                    selected = unlist(choices_amr),
-                    multiple = TRUE,
-                    width = "96%"
-                  )
-                ),
-                uiOutput("gs_plot_sel_amr_info")
+                )
               ),
-              column(
-                width = 12,
-                align = "center",
-                br(),
-                div(
-                  class = "gs-heatmap-text",
-                  HTML(
-                    paste(
-                      tags$span(
-                        style = 'color: white; font-size: 16px; position: relative;', 
-                                'Virulence Genes')
-                    )
-                  )
-                ),
-                div(
-                  class = "gs-plot-selected-isolate",
-                  pickerInput(
-                    "gs_plot_selected_vir",
-                    label = "",
-                    choices = choices_vir,
-                    options = list(
-                      `live-search` = TRUE,
-                      `actions-box` = TRUE,
-                      size = 10,
-                      style = "background-color: white; border-radius: 5px;"
-                    ),
-                    selected = unlist(choices_vir),
-                    multiple = TRUE,
-                    width = "96%"
-                  )
-                ),
-                uiOutput("gs_plot_sel_vir_info")
+              div(
+                class = "gs-plot-selected-isolate",
+                pickerInput(
+                  "gs_plot_selected_amr",
+                  label = "",
+                  choices = choices_amr,
+                  options = list(
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE,
+                    size = 10,
+                    style = "background-color: white; border-radius: 5px;"
+                  ),
+                  selected = unlist(choices_amr),
+                  multiple = TRUE,
+                  width = "96%"
+                )
               ),
-              column(
-                width = 12,
-                align = "center",
-                br(),
-                div(
-                  class = "gs-heatmap-text",
-                  HTML(
-                    paste(
-                      tags$span(
-                        style = 'color: white; font-size: 15px; position: relative;', 
-                                'Unclassifiable Genes')
-                    )
+              uiOutput("gs_plot_sel_amr_info")
+            ),
+            column(
+              width = 12,
+              align = "center",
+              br(),
+              div(
+                class = "gs-heatmap-text",
+                HTML(
+                  paste(
+                    tags$span(
+                      style = 'color: white; font-size: 16px; position: relative;', 
+                      'Virulence Genes')
                   )
-                ),
-                div(
-                  class = "gs-plot-selected-isolate",
-                  pickerInput(
-                    "gs_plot_selected_noclass",
-                    label = "",
-                    choices = choices_noclass,
-                    options = list(
-                      `live-search` = TRUE,
-                      `actions-box` = TRUE,
-                      size = 10,
-                      style = "background-color: white; border-radius: 5px;"
-                    ),
-                    selected = unlist(choices_noclass),
-                    multiple = TRUE,
-                    width = "96%"
+                )
+              ),
+              div(
+                class = "gs-plot-selected-isolate",
+                pickerInput(
+                  "gs_plot_selected_vir",
+                  label = "",
+                  choices = choices_vir,
+                  options = list(
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE,
+                    size = 10,
+                    style = "background-color: white; border-radius: 5px;"
+                  ),
+                  selected = unlist(choices_vir),
+                  multiple = TRUE,
+                  width = "96%"
+                )
+              ),
+              uiOutput("gs_plot_sel_vir_info")
+            ),
+            column(
+              width = 12,
+              align = "center",
+              br(),
+              div(
+                class = "gs-heatmap-text",
+                HTML(
+                  paste(
+                    tags$span(
+                      style = 'color: white; font-size: 15px; position: relative;', 
+                      'Unclassifiable Genes')
                   )
-                ),
-                uiOutput("gs_plot_sel_noclass_info")
-              )
+                )
+              ),
+              div(
+                class = "gs-plot-selected-isolate",
+                pickerInput(
+                  "gs_plot_selected_noclass",
+                  label = "",
+                  choices = choices_noclass,
+                  options = list(
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE,
+                    size = 10,
+                    style = "background-color: white; border-radius: 5px;"
+                  ),
+                  selected = unlist(choices_noclass),
+                  multiple = TRUE,
+                  width = "96%"
+                )
+              ),
+              uiOutput("gs_plot_sel_noclass_info")
             )
           )
         )
       )
-    }
+    )
   })
   
   # gs heatmap data menu
@@ -20186,53 +20184,55 @@ server <- function(input, output, session) {
     colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
     heatmap_matrix <- as.matrix(amr_profile_numeric)
     
-    if(!is.null(Screening$amr_class)) {
-      if(nrow(Screening$amr_class) > 0) {
-        amr_meta <- get.gsMeta(gene_class = Screening$amr_class, 
-                               hm_matrix = heatmap_matrix)
-        choices_amr <- rownames(amr_meta)[which(!is.na(amr_meta$class))]
-        amr_classes <- amr_meta$class
-        names(amr_classes) <- rownames(amr_meta)
-        amr_classes_filtered <- na.omit(amr_classes)
-        choices_amr <- list()
-        for(i in 1:length(unique(amr_classes_filtered))) {
-          group <- names(amr_classes_filtered)[which(
-            amr_classes_filtered == unique(amr_classes_filtered)[i])]
-          if(length(group) == 1) {
-            choices_amr[[unique(amr_classes_filtered)[i]]] <- as.list(group)
-          } else {
-            choices_amr[[unique(amr_classes_filtered)[i]]] <- group
-          }
+    if(!is.null(Screening$amr_class) && nrow(Screening$amr_class) > 0) {
+      amr_meta <- get.gsMeta(gene_class = Screening$amr_class, 
+                             hm_matrix = heatmap_matrix)
+      choices_amr <- rownames(amr_meta)[which(!is.na(amr_meta$class))]
+      amr_classes <- amr_meta$class
+      names(amr_classes) <- rownames(amr_meta)
+      amr_classes_filtered <- na.omit(amr_classes)
+      choices_amr <- list()
+      for(i in 1:length(unique(amr_classes_filtered))) {
+        group <- names(amr_classes_filtered)[which(
+          amr_classes_filtered == unique(amr_classes_filtered)[i])]
+        if(length(group) == 1) {
+          choices_amr[[unique(amr_classes_filtered)[i]]] <- as.list(group)
+        } else {
+          choices_amr[[unique(amr_classes_filtered)[i]]] <- group
         }
-      } else {choices_amr <- character(0)}
-    } else {choices_amr <- character(0)}
+      }
+    } else {
+      choices_amr <- character(0)
+      amr_meta <- data.frame(results = NA)
+    }
     
     gs_plot_selected_amr_selected <- gs_plot_selected_amr()
     
-    if(!is.null(Screening$vir_class)) {
-      if(nrow(Screening$vir_class) > 0) {
-        vir_meta <- get.gsMeta(gene_class = Screening$vir_class, 
-                               hm_matrix = heatmap_matrix)
-        choices_vir <- rownames(vir_meta)[which(!is.na(vir_meta$class))]
-        vir_classes <- vir_meta$class
-        names(vir_classes) <- rownames(amr_meta)
-        vir_classes_filtered <- na.omit(vir_classes)
-        choices_vir <- list()
-        for(i in 1:length(unique(vir_classes_filtered))) {
-          group <- names(vir_classes_filtered)[which(
-            vir_classes_filtered == unique(vir_classes_filtered)[i])]
-          if(length(group) == 1) {
-            choices_vir[[unique(vir_classes_filtered)[i]]] <- as.list(group)
-          } else {
-            choices_vir[[unique(vir_classes_filtered)[i]]] <- group
-          }
+    if(!is.null(Screening$vir_class) && nrow(Screening$vir_class) > 0) {
+      vir_meta <- get.gsMeta(gene_class = Screening$vir_class, 
+                             hm_matrix = heatmap_matrix)
+      choices_vir <- rownames(vir_meta)[which(!is.na(vir_meta$class))]
+      vir_classes <- vir_meta$class
+      names(vir_classes) <- rownames(amr_meta)
+      vir_classes_filtered <- na.omit(vir_classes)
+      choices_vir <- list()
+      for(i in 1:length(unique(vir_classes_filtered))) {
+        group <- names(vir_classes_filtered)[which(
+          vir_classes_filtered == unique(vir_classes_filtered)[i])]
+        if(length(group) == 1) {
+          choices_vir[[unique(vir_classes_filtered)[i]]] <- as.list(group)
+        } else {
+          choices_vir[[unique(vir_classes_filtered)[i]]] <- group
         }
-      } else {choices_vir <- character(0)}
-    } else {choices_vir <- character(0)}
+      }
+    } else {
+      choices_vir <- character(0)
+      vir_meta <- data.frame(results = NA)
+    }
     
     gs_plot_selected_vir_selected <- gs_plot_selected_vir()
     
-    if(all(!is.na(vir_meta$class) && !is.na(amr_meta$class))) {
+    if(all(!is.na(vir_meta$class)) && all(!is.na(amr_meta$class))) {
       choices_noclass <- character(0)
     } else {
       choices_noclass <- rownames(amr_meta)[which(is.na(vir_meta$class) &
@@ -21756,7 +21756,7 @@ server <- function(input, output, session) {
       selectInput(
         "gs_var_mapping",
         "",
-        choices = names(DB$meta)[-c(1:4, 6, 11:14)],
+        choices = c("None", names(DB$meta)[-c(1:4, 6, 11:14)]),
         width = "100%",
         selected = gs_var_mapping_selected
       )
@@ -23175,11 +23175,20 @@ server <- function(input, output, session) {
         heatmap_mat <- as.matrix(amr_profile_numeric)
         
         # metadata
-        amr_meta <- get.gsMeta(gene_class = Screening$amr_class, 
-                               hm_matrix = heatmap_mat)
-        colnames(amr_meta) <- "amr"
-        vir_meta <- get.gsMeta(gene_class = Screening$vir_class, 
-                               hm_matrix = heatmap_mat)
+        if(nrow(Screening$amr_class) > 0) {
+          amr_meta <- get.gsMeta(gene_class = Screening$amr_class, 
+                                 hm_matrix = heatmap_mat)
+          colnames(amr_meta) <- "amr"
+        } else {
+          amr_meta <- data.frame(amr = NA)
+        }
+        
+        if(nrow(Screening$vir_class) > 0) {
+          vir_meta <- get.gsMeta(gene_class = Screening$vir_class, 
+                                 hm_matrix = heatmap_mat)
+        } else {
+          vir_meta <- data.frame(class = NA)
+        }
         
         # unite meta
         Screening$hm_meta <- add_column(amr_meta, vir = vir_meta$class)
@@ -23273,9 +23282,9 @@ server <- function(input, output, session) {
           if(input$gs_cluster_distance_col == "binary") {
             gs_cluster_distance_col <- "binary"
           } else if(input$gs_cluster_distance_col == "mcc") {
-            gs_cluster_distance_col <- function(m) mcc_dist_matrix(m)
+            gs_cluster_distance_col <- mcc_dist_matrix
           } else if(input$gs_cluster_distance_col == "hamming") {
-            gs_cluster_distance_col <- function(m) hamming_dist_matrix(m)
+            gs_cluster_distance_col <- hamming_dist_matrix
           }
         } else {
           gs_cluster_distance_col <- "binary"
@@ -23297,9 +23306,9 @@ server <- function(input, output, session) {
           if(input$gs_cluster_distance_row == "binary") {
             gs_cluster_distance_row <- "binary"
           } else if(input$gs_cluster_distance_row == "mcc") {
-            gs_cluster_distance_row <- function(m) mcc_dist_matrix(m)
-          } else if(input$gs_cluster_distance_row == "hamming") {
-            gs_cluster_distance_row <- function(m) hamming_dist_matrix(m)
+            gs_cluster_distance_row <- mcc_dist_matrix
+          } else if(input$gs_cluster_distance_col == "hamming") {
+            gs_cluster_distance_row <- hamming_dist_matrix
           }
         } else {
           gs_cluster_distance_row <- "binary"
@@ -23489,7 +23498,6 @@ server <- function(input, output, session) {
                 }
               }
               names(amr_colors) <- unique(sel_amr)
-              
               amr_annotation <- HeatmapAnnotation(
                 AMR = sel_amr,
                 show_legend = TRUE,
@@ -23497,6 +23505,7 @@ server <- function(input, output, session) {
                 show_annotation_name = FALSE,
                 annotation_legend_param = list(
                   title = "AMR",
+                  labels = gsub("\\.", "-", names(amr_colors)),
                   labels_gp = labels_gp,
                   title_gp = title_gp,
                   grid_height = grid_height,
