@@ -782,7 +782,7 @@ hamming_dist_matrix <- function(x) {
   
   for (i in 1:(n-1)) {
     for (j in (i+1):n) {
-      # Calculate Hamming distance (proportion of differing positions)
+      # Calculate Hamming distance
       hamming_dist <- sum(x[i, ] != x[j, ]) / ncol(x)
       dist_mat[i, j] <- dist_mat[j, i] <- hamming_dist
     }
@@ -821,9 +821,8 @@ mcc_dist_matrix <- function(x) {
         mcc <- (tp * tn - fp * fn) / denominator
       }
       
-      # Convert MCC to distance (1 - MCC gives distance in [0,2])
-      # You might want to normalize to [0,1] by using (1 - MCC) / 2
-      dist_mat[i, j] <- dist_mat[j, i] <- 1 - mcc
+      # Normalize for [0,1] range
+      dist_mat[i, j] <- dist_mat[j, i] <- (1 - mcc) / 2
     }
   }
   
