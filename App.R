@@ -10,7 +10,7 @@ library(shiny)
 library(shinyjs)
 library(R.utils)
 library(igraph)
-library(ComplexHeatmap)
+suppressPackageStartupMessages(library(ComplexHeatmap))
 library(shinyWidgets)
 library(shinydashboard)
 library(dashboardthemes)
@@ -861,20 +861,17 @@ server <- function(input, output, session) {
       if(!is.null(nj_max_x)) {
         if(round(ceiling(nj_max_x) * 0.033, 1) < 0.1) {
           width <- 0.1
-          ifelse(nj_layout == "circular" | 
-                   nj_layout == "inward",
+          ifelse(nj_layout == "circular" || nj_layout == "inward",
                  width <- 1.5,
                  width <- 0.5) 
         } else {
           width <- round(ceiling(nj_max_x) * 0.033, 1)
-          if(nj_layout == "circular" | 
-             nj_layout == "inward") {
+          if(nj_layout == "circular" || nj_layout == "inward") {
             width <- width * 4
           }
         }
       } else {
-        ifelse(nj_layout == "circular" | 
-                 nj_layout == "inward",
+        ifelse(nj_layout == "circular" || nj_layout == "inward",
                width <- 1.5,
                width <- 0.5) 
       } 
@@ -886,7 +883,7 @@ server <- function(input, output, session) {
     if(!is.null(nj_layout_val())) {
       if(!is.null(nj_heatmap_select_val())) {
         length_input <- length(nj_heatmap_select_val())
-        if(nj_layout_val() != "circular" & 
+        if(nj_layout_val() != "circular" && 
            nj_layout_val() != "inward") {
           if(length_input < 3) {
             width <- 0.1
@@ -1095,27 +1092,47 @@ server <- function(input, output, session) {
     
     invalidateLater(5000, session)
     
-    if(!is.null(Startup$database) & !is.null(DB$scheme)) {
-      if(file_exists(file.path(Startup$database, gsub(" ", "_", DB$scheme), 
-                               "Typing.rds"))) {
+    if (!is.null(Startup$database) && !is.null(DB$scheme)) {
+      typing_file <- file.path(Startup$database, gsub(" ", "_", DB$scheme), 
+                               "Typing.rds")
+      
+      if (file_exists(typing_file)) {
         
-        Database <- readRDS(file.path(Startup$database, 
-                                      gsub(" ", "_", DB$scheme), "Typing.rds"))
+        # Initialize Database to NULL in case of failure
+        Database <- tryCatch({
+          readRDS(typing_file)
+        }, error = function(e) {
+          log_print(paste("Error in check_new_entry():", 
+                          "Typing.rds could not be read."))
+          return(NULL)
+        })
         
-        if(is.null(DB$data)) {
-          if(nrow(Database[["Typing"]]) >= 1) {
-            TRUE
-          } else {FALSE}
-        } else {
-          if(nrow(DB$data) < nrow(Database[["Typing"]])) {
-            TRUE
+        # Stop further execution if readRDS failed
+        if (is.null(Database)) {
+          return(FALSE)
+        }
+        
+        if (is.null(DB$data)) {
+          if (nrow(Database[["Typing"]]) >= 1) {
+            return(TRUE)
           } else {
-            FALSE
+            return(FALSE)
+          }
+        } else {
+          if (nrow(DB$data) < nrow(Database[["Typing"]])) {
+            return(TRUE)
+          } else {
+            return(FALSE)
           }
         }
-      } else {FALSE}
-    } else {FALSE}
+      } else {
+        return(FALSE)
+      }
+    } else {
+      return(FALSE)
+    }
   })
+  
   
   # Render Entry Table Highlights 
   
@@ -1126,7 +1143,7 @@ server <- function(input, output, session) {
   })
   
   diff_allele <- reactive({
-    if (!is.null(DB$data) & !is.null(input$compare_select) &
+    if (!is.null(DB$data) && !is.null(input$compare_select) &&
         !is.null(DB$cust_var)) {
       
       data <- select(DB$data, any_of(input$compare_select))
@@ -1138,13 +1155,13 @@ server <- function(input, output, session) {
   })
   
   err_thresh <- reactive({
-    if (!is.null(DB$data) & !is.null(DB$number_loci)) {
+    if (!is.null(DB$data) && !is.null(DB$number_loci)) {
       which(as.numeric(DB$data[["Errors"]]) >= (DB$number_loci * 0.05)) 
     }
   })
   
   err_thresh_na <- reactive({
-    if (!is.null(DB$na_table) & !is.null(DB$number_loci)) {
+    if (!is.null(DB$na_table) && !is.null(DB$number_loci)) {
       which(as.numeric(DB$na_table[["Errors"]]) >= (DB$number_loci * 0.05)) 
     }
   })
@@ -1339,7 +1356,7 @@ server <- function(input, output, session) {
         } else {Startup$database <- ""}
       }
     } else {
-      if(!is.null(DB$last_db) & 
+      if(!is.null(DB$last_db) && 
          file.exists(file.path(app_local_share_path, "last_db.rds"))) {
         
         last_db <- readRDS(file.path(app_local_share_path, "last_db.rds"))
@@ -1439,7 +1456,7 @@ server <- function(input, output, session) {
   # Load db & scheme selection UI
   output$load_db <- renderUI(
     if(!is.null(Startup$select_new)) {
-      if(length(DB$new_database) > 0 & Startup$select_new) {
+      if(length(DB$new_database) > 0 && Startup$select_new) {
         
         column(
           width = 12,
@@ -1458,7 +1475,7 @@ server <- function(input, output, session) {
           br(), br(),
           actionButton("load", "Create", class = "load-start")
         )
-      } else if(length(DB$available) > 0 & !(Startup$select_new)) {
+      } else if(length(DB$available) > 0 && !(Startup$select_new)) {
         if(sum(gsub(" ", "_", gsub(" (PM|CM)", "", DB$available)) %in% 
                gsub("_(PM|CM)", "", schemes$species)) == 0) {
           column(
@@ -1579,8 +1596,8 @@ server <- function(input, output, session) {
           br()
         )
       } 
-    } else if((!is.null(DB$last_db)) & (!is.null(DB$available))) {
-      if (isTRUE(DB$last_db) & (length(DB$available) > 0)) {
+    } else if((!is.null(DB$last_db)) && (!is.null(DB$available))) {
+      if (isTRUE(DB$last_db) && (length(DB$available) > 0)) {
         if(sum(gsub(" ", "_", gsub(" (PM|CM)", "", DB$available)) %in% 
                gsub("_(PM|CM)", "", schemes$species)) == 0) {
           column(
@@ -1665,7 +1682,7 @@ server <- function(input, output, session) {
             )
           )
         }
-      } else if (isTRUE(DB$last_db) & (length(DB$available) == 0)) {
+      } else if (isTRUE(DB$last_db) && (length(DB$available) == 0)) {
         column(
           width = 12,
           p(
@@ -2094,6 +2111,11 @@ server <- function(input, output, session) {
         nj_h_val(-0.05)
         nj_scale_val(670)
         nj_zoom_val(0.95)
+        
+        # Root tree
+        nj_root_isolate_val("Automatic")
+        
+        # Layout
         nj_layout_val("rectangular")
         nj_rootedge_show_val(FALSE)
         Vis$nj_rootedge_length_val_reset <- TRUE
@@ -2358,8 +2380,8 @@ server <- function(input, output, session) {
       
       # Load app elements based on database availability and missing value presence
       if(isTRUE(Startup$select_new) && !is.null(DB$new_database)) {
-        if(Startup$select_new | 
-           (isFALSE(Startup$select_new) & is.null(input$scheme_db))) {
+        if(Startup$select_new || 
+           (isFALSE(Startup$select_new) && is.null(input$scheme_db))) {
           
           log_print(paste0("New database created in ", DB$new_database))
           
@@ -3663,8 +3685,8 @@ server <- function(input, output, session) {
                         
                         check_new_entry <- check_new_entry()
                         
-                        if(!is.null(check_new_entry) & 
-                           !is.null(DB$check_new_entries) & 
+                        if(!is.null(check_new_entry) && 
+                           !is.null(DB$check_new_entries) && 
                            !is.null(DB$meta)) {
                           
                           if(!is.null(DB$meta)) {
@@ -3677,7 +3699,7 @@ server <- function(input, output, session) {
                             new_meta <- FALSE
                           } 
                           
-                          if(check_new_entry & DB$check_new_entries) {
+                          if(check_new_entry && DB$check_new_entries) {
                             
                             disable("import_menu")
                             disable("export_menu")
@@ -3746,7 +3768,7 @@ server <- function(input, output, session) {
                                   '></i>'))
                               )
                             )
-                          } else if(isTRUE(DB$change) | new_meta) {
+                          } else if(isTRUE(DB$change) || new_meta) {
                             
                             disable("import_menu")
                             disable("export_menu")
@@ -3877,7 +3899,7 @@ server <- function(input, output, session) {
                     if(!is.null(DB$data)) {
                       runjs(block_ui)
                       
-                      if(any(duplicated(DB$meta$`Assembly Name`)) | 
+                      if(any(duplicated(DB$meta$`Assembly Name`)) || 
                          any(duplicated(DB$meta$`Assembly ID`))) {
                         output$db_distancematrix <- NULL
                         output$distancematrix_duplicated <- renderUI({
@@ -3895,12 +3917,12 @@ server <- function(input, output, session) {
                         
                         output$distancematrix_duplicated <- NULL
                         
-                        if(!is.null(DB$data) & 
-                           !is.null(DB$allelic_profile) & 
-                           !is.null(DB$allelic_profile_true) &
-                           !is.null(DB$cust_var) &
-                           !is.null(input$distmatrix_label) &
-                           !is.null(input$distmatrix_diag) &
+                        if(!is.null(DB$data) && 
+                           !is.null(DB$allelic_profile) &&
+                           !is.null(DB$allelic_profile_true) &&
+                           !is.null(DB$cust_var) &&
+                           !is.null(input$distmatrix_label) &&
+                           !is.null(input$distmatrix_diag) &&
                            !is.null(input$distmatrix_triangle) &&
                            nrow(DB$data) > 2) {
                           
@@ -4788,7 +4810,7 @@ server <- function(input, output, session) {
                                 paste0(gsub(" ", "_", DB$scheme), ".zip")))$mtime, "%Y-%m-%d %H:%M %p")
           
           if(!is.null(last_file_change) && !is.na(last_file_change)) {
-            if(length(last_file_change) > 0 & length(last_scheme_change) > 0) {
+            if(length(last_file_change) > 0 && length(last_scheme_change) > 0) {
               if(last_file_change < last_scheme_change) {
                 showModal(
                   div(
@@ -5039,7 +5061,7 @@ server <- function(input, output, session) {
         }
       }
       
-      multiple <- length(species_data) > 1 & !is.null(input$selected_species_saved)
+      multiple <- length(species_data) > 1 && !is.null(input$selected_species_saved)
       if(multiple) {
         species_data <- species_data[[input$selected_species_saved]]
       } else {
@@ -5381,7 +5403,7 @@ server <- function(input, output, session) {
   })
   
   output$cust_var_info <- renderUI({
-    if((!is.null(DB$cust_var)) & (!is.null(input$cust_var_select))) {
+    if((!is.null(DB$cust_var)) && (!is.null(input$cust_var_select))) {
       if(nrow(DB$cust_var) > 5) {
         low <- -4
         high <- 0
@@ -5695,8 +5717,8 @@ server <- function(input, output, session) {
         )
         
       } else {
-        if(!is.null(DB$scheme_db) & !is.null(DB$scheme) & !is.null(DB$scheme_link)) {
-          if(!is.null(DB$scheme_db) & !is.null(DB$scheme) & !is.null(DB$scheme_link)) {
+        if(!is.null(DB$scheme_db) && !is.null(DB$scheme) && !is.null(DB$scheme_link)) {
+          if(!is.null(DB$scheme_db) && !is.null(DB$scheme) && !is.null(DB$scheme_link)) {
             output$db_loci_no <- renderUI(
               p(
                 HTML(
@@ -5819,8 +5841,8 @@ server <- function(input, output, session) {
                                                                   suffix)
       
       # Set Assembly Name column with external id and optional suffix
-      if(any(is.na(merged_meta$`Assembly Name`)) |
-         any(merged_meta$`Assembly Name` == "") | 
+      if(any(is.na(merged_meta$`Assembly Name`)) ||
+         any(merged_meta$`Assembly Name` == "") || 
          any(duplicated(merged_meta$`Assembly Name`))) {
         merged_meta$`Assembly Name`[(
           nrow(DB$meta) + 1):(nrow(DB$meta) + nrow_diff)] <- paste0(id_column, 
@@ -5967,8 +5989,8 @@ server <- function(input, output, session) {
       merged_meta$`Assembly ID` <- id_column
       
       # Set Assembly Name column with external id and optional suffix
-      if(any(is.na(merged_meta$`Assembly Name`)) |
-         any(merged_meta$`Assembly Name` == "") | 
+      if(any(is.na(merged_meta$`Assembly Name`)) ||
+         any(merged_meta$`Assembly Name` == "") || 
          any(duplicated(merged_meta$`Assembly Name`))) {
         merged_meta$`Assembly Name` <- id_column
         
@@ -6184,7 +6206,7 @@ server <- function(input, output, session) {
       # check if import dataset has ID column
       check_id_col <- DB$number_loci != ncol(import)
       
-      if (!any(shared_loci == FALSE) & check_id_col) {
+      if (!any(shared_loci == FALSE) && check_id_col) {
         
         DB$import_all_meta <- colnames(import)[which(
           !colnames(import) %in% gsub(".fasta|.fna|.fa", "", alleles))]
@@ -6247,7 +6269,7 @@ server <- function(input, output, session) {
                                        gsub(".fasta|.fna|.fa", "", alleles))]
         
         # check which processing necessary
-        if((sum((class(unlist(hash_check)) == "character" |
+        if((sum((class(unlist(hash_check)) == "character" ||
                  is.na(unlist(hash_check))) == FALSE) == 0) && 
            !any(nchar(
              unlist(hash_check)[which(!is.na(unlist(hash_check)))]) != 64)) {
@@ -7817,7 +7839,7 @@ server <- function(input, output, session) {
   ## Locus sequences ----
   
   observe({
-    if(!is.null(Startup$database) & !is.null(DB$scheme)) {
+    if(!is.null(Startup$database) && !is.null(DB$scheme)) {
       DB$loci <- list.files(
         path = paste0(Startup$database, "/", gsub(" ", "_", DB$scheme), "/", 
                       gsub(" ", "_", DB$scheme), "_alleles"),
@@ -7854,7 +7876,7 @@ server <- function(input, output, session) {
         )
       )
     } else {
-      if(!is.null(DB$scheme_db) & !is.null(DB$scheme) &
+      if(!is.null(DB$scheme_db) && !is.null(DB$scheme) &&
          !is.null(DB$scheme_link)) {
         output$db_loci_no <- renderUI(
           p(
@@ -7921,7 +7943,7 @@ server <- function(input, output, session) {
   })
   
   output$sequence_selector <- renderUI({
-    if(!is.null(input$db_loci_rows_selected) & !is.null(DB$loci_info)) {
+    if(!is.null(input$db_loci_rows_selected) && !is.null(DB$loci_info)) {
       
       req(input$db_loci_rows_selected, Startup$database, DB$scheme)
       
@@ -8623,7 +8645,7 @@ server <- function(input, output, session) {
     
     DB$failCon <- FALSE
     
-    multiple <- length(Scheme$species_data) > 1 & !is.null(input$selected_species)
+    multiple <- length(Scheme$species_data) > 1 && !is.null(input$selected_species)
     if(multiple) {
       species_data <- Scheme$species_data[[input$selected_species]]
     } else {
@@ -8633,7 +8655,7 @@ server <- function(input, output, session) {
     if(!is.null(species_data)) {
       
       # Download and render species image
-      if(length(Scheme$species_data) > 1 & length(Scheme$species_data) > 0) {
+      if(length(Scheme$species_data) > 1 && length(Scheme$species_data) > 0) {
         if(!is.null(input$selected_species)) {
           # Download image
           destination_file <- file.path(
@@ -9851,7 +9873,7 @@ server <- function(input, output, session) {
     ifelse(!is.null(input$nj_tiplab_position),
            nj_tiplab_position_val(input$nj_tiplab_position),
            ifelse(!is.null(nj_layout_val()),
-                  ifelse(nj_layout_val() != "inward" & 
+                  ifelse(nj_layout_val() != "inward" && 
                            nj_layout_val() != "circular",
                          nj_tiplab_position_val(0),
                          ifelse(nj_layout_val() == "inward",
@@ -10586,7 +10608,7 @@ server <- function(input, output, session) {
       default_value = 0,
       reset = isolate(Vis$nj_tiplab_angle_reset),
       right = TRUE,
-      show_condition = nj_layout_val() != "inward" & 
+      show_condition = nj_layout_val() != "inward" && 
         nj_layout_val() != "circular")
     
     isolate(Vis$nj_tiplab_angle_reset <- FALSE)
@@ -11605,8 +11627,9 @@ server <- function(input, output, session) {
       choices <- names(Vis$meta_nj)[-c(1:4, 6, 12:14)]
       
       if(!is.null(DB$cust_var) && length(DB$cust_var) > 0 ) {
-        cont_vars <- DB$cust_var$Variable[which(DB$cust_var$Type == "cont")]
-        choices <- choices[-which(choices %in% cont_vars)]
+        categ_vars <- DB$cust_var$Variable[which(DB$cust_var$Type == "categ")]
+        choices <- choices[-which(choices %in% categ_vars)]
+        choices <- c(choices, categ_vars)
       }
     } else {
       choices = c(Database = "Database", `Isolation Date` = "Isolation Date", 
@@ -12159,7 +12182,7 @@ server <- function(input, output, session) {
         choices$Categorical <- setNames(non_numeric_column_names, 
                                         non_numeric_column_names)
       } else if(input$nj_heatmap_map == "AMR Profile") {
-        if(!isTRUE(Screening$available) |
+        if(!isTRUE(Screening$available) ||
            sum(Vis$meta_nj$Screened == "Yes") == 0) {
           choices <- NULL
           no_screened <- TRUE
@@ -12258,7 +12281,7 @@ server <- function(input, output, session) {
     req(Vis$meta_nj)
     
     if(!is.null(nj_heatmap_select_val())) {
-      if(!(any(sapply(Vis$meta_nj[nj_heatmap_select_val()], is.numeric)) & 
+      if(!(any(sapply(Vis$meta_nj[nj_heatmap_select_val()], is.numeric)) && 
            any(!sapply(Vis$meta_nj[nj_heatmap_select_val()], is.numeric)))) {
         if(any(sapply(Vis$meta_nj[nj_heatmap_select_val()], is.numeric))) {
           fluidRow(
@@ -12285,7 +12308,7 @@ server <- function(input, output, session) {
     req(Vis$meta_nj)
     
     if(!is.null(Vis$meta_nj) &&
-       any(sapply(Vis$meta_nj[nj_heatmap_select_val()], is.numeric)) & 
+       any(sapply(Vis$meta_nj[nj_heatmap_select_val()], is.numeric)) && 
        any(!sapply(Vis$meta_nj[nj_heatmap_select_val()], is.numeric))) {
       h5("Heatmap with both categorical and continous values not possible", 
          style = "color: #E18B00; font-size: 12px; font-style: italic; margin-left: 20px")
@@ -12735,35 +12758,35 @@ server <- function(input, output, session) {
     
     ifelse(!is.null(input$nj_fruit_offset_circ),
            nj_fruit_offset_circ_val(input$nj_fruit_offset_circ),
-           ifelse(nj_layout_val() == "circular" | 
+           ifelse(nj_layout_val() == "circular" || 
                     nj_layout_val() == "inward",
                   nj_fruit_offset_circ_val(0.15),
                   nj_fruit_offset_circ_val(0.05)))
     
     ifelse(!is.null(input$nj_fruit_offset_circ_2),
            nj_fruit_offset_circ_2_val(input$nj_fruit_offset_circ_2),
-           ifelse(nj_layout_val() == "circular" | 
+           ifelse(nj_layout_val() == "circular" || 
                     nj_layout_val() == "inward",
                   nj_fruit_offset_circ_2_val(0.15),
                   nj_fruit_offset_circ_2_val(0.05)))
     
     ifelse(!is.null(input$nj_fruit_offset_circ_3),
            nj_fruit_offset_circ_3_val(input$nj_fruit_offset_circ_3),
-           ifelse(nj_layout_val() == "circular" | 
+           ifelse(nj_layout_val() == "circular" || 
                     nj_layout_val() == "inward",
                   nj_fruit_offset_circ_3_val(0.15),
                   nj_fruit_offset_circ_3_val(0.05)))
     
     ifelse(!is.null(input$nj_fruit_offset_circ_4),
            nj_fruit_offset_circ_4_val(input$nj_fruit_offset_circ_4),
-           ifelse(nj_layout_val() == "circular" | 
+           ifelse(nj_layout_val() == "circular" || 
                     nj_layout_val() == "inward",
                   nj_fruit_offset_circ_4_val(0.15),
                   nj_fruit_offset_circ_4_val(0.05)))
     
     ifelse(!is.null(input$nj_fruit_offset_circ_5),
            nj_fruit_offset_circ_5_val(input$nj_fruit_offset_circ_5),
-           ifelse(nj_layout_val() == "circular" | 
+           ifelse(nj_layout_val() == "circular" || 
                     nj_layout_val() == "inward",
                   nj_fruit_offset_circ_5_val(0.15),
                   nj_fruit_offset_circ_5_val(0.05)))
@@ -12788,7 +12811,7 @@ server <- function(input, output, session) {
     ifelse(!is.null(input$nj_colnames_angle),
            nj_colnames_angle_val(input$nj_colnames_angle),
            ifelse(!is.null(nj_layout_val()),
-                  ifelse(nj_layout_val() == "circular" | 
+                  ifelse(nj_layout_val() == "circular" || 
                            nj_layout_val() == "inward",
                          nj_colnames_angle_val(90),
                          nj_colnames_angle_val(-90)),
@@ -12796,7 +12819,7 @@ server <- function(input, output, session) {
     
     ifelse(!is.null(input$nj_colnames_y),
            nj_colnames_y_val(input$nj_colnames_y),
-           ifelse(nj_layout_val() == "circular" | 
+           ifelse(nj_layout_val() == "circular" || 
                     nj_layout_val() == "inward",
                   nj_colnames_y_val(0),
                   nj_colnames_y_val(-1)))
@@ -13652,7 +13675,7 @@ server <- function(input, output, session) {
     req(DB$data)
     
     disable <- FALSE
-    if(nj_layout_val() == "inward" | 
+    if(nj_layout_val() == "inward" || 
        nj_layout_val() == "circular") {
       min <- 0
       disable <- TRUE
@@ -13788,7 +13811,7 @@ server <- function(input, output, session) {
   
   output$nj_fruit_offset_circ <- renderUI({
     if(!is.null (nj_layout_val()) &&
-       (nj_layout_val() == "circular" | nj_layout_val() == "inward")) {
+       (nj_layout_val() == "circular" || nj_layout_val() == "inward")) {
       step <- 0.03
       min <- -0.6
       max <- 0.6
@@ -13816,7 +13839,7 @@ server <- function(input, output, session) {
   
   output$nj_fruit_offset_circ_2 <- renderUI({
     if(!is.null (nj_layout_val()) &&
-       (nj_layout_val() == "circular" | nj_layout_val() == "inward")) {
+       (nj_layout_val() == "circular" || nj_layout_val() == "inward")) {
       step <- 0.03
       min <- -0.6
       max <- 0.6
@@ -13844,7 +13867,7 @@ server <- function(input, output, session) {
   
   output$nj_fruit_offset_circ_3 <- renderUI({
     if(!is.null (nj_layout_val()) &&
-       (nj_layout_val() == "circular" | nj_layout_val() == "inward")) {
+       (nj_layout_val() == "circular" || nj_layout_val() == "inward")) {
       step <- 0.03
       min <- -0.6
       max <- 0.6
@@ -13872,7 +13895,7 @@ server <- function(input, output, session) {
   
   output$nj_fruit_offset_circ_4 <- renderUI({
     if(!is.null (nj_layout_val()) &&
-       (nj_layout_val() == "circular" | nj_layout_val() == "inward")) {
+       (nj_layout_val() == "circular" || nj_layout_val() == "inward")) {
       step <- 0.03
       min <- -0.6
       max <- 0.6
@@ -13900,7 +13923,7 @@ server <- function(input, output, session) {
   
   output$nj_fruit_offset_circ_5 <- renderUI({
     if(!is.null (nj_layout_val()) &&
-       (nj_layout_val() == "circular" | nj_layout_val() == "inward")) {
+       (nj_layout_val() == "circular" || nj_layout_val() == "inward")) {
       step <- 0.03
       min <- -0.6
       max <- 0.6
@@ -13949,7 +13972,7 @@ server <- function(input, output, session) {
     
     ifelse(!is.null(input$nj_h),
            nj_h_val(input$nj_h),
-           ifelse(nj_layout_val() != "circular" & nj_layout_val() != "inward",
+           ifelse(nj_layout_val() != "circular" && nj_layout_val() != "inward",
                   nj_h_val(-0.05),
                   nj_h_val(0)))
     
@@ -13960,6 +13983,15 @@ server <- function(input, output, session) {
     ifelse(!is.null(input$nj_zoom),
            nj_zoom_val(input$nj_zoom),
            nj_zoom_val(0.95))
+  })
+  
+  # Root Tree
+  nj_root_isolate_val <- reactiveVal()
+  
+  observe({
+    ifelse(!is.null(input$nj_root_isolate),
+           nj_root_isolate_val(input$nj_root_isolate),
+           nj_root_isolate_val("Automatic"))
   })
   
   # Layout
@@ -14192,52 +14224,102 @@ server <- function(input, output, session) {
                               )
                             )
                           )
+                        ),
+                        br(),
+                        fluidRow(
+                          column(
+                            width = 2,
+                            align = "left",
+                            HTML(
+                              paste(
+                                tags$span(
+                                  style = 'color: white; font-size: 14px; position: relative; right: 10px; top: 7px;',
+                                  'Horizontal')
+                              )
+                            )
+                          ),
+                          column(
+                            width = 9,
+                            align = "right",
+                            div(
+                              class = "nj-label-slider",
+                              sliderInput(
+                                "nj_scale",
+                                "",
+                                min = 450,
+                                max = 670,
+                                step = 5,
+                                value = isolate(nj_scale_val()),
+                                width = "150px",
+                                ticks = FALSE
+                              )
+                            )
+                          )
+                        ),
+                        br(),
+                        fluidRow(
+                          column(
+                            width = 2,
+                            align = "left",
+                            HTML(
+                              paste(
+                                tags$span(
+                                  style = 'color: white; font-size: 14px; position: relative; right: 10px; top: 7px;',
+                                  'Zoom')
+                              )
+                            )
+                          ),
+                          column(
+                            width = 9,
+                            align = "right",
+                            div(
+                              class = "nj-label-slider",
+                              sliderInput(
+                                "nj_zoom",
+                                "",
+                                min = 0.5,
+                                max = 1.5,
+                                step = 0.05,
+                                value = isolate(nj_zoom_val()),
+                                width = "150px",
+                                ticks = FALSE
+                              )
+                            )
+                          )
                         )
                       )
                     )
                   )
                 )
-              ),
-              fluidRow(
-                column(
-                  width = 4,
-                  h5("Scale", 
-                     style = "color:white; margin-left: 15px; margin-top: 30px;")
-                ),
-                column(
-                  width = 8,
-                  align = "center",
-                  sliderInput(
-                    "nj_scale",
+              )
+            )
+          ),
+          hr(),
+          fluidRow(
+            div(
+              class = "nj-label-control-col",
+              column(
+                width = 4,
+                h4(p("Root"), 
+                   style = paste0("color:white; position: relative; top: 0px;", 
+                                  " margin-bottom: -10px; right: -15px"))
+              )
+            ),
+            div(
+              class = "nj-elements-control-col",
+              column(
+                width = 8,
+                div(
+                  class = "nj-root-select",
+                  selectInput(
+                    "nj_root_isolate",
                     "",
-                    min = 450,
-                    max = 670,
-                    step = 5,
-                    value = isolate(nj_scale_val()),
-                    width = "80%",
-                    ticks = FALSE
-                  )
-                )
-              ),
-              fluidRow(
-                column(
-                  width = 4,
-                  h5(
-                    "Zoom", 
-                    style = "color:white; margin-left: 15px; margin-top: 32px;")
-                ),
-                column(
-                  width = 8,
-                  align = "center",
-                  sliderInput(
-                    "nj_zoom",
-                    "",
-                    min = 0.5,
-                    max = 1.5,
-                    step = 0.05,
-                    value = isolate(nj_zoom_val()),
-                    width = "80%",
-                    ticks = FALSE
+                    choices = c(
+                      "Automatic", 
+                      DB$data$`Assembly Name`[which(DB$data$Include == TRUE)]
+                    ),
+                    selected = isolate(nj_root_isolate_val()),
+                    width = "90%"
                   )
                 )
               )
@@ -14675,7 +14757,7 @@ server <- function(input, output, session) {
       reactive_value = value,
       default_value = default,
       reset = reset,
-      show_condition = nj_layout_val() == "inward" |
+      show_condition = nj_layout_val() == "inward" ||
         nj_layout_val() == "circular")
     
     isolate(Vis$nj_xlim_inw_val_reset <- Vis$nj_xlim_val_reset <- FALSE)
@@ -14708,7 +14790,7 @@ server <- function(input, output, session) {
   })
   
   output$nj_treescale_x <- renderUI({
-    if((!is.null(Vis$nj_min_x)) & (!is.null(Vis$nj_max_x))) {
+    if((!is.null(Vis$nj_min_x)) && (!is.null(Vis$nj_max_x))) {
       ifelse(ceiling(Vis$nj_min_x) < 1,
              min <- 1,
              min <- ceiling(Vis$nj_min_x))
@@ -15115,6 +15197,11 @@ server <- function(input, output, session) {
     nj_h_val(-0.05)
     nj_scale_val(670)
     nj_zoom_val(0.95)
+    
+    # Root Tree
+    nj_root_isolate_val("Automatic")
+    
+    # Layout
     nj_layout_val("rectangular")
     nj_rootedge_show_val(FALSE)
     Vis$nj_rootedge_length_val_reset <- TRUE
@@ -15346,7 +15433,7 @@ server <- function(input, output, session) {
     req(nj_layout_val())
     
     length_input <- length(input$nj_heatmap_select)
-    if(nj_layout_val() != "circular" & 
+    if(nj_layout_val() != "circular" && 
        nj_layout_val() != "inward") {
       if(length_input < 3) {
         width <- 0.1
@@ -15388,7 +15475,7 @@ server <- function(input, output, session) {
       updateSliderInput(session, "nj_fruit_width_circ_5", value = fruit_width)
     }
     
-    # if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+    # if(input$nj_layout == "circular" || input$nj_layout == "inward") {
     #   offset <- 0.05
     #   step <- 0.01
     #   min <- -0.2
@@ -15408,7 +15495,7 @@ server <- function(input, output, session) {
 
     #
     
-    if(input$nj_layout != "inward" & input$nj_layout != "circular") {
+    if(input$nj_layout != "inward" && input$nj_layout != "circular") {
       # nj_colnames_angle_val(-90)
       # updateSliderInput(session, "nj_colnames_angle", value = -90)
       # nj_colnames_y_val(-1)
@@ -17381,15 +17468,17 @@ server <- function(input, output, session) {
   #### Hierarchical Tree ----
   
   make.tree <- reactive({
-    
-    Vis$nj$tip.label <- Vis$meta_nj$Index
-    
-    # Convert negative edges 
-    edge_lengths_abs <- abs(Vis$nj[["edge.length"]])
-    edge_lengths_log <- log(edge_lengths_abs + sqrt(edge_lengths_abs^2 + 1))
-    
     Vis_nj <- Vis$nj
-    Vis_nj[["edge.length"]] <- edge_lengths_log
+    Vis_nj$tip.label <- Vis$meta_nj$Index
+    test <<- nj_root_isolate_val()
+    # Rooted tree
+    if(nj_root_isolate_val() != "Automatic") {
+      Vis_nj <- ape::root(
+        Vis_nj, 
+        outgroup = which(Vis$meta_nj$`Assembly Name` == nj_root_isolate_val()),
+        resolve.root = TRUE
+      )
+    }
     
     if(isTRUE(nj_nodelabel_show_val())) {
       ggtree(
@@ -17476,8 +17565,8 @@ server <- function(input, output, session) {
       
       # Add heatmap
       if(!is.null(Vis$nj_heatmap_select)) {
-        if(isTRUE(nj_heatmap_show_val()) & length(Vis$nj_heatmap_select) > 0) {
-          if(!(any(sapply(Vis$meta_nj[Vis$nj_heatmap_select], is.numeric)) &
+        if(isTRUE(nj_heatmap_show_val()) && length(Vis$nj_heatmap_select) > 0) {
+          if(!(any(sapply(Vis$meta_nj[Vis$nj_heatmap_select], is.numeric)) &&
                 any(!sapply(Vis$meta_nj[Vis$nj_heatmap_select], is.numeric)))) {
             tree <- gheatmap.mod(
               tree,
@@ -17515,7 +17604,7 @@ server <- function(input, output, session) {
     } else {
       if(!is.null(Vis$nj_heatmap_select)) {
         length_input <- length(Vis$nj_heatmap_select)
-        if(nj_layout_val() != "circular" & 
+        if(nj_layout_val() != "circular" && 
            nj_layout_val() != "inward") {
           if(length_input < 3) {
             0.1
@@ -17544,7 +17633,7 @@ server <- function(input, output, session) {
     if(!is.null(nj_colnames_y_val())) {
       nj_colnames_y_val()
     } else {
-      if(nj_layout_val() == "inward" | 
+      if(nj_layout_val() == "inward" || 
          nj_layout_val() == "circular") {
         0
       } else {-1}
@@ -17556,7 +17645,7 @@ server <- function(input, output, session) {
     if(!is.null(nj_colnames_angle_val())) {
       nj_colnames_angle_val()
     } else {
-      if(nj_layout_val() == "inward" | 
+      if(nj_layout_val() == "inward" || 
          nj_layout_val() == "circular") {
         90
       } else {-90}
@@ -17569,9 +17658,9 @@ server <- function(input, output, session) {
     
     selected_var <- Vis$meta_nj[Vis$nj_heatmap_select]
     
-    if(!(any(sapply(selected_var, is.numeric)) & 
+    if(!(any(sapply(selected_var, is.numeric)) && 
          any(!sapply(selected_var, is.numeric)))) {
-      if(any(sapply(selected_var, is.numeric)) |
+      if(any(sapply(selected_var, is.numeric)) ||
          length(unique(unlist(selected_var))) > 7) {
         if(nj_heatmap_scale_val() %in% unlist(diverging_scales)) {
           
@@ -17620,7 +17709,7 @@ server <- function(input, output, session) {
     
     selected_var <- Vis$meta_nj[nj_tipcolor_mapping_val()]
     
-    if(class(unlist(selected_var)) == "numeric" |
+    if(class(unlist(selected_var)) == "numeric" ||
        length(unique(unlist(selected_var))) > 7) {
       if(nj_tippoint_scale_val() %in% unlist(diverging_scales)) {
         
@@ -17668,7 +17757,7 @@ server <- function(input, output, session) {
     
     selected_var <- Vis$meta_nj[nj_color_mapping_val()]
     
-    if(class(unlist(selected_var)) == "numeric" |
+    if(class(unlist(selected_var)) == "numeric" ||
        length(unique(unlist(selected_var))) > 7) {
       if(nj_tiplab_scale_val() %in% unlist(diverging_scales)) {
         
@@ -17776,7 +17865,7 @@ server <- function(input, output, session) {
     
     selected_var <- Vis$meta_nj[nj_fruit_variable_val()]
     
-    if(class(unlist(selected_var)) == "numeric" |
+    if(class(unlist(selected_var)) == "numeric" ||
        length(unique(unlist(selected_var))) > 7) {
       if(nj_tiles_scale_1_val() %in% unlist(diverging_scales)) {
         
@@ -17823,7 +17912,7 @@ server <- function(input, output, session) {
     
     selected_var <- Vis$meta_nj[nj_fruit_variable_2_val()]
     
-    if(class(unlist(selected_var)) == "numeric" |
+    if(class(unlist(selected_var)) == "numeric" ||
        length(unique(unlist(selected_var))) > 7) {
       if(nj_tiles_scale_2_val() %in% unlist(diverging_scales)) {
         
@@ -17870,7 +17959,7 @@ server <- function(input, output, session) {
     
     selected_var <- Vis$meta_nj[nj_fruit_variable_3_val()]
     
-    if(class(unlist(selected_var)) == "numeric" |
+    if(class(unlist(selected_var)) == "numeric" ||
        length(unique(unlist(selected_var))) > 7) {
       if(nj_tiles_scale_3_val() %in% unlist(diverging_scales)) {
         
@@ -17917,7 +18006,7 @@ server <- function(input, output, session) {
     
     selected_var <- Vis$meta_nj[nj_fruit_variable_4_val()]
     
-    if(class(unlist(selected_var)) == "numeric" |
+    if(class(unlist(selected_var)) == "numeric" ||
        length(unique(unlist(selected_var))) > 7) {
       if(nj_tiles_scale_4_val() %in% unlist(diverging_scales)) {
         
@@ -17964,7 +18053,7 @@ server <- function(input, output, session) {
     
     selected_var <- Vis$meta_nj[nj_fruit_variable_5_val()]
     
-    if(class(unlist(selected_var)) == "numeric" |
+    if(class(unlist(selected_var)) == "numeric" ||
        length(unique(unlist(selected_var))) > 7) {
       if(nj_tiles_scale_5_val() %in% unlist(diverging_scales)) {
         
@@ -18008,7 +18097,7 @@ server <- function(input, output, session) {
   
   # No label clip off for linear NJ tree
   nj_clip_label <- reactive({
-    if(nj_layout_val() != "circular" &
+    if(nj_layout_val() != "circular" &&
        nj_layout_val() != "inward") {
       coord_cartesian(clip = "off")
     } else {NULL}
@@ -18115,7 +18204,7 @@ server <- function(input, output, session) {
   
   # Label branches
   nj_label_branch <- reactive({
-    if(nj_layout_val() != "circular" | 
+    if(nj_layout_val() != "circular" || 
        nj_layout_val() != "inward") {
       if(isTRUE(nj_show_branch_label_val())) {
         geom_label(
@@ -18204,7 +18293,7 @@ server <- function(input, output, session) {
       align = nj_align_val()
     )
     
-    if(nj_layout_val() != "inward" & nj_layout_val() != "circular") {
+    if(nj_layout_val() != "inward" && nj_layout_val() != "circular") {
       common_params$angle <- nj_tiplab_angle_val()
       common_params$nudge_x <- nj_tiplab_position_val()
     } else {
@@ -18380,7 +18469,7 @@ server <- function(input, output, session) {
     }
     
     # Shut off branch labels for circular layout
-    if(input$nj_layout == "circular" | input$nj_layout == "inward") {
+    if(input$nj_layout == "circular" || input$nj_layout == "inward") {
       disable('nj_show_branch_label')
     } else {
       enable('nj_show_branch_label')
@@ -18778,7 +18867,7 @@ server <- function(input, output, session) {
       )
     } else {
       
-      if(any(duplicated(DB$meta$`Assembly Name`)) | 
+      if(any(duplicated(DB$meta$`Assembly Name`)) || 
          any(duplicated(DB$meta$`Assembly ID`))) {
         log_print("Duplicated assemblies present")
         
@@ -18867,6 +18956,7 @@ server <- function(input, output, session) {
               Vis$tree_algo <- "UPGMA"
             }
             
+            # Convert negative edges 
             edge_lengths_abs <- abs(Vis_nj[["edge.length"]])
             edge_lengths_log <- log(
               edge_lengths_abs + sqrt(edge_lengths_abs^2 + 1))
@@ -18878,7 +18968,7 @@ server <- function(input, output, session) {
               relocate(taxa)
             
             # Get number of included entries calculate start values for tree 
-            if(nj_layout_val() == "circular" | nj_layout_val() == "inward") {
+            if(nj_layout_val() == "circular" || nj_layout_val() == "inward") {
               if(sum(DB$data$Include) < 21) {
                 Vis$labelsize_nj <- 5.5
                 Vis$tippointsize_nj <- 5.5
@@ -19062,8 +19152,8 @@ server <- function(input, output, session) {
     
     runjs(block_ui)
     
-    if((input$tree_type == "MST" & isTRUE(Vis$mst_true)) |
-       (input$tree_type == "Tree" & isTRUE(Vis$nj_true))) {
+    if((input$tree_type == "MST" && isTRUE(Vis$mst_true)) ||
+       (input$tree_type == "Tree" && isTRUE(Vis$nj_true))) {
       # Get currently selected missing value handling option
       if(input$na_handling == "ignore_na") {
         na_handling <- "Ignore missing values for pairwise comparison"
@@ -19699,7 +19789,7 @@ server <- function(input, output, session) {
   # conditional rendering of gs visualization ui
   
   output$gs_visualization_ui <- renderUI({
-    req(DB$data, DB$scheme, Screening$available)
+    req(DB$data, DB$scheme, Screening$available, Screening$amr_results)
     amrfinder_available <- check.amrfinder.available(
       selected_scheme = DB$scheme,
       amrfinder_species = amrfinder_species)
@@ -19864,281 +19954,279 @@ server <- function(input, output, session) {
   
   # gs plot control panel
   output$gs_plot_control_ui <- renderUI({
-    req(Screening$available)
-    if(!is.null(DB$data) & !is.null(Screening$amr_results) &
-       !is.null(Screening$vir_class) & !is.null(Screening$amr_class)) {
-      amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, 
-                                                  as.numeric))
-      rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
-      colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
-      heatmap_matrix <- as.matrix(amr_profile_numeric)
-      
-      if(!is.null(Screening$amr_class)) {
-        if(nrow(Screening$amr_class) > 0) {
-          amr_meta <- get.gsMeta(gene_class = Screening$amr_class, 
-                                 hm_matrix = heatmap_matrix)
-          choices_amr <- rownames(amr_meta)[which(!is.na(amr_meta$class))]
-          amr_classes <- amr_meta$class
-          names(amr_classes) <- rownames(amr_meta)
-          amr_classes_filtered <- na.omit(amr_classes)
-          choices_amr <- list()
-          for(i in 1:length(unique(amr_classes_filtered))) {
-            group <- names(amr_classes_filtered)[which(
-              amr_classes_filtered == unique(amr_classes_filtered)[i])]
-            if(length(group) == 1) {
-              choices_amr[[unique(amr_classes_filtered)[i]]] <- as.list(group)
-            } else {
-              choices_amr[[unique(amr_classes_filtered)[i]]] <- group
-            }
-          }
-          choices_amr <- choices_amr[order(names(choices_amr))]
-        } else {choices_amr <- character(0)}
-      } else {choices_amr <- character(0)}
-      
-      if(!is.null(Screening$vir_class)) {
-        if(nrow(Screening$vir_class) > 0) {
-          vir_meta <- get.gsMeta(gene_class = Screening$vir_class, 
-                                 hm_matrix = heatmap_matrix)
-          choices_vir <- rownames(vir_meta)[which(!is.na(vir_meta$class))]
-          vir_classes <- vir_meta$class
-          names(vir_classes) <- rownames(amr_meta)
-          vir_classes_filtered <- na.omit(vir_classes)
-          choices_vir <- list()
-          for(i in 1:length(unique(vir_classes_filtered))) {
-            group <- names(vir_classes_filtered)[which(
-              vir_classes_filtered == unique(vir_classes_filtered)[i])]
-            if(length(group) == 1) {
-              choices_vir[[unique(vir_classes_filtered)[i]]] <- as.list(group)
-            } else {
-              choices_vir[[unique(vir_classes_filtered)[i]]] <- group
-            }
-          }
-          choices_vir <- choices_vir[order(names(choices_vir))]
-        } else {choices_vir <- character(0)}
-      } else {choices_vir <- character(0)}
-      
-      if(all(!is.na(vir_meta$class) & !is.na(amr_meta$class))) {
-        choices_noclass <- character(0)
-      } else {
-        choices_noclass <- rownames(amr_meta)[which(is.na(vir_meta$class) &
-                                                      is.na(amr_meta$class))]  
+    req(Screening$available, DB$data, Screening$amr_results, 
+        Screening$vir_class, Screening$amr_class)
+    amr_profile_numeric <- as.data.frame(lapply(Screening$amr_results, 
+                                                as.numeric))
+    rownames(amr_profile_numeric) <- rownames(Screening$amr_results)
+    colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
+    heatmap_matrix <- as.matrix(amr_profile_numeric)
+    
+    if(nrow(Screening$amr_class) > 0) {
+      amr_meta <- get.gsMeta(gene_class = Screening$amr_class, 
+                             hm_matrix = heatmap_matrix)
+      amr_classes <- amr_meta$class
+      names(amr_classes) <- rownames(amr_meta)
+      amr_classes_filtered <- na.omit(amr_classes)
+      choices_amr <- list()
+      for(i in 1:length(unique(amr_classes_filtered))) {
+        group <- names(amr_classes_filtered)[which(
+          amr_classes_filtered == unique(amr_classes_filtered)[i])]
+        if(length(group) == 1) {
+          choices_amr[[unique(amr_classes_filtered)[i]]] <- as.list(group)
+        } else {
+          choices_amr[[unique(amr_classes_filtered)[i]]] <- group
+        }
       }
-      
-      div(
-        class = "gs-plot-box2",
-        box(
-          solidHeader = TRUE,
-          status = "primary",
-          width = "100%",
-          title = "Heatmap Data",
-          column(
-            width = 12,
-            fluidRow(
-              column(
-                width = 12,
-                align = "center",
-                HTML(
-                  paste(
-                    tags$span(
-                      style = 'color: white; font-size: 16px; position: relative; top: 10px;', 
-                              'Isolates')
+      choices_amr <- choices_amr[order(names(choices_amr))]
+    } else {
+      choices_amr <- character(0)
+      amr_meta <- data.frame(results = NA)
+    }
+    
+    if(nrow(Screening$vir_class) > 0) {
+      vir_meta <- get.gsMeta(gene_class = Screening$vir_class, 
+                             hm_matrix = heatmap_matrix)
+      vir_classes <- vir_meta$class
+      names(vir_classes) <- rownames(amr_meta)
+      vir_classes_filtered <- na.omit(vir_classes)
+      choices_vir <- list()
+      for(i in 1:length(unique(vir_classes_filtered))) {
+        group <- names(vir_classes_filtered)[which(
+          vir_classes_filtered == unique(vir_classes_filtered)[i])]
+        if(length(group) == 1) {
+          choices_vir[[unique(vir_classes_filtered)[i]]] <- as.list(group)
+        } else {
+          choices_vir[[unique(vir_classes_filtered)[i]]] <- group
+        }
+      }
+      choices_vir <- choices_vir[order(names(choices_vir))]
+    } else {
+      choices_vir <- character(0)
+      vir_meta <- data.frame(results = NA)
+    }
+    
+    if(all(!is.na(vir_meta$class)) && all(!is.na(amr_meta$class))) {
+      choices_noclass <- character(0)
+    } else {
+      choices_noclass <- rownames(amr_meta)[which(is.na(vir_meta$class) &
+                                                    is.na(amr_meta$class))]  
+    }
+    
+    div(
+      class = "gs-plot-box2",
+      box(
+        solidHeader = TRUE,
+        status = "primary",
+        width = "100%",
+        title = "Heatmap Data",
+        column(
+          width = 12,
+          fluidRow(
+            column(
+              width = 12,
+              align = "center",
+              HTML(
+                paste(
+                  tags$span(
+                    style = 'color: white; font-size: 16px; position: relative; top: 10px;', 
+                    'Isolates')
+                )
+              ),
+              fluidRow(
+                column(
+                  width = 9,
+                  div(
+                    class = "gs-plot-selected-isolate",
+                    pickerInput(
+                      "gs_plot_selected_isolate",
+                      label = "",
+                      choices = list(
+                        Screened =  if (length(DB$data$`Assembly ID`[which(
+                          DB$data$Screened == "Yes")]) == 1) {
+                          as.list(DB$data$`Assembly ID`[which(
+                            DB$data$Screened == "Yes")])
+                        } else {
+                          DB$data$`Assembly ID`[which(
+                            DB$data$Screened == "Yes")]
+                        },
+                        Unscreened = if (length(DB$data$`Assembly ID`[which(
+                          DB$data$Screened == "No")]) == 1) {
+                          as.list(DB$data$`Assembly ID`[which(
+                            DB$data$Screened == "No")])
+                        } else {
+                          DB$data$`Assembly ID`[which(
+                            DB$data$Screened == "No")]
+                        },
+                        `No Assembly File` =  if (sum(
+                          DB$data$Screened == "NA") == 1) {
+                          as.list(DB$data$`Assembly ID`[which(
+                            DB$data$Screened == "NA")])
+                        } else {
+                          DB$data$`Assembly ID`[which(
+                            DB$data$Screened == "NA")]
+                        }
+                      ),
+                      choicesOpt = list(
+                        disabled = c(
+                          rep(FALSE, length(DB$data$`Assembly ID`[which(
+                            DB$data$Screened == "Yes")])),
+                          rep(TRUE, length(DB$data$`Assembly ID`[which(
+                            DB$data$Screened == "No")])),
+                          rep(TRUE, length(DB$data$`Assembly ID`[which(
+                            DB$data$Screened == "NA")]))
+                        )
+                      ),
+                      selected = DB$data$`Assembly ID`[which(
+                        DB$data$Screened == "Yes")],
+                      options = list(
+                        `live-search` = TRUE,
+                        `actions-box` = TRUE,
+                        size = 10,
+                        style = "background-color: white; border-radius: 5px;"
+                      ),
+                      multiple = TRUE,
+                      width = "96%"
+                    )
                   )
                 ),
-                fluidRow(
-                  column(
-                    width = 9,
-                    div(
-                      class = "gs-plot-selected-isolate",
-                      pickerInput(
-                        "gs_plot_selected_isolate",
-                        label = "",
-                        choices = list(
-                          Screened =  if (length(DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "Yes")]) == 1) {
-                            as.list(DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "Yes")])
-                          } else {
-                            DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "Yes")]
-                          },
-                          Unscreened = if (length(DB$data$`Assembly ID`[which(
-                            DB$data$Screened == "No")]) == 1) {
-                            as.list(DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "No")])
-                          } else {
-                            DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "No")]
-                          },
-                          `No Assembly File` =  if (sum(
-                            DB$data$Screened == "NA") == 1) {
-                            as.list(DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "NA")])
-                          } else {
-                            DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "NA")]
-                          }
-                        ),
-                        choicesOpt = list(
-                          disabled = c(
-                            rep(FALSE, length(DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "Yes")])),
-                            rep(TRUE, length(DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "No")])),
-                            rep(TRUE, length(DB$data$`Assembly ID`[which(
-                              DB$data$Screened == "NA")]))
-                          )
-                        ),
-                        selected = DB$data$`Assembly ID`[which(
-                          DB$data$Screened == "Yes")],
-                        options = list(
-                          `live-search` = TRUE,
-                          `actions-box` = TRUE,
-                          size = 10,
-                          style = "background-color: white; border-radius: 5px;"
-                        ),
-                        multiple = TRUE,
-                        width = "96%"
+                column(
+                  width = 3,
+                  align = "center",
+                  dropMenu(
+                    actionBttn(
+                      "gsplot_isolate_label_menu",
+                      label = "",
+                      color = "default",
+                      size = "sm",
+                      style = "material-flat",
+                      icon = icon("sliders")
+                    ),
+                    placement = "right-start",
+                    theme = "translucent",
+                    fluidRow(
+                      div(
+                        class = "gsplot-isolate-label",
+                        selectInput(
+                          "gsplot_isolate_label",
+                          label = h5("Isolate Label", style = "color:white;"),
+                          choices = c("Assembly ID", "Assembly Name"),
+                          selected = "Assembly Name",
+                          width = "70%"
+                        ) 
                       )
                     )
                   ),
-                  column(
-                    width = 3,
-                    align = "center",
-                    dropMenu(
-                      actionBttn(
-                        "gsplot_isolate_label_menu",
-                        label = "",
-                        color = "default",
-                        size = "sm",
-                        style = "material-flat",
-                        icon = icon("sliders")
-                      ),
-                      placement = "right-start",
-                      theme = "translucent",
-                      fluidRow(
-                        div(
-                          class = "gsplot-isolate-label",
-                          selectInput(
-                            "gsplot_isolate_label",
-                            label = h5("Isolate Label", style = "color:white;"),
-                            choices = c("Assembly ID", "Assembly Name"),
-                            selected = "Assembly Name",
-                            width = "70%"
-                          ) 
-                        )
-                      )
-                    ),
-                    bsTooltip("gsplot_isolate_label_menu",
-                              title = "Label",
-                              placement = "right")
-                  )
-                ),
-                uiOutput("gs_plot_sel_isolate_info")
+                  bsTooltip("gsplot_isolate_label_menu",
+                            title = "Label",
+                            placement = "right")
+                )
               ),
-              column(
-                width = 12,
-                align = "center",
-                br(),
-                div(
-                  class = "gs-heatmap-text1",
-                  HTML(
-                    paste(
-                      tags$span(
-                        style = 'color: white; font-size: 16px; position: relative;', 
-                                'AMR Genes')
-                    )
+              uiOutput("gs_plot_sel_isolate_info")
+            ),
+            column(
+              width = 12,
+              align = "center",
+              br(),
+              div(
+                class = "gs-heatmap-text1",
+                HTML(
+                  paste(
+                    tags$span(
+                      style = 'color: white; font-size: 16px; position: relative;', 
+                      'AMR Genes')
                   )
-                ),
-                div(
-                  class = "gs-plot-selected-isolate",
-                  pickerInput(
-                    "gs_plot_selected_amr",
-                    label = "",
-                    choices = choices_amr,
-                    options = list(
-                      `live-search` = TRUE,
-                      `actions-box` = TRUE,
-                      size = 10,
-                      style = "background-color: white; border-radius: 5px;"
-                    ),
-                    selected = unlist(choices_amr),
-                    multiple = TRUE,
-                    width = "96%"
-                  )
-                ),
-                uiOutput("gs_plot_sel_amr_info")
+                )
               ),
-              column(
-                width = 12,
-                align = "center",
-                br(),
-                div(
-                  class = "gs-heatmap-text",
-                  HTML(
-                    paste(
-                      tags$span(
-                        style = 'color: white; font-size: 16px; position: relative;', 
-                                'Virulence Genes')
-                    )
-                  )
-                ),
-                div(
-                  class = "gs-plot-selected-isolate",
-                  pickerInput(
-                    "gs_plot_selected_vir",
-                    label = "",
-                    choices = choices_vir,
-                    options = list(
-                      `live-search` = TRUE,
-                      `actions-box` = TRUE,
-                      size = 10,
-                      style = "background-color: white; border-radius: 5px;"
-                    ),
-                    selected = unlist(choices_vir),
-                    multiple = TRUE,
-                    width = "96%"
-                  )
-                ),
-                uiOutput("gs_plot_sel_vir_info")
+              div(
+                class = "gs-plot-selected-isolate",
+                pickerInput(
+                  "gs_plot_selected_amr",
+                  label = "",
+                  choices = choices_amr,
+                  options = list(
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE,
+                    size = 10,
+                    style = "background-color: white; border-radius: 5px;"
+                  ),
+                  selected = unlist(choices_amr),
+                  multiple = TRUE,
+                  width = "96%"
+                )
               ),
-              column(
-                width = 12,
-                align = "center",
-                br(),
-                div(
-                  class = "gs-heatmap-text",
-                  HTML(
-                    paste(
-                      tags$span(
-                        style = 'color: white; font-size: 15px; position: relative;', 
-                                'Unclassifiable Genes')
-                    )
+              uiOutput("gs_plot_sel_amr_info")
+            ),
+            column(
+              width = 12,
+              align = "center",
+              br(),
+              div(
+                class = "gs-heatmap-text",
+                HTML(
+                  paste(
+                    tags$span(
+                      style = 'color: white; font-size: 16px; position: relative;', 
+                      'Virulence Genes')
                   )
-                ),
-                div(
-                  class = "gs-plot-selected-isolate",
-                  pickerInput(
-                    "gs_plot_selected_noclass",
-                    label = "",
-                    choices = choices_noclass,
-                    options = list(
-                      `live-search` = TRUE,
-                      `actions-box` = TRUE,
-                      size = 10,
-                      style = "background-color: white; border-radius: 5px;"
-                    ),
-                    selected = unlist(choices_noclass),
-                    multiple = TRUE,
-                    width = "96%"
+                )
+              ),
+              div(
+                class = "gs-plot-selected-isolate",
+                pickerInput(
+                  "gs_plot_selected_vir",
+                  label = "",
+                  choices = choices_vir,
+                  options = list(
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE,
+                    size = 10,
+                    style = "background-color: white; border-radius: 5px;"
+                  ),
+                  selected = unlist(choices_vir),
+                  multiple = TRUE,
+                  width = "96%"
+                )
+              ),
+              uiOutput("gs_plot_sel_vir_info")
+            ),
+            column(
+              width = 12,
+              align = "center",
+              br(),
+              div(
+                class = "gs-heatmap-text",
+                HTML(
+                  paste(
+                    tags$span(
+                      style = 'color: white; font-size: 15px; position: relative;', 
+                      'Unclassifiable Genes')
                   )
-                ),
-                uiOutput("gs_plot_sel_noclass_info")
-              )
+                )
+              ),
+              div(
+                class = "gs-plot-selected-isolate",
+                pickerInput(
+                  "gs_plot_selected_noclass",
+                  label = "",
+                  choices = choices_noclass,
+                  options = list(
+                    `live-search` = TRUE,
+                    `actions-box` = TRUE,
+                    size = 10,
+                    style = "background-color: white; border-radius: 5px;"
+                  ),
+                  selected = unlist(choices_noclass),
+                  multiple = TRUE,
+                  width = "96%"
+                )
+              ),
+              uiOutput("gs_plot_sel_noclass_info")
             )
           )
         )
       )
-    }
+    )
   })
   
   # gs heatmap data menu
@@ -20168,53 +20256,55 @@ server <- function(input, output, session) {
     colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
     heatmap_matrix <- as.matrix(amr_profile_numeric)
     
-    if(!is.null(Screening$amr_class)) {
-      if(nrow(Screening$amr_class) > 0) {
-        amr_meta <- get.gsMeta(gene_class = Screening$amr_class, 
-                               hm_matrix = heatmap_matrix)
-        choices_amr <- rownames(amr_meta)[which(!is.na(amr_meta$class))]
-        amr_classes <- amr_meta$class
-        names(amr_classes) <- rownames(amr_meta)
-        amr_classes_filtered <- na.omit(amr_classes)
-        choices_amr <- list()
-        for(i in 1:length(unique(amr_classes_filtered))) {
-          group <- names(amr_classes_filtered)[which(
-            amr_classes_filtered == unique(amr_classes_filtered)[i])]
-          if(length(group) == 1) {
-            choices_amr[[unique(amr_classes_filtered)[i]]] <- as.list(group)
-          } else {
-            choices_amr[[unique(amr_classes_filtered)[i]]] <- group
-          }
+    if(!is.null(Screening$amr_class) && nrow(Screening$amr_class) > 0) {
+      amr_meta <- get.gsMeta(gene_class = Screening$amr_class, 
+                             hm_matrix = heatmap_matrix)
+      choices_amr <- rownames(amr_meta)[which(!is.na(amr_meta$class))]
+      amr_classes <- amr_meta$class
+      names(amr_classes) <- rownames(amr_meta)
+      amr_classes_filtered <- na.omit(amr_classes)
+      choices_amr <- list()
+      for(i in 1:length(unique(amr_classes_filtered))) {
+        group <- names(amr_classes_filtered)[which(
+          amr_classes_filtered == unique(amr_classes_filtered)[i])]
+        if(length(group) == 1) {
+          choices_amr[[unique(amr_classes_filtered)[i]]] <- as.list(group)
+        } else {
+          choices_amr[[unique(amr_classes_filtered)[i]]] <- group
         }
-      } else {choices_amr <- character(0)}
-    } else {choices_amr <- character(0)}
+      }
+    } else {
+      choices_amr <- character(0)
+      amr_meta <- data.frame(results = NA)
+    }
     
     gs_plot_selected_amr_selected <- gs_plot_selected_amr()
     
-    if(!is.null(Screening$vir_class)) {
-      if(nrow(Screening$vir_class) > 0) {
-        vir_meta <- get.gsMeta(gene_class = Screening$vir_class, 
-                               hm_matrix = heatmap_matrix)
-        choices_vir <- rownames(vir_meta)[which(!is.na(vir_meta$class))]
-        vir_classes <- vir_meta$class
-        names(vir_classes) <- rownames(amr_meta)
-        vir_classes_filtered <- na.omit(vir_classes)
-        choices_vir <- list()
-        for(i in 1:length(unique(vir_classes_filtered))) {
-          group <- names(vir_classes_filtered)[which(
-            vir_classes_filtered == unique(vir_classes_filtered)[i])]
-          if(length(group) == 1) {
-            choices_vir[[unique(vir_classes_filtered)[i]]] <- as.list(group)
-          } else {
-            choices_vir[[unique(vir_classes_filtered)[i]]] <- group
-          }
+    if(!is.null(Screening$vir_class) && nrow(Screening$vir_class) > 0) {
+      vir_meta <- get.gsMeta(gene_class = Screening$vir_class, 
+                             hm_matrix = heatmap_matrix)
+      choices_vir <- rownames(vir_meta)[which(!is.na(vir_meta$class))]
+      vir_classes <- vir_meta$class
+      names(vir_classes) <- rownames(amr_meta)
+      vir_classes_filtered <- na.omit(vir_classes)
+      choices_vir <- list()
+      for(i in 1:length(unique(vir_classes_filtered))) {
+        group <- names(vir_classes_filtered)[which(
+          vir_classes_filtered == unique(vir_classes_filtered)[i])]
+        if(length(group) == 1) {
+          choices_vir[[unique(vir_classes_filtered)[i]]] <- as.list(group)
+        } else {
+          choices_vir[[unique(vir_classes_filtered)[i]]] <- group
         }
-      } else {choices_vir <- character(0)}
-    } else {choices_vir <- character(0)}
+      }
+    } else {
+      choices_vir <- character(0)
+      vir_meta <- data.frame(results = NA)
+    }
     
     gs_plot_selected_vir_selected <- gs_plot_selected_vir()
     
-    if(all(!is.na(vir_meta$class) & !is.na(amr_meta$class))) {
+    if(all(!is.na(vir_meta$class)) && all(!is.na(amr_meta$class))) {
       choices_noclass <- character(0)
     } else {
       choices_noclass <- rownames(amr_meta)[which(is.na(vir_meta$class) &
@@ -21738,7 +21828,7 @@ server <- function(input, output, session) {
       selectInput(
         "gs_var_mapping",
         "",
-        choices = names(DB$meta)[-c(1:4, 6, 11:14)],
+        choices = c("None", names(DB$meta)[-c(1:4, 6, 11:14)]),
         width = "100%",
         selected = gs_var_mapping_selected
       )
@@ -21917,7 +22007,7 @@ server <- function(input, output, session) {
   output$gs_results_table <- renderUI({
     req(DB$data, Screening$available)
     if(!is.null(input$gs_profile_select)) {
-      if(length(input$gs_profile_select) > 0 &
+      if(length(input$gs_profile_select) > 0 &&
          any(input$gs_profile_select %in% DB$data$`Assembly ID`)) {
         fluidRow(
           div(class = "amr-table",
@@ -22081,7 +22171,7 @@ server <- function(input, output, session) {
     req(Screening$available, DB$meta_gs, input$gs_profile_select, 
         Startup$database, DB$scheme, DB$data)
     
-    if(length(input$gs_profile_select) > 0 & any(input$gs_profile_select %in% 
+    if(length(input$gs_profile_select) > 0 && any(input$gs_profile_select %in% 
                                                  DB$data$`Assembly ID`)) {
       iso_select <- input$gs_profile_select
       iso_path <- file.path(
@@ -22774,10 +22864,10 @@ server <- function(input, output, session) {
   observe({
     req(Screening$available, DB$data, Screening$status, input$screening_res_sel,
         Screening$status_df)
-    if(!is.null(Screening$status_df) & !is.null(Screening$status_df$status) & 
-       !is.null(Screening$status_df$isolate) & 
+    if(!is.null(Screening$status_df) && !is.null(Screening$status_df$status) && 
+       !is.null(Screening$status_df$isolate) && 
        !is.null(input$screening_res_sel)) {
-      if(Screening$status != "idle" & length(input$screening_res_sel) > 0) {
+      if(Screening$status != "idle" && length(input$screening_res_sel) > 0) {
         if(any(Screening$status_df$isolate == input$screening_res_sel)) {
           if(Screening$status_df$status[which(
             Screening$status_df$isolate == input$screening_res_sel)] ==
@@ -22821,11 +22911,11 @@ server <- function(input, output, session) {
   
   observe({
     req(Screening$available, DB$data, Screening$status, input$screening_res_sel)
-    if(!is.null(Screening$status_df) &
-       !is.null(Screening$status_df$status) & 
-       !is.null(Screening$status_df$isolate) &
+    if(!is.null(Screening$status_df) &&
+       !is.null(Screening$status_df$status) && 
+       !is.null(Screening$status_df$isolate) &&
        !is.null(input$screening_res_sel)) {
-      if(Screening$status != "idle" & length(input$screening_res_sel) > 0) {
+      if(Screening$status != "idle" && length(input$screening_res_sel) > 0) {
         if(any(Screening$status_df$isolate == input$screening_res_sel)) {
           if(Screening$status_df$status[which(
             Screening$status_df$isolate == input$screening_res_sel)] ==
@@ -22936,7 +23026,7 @@ server <- function(input, output, session) {
         Screening$status_df$isolate, check_status, database = Startup$database,
         scheme = DB$scheme)
       
-      if(any("unfinished" != Screening$status_df$status) &
+      if(any("unfinished" != Screening$status_df$status) &&
          !identical(Screening$choices, Screening$status_df$isolate[which(
            Screening$status_df$status != "unfinished")])) {
         
@@ -23139,7 +23229,7 @@ server <- function(input, output, session) {
       colnames(amr_profile_numeric) <- colnames(Screening$amr_results)
       
       if((length(c(gs_plot_selected_amr, gs_plot_selected_vir, 
-                   gs_plot_selected_noclass)) >= 3) &
+                   gs_plot_selected_noclass)) >= 3) &&
          length(gs_plot_selected_isolate) >= 3) {
         
         ### get heatmap meta
@@ -23157,11 +23247,20 @@ server <- function(input, output, session) {
         heatmap_mat <- as.matrix(amr_profile_numeric)
         
         # metadata
-        amr_meta <- get.gsMeta(gene_class = Screening$amr_class, 
-                               hm_matrix = heatmap_mat)
-        colnames(amr_meta) <- "amr"
-        vir_meta <- get.gsMeta(gene_class = Screening$vir_class, 
-                               hm_matrix = heatmap_mat)
+        if(nrow(Screening$amr_class) > 0) {
+          amr_meta <- get.gsMeta(gene_class = Screening$amr_class, 
+                                 hm_matrix = heatmap_mat)
+          colnames(amr_meta) <- "amr"
+        } else {
+          amr_meta <- data.frame(amr = NA)
+        }
+        
+        if(nrow(Screening$vir_class) > 0) {
+          vir_meta <- get.gsMeta(gene_class = Screening$vir_class, 
+                                 hm_matrix = heatmap_mat)
+        } else {
+          vir_meta <- data.frame(class = NA)
+        }
         
         # unite meta
         Screening$hm_meta <- add_column(amr_meta, vir = vir_meta$class)
@@ -23255,9 +23354,9 @@ server <- function(input, output, session) {
           if(input$gs_cluster_distance_col == "binary") {
             gs_cluster_distance_col <- "binary"
           } else if(input$gs_cluster_distance_col == "mcc") {
-            gs_cluster_distance_col <- function(m) mcc_dist_matrix(m)
+            gs_cluster_distance_col <- mcc_dist_matrix
           } else if(input$gs_cluster_distance_col == "hamming") {
-            gs_cluster_distance_col <- function(m) hamming_dist_matrix(m)
+            gs_cluster_distance_col <- hamming_dist_matrix
           }
         } else {
           gs_cluster_distance_col <- "binary"
@@ -23279,9 +23378,9 @@ server <- function(input, output, session) {
           if(input$gs_cluster_distance_row == "binary") {
             gs_cluster_distance_row <- "binary"
           } else if(input$gs_cluster_distance_row == "mcc") {
-            gs_cluster_distance_row <- function(m) mcc_dist_matrix(m)
-          } else if(input$gs_cluster_distance_row == "hamming") {
-            gs_cluster_distance_row <- function(m) hamming_dist_matrix(m)
+            gs_cluster_distance_row <- mcc_dist_matrix
+          } else if(input$gs_cluster_distance_col == "hamming") {
+            gs_cluster_distance_row <- hamming_dist_matrix
           }
         } else {
           gs_cluster_distance_row <- "binary"
@@ -23439,7 +23538,7 @@ server <- function(input, output, session) {
         amr_heatmap <- NULL
         sel_amr <- NULL
         if(!is.null(gs_plot_selected_amr)) {
-          if(all(is.na(hm_meta$amr)) | length(gs_plot_selected_amr) < 3) {
+          if(all(is.na(hm_meta$amr)) || length(gs_plot_selected_amr) < 3) {
             amr_annotation <- NULL
             amr_heatmap <- NULL
           } else {
@@ -23471,7 +23570,6 @@ server <- function(input, output, session) {
                 }
               }
               names(amr_colors) <- unique(sel_amr)
-              
               amr_annotation <- HeatmapAnnotation(
                 AMR = sel_amr,
                 show_legend = TRUE,
@@ -23479,6 +23577,7 @@ server <- function(input, output, session) {
                 show_annotation_name = FALSE,
                 annotation_legend_param = list(
                   title = "AMR",
+                  labels = gsub("\\.", "-", names(amr_colors)),
                   labels_gp = labels_gp,
                   title_gp = title_gp,
                   grid_height = grid_height,
@@ -23496,7 +23595,7 @@ server <- function(input, output, session) {
             amr_profile_matrix <- amr_profile_matrix_unordered[, c(
               column_order_amr)]
             
-            if((all(amr_profile_matrix == 0)) | all(amr_profile_matrix == 1)) {
+            if((all(amr_profile_matrix == 0)) || all(amr_profile_matrix == 1)) {
               amr_cols <- gsplot_color_palette1
             } else {
               amr_cols <- c(gsplot_color_palette1, gsplot_color_palette2)
@@ -23542,7 +23641,7 @@ server <- function(input, output, session) {
         vir_annotation <- NULL
         vir_heatmap <- NULL
         if(!is.null(gs_plot_selected_vir)) {
-          if(all(is.na(hm_meta$vir)) | length(gs_plot_selected_vir) < 3) {
+          if(all(is.na(hm_meta$vir)) || length(gs_plot_selected_vir) < 3) {
             vir_annotation <- NULL
             vir_heatmap <- NULL
           } else {
@@ -23604,13 +23703,13 @@ server <- function(input, output, session) {
             vir_profile_matrix <- vir_profile_matrix_unordered[, c(
               column_order_vir)]
             
-            if((all(vir_profile_matrix == 0)) | all(vir_profile_matrix == 1)) {
+            if((all(vir_profile_matrix == 0)) || all(vir_profile_matrix == 1)) {
               vir_cols <- gsplot_color_palette1
             } else {
               vir_cols <- c(gsplot_color_palette1, gsplot_color_palette2)
             }
             
-            if(all(is.na(hm_meta$amr)) | length(gs_plot_selected_amr) < 3) {
+            if(all(is.na(hm_meta$amr)) || length(gs_plot_selected_amr) < 3) {
               left_annotation <- isolate_annotation
             }  else {
               left_annotation <- NULL
@@ -23657,20 +23756,20 @@ server <- function(input, output, session) {
         noclass_heatmap <- NULL
         noclass_profile_matrix <- NULL
         if(!is.null(gs_plot_selected_noclass)) {
-          if(any(is.na(hm_meta$vir) & is.na(hm_meta$amr))) {
-            unclass_genes <- rownames(hm_meta)[is.na(hm_meta$vir) & 
+          if(any(is.na(hm_meta$vir) && is.na(hm_meta$amr))) {
+            unclass_genes <- rownames(hm_meta)[is.na(hm_meta$vir) && 
                                                  is.na(hm_meta$amr)]
             noclass_profile_matrix <- heatmap_mat[,colnames(heatmap_mat) %in% 
                                                     unclass_genes]
             
-            if((all(is.na(hm_meta$amr)) | length(gs_plot_selected_amr) < 3) &
-               (all(is.na(hm_meta$vir)) | length(gs_plot_selected_vir) < 3)) {
+            if((all(is.na(hm_meta$amr)) || length(gs_plot_selected_amr) < 3) &&
+               (all(is.na(hm_meta$vir)) || length(gs_plot_selected_vir) < 3)) {
               left_annotation <- isolate_annotation
             } else {
               left_annotation <- NULL
             }
             
-            if((all(noclass_profile_matrix == 0)) |
+            if((all(noclass_profile_matrix == 0)) ||
                all(noclass_profile_matrix == 1)) {
               noclass_cols <- gsplot_color_palette1
             } else {
@@ -23734,30 +23833,30 @@ server <- function(input, output, session) {
         )
         
         # summarize heatmaps
-        if(is.null(amr_heatmap) & is.null(vir_heatmap) &
+        if(is.null(amr_heatmap) && is.null(vir_heatmap) &&
            is.null(noclass_heatmap)) {
           output$gs_plot <- NULL
         } else {
           
-          if(!is.null(amr_heatmap) & !is.null(vir_heatmap) &
+          if(!is.null(amr_heatmap) && !is.null(vir_heatmap) &&
              !is.null(noclass_heatmap)) {
             heatmaps <- amr_heatmap + vir_heatmap + noclass_heatmap
-          } else if(!is.null(amr_heatmap) & !is.null(vir_heatmap) &
+          } else if(!is.null(amr_heatmap) && !is.null(vir_heatmap) &&
                     is.null(noclass_heatmap)) {
             heatmaps <- amr_heatmap + vir_heatmap
-          } else if(!is.null(amr_heatmap) & is.null(vir_heatmap) &
+          } else if(!is.null(amr_heatmap) && is.null(vir_heatmap) &&
                     !is.null(noclass_heatmap)) {
             heatmaps <- amr_heatmap + noclass_heatmap
-          } else if(is.null(amr_heatmap) & !is.null(vir_heatmap) &
+          } else if(is.null(amr_heatmap) && !is.null(vir_heatmap) &&
                     !is.null(noclass_heatmap)) {
             heatmaps <- vir_heatmap + noclass_heatmap
-          } else if(is.null(amr_heatmap) & is.null(vir_heatmap) &
+          } else if(is.null(amr_heatmap) && is.null(vir_heatmap) &&
                     !is.null(noclass_heatmap)) {
             heatmaps <- noclass_heatmap
-          } else if(!is.null(amr_heatmap) & is.null(vir_heatmap) &
+          } else if(!is.null(amr_heatmap) && is.null(vir_heatmap) &&
                     is.null(noclass_heatmap)) {
             heatmaps <- amr_heatmap
-          } else if(is.null(amr_heatmap) & !is.null(vir_heatmap) &
+          } else if(is.null(amr_heatmap) && !is.null(vir_heatmap) &&
                     is.null(noclass_heatmap)) {
             heatmaps <- vir_heatmap
           }
@@ -23880,8 +23979,8 @@ server <- function(input, output, session) {
     req(Typing$multi_sel_table, input$multi_select_table)
     
     if(any(hot_to_r(input$multi_select_table)$Files %in% 
-           unlist(DB$data["Assembly ID"])) &
-       any(duplicated(hot_to_r(input$multi_select_table)$Files))){
+           unlist(DB$data["Assembly ID"])) &&
+       any(duplicated(hot_to_r(input$multi_select_table)$Files))) {
       HTML(
         paste(
           paste("<span style='color: orange; position:relative; top:2px'>",
@@ -23891,14 +23990,14 @@ server <- function(input, output, session) {
         )
       )
     } else if (any(hot_to_r(input$multi_select_table)$Files %in%
-                   unlist(DB$data["Assembly ID"])) &
+                   unlist(DB$data["Assembly ID"])) &&
                !any(duplicated(hot_to_r(input$multi_select_table)$Files))) {
       HTML(
         paste("<span style='color: #e0b300; position:relative; top:2px'>",
               "Some name(s) are already present in local database<br/>")
       )
     } else if (!any(hot_to_r(input$multi_select_table)$Files %in% 
-                    dupl_mult_id()) & 
+                    dupl_mult_id()) && 
                any(duplicated(hot_to_r(input$multi_select_table)$Files))) {
       HTML(
         paste("<span style='color: #ff7334; position:relative; top:2px'>",
@@ -23913,9 +24012,9 @@ server <- function(input, output, session) {
     multi_select_table <- hot_to_r(input$multi_select_table)
     
     if(any(multi_select_table$Files[which(
-      multi_select_table$Include == TRUE)] %in% dupl_mult_id()) | 
+      multi_select_table$Include == TRUE)] %in% dupl_mult_id()) || 
        any(duplicated(multi_select_table$Files[which(
-         multi_select_table$Include == TRUE)])) |
+         multi_select_table$Include == TRUE)])) ||
        any(grepl(" ", multi_select_table$Files[which(
          multi_select_table$Include == TRUE)]))) {
       
@@ -23925,7 +24024,7 @@ server <- function(input, output, session) {
         multi_select_table$Include == TRUE)])))  {
         
         if(any(multi_select_table$Files[which(
-          multi_select_table$Include == TRUE)] %in% dupl_mult_id()) | 
+          multi_select_table$Include == TRUE)] %in% dupl_mult_id()) || 
            any(duplicated(multi_select_table$Files[which(
              multi_select_table$Include == TRUE)]))) {
           HTML(paste(
@@ -24044,8 +24143,8 @@ server <- function(input, output, session) {
     
     # Format selection
     if(Typing$file_selection != "") {
-      if((!is.null(Typing$assembly_files_path) | 
-          !is.null(Typing$assembly_folder_path)) & 
+      if((!is.null(Typing$assembly_files_path) || 
+          !is.null(Typing$assembly_folder_path)) && 
          !is.null(Typing$file_selection)) {
         if(Typing$file_selection == "files") {
           Typing$files_filtered <- Typing$assembly_files_path$name[which(
@@ -24817,7 +24916,7 @@ server <- function(input, output, session) {
   
   observe({
     if(!is.null(Typing$multi_result_status)) {
-      if(Typing$multi_result_status == "start" |
+      if(Typing$multi_result_status == "start" ||
          Typing$multi_result_status == "finalized"){
         
         if(Typing$multi_help == TRUE) {
@@ -24877,7 +24976,7 @@ server <- function(input, output, session) {
     })
     
     # Render Pending UI
-    if(!grepl("Multi Typing", tail(readLogFile(), n = 1)) &
+    if(!grepl("Multi Typing", tail(readLogFile(), n = 1)) &&
        grepl("Start Multi Typing", head(readLogFile(), n = 1))) {
       
       Typing$multi_result_status <- "start"

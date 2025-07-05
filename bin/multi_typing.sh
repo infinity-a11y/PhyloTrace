@@ -86,7 +86,7 @@ for genome in "$selected_genomes"/*; do
 
   # Run parallelized BLAT
   if ! find "$alleles" -type f \( -name "*.fasta" -o -name "*.fa" -o -name \
-    "*.fna" \) | parallel pblat "$genome" {} "$result_folder/{/.}.psl" \
+    "*.fna" \) | parallel -j $(( $(nproc) - 1 )) pblat "$genome" {} "$result_folder/{/.}.psl" \
     > /dev/null 2>&1; then
     echo "$(date +"%Y-%m-%d %H:%M:%S") - Allele calling failed. Typing of \
       $genome_filename aborted." >> "$log_file"

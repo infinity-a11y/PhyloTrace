@@ -3,8 +3,6 @@ generate_rhandsontable <- function(
     entry_table_height, country_names, diff_allele, true_rows, 
     duplicated_names, duplicated_ids, err_thresh, pinned_entries_highlight) {
   
-  if(!is.null(compare_select)) test3 <<- compare_select
-  
   if (!is.null(compare_select) && length(compare_select) > 0 && 
       !is.null(data) && !is.null(cust_var) && !is.null(compare_select)) {
     
@@ -772,7 +770,65 @@ compute.distMatrix <- function(profile, hamming.method) {
   return(dist_mat)
 }
 
-#Function to check custom variable classes
+# Create Hamming distance matrix
+hamming_dist_matrix <- function(x) {
+  # Number of observations
+  n <- nrow(x)
+  
+  # Initialize distance matrix
+  dist_mat <- matrix(0, nrow = n, ncol = n)
+  
+  for (i in 1:(n-1)) {
+    for (j in (i+1):n) {
+      # Calculate Hamming distance
+      hamming_dist <- sum(x[i, ] != x[j, ]) / ncol(x)
+      dist_mat[i, j] <- dist_mat[j, i] <- hamming_dist
+    }
+  }
+  
+  # Convert to dist object
+  return(as.dist(dist_mat))
+}
+
+# Create Matthews correlation distance matrix
+mcc_dist_matrix <- function(x) {
+  # Number of observations
+  n <- nrow(x)
+  
+  # Initialize distance matrix
+  dist_mat <- matrix(0, nrow = n, ncol = n)
+  
+  for (i in 1:(n-1)) {
+    for (j in (i+1):n) {
+      # Get vectors for comparison
+      vec1 <- x[i, ]
+      vec2 <- x[j, ]
+      
+      # Calculate contingency table elements
+      tp <- sum(vec1 == 1 & vec2 == 1)  # true positives
+      tn <- sum(vec1 == 0 & vec2 == 0)  # true negatives
+      fp <- sum(vec1 == 0 & vec2 == 1)  # false positives
+      fn <- sum(vec1 == 1 & vec2 == 0)  # false negatives
+      
+      # Calculate MCC
+      denominator <- sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
+      
+      if (denominator == 0) {
+        mcc <- 0  # Handle division by zero
+      } else {
+        mcc <- (tp * tn - fp * fn) / denominator
+      }
+      
+      # Normalize for [0,1] range
+      dist_mat[i, j] <- dist_mat[j, i] <- (1 - mcc) / 2
+    }
+  }
+  
+  # Convert to dist object
+  return(as.dist(dist_mat))
+}
+
+# Function to check custom variable classes
 column_classes <- function(df) {
   sapply(df, function(x) {
     if (class(x) == "numeric") {
@@ -1708,45 +1764,53 @@ summarize.AMR <- function(database, scheme) {
   # collate amr data frames
   final_df_amr <- dplyr::bind_rows(amr_df, .id = "source")
   
-  amr_class_conc <- final_df_amr %>%
-    summarise(across(everything(), ~ {
-      unique_values <- unique(unlist(stringr::str_split(na.omit(.), ",")))
-      paste(unique_values, collapse = ",")
-    })) %>%
-    select(-1)
-  
-  amr_class_long <- amr_class_conc %>%
-    tidyr::pivot_longer(cols = everything(), 
-                 names_to = "Variable", 
-                 values_to = "Observation")
-  
-  amr_class_pre <- amr_class_long %>%
-    tidyr::separate_rows(Observation, sep = ",")
-  
-  amr_class <- as.data.frame(lapply(amr_class_pre, function(column) {
-    sapply(column, process_string)  
-  }))
+  if (ncol(final_df_amr) > 1) {
+    amr_class_conc <- final_df_amr %>%
+      summarise(across(everything(), ~ {
+        unique_values <- unique(unlist(stringr::str_split(na.omit(.), ",")))
+        paste(unique_values, collapse = ",")
+      })) %>%
+      select(-1)
+    
+    amr_class_long <- amr_class_conc %>%
+      tidyr::pivot_longer(cols = everything(), 
+                          names_to = "Variable", 
+                          values_to = "Observation")
+    
+    amr_class_pre <- amr_class_long %>%
+      tidyr::separate_rows(Observation, sep = ",")
+    
+    amr_class <- as.data.frame(lapply(amr_class_pre, function(column) {
+      sapply(column, process_string)  
+    }))
+    
+    amr_class <- as.data.frame(lapply(amr_class_pre, function(column) {
+      sapply(column, process_string)}))
+  } else {
+    amr_class <- data.frame()
+  }
   
   # collate virulence data frames
   final_df_vir <- dplyr::bind_rows(vir_df, .id = "source")
   
-  vir_class_conc <- final_df_vir %>%
-    summarise(across(everything(), ~ {
-      unique_values <- unique(unlist(stringr::str_split(na.omit(.), ",")))
-      paste(unique_values, collapse = ",")
-    })) %>%
-    select(-1)
-  
-  vir_class_long <- vir_class_conc %>%
-    tidyr::pivot_longer(cols = everything(), 
-                 names_to = "Variable", 
-                 values_to = "Observation")
-  
-  vir_class <- vir_class_long %>%
-    tidyr::separate_rows(Observation, sep = ",")
-  
-  amr_class <- as.data.frame(lapply(amr_class_pre, function(column) {
-    sapply(column, process_string)}))
+  if (ncol(final_df_vir) > 1) {
+    vir_class_conc <- final_df_vir %>%
+      summarise(across(everything(), ~ {
+        unique_values <- unique(unlist(stringr::str_split(na.omit(.), ",")))
+        paste(unique_values, collapse = ",")
+      })) %>%
+      select(-1)
+    
+    vir_class_long <- vir_class_conc %>%
+      tidyr::pivot_longer(cols = everything(), 
+                          names_to = "Variable", 
+                          values_to = "Observation")
+    
+    vir_class <- vir_class_long %>%
+      tidyr::separate_rows(Observation, sep = ",")
+  } else {
+    vir_class <- data.frame()
+  }
     
   # collate results
   df <- matrix(FALSE, nrow = length(isolates), ncol = length(loci))
@@ -1796,6 +1860,7 @@ get_annotation_params <- function(category_index, num_categories,
 
 # function to get gene screening classification meta
 get.gsMeta <- function(gene_class, hm_matrix) {
+  
   class_filtered <- gene_class[!duplicated(gsub("\\*", "", 
                                                 gene_class$Observation)),]
   clean_gene_name <- gsub("\\*", "", class_filtered$Observation)
@@ -1821,7 +1886,7 @@ get.gsMeta <- function(gene_class, hm_matrix) {
       tibble::column_to_rownames(var = "gene")
   }
 
-  meta
+  return(meta)
 }
 
 color_scale_bg_JS <- "var selectedOption = $('#col_scale_id').val();

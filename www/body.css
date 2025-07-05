@@ -2,8 +2,12 @@
   
 /* General */
   
-h1, h2, h3, h4, h5, p, body {
-  font-family: 'Liberation Sans', sans-serif;
+*:not(code):not(pre) {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+
+body, label, input, button, select, box, .h1, .h2, .h3, .h4, .h5, h1, h2, h3, h4, h5 {
+ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important; 
 }
 
 label {
@@ -3243,6 +3247,12 @@ button#nj_nodepoint_menu {
 .nj-layout-select {
   margin-top: -19px;
   margin-bottom: 20px;
+  right: 2px;
+  position: relative;
+}
+
+.nj-root-select {
+  margin-top: -19px;
   right: 2px;
   position: relative;
 }
