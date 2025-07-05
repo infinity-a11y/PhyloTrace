@@ -3,8 +3,6 @@ generate_rhandsontable <- function(
     entry_table_height, country_names, diff_allele, true_rows, 
     duplicated_names, duplicated_ids, err_thresh, pinned_entries_highlight) {
   
-  if(!is.null(compare_select)) test3 <<- compare_select
-  
   if (!is.null(compare_select) && length(compare_select) > 0 && 
       !is.null(data) && !is.null(cust_var) && !is.null(compare_select)) {
     
