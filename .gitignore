@@ -1,2 +1,15 @@
+# Ignore Rhistory
 .Rhistory
+
+# Ignore app launcher containing absolute system paths
 run_phylotrace.sh
+
+# Ignore R version manager renv
+/renv
+renv.lock
+
+# Ignore Rprofile
+.Rprofile
+
+# Ignore R environment information csv
+r_packages.csv

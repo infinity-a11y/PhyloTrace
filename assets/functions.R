@@ -1,207 +1,263 @@
 generate_rhandsontable <- function(
-    data, cust_var, compare_select, allelic_profile, allelic_profile_trunc, 
-    entry_table_height, country_names, diff_allele, true_rows, 
-    duplicated_names, duplicated_ids, err_thresh, pinned_entries_highlight) {
-  
-  if (!is.null(compare_select) && length(compare_select) > 0 && 
-      !is.null(data) && !is.null(cust_var) && !is.null(compare_select)) {
-    
+  data,
+  cust_var,
+  compare_select,
+  allelic_profile,
+  allelic_profile_trunc,
+  entry_table_height,
+  country_names,
+  diff_allele,
+  true_rows,
+  duplicated_names,
+  duplicated_ids,
+  err_thresh,
+  pinned_entries_highlight
+) {
+  if (
+    !is.null(compare_select) &&
+      length(compare_select) > 0 &&
+      !is.null(data) &&
+      !is.null(cust_var) &&
+      !is.null(compare_select)
+  ) {
     if (!any((compare_select %in% colnames(allelic_profile)) == FALSE)) {
       entry_data <- data %>%
         select(all_of(1:(14 + nrow(cust_var)))) %>%
         add_column(select(allelic_profile_trunc, any_of(compare_select)))
-      
-      col_range <- (15 + nrow(cust_var)):((14 + nrow(cust_var)) + length(
-        compare_select))
+
+      col_range <- (15 + nrow(cust_var)):((14 + nrow(cust_var)) +
+        length(
+          compare_select
+        ))
     } else {
       entry_data <- select(data, 1:(14 + nrow(cust_var)))
       col_range <- NULL
     }
-    
   } else {
     if (!is.null(data) && !is.null(cust_var)) {
       entry_data <- select(data, 1:(14 + nrow(cust_var)))
       col_range <- NULL
     }
   }
-  
+
   if (!is.null(diff_allele)) {
     col_highlight <- diff_allele - 1
   } else {
     col_highlight <- NULL
   }
-  
+
   if (!is.null(entry_table_height)) {
     height <- entry_table_height
   } else {
     height <- NULL
   }
-  
+
   if (!is.null(true_rows)) {
     row_highlight <- true_rows - 1
   } else {
     row_highlight <- NULL
   }
-  
+
   if (!is.null(duplicated_names)) {
     dup_names_high <- duplicated_names - 1
   } else {
     dup_names_high <- NULL
   }
-  
+
   if (!is.null(duplicated_ids)) {
     dup_ids_high <- duplicated_ids - 1
   } else {
     dup_ids_high <- NULL
   }
-  
+
   if (!is.null(err_thresh)) {
     error_highlight <- err_thresh - 1
   } else {
     error_highlight <- NULL
   }
-  
+
   if (!is.null(pinned_entries_highlight)) {
     pinned_highlight <- pinned_entries_highlight - 1
   } else {
     pinned_highlight <- NULL
   }
-  
+
   args <- list(
-    entry_data, col_highlight = col_highlight, rowHeaders = NULL, 
-    height = height, row_highlight = row_highlight, 
-    dup_names_high = dup_names_high, dup_ids_high = dup_ids_high,
-    error_highlight = error_highlight, pinned_highlight = pinned_highlight,
-    contextMenu = FALSE, highlightCol = TRUE, highlightRow = TRUE)
-  
+    entry_data,
+    col_highlight = col_highlight,
+    rowHeaders = NULL,
+    height = height,
+    row_highlight = row_highlight,
+    dup_names_high = dup_names_high,
+    dup_ids_high = dup_ids_high,
+    error_highlight = error_highlight,
+    pinned_highlight = pinned_highlight,
+    contextMenu = FALSE,
+    highlightCol = TRUE,
+    highlightRow = TRUE
+  )
+
   tab <- do.call(rhandsontable, args) %>%
     hot_cols(fixedColumnsLeft = 1) %>%
     hot_col(1, valign = "htMiddle", halign = "htCenter") %>%
     hot_col(c(1, 3, 5, 6, 11, 12, 13, 14), readOnly = TRUE) %>%
-    hot_col(3, validator = paste0(
-      "function(value, callback) {",
-      "try {",
-      "if (value === null || value.trim() === '') {",
-      "callback(false);",
-      "Shiny.setInputValue('empty_id', true);",
-      "} else {",
-      "callback(true);",
-      "Shiny.setInputValue('empty_id', false);",
-      "}} catch (err) {",
-      "console.log(err);",
-      "callback(false);",
-      "Shiny.setInputValue('empty_id', true);",
-      "}}"
-    )) %>%
-    hot_col(4, validator = paste0(
-      "function(value, callback) {",
-      "try {",
-      "if (value === null || value.trim() === '') {",
-      "callback(false);",
-      "Shiny.setInputValue('empty_name', true);",
-      "} else {",
-      "callback(true);",
-      "Shiny.setInputValue('empty_name', false);",
-      "}} catch (err) {",
-      "console.log(err);",
-      "callback(false);",
-      "Shiny.setInputValue('empty_name', true);",
-      "}}"
-    )) %>%
+    hot_col(
+      3,
+      validator = paste0(
+        "function(value, callback) {",
+        "try {",
+        "if (value === null || value.trim() === '') {",
+        "callback(false);",
+        "Shiny.setInputValue('empty_id', true);",
+        "} else {",
+        "callback(true);",
+        "Shiny.setInputValue('empty_id', false);",
+        "}} catch (err) {",
+        "console.log(err);",
+        "callback(false);",
+        "Shiny.setInputValue('empty_id', true);",
+        "}}"
+      )
+    ) %>%
+    hot_col(
+      4,
+      validator = paste0(
+        "function(value, callback) {",
+        "try {",
+        "if (value === null || value.trim() === '') {",
+        "callback(false);",
+        "Shiny.setInputValue('empty_name', true);",
+        "} else {",
+        "callback(true);",
+        "Shiny.setInputValue('empty_name', false);",
+        "}} catch (err) {",
+        "console.log(err);",
+        "callback(false);",
+        "Shiny.setInputValue('empty_name', true);",
+        "}}"
+      )
+    ) %>%
     hot_col(9, type = "dropdown", source = country_names) %>%
-    hot_col(7, dateFormat = "YYYY-MM-DD", type = "date", 
-            strict = TRUE, allowInvalid = TRUE,
-            validator = paste0(
-              "function (value, callback) {",
-              "var today_date = new Date(); today_date.setHours(0, 0, 0, 0);",
-              "var new_date = new Date(value); new_date.setHours(0, 0, 0, 0);",
-              "try {",
-              "if (new_date <= today_date) {",
-              "callback(true); Shiny.setInputValue('invalid_date', false);",
-              "} else {",
-              "callback(false); Shiny.setInputValue('invalid_date', true);",
-              "}} catch (err) {",
-              "console.log(err);",
-              "callback(false); Shiny.setInputValue('invalid_date', true);",
-              "}}"
-            ))
-  
-  if (!is.null(cust_var)) {
-    tab <- tab %>% hot_col(3:(14 + nrow(cust_var)), 
-                           valign = "htMiddle", halign = "htLeft")
-  }
-  
-  tab <- tab %>%
-    hot_rows(fixedRowsTop = 0) %>%
-    hot_col(2, type = "checkbox", width = "auto", 
-            valign = "htTop", halign = "htCenter") %>%
-    hot_col(1, renderer = paste0(
-      "function (instance, td, row, col, prop, value, cellProperties) {",
-      "Handsontable.renderers.TextRenderer.apply(this, arguments);",
-      "if (instance.params) {",
-      "var pinnedRows = instance.params.pinned_highlight;",
-      "var highlightedRows = instance.params.row_highlight;",
-      "pinnedRows = pinnedRows instanceof Array ? pinnedRows : [pinnedRows];",
-      "highlightedRows = highlightedRows instanceof Array ? highlightedRows : [highlightedRows];",
-      "if (pinnedRows.includes(row)) {", 
-      "td.style.backgroundColor = 'orange'; td.style.color = 'white'; }",
-      "else if (highlightedRows.includes(row)) {", 
-      "td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)'; }",
-      "}}"
-    )) %>%
-    hot_col(13, renderer = paste0(
-      "function (instance, td, row, col, prop, value, cellProperties) {",
-      "Handsontable.renderers.TextRenderer.apply(this, arguments);",
-      "if (instance.params) {",
-      "hrows = instance.params.error_highlight;",
-      "hrows = hrows instanceof Array ? hrows : [hrows];",
-      "if (hrows.includes(row)) { ", 
-      "td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)'; }",
-      "}}"
-    )) %>%
-    hot_col(4, renderer = paste0(
-      "function (instance, td, row, col, prop, value, cellProperties) {",
-      "Handsontable.renderers.TextRenderer.apply(this, arguments);",
-      "if (instance.params) {",
-      "hrows = instance.params.dup_names_high;",
-      "hrows = hrows instanceof Array ? hrows : [hrows];",
-      "if (hrows.includes(row)) {", 
-      "td.style.backgroundColor = 'rgb(224, 179, 0)'; }",
-      "}}"
-    )) %>%
-    hot_col(3, renderer = paste0(
-      "function (instance, td, row, col, prop, value, cellProperties) {",
-      "Handsontable.renderers.TextRenderer.apply(this, arguments);",
-      "if (instance.params) {",
-      "hrows = instance.params.dup_ids_high;",
-      "hrows = hrows instanceof Array ? hrows : [hrows];",
-      "if (hrows.includes(row)) {", 
-      "td.style.backgroundColor = 'rgb(224, 179, 0)'; }",
-      "}}"
-    ))
-  
-  if (!is.null(diff_allele)) {
-    tab <- tab %>% hot_col(
-      diff_allele,
-      renderer = paste0(
-        "function(instance, td, row, col, prop, value, cellProperties) {",
-        "Handsontable.renderers.NumericRenderer.apply(this, arguments);",
-        "if (instance.params) {",
-        "hcols = instance.params.col_highlight;",
-        "hcols = hcols instanceof Array ? hcols : [hcols];",
-        "if (hcols.includes(col)) {", 
-        "td.style.background = 'rgb(116, 188, 139)'; }",
+    hot_col(
+      7,
+      dateFormat = "YYYY-MM-DD",
+      type = "date",
+      strict = TRUE,
+      allowInvalid = TRUE,
+      validator = paste0(
+        "function (value, callback) {",
+        "var today_date = new Date(); today_date.setHours(0, 0, 0, 0);",
+        "var new_date = new Date(value); new_date.setHours(0, 0, 0, 0);",
+        "try {",
+        "if (new_date <= today_date) {",
+        "callback(true); Shiny.setInputValue('invalid_date', false);",
+        "} else {",
+        "callback(false); Shiny.setInputValue('invalid_date', true);",
+        "}} catch (err) {",
+        "console.log(err);",
+        "callback(false); Shiny.setInputValue('invalid_date', true);",
         "}}"
       )
     )
+
+  if (!is.null(cust_var)) {
+    tab <- tab %>%
+      hot_col(3:(14 + nrow(cust_var)), valign = "htMiddle", halign = "htLeft")
   }
-  
+
+  tab <- tab %>%
+    hot_rows(fixedRowsTop = 0) %>%
+    hot_col(
+      2,
+      type = "checkbox",
+      width = "auto",
+      valign = "htTop",
+      halign = "htCenter"
+    ) %>%
+    hot_col(
+      1,
+      renderer = paste0(
+        "function (instance, td, row, col, prop, value, cellProperties) {",
+        "Handsontable.renderers.TextRenderer.apply(this, arguments);",
+        "if (instance.params) {",
+        "var pinnedRows = instance.params.pinned_highlight;",
+        "var highlightedRows = instance.params.row_highlight;",
+        "pinnedRows = pinnedRows instanceof Array ? pinnedRows : [pinnedRows];",
+        "highlightedRows = highlightedRows instanceof Array ? highlightedRows : [highlightedRows];",
+        "if (pinnedRows.includes(row)) {",
+        "td.style.backgroundColor = 'orange'; td.style.color = 'white'; }",
+        "else if (highlightedRows.includes(row)) {",
+        "td.style.backgroundColor = 'rgba(44, 222, 235, 0.6)'; }",
+        "}}"
+      )
+    ) %>%
+    hot_col(
+      13,
+      renderer = paste0(
+        "function (instance, td, row, col, prop, value, cellProperties) {",
+        "Handsontable.renderers.TextRenderer.apply(this, arguments);",
+        "if (instance.params) {",
+        "hrows = instance.params.error_highlight;",
+        "hrows = hrows instanceof Array ? hrows : [hrows];",
+        "if (hrows.includes(row)) { ",
+        "td.style.backgroundColor = 'rgba(255, 80, 1, 0.8)'; }",
+        "}}"
+      )
+    ) %>%
+    hot_col(
+      4,
+      renderer = paste0(
+        "function (instance, td, row, col, prop, value, cellProperties) {",
+        "Handsontable.renderers.TextRenderer.apply(this, arguments);",
+        "if (instance.params) {",
+        "hrows = instance.params.dup_names_high;",
+        "hrows = hrows instanceof Array ? hrows : [hrows];",
+        "if (hrows.includes(row)) {",
+        "td.style.backgroundColor = 'rgb(224, 179, 0)'; }",
+        "}}"
+      )
+    ) %>%
+    hot_col(
+      3,
+      renderer = paste0(
+        "function (instance, td, row, col, prop, value, cellProperties) {",
+        "Handsontable.renderers.TextRenderer.apply(this, arguments);",
+        "if (instance.params) {",
+        "hrows = instance.params.dup_ids_high;",
+        "hrows = hrows instanceof Array ? hrows : [hrows];",
+        "if (hrows.includes(row)) {",
+        "td.style.backgroundColor = 'rgb(224, 179, 0)'; }",
+        "}}"
+      )
+    )
+
+  if (!is.null(diff_allele)) {
+    tab <- tab %>%
+      hot_col(
+        diff_allele,
+        renderer = paste0(
+          "function(instance, td, row, col, prop, value, cellProperties) {",
+          "Handsontable.renderers.NumericRenderer.apply(this, arguments);",
+          "if (instance.params) {",
+          "hcols = instance.params.col_highlight;",
+          "hcols = hcols instanceof Array ? hcols : [hcols];",
+          "if (hcols.includes(col)) {",
+          "td.style.background = 'rgb(116, 188, 139)'; }",
+          "}}"
+        )
+      )
+  }
+
   if (!is.null(col_range)) {
     tab <- tab %>%
-      hot_col(col_range, readOnly = TRUE, 
-              valign = "htMiddle", halign = "htCenter")
+      hot_col(
+        col_range,
+        readOnly = TRUE,
+        valign = "htMiddle",
+        halign = "htCenter"
+      )
   }
-  
+
   return(tab)
 }
 
@@ -209,84 +265,104 @@ generate_rhandsontable <- function(
 merge_and_fix_types <- function(df1, df2) {
   # Identify common columns
   common_cols <- intersect(names(df1), names(df2))
-  
+
   # Convert all logical columns in df2 to character
   df2[] <- lapply(df2, function(col) {
     if (is.logical(col)) {
-      return(as.character(col))  # Convert logical to character
+      return(as.character(col)) # Convert logical to character
     }
     return(col)
   })
-  
+
   # List to store column names that need renaming
   cols_to_rename <- list()
-  
+
   # Check for type mismatches in common columns
   for (col in common_cols) {
     class1 <- class(df1[[col]])
     class2 <- class(df2[[col]])
-    
+
     if (!identical(class1, class2)) {
       # Attempt to convert df2's column to df1's type
-      converted <- tryCatch({
-        if (is.numeric(df1[[col]])) {
-          suppressWarnings(as.numeric(df2[[col]]))  # Avoid warnings
-        } else if (is.character(df1[[col]])) {
-          as.character(df2[[col]])
-        } else {
-          stop("Unsupported type")
-        }
-      }, warning = function(w) NULL, error = function(e) NULL)
-      
+      converted <- tryCatch(
+        {
+          if (is.numeric(df1[[col]])) {
+            suppressWarnings(as.numeric(df2[[col]])) # Avoid warnings
+          } else if (is.character(df1[[col]])) {
+            as.character(df2[[col]])
+          } else {
+            stop("Unsupported type")
+          }
+        },
+        warning = function(w) NULL,
+        error = function(e) NULL
+      )
+
       # If conversion fails or logical/numeric mismatch, move to new column
-      if (is.null(converted) || any(is.na(converted) & !is.na(df2[[col]])) || 
-          (is.logical(df1[[col]]) && is.numeric(df2[[col]])) || 
-          (is.numeric(df1[[col]]) && is.logical(df2[[col]]))) {
+      if (
+        is.null(converted) ||
+          any(is.na(converted) & !is.na(df2[[col]])) ||
+          (is.logical(df1[[col]]) && is.numeric(df2[[col]])) ||
+          (is.numeric(df1[[col]]) && is.logical(df2[[col]]))
+      ) {
         cols_to_rename[[col]] <- paste0(col, "_ext")
       } else {
-        df2[[col]] <- converted  # Apply successful conversion
+        df2[[col]] <- converted # Apply successful conversion
       }
     }
   }
-  
+
   # Rename columns in df2 that couldn't be converted
   for (col in names(cols_to_rename)) {
     new_col_name <- cols_to_rename[[col]]
     names(df2)[names(df2) == col] <- new_col_name
-    message(paste("Column", col, 
-                  "in df2 couldn't be converted and is renamed to", 
-                  new_col_name))
+    message(paste(
+      "Column",
+      col,
+      "in df2 couldn't be converted and is renamed to",
+      new_col_name
+    ))
   }
-  
+
   # Get all unique column names after renaming
   all_columns <- union(names(df1), names(df2))
-  
-  # Ensure both data frames have all necessary columns 
+
+  # Ensure both data frames have all necessary columns
   for (col in all_columns) {
-    if (!col %in% names(df1)) df1[[col]] <- NA  # Add missing column to df1
-    if (!col %in% names(df2)) df2[[col]] <- NA  # Add missing column to df2
+    if (!col %in% names(df1)) {
+      df1[[col]] <- NA
+    } # Add missing column to df1
+    if (!col %in% names(df2)) df2[[col]] <- NA # Add missing column to df2
   }
-  
+
   # Keep df1’s column order and append any new columns from df2
   ordered_cols <- c(names(df1), setdiff(names(df2), names(df1)))
   df1 <- df1[, ordered_cols, drop = FALSE]
   df2 <- df2[, ordered_cols, drop = FALSE]
-  
+
   # Append rows from df2 below df1
   merged_df <- rbind(df1, df2)
-  
+
   merged_df[] <- lapply(merged_df, function(col) {
-    if (is.character(col)) col[is.na(col)] <- ""
-    if (is.numeric(col)) col[is.na(col)] <- 0
+    if (is.character(col)) {
+      col[is.na(col)] <- ""
+    }
+    if (is.numeric(col)) {
+      col[is.na(col)] <- 0
+    }
     return(col)
   })
-  
+
   return(merged_df)
 }
 
 help_func <- function(x) {
-  if (is.character(x) && is.na(x)) x <- ""
-  if (is.numeric(x) && is.na(x)) x <- 0
+  if (is.character(x) && is.na(x)) {
+    x <- ""
+  }
+  if (is.numeric(x) && is.na(x)) {
+    x <- 0
+  }
   return(x)
 }
 
@@ -295,40 +371,51 @@ is_not <- function(x) {
   is.null(x) || identical(x, FALSE)
 }
 
-shinyDirChoose_mod <- function (
-    input, id, updateFreq = 0, session = getSession(), 
-    defaultPath = "", defaultRoot = NULL, allowDirCreate = TRUE, ...) {
-  
+shinyDirChoose_mod <- function(
+  input,
+  id,
+  updateFreq = 0,
+  session = getSession(),
+  defaultPath = "",
+  defaultRoot = NULL,
+  allowDirCreate = TRUE,
+  ...
+) {
   # Access internal functions from shinyFiles
   dirGet <- shinyFiles:::dirGetter(...)
   fileGet <- shinyFiles:::fileGetter(...)
   dirCreate <- shinyFiles:::dirCreator(...)
-  
+
   currentDir <- list()
   currentFiles <- NULL
   lastDirCreate <- NULL
   clientId <- session$ns(id)
-  
+
   sendDirectoryData <- function(message) {
     req(input[[id]])
     tree <- input[[paste0(id, "-modal")]]
     createDir <- input[[paste0(id, "-newDir")]]
-    
+
     if (!identical(createDir, lastDirCreate)) {
       if (allowDirCreate) {
         dirCreate(createDir$name, createDir$path, createDir$root)
         lastDirCreate <<- createDir
       } else {
         shiny::showNotification(
-          shiny::p("Creating directories has been disabled."), type = "error")
+          shiny::p("Creating directories has been disabled."),
+          type = "error"
+        )
         lastDirCreate <<- createDir
       }
     }
-    
+
     exist <- TRUE
-    if (is_not(tree)) {  # REPLACED .is_not(tree) with is_not(tree)
-      dir <- list(tree = list(name = defaultPath, expanded = TRUE), 
-                  root = defaultRoot)
+    if (is_not(tree)) {
+      # REPLACED .is_not(tree) with is_not(tree)
+      dir <- list(
+        tree = list(name = defaultPath, expanded = TRUE),
+        root = defaultRoot
+      )
       files <- list(dir = NA, root = tree$selectedRoot)
     } else {
       dir <- list(tree = tree$tree, root = tree$selectedRoot)
@@ -336,9 +423,9 @@ shinyDirChoose_mod <- function (
       passedPath <- list(list(...)$roots[tree$selectedRoot])
       exist <- dir.exists(do.call(path, c(passedPath, files$dir[-1])))
     }
-    
+
     newDir <- do.call(dirGet, dir)
-    
+
     if (is_not(files$dir)) {
       newDir$content <- NA
       newDir$contentPath <- NA
@@ -346,27 +433,28 @@ shinyDirChoose_mod <- function (
     } else {
       newDir$contentPath <- as.list(files$dir)
       files$dir <- paste0(files$dir, collapse = "/")
-      
+
       # content <- do.call(fileGet, files)
       # newDir$content <- content$files
-      newDir$content <- NULL  # Skip loading files
-      
+      newDir$content <- NULL # Skip loading files
+
       # newDir$writable <- content$writable
     }
-    
+
     newDir$exist <- exist
     newDir$root <- files$root
     currentDir <<- newDir
     session$sendCustomMessage(message, list(id = clientId, dir = newDir))
-    
-    if (updateFreq > 0) 
+
+    if (updateFreq > 0) {
       invalidateLater(updateFreq, session)
+    }
   }
-  
+
   observe({
     sendDirectoryData("shinyDirectories")
   })
-  
+
   observeEvent(input[[paste0(id, "-refresh")]], {
     if (!is.null(input[[paste0(id, "-refresh")]])) {
       sendDirectoryData("shinyDirectories-refresh")
@@ -378,48 +466,62 @@ shinyDirChoose_mod <- function (
 hash_allele_profile <- function(allele_profile, hashed_loci_folder) {
   # List all hashed loci files
   all_loci_files <- list.files(hashed_loci_folder, full.names = TRUE)
-  
+
   hashed_data <- list()
-  
+
   for (file_path in all_loci_files) {
     # Extract locus name
     locus_name <- sub("\\.(fasta|fa|fna)$", "", basename(file_path))
     # Store file content
-    hashed_data[[locus_name]] <- readLines(file_path)  
+    hashed_data[[locus_name]] <- readLines(file_path)
   }
-  
+
   # Convert allele_profile to data.table
   allele_profile_hashed <- as.data.table(allele_profile)
-  
+
   # Process each column (locus)
   for (locus_name in colnames(allele_profile_hashed)) {
-    if (!locus_name %in% names(hashed_data)) next  # Skip if locus not found
-    
+    if (!locus_name %in% names(hashed_data)) {
+      next
+    } # Skip if locus not found
+
     variants <- hashed_data[[locus_name]]
-    hashed_index <- gsub(">", "", variants[seq(1, length(variants) - 1, 
-                                               by = 3)])  # Extract hashes
-    
+    hashed_index <- gsub(
+      ">",
+      "",
+      variants[seq(1, length(variants) - 1, by = 3)]
+    ) # Extract hashes
+
     allele_profile_hashed[[locus_name]] <- sapply(
-      allele_profile_hashed[[locus_name]], function(varnum) {
-      if (is.na(varnum) || varnum > length(hashed_index)) return(NA) 
-      hashed_index[varnum]
-    })
+      allele_profile_hashed[[locus_name]],
+      function(varnum) {
+        if (is.na(varnum) || varnum > length(hashed_index)) {
+          return(NA)
+        }
+        hashed_index[varnum]
+      }
+    )
   }
-  
-  return(as.data.frame(allele_profile_hashed))  
+
+  return(as.data.frame(allele_profile_hashed))
 }
 
 
-# Truncate strings longer than 37 characters 
+# Truncate strings longer than 37 characters
 truncate_start <- function(text, max_length = 37, keep_start = 10) {
-  if (nchar(text) <= max_length) return(text)
-  
+  if (nchar(text) <= max_length) {
+    return(text)
+  }
+
   # Calculate how many characters to keep at the end
   keep_end <- max_length - keep_start - 3
-  
+
   # Construct truncated text
-  paste0(substr(text, 1, keep_start), 
-         "...", substr(text, nchar(text) - keep_end + 1, nchar(text)))
+  paste0(
+    substr(text, 1, keep_start),
+    "...",
+    substr(text, nchar(text) - keep_end + 1, nchar(text))
+  )
 }
 
 # Truncate strings longer than 22 characters at end
@@ -432,14 +534,16 @@ truncate_if_long <- function(x, max_length = 22) {
 
 # check allelic profile import index type
 is_integer_vector <- function(vec) {
-  if (!is.vector(vec)) return(FALSE)  # Ensure input is a vector
-  
+  if (!is.vector(vec)) {
+    return(FALSE)
+  } # Ensure input is a vector
+
   # Try converting to numeric
   numeric_version <- suppressWarnings(as.numeric(vec))
-  
+
   # Ignore NA values and check if the remaining values are whole numbers
   valid_values <- numeric_version[!is.na(numeric_version)]
-  
+
   # Check if all non-NA values are whole numbers (integers)
   return(all(valid_values == floor(valid_values)))
 }
@@ -447,27 +551,35 @@ is_integer_vector <- function(vec) {
 # detect import file delimiter type
 detect_delimiter <- function(file_path) {
   first_lines <- readLines(file_path, n = 5)
-  
+
   # Define possible delimiters
-  delimiters <- c("," = ",", ";" = ";", "\t" = "tab", "|" = "pipe", 
-                  ":" = "colon")
-  
+  delimiters <- c(
+    "," = ",",
+    ";" = ";",
+    "\t" = "tab",
+    "|" = "pipe",
+    ":" = "colon"
+  )
+
   # Count occurrences of each delimiter
   counts <- sapply(names(delimiters), function(d) sum(grepl(d, first_lines)))
-  
+
   # Pick the most frequent delimiter
   best_delimiter <- names(which.max(counts))
-  
+
   # Return the best match
   return(best_delimiter)
 }
 
 # Helper function for determining scale choices
-determine_scale_choices <- function(meta_nj, variable_val, 
-                              gradient_scales, 
-                              diverging_scales, 
-                              qualitative_scales, 
-                              sequential_scales) {
+determine_scale_choices <- function(
+  meta_nj,
+  variable_val,
+  gradient_scales,
+  diverging_scales,
+  qualitative_scales,
+  sequential_scales
+) {
   if (!is.null(meta_nj)) {
     variable_data <- unlist(meta_nj[variable_val])
     if (class(variable_data) == "numeric") {
@@ -483,8 +595,13 @@ determine_scale_choices <- function(meta_nj, variable_val,
 }
 
 # Helper function for determining the scale value
-determine_scale <- function(variable_val, meta_nj, numeric_scale = "viridis", 
-                            long_scale = "turbo", short_scale = "Accent") {
+determine_scale <- function(
+  variable_val,
+  meta_nj,
+  numeric_scale = "viridis",
+  long_scale = "turbo",
+  short_scale = "Accent"
+) {
   if (!is.null(variable_val) && !is.null(meta_nj)) {
     if (class(unlist(meta_nj[variable_val])) == "numeric") {
       numeric_scale
@@ -500,40 +617,67 @@ determine_scale <- function(variable_val, meta_nj, numeric_scale = "viridis",
 
 # Render reactive plot control input
 render_plot_control <- function(
-    input_id, input_type, label = "", choices = NA, reactive_value, min = 0, 
-    max = 100, default_value, reset = FALSE, width = "100%", 
-    show_condition = TRUE, div_class = "", right = TRUE, ticks = FALSE, 
-    step = 1, options = NA, multiple = FALSE) {
-  
+  input_id,
+  input_type,
+  label = "",
+  choices = NA,
+  reactive_value,
+  min = 0,
+  max = 100,
+  default_value,
+  reset = FALSE,
+  width = "100%",
+  show_condition = TRUE,
+  div_class = "",
+  right = TRUE,
+  ticks = FALSE,
+  step = 1,
+  options = NA,
+  multiple = FALSE
+) {
   # Determine the selected value based on reset condition
   if (is.null(reactive_value)) {
     sel <- NULL
   } else {
-    if(isTRUE(reset)) {
+    if (isTRUE(reset)) {
       sel <- default_value
     } else {
       sel <- reactive_value
     }
   }
-  
+
   # Prepare the initial arguments list
   args <- list(
-    inputId = input_id, label = label, choices = choices, selected = sel,
-    width = width, right = right, value = sel, min = min, max = max, 
-    step = step, ticks = ticks, options = options, multiple = multiple)
-  
+    inputId = input_id,
+    label = label,
+    choices = choices,
+    selected = sel,
+    width = width,
+    right = right,
+    value = sel,
+    min = min,
+    max = max,
+    step = step,
+    ticks = ticks,
+    options = options,
+    multiple = multiple
+  )
+
   # Get the formal arguments of the specified input_type function
   formal_args <- names(formals(input_type))
-  
+
   # Filter the args list to include only those valid for the input_type function
   filtered_args <- args[names(args) %in% formal_args]
-  
+
   # Use do.call to dynamically call the input_type function with filtered arguments
   output <- do.call(input_type, filtered_args)
-  
+
   # Wrap the output in a div or shinyjs::disabled conditionally
   if (length(div_class) > 0) {
-    div(class = div_class, if (show_condition) output else shinyjs::disabled(output))
+    div(
+      class = div_class,
+      if (show_condition) output else shinyjs::disabled(output)
+    )
   } else {
     if (show_condition) output else shinyjs::disabled(output)
   }
@@ -541,22 +685,22 @@ render_plot_control <- function(
 
 # function to fetch latest urls
 get_latest_url <- function(abb) {
-  
   response <- httr::GET("https://www.cgmlst.org/ncs/schema/")
-  
+
   if (response$status_code == 200) {
-    
-    page_content <- read_html(httr::content(response, as = "text", 
-                                            encoding = "utf-8"), "utf-8")
-    
+    page_content <- read_html(
+      httr::content(response, as = "text", encoding = "utf-8"),
+      "utf-8"
+    )
+
     links <- page_content %>%
-      html_nodes("a") %>% 
+      html_nodes("a") %>%
       html_attr("href")
-    
+
     pattern <- paste(abb, collapse = "|")
-    
+
     filtered_urls <- links[grep(pattern, links)]
-    
+
     # Neuesten Link basierend auf der Suffix-Zahl finden
     if (length(filtered_urls) > 0) {
       return(filtered_urls)
@@ -577,11 +721,13 @@ resetVars <- function(varList) {
 
 # Function to read and format FASTA sequences
 format_fasta <- function(filepath) {
-  if(!file.exists(filepath)) return()
+  if (!file.exists(filepath)) {
+    return()
+  }
   fasta <- readLines(filepath)
   formatted_fasta <- list()
   current_sequence <- ""
-  
+
   for (line in fasta) {
     if (startsWith(line, ">")) {
       if (current_sequence != "") {
@@ -596,7 +742,7 @@ format_fasta <- function(filepath) {
   if (current_sequence != "") {
     formatted_fasta <- append(formatted_fasta, list(current_sequence))
   }
-  
+
   formatted_fasta
 }
 
@@ -611,67 +757,87 @@ color_sequence <- function(sequence) {
 
 # Function to log messages to logfile
 log_message <- function(log_file, message, append = TRUE) {
-  cat(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "-", message, "\n", 
-      file = log_file, append = append)
+  cat(
+    format(Sys.time(), "%Y-%m-%d %H:%M:%S"),
+    "-",
+    message,
+    "\n",
+    file = log_file,
+    append = append
+  )
 }
 
 # Modified gheatmap function
 gheatmap.mod <- function(
-    p, data, offset = 0, width = 1, low="green", high="red", color="white", 
-    colnames = TRUE, colnames_position="bottom", colnames_angle = 0, 
-    colnames_level = NULL, colnames_offset_x = 0, colnames_offset_y = 0, 
-    font.size = 4, family="", hjust = 0.5, legend_title = "value", 
-    colnames_color = "black") {
-  
+  p,
+  data,
+  offset = 0,
+  width = 1,
+  low = "green",
+  high = "red",
+  color = "white",
+  colnames = TRUE,
+  colnames_position = "bottom",
+  colnames_angle = 0,
+  colnames_level = NULL,
+  colnames_offset_x = 0,
+  colnames_offset_y = 0,
+  font.size = 4,
+  family = "",
+  hjust = 0.5,
+  legend_title = "value",
+  colnames_color = "black"
+) {
   colnames_position %<>% match.arg(c("bottom", "top"))
   variable <- value <- lab <- y <- NULL
-  
+
   ## if (is.null(width)) {
   ##     width <- (p$data$x %>% range %>% diff)/30
   ## }
-  
+
   ## convert width to width of each cell
   width <- width * (p$data$x %>% range(na.rm = TRUE) %>% diff) / ncol(data)
-  
+
   isTip <- x <- y <- variable <- value <- from <- to <- NULL
-  
+
   ## handle the display of heatmap on collapsed nodes
   ## https://github.com/GuangchuangYu/ggtree/issues/242
-  ## extract data on leaves (& on collapsed internal nodes) 
+  ## extract data on leaves (& on collapsed internal nodes)
   ## (the latter is extracted only when the input data has data on collapsed
   ## internal nodes)
   df <- p$data
-  nodeCo <- intersect(df %>% filter(is.na(x)) %>% 
-                        select(.data$parent, .data$node) %>% unlist(), 
-                      df %>% filter(!is.na(x)) %>% 
-                        select(.data$parent, .data$node) %>% unlist())
-  labCo <- df %>% filter(.data$node %in% nodeCo) %>% 
-    select(.data$label) %>% unlist()
+  nodeCo <- intersect(
+    df %>% filter(is.na(x)) %>% select(.data$parent, .data$node) %>% unlist(),
+    df %>% filter(!is.na(x)) %>% select(.data$parent, .data$node) %>% unlist()
+  )
+  labCo <- df %>%
+    filter(.data$node %in% nodeCo) %>%
+    select(.data$label) %>%
+    unlist()
   selCo <- intersect(labCo, rownames(data))
   isSel <- df$label %in% selCo
-  
+
   df <- df[df$isTip | isSel, ]
   start <- max(df$x, na.rm = TRUE) + offset
-  
+
   dd <- as.data.frame(data)
   ## dd$lab <- rownames(dd)
   i <- order(df$y)
-  
+
   ## handle collapsed tree
   ## https://github.com/GuangchuangYu/ggtree/issues/137
   i <- i[!is.na(df$y[i])]
-  
+
   lab <- df$label[i]
   ## dd <- dd[lab, , drop = FALSE]
   ## https://github.com/GuangchuangYu/ggtree/issues/182
   dd <- dd[match(lab, rownames(dd)), , drop = FALSE]
-  
-  
+
   dd$y <- sort(df$y)
   dd$lab <- lab
   ## dd <- melt(dd, id = c("lab", "y"))
   dd <- gather(dd, variable, value, -c(lab, y))
-  
+
   i <- which(dd$value == "")
   if (length(i) > 0) {
     dd$value[i] <- NA
@@ -684,24 +850,40 @@ gheatmap.mod <- function(
   V2 <- start + as.numeric(dd$variable) * width
   mapping <- data.frame(from = dd$variable, to = V2)
   mapping <- unique(mapping)
-  
+
   dd$x <- V2
   dd$width <- width
   dd[[".panel"]] <- factor("Tree")
   if (is.null(color)) {
-    p2 <- p + geom_tile(data = dd, aes(x, y, fill = value), width = width, 
-                        inherit.aes = FALSE)
+    p2 <- p +
+      geom_tile(
+        data = dd,
+        aes(x, y, fill = value),
+        width = width,
+        inherit.aes = FALSE
+      )
   } else {
-    p2 <- p + geom_tile(data = dd, aes(x, y, fill = value), width = width, 
-                        color = color, inherit.aes = FALSE)
+    p2 <- p +
+      geom_tile(
+        data = dd,
+        aes(x, y, fill = value),
+        width = width,
+        color = color,
+        inherit.aes = FALSE
+      )
   }
-  if (is(dd$value,"numeric")) {
-    p2 <- p2 + scale_fill_gradient(low = low, high = high, na.value = NA, 
-                                   name = legend_title) # "white")
+  if (is(dd$value, "numeric")) {
+    p2 <- p2 +
+      scale_fill_gradient(
+        low = low,
+        high = high,
+        na.value = NA,
+        name = legend_title
+      ) # "white")
   } else {
     p2 <- p2 + scale_fill_discrete(na.value = NA, name = legend_title) #"white")
   }
-  
+
   if (colnames) {
     if (colnames_position == "bottom") {
       y <- 0
@@ -710,21 +892,29 @@ gheatmap.mod <- function(
     }
     mapping$y <- y
     mapping[[".panel"]] <- factor("Tree")
-    p2 <- p2 + geom_text(data = mapping, aes(x = to, y = y, label = from), 
-                         color = colnames_color, size = font.size, 
-                         family = family, inherit.aes = FALSE,
-                         angle = colnames_angle, nudge_x = colnames_offset_x, 
-                         nudge_y = colnames_offset_y, hjust = hjust)
+    p2 <- p2 +
+      geom_text(
+        data = mapping,
+        aes(x = to, y = y, label = from),
+        color = colnames_color,
+        size = font.size,
+        family = family,
+        inherit.aes = FALSE,
+        angle = colnames_angle,
+        nudge_x = colnames_offset_x,
+        nudge_y = colnames_offset_y,
+        hjust = hjust
+      )
   }
-  
-  p2 <- p2 + theme(legend.position="right")
+
+  p2 <- p2 + theme(legend.position = "right")
   ## p2 <- p2 + guides(fill = guide_legend(override.aes = list(colour = NULL)))
-  
+
   if (!colnames) {
     ## https://github.com/GuangchuangYu/ggtree/issues/204
-    p2 <- p2 + scale_y_continuous(expand = c(0,0))
+    p2 <- p2 + scale_y_continuous(expand = c(0, 0))
   }
-  
+
   attr(p2, "mapping") <- mapping
   return(p2)
 }
@@ -732,15 +922,15 @@ gheatmap.mod <- function(
 # Function to find columns with varying values
 var_alleles <- function(dataframe) {
   varying_columns <- c()
-  
+
   for (col in 1:ncol(dataframe)) {
     unique_values <- unique(dataframe[, col])
-    
+
     if (length(unique_values) > 1) {
       varying_columns <- c(varying_columns, col)
     }
   }
-  
+
   return(varying_columns)
 }
 
@@ -750,7 +940,7 @@ hamming.dist <- function(x, y) {
 }
 
 hamming.distIgnore <- function(x, y) {
-  sum( (x != y) & !is.na(x) & !is.na(y) )
+  sum((x != y) & !is.na(x) & !is.na(y))
 }
 
 hamming.distCategory <- function(x, y) {
@@ -761,8 +951,8 @@ compute.distMatrix <- function(profile, hamming.method) {
   mat <- as.matrix(profile)
   n <- nrow(mat)
   dist_mat <- matrix(0, n, n)
-  for (i in 1:(n-1)) {
-    for (j in (i+1):n) {
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
       dist_mat[i, j] <- hamming.method(x = mat[i, ], y = mat[j, ])
       dist_mat[j, i] <- dist_mat[i, j]
     }
@@ -774,18 +964,18 @@ compute.distMatrix <- function(profile, hamming.method) {
 hamming_dist_matrix <- function(x) {
   # Number of observations
   n <- nrow(x)
-  
+
   # Initialize distance matrix
   dist_mat <- matrix(0, nrow = n, ncol = n)
-  
-  for (i in 1:(n-1)) {
-    for (j in (i+1):n) {
+
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
       # Calculate Hamming distance
       hamming_dist <- sum(x[i, ] != x[j, ]) / ncol(x)
       dist_mat[i, j] <- dist_mat[j, i] <- hamming_dist
     }
   }
-  
+
   # Convert to dist object
   return(as.dist(dist_mat))
 }
@@ -794,36 +984,36 @@ hamming_dist_matrix <- function(x) {
 mcc_dist_matrix <- function(x) {
   # Number of observations
   n <- nrow(x)
-  
+
   # Initialize distance matrix
   dist_mat <- matrix(0, nrow = n, ncol = n)
-  
-  for (i in 1:(n-1)) {
-    for (j in (i+1):n) {
+
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
       # Get vectors for comparison
       vec1 <- x[i, ]
       vec2 <- x[j, ]
-      
+
       # Calculate contingency table elements
-      tp <- sum(vec1 == 1 & vec2 == 1)  # true positives
-      tn <- sum(vec1 == 0 & vec2 == 0)  # true negatives
-      fp <- sum(vec1 == 0 & vec2 == 1)  # false positives
-      fn <- sum(vec1 == 1 & vec2 == 0)  # false negatives
-      
+      tp <- sum(vec1 == 1 & vec2 == 1) # true positives
+      tn <- sum(vec1 == 0 & vec2 == 0) # true negatives
+      fp <- sum(vec1 == 0 & vec2 == 1) # false positives
+      fn <- sum(vec1 == 1 & vec2 == 0) # false negatives
+
       # Calculate MCC
       denominator <- sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
-      
+
       if (denominator == 0) {
-        mcc <- 0  # Handle division by zero
+        mcc <- 0 # Handle division by zero
       } else {
         mcc <- (tp * tn - fp * fn) / denominator
       }
-      
+
       # Normalize for [0,1] range
       dist_mat[i, j] <- dist_mat[j, i] <- (1 - mcc) / 2
     }
   }
-  
+
   # Convert to dist object
   return(as.dist(dist_mat))
 }
@@ -843,18 +1033,17 @@ column_classes <- function(df) {
 
 # Function to hash database
 hash_database <- function(folder, filtered = FALSE, progress = NULL) {
-  
-  if(isFALSE(filtered)) {
+  if (isFALSE(filtered)) {
     loci_files <- list.files(folder)
   } else {
     loci_files <- list.files(folder)[filtered]
   }
-  
+
   loci_names <- sapply(strsplit(loci_files, "[.]"), function(x) x[1])
   loci_paths <- file.path(folder, loci_files)
   count <- length(loci_files)
   hashes <- sapply(loci_paths, hash_locus, progress = progress, count = count)
-  
+
   names(hashes) <- loci_names
   hashes
 }
@@ -862,17 +1051,19 @@ hash_database <- function(folder, filtered = FALSE, progress = NULL) {
 # Function to hash a locus
 hash_locus <- function(locus_path, progress, count) {
   locus_file <- readLines(locus_path)
-  if(length(locus_file) > 0) {
+  if (length(locus_file) > 0) {
     seq_list <- locus_file[seq(2, length(locus_file), 3)]
     seq_hash <- sha256(seq_list)
     seq_idx <- paste0(">", seq_hash)
-    
+
     locus_file[seq(1, length(locus_file), 3)] <- seq_idx
     writeLines(locus_file, locus_path)
-    if(!is.null(progress) & !is.null(count)) {
-      progress$inc(1 / count, 
-                   detail = paste("Hashed", basename(locus_path)),
-                   message = "Hashing alleles")
+    if (!is.null(progress) & !is.null(count)) {
+      progress$inc(
+        1 / count,
+        detail = paste("Hashed", basename(locus_path)),
+        message = "Hashing alleles"
+      )
     }
     seq_hash
   }
@@ -887,11 +1078,13 @@ get_locus_hashes <- function(locus_path) {
 
 extract_seq <- function(locus_path, hashes) {
   locus_file <- readLines(locus_path)
-  hash_list <- sapply(strsplit(locus_file[seq(1, length(locus_file), 3)], 
-                               "[>]"), function(x) x[2])
+  hash_list <- sapply(
+    strsplit(locus_file[seq(1, length(locus_file), 3)], "[>]"),
+    function(x) x[2]
+  )
   seq_list <- locus_file[seq(2, length(locus_file), 3)]
   seq_idx <- hash_list %in% hashes
-  
+
   list(
     idx = hash_list[seq_idx],
     seq = seq_list[seq_idx]
@@ -901,8 +1094,10 @@ extract_seq <- function(locus_path, hashes) {
 add_new_sequences <- function(locus_path, sequences, progress) {
   locus_file <- file(locus_path, open = "a+")
   for (i in seq_along(sequences$idx)) {
-    writeLines(c("", paste0(">", sequences$idx[i]), sequences$seq[i]), 
-               locus_file)
+    writeLines(
+      c("", paste0(">", sequences$idx[i]), sequences$seq[i]),
+      locus_file
+    )
   }
   close(locus_file)
 }
@@ -911,73 +1106,113 @@ add_new_sequences <- function(locus_path, sequences, progress) {
 compute_clusters <- function(nodes, edges, threshold) {
   groups <- rep(0, length(nodes$id))
   edge_group <- rep(0, length(edges$from))
-  
+
   edges_table <- data.frame(
     from = edges$from,
     to = edges$to,
     weight = edges$weight
   )
-  
+
   count <- 0
   while (any(groups == 0)) {
     group_na <- groups == 0
     labels <- nodes$id[group_na]
-    
+
     cluster <- nodes$id[group_na][1] # Initialize with 1 label
     while (!is_empty(labels)) {
-      sub_tb <- edges_table[(edges_table$from %in% cluster |
-                               edges_table$to %in% cluster) &
-                              edges_table$weight <= threshold,]
-      
-      if (nrow(sub_tb) == 0 |
-          length(unique(c(sub_tb$from, sub_tb$to))) == length(cluster)) {
+      sub_tb <- edges_table[
+        (edges_table$from %in% cluster | edges_table$to %in% cluster) &
+          edges_table$weight <= threshold,
+      ]
+
+      if (
+        nrow(sub_tb) == 0 |
+          length(unique(c(sub_tb$from, sub_tb$to))) == length(cluster)
+      ) {
         count <- count + 1
         groups[nodes$id %in% cluster] <- paste("Group", count)
         edge_group[edges$from %in% cluster & edges$to %in% cluster] <- paste(
-          "Group", count)
+          "Group",
+          count
+        )
         break
       } else {
         cluster <- unique(c(sub_tb$from, sub_tb$to))
       }
     }
   }
-  list(groups = groups,
-       edge_group = edge_group)
+  list(groups = groups, edge_group = edge_group)
 }
 
 # Check gene screening status
 check_status <- function(isolate, database, scheme) {
   iso_name <- gsub(".zip", "", basename(isolate))
-  if(file.exists(file.path(database, gsub(" ", "_", scheme),
-                           "Isolates", iso_name, "status.txt"))) {
-    if(str_detect(readLines(file.path(database, gsub(" ", "_", scheme),
-                                      "Isolates", iso_name, "status.txt"))[1], 
-                  "successfully")) {
+  if (
+    file.exists(file.path(
+      database,
+      gsub(" ", "_", scheme),
+      "Isolates",
+      iso_name,
+      "status.txt"
+    ))
+  ) {
+    if (
+      str_detect(
+        readLines(file.path(
+          database,
+          gsub(" ", "_", scheme),
+          "Isolates",
+          iso_name,
+          "status.txt"
+        ))[1],
+        "successfully"
+      )
+    ) {
       return("success")
     } else {
       return("fail")
     }
-  } else {return("unfinished")}
+  } else {
+    return("unfinished")
+  }
 }
 
 # Reset gene screening status
 remove.screening.status <- function(isolate, database, scheme) {
-  if(file.exists(file.path(database, 
-                           gsub(" ", "_", scheme),
-                           "Isolates",
-                           isolate,
-                           "status.txt"))) {
-    file.remove(file.path(database, gsub(" ", "_", scheme), "Isolates",
-                          isolate,"status.txt"))
+  if (
+    file.exists(file.path(
+      database,
+      gsub(" ", "_", scheme),
+      "Isolates",
+      isolate,
+      "status.txt"
+    ))
+  ) {
+    file.remove(file.path(
+      database,
+      gsub(" ", "_", scheme),
+      "Isolates",
+      isolate,
+      "status.txt"
+    ))
   }
 }
 
 # Truncate hashes
 truncHash <- function(hash) {
-  if(!is.na(hash)) {
-    paste0(str_sub(hash, 1, 4), "...", str_sub(
-      hash, nchar(hash) - 3, nchar(hash))) 
-  } else {NA}
+  if (!is.na(hash)) {
+    paste0(
+      str_sub(hash, 1, 4),
+      "...",
+      str_sub(
+        hash,
+        nchar(hash) - 3,
+        nchar(hash)
+      )
+    )
+  } else {
+    NA
+  }
 }
 
 # Function to check for HTTP errors and parse content
@@ -989,16 +1224,16 @@ safe.api.call <- function(endpoint) {
       return(NULL)
     }
   )
-  
+
   if (is.null(response)) {
     return(NULL)
   }
-  
+
   if (httr::http_error(response)) {
     message("HTTP error: ", httr::status_code(response))
     return(NULL)
   }
-  
+
   content <- tryCatch(
     httr::content(response, as = "text", encoding = "UTF-8"),
     error = function(e) {
@@ -1006,11 +1241,11 @@ safe.api.call <- function(endpoint) {
       return(NULL)
     }
   )
-  
+
   if (is.null(content)) {
     return(NULL)
   }
-  
+
   parsed_content <- tryCatch(
     jsonlite::fromJSON(content, flatten = TRUE),
     error = function(e) {
@@ -1018,53 +1253,69 @@ safe.api.call <- function(endpoint) {
       return(NULL)
     }
   )
-  
+
   return(parsed_content)
 }
 
 parse.names <- function(species) {
-  if(species == "Borrelia spp") {
+  if (species == "Borrelia spp") {
     return("Borrelia")
-  } else if(species == "Brucella spp") {
+  } else if (species == "Brucella spp") {
     return("Brucella")
-  } else if(species == "Burkholderia mallei FLI" |
-            species == "Burkholderia mallei RKI") {
+  } else if (
+    species == "Burkholderia mallei FLI" |
+      species == "Burkholderia mallei RKI"
+  ) {
     return("Burkholderia mallei")
-  } else if(species == "Campylobacter jejuni coli v1" | 
-            species == "Campylobacter jejuni coli v2" |
-            species == "Campylobacter jejuni coli") {
+  } else if (
+    species == "Campylobacter jejuni coli v1" |
+      species == "Campylobacter jejuni coli v2" |
+      species == "Campylobacter jejuni coli"
+  ) {
     return(c("Campylobacter jejuni", "Campylobacter coli"))
-  } else if(species == "Cronobacter sakazakii malonaticus") {
+  } else if (species == "Cronobacter sakazakii malonaticus") {
     return(c("Cronobacter sakazakii", "Cronobacter malonaticus"))
-  } else if(species == "Escherichia spp") {
+  } else if (species == "Escherichia spp") {
     return("Escherichia")
-  } else if(species == "Human-restricted Neisseria v1" | 
-            species == "Neisseria L3" |
-            species == "Neisseria L44") {
+  } else if (
+    species == "Human-restricted Neisseria v1" |
+      species == "Neisseria L3" |
+      species == "Neisseria L44"
+  ) {
     return("Neisseria")
-  } else if(species == "Neisseria gonorrhoeae v1" | 
-            species == "Neisseria gonorrhoeae v2") {
+  } else if (
+    species == "Neisseria gonorrhoeae v1" |
+      species == "Neisseria gonorrhoeae v2"
+  ) {
     return("Neisseria gonorrhoeae")
-  } else if(species == "Neisseria meningitidis v1" | 
-            species == "Neisseria meningitidis v2" |
-            species == "Neisseria meningitidis v3") {
+  } else if (
+    species == "Neisseria meningitidis v1" |
+      species == "Neisseria meningitidis v2" |
+      species == "Neisseria meningitidis v3"
+  ) {
     return("Neisseria meningitidis")
-  } else if(species == "Salmonella v1" | 
-            species == "Salmonella v2 enterobase") {
+  } else if (
+    species == "Salmonella v1" |
+      species == "Salmonella v2 enterobase"
+  ) {
     return("Salmonella")
-  } else if(species == "Klebsiella oxytoca sensu lato") {
-    return(paste("Klebsiella", c("oxytoca", "grimontii", 
-                                 "michiganensis", "pasteurii")))
-  } else if(species == "Klebsiella pneumoniae sensu lato") {
+  } else if (species == "Klebsiella oxytoca sensu lato") {
+    return(paste(
+      "Klebsiella",
+      c("oxytoca", "grimontii", "michiganensis", "pasteurii")
+    ))
+  } else if (species == "Klebsiella pneumoniae sensu lato") {
     return(paste("Klebsiella", c("pneumoniae", "variicola", "quasipneumoniae")))
-  } else if(species == "Mycobacterium tuberculosis complex") {
-    return(paste("Mycobacterium", c("tuberculosis", 
-                                    "tuberculosis variant bovis", "canetti")))
-  } else if(species == "Serratia spp") {
+  } else if (species == "Mycobacterium tuberculosis complex") {
+    return(paste(
+      "Mycobacterium",
+      c("tuberculosis", "tuberculosis variant bovis", "canetti")
+    ))
+  } else if (species == "Serratia spp") {
     return("Serratia")
-  } else if(species == "Leptospira spp") {
+  } else if (species == "Leptospira spp") {
     return("Leptospira")
-  } else if(species == "Mycobacteroides abscessus complex") {
+  } else if (species == "Mycobacteroides abscessus complex") {
     return("Mycobacteroides abscessus")
   } else {
     return(species)
@@ -1073,62 +1324,84 @@ parse.names <- function(species) {
 
 check.amrfinder.available <- function(selected_scheme, amrfinder_species) {
   scheme_species <- gsub(" (CM|PM)", "", gsub("_", " ", selected_scheme))
-  
+
   parsed_species <- parse.names(scheme_species)
-  
-  if(length(parsed_species) == 1) {
-    
+
+  if (length(parsed_species) == 1) {
     # Exceptions
-    if(parsed_species == "Burkholderia mallei FLI" | 
-       parsed_species == "Burkholderia mallei RKI") {
+    if (
+      parsed_species == "Burkholderia mallei FLI" |
+        parsed_species == "Burkholderia mallei RKI"
+    ) {
       parsed_species <- "Burkholderia mallei"
-    } else if(parsed_species == "Escherichia coli") {
+    } else if (parsed_species == "Escherichia coli") {
       parsed_species <- "Escherichia"
-    } else if(parsed_species == "Salmonella enterica") {
+    } else if (parsed_species == "Salmonella enterica") {
       parsed_species <- "Salmonella"
     }
-    
-    return(ifelse(any(parsed_species == gsub("_", " ", amrfinder_species)), 
-                  parsed_species, FALSE))
-    
+
+    return(ifelse(
+      any(parsed_species == gsub("_", " ", amrfinder_species)),
+      parsed_species,
+      FALSE
+    ))
   } else {
     # Exceptions
-    if(identical(parsed_species, 
-                 paste("Klebsiella", c("oxytoca", "grimontii", "michiganensis", 
-                                       "pasteurii")))) {
+    if (
+      identical(
+        parsed_species,
+        paste(
+          "Klebsiella",
+          c("oxytoca", "grimontii", "michiganensis", "pasteurii")
+        )
+      )
+    ) {
       parsed_species <- "Klebsiella oxytoca"
-    } else if(identical(parsed_species, 
-                        paste("Klebsiella", c("pneumoniae", "variicola", 
-                                              "quasipneumoniae")))) {
+    } else if (
+      identical(
+        parsed_species,
+        paste("Klebsiella", c("pneumoniae", "variicola", "quasipneumoniae"))
+      )
+    ) {
       parsed_species <- "Klebsiella pneumoniae"
-    } else if(identical(parsed_species, 
-                        paste("Klebsiella", c("pneumoniae", "variicola", 
-                                              "quasipneumoniae")))) {
+    } else if (
+      identical(
+        parsed_species,
+        paste("Klebsiella", c("pneumoniae", "variicola", "quasipneumoniae"))
+      )
+    ) {
       parsed_species <- "Klebsiella pneumoniae"
-    } else if(identical(parsed_species,
-                        paste("Campylobacter", c("jejuni", "coli")))) {
+    } else if (
+      identical(parsed_species, paste("Campylobacter", c("jejuni", "coli")))
+    ) {
       parsed_species <- "Campylobacter"
     }
-    
-    return(ifelse(any(parsed_species == gsub("_", " ", amrfinder_species)), 
-                  parsed_species, FALSE))
+
+    return(ifelse(
+      any(parsed_species == gsub("_", " ", amrfinder_species)),
+      parsed_species,
+      FALSE
+    ))
   }
 }
 
 # Function to fetch species data from NCBI
 fetch.species.data <- function(species) {
-  
   parsed_species <- parse.names(species)
- 
+
   multiple <- list()
-  for(i in seq_along(parsed_species)) {
-    
+  for (i in seq_along(parsed_species)) {
     # Serratia exception
-    ifelse(parsed_species[i] == "Serratia",
-           command <- paste0("datasets summary taxonomy taxon '", 613, "'"),
-           command <- paste0("datasets summary taxonomy taxon '", 
-                             parsed_species[i], "'"))
-    
+    ifelse(
+      parsed_species[i] == "Serratia",
+      command <- paste0("datasets summary taxonomy taxon '", 613, "'"),
+      command <- paste0(
+        "datasets summary taxonomy taxon '",
+        parsed_species[i],
+        "'"
+      )
+    )
+
     tryCatch(
       result <- system(command, intern = TRUE),
       error = function(e) {
@@ -1136,9 +1409,9 @@ fetch.species.data <- function(species) {
         return(NULL)
       }
     )
-    
+
     #if (length(result) < 1) {
-    if(is.null(result)) {  
+    if (is.null(result)) {
       message(paste("Error: ", parsed_species, " not available on NCBI."))
       return(NULL)
     } else {
@@ -1149,20 +1422,22 @@ fetch.species.data <- function(species) {
           return(NULL)
         }
       )
-      
+
       if (!is.null(content$reports)) {
         species_data <- content$reports$taxonomy
-        
+
         message("Fetched taxonomy")
-        
+
         multiple[[gsub(" ", "_", parsed_species[i])]] <- list(
           Name = species_data$current_scientific_name,
           ID = species_data$tax_id,
           Classification = species_data$classification,
           Group = species_data$group_name,
           Image = paste0(
-            "https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/", 
-            species_data$tax_id, "/image")
+            "https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/",
+            species_data$tax_id,
+            "/image"
+          )
         )
       } else {
         message("Empty taxonomy data")
@@ -1170,7 +1445,7 @@ fetch.species.data <- function(species) {
       }
     }
   }
-  
+
   if (!is.null(multiple)) {
     return(multiple)
   } else {
@@ -1183,18 +1458,17 @@ fetch.species.data <- function(species) {
 get.schemeinfo <- function(url_link) {
   endpoint <- paste0(url_link, "?return_all=1")
   scheme_info <- safe.api.call(endpoint)
-  
+
   if (is.null(scheme_info)) {
     message("Failed to retrieve scheme information.")
     return(NULL)
   }
-  
+
   return(scheme_info)
 }
 
 # Function to download all alleles of each loci of selected scheme
 download.alleles2.PM <- function(url_link, database, folder_name, progress) {
-  
   # Make scheme directory
   directory <- file.path(database, folder_name)
   if (!dir.exists(directory)) {
@@ -1208,131 +1482,173 @@ download.alleles2.PM <- function(url_link, database, folder_name, progress) {
       }
     )
   }
-  
+
   # retrieve and save scheme info
   scheme_info <- get.schemeinfo(url_link)
   if (is.null(scheme_info$loci) || length(scheme_info$loci) == 0) {
     stop("No loci found in scheme_info.")
   } else {
-    if(!is.null(scheme_info[["last_updated"]])) {
+    if (!is.null(scheme_info[["last_updated"]])) {
       last_scheme_change <- scheme_info[["last_updated"]]
       last_file_change <- format(
-        file.info(file.path(database, ".downloaded_schemes",
-                            paste0(folder_name, ".zip")))$mtime, 
-        "%Y-%m-%d %H:%M %p")
+        file.info(file.path(
+          database,
+          ".downloaded_schemes",
+          paste0(folder_name, ".zip")
+        ))$mtime,
+        "%Y-%m-%d %H:%M %p"
+      )
     } else {
       last_scheme_change <- "Not Available"
       last_file_change <- NULL
     }
-    
-    if(!is.null(scheme_info[["description"]])) {
+
+    if (!is.null(scheme_info[["description"]])) {
       description <- scheme_info[["description"]]
     } else {
       description <- "Not Available"
     }
-    
+
     scheme_overview <- data.frame(
-      x1 = c("Scheme", "Database", "URL", "Version", "Locus Count", 
-             "Last Change"),
-      x2 = c(gsub("_", " ", folder_name), "pubMLST", 
-             paste0('<a href="', paste0("https://www.pubmlst.org/bigsdb?db=",
-                                        basename(dirname(dirname(url_link)))), 
-                    '" target="_blank">', 
-                    paste0("https://www.pubmlst.org/bigsdb?db=",
-                           basename(dirname(dirname(url_link)))), 
-                    '</a>'),
-             description,
-             scheme_info[["locus_count"]], 
-             last_scheme_change))
-    
+      x1 = c(
+        "Scheme",
+        "Database",
+        "URL",
+        "Version",
+        "Locus Count",
+        "Last Change"
+      ),
+      x2 = c(
+        gsub("_", " ", folder_name),
+        "pubMLST",
+        paste0(
+          '<a href="',
+          paste0(
+            "https://www.pubmlst.org/bigsdb?db=",
+            basename(dirname(dirname(url_link)))
+          ),
+          '" target="_blank">',
+          paste0(
+            "https://www.pubmlst.org/bigsdb?db=",
+            basename(dirname(dirname(url_link)))
+          ),
+          '</a>'
+        ),
+        description,
+        scheme_info[["locus_count"]],
+        last_scheme_change
+      )
+    )
+
     names(scheme_overview) <- NULL
-    
-    saveRDS(scheme_overview, file.path(directory, "scheme_info.rds"))  
-    
+
+    saveRDS(scheme_overview, file.path(directory, "scheme_info.rds"))
+
     message("Scheme info downloaded")
   }
-  
-  ### Download alleles 
-  
+
+  ### Download alleles
+
   # Initialize vector to store the paths of downloaded files
   downloaded_files <- vector("character", length(scheme_info$loci))
-  
+
   # Make output folder
-  output_folder <- file.path(database, ".downloaded_schemes", 
-                             paste0(folder_name))
-  
-  if(!dir.exists(output_folder)) {
+  output_folder <- file.path(
+    database,
+    ".downloaded_schemes",
+    paste0(folder_name)
+  )
+
+  if (!dir.exists(output_folder)) {
     tryCatch(
       {
         dir.create(output_folder, recursive = TRUE)
         message("Directory created: ", output_folder)
       },
       error = function(e) {
-        stop("Failed to create directory: ", output_folder, "\nError: ", 
-             e$message)
+        stop(
+          "Failed to create directory: ",
+          output_folder,
+          "\nError: ",
+          e$message
+        )
       }
     )
   }
-  
+
   for (i in seq_along(scheme_info$loci)) {
     locus_url <- scheme_info$loci[i]
     endpoint <- paste0(locus_url, "/alleles_fasta?return_all=1")
-    
+
     response <- httr::GET(endpoint)
-    
+
     if (httr::http_error(response)) {
       stop("Failed to retrieve data for locus: ", basename(locus_url))
     }
-    
+
     content <- httr::content(response, as = "text", encoding = "UTF-8")
-    
+
     if (is.null(content)) {
       stop("Failed to parse content for locus: ", basename(locus_url))
     }
-    
+
     # Insert an empty line between sequences
     formatted_content <- gsub("\n>", "\n\n>", content)
-    
+
     # Write to file
-    output_file <- file.path(output_folder,
-                             paste0(basename(locus_url), ".fasta"))
-    
+    output_file <- file.path(
+      output_folder,
+      paste0(basename(locus_url), ".fasta")
+    )
+
     writeLines(formatted_content, con = output_file)
-    
+
     downloaded_files[i] <- output_file
-    
+
     # Increment the progress bar
-    progress$inc(1/ (2 * length(seq_along(scheme_info$loci))), 
-                 detail = paste("Saved", basename(locus_url)))
-    
+    progress$inc(
+      1 / (2 * length(seq_along(scheme_info$loci))),
+      detail = paste("Saved", basename(locus_url))
+    )
+
     logr::log_print("Saved fasta file for locus: ", basename(locus_url))
   }
-  
+
   progress$set(message = "Compressing files", value = 50)
-  
+
   # Zip folder
-  system(paste0("zip -r -j ", shQuote(output_folder), ".zip ", 
-                shQuote(output_folder), "/"))
+  system(paste0(
+    "zip -r -j ",
+    shQuote(output_folder),
+    ".zip ",
+    shQuote(output_folder),
+    "/"
+  ))
   unlink(output_folder, recursive = TRUE)
-  
+
   # Final check to ensure all files are non-empty and expected count matches
   empty_files <- downloaded_files[file.info(downloaded_files)$size == 0]
   if (length(empty_files) > 0) {
-    stop("Some files are empty: ", paste(basename(empty_files), collapse = ", "))
+    stop(
+      "Some files are empty: ",
+      paste(basename(empty_files), collapse = ", ")
+    )
   }
-  
+
   if (length(downloaded_files) != length(scheme_info$loci)) {
-    stop("Mismatch in the number of downloaded files. Expected: ", 
-         length(scheme_info$loci), 
-         " but got: ", length(downloaded_files))
+    stop(
+      "Mismatch in the number of downloaded files. Expected: ",
+      length(scheme_info$loci),
+      " but got: ",
+      length(downloaded_files)
+    )
   }
-  
+
   logr::log_print("All files downloaded successfully and are non-empty.")
 }
 
 # Function to download all alleles of each loci of selected scheme
 download.alleles.PM <- function(url_link, database, folder_name, progress) {
-  
   # Make scheme directory
   directory <- file.path(database, folder_name)
   if (!dir.exists(directory)) {
@@ -1346,64 +1662,93 @@ download.alleles.PM <- function(url_link, database, folder_name, progress) {
       }
     )
   }
-  
+
   # retrieve and save scheme info
   scheme_info <- get.schemeinfo(url_link)
   if (is.null(scheme_info$loci) || length(scheme_info$loci) == 0) {
     stop("No loci found in scheme_info.")
   } else {
-    if(!is.null(scheme_info[["last_updated"]])) {
+    if (!is.null(scheme_info[["last_updated"]])) {
       last_scheme_change <- scheme_info[["last_updated"]]
       last_file_change <- format(
-        file.info(file.path(database, ".downloaded_schemes",
-                            paste0(folder_name, ".zip")))$mtime, 
-        "%Y-%m-%d %H:%M %p")
+        file.info(file.path(
+          database,
+          ".downloaded_schemes",
+          paste0(folder_name, ".zip")
+        ))$mtime,
+        "%Y-%m-%d %H:%M %p"
+      )
     } else {
       last_scheme_change <- "Not Available"
       last_file_change <- NULL
     }
-    
-    if(!is.null(scheme_info[["description"]])) {
+
+    if (!is.null(scheme_info[["description"]])) {
       description <- scheme_info[["description"]]
     } else {
       description <- "Not Available"
     }
-    
+
     scheme_overview <- data.frame(
-      x1 = c("Scheme", "Database", "URL", "Version", "Locus Count", 
-             "Last Change"),
-      x2 = c(gsub("_", " ", folder_name), "pubMLST", 
-             paste0('<a href="', paste0("https://www.pubmlst.org/bigsdb?db=",
-                                        basename(dirname(dirname(url_link)))), 
-                    '" target="_blank">', 
-                    paste0("https://www.pubmlst.org/bigsdb?db=",
-                           basename(dirname(dirname(url_link)))), 
-                    '</a>'),
-             description,
-             scheme_info[["locus_count"]], last_scheme_change))
-    
+      x1 = c(
+        "Scheme",
+        "Database",
+        "URL",
+        "Version",
+        "Locus Count",
+        "Last Change"
+      ),
+      x2 = c(
+        gsub("_", " ", folder_name),
+        "pubMLST",
+        paste0(
+          '<a href="',
+          paste0(
+            "https://www.pubmlst.org/bigsdb?db=",
+            basename(dirname(dirname(url_link)))
+          ),
+          '" target="_blank">',
+          paste0(
+            "https://www.pubmlst.org/bigsdb?db=",
+            basename(dirname(dirname(url_link)))
+          ),
+          '</a>'
+        ),
+        description,
+        scheme_info[["locus_count"]],
+        last_scheme_change
+      )
+    )
+
     names(scheme_overview) <- NULL
-    
-    saveRDS(scheme_overview, file.path(directory, "scheme_info.rds"))  
-    
+
+    saveRDS(scheme_overview, file.path(directory, "scheme_info.rds"))
+
     message("Scheme info downloaded")
   }
-  
-  ### Download alleles 
-  
+
+  ### Download alleles
+
   # Make output folder
-  output_folder <- file.path(database, ".downloaded_schemes", 
-                             paste0(folder_name))
-  
-  if(!dir.exists(output_folder)) {
+  output_folder <- file.path(
+    database,
+    ".downloaded_schemes",
+    paste0(folder_name)
+  )
+
+  if (!dir.exists(output_folder)) {
     tryCatch(
       {
         dir.create(output_folder, recursive = TRUE)
         message("Directory created: ", output_folder)
       },
       error = function(e) {
-        stop("Failed to create directory: ", output_folder, "\nError: ", 
-             e$message)
+        stop(
+          "Failed to create directory: ",
+          output_folder,
+          "\nError: ",
+          e$message
+        )
       }
     )
   } else {
@@ -1414,99 +1759,122 @@ download.alleles.PM <- function(url_link, database, folder_name, progress) {
         message("Directory created: ", output_folder)
       },
       error = function(e) {
-        stop("Failed to create directory: ", output_folder, "\nError: ", 
-             e$message)
+        stop(
+          "Failed to create directory: ",
+          output_folder,
+          "\nError: ",
+          e$message
+        )
       }
     )
   }
-  
+
   # Initialize vector to store the paths of downloaded files
   downloaded_files <- vector("character", length(scheme_info$loci))
-  
+
   for (i in seq_along(scheme_info$loci)) {
     locus_url <- scheme_info$loci[i]
     endpoint <- paste0(locus_url, "/alleles_fasta?return_all=1")
-    
+
     response <- httr::GET(endpoint)
-    
+
     if (httr::http_error(response)) {
       stop("Failed to retrieve data for locus: ", basename(locus_url))
     }
-    
+
     content <- httr::content(response, as = "text", encoding = "UTF-8")
-    
+
     if (is.null(content)) {
       stop("Failed to parse content for locus: ", basename(locus_url))
     }
-    
+
     # Insert an empty line between sequences
     formatted_content <- gsub("\n>", "\n\n>", content)
-    
+
     # Write to file
-    output_file <- file.path(output_folder,
-                             paste0(basename(locus_url), ".fasta"))
-    
+    output_file <- file.path(
+      output_folder,
+      paste0(basename(locus_url), ".fasta")
+    )
+
     writeLines(formatted_content, con = output_file)
-    
+
     downloaded_files[i] <- output_file
-    
+
     # Increment the progress bar
-    progress$inc(1/ (2 * length(seq_along(scheme_info$loci))),
-                detail = paste("Saved", basename(locus_url)))
+    progress$inc(
+      1 / (2 * length(seq_along(scheme_info$loci))),
+      detail = paste("Saved", basename(locus_url))
+    )
 
     message("Saved fasta file for locus: ", basename(locus_url))
   }
-  
+
   # Zip folder
-  system(paste0("zip -r -j ", shQuote(output_folder), ".zip ", 
-                shQuote(output_folder), "/"))
+  system(paste0(
+    "zip -r -j ",
+    shQuote(output_folder),
+    ".zip ",
+    shQuote(output_folder),
+    "/"
+  ))
   unlink(output_folder, recursive = TRUE)
-  
+
   # Final check to ensure all files are non-empty and expected count matches
   empty_files <- downloaded_files[file.info(downloaded_files)$size == 0]
   if (length(empty_files) > 0) {
-    stop("Some files are empty: ", paste(basename(empty_files), 
-                                         collapse = ", "))
+    stop(
+      "Some files are empty: ",
+      paste(basename(empty_files), collapse = ", ")
+    )
   }
-  
+
   if (length(downloaded_files) != length(scheme_info$loci)) {
-    stop("Mismatch in the number of downloaded files. Expected: ", 
-         length(scheme_info$loci), 
-         " but got: ", length(downloaded_files))
+    stop(
+      "Mismatch in the number of downloaded files. Expected: ",
+      length(scheme_info$loci),
+      " but got: ",
+      length(downloaded_files)
+    )
   }
-  
+
   logr::log_print("All files downloaded successfully and are non-empty.")
 }
 
 
-multi_download <- function(file_remote, file_local, total_con = 1000L, 
-                           host_con  = 1000L, print = TRUE) {
-  
+multi_download <- function(
+  file_remote,
+  file_local,
+  total_con = 1000L,
+  host_con = 1000L,
+  print = TRUE
+) {
   # check for duplication
   dups <- duplicated(file_remote) | duplicated(file_local)
   file_remote <- file_remote[!dups]
   file_local <- file_local[!dups]
-  
+
   # create pool
-  pool <- curl::new_pool(total_con = total_con,
-                         host_con = host_con)
-  
+  pool <- curl::new_pool(total_con = total_con, host_con = host_con)
+
   # function performed on successful request
   save_download <- function(req) {
     writeBin(req$content, file_local[file_remote == req$url])
   }
-  
+
   # setup async calls
   invisible(
     lapply(
-      file_remote, function(f) 
+      file_remote,
+      function(f) {
         curl::curl_fetch_multi(f, done = save_download, pool = pool)
+      }
     )
   )
-  
+
   # all created requests are performed here
   out <- curl::multi_run(pool = pool)
-  
+
   if (print) print(out)
 }
 
@@ -1524,20 +1892,27 @@ download.alleles.CM <- function(url_link, database, folder_name, progress) {
       }
     )
   }
-  
+
   # Make output folder
-  output_folder <- file.path(database, ".downloaded_schemes", 
-                             paste0(folder_name))
-  
-  if(!dir.exists(output_folder)) {
+  output_folder <- file.path(
+    database,
+    ".downloaded_schemes",
+    paste0(folder_name)
+  )
+
+  if (!dir.exists(output_folder)) {
     tryCatch(
       {
         dir.create(output_folder, recursive = TRUE)
         message("Directory created: ", output_folder)
       },
       error = function(e) {
-        stop("Failed to create directory: ", output_folder, "\nError: ", 
-             e$message)
+        stop(
+          "Failed to create directory: ",
+          output_folder,
+          "\nError: ",
+          e$message
+        )
       }
     )
   } else {
@@ -1548,17 +1923,22 @@ download.alleles.CM <- function(url_link, database, folder_name, progress) {
         message("Directory created: ", output_folder)
       },
       error = function(e) {
-        stop("Failed to create directory: ", output_folder, "\nError: ", 
-             e$message)
+        stop(
+          "Failed to create directory: ",
+          output_folder,
+          "\nError: ",
+          e$message
+        )
       }
     )
   }
-  
+
   loci_path <- file.path(database, folder_name, "targets.csv")
-  
-  tryCatch({
-      download.file(	
-        paste0(url_link, "/locus/?content-type=csv"),	
+
+  tryCatch(
+    {
+      download.file(
+        paste0(url_link, "/locus/?content-type=csv"),
         dest = loci_path,
         mode = "wb"
       )
@@ -1566,20 +1946,28 @@ download.alleles.CM <- function(url_link, database, folder_name, progress) {
     },
     error = function(e) {
       stop("Failed to download loci info: ", "\nError: ", e$message)
-    })
-  
-  if(file.exists(loci_path)) {
-    loci <- data.table::fread(loci_path, select = 2, sep = "\t", 
-                              header = FALSE)[[1]]
+    }
+  )
+
+  if (file.exists(loci_path)) {
+    loci <- data.table::fread(
+      loci_path,
+      select = 2,
+      sep = "\t",
+      header = FALSE
+    )[[1]]
     successes <- 0
     count <- length(loci)
     file_local <- file.path(output_folder, paste0(loci, ".fasta"))
-    file_remote <- paste0(url_link, "/locus/", loci ,".fasta/")
-    
-    while(successes < count) {
+    file_remote <- paste0(url_link, "/locus/", loci, ".fasta/")
+
+    while (successes < count) {
       res <- multi_download(
-        na.omit(file_remote[1:50]), na.omit(file_local[1:50]),
-        total_con = 50L, host_con = 50L)
+        na.omit(file_remote[1:50]),
+        na.omit(file_local[1:50]),
+        total_con = 50L,
+        host_con = 50L
+      )
       remain <- !file.exists(file_local)
       file_local <- file_local[remain]
       file_remote <- file_remote[remain]
@@ -1587,56 +1975,61 @@ download.alleles.CM <- function(url_link, database, folder_name, progress) {
       # Increment the progress bar
       progress$inc(res$success / (2 * count))
     }
-    
+
     progress$set(message = "Compressing Files")
-    
+
     # Zip folder
-    system(paste0("zip -r -j ", shQuote(output_folder), ".zip ", 
-                  shQuote(output_folder), "/"))
+    system(paste0(
+      "zip -r -j ",
+      shQuote(output_folder),
+      ".zip ",
+      shQuote(output_folder),
+      "/"
+    ))
     unlink(output_folder, recursive = TRUE)
-    
+
     # Final check to ensure all files are non-empty and expected count matches
     empty_files <- file_local[file.info(file_local)$size == 0]
     if (length(empty_files) > 0) {
-      stop("Some files are empty: ", paste(basename(empty_files), 
-                                           collapse = ", "))
+      stop(
+        "Some files are empty: ",
+        paste(basename(empty_files), collapse = ", ")
+      )
     }
-    
+
     if (length(empty_files) > 0) {
-      stop("Mismatch in the number of downloaded files. Expected: ", 
-           length(file_local), 
-           " but got: ", length(file_local) - length(empty_files))
+      stop(
+        "Mismatch in the number of downloaded files. Expected: ",
+        length(file_local),
+        " but got: ",
+        length(file_local) - length(empty_files)
+      )
     }
-    
+
     logr::log_print("All files downloaded successfully and are non-empty.")
   }
 }
 
 # Function to check and remove duplicate segments
 process_string <- function(input_string) {
-  
   # Split the string by comma
   segments <- strsplit(input_string, ",")[[1]]
-  
+
   # Ensure that there are two parts to compare
   if (length(segments) == 2) {
-    
     # Remove asterisks from both segments
     clean_segment_1 <- gsub("\\*", "", segments[1])
     clean_segment_2 <- gsub("\\*", "", segments[2])
-    
+
     # Check if the cleaned segments are identical
     if (clean_segment_1 == clean_segment_2) {
-      
       # If they are identical, return the cleaned version without asterisk
       return(clean_segment_1)
     } else {
-      
       # If they are not identical, return the original string
       return(input_string)
     }
   } else {
-    
     # If there's no comma or improper format, return the original string
     return(input_string)
   }
@@ -1645,59 +2038,70 @@ process_string <- function(input_string) {
 summarize.AMR <- function(database, scheme) {
   isolates_path <- file.path(database, gsub(" ", "_", scheme), "Isolates")
   isolates_full <- list.files(isolates_path, full.names = TRUE)
-  available <- sapply(isolates_full, function(isolate) file.exists(file.path(
-    isolate, "amrfinder.out")))
+  available <- sapply(isolates_full, function(isolate) {
+    file.exists(file.path(
+      isolate,
+      "amrfinder.out"
+    ))
+  })
   isolates <- basename(isolates_full[available])
-  
+
   loci <- character()
   amr_profile <- list()
   amr_matches <- data.frame()
   virulence_matches <- data.frame()
-  
+
   amr_df <- list()
   vir_df <- list()
-  
-  for(i in seq_along(isolates)) {
-    
+
+  for (i in seq_along(isolates)) {
     amr_profile_path <- file.path(isolates_path, isolates[i])
-    
+
     # amrfinder results
-    if(file.exists(file.path(amr_profile_path, "amrfinder.out"))) {
-      amr_results <- read.delim(file.path(amr_profile_path, "amrfinder.out"), 
-                                stringsAsFactors = FALSE)
-      gene_symbols <- unique(amr_results$Gene.symbol)  
-      amr_profile[[i]] <- gene_symbols  
-      loci <- union(loci, gene_symbols) 
+    if (file.exists(file.path(amr_profile_path, "amrfinder.out"))) {
+      amr_results <- read.delim(
+        file.path(amr_profile_path, "amrfinder.out"),
+        stringsAsFactors = FALSE
+      )
+      gene_symbols <- unique(amr_results$Gene.symbol)
+      amr_profile[[i]] <- gene_symbols
+      loci <- union(loci, gene_symbols)
     }
-    
-    # classification antibiotics drug 
-    if(file.exists(file.path(amr_profile_path, "summary_matches.txt"))) {
-      summary_matches <- read.delim(file.path(
-        amr_profile_path, "summary_matches.txt"), stringsAsFactors = FALSE) %>%
+
+    # classification antibiotics drug
+    if (file.exists(file.path(amr_profile_path, "summary_matches.txt"))) {
+      summary_matches <- read.delim(
+        file.path(
+          amr_profile_path,
+          "summary_matches.txt"
+        ),
+        stringsAsFactors = FALSE
+      ) %>%
         select(-1)
-      
+
       # Process each column
       for (col in colnames(summary_matches)) {
         if (nrow(summary_matches) > 0) {
           # Ensure the column exists in previous data frames
           if (length(amr_df) > 0 && col %in% colnames(amr_df[[1]])) {
-            
             # Extract previous data frame
             prev_df <- amr_df[[length(amr_df)]]
-            
-            if (col %in% colnames(prev_df)) {  
+
+            if (col %in% colnames(prev_df)) {
               # Combine current and previous columns for the specific column
               combined_col <- unique(
-                c(stringr::str_split(prev_df[[col]], ",")[[1]], 
-                  stringr::str_split(summary_matches[[col]], ",")[[1]]))
-              
+                c(
+                  stringr::str_split(prev_df[[col]], ",")[[1]],
+                  stringr::str_split(summary_matches[[col]], ",")[[1]]
+                )
+              )
+
               # Update column in previous data frame with combined values
               prev_df[[col]] <- paste(combined_col, collapse = ",")
             }
-            
+
             # Update the last data frame in the list
             amr_df[[length(amr_df)]] <- prev_df
-            
           } else {
             # If thecolumn is new add it to the previous data frame if it exists
             if (length(amr_df) > 0) {
@@ -1709,41 +2113,42 @@ summarize.AMR <- function(database, scheme) {
           }
         }
       }
-      
+
       # Add the current data frame to the list
       amr_df[[length(amr_df) + 1]] <- summary_matches
     }
-    
-    # classification virulence 
-    if(file.exists(file.path(amr_profile_path, "summary_virulence.txt"))) {
+
+    # classification virulence
+    if (file.exists(file.path(amr_profile_path, "summary_virulence.txt"))) {
       summary_virulence <- read.delim(
-        file.path(amr_profile_path, "summary_virulence.txt"), 
-        stringsAsFactors = FALSE) %>%
+        file.path(amr_profile_path, "summary_virulence.txt"),
+        stringsAsFactors = FALSE
+      ) %>%
         select(-1)
-      
+
       # Process each column
       for (col in colnames(summary_virulence)) {
         if (nrow(summary_virulence) > 0) {
           # Ensure the column exists in previous data frames
           if (length(vir_df) > 0 && col %in% colnames(vir_df[[1]])) {
-            
             # Extract previous data frame
             prev_df <- vir_df[[length(vir_df)]]
-            
+
             if (col %in% colnames(prev_df)) {
-              
               # Combine the current and previous columns for the specific column
               combined_col <- unique(
-                c(stringr::str_split(prev_df[[col]], ",")[[1]], 
-                  stringr::str_split(summary_virulence[[col]], ",")[[1]]))
-              
+                c(
+                  stringr::str_split(prev_df[[col]], ",")[[1]],
+                  stringr::str_split(summary_virulence[[col]], ",")[[1]]
+                )
+              )
+
               # Update the column in previous data frame with combined values
               prev_df[[col]] <- paste(combined_col, collapse = ",")
             }
-            
+
             # Update the last data frame in the list
             vir_df[[length(vir_df)]] <- prev_df
-            
           } else {
             # If column is new add it to the previous data frame if it exists
             if (length(vir_df) > 0) {
@@ -1755,83 +2160,95 @@ summarize.AMR <- function(database, scheme) {
           }
         }
       }
-      
+
       # Add the current data frame to the list
       vir_df[[length(vir_df) + 1]] <- summary_virulence
     }
   }
-  
+
   # collate amr data frames
   final_df_amr <- dplyr::bind_rows(amr_df, .id = "source")
-  
+
   if (ncol(final_df_amr) > 1) {
     amr_class_conc <- final_df_amr %>%
-      summarise(across(everything(), ~ {
-        unique_values <- unique(unlist(stringr::str_split(na.omit(.), ",")))
-        paste(unique_values, collapse = ",")
-      })) %>%
+      summarise(across(
+        everything(),
+        ~ {
+          unique_values <- unique(unlist(stringr::str_split(na.omit(.), ",")))
+          paste(unique_values, collapse = ",")
+        }
+      )) %>%
       select(-1)
-    
+
     amr_class_long <- amr_class_conc %>%
-      tidyr::pivot_longer(cols = everything(), 
-                          names_to = "Variable", 
-                          values_to = "Observation")
-    
+      tidyr::pivot_longer(
+        cols = everything(),
+        names_to = "Variable",
+        values_to = "Observation"
+      )
+
     amr_class_pre <- amr_class_long %>%
       tidyr::separate_rows(Observation, sep = ",")
-    
+
     amr_class <- as.data.frame(lapply(amr_class_pre, function(column) {
-      sapply(column, process_string)  
+      sapply(column, process_string)
     }))
-    
+
     amr_class <- as.data.frame(lapply(amr_class_pre, function(column) {
-      sapply(column, process_string)}))
+      sapply(column, process_string)
+    }))
   } else {
     amr_class <- data.frame()
   }
-  
+
   # collate virulence data frames
   final_df_vir <- dplyr::bind_rows(vir_df, .id = "source")
-  
+
   if (ncol(final_df_vir) > 1) {
     vir_class_conc <- final_df_vir %>%
-      summarise(across(everything(), ~ {
-        unique_values <- unique(unlist(stringr::str_split(na.omit(.), ",")))
-        paste(unique_values, collapse = ",")
-      })) %>%
+      summarise(across(
+        everything(),
+        ~ {
+          unique_values <- unique(unlist(stringr::str_split(na.omit(.), ",")))
+          paste(unique_values, collapse = ",")
+        }
+      )) %>%
       select(-1)
-    
+
     vir_class_long <- vir_class_conc %>%
-      tidyr::pivot_longer(cols = everything(), 
-                          names_to = "Variable", 
-                          values_to = "Observation")
-    
+      tidyr::pivot_longer(
+        cols = everything(),
+        names_to = "Variable",
+        values_to = "Observation"
+      )
+
     vir_class <- vir_class_long %>%
       tidyr::separate_rows(Observation, sep = ",")
   } else {
     vir_class <- data.frame()
   }
-    
+
   # collate results
   df <- matrix(FALSE, nrow = length(isolates), ncol = length(loci))
   colnames(df) <- loci
   rownames(df) <- isolates
-  
-  for(i in seq_along(amr_profile)) {
+
+  for (i in seq_along(amr_profile)) {
     df[i, loci %in% amr_profile[[i]]] <- TRUE
   }
-  
-  return(list(results = as.data.frame(df),
-              AMR_classification = amr_class,
-              virulence_classification = vir_class))
+
+  return(list(
+    results = as.data.frame(df),
+    AMR_classification = amr_class,
+    virulence_classification = vir_class
+  ))
 }
 
 # function to categorize genes by classes
 categorize.gs <- function(names, df) {
-  
   value_amr <- df$amr[which(names == rownames(test))]
   value_vir <- df$vir[which(names == rownames(test))]
-  
+
   if (!is.na(value_amr) && value_amr != "") {
     return("AMR")
   } else if (!is.na(value_vir) && value_vir != "") {
@@ -1842,27 +2259,30 @@ categorize.gs <- function(names, df) {
 }
 
 # Create a function to get color and symbol based on the category
-get_annotation_params <- function(category_index, num_categories, 
-                                  color_palette) {
+get_annotation_params <- function(
+  category_index,
+  num_categories,
+  color_palette
+) {
   # Define color palettes and symbols
-  symbol_set <- c(16, 17, 18, 19, 20, 21, 22, 23, 24, 25)  # First symbols set
-  
+  symbol_set <- c(16, 17, 18, 19, 20, 21, 22, 23, 24, 25) # First symbols set
+
   # Determine the set based on the category index
   set_index <- (category_index - 1) %/% 10 + 1
-  
+
   # Calculate the index within the set
   symbol_index <- (category_index - 1) %% 10 + 1
   color_index <- (category_index - 1) %% length(color_palette) + 1
-  
+
   # Return the symbol and color
   list(symbol = symbol_set[symbol_index], color = color_palette[color_index])
 }
 
 # function to get gene screening classification meta
 get.gsMeta <- function(gene_class, hm_matrix) {
-  
-  class_filtered <- gene_class[!duplicated(gsub("\\*", "", 
-                                                gene_class$Observation)),]
+  class_filtered <- gene_class[
+    !duplicated(gsub("\\*", "", gene_class$Observation)),
+  ]
   clean_gene_name <- gsub("\\*", "", class_filtered$Observation)
   unison <- colnames(hm_matrix) %in% clean_gene_name
 
@@ -1870,9 +2290,10 @@ get.gsMeta <- function(gene_class, hm_matrix) {
   no_class <- colnames(hm_matrix)[!unison]
 
   classes <- character()
-  for(i in 1:length(class_present)) {
+  for (i in 1:length(class_present)) {
     classes[i] <- class_filtered$Variable[which(
-      class_present[i] == clean_gene_name)]
+      class_present[i] == clean_gene_name
+    )]
   }
 
   meta <- data.frame(
@@ -1880,7 +2301,7 @@ get.gsMeta <- function(gene_class, hm_matrix) {
     class = c(classes, rep(NA, length(no_class)))
   )
 
-  if(nrow(meta) != 0) {
+  if (nrow(meta) != 0) {
     meta <- meta %>%
       arrange(gene) %>%
       tibble::column_to_rownames(var = "gene")
@@ -2246,3 +2667,105 @@ color_scale_bg_JS <- "var selectedOption = $('#col_scale_id').val();
       'color': 'black'
       })
     }"
+
+# Get r package environment information
+component_table <- function(export = FALSE, output = getwd()) {
+  # Get required pkgs
+  if (!require("renv")) {
+    install.packages("renv")
+  } else {
+    renv::deactivate()
+  }
+
+  # Read lockfile
+  lock <- renv::lockfile_read()
+
+  # Initiate package metadata data frame
+  pkg_df <- data.frame(
+    Package = character(),
+    Version = character(),
+    Source = character(),
+    Type = character(),
+    Title = character(),
+    License = character(),
+    URL = character(),
+    Author = character(),
+    Maintainer = character(),
+    Repository = character(),
+    row.names = NULL
+  )
+
+  # Fill package metadata data frame
+  for (pkg in seq_along(names(lock$Packages))) {
+    Package <- unlist(lock$Packages[[pkg]]["Package"])
+    if(is.null(Package)) {
+      Package <- ""
+    }
+
+    Version <- unlist(lock$Packages[[pkg]]["Version"])
+    if(is.null(Version)) {
+      Version <- ""
+    }
+
+    Source <- unlist(lock$Packages[[pkg]]["Source"])
+    if(is.null(Source)) {
+      Source <- ""
+    }
+    
+    Type <- unlist(lock$Packages[[pkg]]["Type"])
+    if(is.null(Type)) {
+      Type <- ""
+    }
+    
+    Title <- unlist(lock$Packages[[pkg]]["Title"])
+    if(is.null(Title)) {
+      Title <- ""
+    }
+
+    License <- unlist(lock$Packages[[pkg]]["License"])
+    if(is.null(License)) {
+      License <- ""
+    }
+
+    URL <- unlist(lock$Packages[[pkg]]["URL"])
+    if(is.null(URL)) {
+      URL <- ""
+    }
+    
+    Author <- unlist(lock$Packages[[pkg]]["Author"])
+    if(is.null(Author)) {
+      Author <- ""
+    }
+    
+    Maintainer <- unlist(lock$Packages[[pkg]]["Maintainer"])
+    if(is.null(Maintainer)) {
+      Maintainer <- ""
+    }
+    
+    Repository <- unlist(lock$Packages[[pkg]]["Repository"])
+    if(is.null(Repository)) {
+      Repository <- ""
+    }
+
+    new_entry <- data.frame(
+      Package,
+      Version,
+      Source,
+      Type,
+      Title,
+      License,
+      URL,
+      Author,
+      Maintainer,
+      Repository
+    )
+
+    pkg_df <- rbind(pkg_df, new_entry, make.row.names = F)
+  }
+
+  if (export) {
+    write.csv(pkg_df, file.path(output, "r_packages.csv"), col.names = FALSE)
+  }
+
+  return(pkg_df)
+}
